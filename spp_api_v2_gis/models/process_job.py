@@ -86,6 +86,11 @@ class GisProcessJob(models.Model):
         For batch spatial-statistics requests, progress is updated per geometry.
         """
         self.ensure_one()
+        # The job worker runs as the user_id stored on queue.job, which may
+        # lack write ACLs on this model. Escalate to superuser for the
+        # duration of this background task.
+        # nosemgrep: odoo-sudo-without-context
+        self = self.sudo()
 
         self.write(
             {
@@ -97,18 +102,16 @@ class GisProcessJob(models.Model):
         try:
             # Lazy imports to avoid circular imports
             from ..services.process_execution import run_proximity_statistics, run_spatial_statistics
+            from ..services.process_registry import PROXIMITY_STATISTICS, SPATIAL_STATISTICS
             from ..services.spatial_query_service import SpatialQueryService
 
             service = SpatialQueryService(self.env)
             inputs = self.inputs or {}
 
-            if self.process_id == "spatial-statistics":
-                geometry = inputs.get("geometry")
-                if isinstance(geometry, list) and len(geometry) > 1:
-                    results = self._execute_batch_with_progress(service, inputs)
-                else:
-                    results = run_spatial_statistics(service, inputs)
-            elif self.process_id == "proximity-statistics":
+            if self.process_id == SPATIAL_STATISTICS:
+                on_progress = self._make_batch_progress_callback(inputs)
+                results = run_spatial_statistics(service, inputs, on_progress=on_progress)
+            elif self.process_id == PROXIMITY_STATISTICS:
                 results = run_proximity_statistics(service, inputs)
             else:
                 raise ValueError(f"Unknown process_id: {self.process_id!r}")
@@ -132,28 +135,26 @@ class GisProcessJob(models.Model):
                 }
             )
 
-    def _execute_batch_with_progress(self, service, inputs):
-        """Execute batch spatial-statistics with per-geometry progress updates.
+    def _make_batch_progress_callback(self, inputs):
+        """Return a progress callback for batch execution, or None for non-batch.
 
-        Calls the service's batch method with a progress callback so that
-        the job record is updated after each geometry is processed.
+        The callback throttles DB writes: it only writes when the integer
+        percentage changes, avoiding up to 100 redundant ORM writes.
         """
-        geometry = inputs["geometry"]
-        geometries = [{"id": g["id"], "geometry": g["value"]} for g in geometry]
-        total = len(geometries)
+        geometry = inputs.get("geometry")
+        if not isinstance(geometry, list):
+            return None
+
+        total = len(geometry)
+        last_pct = [0]  # mutable container for closure
 
         def on_progress(completed):
-            self.write({"progress": int(completed / total * 100)})
+            pct = int(completed / total * 100)
+            if pct != last_pct[0]:
+                last_pct[0] = pct
+                self.write({"progress": pct})
 
-        result = service.query_statistics_batch(
-            geometries=geometries,
-            filters=inputs.get("filters"),
-            variables=inputs.get("variables"),
-            on_progress=on_progress,
-        )
-        for item in result.get("results", []):
-            item.pop("registrant_ids", None)
-        return result
+        return on_progress
 
     @api.model
     def cron_cleanup_jobs(self):

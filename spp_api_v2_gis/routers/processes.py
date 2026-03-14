@@ -28,13 +28,14 @@ from ..schemas.processes import (
 )
 from ..services.process_execution import run_proximity_statistics, run_spatial_statistics
 from ..services.process_registry import (
+    MAX_BATCH_GEOMETRIES,
     PROXIMITY_STATISTICS,
     SPATIAL_STATISTICS,
     VALID_PROCESS_IDS,
     ProcessRegistry,
 )
 from ..services.spatial_query_service import SpatialQueryService
-from ._helpers import build_status_info, check_gis_scope, get_base_url
+from ._helpers import RETRY_AFTER_SECONDS, build_status_info, check_gis_scope, get_base_url
 
 _logger = logging.getLogger(__name__)
 
@@ -42,7 +43,6 @@ processes_router = APIRouter(tags=["GIS - OGC API Processes"], prefix="/gis/ogc"
 
 # Maximum geometries allowed in a sync request before forcing async
 _DEFAULT_FORCED_ASYNC_THRESHOLD = 10
-_MAX_GEOMETRIES = 100
 
 
 @processes_router.get(
@@ -169,10 +169,10 @@ def _validate_spatial_statistics_inputs(inputs):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="'geometry' array must not be empty",
             )
-        if len(geometry) > _MAX_GEOMETRIES:
+        if len(geometry) > MAX_BATCH_GEOMETRIES:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Maximum {_MAX_GEOMETRIES} geometries allowed per request",
+                detail=f"Maximum {MAX_BATCH_GEOMETRIES} geometries allowed per request",
             )
         # Validate each item has {id, value} wrapper
         for i, item in enumerate(geometry):
@@ -294,6 +294,6 @@ def _execute_async(env, api_client, process_id, inputs, request):
         media_type="application/json",
         headers={
             "Location": f"{base_url}/gis/ogc/jobs/{job_id}",
-            "Retry-After": "5",
+            "Retry-After": RETRY_AFTER_SECONDS,
         },
     )

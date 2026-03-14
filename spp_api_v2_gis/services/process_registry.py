@@ -15,6 +15,9 @@ PROXIMITY_STATISTICS = "proximity-statistics"
 
 VALID_PROCESS_IDS = {SPATIAL_STATISTICS, PROXIMITY_STATISTICS}
 
+# Maximum geometries allowed per batch request
+MAX_BATCH_GEOMETRIES = 100
+
 
 class ProcessRegistry:
     """Registry of available OGC processes.
@@ -140,16 +143,17 @@ class ProcessRegistry:
             ),
             "version": "1.0.0",
             "jobControlOptions": ["sync-execute", "async-execute", "dismiss"],
-            "x-openspp-batch-limit": 100,
+            "x-openspp-batch-limit": MAX_BATCH_GEOMETRIES,
             "inputs": {
                 "geometry": {
                     "title": "Query Geometry",
                     "description": (
-                        "GeoJSON Polygon or MultiPolygon. Provide one for a single query, "
-                        "or an array of {id, value} objects for batch processing. Maximum 100 geometries."
+                        f"GeoJSON Polygon or MultiPolygon. Provide one for a single query, "
+                        f"or an array of {{id, value}} objects for batch processing. "
+                        f"Maximum {MAX_BATCH_GEOMETRIES} geometries."
                     ),
                     "minOccurs": 1,
-                    "maxOccurs": 100,
+                    "maxOccurs": MAX_BATCH_GEOMETRIES,
                     "schema": {
                         "oneOf": [
                             {"format": "geojson-geometry"},

@@ -17,10 +17,10 @@ from odoo.exceptions import UserError
 from odoo.addons.fastapi.dependencies import odoo_env
 from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, status
 
 from ..schemas.processes import JobList, StatusInfo
-from ._helpers import build_status_info, check_gis_scope, get_base_url
+from ._helpers import RETRY_AFTER_SECONDS, build_status_info, build_status_response, check_gis_scope, get_base_url
 
 _logger = logging.getLogger(__name__)
 
@@ -107,12 +107,7 @@ async def get_job_status(
 
     # Add Retry-After header for in-progress jobs to guide client polling
     if job.status in ("accepted", "running"):
-        return Response(
-            content=status_info.model_dump_json(by_alias=True, exclude_none=True),
-            status_code=200,
-            media_type="application/json",
-            headers={"Retry-After": "5"},
-        )
+        return build_status_response(status_info, extra_headers={"Retry-After": RETRY_AFTER_SECONDS})
 
     return status_info
 

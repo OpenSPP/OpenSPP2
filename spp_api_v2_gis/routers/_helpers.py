@@ -1,9 +1,12 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Shared helpers for GIS OGC API routers."""
 
-from fastapi import HTTPException, Request, status
+from fastapi import HTTPException, Request, Response, status
 
 from ..schemas.processes import StatusInfo
+
+# Suggested polling interval for async job status (seconds)
+RETRY_AFTER_SECONDS = "5"
 
 
 def check_gis_scope(api_client):
@@ -48,4 +51,20 @@ def build_status_info(job, base_url=""):
         updated=job.write_date.isoformat() if job.write_date else None,
         progress=job.progress,
         links=links,
+    )
+
+
+def build_status_response(status_info, status_code=200, extra_headers=None):
+    """Build a JSON Response from a StatusInfo, with optional extra headers.
+
+    Used when headers like Retry-After need to be set alongside the JSON body.
+    """
+    headers = {}
+    if extra_headers:
+        headers.update(extra_headers)
+    return Response(
+        content=status_info.model_dump_json(by_alias=True, exclude_none=True),
+        status_code=status_code,
+        media_type="application/json",
+        headers=headers or None,
     )

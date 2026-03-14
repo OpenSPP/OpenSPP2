@@ -2,12 +2,13 @@
 """Process execution logic shared between sync (router) and async (model) paths."""
 
 
-def run_spatial_statistics(service, inputs):
+def run_spatial_statistics(service, inputs, on_progress=None):
     """Run spatial-statistics process and return results.
 
     Args:
         service: SpatialQueryService instance
         inputs: Validated process inputs dict
+        on_progress: Optional callback(completed_count) for batch progress tracking
 
     Returns:
         dict: Statistics results (registrant_ids stripped)
@@ -23,6 +24,7 @@ def run_spatial_statistics(service, inputs):
             geometries=geometries,
             filters=filters,
             variables=variables,
+            on_progress=on_progress,
         )
         for item in result.get("results", []):
             item.pop("registrant_ids", None)
