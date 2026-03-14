@@ -689,7 +689,7 @@ def cmd_restart(args):
         sys.exit(1)
 
     print(f"Restarting {service}...")
-    run(docker_compose("restart", service, profile=profile))
+    run(docker_compose("restart", service, "queue-worker", profile=profile))
     print("Done.")
 
     _show_url()
