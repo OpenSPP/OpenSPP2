@@ -39,7 +39,9 @@ class ProcessRegistry:
             {
                 "id": PROXIMITY_STATISTICS,
                 "title": "Proximity Statistics",
-                "description": "Compute aggregate registrant statistics within or beyond a given radius from reference points.",
+                "description": (
+                    "Compute aggregate registrant statistics within or beyond a given radius from reference points."
+                ),
                 "version": "1.0.0",
                 "jobControlOptions": ["sync-execute", "async-execute", "dismiss"],
             },
@@ -81,20 +83,24 @@ class ProcessRegistry:
             for stat in stat_records:
                 config = stat.get_context_config("gis")
                 variable_names.append(stat.name)
-                stat_items.append({
-                    "name": stat.name,
-                    "label": config.get("label", stat.label),
-                    "description": stat.description,
-                    "format": config.get("format", stat.format),
-                    "unit": stat.unit,
-                })
+                stat_items.append(
+                    {
+                        "name": stat.name,
+                        "label": config.get("label", stat.label),
+                        "description": stat.description,
+                        "format": config.get("format", stat.format),
+                        "unit": stat.unit,
+                    }
+                )
 
-            categories.append({
-                "code": category_code,
-                "name": category_record.name if category_record else category_code.replace("_", " ").title(),
-                "icon": getattr(category_record, "icon", None) if category_record else None,
-                "statistics": stat_items,
-            })
+            categories.append(
+                {
+                    "code": category_code,
+                    "name": category_record.name if category_record else category_code.replace("_", " ").title(),
+                    "icon": getattr(category_record, "icon", None) if category_record else None,
+                    "statistics": stat_items,
+                }
+            )
 
         return variable_names, categories
 

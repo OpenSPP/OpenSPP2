@@ -1,5 +1,9 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
-"""Statistics discovery API endpoint."""
+"""Statistics discovery API endpoint.
+
+Delegates to the ProcessRegistry for statistics metadata,
+keeping this endpoint as a convenience alias.
+"""
 
 import logging
 from typing import Annotated
@@ -16,6 +20,7 @@ from ..schemas.statistics import (
     StatisticInfo,
     StatisticsListResponse,
 )
+from ..services.process_registry import ProcessRegistry
 
 _logger = logging.getLogger(__name__)
 
@@ -35,7 +40,8 @@ async def list_statistics(
     """List all GIS-published statistics grouped by category.
 
     Used by the QGIS plugin to discover what statistics are available
-    for spatial queries and map visualization.
+    for spatial queries and map visualization. Delegates to the
+    ProcessRegistry for consistent metadata.
     """
     # Check read scope
     if not (api_client.has_scope("gis", "read") or api_client.has_scope("statistics", "read")):
@@ -45,35 +51,29 @@ async def list_statistics(
         )
 
     try:
-        # nosemgrep: odoo-sudo-without-context
-        Statistic = env["spp.statistic"].sudo()
-        stats_by_category = Statistic.get_published_by_category("gis")
+        registry = ProcessRegistry(env)
+        _variable_names, categories_data = registry.get_statistics_metadata()
 
         categories = []
         total_count = 0
 
-        for category_code, stat_records in stats_by_category.items():
-            # Get category metadata
-            category_record = stat_records[0].category_id if stat_records else None
-
-            stat_items = []
-            for stat in stat_records:
-                config = stat.get_context_config("gis")
-                stat_items.append(
-                    StatisticInfo(
-                        name=stat.name,
-                        label=config.get("label", stat.label),
-                        description=stat.description,
-                        format=config.get("format", stat.format),
-                        unit=stat.unit,
-                    )
+        for cat in categories_data:
+            stat_items = [
+                StatisticInfo(
+                    name=s["name"],
+                    label=s["label"],
+                    description=s.get("description"),
+                    format=s["format"],
+                    unit=s.get("unit"),
                 )
+                for s in cat["statistics"]
+            ]
 
             categories.append(
                 StatisticCategoryInfo(
-                    code=category_code,
-                    name=category_record.name if category_record else category_code.replace("_", " ").title(),
-                    icon=getattr(category_record, "icon", None) if category_record else None,
+                    code=cat["code"],
+                    name=cat["name"],
+                    icon=cat.get("icon"),
                     statistics=stat_items,
                 )
             )

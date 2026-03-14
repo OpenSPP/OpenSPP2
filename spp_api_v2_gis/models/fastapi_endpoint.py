@@ -21,7 +21,9 @@ class SppApiV2GisEndpoint(models.Model):
         if self.app == "api_v2":
             from ..routers.export import export_router
             from ..routers.geofence import geofence_router
+            from ..routers.jobs import jobs_router
             from ..routers.ogc_features import ogc_features_router
+            from ..routers.processes import processes_router
             from ..routers.proximity import proximity_router
             from ..routers.spatial_query import spatial_query_router
             from ..routers.statistics import statistics_router
@@ -29,6 +31,8 @@ class SppApiV2GisEndpoint(models.Model):
             routers.extend(
                 [
                     ogc_features_router,
+                    processes_router,
+                    jobs_router,
                     export_router,
                     geofence_router,
                     proximity_router,

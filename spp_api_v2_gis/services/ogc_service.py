@@ -15,11 +15,18 @@ from .layers_service import LayersService
 
 _logger = logging.getLogger(__name__)
 
-# OGC API - Features conformance classes
+# OGC API conformance classes (Features + Processes per OGC API Common Part 2)
 CONFORMANCE_CLASSES = [
+    # OGC API - Features
     "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core",
     "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30",
     "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson",
+    # OGC API - Processes
+    "http://www.opengis.net/spec/ogcapi-processes-1/1.0/conf/core",
+    "http://www.opengis.net/spec/ogcapi-processes-1/1.0/conf/ogc-process-description",
+    "http://www.opengis.net/spec/ogcapi-processes-1/1.0/conf/json",
+    "http://www.opengis.net/spec/ogcapi-processes-1/1.0/conf/job-list",
+    "http://www.opengis.net/spec/ogcapi-processes-1/1.0/conf/dismiss",
 ]
 
 
@@ -74,6 +81,12 @@ class OGCService:
                     "rel": "data",
                     "type": "application/json",
                     "title": "Feature collections",
+                },
+                {
+                    "href": f"{ogc_base}/processes",
+                    "rel": "http://www.opengis.net/def/rel/ogc/1.0/processes",
+                    "type": "application/json",
+                    "title": "Processes",
                 },
                 {
                     "href": f"{self.base_url}/openapi.json",
