@@ -35,7 +35,6 @@ class TestProcessRegistry(TransactionCase):
                 {
                     "name": "Test Process Category",
                     "code": "test_proc_category",
-                    "icon": "fa-cog",
                     "sequence": 50,
                 }
             )
@@ -142,7 +141,6 @@ class TestProcessRegistry(TransactionCase):
         test_cats = [c for c in categories if c["code"] == "test_proc_category"]
         self.assertEqual(len(test_cats), 1)
         self.assertEqual(test_cats[0]["name"], "Test Process Category")
-        self.assertEqual(test_cats[0]["icon"], "fa-cog")
 
         # Category should contain our indicator
         stat_names = [s["name"] for s in test_cats[0]["statistics"]]
@@ -534,13 +532,7 @@ class TestOGCProcessesHTTP(ApiV2HttpTestCase):
         Category = cls.env["spp.metric.category"]
         cls.test_category = Category.search([("code", "=", "http_proc_cat")], limit=1)
         if not cls.test_category:
-            cls.test_category = Category.create(
-                {
-                    "name": "HTTP Proc Category",
-                    "code": "http_proc_cat",
-                    "sequence": 60,
-                }
-            )
+            cls.test_category = Category.create({"name": "HTTP Proc Category", "code": "http_proc_cat", "sequence": 60})
 
         cls.cel_variable = cls.env["spp.cel.variable"].create(
             {

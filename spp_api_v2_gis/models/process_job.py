@@ -67,11 +67,7 @@ class GisProcessJob(models.Model):
                 }
             )
         elif self.status == "running":
-            raise UserError(
-                _(
-                    "Cannot dismiss a running job. Wait for it to finish or check back later."
-                )
-            )
+            raise UserError(_("Cannot dismiss a running job. Wait for it to finish or check back later."))
         else:
             # Terminal statuses: successful, failed, dismissed
             self.unlink()
@@ -190,13 +186,9 @@ class GisProcessJob(models.Model):
         - Marks stale accepted/running jobs (older than 1 hour) as failed.
         """
         IrConfig = self.env["ir.config_parameter"].sudo()
-        retention_days = int(
-            IrConfig.get_param("spp_gis.job_retention_days", default=7)
-        )
+        retention_days = int(IrConfig.get_param("spp_gis.job_retention_days", default=7))
 
-        cutoff_date = fields.Datetime.subtract(
-            fields.Datetime.now(), days=retention_days
-        )
+        cutoff_date = fields.Datetime.subtract(fields.Datetime.now(), days=retention_days)
         stale_cutoff = fields.Datetime.subtract(fields.Datetime.now(), hours=1)
 
         # Mark stale in-progress jobs as failed first (before deletion cutoff)
@@ -207,9 +199,7 @@ class GisProcessJob(models.Model):
             ]
         )
         if stale_jobs:
-            _logger.info(
-                "Marking %d stale GIS process jobs as failed", len(stale_jobs)
-            )
+            _logger.info("Marking %d stale GIS process jobs as failed", len(stale_jobs))
             stale_jobs.write(
                 {
                     "status": "failed",
