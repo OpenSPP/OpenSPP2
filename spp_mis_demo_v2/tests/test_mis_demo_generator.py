@@ -509,7 +509,7 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
             self.assertEqual(
                 member_count,
                 expected_count,
-                f"Household '{story_name}' should have {expected_count} members, " f"but has {member_count}",
+                f"Household '{story_name}' should have {expected_count} members, but has {member_count}",
             )
 
     def test_chen_family_has_all_members(self):

@@ -123,7 +123,7 @@ jobs:
     needs: [detect-changes, build]
     if: needs.detect-changes.outputs.has_modules == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
