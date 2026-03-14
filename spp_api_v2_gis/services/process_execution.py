@@ -1,6 +1,10 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Process execution logic shared between sync (router) and async (model) paths."""
 
+import logging
+
+_logger = logging.getLogger(__name__)
+
 
 def run_spatial_statistics(service, inputs, on_progress=None):
     """Run spatial-statistics process and return results.
@@ -16,6 +20,13 @@ def run_spatial_statistics(service, inputs, on_progress=None):
     geometry = inputs.get("geometry")
     filters = inputs.get("filters")
     variables = inputs.get("variables")
+
+    _logger.info(
+        "run_spatial_statistics: variables=%r, filters=%r, geometry_type=%s",
+        variables,
+        filters,
+        type(geometry).__name__,
+    )
 
     if isinstance(geometry, list):
         # Batch mode: geometry is a list of {id, value} dicts

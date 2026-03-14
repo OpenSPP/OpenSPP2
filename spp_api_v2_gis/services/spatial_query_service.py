@@ -370,6 +370,12 @@ class SpatialQueryService:
             Statistic = self.env["spp.statistic"].sudo()
             gis_stats = Statistic.get_published_for_context("gis")
             statistics_to_compute = [stat.name for stat in gis_stats] if gis_stats else None
+            _logger.info(
+                "No variables requested, falling back to GIS-published: %r",
+                statistics_to_compute,
+            )
+        else:
+            _logger.info("Computing requested variables: %r", statistics_to_compute)
 
         if not statistics_to_compute:
             return {
