@@ -82,6 +82,8 @@ class GisProcessJob(models.Model):
         This method is called by the job worker. It runs the appropriate
         SpatialQueryService method based on process_id, stores the results,
         and updates the job status accordingly.
+
+        For batch spatial-statistics requests, progress is updated per geometry.
         """
         self.ensure_one()
 
@@ -101,7 +103,11 @@ class GisProcessJob(models.Model):
             inputs = self.inputs or {}
 
             if self.process_id == "spatial-statistics":
-                results = run_spatial_statistics(service, inputs)
+                geometry = inputs.get("geometry")
+                if isinstance(geometry, list) and len(geometry) > 1:
+                    results = self._execute_batch_with_progress(service, inputs)
+                else:
+                    results = run_spatial_statistics(service, inputs)
             elif self.process_id == "proximity-statistics":
                 results = run_proximity_statistics(service, inputs)
             else:
@@ -111,6 +117,7 @@ class GisProcessJob(models.Model):
                 {
                     "status": "successful",
                     "finished_at": fields.Datetime.now(),
+                    "progress": 100,
                     "results": results,
                 }
             )
@@ -124,6 +131,29 @@ class GisProcessJob(models.Model):
                     "message": "Process execution failed. Check server logs for details.",
                 }
             )
+
+    def _execute_batch_with_progress(self, service, inputs):
+        """Execute batch spatial-statistics with per-geometry progress updates.
+
+        Calls the service's batch method with a progress callback so that
+        the job record is updated after each geometry is processed.
+        """
+        geometry = inputs["geometry"]
+        geometries = [{"id": g["id"], "geometry": g["value"]} for g in geometry]
+        total = len(geometries)
+
+        def on_progress(completed):
+            self.write({"progress": int(completed / total * 100)})
+
+        result = service.query_statistics_batch(
+            geometries=geometries,
+            filters=inputs.get("filters"),
+            variables=inputs.get("variables"),
+            on_progress=on_progress,
+        )
+        for item in result.get("results", []):
+            item.pop("registrant_ids", None)
+        return result
 
     @api.model
     def cron_cleanup_jobs(self):

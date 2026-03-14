@@ -294,5 +294,6 @@ def _execute_async(env, api_client, process_id, inputs, request):
         media_type="application/json",
         headers={
             "Location": f"{base_url}/gis/ogc/jobs/{job_id}",
+            "Retry-After": "5",
         },
     )

@@ -3,6 +3,7 @@
 
 import json
 import logging
+from datetime import UTC, datetime
 
 from odoo.addons.spp_aggregation.services import build_explicit_scope
 
@@ -30,7 +31,7 @@ class SpatialQueryService:
         """
         self.env = env
 
-    def query_statistics_batch(self, geometries, filters=None, variables=None):
+    def query_statistics_batch(self, geometries, filters=None, variables=None, on_progress=None):
         """Execute spatial query for multiple geometries.
 
         Queries each geometry individually and computes an aggregate summary.
@@ -39,6 +40,7 @@ class SpatialQueryService:
             geometries: List of dicts with 'id' and 'geometry' keys
             filters: Additional filters for registrants (dict)
             variables: List of statistic names to compute
+            on_progress: Optional callback(completed_count) called after each geometry
 
         Returns:
             dict: Batch results with per-geometry results and summary
@@ -47,6 +49,7 @@ class SpatialQueryService:
         """
         results = []
         all_registrant_ids = set()
+        geometries_failed = 0
 
         for item in geometries:
             geometry_id = item["id"]
@@ -76,6 +79,7 @@ class SpatialQueryService:
                 )
             except Exception as e:
                 _logger.warning("Batch query failed for geometry '%s': %s", geometry_id, e)
+                geometries_failed += 1
                 results.append(
                     {
                         "id": geometry_id,
@@ -89,6 +93,9 @@ class SpatialQueryService:
                     }
                 )
 
+            if on_progress:
+                on_progress(len(results))
+
         # Compute summary by aggregating unique registrants with metadata
         summary_stats_with_metadata = {"statistics": {}}
         if all_registrant_ids:
@@ -97,6 +104,7 @@ class SpatialQueryService:
         summary = {
             "total_count": len(all_registrant_ids),
             "geometries_queried": len(geometries),
+            "geometries_failed": geometries_failed,
             "statistics": summary_stats_with_metadata.get("statistics", {}),
             "access_level": summary_stats_with_metadata.get("access_level"),
             "from_cache": summary_stats_with_metadata.get("from_cache", False),
@@ -327,7 +335,7 @@ class SpatialQueryService:
                 "statistics": self._get_empty_statistics(),
                 "access_level": None,
                 "from_cache": False,
-                "computed_at": None,
+                "computed_at": datetime.now(UTC).isoformat(),
             }
 
         if "spp.aggregation.service" not in self.env:
@@ -368,7 +376,7 @@ class SpatialQueryService:
                 "statistics": {},
                 "access_level": None,
                 "from_cache": False,
-                "computed_at": None,
+                "computed_at": datetime.now(UTC).isoformat(),
             }
 
         # Call AggregationService (no sudo - let service determine access level from calling user)

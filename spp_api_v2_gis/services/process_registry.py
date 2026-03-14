@@ -140,6 +140,7 @@ class ProcessRegistry:
             ),
             "version": "1.0.0",
             "jobControlOptions": ["sync-execute", "async-execute", "dismiss"],
+            "x-openspp-batch-limit": 100,
             "inputs": {
                 "geometry": {
                     "title": "Query Geometry",
