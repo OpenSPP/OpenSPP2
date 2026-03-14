@@ -168,6 +168,37 @@ services:
     networks:
       - openspp
 
+  # Queue Worker - Background job processing (job_worker)
+  # Processes async jobs enqueued via with_delay().
+  # Runs in dev and ui profiles alongside the Odoo server.
+  queue-worker:
+    image: openspp-dev
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: dev
+    profiles:
+      - dev
+      - ui
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_USER: odoo
+      DB_PASSWORD: odoo
+      DB_NAME: ${ODOO_DB_NAME:-openspp}
+      ODOO_ADMIN_PASSWD: admin
+      LOG_LEVEL: info
+    command: ["python", "/mnt/extra-addons/odoo-job-worker/job_worker_runner.py", "-c", "/etc/odoo/odoo.conf"]
+    volumes:
+      - .:/mnt/extra-addons/openspp:ro,z
+      - odoo_data:/var/lib/odoo
+    restart: unless-stopped
+    networks:
+      - openspp
+
   # Unit Test Runner - one-off container for running module tests
   # Usage: docker compose run --rm test <module_name> [options]
   # Note: Uses same image as odoo/odoo-dev - build any of them to update
