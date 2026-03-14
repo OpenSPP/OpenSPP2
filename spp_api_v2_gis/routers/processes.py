@@ -25,10 +25,16 @@ from ..schemas.processes import (
     ProcessDescription,
     ProcessList,
     ProcessSummary,
-    StatusInfo,
 )
-from ..services.process_registry import VALID_PROCESS_IDS, ProcessRegistry
+from ..services.process_execution import run_proximity_statistics, run_spatial_statistics
+from ..services.process_registry import (
+    PROXIMITY_STATISTICS,
+    SPATIAL_STATISTICS,
+    VALID_PROCESS_IDS,
+    ProcessRegistry,
+)
 from ..services.spatial_query_service import SpatialQueryService
+from ._helpers import build_status_info, check_gis_scope, get_base_url
 
 _logger = logging.getLogger(__name__)
 
@@ -37,47 +43,6 @@ processes_router = APIRouter(tags=["GIS - OGC API Processes"], prefix="/gis/ogc"
 # Maximum geometries allowed in a sync request before forcing async
 _DEFAULT_FORCED_ASYNC_THRESHOLD = 10
 _MAX_GEOMETRIES = 100
-
-
-def _check_gis_scope(api_client):
-    """Verify client has gis:read or statistics:read scope."""
-    if not (api_client.has_scope("gis", "read") or api_client.has_scope("statistics", "read")):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Client does not have gis:read or statistics:read scope",
-        )
-
-
-def _get_base_url(request: Request) -> str:
-    """Extract base URL for self-referencing links."""
-    url = str(request.base_url).rstrip("/")
-    return f"{url}/api/v2/spp"
-
-
-def _build_status_info(job, base_url=""):
-    """Build a StatusInfo dict from a spp.gis.process.job record."""
-    links = []
-    ogc_base = f"{base_url}/gis/ogc" if base_url else ""
-
-    if ogc_base:
-        links.append({"href": f"{ogc_base}/jobs/{job.job_id}", "rel": "self", "type": "application/json"})
-        if job.status == "successful":
-            links.append(
-                {"href": f"{ogc_base}/jobs/{job.job_id}/results", "rel": "results", "type": "application/json"}
-            )
-
-    return StatusInfo(
-        jobID=job.job_id,
-        processID=job.process_id,
-        status=job.status,
-        message=job.message or None,
-        created=job.create_date.isoformat() if job.create_date else None,
-        started=job.started_at.isoformat() if job.started_at else None,
-        finished=job.finished_at.isoformat() if job.finished_at else None,
-        updated=job.write_date.isoformat() if job.write_date else None,
-        progress=job.progress,
-        links=links,
-    )
 
 
 @processes_router.get(
@@ -91,7 +56,7 @@ async def list_processes(
     api_client: Annotated[dict, Depends(get_authenticated_client)],
 ):
     """List all available OGC processes."""
-    _check_gis_scope(api_client)
+    check_gis_scope(api_client)
 
     registry = ProcessRegistry(env)
     process_dicts = registry.list_processes()
@@ -112,7 +77,7 @@ async def get_process_description(
     api_client: Annotated[dict, Depends(get_authenticated_client)],
 ):
     """Get full process description with input/output schemas."""
-    _check_gis_scope(api_client)
+    check_gis_scope(api_client)
 
     registry = ProcessRegistry(env)
     description = registry.get_process(process_id)
@@ -147,7 +112,7 @@ async def execute_process(
     Batch requests with more than the configured threshold of geometries
     are automatically forced to async.
     """
-    _check_gis_scope(api_client)
+    check_gis_scope(api_client)
 
     # Validate process ID
     if process_id not in VALID_PROCESS_IDS:
@@ -162,20 +127,23 @@ async def execute_process(
     wants_async = prefer and "respond-async" in prefer
     forced_async = False
 
-    if process_id == "spatial-statistics":
+    if process_id == SPATIAL_STATISTICS:
         _validate_spatial_statistics_inputs(inputs)
         geometry = inputs.get("geometry")
         if isinstance(geometry, list):
             # Get forced async threshold
             # nosemgrep: odoo-sudo-without-context
-            threshold = int(
-                env["ir.config_parameter"]
-                .sudo()
-                .get_param("spp_gis.forced_async_threshold", _DEFAULT_FORCED_ASYNC_THRESHOLD)
-            )
+            try:
+                threshold = int(
+                    env["ir.config_parameter"]
+                    .sudo()
+                    .get_param("spp_gis.forced_async_threshold", _DEFAULT_FORCED_ASYNC_THRESHOLD)
+                )
+            except (ValueError, TypeError):
+                threshold = _DEFAULT_FORCED_ASYNC_THRESHOLD
             if len(geometry) > threshold:
                 forced_async = True
-    elif process_id == "proximity-statistics":
+    elif process_id == PROXIMITY_STATISTICS:
         _validate_proximity_statistics_inputs(inputs)
 
     use_async = wants_async or forced_async
@@ -270,10 +238,10 @@ def _execute_sync(env, process_id, inputs):
     service = SpatialQueryService(env)
 
     try:
-        if process_id == "spatial-statistics":
-            result = _run_spatial_statistics(service, inputs)
+        if process_id == SPATIAL_STATISTICS:
+            result = run_spatial_statistics(service, inputs)
         else:
-            result = _run_proximity_statistics(service, inputs)
+            result = run_proximity_statistics(service, inputs)
 
         return result
 
@@ -317,8 +285,8 @@ def _execute_async(env, api_client, process_id, inputs, request):
     ).execute_process()
     job.job_uuid = delayed.uuid
 
-    base_url = _get_base_url(request)
-    status_info = _build_status_info(job, base_url)
+    base_url = get_base_url(request)
+    status_info = build_status_info(job, base_url)
 
     return Response(
         content=status_info.model_dump_json(by_alias=True, exclude_none=True),
@@ -328,46 +296,3 @@ def _execute_async(env, api_client, process_id, inputs, request):
             "Location": f"{base_url}/gis/ogc/jobs/{job_id}",
         },
     )
-
-
-def _run_spatial_statistics(service, inputs):
-    """Run spatial-statistics process and return results."""
-    geometry = inputs.get("geometry")
-    filters = inputs.get("filters")
-    variables = inputs.get("variables")
-
-    if isinstance(geometry, list):
-        # Batch mode
-        geometries = [{"id": g["id"], "geometry": g["value"]} for g in geometry]
-        result = service.query_statistics_batch(
-            geometries=geometries,
-            filters=filters,
-            variables=variables,
-        )
-        # Remove registrant_ids from per-geometry results
-        for item in result.get("results", []):
-            item.pop("registrant_ids", None)
-        return result
-
-    # Single geometry mode
-    result = service.query_statistics(
-        geometry=geometry,
-        filters=filters,
-        variables=variables,
-    )
-    result.pop("registrant_ids", None)
-    return result
-
-
-def _run_proximity_statistics(service, inputs):
-    """Run proximity-statistics process and return results."""
-    reference_points = inputs["reference_points"]
-    result = service.query_proximity(
-        reference_points=reference_points,
-        radius_km=inputs["radius_km"],
-        relation=inputs.get("relation", "within"),
-        filters=inputs.get("filters"),
-        variables=inputs.get("variables"),
-    )
-    result.pop("registrant_ids", None)
-    return result

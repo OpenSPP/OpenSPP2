@@ -51,6 +51,10 @@ class GisProcessJob(models.Model):
         help="Job worker UUID for tracking the background job",
     )
 
+    _sql_constraints = [
+        ("job_id_unique", "UNIQUE(job_id)", "Job ID must be unique"),
+    ]
+
     def dismiss(self):
         """Dismiss a job.
 
@@ -89,16 +93,17 @@ class GisProcessJob(models.Model):
         )
 
         try:
-            # Lazy import to avoid circular imports
+            # Lazy imports to avoid circular imports
+            from ..services.process_execution import run_proximity_statistics, run_spatial_statistics
             from ..services.spatial_query_service import SpatialQueryService
 
             service = SpatialQueryService(self.env)
             inputs = self.inputs or {}
 
             if self.process_id == "spatial-statistics":
-                results = self._execute_spatial_statistics(service, inputs)
+                results = run_spatial_statistics(service, inputs)
             elif self.process_id == "proximity-statistics":
-                results = self._execute_proximity_statistics(service, inputs)
+                results = run_proximity_statistics(service, inputs)
             else:
                 raise ValueError(f"Unknown process_id: {self.process_id!r}")
 
@@ -110,71 +115,15 @@ class GisProcessJob(models.Model):
                 }
             )
 
-        except Exception as e:
+        except Exception:
             _logger.exception("GIS process job %s failed", self.job_id)
             self.write(
                 {
                     "status": "failed",
                     "finished_at": fields.Datetime.now(),
-                    "message": str(e),
+                    "message": "Process execution failed. Check server logs for details.",
                 }
             )
-
-    def _execute_spatial_statistics(self, service, inputs):
-        """Execute the spatial-statistics process.
-
-        Args:
-            service: SpatialQueryService instance
-            inputs: Parsed job inputs dict
-
-        Returns:
-            dict: Results without registrant_ids
-        """
-        geometry = inputs.get("geometry")
-        filters = inputs.get("filters")
-        variables = inputs.get("variables")
-
-        if isinstance(geometry, list):
-            # Batch mode: geometry is a list of {id, value} dicts
-            geometries = [{"id": g["id"], "geometry": g["value"]} for g in geometry]
-            results = service.query_statistics_batch(
-                geometries=geometries,
-                filters=filters,
-                variables=variables,
-            )
-            # Remove registrant_ids from per-geometry results if present
-            for item in results.get("results", []):
-                item.pop("registrant_ids", None)
-        else:
-            # Single geometry mode
-            results = service.query_statistics(
-                geometry=geometry,
-                filters=filters,
-                variables=variables,
-            )
-            results.pop("registrant_ids", None)
-
-        return results
-
-    def _execute_proximity_statistics(self, service, inputs):
-        """Execute the proximity-statistics process.
-
-        Args:
-            service: SpatialQueryService instance
-            inputs: Parsed job inputs dict
-
-        Returns:
-            dict: Results without registrant_ids
-        """
-        results = service.query_proximity(
-            reference_points=inputs["reference_points"],
-            radius_km=inputs["radius_km"],
-            relation=inputs.get("relation", "within"),
-            filters=inputs.get("filters"),
-            variables=inputs.get("variables"),
-        )
-        results.pop("registrant_ids", None)
-        return results
 
     @api.model
     def cron_cleanup_jobs(self):
@@ -186,7 +135,10 @@ class GisProcessJob(models.Model):
         - Marks stale accepted/running jobs (older than 1 hour) as failed.
         """
         IrConfig = self.env["ir.config_parameter"].sudo()
-        retention_days = int(IrConfig.get_param("spp_gis.job_retention_days", default=7))
+        try:
+            retention_days = int(IrConfig.get_param("spp_gis.job_retention_days", default=7))
+        except (ValueError, TypeError):
+            retention_days = 7
 
         cutoff_date = fields.Datetime.subtract(fields.Datetime.now(), days=retention_days)
         stale_cutoff = fields.Datetime.subtract(fields.Datetime.now(), hours=1)

@@ -336,7 +336,7 @@ class TestGisProcessJobModel(TransactionCase):
         job.execute_process()
 
         self.assertEqual(job.status, "failed")
-        self.assertIn("Unknown process_id", job.message)
+        self.assertIn("Process execution failed", job.message)
 
 
 class TestOGCConformanceUpdated(TransactionCase):
