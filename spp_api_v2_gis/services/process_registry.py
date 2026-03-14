@@ -18,6 +18,10 @@ VALID_PROCESS_IDS = {SPATIAL_STATISTICS, PROXIMITY_STATISTICS}
 # Maximum geometries allowed per batch request
 MAX_BATCH_GEOMETRIES = 100
 
+# Default maximum reference points for proximity queries.
+# Configurable via ir.config_parameter key "spp_gis.max_proximity_points".
+DEFAULT_MAX_PROXIMITY_POINTS = 50000
+
 
 class ProcessRegistry:
     """Registry of available OGC processes.
@@ -223,9 +227,10 @@ class ProcessRegistry:
             "inputs": {
                 "reference_points": {
                     "title": "Reference Points",
-                    "description": "Locations to measure proximity from. Maximum 10,000 points.",
+                    "description": f"Locations to measure proximity from. Maximum {DEFAULT_MAX_PROXIMITY_POINTS:,} points.",
                     "minOccurs": 1,
-                    "maxOccurs": 10000,
+                    "maxOccurs": DEFAULT_MAX_PROXIMITY_POINTS,
+                    "x-openspp-batch-limit": DEFAULT_MAX_PROXIMITY_POINTS,
                     "schema": {
                         "type": "object",
                         "properties": {

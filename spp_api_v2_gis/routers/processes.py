@@ -28,6 +28,7 @@ from ..schemas.processes import (
 )
 from ..services.process_execution import run_proximity_statistics, run_spatial_statistics
 from ..services.process_registry import (
+    DEFAULT_MAX_PROXIMITY_POINTS,
     MAX_BATCH_GEOMETRIES,
     PROXIMITY_STATISTICS,
     SPATIAL_STATISTICS,
@@ -144,7 +145,16 @@ async def execute_process(
             if len(geometry) > threshold:
                 forced_async = True
     elif process_id == PROXIMITY_STATISTICS:
-        _validate_proximity_statistics_inputs(inputs)
+        # nosemgrep: odoo-sudo-without-context
+        try:
+            max_points = int(
+                env["ir.config_parameter"]
+                .sudo()
+                .get_param("spp_gis.max_proximity_points", DEFAULT_MAX_PROXIMITY_POINTS)
+            )
+        except (ValueError, TypeError):
+            max_points = DEFAULT_MAX_PROXIMITY_POINTS
+        _validate_proximity_statistics_inputs(inputs, max_points)
 
     use_async = wants_async or forced_async
 
@@ -189,7 +199,7 @@ def _validate_spatial_statistics_inputs(inputs):
         )
 
 
-def _validate_proximity_statistics_inputs(inputs):
+def _validate_proximity_statistics_inputs(inputs, max_points=DEFAULT_MAX_PROXIMITY_POINTS):
     """Validate inputs for proximity-statistics process."""
     reference_points = inputs.get("reference_points")
     if not reference_points:
@@ -202,10 +212,10 @@ def _validate_proximity_statistics_inputs(inputs):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="'reference_points' must be a non-empty array",
         )
-    if len(reference_points) > 10000:
+    if len(reference_points) > max_points:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Maximum 10,000 reference points allowed",
+            detail=f"Maximum {max_points:,} reference points allowed",
         )
 
     radius_km = inputs.get("radius_km")
