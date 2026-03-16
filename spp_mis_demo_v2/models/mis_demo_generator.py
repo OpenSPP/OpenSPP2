@@ -3811,6 +3811,8 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         # Find the lowest (most specific) area level that has geo_polygon data.
         # This works for any hierarchy depth: 4-level (curated) or 3-level (Luzon).
+        # Flush to ensure computed area_level values are written to DB before raw SQL.
+        self.env.flush_all()
         self.env.cr.execute("SELECT MAX(area_level) FROM spp_area WHERE geo_polygon IS NOT NULL")
         result = self.env.cr.fetchone()
         target_level = result[0] if result and result[0] is not None else None
