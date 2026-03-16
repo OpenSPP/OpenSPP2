@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Single consolidated privilege for all hazard access levels -->
+    <record id="privilege_hazard" model="res.groups.privilege">
+        <field name="name">Hazard</field>
+        <field name="category_id" ref="spp_security.category_spp_hazard" />
+    </record>
+</odoo>

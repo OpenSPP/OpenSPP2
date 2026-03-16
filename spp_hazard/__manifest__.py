@@ -23,6 +23,7 @@
         "spp_gis",
     ],
     "data": [
+        "security/privileges.xml",
         "security/groups.xml",
         "security/ir.model.access.csv",
         "data/impact_type_data.xml",

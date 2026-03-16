@@ -400,8 +400,8 @@ disputed, closed)</li>
 <h1>Key Models</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="48%" />
-<col width="52%" />
+<col width="49%" />
+<col width="51%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -424,19 +424,20 @@ area-specific severity override</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.hazard.impact</tt></td>
 <td>Records impact on a registrant
-(type, damage level, verification)</td>
+(type, damage level,
+verification)</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.hazard.impact.type</tt></td>
 <td>Classification of impact types by
 category</td>
 </tr>
 <tr><td><tt class="docutils literal">res.partner</tt> (extended)</td>
-<td>Adds hazard impact tracking fields
-to registrants</td>
+<td>Adds hazard impact tracking
+fields to registrants</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.gis.geofence</tt> (extended)</td>
-<td>Adds <tt class="docutils literal">hazard_zone</tt> geofence type
-and incident linking</td>
+<td>Adds <tt class="docutils literal">hazard_zone</tt> geofence
+type and incident linking</td>
 </tr>
 </tbody>
 </table>
@@ -470,8 +471,8 @@ Response” tab displays impact records list</li>
 <h1>Security</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="49%" />
-<col width="51%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -553,8 +554,8 @@ Officer, or Manager.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="9%" />
-<col width="46%" />
-<col width="46%" />
+<col width="45%" />
+<col width="45%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Step</th>
@@ -588,8 +589,8 @@ application menu bar</td>
 <table border="1" class="docutils">
 <colgroup>
 <col width="9%" />
-<col width="46%" />
-<col width="46%" />
+<col width="45%" />
+<col width="45%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Step</th>
@@ -608,8 +609,8 @@ Emergency</strong> in the top menu</td>
 <tr><td>2.2</td>
 <td>Click <strong>Incidents &gt; All
 Incidents</strong></td>
-<td>Incident list view loads (URL
-ends with
+<td>Incident list view loads
+(URL ends with
 <tt class="docutils literal"><span class="pre">/hazard-incidents</span></tt>)</td>
 </tr>
 <tr><td>2.3</td>
@@ -624,7 +625,8 @@ ends with
 Hazard Categories</strong></td>
 <td>Category list loads with
 pre-seeded Active filter
-(URL: <tt class="docutils literal"><span class="pre">/hazard-categories</span></tt>)</td>
+(URL:
+<tt class="docutils literal"><span class="pre">/hazard-categories</span></tt>)</td>
 </tr>
 <tr><td>2.5</td>
 <td>Click <strong>Configuration &gt;
@@ -640,7 +642,7 @@ Active filter (URL:
 <p><strong>3.1 Pre-installed Data (Demo)</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -665,8 +667,8 @@ Eruption”, “Hydrological”,
 Emergency”, “Pandemic”,
 “Disease Outbreak”,
 “Conflict”, “Armed
-Conflict”, “Economic Shock”,
-“Food Crisis”</td>
+Conflict”, “Economic
+Shock”, “Food Crisis”</td>
 </tr>
 <tr><td>3.1.2</td>
 <td>Check the “Complete Name”
@@ -676,16 +678,17 @@ e.g., “Natural Disaster &gt;
 Storm &gt; Typhoon”</td>
 </tr>
 <tr><td>3.1.3</td>
-<td>Check the “Incidents” column</td>
-<td>Shows integer count for each
-category</td>
+<td>Check the “Incidents”
+column</td>
+<td>Shows integer count for
+each category</td>
 </tr>
 </tbody>
 </table>
 <p><strong>3.2 Create a Category</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -731,7 +734,7 @@ lists “Test Wildfire”</td>
 <p><strong>3.3 Category Incident Count</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -748,12 +751,13 @@ linked incidents (e.g.,
 “Typhoon” if demo data
 loaded)</td>
 <td>“Number of Incidents” field
-shows the count in the right
-column</td>
+shows the count in the
+right column</td>
 </tr>
 <tr><td>3.3.2</td>
-<td>Verify the count matches the
-actual number of incidents</td>
+<td>Verify the count matches
+the actual number of
+incidents</td>
 <td>Count should be accurate</td>
 </tr>
 </tbody>
@@ -761,7 +765,7 @@ actual number of incidents</td>
 <p><strong>3.4 Category Code Uniqueness</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -785,7 +789,7 @@ exists!”</td>
 <p><strong>3.5 Deactivation</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -800,7 +804,8 @@ exists!”</td>
 <td>Open a category, uncheck
 “Active”, save</td>
 <td>Red “Inactive” ribbon
-appears at top-right of form</td>
+appears at top-right of
+form</td>
 </tr>
 <tr><td>3.5.2</td>
 <td>Return to the list (Active
@@ -820,7 +825,7 @@ visible</td>
 <p><strong>3.6 Search and Grouping</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -848,7 +853,8 @@ Inactive</td>
 </tr>
 <tr><td>3.6.4</td>
 <td>Use Group By &gt; Parent</td>
-<td>Categories grouped by parent</td>
+<td>Categories grouped by
+parent</td>
 </tr>
 </tbody>
 </table>
@@ -857,7 +863,7 @@ Inactive</td>
 <p><strong>4.1 Pre-installed Data</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -871,9 +877,9 @@ Inactive</td>
 <tr><td>4.1.1</td>
 <td>Open <strong>Configuration &gt;
 Impact Types</strong></td>
-<td>List shows 14 pre-configured
-types with drag handles for
-reordering</td>
+<td>List shows 14
+pre-configured types with
+drag handles for reordering</td>
 </tr>
 <tr><td>4.1.2</td>
 <td>Verify Physical types</td>
@@ -894,15 +900,15 @@ Psychological Impact</td>
 </tr>
 <tr><td>4.1.5</td>
 <td>Verify Social types</td>
-<td>Family Separation, Community
-Disruption, Education
-Disruption</td>
+<td>Family Separation,
+Community Disruption,
+Education Disruption</td>
 </tr>
 <tr><td>4.1.6</td>
 <td>Check “Category” column</td>
 <td>Shows as badge widgets
-(Physical, Economic, Health,
-Social)</td>
+(Physical, Economic,
+Health, Social)</td>
 </tr>
 <tr><td>4.1.7</td>
 <td>Check “Usage” column</td>
@@ -914,9 +920,9 @@ linked to any impact record</td>
 <p><strong>4.2 Create an Impact Type</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
-<col width="45%" />
-<col width="45%" />
+<col width="11%" />
+<col width="46%" />
+<col width="43%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Step</th>
@@ -945,7 +951,7 @@ Category: Health</td>
 <p><strong>4.3 Reorder via Drag</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -958,8 +964,8 @@ Category: Health</td>
 <tbody valign="top">
 <tr><td>4.3.1</td>
 <td>In the list view, grab the
-drag handle (hamburger icon)
-on a type</td>
+drag handle (hamburger
+icon) on a type</td>
 <td>Row becomes draggable</td>
 </tr>
 <tr><td>4.3.2</td>
@@ -973,7 +979,7 @@ confirms new order</td>
 <p><strong>4.4 Code Uniqueness</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -995,7 +1001,7 @@ this code already exists!”</td>
 <p><strong>4.5 Search Filters</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -1024,7 +1030,7 @@ category sections</td>
 <p><strong>5.1 Demo Data</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -1048,8 +1054,8 @@ badge), Severity: Level 4</td>
 </tr>
 <tr><td>5.1.3</td>
 <td>“Demo Flooding Event”</td>
-<td>Status: Closed (grey badge),
-has End Date</td>
+<td>Status: Closed (grey
+badge), has End Date</td>
 </tr>
 <tr><td>5.1.4</td>
 <td>“Demo Drought 2024”</td>
@@ -1061,7 +1067,7 @@ badge), no End Date</td>
 <p><strong>5.2 Create an Incident</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -1093,7 +1099,8 @@ categories, filtered by
 search text</td>
 </tr>
 <tr><td>5.2.4</td>
-<td>Set Start Date: today’s date</td>
+<td>Set Start Date: today’s
+date</td>
 <td>Date picker works</td>
 </tr>
 <tr><td>5.2.5</td>
@@ -1116,7 +1123,7 @@ top-right corner)</td>
 <p><strong>5.3 Incident Form Layout</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -1140,8 +1147,9 @@ shows current step</td>
 (top-right)</td>
 <td>“Affected” stat button
 (fa-users icon) always
-visible. “Areas” stat button
-visible only if areas &gt; 0</td>
+visible. “Areas” stat
+button visible only if
+areas &gt; 0</td>
 </tr>
 <tr><td>5.3.3</td>
 <td>Check left column</td>
@@ -1180,15 +1188,15 @@ Status</td>
 <tr><td>5.3.9</td>
 <td>Scroll to bottom of form</td>
 <td>Chatter (message log +
-activity scheduling) visible
-below the form</td>
+activity scheduling)
+visible below the form</td>
 </tr>
 </tbody>
 </table>
 <p><strong>5.4 Code Uniqueness</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -1200,8 +1208,8 @@ below the form</td>
 </thead>
 <tbody valign="top">
 <tr><td>5.4.1</td>
-<td>Create another incident with
-Code = <tt class="docutils literal"><span class="pre">TEST-EQ-001</span></tt></td>
+<td>Create another incident
+with Code = <tt class="docutils literal"><span class="pre">TEST-EQ-001</span></tt></td>
 <td>Error: “An incident with
 this code already exists!”</td>
 </tr>
@@ -1210,7 +1218,7 @@ this code already exists!”</td>
 <p><strong>5.5 Date Validation</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -1244,7 +1252,7 @@ Date, save</td>
 <p>Use the incident created in 5.2 (starts as “Active”).</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -1276,26 +1284,27 @@ again</td>
 <tr><td>5.6.4</td>
 <td>Click <strong>Close Incident</strong></td>
 <td>Status = Closed. End Date
-auto-filled with today if it
-was empty. All fields become
-readonly</td>
+auto-filled with today if
+it was empty. All fields
+become readonly</td>
 </tr>
 <tr><td>5.6.5</td>
 <td>Check the form in Closed
 state</td>
 <td>No action buttons visible
-(Set Active, Start Recovery,
-Close are all hidden). All
-fields are readonly.
-Description, areas, and
-impacts are readonly</td>
+(Set Active, Start
+Recovery, Close are all
+hidden). All fields are
+readonly. Description,
+areas, and impacts are
+readonly</td>
 </tr>
 </tbody>
 </table>
 <p><strong>5.7 Add Affected Areas</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -1309,8 +1318,8 @@ impacts are readonly</td>
 <tr><td>5.7.1</td>
 <td>Open a non-closed incident,
 go to “Affected Areas” tab</td>
-<td>Instruction text: “Add areas
-affected by this
+<td>Instruction text: “Add
+areas affected by this
 incident…”</td>
 </tr>
 <tr><td>5.7.2</td>
@@ -1336,21 +1345,22 @@ Estimate: 5000</td>
 <tr><td>5.7.6</td>
 <td>Save</td>
 <td>Area link saved. “Areas”
-stat button now visible with
-count = 1</td>
+stat button now visible
+with count = 1</td>
 </tr>
 <tr><td>5.7.7</td>
 <td>Try adding the same area
 again</td>
-<td>Error: “This area is already
-linked to this incident!”</td>
+<td>Error: “This area is
+already linked to this
+incident!”</td>
 </tr>
 </tbody>
 </table>
 <p><strong>5.8 Stat Buttons</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -1362,7 +1372,8 @@ linked to this incident!”</td>
 </thead>
 <tbody valign="top">
 <tr><td>5.8.1</td>
-<td>Click “Affected” stat button</td>
+<td>Click “Affected” stat
+button</td>
 <td>Opens Impact Records list
 filtered to this incident</td>
 </tr>
@@ -1407,7 +1418,8 @@ field</td>
 <tr><td>5.9.4</td>
 <td>Filters &gt; Alert</td>
 <td>Shows only alert-status
-incidents (blue-tinted rows)</td>
+incidents (blue-tinted
+rows)</td>
 </tr>
 <tr><td>5.9.5</td>
 <td>Filters &gt; Active</td>
@@ -1452,8 +1464,8 @@ rows)</td>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
-<col width="44%" />
-<col width="44%" />
+<col width="43%" />
+<col width="45%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Step</th>
@@ -1491,7 +1503,7 @@ Affected</td>
 <p><strong>6.1 Create an Impact Record</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -1548,15 +1560,15 @@ after incident start date</td>
 <tr><td>6.1.7</td>
 <td>Save</td>
 <td>Record saves. Statusbar
-shows: Reported / Verified /
-Disputed / Closed</td>
+shows: Reported / Verified
+/ Disputed / Closed</td>
 </tr>
 </tbody>
 </table>
 <p><strong>6.2 Impact Date Validation</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -1572,15 +1584,15 @@ Disputed / Closed</td>
 Date before the incident’s
 Start Date</td>
 <td>Error: “Impact date cannot
-be before the incident start
-date.”</td>
+be before the incident
+start date.”</td>
 </tr>
 </tbody>
 </table>
 <p><strong>6.3 Duplicate Impact Constraint</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -1614,7 +1626,7 @@ same registrant</td>
 <p>Using the impact created in 6.1 (starts as “Reported”):</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -1629,8 +1641,9 @@ same registrant</td>
 <td>Check header buttons</td>
 <td>“Verify” (primary), “Mark
 Disputed” (secondary),
-“Close” (secondary) visible.
-“Reset to Reported” hidden</td>
+“Close” (secondary)
+visible. “Reset to
+Reported” hidden</td>
 </tr>
 <tr><td>6.4.2</td>
 <td>Check “Verification
@@ -1643,18 +1656,19 @@ in “Reported” status)</td>
 <td>Status → Verified.
 “Verification Information”
 section appears showing
-“Verified By” (current user)
-and “Verification Date”
-(now). “Verify” button
-disappears. “Mark Disputed”
-and “Close” remain</td>
+“Verified By” (current
+user) and “Verification
+Date” (now). “Verify”
+button disappears. “Mark
+Disputed” and “Close”
+remain</td>
 </tr>
 <tr><td>6.4.4</td>
 <td>Click <strong>Mark Disputed</strong></td>
-<td>Status → Disputed. “Reset to
-Reported” button appears.
-“Verify” hidden. “Close”
-visible</td>
+<td>Status → Disputed. “Reset
+to Reported” button
+appears. “Verify” hidden.
+“Close” visible</td>
 </tr>
 <tr><td>6.4.5</td>
 <td>Click <strong>Reset to Reported</strong></td>
@@ -1666,8 +1680,8 @@ button state</td>
 <tr><td>6.4.6</td>
 <td>Click <strong>Close</strong></td>
 <td>Status → Closed. All fields
-become readonly. Only “Reset
-to Reported” visible</td>
+become readonly. Only
+“Reset to Reported” visible</td>
 </tr>
 <tr><td>6.4.7</td>
 <td>Click <strong>Reset to Reported</strong></td>
@@ -1679,7 +1693,7 @@ Fields editable again</td>
 <p><strong>6.5 Impact Form Layout</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -1692,8 +1706,8 @@ Fields editable again</td>
 <tbody valign="top">
 <tr><td>6.5.1</td>
 <td>Check title area</td>
-<td>Registrant name displayed as
-h1, Incident name as h2</td>
+<td>Registrant name displayed
+as h1, Incident name as h2</td>
 </tr>
 <tr><td>6.5.2</td>
 <td>Check left group
@@ -1717,8 +1731,8 @@ full-width layout</td>
 </tr>
 <tr><td>6.5.5</td>
 <td>Check bottom of form</td>
-<td>Chatter visible (message log
-and activities)</td>
+<td>Chatter visible (message
+log and activities)</td>
 </tr>
 </tbody>
 </table>
@@ -1738,7 +1752,8 @@ and activities)</td>
 <tbody valign="top">
 <tr><td>6.6.1</td>
 <td>Search by Incident</td>
-<td>Filters to selected incident</td>
+<td>Filters to selected
+incident</td>
 </tr>
 <tr><td>6.6.2</td>
 <td>Search by Registrant</td>
@@ -1751,7 +1766,8 @@ registrant</td>
 </tr>
 <tr><td>6.6.4</td>
 <td>Filters &gt; Reported /
-Verified / Disputed / Closed</td>
+Verified / Disputed /
+Closed</td>
 <td>Each shows correct subset</td>
 </tr>
 <tr><td>6.6.5</td>
@@ -1761,7 +1777,8 @@ Verified / Disputed / Closed</td>
 levels</td>
 </tr>
 <tr><td>6.6.6</td>
-<td>Filters &gt; Severe or Critical</td>
+<td>Filters &gt; Severe or
+Critical</td>
 <td>Shows <tt class="docutils literal">severe</tt>,
 <tt class="docutils literal">critical</tt>, and
 <tt class="docutils literal">totally_damaged</tt></td>
@@ -1792,8 +1809,8 @@ Status</td>
 <p><strong>6.7 Impact List Decorations</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
-<col width="45%" />
+<col width="11%" />
+<col width="44%" />
 <col width="45%" />
 </colgroup>
 <thead valign="bottom">
@@ -1821,8 +1838,9 @@ Closed: grey/muted</td>
 <tr><td>6.7.4</td>
 <td>Optional columns</td>
 <td>“Verified By” and “Verified
-Date” available under column
-options (hidden by default)</td>
+Date” available under
+column options (hidden by
+default)</td>
 </tr>
 </tbody>
 </table>
@@ -1831,7 +1849,7 @@ options (hidden by default)</td>
 <p><strong>7.1 Stat Button</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -1865,7 +1883,7 @@ filtered to this registrant</td>
 <p><strong>7.2 Emergency Response Tab</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -1892,10 +1910,10 @@ hazard incident.”</td>
 impacts from a CLOSED
 incident</td>
 <td>“Emergency Response” tab
-shows the “Incident Impacts”
-section with a readonly list
-of impacts. No yellow alert
-banner</td>
+shows the “Incident
+Impacts” section with a
+readonly list of impacts.
+No yellow alert banner</td>
 </tr>
 <tr><td>7.2.3</td>
 <td>Open a registrant with
@@ -1913,9 +1931,9 @@ list shows below</td>
 <td>Check the impact list
 columns</td>
 <td>Incident, Impact Type,
-Damage Level (badge), Impact
-Date, Verification Status
-(badge with colors)</td>
+Damage Level (badge),
+Impact Date, Verification
+Status (badge with colors)</td>
 </tr>
 <tr><td>7.2.5</td>
 <td>Verify the list is readonly</td>
@@ -1928,7 +1946,7 @@ view</td>
 <p><strong>7.3 Registrant List Extensions</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -1943,9 +1961,9 @@ view</td>
 <td>Open the registrants list
 view</td>
 <td>“Impacts” and “Active
-Impact” columns available in
-column options (hidden by
-default)</td>
+Impact” columns available
+in column options (hidden
+by default)</td>
 </tr>
 <tr><td>7.3.2</td>
 <td>Enable both columns via
@@ -1958,7 +1976,7 @@ and boolean values</td>
 <p><strong>7.4 Registrant Search Extensions</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -1972,8 +1990,8 @@ and boolean values</td>
 <tr><td>7.4.1</td>
 <td>In registrant search, check
 Filters</td>
-<td>“Has Active Impact” and “Has
-Any Impact” filters
+<td>“Has Active Impact” and
+“Has Any Impact” filters
 available</td>
 </tr>
 <tr><td>7.4.2</td>
@@ -1996,7 +2014,7 @@ any impact count &gt; 0</td>
 <p>Log in as the <strong>Viewer</strong> user.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -2026,8 +2044,8 @@ Incidents</td>
 records</td>
 </tr>
 <tr><td>8.1.4</td>
-<td>Try to create a new incident
-(click New)</td>
+<td>Try to create a new
+incident (click New)</td>
 <td>Access denied or “New”
 button not available</td>
 </tr>
@@ -2049,7 +2067,7 @@ edit</td>
 <p>Log in as the <strong>Officer</strong> user.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -2105,7 +2123,7 @@ Emergency Response tab</td>
 <p>Log in as the <strong>Manager</strong> user.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
+<col width="11%" />
 <col width="45%" />
 <col width="45%" />
 </colgroup>
@@ -2198,8 +2216,8 @@ records</td>
 <table border="1" class="docutils">
 <colgroup>
 <col width="9%" />
-<col width="46%" />
-<col width="46%" />
+<col width="45%" />
+<col width="45%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Step</th>
@@ -2218,8 +2236,8 @@ incident” and helper text
 about tracking events</td>
 </tr>
 <tr><td>10.2</td>
-<td>Open Impact Records list with
-no records</td>
+<td>Open Impact Records list
+with no records</td>
 <td>Smiling face icon with text:
 “Record impacts on
 registrants”</td>
@@ -2264,8 +2282,9 @@ whichever transition)</td>
 </tr>
 <tr><td>11.1.2</td>
 <td>Change the severity</td>
-<td>Chatter log shows “Severity:
-Level 2 → Level 4”</td>
+<td>Chatter log shows
+“Severity: Level 2 → Level
+4”</td>
 </tr>
 <tr><td>11.1.3</td>
 <td>Change the category</td>
@@ -2280,7 +2299,8 @@ chatter</td>
 <tr><td>11.1.5</td>
 <td>Schedule an activity</td>
 <td>Activity appears in the
-scheduled activities section</td>
+scheduled activities
+section</td>
 </tr>
 </tbody>
 </table>
@@ -2304,7 +2324,8 @@ verify it</td>
 <td>Chatter shows “Verification
 Status: Reported →
 Verified”, “Verified By”
-set, “Verification Date” set</td>
+set, “Verification Date”
+set</td>
 </tr>
 <tr><td>11.2.2</td>
 <td>Change the damage level</td>
@@ -2321,8 +2342,8 @@ set, “Verification Date” set</td>
 <table border="1" class="docutils">
 <colgroup>
 <col width="9%" />
-<col width="46%" />
-<col width="46%" />
+<col width="45%" />
+<col width="45%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Step</th>
@@ -2334,10 +2355,11 @@ set, “Verification Date” set</td>
 <tr><td>12.1</td>
 <td>Create an incident with
 status “Alert” (create, then
-note: default is Active — the
-“alert” status must be set by
-creating with status alert or
-changing the initial state)</td>
+note: default is Active —
+the “alert” status must be
+set by creating with status
+alert or changing the
+initial state)</td>
 <td>“Set Active” button visible.
 “Close Incident” visible.
 “Start Recovery” NOT visible
@@ -2352,8 +2374,8 @@ become readonly. Cannot add
 or remove areas</td>
 </tr>
 <tr><td>12.3</td>
-<td>Close an incident that has no
-end date</td>
+<td>Close an incident that has
+no end date</td>
 <td>End Date is auto-populated
 with today’s date</td>
 </tr>
@@ -2378,8 +2400,8 @@ geofences linked to it</td>
 becomes empty (set null)</td>
 </tr>
 <tr><td>12.7</td>
-<td>Try to delete an area that is
-linked to an incident via
+<td>Try to delete an area that
+is linked to an incident via
 incident_area_ids</td>
 <td>Blocked by
 <tt class="docutils literal"><span class="pre">ondelete=&quot;restrict&quot;</span></tt></td>
@@ -2391,8 +2413,8 @@ incident_area_ids</td>
 <table border="1" class="docutils">
 <colgroup>
 <col width="9%" />
-<col width="46%" />
-<col width="46%" />
+<col width="45%" />
+<col width="45%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Step</th>
@@ -2409,8 +2431,8 @@ visible (groups reuse the
 individual form view)</td>
 </tr>
 <tr><td>13.2</td>
-<td>Create an impact record for a
-group registrant</td>
+<td>Create an impact record for
+a group registrant</td>
 <td>Impact record creation
 succeeds; registrant domain
 allows groups
@@ -2432,7 +2454,7 @@ correctly</td>
 encounter unexpected behavior, please report it as a new issue.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="7%" />
+<col width="8%" />
 <col width="46%" />
 <col width="46%" />
 </colgroup>

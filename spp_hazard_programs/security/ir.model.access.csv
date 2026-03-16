@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_program_hazard_viewer,spp.program.hazard.viewer,spp_programs.model_spp_program,spp_hazard.group_hazard_viewer,1,0,0,0
+access_spp_program_hazard_officer,spp.program.hazard.officer,spp_programs.model_spp_program,spp_hazard.group_hazard_officer,1,0,0,0
+access_spp_program_hazard_manager,spp.program.hazard.manager,spp_programs.model_spp_program,spp_hazard.group_hazard_manager,1,0,0,0

@@ -34,19 +34,19 @@ groups:
   # --- Tier 2: User-facing groups ---
   - id: group_hazard_viewer
     tier: 2
-    privilege_id: privilege_hazard_viewer
+    privilege_id: privilege_hazard
     implied_ids: [group_hazard_read]
     comment: "Can view hazard incidents, categories, and impacts but cannot modify."
 
   - id: group_hazard_officer
     tier: 2
-    privilege_id: privilege_hazard_officer
+    privilege_id: privilege_hazard
     implied_ids: [group_hazard_create, group_hazard_viewer]
     comment: "Can create and manage hazard incidents and impacts."
 
   - id: group_hazard_manager
     tier: 2
-    privilege_id: privilege_hazard_manager
+    privilege_id: privilege_hazard
     implied_ids: [group_hazard_officer]
     comment: "Full access to hazard management including configuration."
 
