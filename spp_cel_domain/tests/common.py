@@ -7,6 +7,8 @@ relying on XML seed data, ensuring tests are isolated and deterministic.
 
 import time
 
+from odoo.fields import Command
+
 
 class CELTestDataMixin:
     """Mixin for creating CEL test data.
@@ -179,12 +181,12 @@ class CELTestDataMixin:
         return VocabularyCode.create(values)
 
     @classmethod
-    def _create_test_concept_group(cls, name=None, display_name=None, cel_function=None, codes=None, **kwargs):
+    def _create_test_concept_group(cls, name=None, label=None, cel_function=None, codes=None, **kwargs):
         """Create a test concept group.
 
         Args:
             name: Group name. If not provided, generates unique name
-            display_name: Display name. If not provided, uses name
+            label: Human-readable label. If not provided, generates from name
             cel_function: CEL function name
             codes: List of vocabulary code records to add to group
             **kwargs: Additional fields to pass to create()
@@ -194,12 +196,12 @@ class CELTestDataMixin:
         """
         test_id = getattr(cls, "_test_id", int(time.time() * 1000))
         name = name or f"test_group_{test_id}"
-        display_name = display_name or name.replace("_", " ").title()
+        label = label or name.replace("_", " ").title()
 
         ConceptGroup = cls.env["spp.vocabulary.concept.group"]
         values = {
             "name": name,
-            "display_name": display_name,
+            "label": label,
         }
         if cel_function:
             values["cel_function"] = cel_function
@@ -208,7 +210,7 @@ class CELTestDataMixin:
         group = ConceptGroup.create(values)
 
         if codes:
-            group.write({"code_ids": [(6, 0, [c.id for c in codes])]})
+            group.write({"code_ids": [Command.set([c.id for c in codes])]})
 
         return group
 

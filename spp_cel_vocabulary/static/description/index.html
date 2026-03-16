@@ -444,14 +444,14 @@ which codes belong to each concept</li>
 
 </span><span class="c1">// Group membership</span><span class="w">
 </span><span class="nx">in_group</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">gender_id</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;feminine_gender&quot;</span><span class="p">)</span><span class="w">
-</span><span class="nx">members</span><span class="p">.</span><span class="nx">exists</span><span class="p">(</span><span class="nx">m</span><span class="p">,</span><span class="w"> </span><span class="nx">in_group</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">relationship_type</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;head_of_household&quot;</span><span class="p">))</span><span class="w">
+</span><span class="nx">members</span><span class="p">.</span><span class="nx">exists</span><span class="p">(</span><span class="nx">m</span><span class="p">,</span><span class="w"> </span><span class="nx">in_group</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">relationship_type_id</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;head_of_household&quot;</span><span class="p">))</span><span class="w">
 
 </span><span class="c1">// Semantic helpers</span><span class="w">
-</span><span class="nx">is_female</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">gender_id</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">age_years</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">birthdate</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mf">18</span><span class="w">
-</span><span class="nx">members</span><span class="p">.</span><span class="nx">exists</span><span class="p">(</span><span class="nx">m</span><span class="p">,</span><span class="w"> </span><span class="nx">is_male</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">gender_id</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">is_head</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">relationship_type</span><span class="p">))</span><span class="w">
+</span><span class="nx">is_female</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">gender_id</span><span class="p">)</span><span class="w"> </span><span class="nx">and</span><span class="w"> </span><span class="nx">age_years</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">birthdate</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mf">18</span><span class="w">
+</span><span class="nx">members</span><span class="p">.</span><span class="nx">exists</span><span class="p">(</span><span class="nx">m</span><span class="p">,</span><span class="w"> </span><span class="nx">is_male</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">gender_id</span><span class="p">)</span><span class="w"> </span><span class="nx">and</span><span class="w"> </span><span class="nx">is_head</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">relationship_type_id</span><span class="p">))</span><span class="w">
 
 </span><span class="c1">// Head of household check</span><span class="w">
-</span><span class="nx">members</span><span class="p">.</span><span class="nx">exists</span><span class="p">(</span><span class="nx">m</span><span class="p">,</span><span class="w"> </span><span class="nx">head</span><span class="p">(</span><span class="nx">m</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">is_female</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">gender_id</span><span class="p">))</span>
+</span><span class="nx">members</span><span class="p">.</span><span class="nx">exists</span><span class="p">(</span><span class="nx">m</span><span class="p">,</span><span class="w"> </span><span class="nx">head</span><span class="p">(</span><span class="nx">m</span><span class="p">)</span><span class="w"> </span><span class="nx">and</span><span class="w"> </span><span class="nx">is_female</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">gender_id</span><span class="p">))</span>
 </pre>
 </div>
 <div class="section" id="security">
@@ -493,16 +493,344 @@ domain-specific eligibility patterns</li>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><a class="reference internal" href="#bug-tracker" id="toc-entry-1">Bug Tracker</a></li>
-<li><a class="reference internal" href="#credits" id="toc-entry-2">Credits</a><ul>
-<li><a class="reference internal" href="#authors" id="toc-entry-3">Authors</a></li>
-<li><a class="reference internal" href="#maintainers" id="toc-entry-4">Maintainers</a></li>
+<li><a class="reference internal" href="#usage" id="toc-entry-1">Usage</a><ul>
+<li><a class="reference internal" href="#ui-testing-guide" id="toc-entry-2">UI Testing Guide</a></li>
 </ul>
 </li>
 </ul>
 </div>
+<div class="section" id="usage">
+<h2><a class="toc-backref" href="#toc-entry-1">Usage</a></h2>
+<div class="section" id="ui-testing-guide">
+<h3><a class="toc-backref" href="#toc-entry-2">UI Testing Guide</a></h3>
+<p>This module has no views of its own. All UI interaction is through views
+provided by <tt class="docutils literal">spp_vocabulary</tt> and <tt class="docutils literal">spp_cel_domain</tt>. This guide covers
+what to verify after installing <tt class="docutils literal">spp_cel_vocabulary</tt>.</p>
+</div>
+</div>
+</div>
+<div class="section" id="prerequisites">
+<h1>Prerequisites</h1>
+<ul class="simple">
+<li>Install <tt class="docutils literal">spp_cel_vocabulary</tt> (auto-installs when both
+<tt class="docutils literal">spp_cel_domain</tt> and <tt class="docutils literal">spp_vocabulary</tt> are present)</li>
+<li>Log in as an admin user</li>
+<li>Have at least one vocabulary with codes (e.g., a gender vocabulary)</li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="test-1-verify-concept-groups-are-created">
+<h1>Test 1: Verify Concept Groups Are Created</h1>
+<p><strong>Path:</strong> Settings &gt; Vocabularies &gt; Concept Groups</p>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li>Navigate to <strong>Settings &gt; Vocabularies &gt; Concept Groups</strong></li>
+<li>Verify the following 10 groups exist:</li>
+</ol>
+<table border="1" class="docutils">
+<colgroup>
+<col width="42%" />
+<col width="35%" />
+<col width="23%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Name</th>
+<th class="head">Label</th>
+<th class="head">CEL Function</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><tt class="docutils literal">feminine_gender</tt></td>
+<td>Feminine Gender</td>
+<td><tt class="docutils literal">is_female</tt></td>
+</tr>
+<tr><td><tt class="docutils literal">masculine_gender</tt></td>
+<td>Masculine Gender</td>
+<td><tt class="docutils literal">is_male</tt></td>
+</tr>
+<tr><td><tt class="docutils literal">head_of_household</tt></td>
+<td>Head of Household</td>
+<td><tt class="docutils literal">is_head</tt></td>
+</tr>
+<tr><td><tt class="docutils literal">pregnant_eligible</tt></td>
+<td>Pregnant/Eligible</td>
+<td><tt class="docutils literal">is_pregnant</tt></td>
+</tr>
+<tr><td><tt class="docutils literal">climate_hazards</tt></td>
+<td>Climate-related Hazards</td>
+<td><em>(empty)</em></td>
+</tr>
+<tr><td><tt class="docutils literal">geophysical_hazards</tt></td>
+<td>Geophysical Hazards</td>
+<td><em>(empty)</em></td>
+</tr>
+<tr><td><tt class="docutils literal">children</tt></td>
+<td>Children</td>
+<td><em>(empty)</em></td>
+</tr>
+<tr><td><tt class="docutils literal">adults</tt></td>
+<td>Adults</td>
+<td><em>(empty)</em></td>
+</tr>
+<tr><td><tt class="docutils literal">elderly</tt></td>
+<td>Elderly/Senior Citizens</td>
+<td><em>(empty)</em></td>
+</tr>
+<tr><td><tt class="docutils literal">persons_with_disability</tt></td>
+<td>Persons with Disability</td>
+<td><em>(empty)</em></td>
+</tr>
+</tbody>
+</table>
+<ol class="arabic simple" start="3">
+<li>Open <tt class="docutils literal">feminine_gender</tt> and verify:<ul>
+<li>Label: “Feminine Gender”</li>
+<li>CEL Function: <tt class="docutils literal">is_female</tt></li>
+<li>Description is populated</li>
+<li><strong>Codes</strong> tab is empty (groups are created empty by default)</li>
+</ul>
+</li>
+</ol>
+<p><strong>Expected:</strong> All 10 groups are present with correct labels, CEL
+functions, and descriptions.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="test-2-add-codes-to-a-concept-group">
+<h1>Test 2: Add Codes to a Concept Group</h1>
+<p><strong>Path:</strong> Settings &gt; Vocabularies &gt; Concept Groups &gt; (select group) &gt;
+Codes tab</p>
+<p><strong>Precondition:</strong> A gender vocabulary with at least a “Female” code must
+exist.</p>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li>Open <tt class="docutils literal">feminine_gender</tt> concept group</li>
+<li>Click <strong>Edit</strong></li>
+<li>Go to the <strong>Codes</strong> tab</li>
+<li>Click <strong>Add a line</strong></li>
+<li>Search for and select your “Female” vocabulary code</li>
+<li>Click <strong>Save</strong></li>
+</ol>
+<p><strong>Verify:</strong></p>
+<ul class="simple">
+<li>The code appears in the Codes tab with its vocabulary, code value, and
+display name</li>
+<li>If the code has a URI, it should be visible (may need Technical tab
+for <tt class="docutils literal">code_uris</tt> field)</li>
+</ul>
+<p><strong>Repeat</strong> for <tt class="docutils literal">masculine_gender</tt> with a “Male” code if available.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="test-3-idempotent-installation">
+<h1>Test 3: Idempotent Installation</h1>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li>Note the current concept groups and their IDs</li>
+<li>Upgrade <tt class="docutils literal">spp_cel_vocabulary</tt> module (Settings &gt; Apps &gt;
+spp_cel_vocabulary &gt; Upgrade)</li>
+<li>Navigate back to <strong>Settings &gt; Vocabularies &gt; Concept Groups</strong></li>
+</ol>
+<p><strong>Expected:</strong></p>
+<ul class="simple">
+<li>No duplicate groups were created</li>
+<li>Existing groups retain their codes (codes added in Test 2 are still
+there)</li>
+<li>All 10 groups still present</li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="test-4-cel-expression-validation-with-vocabulary-functions">
+<h1>Test 4: CEL Expression Validation with Vocabulary Functions</h1>
+<p><strong>Path:</strong> Custom &gt; CEL Domain &gt; Tools &gt; Rule Preview</p>
+<p><strong>Precondition:</strong> Codes have been added to <tt class="docutils literal">feminine_gender</tt> group
+(Test 2).</p>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li>Navigate to <strong>Custom &gt; CEL Domain &gt; Tools &gt; Rule Preview</strong></li>
+<li>Select a model (e.g., the individual registrant model)</li>
+<li>Enter the expression: <tt class="docutils literal">is_female(r.gender_id)</tt></li>
+<li>Click <strong>Validate &amp; Preview</strong></li>
+</ol>
+<p><strong>Expected:</strong></p>
+<ul class="simple">
+<li>Validation succeeds (no error)</li>
+<li>The <strong>Summary</strong> tab shows:<ul>
+<li><tt class="docutils literal">preview_count</tt>: number of matching records (may be 0 if no
+registrants have gender set)</li>
+<li><tt class="docutils literal">explain_text</tt>: a human-readable explanation mentioning
+<tt class="docutils literal">feminine_gender</tt> and URIs</li>
+</ul>
+</li>
+</ul>
+<p><strong>Repeat with these expressions:</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="63%" />
+<col width="37%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Expression</th>
+<th class="head">Should Validate</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><tt class="docutils literal">is_female(r.gender_id)</tt></td>
+<td>Yes</td>
+</tr>
+<tr><td><tt class="docutils literal">is_male(r.gender_id)</tt></td>
+<td>Yes</td>
+</tr>
+<tr><td><tt class="docutils literal">in_group(r.gender_id, &quot;feminine_gender&quot;)</tt></td>
+<td>Yes</td>
+</tr>
+<tr><td><tt class="docutils literal">code_eq(r.gender_id, &quot;female&quot;)</tt></td>
+<td>Yes (if code exists)</td>
+</tr>
+<tr><td><tt class="docutils literal">r.gender_id == <span class="pre">code(&quot;female&quot;)</span></tt></td>
+<td>Yes (if code exists)</td>
+</tr>
+<tr><td><tt class="docutils literal">members.exists(m, head(m) and is_female(m.gender_id))</tt></td>
+<td>Yes</td>
+</tr>
+<tr><td><tt class="docutils literal">in_group(r.gender_id, &quot;nonexistent_group&quot;)</tt></td>
+<td>Yes (validates but matches
+nothing)</td>
+</tr>
+<tr><td><tt class="docutils literal">is_female(r.name)</tt></td>
+<td>Depends on translator behavior</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr class="docutils" />
+<div class="section" id="test-5-domain-translation-verification">
+<h1>Test 5: Domain Translation Verification</h1>
+<p><strong>Path:</strong> Custom &gt; CEL Domain &gt; Tools &gt; Rule Preview</p>
+<p><strong>Precondition:</strong> <tt class="docutils literal">feminine_gender</tt> group has at least one code with a
+URI.</p>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li>Open Rule Preview</li>
+<li>Enter: <tt class="docutils literal">is_female(r.gender_id)</tt></li>
+<li>Click <strong>Validate &amp; Preview</strong></li>
+<li>Check the <strong>Summary</strong> tab explanation text</li>
+</ol>
+<p><strong>Expected:</strong></p>
+<ul class="simple">
+<li>The explanation should reference <tt class="docutils literal">feminine_gender</tt> and list the code
+URIs</li>
+<li>The generated domain should check both <tt class="docutils literal">gender_id.uri</tt> and
+<tt class="docutils literal">gender_id.reference_uri</tt></li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="test-6-empty-group-behavior">
+<h1>Test 6: Empty Group Behavior</h1>
+<p><strong>Path:</strong> Custom &gt; CEL Domain &gt; Tools &gt; Rule Preview</p>
+<p><strong>Precondition:</strong> <tt class="docutils literal">climate_hazards</tt> group exists but has no codes
+assigned.</p>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li>Open Rule Preview</li>
+<li>Enter: <tt class="docutils literal">in_group(r.gender_id, &quot;climate_hazards&quot;)</tt></li>
+<li>Click <strong>Validate &amp; Preview</strong></li>
+</ol>
+<p><strong>Expected:</strong></p>
+<ul class="simple">
+<li>Validation succeeds but matches 0 records</li>
+<li>The explanation should indicate the group is empty (e.g.,
+<tt class="docutils literal">[EMPTY GROUP]</tt>)</li>
+<li>Check Odoo logs for a <tt class="docutils literal">[CEL Vocabulary]</tt> warning about the empty
+group</li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="test-7-nonexistent-group-behavior">
+<h1>Test 7: Nonexistent Group Behavior</h1>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li>Open Rule Preview</li>
+<li>Enter: <tt class="docutils literal">in_group(r.gender_id, &quot;does_not_exist&quot;)</tt></li>
+<li>Click <strong>Validate &amp; Preview</strong></li>
+</ol>
+<p><strong>Expected:</strong></p>
+<ul class="simple">
+<li>Validation succeeds but matches 0 records</li>
+<li>The explanation should indicate the group was not found (e.g.,
+<tt class="docutils literal">[GROUP NOT FOUND]</tt>)</li>
+<li>Check Odoo logs for a warning with guidance: “Check Settings &gt;
+Vocabularies &gt; Concept Groups”</li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="test-8-local-code-support-if-applicable">
+<h1>Test 8: Local Code Support (if applicable)</h1>
+<p><strong>Precondition:</strong> A local vocabulary code exists with
+<tt class="docutils literal">is_local = True</tt> and a <tt class="docutils literal">reference_uri</tt> pointing to a standard
+code’s URI. Both codes are in the same concept group.</p>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li>Create a local code (e.g., “Babae” with <tt class="docutils literal">reference_uri</tt> pointing to
+the Female standard code’s URI)</li>
+<li>Add both the standard and local codes to <tt class="docutils literal">feminine_gender</tt> group</li>
+<li>Open Rule Preview</li>
+<li>Enter: <tt class="docutils literal">is_female(r.gender_id)</tt></li>
+<li>Click <strong>Validate &amp; Preview</strong></li>
+</ol>
+<p><strong>Expected:</strong></p>
+<ul class="simple">
+<li>The domain checks both <tt class="docutils literal">uri</tt> and <tt class="docutils literal">reference_uri</tt> fields</li>
+<li>Records with either the standard code or the local code should be
+matched</li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="test-9-security-read-only-access">
+<h1>Test 9: Security - Read-Only Access</h1>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li>Log in as a non-admin user (base user group)</li>
+<li>Navigate to <strong>Settings &gt; Vocabularies &gt; Concept Groups</strong></li>
+</ol>
+<p><strong>Expected:</strong></p>
+<ul class="simple">
+<li>User can view concept groups (read access)</li>
+<li>User cannot create, edit, or delete concept groups</li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="test-10-concept-group-search-and-filters">
+<h1>Test 10: Concept Group Search and Filters</h1>
+<p><strong>Path:</strong> Settings &gt; Vocabularies &gt; Concept Groups</p>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li>Use the search bar to search for “gender”</li>
+<li>Apply the “Has CEL Function” filter</li>
+</ol>
+<p><strong>Expected:</strong></p>
+<ul class="simple">
+<li>Search by “gender” finds <tt class="docutils literal">feminine_gender</tt> and <tt class="docutils literal">masculine_gender</tt></li>
+<li>“Has CEL Function” filter shows only groups with a CEL function set
+(<tt class="docutils literal">feminine_gender</tt>, <tt class="docutils literal">masculine_gender</tt>, <tt class="docutils literal">head_of_household</tt>,
+<tt class="docutils literal">pregnant_eligible</tt>)</li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="troubleshooting">
+<h1>Troubleshooting</h1>
+<p>If expressions return unexpected results:</p>
+<ol class="arabic simple">
+<li><strong>Check logs</strong> for <tt class="docutils literal">[CEL Vocabulary]</tt> entries — error messages
+include guidance on how to fix the issue</li>
+<li><strong>Verify codes are in groups</strong> — open the concept group and check the
+Codes tab</li>
+<li><strong>Verify code URIs</strong> — codes need a <tt class="docutils literal">uri</tt> field populated for
+domain matching</li>
+<li><strong>Check field names</strong> — vocabulary functions require Many2one fields
+pointing to <tt class="docutils literal">spp.vocabulary.code</tt> (e.g., <tt class="docutils literal">gender_id</tt>, not
+<tt class="docutils literal">gender</tt>)</li>
+</ol>
 <div class="section" id="bug-tracker">
-<h2><a class="toc-backref" href="#toc-entry-1">Bug Tracker</a></h2>
+<h2>Bug Tracker</h2>
 <p>Bugs are tracked on <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/issues">GitHub Issues</a>.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
@@ -510,15 +838,17 @@ If you spotted it first, help us to smash it by providing a detailed and welcome
 <p>Do not contact contributors directly about support or help with technical issues.</p>
 </div>
 <div class="section" id="credits">
-<h2><a class="toc-backref" href="#toc-entry-2">Credits</a></h2>
+<h2>Credits</h2>
 <div class="section" id="authors">
-<h3><a class="toc-backref" href="#toc-entry-3">Authors</a></h3>
+<h3>Authors</h3>
 <ul class="simple">
 <li>OpenSPP.org</li>
 </ul>
 </div>
 <div class="section" id="maintainers">
-<h3><a class="toc-backref" href="#toc-entry-4">Maintainers</a></h3>
+<h3>Maintainers</h3>
+<p>Current maintainers:</p>
+<p><a class="reference external image-reference" href="https://github.com/jeremi"><img alt="jeremi" src="https://github.com/jeremi.png?size=40px" /></a> <a class="reference external image-reference" href="https://github.com/gonzalesedwin1123"><img alt="gonzalesedwin1123" src="https://github.com/gonzalesedwin1123.png?size=40px" /></a> <a class="reference external image-reference" href="https://github.com/emjay0921"><img alt="emjay0921" src="https://github.com/emjay0921.png?size=40px" /></a></p>
 <p>This module is part of the <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_cel_vocabulary">OpenSPP/OpenSPP2</a> project on GitHub.</p>
 <p>You are welcome to contribute.</p>
 </div>

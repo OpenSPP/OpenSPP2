@@ -18,5 +18,6 @@
     ],
     "installable": True,
     "auto_install": True,
+    "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],
     "post_init_hook": "post_init_hook",
 }
