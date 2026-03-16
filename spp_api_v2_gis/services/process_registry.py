@@ -256,7 +256,9 @@ class ProcessRegistry:
             "inputs": {
                 "reference_points": {
                     "title": "Reference Points",
-                    "description": f"Locations to measure proximity from. Maximum {DEFAULT_MAX_PROXIMITY_POINTS:,} points.",
+                    "description": (
+                        f"Locations to measure proximity from. Maximum {DEFAULT_MAX_PROXIMITY_POINTS:,} points."
+                    ),
                     "minOccurs": 1,
                     "maxOccurs": DEFAULT_MAX_PROXIMITY_POINTS,
                     "x-openspp-batch-limit": DEFAULT_MAX_PROXIMITY_POINTS,

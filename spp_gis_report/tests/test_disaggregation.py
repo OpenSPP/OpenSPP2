@@ -2,7 +2,7 @@
 
 import logging
 
-from odoo.tests import TransactionCase, tagged
+from odoo.tests import tagged
 
 from .common import GISReportTestBase
 
@@ -18,9 +18,7 @@ class TestDisaggregation(GISReportTestBase):
         super().setUpClass()
 
         # Create gender dimension (field-based)
-        cls.gender_dimension = cls.env["spp.demographic.dimension"].search(
-            [("name", "=", "gender")], limit=1
-        )
+        cls.gender_dimension = cls.env["spp.demographic.dimension"].search([("name", "=", "gender")], limit=1)
         if not cls.gender_dimension:
             cls.gender_dimension = cls.env["spp.demographic.dimension"].create(
                 {
@@ -34,9 +32,7 @@ class TestDisaggregation(GISReportTestBase):
             )
 
         # Create age_group dimension (field-based for testing, uses a simple field)
-        cls.age_dimension = cls.env["spp.demographic.dimension"].search(
-            [("name", "=", "age_group")], limit=1
-        )
+        cls.age_dimension = cls.env["spp.demographic.dimension"].search([("name", "=", "age_group")], limit=1)
         if not cls.age_dimension:
             cls.age_dimension = cls.env["spp.demographic.dimension"].create(
                 {
@@ -114,7 +110,7 @@ class TestDisaggregation(GISReportTestBase):
         # We should have results for areas that have registrants
         self.assertIsInstance(result, dict)
         # Each area result should have a "gender" key
-        for area_id, disagg in result.items():
+        for _area_id, disagg in result.items():
             self.assertIn("gender", disagg)
 
     def test_disaggregation_with_multiple_dimensions(self):
@@ -127,7 +123,7 @@ class TestDisaggregation(GISReportTestBase):
         result = report._compute_disaggregation(area_context)
 
         # Each area result should have both dimension keys
-        for area_id, disagg in result.items():
+        for _area_id, disagg in result.items():
             self.assertIn("gender", disagg)
             self.assertIn("age_group", disagg)
 
@@ -170,9 +166,7 @@ class TestDisaggregation(GISReportTestBase):
         report._refresh_data()
 
         # Check that data records have disaggregation populated
-        data_with_disagg = report.data_ids.filtered(
-            lambda d: d.disaggregation and d.area_level == 2
-        )
+        data_with_disagg = report.data_ids.filtered(lambda d: d.disaggregation and d.area_level == 2)
         # We should have base-level data records with disaggregation
         # (only for areas that have registrants)
         for data in data_with_disagg:

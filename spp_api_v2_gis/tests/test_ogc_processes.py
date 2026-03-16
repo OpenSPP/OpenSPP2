@@ -893,9 +893,7 @@ class TestProcessGroupByInput(TransactionCase):
         super().setUpClass()
 
         # Create a demographic dimension for testing
-        cls.gender_dimension = cls.env["spp.demographic.dimension"].search(
-            [("name", "=", "gender")], limit=1
-        )
+        cls.gender_dimension = cls.env["spp.demographic.dimension"].search([("name", "=", "gender")], limit=1)
         if not cls.gender_dimension:
             cls.gender_dimension = cls.env["spp.demographic.dimension"].create(
                 {

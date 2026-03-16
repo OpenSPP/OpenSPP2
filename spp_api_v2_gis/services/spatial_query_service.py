@@ -476,7 +476,9 @@ class SpatialQueryService:
             "computed_at": agg_result.get("computed_at"),
         }
 
-    def query_proximity(self, reference_points, radius_km, relation="within", filters=None, variables=None, group_by=None):
+    def query_proximity(
+        self, reference_points, radius_km, relation="within", filters=None, variables=None, group_by=None
+    ):
         """Query registrants by proximity to reference points.
 
         Uses a temp table with pre-buffered geometries and ST_Intersects
