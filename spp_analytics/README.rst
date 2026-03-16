@@ -10,9 +10,9 @@ OpenSPP Analytics
    !! source digest: sha256:9951d094574dd68b1d86ae2167e53c5ccea5240188acf11a2b7f619ede6c5b54
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Beta
+    :alt: Production/Stable
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
