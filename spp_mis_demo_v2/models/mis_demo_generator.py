@@ -3797,9 +3797,7 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         # Find the lowest (most specific) area level that has geo_polygon data.
         # This works for any hierarchy depth: 4-level (curated) or 3-level (Luzon).
-        self.env.cr.execute(
-            "SELECT MAX(area_level) FROM spp_area WHERE geo_polygon IS NOT NULL"
-        )
+        self.env.cr.execute("SELECT MAX(area_level) FROM spp_area WHERE geo_polygon IS NOT NULL")
         result = self.env.cr.fetchone()
         target_level = result[0] if result and result[0] is not None else None
 
@@ -3853,7 +3851,7 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         # Batch-assign areas to groups and their members
         groups_assigned = 0
-        for group, area_id in zip(groups, assigned_ids):
+        for group, area_id in zip(groups, assigned_ids, strict=False):
             group.write({"area_id": area_id})
             groups_assigned += 1
 
@@ -3894,9 +3892,7 @@ class SPPMISDemoGenerator(models.TransientModel):
         Area = self.env["spp.area"]
 
         # Count total registrants with area_id
-        total_count = Partner.search_count(
-            [("is_registrant", "=", True), ("area_id", "!=", False)]
-        )
+        total_count = Partner.search_count([("is_registrant", "=", True), ("area_id", "!=", False)])
 
         if not total_count:
             _logger.warning("[spp.mis.demo] No registrants with areas found")

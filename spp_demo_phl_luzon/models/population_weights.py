@@ -33,9 +33,7 @@ class DemoPopulationWeights(models.TransientModel):
                 try:
                     population = int(row["population"])
                 except (ValueError, KeyError):
-                    _logger.warning(
-                        "Skipping invalid population row for pcode: %s", pcode
-                    )
+                    _logger.warning("Skipping invalid population row for pcode: %s", pcode)
                     continue
                 weights[pcode] = population
 
@@ -52,9 +50,7 @@ class DemoPopulationWeights(models.TransientModel):
         if not pcode_weights:
             return {}
 
-        areas = self.env["spp.area"].search(
-            [("code", "in", list(pcode_weights.keys()))]
-        )
+        areas = self.env["spp.area"].search([("code", "in", list(pcode_weights.keys()))])
         area_by_pcode = {area.code: area.id for area in areas}
 
         weights_by_area_id = {}
