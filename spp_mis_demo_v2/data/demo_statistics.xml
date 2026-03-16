@@ -61,14 +61,14 @@
         <field name="sequence">40</field>
     </record>
 
-    <!-- Disabled Members -->
+    <!-- Members with Disability (uses disability_id from spp_registry) -->
     <record id="cel_var_disabled_members" model="spp.cel.variable">
-        <field name="name">demo_disabled_members</field>
-        <field name="cel_accessor">disabled_members</field>
+        <field name="name">demo_pwd_members</field>
+        <field name="cel_accessor">pwd_members</field>
         <field name="source_type">aggregate</field>
         <field name="aggregate_type">count</field>
         <field name="aggregate_target">members</field>
-        <field name="aggregate_filter">m.disabled != null</field>
+        <field name="aggregate_filter">m.disability_id != null</field>
         <field name="value_type">number</field>
         <field name="applies_to">group</field>
         <field name="category_id" ref="spp_studio.variable_category_characteristics" />
@@ -235,11 +235,11 @@
         <field name="is_published_dashboard" eval="True" />
     </record>
 
-    <!-- Disabled Members -->
+    <!-- Members with Disability -->
     <record id="stat_disabled_members" model="spp.statistic">
-        <field name="name">disabled_members</field>
-        <field name="label">Disabled Members</field>
-        <field name="description">Count of household members with disabilities</field>
+        <field name="name">pwd_members</field>
+        <field name="label">Members with Disability</field>
+        <field name="description">Count of household members with a recorded disability</field>
         <field name="variable_id" ref="cel_var_disabled_members" />
         <field name="format">count</field>
         <field name="unit">people</field>
