@@ -6,7 +6,7 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Beta",
+    "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "reichie020212", "emjay0921"],
     "depends": [
         "spp_api_v2",
