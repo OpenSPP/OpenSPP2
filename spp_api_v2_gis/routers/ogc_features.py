@@ -1,18 +1,22 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """OGC API - Features endpoints.
 
-Implements the OGC API - Features Core standard (Part 1: Core) for
-GovStack GIS Building Block compliance. Maps existing GIS report data
-and data layers to OGC-compliant feature collections.
+Implements OGC API - Features Part 1 (Core) and Part 4 (Create/Replace/Delete)
+for GovStack GIS Building Block compliance. Maps existing GIS report data
+and data layers to OGC-compliant feature collections. The geofences collection
+supports full CRUD operations.
 
 Endpoints:
-    GET /gis/ogc/                           Landing page
-    GET /gis/ogc/conformance                Conformance classes
-    GET /gis/ogc/collections                List all collections
-    GET /gis/ogc/collections/{id}           Single collection metadata
-    GET /gis/ogc/collections/{id}/items     Feature items (GeoJSON)
-    GET /gis/ogc/collections/{id}/items/{fid} Single feature
-    GET /gis/ogc/collections/{id}/qml       QGIS style file (extension)
+    GET    /gis/ogc/                           Landing page
+    GET    /gis/ogc/conformance                Conformance classes
+    GET    /gis/ogc/collections                List all collections
+    GET    /gis/ogc/collections/{id}           Single collection metadata
+    GET    /gis/ogc/collections/{id}/items     Feature items (GeoJSON)
+    GET    /gis/ogc/collections/{id}/items/{fid} Single feature
+    POST   /gis/ogc/collections/geofences/items  Create geofence (Part 4)
+    PUT    /gis/ogc/collections/geofences/items/{fid} Replace geofence (Part 4)
+    DELETE /gis/ogc/collections/geofences/items/{fid} Delete geofence (Part 4)
+    GET    /gis/ogc/collections/{id}/qml       QGIS style file (extension)
 """
 
 import json
@@ -69,6 +73,22 @@ def _check_gis_read_scope(api_client):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Client does not have gis:read scope",
+        )
+
+
+def _check_gis_geofence_scope(api_client):
+    """Verify client has gis:geofence scope for write operations.
+
+    Args:
+        api_client: Authenticated API client
+
+    Raises:
+        HTTPException: If scope check fails
+    """
+    if not api_client.has_scope("gis", "geofence"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Client does not have gis:geofence scope",
         )
 
 
@@ -176,6 +196,14 @@ async def get_collection_items(
             description=("Bounding box filter: west,south,east,north (e.g., -180,-90,180,90)"),
         ),
     ] = None,
+    geofence_type: Annotated[
+        str | None,
+        Query(description="Filter by geofence type (geofences collection only)"),
+    ] = None,
+    active: Annotated[
+        bool | None,
+        Query(description="Include archived geofences (geofences collection only)"),
+    ] = None,
 ):
     """Get features from a collection.
 
@@ -205,6 +233,8 @@ async def get_collection_items(
             limit=limit,
             offset=offset,
             bbox=bbox_list,
+            geofence_type=geofence_type,
+            active=active,
         )
         return Response(
             content=_json_dumps(result),
@@ -234,14 +264,152 @@ async def options_collection_items(
     """Handle OPTIONS requests from OAPIF clients (e.g. QGIS).
 
     QGIS sends OPTIONS to discover allowed methods before fetching features.
+    Geofences collection advertises write methods (POST, PUT, DELETE).
     """
+    if collection_id == "geofences":
+        allow = "GET, HEAD, OPTIONS, POST, PUT, DELETE"
+    else:
+        allow = "GET, HEAD, OPTIONS"
+
     return Response(
         status_code=200,
         headers={
-            "Allow": "GET, HEAD, OPTIONS",
+            "Allow": allow,
             "Accept": "application/geo+json, application/json",
         },
     )
+
+
+@ogc_features_router.post(
+    "/collections/{collection_id}/items",
+    summary="Create feature (OGC Part 4)",
+    description="Create a new feature in the collection. Only supported for the geofences collection.",
+    status_code=status.HTTP_201_CREATED,
+)
+async def post_collection_item(
+    collection_id: Annotated[str, Path(description="Collection identifier")],
+    request: Request,
+    env: Annotated[Environment, Depends(odoo_env)],
+    api_client: Annotated[dict, Depends(get_authenticated_client)],
+):
+    """Create a new feature (OGC API - Features Part 4)."""
+    if collection_id != "geofences":
+        raise HTTPException(
+            status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+            detail="POST is only supported for the geofences collection",
+        )
+
+    _check_gis_geofence_scope(api_client)
+
+    try:
+        body = await request.json()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid JSON body: {e}",
+        ) from e
+
+    try:
+        base_url = _get_base_url(request)
+        service = OGCService(env, base_url)
+        result = service.create_geofence_feature(body)
+
+        return Response(
+            content=_json_dumps(result["feature"]),
+            status_code=status.HTTP_201_CREATED,
+            media_type="application/geo+json",
+            headers={
+                "Location": result["location"],
+                "Content-Crs": "<http://www.opengis.net/def/crs/OGC/1.3/CRS84>",
+            },
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
+
+
+@ogc_features_router.put(
+    "/collections/{collection_id}/items/{feature_id}",
+    summary="Replace feature (OGC Part 4)",
+    description="Replace a feature in the collection. Only supported for the geofences collection.",
+)
+async def put_collection_item(
+    collection_id: Annotated[str, Path(description="Collection identifier")],
+    feature_id: Annotated[str, Path(description="Feature identifier (UUID)")],
+    request: Request,
+    env: Annotated[Environment, Depends(odoo_env)],
+    api_client: Annotated[dict, Depends(get_authenticated_client)],
+):
+    """Replace a feature (OGC API - Features Part 4)."""
+    if collection_id != "geofences":
+        raise HTTPException(
+            status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+            detail="PUT is only supported for the geofences collection",
+        )
+
+    _check_gis_geofence_scope(api_client)
+
+    try:
+        body = await request.json()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid JSON body: {e}",
+        ) from e
+
+    try:
+        base_url = _get_base_url(request)
+        service = OGCService(env, base_url)
+        result = service.replace_geofence_feature(feature_id, body)
+
+        return Response(
+            content=_json_dumps(result),
+            media_type="application/geo+json",
+            headers={"Content-Crs": "<http://www.opengis.net/def/crs/OGC/1.3/CRS84>"},
+        )
+    except MissingError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
+
+
+@ogc_features_router.delete(
+    "/collections/{collection_id}/items/{feature_id}",
+    summary="Delete feature (OGC Part 4)",
+    description="Delete a feature from the collection. Only supported for the geofences collection.",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_collection_item(
+    collection_id: Annotated[str, Path(description="Collection identifier")],
+    feature_id: Annotated[str, Path(description="Feature identifier (UUID)")],
+    env: Annotated[Environment, Depends(odoo_env)],
+    api_client: Annotated[dict, Depends(get_authenticated_client)],
+):
+    """Delete a feature (OGC API - Features Part 4)."""
+    if collection_id != "geofences":
+        raise HTTPException(
+            status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+            detail="DELETE is only supported for the geofences collection",
+        )
+
+    _check_gis_geofence_scope(api_client)
+
+    try:
+        service = OGCService(env)
+        service.delete_geofence_feature(feature_id)
+    except MissingError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e
 
 
 @ogc_features_router.get(

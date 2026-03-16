@@ -179,6 +179,7 @@ class GisGeofence(models.Model):
         if not self.geometry:
             return {
                 "type": "Feature",
+                "id": self.uuid,
                 "geometry": None,
                 "properties": self._get_geojson_properties(),
             }
@@ -192,6 +193,7 @@ class GisGeofence(models.Model):
 
         return {
             "type": "Feature",
+            "id": self.uuid,
             "geometry": geometry_dict,
             "properties": self._get_geojson_properties(),
         }
