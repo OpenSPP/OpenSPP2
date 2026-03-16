@@ -43,7 +43,7 @@ Key Capabilities
   processing → done)
 - Auto-sync indicators to ``spp.data.value`` for CEL expression access
 - Link imports to hazard incidents for disaster response tracking
-- Process imports asynchronously via queue_job
+- Process imports asynchronously via job_worker
 
 Key Models
 ~~~~~~~~~~
@@ -118,7 +118,7 @@ Dependencies
 ~~~~~~~~~~~~
 
 ``spp_hxl``, ``spp_area``, ``spp_cel_domain``, ``spp_hazard``,
-``spp_security``, ``queue_job``
+``spp_security``, ``job_worker``
 
 **Table of contents**
 

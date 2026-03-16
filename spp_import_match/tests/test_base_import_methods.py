@@ -2,9 +2,8 @@
 
 from unittest.mock import patch
 
+from odoo.exceptions import UserError
 from odoo.tests import TransactionCase, tagged
-
-from odoo.addons.queue_job.exception import FailedJobError
 
 from ..models.base_import import ImportValidationError
 
@@ -112,14 +111,14 @@ class TestBaseImportMethods(TransactionCase):
         self.assertEqual(len(partner), 1)
 
     def test_import_one_chunk_error(self):
-        """_import_one_chunk raises FailedJobError on load errors."""
+        """_import_one_chunk raises UserError on load errors."""
         attachment = self.import_record._create_csv_attachment(["name"], [["ErrTest"]], self.csv_options, "err.csv")
         error_result = {
             "messages": [{"type": "error", "message": "Test error"}],
             "ids": [],
         }
         with patch.object(type(self.env["res.partner"]), "load", return_value=error_result):
-            with self.assertRaises(FailedJobError):
+            with self.assertRaises(UserError):
                 self.import_record._import_one_chunk("res.partner", attachment, self.csv_options, {})
 
     def test_import_validation_error_attributes(self):

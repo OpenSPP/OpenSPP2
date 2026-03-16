@@ -12,9 +12,8 @@
     "license": "LGPL-3",
     "development_status": "Beta",
     "maintainers": ["jeremi", "gonzalesedwin1123"],
-    "depends": ["base", "spp_base_common", "base_import", "queue_job", "spp_security"],
+    "depends": ["base", "spp_base_common", "base_import", "job_worker", "spp_security"],
     "data": [
-        "data/queue_job_data.xml",
         "security/ir.model.access.csv",
         "views/import_match_view.xml",
     ],

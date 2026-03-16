@@ -111,7 +111,6 @@ RUN --mount=type=cache,target=/tmp/downloads,sharing=locked \
     }; \
     download_module "OCA/server-ux" "server-ux"; \
     download_module "OCA/server-tools" "server-tools"; \
-    download_module "OCA/queue" "queue"; \
     download_module "OpenSPP/odoo-job-worker" "odoo-job-worker"; \
     download_module "OCA/server-backend" "server-backend"; \
     download_module "OCA/rest-framework" "rest-framework"; \

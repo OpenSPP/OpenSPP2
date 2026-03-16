@@ -18,7 +18,7 @@ list_db = ${LIST_DB}
 data_dir = /var/lib/odoo
 
 # Addons path - includes Odoo core, OpenSPP, and OCA modules
-addons_path = /opt/odoo/odoo/addons,/opt/odoo/odoo/odoo/addons,/mnt/extra-addons/openspp,/mnt/extra-addons/server-ux,/mnt/extra-addons/server-tools,/mnt/extra-addons/queue,/mnt/extra-addons/odoo-job-worker,/mnt/extra-addons/server-backend,/mnt/extra-addons/rest-framework,/mnt/extra-addons/muk-it
+addons_path = /opt/odoo/odoo/addons,/opt/odoo/odoo/odoo/addons,/mnt/extra-addons/openspp,/mnt/extra-addons/server-ux,/mnt/extra-addons/server-tools,/mnt/extra-addons/odoo-job-worker,/mnt/extra-addons/server-backend,/mnt/extra-addons/rest-framework,/mnt/extra-addons/muk-it
 
 # =============================================================================
 # Security
