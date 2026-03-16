@@ -369,7 +369,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:e2f2bc40368e1bb65ac6336eec7a46ff133360ef67c8283271317282c593c0df
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Beta" src="https://img.shields.io/badge/maturity-Beta-yellow.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_cel_event"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Production/Stable" src="https://img.shields.io/badge/maturity-Production%2FStable-green.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_cel_event"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Integrates event data with CEL expressions for eligibility and
 entitlement rules. Extends the CEL domain framework to query event data
 records collected through surveys, field visits, and assessments.
@@ -459,16 +459,695 @@ events_count/sum/avg pattern</li>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><a class="reference internal" href="#bug-tracker" id="toc-entry-1">Bug Tracker</a></li>
-<li><a class="reference internal" href="#credits" id="toc-entry-2">Credits</a><ul>
-<li><a class="reference internal" href="#authors" id="toc-entry-3">Authors</a></li>
-<li><a class="reference internal" href="#maintainers" id="toc-entry-4">Maintainers</a></li>
+<li><a class="reference internal" href="#usage" id="toc-entry-1">Usage</a><ul>
+<li><a class="reference internal" href="#ui-testing-guide" id="toc-entry-2">UI Testing Guide</a></li>
 </ul>
 </li>
 </ul>
 </div>
+<div class="section" id="usage">
+<h2><a class="toc-backref" href="#toc-entry-1">Usage</a></h2>
+<div class="section" id="ui-testing-guide">
+<h3><a class="toc-backref" href="#toc-entry-2">UI Testing Guide</a></h3>
+<p>This guide covers manual QA testing for the <tt class="docutils literal">spp_cel_event</tt> module.
+All tests start from the variable configuration form.</p>
+</div>
+</div>
+</div>
+<div class="section" id="prerequisites">
+<h1>Prerequisites</h1>
+<ul class="simple">
+<li>Module <tt class="docutils literal">spp_cel_event</tt> is installed (auto-installs when
+<tt class="docutils literal">spp_cel_domain</tt>, <tt class="docutils literal">spp_event_data</tt>, and <tt class="docutils literal">spp_studio</tt> are all
+present)</li>
+<li>At least one <strong>Event Type</strong> exists (e.g., code <tt class="docutils literal">payment</tt>, target
+type <tt class="docutils literal">individual</tt>)</li>
+<li>User has access to the Studio menu</li>
+</ul>
+</div>
+<div class="section" id="navigating-to-the-form">
+<h1>Navigating to the Form</h1>
+<ol class="arabic simple">
+<li>Go to <strong>Studio &gt; Rules &gt; Variables &gt; All Variables</strong></li>
+<li>Click <strong>New</strong> to create a variable, or open an existing one</li>
+</ol>
+</div>
+<div class="section" id="test-1-event-aggregation-section-visibility">
+<h1>Test 1: Event Aggregation Section Visibility</h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="46%" />
+<col width="46%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td>Set <strong>Source Type</strong> to
+“Aggregate”</td>
+<td>Aggregate fields appear</td>
+</tr>
+<tr><td>2</td>
+<td>Set <strong>Aggregate Target</strong> to
+“Members”</td>
+<td>Event Aggregation section is
+<strong>hidden</strong></td>
+</tr>
+<tr><td>3</td>
+<td>Set <strong>Aggregate Target</strong> to
+“Events”</td>
+<td>Event Aggregation section
+appears with: Event Type,
+Time Range, Event States, and
+Generated Expression preview</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="test-2-count-aggregation">
+<h1>Test 2: Count Aggregation</h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="46%" />
+<col width="46%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td>Set <strong>Source Type</strong> =
+Aggregate</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>2</td>
+<td>Set <strong>Aggregate Target</strong> =
+Events</td>
+<td>Event Aggregation section
+appears</td>
+</tr>
+<tr><td>3</td>
+<td>Set <strong>Aggregate Type</strong> =
+Count</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>4</td>
+<td>Set <strong>Event Type</strong> = Payment
+Event</td>
+<td>Warning disappears</td>
+</tr>
+<tr><td>5</td>
+<td>Leave <strong>Time Range</strong> = All
+Time</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>6</td>
+<td>Check <strong>Generated
+Expression</strong></td>
+<td><tt class="docutils literal"><span class="pre">events_count('payment')</span></tt></td>
+</tr>
+<tr><td>7</td>
+<td><strong>Event Field</strong> should be
+<strong>hidden</strong></td>
+<td>Field not visible (count
+doesn’t need it)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="test-3-exists-aggregation">
+<h1>Test 3: Exists Aggregation</h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="46%" />
+<col width="46%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td>Set <strong>Aggregate Type</strong> =
+Exists</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>2</td>
+<td>Set <strong>Event Type</strong> = Payment
+Event</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>3</td>
+<td>Check <strong>Generated
+Expression</strong></td>
+<td><tt class="docutils literal"><span class="pre">has_event('payment')</span></tt></td>
+</tr>
+<tr><td>4</td>
+<td><strong>Event Field</strong> should be
+<strong>hidden</strong></td>
+<td>Field not visible (exists
+doesn’t need it)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="test-4-sum-aggregation-also-applies-to-avg-min-max">
+<h1>Test 4: Sum Aggregation (also applies to avg, min, max)</h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="8%" />
+<col width="42%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td>Set <strong>Aggregate Type</strong> = Sum</td>
+<td><strong>Event Field</strong> becomes visible and
+<strong>required</strong></td>
+</tr>
+<tr><td>2</td>
+<td>Set <strong>Event Type</strong> = Payment
+Event</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>3</td>
+<td>Type <tt class="docutils literal">amount</tt> in <strong>Event
+Field</strong></td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>4</td>
+<td>Check <strong>Generated
+Expression</strong></td>
+<td><tt class="docutils literal"><span class="pre">events_sum('payment',</span> 'amount')</tt></td>
+</tr>
+<tr><td>5</td>
+<td>Change <strong>Aggregate Type</strong> to
+Avg</td>
+<td>Expression updates to
+<tt class="docutils literal"><span class="pre">events_avg('payment',</span> 'amount')</tt></td>
+</tr>
+<tr><td>6</td>
+<td>Change <strong>Aggregate Type</strong> to
+Min</td>
+<td>Expression updates to
+<tt class="docutils literal"><span class="pre">events_min('payment',</span> 'amount')</tt></td>
+</tr>
+<tr><td>7</td>
+<td>Change <strong>Aggregate Type</strong> to
+Max</td>
+<td>Expression updates to
+<tt class="docutils literal"><span class="pre">events_max('payment',</span> 'amount')</tt></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="test-5-temporal-filters">
+<h1>Test 5: Temporal Filters</h1>
+<p><strong>5a: Named Periods</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="7%" />
+<col width="35%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td>Set up a Count aggregation
+with an event type</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>2</td>
+<td>Set <strong>Time Range</strong> = This
+Year</td>
+<td>Expression:
+<tt class="docutils literal"><span class="pre">events_count('payment',</span> <span class="pre">period=this_year())</span></tt></td>
+</tr>
+<tr><td>3</td>
+<td>Set <strong>Time Range</strong> = This
+Quarter</td>
+<td>Expression:
+<tt class="docutils literal"><span class="pre">events_count('payment',</span> <span class="pre">period=this_quarter())</span></tt></td>
+</tr>
+<tr><td>4</td>
+<td>Set <strong>Time Range</strong> = This
+Month</td>
+<td>Expression:
+<tt class="docutils literal"><span class="pre">events_count('payment',</span> <span class="pre">period=this_month())</span></tt></td>
+</tr>
+<tr><td>5</td>
+<td><strong>Number of Days/Months</strong>
+field is <strong>hidden</strong></td>
+<td>Field not visible for named periods</td>
+</tr>
+</tbody>
+</table>
+<p><strong>5b: Within N Days</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="7%" />
+<col width="38%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td>Set <strong>Time Range</strong> = Within N
+Days</td>
+<td><strong>Number of Days/Months</strong> field appears and
+is required</td>
+</tr>
+<tr><td>2</td>
+<td>Enter <tt class="docutils literal">90</tt></td>
+<td>Expression:
+<tt class="docutils literal"><span class="pre">events_count('payment',</span> within_days=90)</tt></td>
+</tr>
+</tbody>
+</table>
+<p><strong>5c: Within N Months</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="7%" />
+<col width="37%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td>Set <strong>Time Range</strong> = Within N
+Months</td>
+<td><strong>Number of Days/Months</strong> field appears and
+is required</td>
+</tr>
+<tr><td>2</td>
+<td>Enter <tt class="docutils literal">6</tt></td>
+<td>Expression:
+<tt class="docutils literal"><span class="pre">events_count('payment',</span> within_months=6)</tt></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="test-6-event-states-filter">
+<h1>Test 6: Event States Filter</h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="5%" />
+<col width="28%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td>Set up a Count aggregation
+with an event type</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>2</td>
+<td><strong>Event States</strong> defaults to
+“Active Only”</td>
+<td>No <tt class="docutils literal">states=</tt> in expression</td>
+</tr>
+<tr><td>3</td>
+<td>Set <strong>Event States</strong> = All
+States</td>
+<td>Expression includes <tt class="docutils literal"><span class="pre">states=['active',</span> 'superseded', 'expired']</tt></td>
+</tr>
+<tr><td>4</td>
+<td>Example full expression</td>
+<td><tt class="docutils literal"><span class="pre">events_count('payment',</span> <span class="pre">states=['active',</span> 'superseded', <span class="pre">'expired'])</span></tt></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="test-7-combined-filters">
+<h1>Test 7: Combined Filters</h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="4%" />
+<col width="23%" />
+<col width="73%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td><strong>Aggregate Type</strong> = Sum</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>2</td>
+<td><strong>Event Type</strong> = Payment
+Event</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>3</td>
+<td><strong>Event Field</strong> = <tt class="docutils literal">amount</tt></td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>4</td>
+<td><strong>Time Range</strong> = Within N
+Months, value = <tt class="docutils literal">6</tt></td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>5</td>
+<td><strong>Event States</strong> = All States</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>6</td>
+<td>Check <strong>Generated
+Expression</strong></td>
+<td><tt class="docutils literal"><span class="pre">events_sum('payment',</span> 'amount', within_months=6, <span class="pre">states=['active',</span> 'superseded', <span class="pre">'expired'])</span></tt></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="test-8-validation-errors">
+<h1>Test 8: Validation Errors</h1>
+<p><strong>8a: Missing Event Type</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="46%" />
+<col width="46%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td>Set <strong>Source Type</strong> =
+Aggregate</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>2</td>
+<td>Set <strong>Aggregate Target</strong> =
+Events</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>3</td>
+<td>Set <strong>Aggregate Type</strong> =
+Count</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>4</td>
+<td>Leave <strong>Event Type</strong> empty</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>5</td>
+<td>Fill remaining required
+fields and click Save</td>
+<td><strong>ValidationError</strong>: event
+type is required</td>
+</tr>
+</tbody>
+</table>
+<p><strong>8b: Missing Event Field for Sum/Avg/Min/Max</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="46%" />
+<col width="46%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td>Set <strong>Aggregate Type</strong> = Sum</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>2</td>
+<td>Set <strong>Event Type</strong> = Payment
+Event</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>3</td>
+<td>Leave <strong>Event Field</strong> empty</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>4</td>
+<td>Click Save</td>
+<td><strong>ValidationError</strong>: field is
+required for sum</td>
+</tr>
+</tbody>
+</table>
+<p><strong>8c: Missing Temporal Value</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="46%" />
+<col width="46%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td>Set <strong>Time Range</strong> = Within N
+Days</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>2</td>
+<td>Leave <strong>Number of
+Days/Months</strong> empty or <tt class="docutils literal">0</tt></td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>3</td>
+<td>Click Save</td>
+<td><strong>ValidationError</strong>: positive
+value required</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="test-9-onchange-field-clearing">
+<h1>Test 9: Onchange Field Clearing</h1>
+<p><strong>9a: Switching Away from Events</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="46%" />
+<col width="46%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td>Create a variable with
+<strong>Aggregate Target</strong> =
+Events, fully configured</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>2</td>
+<td>Change <strong>Aggregate Target</strong>
+to “Members”</td>
+<td>Event Type, Time Range, Event
+Field, Event States reset to
+defaults</td>
+</tr>
+<tr><td>3</td>
+<td>Change back to “Events”</td>
+<td>Fields are blank/default and
+need reconfiguration</td>
+</tr>
+</tbody>
+</table>
+<p><strong>9b: Switching Aggregate Type to Count/Exists</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="46%" />
+<col width="46%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td>Set <strong>Aggregate Type</strong> = Sum,
+<strong>Event Field</strong> = <tt class="docutils literal">amount</tt></td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>2</td>
+<td>Change <strong>Aggregate Type</strong> to
+Count</td>
+<td><strong>Event Field</strong> is cleared
+and hidden</td>
+</tr>
+<tr><td>3</td>
+<td>Change <strong>Aggregate Type</strong> to
+Exists</td>
+<td><strong>Event Field</strong> remains
+cleared and hidden</td>
+</tr>
+</tbody>
+</table>
+<p><strong>9c: Switching Temporal Type</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="46%" />
+<col width="46%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td>Set <strong>Time Range</strong> = Within N
+Days, value = <tt class="docutils literal">30</tt></td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>2</td>
+<td>Change <strong>Time Range</strong> to This
+Year</td>
+<td><strong>Number of Days/Months</strong> is
+cleared and hidden</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="test-10-expression-preview-warning">
+<h1>Test 10: Expression Preview Warning</h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="46%" />
+<col width="46%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td>Set <strong>Aggregate Target</strong> =
+Events</td>
+<td>Generated Expression preview
+appears</td>
+</tr>
+<tr><td>2</td>
+<td>Leave <strong>Event Type</strong> empty</td>
+<td>Warning icon with:
+“Configuration incomplete.
+Select an event type to
+generate the expression.”</td>
+</tr>
+<tr><td>3</td>
+<td>Select an <strong>Event Type</strong></td>
+<td>Warning disappears, valid
+expression shown</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="test-11-aggregate-filter-is-excluded">
+<h1>Test 11: Aggregate Filter is Excluded</h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="46%" />
+<col width="46%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td>Set up any event aggregation
+(e.g., Sum)</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>2</td>
+<td>Enter a value in <strong>Aggregate
+Filter</strong> (e.g.,
+<tt class="docutils literal">e.amount &gt; 1000</tt>)</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>3</td>
+<td>Check <strong>Generated
+Expression</strong></td>
+<td>Expression does <strong>NOT</strong>
+contain <tt class="docutils literal">where=</tt></td>
+</tr>
+<tr><td>4</td>
+<td>The filter value is stored
+but not included in the
+generated expression</td>
+<td>This is by design
+(where_predicate is not yet
+implemented in the executor)</td>
+</tr>
+</tbody>
+</table>
 <div class="section" id="bug-tracker">
-<h2><a class="toc-backref" href="#toc-entry-1">Bug Tracker</a></h2>
+<h2>Bug Tracker</h2>
 <p>Bugs are tracked on <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/issues">GitHub Issues</a>.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
@@ -476,15 +1155,15 @@ If you spotted it first, help us to smash it by providing a detailed and welcome
 <p>Do not contact contributors directly about support or help with technical issues.</p>
 </div>
 <div class="section" id="credits">
-<h2><a class="toc-backref" href="#toc-entry-2">Credits</a></h2>
+<h2>Credits</h2>
 <div class="section" id="authors">
-<h3><a class="toc-backref" href="#toc-entry-3">Authors</a></h3>
+<h3>Authors</h3>
 <ul class="simple">
 <li>OpenSPP.org</li>
 </ul>
 </div>
 <div class="section" id="maintainers">
-<h3><a class="toc-backref" href="#toc-entry-4">Maintainers</a></h3>
+<h3>Maintainers</h3>
 <p>Current maintainers:</p>
 <p><a class="reference external image-reference" href="https://github.com/jeremi"><img alt="jeremi" src="https://github.com/jeremi.png?size=40px" /></a> <a class="reference external image-reference" href="https://github.com/gonzalesedwin1123"><img alt="gonzalesedwin1123" src="https://github.com/gonzalesedwin1123.png?size=40px" /></a> <a class="reference external image-reference" href="https://github.com/emjay0921"><img alt="emjay0921" src="https://github.com/emjay0921.png?size=40px" /></a></p>
 <p>This module is part of the <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_cel_event">OpenSPP/OpenSPP2</a> project on GitHub.</p>
