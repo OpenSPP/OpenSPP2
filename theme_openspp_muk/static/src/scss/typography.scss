@@ -1,0 +1,45 @@
+// OpenSPP Typography
+// Refined type hierarchy for better readability and modern feel
+
+// ---- Headings in Views ----
+
+.o_form_view .o_inner_group .o_group_col > .o_wrap_label > label,
+.o_form_view .o_inner_group .o_td_label .o_form_label {
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+// ---- Control Panel / Breadcrumb Title ----
+
+.o_control_panel .breadcrumb-item.active {
+    font-weight: 600;
+}
+
+// ---- List View Headers ----
+
+.o_list_view thead th {
+    font-weight: 600;
+    font-size: 0.84rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #495057;
+}
+
+// ---- Stat Buttons ----
+
+.o_form_view .oe_button_box .oe_stat_button .o_stat_info .o_stat_value {
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+// ---- Kanban Card Titles ----
+
+.o_kanban_view .o_kanban_record .o_kanban_record_title {
+    font-weight: 600;
+}
+
+// ---- Chatter ----
+
+.o_mail_thread .o_mail_note .o_mail_info strong {
+    font-weight: 600;
+}

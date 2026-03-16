@@ -1,22 +1,99 @@
-.o_main_navbar {
-    border-bottom: none !important;
-    background-color: #3264c8 !important;
+// OpenSPP Navbar Styling
+// Uses variables from colors.scss for maintainability
+
+// ---- Main Navbar ----
+
+body .o_main_navbar {
+    border-bottom: none;
+    background-color: $mk_color_appbar_background;
+    transition: background-color 0.2s ease;
 }
 
-.o_main_navbar > .o_menu_sections > .dropdown-item,
-.o_main_navbar > .o_menu_sections > .o-dropdown > .dropdown-toggle {
-    background-color: #3264c8 !important;
+body .o_main_navbar > .o_menu_sections > .dropdown-item,
+body .o_main_navbar > .o_menu_sections > .o-dropdown > .dropdown-toggle {
+    background-color: transparent;
 }
 
-.mk_app_menu.dropdown-menu .o_app > a .mk_app_icon {
-    background-color: #ffffff00 !important;
+body .o_main_navbar .o_menu_brand,
+body .o_main_navbar .o_navbar_apps_menu .dropdown-toggle,
+body .o_main_navbar .o_nav_entry,
+body .o_main_navbar .dropdown-toggle {
+    color: #fff;
 }
 
-.o_main_navbar .o_menu_sections .o_nav_entry,
-.o_main_navbar .o_menu_sections .dropdown-toggle {
-    background-color: #3264c8 !important;
+body .o_main_navbar .o_menu_sections .o_nav_entry,
+body .o_main_navbar .o_menu_sections .dropdown-toggle {
+    background-color: transparent;
+    border-radius: 0.25rem;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.12);
+    }
+}
+
+// ---- Primary Buttons ----
+
+body .btn-primary {
+    background-color: $mk_color_appbar_background;
+    border-color: $mk_color_appbar_background;
+    color: #fff;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+
+    &:hover {
+        background-color: $mk_color_appbar_background_dark;
+        border-color: $mk_color_appbar_background_dark;
+        color: #fff;
+    }
+
+    &:focus-visible {
+        box-shadow: 0 0 0 0.2rem rgba($mk_color_appbar_background, 0.4);
+    }
+}
+
+// ---- MuK Sidebar ----
+
+.mk_apps_sidebar_panel .mk_apps_sidebar .mk_apps_sidebar_menu > li > a {
+    color: #fff;
+    transition:
+        background-color 0.15s ease,
+        color 0.15s ease;
+
+    &:hover {
+        color: #fff;
+        background-color: $mk_color_appbar_hover;
+    }
 }
 
 .mk_apps_sidebar_panel .mk_apps_sidebar .mk_apps_sidebar_menu > li.active > a {
-    background-color: #2261e0 !important;
+    background-color: $mk_color_appbar_hover;
+    color: #fff;
+}
+
+// ---- App Menu Icons ----
+
+.mk_app_menu.dropdown-menu .o_app > a .mk_app_icon,
+.o_navbar_apps_menu.show .dropdown-menu .o_app > a .mk_app_icon {
+    width: 100%;
+    padding: 10px;
+    max-width: 70px;
+    border-radius: 0.375rem;
+    background-color: transparent;
+    transform-origin: center bottom;
+    transition:
+        box-shadow 0.15s ease,
+        transform 0.15s ease;
+    box-shadow:
+        inset 0 0 0 1px rgba(0, 0, 0, 0),
+        0 4px 4px rgba(0, 0, 0, 0.02);
+
+    &:hover {
+        transform: scale(1.05);
+        box-shadow:
+            inset 0 0 0 1px rgba(0, 0, 0, 0.04),
+            0 6px 12px rgba(0, 0, 0, 0.06);
+    }
 }

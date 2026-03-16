@@ -1,0 +1,39 @@
+// OpenSPP Accessibility
+// Focus indicators, contrast, and motion preferences
+
+// ---- Keyboard Focus Indicators ----
+
+*:focus-visible {
+    outline: 2px solid $mk_color_appbar_active;
+    outline-offset: 2px;
+}
+
+// Buttons and interactive elements get a ring instead of outline
+.btn:focus-visible,
+.nav-link:focus-visible,
+.dropdown-item:focus-visible,
+.o_menu_sections a:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba($mk_color_appbar_active, 0.35);
+}
+
+// Form inputs already have focus styling in components.scss,
+// suppress double outline
+.o_form_view .o_field_widget input:focus-visible,
+.o_form_view .o_field_widget textarea:focus-visible,
+.o_form_view .o_field_widget select:focus-visible {
+    outline: none;
+}
+
+// ---- Reduced Motion ----
+// Respect user preference for reduced animations
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

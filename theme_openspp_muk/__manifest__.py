@@ -22,7 +22,12 @@
             "theme_openspp_muk/static/src/scss/colors_light.scss",
         ],
         "web.assets_web_dark": ["theme_openspp_muk/static/src/scss/colors_dark.scss"],
-        "web.assets_backend": ["theme_openspp_muk/static/src/scss/navbar.scss"],
+        "web.assets_backend": [
+            "theme_openspp_muk/static/src/scss/navbar.scss",
+            "theme_openspp_muk/static/src/scss/typography.scss",
+            "theme_openspp_muk/static/src/scss/components.scss",
+            "theme_openspp_muk/static/src/scss/accessibility.scss",
+        ],
     },
     "application": False,
     "installable": True,
