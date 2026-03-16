@@ -17,6 +17,7 @@
         "views/indicator_category_views.xml",
         "views/menus.xml",
     ],
+    "development_status": "Beta",
     "installable": True,
     # Bridge module: auto-install when both spp_indicator and spp_studio are present
     "auto_install": True,

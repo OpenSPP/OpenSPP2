@@ -14,3 +14,4 @@ from . import test_security
 from . import test_entitlement_rule
 from . import test_metric_constraints
 from . import test_scenario_convert_to_program
+from . import test_coverage
