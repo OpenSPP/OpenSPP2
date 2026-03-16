@@ -7,8 +7,8 @@ from pydantic import BaseModel, Field
 class StatisticInfo(BaseModel):
     """Information about a single published statistic."""
 
-    name: str = Field(..., description="Technical name (e.g., 'children_under_5')")
-    label: str = Field(..., description="Display label (e.g., 'Children Under 5')")
+    name: str = Field(..., description="Technical name (e.g., 'total_households')")
+    label: str = Field(..., description="Display label (e.g., 'Total Households')")
     description: str | None = Field(default=None, description="Detailed description")
     format: str = Field(..., description="Aggregation format (count, sum, avg, percent, ratio, currency)")
     unit: str | None = Field(default=None, description="Unit of measurement")

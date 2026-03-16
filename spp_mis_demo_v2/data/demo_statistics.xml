@@ -29,38 +29,6 @@
         <field name="sequence">10</field>
     </record>
 
-    <!-- Children Under 5: use spp_studio.var_children_under_5 (same cel_accessor + applies_to) -->
-
-    <!-- Children Under 18 -->
-    <record id="cel_var_children_under_18" model="spp.cel.variable">
-        <field name="name">demo_children_under_18</field>
-        <field name="cel_accessor">children_under_18</field>
-        <field name="source_type">aggregate</field>
-        <field name="aggregate_type">count</field>
-        <field name="aggregate_target">members</field>
-        <field name="aggregate_filter">age_years(m.birthdate) &lt; 18</field>
-        <field name="value_type">number</field>
-        <field name="applies_to">group</field>
-        <field name="category_id" ref="spp_studio.variable_category_demographics" />
-        <field name="state">active</field>
-        <field name="sequence">30</field>
-    </record>
-
-    <!-- Elderly 60+ -->
-    <record id="cel_var_elderly_60_plus" model="spp.cel.variable">
-        <field name="name">demo_elderly_60_plus</field>
-        <field name="cel_accessor">elderly_60_plus</field>
-        <field name="source_type">aggregate</field>
-        <field name="aggregate_type">count</field>
-        <field name="aggregate_target">members</field>
-        <field name="aggregate_filter">age_years(m.birthdate) >= 60</field>
-        <field name="value_type">number</field>
-        <field name="applies_to">group</field>
-        <field name="category_id" ref="spp_studio.variable_category_demographics" />
-        <field name="state">active</field>
-        <field name="sequence">40</field>
-    </record>
-
     <!-- Members with Disability (uses disability_id from spp_registry) -->
     <record id="cel_var_disabled_members" model="spp.cel.variable">
         <field name="name">demo_pwd_members</field>
@@ -74,36 +42,6 @@
         <field name="category_id" ref="spp_studio.variable_category_characteristics" />
         <field name="state">active</field>
         <field name="sequence">50</field>
-    </record>
-
-    <!-- Female Members -->
-    <record id="cel_var_female_members" model="spp.cel.variable">
-        <field name="name">demo_female_members</field>
-        <field name="cel_accessor">female_members</field>
-        <field name="source_type">aggregate</field>
-        <field name="aggregate_type">count</field>
-        <field name="aggregate_target">members</field>
-        <field name="aggregate_filter">is_female(m.gender_id)</field>
-        <field name="value_type">number</field>
-        <field name="applies_to">group</field>
-        <field name="category_id" ref="spp_studio.variable_category_demographics" />
-        <field name="state">active</field>
-        <field name="sequence">45</field>
-    </record>
-
-    <!-- Male Members -->
-    <record id="cel_var_male_members" model="spp.cel.variable">
-        <field name="name">demo_male_members</field>
-        <field name="cel_accessor">male_members</field>
-        <field name="source_type">aggregate</field>
-        <field name="aggregate_type">count</field>
-        <field name="aggregate_target">members</field>
-        <field name="aggregate_filter">is_male(m.gender_id)</field>
-        <field name="value_type">number</field>
-        <field name="applies_to">group</field>
-        <field name="category_id" ref="spp_studio.variable_category_demographics" />
-        <field name="state">active</field>
-        <field name="sequence">46</field>
     </record>
 
     <!-- Total Households (computed - returns true for counting) -->
@@ -161,76 +99,6 @@
         <field name="unit">people</field>
         <field name="category_id" ref="spp_statistic.category_demographics" />
         <field name="sequence">15</field>
-        <field name="is_published_gis" eval="True" />
-        <field name="is_published_dashboard" eval="True" />
-    </record>
-
-    <!-- Children Under 5 -->
-    <record id="stat_children_under_5" model="spp.statistic">
-        <field name="name">children_under_5</field>
-        <field name="label">Children Under 5</field>
-        <field name="description">Count of children under 5 years old</field>
-        <field name="variable_id" ref="spp_studio.var_children_under_5" />
-        <field name="format">count</field>
-        <field name="unit">children</field>
-        <field name="category_id" ref="spp_statistic.category_demographics" />
-        <field name="sequence">20</field>
-        <field name="is_published_gis" eval="True" />
-        <field name="is_published_dashboard" eval="True" />
-    </record>
-
-    <!-- Children Under 18 -->
-    <record id="stat_children_under_18" model="spp.statistic">
-        <field name="name">children_under_18</field>
-        <field name="label">Children Under 18</field>
-        <field name="description">Count of children under 18 years old</field>
-        <field name="variable_id" ref="cel_var_children_under_18" />
-        <field name="format">count</field>
-        <field name="unit">children</field>
-        <field name="category_id" ref="spp_statistic.category_demographics" />
-        <field name="sequence">30</field>
-        <field name="is_published_gis" eval="True" />
-        <field name="is_published_dashboard" eval="True" />
-    </record>
-
-    <!-- Elderly 60+ -->
-    <record id="stat_elderly_60_plus" model="spp.statistic">
-        <field name="name">elderly_60_plus</field>
-        <field name="label">Elderly (60+)</field>
-        <field name="description">Count of elderly persons aged 60 and above</field>
-        <field name="variable_id" ref="cel_var_elderly_60_plus" />
-        <field name="format">count</field>
-        <field name="unit">people</field>
-        <field name="category_id" ref="spp_statistic.category_demographics" />
-        <field name="sequence">40</field>
-        <field name="is_published_gis" eval="True" />
-        <field name="is_published_dashboard" eval="True" />
-    </record>
-
-    <!-- Female Members -->
-    <record id="stat_female_members" model="spp.statistic">
-        <field name="name">female_members</field>
-        <field name="label">Female Members</field>
-        <field name="description">Count of female household members</field>
-        <field name="variable_id" ref="cel_var_female_members" />
-        <field name="format">count</field>
-        <field name="unit">people</field>
-        <field name="category_id" ref="spp_statistic.category_demographics" />
-        <field name="sequence">45</field>
-        <field name="is_published_gis" eval="True" />
-        <field name="is_published_dashboard" eval="True" />
-    </record>
-
-    <!-- Male Members -->
-    <record id="stat_male_members" model="spp.statistic">
-        <field name="name">male_members</field>
-        <field name="label">Male Members</field>
-        <field name="description">Count of male household members</field>
-        <field name="variable_id" ref="cel_var_male_members" />
-        <field name="format">count</field>
-        <field name="unit">people</field>
-        <field name="category_id" ref="spp_statistic.category_demographics" />
-        <field name="sequence">46</field>
         <field name="is_published_gis" eval="True" />
         <field name="is_published_dashboard" eval="True" />
     </record>
