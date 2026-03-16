@@ -56,6 +56,14 @@ class BreakdownService(models.AbstractModel):
         if not dimensions:
             return {}
 
+        # Auto-expand groups to members when any dimension applies to individuals only
+        needs_expansion = any(d.applies_to == "individuals" for d in dimensions)
+        if needs_expansion:
+            registrant_ids = self._expand_groups_to_members(registrant_ids)
+
+        if not registrant_ids:
+            return {}
+
         # Get cache service
         cache_service = self.env["spp.metrics.dimension.cache"]
 
@@ -95,3 +103,36 @@ class BreakdownService(models.AbstractModel):
         # TODO: Add per-cell statistics if needed
 
         return breakdown
+
+    @api.model
+    def _expand_groups_to_members(self, registrant_ids):
+        """
+        Expand group IDs to their individual member IDs.
+
+        Groups are replaced by their active members. Individual IDs pass through.
+        The result is deduplicated.
+
+        :param registrant_ids: List of partner IDs (groups and/or individuals)
+        :returns: Deduplicated list of individual partner IDs
+        :rtype: list
+        """
+        Partner = self.env["res.partner"].sudo()  # nosemgrep: odoo-sudo-without-context
+        records = Partner.browse(registrant_ids).exists()
+
+        group_ids = records.filtered("is_group").ids
+        individual_ids = set(records.filtered(lambda r: not r.is_group).ids)
+
+        if not group_ids:
+            return list(individual_ids)
+
+        # Expand groups via active memberships
+        Membership = self.env["spp.group.membership"].sudo()  # nosemgrep: odoo-sudo-without-context
+        memberships = Membership.search([
+            ("group", "in", group_ids),
+            ("is_ended", "=", False),
+        ])
+
+        for membership in memberships:
+            individual_ids.add(membership.individual.id)
+
+        return list(individual_ids)
