@@ -2,6 +2,7 @@
 
 import logging
 
+from odoo.fields import Command
 from odoo.tests import tagged
 
 from .common import GISReportTestBase
@@ -85,7 +86,7 @@ class TestDisaggregation(GISReportTestBase):
                 "aggregation_method": "count",
                 "normalization_method": "raw",
                 "base_area_level": 2,
-                "dimension_ids": [(6, 0, [self.gender_dimension.id])],
+                "dimension_ids": [Command.set([self.gender_dimension.id])],
             }
         )
         area_context = report._prepare_area_context()
@@ -96,7 +97,7 @@ class TestDisaggregation(GISReportTestBase):
         """Test _compute_disaggregation with gender dimension returns per-area counts."""
         report = self.create_test_report(
             name="Gender Disagg Test",
-            dimension_ids=[(6, 0, [self.gender_dimension.id])],
+            dimension_ids=[Command.set([self.gender_dimension.id])],
         )
         area_context = report._prepare_area_context()
         result = report._compute_disaggregation(area_context)
@@ -117,7 +118,7 @@ class TestDisaggregation(GISReportTestBase):
         """Test _compute_disaggregation with multiple dimensions."""
         report = self.create_test_report(
             name="Multi Dim Test",
-            dimension_ids=[(6, 0, [self.gender_dimension.id, self.age_dimension.id])],
+            dimension_ids=[Command.set([self.gender_dimension.id, self.age_dimension.id])],
         )
         area_context = report._prepare_area_context()
         result = report._compute_disaggregation(area_context)
@@ -131,7 +132,7 @@ class TestDisaggregation(GISReportTestBase):
         """Test _compute_disaggregation respects applies_to on dimensions."""
         report = self.create_test_report(
             name="Applies To Test",
-            dimension_ids=[(6, 0, [self.individual_dimension.id])],
+            dimension_ids=[Command.set([self.individual_dimension.id])],
         )
         area_context = report._prepare_area_context()
         result = report._compute_disaggregation(area_context)
@@ -148,7 +149,7 @@ class TestDisaggregation(GISReportTestBase):
         """Test _compute_disaggregation returns empty dict when area_context is None."""
         report = self.create_test_report(
             name="None Context Test",
-            dimension_ids=[(6, 0, [self.gender_dimension.id])],
+            dimension_ids=[Command.set([self.gender_dimension.id])],
         )
         result = report._compute_disaggregation(None)
         self.assertEqual(result, {})
@@ -161,7 +162,7 @@ class TestDisaggregation(GISReportTestBase):
         """Test _refresh_data populates disaggregation field on data records."""
         report = self.create_test_report(
             name="Refresh Disagg Test",
-            dimension_ids=[(6, 0, [self.gender_dimension.id])],
+            dimension_ids=[Command.set([self.gender_dimension.id])],
         )
         report._refresh_data()
 
@@ -188,7 +189,7 @@ class TestDisaggregation(GISReportTestBase):
         """Test GeoJSON output includes flat disagg_* properties when requested."""
         report = self.create_test_report(
             name="GeoJSON Disagg Test",
-            dimension_ids=[(6, 0, [self.gender_dimension.id])],
+            dimension_ids=[Command.set([self.gender_dimension.id])],
         )
         # Create data with known disaggregation
         self.create_test_data(
@@ -218,7 +219,7 @@ class TestDisaggregation(GISReportTestBase):
         """Test GeoJSON without include_disaggregation has no disagg_* properties."""
         report = self.create_test_report(
             name="GeoJSON No Disagg Test",
-            dimension_ids=[(6, 0, [self.gender_dimension.id])],
+            dimension_ids=[Command.set([self.gender_dimension.id])],
         )
         self.create_test_data(
             report,
@@ -243,7 +244,7 @@ class TestDisaggregation(GISReportTestBase):
         """Test GeoJSON metadata includes disaggregation dimension info with labels."""
         report = self.create_test_report(
             name="GeoJSON Metadata Test",
-            dimension_ids=[(6, 0, [self.gender_dimension.id])],
+            dimension_ids=[Command.set([self.gender_dimension.id])],
         )
         self.create_test_data(
             report,
@@ -273,7 +274,7 @@ class TestDisaggregation(GISReportTestBase):
         """Test GeoJSON metadata excludes disaggregation when not requested."""
         report = self.create_test_report(
             name="GeoJSON No Meta Test",
-            dimension_ids=[(6, 0, [self.gender_dimension.id])],
+            dimension_ids=[Command.set([self.gender_dimension.id])],
         )
         self.create_test_data(report, self.area_district_1, raw_value=100)
 
@@ -297,7 +298,7 @@ class TestDisaggregation(GISReportTestBase):
 
         # Only run if gender codes exist
         if not gender_male or not gender_female:
-            return
+            self.skipTest("Gender vocabulary codes not available")
 
         member1 = self.env["res.partner"].create(
             {
@@ -324,7 +325,7 @@ class TestDisaggregation(GISReportTestBase):
         # Create report with member expansion filtering groups
         report = self.create_test_report(
             name="Expand Test",
-            dimension_ids=[(6, 0, [self.gender_dimension.id])],
+            dimension_ids=[Command.set([self.gender_dimension.id])],
             member_expansion="expand",
             filter_domain="[('is_registrant', '=', True), ('is_group', '=', True)]",
             filter_mode="domain",
@@ -355,7 +356,7 @@ class TestDisaggregation(GISReportTestBase):
 
         report = self.create_test_report(
             name="Area Inherit Test",
-            dimension_ids=[(6, 0, [self.age_dimension.id])],
+            dimension_ids=[Command.set([self.age_dimension.id])],
             member_expansion="expand",
             filter_domain="[('is_registrant', '=', True), ('is_group', '=', True)]",
             filter_mode="domain",
@@ -393,7 +394,7 @@ class TestDisaggregation(GISReportTestBase):
 
         report = self.create_test_report(
             name="Dedup Test",
-            dimension_ids=[(6, 0, [self.age_dimension.id])],
+            dimension_ids=[Command.set([self.age_dimension.id])],
             member_expansion="expand",
             filter_domain="[('is_registrant', '=', True), ('is_group', '=', True)]",
             filter_mode="domain",
@@ -406,15 +407,14 @@ class TestDisaggregation(GISReportTestBase):
         if self.area_district_1.id in result:
             age_data = result[self.area_district_1.id].get("age_group", {})
             total = sum(age_data.values())
-            # shared_member should only be counted once
-            self.assertGreaterEqual(total, 1)
-            # Verify shared_member not counted twice (sum should not be more than unique individuals)
+            # shared_member should only be counted once (not doubled across groups)
+            self.assertEqual(total, 1)
 
     def test_backward_compat_no_expansion(self):
         """Test member_expansion='none' produces same output format as before."""
         report = self.create_test_report(
             name="Backward Compat Test",
-            dimension_ids=[(6, 0, [self.gender_dimension.id])],
+            dimension_ids=[Command.set([self.gender_dimension.id])],
             member_expansion="none",
         )
         area_context = report._prepare_area_context()
@@ -432,7 +432,7 @@ class TestDisaggregation(GISReportTestBase):
         """Test member_expansion='expand' rejected for non-partner models."""
         area_model = self.env["ir.model"].search([("model", "=", "spp.area")], limit=1)
         if not area_model:
-            return
+            self.skipTest("spp.area model not available")
 
         from odoo.exceptions import ValidationError
 

@@ -1419,8 +1419,8 @@ class CelTranslator(models.AbstractModel):
             return self._ast_to_sql_expr(ast, model, alias, cfg or {}, {})
         except (NotImplementedError, CELValidationError):
             return None
-        except Exception as e:
-            _logger.debug("CEL to SQL compilation failed for '%s': %s", expression[:80], e)
+        except (SyntaxError, ValueError, KeyError, AttributeError) as e:
+            _logger.warning("CEL to SQL compilation failed for '%s': %s", expression[:80], e)
             return None
 
     def _ast_to_sql_expr(  # noqa: C901

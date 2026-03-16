@@ -761,8 +761,8 @@ class GISReport(models.Model):
                     ind.id AS individual_id,
                     %s
                 FROM res_partner grp
-                JOIN spp_group_membership gm ON gm.%s = grp.id AND NOT gm.is_ended
-                JOIN res_partner ind ON ind.id = gm.individual
+                JOIN spp_group_membership gm ON gm.%s = grp.id AND NOT gm.%s
+                JOIN res_partner ind ON ind.id = gm.%s
                 %s
                 JOIN area_mapping am ON am.child_id = COALESCE(ind.%s, grp.%s)
                 WHERE grp.id IN %s
@@ -776,6 +776,8 @@ class GISReport(models.Model):
             area_mapping_cte,
             dim_select_sql,
             SQL.identifier("group"),
+            SQL.identifier("is_ended"),
+            SQL.identifier("individual"),
             joins_sql,
             area_field_col,
             area_field_col,
