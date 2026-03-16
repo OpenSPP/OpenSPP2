@@ -100,7 +100,7 @@ DEMO_STORIES = [
             "farm_size_hectares": 2.5,  # CEL: Input Subsidy eligibility
             "farm_type": "crop",
             "main_crop": "rice",
-            "area_ref": "spp_demo.area_phl_quezon_city",
+            "area_ref": "spp_demo.area_phl_ph1307404",
             "area_kind": "municipality",
             "marital_status": "married",
             "household_size": 5,
@@ -244,7 +244,7 @@ DEMO_STORIES = [
             "farm_size_hectares": 8.0,  # CEL: Large livestock farm
             "farm_type": "livestock",
             "main_livestock": "dairy",
-            "area_ref": "spp_demo.area_phl_calamba",
+            "area_ref": "spp_demo.area_phl_ph0403405",
             "area_kind": "municipality",
             "marital_status": "married",
             "household_size": 6,
@@ -280,7 +280,7 @@ DEMO_STORIES = [
             "farm_size_hectares": 3.0,  # CEL: Youth farmer eligibility
             "farm_type": "crop",
             "main_crop": "mixed_vegetables",
-            "area_ref": "spp_demo.area_phl_antipolo",
+            "area_ref": "spp_demo.area_phl_ph0405802",
             "area_kind": "municipality",
             "marital_status": "single",
             "household_size": 2,
@@ -318,7 +318,7 @@ DEMO_STORIES = [
             "farm_size": 2.0,
             "farm_size_hectares": 2.0,  # CEL: Household farm size
             "child_count": 3,  # CEL: Child benefit eligibility
-            "area_ref": "spp_demo.area_phl_santa_rosa",
+            "area_ref": "spp_demo.area_phl_ph0403428",
             "area_kind": "municipality",
         },
         "journey": [
@@ -357,7 +357,7 @@ DEMO_STORIES = [
             "vulnerability": ["single_parent", "low_income", "female_headed"],
             "vulnerability_score": 80,  # CEL: High vulnerability - single parent household
             "child_count": 3,  # CEL: Child benefit eligibility
-            "area_ref": "spp_demo.area_phl_makati",
+            "area_ref": "spp_demo.area_phl_ph1307602",
             "area_kind": "municipality",
         },
         "journey": [
@@ -403,7 +403,7 @@ DEMO_STORIES = [
             "farm_size": 5.0,
             "farm_size_hectares": 5.0,  # CEL: Multi-generational household farm
             "child_count": 3,  # CEL: Children under 18 (excluding 18-year-old)
-            "area_ref": "spp_demo.area_phl_quezon_city",
+            "area_ref": "spp_demo.area_phl_ph1307404",
             "area_kind": "municipality",
             "vulnerability": ["elderly_members"],
         },
@@ -481,7 +481,7 @@ DEMO_STORIES = [
             "child_count": 3,  # CEL: Children under 18 (Xiao, Yan, Bo)
             "farm_type": "crop",
             "main_crop": "rice",
-            "area_ref": "spp_demo.area_phl_antipolo",
+            "area_ref": "spp_demo.area_phl_ph0405802",
             "area_kind": "municipality",
         },
         "journey": [
@@ -525,7 +525,7 @@ DEMO_STORIES = [
             "vulnerability": ["elderly", "health_issues", "limited_mobility"],
             "vulnerability_score": 70,  # CEL: Elderly couple vulnerability
             "has_formal_pension": False,  # CEL: Elderly pension eligibility
-            "area_ref": "spp_demo.area_phl_calamba",
+            "area_ref": "spp_demo.area_phl_ph0403405",
             "area_kind": "municipality",
         },
         "journey": [
@@ -574,7 +574,7 @@ DEMO_STORIES = [
             "farm_size": 6.0,
             "farm_size_hectares": 6.0,  # CEL: Extended family farm
             "farm_type": "mixed",
-            "area_ref": "spp_demo.area_phl_santa_rosa",
+            "area_ref": "spp_demo.area_phl_ph0403428",
             "area_kind": "municipality",
             "vulnerability": ["disability"],
             "vulnerability_score": 65,  # CEL: Disability in household
@@ -690,7 +690,7 @@ DEMO_STORIES = [
             "farm_size_hectares": 1.5,  # CEL: Small farm household
             "disabled_count": 1,  # CEL: Disability Support Grant eligibility
             "child_count": 1,
-            "area_ref": "spp_demo.area_phl_makati",
+            "area_ref": "spp_demo.area_phl_ph1307602",
             "area_kind": "municipality",
         },
         "journey": [
