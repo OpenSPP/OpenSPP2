@@ -35,6 +35,7 @@
             name="dimension_ids"
             eval="[Command.link(ref('spp_metrics_services.dimension_gender'))]"
         />
+        <field name="member_expansion">expand</field>
         <field name="refresh_mode">scheduled</field>
         <field name="refresh_interval">daily</field>
     </record>
@@ -67,6 +68,7 @@
             name="dimension_ids"
             eval="[Command.link(ref('spp_metrics_services.dimension_gender'))]"
         />
+        <field name="member_expansion">expand</field>
         <field name="refresh_mode">scheduled</field>
         <field name="refresh_interval">daily</field>
     </record>
