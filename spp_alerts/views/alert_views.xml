@@ -7,8 +7,10 @@
         <field name="arch" type="xml">
             <list
                 string="Alerts"
+                sample="1"
                 decoration-danger="priority=='critical'"
                 decoration-warning="priority=='high'"
+                decoration-muted="state == 'resolved'"
             >
                 <field name="reference" />
                 <field name="title" />
@@ -28,7 +30,7 @@
                     decoration-success="state == 'resolved'"
                 />
                 <field name="rule_id" optional="hide" />
-                <field name="create_date" optional="hide" />
+                <field name="create_date" optional="show" />
                 <field
                     name="company_id"
                     optional="hide"
@@ -51,13 +53,15 @@
                         string="Acknowledge"
                         class="btn-primary"
                         invisible="state != 'active'"
+                        data-hotkey="a"
                     />
                     <button
                         name="action_resolve"
                         type="object"
                         string="Resolve"
                         class="btn-success"
-                        invisible="state != 'acknowledged'"
+                        invisible="state == 'resolved'"
+                        data-hotkey="r"
                     />
                     <field
                         name="state"
@@ -66,26 +70,48 @@
                     />
                 </header>
                 <sheet>
-                    <div class="oe_button_box" name="button_box" />
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            class="oe_stat_button"
+                            type="object"
+                            name="action_view_source"
+                            icon="fa-external-link"
+                            invisible="not res_model"
+                        >
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">View Source</span>
+                            </div>
+                        </button>
+                        <button
+                            class="oe_stat_button"
+                            type="object"
+                            name="action_view_related_alerts"
+                            icon="fa-bell"
+                            invisible="not rule_id"
+                        >
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Related Alerts</span>
+                            </div>
+                        </button>
+                    </div>
                     <div class="oe_title">
                         <h1>
                             <field name="reference" readonly="1" />
                         </h1>
-                        <h2>
+                    </div>
+                    <group name="alert_main">
+                        <group name="alert_info">
+                            <field
+                                name="alert_type_id"
+                                readonly="state == 'resolved'"
+                                options="{'no_create': True}"
+                            />
+                            <field name="priority" readonly="state == 'resolved'" />
                             <field
                                 name="title"
                                 placeholder="Alert Title"
                                 readonly="state == 'resolved'"
                             />
-                        </h2>
-                    </div>
-                    <group>
-                        <group>
-                            <field
-                                name="alert_type_id"
-                                readonly="state == 'resolved'"
-                            />
-                            <field name="priority" readonly="state == 'resolved'" />
                             <field
                                 name="create_date"
                                 string="Created On"
@@ -97,38 +123,42 @@
                                 readonly="state == 'resolved'"
                             />
                         </group>
-                        <group>
-                            <field name="current_value" readonly="1" />
-                            <field name="threshold_value" readonly="1" />
-                            <field name="days_until" readonly="1" />
-                            <field
-                                name="rule_id"
-                                readonly="1"
-                                invisible="not rule_id"
-                            />
-                            <field
-                                name="res_model"
-                                readonly="1"
-                                invisible="not res_model"
-                            />
-                            <field
-                                name="res_id"
-                                readonly="1"
-                                invisible="not res_model"
-                            />
+                        <group name="alert_metrics">
+                            <group
+                                name="threshold_info"
+                                invisible="not current_value and not threshold_value and not days_until"
+                            >
+                                <field name="current_value" readonly="1" />
+                                <field name="threshold_value" readonly="1" />
+                                <field name="days_until" readonly="1" />
+                            </group>
+                            <group name="source_info" invisible="not rule_id">
+                                <field name="rule_id" readonly="1" />
+                                <field name="res_model" readonly="1" />
+                                <field name="res_id" readonly="1" />
+                                <field name="res_name" readonly="1" />
+                            </group>
                         </group>
                     </group>
                     <notebook>
                         <page string="Details" name="details">
                             <separator string="Description" />
-                            <field name="description" readonly="state == 'resolved'" />
+                            <field
+                                name="description"
+                                nolabel="1"
+                                readonly="state == 'resolved'"
+                            />
                             <group name="additional_details" invisible="1" />
                         </page>
-                        <page
-                            string="Resolution"
-                            name="resolution"
-                            invisible="state == 'active'"
-                        >
+                        <page string="Resolution" name="resolution">
+                            <div
+                                class="alert alert-info"
+                                role="alert"
+                                invisible="state == 'resolved'"
+                            >
+                                Please add resolution notes describing how this alert was
+                                addressed, then click Resolve.
+                            </div>
                             <group>
                                 <field name="resolved_by_id" readonly="1" />
                                 <field name="resolved_at" readonly="1" />
@@ -136,7 +166,6 @@
                             <separator string="Resolution Notes" />
                             <field
                                 name="resolution_notes"
-                                required="state == 'resolved'"
                                 readonly="state == 'resolved'"
                             />
                         </page>
@@ -206,22 +235,76 @@
                     domain="[('priority', '=', 'high')]"
                 />
                 <separator />
-                <filter
-                    name="groupby_state"
-                    string="State"
-                    context="{'group_by': 'state'}"
-                />
-                <filter
-                    name="groupby_priority"
-                    string="Priority"
-                    context="{'group_by': 'priority'}"
-                />
-                <filter
-                    name="groupby_type"
-                    string="Type"
-                    context="{'group_by': 'alert_type_id'}"
-                />
+                <group name="groupby">
+                    <filter
+                        name="groupby_state"
+                        string="State"
+                        context="{'group_by': 'state'}"
+                    />
+                    <filter
+                        name="groupby_priority"
+                        string="Priority"
+                        context="{'group_by': 'priority'}"
+                    />
+                    <filter
+                        name="groupby_type"
+                        string="Type"
+                        context="{'group_by': 'alert_type_id'}"
+                    />
+                </group>
             </search>
+        </field>
+    </record>
+
+    <!-- Alert Kanban View -->
+    <record id="spp_alert_view_kanban" model="ir.ui.view">
+        <field name="name">spp.alert.kanban</field>
+        <field name="model">spp.alert</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" quick_create="false" sample="1">
+                <field name="state" />
+                <field name="priority" />
+                <field name="alert_type_id" />
+                <field name="create_date" />
+                <field name="reference" />
+                <field name="title" />
+                <field name="res_model" />
+                <progressbar
+                    field="priority"
+                    colors='{"low": "muted", "medium": "info", "high": "warning", "critical": "danger"}'
+                />
+                <templates>
+                    <t t-name="card">
+                        <dropdown>
+                            <t t-if="record.state.raw_value == 'active'">
+                                <a
+                                    name="action_acknowledge"
+                                    type="object"
+                                    class="dropdown-item"
+                                >Acknowledge</a>
+                            </t>
+                            <t t-if="record.state.raw_value != 'resolved'">
+                                <a
+                                    name="action_resolve"
+                                    type="object"
+                                    class="dropdown-item"
+                                >Resolve</a>
+                            </t>
+                        </dropdown>
+                        <field name="priority" widget="priority" />
+                        <div class="fw-bold mb-1">
+                            <field name="reference" />
+                        </div>
+                        <field name="title" />
+                        <div class="text-muted small mt-1">
+                            <field name="alert_type_id" />
+                        </div>
+                        <div class="text-muted small">
+                            <field name="create_date" widget="date" />
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
 
@@ -229,12 +312,12 @@
     <record id="action_spp_alert" model="ir.actions.act_window">
         <field name="name">Alerts</field>
         <field name="res_model">spp.alert</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">list,kanban,form</field>
         <field name="path">alerts</field>
         <field name="context">{'search_default_filter_active': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                No alerts found
+                No active alerts
             </p>
             <p>
                 Alerts are automatically created when monitoring rules detect

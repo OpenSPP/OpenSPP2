@@ -6,6 +6,13 @@ from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
+PRIORITY_SEQUENCE = {
+    "low": 1,
+    "medium": 2,
+    "high": 3,
+    "critical": 4,
+}
+
 
 class Alert(models.Model):
     """Generic alert model for monitoring thresholds, expiries, and deadlines.
@@ -25,8 +32,9 @@ class Alert(models.Model):
     _name = "spp.alert"
     _description = "Alert"
     _inherit = ["mail.thread"]
-    _order = "priority desc, create_date desc"
+    _order = "priority_sequence desc, create_date desc"
     _rec_name = "reference"
+    _check_company_auto = True
 
     reference = fields.Char(
         string="Reference",
@@ -47,6 +55,8 @@ class Alert(models.Model):
         help="Type of alert from alert types vocabulary",
     )
 
+    # Named `alert_type` (not `alert_type_code`) for concise domain filtering.
+    # Use `alert_type_id` for the vocabulary record, `alert_type` for the code string.
     alert_type = fields.Char(
         related="alert_type_id.code",
         store=True,
@@ -69,6 +79,16 @@ class Alert(models.Model):
         help="Priority level of the alert",
     )
 
+    priority_sequence = fields.Integer(
+        string="Priority Sequence",
+        compute="_compute_priority_sequence",
+        store=True,
+        help="Numeric ordering of priority for consistent sorting (low=1, medium=2, high=3, critical=4)",
+    )
+
+    # Alert states differ from the standard approval workflow states (draft/pending/approved)
+    # because the alert lifecycle is fundamentally different: alerts are raised, acknowledged,
+    # and resolved — there is no approval decision involved.
     state = fields.Selection(
         [
             ("active", "Active"),
@@ -102,6 +122,7 @@ class Alert(models.Model):
         index=True,
         readonly=True,
         ondelete="set null",
+        check_company=True,
         help="Alert rule that generated this alert (empty for manually created alerts)",
     )
 
@@ -118,6 +139,12 @@ class Alert(models.Model):
         index=True,
         readonly=True,
         help="Record that triggered this alert",
+    )
+
+    res_name = fields.Char(
+        string="Source Record Name",
+        compute="_compute_res_name",
+        help="Display name of the record that triggered this alert",
     )
 
     # Metrics for threshold and deadline tracking
@@ -164,6 +191,28 @@ class Alert(models.Model):
         help="Company this alert belongs to",
     )
 
+    @api.depends("priority")
+    def _compute_priority_sequence(self):
+        """Compute numeric priority sequence for consistent ordering."""
+        for record in self:
+            record.priority_sequence = PRIORITY_SEQUENCE.get(record.priority, 0)
+
+    def _compute_res_name(self):
+        """Compute the display name of the source record.
+
+        Handles missing models or deleted records gracefully by returning an
+        empty string rather than raising an error.
+        """
+        for record in self:
+            if not record.res_model or not record.res_id:
+                record.res_name = ""
+                continue
+            try:
+                source = self.env[record.res_model].browse(record.res_id)
+                record.res_name = source.display_name if source.exists() else ""
+            except (KeyError, AttributeError):
+                record.res_name = ""
+
     @api.model_create_multi
     def create(self, vals_list):
         """Override create to auto-generate reference from sequence."""
@@ -180,7 +229,13 @@ class Alert(models.Model):
 
         This is typically the first step in addressing an alert - acknowledging
         that it has been seen and is being investigated.
+
+        Raises:
+            UserError: If the alert is not in the active state.
         """
+        for record in self:
+            if record.state != "active":
+                raise UserError(_("Only active alerts can be acknowledged."))
         self.write({"state": "acknowledged"})
         return True
 
@@ -194,9 +249,13 @@ class Alert(models.Model):
             bool: True on success
 
         Raises:
-            UserError: If resolution notes are not provided.
+            UserError: If the alert is already resolved or resolution notes are missing.
         """
+        # Fail-fast: if any record in the batch lacks resolution notes, none are resolved.
+        # This prevents partial resolution of related alert batches.
         for record in self:
+            if record.state == "resolved":
+                raise UserError(_("Alert '%s' is already resolved.", record.reference))
             resolution = notes or record.resolution_notes
             if not resolution:
                 raise UserError(_("Please provide resolution notes before resolving the alert."))
@@ -210,3 +269,38 @@ class Alert(models.Model):
             vals["resolution_notes"] = notes
         self.write(vals)
         return True
+
+    def action_view_related_alerts(self):
+        """Return an action to view other alerts from the same rule.
+
+        Returns:
+            dict: An ir.actions.act_window action dict, or False if no rule is set.
+        """
+        self.ensure_one()
+        if not self.rule_id:
+            return False
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Related Alerts"),
+            "res_model": "spp.alert",
+            "view_mode": "list,form",
+            "domain": [("rule_id", "=", self.rule_id.id), ("id", "!=", self.id)],
+            "context": {"search_default_filter_active": 1},
+        }
+
+    def action_view_source(self):
+        """Return an action to open the source record in a form view.
+
+        Returns:
+            dict: An ir.actions.act_window action dict, or False if no source is set.
+        """
+        self.ensure_one()
+        if not self.res_model or not self.res_id:
+            return False
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": self.res_model,
+            "res_id": self.res_id,
+            "view_mode": "form",
+            "target": "current",
+        }

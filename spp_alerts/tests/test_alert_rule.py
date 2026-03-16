@@ -15,9 +15,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_create_alert_rule_basic(self):
         """Test basic alert rule creation with required fields."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_test_alert_rule(
             name="Test Low Stock Rule",
             alert_type_id=self.alert_type_threshold.id,
@@ -31,9 +28,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_create_alert_rule_with_all_fields(self):
         """Test alert rule creation with all optional fields."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_test_alert_rule(
             name="Complete Alert Rule",
             alert_type_id=self.alert_type_threshold.id,
@@ -59,9 +53,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_rule_default_values(self):
         """Test that alert rule gets correct default values."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self.env["spp.alert.rule"].create(
             {
                 "name": "Minimal Rule",
@@ -82,9 +73,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_rule_activation_deactivation(self):
         """Test activating and deactivating alert rules."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_test_alert_rule(
             name="Test Activation Rule",
             active=True,
@@ -102,9 +90,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_rule_model_linking(self):
         """Test linking alert rule to specific Odoo model."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         # Use res.partner model which is always available
         partner_model = self.env["ir.model"].search([("model", "=", "res.partner")], limit=1)
 
@@ -118,9 +103,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_rule_without_model(self):
         """Test that alert rule can be created without model_id."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_test_alert_rule(
             name="Generic Rule",
             model_id=False,
@@ -130,9 +112,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_rule_priority_levels(self):
         """Test creating rules with different priority levels."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         priorities = ["low", "medium", "high", "critical"]
 
         for priority in priorities:
@@ -144,9 +123,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_rule_sequence_ordering(self):
         """Test that rules are ordered by sequence and name."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule_high_seq = self._create_test_alert_rule(
             name="High Sequence",
             sequence=100,
@@ -169,9 +145,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_rule_threshold_value_configuration(self):
         """Test configuring threshold_value for different alert types."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         # Threshold rule for low stock (e.g., minimum stock level)
         rule = self._create_test_alert_rule(
             name="Low Stock Threshold",
@@ -183,9 +156,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_rule_threshold_value_zero(self):
         """Test that threshold_value can be set to zero."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_test_alert_rule(
             name="Zero Threshold",
             threshold_value=0.0,
@@ -195,9 +165,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_rule_threshold_value_negative(self):
         """Test that threshold_value can be negative if needed."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_test_alert_rule(
             name="Negative Threshold",
             threshold_value=-10.0,
@@ -207,9 +174,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_rule_days_before_positive(self):
         """Test days_before for advance warning (positive values)."""
-        if not self.alert_type_expiry:
-            self.skipTest("Alert type expiry not found")
-
         rule = self._create_test_alert_rule(
             name="Expiry Warning 30 Days",
             alert_type_id=self.alert_type_expiry.id,
@@ -221,9 +185,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_rule_days_before_zero(self):
         """Test days_before set to zero (alert at exact deadline)."""
-        if not self.alert_type_deadline:
-            self.skipTest("Alert type deadline not found")
-
         rule = self._create_test_alert_rule(
             name="Deadline Today",
             alert_type_id=self.alert_type_deadline.id,
@@ -235,9 +196,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_rule_multi_company_main(self):
         """Test rule specific to main company."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_test_alert_rule(
             name="Main Company Rule",
             company_id=self.company_main.id,
@@ -247,9 +205,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_rule_multi_company_secondary(self):
         """Test rule specific to secondary company."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_test_alert_rule(
             name="Secondary Company Rule",
             company_id=self.company_secondary.id,
@@ -280,9 +235,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_rule_search_active_only(self):
         """Test searching for only active rules."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         active_rule = self._create_test_alert_rule(
             name="Active Rule",
             active=True,
@@ -305,9 +257,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_rule_search_inactive(self):
         """Test searching for inactive rules (including in search)."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         active_rule = self._create_test_alert_rule(
             name="Active Rule 2",
             active=True,
@@ -333,9 +282,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_security_viewer_can_read_rules(self):
         """Test that viewer can read alert rules."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_test_alert_rule(name="Security Test Rule")
 
         # Viewer should be able to read rules
@@ -345,9 +291,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_security_officer_cannot_modify_rules(self):
         """Test that officer cannot modify alert rules."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_test_alert_rule(name="Officer Test Rule")
 
         # Officer should not be able to modify rules
@@ -357,9 +300,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_security_officer_cannot_create_rules(self):
         """Test that officer cannot create alert rules."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         # Officer should not be able to create rules
         with self.assertRaises(AccessError):
             self.env["spp.alert.rule"].with_user(self.user_officer).create(
@@ -371,9 +311,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_security_manager_can_create_rules(self):
         """Test that manager can create alert rules."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         # Manager should be able to create rules
         rule = (
             self.env["spp.alert.rule"]
@@ -392,9 +329,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_security_manager_can_modify_rules(self):
         """Test that manager can modify alert rules."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_test_alert_rule(name="Manager Test Rule")
 
         # Manager should be able to modify rules
@@ -411,9 +345,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_security_manager_can_deactivate_rules(self):
         """Test that manager can deactivate alert rules."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_test_alert_rule(
             name="Deactivation Test",
             active=True,
@@ -427,9 +358,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_rule_description_optional(self):
         """Test that description field is optional."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_test_alert_rule(
             name="No Description Rule",
             description=False,
@@ -440,9 +368,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_rule_with_long_description(self):
         """Test rule with detailed description."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         long_description = """This is a detailed alert rule that monitors stock levels.
         When stock falls below the configured threshold, an alert will be created.
         The alert will include information about:
@@ -461,9 +386,6 @@ class TestAlertRule(AlertsTestCommon):
 
     def test_multiple_rules_same_type(self):
         """Test creating multiple rules for the same alert type."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule1 = self._create_test_alert_rule(
             name="Low Stock Rule 50",
             alert_type_id=self.alert_type_threshold.id,
@@ -484,3 +406,95 @@ class TestAlertRule(AlertsTestCommon):
         self.assertEqual(rule1.threshold_value, 50.0)
         self.assertEqual(rule2.threshold_value, 100.0)
         self.assertEqual(rule3.threshold_value, 25.0)
+
+    def test_domain_filter_validation_valid(self):
+        """Test that a valid domain filter passes validation."""
+        rule = self._create_test_alert_rule(
+            name="Valid Domain Rule",
+            model_id=self.test_model.id,
+            domain_filter='[("active", "=", True)]',
+        )
+        # Should not raise
+        self.assertEqual(rule.domain_filter, '[("active", "=", True)]')
+
+    def test_domain_filter_validation_invalid(self):
+        """Test that an invalid domain filter raises ValidationError on save."""
+        from odoo.exceptions import ValidationError
+
+        with self.assertRaises(ValidationError):
+            self._create_test_alert_rule(
+                name="Invalid Domain Rule",
+                model_id=self.test_model.id,
+                domain_filter="NOT A VALID DOMAIN",
+            )
+
+    def test_domain_filter_validation_non_list(self):
+        """Test that a domain filter that evaluates to non-list raises ValidationError."""
+        from odoo.exceptions import ValidationError
+
+        with self.assertRaises(ValidationError):
+            self._create_test_alert_rule(
+                name="Non-List Domain Rule",
+                model_id=self.test_model.id,
+                domain_filter='"not a list"',
+            )
+
+    def test_alert_count_computed(self):
+        """Test that alert_count is correctly computed."""
+        rule = self._create_test_alert_rule(name="Count Test Rule")
+        self.assertEqual(rule.alert_count, 0)
+
+        # Create alerts linked to this rule
+        self.env["spp.alert"].create(
+            {
+                "alert_type_id": self.alert_type_threshold.id,
+                "title": "Alert 1",
+                "rule_id": rule.id,
+            }
+        )
+        self.env["spp.alert"].create(
+            {
+                "alert_type_id": self.alert_type_threshold.id,
+                "title": "Alert 2",
+                "rule_id": rule.id,
+            }
+        )
+
+        rule.invalidate_recordset(["alert_count"])
+        self.assertEqual(rule.alert_count, 2)
+
+    def test_action_view_alerts(self):
+        """Test that action_view_alerts returns correct action dict."""
+        rule = self._create_test_alert_rule(name="View Alerts Test")
+        action = rule.action_view_alerts()
+
+        self.assertEqual(action["type"], "ir.actions.act_window")
+        self.assertEqual(action["res_model"], "spp.alert")
+        self.assertIn(("rule_id", "=", rule.id), action["domain"])
+
+    def test_model_name_related_field(self):
+        """Test that model_name is computed from model_id."""
+        rule = self._create_test_alert_rule(
+            name="Model Name Test",
+            model_id=self.test_model.id,
+        )
+        self.assertEqual(rule.model_name, "res.partner")
+
+    def test_action_evaluate_surfaces_errors(self):
+        """Test that action_evaluate returns a notification on success."""
+        partner_model = self.env["ir.model"].search([("model", "=", "res.partner")], limit=1)
+        field_color = self.env["ir.model.fields"].search(
+            [("model_id", "=", partner_model.id), ("name", "=", "color")], limit=1
+        )
+        rule = self.env["spp.alert.rule"].create(
+            {
+                "name": "Error Surface Test",
+                "alert_type_id": self.alert_type_threshold.id,
+                "model_id": partner_model.id,
+                "rule_type": "threshold",
+                "monitored_field_id": field_color.id,
+                "domain_filter": "[]",
+            }
+        )
+        result = rule.action_evaluate()
+        self.assertEqual(result["type"], "ir.actions.client")
