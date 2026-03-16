@@ -16,8 +16,8 @@
         "spp_area",
         "spp_hazard",
         "spp_vocabulary",
-        "spp_indicator",
-        "spp_analytics",
+        "spp_statistic",
+        "spp_aggregation",
         "job_worker",
     ],
     "data": [

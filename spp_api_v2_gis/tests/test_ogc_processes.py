@@ -50,7 +50,7 @@ class TestProcessRegistry(TransactionCase):
             }
         )
 
-        cls.indicator = cls.env["spp.indicator"].create(
+        cls.indicator = cls.env["spp.statistic"].create(
             {
                 "name": "proc_test_stat",
                 "label": "Process Test Stat",
@@ -109,7 +109,7 @@ class TestProcessRegistry(TransactionCase):
         self.assertIsNone(registry.get_process("nonexistent"))
 
     def test_variables_enum_reflects_indicators(self):
-        """Variables input enum includes published spp.indicator names."""
+        """Variables input enum includes published spp.statistic names."""
         from ..services.process_registry import ProcessRegistry
 
         registry = ProcessRegistry(self.env)
@@ -545,7 +545,7 @@ class TestOGCProcessesHTTP(ApiV2HttpTestCase):
             }
         )
 
-        cls.test_indicator = cls.env["spp.indicator"].create(
+        cls.test_indicator = cls.env["spp.statistic"].create(
             {
                 "name": "http_proc_test_stat",
                 "label": "HTTP Process Test Stat",

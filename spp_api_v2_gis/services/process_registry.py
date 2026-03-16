@@ -2,7 +2,7 @@
 """Process registry for OGC API - Processes.
 
 Provides process definitions for spatial-statistics and proximity-statistics,
-dynamically generating input schemas from spp.indicator records.
+dynamically generating input schemas from spp.statistic records.
 """
 
 import logging
@@ -26,7 +26,7 @@ DEFAULT_MAX_PROXIMITY_POINTS = 50000
 class ProcessRegistry:
     """Registry of available OGC processes.
 
-    Generates process descriptions dynamically from spp.indicator records,
+    Generates process descriptions dynamically from spp.statistic records,
     so that available statistics are always in sync with the database.
     """
 
@@ -77,8 +77,8 @@ class ProcessRegistry:
                 - categories_metadata: list of dicts with category info
         """
         # nosemgrep: odoo-sudo-without-context
-        Indicator = self.env["spp.indicator"].sudo()
-        stats_by_category = Indicator.get_published_by_category("gis")
+        Statistic = self.env["spp.statistic"].sudo()
+        stats_by_category = Statistic.get_published_by_category("gis")
 
         variable_names = []
         categories = []
