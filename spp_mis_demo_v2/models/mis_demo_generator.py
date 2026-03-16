@@ -491,7 +491,18 @@ class SPPMISDemoGenerator(models.TransientModel):
                 _logger.info("Auto-generated %d demo story registrants", stories_created)
 
             # Step 0.75: Generate random groups/households
+            # For large volumes, defer to a background job that commits in chunks
             if self.generate_random_groups and self.random_groups_count > 0:
+                if self.random_groups_count > 500 and hasattr(self, "with_delay"):
+                    _logger.info(
+                        "Dispatching %d random groups to background job (chunked)...",
+                        self.random_groups_count,
+                    )
+                    self._dispatch_volume_job(fake)
+                    # The background job handles groups, area assignment, coordinates,
+                    # GIS layers, and report refresh. Skip those steps here.
+                    self.state = "completed"
+                    return self._show_volume_dispatched_notification()
                 _logger.info(f"Generating {self.random_groups_count} random groups...")
                 self._generate_random_groups(fake, stats)
 
@@ -579,6 +590,111 @@ class SPPMISDemoGenerator(models.TransientModel):
             _logger.error("Error generating MIS demo data: %s", e, exc_info=True)
             self.state = "draft"
             raise UserError(_("Error generating demo data: %s") % e) from e
+
+    def _dispatch_volume_job(self, fake):
+        """Dispatch large-volume generation as a background job.
+
+        This runs before programs/enrollments/cycles are created (those run
+        synchronously in action_generate before this is reached). The job
+        handles: group creation (in chunks), area assignment, and coordinate
+        generation, committing after each chunk.
+        """
+        self.with_delay(
+            priority=5,
+            description=f"Generate {self.random_groups_count} demo households",
+            max_retries=0,
+        )._run_volume_generation_job(fake.locales[0] if fake.locales else "en_US")
+
+    def _run_volume_generation_job(self, faker_locale):
+        """Background job: create groups in committed chunks, then assign areas.
+
+        Each chunk of CHUNK_SIZE groups is created and committed independently.
+        If one chunk fails, previous chunks are preserved.
+
+        Args:
+            faker_locale: Locale string for Faker (e.g., "en_US")
+        """
+        CHUNK_SIZE = 500
+        total = self.random_groups_count
+        fake = Faker(faker_locale)
+
+        _logger.info("[volume-job] Starting: %d groups in chunks of %d", total, CHUNK_SIZE)
+
+        stats = {
+            "random_groups_created": 0,
+            "random_individuals_created": 0,
+        }
+
+        offset = 0
+        while offset < total:
+            chunk_count = min(CHUNK_SIZE, total - offset)
+            chunk_stats = {
+                "random_groups_created": 0,
+                "random_individuals_created": 0,
+            }
+
+            # Temporarily set random_groups_count for the chunk
+            original_count = self.random_groups_count
+            self.random_groups_count = chunk_count
+            try:
+                self._generate_random_groups(fake, chunk_stats)
+            finally:
+                self.random_groups_count = original_count
+
+            stats["random_groups_created"] += chunk_stats["random_groups_created"]
+            stats["random_individuals_created"] += chunk_stats["random_individuals_created"]
+
+            # Commit this chunk so it's durable
+            self.env.cr.commit()  # pylint: disable=invalid-commit
+
+            offset += chunk_count
+            _logger.info(
+                "[volume-job] Chunk committed: %d/%d groups (%d individuals so far)",
+                stats["random_groups_created"],
+                total,
+                stats["random_individuals_created"],
+            )
+
+        _logger.info(
+            "[volume-job] All groups created: %d groups, %d individuals",
+            stats["random_groups_created"],
+            stats["random_individuals_created"],
+        )
+
+        # Assign areas and generate coordinates (also in a committed step)
+        if self.load_geographic_data:
+            _logger.info("[volume-job] Assigning areas...")
+            self._assign_registrant_areas(stats)
+            self.env.cr.commit()  # pylint: disable=invalid-commit
+
+            _logger.info("[volume-job] Generating coordinates...")
+            self._generate_coordinates(stats)
+            self.env.cr.commit()  # pylint: disable=invalid-commit
+
+        # Refresh GIS reports
+        self._ensure_debug_gis_layers(stats)
+        self._refresh_gis_reports(stats)
+        self.env.cr.commit()  # pylint: disable=invalid-commit
+
+        _logger.info("[volume-job] Complete: %s", stats)
+
+    def _show_volume_dispatched_notification(self):
+        """Return notification that volume generation was dispatched to background."""
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": _("Demo Data Generation Started"),
+                "message": _(
+                    "Programs and stories created. Volume generation of %(count)d"
+                    " households has been dispatched to a background job."
+                    " Check the job queue for progress.",
+                    count=self.random_groups_count,
+                ),
+                "type": "info",
+                "sticky": True,
+            },
+        }
 
     def _ensure_debug_gis_layers(self, stats):
         """Ensure optional debug GIS layers exist after demo generation."""
