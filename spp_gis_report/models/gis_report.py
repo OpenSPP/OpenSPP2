@@ -594,6 +594,86 @@ class GISReport(models.Model):
 
         return results
 
+    def _compute_disaggregation(self, area_context):
+        """Compute disaggregation counts per area for configured dimensions.
+
+        Evaluates each demographic dimension for all registrants matching the
+        report's filter, groups by base-level area, and returns per-area counts
+        by dimension value.
+
+        Args:
+            area_context: Area context from _prepare_area_context()
+
+        Returns:
+            dict: {area_id: {dim_name: {raw_value: count}}}
+                  Empty dict if no dimensions or non-partner source model.
+        """
+        self.ensure_one()
+
+        if not self.dimension_ids:
+            return {}
+
+        if self.source_model != "res.partner":
+            return {}
+
+        if area_context is None:
+            return {}
+
+        domain = list(area_context["domain"])
+        child_to_base = area_context["child_to_base"]
+        base_areas = area_context["base_areas"]
+        area_field = area_context["area_field"]
+
+        # Query registrant IDs and their area field
+        Partner = self.env["res.partner"]
+        registrants = Partner.search_read(domain, [area_field], order="id")
+
+        if not registrants:
+            return {}
+
+        # Group registrant IDs by base-level area
+        area_registrant_ids = {}
+        all_registrant_ids = []
+        for reg in registrants:
+            area_val = reg[area_field]
+            if not area_val:
+                continue
+            area_id = area_val[0] if isinstance(area_val, (list, tuple)) else area_val
+            base_id = child_to_base.get(area_id)
+            if base_id is None:
+                continue
+            area_registrant_ids.setdefault(base_id, []).append(reg["id"])
+            all_registrant_ids.append(reg["id"])
+
+        if not all_registrant_ids:
+            return {}
+
+        # Evaluate all dimensions via the cache service
+        cache_service = self.env["spp.metrics.dimension.cache"]
+        dim_evaluations = {}
+        for dimension in self.dimension_ids:
+            dim_evaluations[dimension.name] = cache_service.evaluate_dimension_batch(
+                dimension, all_registrant_ids
+            )
+
+        # Aggregate counts per (area, dimension, value)
+        results = {}
+        for area_id in base_areas.ids:
+            reg_ids = area_registrant_ids.get(area_id, [])
+            if not reg_ids:
+                continue
+            area_disagg = {}
+            for dimension in self.dimension_ids:
+                evals = dim_evaluations[dimension.name]
+                value_counts = {}
+                for rid in reg_ids:
+                    value = evals.get(rid, dimension.default_value or "unknown")
+                    value_counts[value] = value_counts.get(value, 0) + 1
+                area_disagg[dimension.name] = value_counts
+            results[area_id] = area_disagg
+
+        return results
+
     def _build_filter_domain(self):
         """Build the complete filter domain including context filters.
 
@@ -1290,6 +1370,9 @@ class GISReport(models.Model):
                     }
                 )
 
+        # Step 7b: Compute disaggregation (if dimensions configured)
+        disaggregation_by_area = self._compute_disaggregation(area_context)
+
         # Step 8: Store results in spp.gis.report.data
         now = fields.Datetime.now()
 
@@ -1316,6 +1399,7 @@ class GISReport(models.Model):
                 "bucket_color": data.get("bucket_color", "#CCCCCC"),
                 "bucket_label": data.get("bucket_label", "No Data"),
                 "computed_at": now,
+                "disaggregation": disaggregation_by_area.get(area_id) or False,
             }
 
             if area_id in existing_data:
@@ -1536,9 +1620,11 @@ class GISReport(models.Model):
                     "household_count": data.area_id.household_count,
                 }
 
-            # Add disaggregation if requested
+            # Add disaggregation as flat disagg_* properties for QGIS compatibility
             if include_disaggregation and data.disaggregation:
-                properties["disaggregation"] = data.disaggregation
+                for dim_name, value_counts in data.disaggregation.items():
+                    for raw_value, count in value_counts.items():
+                        properties[f"disagg_{dim_name}_{raw_value}"] = count
 
             # Build feature
             feature = {
@@ -1612,6 +1698,28 @@ class GISReport(models.Model):
                 }
             )
         metadata["thresholds"] = thresholds
+
+        # Add disaggregation dimension metadata (for interpreting disagg_* properties)
+        if include_disaggregation and self.dimension_ids:
+            disagg_metadata = []
+            for dim in self.dimension_ids:
+                dim_info = {
+                    "name": dim.name,
+                    "label": dim.label,
+                    "property_prefix": f"disagg_{dim.name}_",
+                }
+                if dim.value_labels_json:
+                    labels = dim.value_labels_json
+                    if isinstance(labels, str):
+                        import json
+
+                        try:
+                            labels = json.loads(labels)
+                        except (json.JSONDecodeError, TypeError):
+                            labels = {}
+                    dim_info["value_labels"] = labels
+                disagg_metadata.append(dim_info)
+            metadata["disaggregation"] = disagg_metadata
 
         # Add summary statistics if we have data
         if data_records:
