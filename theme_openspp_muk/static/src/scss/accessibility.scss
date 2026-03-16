@@ -1,24 +1,24 @@
 // OpenSPP Accessibility
-// Focus indicators, contrast, and motion preferences
+// Focus indicators and motion preferences
 
 // ---- Keyboard Focus Indicators ----
+// Scoped to backend to avoid affecting login/website/third-party widgets
 
-*:focus-visible {
+.o_web_client *:focus-visible {
     outline: 2px solid $mk_color_appbar_active;
     outline-offset: 2px;
 }
 
 // Buttons and interactive elements get a ring instead of outline
-.btn:focus-visible,
-.nav-link:focus-visible,
-.dropdown-item:focus-visible,
-.o_menu_sections a:focus-visible {
+.o_web_client .btn:focus-visible,
+.o_web_client .nav-link:focus-visible,
+.o_web_client .dropdown-item:focus-visible,
+.o_web_client .o_menu_sections a:focus-visible {
     outline: none;
     box-shadow: 0 0 0 0.2rem rgba($mk_color_appbar_active, 0.35);
 }
 
-// Form inputs already have focus styling in components.scss,
-// suppress double outline
+// Form inputs already have focus styling in components.scss
 .o_form_view .o_field_widget input:focus-visible,
 .o_form_view .o_field_widget textarea:focus-visible,
 .o_form_view .o_field_widget select:focus-visible {
@@ -26,14 +26,22 @@
 }
 
 // ---- Reduced Motion ----
-// Respect user preference for reduced animations
+// Only disable this theme's decorative transitions, not Odoo's functional animations
 
 @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
+    .o_kanban_view .o_kanban_record,
+    .o_form_view .o_field_widget .o_input,
+    .o_form_view .o_statusbar_status .o_arrow_button,
+    .btn,
+    .dropdown-item,
+    .nav-link,
+    .o_search_panel .o_search_panel_category_value,
+    .o_search_panel .o_search_panel_filter_value,
+    .mk_apps_sidebar_panel .mk_apps_sidebar .mk_apps_sidebar_menu > li > a,
+    .mk_app_menu.dropdown-menu .o_app > a .mk_app_icon,
+    .o_navbar_apps_menu.show .dropdown-menu .o_app > a .mk_app_icon,
+    .o_main_navbar .o_menu_sections .o_nav_entry,
+    .o_main_navbar .o_menu_sections .dropdown-toggle {
         transition-duration: 0.01ms !important;
     }
 }

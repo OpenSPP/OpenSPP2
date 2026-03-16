@@ -1,13 +1,25 @@
-// Colors
+// OpenSPP Color System
+// Convention: internal variables use underscores ($mk_color_*),
+// muk_web_theme overrides use hyphens ($mk-*).
 
-$mk_color_appsmenu_text: #f8f9fa;
-$mk_color_appbar_text: #dee2e6;
-$mk_color_appbar_active: #5d8da8;
+// Brand
 $mk_color_appbar_background: #3264c8;
 $mk_color_appbar_hover: #2856a8;
 $mk_color_appbar_background_dark: #1c3f84;
+$mk_color_appbar_active: #5d8da8;
+$mk_color_appbar_hover_overlay: rgba(255, 255, 255, 0.12);
 
-// Override
+// Text on brand backgrounds
+$mk_color_appsmenu_text: #f8f9fa;
+$mk_color_appbar_text: #dee2e6;
+
+// Neutrals
+$mk_color_text_primary: #212529;
+$mk_color_text_secondary: #495057;
+$mk_color_border: #e9ecef;
+$mk_color_white: #fff;
+
+// Override muk_web_theme variables
 
 $mk-appsmenu-color: $mk_color_appsmenu_text;
 $mk-appbar-color: $mk_color_appbar_text;
