@@ -77,8 +77,8 @@ class TestToSqlCase(TransactionCase):
         result = self.translator.to_sql_case(expr, "res.partner", "ind")
         self.assertIsNotNone(result)
         sql_str = self._sql_to_str(result)
-        # Should have nested CASE WHEN
-        self.assertGreater(sql_str.count("CASE WHEN"), 1)
+        # Should be a single flattened CASE with multiple WHEN clauses
+        self.assertEqual(sql_str.count("CASE"), 1)
         self.assertIn("IS NULL", sql_str)
         self.assertIn("18 years", sql_str)
         self.assertIn("60 years", sql_str)

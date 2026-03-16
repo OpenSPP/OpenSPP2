@@ -1435,18 +1435,9 @@ class CelTranslator(models.AbstractModel):
 
         Returns SQL for supported nodes, None for unsupported ones.
         """
-        from .cel_sql_builder import SQLBuilder
-
-        builder = SQLBuilder(self.env)
-
-        # --- Ternary -> CASE WHEN ---
+        # --- Ternary -> CASE with multiple WHEN clauses ---
         if isinstance(node, P.Ternary):
-            cond_sql = self._ast_to_sql_expr(node.condition, model, alias, cfg, ctx)
-            then_sql = self._ast_to_sql_expr(node.true_expr, model, alias, cfg, ctx)
-            else_sql = self._ast_to_sql_expr(node.false_expr, model, alias, cfg, ctx)
-            if cond_sql is None or then_sql is None or else_sql is None:
-                return None
-            return builder.case_when(cond_sql, then_sql, else_sql)
+            return self._ternary_to_case_sql(node, model, alias, cfg, ctx)
 
         # --- Literals ---
         if isinstance(node, P.Literal):
@@ -1506,6 +1497,45 @@ class CelTranslator(models.AbstractModel):
 
         # --- Unsupported: BinOp, Neg, InOp, Call ---
         return None
+
+    def _ternary_to_case_sql(
+        self,
+        node: P.Ternary,
+        model: str,
+        alias: str,
+        cfg: dict[str, Any],
+        ctx: dict[str, Any],
+    ) -> SQL | None:
+        """Flatten a chain of nested Ternary nodes into a single CASE expression.
+
+        CEL: a ? x : b ? y : c ? z : w
+        SQL: CASE WHEN a THEN x WHEN b THEN y WHEN c THEN z ELSE w END
+
+        This avoids nested CASE WHEN that causes SQL type mismatch issues.
+        """
+        when_clauses = []
+        current = node
+
+        while isinstance(current, P.Ternary):
+            cond_sql = self._ast_to_sql_expr(current.condition, model, alias, cfg, ctx)
+            then_sql = self._ast_to_sql_expr(current.true_expr, model, alias, cfg, ctx)
+            if cond_sql is None or then_sql is None:
+                return None
+            when_clauses.append((cond_sql, then_sql))
+            current = current.false_expr
+
+        # The final false_expr is the ELSE value
+        else_sql = self._ast_to_sql_expr(current, model, alias, cfg, ctx)
+        if else_sql is None:
+            return None
+
+        # Build: CASE WHEN c1 THEN v1 WHEN c2 THEN v2 ... ELSE vn END
+        parts = [SQL("CASE")]
+        for cond, then in when_clauses:
+            parts.append(SQL("WHEN %s THEN %s", cond, then))
+        parts.append(SQL("ELSE %s END", else_sql))
+
+        return SQL(" ").join(parts)
 
     def _compare_to_sql(
         self,

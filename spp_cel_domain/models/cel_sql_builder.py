@@ -376,7 +376,7 @@ class SQLBuilder:
         Returns:
             SQL CASE expression
         """
-        return SQL("CASE WHEN %s THEN %s ELSE %s END", condition, then_expr, else_expr)
+        return SQL("(CASE WHEN %s THEN %s ELSE %s END)", condition, then_expr, else_expr)
 
     def comparison(self, left: SQL, op: str, right: SQL) -> SQL | None:
         """Build a SQL comparison expression from two SQL operands.

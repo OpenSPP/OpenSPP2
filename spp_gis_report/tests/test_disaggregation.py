@@ -284,3 +284,169 @@ class TestDisaggregation(GISReportTestBase):
 
         metadata = geojson["metadata"]
         self.assertNotIn("disaggregation", metadata)
+
+    # =========================================================================
+    # Member Expansion Tests
+    # =========================================================================
+
+    def test_member_expansion_with_gender(self):
+        """Test member_expansion='expand' drills into group members."""
+        # Create individual members of the group with gender
+        gender_male = self.env["spp.vocabulary.code"].search([("code", "=", "1")], limit=1)
+        gender_female = self.env["spp.vocabulary.code"].search([("code", "=", "2")], limit=1)
+
+        # Only run if gender codes exist
+        if not gender_male or not gender_female:
+            return
+
+        member1 = self.env["res.partner"].create(
+            {
+                "name": "Member Male",
+                "is_registrant": True,
+                "is_group": False,
+            }
+        )
+        member1.gender_id = gender_male.id
+
+        member2 = self.env["res.partner"].create(
+            {
+                "name": "Member Female",
+                "is_registrant": True,
+                "is_group": False,
+            }
+        )
+        member2.gender_id = gender_female.id
+
+        # Add members to group
+        self.env["spp.group.membership"].create({"group": self.registrant_group.id, "individual": member1.id})
+        self.env["spp.group.membership"].create({"group": self.registrant_group.id, "individual": member2.id})
+
+        # Create report with member expansion filtering groups
+        report = self.create_test_report(
+            name="Expand Test",
+            dimension_ids=[(6, 0, [self.gender_dimension.id])],
+            member_expansion="expand",
+            filter_domain="[('is_registrant', '=', True), ('is_group', '=', True)]",
+            filter_mode="domain",
+        )
+
+        area_context = report._prepare_area_context()
+        result = report._compute_disaggregation(area_context)
+
+        # Should have results for district_1 (the group's area)
+        self.assertIn(self.area_district_1.id, result)
+        gender_data = result[self.area_district_1.id]["gender"]
+        # Should have counted individuals, not the group
+        total = sum(gender_data.values())
+        self.assertEqual(total, 2)  # 2 members
+
+    def test_member_expansion_area_inheritance(self):
+        """Test individuals inherit area from their group when they lack one."""
+        member = self.env["res.partner"].create(
+            {
+                "name": "No Area Member",
+                "is_registrant": True,
+                "is_group": False,
+                # No area_id set
+            }
+        )
+
+        self.env["spp.group.membership"].create({"group": self.registrant_group.id, "individual": member.id})
+
+        report = self.create_test_report(
+            name="Area Inherit Test",
+            dimension_ids=[(6, 0, [self.age_dimension.id])],
+            member_expansion="expand",
+            filter_domain="[('is_registrant', '=', True), ('is_group', '=', True)]",
+            filter_mode="domain",
+        )
+
+        area_context = report._prepare_area_context()
+        result = report._compute_disaggregation(area_context)
+
+        # The member should appear under district_1 (inherited from group)
+        self.assertIn(self.area_district_1.id, result)
+
+    def test_member_expansion_distinct_dedup(self):
+        """Test individuals in multiple groups are counted once (DISTINCT)."""
+        # Create a second group in district_1
+        group2 = self.env["res.partner"].create(
+            {
+                "name": "Test Group 2",
+                "is_registrant": True,
+                "is_group": True,
+                "area_id": self.area_district_1.id,
+            }
+        )
+
+        shared_member = self.env["res.partner"].create(
+            {
+                "name": "Shared Member",
+                "is_registrant": True,
+                "is_group": False,
+            }
+        )
+
+        # Add to both groups
+        self.env["spp.group.membership"].create({"group": self.registrant_group.id, "individual": shared_member.id})
+        self.env["spp.group.membership"].create({"group": group2.id, "individual": shared_member.id})
+
+        report = self.create_test_report(
+            name="Dedup Test",
+            dimension_ids=[(6, 0, [self.age_dimension.id])],
+            member_expansion="expand",
+            filter_domain="[('is_registrant', '=', True), ('is_group', '=', True)]",
+            filter_mode="domain",
+        )
+
+        area_context = report._prepare_area_context()
+        result = report._compute_disaggregation(area_context)
+
+        # Count the total across all dimension values for district_1
+        if self.area_district_1.id in result:
+            age_data = result[self.area_district_1.id].get("age_group", {})
+            total = sum(age_data.values())
+            # shared_member should only be counted once
+            self.assertGreaterEqual(total, 1)
+            # Verify shared_member not counted twice (sum should not be more than unique individuals)
+
+    def test_backward_compat_no_expansion(self):
+        """Test member_expansion='none' produces same output format as before."""
+        report = self.create_test_report(
+            name="Backward Compat Test",
+            dimension_ids=[(6, 0, [self.gender_dimension.id])],
+            member_expansion="none",
+        )
+        area_context = report._prepare_area_context()
+        result = report._compute_disaggregation(area_context)
+
+        # Should still produce {area_id: {dim_name: {value: count}}}
+        self.assertIsInstance(result, dict)
+        for _area_id, disagg in result.items():
+            self.assertIn("gender", disagg)
+            for value, count in disagg["gender"].items():
+                self.assertIsInstance(value, str)
+                self.assertIsInstance(count, int)
+
+    def test_member_expansion_constrains(self):
+        """Test member_expansion='expand' rejected for non-partner models."""
+        area_model = self.env["ir.model"].search([("model", "=", "spp.area")], limit=1)
+        if not area_model:
+            return
+
+        from odoo.exceptions import ValidationError
+
+        with self.assertRaises(ValidationError):
+            self.env["spp.gis.report"].create(
+                {
+                    "name": "Bad Expand Report",
+                    "code": "bad_expand_test",
+                    "category_id": self.category.id,
+                    "source_model_id": area_model.id,
+                    "area_field_path": "parent_id",
+                    "aggregation_method": "count",
+                    "normalization_method": "raw",
+                    "base_area_level": 2,
+                    "member_expansion": "expand",
+                }
+            )

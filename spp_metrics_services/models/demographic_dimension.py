@@ -1,7 +1,8 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 import json
 import logging
-from dataclasses import dataclass, field as dataclass_field
+from dataclasses import dataclass
+from dataclasses import field as dataclass_field
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
@@ -338,10 +339,42 @@ class DemographicDimension(models.Model):
         default = self.default_value or "unknown"
 
         if self.dimension_type == "field":
-            return self._to_sql_column_field(alias, alias_counter, default)
+            result = self._to_sql_column_field(alias, alias_counter, default)
         elif self.dimension_type == "expression":
-            return self._to_sql_column_expression(alias, alias_counter, default)
-        return None
+            result = self._to_sql_column_expression(alias, alias_counter, default)
+        else:
+            return None
+
+        if result is None:
+            return None
+
+        # Wrap with applies_to filter: return default for non-matching registrants
+        if self.applies_to == "individuals":
+            result = SQLColumnResult(
+                expression=SQL(
+                    "CASE WHEN %s.%s = FALSE THEN %s ELSE %s END",
+                    SQL.identifier(alias),
+                    SQL.identifier("is_group"),
+                    result.expression,
+                    SQL("%s", default),
+                ),
+                joins=result.joins,
+                alias_counter=result.alias_counter,
+            )
+        elif self.applies_to == "groups":
+            result = SQLColumnResult(
+                expression=SQL(
+                    "CASE WHEN %s.%s = TRUE THEN %s ELSE %s END",
+                    SQL.identifier(alias),
+                    SQL.identifier("is_group"),
+                    result.expression,
+                    SQL("%s", default),
+                ),
+                joins=result.joins,
+                alias_counter=result.alias_counter,
+            )
+
+        return result
 
     def _to_sql_column_field(self, alias, alias_counter, default):
         """Generate SQL for a field-based dimension."""

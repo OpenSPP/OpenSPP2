@@ -331,6 +331,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                                         widget="many2many_tags"
                                         string="Dimensions"
                                     />
+                                    <field name="member_expansion" />
                                 </group>
                                 <group name="disaggregation_tags_group">
                                     <field
