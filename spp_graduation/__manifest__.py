@@ -7,14 +7,15 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Beta",
+    "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],
     "depends": [
         "base",
+        "spp_registry",
         "spp_security",
         "mail",
     ],
-    "external_dependencies": {"python": ["dateutil"]},
+    "external_dependencies": {"python": ["python-dateutil"]},
     "data": [
         "security/privileges.xml",
         "security/graduation_security.xml",

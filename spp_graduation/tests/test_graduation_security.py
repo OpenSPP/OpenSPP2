@@ -36,6 +36,7 @@ class TestGraduationSecurity(TransactionCase):
         cls.beneficiary = cls.env["res.partner"].create(
             {
                 "name": "Test Beneficiary",
+                "is_registrant": True,
             }
         )
 
@@ -70,7 +71,6 @@ class TestGraduationSecurity(TransactionCase):
         )
         assessment = self.env["spp.graduation.assessment"].create(
             {
-                "name": "Test Assessment",
                 "pathway_id": pathway.id,
                 "partner_id": self.beneficiary.id,
                 "assessor_id": self.user.id,
@@ -88,7 +88,6 @@ class TestGraduationSecurity(TransactionCase):
         )
         assessment1 = self.env["spp.graduation.assessment"].create(
             {
-                "name": "Assessment 1",
                 "pathway_id": pathway.id,
                 "partner_id": self.beneficiary.id,
                 "assessor_id": self.user.id,
@@ -96,7 +95,6 @@ class TestGraduationSecurity(TransactionCase):
         )
         assessment2 = self.env["spp.graduation.assessment"].create(
             {
-                "name": "Assessment 2",
                 "pathway_id": pathway.id,
                 "partner_id": self.beneficiary.id,
                 "assessor_id": self.manager.id,
@@ -135,3 +133,60 @@ class TestGraduationSecurity(TransactionCase):
         )
         pathway.with_user(self.manager).write({"name": "Modified by Manager"})
         self.assertEqual(pathway.name, "Modified by Manager")
+
+    def test_user_workflow_as_user(self):
+        """Test user can submit own assessments."""
+        pathway = self.env["spp.graduation.pathway"].create(
+            {
+                "name": "Test Pathway",
+            }
+        )
+        assessment = (
+            self.env["spp.graduation.assessment"]
+            .with_user(self.user)
+            .create(
+                {
+                    "pathway_id": pathway.id,
+                    "partner_id": self.beneficiary.id,
+                }
+            )
+        )
+        assessment.action_submit()
+        self.assertEqual(assessment.state, "submitted")
+
+    def test_manager_can_approve(self):
+        """Test manager can approve submitted assessments."""
+        pathway = self.env["spp.graduation.pathway"].create(
+            {
+                "name": "Test Pathway",
+            }
+        )
+        assessment = self.env["spp.graduation.assessment"].create(
+            {
+                "pathway_id": pathway.id,
+                "partner_id": self.beneficiary.id,
+                "assessor_id": self.user.id,
+            }
+        )
+        assessment.action_submit()
+        assessment.with_user(self.manager).action_approve()
+        self.assertEqual(assessment.state, "approved")
+        self.assertEqual(assessment.approved_by_id, self.manager)
+
+    def test_manager_can_reject(self):
+        """Test manager can reject submitted assessments."""
+        pathway = self.env["spp.graduation.pathway"].create(
+            {
+                "name": "Test Pathway",
+            }
+        )
+        assessment = self.env["spp.graduation.assessment"].create(
+            {
+                "pathway_id": pathway.id,
+                "partner_id": self.beneficiary.id,
+                "assessor_id": self.user.id,
+            }
+        )
+        assessment.action_submit()
+        assessment.with_user(self.manager).action_reject()
+        self.assertEqual(assessment.state, "rejected")
