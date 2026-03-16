@@ -410,6 +410,11 @@ async def delete_collection_item(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e),
         ) from e
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(e),
+        ) from e
 
 
 @ogc_features_router.get(

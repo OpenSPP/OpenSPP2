@@ -493,3 +493,58 @@ class TestOGCGeofenceWrite(TransactionCase):
 
         with self.assertRaises(MissingError):
             service.delete_geofence_feature("nonexistent-uuid-99999")
+
+    def test_delete_allowed_when_no_program_module(self):
+        """DELETE succeeds when spp_program_geofence is not installed."""
+        # spp_program_geofence is not a dependency of spp_api_v2_gis,
+        # so spp.program should not have geofence_ids in this test env.
+        # _check_geofence_not_referenced should be a no-op.
+        geofence = self.Geofence.create(
+            {
+                "name": "OGC Delete No Program",
+                "geometry": json.dumps(SAMPLE_POLYGON),
+                "geofence_type": "custom",
+            }
+        )
+        uuid = geofence.uuid
+
+        service = self._make_service()
+        service.delete_geofence_feature(uuid)
+
+        geofence.invalidate_recordset()
+        self.assertFalse(geofence.with_context(active_test=False).active)
+
+    def test_delete_blocked_when_referenced_by_program(self):
+        """DELETE raises ValueError if geofence is linked to a program."""
+        geofence = self.Geofence.create(
+            {
+                "name": "OGC Delete Referenced",
+                "geometry": json.dumps(SAMPLE_POLYGON),
+                "geofence_type": "custom",
+            }
+        )
+
+        service = self._make_service()
+
+        # Patch _check_geofence_not_referenced to simulate a program reference
+        original_check = service._check_geofence_not_referenced
+
+        def mock_check(gf):
+            raise ValueError("Cannot delete geofence: referenced by program(s): Test Program")
+
+        service._check_geofence_not_referenced = mock_check
+
+        with self.assertRaises(ValueError) as cm:
+            service.delete_geofence_feature(geofence.uuid)
+
+        self.assertIn("referenced by program", str(cm.exception))
+
+        # Verify geofence is still active (delete was blocked)
+        geofence.invalidate_recordset()
+        self.assertTrue(geofence.active)
+
+        # Restore and verify normal delete still works
+        service._check_geofence_not_referenced = original_check
+        service.delete_geofence_feature(geofence.uuid)
+        geofence.invalidate_recordset()
+        self.assertFalse(geofence.with_context(active_test=False).active)

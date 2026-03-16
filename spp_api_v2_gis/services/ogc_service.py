@@ -927,6 +927,7 @@ class OGCService:
 
         Raises:
             MissingError: If geofence not found
+            ValueError: If geofence is referenced by a program
         """
         # nosemgrep: odoo-sudo-without-context
         geofence = (
@@ -935,7 +936,33 @@ class OGCService:
         if not geofence:
             raise MissingError(f"Feature {feature_id} not found in collection geofences")
 
+        self._check_geofence_not_referenced(geofence)
         geofence.write({"active": False})
+
+    def _check_geofence_not_referenced(self, geofence):
+        """Block deletion if the geofence is linked to any program.
+
+        Checks both active and inactive programs since geofences serve as
+        historical records of a program's geographic scope.
+
+        Args:
+            geofence: spp.gis.geofence record
+
+        Raises:
+            ValueError: If geofence is referenced by one or more programs
+        """
+        if "spp.program" not in self.env or "geofence_ids" not in self.env["spp.program"]._fields:
+            return
+        # nosemgrep: odoo-sudo-without-context
+        programs = (
+            self.env["spp.program"]
+            .sudo()
+            .with_context(active_test=False)
+            .search([("geofence_ids", "in", geofence.ids)], limit=5)
+        )
+        if programs:
+            names = ", ".join(programs.mapped("name")[:5])
+            raise ValueError(f"Cannot delete geofence: referenced by program(s): {names}")
 
     def _validate_geofence_type(self, geofence_type):
         """Validate geofence_type against available selection values.
