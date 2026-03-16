@@ -23,8 +23,6 @@
     "data": [
         # Security
         "security/ir.model.access.csv",
-        # Geographic area records (loaded on install)
-        "data/areas_luzon.xml",
     ],
     "assets": {},
     "demo": [],

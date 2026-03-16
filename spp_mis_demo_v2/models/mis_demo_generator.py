@@ -3761,6 +3761,7 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         Uses the DemoAreaLoader from spp_demo to load country-specific
         area hierarchies with GIS polygon data for spatial queries.
+        If spp_demo_phl_luzon is installed, also loads full Luzon data.
 
         Args:
             stats: Statistics dictionary to update
@@ -3776,10 +3777,23 @@ class SPPMISDemoGenerator(models.TransientModel):
                 self.country_code,
                 result.get("shapes_loaded", 0),
             )
-            return result
         except Exception as e:
             _logger.warning("[spp.mis.demo] Failed to load geographic data: %s", e)
             return None
+
+        # Load extended Luzon areas if the module is installed
+        if "spp.demo.luzon.area.loader" in self.env:
+            try:
+                luzon_result = self.env["spp.demo.luzon.area.loader"].load_luzon_areas(load_shapes=True)
+                _logger.info(
+                    "[spp.mis.demo] Loaded Luzon geodata: %d areas, %d shapes",
+                    luzon_result.get("areas_created", 0),
+                    luzon_result.get("shapes_loaded", 0),
+                )
+            except Exception as e:
+                _logger.warning("[spp.mis.demo] Failed to load Luzon geodata: %s", e)
+
+        return result
 
     def _assign_registrant_areas(self, stats):
         """Assign geographic areas to registrants.
