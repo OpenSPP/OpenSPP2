@@ -243,6 +243,28 @@ def _confirm(prompt: str, default: bool = False) -> bool:
     return response in ("y", "yes")
 
 
+def _stable_port(path: str = None, base: int = 18000, range_size: int = 1000) -> int:
+    """Compute a stable port number from the project path.
+
+    Uses a hash of the absolute path so each worktree gets a deterministic,
+    unique-ish port in the range [base, base + range_size).
+    Override via ODOO_HOST_PORT env var or stable_port in ~/.spp.toml.
+    """
+    import hashlib
+
+    env_port = os.environ.get("ODOO_HOST_PORT")
+    if env_port and env_port != "0":
+        return int(env_port)
+
+    config_port = CONFIG.get("stable_port")
+    if config_port:
+        return int(config_port)
+
+    path = path or str(PROJECT_ROOT)
+    digest = hashlib.md5(path.encode()).hexdigest()  # nosec B324 -- not for security
+    return base + (int(digest, 16) % range_size)
+
+
 def _validate_db_name(name: str) -> bool:
     """Validate database name to prevent SQL injection."""
     # PostgreSQL identifiers: alphanumeric, underscore, must start with letter/underscore
@@ -566,6 +588,12 @@ def cmd_start(args):
     if not getattr(args, "no_build", False):
         _check_image_freshness(profile, auto_rebuild=args.yes)
 
+    # Assign stable port for dev profile (deterministic per worktree path)
+    if profile == "dev":
+        port = _stable_port()
+        env["ODOO_HOST_PORT"] = str(port)
+        info(f"Using stable port {port} (from path hash)")
+
     # Enable auto-reload for dev profile by default (disable with --no-watch)
     if profile == "dev" and not args.no_watch:
         env["ODOO_EXTRA_ARGS"] = "--dev=reload,qweb,xml"
@@ -639,7 +667,6 @@ def cmd_start(args):
 
     # Show URL
     if profile == "dev":
-        print("\nGetting dynamic port...")
         _show_url()
     else:
         print("\nOdoo available at: http://localhost:8069")
@@ -924,36 +951,14 @@ def _show_url(open_browser: bool = False) -> str | None:
             _open_browser(url)
         return url
 
-    # Dev profile uses dynamic port - need to look it up
-    result = run(
-        docker_compose("ps", "--format", "json", profile="dev"),
-        capture=True,
-        check=False,
-    )
-
-    if result.returncode != 0:
-        return None
-
-    try:
-        for line in result.stdout.strip().split("\n"):
-            if not line:
-                continue
-            container = json.loads(line)
-            if container.get("Service") == "openspp-dev":
-                for publisher in container.get("Publishers", []):
-                    if publisher.get("TargetPort") == 8069:
-                        port = publisher.get("PublishedPort")
-                        if port:
-                            url = f"http://localhost:{port}"
-                            print(f"Odoo URL: {url}")
-                            print("Credentials: admin / admin")
-                            if open_browser:
-                                _open_browser(url)
-                            return url
-    except (json.JSONDecodeError, KeyError):
-        pass
-
-    return None
+    # Dev profile uses stable port from path hash
+    port = _stable_port()
+    url = f"http://localhost:{port}"
+    print(f"Odoo URL: {url}")
+    print("Credentials: admin / admin")
+    if open_browser:
+        _open_browser(url)
+    return url
 
 
 def _open_browser(url: str):
