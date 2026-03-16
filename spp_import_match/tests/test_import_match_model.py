@@ -86,17 +86,17 @@ class TestImportMatchModel(TransactionCase):
         # Should return the model (empty recordset)
         self.assertFalse(result.id)
 
-    def test_match_find_multiple_matches_returns_first(self):
-        """Test _match_find returns first match when multiple found."""
-        partner1 = self.env["res.partner"].create({"name": "DuplicateMatchTest"})
+    def test_match_find_multiple_matches_raises(self):
+        """Test _match_find raises ValidationError when multiple matches found."""
+        self.env["res.partner"].create({"name": "DuplicateMatchTest"})
         self.env["res.partner"].create({"name": "DuplicateMatchTest"})
         match = self._create_match_rule([{"field_id": self.name_field.id}])
-        result = match._match_find(
-            self.env["res.partner"],
-            {"name": "DuplicateMatchTest"},
-            {"name": "DuplicateMatchTest", "id": None},
-        )
-        self.assertEqual(result, partner1)
+        with self.assertRaises(ValidationError):
+            match._match_find(
+                self.env["res.partner"],
+                {"name": "DuplicateMatchTest"},
+                {"name": "DuplicateMatchTest", "id": None},
+            )
 
     def test_match_find_conditional_skip(self):
         """Test _match_find skips rule when conditional value doesn't match."""

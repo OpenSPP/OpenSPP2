@@ -726,8 +726,8 @@ def cmd_resetdb(args):
     # Ensure db is running
     run(docker_compose("up", "-d", "db"))
 
-    # Stop Odoo but keep db
-    run(docker_compose("stop", "openspp", "openspp-dev"), check=False)
+    # Stop Odoo and job worker but keep db
+    run(docker_compose("stop", "openspp", "openspp-dev", "jobworker"), check=False)
 
     # Wait for db to be ready
     print("Waiting for database...")

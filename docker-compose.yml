@@ -170,6 +170,8 @@ services:
 
   # Job Worker - background service for processing async queue jobs
   # Runs alongside openspp/openspp-dev to execute delayed imports, etc.
+  # The runner auto-discovers databases every 5 minutes, so after installing
+  # new modules, jobs will be picked up within 5 minutes (or restart to force).
   jobworker:
     image: openspp-dev
     profiles:

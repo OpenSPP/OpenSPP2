@@ -73,6 +73,10 @@ class SPPImportMatch(models.Model):
                         break
                 if field.field_id.name in converted_row:
                     row_value = converted_row[field.field_id.name]
+                    # Skip matching on empty values to avoid false matches
+                    if not row_value:
+                        combination_valid = False
+                        break
                     field_value = field.field_id.name
                     add_to_domain = True
                     if field.sub_field_id:
@@ -86,8 +90,12 @@ class SPPImportMatch(models.Model):
                         domain.append((field_value, "=", row_value))
             if not combination_valid:
                 continue
+            if not domain:
+                continue
             match = model.search(domain)
-            if len(match) >= 1:
+            if len(match) > 1:
+                raise ValidationError(_("Multiple records found for matching criteria: %s") % domain)
+            if len(match) == 1:
                 return match[0]
 
         return model
