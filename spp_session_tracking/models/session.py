@@ -48,6 +48,7 @@ class Session(models.Model):
     area_id = fields.Many2one("spp.area", string="Area")
 
     # Topics covered (if tracking enabled)
+    track_topics = fields.Boolean(related="session_type_id.track_topics")
     topic_ids = fields.Many2many(
         "spp.session.topic",
         "session_topic_rel",

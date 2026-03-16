@@ -174,7 +174,7 @@
                         <page
                             string="Topics"
                             name="page_topics"
-                            invisible="not session_type_id.track_topics"
+                            invisible="not track_topics"
                         >
                             <group colspan="2">
                                 <field
