@@ -125,6 +125,7 @@ DRY_RUN = False
 # Demo profiles available
 DEMO_PROFILES = {
     "mis": "spp_mis_demo_v2",
+    "misluzon": "spp_mis_demo_v2,spp_demo_phl_luzon",
     "drims": "spp_drims_sl_demo",
     "base": "spp_base",
     "grm": "spp_grm_demo",

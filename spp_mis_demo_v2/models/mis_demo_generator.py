@@ -935,7 +935,13 @@ class SPPMISDemoGenerator(models.TransientModel):
         return member
 
     def _generate_random_groups(self, fake, stats):
-        """Generate random groups/households with members."""
+        """Generate random groups/households with members.
+
+        For large volumes (>100 groups), uses batch operations:
+        - Batch membership creation in chunks
+        - Batch create_date backdating via executemany
+        - Disables tracking and recomputation during creation
+        """
         try:
             from odoo.addons.spp_demo.models import demo_stories
 
@@ -947,6 +953,12 @@ class SPPMISDemoGenerator(models.TransientModel):
         head_membership_type = self.env["spp.vocabulary.code"].get_code(
             "urn:openspp:vocab:group-membership-type", "head"
         )
+
+        # Collect all create_date updates and membership records for batch processing
+        backdate_updates = []  # list of (date, partner_id)
+        membership_batch = []  # list of membership value dicts
+
+        DemoGenerator = self.env["spp.demo.data.generator"].with_context(tracking_disable=True)
 
         for i in range(self.random_groups_count):
             try:
@@ -962,18 +974,12 @@ class SPPMISDemoGenerator(models.TransientModel):
 
                 head_age = random.randint(25, 65)
 
-                # Create the group (use family name only to distinguish from individuals)
+                # Create the group
                 registration_date = fake.date_between(start_date="-365d", end_date="-30d")
-                DemoGenerator = self.env["spp.demo.data.generator"]
                 group = DemoGenerator.create_group_from_params(head_last)
                 groups_created.append(group)
                 stats["random_groups_created"] += 1
-
-                # Backdate group creation
-                self.env.cr.execute(
-                    "UPDATE res_partner SET create_date = %s WHERE id = %s",
-                    (registration_date, group.id),
-                )
+                backdate_updates.append((registration_date, group.id))
 
                 # Create head of household
                 head = self._create_random_individual(
@@ -986,7 +992,8 @@ class SPPMISDemoGenerator(models.TransientModel):
                 )
                 if head:
                     stats["random_individuals_created"] += 1
-                    self.env["spp.group.membership"].create(
+                    backdate_updates.append((registration_date, head.id))
+                    membership_batch.append(
                         {
                             "group": group.id,
                             "individual": head.id,
@@ -1017,7 +1024,8 @@ class SPPMISDemoGenerator(models.TransientModel):
                         )
                         if spouse:
                             stats["random_individuals_created"] += 1
-                            self.env["spp.group.membership"].create(
+                            backdate_updates.append((registration_date, spouse.id))
+                            membership_batch.append(
                                 {
                                     "group": group.id,
                                     "individual": spouse.id,
@@ -1043,15 +1051,32 @@ class SPPMISDemoGenerator(models.TransientModel):
                         )
                         if member:
                             stats["random_individuals_created"] += 1
-                            self.env["spp.group.membership"].create(
+                            backdate_updates.append((registration_date, member.id))
+                            membership_batch.append(
                                 {
                                     "group": group.id,
                                     "individual": member.id,
                                 }
                             )
 
+                # Flush membership batch periodically to avoid memory buildup
+                if len(membership_batch) >= 500:
+                    self.env["spp.group.membership"].create(membership_batch)
+                    membership_batch = []
+
             except Exception as e:
                 _logger.warning("Error creating random group %s: %s", i, e)
+
+        # Flush remaining memberships
+        if membership_batch:
+            self.env["spp.group.membership"].create(membership_batch)
+
+        # Batch-update create_dates
+        if backdate_updates:
+            self.env.cr.executemany(
+                "UPDATE res_partner SET create_date = %s WHERE id = %s",
+                backdate_updates,
+            )
 
         _logger.info(
             "Created %s random groups with %s individuals",
@@ -1090,14 +1115,8 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         # Disability status (~5% of population for realistic demo data)
         # Use SPPDemoDataGenerator utility for consistent individual creation
-        DemoGenerator = self.env["spp.demo.data.generator"]
+        DemoGenerator = self.env["spp.demo.data.generator"].with_context(tracking_disable=True)
         individual = DemoGenerator.create_individual_from_params(name, gender, age, extra_vals)
-
-        # Backdate creation
-        self.env.cr.execute(
-            "UPDATE res_partner SET create_date = %s WHERE id = %s",
-            (registration_date, individual.id),
-        )
 
         return individual
 
@@ -3810,17 +3829,38 @@ class SPPMISDemoGenerator(models.TransientModel):
             stats["areas_assigned"] = 0
             return
 
-        # Assign random municipality to each group
+        # Check if population weights are available (spp_demo_phl_luzon installed)
+        weights_by_area_id = None
+        if "spp.demo.population.weights" in self.env:
+            try:
+                weights_by_area_id = self.env["spp.demo.population.weights"].get_weights_by_area_id()
+            except Exception as e:
+                _logger.warning("[spp.mis.demo] Could not load population weights: %s", e)
+
+        # Build weighted selection if population data available
+        muni_ids = municipalities.ids
+        if weights_by_area_id:
+            weights = [weights_by_area_id.get(mid, 1) for mid in muni_ids]
+            _logger.info("[spp.mis.demo] Using population-weighted area assignment")
+        else:
+            weights = None
+
+        # Pre-assign areas for all groups at once
+        if weights:
+            assigned_ids = random.choices(muni_ids, weights=weights, k=len(groups))
+        else:
+            assigned_ids = [random.choice(muni_ids) for _ in range(len(groups))]
+
+        # Batch-assign areas to groups and their members
         groups_assigned = 0
-        for group in groups:
-            municipality = random.choice(municipalities)
-            group.write({"area_id": municipality.id})
+        for group, area_id in zip(groups, assigned_ids):
+            group.write({"area_id": area_id})
             groups_assigned += 1
 
             # Members inherit area from group
             members = Partner.search([("group_membership_ids.group", "=", group.id)])
             if members:
-                members.write({"area_id": municipality.id})
+                members.write({"area_id": area_id})
 
         stats["areas_assigned"] = groups_assigned
         _logger.info("[spp.mis.demo] Assigned areas to %d groups", groups_assigned)
@@ -3832,7 +3872,7 @@ class SPPMISDemoGenerator(models.TransientModel):
         generates a random point within the area polygon and sets
         the coordinates field (if spp_registrant_gis is installed).
 
-        Uses shapely to generate random points within polygons.
+        Processes in chunks to avoid excessive memory usage at scale (50K+).
 
         Args:
             stats: Statistics dictionary to update
@@ -3853,76 +3893,89 @@ class SPPMISDemoGenerator(models.TransientModel):
         Partner = self.env["res.partner"]
         Area = self.env["spp.area"]
 
-        # Get all registrants with an area_id
-        registrants = Partner.search(
-            [
-                ("is_registrant", "=", True),
-                ("area_id", "!=", False),
-            ]
+        # Count total registrants with area_id
+        total_count = Partner.search_count(
+            [("is_registrant", "=", True), ("area_id", "!=", False)]
         )
 
-        if not registrants:
+        if not total_count:
             _logger.warning("[spp.mis.demo] No registrants with areas found")
             stats["coordinates_generated"] = 0
             return
 
-        _logger.info("[spp.mis.demo] Generating coordinates for %d registrants", len(registrants))
+        _logger.info("[spp.mis.demo] Generating coordinates for %d registrants", total_count)
 
+        # Cache polygon data by area_id to avoid repeated reads
+        polygon_cache = {}
         coordinates_generated = 0
+        CHUNK_SIZE = 2000
 
-        # Group registrants by area to minimize queries
-        registrants_by_area = {}
-        for registrant in registrants:
-            area_id = registrant.area_id.id
-            if area_id not in registrants_by_area:
-                registrants_by_area[area_id] = []
-            registrants_by_area[area_id].append(registrant)
+        # Process registrants in chunks to limit memory usage
+        offset = 0
+        while offset < total_count:
+            registrants = Partner.search(
+                [("is_registrant", "=", True), ("area_id", "!=", False)],
+                limit=CHUNK_SIZE,
+                offset=offset,
+            )
+            if not registrants:
+                break
 
-        # Process each area
-        for area_id, area_registrants in registrants_by_area.items():
-            area = Area.browse(area_id)
+            # Group this chunk by area
+            registrants_by_area = {}
+            for registrant in registrants:
+                area_id = registrant.area_id.id
+                if area_id not in registrants_by_area:
+                    registrants_by_area[area_id] = []
+                registrants_by_area[area_id].append(registrant)
 
-            # Skip if no polygon data
-            if not area.geo_polygon:
-                continue
+            # Batch collect coordinate writes
+            write_batch = []  # list of (registrant_id, wkt_point)
 
-            try:
-                # The ORM returns geo_polygon as a Shapely geometry object
-                polygon = area.geo_polygon
+            for area_id, area_registrants in registrants_by_area.items():
+                # Get or cache polygon
+                if area_id not in polygon_cache:
+                    area = Area.browse(area_id)
+                    polygon_cache[area_id] = area.geo_polygon if area.geo_polygon else None
 
-                # Generate random points for all registrants in this area
-                minx, miny, maxx, maxy = polygon.bounds
+                polygon = polygon_cache[area_id]
+                if polygon is None:
+                    continue
 
-                for registrant in area_registrants:
-                    # Generate random point within bounding box, retry if outside polygon
-                    max_attempts = 10
-                    for _attempt in range(max_attempts):
-                        point_x = random.uniform(minx, maxx)
-                        point_y = random.uniform(miny, maxy)
-                        point = shape({"type": "Point", "coordinates": [point_x, point_y]})
+                try:
+                    minx, miny, maxx, maxy = polygon.bounds
 
-                        if polygon.contains(point):
-                            # Set the coordinates field (GeoPointField expects WKB)
-                            registrant.write(
-                                {
-                                    "coordinates": f"POINT({point_x} {point_y})",
-                                }
-                            )
-                            coordinates_generated += 1
-                            break
-                    else:
-                        # If we couldn't find a point inside after max_attempts, use centroid
-                        centroid = polygon.centroid
-                        registrant.write(
-                            {
-                                "coordinates": f"POINT({centroid.x} {centroid.y})",
-                            }
-                        )
-                        coordinates_generated += 1
+                    for registrant in area_registrants:
+                        max_attempts = 10
+                        for _attempt in range(max_attempts):
+                            point_x = random.uniform(minx, maxx)
+                            point_y = random.uniform(miny, maxy)
+                            point = shape({"type": "Point", "coordinates": [point_x, point_y]})
 
-            except Exception as e:
-                _logger.warning("[spp.mis.demo] Failed to generate coordinates for area %s: %s", area.id, e)
-                continue
+                            if polygon.contains(point):
+                                write_batch.append((registrant.id, f"POINT({point_x} {point_y})"))
+                                break
+                        else:
+                            centroid = polygon.centroid
+                            write_batch.append((registrant.id, f"POINT({centroid.x} {centroid.y})"))
+
+                except Exception as e:
+                    _logger.warning("[spp.mis.demo] Failed to generate coordinates for area %s: %s", area_id, e)
+                    continue
+
+            # Batch write coordinates via ORM (in sub-chunks of 500)
+            for i in range(0, len(write_batch), 500):
+                batch = write_batch[i : i + 500]
+                for partner_id, wkt_point in batch:
+                    Partner.browse(partner_id).write({"coordinates": wkt_point})
+                coordinates_generated += len(batch)
+
+            offset += CHUNK_SIZE
+            _logger.info(
+                "[spp.mis.demo] Coordinate progress: %d / %d",
+                coordinates_generated,
+                total_count,
+            )
 
         stats["coordinates_generated"] = coordinates_generated
         _logger.info("[spp.mis.demo] Generated coordinates for %d registrants", coordinates_generated)
