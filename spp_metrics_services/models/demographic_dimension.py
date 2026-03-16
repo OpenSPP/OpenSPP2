@@ -173,8 +173,10 @@ class DemographicDimension(models.Model):
             return self.default_value or "unknown"
 
         # Convert to string key
-        if hasattr(value, "id"):
-            # Many2one - use code or display_name for meaningful keys
+        if hasattr(value, "_name"):
+            # Odoo recordset (Many2one). Empty recordset means the field is unset.
+            if not value:
+                return self.default_value or "unknown"
             if hasattr(value, "code") and value.code:
                 key = str(value.code)
             else:
@@ -211,27 +213,69 @@ class DemographicDimension(models.Model):
         """
         Get the display label for a dimension value.
 
+        First checks value_labels_json for a static mapping. If not found and
+        the dimension is field-based pointing to a Many2one, dynamically looks
+        up the display_name from the related model.
+
         :param value: The raw dimension value
         :returns: Display label
         :rtype: str
         """
         self.ensure_one()
-        if not self.value_labels_json:
-            return value
 
-        # Handle case where value_labels_json is a string (JSON not yet parsed)
-        labels = self.value_labels_json
-        if isinstance(labels, str):
-            try:
-                labels = json.loads(labels)
-            except (json.JSONDecodeError, TypeError):
-                return value
+        # Check static labels first
+        if self.value_labels_json:
+            labels = self.value_labels_json
+            if isinstance(labels, str):
+                try:
+                    labels = json.loads(labels)
+                except (json.JSONDecodeError, TypeError):
+                    labels = {}
 
-        # Convert value to string for lookup (keys are strings in JSON)
-        str_value = str(value) if value is not None else "null"
-        if str_value in labels:
-            return labels[str_value]
+            str_value = str(value) if value is not None else "null"
+            if str_value in labels:
+                return labels[str_value]
+
+        # For field-based dimensions pointing to a Many2one, try dynamic lookup
+        if self.dimension_type == "field" and self.field_path:
+            label = self._lookup_m2o_label(value)
+            if label:
+                return label
+
         return value
+
+    def _lookup_m2o_label(self, raw_value):
+        """Look up display_name for a Many2one field-based dimension value.
+
+        When field_path points to a Many2one (e.g. area_id, gender_id), the raw
+        value is typically the record's code. This method searches the related
+        model by code to return the display_name.
+
+        :param raw_value: The raw dimension value (typically a code string)
+        :returns: display_name or None if not found
+        """
+        # Only handle simple field paths (one segment, no dotted traversal
+        # like "gender_id.code" where the user explicitly chose a sub-field)
+        if "." in self.field_path:
+            return None
+
+        field_name = self.field_path
+        partner_fields = self.env["res.partner"]._fields
+        if field_name not in partner_fields:
+            return None
+
+        field = partner_fields[field_name]
+        if field.type != "many2one":
+            return None
+
+        comodel = self.env[field.comodel_name]
+        # Search by code if the related model has a code field
+        if "code" in comodel._fields:
+            record = comodel.search([("code", "=", raw_value)], limit=1)
+            if record:
+                return record.display_name
+
+        return None
 
     @api.model
     def get_by_name(self, name):

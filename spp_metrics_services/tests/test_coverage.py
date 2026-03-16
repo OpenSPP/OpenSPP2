@@ -299,6 +299,62 @@ class TestDemographicDimension(TransactionCase):
     # get_label_for_value
     # -------------------------------------------------------------------------
 
+    def test_evaluate_field_empty_many2one_returns_default(self):
+        """Empty Many2one (unset field) returns default_value, not 'False'."""
+        dim = self.dim_model.create(
+            {
+                "name": "test_empty_m2o",
+                "label": "Empty M2O",
+                "dimension_type": "field",
+                "field_path": "company_id",
+                "applies_to": "all",
+                "default_value": "unset",
+            }
+        )
+        # Individual with company_id explicitly cleared
+        partner = self.partner_model.create(
+            {
+                "name": "No Company",
+                "is_registrant": True,
+                "is_group": False,
+                "company_id": False,
+            }
+        )
+        result = dim.evaluate_for_record(partner)
+        self.assertEqual(result, "unset")
+
+    def test_get_label_for_value_m2o_dynamic_lookup(self):
+        """get_label_for_value dynamically looks up Many2one display_name."""
+        # Use company_id which doesn't have a 'code' field on res.company
+        dim = self.dim_model.create(
+            {
+                "name": "test_m2o_label_lookup",
+                "label": "Area Label",
+                "dimension_type": "field",
+                "field_path": "company_id",
+                "applies_to": "all",
+            }
+        )
+        # For a field without code, dynamic lookup won't match
+        # (res.company has no code field), so it falls back to raw value
+        result = dim.get_label_for_value("some_code")
+        self.assertEqual(result, "some_code")
+
+    def test_get_label_for_value_static_takes_precedence(self):
+        """Static value_labels_json takes precedence over dynamic lookup."""
+        dim = self.dim_model.create(
+            {
+                "name": "test_static_precedence",
+                "label": "Static",
+                "dimension_type": "field",
+                "field_path": "company_id",
+                "applies_to": "all",
+                "value_labels_json": {"MY_CODE": "My Display Name"},
+            }
+        )
+        result = dim.get_label_for_value("MY_CODE")
+        self.assertEqual(result, "My Display Name")
+
     def test_get_label_for_value_with_json_mapping(self):
         """Value label lookup from JSON mapping."""
         dim = self.dim_model.create(
