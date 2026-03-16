@@ -294,17 +294,10 @@ class GISReport(models.Model):
     )
 
     # ===== Disaggregation Configuration =====
-    disaggregate_by_gender = fields.Boolean(
-        "Disaggregate by Gender",
-        help="Show gender breakdown in popup",
-    )
-    disaggregate_by_age = fields.Boolean(
-        "Disaggregate by Age Group",
-        help="Show age group breakdown in popup",
-    )
-    disaggregate_by_disability = fields.Boolean(
-        "Disaggregate by Disability",
-        help="Show disability status breakdown",
+    dimension_ids = fields.Many2many(
+        "spp.demographic.dimension",
+        string="Disaggregation Dimensions",
+        help="Demographic dimensions to compute disaggregation for (e.g., gender, age group)",
     )
     disaggregate_by_tag_ids = fields.Many2many(
         "spp.vocabulary",
@@ -435,46 +428,41 @@ class GISReport(models.Model):
             else:
                 report.is_stale = False
 
-    def _compute_base_aggregation(self):
-        """Compute aggregated values at the base area level.
+    def _prepare_area_context(self):
+        """Build shared area context for aggregation and disaggregation.
 
-        Uses Odoo's read_group for efficient aggregation. For very large
-        datasets (1M+ records), consider using PostGIS-optimized SQL queries.
+        Computes the filter domain, area field, base areas, and the
+        child_to_base mapping that maps descendant areas to their
+        base-level ancestor. Both _compute_base_aggregation and
+        _compute_disaggregation use this context.
 
         Returns:
-            dict: {area_id: {'raw': float, 'count': int, 'weight': float}}
+            dict: Area context with keys:
+                - domain: list, the filter domain including area filter
+                - child_to_base: dict, mapping area_id -> base_area_id
+                - base_areas: recordset, areas at base_area_level
+                - area_field: str, first part of area_field_path
+            Returns None if no source model or no base areas exist.
         """
         self.ensure_one()
-        _logger.info("Computing base aggregation for report ID %s", self.id)
 
-        # Get the source model
         if not self.source_model:
             _logger.warning("No source model configured for report ID %s", self.id)
-            return {}
+            return None
 
-        Model = self.env[self.source_model]
-
-        # Build the filter domain
         domain = self._build_filter_domain()
-
-        # Get area field (first part of path)
         area_field = self.area_field_path.split(".")[0]
 
-        # Get areas at the base level
         base_areas = self.env["spp.area"].search([("area_level", "=", self.base_area_level)])
-
         if not base_areas:
             _logger.info("No areas at level %s found", self.base_area_level)
-            return {}
+            return None
 
         # Build mapping from descendant areas to their base-level ancestor.
         # Registrants may be assigned to areas more granular than base_area_level
         # (e.g., barangays when base level is municipality). We include all
         # descendant areas in the query and aggregate results back to the
         # base-level parent.
-        #
-        # Fetch all descendants of all base areas in a single query, then build
-        # the child_to_base mapping in memory to avoid an N+1 query pattern.
         child_to_base = {base_area.id: base_area.id for base_area in base_areas}
         all_descendants = self.env["spp.area"].search(
             [
@@ -482,7 +470,6 @@ class GISReport(models.Model):
                 ("id", "not in", base_areas.ids),
             ]
         )
-        # For each descendant, walk up its parent chain to find the base-level ancestor
         for desc in all_descendants:
             ancestor = desc.parent_id
             while ancestor and ancestor.id not in child_to_base:
@@ -490,8 +477,43 @@ class GISReport(models.Model):
             if ancestor:
                 child_to_base[desc.id] = child_to_base[ancestor.id]
 
-        # Add area filter to domain (base areas + all descendants)
+        # Add area filter to domain
         domain.append((area_field, "in", list(child_to_base.keys())))
+
+        return {
+            "domain": domain,
+            "child_to_base": child_to_base,
+            "base_areas": base_areas,
+            "area_field": area_field,
+        }
+
+    def _compute_base_aggregation(self, area_context=None):
+        """Compute aggregated values at the base area level.
+
+        Uses Odoo's read_group for efficient aggregation. For very large
+        datasets (1M+ records), consider using PostGIS-optimized SQL queries.
+
+        Args:
+            area_context: Optional pre-computed area context from _prepare_area_context().
+                If not provided, it will be computed internally.
+
+        Returns:
+            dict: {area_id: {'raw': float, 'count': int, 'weight': float}}
+        """
+        self.ensure_one()
+        _logger.info("Computing base aggregation for report ID %s", self.id)
+
+        if area_context is None:
+            area_context = self._prepare_area_context()
+
+        if area_context is None:
+            return {}
+
+        Model = self.env[self.source_model]
+        domain = list(area_context["domain"])
+        area_field = area_context["area_field"]
+        base_areas = area_context["base_areas"]
+        child_to_base = area_context["child_to_base"]
 
         # Initialize results for all base areas with 0
         # This ensures areas with no matching records get 0 instead of being missing
@@ -1190,8 +1212,11 @@ class GISReport(models.Model):
         self.ensure_one()
         _logger.info("Starting full refresh for report ID %s", self.id)
 
+        # Step 0: Build shared area context
+        area_context = self._prepare_area_context()
+
         # Step 1: Compute base aggregation
-        base_results = self._compute_base_aggregation()
+        base_results = self._compute_base_aggregation(area_context)
 
         if not base_results:
             _logger.info("No data found for report ID %s", self.id)
