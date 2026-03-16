@@ -10,9 +10,9 @@ OpenSPP Analytics
    !! source digest: sha256:9951d094574dd68b1d86ae2167e53c5ccea5240188acf11a2b7f619ede6c5b54
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Beta
+    :alt: Production/Stable
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
@@ -22,7 +22,7 @@ OpenSPP Analytics
 
 |badge1| |badge2| |badge3|
 
-Unified aggregation service that all consumers (simulation API, GIS API,
+Unified analytics service that all consumers (simulation API, GIS API,
 dashboards) use to compute population statistics with demographic
 breakdowns and privacy enforcement. Resolves a scope (CEL expression,
 area, polygon, explicit IDs) to registrant IDs, computes requested
@@ -31,46 +31,52 @@ statistics, applies k-anonymity suppression, and caches results.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Single entry point (``spp.aggregation.service.compute_aggregation``)
-  for all analytics queries
+- Single entry point (``spp.analytics.service.compute_aggregation``) for
+  all analytics queries
 - Scope resolution: CEL expressions, admin areas, area tags, spatial
   polygons/buffers, explicit IDs
+- Indicator registry with built-in statistics (count, gini) and
+  extensible via CEL variables
 - Multi-dimensional breakdown (up to 3 dimensions) using demographic
   dimensions
-- Result caching with configurable TTL and manual invalidation
+- Result caching with per-scope-type TTL and manual invalidation
 - Per-user access rules controlling scope types, dimensions, and
   k-anonymity thresholds
 
 Key Models
 ~~~~~~~~~~
 
-+----------------------------------------+----------------------------------+
-| Model                                  | Description                      |
-+========================================+==================================+
-| ``spp.aggregation.scope``              | Defines what to aggregate (CEL,  |
-|                                        | area, polygon, explicit IDs)     |
-+----------------------------------------+----------------------------------+
-| ``spp.aggregation.access.rule``        | Per-user/group access level,     |
-|                                        | scope restrictions, k-threshold  |
-+----------------------------------------+----------------------------------+
-| ``spp.aggregation.cache.entry``        | Cached aggregation results       |
-+----------------------------------------+----------------------------------+
-| ``spp.aggregation.service``            | Abstract service: main           |
-|                                        | aggregation entry point          |
-+----------------------------------------+----------------------------------+
-| ``spp.aggregation.scope.resolver``     | Abstract service: resolves       |
-|                                        | scopes to registrant IDs         |
-+----------------------------------------+----------------------------------+
-| ``spp.aggregation.statistic.registry`` | Abstract service: dispatches     |
-|                                        | statistic computation            |
-+----------------------------------------+----------------------------------+
++--------------------------------------+----------------------------------+
+| Model                                | Description                      |
++======================================+==================================+
+| ``spp.analytics.scope``              | Defines what to aggregate (CEL,  |
+|                                      | area, polygon, explicit IDs)     |
++--------------------------------------+----------------------------------+
+| ``spp.analytics.access.rule``        | Per-user/group access level,     |
+|                                      | scope restrictions, k-threshold  |
++--------------------------------------+----------------------------------+
+| ``spp.analytics.cache.entry``        | Cached aggregation results with  |
+|                                      | TTL expiration                   |
++--------------------------------------+----------------------------------+
+| ``spp.analytics.service``            | Abstract service: main           |
+|                                      | aggregation entry point          |
++--------------------------------------+----------------------------------+
+| ``spp.analytics.scope.resolver``     | Abstract service: resolves       |
+|                                      | scopes to registrant IDs         |
++--------------------------------------+----------------------------------+
+| ``spp.analytics.indicator.registry`` | Abstract service: maps statistic |
+|                                      | names to computation logic       |
++--------------------------------------+----------------------------------+
+| ``spp.analytics.cache``              | Abstract service: cache          |
+|                                      | operations with TTL management   |
++--------------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
 
 After installing:
 
-1. Navigate to **Settings > Aggregation > Configuration > Scopes** to
+1. Navigate to **Settings > Analytics > Configuration > Scopes** to
    define reusable scopes
 2. Configure **Access Rules** to set per-user/group privacy levels and
    scope restrictions
@@ -80,40 +86,425 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Menu**: Settings > Aggregation > Configuration > Scopes
-- **Menu**: Settings > Aggregation > Configuration > Demographic
+- **Menu**: Settings > Analytics > Configuration > Scopes
+- **Menu**: Settings > Analytics > Configuration > Demographic
   Dimensions
-- **Menu**: Settings > Aggregation > Configuration > Access Rules
+- **Menu**: Settings > Analytics > Configuration > Access Rules
 
 Security
 ~~~~~~~~
 
-============================= =============================
-Group                         Access
-============================= =============================
-``group_aggregation_read``    Read scopes and cache entries
-``group_aggregation_write``   Full CRUD on scopes and cache
-``group_aggregation_manager`` Full CRUD on access rules
-============================= =============================
++-------------------------------+--------------------------------------+
+| Group                         | Access                               |
++===============================+======================================+
+| ``group_aggregation_read``    | Read scopes and cache entries (Tier  |
+|                               | 3 technical)                         |
++-------------------------------+--------------------------------------+
+| ``group_aggregation_write``   | Write scopes and cache entries (Tier |
+|                               | 3 technical)                         |
++-------------------------------+--------------------------------------+
+| ``group_aggregation_viewer``  | View aggregate statistics only (Tier |
+|                               | 2)                                   |
++-------------------------------+--------------------------------------+
+| ``group_aggregation_officer`` | Query with individual record access  |
+|                               | (Tier 2)                             |
++-------------------------------+--------------------------------------+
+| ``group_aggregation_manager`` | Full management including access     |
+|                               | rules (Tier 2)                       |
++-------------------------------+--------------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Add new scope types by extending ``spp.aggregation.scope`` and
-  ``spp.aggregation.scope.resolver``
-- Register custom statistics via ``spp.aggregation.statistic.registry``
+- Add new scope types by extending ``spp.analytics.scope`` and
+  ``spp.analytics.scope.resolver``
+- Register custom statistics via ``spp.analytics.indicator.registry``
 - Override ``_compute_single_statistic()`` for custom computation logic
 
 Dependencies
 ~~~~~~~~~~~~
 
 ``base``, ``spp_cel_domain``, ``spp_area``, ``spp_registry``,
-``spp_security``, ``spp_metrics_services``
+``spp_security``, ``spp_metric_service``
 
 **Table of contents**
 
 .. contents::
    :local:
+
+Usage
+=====
+
+This guide covers manual testing of the OpenSPP Analytics module for QA
+verification. All tests assume you are logged in as an administrator.
+
+Prerequisites
+~~~~~~~~~~~~~
+
+- The module **OpenSPP Analytics** is installed
+- Test registrants exist in the system (individuals and groups)
+- At least one administrative area exists under **Registry >
+  Configuration > Areas**
+- At least one area tag exists (e.g., "Urban", "Rural")
+
+Accessing the Module
+~~~~~~~~~~~~~~~~~~~~
+
+1. Navigate to **Settings > Analytics > Configuration**
+2. Verify the following three menu items are visible:
+
+   - **Scopes**
+   - **Demographic Dimensions**
+   - **Access Rules**
+
+..
+
+   **Note**: The Analytics menu requires the **Analytics Manager** role.
+   If the menu is not visible, check that your user has the Manager
+   privilege under the **Analytics Engine** category in **Settings >
+   Users & Companies > Users**.
+
+Test 1: Create and Validate Scopes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**1.1 Create an Administrative Area Scope**
+
+1. Go to **Settings > Analytics > Configuration > Scopes**
+2. Click **New**
+3. Fill in:
+
+   - **Name**: "District Test Scope"
+   - **Scope Type**: "Administrative Area"
+
+4. Verify that the **Administrative Area** tab appears in the notebook
+5. Select an area in the **Area** field
+6. Leave **Include Child Areas** checked
+7. Click **Save**
+8. Verify the **Registrants** stat button in the top-right shows a count
+   > 0
+9. Click the **Registrants** stat button and verify it opens a list of
+   registrants filtered to those in the selected area
+
+**1.2 Create a CEL Expression Scope**
+
+1. Click **New** from the Scopes list
+2. Fill in:
+
+   - **Name**: "Adult Individuals"
+   - **Scope Type**: "CEL Expression"
+
+3. Verify the **CEL Expression** tab appears
+4. Set **CEL Profile** to "Individuals"
+5. Enter a CEL expression, e.g.: ``r.is_group == false``
+6. Click **Save**
+7. Verify the **Registrants** count updates
+
+**1.3 Create an Explicit IDs Scope**
+
+1. Click **New**
+2. Fill in:
+
+   - **Name**: "Manual Selection"
+   - **Scope Type**: "Explicit IDs"
+
+3. Verify the **Explicit Registrants** tab appears
+4. Add 3-5 registrants using the **Add a line** button
+5. Click **Save**
+6. Verify the **Registrants** count matches the number of registrants
+   added
+
+**1.4 Create an Area Tags Scope**
+
+1. Click **New**
+2. Fill in:
+
+   - **Name**: "Urban Areas"
+   - **Scope Type**: "Area Tags"
+
+3. Verify the **Area Tags** tab appears
+4. Add one or more area tags (e.g., "Urban")
+5. Click **Save**
+6. Verify the scope is saved without errors
+
+**1.5 Validation Error Tests**
+
+Test that required fields are enforced for each scope type:
+
++---------------------+-----------------------+-----------------------+
+| Scope Type          | Leave blank           | Expected result       |
++=====================+=======================+=======================+
+| CEL Expression      | CEL Expression field  | Validation error:     |
+|                     |                       | "CEL expression is    |
+|                     |                       | required..."          |
++---------------------+-----------------------+-----------------------+
+| Administrative Area | Area field            | Validation error:     |
+|                     |                       | "Area is required..." |
++---------------------+-----------------------+-----------------------+
+| Explicit IDs        | Explicit Registrants  | Validation error: "At |
+|                     | list                  | least one registrant  |
+|                     |                       | is required..."       |
++---------------------+-----------------------+-----------------------+
+| Area Tags           | Area Tags field       | Validation error: "At |
+|                     |                       | least one area tag is |
+|                     |                       | required..."          |
++---------------------+-----------------------+-----------------------+
+| Within Polygon      | Geometry (GeoJSON)    | Validation error:     |
+|                     | field                 | "GeoJSON geometry is  |
+|                     |                       | required..."          |
++---------------------+-----------------------+-----------------------+
+| Within Distance     | Buffer Radius         | Validation error:     |
+|                     |                       | "Buffer radius must   |
+|                     |                       | be a positive         |
+|                     |                       | number."              |
++---------------------+-----------------------+-----------------------+
+
+**1.6 Spatial Polygon Validation**
+
+1. Create a scope with type "Within Polygon"
+2. Enter invalid JSON (e.g., ``not json``) and save
+
+   - Expected: Validation error about invalid GeoJSON
+
+3. Enter valid JSON but wrong type (e.g.,
+   ``{"type": "Point", "coordinates": [0, 0]}``)
+
+   - Expected: Validation error about requiring Polygon, MultiPolygon,
+     Feature, or FeatureCollection
+
+**1.7 Spatial Buffer Validation**
+
+1. Create a scope with type "Within Distance"
+2. Enter latitude ``100`` (out of range), longitude ``0``, radius ``10``
+
+   - Expected: Validation error "Latitude must be between -90 and 90."
+
+3. Enter latitude ``0``, longitude ``200`` (out of range), radius ``10``
+
+   - Expected: Validation error "Longitude must be between -180 and
+     180."
+
+Test 2: Scope List View and Search
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. Go to **Settings > Analytics > Configuration > Scopes**
+2. Verify the list shows columns: **Name**, **Scope Type**, **Registrant
+   Count**, **Active**
+3. Test search filters:
+
+   - Click the **CEL** filter and verify only CEL scopes appear
+   - Click the **Area** filter and verify only area scopes appear
+   - Click the **Spatial** filter and verify only spatial scopes appear
+
+4. Test the **Scope Type** group-by and verify scopes are grouped
+   correctly
+5. Test the **Archived** filter:
+
+   - Archive a scope (open it, uncheck **Active**, save)
+   - Verify it disappears from the default list
+   - Enable the **Archived** filter and verify it appears with the
+     "Archived" ribbon
+
+Test 3: Cache Management
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+**3.1 Refresh Cache Button**
+
+1. Open any scope record
+2. Verify the **Cache Settings** tab exists in the notebook
+3. Note the **Last Cache Refresh** field is empty (or has a previous
+   date)
+4. Click the **Refresh Cache** button (refresh icon in the stat button
+   area)
+5. Verify the **Last Cache Refresh** field is now populated with the
+   current timestamp
+
+**3.2 Cache Settings Tab**
+
+1. Open a scope record and go to the **Cache Settings** tab
+2. Verify the following fields are visible:
+
+   - **Enable Caching** (checkbox, default checked)
+   - **Cache TTL (seconds)** (visible only when caching is enabled)
+   - **Last Cache Refresh** (read-only)
+
+3. Uncheck **Enable Caching** and verify the **Cache TTL** field is
+   hidden
+4. Re-check **Enable Caching** and verify **Cache TTL** reappears
+
+**3.3 Scheduled Action**
+
+1. Go to **Settings > Technical > Scheduled Actions**
+2. Search for "Analytics: Cache Cleanup"
+3. Verify the scheduled action exists and is **Active**
+4. Verify the interval is set to **1 Hour**
+
+Test 4: Access Rules
+~~~~~~~~~~~~~~~~~~~~
+
+**4.1 Create a User-Specific Access Rule**
+
+1. Go to **Settings > Analytics > Configuration > Access Rules**
+2. Click **New**
+3. Fill in:
+
+   - **Name**: "Test User Rule"
+   - **User**: Select a specific user
+   - **Access Level**: "Aggregates Only" (radio button)
+   - **Minimum K-Anonymity**: 5
+
+4. Click **Save**
+5. Verify the record saves without errors
+
+**4.2 Create a Group-Based Access Rule**
+
+1. Click **New**
+2. Fill in:
+
+   - **Name**: "Test Group Rule"
+   - **Security Group**: Select a group (e.g., "Internal User")
+   - **Access Level**: "Individual Records"
+
+3. Click **Save**
+
+**4.3 Validation: User and Group Mutual Exclusivity**
+
+1. Create a new access rule
+2. Set both **User** and **Security Group** fields
+3. Click **Save**
+
+   - Expected: Validation error "A rule cannot apply to both a specific
+     user and a group."
+
+4. Clear both **User** and **Security Group** fields
+5. Click **Save**
+
+   - Expected: Validation error "A rule must apply to either a user or a
+     group."
+
+**4.4 K-Anonymity Validation**
+
+1. Create a new access rule with a user set
+2. Set **Minimum K-Anonymity** to ``0`` and save
+
+   - Expected: Validation error "Minimum k-anonymity must be at least
+     1."
+
+3. Set **Minimum K-Anonymity** to ``101`` and save
+
+   - Expected: Validation error "Minimum k-anonymity should not exceed
+     100."
+
+**4.5 Max Dimensions Validation**
+
+1. Set **Max Group By Dimensions** to ``-1`` and save
+
+   - Expected: Validation error "Maximum group_by dimensions cannot be
+     negative."
+
+2. Set **Max Group By Dimensions** to ``11`` and save
+
+   - Expected: Validation error "Maximum group_by dimensions should not
+     exceed 10."
+
+**4.6 Scope Restrictions**
+
+1. Create an access rule with **Allowed Scope Types** set to "Predefined
+   Scopes Only"
+2. Verify the **Allowed Scopes** tab appears in the notebook
+3. Add one or more scopes to the allowed list
+4. Change **Allowed Scope Types** to "All Scope Types"
+5. Verify the **Allowed Scopes** tab is hidden
+
+**4.7 Dimension Restrictions**
+
+1. Open an access rule
+2. Go to the **Allowed Dimensions** tab
+3. Add one or more demographic dimensions
+4. Verify the dimensions are displayed with **Name** and **Label**
+   columns
+
+Test 5: Access Rules List View and Search
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. Go to **Settings > Analytics > Configuration > Access Rules**
+2. Verify the list columns: drag handle (sequence), **Name**, **User**,
+   **Security Group**, **Access Level**, **Minimum K-Anonymity**,
+   **Active**
+3. Verify rules can be reordered by dragging the handle
+4. Test search filters:
+
+   - **Aggregate Only**: Shows only rules with access level "Aggregates
+     Only"
+   - **Individual Access**: Shows only rules with access level
+     "Individual Records"
+   - **Archived**: Shows archived rules
+
+5. Test the **Access Level** group-by
+
+Test 6: Security Groups
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Verify that users with different security roles see the appropriate
+menus:
+
++-------------------+--------------------------------------------------+
+| Role              | Expected Access                                  |
++===================+==================================================+
+| No Analytics role | Cannot see the **Analytics** menu under Settings |
++-------------------+--------------------------------------------------+
+| Viewer            | Cannot see the Analytics menu (Viewer implies    |
+|                   | read-only data access, not config)               |
++-------------------+--------------------------------------------------+
+| Analyst           | Cannot see the Analytics menu (Analyst implies   |
+|                   | query access, not config)                        |
++-------------------+--------------------------------------------------+
+| Manager           | Can see and use all three menu items under       |
+|                   | **Settings > Analytics > Configuration**         |
++-------------------+--------------------------------------------------+
+| Administrator     | Full access (admin implies Manager)              |
++-------------------+--------------------------------------------------+
+
+To test:
+
+1. Go to **Settings > Users & Companies > Users**
+2. Open a test user
+3. Under the **Analytics Engine** section, set the privilege level
+4. Log in as that user and verify menu visibility matches the table
+   above
+
+Test 7: Demographic Dimensions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. Go to **Settings > Analytics > Configuration > Demographic
+   Dimensions**
+2. Verify the menu opens the demographic dimension list (provided by
+   ``spp_metric_service``)
+3. This view should show available dimensions like "registrant_type",
+   "area", etc.
+4. Verify dimensions can be viewed but that create/edit depends on your
+   permission level
+
+Common Issues
+~~~~~~~~~~~~~
+
++----------------------------------+----------------------------------+
+| Symptom                          | Likely Cause                     |
++==================================+==================================+
+| Analytics menu not visible       | User lacks the **Manager** role  |
+|                                  | under Analytics Engine           |
++----------------------------------+----------------------------------+
+| Registrant count shows 0 on area | No registrants assigned to the   |
+| scope                            | selected area                    |
++----------------------------------+----------------------------------+
+| CEL scope shows 0 registrants    | CEL expression syntax error or   |
+|                                  | no matching registrants          |
++----------------------------------+----------------------------------+
+| Spatial scopes return empty      | The ``spp_aggregation_spatial``  |
+| results                          | bridge module is not installed   |
++----------------------------------+----------------------------------+
+| "Refresh Cache" button has no    | Cache was already empty; check   |
+| visible effect                   | **Last Cache Refresh** timestamp |
++----------------------------------+----------------------------------+
 
 Bug Tracker
 ===========

@@ -13,3 +13,4 @@ from . import test_scope_builder
 from . import test_scope_resolver
 from . import test_indicator_registry
 from . import test_coverage
+from . import test_coverage_gaps
