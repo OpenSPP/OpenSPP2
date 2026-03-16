@@ -883,3 +883,270 @@ class TestOGCProcessesHTTP(ApiV2HttpTestCase):
         data = response.json()
         link_rels = [link["rel"] for link in data["links"]]
         self.assertIn("http://www.opengis.net/def/rel/ogc/1.0/processes", link_rels)
+
+
+class TestProcessGroupByInput(TransactionCase):
+    """Unit tests for group_by input and breakdown response in OGC processes."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        # Create a demographic dimension for testing
+        cls.gender_dimension = cls.env["spp.demographic.dimension"].search(
+            [("name", "=", "gender")], limit=1
+        )
+        if not cls.gender_dimension:
+            cls.gender_dimension = cls.env["spp.demographic.dimension"].create(
+                {
+                    "name": "gender",
+                    "label": "Gender",
+                    "dimension_type": "field",
+                    "field_path": "gender_id.code",
+                    "value_labels_json": {"1": "Male", "2": "Female"},
+                    "default_value": "unknown",
+                }
+            )
+
+    def test_spatial_statistics_includes_group_by_input(self):
+        """spatial-statistics process description includes group_by input."""
+        from ..services.process_registry import ProcessRegistry
+
+        registry = ProcessRegistry(self.env)
+        desc = registry.get_process("spatial-statistics")
+
+        self.assertIn("group_by", desc["inputs"])
+        group_by = desc["inputs"]["group_by"]
+        self.assertEqual(group_by["title"], "Disaggregation Dimensions")
+        self.assertEqual(group_by["minOccurs"], 0)
+        self.assertEqual(group_by["schema"]["type"], "array")
+        self.assertEqual(group_by["schema"]["maxItems"], 3)
+
+    def test_proximity_statistics_includes_group_by_input(self):
+        """proximity-statistics process description includes group_by input."""
+        from ..services.process_registry import ProcessRegistry
+
+        registry = ProcessRegistry(self.env)
+        desc = registry.get_process("proximity-statistics")
+
+        self.assertIn("group_by", desc["inputs"])
+
+    def test_group_by_enum_reflects_active_dimensions(self):
+        """group_by enum includes active dimension names."""
+        from ..services.process_registry import ProcessRegistry
+
+        registry = ProcessRegistry(self.env)
+        desc = registry.get_process("spatial-statistics")
+
+        group_by = desc["inputs"]["group_by"]
+        items = group_by["schema"]["items"]
+
+        # Should have enum with at least our test dimension
+        self.assertIn("enum", items)
+        self.assertIn("gender", items["enum"])
+
+    def test_group_by_x_openspp_dimensions_metadata(self):
+        """group_by includes x-openspp-dimensions extension with labels."""
+        from ..services.process_registry import ProcessRegistry
+
+        registry = ProcessRegistry(self.env)
+        desc = registry.get_process("spatial-statistics")
+
+        group_by = desc["inputs"]["group_by"]
+        self.assertIn("x-openspp-dimensions", group_by)
+
+        dim_metadata = group_by["x-openspp-dimensions"]
+        gender_dims = [d for d in dim_metadata if d["name"] == "gender"]
+        self.assertEqual(len(gender_dims), 1)
+        self.assertEqual(gender_dims[0]["label"], "Gender")
+
+    def test_breakdown_schema_field_on_single_result(self):
+        """SingleStatisticsResult schema accepts optional breakdown field."""
+        from ..schemas.processes import SingleStatisticsResult
+
+        # Without breakdown
+        result = SingleStatisticsResult(
+            total_count=10,
+            query_method="coordinates",
+            areas_matched=1,
+            statistics={"count": 10},
+        )
+        self.assertIsNone(result.breakdown)
+
+        # With breakdown
+        result_with = SingleStatisticsResult(
+            total_count=10,
+            query_method="coordinates",
+            areas_matched=1,
+            statistics={"count": 10},
+            breakdown={"1": {"count": 6, "labels": {"gender": {"value": "1", "display": "Male"}}}},
+        )
+        self.assertIsNotNone(result_with.breakdown)
+
+    def test_breakdown_schema_field_on_batch_result(self):
+        """BatchResultItem and BatchSummary schemas accept optional breakdown field."""
+        from ..schemas.processes import BatchResultItem, BatchSummary
+
+        item = BatchResultItem(
+            id="area_1",
+            total_count=10,
+            query_method="coordinates",
+            areas_matched=1,
+            statistics={},
+            breakdown={"1": {"count": 6}},
+        )
+        self.assertIsNotNone(item.breakdown)
+
+        summary = BatchSummary(
+            total_count=20,
+            geometries_queried=2,
+            statistics={},
+            breakdown={"1": {"count": 12}},
+        )
+        self.assertIsNotNone(summary.breakdown)
+
+    def test_breakdown_schema_field_on_proximity_result(self):
+        """ProximityResult schema accepts optional breakdown field."""
+        from ..schemas.processes import ProximityResult
+
+        result = ProximityResult(
+            total_count=10,
+            query_method="coordinates",
+            areas_matched=1,
+            reference_points_count=1,
+            radius_km=5.0,
+            relation="within",
+            statistics={},
+            breakdown={"1": {"count": 6}},
+        )
+        self.assertIsNotNone(result.breakdown)
+
+    def test_run_spatial_statistics_passes_group_by(self):
+        """run_spatial_statistics extracts and passes group_by from inputs."""
+        from unittest.mock import MagicMock
+
+        from ..services.process_execution import run_spatial_statistics
+
+        mock_service = MagicMock()
+        mock_service.query_statistics.return_value = {
+            "total_count": 5,
+            "query_method": "area_fallback",
+            "areas_matched": 1,
+            "statistics": {},
+            "breakdown": {"1": {"count": 3}},
+            "registrant_ids": [1, 2, 3, 4, 5],
+        }
+
+        result = run_spatial_statistics(
+            mock_service,
+            {
+                "geometry": {"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 0]]]},
+                "group_by": ["gender"],
+            },
+        )
+
+        mock_service.query_statistics.assert_called_once()
+        call_kwargs = mock_service.query_statistics.call_args
+        self.assertEqual(call_kwargs.kwargs.get("group_by") or call_kwargs[1].get("group_by"), ["gender"])
+        self.assertEqual(result.get("breakdown"), {"1": {"count": 3}})
+
+    def test_run_spatial_statistics_no_group_by_backward_compatible(self):
+        """run_spatial_statistics without group_by passes None (backward compatible)."""
+        from unittest.mock import MagicMock
+
+        from ..services.process_execution import run_spatial_statistics
+
+        mock_service = MagicMock()
+        mock_service.query_statistics.return_value = {
+            "total_count": 5,
+            "query_method": "area_fallback",
+            "areas_matched": 1,
+            "statistics": {},
+            "registrant_ids": [1, 2, 3, 4, 5],
+        }
+
+        result = run_spatial_statistics(
+            mock_service,
+            {
+                "geometry": {"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 0]]]},
+            },
+        )
+
+        call_kwargs = mock_service.query_statistics.call_args
+        group_by_value = call_kwargs.kwargs.get("group_by") if call_kwargs.kwargs else call_kwargs[1].get("group_by")
+        self.assertIsNone(group_by_value)
+        self.assertIsNone(result.get("breakdown"))
+
+    def test_run_proximity_statistics_passes_group_by(self):
+        """run_proximity_statistics extracts and passes group_by from inputs."""
+        from unittest.mock import MagicMock
+
+        from ..services.process_execution import run_proximity_statistics
+
+        mock_service = MagicMock()
+        mock_service.query_proximity.return_value = {
+            "total_count": 3,
+            "query_method": "area_fallback",
+            "areas_matched": 1,
+            "statistics": {},
+            "breakdown": {"2": {"count": 2}},
+            "reference_points_count": 1,
+            "radius_km": 10.0,
+            "relation": "within",
+            "registrant_ids": [1, 2, 3],
+        }
+
+        result = run_proximity_statistics(
+            mock_service,
+            {
+                "reference_points": [{"longitude": 1.0, "latitude": 2.0}],
+                "radius_km": 10.0,
+                "group_by": ["gender"],
+            },
+        )
+
+        call_kwargs = mock_service.query_proximity.call_args
+        self.assertEqual(call_kwargs.kwargs.get("group_by"), ["gender"])
+        self.assertEqual(result.get("breakdown"), {"2": {"count": 2}})
+
+    def test_run_spatial_statistics_batch_passes_group_by(self):
+        """run_spatial_statistics in batch mode passes group_by to query_statistics_batch."""
+        from unittest.mock import MagicMock
+
+        from ..services.process_execution import run_spatial_statistics
+
+        mock_service = MagicMock()
+        mock_service.query_statistics_batch.return_value = {
+            "results": [
+                {
+                    "id": "g1",
+                    "total_count": 5,
+                    "query_method": "area_fallback",
+                    "areas_matched": 1,
+                    "statistics": {},
+                    "breakdown": {"1": {"count": 3}},
+                },
+            ],
+            "summary": {
+                "total_count": 5,
+                "geometries_queried": 1,
+                "statistics": {},
+                "breakdown": {"1": {"count": 3}},
+            },
+        }
+
+        result = run_spatial_statistics(
+            mock_service,
+            {
+                "geometry": [
+                    {"id": "g1", "value": {"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 0]]]}},
+                ],
+                "group_by": ["gender"],
+            },
+        )
+
+        mock_service.query_statistics_batch.assert_called_once()
+        call_kwargs = mock_service.query_statistics_batch.call_args
+        self.assertEqual(call_kwargs.kwargs.get("group_by"), ["gender"])
+        self.assertIn("breakdown", result["summary"])
+        self.assertIn("breakdown", result["results"][0])
