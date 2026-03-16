@@ -3766,8 +3766,8 @@ class SPPMISDemoGenerator(models.TransientModel):
         """Assign geographic areas to registrants.
 
         Strategy:
-        - Get all municipalities (level 3 areas) from the loaded country
-        - For each group, assign a random municipality to area_id
+        - Find the lowest (most specific) area level that has geo_polygon data
+        - For each group, assign one of those areas to area_id
         - Individual members inherit area_id from their group
 
         Args:
@@ -3776,15 +3776,31 @@ class SPPMISDemoGenerator(models.TransientModel):
         Area = self.env["spp.area"]
         Partner = self.env["res.partner"]
 
-        # Get all level 3 areas (municipalities) that have geo_polygon data
-        municipalities = Area.search([("area_level", "=", 3), ("geo_polygon", "!=", False)])
+        # Find the lowest (most specific) area level that has geo_polygon data.
+        # This works for any hierarchy depth: 4-level (curated) or 3-level (Luzon).
+        self.env.cr.execute(
+            "SELECT MAX(area_level) FROM spp_area WHERE geo_polygon IS NOT NULL"
+        )
+        result = self.env.cr.fetchone()
+        target_level = result[0] if result and result[0] is not None else None
 
-        if not municipalities:
-            _logger.warning("[spp.mis.demo] No municipalities with GIS data found, skipping area assignment")
+        if target_level is None:
+            _logger.warning("[spp.mis.demo] No areas with GIS data found, skipping area assignment")
             stats["areas_assigned"] = 0
             return
 
-        _logger.info("[spp.mis.demo] Found %d municipalities with GIS data", len(municipalities))
+        municipalities = Area.search([("area_level", "=", target_level), ("geo_polygon", "!=", False)])
+
+        if not municipalities:
+            _logger.warning("[spp.mis.demo] No areas with GIS data found at level %s", target_level)
+            stats["areas_assigned"] = 0
+            return
+
+        _logger.info(
+            "[spp.mis.demo] Found %d areas with GIS data at level %d",
+            len(municipalities),
+            target_level,
+        )
 
         # Get all groups (households)
         groups = Partner.search([("is_group", "=", True), ("is_registrant", "=", True)])
