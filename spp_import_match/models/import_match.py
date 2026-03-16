@@ -39,6 +39,26 @@ class SPPImportMatch(models.Model):
         for rec in self:
             rec.field_ids = None
 
+    @api.constrains("name")
+    def _check_duplicate_name(self):
+        """Prevent duplicate match rule names."""
+        for rec in self:
+            if rec.name and self.search_count([("name", "=", rec.name), ("id", "!=", rec.id)]):
+                raise ValidationError(_("A match rule with the name '%s' already exists!") % rec.name)
+
+    @api.constrains("field_ids")
+    def _check_duplicate_fields(self):
+        """Prevent duplicate non-relational fields in the same match rule."""
+        for rec in self:
+            seen = []
+            for field_line in rec.field_ids:
+                if field_line.field_id.ttype in ("many2many", "one2many", "many2one"):
+                    continue
+                key = field_line.field_id.id
+                if key in seen:
+                    raise ValidationError(_("Field '%s', already exists!") % field_line.field_id.field_description)
+                seen.append(key)
+
     @api.model
     def _match_find(self, model, converted_row, imported_row):
         usable, field_to_match = self._usable_rules(model._name, converted_row)
@@ -67,10 +87,8 @@ class SPPImportMatch(models.Model):
             if not combination_valid:
                 continue
             match = model.search(domain)
-            if len(match) == 1:
-                return match
-            elif len(match) > 1:
-                raise ValidationError(_("Multiple matches found for '%s'!") % match[0].name)
+            if len(match) >= 1:
+                return match[0]
 
         return model
 

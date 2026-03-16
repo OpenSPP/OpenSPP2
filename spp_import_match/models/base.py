@@ -15,6 +15,10 @@ class Base(models.AbstractModel):
 
     @api.model
     def load(self, fields, data):
+        # Only apply import matching when explicitly selected via UI context
+        if "import_match_ids" not in self.env.context:
+            return super().load(fields, data)
+
         usable, field_to_match = self.env["spp.import.match"]._usable_rules(
             self._name,
             fields,
