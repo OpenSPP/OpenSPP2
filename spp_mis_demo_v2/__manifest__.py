@@ -32,7 +32,7 @@
         "spp_claim_169",
         # Demo-specific extensions
     ],
-    "external_dependencies": {"python": ["faker", "requests"]},
+    "external_dependencies": {"python": ["requests"]},
     "post_init_hook": "post_init_hook",
     "data": [
         "security/ir.model.access.csv",
