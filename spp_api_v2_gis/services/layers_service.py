@@ -379,20 +379,20 @@ class LayersService:
                 geo_value = getattr(record, geo_field_name)
                 if geo_value:
                     try:
-                        # Try parsing as JSON first (GeoJSON format)
-                        geometry = json.loads(geo_value)
-                        feature["geometry"] = geometry
-                    except (json.JSONDecodeError, TypeError):
-                        # Try parsing as WKT
-                        try:
-                            from shapely import wkt
+                        # GeoField returns Shapely geometry objects
+                        if hasattr(geo_value, "__geo_interface__"):
+                            feature["geometry"] = geo_value.__geo_interface__
+                        else:
+                            # Fallback for string values (GeoJSON or WKT)
+                            try:
+                                feature["geometry"] = json.loads(geo_value)
+                            except (json.JSONDecodeError, TypeError):
+                                from shapely import wkt
 
-                            shape = wkt.loads(geo_value)
-                            feature["geometry"] = shape.__geo_interface__
-                        except ImportError:
-                            _logger.warning("shapely not available for WKT parsing")
-                        except Exception as e:
-                            _logger.warning("Failed to parse geometry: %s", e)
+                                shape = wkt.loads(geo_value)
+                                feature["geometry"] = shape.__geo_interface__
+                    except Exception as e:
+                        _logger.warning("Failed to parse geometry: %s", e)
 
             features.append(feature)
 
@@ -581,15 +581,20 @@ class LayersService:
             geo_value = getattr(record, geo_field_name)
             if geo_value:
                 try:
-                    geometry = json.loads(geo_value)
-                except (json.JSONDecodeError, TypeError):
-                    try:
-                        from shapely import wkt
+                    # GeoField returns Shapely geometry objects
+                    if hasattr(geo_value, "__geo_interface__"):
+                        geometry = geo_value.__geo_interface__
+                    else:
+                        # Fallback for string values (GeoJSON or WKT)
+                        try:
+                            geometry = json.loads(geo_value)
+                        except (json.JSONDecodeError, TypeError):
+                            from shapely import wkt
 
-                        shape = wkt.loads(geo_value)
-                        geometry = shape.__geo_interface__
-                    except (ImportError, Exception) as e:
-                        _logger.warning("Failed to parse geometry: %s", e)
+                            shape = wkt.loads(geo_value)
+                            geometry = shape.__geo_interface__
+                except Exception as e:
+                    _logger.warning("Failed to parse geometry: %s", e)
 
         # nosemgrep: odoo-expose-database-id
         return {

@@ -482,7 +482,7 @@ class OGCService:
                 }
             )
 
-        return {
+        collection = {
             "id": collection_id,
             "title": layer["name"],
             "description": f"Data layer from {layer.get('source_model', 'unknown')}",
@@ -490,6 +490,55 @@ class OGCService:
             "crs": ["http://www.opengis.net/def/crs/OGC/1.3/CRS84"],
             "links": links,
         }
+
+        bbox = self._compute_data_layer_bbox(layer["id"])
+        if bbox:
+            collection["extent"] = {
+                "spatial": {
+                    "bbox": [bbox],
+                    "crs": "http://www.opengis.net/def/crs/OGC/1.3/CRS84",
+                },
+            }
+
+        return collection
+
+    def _compute_data_layer_bbox(self, layer_id):
+        """Compute spatial bounding box for a data layer via PostGIS.
+
+        Args:
+            layer_id: Data layer database ID
+
+        Returns:
+            list: [west, south, east, north] or None if no geometry
+        """
+        try:
+            # nosemgrep: odoo-sudo-without-context
+            Layer = self.env["spp.gis.data.layer"].sudo()
+            layer = Layer.browse(int(layer_id))
+            if not layer.exists() or not layer.geo_field_id or not layer.model_name:
+                return None
+
+            table_name = self.env[layer.model_name]._table
+            column_name = layer.geo_field_id.name
+
+            # Use parameterized identifiers via format (safe: values come from model metadata)
+            self.env.cr.execute(
+                f"""
+                SELECT
+                    ST_XMin(ST_Extent({column_name})),
+                    ST_YMin(ST_Extent({column_name})),
+                    ST_XMax(ST_Extent({column_name})),
+                    ST_YMax(ST_Extent({column_name}))
+                FROM {table_name}
+                WHERE {column_name} IS NOT NULL
+                """,
+            )
+            row = self.env.cr.fetchone()
+            if row and row[0] is not None:
+                return [row[0], row[1], row[2], row[3]]
+        except Exception as e:
+            _logger.warning("Failed to compute bbox for data layer %s: %s", layer_id, e)
+        return None
 
     def _compute_report_bbox(self, report_code):
         """Compute spatial bounding box for a report's areas via PostGIS.
@@ -579,6 +628,11 @@ class OGCService:
                 },
             ],
         }
+
+        # Advertise geometry type so QGIS recognizes this as a spatial layer
+        # even when the collection is empty
+        collection["storageCrs"] = "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
+        collection["geometryDimension"] = 2
 
         bbox = self._compute_geofence_bbox()
         if bbox:
