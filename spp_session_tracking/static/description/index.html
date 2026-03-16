@@ -369,7 +369,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:696866918edb0694e649b8f7e2a237a7007f35de1ff18a503d87efc0cad14f7d
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Beta" src="https://img.shields.io/badge/maturity-Beta-yellow.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_session_tracking"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Production/Stable" src="https://img.shields.io/badge/maturity-Production%2FStable-green.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_session_tracking"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Tracks attendance at required sessions and trainings for social
 protection programs. Records participant attendance, computes attendance
 rates against expected participation, and manages session lifecycle from
@@ -430,7 +430,8 @@ a session</td>
 <li>Navigate to <strong>Session Tracking &gt; Configuration &gt; Session Types</strong></li>
 <li>Review pre-configured session types (Training, Family Development
 Session, Group Meeting, Workshop)</li>
-<li>Add or modify session types and topics as needed</li>
+<li>Add or modify session types as needed; topics are managed within each
+session type form when topic tracking is enabled</li>
 <li>Adjust required attendance percentage per session type</li>
 </ol>
 <p>Four session types are pre-configured with sample topics for Family
@@ -444,7 +445,8 @@ Development Sessions and Training Sessions.</p>
 to current user as facilitator)</li>
 <li><strong>Configuration</strong>: Session Tracking &gt; Configuration &gt; Session Types
 (managers only)</li>
-<li><strong>Views</strong>: List, form, calendar (by date), kanban (grouped by state)</li>
+<li><strong>Views</strong>: List, form, calendar (by date), kanban (grouped by state),
+graph, pivot</li>
 </ul>
 </div>
 <div class="section" id="security">
@@ -462,9 +464,10 @@ to current user as facilitator)</li>
 <tbody valign="top">
 <tr><td><tt class="docutils literal">spp_session_tracking.group_session_user</tt></td>
 <td>Read all sessions and session
-types/topics; write own
-facilitated sessions;
-read/write/create attendance (no
+types/topics; create/write own
+facilitated or co-facilitated
+sessions; read/write/create
+attendance for own sessions (no
 delete)</td>
 </tr>
 <tr><td><tt class="docutils literal">spp_session_tracking.group_session_manager</tt></td>
@@ -473,9 +476,12 @@ types, topics, and attendance</td>
 </tr>
 </tbody>
 </table>
-<p>The session user group can view all sessions but only edit sessions they
-facilitate (via record rule). The <tt class="docutils literal">spp_security.group_spp_admin</tt> group
-implies manager access.</p>
+<p>The session user group can view all sessions but only edit sessions
+where they are the facilitator or co-facilitator (via record rules).
+Session creation requires manager access. The
+<tt class="docutils literal">spp_security.group_spp_admin</tt> group implies manager access.
+Multi-company record rules ensure users only see sessions belonging to
+their company.</p>
 </div>
 <div class="section" id="extension-points">
 <h1>Extension Points</h1>
@@ -493,16 +499,783 @@ attendance rate calculations</li>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><a class="reference internal" href="#bug-tracker" id="toc-entry-1">Bug Tracker</a></li>
-<li><a class="reference internal" href="#credits" id="toc-entry-2">Credits</a><ul>
-<li><a class="reference internal" href="#authors" id="toc-entry-3">Authors</a></li>
-<li><a class="reference internal" href="#maintainers" id="toc-entry-4">Maintainers</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#usage" id="toc-entry-1">Usage</a></li>
 </ul>
 </div>
+<div class="section" id="usage">
+<h2><a class="toc-backref" href="#toc-entry-1">Usage</a></h2>
+<p>This guide covers all testable areas of the <tt class="docutils literal">spp_session_tracking</tt>
+module. It is organized by functional area, with step-by-step
+instructions and expected results.</p>
+</div>
+</div>
+<div class="section" id="prerequisites">
+<h1>Prerequisites</h1>
+<ul class="simple">
+<li>Module <tt class="docutils literal">spp_session_tracking</tt> is installed</li>
+<li>Two test users are available:<ul>
+<li><strong>Session User</strong> (group: <tt class="docutils literal">Session Tracking / User</tt>)</li>
+<li><strong>Session Manager</strong> (group: <tt class="docutils literal">Session Tracking / Manager</tt>)</li>
+</ul>
+</li>
+<li>Admin account is available for setup steps</li>
+<li>At least two contacts (res.partner) exist for use as participants</li>
+</ul>
+</div>
+<div class="section" id="module-installation-and-demo-data">
+<h1>1. Module Installation and Demo Data</h1>
+<p><strong>1.1 Verify Installation</strong></p>
+<ol class="arabic simple">
+<li>Log in as admin</li>
+<li>Go to <strong>Apps</strong>, search for “Session Tracking”</li>
+<li>Confirm the module is installed</li>
+</ol>
+<p><strong>Expected</strong>: Module appears as installed.</p>
+<p><strong>1.2 Verify Pre-configured Session Types</strong></p>
+<ol class="arabic simple">
+<li>Navigate to <strong>Session Tracking &gt; Configuration &gt; Session Types</strong></li>
+<li>Verify 4 session types exist:</li>
+</ol>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="15%" />
+<col width="16%" />
+<col width="15%" />
+<col width="21%" />
+<col width="13%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Name</th>
+<th class="head">Code</th>
+<th class="head">Frequency</th>
+<th class="head">Duration</th>
+<th class="head">Attendance %</th>
+<th class="head">Topics?</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>Training
+Session</td>
+<td>TRAINING</td>
+<td>Monthly</td>
+<td>3.0h</td>
+<td>80%</td>
+<td>Yes</td>
+</tr>
+<tr><td>Group
+Meeting</td>
+<td>MEETING</td>
+<td>Bi-weekly</td>
+<td>2.0h</td>
+<td>75%</td>
+<td>No</td>
+</tr>
+<tr><td>Family
+Development
+Session</td>
+<td>FDS</td>
+<td>Monthly</td>
+<td>2.5h</td>
+<td>85%</td>
+<td>Yes</td>
+</tr>
+<tr><td>Workshop</td>
+<td>WORKSHOP</td>
+<td>One-time</td>
+<td>4.0h</td>
+<td>90%</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Expected</strong>: All 4 types are present with the values above.</p>
+<p><strong>1.3 Verify Pre-configured Topics</strong></p>
+<ol class="arabic simple">
+<li>Open the <strong>Family Development Session</strong> type</li>
+<li>Check the Topics section (visible because Track Topics is enabled)</li>
+</ol>
+<p><strong>Expected</strong>: 4 topics exist: Nutrition and Health, Education and Child
+Development, Financial Literacy, Positive Parenting.</p>
+<ol class="arabic simple" start="3">
+<li>Open the <strong>Training Session</strong> type</li>
+</ol>
+<p><strong>Expected</strong>: 2 topics exist: Livelihood Skills, Basic Business
+Management.</p>
+<ol class="arabic simple" start="4">
+<li>Open the <strong>Group Meeting</strong> type</li>
+</ol>
+<p><strong>Expected</strong>: No Topics section is visible (Track Topics is disabled).</p>
+</div>
+<div class="section" id="menu-structure-and-navigation">
+<h1>2. Menu Structure and Navigation</h1>
+<p><strong>2.1 Main Menu</strong></p>
+<ol class="arabic simple">
+<li>Log in as Session Manager</li>
+<li>Check the main menu bar</li>
+</ol>
+<p><strong>Expected</strong>: “Session Tracking” menu item is visible with the module
+icon.</p>
+<p><strong>2.2 Submenu Structure</strong></p>
+<ol class="arabic simple">
+<li>Click <strong>Session Tracking</strong></li>
+</ol>
+<p><strong>Expected</strong>: Two submenu groups are visible:</p>
+<ul class="simple">
+<li><strong>Sessions</strong>: All Sessions, My Sessions</li>
+<li><strong>Configuration</strong>: Session Types</li>
+</ul>
+<p><strong>2.3 Configuration Menu Visibility</strong></p>
+<ol class="arabic simple">
+<li>Log in as <strong>Session User</strong></li>
+<li>Navigate to Session Tracking</li>
+</ol>
+<p><strong>Expected</strong>: The “Configuration” submenu is NOT visible. Only
+“Sessions” submenu is shown.</p>
+<ol class="arabic simple" start="3">
+<li>Log in as <strong>Session Manager</strong></li>
+</ol>
+<p><strong>Expected</strong>: Both “Sessions” and “Configuration” submenus are visible.</p>
+</div>
+<div class="section" id="session-type-management-manager-only">
+<h1>3. Session Type Management (Manager Only)</h1>
+<p><strong>3.1 Create a Session Type</strong></p>
+<ol class="arabic simple">
+<li>Log in as Session Manager</li>
+<li>Go to <strong>Session Tracking &gt; Configuration &gt; Session Types</strong></li>
+<li>Click <strong>New</strong></li>
+<li>Fill in:<ul>
+<li>Name: “Health Workshop”</li>
+<li>Code: “HEALTH”</li>
+<li>Frequency: Quarterly</li>
+<li>Duration: 1.5</li>
+<li>Required Attendance %: 70</li>
+<li>Track Topics: enabled</li>
+</ul>
+</li>
+<li>Save</li>
+</ol>
+<p><strong>Expected</strong>: Session type is created. Topics section appears below.</p>
+<p><strong>3.2 Add Topics to a Session Type</strong></p>
+<ol class="arabic simple">
+<li>Open the “Health Workshop” type created above</li>
+<li>In the Topics section, click <strong>Add a line</strong></li>
+<li>Add topics: “Hygiene Practices”, “First Aid Basics”</li>
+<li>Save</li>
+</ol>
+<p><strong>Expected</strong>: Topics are saved and listed under the session type.</p>
+<p><strong>3.3 Unique Code Constraint</strong></p>
+<ol class="arabic simple">
+<li>Go to <strong>Session Tracking &gt; Configuration &gt; Session Types</strong></li>
+<li>Click <strong>New</strong></li>
+<li>Enter Name: “Duplicate Code Test”, Code: “HEALTH” (same as above)</li>
+<li>Save</li>
+</ol>
+<p><strong>Expected</strong>: Error message: “Session type code must be unique.”</p>
+<p><strong>3.4 Archive a Session Type</strong></p>
+<ol class="arabic simple">
+<li>Open an existing session type</li>
+<li>Use <strong>Action &gt; Archive</strong></li>
+<li>Go to the list view and remove the “Active” filter</li>
+</ol>
+<p><strong>Expected</strong>: The archived type shows as inactive (greyed out in list
+view with muted decoration).</p>
+<p><strong>3.5 Session Count Stat Button</strong></p>
+<ol class="arabic simple">
+<li>Open a session type that has sessions (e.g., create a session first)</li>
+<li>Check the “Sessions” stat button in the top-right area</li>
+</ol>
+<p><strong>Expected</strong>: The button shows the correct count of sessions for this
+type.</p>
+<ol class="arabic simple" start="3">
+<li>Click the stat button</li>
+</ol>
+<p><strong>Expected</strong>: A filtered list of sessions for this type opens.</p>
+<p><strong>3.6 Session Type List View</strong></p>
+<ol class="arabic simple">
+<li>Go to <strong>Session Tracking &gt; Configuration &gt; Session Types</strong></li>
+</ol>
+<p><strong>Expected</strong>: List displays columns: Name, Code, Frequency, Duration,
+Required Attendance %, Sessions, Active. Inactive types are greyed out.</p>
+<p><strong>3.7 User Cannot Create Session Types</strong></p>
+<ol class="arabic simple">
+<li>Log in as <strong>Session User</strong></li>
+<li>Try to access <strong>Session Tracking &gt; Configuration &gt; Session Types</strong></li>
+</ol>
+<p><strong>Expected</strong>: The Configuration menu is not visible. If accessed via
+URL, an access error is raised.</p>
+</div>
+<div class="section" id="session-creation-and-form-view">
+<h1>4. Session Creation and Form View</h1>
+<p><strong>4.1 Create a Session (Manager)</strong></p>
+<ol class="arabic simple">
+<li>Log in as Session Manager</li>
+<li>Go to <strong>Session Tracking &gt; Sessions &gt; All Sessions</strong></li>
+<li>Click <strong>New</strong></li>
+<li>Fill in:<ul>
+<li>Name: “FDS - Barangay San Jose - March 2026”</li>
+<li>Session Type: Family Development Session</li>
+<li>Date: today’s date</li>
+<li>Facilitator: (select a user)</li>
+<li>Co-Facilitators: (select one or more users)</li>
+<li>Location: “Barangay Hall”</li>
+<li>Start Time: 09:00</li>
+<li>End Time: 11:30</li>
+<li>Max Participants: 25</li>
+</ul>
+</li>
+<li>Save</li>
+</ol>
+<p><strong>Expected</strong>:</p>
+<ul class="simple">
+<li>Session is created in “Scheduled” state</li>
+<li>Duration shows 2.5 hours (auto-computed)</li>
+<li>Statusbar shows: Scheduled &gt; In Progress &gt; Completed</li>
+<li>“Start” button is visible and highlighted</li>
+<li>“Cancel” button is visible (not highlighted)</li>
+<li>“Complete” button is NOT visible</li>
+</ul>
+<p><strong>4.2 User Cannot Create a Session</strong></p>
+<ol class="arabic simple">
+<li>Log in as <strong>Session User</strong></li>
+<li>Go to <strong>Session Tracking &gt; Sessions &gt; All Sessions</strong></li>
+<li>Try to click <strong>New</strong></li>
+</ol>
+<p><strong>Expected</strong>: An access error is raised. Session users cannot create
+sessions.</p>
+<p><strong>4.3 Form View Structure</strong></p>
+<ol class="arabic simple">
+<li>Open any session in form view</li>
+</ol>
+<p><strong>Expected</strong>:</p>
+<ul class="simple">
+<li><strong>Header</strong>: Action buttons (Start/Complete/Cancel based on state) +
+statusbar</li>
+<li><strong>Ribbons</strong>: Green “Completed” ribbon on completed sessions, red
+“Cancelled” ribbon on cancelled</li>
+<li><strong>Button Box</strong>: “Attended” stat button with user icon (shows
+attendance count)</li>
+<li><strong>Title</strong>: Session name in large text</li>
+<li><strong>Main Info</strong>: Two-column layout<ul>
+<li>Left: Session Type, Date, Location, Area</li>
+<li>Right: Facilitator, Co-Facilitators, Start Time, End Time, Duration,
+Max Participants, Company</li>
+</ul>
+</li>
+<li><strong>Tabs</strong>: Participants, Attendance, Topics (conditional), Notes</li>
+<li><strong>Chatter</strong>: Message log and activity tracking at the bottom</li>
+</ul>
+<p><strong>4.4 Duration Auto-computation</strong></p>
+<ol class="arabic simple">
+<li>Create or edit a session</li>
+<li>Set Start Time: 09:00, End Time: 12:00</li>
+</ol>
+<p><strong>Expected</strong>: Duration shows 3.0 hours automatically.</p>
+<ol class="arabic simple" start="3">
+<li>Clear the End Time</li>
+</ol>
+<p><strong>Expected</strong>: Duration shows 0.0.</p>
+<p><strong>4.5 Time Validation</strong></p>
+<ol class="arabic simple">
+<li>Create or edit a session</li>
+<li>Set Start Time: 14:00, End Time: 10:00</li>
+<li>Save</li>
+</ol>
+<p><strong>Expected</strong>: Validation error: “End time must be after start time.”</p>
+<p><strong>4.6 Topics Tab Visibility</strong></p>
+<ol class="arabic simple">
+<li>Open a session with type “Family Development Session”
+(track_topics=True)</li>
+</ol>
+<p><strong>Expected</strong>: “Topics” tab is visible. Can select from the FDS topics.</p>
+<ol class="arabic simple" start="2">
+<li>Open a session with type “Group Meeting” (track_topics=False)</li>
+</ol>
+<p><strong>Expected</strong>: “Topics” tab is NOT visible.</p>
+<p><strong>4.7 Participants Tab</strong></p>
+<ol class="arabic simple">
+<li>Open a session and go to the <strong>Participants</strong> tab</li>
+<li>Click <strong>Add a line</strong></li>
+<li>Select contacts as participants</li>
+</ol>
+<p><strong>Expected</strong>: Participants are listed by name in a simple list format.</p>
+<p><strong>4.8 Attended Stat Button</strong></p>
+<ol class="arabic simple">
+<li>Open a session that has attendance records</li>
+<li>Click the “Attended” stat button</li>
+</ol>
+<p><strong>Expected</strong>: A popup list opens showing all attendance records for this
+session.</p>
+</div>
+<div class="section" id="session-state-workflow">
+<h1>5. Session State Workflow</h1>
+<p><strong>5.1 Scheduled to In Progress</strong></p>
+<ol class="arabic simple">
+<li>Open a session in “Scheduled” state</li>
+<li>Click the <strong>Start</strong> button</li>
+</ol>
+<p><strong>Expected</strong>:</p>
+<ul class="simple">
+<li>State changes to “In Progress”</li>
+<li>“Start” button disappears</li>
+<li>“Complete” button appears (highlighted)</li>
+<li>“Cancel” button remains visible</li>
+<li>Statusbar updates to show “In Progress” as current step</li>
+</ul>
+<p><strong>5.2 In Progress to Completed</strong></p>
+<ol class="arabic simple">
+<li>Open a session in “In Progress” state</li>
+<li>Click the <strong>Complete</strong> button</li>
+</ol>
+<p><strong>Expected</strong>:</p>
+<ul class="simple">
+<li>State changes to “Completed”</li>
+<li>Green “Completed” ribbon appears on the form</li>
+<li>All “Start”, “Complete”, and “Cancel” buttons disappear</li>
+<li>All fields become read-only (name, type, date, location, participants,
+attendance, etc.)</li>
+</ul>
+<p><strong>5.3 Cancel from Scheduled</strong></p>
+<ol class="arabic simple">
+<li>Open a session in “Scheduled” state</li>
+<li>Click <strong>Cancel</strong></li>
+</ol>
+<p><strong>Expected</strong>:</p>
+<ul class="simple">
+<li>A confirmation dialog appears: “Are you sure you want to cancel this
+session?”</li>
+<li>Click OK</li>
+<li>State changes to “Cancelled”</li>
+<li>Red “Cancelled” ribbon appears</li>
+<li>All fields become read-only</li>
+<li>All action buttons disappear</li>
+</ul>
+<p><strong>5.4 Cancel from In Progress</strong></p>
+<ol class="arabic simple">
+<li>Open a session in “In Progress” state</li>
+<li>Click <strong>Cancel</strong></li>
+</ol>
+<p><strong>Expected</strong>: Same confirmation and behavior as 5.3.</p>
+<p><strong>5.5 Invalid Transitions (Negative Tests)</strong></p>
+<p>These transitions should NOT be possible via the UI (buttons are
+hidden), but verify:</p>
+<ol class="arabic simple">
+<li>A “Completed” session has no Start, Complete, or Cancel buttons</li>
+<li>A “Cancelled” session has no Start, Complete, or Cancel buttons</li>
+<li>A “Scheduled” session has no Complete button (must Start first)</li>
+</ol>
+<p><strong>Expected</strong>: Buttons are hidden for invalid transitions. The form is
+fully read-only for Completed and Cancelled sessions.</p>
+<p><strong>5.6 Chatter Tracking</strong></p>
+<ol class="arabic simple">
+<li>Perform any state transition on a session</li>
+</ol>
+<p><strong>Expected</strong>: The chatter logs the state change (e.g., “State: Scheduled
+-&gt; In Progress”). Changes to Name, Session Type, Date, and Facilitator
+are also tracked.</p>
+</div>
+<div class="section" id="attendance-management">
+<h1>6. Attendance Management</h1>
+<p><strong>6.1 Record Attendance</strong></p>
+<ol class="arabic simple">
+<li>Open a session in “Scheduled” or “In Progress” state</li>
+<li>Go to the <strong>Attendance</strong> tab</li>
+<li>Click <strong>Add a line</strong> in the attendance list</li>
+<li>Select a participant</li>
+<li>Check “Attended” checkbox</li>
+<li>Optionally set Attendance Time, Excused, Excuse Reason, and Notes</li>
+<li>Save</li>
+</ol>
+<p><strong>Expected</strong>: Attendance record is created. Row is highlighted green
+(attended).</p>
+<p><strong>6.2 Attendance Decorations</strong></p>
+<ol class="arabic simple">
+<li>Create attendance records with different statuses:<ul>
+<li>Participant A: Attended = True</li>
+<li>Participant B: Attended = False, Excused = True</li>
+<li>Participant C: Attended = False, Excused = False</li>
+</ul>
+</li>
+</ol>
+<p><strong>Expected</strong>:</p>
+<ul class="simple">
+<li>Participant A row: green (success decoration)</li>
+<li>Participant B row: yellow/orange (warning decoration)</li>
+<li>Participant C row: grey/muted</li>
+</ul>
+<p><strong>6.3 Attendance Count and Rate</strong></p>
+<ol class="arabic simple">
+<li>Create a session with 4 expected participants</li>
+<li>Record attendance: 3 attended, 1 did not</li>
+</ol>
+<p><strong>Expected</strong>:</p>
+<ul class="simple">
+<li>Attendance Count shows 3 (in the tab and in the stat button)</li>
+<li>Attendance Rate shows 75.0%</li>
+</ul>
+<p><strong>6.4 Attendance Rate with Zero Expected Participants</strong></p>
+<ol class="arabic simple">
+<li>Create a session with NO expected participants</li>
+<li>Record one attendance as attended</li>
+</ol>
+<p><strong>Expected</strong>: Attendance Rate shows 0.0% (no expected participants to
+calculate against).</p>
+<p><strong>6.5 Duplicate Attendance Prevention</strong></p>
+<ol class="arabic simple">
+<li>Open a session and go to the Attendance tab</li>
+<li>Add an attendance record for “Participant A”</li>
+<li>Try to add another attendance record for the same “Participant A”</li>
+<li>Save</li>
+</ol>
+<p><strong>Expected</strong>: Error: “A participant can only have one attendance record
+per session.”</p>
+<p><strong>6.6 Attendance Read-only on Completed/Cancelled</strong></p>
+<ol class="arabic simple">
+<li>Open a completed or cancelled session</li>
+<li>Go to the Attendance tab</li>
+</ol>
+<p><strong>Expected</strong>: The attendance list is read-only. No “Add a line” button
+is available.</p>
+</div>
+<div class="section" id="session-views">
+<h1>7. Session Views</h1>
+<p><strong>7.1 List View</strong></p>
+<ol class="arabic simple">
+<li>Go to <strong>Session Tracking &gt; Sessions &gt; All Sessions</strong></li>
+</ol>
+<p><strong>Expected</strong>:</p>
+<ul class="simple">
+<li>Columns: Date, Name, Session Type, Facilitator, Location, Attendance
+Count, Attendance Rate, State</li>
+<li>Location is visible by default (optional=show)</li>
+<li>Area is hidden by default (optional=hide)</li>
+<li>State shows as a colored badge:<ul>
+<li>Scheduled: blue (info)</li>
+<li>In Progress: yellow (warning)</li>
+<li>Completed: green (success)</li>
+<li>Cancelled: grey (muted)</li>
+</ul>
+</li>
+<li>Row colors match the state badge colors</li>
+<li>Default sort: Date descending (newest first)</li>
+</ul>
+<p><strong>7.2 Optional Column Toggles</strong></p>
+<ol class="arabic simple">
+<li>In the list view, click the column selector (gear icon or right-click
+header)</li>
+<li>Toggle Location off, Area on</li>
+</ol>
+<p><strong>Expected</strong>: Location column hides, Area column appears. Settings
+persist within the session.</p>
+<p><strong>7.3 Calendar View</strong></p>
+<ol class="arabic simple">
+<li>Switch to Calendar view (click the calendar icon in the view
+switcher)</li>
+</ol>
+<p><strong>Expected</strong>:</p>
+<ul class="simple">
+<li>Monthly calendar is displayed</li>
+<li>Sessions appear on their scheduled dates</li>
+<li>Sessions are color-coded by Session Type</li>
+<li>Clicking a date does NOT open a quick-create popup (quick_create is
+disabled)</li>
+<li>Clicking a session shows: Name, Facilitator, State</li>
+</ul>
+<p><strong>7.4 Kanban View</strong></p>
+<ol class="arabic simple">
+<li>Switch to Kanban view</li>
+</ol>
+<p><strong>Expected</strong>:</p>
+<ul class="simple">
+<li>Cards are grouped by State (Scheduled, In Progress, Completed,
+Cancelled columns)</li>
+<li>Each card shows: Name (bold), Session Type, Date, Facilitator,
+Attendance Rate %</li>
+<li>Progress bar at the top of each column shows color-coded distribution</li>
+<li>Quick-create is disabled (no “+” button at top of columns)</li>
+<li>Cards cannot be dragged between columns (state changes via buttons
+only)</li>
+</ul>
+<p><strong>7.5 Graph View</strong></p>
+<ol class="arabic simple">
+<li>Switch to Graph view</li>
+</ol>
+<p><strong>Expected</strong>: A bar chart showing Duration Hours grouped by Session
+Type.</p>
+<p><strong>7.6 Pivot View</strong></p>
+<ol class="arabic simple">
+<li>Switch to Pivot view</li>
+</ol>
+<p><strong>Expected</strong>: A pivot table with Session Type as rows, Facilitator as
+columns, and Duration Hours as the measure.</p>
+<p><strong>7.7 My Sessions View</strong></p>
+<ol class="arabic simple">
+<li>Go to <strong>Session Tracking &gt; Sessions &gt; My Sessions</strong></li>
+</ol>
+<p><strong>Expected</strong>: Only sessions where the current user is the facilitator
+are shown (My Sessions filter is pre-applied).</p>
+</div>
+<div class="section" id="search-and-filtering">
+<h1>8. Search and Filtering</h1>
+<p><strong>8.1 Quick Search Fields</strong></p>
+<ol class="arabic simple">
+<li>In the search bar, type a session name</li>
+</ol>
+<p><strong>Expected</strong>: Results are filtered by name.</p>
+<ol class="arabic simple" start="2">
+<li>Clear and search by session type, facilitator, location, or area</li>
+</ol>
+<p><strong>Expected</strong>: Each field filters correctly.</p>
+<p><strong>8.2 State Filters</strong></p>
+<ol class="arabic simple">
+<li>Click <strong>Filters</strong> in the search bar</li>
+<li>Apply “Scheduled” filter</li>
+</ol>
+<p><strong>Expected</strong>: Only scheduled sessions are shown.</p>
+<ol class="arabic simple" start="3">
+<li>Test “In Progress”, “Completed”, and “Cancelled” filters individually</li>
+</ol>
+<p><strong>Expected</strong>: Each filter works correctly.</p>
+<p><strong>8.3 Ownership Filters</strong></p>
+<ol class="arabic simple">
+<li>Apply “My Sessions” filter</li>
+</ol>
+<p><strong>Expected</strong>: Only sessions where you are the facilitator are shown.</p>
+<ol class="arabic simple" start="2">
+<li>Apply “My Co-facilitated Sessions” filter</li>
+</ol>
+<p><strong>Expected</strong>: Only sessions where you are a co-facilitator are shown.</p>
+<p><strong>8.4 Date Filter</strong></p>
+<ol class="arabic simple">
+<li>Apply “This Month” filter</li>
+</ol>
+<p><strong>Expected</strong>: Only sessions with dates in the current month are shown.</p>
+<p><strong>8.5 Group By</strong></p>
+<ol class="arabic simple">
+<li>Use <strong>Group By &gt; Session Type</strong></li>
+</ol>
+<p><strong>Expected</strong>: Sessions are grouped by their session type with counts.</p>
+<ol class="arabic simple" start="2">
+<li>Test Group By: Facilitator, State, and Date</li>
+</ol>
+<p><strong>Expected</strong>: Each grouping works correctly.</p>
+<p><strong>8.6 Combined Filters</strong></p>
+<ol class="arabic simple">
+<li>Apply “Scheduled” filter AND “My Sessions” filter together</li>
+</ol>
+<p><strong>Expected</strong>: Only your scheduled sessions are shown. Filters combine
+with AND logic.</p>
+</div>
+<div class="section" id="security-and-access-control">
+<h1>9. Security and Access Control</h1>
+<p><strong>9.1 Session User - Read All Sessions</strong></p>
+<ol class="arabic simple">
+<li>Log in as <strong>Session User</strong></li>
+<li>Go to <strong>Session Tracking &gt; Sessions &gt; All Sessions</strong></li>
+</ol>
+<p><strong>Expected</strong>: All sessions are visible (including ones facilitated by
+others), regardless of facilitator.</p>
+<p><strong>9.2 Session User - Edit Own Facilitated Session</strong></p>
+<ol class="arabic simple">
+<li>Log in as <strong>Session User</strong></li>
+<li>Open a session where you are the <strong>facilitator</strong></li>
+<li>Edit the Location field and save</li>
+</ol>
+<p><strong>Expected</strong>: Save succeeds. You can edit sessions you facilitate.</p>
+<p><strong>9.3 Session User - Edit Co-facilitated Session</strong></p>
+<ol class="arabic simple">
+<li>Log in as <strong>Session User</strong></li>
+<li>Open a session where you are a <strong>co-facilitator</strong> (but not the main
+facilitator)</li>
+<li>Edit the Location field and save</li>
+</ol>
+<p><strong>Expected</strong>: Save succeeds. You can edit sessions you co-facilitate.</p>
+<p><strong>9.4 Session User - Cannot Edit Another’s Session</strong></p>
+<ol class="arabic simple">
+<li>Log in as <strong>Session User</strong></li>
+<li>Open a session where you are NOT the facilitator or co-facilitator</li>
+<li>Try to edit the Location field and save</li>
+</ol>
+<p><strong>Expected</strong>: Access error is raised. You cannot modify sessions you
+don’t facilitate.</p>
+<p><strong>9.5 Session User - Cannot Create Sessions</strong></p>
+<ol class="arabic simple">
+<li>Log in as <strong>Session User</strong></li>
+<li>Try to create a new session</li>
+</ol>
+<p><strong>Expected</strong>: Access error. Only managers can create sessions.</p>
+<p><strong>9.6 Session User - Cannot Delete Sessions</strong></p>
+<ol class="arabic simple">
+<li>Log in as <strong>Session User</strong></li>
+<li>Open a session you facilitate</li>
+<li>Try to delete it (Action &gt; Delete)</li>
+</ol>
+<p><strong>Expected</strong>: Access error. Users cannot delete sessions.</p>
+<p><strong>9.7 Session User - Attendance on Own Sessions</strong></p>
+<ol class="arabic simple">
+<li>Log in as <strong>Session User</strong></li>
+<li>Open a session you facilitate</li>
+<li>Go to the Attendance tab and add an attendance record</li>
+</ol>
+<p><strong>Expected</strong>: Attendance record is created successfully.</p>
+<p><strong>9.8 Session User - Cannot Add Attendance on Others’ Sessions</strong></p>
+<ol class="arabic simple">
+<li>Log in as <strong>Session User</strong></li>
+<li>Open a session you do NOT facilitate or co-facilitate</li>
+<li>Try to add an attendance record</li>
+</ol>
+<p><strong>Expected</strong>: Access error. You cannot create attendance on sessions you
+don’t facilitate.</p>
+<p><strong>9.9 Session User - Cannot Delete Attendance</strong></p>
+<ol class="arabic simple">
+<li>Log in as <strong>Session User</strong></li>
+<li>Open a session with attendance records</li>
+<li>Try to delete an attendance record</li>
+</ol>
+<p><strong>Expected</strong>: Access error. Users cannot delete attendance records.</p>
+<p><strong>9.10 Session Manager - Full Access</strong></p>
+<ol class="arabic simple">
+<li>Log in as <strong>Session Manager</strong></li>
+<li>Create, read, update, and delete sessions, session types, topics, and
+attendance</li>
+</ol>
+<p><strong>Expected</strong>: All operations succeed. Managers have full CRUD on
+everything.</p>
+<p><strong>9.11 Admin Inherits Manager</strong></p>
+<ol class="arabic simple">
+<li>Log in as <strong>OpenSPP Admin</strong> (spp_security.group_spp_admin)</li>
+<li>Verify you can access all Session Tracking features</li>
+</ol>
+<p><strong>Expected</strong>: Admin has full access (manager group is implied by admin).</p>
+<p><strong>9.12 Multi-Company Isolation</strong></p>
+<p><em>Requires multi-company setup with at least 2 companies.</em></p>
+<ol class="arabic simple">
+<li>Log in as a user belonging to Company A only</li>
+<li>Go to All Sessions</li>
+</ol>
+<p><strong>Expected</strong>: Only sessions belonging to Company A (or no company) are
+visible. Sessions belonging to Company B are NOT visible.</p>
+</div>
+<div class="section" id="data-integrity-constraints">
+<h1>10. Data Integrity Constraints</h1>
+<p><strong>10.1 Delete Session Type with Existing Sessions</strong></p>
+<ol class="arabic simple">
+<li>Create a session using a specific session type</li>
+<li>Try to delete that session type</li>
+</ol>
+<p><strong>Expected</strong>: Error preventing deletion: the session type cannot be
+deleted while sessions reference it (ondelete=restrict).</p>
+<p><strong>10.2 Delete Participant with Attendance Records</strong></p>
+<ol class="arabic simple">
+<li>Create an attendance record for a participant</li>
+<li>Try to delete that participant (contact) from the system</li>
+</ol>
+<p><strong>Expected</strong>: Error preventing deletion: the participant cannot be
+deleted while attendance records reference them (ondelete=restrict).</p>
+<p><strong>10.3 Delete Facilitator with Sessions</strong></p>
+<ol class="arabic simple">
+<li>Create a session with a specific facilitator</li>
+<li>Try to delete that user from the system</li>
+</ol>
+<p><strong>Expected</strong>: Error preventing deletion (ondelete=restrict).</p>
+</div>
+<div class="section" id="cross-module-integration-spp-case-session">
+<h1>11. Cross-module Integration (spp_case_session)</h1>
+<p><em>Only applicable if ``spp_case_session`` module is also installed.</em></p>
+<p><strong>11.1 Case Stat Button on Session Form</strong></p>
+<ol class="arabic simple">
+<li>Open any session in form view</li>
+<li>Check the button box area</li>
+</ol>
+<p><strong>Expected</strong>: If spp_case_session is installed, a “Cases” stat button
+appears alongside the “Attended” stat button, inside the same button
+box. There should NOT be duplicate button boxes.</p>
+</div>
+<div class="section" id="edge-cases">
+<h1>12. Edge Cases</h1>
+<p><strong>12.1 Session with No Times</strong></p>
+<ol class="arabic simple">
+<li>Create a session without setting Start Time or End Time</li>
+</ol>
+<p><strong>Expected</strong>: Duration shows 0.0. No validation error.</p>
+<p><strong>12.2 Session with Only Start Time</strong></p>
+<ol class="arabic simple">
+<li>Create a session with Start Time = 09:00 but no End Time</li>
+</ol>
+<p><strong>Expected</strong>: Duration shows 0.0. No validation error.</p>
+<p><strong>12.3 Session with Only End Time</strong></p>
+<ol class="arabic simple">
+<li>Create a session with End Time = 12:00 but no Start Time</li>
+</ol>
+<p><strong>Expected</strong>: Duration shows 0.0. No validation error.</p>
+<p><strong>12.4 Empty Session (No Participants, No Attendance)</strong></p>
+<ol class="arabic simple">
+<li>Create a session with no expected participants and no attendance</li>
+</ol>
+<p><strong>Expected</strong>: Attendance Count = 0, Attendance Rate = 0.0%. Session
+functions normally.</p>
+<p><strong>12.5 Session Type Code Left Blank</strong></p>
+<ol class="arabic simple">
+<li>Create two session types with Code left blank</li>
+</ol>
+<p><strong>Expected</strong>: Both are created successfully. The unique constraint
+allows multiple blank codes.</p>
+</div>
+<div class="section" id="test-summary-checklist">
+<h1>Test Summary Checklist</h1>
+<p>Use this checklist to track testing progress:</p>
+<ul class="simple">
+<li>☐<ol class="arabic">
+<li>Module installation and demo data (1.1 - 1.3)</li>
+</ol>
+</li>
+<li>☐<ol class="arabic" start="2">
+<li>Menu structure and navigation (2.1 - 2.3)</li>
+</ol>
+</li>
+<li>☐<ol class="arabic" start="3">
+<li>Session type management (3.1 - 3.7)</li>
+</ol>
+</li>
+<li>☐<ol class="arabic" start="4">
+<li>Session creation and form view (4.1 - 4.8)</li>
+</ol>
+</li>
+<li>☐<ol class="arabic" start="5">
+<li>Session state workflow (5.1 - 5.6)</li>
+</ol>
+</li>
+<li>☐<ol class="arabic" start="6">
+<li>Attendance management (6.1 - 6.6)</li>
+</ol>
+</li>
+<li>☐<ol class="arabic" start="7">
+<li>Session views (7.1 - 7.7)</li>
+</ol>
+</li>
+<li>☐<ol class="arabic" start="8">
+<li>Search and filtering (8.1 - 8.6)</li>
+</ol>
+</li>
+<li>☐<ol class="arabic" start="9">
+<li>Security and access control (9.1 - 9.12)</li>
+</ol>
+</li>
+<li>☐<ol class="arabic" start="10">
+<li>Data integrity constraints (10.1 - 10.3)</li>
+</ol>
+</li>
+<li>☐<ol class="arabic" start="11">
+<li>Cross-module integration (11.1)</li>
+</ol>
+</li>
+<li>☐<ol class="arabic" start="12">
+<li>Edge cases (12.1 - 12.5)</li>
+</ol>
+</li>
+</ul>
 <div class="section" id="bug-tracker">
-<h2><a class="toc-backref" href="#toc-entry-1">Bug Tracker</a></h2>
+<h2>Bug Tracker</h2>
 <p>Bugs are tracked on <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/issues">GitHub Issues</a>.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
@@ -510,15 +1283,15 @@ If you spotted it first, help us to smash it by providing a detailed and welcome
 <p>Do not contact contributors directly about support or help with technical issues.</p>
 </div>
 <div class="section" id="credits">
-<h2><a class="toc-backref" href="#toc-entry-2">Credits</a></h2>
+<h2>Credits</h2>
 <div class="section" id="authors">
-<h3><a class="toc-backref" href="#toc-entry-3">Authors</a></h3>
+<h3>Authors</h3>
 <ul class="simple">
 <li>OpenSPP.org</li>
 </ul>
 </div>
 <div class="section" id="maintainers">
-<h3><a class="toc-backref" href="#toc-entry-4">Maintainers</a></h3>
+<h3>Maintainers</h3>
 <p>Current maintainers:</p>
 <p><a class="reference external image-reference" href="https://github.com/jeremi"><img alt="jeremi" src="https://github.com/jeremi.png?size=40px" /></a> <a class="reference external image-reference" href="https://github.com/gonzalesedwin1123"><img alt="gonzalesedwin1123" src="https://github.com/gonzalesedwin1123.png?size=40px" /></a> <a class="reference external image-reference" href="https://github.com/emjay0921"><img alt="emjay0921" src="https://github.com/emjay0921.png?size=40px" /></a></p>
 <p>This module is part of the <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_session_tracking">OpenSPP/OpenSPP2</a> project on GitHub.</p>

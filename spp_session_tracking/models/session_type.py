@@ -1,6 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, fields, models
+from odoo.tools.translate import _
 
 
 class SessionType(models.Model):
@@ -23,7 +24,7 @@ class SessionType(models.Model):
         default="monthly",
     )
 
-    required_attendance_pct = fields.Float(
+    required_attendance_percentage = fields.Float(
         default=80.0,
         help="Minimum attendance percentage required for compliance",
     )
@@ -37,21 +38,30 @@ class SessionType(models.Model):
 
     session_count = fields.Integer(compute="_compute_counts", string="Number of Sessions")
 
-    company_id = fields.Many2one("res.company", default=lambda self: self.env.company)
+    company_id = fields.Many2one("res.company", default=lambda self: self.env.company, ondelete="restrict")
 
-    @api.depends("topic_ids")
+    _unique_code = models.Constraint(
+        "UNIQUE(code)",
+        "Session type code must be unique.",
+    )
+
+    @api.depends()
     def _compute_counts(self):
+        data = self.env["spp.session"].read_group(
+            [("session_type_id", "in", self.ids)], ["session_type_id"], ["session_type_id"]
+        )
+        mapped = {d["session_type_id"][0]: d["session_type_id_count"] for d in data}
         for rec in self:
-            rec.session_count = self.env["spp.session"].search_count([("session_type_id", "=", rec.id)])
+            rec.session_count = mapped.get(rec.id, 0)
 
     def action_view_sessions(self):
         """Open view with sessions of this type."""
         self.ensure_one()
         return {
             "type": "ir.actions.act_window",
-            "name": f"Sessions - {self.name}",
+            "name": _("Sessions - %s", self.name),
             "res_model": "spp.session",
-            "view_mode": "tree,form,calendar,kanban",
+            "view_mode": "list,form,calendar,kanban",
             "domain": [("session_type_id", "=", self.id)],
             "context": {"default_session_type_id": self.id},
         }

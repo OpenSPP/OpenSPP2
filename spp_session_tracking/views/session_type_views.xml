@@ -36,16 +36,17 @@
                             />
                         </button>
                     </div>
-                    <group>
-                        <group>
+                    <group name="main_info">
+                        <group name="left_col">
                             <field name="name" />
                             <field name="code" />
                             <field name="frequency" />
                             <field name="active" />
+                            <field name="description" />
                         </group>
-                        <group>
+                        <group name="right_col">
                             <field name="duration_hours" />
-                            <field name="required_attendance_pct" />
+                            <field name="required_attendance_percentage" />
                             <field name="track_topics" />
                             <field
                                 name="company_id"
@@ -53,30 +54,25 @@
                             />
                         </group>
                     </group>
-                    <notebook>
-                        <page string="Description">
-                            <field name="description" />
-                        </page>
-                        <page string="Topics" invisible="not track_topics">
-                            <field name="topic_ids" />
-                        </page>
-                    </notebook>
+                    <group name="topics_section" invisible="not track_topics">
+                        <field name="topic_ids" />
+                    </group>
                 </sheet>
             </form>
         </field>
     </record>
 
-    <!-- Session Type Tree View -->
-    <record id="view_session_type_tree" model="ir.ui.view">
-        <field name="name">spp.session.type.tree</field>
+    <!-- Session Type List View -->
+    <record id="view_session_type_list" model="ir.ui.view">
+        <field name="name">spp.session.type.list</field>
         <field name="model">spp.session.type</field>
         <field name="arch" type="xml">
-            <list>
+            <list decoration-muted="not active">
                 <field name="name" />
                 <field name="code" />
                 <field name="frequency" />
                 <field name="duration_hours" />
-                <field name="required_attendance_pct" />
+                <field name="required_attendance_percentage" />
                 <field name="session_count" />
                 <field name="active" />
             </list>
@@ -91,6 +87,7 @@
             <search>
                 <field name="name" />
                 <field name="code" />
+                <separator />
                 <filter
                     string="Active"
                     name="active"
@@ -116,7 +113,6 @@
     <record id="action_session_type" model="ir.actions.act_window">
         <field name="name">Session Types</field>
         <field name="res_model">spp.session.type</field>
-        <!-- Odoo 19: Changed tree to list -->
         <field name="view_mode">list,form</field>
         <field name="context">{'search_default_active': 1}</field>
         <field name="help" type="html">

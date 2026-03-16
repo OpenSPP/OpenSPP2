@@ -2,3 +2,5 @@
 
 from . import test_session
 from . import test_attendance
+from . import test_security
+from . import test_constraints
