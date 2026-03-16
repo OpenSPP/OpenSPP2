@@ -31,7 +31,10 @@
         <field name="color_scheme_id" ref="spp_gis.scheme_viridis" />
         <field name="threshold_mode">auto_quartile</field>
         <field name="bucket_count">5</field>
-        <field name="disaggregate_by_gender">True</field>
+        <field
+            name="dimension_ids"
+            eval="[Command.link(ref('spp_metrics_services.dimension_gender'))]"
+        />
         <field name="refresh_mode">scheduled</field>
         <field name="refresh_interval">daily</field>
     </record>
@@ -60,7 +63,10 @@
         <field name="color_scheme_id" ref="spp_gis.scheme_blues" />
         <field name="threshold_mode">auto_jenks</field>
         <field name="bucket_count">5</field>
-        <field name="disaggregate_by_gender">True</field>
+        <field
+            name="dimension_ids"
+            eval="[Command.link(ref('spp_metrics_services.dimension_gender'))]"
+        />
         <field name="refresh_mode">scheduled</field>
         <field name="refresh_interval">daily</field>
     </record>
@@ -89,8 +95,10 @@
         <field name="color_scheme_id" ref="spp_gis.scheme_viridis" />
         <field name="threshold_mode">auto_quartile</field>
         <field name="bucket_count">4</field>
-        <field name="disaggregate_by_age">True</field>
-        <field name="disaggregate_by_gender">True</field>
+        <field
+            name="dimension_ids"
+            eval="[Command.link(ref('spp_metrics_services.dimension_age_group')), Command.link(ref('spp_metrics_services.dimension_gender'))]"
+        />
         <field name="refresh_mode">scheduled</field>
         <field name="refresh_interval">weekly</field>
     </record>
