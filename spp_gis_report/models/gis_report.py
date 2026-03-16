@@ -652,9 +652,7 @@ class GISReport(models.Model):
         cache_service = self.env["spp.metrics.dimension.cache"]
         dim_evaluations = {}
         for dimension in self.dimension_ids:
-            dim_evaluations[dimension.name] = cache_service.evaluate_dimension_batch(
-                dimension, all_registrant_ids
-            )
+            dim_evaluations[dimension.name] = cache_service.evaluate_dimension_batch(dimension, all_registrant_ids)
 
         # Aggregate counts per (area, dimension, value)
         results = {}

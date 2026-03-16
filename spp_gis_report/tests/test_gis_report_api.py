@@ -105,9 +105,7 @@ class TestGISReportAPI(HttpCase):
         )
 
         # Get or create a gender dimension for test
-        cls.gender_dimension = cls.env["spp.demographic.dimension"].search(
-            [("name", "=", "gender")], limit=1
-        )
+        cls.gender_dimension = cls.env["spp.demographic.dimension"].search([("name", "=", "gender")], limit=1)
         if not cls.gender_dimension:
             cls.gender_dimension = cls.env["spp.demographic.dimension"].create(
                 {
