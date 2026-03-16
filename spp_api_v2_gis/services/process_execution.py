@@ -20,6 +20,7 @@ def run_spatial_statistics(service, inputs, on_progress=None):
     geometry = inputs.get("geometry")
     filters = inputs.get("filters")
     variables = inputs.get("variables")
+    group_by = inputs.get("group_by")
 
     _logger.info(
         "run_spatial_statistics: variables=%r, filters=%r, geometry_type=%s",
@@ -35,6 +36,7 @@ def run_spatial_statistics(service, inputs, on_progress=None):
             geometries=geometries,
             filters=filters,
             variables=variables,
+            group_by=group_by,
             on_progress=on_progress,
         )
         for item in result.get("results", []):
@@ -46,6 +48,7 @@ def run_spatial_statistics(service, inputs, on_progress=None):
         geometry=geometry,
         filters=filters,
         variables=variables,
+        group_by=group_by,
     )
     result.pop("registrant_ids", None)
     return result
@@ -67,6 +70,7 @@ def run_proximity_statistics(service, inputs):
         relation=inputs.get("relation", "within"),
         filters=inputs.get("filters"),
         variables=inputs.get("variables"),
+        group_by=inputs.get("group_by"),
     )
     result.pop("registrant_ids", None)
     return result

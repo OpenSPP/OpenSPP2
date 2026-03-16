@@ -31,7 +31,7 @@ class SpatialQueryService:
         """
         self.env = env
 
-    def query_statistics_batch(self, geometries, filters=None, variables=None, on_progress=None):
+    def query_statistics_batch(self, geometries, filters=None, variables=None, group_by=None, on_progress=None):
         """Execute spatial query for multiple geometries.
 
         Queries each geometry individually and computes an aggregate summary.
@@ -60,6 +60,7 @@ class SpatialQueryService:
                     geometry=geometry,
                     filters=filters,
                     variables=variables,
+                    group_by=group_by,
                 )
                 # Collect registrant IDs for deduplication in summary
                 registrant_ids = result.pop("registrant_ids", [])
@@ -72,6 +73,7 @@ class SpatialQueryService:
                         "query_method": result["query_method"],
                         "areas_matched": result["areas_matched"],
                         "statistics": result["statistics"],
+                        "breakdown": result.get("breakdown"),
                         "access_level": result.get("access_level"),
                         "from_cache": result.get("from_cache", False),
                         "computed_at": result.get("computed_at"),
@@ -87,6 +89,7 @@ class SpatialQueryService:
                         "query_method": "error",
                         "areas_matched": 0,
                         "statistics": {},
+                        "breakdown": None,
                         "access_level": None,
                         "from_cache": False,
                         "computed_at": None,
@@ -99,13 +102,16 @@ class SpatialQueryService:
         # Compute summary by aggregating unique registrants with metadata
         summary_stats_with_metadata = {"statistics": {}}
         if all_registrant_ids:
-            summary_stats_with_metadata = self._compute_statistics(list(all_registrant_ids), variables or [])
+            summary_stats_with_metadata = self._compute_statistics(
+                list(all_registrant_ids), variables or [], group_by=group_by
+            )
 
         summary = {
             "total_count": len(all_registrant_ids),
             "geometries_queried": len(geometries),
             "geometries_failed": geometries_failed,
             "statistics": summary_stats_with_metadata.get("statistics", {}),
+            "breakdown": summary_stats_with_metadata.get("breakdown"),
             "access_level": summary_stats_with_metadata.get("access_level"),
             "from_cache": summary_stats_with_metadata.get("from_cache", False),
             "computed_at": summary_stats_with_metadata.get("computed_at"),
@@ -116,7 +122,7 @@ class SpatialQueryService:
             "summary": summary,
         }
 
-    def query_statistics(self, geometry, filters=None, variables=None):
+    def query_statistics(self, geometry, filters=None, variables=None, group_by=None):
         """Execute spatial query for statistics within polygon.
 
         Args:
@@ -149,7 +155,7 @@ class SpatialQueryService:
                     result["total_count"],
                 )
                 # Compute statistics for the matched registrants with metadata
-                stats_with_metadata = self._compute_statistics(result["registrant_ids"], variables)
+                stats_with_metadata = self._compute_statistics(result["registrant_ids"], variables, group_by=group_by)
                 result.update(stats_with_metadata)
                 return result
         except Exception as e:
@@ -165,7 +171,7 @@ class SpatialQueryService:
         )
 
         # Compute statistics for the matched registrants with metadata
-        stats_with_metadata = self._compute_statistics(result["registrant_ids"], variables)
+        stats_with_metadata = self._compute_statistics(result["registrant_ids"], variables, group_by=group_by)
         result.update(stats_with_metadata)
 
         return result
@@ -320,12 +326,13 @@ class SpatialQueryService:
             "registrant_ids": registrant_ids,
         }
 
-    def _compute_statistics(self, registrant_ids, variables):
+    def _compute_statistics(self, registrant_ids, variables, group_by=None):
         """Compute statistics using the unified aggregation engine only.
 
         Args:
             registrant_ids: List of registrant IDs
             variables: List of statistic names to compute
+            group_by: Optional list of dimension names for demographic breakdown
 
         Returns:
             dict: Statistics with metadata (statistics, access_level, from_cache, computed_at)
@@ -341,9 +348,9 @@ class SpatialQueryService:
         if "spp.aggregation.service" not in self.env:
             raise RuntimeError("spp.aggregation.service is required for GIS statistics queries.")
 
-        return self._compute_via_aggregation_service(registrant_ids, variables)
+        return self._compute_via_aggregation_service(registrant_ids, variables, group_by=group_by)
 
-    def _compute_via_aggregation_service(self, registrant_ids, variables):
+    def _compute_via_aggregation_service(self, registrant_ids, variables, group_by=None):
         """Compute statistics using AggregationService.
 
         Delegates to the unified aggregation service for statistics computation
@@ -352,6 +359,7 @@ class SpatialQueryService:
         Args:
             registrant_ids: List of registrant IDs
             variables: List of statistic names to compute (or None for GIS defaults)
+            group_by: Optional list of dimension names for demographic breakdown
 
         Returns:
             dict: Statistics with metadata (statistics, access_level, from_cache, computed_at)
@@ -390,6 +398,7 @@ class SpatialQueryService:
         result = aggregation_service.compute_aggregation(
             scope=scope,
             statistics=statistics_to_compute,
+            group_by=group_by,
             context="gis",
             use_cache=False,  # Spatial queries are dynamic, don't cache
         )
@@ -461,12 +470,13 @@ class SpatialQueryService:
         # Return statistics with metadata
         return {
             "statistics": result,
+            "breakdown": agg_result.get("breakdown"),
             "access_level": agg_result.get("access_level"),
             "from_cache": agg_result.get("from_cache", False),
             "computed_at": agg_result.get("computed_at"),
         }
 
-    def query_proximity(self, reference_points, radius_km, relation="within", filters=None, variables=None):
+    def query_proximity(self, reference_points, radius_km, relation="within", filters=None, variables=None, group_by=None):
         """Query registrants by proximity to reference points.
 
         Uses a temp table with pre-buffered geometries and ST_Intersects
@@ -508,7 +518,7 @@ class SpatialQueryService:
                     result["total_count"],
                 )
                 registrant_ids = result["registrant_ids"]
-                stats_with_metadata = self._compute_statistics(registrant_ids, variables)
+                stats_with_metadata = self._compute_statistics(registrant_ids, variables, group_by=group_by)
                 result.update(stats_with_metadata)
                 result["reference_points_count"] = len(reference_points)
                 result["radius_km"] = radius_km
@@ -530,7 +540,7 @@ class SpatialQueryService:
             result["areas_matched"],
         )
         registrant_ids = result["registrant_ids"]
-        stats_with_metadata = self._compute_statistics(registrant_ids, variables)
+        stats_with_metadata = self._compute_statistics(registrant_ids, variables, group_by=group_by)
         result.update(stats_with_metadata)
         result["reference_points_count"] = len(reference_points)
         result["radius_km"] = radius_km

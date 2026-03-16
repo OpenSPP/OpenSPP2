@@ -111,6 +111,34 @@ class ProcessRegistry:
 
         return variable_names, categories
 
+    def _build_group_by_input(self):
+        """Build the group_by input definition with dynamic enum from active dimensions."""
+        # nosemgrep: odoo-sudo-without-context
+        Dimension = self.env["spp.demographic.dimension"].sudo()
+        active_dimensions = Dimension.search([("active", "=", True)])
+
+        dimension_names = [dim.name for dim in active_dimensions]
+        dimension_metadata = [{"name": dim.name, "label": dim.label} for dim in active_dimensions]
+
+        group_by_input = {
+            "title": "Disaggregation Dimensions",
+            "description": "Dimension names to break down results by. Maximum 3.",
+            "minOccurs": 0,
+            "schema": {
+                "type": "array",
+                "items": {"type": "string"},
+                "maxItems": 3,
+            },
+        }
+
+        if dimension_names:
+            group_by_input["schema"]["items"]["enum"] = dimension_names
+
+        if dimension_metadata:
+            group_by_input["x-openspp-dimensions"] = dimension_metadata
+
+        return group_by_input
+
     def _build_variables_input(self):
         """Build the variables input definition with dynamic enum and x-openspp-statistics."""
         variable_names, categories = self.get_statistics_metadata()
@@ -173,6 +201,7 @@ class ProcessRegistry:
                     },
                 },
                 "variables": self._build_variables_input(),
+                "group_by": self._build_group_by_input(),
                 "filters": {
                     "title": "Registrant Filters",
                     "description": "Additional filters (e.g., is_group, disabled).",
@@ -252,6 +281,7 @@ class ProcessRegistry:
                     "schema": {"type": "string", "enum": ["within", "beyond"], "default": "within"},
                 },
                 "variables": self._build_variables_input(),
+                "group_by": self._build_group_by_input(),
                 "filters": {
                     "title": "Registrant Filters",
                     "minOccurs": 0,
