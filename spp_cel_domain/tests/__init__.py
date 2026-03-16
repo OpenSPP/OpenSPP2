@@ -13,6 +13,7 @@ from . import test_cel_sql_generation
 from . import test_cel_sql_robustness
 from . import test_cel_unrecognized_functions
 from . import test_sql_builder
+from . import test_cel_sql_case
 
 # ADR-008: CEL Variable Integration tests
 from . import test_cel_variable
