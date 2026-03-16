@@ -38,7 +38,7 @@ from ..schemas.ogc import (
     Conformance,
     LandingPage,
 )
-from ..services.ogc_service import OGCService
+from ..services.ogc_service import GEOFENCES_COLLECTION_ID, OGCService
 from ..services.qml_template_service import QMLTemplateService
 
 _logger = logging.getLogger(__name__)
@@ -266,7 +266,7 @@ async def options_collection_items(
     QGIS sends OPTIONS to discover allowed methods before fetching features.
     Geofences collection advertises write methods (POST, PUT, DELETE).
     """
-    if collection_id == "geofences":
+    if collection_id == GEOFENCES_COLLECTION_ID:
         allow = "GET, HEAD, OPTIONS, POST, PUT, DELETE"
     else:
         allow = "GET, HEAD, OPTIONS"
@@ -293,7 +293,7 @@ async def post_collection_item(
     api_client: Annotated[dict, Depends(get_authenticated_client)],
 ):
     """Create a new feature (OGC API - Features Part 4)."""
-    if collection_id != "geofences":
+    if collection_id != GEOFENCES_COLLECTION_ID:
         raise HTTPException(
             status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
             detail="POST is only supported for the geofences collection",
@@ -343,7 +343,7 @@ async def put_collection_item(
     api_client: Annotated[dict, Depends(get_authenticated_client)],
 ):
     """Replace a feature (OGC API - Features Part 4)."""
-    if collection_id != "geofences":
+    if collection_id != GEOFENCES_COLLECTION_ID:
         raise HTTPException(
             status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
             detail="PUT is only supported for the geofences collection",
@@ -394,7 +394,7 @@ async def delete_collection_item(
     api_client: Annotated[dict, Depends(get_authenticated_client)],
 ):
     """Delete a feature (OGC API - Features Part 4)."""
-    if collection_id != "geofences":
+    if collection_id != GEOFENCES_COLLECTION_ID:
         raise HTTPException(
             status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
             detail="DELETE is only supported for the geofences collection",

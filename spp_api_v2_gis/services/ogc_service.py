@@ -743,6 +743,36 @@ class OGCService:
 
     # --- Geofence write methods (OGC Features Part 4) ---
 
+    def _validate_geofence_input(self, feature_input):
+        """Validate and extract fields from a GeoJSON Feature for geofence create/replace.
+
+        Args:
+            feature_input: GeoJSON Feature dict
+
+        Returns:
+            tuple: (geometry_dict, properties_dict, name, geofence_type)
+
+        Raises:
+            ValueError: If validation fails
+        """
+        geometry = feature_input.get("geometry")
+        properties = feature_input.get("properties", {})
+
+        if not geometry:
+            raise ValueError("Geometry is required")
+        geom_type = geometry.get("type", "")
+        if geom_type not in _ALLOWED_GEOFENCE_GEOMETRY_TYPES:
+            raise ValueError(f"Geometry type '{geom_type}' is not allowed. Must be Polygon or MultiPolygon.")
+
+        name = properties.get("name")
+        if not name:
+            raise ValueError("Property 'name' is required")
+
+        geofence_type = properties.get("geofence_type", "custom")
+        self._validate_geofence_type(geofence_type)
+
+        return geometry, properties, name, geofence_type
+
     def create_geofence_feature(self, feature_input):
         """Create a geofence from a GeoJSON Feature.
 
@@ -755,24 +785,7 @@ class OGCService:
         Raises:
             ValueError: If input validation fails
         """
-        geometry = feature_input.get("geometry")
-        properties = feature_input.get("properties", {})
-
-        # Validate geometry
-        if not geometry:
-            raise ValueError("Geometry is required")
-        geom_type = geometry.get("type", "")
-        if geom_type not in _ALLOWED_GEOFENCE_GEOMETRY_TYPES:
-            raise ValueError(f"Geometry type '{geom_type}' is not allowed. Must be Polygon or MultiPolygon.")
-
-        # Validate required properties
-        name = properties.get("name")
-        if not name:
-            raise ValueError("Property 'name' is required")
-
-        # Validate geofence_type
-        geofence_type = properties.get("geofence_type", "custom")
-        self._validate_geofence_type(geofence_type)
+        geometry, properties, name, geofence_type = self._validate_geofence_input(feature_input)
 
         # Build create vals
         vals = {
@@ -823,24 +836,7 @@ class OGCService:
         if not geofence:
             raise MissingError(f"Feature {feature_id} not found in collection geofences")
 
-        geometry = feature_input.get("geometry")
-        properties = feature_input.get("properties", {})
-
-        # Validate geometry
-        if not geometry:
-            raise ValueError("Geometry is required")
-        geom_type = geometry.get("type", "")
-        if geom_type not in _ALLOWED_GEOFENCE_GEOMETRY_TYPES:
-            raise ValueError(f"Geometry type '{geom_type}' is not allowed. Must be Polygon or MultiPolygon.")
-
-        # Validate required properties
-        name = properties.get("name")
-        if not name:
-            raise ValueError("Property 'name' is required")
-
-        # Validate geofence_type
-        geofence_type = properties.get("geofence_type", "custom")
-        self._validate_geofence_type(geofence_type)
+        geometry, properties, name, geofence_type = self._validate_geofence_input(feature_input)
 
         # Build write vals (full replacement)
         vals = {
@@ -866,8 +862,6 @@ class OGCService:
             vals["incident_id"] = False
 
         geofence.write(vals)
-        # Invalidate to pick up recomputed area_sqkm
-        geofence.invalidate_recordset()
 
         return geofence.to_geojson()
 
@@ -907,6 +901,8 @@ class OGCService:
     def _resolve_geofence_tags(self, tag_names):
         """Resolve tag names to Many2many write commands (search-or-create).
 
+        Batch-searches existing tags first to avoid N+1 queries.
+
         Args:
             tag_names: List of tag name strings
 
@@ -920,12 +916,19 @@ class OGCService:
 
         # nosemgrep: odoo-sudo-without-context
         Tag = self.env["spp.gis.geofence.tag"].sudo()
+
+        # Batch search: one query for all existing tags
+        existing = Tag.search([("name", "in", tag_names)])
+        existing_by_name = {t.name: t.id for t in existing}
+
+        # Create only the missing tags
         tag_ids = []
         for name in tag_names:
-            tag = Tag.search([("name", "=", name)], limit=1)
-            if not tag:
-                tag = Tag.create({"name": name})
-            tag_ids.append(tag.id)
+            if name in existing_by_name:
+                tag_ids.append(existing_by_name[name])
+            else:
+                new_tag = Tag.create({"name": name})
+                tag_ids.append(new_tag.id)
 
         return [Command.set(tag_ids)]
 
