@@ -139,6 +139,68 @@ class ProcessRegistry:
 
         return group_by_input
 
+    def _build_population_filter_input(self):
+        """Build population_filter input with dynamic enum from programs and expressions."""
+        # TODO: Replace program ID with code field (see gis-analytics-enrichment.md Task 1)
+        # nosemgrep: odoo-sudo-without-context
+        Program = self.env["spp.program"].sudo()
+        programs = Program.search([])
+        program_ids = [p.id for p in programs]
+        program_metadata = [{"id": p.id, "name": p.name} for p in programs]
+
+        # nosemgrep: odoo-sudo-without-context
+        Expression = self.env["spp.cel.expression"].sudo()
+        expressions = Expression.search(
+            [
+                ("expression_type", "=", "filter"),
+                ("code", "!=", False),
+            ]
+        )
+        expression_codes = [e.code for e in expressions]
+        expression_metadata = [{"code": e.code, "name": e.name, "context_type": e.context_type} for e in expressions]
+
+        population_filter = {
+            "title": "Population Filter",
+            "description": (
+                "Filter registrants by program enrollment and/or eligibility criteria. "
+                "Use 'gap' mode to find eligible but not enrolled registrants."
+            ),
+            "minOccurs": 0,
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "program": {
+                        # TODO: Replace with string type + code enum once spp.program has a code field
+                        "type": "integer",
+                        "description": "Program ID to filter by enrollment.",
+                    },
+                    "cel_expression": {
+                        "type": "string",
+                        "description": "CEL expression code to filter by criteria.",
+                    },
+                    "mode": {
+                        "type": "string",
+                        "enum": ["and", "or", "gap"],
+                        "default": "and",
+                        "description": (
+                            "'and': both filters, 'or': either filter, 'gap': matches CEL but NOT enrolled in program."
+                        ),
+                    },
+                },
+            },
+        }
+
+        if program_ids:
+            population_filter["schema"]["properties"]["program"]["enum"] = program_ids
+        if expression_codes:
+            population_filter["schema"]["properties"]["cel_expression"]["enum"] = expression_codes
+        if program_metadata:
+            population_filter["x-openspp-programs"] = program_metadata
+        if expression_metadata:
+            population_filter["x-openspp-expressions"] = expression_metadata
+
+        return population_filter
+
     def _build_variables_input(self):
         """Build the variables input definition with dynamic enum and x-openspp-statistics."""
         variable_names, categories = self.get_statistics_metadata()
@@ -208,6 +270,7 @@ class ProcessRegistry:
                     "minOccurs": 0,
                     "schema": {"type": "object"},
                 },
+                "population_filter": self._build_population_filter_input(),
             },
             "outputs": {
                 "result": {
@@ -289,6 +352,7 @@ class ProcessRegistry:
                     "minOccurs": 0,
                     "schema": {"type": "object"},
                 },
+                "population_filter": self._build_population_filter_input(),
             },
             "outputs": {
                 "result": {

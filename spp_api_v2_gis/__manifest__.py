@@ -18,6 +18,8 @@
         "spp_vocabulary",
         "spp_statistic",
         "spp_aggregation",
+        "spp_programs",
+        "spp_cel_domain",
         "job_worker",
     ],
     "data": [

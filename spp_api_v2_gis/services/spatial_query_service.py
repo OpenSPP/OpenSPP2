@@ -31,7 +31,15 @@ class SpatialQueryService:
         """
         self.env = env
 
-    def query_statistics_batch(self, geometries, filters=None, variables=None, group_by=None, on_progress=None):
+    def query_statistics_batch(
+        self,
+        geometries,
+        filters=None,
+        variables=None,
+        group_by=None,
+        on_progress=None,
+        population_filter=None,
+    ):
         """Execute spatial query for multiple geometries.
 
         Queries each geometry individually and computes an aggregate summary.
@@ -61,6 +69,7 @@ class SpatialQueryService:
                     filters=filters,
                     variables=variables,
                     group_by=group_by,
+                    population_filter=population_filter,
                 )
                 # Collect registrant IDs for deduplication in summary
                 registrant_ids = result.pop("registrant_ids", [])
@@ -122,7 +131,7 @@ class SpatialQueryService:
             "summary": summary,
         }
 
-    def query_statistics(self, geometry, filters=None, variables=None, group_by=None):
+    def query_statistics(self, geometry, filters=None, variables=None, group_by=None, population_filter=None):
         """Execute spatial query for statistics within polygon.
 
         Args:
@@ -148,7 +157,7 @@ class SpatialQueryService:
 
         # Try coordinate-based query first (preferred method)
         try:
-            result = self._query_by_coordinates(geometry_json, filters)
+            result = self._query_by_coordinates(geometry_json, filters, population_filter=population_filter)
             if result["total_count"] > 0:
                 _logger.info(
                     "Spatial query using coordinates: %s registrants found",
@@ -165,7 +174,7 @@ class SpatialQueryService:
             )
 
         # Fall back to area-based query
-        result = self._query_by_area(geometry_json, filters)
+        result = self._query_by_area(geometry_json, filters, population_filter=population_filter)
         _logger.info(
             f"Spatial query using area fallback: {result['total_count']} registrants in {result['areas_matched']} areas"
         )
@@ -176,7 +185,7 @@ class SpatialQueryService:
 
         return result
 
-    def _query_by_coordinates(self, geometry_json, filters):
+    def _query_by_coordinates(self, geometry_json, filters, population_filter=None):
         """Query registrants by coordinates using ST_Intersects.
 
         This is the preferred method when registrants have coordinate data.
@@ -190,11 +199,11 @@ class SpatialQueryService:
         """
         # Build WHERE clause from filters
         where_clauses = ["p.is_registrant = true"]
-        params = [geometry_json]
+        filter_params = []
 
         if filters.get("is_group") is not None:
             where_clauses.append("p.is_group = %s")
-            params.append(filters["is_group"])
+            filter_params.append(filters["is_group"])
 
         if filters.get("disabled") is not None:
             if filters["disabled"]:
@@ -203,6 +212,8 @@ class SpatialQueryService:
                 where_clauses.append("p.disabled IS NULL")
 
         where_clause = " AND ".join(where_clauses)
+
+        pop_where, pop_params = self._build_population_filter_sql(population_filter)
 
         # Query using ST_Intersects with coordinates
         # Note: This assumes res.partner has a 'coordinates' GeoPointField
@@ -220,11 +231,11 @@ class SpatialQueryService:
               AND ST_Intersects(
                   p.coordinates,
                   ST_SetSRID(ST_GeomFromGeoJSON(%s), 4326)
-              )
+              ){pop_where}
         """  # nosec B608 - SQL clauses built from hardcoded fragments, data uses %s params
 
-        # Add geometry parameter at the beginning
-        params = [geometry_json] + params[1:]
+        # Params ordered to match SQL: filter params, geometry, population filter
+        params = filter_params + [geometry_json] + pop_params
 
         self.env.cr.execute(query, params)
         registrant_ids = [row[0] for row in self.env.cr.fetchall()]
@@ -236,7 +247,7 @@ class SpatialQueryService:
             "registrant_ids": registrant_ids,
         }
 
-    def _query_by_area(self, geometry_json, filters):
+    def _query_by_area(self, geometry_json, filters, population_filter=None):
         """Query registrants by area intersection (fallback method).
 
         This method finds areas that intersect the query polygon,
@@ -290,6 +301,10 @@ class SpatialQueryService:
                 extra_clauses.append("p.disabled IS NULL")
 
         extra_where = (" AND " + " AND ".join(extra_clauses)) if extra_clauses else ""
+
+        pop_where, pop_params = self._build_population_filter_sql(population_filter)
+        extra_where += pop_where
+        extra_params += pop_params
 
         # Query registrants: those directly in matched areas PLUS
         # individuals whose group (household) is in a matched area.
@@ -477,7 +492,14 @@ class SpatialQueryService:
         }
 
     def query_proximity(
-        self, reference_points, radius_km, relation="within", filters=None, variables=None, group_by=None
+        self,
+        reference_points,
+        radius_km,
+        relation="within",
+        filters=None,
+        variables=None,
+        group_by=None,
+        population_filter=None,
     ):
         """Query registrants by proximity to reference points.
 
@@ -511,7 +533,13 @@ class SpatialQueryService:
 
         # Try coordinate-based query first
         try:
-            result = self._proximity_by_coordinates(reference_points, radius_meters, relation, filters)
+            result = self._proximity_by_coordinates(
+                reference_points,
+                radius_meters,
+                relation,
+                filters,
+                population_filter=population_filter,
+            )
             if result["total_count"] > 0:
                 _logger.info(
                     "Proximity query (%s, %.1f km) using coordinates: %s registrants found",
@@ -533,7 +561,13 @@ class SpatialQueryService:
             )
 
         # Fall back to area-based query
-        result = self._proximity_by_area(reference_points, radius_meters, relation, filters)
+        result = self._proximity_by_area(
+            reference_points,
+            radius_meters,
+            relation,
+            filters,
+            population_filter=population_filter,
+        )
         _logger.info(
             "Proximity query (%s, %.1f km) using area fallback: %s registrants in %s areas",
             relation,
@@ -620,7 +654,110 @@ class SpatialQueryService:
         extra_where = (" AND " + " AND ".join(extra_clauses)) if extra_clauses else ""
         return extra_where, extra_params
 
-    def _proximity_by_coordinates(self, reference_points, radius_meters, relation, filters):
+    def _build_population_filter_sql(self, population_filter):
+        """Build SQL clause from population_filter input.
+
+        Args:
+            population_filter: Dict with optional keys: program, cel_expression, mode
+
+        Returns:
+            tuple: (sql_clause, params) where sql_clause is a string like
+                   "AND p.id IN (...)" and params is a list of query parameters.
+                   Returns ("", []) if no filter is active.
+        """
+        if not population_filter:
+            return "", []
+
+        # TODO: Replace program ID with code field (see gis-analytics-enrichment.md Task 1)
+        program_id = population_filter.get("program")
+        cel_expression_code = population_filter.get("cel_expression")
+        mode = population_filter.get("mode", "and")
+
+        if mode not in ("and", "or", "gap"):
+            raise ValueError(f"Invalid population_filter mode: {mode!r}. Must be 'and', 'or', or 'gap'.")
+
+        if program_id is not None and not isinstance(program_id, int):
+            raise ValueError("population_filter.program must be an integer")
+
+        program_sql = ""
+        program_params = []
+        cel_sql = ""
+        cel_params = []
+
+        # Build program filter subquery
+        if program_id:
+            program_sql = """
+                SELECT pm.partner_id FROM spp_program_membership pm
+                WHERE pm.program_id = %s AND pm.state = 'enrolled'
+            """
+            program_params = [program_id]
+
+        # Build CEL expression filter subquery
+        if cel_expression_code:
+            # nosemgrep: odoo-sudo-without-context
+            Expression = self.env["spp.cel.expression"].sudo()
+            expression = Expression.search([("code", "=", cel_expression_code)], limit=1)
+            if not expression:
+                _logger.warning("Population filter: expression '%s' not found", cel_expression_code)
+                return "AND false", []
+
+            cel_service = self.env["spp.cel.service"]
+            result = cel_service.compile_expression(
+                expression.cel_expression,
+                profile="registry_groups",
+                limit=0,
+            )
+            if not result.get("valid"):
+                _logger.warning(
+                    "Population filter: CEL expression '%s' failed to compile: %s",
+                    cel_expression_code,
+                    result.get("error"),
+                )
+                return "AND false", []
+
+            domain = result.get("domain", [])
+            # nosemgrep: odoo-sudo-without-context
+            Partner = self.env["res.partner"].sudo()
+            matching_ids = Partner.search(domain).ids
+            if not matching_ids:
+                return "AND false", []
+
+            if len(matching_ids) > 10000:
+                _logger.warning(
+                    "Population filter: CEL expression '%s' matched %d registrants. "
+                    "Consider using SQL subquery optimization for large result sets.",
+                    cel_expression_code,
+                    len(matching_ids),
+                )
+
+            cel_sql = "SELECT unnest(%s::int[])"
+            cel_params = [list(matching_ids)]
+
+        # Combine based on mode
+        if program_sql and cel_sql:
+            if mode == "and":
+                return (
+                    "AND p.id IN (" + program_sql + ") AND p.id IN (" + cel_sql + ")",
+                    program_params + cel_params,
+                )
+            elif mode == "or":
+                return (
+                    "AND (p.id IN (" + program_sql + ") OR p.id IN (" + cel_sql + "))",
+                    program_params + cel_params,
+                )
+            elif mode == "gap":
+                return (
+                    "AND p.id IN (" + cel_sql + ") AND p.id NOT IN (" + program_sql + ")",
+                    cel_params + program_params,
+                )
+        elif program_sql:
+            return "AND p.id IN (" + program_sql + ")", program_params
+        elif cel_sql:
+            return "AND p.id IN (" + cel_sql + ")", cel_params
+
+        return "", []
+
+    def _proximity_by_coordinates(self, reference_points, radius_meters, relation, filters, population_filter=None):
         """Query registrants by coordinate proximity to reference points.
 
         Args:
@@ -639,6 +776,10 @@ class SpatialQueryService:
         self._create_proximity_temp_table(reference_points, radius_meters)
 
         extra_where, extra_params = self._build_filter_clauses(filters)
+
+        pop_where, pop_params = self._build_population_filter_sql(population_filter)
+        extra_where += pop_where
+        extra_params += pop_params
 
         if relation == "within":
             # Find registrants whose coordinates intersect any buffer
@@ -681,7 +822,7 @@ class SpatialQueryService:
             "registrant_ids": registrant_ids,
         }
 
-    def _proximity_by_area(self, reference_points, radius_meters, relation, filters):
+    def _proximity_by_area(self, reference_points, radius_meters, relation, filters, population_filter=None):
         """Query registrants by area proximity (fallback when coordinates unavailable).
 
         Uses ST_Intersects between area polygons and buffered reference points
@@ -733,6 +874,10 @@ class SpatialQueryService:
 
         area_tuple = tuple(area_ids)
         extra_where, extra_params = self._build_filter_clauses(filters)
+
+        pop_where, pop_params = self._build_population_filter_sql(population_filter)
+        extra_where += pop_where
+        extra_params += pop_params
 
         # Reuse the same registrant lookup as _query_by_area (includes group membership)
         registrants_query = f"""
