@@ -17,6 +17,8 @@ OAuth 2.0 authentication framework for securing OpenSPP API communications using
 
 | Function                        | Purpose                                              |
 | ------------------------------- | ---------------------------------------------------- |
+| `get_private_key()`             | Retrieves OAuth private key from system parameters   |
+| `get_public_key()`              | Retrieves OAuth public key from system parameters    |
 | `calculate_signature()`         | Encodes JWT with header and payload using RS256      |
 | `verify_and_decode_signature()` | Decodes and verifies JWT token, returns payload      |
 | `OpenSPPOAuthJWTException`      | Custom exception for OAuth JWT errors with logging   |
@@ -50,11 +52,11 @@ Keys are displayed as password fields in the UI but stored as plain text in `ir.
 
 ### Extension Points
 
-- Import `calculate_signature()` and `verify_and_decode_signature()` from `odoo.addons.spp_oauth.tools` to implement OAuth 2.0 authentication in custom API endpoints
+- Import `calculate_signature()`, `verify_and_decode_signature()`, `get_private_key()`, and `get_public_key()` from `odoo.addons.spp_oauth.tools` to implement OAuth 2.0 authentication in custom API endpoints
 - Catch `OpenSPPOAuthJWTException` for OAuth-specific error handling in API controllers
 
 ### Dependencies
 
 `spp_security`, `base`
 
-**External Python**: `pyjwt>=2.4.0`
+**External Python**: `pyjwt>=2.4.0`, `cryptography`
