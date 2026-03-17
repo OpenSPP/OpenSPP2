@@ -195,9 +195,7 @@ class TestCelRegistrySearch(TransactionCase):
         """compile_expression should support offset parameter for pagination."""
         # Create test partners
         for i in range(5):
-            self.env["res.partner"].create(
-                {"name": f"CelOffsetTest{i}", "is_registrant": True, "is_group": False}
-            )
+            self.env["res.partner"].create({"name": f"CelOffsetTest{i}", "is_registrant": True, "is_group": False})
         service = self.env["spp.cel.service"]
         result = service.compile_expression(
             'r.name.startsWith("CelOffsetTest")',
@@ -226,17 +224,11 @@ class TestCelRegistrySearch(TransactionCase):
 
     def test_compile_expression_with_phone_numbers(self):
         """compile_expression should enrich preview with phone_number_ids."""
-        partner = self.env["res.partner"].create(
-            {"name": "CelPhoneTest", "is_registrant": True, "is_group": False}
-        )
+        partner = self.env["res.partner"].create({"name": "CelPhoneTest", "is_registrant": True, "is_group": False})
         # Create phone numbers if spp.phone.number model exists
         if "spp.phone.number" in self.env:
-            self.env["spp.phone.number"].create(
-                {"partner_id": partner.id, "phone_no": "+1234567890"}
-            )
-            self.env["spp.phone.number"].create(
-                {"partner_id": partner.id, "phone_no": "+0987654321"}
-            )
+            self.env["spp.phone.number"].create({"partner_id": partner.id, "phone_no": "+1234567890"})
+            self.env["spp.phone.number"].create({"partner_id": partner.id, "phone_no": "+0987654321"})
 
         service = self.env["spp.cel.service"]
         result = service.compile_expression(
