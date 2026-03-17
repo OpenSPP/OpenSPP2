@@ -224,10 +224,9 @@
                                                 <t
                                                     t-if="result.phone_numbers.length > 3"
                                                 >
-                                                    <t t-if="result._showAllPhones"
-                                                    >, <t
-                                                            t-esc="result.phone_numbers.slice(3).join(', ')"
-                                                        />
+                                                    <t t-if="result._showAllPhones">, <t
+                                                        t-esc="result.phone_numbers.slice(3).join(', ')"
+                                                    />
                                                         <button
                                                             type="button"
                                                             class="btn btn-link btn-sm p-0 ms-1 text-muted"
@@ -240,8 +239,8 @@
                                                         class="btn btn-link btn-sm p-0 ms-1 text-muted"
                                                         t-on-click.stop="(ev) => this.togglePhones(ev, result)"
                                                     >+<t
-                                                            t-esc="result.phone_numbers.length - 3"
-                                                        /> more</button>
+                                                        t-esc="result.phone_numbers.length - 3"
+                                                    /> more</button>
                                                 </t>
                                             </t>
                                             <t t-if="result.email">
