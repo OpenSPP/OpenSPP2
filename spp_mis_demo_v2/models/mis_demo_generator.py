@@ -519,7 +519,17 @@ class SPPMISDemoGenerator(models.TransientModel):
             # Step 0.75: Generate random groups/households
             # For large volumes, defer to a background job that commits in chunks
             if self.generate_random_groups and self.random_groups_count > 0:
-                if self.random_groups_count > 500 and hasattr(self, "with_delay"):
+                try:
+                    from odoo.http import request as http_request
+
+                    has_ui = bool(http_request and http_request.env)
+                except Exception:
+                    has_ui = False
+                if (
+                    self.random_groups_count > 500
+                    and has_ui
+                    and hasattr(self, "with_delay")
+                ):
                     _logger.info(
                         "Dispatching %d random groups to background job (chunked)...",
                         self.random_groups_count,
@@ -529,8 +539,19 @@ class SPPMISDemoGenerator(models.TransientModel):
                     # GIS layers, and report refresh. Skip those steps here.
                     self.state = "completed"
                     return self._show_volume_dispatched_notification()
-                _logger.info(f"Generating {self.random_groups_count} random groups...")
-                self._generate_random_groups(fake, stats)
+                if self.random_groups_count > 500:
+                    # CLI/shell context: run chunked generation inline with commits
+                    _logger.info(
+                        "Generating %d random groups inline (chunked)...",
+                        self.random_groups_count,
+                    )
+                    locale = fake.locales[0] if fake.locales else "en_US"
+                    self._run_volume_generation_job(locale)
+                else:
+                    _logger.info(
+                        "Generating %d random groups...", self.random_groups_count
+                    )
+                    self._generate_random_groups(fake, stats)
 
             # Step 1: Create demo programs
             if self.create_demo_programs:

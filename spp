@@ -530,6 +530,7 @@ def _run_demo_generator(profile: str, demo_key: str, timeout: int = 600):
 generator = env['spp.mis.demo.generator'].create({{'name': 'CLI Demo', 'demo_mode': '{generator_mode}'}})
 generator._onchange_demo_mode()
 generator.action_generate()
+env.cr.commit()
 print('DEMO_GENERATION_COMPLETE')
 """
 
