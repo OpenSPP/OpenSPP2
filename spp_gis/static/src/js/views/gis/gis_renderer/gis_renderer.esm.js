@@ -1150,7 +1150,8 @@ export class GisRenderer extends Component {
 
             const labelDiv = document.createElement("div");
             labelDiv.className = "choropleth-legend-step-label";
-            labelDiv.textContent = item.label;
+            const range = this._formatLegendRange(item.min_value, item.max_value);
+            labelDiv.textContent = range ? `${item.label} (${range})` : item.label;
             stepDiv.appendChild(labelDiv);
 
             stepsDiv.appendChild(stepDiv);
@@ -1158,6 +1159,31 @@ export class GisRenderer extends Component {
 
         legendDiv.appendChild(stepsDiv);
         container.appendChild(legendDiv);
+    }
+
+    /**
+     * Format a threshold range as a human-readable string.
+     * @param {Number|null} minValue - Minimum value (inclusive)
+     * @param {Number|null} maxValue - Maximum value (exclusive)
+     * @returns {String} Formatted range, or empty string if no values
+     */
+    _formatLegendRange(minValue, maxValue) {
+        const hasMin =
+            minValue !== null && minValue !== undefined && minValue !== false;
+        const hasMax =
+            maxValue !== null && maxValue !== undefined && maxValue !== false;
+        if (!hasMin && !hasMax) {
+            return "";
+        }
+        const fmtMin = hasMin ? this._formatLegendValue(minValue) : "";
+        const fmtMax = hasMax ? this._formatLegendValue(maxValue) : "";
+        if (hasMin && hasMax) {
+            return `${fmtMin} – ${fmtMax}`;
+        }
+        if (hasMin) {
+            return `≥ ${fmtMin}`;
+        }
+        return `< ${fmtMax}`;
     }
 
     /**

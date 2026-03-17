@@ -1855,6 +1855,12 @@ class GISReport(models.Model):
         # Get filtered data records
         data_records = self.env["spp.gis.report.data"].search(domain)
 
+        # Build threshold lookup for enriching bucket info with ranges
+        sorted_thresholds = self.threshold_ids.sorted("sequence")
+        threshold_ranges = {
+            i: (t.min_value, t.max_value) for i, t in enumerate(sorted_thresholds)
+        }
+
         # Build features
         features = []
         for data in data_records:
@@ -1878,6 +1884,8 @@ class GISReport(models.Model):
                     "index": data.bucket_index,  # null if no data
                     "color": data.bucket_color,
                     "label": data.bucket_label,
+                    "min_value": threshold_ranges.get(data.bucket_index, (None, None))[0],
+                    "max_value": threshold_ranges.get(data.bucket_index, (None, None))[1],
                 },
                 "weight": data.weight,
                 "record_count": data.record_count,

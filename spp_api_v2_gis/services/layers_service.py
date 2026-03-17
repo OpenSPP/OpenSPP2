@@ -500,6 +500,14 @@ class LayersService:
 
         # Build properties
         has_data = data.raw_value is not None
+
+        # Look up threshold range for the bucket
+        sorted_thresholds = report.threshold_ids.sorted("sequence")
+        threshold_ranges = {
+            i: (t.min_value, t.max_value) for i, t in enumerate(sorted_thresholds)
+        }
+        bucket_range = threshold_ranges.get(data.bucket_index, (None, None))
+
         properties = {
             "area_id": data.area_id.id,
             "area_code": data.area_code,
@@ -510,6 +518,13 @@ class LayersService:
             "normalized_value": data.normalized_value,
             "display_value": data.display_value if has_data else "No Data",
             "record_count": data.record_count,
+            "bucket": {
+                "index": data.bucket_index,
+                "color": data.bucket_color,
+                "label": data.bucket_label,
+                "min_value": bucket_range[0],
+                "max_value": bucket_range[1],
+            },
         }
 
         # Build geometry
