@@ -1240,7 +1240,13 @@ class SPPMISDemoGenerator(models.TransientModel):
         computed_name = " ".join(filter(None, name_formatted)).upper()
 
         birth_year = today_year - age
-        birthdate = f"{birth_year}-{random.randint(1, 12):02d}-{random.randint(1, 28):02d}"
+        birth_month = random.randint(1, 12)
+        birth_day = random.randint(1, 28)
+        today = fields.Date.today()
+        birthdate = datetime.date(birth_year, birth_month, birth_day)
+        # Ensure birthdate is not in the future (matters for age 0-1)
+        if birthdate > today:
+            birthdate = today
 
         vals = {
             "name": computed_name,
