@@ -1,5 +1,6 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
+from odoo import Command
 from odoo.exceptions import ValidationError
 from odoo.tests import TransactionCase, tagged
 
@@ -220,11 +221,14 @@ class TestImportMatchModel(TransactionCase):
     def test_constrains_duplicate_non_relational_field(self):
         """_check_duplicate_fields raises on duplicate non-relational fields on save."""
         with self.assertRaises(ValidationError):
-            self._create_match_rule(
-                [
-                    {"field_id": self.name_field.id},
-                    {"field_id": self.name_field.id},
-                ]
+            self.env["spp.import.match"].create(
+                {
+                    "model_id": self.res_partner_model.id,
+                    "field_ids": [
+                        Command.create({"field_id": self.name_field.id}),
+                        Command.create({"field_id": self.name_field.id}),
+                    ],
+                }
             )
 
     def test_constrains_allows_duplicate_relational_field(self):

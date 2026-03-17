@@ -46,15 +46,15 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-----------------------------+---------------------------------------+
-| Model                       | Description                           |
-+=============================+=======================================+
-| ``spp.import.match``        | Matching rule configuration for a     |
-|                             | specific model                        |
-+-----------------------------+---------------------------------------+
-| ``spp.import.match.fields`` | Individual field in a rule, with      |
-|                             | optional sub-field                    |
-+-----------------------------+---------------------------------------+
++-----------------------------+----------------------------------------+
+| Model                       | Description                            |
++=============================+========================================+
+| ``spp.import.match``        | Matching rule configuration for a      |
+|                             | specific model                         |
++-----------------------------+----------------------------------------+
+| ``spp.import.match.fields`` | Individual field in a rule, with       |
+|                             | optional sub-field                     |
++-----------------------------+----------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
