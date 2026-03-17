@@ -21,7 +21,7 @@ class HazardImpact(models.Model):
 
     _name = "spp.hazard.impact"
     _description = "Hazard Impact"
-    _order = "impact_date desc, incident_id"
+    _order = "impact_date desc, id"
     _inherit = ["mail.thread", "mail.activity.mixin"]
 
     incident_id = fields.Many2one(

@@ -183,16 +183,10 @@
                         </page>
                         <page string="Impacts" name="impacts">
                             <field name="impact_ids" readonly="status == 'closed'">
-                                <list>
+                                <list editable="bottom" no_open="true">
                                     <field name="registrant_id" />
                                     <field name="impact_type_id" />
-                                    <field
-                                        name="damage_level"
-                                        widget="badge"
-                                        decoration-muted="damage_level in ('minimal', 'moderate')"
-                                        decoration-warning="damage_level in ('severe', 'partially_damaged')"
-                                        decoration-danger="damage_level in ('critical', 'totally_damaged')"
-                                    />
+                                    <field name="damage_level" />
                                     <field name="impact_date" />
                                     <field
                                         name="verification_status"
@@ -201,6 +195,36 @@
                                         decoration-success="verification_status == 'verified'"
                                         decoration-warning="verification_status == 'disputed'"
                                         decoration-muted="verification_status == 'closed'"
+                                    />
+                                    <field name="notes" optional="hide" />
+                                    <field name="create_date" column_invisible="1" />
+                                    <button
+                                        name="action_verify"
+                                        type="object"
+                                        string="Verify"
+                                        icon="fa-check"
+                                        invisible="not create_date or verification_status != 'reported'"
+                                    />
+                                    <button
+                                        name="action_dispute"
+                                        type="object"
+                                        string="Dispute"
+                                        icon="fa-exclamation-triangle"
+                                        invisible="not create_date or verification_status not in ('reported', 'verified')"
+                                    />
+                                    <button
+                                        name="action_close"
+                                        type="object"
+                                        string="Close"
+                                        icon="fa-times"
+                                        invisible="not create_date or verification_status == 'closed'"
+                                    />
+                                    <button
+                                        name="action_reset_to_reported"
+                                        type="object"
+                                        string="Reset"
+                                        icon="fa-undo"
+                                        invisible="not create_date or verification_status not in ('disputed', 'closed')"
                                     />
                                 </list>
                             </field>
