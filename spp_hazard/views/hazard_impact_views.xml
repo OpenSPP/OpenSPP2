@@ -160,6 +160,7 @@
                         readonly="verification_status == 'closed'"
                     />
                 </sheet>
+                <chatter />
             </form>
         </field>
     </record>
