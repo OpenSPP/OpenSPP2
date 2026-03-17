@@ -157,3 +157,34 @@ class TestCelRegistrySearch(TransactionCase):
             user.has_group("spp_cel_registry_search.group_cel_search_user"),
             "Base user should not have CEL Search group",
         )
+
+    # --- Access Control Tests ---
+
+    def test_check_search_access_granted(self):
+        """check_search_access returns True for CEL Search users."""
+        user = self.env["res.users"].create(
+            {
+                "name": "Test Access User",
+                "login": "test_access_cel",
+                "group_ids": [
+                    Command.link(self.env.ref("base.group_user").id),
+                    Command.link(self.group_cel_search_user.id),
+                ],
+            }
+        )
+        result = self.env["spp.cel.service"].with_user(user).check_search_access()
+        self.assertTrue(result)
+
+    def test_check_search_access_denied(self):
+        """check_search_access returns False for users without the group."""
+        user = self.env["res.users"].create(
+            {
+                "name": "Test No Access User",
+                "login": "test_no_access_cel",
+                "group_ids": [
+                    Command.link(self.env.ref("base.group_user").id),
+                ],
+            }
+        )
+        result = self.env["spp.cel.service"].with_user(user).check_search_access()
+        self.assertFalse(result)
