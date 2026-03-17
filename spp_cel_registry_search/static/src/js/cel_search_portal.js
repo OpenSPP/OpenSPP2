@@ -171,6 +171,10 @@ export class CelSearchPortal extends Component {
         this.performSearch(page);
     }
 
+    togglePhones(ev, result) {
+        result._showAllPhones = !result._showAllPhones;
+    }
+
     get totalPages() {
         return Math.ceil(this.state.totalCount / SEARCH_RESULT_LIMIT);
     }
