@@ -332,6 +332,7 @@ def _wait_for_odoo_ready(profile: str, timeout: int = 300):
     """
     service = "openspp-dev" if profile == "dev" else "openspp"
     print("Waiting for Odoo to be ready...")
+    print(f"  Follow logs in another terminal: ./spp l -f {service}")
 
     for i in range(timeout):
         # Check for CRITICAL errors in logs (initialization failures)
@@ -442,6 +443,7 @@ def _wait_for_module_installed(profile: str, module_name: str, timeout: int = 60
     """
     service = "openspp-dev" if profile == "dev" else "openspp"
     print(f"Waiting for module '{module_name}' to be installed...")
+    print(f"  Follow logs in another terminal: ./spp l -f {service}")
 
     start_time = time.time()
 
@@ -458,8 +460,9 @@ def _wait_for_module_installed(profile: str, module_name: str, timeout: int = 60
         # Note: Odoo logs "Modules loaded." (capital M) and "Registry loaded in X.XXXs"
         logs_lower = logs.lower()
         if "registry loaded in" in logs_lower and "modules loaded" in logs_lower:
-            # Verify the module is actually installed now
-            state = _get_module_state(profile, module_name)
+            # For comma-separated module lists, check the last module (installed last)
+            check_module = module_name.split(",")[-1].strip()
+            state = _get_module_state(profile, check_module)
             if state == "installed":
                 return True, None
             elif state in ("to install", "to upgrade"):
