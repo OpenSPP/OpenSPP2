@@ -392,6 +392,7 @@ class CelExecutor(models.AbstractModel):
         model: str,
         expr: str,
         limit: int = 50,
+        offset: int = 0,
         fields: list[str] | None = None,
         materialize_sql: bool = False,
     ) -> dict[str, Any]:
@@ -465,15 +466,22 @@ class CelExecutor(models.AbstractModel):
             preview_ids = []  # Count-only mode
         elif limit == 0:
             # Use the default from the method signature (50)
-            preview_recordset = self.env[model].search(final_domain, limit=50)
+            preview_recordset = self.env[model].search(final_domain, limit=50, offset=offset)
             preview_ids = preview_recordset.ids
         else:
-            preview_recordset = self.env[model].search(final_domain, limit=limit)
+            preview_recordset = self.env[model].search(final_domain, limit=limit, offset=offset)
             preview_ids = preview_recordset.ids
 
         # Read full record data if fields requested (for JSON-safe preview)
         if preview_ids and fields:
-            preview_data = preview_recordset.read(fields)
+            # Replace phone_number_ids with phone for reading, then enrich
+            read_fields = [f for f in fields if f != "phone_number_ids"]
+            preview_data = preview_recordset.read(read_fields)
+            if "phone_number_ids" in fields:
+                for rec_data in preview_data:
+                    partner = preview_recordset.filtered(lambda r: r.id == rec_data["id"])
+                    phones = partner.phone_number_ids.filtered(lambda p: not p.disabled).mapped("phone_no")
+                    rec_data["phone_numbers"] = phones
         # Enrich explanation with metrics info if any
         metrics_section = ""
         if metrics_info:

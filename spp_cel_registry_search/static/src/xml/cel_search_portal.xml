@@ -65,7 +65,7 @@
                             <button
                                 class="btn btn-primary"
                                 type="button"
-                                t-on-click="performSearch"
+                                t-on-click="() => this.performSearch()"
                                 t-att-disabled="!canSearch || state.isSearching"
                             >
                                 <t t-if="state.isSearching">
@@ -108,15 +108,58 @@
                             class="d-flex justify-content-between align-items-center mb-3"
                         >
                             <h5 class="mb-0" aria-live="polite">
-                                <t t-if="state.hasMoreResults">
-                                    Showing <t t-esc="state.results.length" /> of <t
-                                    t-esc="state.totalCount"
-                                /> Result(s)
+                                <t t-if="state.totalCount > 0">
+                                    Showing <t t-esc="showingFrom" />–<t
+                                    t-esc="showingTo"
+                                /> of <t t-esc="state.totalCount" /> Result(s)
                                 </t>
                                 <t t-else="">
-                                    <t t-esc="state.totalCount" /> Result(s) Found
+                                    0 Result(s) Found
                                 </t>
                             </h5>
+                            <t t-if="totalPages > 1">
+                                <nav aria-label="Search results pagination">
+                                    <ul class="pagination pagination-sm mb-0">
+                                        <li
+                                            t-attf-class="page-item {{ state.currentPage === 1 ? 'disabled' : '' }}"
+                                        >
+                                            <button
+                                                type="button"
+                                                class="page-link"
+                                                t-on-click="() => this.goToPage(state.currentPage - 1)"
+                                                t-att-disabled="state.currentPage === 1"
+                                            >
+                                                <i
+                                                    class="fa fa-chevron-left"
+                                                    aria-hidden="true"
+                                                />
+                                            </button>
+                                        </li>
+                                        <li class="page-item disabled">
+                                            <span class="page-link">
+                                                <t t-esc="state.currentPage" /> / <t
+                                                t-esc="totalPages"
+                                            />
+                                            </span>
+                                        </li>
+                                        <li
+                                            t-attf-class="page-item {{ state.currentPage === totalPages ? 'disabled' : '' }}"
+                                        >
+                                            <button
+                                                type="button"
+                                                class="page-link"
+                                                t-on-click="() => this.goToPage(state.currentPage + 1)"
+                                                t-att-disabled="state.currentPage === totalPages"
+                                            >
+                                                <i
+                                                    class="fa fa-chevron-right"
+                                                    aria-hidden="true"
+                                                />
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </t>
                         </div>
 
                         <div
@@ -168,16 +211,20 @@
                                                     t-esc="getRegistrantTypeLabel(result.is_group)"
                                                 />
                                             </span>
-                                            <t t-if="result.phone">
+                                            <t
+                                                t-if="result.phone_numbers and result.phone_numbers.length"
+                                            >
                                                 <i
                                                     class="fa fa-phone me-1"
                                                     aria-hidden="true"
                                                 />
-                                                <t t-esc="result.phone" />
+                                                <t
+                                                    t-esc="result.phone_numbers.join(', ')"
+                                                />
                                             </t>
                                             <t t-if="result.email">
                                                 <span
-                                                    t-if="result.phone"
+                                                    t-if="result.phone_numbers and result.phone_numbers.length"
                                                     class="mx-2"
                                                 >|</span>
                                                 <i

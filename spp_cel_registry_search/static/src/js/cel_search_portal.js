@@ -13,7 +13,7 @@
  * - Profile selection (Individuals/Groups)
  */
 
-import {Component, useState} from "@odoo/owl";
+import {Component, onWillStart, useState} from "@odoo/owl";
 import {registry} from "@web/core/registry";
 import {useService} from "@web/core/utils/hooks";
 import {_t} from "@web/core/l10n/translation";
@@ -36,6 +36,8 @@ export class CelSearchPortal extends Component {
 
         this.editorApi = null;
 
+        onWillStart(() => this._checkAccess());
+
         this.state = useState({
             profile: "registry_individuals",
             celExpression: "",
@@ -45,7 +47,23 @@ export class CelSearchPortal extends Component {
             totalCount: 0,
             hasMoreResults: false,
             validation: null,
+            currentPage: 1,
         });
+    }
+
+    async _checkAccess() {
+        const allowed = await this.orm.call(
+            "spp.cel.service",
+            "check_search_access",
+            []
+        );
+        if (!allowed) {
+            this.notification.add(
+                _t("You do not have permission to access Advanced Search."),
+                {type: "danger"}
+            );
+            this.action.doAction("mail.action_discuss", {clearBreadcrumbs: true});
+        }
     }
 
     onEditorReady(api) {
@@ -69,7 +87,7 @@ export class CelSearchPortal extends Component {
         this.state.validation = result;
     }
 
-    async performSearch() {
+    async performSearch(page = 1) {
         const expression = this.state.celExpression.trim();
 
         if (!expression) {
@@ -92,6 +110,8 @@ export class CelSearchPortal extends Component {
         this.state.isSearching = true;
         this.state.hasSearched = true;
 
+        const offset = (page - 1) * SEARCH_RESULT_LIMIT;
+
         try {
             // Request preview records directly from backend to avoid JSON serialization
             // issues with SQL subquery domains
@@ -103,11 +123,12 @@ export class CelSearchPortal extends Component {
                     expression: expression,
                     profile: this.state.profile,
                     limit: SEARCH_RESULT_LIMIT,
+                    offset: offset,
                     fields: [
                         "id",
                         "name",
                         "is_group",
-                        "phone",
+                        "phone_number_ids",
                         "email",
                         "registration_date",
                         "disabled",
@@ -128,7 +149,8 @@ export class CelSearchPortal extends Component {
 
             this.state.results = records;
             this.state.totalCount = count;
-            this.state.hasMoreResults = count > SEARCH_RESULT_LIMIT;
+            this.state.currentPage = page;
+            this.state.hasMoreResults = count > offset + records.length;
         } catch (error) {
             console.error("[CelSearchPortal] Search error:", error);
             this.notification.add(
@@ -145,6 +167,25 @@ export class CelSearchPortal extends Component {
         }
     }
 
+    goToPage(page) {
+        this.performSearch(page);
+    }
+
+    get totalPages() {
+        return Math.ceil(this.state.totalCount / SEARCH_RESULT_LIMIT);
+    }
+
+    get showingFrom() {
+        return (this.state.currentPage - 1) * SEARCH_RESULT_LIMIT + 1;
+    }
+
+    get showingTo() {
+        return Math.min(
+            this.state.currentPage * SEARCH_RESULT_LIMIT,
+            this.state.totalCount
+        );
+    }
+
     clearSearch() {
         this.state.celExpression = "";
         this.state.hasSearched = false;
@@ -152,6 +193,7 @@ export class CelSearchPortal extends Component {
         this.state.totalCount = 0;
         this.state.hasMoreResults = false;
         this.state.validation = null;
+        this.state.currentPage = 1;
 
         if (this.editorApi) {
             this.editorApi.clear();
