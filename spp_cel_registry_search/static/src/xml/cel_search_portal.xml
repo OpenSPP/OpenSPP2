@@ -228,10 +228,10 @@
                                                         t-esc="result.phone_numbers.slice(3).join(', ')"
                                                     />
                                                         <button
-                                                            type="button"
-                                                            class="btn btn-link btn-sm p-0 ms-1 text-muted"
-                                                            t-on-click.stop="(ev) => this.togglePhones(ev, result)"
-                                                        >show less</button>
+                                                        type="button"
+                                                        class="btn btn-link btn-sm p-0 ms-1 text-muted"
+                                                        t-on-click.stop="(ev) => this.togglePhones(ev, result)"
+                                                    >show less</button>
                                                     </t>
                                                     <button
                                                         t-else=""
