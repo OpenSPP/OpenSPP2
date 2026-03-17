@@ -479,7 +479,8 @@ class CelExecutor(models.AbstractModel):
             preview_data = preview_recordset.read(read_fields)
             if "phone_number_ids" in fields:
                 for rec_data in preview_data:
-                    partner = preview_recordset.filtered(lambda r: r.id == rec_data["id"])
+                    rec_id = rec_data["id"]
+                    partner = preview_recordset.filtered(lambda r, rid=rec_id: r.id == rid)
                     phones = partner.phone_number_ids.filtered(lambda p: not p.disabled).mapped("phone_no")
                     rec_data["phone_numbers"] = phones
         # Enrich explanation with metrics info if any
