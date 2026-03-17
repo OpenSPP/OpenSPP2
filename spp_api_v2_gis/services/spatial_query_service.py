@@ -701,10 +701,14 @@ class SpatialQueryService:
                 _logger.warning("Population filter: expression '%s' not found", cel_expression_code)
                 return "AND false", []
 
+            # Use the correct profile based on the expression's context_type
+            context_type = expression.context_type or "group"
+            profile = "registry_individuals" if context_type == "individual" else "registry_groups"
+
             cel_service = self.env["spp.cel.service"]
             result = cel_service.compile_expression(
                 expression.cel_expression,
-                profile="registry_groups",
+                profile=profile,
                 limit=0,
             )
             if not result.get("valid"):
@@ -721,6 +725,14 @@ class SpatialQueryService:
             matching_ids = Partner.search(domain).ids
             if not matching_ids:
                 return "AND false", []
+
+            # For individual-context expressions, resolve to group IDs.
+            # The spatial query operates on groups (they have coordinates/area_id),
+            # so we find groups that contain matching individuals.
+            if context_type == "individual":
+                matching_ids = self._resolve_individuals_to_groups(matching_ids)
+                if not matching_ids:
+                    return "AND false", []
 
             if len(matching_ids) > 10000:
                 _logger.warning(
@@ -756,6 +768,39 @@ class SpatialQueryService:
             return "AND p.id IN (" + cel_sql + ")", cel_params
 
         return "", []
+
+    def _resolve_individuals_to_groups(self, individual_ids):
+        """Resolve individual partner IDs to their group (household) IDs.
+
+        The spatial query operates on groups (they have coordinates/area_id).
+        For individual-context CEL expressions, we need to find which groups
+        contain the matching individuals.
+
+        Args:
+            individual_ids: List of individual partner IDs
+
+        Returns:
+            list: Group partner IDs that contain at least one matching individual
+        """
+        if not individual_ids:
+            return []
+
+        self.env.cr.execute(
+            """
+            SELECT DISTINCT gm."group"
+            FROM spp_group_membership gm
+            WHERE gm.individual = ANY(%s)
+              AND gm.is_ended = false
+            """,
+            [list(individual_ids)],
+        )
+        group_ids = [row[0] for row in self.env.cr.fetchall()]
+        _logger.info(
+            "Resolved %d individuals to %d groups for population filter",
+            len(individual_ids),
+            len(group_ids),
+        )
+        return group_ids
 
     def _proximity_by_coordinates(self, reference_points, radius_meters, relation, filters, population_filter=None):
         """Query registrants by coordinate proximity to reference points.

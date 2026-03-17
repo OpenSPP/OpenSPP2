@@ -239,6 +239,59 @@ class TestPopulationFilterCEL(TestPopulationFilter):
         self.assertEqual(sql, "AND false")
         self.assertEqual(params, [])
 
+    def test_individual_context_resolves_to_groups(self):
+        """Individual-context CEL expressions resolve matched individuals to their groups."""
+        # Create an individual-context expression matching adults (age >= 18)
+        self.env["spp.cel.expression"].create(
+            {
+                "name": "Test Adults",
+                "code": "test_adults_18",
+                "expression_type": "filter",
+                "cel_expression": "age_years(r.birthdate) >= 18",
+                "output_type": "boolean",
+                "context_type": "individual",
+            }
+        )
+
+        service = self._get_service()
+        sql, params = service._build_population_filter_sql({"cel_expression": "test_adults_18"})
+
+        # Should not be "AND false" since our test individuals are all adults
+        self.assertNotEqual(sql, "AND false", "Individual CEL expression should match adult individuals")
+        self.assertIn("AND p.id IN", sql)
+
+        # Verify the matched IDs are group IDs (not individual IDs)
+        # Execute against all groups to verify they're matched
+        all_ids = list(self.all_group_ids)
+        query = f"""
+            SELECT p.id FROM res_partner p
+            WHERE p.id IN %s {sql}
+        """
+        exec_params = [tuple(all_ids)] + params
+        self.env.cr.execute(query, exec_params)
+        result_ids = {row[0] for row in self.env.cr.fetchall()}
+
+        # All 4 groups should match (all individuals are adults born 1975-2000)
+        self.assertEqual(result_ids, self.all_group_ids)
+
+    def test_individual_context_no_match_returns_false(self):
+        """Individual-context expression matching no individuals returns AND false."""
+        # Create an expression matching very old people (age >= 200)
+        self.env["spp.cel.expression"].create(
+            {
+                "name": "Test Ancient",
+                "code": "test_ancient",
+                "expression_type": "filter",
+                "cel_expression": "age_years(r.birthdate) >= 200",
+                "output_type": "boolean",
+                "context_type": "individual",
+            }
+        )
+
+        service = self._get_service()
+        sql, params = service._build_population_filter_sql({"cel_expression": "test_ancient"})
+        self.assertEqual(sql, "AND false")
+
 
 class TestPopulationFilterCombined(TestPopulationFilter):
     """Test combined program + CEL filter modes."""
