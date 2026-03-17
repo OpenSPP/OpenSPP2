@@ -525,11 +525,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                     has_ui = bool(http_request and http_request.env)
                 except Exception:
                     has_ui = False
-                if (
-                    self.random_groups_count > 500
-                    and has_ui
-                    and hasattr(self, "with_delay")
-                ):
+                if self.random_groups_count > 500 and has_ui and hasattr(self, "with_delay"):
                     _logger.info(
                         "Dispatching %d random groups to background job (chunked)...",
                         self.random_groups_count,
@@ -548,9 +544,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                     locale = fake.locales[0] if fake.locales else "en_US"
                     self._run_volume_generation_job(locale)
                 else:
-                    _logger.info(
-                        "Generating %d random groups...", self.random_groups_count
-                    )
+                    _logger.info("Generating %d random groups...", self.random_groups_count)
                     self._generate_random_groups(fake, stats)
 
             # Step 1: Create demo programs
@@ -1100,152 +1094,126 @@ class SPPMISDemoGenerator(models.TransientModel):
     def _generate_random_groups(self, fake, stats):
         """Generate random groups/households with members.
 
-        For large volumes (>100 groups), uses batch operations:
-        - Batch membership creation in chunks
-        - Batch create_date backdating via executemany
-        - Disables tracking and recomputation during creation
+        Uses batch ORM create() for groups and individuals, which is
+        significantly faster than per-record create() calls. Each batch
+        of BATCH_SIZE groups is created together, then their individuals
+        are batch-created and linked via memberships.
         """
+        BATCH_SIZE = 100
+
         try:
             from odoo.addons.spp_demo.models import demo_stories
 
-            reserved_names = demo_stories.RESERVED_NAMES
+            reserved_names = set(demo_stories.RESERVED_NAMES)
         except ImportError:
-            reserved_names = []
+            reserved_names = set()
 
         groups_created = []
         head_membership_type = self.env["spp.vocabulary.code"].get_code(
             "urn:openspp:vocab:group-membership-type", "head"
         )
+        head_type_id = head_membership_type.id if head_membership_type else False
 
-        # Collect all create_date updates and membership records for batch processing
-        backdate_updates = []  # list of (date, partner_id)
-        membership_batch = []  # list of membership value dicts
-
+        # Cache gender IDs upfront (avoids ORM search per individual)
         DemoGenerator = self.env["spp.demo.data.generator"].with_context(tracking_disable=True)
+        gender_id_cache = {
+            "male": DemoGenerator.lookup_gender_id("Male"),
+            "female": DemoGenerator.lookup_gender_id("Female"),
+        }
 
-        for i in range(self.random_groups_count):
-            try:
-                # Generate family with head of household
-                head_gender = random.choice(["male", "female"])
-                head_first = fake.first_name_male() if head_gender == "male" else fake.first_name_female()
-                head_last = fake.last_name()
-                head_name = f"{head_first} {head_last}"
+        Partner = self.env["res.partner"].with_context(tracking_disable=True)
+        today_year = fields.Date.today().year
 
-                # Skip if name is reserved
-                if head_name in reserved_names:
-                    continue
+        # Collect all create_date updates for batch SQL at the end
+        backdate_updates = []  # list of (date, partner_id)
 
-                head_age = random.randint(25, 65)
+        # Process groups in batches for batch ORM create()
+        pending_groups = []  # list of (group_vals, registration_date, member_specs)
+        # member_specs: list of (individual_vals, is_head)
 
-                # Create the group
-                registration_date = fake.date_between(start_date="-365d", end_date="-30d")
-                group = DemoGenerator.create_group_from_params(head_last)
-                groups_created.append(group)
-                stats["random_groups_created"] += 1
-                backdate_updates.append((registration_date, group.id))
+        for _i in range(self.random_groups_count):
+            head_gender = random.choice(["male", "female"])
+            head_first = fake.first_name_male() if head_gender == "male" else fake.first_name_female()
+            head_last = fake.last_name()
+            head_name = f"{head_first} {head_last}"
 
-                # Create head of household
-                head = self._create_random_individual(
-                    fake,
-                    head_name,
-                    head_gender,
-                    head_age,
-                    registration_date,
-                    reserved_names,
-                )
-                if head:
-                    stats["random_individuals_created"] += 1
-                    backdate_updates.append((registration_date, head.id))
-                    membership_batch.append(
-                        {
-                            "group": group.id,
-                            "individual": head.id,
-                            "membership_type_ids": [Command.link(head_membership_type.id)]
-                            if head_membership_type
-                            else [],
-                        }
+            if head_name in reserved_names:
+                continue
+
+            head_age = random.randint(25, 65)
+            registration_date = fake.date_between(start_date="-365d", end_date="-30d")
+
+            group_vals = {
+                "name": head_last,
+                "is_registrant": True,
+                "is_group": True,
+            }
+
+            member_specs = []
+
+            # Head of household
+            head_vals = self._individual_vals(head_name, head_gender, head_age, gender_id_cache, today_year)
+            member_specs.append((head_vals, True))
+
+            # Determine number of additional members
+            num_members = random.randint(self.members_per_group_min - 1, self.members_per_group_max - 1)
+
+            # Sometimes add spouse
+            if num_members > 0 and random.random() < 0.7:
+                spouse_gender = "female" if head_gender == "male" else "male"
+                spouse_first = fake.first_name_female() if spouse_gender == "female" else fake.first_name_male()
+                spouse_name = f"{spouse_first} {head_last}"
+                spouse_age = head_age + random.randint(-5, 5)
+                if spouse_name not in reserved_names:
+                    spouse_vals = self._individual_vals(
+                        spouse_name, spouse_gender, spouse_age, gender_id_cache, today_year
+                    )
+                    member_specs.append((spouse_vals, False))
+                num_members -= 1
+
+            # Children / other members
+            for _j in range(num_members):
+                age_roll = random.random()
+                if age_roll < 0.15:
+                    member_age = random.randint(0, 4)
+                elif age_roll < 0.45:
+                    member_age = random.randint(5, 17)
+                elif age_roll < 0.85:
+                    member_age = random.randint(18, 59)
+                else:
+                    member_age = random.randint(60, 85)
+                member_gender = random.choice(["male", "female"])
+                member_first = fake.first_name_male() if member_gender == "male" else fake.first_name_female()
+                member_name = f"{member_first} {head_last}"
+                if member_name not in reserved_names:
+                    m_vals = self._individual_vals(member_name, member_gender, member_age, gender_id_cache, today_year)
+                    member_specs.append((m_vals, False))
+
+            pending_groups.append((group_vals, registration_date, member_specs))
+
+            # Flush batch
+            if len(pending_groups) >= BATCH_SIZE:
+                batch_result = self._flush_group_batch(Partner, pending_groups, head_type_id, backdate_updates)
+                groups_created.extend(batch_result["groups"])
+                stats["random_groups_created"] += batch_result["group_count"]
+                stats["random_individuals_created"] += batch_result["individual_count"]
+                pending_groups = []
+
+                if stats["random_groups_created"] % 500 == 0:
+                    _logger.info(
+                        "Generated %d/%d groups...",
+                        stats["random_groups_created"],
+                        self.random_groups_count,
                     )
 
-                # Determine number of additional members
-                num_members = random.randint(self.members_per_group_min - 1, self.members_per_group_max - 1)
+        # Flush remaining
+        if pending_groups:
+            batch_result = self._flush_group_batch(Partner, pending_groups, head_type_id, backdate_updates)
+            groups_created.extend(batch_result["groups"])
+            stats["random_groups_created"] += batch_result["group_count"]
+            stats["random_individuals_created"] += batch_result["individual_count"]
 
-                # Sometimes add spouse
-                if num_members > 0 and random.random() < 0.7:
-                    spouse_gender = "female" if head_gender == "male" else "male"
-                    spouse_first = fake.first_name_female() if spouse_gender == "female" else fake.first_name_male()
-                    spouse_name = f"{spouse_first} {head_last}"
-                    spouse_age = head_age + random.randint(-5, 5)
-
-                    if spouse_name not in reserved_names:
-                        spouse = self._create_random_individual(
-                            fake,
-                            spouse_name,
-                            spouse_gender,
-                            spouse_age,
-                            registration_date,
-                            reserved_names,
-                        )
-                        if spouse:
-                            stats["random_individuals_created"] += 1
-                            backdate_updates.append((registration_date, spouse.id))
-                            membership_batch.append(
-                                {
-                                    "group": group.id,
-                                    "individual": spouse.id,
-                                }
-                            )
-                        num_members -= 1
-
-                # Add children or other members
-                for _j in range(num_members):
-                    # Realistic age distribution:
-                    # 15% infant/toddler (0-4), 30% child/teen (5-17),
-                    # 40% working-age adult (18-59), 15% elderly (60-85)
-                    age_roll = random.random()
-                    if age_roll < 0.15:
-                        member_age = random.randint(0, 4)
-                    elif age_roll < 0.45:
-                        member_age = random.randint(5, 17)
-                    elif age_roll < 0.85:
-                        member_age = random.randint(18, 59)
-                    else:
-                        member_age = random.randint(60, 85)
-                    member_gender = random.choice(["male", "female"])
-                    member_first = fake.first_name_male() if member_gender == "male" else fake.first_name_female()
-                    member_name = f"{member_first} {head_last}"
-
-                    if member_name not in reserved_names:
-                        member = self._create_random_individual(
-                            fake,
-                            member_name,
-                            member_gender,
-                            member_age,
-                            registration_date,
-                            reserved_names,
-                        )
-                        if member:
-                            stats["random_individuals_created"] += 1
-                            backdate_updates.append((registration_date, member.id))
-                            membership_batch.append(
-                                {
-                                    "group": group.id,
-                                    "individual": member.id,
-                                }
-                            )
-
-                # Flush membership batch periodically to avoid memory buildup
-                if len(membership_batch) >= 500:
-                    self.env["spp.group.membership"].create(membership_batch)
-                    membership_batch = []
-
-            except Exception as e:
-                _logger.warning("Error creating random group %s: %s", i, e)
-
-        # Flush remaining memberships
-        if membership_batch:
-            self.env["spp.group.membership"].create(membership_batch)
-
-        # Batch-update create_dates
+        # Batch-update create_dates via raw SQL
         if backdate_updates:
             self.env.cr.executemany(
                 "UPDATE res_partner SET create_date = %s WHERE id = %s",
@@ -1258,6 +1226,101 @@ class SPPMISDemoGenerator(models.TransientModel):
             stats["random_individuals_created"],
         )
         return groups_created
+
+    def _individual_vals(self, name, gender, age, gender_id_cache, today_year):
+        """Build a res.partner vals dict for an individual (no ORM calls)."""
+        name_parts = name.split(" ", 1)
+        given_name = name_parts[0]
+        family_name = name_parts[1] if len(name_parts) > 1 else ""
+
+        name_formatted = [
+            f"{family_name}," if family_name and given_name else family_name or "",
+            given_name,
+        ]
+        computed_name = " ".join(filter(None, name_formatted)).upper()
+
+        birth_year = today_year - age
+        birthdate = f"{birth_year}-{random.randint(1, 12):02d}-{random.randint(1, 28):02d}"
+
+        vals = {
+            "name": computed_name,
+            "family_name": family_name,
+            "given_name": given_name,
+            "is_registrant": True,
+            "is_group": False,
+            "gender_id": gender_id_cache.get(gender, False),
+            "birthdate": birthdate,
+        }
+
+        # Income for adults
+        if age >= 18:
+            income_tier = random.random()
+            if income_tier < 0.70:
+                vals["income"] = float(random.randint(500, 2000))
+            elif income_tier < 0.95:
+                vals["income"] = float(random.randint(2000, 4000))
+            else:
+                vals["income"] = float(random.randint(4000, 8000))
+
+        return vals
+
+    def _flush_group_batch(self, Partner, pending_groups, head_type_id, backdate_updates):
+        """Batch-create a set of groups with their individuals and memberships.
+
+        Args:
+            Partner: res.partner model (with tracking_disable context)
+            pending_groups: list of (group_vals, registration_date, member_specs)
+            head_type_id: ID of the "head" membership type vocabulary code
+            backdate_updates: list to append (date, partner_id) tuples to
+
+        Returns:
+            dict with groups (recordset), group_count, individual_count
+        """
+        # 1. Batch-create all groups
+        group_vals_list = [g[0] for g in pending_groups]
+        groups = Partner.create(group_vals_list)
+
+        # 2. Batch-create all individuals across all groups
+        all_individual_vals = []
+        # Track which individuals belong to which group and head status
+        # Each entry: (group_index_in_batch, is_head)
+        individual_mapping = []
+
+        for batch_idx, (_gv, _reg_date, member_specs) in enumerate(pending_groups):
+            for indiv_vals, is_head in member_specs:
+                all_individual_vals.append(indiv_vals)
+                individual_mapping.append((batch_idx, is_head))
+
+        individuals = Partner.create(all_individual_vals) if all_individual_vals else Partner.browse()
+
+        # 3. Build membership records and backdate updates
+        membership_vals = []
+        for indiv_idx, individual in enumerate(individuals):
+            batch_idx, is_head = individual_mapping[indiv_idx]
+            group = groups[batch_idx]
+            reg_date = pending_groups[batch_idx][1]
+
+            backdate_updates.append((reg_date, individual.id))
+
+            m_vals = {"group": group.id, "individual": individual.id}
+            if is_head and head_type_id:
+                m_vals["membership_type_ids"] = [Command.link(head_type_id)]
+            membership_vals.append(m_vals)
+
+        # Backdate groups too
+        for batch_idx, group in enumerate(groups):
+            reg_date = pending_groups[batch_idx][1]
+            backdate_updates.append((reg_date, group.id))
+
+        # 4. Batch-create all memberships
+        if membership_vals:
+            self.env["spp.group.membership"].with_context(tracking_disable=True).create(membership_vals)
+
+        return {
+            "groups": groups,
+            "group_count": len(groups),
+            "individual_count": len(individuals),
+        }
 
     def _create_random_individual(self, fake, name, gender, age, registration_date, reserved_names):
         """Create a random individual registrant with realistic demographic data.
