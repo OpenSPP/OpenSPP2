@@ -36,6 +36,7 @@ class SPPMISDemoGenerator(models.TransientModel):
             ("training", "Partner Training"),
             ("testing", "Developer Testing"),
             ("complete", "Complete Demo"),
+            ("volume", "Volume (GIS)"),
         ],
         string="Demo Mode",
         default="complete",
@@ -44,7 +45,8 @@ class SPPMISDemoGenerator(models.TransientModel):
         "- Sales: Fixed stories + minimal programs (fast)\n"
         "- Training: Full programs + Logic Packs (comprehensive)\n"
         "- Testing: Volume data + random generation (scale testing)\n"
-        "- Complete: All features enabled",
+        "- Complete: All features enabled\n"
+        "- Volume: Large-scale GIS data (7K+ households, geodata)",
     )
 
     # Logic Studio integration
@@ -344,6 +346,30 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "generate_case_demo": True,
                 "case_volume_count": 50,
                 "generate_claim169_demo": True,
+                "generate_credentials_for_stories": True,
+                "load_geographic_data": True,
+                "country_code": "phl",
+            },
+            "volume": {
+                "create_demo_programs": True,
+                "enroll_demo_stories": True,
+                "create_story_payments": True,
+                "generate_volume": True,
+                "volume_enrollments": 5000,
+                "generate_random_groups": True,
+                "random_groups_count": 7000,
+                "create_cycles": True,
+                "cycles_per_program": 3,
+                "create_event_data": False,
+                "create_change_requests": False,
+                "create_fairness_analysis": False,
+                "install_logic_packs": False,
+                "include_test_personas": False,
+                "generate_grm_demo": False,
+                "grm_volume_tickets": 0,
+                "generate_case_demo": False,
+                "case_volume_count": 0,
+                "generate_claim169_demo": False,
                 "generate_credentials_for_stories": True,
                 "load_geographic_data": True,
                 "country_code": "phl",
