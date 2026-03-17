@@ -1151,7 +1151,18 @@ class SPPMISDemoGenerator(models.TransientModel):
 
                 # Add children or other members
                 for _j in range(num_members):
-                    member_age = random.randint(3, 22) if random.random() < 0.6 else random.randint(60, 85)
+                    # Realistic age distribution:
+                    # 15% infant/toddler (0-4), 30% child/teen (5-17),
+                    # 40% working-age adult (18-59), 15% elderly (60-85)
+                    age_roll = random.random()
+                    if age_roll < 0.15:
+                        member_age = random.randint(0, 4)
+                    elif age_roll < 0.45:
+                        member_age = random.randint(5, 17)
+                    elif age_roll < 0.85:
+                        member_age = random.randint(18, 59)
+                    else:
+                        member_age = random.randint(60, 85)
                     member_gender = random.choice(["male", "female"])
                     member_first = fake.first_name_male() if member_gender == "male" else fake.first_name_female()
                     member_name = f"{member_first} {head_last}"
@@ -3981,19 +3992,36 @@ class SPPMISDemoGenerator(models.TransientModel):
         else:
             assigned_ids = [random.choice(muni_ids) for _ in range(len(groups))]
 
-        # Batch-assign areas to groups and their members
-        groups_assigned = 0
-        for group, area_id in zip(groups, assigned_ids, strict=False):
-            group.write({"area_id": area_id})
-            groups_assigned += 1
+        # Batch-assign areas to groups via raw SQL (avoids N+1 ORM writes)
+        group_area_pairs = list(zip(groups.ids, assigned_ids, strict=False))
+        if group_area_pairs:
+            self.env.cr.executemany(
+                "UPDATE res_partner SET area_id = %s WHERE id = %s",
+                [(area_id, group_id) for group_id, area_id in group_area_pairs],
+            )
+            _logger.info("[spp.mis.demo] Batch-assigned areas to %d groups", len(group_area_pairs))
 
-            # Members inherit area from group
-            members = Partner.search([("group_membership_ids.group", "=", group.id)])
-            if members:
-                members.write({"area_id": area_id})
+            # Propagate area_id to individual members via a single UPDATE + JOIN
+            self.env.cr.execute(
+                """
+                UPDATE res_partner p
+                SET area_id = g.area_id
+                FROM spp_group_membership gm
+                JOIN res_partner g ON g.id = gm."group"
+                WHERE gm.individual = p.id
+                  AND gm.is_ended = false
+                  AND g.is_group = true
+                  AND g.area_id IS NOT NULL
+                """
+            )
+            members_updated = self.env.cr.rowcount
+            _logger.info("[spp.mis.demo] Propagated area_id to %d individual members", members_updated)
 
-        stats["areas_assigned"] = groups_assigned
-        _logger.info("[spp.mis.demo] Assigned areas to %d groups", groups_assigned)
+            # Invalidate ORM cache after raw SQL updates
+            self.env.invalidate_all()
+
+        stats["areas_assigned"] = len(group_area_pairs)
+        _logger.info("[spp.mis.demo] Assigned areas to %d groups", len(group_area_pairs))
 
     def _generate_coordinates(self, stats):
         """Generate GPS coordinates for registrants.
@@ -4091,12 +4119,13 @@ class SPPMISDemoGenerator(models.TransientModel):
                     _logger.warning("[spp.mis.demo] Failed to generate coordinates for area %s: %s", area_id, e)
                     continue
 
-            # Batch write coordinates via ORM (in sub-chunks of 500)
-            for i in range(0, len(write_batch), 500):
-                batch = write_batch[i : i + 500]
-                for partner_id, wkt_point in batch:
-                    Partner.browse(partner_id).write({"coordinates": wkt_point})
-                coordinates_generated += len(batch)
+            # Batch write coordinates via raw SQL (much faster than ORM one-by-one)
+            if write_batch:
+                self.env.cr.executemany(
+                    "UPDATE res_partner SET coordinates = ST_GeomFromText(%s, 4326) WHERE id = %s",
+                    [(wkt_point, partner_id) for partner_id, wkt_point in write_batch],
+                )
+                coordinates_generated += len(write_batch)
 
             offset += CHUNK_SIZE
             _logger.info(
@@ -4104,6 +4133,10 @@ class SPPMISDemoGenerator(models.TransientModel):
                 coordinates_generated,
                 total_count,
             )
+
+        # Invalidate ORM cache after raw SQL coordinate updates
+        if coordinates_generated:
+            self.env.invalidate_all()
 
         stats["coordinates_generated"] = coordinates_generated
         _logger.info("[spp.mis.demo] Generated coordinates for %d registrants", coordinates_generated)
