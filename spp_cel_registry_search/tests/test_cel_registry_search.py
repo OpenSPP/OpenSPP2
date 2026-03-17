@@ -188,3 +188,67 @@ class TestCelRegistrySearch(TransactionCase):
         )
         result = self.env["spp.cel.service"].with_user(user).check_search_access()
         self.assertFalse(result)
+
+    # --- Compile Expression with Offset Tests ---
+
+    def test_compile_expression_with_offset(self):
+        """compile_expression should support offset parameter for pagination."""
+        # Create test partners
+        for i in range(5):
+            self.env["res.partner"].create(
+                {"name": f"CelOffsetTest{i}", "is_registrant": True, "is_group": False}
+            )
+        service = self.env["spp.cel.service"]
+        result = service.compile_expression(
+            'r.name.startsWith("CelOffsetTest")',
+            "registry_individuals",
+            limit=2,
+            offset=0,
+            fields=["id", "name"],
+        )
+        self.assertTrue(result.get("valid"))
+        self.assertEqual(len(result.get("preview_records", [])), 2)
+        first_page = result["preview_records"]
+
+        result2 = service.compile_expression(
+            'r.name.startsWith("CelOffsetTest")',
+            "registry_individuals",
+            limit=2,
+            offset=2,
+            fields=["id", "name"],
+        )
+        second_page = result2.get("preview_records", [])
+        self.assertEqual(len(second_page), 2)
+        # Pages should have different records
+        first_ids = {r["id"] for r in first_page}
+        second_ids = {r["id"] for r in second_page}
+        self.assertFalse(first_ids & second_ids, "Pages should not overlap")
+
+    def test_compile_expression_with_phone_numbers(self):
+        """compile_expression should enrich preview with phone_number_ids."""
+        partner = self.env["res.partner"].create(
+            {"name": "CelPhoneTest", "is_registrant": True, "is_group": False}
+        )
+        # Create phone numbers if spp.phone.number model exists
+        if "spp.phone.number" in self.env:
+            self.env["spp.phone.number"].create(
+                {"partner_id": partner.id, "phone_no": "+1234567890"}
+            )
+            self.env["spp.phone.number"].create(
+                {"partner_id": partner.id, "phone_no": "+0987654321"}
+            )
+
+        service = self.env["spp.cel.service"]
+        result = service.compile_expression(
+            'r.name == "CelPhoneTest"',
+            "registry_individuals",
+            limit=10,
+            fields=["id", "name", "phone_number_ids"],
+        )
+        self.assertTrue(result.get("valid"))
+        records = result.get("preview_records", [])
+        self.assertTrue(len(records) > 0)
+        rec = records[0]
+        if "spp.phone.number" in self.env:
+            self.assertIn("phone_numbers", rec)
+            self.assertEqual(len(rec["phone_numbers"]), 2)
