@@ -193,12 +193,12 @@ class TestCelRegistrySearch(TransactionCase):
 
     def test_compile_expression_with_offset(self):
         """compile_expression should support offset parameter for pagination."""
-        # Create test partners
-        for i in range(5):
-            self.env["res.partner"].create({"name": f"CelOffsetTest{i}", "is_registrant": True, "is_group": False})
+        # Create test partners with the same name so a simple == expression matches all
+        for _i in range(5):
+            self.env["res.partner"].create({"name": "CelOffsetTest", "is_registrant": True, "is_group": False})
         service = self.env["spp.cel.service"]
         result = service.compile_expression(
-            'r.name.startsWith("CelOffsetTest")',
+            'r.name == "CelOffsetTest"',
             "registry_individuals",
             limit=2,
             offset=0,
@@ -209,7 +209,7 @@ class TestCelRegistrySearch(TransactionCase):
         first_page = result["preview_records"]
 
         result2 = service.compile_expression(
-            'r.name.startsWith("CelOffsetTest")',
+            'r.name == "CelOffsetTest"',
             "registry_individuals",
             limit=2,
             offset=2,
