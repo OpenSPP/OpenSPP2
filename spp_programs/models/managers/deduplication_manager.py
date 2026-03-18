@@ -138,10 +138,7 @@ class DefaultDeduplication(models.Model):
 
             individual_rec = self.env["res.partner"].browse(individual_id)
             group_names = duplicate_beneficiaries.mapped("partner_id.name")
-            reason = (
-                f"Shared member: {individual_rec.name} "
-                f"found in {len(group_ids)} groups ({', '.join(group_names)})"
-            )
+            reason = f"Shared member: {individual_rec.name} found in {len(group_ids)} groups ({', '.join(group_names)})"
             self._record_duplicate(self, duplicate_beneficiariy_ids, reason)
 
             duplicated_enrolled = duplicate_beneficiaries.filtered(lambda rec: rec.state == "enrolled")
@@ -277,9 +274,7 @@ class IDDocumentDeduplication(models.Model):
         # Build mapping: individual_id -> list of duplicate ID doc descriptions
         individual_dup_docs = {}
         for doc in duplicated_doc_ids:
-            individual_dup_docs.setdefault(doc.partner_id.id, []).append(
-                f"{doc.id_type_id.display}: {doc.value}"
-            )
+            individual_dup_docs.setdefault(doc.partner_id.id, []).append(f"{doc.id_type_id.display}: {doc.value}")
 
         group_of_duplicates = {}
         for group_membership in group_with_duplicates:
@@ -296,10 +291,7 @@ class IDDocumentDeduplication(models.Model):
 
             individual_rec = self.env["res.partner"].browse(individual_id)
             doc_info = ", ".join(individual_dup_docs.get(individual_id, []))
-            reason = (
-                f"Duplicate ID document ({doc_info}) "
-                f"on member: {individual_rec.name}"
-            )
+            reason = f"Duplicate ID document ({doc_info}) on member: {individual_rec.name}"
             self._record_duplicate(self, duplicate_beneficiariy_ids, reason)
 
             duplicated_enrolled = duplicate_beneficiaries.filtered(lambda rec: rec.state == "enrolled")
@@ -361,10 +353,7 @@ class IDDocumentDeduplication(models.Model):
                 continue
 
             names = dup_memberships.mapped("partner_id.name")
-            reason = (
-                f"Duplicate ID document ({doc_key}) "
-                f"shared by: {', '.join(names)}"
-            )
+            reason = f"Duplicate ID document ({doc_key}) shared by: {', '.join(names)}"
             self._record_duplicate(self, dup_memberships.ids, reason)
 
             # Keep-one-enrolled logic
@@ -373,9 +362,9 @@ class IDDocumentDeduplication(models.Model):
                 to_mark = dup_memberships.filtered(lambda rec: rec.state != "enrolled")
             else:
                 to_mark = dup_memberships
-            to_mark.filtered(
-                lambda rec: rec.state not in ["exited", "not_eligible", "duplicated"]
-            ).write({"state": "duplicated"})
+            to_mark.filtered(lambda rec: rec.state not in ["exited", "not_eligible", "duplicated"]).write(
+                {"state": "duplicated"}
+            )
 
             all_duplicated_memberships |= dup_memberships
 
@@ -501,9 +490,7 @@ class PhoneNumberDeduplication(models.Model):
         # Build mapping: individual_id -> list of duplicate phone numbers
         individual_dup_phones = {}
         for phone_rec in duplicate_individuals_ids:
-            individual_dup_phones.setdefault(phone_rec.partner_id.id, []).append(
-                phone_rec.phone_no
-            )
+            individual_dup_phones.setdefault(phone_rec.partner_id.id, []).append(phone_rec.phone_no)
 
         group_of_duplicates = {}
         for group_membership in group_with_duplicates:
@@ -520,10 +507,7 @@ class PhoneNumberDeduplication(models.Model):
 
             individual_rec = self.env["res.partner"].browse(individual_id)
             phone_info = ", ".join(individual_dup_phones.get(individual_id, []))
-            reason = (
-                f"Duplicate phone number ({phone_info}) "
-                f"on member: {individual_rec.name}"
-            )
+            reason = f"Duplicate phone number ({phone_info}) on member: {individual_rec.name}"
             self._record_duplicate(self, duplicate_beneficiariy_ids, reason)
 
             duplicated_enrolled = duplicate_beneficiaries.filtered(lambda rec: rec.state == "enrolled")
@@ -600,10 +584,7 @@ class PhoneNumberDeduplication(models.Model):
                 continue
 
             names = dup_memberships.mapped("partner_id.name")
-            reason = (
-                f"Duplicate phone number ({phone_val}) "
-                f"shared by: {', '.join(names)}"
-            )
+            reason = f"Duplicate phone number ({phone_val}) shared by: {', '.join(names)}"
             self._record_duplicate(self, dup_memberships.ids, reason)
 
             # Keep-one-enrolled logic
@@ -612,9 +593,9 @@ class PhoneNumberDeduplication(models.Model):
                 to_mark = dup_memberships.filtered(lambda rec: rec.state != "enrolled")
             else:
                 to_mark = dup_memberships
-            to_mark.filtered(
-                lambda rec: rec.state not in ["exited", "not_eligible", "duplicated"]
-            ).write({"state": "duplicated"})
+            to_mark.filtered(lambda rec: rec.state not in ["exited", "not_eligible", "duplicated"]).write(
+                {"state": "duplicated"}
+            )
 
             all_duplicated_memberships |= dup_memberships
 

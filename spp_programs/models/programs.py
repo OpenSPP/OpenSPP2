@@ -399,13 +399,9 @@ class SPPProgram(models.Model):
                 if total_duplicated > 0:
                     parts = []
                     if new_duplicates > 0:
-                        parts.append(
-                            _("%(new)s new duplicate(s) found", new=new_duplicates)
-                        )
+                        parts.append(_("%(new)s new duplicate(s) found", new=new_duplicates))
                     if already_duplicated > 0:
-                        parts.append(
-                            _("%(existing)s already flagged", existing=already_duplicated)
-                        )
+                        parts.append(_("%(existing)s already flagged", existing=already_duplicated))
                     message = ", ".join(parts) + "."
                     kind = "warning"
                 elif duplicates > 0:
