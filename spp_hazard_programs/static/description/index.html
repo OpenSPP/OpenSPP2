@@ -372,21 +372,27 @@ ul.auto-toc {
 <p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Beta" src="https://img.shields.io/badge/maturity-Beta-yellow.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_hazard_programs"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Links hazard incidents to emergency response programs. Enables programs
 to target affected populations using verified impact data, filter
-registrants by damage severity, and automatically enable emergency mode
-when responding to active incidents.</p>
+registrants by damage severity, and flag programs as emergency when
+responding to active incidents. Auto-installs when both <tt class="docutils literal">spp_hazard</tt>
+and <tt class="docutils literal">spp_programs</tt> are present.</p>
 <div class="section" id="key-capabilities">
 <h1>Key Capabilities</h1>
 <ul class="simple">
 <li>Link programs to one or more hazard incidents via many-to-many
 relation</li>
-<li>Automatically flag programs as emergency when linked to incidents in
-alert/active/recovery status</li>
-<li>Filter eligible registrants by damage level threshold (any, moderate+,
-severe+, critical only)</li>
-<li>Count affected registrants based on verified impacts matching damage
-criteria</li>
-<li>Track which programs are responding to each incident (bidirectional
-navigation)</li>
+<li>Compute <tt class="docutils literal">is_emergency_program</tt> flag when any linked incident has
+status alert, active, or recovery</li>
+<li>Filter eligible registrants by damage level threshold: any, moderate+,
+severe+, or critical/totally damaged only</li>
+<li>Count affected registrants from verified <tt class="docutils literal">spp.hazard.impact</tt> records
+matching the damage criteria</li>
+<li>Toggle <tt class="docutils literal">is_emergency_mode</tt> to apply relaxed compliance rules during
+active response</li>
+<li>Navigate from programs to target incidents and affected registrants
+via stat buttons</li>
+<li>Navigate from incidents to response programs via stat button</li>
+<li>Show “Emergency Response” ribbon on program forms when
+<tt class="docutils literal">is_emergency_program</tt> is true</li>
 </ul>
 </div>
 <div class="section" id="key-models">
@@ -403,12 +409,14 @@ navigation)</li>
 </thead>
 <tbody valign="top">
 <tr><td><tt class="docutils literal">spp.program</tt> (extend)</td>
-<td>Adds target incidents, emergency
-mode, damage filter</td>
+<td>Adds <tt class="docutils literal">target_incident_ids</tt>,
+<tt class="docutils literal">is_emergency_program</tt>,
+<tt class="docutils literal">is_emergency_mode</tt>,
+<tt class="docutils literal">qualifying_damage_levels</tt></td>
 </tr>
 <tr><td><tt class="docutils literal">spp.hazard.incident</tt> (extend)</td>
-<td>Adds reverse relation to response
-programs</td>
+<td>Adds <tt class="docutils literal">program_ids</tt> reverse
+relation and <tt class="docutils literal">program_count</tt></td>
 </tr>
 </tbody>
 </table>
@@ -416,18 +424,21 @@ programs</td>
 <div class="section" id="ui-location">
 <h1>UI Location</h1>
 <ul class="simple">
-<li><strong>Programs</strong>: Programs &gt; Programs &gt; “Emergency Response” tab</li>
-<li><strong>Incidents</strong>: Hazard &amp; Emergency &gt; Incidents &gt; All Incidents &gt;
-“Response Programs” tab</li>
-<li><strong>Stat buttons</strong>: Programs show incident count and affected registrant
-count; incidents show response program count</li>
-<li><strong>Filters</strong>: “Emergency Programs” and “Has Target Incidents” filters
-in program search view</li>
+<li><strong>Programs form</strong>: Programs &gt; Programs &gt; “Emergency Response” tab</li>
+<li><strong>Incidents form</strong>: Hazard and Emergency &gt; Incidents &gt; All Incidents &gt;
+“Response Programs” tab (visible when programs linked)</li>
+<li><strong>Stat buttons</strong>: Program form shows incident count and affected
+registrant count; incident form shows response program count</li>
+<li><strong>List views</strong>: Program list adds “Emergency” column; incident list
+adds “Programs” column</li>
+<li><strong>Filters</strong>: “Emergency Programs” and “Has Target Incidents” in
+program search view</li>
 </ul>
 </div>
 <div class="section" id="security">
 <h1>Security</h1>
-<p>No new ACL entries. Access inherited from base models:</p>
+<p>No new models or ACL entries. Fields added to existing models inherit
+access from:</p>
 <ul class="simple">
 <li><tt class="docutils literal">spp.program</tt>: Controlled by <tt class="docutils literal">spp_programs</tt> security groups</li>
 <li><tt class="docutils literal">spp.hazard.incident</tt>: Controlled by <tt class="docutils literal">spp_hazard</tt> security groups</li>
@@ -451,16 +462,239 @@ downstream program logic</li>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><a class="reference internal" href="#bug-tracker" id="toc-entry-1">Bug Tracker</a></li>
-<li><a class="reference internal" href="#credits" id="toc-entry-2">Credits</a><ul>
-<li><a class="reference internal" href="#authors" id="toc-entry-3">Authors</a></li>
-<li><a class="reference internal" href="#maintainers" id="toc-entry-4">Maintainers</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#usage" id="toc-entry-1">Usage</a></li>
 </ul>
 </div>
+<div class="section" id="usage">
+<h2><a class="toc-backref" href="#toc-entry-1">Usage</a></h2>
+</div>
+</div>
+<div class="section" id="prerequisites">
+<h1>Prerequisites</h1>
+<p>Before testing, ensure the following modules are installed:</p>
+<ul class="simple">
+<li><tt class="docutils literal">spp_hazard</tt> (provides incidents, impacts, categories)</li>
+<li><tt class="docutils literal">spp_programs</tt> (provides programs)</li>
+<li><tt class="docutils literal">spp_hazard_programs</tt> (auto-installs when both above are present)</li>
+</ul>
+<p>You will also need:</p>
+<ul class="simple">
+<li>At least one hazard category (e.g., “Typhoon”) created at <strong>Hazard and
+Emergency &gt; Configuration &gt; Hazard Categories</strong></li>
+<li>At least one impact type (e.g., “Property Damage”) created at <strong>Hazard
+and Emergency &gt; Configuration &gt; Impact Types</strong></li>
+<li>At least two registrants with <tt class="docutils literal">is_registrant = True</tt></li>
+<li>At least one incident with impact records linked to those registrants</li>
+</ul>
+</div>
+<div class="section" id="test-scenario-1-link-a-program-to-incidents">
+<h1>Test Scenario 1: Link a Program to Incidents</h1>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li>Navigate to <strong>Programs &gt; Programs</strong></li>
+<li>Open an existing program or create a new one</li>
+<li>Click the <strong>“Emergency Response”</strong> tab in the form notebook</li>
+<li>In the “Target Incidents” section, confirm the <strong>Is Emergency
+Program</strong> field is read-only and shows <tt class="docutils literal">False</tt></li>
+<li>In the “Emergency Settings” section, confirm:<ul>
+<li><strong>Qualifying Damage Levels</strong> defaults to “Any Damage Level”</li>
+<li><strong>Emergency Mode</strong> checkbox defaults to unchecked</li>
+</ul>
+</li>
+<li>In the inline list below, click “Add a line” to add an incident</li>
+<li>Select an incident with status <strong>Active</strong></li>
+<li>Save the program</li>
+</ol>
+<p><strong>Expected results:</strong></p>
+<ul class="simple">
+<li>The <strong>Is Emergency Program</strong> field changes to <tt class="docutils literal">True</tt></li>
+<li>A yellow <strong>“Emergency Response”</strong> ribbon appears at the top of the
+form</li>
+<li>An <strong>“Incidents”</strong> stat button (bolt icon) appears in the button box
+showing “1”</li>
+<li>An <strong>“Affected”</strong> stat button (users icon) appears showing the count
+of registrants with verified impacts from that incident</li>
+</ul>
+</div>
+<div class="section" id="test-scenario-2-verify-emergency-flag-by-incident-status">
+<h1>Test Scenario 2: Verify Emergency Flag by Incident Status</h1>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li>Link a program to an incident with status <strong>Alert</strong></li>
+<li>Save and confirm <strong>Is Emergency Program</strong> is <tt class="docutils literal">True</tt></li>
+<li>Change the incident status to <strong>Active</strong> – confirm still <tt class="docutils literal">True</tt></li>
+<li>Change the incident status to <strong>Recovery</strong> – confirm still <tt class="docutils literal">True</tt></li>
+<li>Change the incident status to <strong>Closed</strong> – confirm <strong>Is Emergency
+Program</strong> becomes <tt class="docutils literal">False</tt> (assuming no other linked incidents have
+alert/active/recovery status)</li>
+</ol>
+<p><strong>Expected results:</strong></p>
+<ul class="simple">
+<li>The emergency flag is <tt class="docutils literal">True</tt> for alert, active, and recovery
+statuses</li>
+<li>The emergency flag is <tt class="docutils literal">False</tt> for closed status (when no other
+active incidents are linked)</li>
+<li>The yellow ribbon appears/disappears accordingly</li>
+</ul>
+</div>
+<div class="section" id="test-scenario-3-damage-level-filtering">
+<h1>Test Scenario 3: Damage Level Filtering</h1>
+<p><strong>Setup:</strong> Ensure the linked incident has verified impact records with
+different damage levels (e.g., one “critical”, one “moderate”, one
+unverified “severe”).</p>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li>Open a program linked to the incident</li>
+<li>Go to the <strong>“Emergency Response”</strong> tab</li>
+<li>Set <strong>Qualifying Damage Levels</strong> to each option and save after each
+change:</li>
+</ol>
+<table border="1" class="docutils">
+<colgroup>
+<col width="48%" />
+<col width="52%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Setting</th>
+<th class="head">Expected “Affected” count</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>“Any Damage Level”</td>
+<td>All registrants with verified
+impacts (unverified excluded)</td>
+</tr>
+<tr><td>“Moderate and Above”</td>
+<td>Registrants with moderate, severe,
+critical, partially damaged, or
+totally damaged verified impacts</td>
+</tr>
+<tr><td>“Severe and Above”</td>
+<td>Registrants with severe, critical,
+or totally damaged verified
+impacts</td>
+</tr>
+<tr><td>“Critical/Totally Damaged Only”</td>
+<td>Registrants with critical or
+totally damaged verified impacts</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Expected results:</strong></p>
+<ul class="simple">
+<li>The <strong>“Affected”</strong> stat button count updates after each save</li>
+<li>Unverified impact records are always excluded regardless of damage
+level</li>
+</ul>
+</div>
+<div class="section" id="test-scenario-4-stat-button-navigation">
+<h1>Test Scenario 4: Stat Button Navigation</h1>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li>Open a program with at least one linked incident and affected
+registrants</li>
+<li>Click the <strong>“Incidents”</strong> stat button (bolt icon)</li>
+<li>Confirm it opens a list view of <tt class="docutils literal">spp.hazard.incident</tt> records
+filtered to only the program’s target incidents</li>
+<li>Navigate back to the program</li>
+<li>Click the <strong>“Affected”</strong> stat button (users icon)</li>
+<li>Confirm it opens a list view of <tt class="docutils literal">res.partner</tt> records filtered to
+only registrants with qualifying verified impacts</li>
+</ol>
+<p><strong>Expected results:</strong></p>
+<ul class="simple">
+<li>Each stat button opens the correct model with the correct filtered
+records</li>
+<li>The number of records in the opened list matches the stat button count</li>
+</ul>
+</div>
+<div class="section" id="test-scenario-5-incident-side-response-programs">
+<h1>Test Scenario 5: Incident Side – Response Programs</h1>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li>Navigate to <strong>Hazard and Emergency &gt; Incidents &gt; All Incidents</strong></li>
+<li>Open an incident that has NO programs linked to it</li>
+<li>Confirm:<ul>
+<li>No <strong>“Programs”</strong> stat button is visible in the button box</li>
+<li>No <strong>“Response Programs”</strong> tab is visible in the notebook</li>
+</ul>
+</li>
+<li>Now link a program to this incident (from the program side, add this
+incident to a program’s target incidents)</li>
+<li>Reload the incident form</li>
+</ol>
+<p><strong>Expected results:</strong></p>
+<ul class="simple">
+<li>A <strong>“Programs”</strong> stat button (list icon) appears showing “1”</li>
+<li>A <strong>“Response Programs”</strong> tab appears in the notebook</li>
+<li>The tab contains a read-only list showing the linked program’s name,
+state (badge), qualifying damage levels, and emergency mode</li>
+<li>Clicking the stat button opens a list view of <tt class="docutils literal">spp.program</tt> records
+filtered to the responding programs</li>
+</ul>
+</div>
+<div class="section" id="test-scenario-6-bidirectional-relationship">
+<h1>Test Scenario 6: Bidirectional Relationship</h1>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li>Open a program and add Incident A to its target incidents via the
+“Emergency Response” tab</li>
+<li>Save the program</li>
+<li>Open Incident A and check the “Response Programs” tab</li>
+</ol>
+<p><strong>Expected results:</strong></p>
+<ul class="simple">
+<li>Incident A’s “Response Programs” tab shows the program</li>
+<li>Removing the incident from the program also removes the program from
+the incident’s response programs (and vice versa)</li>
+</ul>
+</div>
+<div class="section" id="test-scenario-7-program-list-view-columns">
+<h1>Test Scenario 7: Program List View Columns</h1>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li>Navigate to <strong>Programs &gt; Programs</strong> (list view)</li>
+<li>Check the column headers</li>
+</ol>
+<p><strong>Expected results:</strong></p>
+<ul class="simple">
+<li>An <strong>“Emergency”</strong> column is visible by default (shows True/False)</li>
+<li>An <strong>“Incidents”</strong> column is available via the optional columns toggle
+(hidden by default)</li>
+</ul>
+</div>
+<div class="section" id="test-scenario-8-search-filters">
+<h1>Test Scenario 8: Search Filters</h1>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li>Navigate to <strong>Programs &gt; Programs</strong> (list view)</li>
+<li>Open the search bar’s <strong>Filters</strong> dropdown</li>
+<li>Activate the <strong>“Emergency Programs”</strong> filter</li>
+<li>Confirm only programs with <tt class="docutils literal">is_emergency_program = True</tt> are shown</li>
+<li>Deactivate that filter and activate <strong>“Has Target Incidents”</strong></li>
+<li>Confirm only programs with at least one target incident are shown</li>
+</ol>
+<p><strong>Expected results:</strong></p>
+<ul class="simple">
+<li>Both filters appear in the search dropdown</li>
+<li>Each filter correctly narrows the program list</li>
+</ul>
+</div>
+<div class="section" id="test-scenario-9-incident-list-view-column">
+<h1>Test Scenario 9: Incident List View Column</h1>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li>Navigate to <strong>Hazard and Emergency &gt; Incidents &gt; All Incidents</strong>
+(list view)</li>
+<li>Check the column headers</li>
+</ol>
+<p><strong>Expected results:</strong></p>
+<ul class="simple">
+<li>A <strong>“Programs”</strong> column is visible by default showing the count of
+response programs for each incident</li>
+</ul>
 <div class="section" id="bug-tracker">
-<h2><a class="toc-backref" href="#toc-entry-1">Bug Tracker</a></h2>
+<h2>Bug Tracker</h2>
 <p>Bugs are tracked on <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/issues">GitHub Issues</a>.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
@@ -468,15 +702,15 @@ If you spotted it first, help us to smash it by providing a detailed and welcome
 <p>Do not contact contributors directly about support or help with technical issues.</p>
 </div>
 <div class="section" id="credits">
-<h2><a class="toc-backref" href="#toc-entry-2">Credits</a></h2>
+<h2>Credits</h2>
 <div class="section" id="authors">
-<h3><a class="toc-backref" href="#toc-entry-3">Authors</a></h3>
+<h3>Authors</h3>
 <ul class="simple">
 <li>OpenSPP.org</li>
 </ul>
 </div>
 <div class="section" id="maintainers">
-<h3><a class="toc-backref" href="#toc-entry-4">Maintainers</a></h3>
+<h3>Maintainers</h3>
 <p>Current maintainers:</p>
 <p><a class="reference external image-reference" href="https://github.com/jeremi"><img alt="jeremi" src="https://github.com/jeremi.png?size=40px" /></a> <a class="reference external image-reference" href="https://github.com/gonzalesedwin1123"><img alt="gonzalesedwin1123" src="https://github.com/gonzalesedwin1123.png?size=40px" /></a> <a class="reference external image-reference" href="https://github.com/reichie020212"><img alt="reichie020212" src="https://github.com/reichie020212.png?size=40px" /></a></p>
 <p>This module is part of the <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_hazard_programs">OpenSPP/OpenSPP2</a> project on GitHub.</p>
