@@ -126,7 +126,7 @@ class SPPRegistrantID(models.Model):
                     raise ValidationError(
                         _(
                             "The provided %(id_type)s ID '%(value)s' is invalid.",
-                            id_type=rec.id_type_id.name,
+                            id_type=rec.id_type_id.display,
                             value=rec.value,
                         )
                     )
