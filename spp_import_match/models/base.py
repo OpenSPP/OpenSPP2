@@ -2,7 +2,8 @@
 import logging
 import threading
 
-from odoo import api, models
+from odoo import _, api, models
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -15,11 +16,34 @@ class Base(models.AbstractModel):
 
     @api.model
     def load(self, fields, data):
+        # Only apply import matching when explicitly selected via UI context
+        if "import_match_ids" not in self.env.context:
+            return super().load(fields, data)
+
+        import_match_ids = self.env.context.get("import_match_ids", [])
         usable, field_to_match = self.env["spp.import.match"]._usable_rules(
             self._name,
             fields,
-            option_config_ids=self.env.context.get("import_match_ids", []),
+            option_config_ids=import_match_ids,
         )
+
+        # Error if user selected match configs but their fields aren't in the file
+        if import_match_ids and not usable:
+            selected_configs = self.env["spp.import.match"].browse(import_match_ids)
+            config_names = selected_configs.mapped("name")
+            required_fields = set()
+            for config in selected_configs:
+                for field_line in config.field_ids:
+                    required_fields.add(field_line.field_id.field_description)
+            raise UserError(
+                _(
+                    "The selected import match configuration(s) %(configs)s require field(s) "
+                    "%(fields)s, but none of these fields are present in the imported file.",
+                    configs=", ".join(filter(None, config_names)),
+                    fields=", ".join(sorted(required_fields)),
+                )
+            )
+
         # If overwrite_match is explicitly set via UI (context), use that.
         # Otherwise fall back to config records' overwrite_match setting.
         if "overwrite_match" in self.env.context:

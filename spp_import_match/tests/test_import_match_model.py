@@ -1,5 +1,6 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
+from odoo import Command
 from odoo.exceptions import ValidationError
 from odoo.tests import TransactionCase, tagged
 
@@ -87,7 +88,7 @@ class TestImportMatchModel(TransactionCase):
         self.assertFalse(result.id)
 
     def test_match_find_multiple_matches_raises(self):
-        """Test _match_find raises ValidationError on multiple matches."""
+        """Test _match_find raises ValidationError when multiple matches found."""
         self.env["res.partner"].create({"name": "DuplicateMatchTest"})
         self.env["res.partner"].create({"name": "DuplicateMatchTest"})
         match = self._create_match_rule([{"field_id": self.name_field.id}])
@@ -210,6 +211,39 @@ class TestImportMatchModel(TransactionCase):
             {"child_ids/name": "SubFieldChild_Uniq99xyz", "id": None},
         )
         self.assertEqual(result, parent)
+
+    def test_constrains_duplicate_name(self):
+        """_check_duplicate_name raises on duplicate rule names."""
+        self.env["spp.import.match"].create({"name": "DuplicateNameTest", "model_id": self.res_partner_model.id})
+        with self.assertRaises(ValidationError):
+            self.env["spp.import.match"].create({"name": "DuplicateNameTest", "model_id": self.res_partner_model.id})
+
+    def test_constrains_duplicate_non_relational_field(self):
+        """_check_duplicate_fields raises on duplicate non-relational fields on save."""
+        with self.assertRaises(ValidationError):
+            self.env["spp.import.match"].create(
+                {
+                    "model_id": self.res_partner_model.id,
+                    "field_ids": [
+                        Command.create({"field_id": self.name_field.id}),
+                        Command.create({"field_id": self.name_field.id}),
+                    ],
+                }
+            )
+
+    def test_constrains_allows_duplicate_relational_field(self):
+        """_check_duplicate_fields allows duplicate relational fields."""
+        parent_id_field = self.env["ir.model.fields"].search(
+            [("name", "=", "parent_id"), ("model_id", "=", self.res_partner_model.id)],
+            limit=1,
+        )
+        match = self._create_match_rule(
+            [
+                {"field_id": parent_id_field.id},
+                {"field_id": parent_id_field.id},
+            ]
+        )
+        self.assertEqual(len(match.field_ids), 2)
 
     def test_match_find_multiple_combinations(self):
         """_match_find iterates rules; first matching single result wins."""
