@@ -1,10 +1,6 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
-import logging
-
 from odoo import api, fields, models
-
-_logger = logging.getLogger(__name__)
 
 
 class HazardCategory(models.Model):
@@ -83,8 +79,14 @@ class HazardCategory(models.Model):
     @api.depends("incident_ids")
     def _compute_incident_count(self):
         """Compute the number of incidents linked to this category."""
+        data = self.env["spp.hazard.incident"].read_group(
+            [("category_id", "in", self.ids)],
+            ["category_id"],
+            ["category_id"],
+        )
+        mapped = {d["category_id"][0]: d["category_id_count"] for d in data}
         for rec in self:
-            rec.incident_count = len(rec.incident_ids)
+            rec.incident_count = mapped.get(rec.id, 0)
 
     def action_view_incidents(self):
         """Open a list view of incidents for this category."""

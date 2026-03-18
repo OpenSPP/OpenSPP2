@@ -19,6 +19,7 @@
         "spp_programs",
     ],
     "data": [
+        "security/ir.model.access.csv",
         "views/program_views.xml",
         "views/incident_views.xml",
     ],

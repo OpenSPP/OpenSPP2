@@ -1,15 +1,11 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
-import logging
-
 from psycopg2 import IntegrityError
 
 from odoo.exceptions import ValidationError
 from odoo.tests import mute_logger
 
 from .common import HazardTestCase
-
-_logger = logging.getLogger(__name__)
 
 
 class TestHazardImpact(HazardTestCase):

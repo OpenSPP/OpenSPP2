@@ -1,10 +1,6 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
-import logging
-
 from odoo import _, api, fields, models
-
-_logger = logging.getLogger(__name__)
 
 
 class ResPartner(models.Model):
@@ -29,7 +25,6 @@ class ResPartner(models.Model):
     )
     has_active_impact = fields.Boolean(
         compute="_compute_has_active_impact",
-        string="Has Active Impact",
         store=True,
         help="Whether the registrant has an impact from an active incident",
     )
@@ -37,15 +32,27 @@ class ResPartner(models.Model):
     @api.depends("hazard_impact_ids")
     def _compute_hazard_impact_count(self):
         """Compute the number of hazard impacts for this registrant."""
+        data = self.env["spp.hazard.impact"].read_group(
+            [("registrant_id", "in", self.ids)],
+            ["registrant_id"],
+            ["registrant_id"],
+        )
+        mapped = {d["registrant_id"][0]: d["registrant_id_count"] for d in data}
         for rec in self:
-            rec.hazard_impact_count = len(rec.hazard_impact_ids)
+            rec.hazard_impact_count = mapped.get(rec.id, 0)
 
     @api.depends("hazard_impact_ids", "hazard_impact_ids.incident_id.status")
     def _compute_has_active_impact(self):
         """Compute whether the registrant has an impact from an active incident."""
         for rec in self:
             rec.has_active_impact = bool(
-                rec.hazard_impact_ids.filtered(lambda i: i.incident_id.status in ("alert", "active", "recovery"))
+                self.env["spp.hazard.impact"].search_count(
+                    [
+                        ("registrant_id", "=", rec.id),
+                        ("incident_id.status", "in", ("alert", "active", "recovery")),
+                    ],
+                    limit=1,
+                )
             )
 
     def action_view_hazard_impacts(self):
