@@ -192,7 +192,7 @@ class TestDefaultDeduplication(TestDeduplicationCommon):
         shared = self._create_individual("Shared")
         group1 = self._create_group("Group A", [shared])
         group2 = self._create_group("Group B", [shared])
-        m1 = self._enroll_in_program(group1, "enrolled")
+        self._enroll_in_program(group1, "enrolled")
         m2 = self._enroll_in_program(group2, "exited")
 
         states = ["draft", "enrolled", "eligible", "paused", "duplicated"]
