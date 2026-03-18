@@ -10,9 +10,9 @@ OpenSPP Import Match
    !! source digest: sha256:02de7214923a9a8bd540920bb2ff0166ea13501c1859b831f3a8305970b5d64a
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Beta
+    :alt: Production/Stable
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
@@ -417,10 +417,13 @@ Maintainers
 .. |maintainer-gonzalesedwin1123| image:: https://github.com/gonzalesedwin1123.png?size=40px
     :target: https://github.com/gonzalesedwin1123
     :alt: gonzalesedwin1123
+.. |maintainer-emjay0921| image:: https://github.com/emjay0921.png?size=40px
+    :target: https://github.com/emjay0921
+    :alt: emjay0921
 
 Current maintainers:
 
-|maintainer-jeremi| |maintainer-gonzalesedwin1123| 
+|maintainer-jeremi| |maintainer-gonzalesedwin1123| |maintainer-emjay0921| 
 
 This module is part of the `OpenSPP/OpenSPP2 <https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_import_match>`_ project on GitHub.
 

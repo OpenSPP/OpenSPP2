@@ -12,8 +12,8 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Stable",
-    "maintainers": ["jeremi", "gonzalesedwin1123", "reichie020212"],
+    "development_status": "Production/Stable",
+    "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],
     "depends": [
         "spp_hazard",
         "spp_programs",
