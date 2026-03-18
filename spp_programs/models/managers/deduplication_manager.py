@@ -556,12 +556,6 @@ class PhoneNumberDeduplication(models.Model):
         individual_ids = [x.partner_id.id for x in duplicated_phone_ids]
         individual_ids = list(dict.fromkeys(individual_ids))
         _logger.debug("Individual IDS with Duplicated Phone Numbers: %s", individual_ids)
-        individual_program_membership = self.env["spp.program.membership"].search(
-            [
-                ("partner_id", "in", individual_ids),
-                ("program_id", "=", self.program_id.id),
-            ]
-        )
 
         all_duplicated_memberships = self.env["spp.program.membership"]
 

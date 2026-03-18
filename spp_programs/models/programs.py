@@ -721,7 +721,7 @@ class SPPProgram(models.Model):
                 combined_message = ", ".join(error_messages)
                 raise UserError(
                     f"Only one manager can be configured under {combined_message}."
-                    f"Please delete any new manager(s) before saving your changes."  # noqa: B950
+                    f"Please delete any new manager(s) before saving your changes."
                 )
 
     def _pre_enrollment_hook(self, partner):
