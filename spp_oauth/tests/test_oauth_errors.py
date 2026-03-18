@@ -1,7 +1,6 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
 import uuid
-from unittest.mock import patch
 
 from ..tools.oauth_exception import OpenSPPOAuthJWTException
 from ..tools.rsa_encode_decode import (
@@ -57,11 +56,37 @@ class TestOAuthErrors(Common):
         exc = OpenSPPOAuthJWTException("test error message")
         self.assertEqual(str(exc), "test error message")
 
-    def test_exception_logs_error(self):
-        """Test that OpenSPPOAuthJWTException logs the error message."""
-        with patch("odoo.addons.spp_oauth.tools.oauth_exception._logger") as mock_logger:
-            OpenSPPOAuthJWTException("something went wrong")
-            mock_logger.error.assert_called_once_with("OAuth JWT error: %s", "something went wrong")
+    def test_exception_inherits_from_exception(self):
+        """Test that OpenSPPOAuthJWTException is a proper Exception subclass."""
+        exc = OpenSPPOAuthJWTException("something went wrong")
+        self.assertIsInstance(exc, Exception)
+        self.assertEqual(str(exc), "something went wrong")
+
+    def test_verify_wrong_key_rejected(self):
+        """Test that a token signed with a different private key is rejected."""
+        import jwt as pyjwt
+        from cryptography.hazmat.primitives import serialization
+        from cryptography.hazmat.primitives.asymmetric import rsa
+
+        self.set_parameters()
+
+        # Generate a different RSA key pair
+        other_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        other_pem = other_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.TraditionalOpenSSL,
+            encryption_algorithm=serialization.NoEncryption(),
+        ).decode("utf-8")
+
+        # Sign a token with the wrong key
+        wrong_token = pyjwt.encode(
+            payload={"data": "forged"},
+            key=other_pem,
+            algorithm="RS256",
+        )
+
+        with self.assertRaises(OpenSPPOAuthJWTException):
+            verify_and_decode_signature(env=self.env, access_token=wrong_token)
 
     def test_calculate_signature_with_header(self):
         """Test calculate_signature with explicit header dict."""

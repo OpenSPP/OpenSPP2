@@ -167,7 +167,7 @@ verification):
 
    import jwt
    header = jwt.get_unverified_header(token)
-   print(header["alg"])  # "RS256" or "HS256"
+   # header["alg"] will be "RS256" or "HS256"
 
 Error Responses
 ~~~~~~~~~~~~~~~
@@ -184,6 +184,9 @@ Error Responses
 | Expired token             | 401         | "Token expired"           |
 +---------------------------+-------------+---------------------------+
 | Invalid signature         | 401         | "Invalid token"           |
++---------------------------+-------------+---------------------------+
+| Unsupported algorithm     | 401         | "Unsupported token        |
+|                           |             | algorithm: {alg}"         |
 +---------------------------+-------------+---------------------------+
 | Rate limit exceeded       | 429         | "Rate limit exceeded"     |
 +---------------------------+-------------+---------------------------+

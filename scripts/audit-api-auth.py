@@ -48,8 +48,9 @@ ROUTE_DECORATORS = {"get", "post", "put", "patch", "delete", "head", "options"}
 # Format: (module_dir, router_file_basename, function_name)
 # Keep this list small and review changes carefully.
 ALLOWED_PUBLIC = {
-    # OAuth token endpoint - public by design
+    # OAuth token endpoints - public by design
     ("spp_api_v2", "oauth.py", "get_token"),
+    ("spp_api_v2_oauth", "oauth_rs256.py", "get_rs256_token"),
     # Capability/metadata discovery - public by design
     ("spp_api_v2", "metadata.py", "get_metadata"),
     # DCI callback endpoints - called by external systems

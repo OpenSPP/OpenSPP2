@@ -457,8 +457,8 @@ field</li>
 </ol>
 <p>The keys are stored as system parameters:</p>
 <ul class="simple">
-<li><tt class="docutils literal">spp_oauth.oauth_priv_key</tt></li>
-<li><tt class="docutils literal">spp_oauth.oauth_pub_key</tt></li>
+<li><tt class="docutils literal">spp_oauth.oauth_private_key</tt></li>
+<li><tt class="docutils literal">spp_oauth.oauth_public_key</tt></li>
 </ul>
 </div>
 <div class="section" id="ui-location">
@@ -466,15 +466,15 @@ field</li>
 <ul class="simple">
 <li><strong>Settings App Block</strong>: SPP OAuth Settings (within Settings &gt; General
 Settings)</li>
-<li><strong>Access</strong>: Available to users with Settings access</li>
+<li><strong>Access</strong>: System administrators only (<tt class="docutils literal">base.group_system</tt>)</li>
 </ul>
 </div>
 <div class="section" id="security">
 <h1>Security</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="40%" />
-<col width="60%" />
+<col width="42%" />
+<col width="58%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -482,13 +482,14 @@ Settings)</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><tt class="docutils literal">base.group_user</tt></td>
+<tr><td><tt class="docutils literal">base.group_system</tt></td>
 <td>Read/Write (no create/delete)</td>
 </tr>
 </tbody>
 </table>
-<p>Keys are displayed as password fields in the UI but stored as plain text
-in <tt class="docutils literal">ir.config_parameter</tt>.</p>
+<p>Only system administrators can modify OAuth key settings. Keys are
+displayed as password fields in the UI but stored as plain text in
+<tt class="docutils literal">ir.config_parameter</tt>.</p>
 </div>
 <div class="section" id="extension-points">
 <h1>Extension Points</h1>
@@ -571,15 +572,14 @@ Settings</strong></li>
 <p><strong>Expected</strong>:</p>
 <ul class="simple">
 <li>Two parameters exist:<ul>
-<li><tt class="docutils literal">spp_oauth.oauth_priv_key</tt> — contains the private key PEM text</li>
-<li><tt class="docutils literal">spp_oauth.oauth_pub_key</tt> — contains the public key PEM text</li>
+<li><tt class="docutils literal">spp_oauth.oauth_private_key</tt> — contains the private key PEM text</li>
+<li><tt class="docutils literal">spp_oauth.oauth_public_key</tt> — contains the public key PEM text</li>
 </ul>
 </li>
 </ul>
 <p><strong>Test 4: Non-Admin Users Cannot Access OAuth Settings</strong></p>
 <ol class="arabic simple">
-<li>Log in as a user in the <tt class="docutils literal">base.group_user</tt> group who does <strong>not</strong>
-have Settings access</li>
+<li>Log in as a regular user (not in <tt class="docutils literal">base.group_system</tt>)</li>
 <li>Attempt to navigate to <strong>Settings &gt; General Settings</strong></li>
 </ol>
 <p><strong>Expected</strong>:</p>
@@ -587,6 +587,8 @@ have Settings access</li>
 <li>The user cannot access the Settings page (menu is not visible or
 access is denied)</li>
 <li>OAuth keys are not exposed to non-admin users through the UI</li>
+<li>Only system administrators (<tt class="docutils literal">base.group_system</tt>) can read or modify
+OAuth key settings</li>
 </ul>
 </div>
 <div class="section" id="utility-function-tests">
@@ -596,21 +598,20 @@ the JWT signing and verification functions that consuming modules rely
 on.</p>
 <p><strong>Test 5: Missing Keys Produce Clear Error</strong></p>
 <p>Precondition: RSA keys are <strong>not</strong> configured (clear both
-<tt class="docutils literal">spp_oauth.oauth_priv_key</tt> and <tt class="docutils literal">spp_oauth.oauth_pub_key</tt> in System
-Parameters).</p>
+<tt class="docutils literal">spp_oauth.oauth_private_key</tt> and <tt class="docutils literal">spp_oauth.oauth_public_key</tt> in
+System Parameters).</p>
 <pre class="code python literal-block">
 <span class="kn">from</span><span class="w"> </span><span class="nn">odoo.addons.spp_oauth.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_signature</span><span class="p">,</span> <span class="n">OpenSPPOAuthJWTException</span><span class="w">
 
 </span><span class="k">try</span><span class="p">:</span><span class="w">
 </span>    <span class="n">calculate_signature</span><span class="p">(</span><span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;test&quot;</span><span class="p">:</span> <span class="s2">&quot;data&quot;</span><span class="p">})</span><span class="w">
 </span><span class="k">except</span> <span class="n">OpenSPPOAuthJWTException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span><span class="w">
-</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Got expected error:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+</span>    <span class="c1"># Expected: OpenSPPOAuthJWTException raised</span>
 </pre>
 <p><strong>Expected</strong>:</p>
 <ul class="simple">
 <li>An <tt class="docutils literal">OpenSPPOAuthJWTException</tt> is raised with message: “OAuth private
 key not configured in settings.”</li>
-<li>The error is logged at ERROR level with prefix “OAuth JWT error:”</li>
 </ul>
 <p><strong>Test 6: JWT Sign and Verify Round-Trip</strong></p>
 <p>Precondition: RSA keys are configured (Test 2 completed).</p>
@@ -623,11 +624,11 @@ key not configured in settings.”</li>
 </span>    <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="w">
 </span>    <span class="n">payload</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;verify&quot;</span><span class="p">},</span><span class="w">
 </span><span class="p">)</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Token:&quot;</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span><span class="w">
+</span><span class="c1"># token is a JWT string (three base64 segments separated by dots)</span><span class="w">
 
 </span><span class="c1"># Verify and decode</span><span class="w">
 </span><span class="n">decoded</span> <span class="o">=</span> <span class="n">verify_and_decode_signature</span><span class="p">(</span><span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="n">access_token</span><span class="o">=</span><span class="n">token</span><span class="p">)</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Decoded:&quot;</span><span class="p">,</span> <span class="n">decoded</span><span class="p">)</span>
+</span><span class="c1"># decoded contains {&quot;user&quot;: &quot;test&quot;, &quot;action&quot;: &quot;verify&quot;}</span>
 </pre>
 <p><strong>Expected</strong>:</p>
 <ul class="simple">
@@ -653,12 +654,11 @@ separated by dots)</li>
 </span><span class="k">try</span><span class="p">:</span><span class="w">
 </span>    <span class="n">verify_and_decode_signature</span><span class="p">(</span><span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="n">access_token</span><span class="o">=</span><span class="n">tampered</span><span class="p">)</span><span class="w">
 </span><span class="k">except</span> <span class="n">OpenSPPOAuthJWTException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span><span class="w">
-</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Got expected error:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+</span>    <span class="c1"># Expected: OpenSPPOAuthJWTException raised</span>
 </pre>
 <p><strong>Expected</strong>:</p>
 <ul class="simple">
 <li>An <tt class="docutils literal">OpenSPPOAuthJWTException</tt> is raised</li>
-<li>The error is logged at ERROR level</li>
 </ul>
 <p><strong>Test 8: Token Signed With Wrong Key Is Rejected</strong></p>
 <p>This test verifies that a token signed with a different private key
@@ -688,7 +688,7 @@ cannot be verified with the configured public key.</p>
 </span><span class="k">try</span><span class="p">:</span><span class="w">
 </span>    <span class="n">verify_and_decode_signature</span><span class="p">(</span><span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="n">access_token</span><span class="o">=</span><span class="n">wrong_token</span><span class="p">)</span><span class="w">
 </span><span class="k">except</span> <span class="n">OpenSPPOAuthJWTException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span><span class="w">
-</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Got expected error:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+</span>    <span class="c1"># Expected: OpenSPPOAuthJWTException raised</span>
 </pre>
 <p><strong>Expected</strong>:</p>
 <ul class="simple">

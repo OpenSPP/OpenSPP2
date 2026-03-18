@@ -9,20 +9,20 @@ class TestResConfigSettings(TransactionCase):
     def test_set_oauth_keys_via_settings(self):
         """Test that OAuth keys set through settings are persisted to config parameters."""
         config = self.env["res.config.settings"].create({})
-        config.oauth_priv_key = "test-private-key"
-        config.oauth_pub_key = "test-public-key"
+        config.oauth_private_key = "test-private-key"
+        config.oauth_public_key = "test-public-key"
         config.execute()
 
         icp = self.env["ir.config_parameter"].sudo()
-        self.assertEqual(icp.get_param("spp_oauth.oauth_priv_key"), "test-private-key")
-        self.assertEqual(icp.get_param("spp_oauth.oauth_pub_key"), "test-public-key")
+        self.assertEqual(icp.get_param("spp_oauth.oauth_private_key"), "test-private-key")
+        self.assertEqual(icp.get_param("spp_oauth.oauth_public_key"), "test-public-key")
 
     def test_get_oauth_keys_from_settings(self):
         """Test that OAuth keys stored in config parameters are loaded into settings."""
         icp = self.env["ir.config_parameter"].sudo()
-        icp.set_param("spp_oauth.oauth_priv_key", "stored-private-key")
-        icp.set_param("spp_oauth.oauth_pub_key", "stored-public-key")
+        icp.set_param("spp_oauth.oauth_private_key", "stored-private-key")
+        icp.set_param("spp_oauth.oauth_public_key", "stored-public-key")
 
         config = self.env["res.config.settings"].create({})
-        self.assertEqual(config.oauth_priv_key, "stored-private-key")
-        self.assertEqual(config.oauth_pub_key, "stored-public-key")
+        self.assertEqual(config.oauth_private_key, "stored-private-key")
+        self.assertEqual(config.oauth_public_key, "stored-public-key")

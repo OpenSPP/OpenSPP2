@@ -86,27 +86,28 @@ After installing:
 
 The keys are stored as system parameters:
 
-- ``spp_oauth.oauth_priv_key``
-- ``spp_oauth.oauth_pub_key``
+- ``spp_oauth.oauth_private_key``
+- ``spp_oauth.oauth_public_key``
 
 UI Location
 ~~~~~~~~~~~
 
 - **Settings App Block**: SPP OAuth Settings (within Settings > General
   Settings)
-- **Access**: Available to users with Settings access
+- **Access**: System administrators only (``base.group_system``)
 
 Security
 ~~~~~~~~
 
-=================== =============================
-Group               Access
-=================== =============================
-``base.group_user`` Read/Write (no create/delete)
-=================== =============================
+===================== =============================
+Group                 Access
+===================== =============================
+``base.group_system`` Read/Write (no create/delete)
+===================== =============================
 
-Keys are displayed as password fields in the UI but stored as plain text
-in ``ir.config_parameter``.
+Only system administrators can modify OAuth key settings. Keys are
+displayed as password fields in the UI but stored as plain text in
+``ir.config_parameter``.
 
 Extension Points
 ~~~~~~~~~~~~~~~~
@@ -192,13 +193,12 @@ UI Tests
 
 - Two parameters exist:
 
-  - ``spp_oauth.oauth_priv_key`` — contains the private key PEM text
-  - ``spp_oauth.oauth_pub_key`` — contains the public key PEM text
+  - ``spp_oauth.oauth_private_key`` — contains the private key PEM text
+  - ``spp_oauth.oauth_public_key`` — contains the public key PEM text
 
 **Test 4: Non-Admin Users Cannot Access OAuth Settings**
 
-1. Log in as a user in the ``base.group_user`` group who does **not**
-   have Settings access
+1. Log in as a regular user (not in ``base.group_system``)
 2. Attempt to navigate to **Settings > General Settings**
 
 **Expected**:
@@ -206,6 +206,8 @@ UI Tests
 - The user cannot access the Settings page (menu is not visible or
   access is denied)
 - OAuth keys are not exposed to non-admin users through the UI
+- Only system administrators (``base.group_system``) can read or modify
+  OAuth key settings
 
 Utility Function Tests
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -217,8 +219,8 @@ on.
 **Test 5: Missing Keys Produce Clear Error**
 
 Precondition: RSA keys are **not** configured (clear both
-``spp_oauth.oauth_priv_key`` and ``spp_oauth.oauth_pub_key`` in System
-Parameters).
+``spp_oauth.oauth_private_key`` and ``spp_oauth.oauth_public_key`` in
+System Parameters).
 
 .. code:: python
 
@@ -227,13 +229,12 @@ Parameters).
    try:
        calculate_signature(env=env, header=None, payload={"test": "data"})
    except OpenSPPOAuthJWTException as e:
-       print("Got expected error:", e)
+       # Expected: OpenSPPOAuthJWTException raised
 
 **Expected**:
 
 - An ``OpenSPPOAuthJWTException`` is raised with message: "OAuth private
   key not configured in settings."
-- The error is logged at ERROR level with prefix "OAuth JWT error:"
 
 **Test 6: JWT Sign and Verify Round-Trip**
 
@@ -249,11 +250,11 @@ Precondition: RSA keys are configured (Test 2 completed).
        header=None,
        payload={"user": "test", "action": "verify"},
    )
-   print("Token:", token)
+   # token is a JWT string (three base64 segments separated by dots)
 
    # Verify and decode
    decoded = verify_and_decode_signature(env=env, access_token=token)
-   print("Decoded:", decoded)
+   # decoded contains {"user": "test", "action": "verify"}
 
 **Expected**:
 
@@ -282,12 +283,11 @@ Precondition: RSA keys are configured (Test 2 completed).
    try:
        verify_and_decode_signature(env=env, access_token=tampered)
    except OpenSPPOAuthJWTException as e:
-       print("Got expected error:", e)
+       # Expected: OpenSPPOAuthJWTException raised
 
 **Expected**:
 
 - An ``OpenSPPOAuthJWTException`` is raised
-- The error is logged at ERROR level
 
 **Test 8: Token Signed With Wrong Key Is Rejected**
 
@@ -321,7 +321,7 @@ Precondition: RSA keys are configured (Test 2 completed).
    try:
        verify_and_decode_signature(env=env, access_token=wrong_token)
    except OpenSPPOAuthJWTException as e:
-       print("Got expected error:", e)
+       # Expected: OpenSPPOAuthJWTException raised
 
 **Expected**:
 

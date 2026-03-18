@@ -56,7 +56,7 @@ To confirm which algorithm a token uses, decode the JWT header (without verifica
 ```python
 import jwt
 header = jwt.get_unverified_header(token)
-print(header["alg"])  # "RS256" or "HS256"
+# header["alg"] will be "RS256" or "HS256"
 ```
 
 ### Error Responses
@@ -67,4 +67,5 @@ print(header["alg"])  # "RS256" or "HS256"
 | Invalid credentials | 401 | "Invalid client credentials" |
 | Expired token | 401 | "Token expired" |
 | Invalid signature | 401 | "Invalid token" |
+| Unsupported algorithm | 401 | "Unsupported token algorithm: {alg}" |
 | Rate limit exceeded | 429 | "Rate limit exceeded" |

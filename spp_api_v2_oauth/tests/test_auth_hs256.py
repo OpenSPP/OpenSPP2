@@ -68,18 +68,54 @@ class TestHS256Regression(OAuthBridgeTestCase):
         from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
 
         endpoint = self.env["fastapi.endpoint"].search([("app", "=", "api_v2")], limit=1)
-        if endpoint:
-            overrides = endpoint._get_app_dependencies_overrides()
-            self.assertIn(
-                get_authenticated_client,
-                overrides,
-                "get_authenticated_client should be in dependency overrides",
-            )
+        if not endpoint:
+            self.skipTest("No api_v2 endpoint configured in test database")
 
-            from ..middleware.auth_rs256 import get_authenticated_client_rs256
+        overrides = endpoint._get_app_dependencies_overrides()
+        self.assertIn(
+            get_authenticated_client,
+            overrides,
+            "get_authenticated_client should be in dependency overrides",
+        )
 
-            self.assertEqual(
-                overrides[get_authenticated_client],
-                get_authenticated_client_rs256,
-                "Override should point to the RS256 bridge function",
-            )
+        from ..middleware.auth_rs256 import get_authenticated_client_rs256
+
+        self.assertEqual(
+            overrides[get_authenticated_client],
+            get_authenticated_client_rs256,
+            "Override should point to the RS256 bridge function",
+        )
+
+    def test_router_registration(self):
+        """Verify the RS256 router is registered for api_v2 endpoints."""
+        endpoint = self.env["fastapi.endpoint"].search([("app", "=", "api_v2")], limit=1)
+        if not endpoint:
+            self.skipTest("No api_v2 endpoint configured in test database")
+
+        routers = endpoint._get_fastapi_routers()
+        # Check that at least one router contains a route to /oauth/token/rs256
+        rs256_routes = [
+            route
+            for router in routers
+            for route in router.routes
+            if hasattr(route, "path") and route.path == "/oauth/token/rs256"
+        ]
+        self.assertTrue(
+            rs256_routes,
+            "RS256 token endpoint should be registered in api_v2 routers",
+        )
+
+    def test_no_override_for_non_api_v2(self):
+        """Bridge overrides should NOT apply to non-api_v2 endpoints."""
+        from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
+
+        endpoint = self.env["fastapi.endpoint"].search([("app", "!=", "api_v2")], limit=1)
+        if not endpoint:
+            self.skipTest("No non-api_v2 endpoint configured in test database")
+
+        overrides = endpoint._get_app_dependencies_overrides()
+        self.assertNotIn(
+            get_authenticated_client,
+            overrides,
+            "get_authenticated_client should NOT be overridden for non-api_v2 endpoints",
+        )

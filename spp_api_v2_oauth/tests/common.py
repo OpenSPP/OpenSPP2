@@ -1,8 +1,8 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Common test utilities for spp_api_v2_oauth tests."""
 
-import sys
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
+from types import SimpleNamespace
 
 import jwt
 from cryptography.hazmat.primitives import serialization
@@ -10,14 +10,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 
 from odoo.tests.common import TransactionCase
 
-if sys.version_info >= (3, 11):  # noqa: UP036
-    from datetime import UTC
-else:
-    UTC = timezone.utc  # noqa: UP017
-
-# Constants matching spp_api_v2's JWT claims
-JWT_AUDIENCE = "openspp"
-JWT_ISSUER = "openspp-api-v2"
+from ..constants import JWT_AUDIENCE, JWT_ISSUER
 
 # HS256 test secret (same as spp_api_v2 tests)
 HS256_TEST_SECRET = "test-secret-key-for-testing-only-do-not-use-in-production"
@@ -53,8 +46,8 @@ class OAuthBridgeTestCase(TransactionCase):
         )
 
         # Store RSA keys in spp_oauth config parameters
-        cls.env["ir.config_parameter"].sudo().set_param("spp_oauth.oauth_priv_key", cls.rsa_private_key_pem)
-        cls.env["ir.config_parameter"].sudo().set_param("spp_oauth.oauth_pub_key", cls.rsa_public_key_pem)
+        cls.env["ir.config_parameter"].sudo().set_param("spp_oauth.oauth_private_key", cls.rsa_private_key_pem)
+        cls.env["ir.config_parameter"].sudo().set_param("spp_oauth.oauth_public_key", cls.rsa_public_key_pem)
 
         # Store HS256 secret for spp_api_v2
         cls.env["ir.config_parameter"].sudo().set_param("spp_api_v2.jwt_secret", HS256_TEST_SECRET)
@@ -115,10 +108,4 @@ class OAuthBridgeTestCase(TransactionCase):
     @staticmethod
     def make_credentials(token):
         """Create a mock HTTPAuthorizationCredentials-like object."""
-
-        class _Creds:
-            pass
-
-        creds = _Creds()
-        creds.credentials = token
-        return creds
+        return SimpleNamespace(credentials=token)

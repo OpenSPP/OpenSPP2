@@ -529,7 +529,7 @@ verification):</p>
 <pre class="code python literal-block">
 <span class="kn">import</span><span class="w"> </span><span class="nn">jwt</span><span class="w">
 </span><span class="n">header</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">get_unverified_header</span><span class="p">(</span><span class="n">token</span><span class="p">)</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;alg&quot;</span><span class="p">])</span>  <span class="c1"># &quot;RS256&quot; or &quot;HS256&quot;</span>
+</span><span class="c1"># header[&quot;alg&quot;] will be &quot;RS256&quot; or &quot;HS256&quot;</span>
 </pre>
 </div>
 <div class="section" id="error-responses">
@@ -564,6 +564,11 @@ credentials”</td>
 <tr><td>Invalid signature</td>
 <td>401</td>
 <td>“Invalid token”</td>
+</tr>
+<tr><td>Unsupported algorithm</td>
+<td>401</td>
+<td>“Unsupported token
+algorithm: {alg}”</td>
 </tr>
 <tr><td>Rate limit exceeded</td>
 <td>429</td>

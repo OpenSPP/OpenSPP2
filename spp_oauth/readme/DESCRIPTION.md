@@ -34,21 +34,21 @@ After installing:
 5. Save settings
 
 The keys are stored as system parameters:
-- `spp_oauth.oauth_priv_key`
-- `spp_oauth.oauth_pub_key`
+- `spp_oauth.oauth_private_key`
+- `spp_oauth.oauth_public_key`
 
 ### UI Location
 
 - **Settings App Block**: SPP OAuth Settings (within Settings > General Settings)
-- **Access**: Available to users with Settings access
+- **Access**: System administrators only (`base.group_system`)
 
 ### Security
 
-| Group              | Access                                 |
-| ------------------ | -------------------------------------- |
-| `base.group_user`  | Read/Write (no create/delete)          |
+| Group               | Access                                 |
+| ------------------- | -------------------------------------- |
+| `base.group_system` | Read/Write (no create/delete)          |
 
-Keys are displayed as password fields in the UI but stored as plain text in `ir.config_parameter`.
+Only system administrators can modify OAuth key settings. Keys are displayed as password fields in the UI but stored as plain text in `ir.config_parameter`.
 
 ### Extension Points
 

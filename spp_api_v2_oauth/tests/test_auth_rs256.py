@@ -89,7 +89,7 @@ class TestRS256Authentication(OAuthBridgeTestCase):
         from ..middleware.auth_rs256 import _validate_rs256_token
 
         # Clear RSA public key
-        self.env["ir.config_parameter"].sudo().set_param("spp_oauth.oauth_pub_key", False)
+        self.env["ir.config_parameter"].sudo().set_param("spp_oauth.oauth_public_key", False)
 
         token = self.generate_rs256_token()
 
@@ -160,3 +160,32 @@ class TestRS256Authentication(OAuthBridgeTestCase):
 
         client = get_authenticated_client_rs256(creds, self.env)
         self.assertEqual(client.client_id, self.api_client.client_id)
+
+    def test_unsupported_algorithm_rejected(self):
+        """Token with unsupported algorithm (not RS256/HS256) is rejected."""
+        from ..middleware.auth_rs256 import get_authenticated_client_rs256
+
+        # Create a token with HS384 algorithm (unsupported by our bridge)
+        payload = self._build_jwt_payload()
+        secret = "a-secret-key-long-enough-for-hs384-testing-only!!"
+        token = jwt.encode(payload, secret, algorithm="HS384")
+        creds = self.make_credentials(token)
+
+        with self.assertRaises(HTTPException) as ctx:
+            get_authenticated_client_rs256(creds, self.env)
+        self.assertEqual(ctx.exception.status_code, 401)
+        self.assertIn("Unsupported token algorithm", ctx.exception.detail)
+
+    def test_rs256_client_not_found(self):
+        """RS256 token with valid signature but non-existent client_id is rejected."""
+        from ..middleware.auth_rs256 import get_authenticated_client_rs256
+
+        token = self.generate_rs256_token(
+            payload_overrides={"client_id": "non-existent-client-id", "sub": "non-existent-client-id"}
+        )
+        creds = self.make_credentials(token)
+
+        with self.assertRaises(HTTPException) as ctx:
+            get_authenticated_client_rs256(creds, self.env)
+        self.assertEqual(ctx.exception.status_code, 401)
+        self.assertIn("not found", ctx.exception.detail.lower())

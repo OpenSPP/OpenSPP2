@@ -1,2 +1,6 @@
 [project]
 name = "odoo-addon-spp_api_v2_oauth"
+
+[build-system]
+requires = ["whool"]
+build-backend = "whool.buildapi"

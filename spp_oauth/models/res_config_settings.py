@@ -1,14 +1,14 @@
 from odoo import fields, models
 
 
-class RegistryConfig(models.TransientModel):
+class OAuthConfig(models.TransientModel):
     _inherit = "res.config.settings"
 
-    oauth_priv_key = fields.Char(
+    oauth_private_key = fields.Char(
         string="OAuth Private Key",
-        config_parameter="spp_oauth.oauth_priv_key",
+        config_parameter="spp_oauth.oauth_private_key",
     )
-    oauth_pub_key = fields.Char(
+    oauth_public_key = fields.Char(
         string="OAuth Public Key",
-        config_parameter="spp_oauth.oauth_pub_key",
+        config_parameter="spp_oauth.oauth_public_key",
     )

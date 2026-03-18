@@ -47,18 +47,19 @@ openssl rsa -in private.pem -pubout -out public.pem
 **Expected**:
 
 - Two parameters exist:
-  - `spp_oauth.oauth_priv_key` — contains the private key PEM text
-  - `spp_oauth.oauth_pub_key` — contains the public key PEM text
+  - `spp_oauth.oauth_private_key` — contains the private key PEM text
+  - `spp_oauth.oauth_public_key` — contains the public key PEM text
 
 **Test 4: Non-Admin Users Cannot Access OAuth Settings**
 
-1. Log in as a user in the `base.group_user` group who does **not** have Settings access
+1. Log in as a regular user (not in `base.group_system`)
 2. Attempt to navigate to **Settings > General Settings**
 
 **Expected**:
 
 - The user cannot access the Settings page (menu is not visible or access is denied)
 - OAuth keys are not exposed to non-admin users through the UI
+- Only system administrators (`base.group_system`) can read or modify OAuth key settings
 
 ### Utility Function Tests
 
@@ -66,7 +67,7 @@ These tests require Odoo shell access (`odoo-bin shell`). They verify the JWT si
 
 **Test 5: Missing Keys Produce Clear Error**
 
-Precondition: RSA keys are **not** configured (clear both `spp_oauth.oauth_priv_key` and `spp_oauth.oauth_pub_key` in System Parameters).
+Precondition: RSA keys are **not** configured (clear both `spp_oauth.oauth_private_key` and `spp_oauth.oauth_public_key` in System Parameters).
 
 ```python
 from odoo.addons.spp_oauth.tools import calculate_signature, OpenSPPOAuthJWTException
@@ -74,13 +75,12 @@ from odoo.addons.spp_oauth.tools import calculate_signature, OpenSPPOAuthJWTExce
 try:
     calculate_signature(env=env, header=None, payload={"test": "data"})
 except OpenSPPOAuthJWTException as e:
-    print("Got expected error:", e)
+    # Expected: OpenSPPOAuthJWTException raised
 ```
 
 **Expected**:
 
 - An `OpenSPPOAuthJWTException` is raised with message: "OAuth private key not configured in settings."
-- The error is logged at ERROR level with prefix "OAuth JWT error:"
 
 **Test 6: JWT Sign and Verify Round-Trip**
 
@@ -95,11 +95,11 @@ token = calculate_signature(
     header=None,
     payload={"user": "test", "action": "verify"},
 )
-print("Token:", token)
+# token is a JWT string (three base64 segments separated by dots)
 
 # Verify and decode
 decoded = verify_and_decode_signature(env=env, access_token=token)
-print("Decoded:", decoded)
+# decoded contains {"user": "test", "action": "verify"}
 ```
 
 **Expected**:
@@ -126,13 +126,12 @@ tampered = token[:-5] + "XXXXX"
 try:
     verify_and_decode_signature(env=env, access_token=tampered)
 except OpenSPPOAuthJWTException as e:
-    print("Got expected error:", e)
+    # Expected: OpenSPPOAuthJWTException raised
 ```
 
 **Expected**:
 
 - An `OpenSPPOAuthJWTException` is raised
-- The error is logged at ERROR level
 
 **Test 8: Token Signed With Wrong Key Is Rejected**
 
@@ -164,7 +163,7 @@ wrong_token = jwt.encode(
 try:
     verify_and_decode_signature(env=env, access_token=wrong_token)
 except OpenSPPOAuthJWTException as e:
-    print("Got expected error:", e)
+    # Expected: OpenSPPOAuthJWTException raised
 ```
 
 **Expected**:

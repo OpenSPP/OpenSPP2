@@ -1,6 +1,8 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Tests for RS256 token generation endpoint."""
 
+import asyncio
+
 import jwt
 
 from odoo.tests import tagged
@@ -110,10 +112,117 @@ class TestRS256TokenGeneration(OAuthBridgeTestCase):
         from odoo.addons.spp_oauth.tools import OpenSPPOAuthJWTException, get_private_key
 
         # Clear private key
-        self.env["ir.config_parameter"].sudo().set_param("spp_oauth.oauth_priv_key", False)
+        self.env["ir.config_parameter"].sudo().set_param("spp_oauth.oauth_private_key", False)
+        self.addCleanup(
+            self.env["ir.config_parameter"].sudo().set_param,
+            "spp_oauth.oauth_private_key",
+            self.rsa_private_key_pem,
+        )
 
         with self.assertRaises(OpenSPPOAuthJWTException):
             get_private_key(self.env)
 
-        # Restore for other tests
-        self.env["ir.config_parameter"].sudo().set_param("spp_oauth.oauth_priv_key", self.rsa_private_key_pem)
+
+@tagged("post_install", "-at_install")
+class TestRS256TokenEndpoint(OAuthBridgeTestCase):
+    """Test the RS256 token endpoint function directly (not via HTTP).
+
+    Calls the async get_rs256_token coroutine with constructed dependencies
+    to test endpoint logic without needing a full FastAPI test client.
+    """
+
+    def _run_async(self, coro):
+        """Run an async coroutine synchronously for testing."""
+        return asyncio.run(coro)
+
+    def _make_token_request(self, grant_type="client_credentials", client_id=None, client_secret=None):
+        """Create a TokenRequest-like object for endpoint testing."""
+        from odoo.addons.spp_api_v2.routers.oauth import TokenRequest
+
+        return TokenRequest(
+            grant_type=grant_type,
+            client_id=client_id or self.api_client.client_id,
+            client_secret=client_secret or self.api_client.client_secret,
+        )
+
+    def _make_mock_request(self):
+        """Create a minimal mock HTTP request object."""
+
+        class _MockRequest:
+            def __init__(self):
+                class _Client:
+                    host = "127.0.0.1"
+
+                self.client = _Client()
+
+        return _MockRequest()
+
+    def test_endpoint_valid_credentials(self):
+        """RS256 endpoint returns valid token response with correct credentials."""
+        from ..routers.oauth_rs256 import get_rs256_token
+
+        token_request = self._make_token_request()
+        response = self._run_async(get_rs256_token(self._make_mock_request(), token_request, self.env, None))
+
+        self.assertEqual(response.token_type, "Bearer")
+        self.assertIsNotNone(response.access_token)
+        self.assertGreater(response.expires_in, 0)
+
+        # Verify the returned token is valid RS256
+        header = jwt.get_unverified_header(response.access_token)
+        self.assertEqual(header["alg"], "RS256")
+
+    def test_endpoint_invalid_grant_type(self):
+        """RS256 endpoint rejects unsupported grant_type."""
+        from fastapi import HTTPException
+
+        from ..routers.oauth_rs256 import get_rs256_token
+
+        token_request = self._make_token_request(grant_type="authorization_code")
+
+        with self.assertRaises(HTTPException) as ctx:
+            self._run_async(get_rs256_token(self._make_mock_request(), token_request, self.env, None))
+        self.assertEqual(ctx.exception.status_code, 400)
+        self.assertIn("grant_type", ctx.exception.detail.lower())
+
+    def test_endpoint_invalid_credentials(self):
+        """RS256 endpoint rejects invalid client credentials."""
+        from fastapi import HTTPException
+
+        from ..routers.oauth_rs256 import get_rs256_token
+
+        token_request = self._make_token_request(client_secret="wrong-secret")
+
+        with self.assertRaises(HTTPException) as ctx:
+            self._run_async(get_rs256_token(self._make_mock_request(), token_request, self.env, None))
+        self.assertEqual(ctx.exception.status_code, 401)
+
+    def test_endpoint_missing_private_key(self):
+        """RS256 endpoint returns 400 when RSA keys not configured."""
+        from fastapi import HTTPException
+
+        from ..routers.oauth_rs256 import get_rs256_token
+
+        # Clear private key
+        self.env["ir.config_parameter"].sudo().set_param("spp_oauth.oauth_private_key", False)
+        self.addCleanup(
+            self.env["ir.config_parameter"].sudo().set_param,
+            "spp_oauth.oauth_private_key",
+            self.rsa_private_key_pem,
+        )
+
+        token_request = self._make_token_request()
+
+        with self.assertRaises(HTTPException) as ctx:
+            self._run_async(get_rs256_token(self._make_mock_request(), token_request, self.env, None))
+        self.assertEqual(ctx.exception.status_code, 400)
+        self.assertIn("not available", ctx.exception.detail.lower())
+
+    def test_endpoint_scope_string(self):
+        """RS256 endpoint returns correct scope string from client scopes."""
+        from ..routers.oauth_rs256 import get_rs256_token
+
+        token_request = self._make_token_request()
+        response = self._run_async(get_rs256_token(self._make_mock_request(), token_request, self.env, None))
+
+        self.assertEqual(response.scope, "individual:read")

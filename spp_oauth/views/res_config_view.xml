@@ -14,10 +14,10 @@
                 >
                     <block title="OAuth Settings (4096 bits RSA keys)">
                         <setting string="Private Key">
-                            <field name="oauth_priv_key" password="true" />
+                            <field name="oauth_private_key" password="true" />
                         </setting>
                         <setting string="Public Key">
-                            <field name="oauth_pub_key" password="true" />
+                            <field name="oauth_public_key" password="true" />
                         </setting>
                     </block>
                 </app>

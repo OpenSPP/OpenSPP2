@@ -8,8 +8,8 @@ class Common(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.env["ir.config_parameter"].sudo().set_param("spp_oauth.oauth_priv_key", None)
-        cls.env["ir.config_parameter"].sudo().set_param("spp_oauth.oauth_pub_key", None)
+        cls.env["ir.config_parameter"].sudo().set_param("spp_oauth.oauth_private_key", None)
+        cls.env["ir.config_parameter"].sudo().set_param("spp_oauth.oauth_public_key", None)
 
     def set_parameters(self):
         # Generate test RSA keys
@@ -17,7 +17,7 @@ class Common(TransactionCase):
         public_key = private_key.public_key()
 
         self.env["ir.config_parameter"].sudo().set_param(
-            "spp_oauth.oauth_priv_key",
+            "spp_oauth.oauth_private_key",
             private_key.private_bytes(
                 encoding=serialization.Encoding.PEM,
                 format=serialization.PrivateFormat.TraditionalOpenSSL,
@@ -26,7 +26,7 @@ class Common(TransactionCase):
         )
 
         self.env["ir.config_parameter"].sudo().set_param(
-            "spp_oauth.oauth_pub_key",
+            "spp_oauth.oauth_public_key",
             public_key.public_bytes(
                 encoding=serialization.Encoding.PEM,
                 format=serialization.PublicFormat.SubjectPublicKeyInfo,

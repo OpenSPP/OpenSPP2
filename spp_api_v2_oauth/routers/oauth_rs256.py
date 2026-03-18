@@ -70,12 +70,14 @@ async def get_rs256_token(
         )
 
     # Read configurable token lifetime (same config as HS256 endpoint)
-    # nosemgrep: odoo-sudo-without-context
-    token_lifetime_hours = int(
-        env["ir.config_parameter"]
-        .sudo()
-        .get_param("spp_api_v2.token_lifetime_hours", str(DEFAULT_TOKEN_LIFETIME_HOURS))
-    )
+    config_param = env["ir.config_parameter"].sudo()  # nosemgrep: odoo-sudo-without-context
+    try:
+        token_lifetime_hours = int(
+            config_param.get_param("spp_api_v2.token_lifetime_hours", str(DEFAULT_TOKEN_LIFETIME_HOURS))
+        )
+    except (ValueError, TypeError):
+        _logger.warning("Invalid token_lifetime_hours config, using default %s", DEFAULT_TOKEN_LIFETIME_HOURS)
+        token_lifetime_hours = DEFAULT_TOKEN_LIFETIME_HOURS
     expires_in = token_lifetime_hours * 3600
 
     # Generate RS256 JWT token
