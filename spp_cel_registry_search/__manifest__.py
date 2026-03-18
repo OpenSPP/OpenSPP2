@@ -7,7 +7,7 @@
     "development_status": "Beta",
     "author": "OpenSPP.org, OpenSPP Community",
     "website": "https://github.com/OpenSPP/OpenSPP2",
-    "category": "OpenSPP/Core",
+    "category": "OpenSPP",
     "depends": [
         "spp_registry",
         "spp_cel_domain",
@@ -25,6 +25,6 @@
         ],
     },
     "installable": True,
-    "auto_install": True,
+    "auto_install": False,
     "application": False,
 }
