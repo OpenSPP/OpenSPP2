@@ -50,7 +50,7 @@ async def get_rs256_token(
     try:
         private_key = get_private_key(env)
     except OpenSPPOAuthJWTException as e:
-        _logger.warning("RS256 token generation failed: RSA keys not configured")
+        _logger.warning("RS256 signing unavailable: RSA keys not configured")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=(
@@ -76,7 +76,7 @@ async def get_rs256_token(
             config_param.get_param("spp_api_v2.token_lifetime_hours", str(DEFAULT_TOKEN_LIFETIME_HOURS))
         )
     except (ValueError, TypeError):
-        _logger.warning("Invalid token_lifetime_hours config, using default %s", DEFAULT_TOKEN_LIFETIME_HOURS)
+        _logger.warning("Invalid lifetime_hours config value, using default %s", DEFAULT_TOKEN_LIFETIME_HOURS)
         token_lifetime_hours = DEFAULT_TOKEN_LIFETIME_HOURS
     expires_in = token_lifetime_hours * 3600
 
@@ -84,7 +84,7 @@ async def get_rs256_token(
     try:
         token = _generate_rs256_jwt_token(private_key, api_client, token_lifetime_hours)
     except (ValueError, TypeError, pyjwt.PyJWTError) as e:
-        _logger.exception("Error generating RS256 JWT token")
+        _logger.exception("Error generating RS256 JWT")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to generate access token",
@@ -122,6 +122,6 @@ def _generate_rs256_jwt_token(private_key: str, api_client, token_lifetime_hours
 
     token = pyjwt.encode(payload, private_key, algorithm="RS256")
 
-    _logger.info("Generated RS256 JWT token for client: %s", api_client.client_id)
+    _logger.info("Generated RS256 JWT for client: %s", api_client.client_id)
 
     return token

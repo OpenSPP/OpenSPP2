@@ -136,14 +136,14 @@ def _validate_rs256_token(env: Environment, token: str) -> dict:
         return payload
 
     except jwt.ExpiredSignatureError as e:
-        _logger.warning("Expired RS256 JWT token")
+        _logger.warning("Expired RS256 JWT credential")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token expired",
         ) from e
 
     except jwt.InvalidTokenError as e:
-        _logger.warning("Invalid RS256 JWT token: %s", e)
+        _logger.warning("RS256 JWT verification failed: %s", e)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token",
