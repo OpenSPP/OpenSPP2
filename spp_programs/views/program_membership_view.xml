@@ -122,6 +122,10 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         bg_color="bg-danger"
                         invisible="state != 'not_eligible'"
                     />
+                    <div class="alert alert-warning" role="alert" invisible="state != 'duplicated'">
+                        <strong>Duplicate Reason: </strong>
+                        <field name="duplicate_reason" nolabel="1" />
+                    </div>
                     <div class="oe_title mb24">
                         <label for="partner_id" string="Registrant:" />
                         <h1>
