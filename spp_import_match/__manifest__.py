@@ -10,7 +10,7 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Beta",
+    "development_status": "Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123"],
     "depends": ["base", "spp_base_common", "base_import", "job_worker", "spp_security"],
     "data": [
