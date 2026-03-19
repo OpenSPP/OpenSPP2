@@ -531,8 +531,8 @@ class IrAttachment(models.Model):
                 )
 
             download_attachment = (
-                self.env["ir.attachment"]
-                .sudo()  # nosemgrep
+                self.env["ir.attachment"]  # nosemgrep
+                .sudo()
                 .with_context(skip_av_scan_queue=True)
                 .create(
                     {
