@@ -94,6 +94,9 @@ reports/
 # Use CI artifacts for historical reports
 static/security/
 
+# Local Docker overrides
+docker-compose.override.yml
+
 # Production environment files (contain secrets)
 docker/.env.production
 .env.production
