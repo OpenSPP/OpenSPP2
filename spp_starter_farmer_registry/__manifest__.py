@@ -32,46 +32,4 @@
     "application": False,
     "installable": True,
     "auto_install": False,
-    "description": """
-OpenSPP Starter: Farmer Registry
-================================
-
-A comprehensive bundle for Farmer Registry deployments. This module installs
-all necessary components for a production-ready farmer registry system with
-program management capabilities.
-
-Included Capabilities
----------------------
-- **Registry Management**: Track farmers, farms, and households
-- **FAO Vocabularies**: ICC crops, FAO livestock, ASFIS aquaculture species
-- **Agricultural Activities**: Season-based activity tracking
-- **Land Records**: GIS-enabled land parcel management
-- **Irrigation**: Water access and irrigation tracking
-- **CEL Variables**: Farm metrics for Logic Studio eligibility rules
-- **Program Management**: Subsidies, grants, and cash transfers
-- **API V2**: Standards-aligned REST API with consent-based access
-- **DCI Integration**: Connect to external registries (CRVS, IBR, DR)
-- **Change Requests**: Data maintenance workflows
-
-Use Cases
----------
-- National Farmer Registries
-- Agricultural Input Subsidy Programs
-- Livestock Development Programs
-- Climate Adaptation Support
-- Farm Equipment Grants
-
-Configuration
--------------
-Key configuration parameters:
-- ``spp.farmer.smallholder_threshold``: Maximum hectares for smallholder status (default: 5.0)
-
-The smallholder threshold varies by region:
-- Sub-Saharan Africa: 2 hectares (FAO recommendation)
-- South Asia: 2 hectares
-- Southeast Asia: 3 hectares
-- Latin America: 5-10 hectares
-
-For a Social Registry without farmer-specific features, use ``spp_starter_social_registry`` instead.
-    """,
 }

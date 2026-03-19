@@ -10,17 +10,6 @@
     "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],
     "development_status": "Beta",
     "summary": "Integrates scoring with program eligibility and entitlements",
-    "description": """
-OpenSPP Scoring Programs Bridge
-===============================
-
-Links the scoring framework with program management for:
-- Score-based eligibility criteria
-- Automatic scoring during enrollment
-- Classification-based benefit tiers
-
-This module auto-installs when both spp_scoring and spp_programs are installed.
-    """,
     "depends": [
         "spp_scoring",
         "spp_programs",
