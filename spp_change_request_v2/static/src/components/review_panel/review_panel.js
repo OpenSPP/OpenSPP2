@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import {Component, onMounted, onWillUnmount, useRef, useState} from "@odoo/owl";
+import {Component, onMounted, useRef, useState} from "@odoo/owl";
 import {useService} from "@web/core/utils/hooks";
 import {_t} from "@web/core/l10n/translation";
 
@@ -10,14 +10,6 @@ import {_t} from "@web/core/l10n/translation";
  * Provides a side-by-side view of:
  * - Left: Current registrant data
  * - Right: Proposed changes
- *
- * Keyboard shortcuts:
- * - A: Approve
- * - R: Request changes
- * - D: Decline
- * - N: Next in queue
- * - P: Previous in queue
- * - Escape: Close panel
  */
 export class CRReviewPanel extends Component {
     static template = "spp_change_request_v2.CRReviewPanel";
@@ -54,11 +46,6 @@ export class CRReviewPanel extends Component {
 
         onMounted(() => {
             this.loadData();
-            document.addEventListener("keydown", this.onKeydown.bind(this));
-        });
-
-        onWillUnmount(() => {
-            document.removeEventListener("keydown", this.onKeydown.bind(this));
         });
     }
 
@@ -163,46 +150,6 @@ export class CRReviewPanel extends Component {
         }
     }
 
-    // Keyboard handler
-    onKeydown(event) {
-        // Don't handle if we're in an input
-        if (event.target.tagName === "INPUT" || event.target.tagName === "TEXTAREA") {
-            return;
-        }
-
-        switch (event.key.toLowerCase()) {
-            case "a":
-                if (this.state.canApprove) {
-                    event.preventDefault();
-                    this.onApprove();
-                }
-                break;
-            case "r":
-                if (this.state.canReject) {
-                    event.preventDefault();
-                    this.onRequestChanges();
-                }
-                break;
-            case "d":
-                if (this.state.canReject) {
-                    event.preventDefault();
-                    this.onDecline();
-                }
-                break;
-            case "n":
-                event.preventDefault();
-                this.onNext();
-                break;
-            case "p":
-                event.preventDefault();
-                this.onPrevious();
-                break;
-            case "escape":
-                event.preventDefault();
-                this.onClose();
-                break;
-        }
-    }
 
     // Action handlers
     async onApprove() {
