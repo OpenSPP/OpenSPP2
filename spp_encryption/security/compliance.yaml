@@ -104,13 +104,9 @@ model_access:
       Manager: Full control including key generation/deletion (data loss risk)
 
   # Key generation wizard (future implementation)
-  - model: spp.encryption.key.wizard
-    viewer: []
-    officer: []
-    manager: [read, write, create, unlink]
-    comment: |
-      Manager only. Key generation is irreversible and can cause data loss if misused.
-      Referenced in encryption_provider.py action_generate_key() but not yet implemented.
+  # Skipped: model not yet implemented, ACL will be added when wizard is created
+  # - model: spp.encryption.key.wizard
+  #   manager: [read, write, create, unlink]
 
 # =============================================================================
 # RECORD RULES (ir.rule)

@@ -4,7 +4,7 @@
          EXTEND CR TYPE FORM: ACTIVITY OPERATIONS TAB
          ═══════════════════════════════════════════════════════════════════════ -->
 
-    <record id="spp_change_request_type_form_activity_ops" model="ir.ui.view">
+    <record id="view_spp_change_request_type_form_activity_ops" model="ir.ui.view">
         <field name="name">spp.change.request.type.form.activity.ops</field>
         <field name="model">spp.change.request.type</field>
         <field

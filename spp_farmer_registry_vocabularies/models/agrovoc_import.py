@@ -409,7 +409,7 @@ class AgrovocImport(models.Model):
     def _process_import(self):
         """Process the import (runs in job_worker)."""
         self.ensure_one()
-        _logger.info("Starting AGROVOC import for vocabulary: %s", self.vocabulary_id.name)
+        _logger.info("Starting AGROVOC import for vocabulary ID: %s", self.vocabulary_id.id)
 
         errors = []
         imported = 0

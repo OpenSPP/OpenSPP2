@@ -175,7 +175,7 @@ class AVScannerBackend(models.Model):
         self.ensure_one()
 
         if not self.is_active:
-            _logger.warning("Scanner backend '%s' is not active, skipping scan", self.name)
+            _logger.warning("Scanner backend '%s' is not active, skipping scan", self.id)
             return {
                 "status": "skipped",
                 "threat_name": None,
