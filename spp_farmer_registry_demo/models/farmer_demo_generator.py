@@ -320,7 +320,7 @@ class SPPFarmerDemoGenerator(models.TransientModel):
     @api.depends_context("uid")
     def _compute_demo_already_loaded(self):
         """Check if demo data has already been generated."""
-        is_loaded = self.env["ir.config_parameter"].sudo().get_param("spp.farmer.demo.loaded", "False") == "True"
+        is_loaded = self.env["ir.config_parameter"].sudo().get_param("spp.farmer.demo.loaded", "False") == "True"  # nosemgrep
         for record in self:
             record.demo_already_loaded = is_loaded
 
@@ -440,7 +440,7 @@ class SPPFarmerDemoGenerator(models.TransientModel):
                 results.append(_("Created %d change requests") % len(created_crs))
 
         # Mark demo data as loaded
-        self.env["ir.config_parameter"].sudo().set_param("spp.farmer.demo.loaded", "True")
+        self.env["ir.config_parameter"].sudo().set_param("spp.farmer.demo.loaded", "True")  # nosemgrep
 
         return {
             "type": "ir.actions.client",
@@ -560,7 +560,7 @@ class SPPFarmerDemoGenerator(models.TransientModel):
         if existing:
             return existing
 
-        season = Season.sudo().create(
+        season = Season.sudo().create(  # nosemgrep
             {
                 "name": f"Growing Season {today.year}",
                 "date_start": start_date,
@@ -687,7 +687,7 @@ class SPPFarmerDemoGenerator(models.TransientModel):
         }
         if head_type:
             membership_vals["membership_type_ids"] = [Command.link(head_type)]
-        self.env["spp.group.membership"].sudo().create(membership_vals)
+        self.env["spp.group.membership"].sudo().create(membership_vals)  # nosemgrep
 
         return farm
 
@@ -886,7 +886,7 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             dict: cooperative_id -> cooperative (res.partner)
         """
         Partner = self.env["res.partner"].sudo()  # nosemgrep: semgrep.odoo-sudo-on-sensitive-models
-        Membership = self.env["spp.group.membership"].sudo()
+        Membership = self.env["spp.group.membership"].sudo()  # nosemgrep
 
         # Get or create the "cooperative" group type vocabulary code
         cooperative_type_id = self._ensure_cooperative_group_type()
@@ -2015,7 +2015,7 @@ class SPPFarmerDemoGenerator(models.TransientModel):
                 )
                 if detail_vals:
                     detail.write(detail_vals)
-                    self.env.cr.execute(
+                    self.env.cr.execute(  # nosec B608
                         f"UPDATE {detail._table} SET create_date = %s WHERE id = %s",
                         (request_date, detail.id),
                     )

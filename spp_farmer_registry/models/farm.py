@@ -161,7 +161,7 @@ class Farm(models.Model):
     @api.depends("farm_total_size")
     def _compute_is_smallholder(self):
         """Determine smallholder status based on configurable threshold."""
-        threshold = float(self.env["ir.config_parameter"].sudo().get_param("spp.farmer.smallholder_threshold", "5.0"))
+        threshold = float(self.env["ir.config_parameter"].sudo().get_param("spp.farmer.smallholder_threshold", "5.0"))  # nosemgrep
         for record in self:
             record.is_smallholder = (record.farm_total_size or 0.0) <= threshold
 

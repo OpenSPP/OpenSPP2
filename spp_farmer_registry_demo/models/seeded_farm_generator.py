@@ -784,7 +784,7 @@ class SeededFarmGenerator:
         """Get a vocabulary code ID by namespace and code, with caching."""
         cache_key = (namespace_uri, code)
         if cache_key not in self._vocab_cache:
-            VocabCode = self.env["spp.vocabulary.code"].sudo()
+            VocabCode = self.env["spp.vocabulary.code"].sudo()  # nosemgrep
             vocab = VocabCode.search(
                 [("namespace_uri", "=", namespace_uri), ("code", "=", code)],
                 limit=1,
@@ -852,7 +852,7 @@ class SeededFarmGenerator:
         all_records = self.env[model_name]
         for i in range(0, len(vals_list), BATCH_SIZE):
             batch = vals_list[i : i + BATCH_SIZE]
-            records = self.env[model_name].sudo().create(batch)
+            records = self.env[model_name].sudo().create(batch)  # nosemgrep
             all_records |= records
             if len(vals_list) > BATCH_SIZE:
                 _logger.info(

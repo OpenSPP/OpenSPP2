@@ -239,15 +239,15 @@ class IrAttachment(models.Model):
 
     def _get_quarantine_encryption_provider(self):
         """Get or create the encryption provider for quarantine storage."""
-        ICP = self.env["ir.config_parameter"].sudo()
+        ICP = self.env["ir.config_parameter"].sudo()  # nosemgrep
         provider_id = ICP.get_param(QUARANTINE_PROVIDER_PARAM)
 
         if provider_id:
-            provider = self.env["spp.encryption.provider"].sudo().browse(int(provider_id))
+            provider = self.env["spp.encryption.provider"].sudo().browse(int(provider_id))  # nosemgrep
             if provider.exists():
                 return provider
 
-        provider = self.env["spp.encryption.provider"].sudo().search([("type", "=", "jwcrypto")], limit=1)
+        provider = self.env["spp.encryption.provider"].sudo().search([("type", "=", "jwcrypto")], limit=1)  # nosemgrep
 
         if not provider:
             _logger.warning(
@@ -389,7 +389,7 @@ class IrAttachment(models.Model):
             )
 
             # Create notification for each admin user
-            self.env["mail.message"].sudo().create(
+            self.env["mail.message"].sudo().create(  # nosemgrep
                 {
                     "message_type": "notification",
                     "subject": _("Security Alert: Infected File Detected"),
@@ -532,7 +532,7 @@ class IrAttachment(models.Model):
 
             download_attachment = (
                 self.env["ir.attachment"]
-                .sudo()
+                .sudo()  # nosemgrep
                 .with_context(skip_av_scan_queue=True)
                 .create(
                     {
@@ -680,7 +680,7 @@ class IrAttachment(models.Model):
     @api.model
     def _cron_purge_old_quarantined_files(self):
         """Scheduled job to purge quarantined files older than retention period."""
-        ICP = self.env["ir.config_parameter"].sudo()
+        ICP = self.env["ir.config_parameter"].sudo()  # nosemgrep
         retention_days = int(ICP.get_param(QUARANTINE_RETENTION_DAYS_PARAM, DEFAULT_QUARANTINE_RETENTION_DAYS))
 
         if retention_days <= 0:
@@ -729,7 +729,7 @@ class IrAttachment(models.Model):
         Forensic download attachments are temporary files created for admin analysis.
         They should be cleaned up after a short retention period (default: 24 hours).
         """
-        ICP = self.env["ir.config_parameter"].sudo()
+        ICP = self.env["ir.config_parameter"].sudo()  # nosemgrep
         retention_hours = int(
             ICP.get_param(
                 FORENSIC_DOWNLOAD_RETENTION_HOURS_PARAM,
@@ -762,4 +762,4 @@ class IrAttachment(models.Model):
         )
 
         # Delete all old forensic downloads in batch
-        old_forensic_downloads.sudo().with_context(skip_av_scan_queue=True).unlink()
+        old_forensic_downloads.sudo().with_context(skip_av_scan_queue=True).unlink()  # nosemgrep

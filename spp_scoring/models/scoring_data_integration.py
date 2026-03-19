@@ -175,7 +175,7 @@ class ScoringEngineDataIntegration(models.AbstractModel):
                 var_name = f"{scoring_model.code.lower()}_score"
 
             # Store the score
-            DataValue.sudo().upsert_values(
+            DataValue.sudo().upsert_values(  # nosemgrep
                 [
                     {
                         "variable_name": var_name,

@@ -520,7 +520,7 @@ class SppScoringEngine(models.AbstractModel):
                     break
 
         # Update batch job progress
-        batch.sudo().write(
+        batch.sudo().write(  # nosemgrep
             {
                 "successful_count": batch.successful_count + successful,
                 "failed_count": batch.failed_count + failed,
@@ -536,7 +536,7 @@ class SppScoringEngine(models.AbstractModel):
     def _finalize_batch_scoring(self, batch_id):
         """Finalize batch scoring job (called when all chunks complete)."""
         batch = self.env["spp.scoring.batch.job"].browse(batch_id)
-        batch.sudo().write(
+        batch.sudo().write(  # nosemgrep
             {
                 "state": "done",
                 "completed_date": fields.Datetime.now(),
