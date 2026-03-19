@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Form View -->
+    <record id="view_land_record_form" model="ir.ui.view">
+        <field name="name">spp.land.record.form</field>
+        <field name="model">spp.land.record</field>
+        <field name="arch" type="xml">
+            <form string="Land Record">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="land_name" />
+                        <h1>
+                            <field name="land_name" placeholder="Parcel Name/ID" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Details">
+                            <field name="land_farm_id" />
+                            <field name="land_acreage" />
+                            <field name="land_use_id" />
+                        </group>
+                        <group string="Ownership">
+                            <field name="owner_id" />
+                            <field name="lessee_id" />
+                            <field name="lease_start" />
+                            <field name="lease_end" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="coordinates" string="Coordinates">
+                            <field name="land_coordinates" />
+                        </page>
+                        <page name="polygon" string="Polygon">
+                            <field name="land_geo_polygon" />
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <!-- List View -->
+    <record id="view_land_record_list" model="ir.ui.view">
+        <field name="name">spp.land.record.list</field>
+        <field name="model">spp.land.record</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="land_name" />
+                <field name="land_farm_id" />
+                <field name="land_acreage" />
+                <field name="land_use_id" />
+                <field name="owner_id" />
+            </list>
+        </field>
+    </record>
+
+    <!-- GIS View -->
+    <record id="view_land_record_gis" model="ir.ui.view">
+        <field name="name">spp.land.record.gis</field>
+        <field eval="16" name="priority" />
+        <field name="model">spp.land.record</field>
+        <field name="arch" type="xml">
+            <gis editable="1">
+                <field name="id" />
+                <field name="land_name" select="1" />
+                <field name="display_name" />
+                <field name="land_acreage" />
+                <field name="land_coordinates" />
+                <field name="land_geo_polygon" />
+            </gis>
+        </field>
+    </record>
+
+    <!-- GIS Data Layers -->
+    <record id="gis_data_layer_land_record_point" model="spp.gis.data.layer">
+        <field
+            name="geo_field_id"
+            ref="spp_land_record.field_spp_land_record__land_coordinates"
+        />
+        <field name="name">Land Coordinates</field>
+        <field eval="1" name="sequence" />
+        <field name="view_id" ref="view_land_record_gis" />
+        <field name="geo_repr">basic</field>
+        <field name="active_on_startup" eval="True" />
+        <field name="layer_opacity">0.8</field>
+        <field name="begin_color">#FF680A</field>
+    </record>
+
+    <record id="gis_data_layer_land_record_polygon" model="spp.gis.data.layer">
+        <field
+            name="geo_field_id"
+            ref="spp_land_record.field_spp_land_record__land_geo_polygon"
+        />
+        <field name="name">Land Parcels</field>
+        <field eval="2" name="sequence" />
+        <field name="view_id" ref="view_land_record_gis" />
+        <field name="geo_repr">basic</field>
+        <field name="active_on_startup" eval="True" />
+        <field name="layer_opacity">0.8</field>
+        <field name="begin_color">#FF680A</field>
+    </record>
+
+    <!-- GIS Raster Layer (OSM base map) -->
+    <record id="gis_raster_layer_land_record_osm" model="spp.gis.raster.layer">
+        <field name="raster_type">osm</field>
+        <field name="name">Default</field>
+        <field name="view_id" ref="view_land_record_gis" />
+    </record>
+
+    <!-- Search View -->
+    <record id="view_land_record_search" model="ir.ui.view">
+        <field name="name">spp.land.record.search</field>
+        <field name="model">spp.land.record</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="land_name" />
+                <field name="land_farm_id" />
+                <field name="land_use_id" />
+                <field name="owner_id" />
+                <separator />
+                <filter
+                    string="Land Use"
+                    name="group_by_land_use"
+                    context="{'group_by': 'land_use_id'}"
+                />
+                <filter
+                    string="Farm"
+                    name="group_by_farm"
+                    context="{'group_by': 'land_farm_id'}"
+                />
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_land_record" model="ir.actions.act_window">
+        <field name="name">Land Records</field>
+        <field name="res_model">spp.land.record</field>
+        <field name="view_mode">list,form,gis</field>
+    </record>
+
+    <!-- GIS view mode link to action -->
+    <record id="action_land_record_gis_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="3" />
+        <field name="view_mode">gis</field>
+        <field name="view_id" ref="view_land_record_gis" />
+        <field name="act_window_id" ref="action_land_record" />
+    </record>
+</odoo>

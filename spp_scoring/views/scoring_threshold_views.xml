@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Scoring Threshold Form View -->
+    <record id="view_spp_scoring_threshold_form" model="ir.ui.view">
+        <field name="name">spp.scoring.threshold.form</field>
+        <field name="model">spp.scoring.threshold</field>
+        <field name="arch" type="xml">
+            <form string="Scoring Threshold">
+                <sheet>
+                    <group col="2">
+                        <group name="basic" string="Basic Information">
+                            <field
+                                name="model_id"
+                                readonly="context.get('default_model_id')"
+                            />
+                            <field name="name" />
+                            <field name="sequence" />
+                        </group>
+                        <group name="classification" string="Classification">
+                            <field name="classification_code" />
+                            <field name="classification_label" />
+                            <field name="display_color" widget="radio" />
+                        </group>
+                    </group>
+
+                    <group col="2">
+                        <group name="score_range" string="Score Range">
+                            <field name="min_score" />
+                            <field name="max_score" />
+                        </group>
+                        <group name="advanced" string="Advanced">
+                            <field
+                                name="cel_rule"
+                                placeholder="Optional CEL rule for complex threshold logic"
+                            />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Scoring Threshold List View -->
+    <record id="view_spp_scoring_threshold_list" model="ir.ui.view">
+        <field name="name">spp.scoring.threshold.list</field>
+        <field name="model">spp.scoring.threshold</field>
+        <field name="arch" type="xml">
+            <list string="Scoring Thresholds">
+                <field name="sequence" widget="handle" />
+                <field name="model_id" />
+                <field name="name" />
+                <field name="min_score" />
+                <field name="max_score" />
+                <field name="classification_code" />
+                <field name="classification_label" />
+                <field name="display_color" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Scoring Threshold Search View -->
+    <record id="view_spp_scoring_threshold_search" model="ir.ui.view">
+        <field name="name">spp.scoring.threshold.search</field>
+        <field name="model">spp.scoring.threshold</field>
+        <field name="arch" type="xml">
+            <search string="Search Thresholds">
+                <field name="name" />
+                <field name="classification_code" />
+                <field name="classification_label" />
+                <field name="model_id" />
+                <separator />
+                <filter
+                    name="group_model"
+                    string="Scoring Model"
+                    context="{'group_by': 'model_id'}"
+                />
+                <filter
+                    name="group_color"
+                    string="Color"
+                    context="{'group_by': 'display_color'}"
+                />
+            </search>
+        </field>
+    </record>
+
+    <!-- Scoring Threshold Action -->
+    <record id="action_spp_scoring_threshold" model="ir.actions.act_window">
+        <field name="name">Scoring Thresholds</field>
+        <field name="res_model">spp.scoring.threshold</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Scoring Threshold
+            </p>
+            <p>
+                Thresholds map score ranges to classifications like
+                "Extremely Poor", "Poor", "Near Poor", etc.
+            </p>
+        </field>
+    </record>
+</odoo>

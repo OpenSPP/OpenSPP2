@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         CR DETAIL: MANAGE FARM ACTIVITY VIEW
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <record id="spp_cr_detail_manage_farm_activity_form" model="ir.ui.view">
+        <field name="name">spp.cr.detail.manage_farm_activity.form</field>
+        <field name="model">spp.cr.detail.manage_farm_activity</field>
+        <field name="arch" type="xml">
+            <form
+                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+            >
+                <header>
+                    <field name="is_cr_manager" invisible="1" />
+                    <button
+                        name="action_next_documents"
+                        string="Next: Upload Documents"
+                        type="object"
+                        class="btn-primary"
+                        icon="fa-arrow-right"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_skip_to_review"
+                        string="Review &amp; Submit"
+                        type="object"
+                        class="btn-success"
+                        icon="fa-check-circle"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_save_and_go_to_list"
+                        string="Save as Draft"
+                        type="object"
+                        class="btn-outline-secondary"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <field
+                        name="stage"
+                        widget="statusbar"
+                        statusbar_visible="details,documents,review"
+                    />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Manage Farm Activity</h1>
+                    </div>
+
+                    <group>
+                        <field
+                            name="registrant_id"
+                            readonly="1"
+                            options="{'no_open': True}"
+                        />
+                        <field name="change_request_id" invisible="1" />
+                    </group>
+
+                    <field name="approval_state" invisible="1" />
+
+                    <div
+                        class="alert alert-info"
+                        role="alert"
+                        invisible="operation != 'add'"
+                    >
+                        Select an activity type, then fill in the details to add a new farm activity.
+                    </div>
+                    <div
+                        class="alert alert-info"
+                        role="alert"
+                        invisible="operation != 'update'"
+                    >
+                        Select an existing activity, then update the fields you want to change.
+                    </div>
+                    <div
+                        class="alert alert-info"
+                        role="alert"
+                        invisible="operation != 'remove'"
+                    >
+                        Select the activity to remove. It will be permanently deleted upon approval.
+                    </div>
+
+                    <field name="is_operation_locked" invisible="1" />
+                    <field name="allow_activity_add" invisible="1" />
+                    <field name="allow_activity_update" invisible="1" />
+                    <field name="allow_activity_remove" invisible="1" />
+
+                    <group>
+                        <group>
+                            <!-- Operation selector (hidden when locked) -->
+                            <field
+                                name="operation"
+                                widget="filterable_radio"
+                                options="{'disabled_map': {'update': 'allow_activity_update', 'remove': 'allow_activity_remove'}}"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                                invisible="is_operation_locked"
+                            />
+                            <!-- Locked display -->
+                            <field
+                                name="operation_display"
+                                string="Operation"
+                                invisible="not is_operation_locked"
+                                readonly="1"
+                            />
+                        </group>
+                    </group>
+
+                    <!-- Select existing activity (for update/remove) -->
+                    <group invisible="operation == 'add'">
+                        <group>
+                            <field
+                                name="activity_id"
+                                string="Select Activity"
+                                required="operation in ('update', 'remove')"
+                                options="{'no_open': True}"
+                            />
+                            <field
+                                name="activity_type"
+                                readonly="1"
+                                force_save="1"
+                                invisible="not activity_id"
+                            />
+                        </group>
+                    </group>
+
+                    <field name="species_namespace" invisible="1" />
+
+                    <!-- ═══════════════════════════════════════════════════════ -->
+                    <!-- ADD ACTIVITY: activity type + fields by type -->
+                    <!-- ═══════════════════════════════════════════════════════ -->
+
+                    <!-- Add: Activity Type selector -->
+                    <group invisible="operation != 'add'">
+                        <group>
+                            <field name="activity_type" required="operation == 'add'" />
+                        </group>
+                    </group>
+
+                    <!-- Add: Crop fields -->
+                    <group
+                        string="Activity Information"
+                        invisible="operation != 'add' or activity_type != 'crop'"
+                    >
+                        <group>
+                            <field
+                                name="species_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field
+                                name="purpose_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field
+                                name="cultivation_method_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field name="land_id" options="{'no_open': True}" />
+                        </group>
+                        <group>
+                            <field name="area_planted" />
+                            <field name="expected_yield" />
+                            <field name="season_id" options="{'no_open': True}" />
+                        </group>
+                    </group>
+
+                    <!-- Add: Livestock fields -->
+                    <group
+                        string="Activity Information"
+                        invisible="operation != 'add' or activity_type != 'livestock'"
+                    >
+                        <group>
+                            <field
+                                name="species_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field
+                                name="purpose_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                        </group>
+                        <group>
+                            <field name="quantity" string="Heads" />
+                            <field name="season_id" options="{'no_open': True}" />
+                        </group>
+                    </group>
+
+                    <!-- Add: Aquaculture fields -->
+                    <group
+                        string="Activity Information"
+                        invisible="operation != 'add' or activity_type != 'aquaculture'"
+                    >
+                        <group>
+                            <field
+                                name="species_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field
+                                name="purpose_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                        </group>
+                        <group>
+                            <field name="quantity" />
+                            <field name="quantity_unit" />
+                            <field name="season_id" options="{'no_open': True}" />
+                        </group>
+                    </group>
+
+                    <!-- ═══════════════════════════════════════════════════════ -->
+                    <!-- UPDATE ACTIVITY: conditional by activity type -->
+                    <!-- ═══════════════════════════════════════════════════════ -->
+
+                    <!-- Update: Crop fields -->
+                    <group
+                        string="Activity Information"
+                        invisible="operation != 'update' or not activity_id or activity_type != 'crop'"
+                    >
+                        <group>
+                            <field
+                                name="species_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field
+                                name="purpose_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field
+                                name="cultivation_method_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                        </group>
+                        <group>
+                            <field name="area_planted" />
+                            <field name="expected_yield" />
+                            <field name="actual_yield" />
+                        </group>
+                    </group>
+
+                    <!-- Update: Livestock fields -->
+                    <group
+                        string="Activity Information"
+                        invisible="operation != 'update' or not activity_id or activity_type != 'livestock'"
+                    >
+                        <group>
+                            <field
+                                name="species_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field
+                                name="purpose_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                        </group>
+                        <group>
+                            <field name="quantity" string="Heads" />
+                        </group>
+                    </group>
+
+                    <!-- Update: Aquaculture fields -->
+                    <group
+                        string="Activity Information"
+                        invisible="operation != 'update' or not activity_id or activity_type != 'aquaculture'"
+                    >
+                        <group>
+                            <field
+                                name="species_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field
+                                name="purpose_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                        </group>
+                        <group>
+                            <field name="quantity" />
+                            <field name="quantity_unit" />
+                        </group>
+                    </group>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Scheduled action to purge old quarantined files -->
+    <record id="ir_cron_purge_quarantined_files" model="ir.cron">
+        <field name="name">Purge Old Quarantined Files</field>
+        <field name="model_id" ref="base.model_ir_attachment" />
+        <field name="state">code</field>
+        <field name="code">model._cron_purge_old_quarantined_files()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active">1</field>
+    </record>
+
+    <!-- Scheduled action to clean up forensic download attachments -->
+    <record id="ir_cron_cleanup_forensic_downloads" model="ir.cron">
+        <field name="name">Clean Up Forensic Download Attachments</field>
+        <field name="model_id" ref="base.model_ir_attachment" />
+        <field name="state">code</field>
+        <field name="code">model._cron_cleanup_forensic_downloads()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="active">1</field>
+    </record>
+
+    <!-- System parameters for quarantine configuration -->
+    <record id="config_param_quarantine_retention_days" model="ir.config_parameter">
+        <field name="key">spp_attachment_av_scan.quarantine_retention_days</field>
+        <field name="value">90</field>
+    </record>
+
+    <!-- System parameter for forensic download retention (hours) -->
+    <record
+        id="config_param_forensic_download_retention_hours"
+        model="ir.config_parameter"
+    >
+        <field
+            name="key"
+        >spp_attachment_av_scan.forensic_download_retention_hours</field>
+        <field name="value">24</field>
+    </record>
+</odoo>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="1">
+    <!--
+            Disability Registry Record Rules
+            Following ADR-004 naming convention: rule_{model}_{purpose}
+        -->
+
+    <!-- Assessment Rules: Exclude assessments for disabled registrants -->
+    <record id="rule_spp_disability_assessment_registrant" model="ir.rule">
+        <field name="name">Disability Assessment: Exclude Disabled Registrants</field>
+        <field name="model_id" ref="model_spp_disability_assessment" />
+        <field name="domain_force">[("registrant_id.disabled", "=", False)]</field>
+        <field name="global">True</field>
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="False" />
+        <field name="perm_create" eval="False" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_spp_disability_assessment_registrant_edit" model="ir.rule">
+        <field name="name">Disability Assessment: Manage for Active Registrants</field>
+        <field name="model_id" ref="model_spp_disability_assessment" />
+        <field name="domain_force">[("registrant_id.disabled", "=", False)]</field>
+        <field
+            name="groups"
+            eval="[Command.link(ref('group_disability_assessor')), Command.link(ref('group_disability_manager'))]"
+        />
+        <field name="global">False</field>
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <!-- Assistive Device Rules: Exclude devices for disabled registrants -->
+    <record id="rule_spp_assistive_device_registrant" model="ir.rule">
+        <field name="name">Assistive Device: Exclude Disabled Registrants</field>
+        <field name="model_id" ref="model_spp_assistive_device" />
+        <field name="domain_force">[("registrant_id.disabled", "=", False)]</field>
+        <field name="global">True</field>
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="False" />
+        <field name="perm_create" eval="False" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_spp_assistive_device_registrant_edit" model="ir.rule">
+        <field name="name">Assistive Device: Manage for Active Registrants</field>
+        <field name="model_id" ref="model_spp_assistive_device" />
+        <field name="domain_force">[("registrant_id.disabled", "=", False)]</field>
+        <field
+            name="groups"
+            eval="[Command.link(ref('group_disability_assessor')), Command.link(ref('group_disability_manager'))]"
+        />
+        <field name="global">False</field>
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+</odoo>

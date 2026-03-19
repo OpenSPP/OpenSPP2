@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Scoring Domain Privilege -->
+    <!-- Single consolidated privilege for all scoring access levels -->
+
+    <record id="privilege_scoring" model="res.groups.privilege">
+        <field name="name">Scoring</field>
+        <field name="category_id" ref="spp_security.category_spp_scoring" />
+        <field name="description">Access to scoring and assessment framework</field>
+    </record>
+</odoo>

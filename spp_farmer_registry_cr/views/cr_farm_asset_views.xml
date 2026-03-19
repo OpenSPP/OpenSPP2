@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         CR DETAIL: MANAGE FARM ASSET VIEWS
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <record id="spp_cr_detail_manage_farm_asset_form" model="ir.ui.view">
+        <field name="name">spp.cr.detail.manage_farm_asset.form</field>
+        <field name="model">spp.cr.detail.manage_farm_asset</field>
+        <field name="arch" type="xml">
+            <form
+                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+            >
+                <header>
+                    <field name="is_cr_manager" invisible="1" />
+                    <button
+                        name="action_next_documents"
+                        string="Next: Upload Documents"
+                        type="object"
+                        class="btn-primary"
+                        icon="fa-arrow-right"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_skip_to_review"
+                        string="Review &amp; Submit"
+                        type="object"
+                        class="btn-success"
+                        icon="fa-check-circle"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_save_and_go_to_list"
+                        string="Save as Draft"
+                        type="object"
+                        class="btn-outline-secondary"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <field
+                        name="stage"
+                        widget="statusbar"
+                        statusbar_visible="details,documents,review"
+                    />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Manage Farm Assets</h1>
+                    </div>
+
+                    <group>
+                        <field
+                            name="registrant_id"
+                            readonly="1"
+                            options="{'no_open': True}"
+                        />
+                        <field name="change_request_id" invisible="1" />
+                    </group>
+
+                    <div
+                        class="alert alert-info"
+                        role="alert"
+                        invisible="operation != 'add'"
+                    >
+                        <field name="approval_state" invisible="1" />
+                        Select the asset category and fill in the details to add a new asset or machinery.
+                    </div>
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="operation != 'update'"
+                    >
+                        Select the asset category, then choose the record to edit.
+                    </div>
+                    <div
+                        class="alert alert-danger"
+                        role="alert"
+                        invisible="operation != 'remove'"
+                    >
+                        Select the asset category, then choose the record to remove.
+                    </div>
+
+                    <!-- Operation selector -->
+                    <group>
+                        <field
+                            name="operation"
+                            widget="filterable_radio"
+                            options="{'disabled_map': {'update': 'allow_asset_update', 'remove': 'allow_asset_remove'}}"
+                            readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            invisible="is_operation_locked"
+                        />
+                        <field
+                            name="operation_display"
+                            string="Operation"
+                            invisible="not is_operation_locked"
+                            readonly="1"
+                        />
+                        <field name="is_operation_locked" invisible="1" />
+                        <field name="allow_asset_add" invisible="1" />
+                        <field name="allow_asset_update" invisible="1" />
+                        <field name="allow_asset_remove" invisible="1" />
+                    </group>
+
+                    <!-- Asset Category + Record selector -->
+                    <group>
+                        <field name="asset_category" widget="radio" />
+                        <field
+                            name="farm_asset_id"
+                            invisible="asset_category != 'asset' or operation == 'add'"
+                            required="asset_category == 'asset' and operation in ('update', 'remove')"
+                            options="{'no_create': True, 'no_create_edit': True}"
+                        />
+                        <field
+                            name="farm_machinery_id"
+                            invisible="asset_category != 'machinery' or operation == 'add'"
+                            required="asset_category == 'machinery' and operation in ('update', 'remove')"
+                            options="{'no_create': True, 'no_create_edit': True}"
+                        />
+                    </group>
+
+                    <!-- ASSET DETAILS (add/update, asset category) -->
+                    <group
+                        invisible="operation == 'remove' or asset_category != 'asset'"
+                        string="Asset Details"
+                    >
+                        <group>
+                            <field name="asset_type_id" />
+                            <field name="technology_used" />
+                        </group>
+                        <group>
+                            <field name="quantity" />
+                        </group>
+                    </group>
+
+                    <!-- MACHINERY DETAILS (add/update, machinery category) -->
+                    <group
+                        invisible="operation == 'remove' or asset_category != 'machinery'"
+                        string="Machinery Details"
+                    >
+                        <group>
+                            <field name="machinery_type_id" />
+                            <field name="machine_working_status" />
+                        </group>
+                        <group>
+                            <field name="quantity" />
+                        </group>
+                    </group>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+</odoo>

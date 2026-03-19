@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Top-level menu under Registry -->
+    <menuitem
+        id="menu_disability_registry_root"
+        name="Disability"
+        parent="spp_registry.spp_main_menu_root"
+        sequence="30"
+        groups="spp_disability_registry.group_disability_viewer"
+    />
+
+    <!-- Assessments Menu -->
+    <menuitem
+        id="menu_disability_assessments"
+        name="Assessments"
+        parent="menu_disability_registry_root"
+        action="action_spp_disability_assessment"
+        sequence="10"
+    />
+
+    <!-- Assistive Devices Menu -->
+    <menuitem
+        id="menu_assistive_devices"
+        name="Assistive Devices"
+        parent="menu_disability_registry_root"
+        action="action_spp_assistive_device"
+        sequence="20"
+    />
+
+    <!-- Configuration Menu -->
+    <menuitem
+        id="menu_disability_config"
+        name="Configuration"
+        parent="menu_disability_registry_root"
+        sequence="100"
+        groups="spp_disability_registry.group_disability_manager"
+    />
+</odoo>

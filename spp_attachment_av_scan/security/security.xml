@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Privilege: AV Admin (Odoo 19 res.groups.privilege) -->
+    <record id="privilege_av_admin" model="res.groups.privilege">
+        <field name="name">Antivirus Administrator</field>
+        <field name="category_id" ref="spp_security.category_spp_admin" />
+        <field name="sequence">20</field>
+    </record>
+
+    <!-- Security Group: AV Admin -->
+    <record id="group_av_admin" model="res.groups">
+        <field name="name">Antivirus Administrator</field>
+        <field name="privilege_id" ref="privilege_av_admin" />
+        <field name="implied_ids" eval="[Command.link(ref('base.group_user'))]" />
+        <field
+            name="comment"
+        >Users who can manage antivirus scanner backends and view scan results</field>
+    </record>
+
+    <!-- Record Rules for AV Scanner Backend -->
+    <data noupdate="1">
+        <record id="rule_spp_av_scanner_backend_admin_access" model="ir.rule">
+            <field name="name">AV Scanner Backend: Admin Access</field>
+            <field name="model_id" ref="model_spp_av_scanner_backend" />
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[Command.link(ref('group_av_admin'))]" />
+            <field name="perm_read" eval="True" />
+            <field name="perm_write" eval="True" />
+            <field name="perm_create" eval="True" />
+            <field name="perm_unlink" eval="True" />
+        </record>
+
+        <!-- Record Rules for Attachments - Allow users to see scan status of their attachments -->
+        <record id="rule_ir_attachment_scan_status" model="ir.rule">
+            <field name="name">Attachment: Users can see scan status</field>
+            <field name="model_id" ref="base.model_ir_attachment" />
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[Command.link(ref('base.group_user'))]" />
+            <field name="perm_read" eval="True" />
+            <field name="perm_write" eval="False" />
+            <field name="perm_create" eval="False" />
+            <field name="perm_unlink" eval="False" />
+        </record>
+    </data>
+</odoo>

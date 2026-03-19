@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    Demo Users for Farmer Registry Demo
+
+    Demo operator/staff accounts with farmer-specific roles for testing
+    access control, approval workflows, and multi-user scenarios.
+
+    All demo users share the same password: "demo"
+-->
+<odoo noupdate="1">
+    <!-- ═══════════════════════════════════════════════════════════════════════
+             ROLE OVERRIDES FOR SPP_DEMO USERS
+             ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Demo Manager - Farm Manager, CR Requestor -->
+    <record
+        id="spp_demo.demo_manager"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field
+            name="role_line_ids"
+            eval="[
+                (0, 0, {'role_id': ref('spp_farmer_registry.global_role_farm_manager')}),
+                (0, 0, {'role_id': ref('spp_change_request_v2.global_role_cr_requestor')}),
+            ]"
+        />
+    </record>
+
+    <!-- Demo Officer - Farm User, CR Requestor -->
+    <record
+        id="spp_demo.demo_officer"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field
+            name="role_line_ids"
+            eval="[
+                (0, 0, {'role_id': ref('spp_farmer_registry.global_role_farm_user')}),
+                (0, 0, {'role_id': ref('spp_change_request_v2.global_role_cr_requestor')}),
+            ]"
+        />
+    </record>
+
+    <!-- Demo Supervisor - Farm Manager -->
+    <record
+        id="spp_demo.demo_supervisor"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field
+            name="role_line_ids"
+            eval="[
+                (0, 0, {'role_id': ref('spp_farmer_registry.global_role_farm_manager')}),
+            ]"
+        />
+    </record>
+
+    <!-- Demo Viewer - Farm User -->
+    <record
+        id="spp_demo.demo_viewer"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field
+            name="role_line_ids"
+            eval="[
+                (0, 0, {'role_id': ref('spp_farmer_registry.global_role_farm_user')}),
+            ]"
+        />
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+             CHANGE REQUEST VALIDATORS
+             ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- CR Local Validator - Area-scoped change request approval -->
+    <record
+        id="demo_user_cr_local_validator"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field name="name">Demo CR Local Validator</field>
+        <field name="login">demo_cr_local_validator</field>
+        <field name="email">demo_cr_local_validator@demo.spp</field>
+        <field name="password">demo</field>
+        <field
+            name="role_line_ids"
+            eval="[
+                (0, 0, {'role_id': ref('spp_change_request_v2.local_role_cr_validator')}),
+                (0, 0, {'role_id': ref('spp_farmer_registry.global_role_farm_user')}),
+            ]"
+        />
+        <field name="company_id" ref="base.main_company" />
+        <field name="active" eval="True" />
+    </record>
+
+    <!-- CR HQ Validator - Headquarters-level change request approval -->
+    <record
+        id="demo_user_cr_hq_validator"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field name="name">Demo CR HQ Validator</field>
+        <field name="login">demo_cr_hq_validator</field>
+        <field name="email">demo_cr_hq_validator@demo.spp</field>
+        <field name="password">demo</field>
+        <field
+            name="role_line_ids"
+            eval="[
+                (0, 0, {'role_id': ref('spp_change_request_v2.global_role_cr_validator_hq')}),
+                (0, 0, {'role_id': ref('spp_farmer_registry.global_role_farm_user')}),
+            ]"
+        />
+        <field name="company_id" ref="base.main_company" />
+        <field name="active" eval="True" />
+    </record>
+</odoo>

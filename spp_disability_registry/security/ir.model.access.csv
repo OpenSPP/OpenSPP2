@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_disability_assessment_viewer,spp.disability.assessment viewer,model_spp_disability_assessment,group_disability_viewer,1,0,0,0
+access_spp_disability_assessment_assessor,spp.disability.assessment assessor,model_spp_disability_assessment,group_disability_assessor,1,1,1,0
+access_spp_disability_assessment_validator,spp.disability.assessment validator,model_spp_disability_assessment,group_disability_validator,1,1,1,0
+access_spp_disability_assessment_manager,spp.disability.assessment manager,model_spp_disability_assessment,group_disability_manager,1,1,1,1
+access_spp_assistive_device_viewer,spp.assistive.device viewer,model_spp_assistive_device,group_disability_viewer,1,0,0,0
+access_spp_assistive_device_assessor,spp.assistive.device assessor,model_spp_assistive_device,group_disability_assessor,1,1,1,0
+access_spp_assistive_device_validator,spp.assistive.device validator,model_spp_assistive_device,group_disability_validator,1,1,1,0
+access_spp_assistive_device_manager,spp.assistive.device manager,model_spp_assistive_device,group_disability_manager,1,1,1,1
