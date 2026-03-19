@@ -42,29 +42,4 @@
     "application": False,
     "installable": True,
     "auto_install": False,
-    "description": """
-OpenSPP Farmer Registry Demo
-============================
-
-Demo generator for the Farmer Registry with fixed stories and random volume generation.
-
-Demo Features
--------------
-- **Fixed Story Farms**: 8 farmer personas with complete data
-- **Random Volume**: Additional farms for realistic dashboards
-- **Demo Programs**: Input Subsidy, Equipment Grant, Livestock Support
-- **Agricultural Seasons**: Active season with activities
-- **FAO Vocabularies**: Crops, livestock, and aquaculture species
-
-Demo Personas
--------------
-1. Maria Santos - 2ha rice farmer, female
-2. Juan Dela Cruz - 3ha mixed farm (rice + vegetables)
-3. Rosa Garcia - 1ha + 20 goats, female-headed
-4. Amir Mangudadatu - 4ha drought-affected (BARMM)
-5. Sofia Martinez - 2ha transitioning organic
-6. Ramon dela Cruz - 0.5ha fishpond
-7. Sittie Pangandaman - 1.5ha, female head (BARMM)
-8. Danilo Villanueva - 5ha, mixed commercial
-    """,
 }

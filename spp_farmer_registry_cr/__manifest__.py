@@ -31,19 +31,4 @@
     "application": False,
     "installable": True,
     "auto_install": False,
-    "description": """
-OpenSPP Farmer Registry: Change Request Types
-==============================================
-
-Provides farmer-specific change request types for managing farm data changes
-through the approval workflow.
-
-CR Types Included
------------------
-- **Update Farm Details**: Modify farm type, size, land tenure, and acreage breakdown
-- **Add Farm Activity**: Add new crop, livestock, or aquaculture activity
-- **Update Farm Activity**: Modify existing farm activities
-
-All CR types use the field_mapping strategy and can be customized via Studio.
-    """,
 }

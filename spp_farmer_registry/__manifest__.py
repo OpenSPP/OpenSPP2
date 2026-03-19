@@ -57,17 +57,4 @@
     "installable": True,
     "auto_install": False,
     "pre_init_hook": "pre_init_hook",
-    "description": """
-OpenSPP Farmer Registry
-=======================
-
-A comprehensive farmer registry module for managing farm data.
-
-Key Features
-------------
-- **Vocabulary Integration**: Uses FAO-aligned vocabularies (ICC crops, FAO livestock, ASFIS aquaculture)
-- **CEL Variables**: Farm metrics exposed as CEL variables for Logic Studio
-- **Extended Aggregates**: Crop count, livestock count, land parcel aggregations
-- **Cascading Species Selection**: Filtered by activity type
-    """,
 }

@@ -27,20 +27,4 @@
     "application": False,
     "installable": True,
     "auto_install": False,
-    "description": """
-OpenSPP Farmer Registry Dashboard
-==================================
-
-Provides a comprehensive dashboard for farmer registry metrics using
-CEL variables and Odoo spreadsheet dashboards.
-
-Key Metrics
------------
-- Total farms by type (crop, livestock, aquaculture, mixed)
-- Smallholder vs commercial farm distribution
-- Farm size distribution
-- Female farmer percentage
-- Activity counts by season
-- Land tenure breakdown
-    """,
 }
