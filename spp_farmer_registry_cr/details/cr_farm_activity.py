@@ -134,7 +134,7 @@ class SPPCRDetailManageFarmActivity(models.Model):
     # QUANTITIES
     # ══════════════════════════════════════════════════════════════════════════
 
-    quantity = fields.Float(string="Quantity", tracking=True)
+    quantity = fields.Integer(string="Quantity", tracking=True)
     quantity_unit = fields.Char(string="Unit", tracking=True)
     area_planted = fields.Float(string="Area Planted (hectares)", tracking=True)
     expected_yield = fields.Float(string="Expected Yield", tracking=True)
