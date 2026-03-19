@@ -27,4 +27,5 @@
     ],
     "installable": True,
     "application": False,
+    "maintainers": ["jeremi", "gonzalesedwin1123"],
 }

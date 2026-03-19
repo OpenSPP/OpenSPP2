@@ -4,7 +4,7 @@
 {
     "name": "OpenSPP Case Management: CEL Rules",
     "summary": "CEL-based triage and assignment rules for case management",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "license": "LGPL-3",
     "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],

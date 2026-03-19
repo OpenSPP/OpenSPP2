@@ -52,5 +52,6 @@
     "application": False,
     "installable": True,
     "auto_install": False,
-    # Note: Circular dependency with spp_registry handled by ensuring both are installed together
+    # Note: Circular dependency with spp_registry handled by ensuring both are installed together,
+    "maintainers": ["jeremi", "gonzalesedwin1123"],
 }

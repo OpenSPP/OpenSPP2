@@ -170,6 +170,17 @@ Authors
 Maintainers
 -----------
 
+.. |maintainer-jeremi| image:: https://github.com/jeremi.png?size=40px
+    :target: https://github.com/jeremi
+    :alt: jeremi
+.. |maintainer-gonzalesedwin1123| image:: https://github.com/gonzalesedwin1123.png?size=40px
+    :target: https://github.com/gonzalesedwin1123
+    :alt: gonzalesedwin1123
+
+Current maintainers:
+
+|maintainer-jeremi| |maintainer-gonzalesedwin1123| 
+
 This module is part of the `OpenSPP/OpenSPP2 <https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_gis_report>`_ project on GitHub.
 
 You are welcome to contribute.

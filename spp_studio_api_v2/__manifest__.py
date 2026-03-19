@@ -20,4 +20,5 @@
     "installable": True,
     # Bridge module: auto-install when both spp_api_v2 and spp_studio are present
     "auto_install": ["spp_api_v2", "spp_studio"],
+    "maintainers": ["jeremi", "gonzalesedwin1123"],
 }

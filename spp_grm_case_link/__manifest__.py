@@ -3,7 +3,7 @@
 
 {
     "name": "OpenSPP GRM Case Link",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "category": "OpenSPP/Monitoring",
     "summary": "Links GRM tickets with Case Management cases for escalation",
     "author": "OpenSPP.org",
