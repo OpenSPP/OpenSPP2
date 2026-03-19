@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         CR DETAIL: MANAGE LAND PARCEL VIEWS
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <record id="spp_cr_detail_manage_land_parcel_form" model="ir.ui.view">
+        <field name="name">spp.cr.detail.manage_land_parcel.form</field>
+        <field name="model">spp.cr.detail.manage_land_parcel</field>
+        <field name="arch" type="xml">
+            <form
+                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+            >
+                <header>
+                    <field name="is_cr_manager" invisible="1" />
+                    <button
+                        name="action_next_documents"
+                        string="Next: Upload Documents"
+                        type="object"
+                        class="btn-primary"
+                        icon="fa-arrow-right"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_skip_to_review"
+                        string="Review &amp; Submit"
+                        type="object"
+                        class="btn-success"
+                        icon="fa-check-circle"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_save_and_go_to_list"
+                        string="Save as Draft"
+                        type="object"
+                        class="btn-outline-secondary"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <field
+                        name="stage"
+                        widget="statusbar"
+                        statusbar_visible="details,documents,review"
+                    />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Manage Land Parcels</h1>
+                    </div>
+
+                    <group>
+                        <field
+                            name="registrant_id"
+                            readonly="1"
+                            options="{'no_open': True}"
+                        />
+                        <field name="change_request_id" invisible="1" />
+                    </group>
+
+                    <div class="alert alert-info" role="alert" invisible="operation != 'add'">
+                        <field name="approval_state" invisible="1" />
+                        Fill in the land parcel details below to add a new parcel.
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="operation != 'update'">
+                        Select the land parcel to edit, then update the fields you want to change.
+                    </div>
+                    <div class="alert alert-danger" role="alert" invisible="operation != 'remove'">
+                        Select the land parcel to remove. This action cannot be undone after approval.
+                    </div>
+
+                    <!-- Operation selector -->
+                    <group>
+                        <field
+                            name="operation"
+                            widget="filterable_radio"
+                            options="{'disabled_map': {'update': 'allow_parcel_update', 'remove': 'allow_parcel_remove'}}"
+                            readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            invisible="is_operation_locked" />
+                        <field name="operation_display" string="Operation"
+                            invisible="not is_operation_locked" readonly="1" />
+                        <field name="is_operation_locked" invisible="1" />
+                        <field name="allow_parcel_add" invisible="1" />
+                        <field name="allow_parcel_update" invisible="1" />
+                        <field name="allow_parcel_remove" invisible="1" />
+                    </group>
+
+                    <!-- SELECT EXISTING PARCEL (update/remove) -->
+                    <group invisible="operation == 'add'" string="Select Land Parcel">
+                        <field name="land_record_id"
+                            required="operation in ('update', 'remove')"
+                            options="{'no_create': True, 'no_create_edit': True}" />
+                    </group>
+
+                    <!-- PARCEL DETAILS (add/update) -->
+                    <group invisible="operation == 'remove'" string="Land Parcel Details">
+                        <group>
+                            <field name="land_name" required="operation == 'add'" />
+                            <field name="land_acreage" />
+                            <field name="land_use_id"
+                                options="{'no_create': True, 'no_create_edit': True}" />
+                        </group>
+                        <group>
+                            <field name="owner_id" />
+                            <field name="lessee_id" />
+                            <field name="lease_start" />
+                            <field name="lease_end" />
+                        </group>
+                    </group>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+</odoo>

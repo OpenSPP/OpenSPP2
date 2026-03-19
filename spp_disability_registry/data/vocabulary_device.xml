@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="1">
+        <!--
+            Assistive Device Type Vocabulary
+            Based on DCI CD.DR.04 and ISO 9999
+        -->
+        <record id="vocab_device_type" model="spp.vocabulary">
+            <field name="name">Assistive Device Type</field>
+            <field name="namespace_uri">urn:dci:cd:dr:04</field>
+            <field name="version">2024</field>
+            <field name="description">Types of assistive devices aligned with ISO 9999 classification</field>
+            <field name="is_system">True</field>
+            <field name="domain">disability</field>
+        </record>
+
+        <!-- Mobility Aids -->
+        <record id="code_device_mobility" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_device_type" />
+            <field name="code">mobility</field>
+            <field name="display">Mobility Aids</field>
+            <field name="definition">Devices assisting with mobility and locomotion</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="code_device_wheelchair" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_device_type" />
+            <field name="code">wheelchair</field>
+            <field name="display">Wheelchair</field>
+            <field name="definition">Manual or powered wheelchair</field>
+            <field name="parent_id" ref="code_device_mobility" />
+            <field name="sequence">11</field>
+        </record>
+
+        <record id="code_device_crutches" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_device_type" />
+            <field name="code">crutches</field>
+            <field name="display">Crutches</field>
+            <field name="definition">Walking crutches (underarm or forearm)</field>
+            <field name="parent_id" ref="code_device_mobility" />
+            <field name="sequence">12</field>
+        </record>
+
+        <record id="code_device_walker" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_device_type" />
+            <field name="code">walker</field>
+            <field name="display">Walker/Rollator</field>
+            <field name="definition">Walking frame or rollator</field>
+            <field name="parent_id" ref="code_device_mobility" />
+            <field name="sequence">13</field>
+        </record>
+
+        <record id="code_device_cane" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_device_type" />
+            <field name="code">cane</field>
+            <field name="display">Walking Cane/Stick</field>
+            <field name="definition">Walking cane or stick</field>
+            <field name="parent_id" ref="code_device_mobility" />
+            <field name="sequence">14</field>
+        </record>
+
+        <record id="code_device_prosthetic" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_device_type" />
+            <field name="code">prosthetic</field>
+            <field name="display">Prosthetic Limb</field>
+            <field name="definition">Artificial limb prosthesis</field>
+            <field name="parent_id" ref="code_device_mobility" />
+            <field name="sequence">15</field>
+        </record>
+
+        <record id="code_device_orthotic" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_device_type" />
+            <field name="code">orthotic</field>
+            <field name="display">Orthotic Device</field>
+            <field name="definition">Braces, splints, or support devices</field>
+            <field name="parent_id" ref="code_device_mobility" />
+            <field name="sequence">16</field>
+        </record>
+
+        <!-- Vision Aids -->
+        <record id="code_device_vision" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_device_type" />
+            <field name="code">vision</field>
+            <field name="display">Vision Aids</field>
+            <field name="definition">Devices assisting with visual impairment</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <record id="code_device_glasses" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_device_type" />
+            <field name="code">glasses</field>
+            <field name="display">Corrective Glasses</field>
+            <field name="definition">Prescription eyeglasses</field>
+            <field name="parent_id" ref="code_device_vision" />
+            <field name="sequence">21</field>
+        </record>
+
+        <record id="code_device_magnifier" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_device_type" />
+            <field name="code">magnifier</field>
+            <field name="display">Magnifier</field>
+            <field name="definition">Hand-held or stand magnifier</field>
+            <field name="parent_id" ref="code_device_vision" />
+            <field name="sequence">22</field>
+        </record>
+
+        <record id="code_device_white_cane" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_device_type" />
+            <field name="code">white_cane</field>
+            <field name="display">White Cane</field>
+            <field name="definition">Navigation cane for blind persons</field>
+            <field name="parent_id" ref="code_device_vision" />
+            <field name="sequence">23</field>
+        </record>
+
+        <record id="code_device_braille" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_device_type" />
+            <field name="code">braille</field>
+            <field name="display">Braille Equipment</field>
+            <field name="definition">Braille display, slate, or reader</field>
+            <field name="parent_id" ref="code_device_vision" />
+            <field name="sequence">24</field>
+        </record>
+
+        <!-- Hearing Aids -->
+        <record id="code_device_hearing" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_device_type" />
+            <field name="code">hearing_devices</field>
+            <field name="display">Hearing Aids</field>
+            <field name="definition">Devices assisting with hearing impairment</field>
+            <field name="sequence">30</field>
+        </record>
+
+        <record id="code_device_hearing_aid" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_device_type" />
+            <field name="code">hearing_aid</field>
+            <field name="display">Hearing Aid</field>
+            <field name="definition">Electronic hearing amplification device</field>
+            <field name="parent_id" ref="code_device_hearing" />
+            <field name="sequence">31</field>
+        </record>
+
+        <record id="code_device_cochlear" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_device_type" />
+            <field name="code">cochlear</field>
+            <field name="display">Cochlear Implant</field>
+            <field name="definition">Surgically implanted hearing device</field>
+            <field name="parent_id" ref="code_device_hearing" />
+            <field name="sequence">32</field>
+        </record>
+
+        <!-- Communication Devices -->
+        <record id="code_device_communication" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_device_type" />
+            <field name="code">communication_device</field>
+            <field name="display">Communication Devices</field>
+            <field name="definition">Devices assisting with communication</field>
+            <field name="sequence">40</field>
+        </record>
+
+        <record id="code_device_aac" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_device_type" />
+            <field name="code">aac</field>
+            <field name="display">AAC Device</field>
+            <field name="definition">Augmentative and alternative communication device</field>
+            <field name="parent_id" ref="code_device_communication" />
+            <field name="sequence">41</field>
+        </record>
+
+        <!-- Cognitive/Learning Aids -->
+        <record id="code_device_cognitive" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_device_type" />
+            <field name="code">cognitive_aids</field>
+            <field name="display">Cognitive Aids</field>
+            <field name="definition">Devices assisting with cognitive or learning difficulties</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <!-- Daily Living Aids -->
+        <record id="code_device_daily_living" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_device_type" />
+            <field name="code">daily_living</field>
+            <field name="display">Daily Living Aids</field>
+            <field name="definition">Devices assisting with activities of daily living</field>
+            <field name="sequence">60</field>
+        </record>
+
+        <!-- Other -->
+        <record id="code_device_other" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_device_type" />
+            <field name="code">other</field>
+            <field name="display">Other Assistive Device</field>
+            <field name="definition">Other assistive device not listed</field>
+            <field name="sequence">90</field>
+        </record>
+</odoo>

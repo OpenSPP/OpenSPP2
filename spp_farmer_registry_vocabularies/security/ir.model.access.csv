@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_agrovoc_import_admin,spp.agrovoc.import.admin,model_spp_agrovoc_import,base.group_system,1,1,1,1
+access_agrovoc_import_wizard_admin,spp.agrovoc.import.wizard.admin,model_spp_agrovoc_import_wizard,base.group_system,1,1,1,1

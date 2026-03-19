@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extend Scoring Model Form to show programs -->
+    <record id="view_spp_scoring_model_form_programs" model="ir.ui.view">
+        <field name="name">spp.scoring.model.form.programs</field>
+        <field name="model">spp.scoring.model</field>
+        <field name="inherit_id" ref="spp_scoring.view_spp_scoring_model_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_programs"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-book"
+                        invisible="program_count == 0">
+                    <field name="program_count" widget="statinfo" string="Programs"/>
+                </button>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Programs" name="programs">
+                    <field name="program_ids">
+                        <list>
+                            <field name="name"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend Scoring Model List to show program count -->
+    <record id="view_spp_scoring_model_list_programs" model="ir.ui.view">
+        <field name="name">spp.scoring.model.list.programs</field>
+        <field name="model">spp.scoring.model</field>
+        <field name="inherit_id" ref="spp_scoring.view_spp_scoring_model_list"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='result_count']" position="after">
+                <field name="program_count" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

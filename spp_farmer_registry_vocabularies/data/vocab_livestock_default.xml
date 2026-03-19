@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- FAO Livestock Classification (based on WCA 2020) -->
+    <record id="vocab_livestock" model="spp.vocabulary">
+        <field name="name">Livestock Classification (FAO)</field>
+        <field name="namespace_uri">urn:fao:livestock:2020</field>
+        <field name="version">2020</field>
+        <field name="is_system">True</field>
+        <field name="is_hierarchical">True</field>
+        <field name="domain">agriculture</field>
+        <field name="description">FAO livestock classification based on World Census of Agriculture 2020</field>
+        <field name="reference_url">https://www.fao.org/world-census-agriculture/</field>
+    </record>
+
+    <!-- Group 1: Cattle -->
+    <record id="code_livestock_1" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_livestock"/>
+        <field name="code">1</field>
+        <field name="display">Cattle</field>
+        <field name="definition">Cattle (Bos taurus and Bos indicus)</field>
+        <field name="sequence">1</field>
+    </record>
+
+    <record id="code_livestock_1_1" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_livestock"/>
+        <field name="parent_id" ref="code_livestock_1"/>
+        <field name="code">1.1</field>
+        <field name="display">Dairy cattle</field>
+        <field name="definition">Cattle kept primarily for milk production</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_2108</field>
+        <field name="sequence">11</field>
+    </record>
+
+    <record id="code_livestock_1_2" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_livestock"/>
+        <field name="parent_id" ref="code_livestock_1"/>
+        <field name="code">1.2</field>
+        <field name="display">Beef cattle</field>
+        <field name="definition">Cattle kept primarily for meat production</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_862</field>
+        <field name="sequence">12</field>
+    </record>
+
+    <record id="code_livestock_1_3" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_livestock"/>
+        <field name="parent_id" ref="code_livestock_1"/>
+        <field name="code">1.3</field>
+        <field name="display">Draught cattle</field>
+        <field name="definition">Cattle used for work/traction</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_10457</field>
+        <field name="sequence">13</field>
+    </record>
+
+    <!-- Group 2: Buffaloes -->
+    <record id="code_livestock_2" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_livestock"/>
+        <field name="code">2</field>
+        <field name="display">Buffaloes</field>
+        <field name="definition">Water buffaloes (Bubalus bubalis)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_0bcb631e</field>
+        <field name="sequence">2</field>
+    </record>
+
+    <!-- Group 3: Sheep and Goats -->
+    <record id="code_livestock_3" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_livestock"/>
+        <field name="code">3</field>
+        <field name="display">Sheep and Goats</field>
+        <field name="definition">Small ruminants - sheep and goats</field>
+        <field name="sequence">3</field>
+    </record>
+
+    <record id="code_livestock_3_1" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_livestock"/>
+        <field name="parent_id" ref="code_livestock_3"/>
+        <field name="code">3.1</field>
+        <field name="display">Sheep</field>
+        <field name="definition">Sheep (Ovis aries)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_7030</field>
+        <field name="sequence">31</field>
+    </record>
+
+    <record id="code_livestock_3_2" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_livestock"/>
+        <field name="parent_id" ref="code_livestock_3"/>
+        <field name="code">3.2</field>
+        <field name="display">Goats</field>
+        <field name="definition">Goats (Capra aegagrus hircus)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_3324</field>
+        <field name="sequence">32</field>
+    </record>
+
+    <!-- Group 4: Pigs -->
+    <record id="code_livestock_4" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_livestock"/>
+        <field name="code">4</field>
+        <field name="display">Pigs</field>
+        <field name="definition">Pigs (Sus scrofa domesticus)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_7555</field>
+        <field name="sequence">4</field>
+    </record>
+
+    <!-- Group 5: Poultry -->
+    <record id="code_livestock_5" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_livestock"/>
+        <field name="code">5</field>
+        <field name="display">Poultry</field>
+        <field name="definition">Domesticated birds kept for eggs or meat</field>
+        <field name="sequence">5</field>
+    </record>
+
+    <record id="code_livestock_5_1" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_livestock"/>
+        <field name="parent_id" ref="code_livestock_5"/>
+        <field name="code">5.1</field>
+        <field name="display">Chickens</field>
+        <field name="definition">Chickens (Gallus gallus domesticus)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_1540</field>
+        <field name="sequence">51</field>
+    </record>
+
+    <record id="code_livestock_5_2" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_livestock"/>
+        <field name="parent_id" ref="code_livestock_5"/>
+        <field name="code">5.2</field>
+        <field name="display">Ducks</field>
+        <field name="definition">Ducks (Anas platyrhynchos domesticus)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_2406</field>
+        <field name="sequence">52</field>
+    </record>
+
+    <record id="code_livestock_5_3" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_livestock"/>
+        <field name="parent_id" ref="code_livestock_5"/>
+        <field name="code">5.3</field>
+        <field name="display">Geese</field>
+        <field name="definition">Geese (Anser anser domesticus)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_3208</field>
+        <field name="sequence">53</field>
+    </record>
+
+    <record id="code_livestock_5_4" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_livestock"/>
+        <field name="parent_id" ref="code_livestock_5"/>
+        <field name="code">5.4</field>
+        <field name="display">Turkeys</field>
+        <field name="definition">Turkeys (Meleagris gallopavo)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_8016</field>
+        <field name="sequence">54</field>
+    </record>
+
+    <!-- Group 6: Other animals -->
+    <record id="code_livestock_6" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_livestock"/>
+        <field name="code">6</field>
+        <field name="display">Other livestock</field>
+        <field name="definition">Other domesticated animals</field>
+        <field name="sequence">6</field>
+    </record>
+
+    <record id="code_livestock_6_1" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_livestock"/>
+        <field name="parent_id" ref="code_livestock_6"/>
+        <field name="code">6.1</field>
+        <field name="display">Horses</field>
+        <field name="definition">Horses (Equus ferus caballus)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_3668</field>
+        <field name="sequence">61</field>
+    </record>
+
+    <record id="code_livestock_6_2" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_livestock"/>
+        <field name="parent_id" ref="code_livestock_6"/>
+        <field name="code">6.2</field>
+        <field name="display">Donkeys</field>
+        <field name="definition">Donkeys (Equus africanus asinus)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_676</field>
+        <field name="sequence">62</field>
+    </record>
+
+    <record id="code_livestock_6_3" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_livestock"/>
+        <field name="parent_id" ref="code_livestock_6"/>
+        <field name="code">6.3</field>
+        <field name="display">Camels</field>
+        <field name="definition">Camels (Camelus spp.)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_1228</field>
+        <field name="sequence">63</field>
+    </record>
+
+    <record id="code_livestock_6_4" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_livestock"/>
+        <field name="parent_id" ref="code_livestock_6"/>
+        <field name="code">6.4</field>
+        <field name="display">Rabbits</field>
+        <field name="definition">Rabbits (Oryctolagus cuniculus)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_6414</field>
+        <field name="sequence">64</field>
+    </record>
+
+    <record id="code_livestock_6_5" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_livestock"/>
+        <field name="parent_id" ref="code_livestock_6"/>
+        <field name="code">6.5</field>
+        <field name="display">Bees</field>
+        <field name="definition">Honeybees (Apis mellifera)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_534</field>
+        <field name="sequence">65</field>
+    </record>
+</odoo>

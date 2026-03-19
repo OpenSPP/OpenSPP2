@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Extend Attachment Form View -->
+    <record id="view_attachment_form_inherit" model="ir.ui.view">
+        <field name="name">ir.attachment.form.inherit.av.scan</field>
+        <field name="model">ir.attachment</field>
+        <field name="inherit_id" ref="base.view_attachment_form"/>
+        <field name="arch" type="xml">
+            <!-- Add scan status after the file info -->
+            <xpath expr="//group[@name='description_group']" position="after">
+                <group string="Antivirus Scan" name="av_scan_group">
+                    <group>
+                        <field name="scan_status" widget="badge"
+                               decoration-success="scan_status == 'clean'"
+                               decoration-danger="scan_status == 'infected'"
+                               decoration-warning="scan_status in ['pending', 'scanning']"
+                               decoration-muted="scan_status in ['skipped', 'error']"/>
+                        <field name="scan_date"/>
+                        <field name="threat_name" invisible="scan_status != 'infected'"
+                               readonly="1"/>
+                        <field name="is_quarantined" invisible="scan_status != 'infected'"
+                               readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="scan_result" widget="text" readonly="1"
+                               groups="spp_attachment_av_scan.group_av_admin"/>
+                        <button
+                            name="action_rescan"
+                            type="object"
+                            string="Rescan"
+                            class="btn-secondary"
+                            invisible="type != 'binary' or is_quarantined"
+                            groups="spp_attachment_av_scan.group_av_admin"
+                        />
+                    </group>
+                </group>
+
+                <!-- Quarantine Details (visible only when quarantined) -->
+                <group string="Quarantine Details" name="quarantine_group"
+                       invisible="not is_quarantined"
+                       groups="spp_attachment_av_scan.group_av_admin">
+                    <group>
+                        <field name="quarantine_date" readonly="1"/>
+                        <field name="quarantine_hash" readonly="1"/>
+                        <field name="original_file_size" readonly="1"/>
+                    </group>
+                    <group>
+                        <div class="text-muted mb-2">
+                            <strong>Quarantine Actions:</strong>
+                        </div>
+                        <button
+                            name="action_restore_quarantined"
+                            type="object"
+                            string="Restore File"
+                            class="btn-warning mb-1"
+                            confirm="Are you sure you want to restore this file? The file was flagged as infected."
+                            invisible="not quarantine_data"
+                        />
+                        <button
+                            name="action_download_quarantined_for_analysis"
+                            type="object"
+                            string="Download for Analysis"
+                            class="btn-secondary mb-1"
+                            invisible="not quarantine_data"
+                        />
+                        <button
+                            name="action_permanently_delete_quarantined"
+                            type="object"
+                            string="Permanently Delete"
+                            class="btn-danger"
+                            confirm="Are you sure you want to permanently delete this quarantined file? This action cannot be undone."
+                        />
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend Attachment Tree View -->
+    <record id="view_attachment_tree_inherit" model="ir.ui.view">
+        <field name="name">ir.attachment.tree.inherit.av.scan</field>
+        <field name="model">ir.attachment</field>
+        <field name="inherit_id" ref="base.view_attachment_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='type']" position="after">
+                <field name="scan_status" widget="badge" optional="show"
+                       decoration-success="scan_status == 'clean'"
+                       decoration-danger="scan_status == 'infected'"
+                       decoration-warning="scan_status in ['pending', 'scanning']"
+                       decoration-muted="scan_status in ['skipped', 'error']"/>
+                <field name="is_quarantined" optional="hide"/>
+                <field name="quarantine_date" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Search View with filters -->
+    <record id="view_attachment_search_inherit" model="ir.ui.view">
+        <field name="name">ir.attachment.search.inherit.av.scan</field>
+        <field name="model">ir.attachment</field>
+        <field name="inherit_id" ref="base.view_attachment_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <filter string="Infected" name="filter_infected"
+                        domain="[('scan_status', '=', 'infected')]"/>
+                <filter string="Quarantined" name="filter_quarantined"
+                        domain="[('is_quarantined', '=', True)]"/>
+                <filter string="Pending Scan" name="filter_pending"
+                        domain="[('scan_status', '=', 'pending')]"/>
+                <filter string="Clean" name="filter_clean"
+                        domain="[('scan_status', '=', 'clean')]"/>
+                <separator/>
+                <filter string="Scan Status" name="group_scan_status"
+                        context="{'group_by': 'scan_status'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Quarantined Files Action (for AV Admins) -->
+    <record id="action_quarantined_attachments" model="ir.actions.act_window">
+        <field name="name">Quarantined Files</field>
+        <field name="res_model">ir.attachment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_quarantined', '=', True)]</field>
+        <field name="context">{'search_default_filter_quarantined': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No quarantined files
+            </p>
+            <p>
+                Files detected as containing malware are automatically quarantined here.
+                The original file is encrypted and stored securely for forensic analysis.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu item for Quarantined Files (under Settings > Technical > Security) -->
+    <menuitem id="menu_quarantined_attachments"
+              name="Quarantined Files"
+              parent="base.menu_security"
+              action="action_quarantined_attachments"
+              sequence="30"
+              groups="spp_attachment_av_scan.group_av_admin"/>
+
+</odoo>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="1">
+    <!-- Job Worker channel for batch scoring operations -->
+    <record id="channel_scoring" model="queue.job.channel">
+        <field name="name">root.scoring</field>
+    </record>
+
+    <!-- Sub-channel for batch scoring -->
+    <record id="channel_scoring_batch" model="queue.job.channel">
+        <field name="name">root.scoring.batch</field>
+    </record>
+</odoo>

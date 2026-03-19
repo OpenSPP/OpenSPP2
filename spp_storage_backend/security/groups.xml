@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Storage Backend Security Groups
+        ================================
+        Only administrators should manage storage backend configurations.
+    -->
+
+    <!-- Storage Administrator Group -->
+    <record id="group_storage_admin" model="res.groups">
+        <field name="name">Storage Administrator</field>
+        <field name="privilege_id" ref="privilege_storage_admin"/>
+        <field name="comment">Manage storage backend configurations.
+This group allows users to create, modify, and configure storage backends
+including sensitive credentials. Only assign to trusted system administrators.</field>
+    </record>
+
+    <!-- Extend OpenSPP Admin to include Storage Admin -->
+    <record id="spp_security.group_spp_admin" model="res.groups">
+        <field name="implied_ids" eval="[Command.link(ref('group_storage_admin'))]"/>
+    </record>
+
+</odoo>

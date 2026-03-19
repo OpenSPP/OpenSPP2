@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- ═══════════════════════════════════════════════════════════════════
+             SECURITY GROUPS
+             ═══════════════════════════════════════════════════════════════════ -->
+
+        <record id="group_spp_farm_user" model="res.groups">
+            <field name="name">Farmer Registry User</field>
+            <field name="privilege_id" ref="privilege_farmer_registry"/>
+            <field name="comment">Can view farmer registry records.</field>
+            <field name="implied_ids" eval="[Command.link(ref('base.group_user'))]"/>
+        </record>
+
+        <record id="group_spp_farm_manager" model="res.groups">
+            <field name="name">Farmer Registry Manager</field>
+            <field name="privilege_id" ref="privilege_farmer_registry"/>
+            <field name="comment">Full farmer registry management including seasons, activities, and details.</field>
+            <field name="implied_ids" eval="[Command.link(ref('group_spp_farm_user'))]"/>
+        </record>
+
+        <!-- Link manager group to admin -->
+        <record id="spp_security.group_spp_admin" model="res.groups">
+            <field name="implied_ids" eval="[Command.link(ref('group_spp_farm_manager'))]"/>
+        </record>
+    </data>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         RECORD RULES
+         ═══════════════════════════════════════════════════════════════════ -->
+    <data noupdate="1">
+        <!-- Season Rules -->
+        <record id="rule_farm_season_user" model="ir.rule">
+            <field name="name">Farm Season: User Read Access</field>
+            <field name="model_id" ref="model_spp_farm_season"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[Command.link(ref('group_spp_farm_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_farm_season_manager" model="ir.rule">
+            <field name="name">Farm Season: Manager Full Access</field>
+            <field name="model_id" ref="model_spp_farm_season"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[Command.link(ref('group_spp_farm_manager'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Activity Rules -->
+        <record id="rule_farm_activity_user" model="ir.rule">
+            <field name="name">Farm Activity: User Read Access</field>
+            <field name="model_id" ref="model_spp_farm_activity"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[Command.link(ref('group_spp_farm_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_farm_activity_manager" model="ir.rule">
+            <field name="name">Farm Activity: Manager Full Access</field>
+            <field name="model_id" ref="model_spp_farm_activity"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[Command.link(ref('group_spp_farm_manager'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Farm Details Rules -->
+        <record id="rule_farm_details_user" model="ir.rule">
+            <field name="name">Farm Details: User Read Access</field>
+            <field name="model_id" ref="model_spp_farm_details"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[Command.link(ref('group_spp_farm_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_farm_details_manager" model="ir.rule">
+            <field name="name">Farm Details: Manager Full Access</field>
+            <field name="model_id" ref="model_spp_farm_details"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[Command.link(ref('group_spp_farm_manager'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+    </data>
+</odoo>

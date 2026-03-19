@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="vocab_farm_type" model="spp.vocabulary">
+        <field name="name">Farm Type</field>
+        <field name="namespace_uri">urn:openspp:vocab:farm-type</field>
+        <field name="is_system">True</field>
+        <field name="domain">agriculture</field>
+        <field name="description">Types of farming activities (crop production, livestock, aquaculture, or mixed farming)</field>
+    </record>
+
+    <record id="code_farm_type_crop" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_farm_type"/>
+        <field name="code">crop</field>
+        <field name="display">Crop Production</field>
+        <field name="definition">Farm primarily focused on crop cultivation</field>
+        <field name="sequence">1</field>
+    </record>
+
+    <record id="code_farm_type_livestock" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_farm_type"/>
+        <field name="code">livestock</field>
+        <field name="display">Livestock</field>
+        <field name="definition">Farm primarily focused on raising animals</field>
+        <field name="sequence">2</field>
+    </record>
+
+    <record id="code_farm_type_aquaculture" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_farm_type"/>
+        <field name="code">aquaculture</field>
+        <field name="display">Aquaculture</field>
+        <field name="definition">Farm primarily focused on aquatic species cultivation</field>
+        <field name="sequence">3</field>
+    </record>
+
+    <record id="code_farm_type_mixed" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_farm_type"/>
+        <field name="code">mixed</field>
+        <field name="display">Mixed Farming</field>
+        <field name="definition">Farm with multiple types of agricultural activities</field>
+        <field name="sequence">4</field>
+    </record>
+</odoo>

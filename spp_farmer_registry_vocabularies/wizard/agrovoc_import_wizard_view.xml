@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- AGROVOC Import Wizard Form -->
+    <record id="view_agrovoc_import_wizard_form" model="ir.ui.view">
+        <field name="name">spp.agrovoc.import.wizard.form</field>
+        <field name="model">spp.agrovoc.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import AGROVOC Vocabulary">
+                <group>
+                    <group>
+                        <field name="file_data" filename="file_name"/>
+                        <field name="file_name" invisible="1"/>
+                    </group>
+                    <group>
+                        <field name="vocabulary_type"/>
+                        <field name="vocabulary_id"/>
+                        <field name="language" placeholder="en"/>
+                    </group>
+                </group>
+
+                <group>
+                    <group>
+                        <button
+                            name="action_preview"
+                            string="Preview"
+                            type="object"
+                            class="btn-primary"
+                        />
+                        <field name="preview_count" readonly="1"/>
+                    </group>
+                </group>
+
+                <notebook>
+                    <page string="Preview" invisible="not preview_data">
+                        <field name="preview_data" nolabel="1" readonly="1" widget="text"/>
+                    </page>
+                    <page string="Instructions">
+                        <div class="alert alert-info" role="alert">
+                            <h4>AGROVOC Import Instructions</h4>
+                            <ol>
+                                <li>
+                                    <strong>Download AGROVOC RDF data</strong> from
+                                    <a href="https://agrovoc.fao.org/download" target="_blank">https://agrovoc.fao.org/download</a>
+                                </li>
+                                <li>
+                                    <strong>Upload the N-Triples file</strong>
+                                    (agrovoc_core.nt or agrovoc_core.nt.zip)
+                                </li>
+                                <li>
+                                    <strong>Select vocabulary type</strong>
+                                    (Crops, Livestock, or Aquaculture)
+                                </li>
+                                <li>
+                                    <strong>Set language</strong>
+                                    for labels (en, es, fr, ar, etc.)
+                                </li>
+                                <li>
+                                    <strong>Click Preview</strong>
+                                    to see what will be imported
+                                </li>
+                                <li>
+                                    <strong>Click Import</strong>
+                                    to start the import job
+                                </li>
+                            </ol>
+                            <p>
+                                <strong>Note:</strong>
+                                The import process runs in the background using job_worker.
+                                Large files may take several minutes to process.
+                            </p>
+                        </div>
+                    </page>
+                </notebook>
+
+                <footer>
+                    <button
+                        name="action_import"
+                        string="Import"
+                        type="object"
+                        class="btn-primary"
+                    />
+                    <button
+                        name="action_cancel"
+                        string="Cancel"
+                        type="object"
+                        class="btn-secondary"
+                    />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- AGROVOC Import Job Form -->
+    <record id="view_agrovoc_import_form" model="ir.ui.view">
+        <field name="name">spp.agrovoc.import.form</field>
+        <field name="model">spp.agrovoc.import</field>
+        <field name="arch" type="xml">
+            <form string="AGROVOC Import Job">
+                <header>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="vocabulary_id" readonly="1"/>
+                            <field name="primary_language" readonly="1"/>
+                            <field name="file_name" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="total_count" readonly="1"/>
+                            <field name="imported_count" readonly="1"/>
+                            <field name="skipped_count" readonly="1"/>
+                            <field name="error_count" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Error Log" invisible="not error_log">
+                            <field name="error_log" nolabel="1" readonly="1" widget="text"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- AGROVOC Import Job Tree -->
+    <record id="view_agrovoc_import_tree" model="ir.ui.view">
+        <field name="name">spp.agrovoc.import.tree</field>
+        <field name="model">spp.agrovoc.import</field>
+        <field name="arch" type="xml">
+            <list string="AGROVOC Import Jobs">
+                <field name="name"/>
+                <field name="vocabulary_id"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'processing'" decoration-success="state == 'done'" decoration-danger="state == 'failed'"/>
+                <field name="total_count"/>
+                <field name="imported_count"/>
+                <field name="skipped_count"/>
+                <field name="error_count"/>
+                <field name="create_date"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- AGROVOC Import Wizard Action -->
+    <record id="action_agrovoc_import_wizard" model="ir.actions.act_window">
+        <field name="name">Import AGROVOC</field>
+        <field name="res_model">spp.agrovoc.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- AGROVOC Import Jobs Action -->
+    <record id="action_agrovoc_import" model="ir.actions.act_window">
+        <field name="name">AGROVOC Import Jobs</field>
+        <field name="res_model">spp.agrovoc.import</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Menu Items (to be added to vocabulary menu) -->
+    <menuitem
+        id="menu_agrovoc_import"
+        name="Import AGROVOC"
+        parent="spp_vocabulary.menu_vocabulary_root"
+        action="action_agrovoc_import_wizard"
+        sequence="100"
+        groups="base.group_system"
+    />
+
+    <menuitem
+        id="menu_agrovoc_import_jobs"
+        name="AGROVOC Import Jobs"
+        parent="spp_vocabulary.menu_vocabulary_root"
+        action="action_agrovoc_import"
+        sequence="101"
+        groups="base.group_system"
+    />
+</odoo>

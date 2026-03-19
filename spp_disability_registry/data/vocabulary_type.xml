@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="1">
+        <!--
+            Disability/Impairment Type Vocabulary
+            Based on DCI CD.DR.01 and ICF classifications
+        -->
+        <record id="vocab_disability_type" model="spp.vocabulary">
+            <field name="name">Disability Type</field>
+            <field name="namespace_uri">urn:dci:cd:dr:01</field>
+            <field name="version">2024</field>
+            <field name="description">Types of impairments aligned with DCI Code Directory DR.01 and ICF classifications</field>
+            <field name="is_system">True</field>
+            <field name="domain">disability</field>
+        </record>
+
+        <!-- Physical Impairments -->
+        <record id="code_disability_physical" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_disability_type" />
+            <field name="code">physical</field>
+            <field name="display">Physical Impairment</field>
+            <field name="definition">Impairments affecting mobility, dexterity, or physical function</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="code_disability_mobility" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_disability_type" />
+            <field name="code">mobility</field>
+            <field name="display">Mobility Impairment</field>
+            <field name="definition">Difficulty walking, climbing, or moving</field>
+            <field name="parent_id" ref="code_disability_physical" />
+            <field name="sequence">11</field>
+        </record>
+
+        <record id="code_disability_upper_limb" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_disability_type" />
+            <field name="code">upper_limb</field>
+            <field name="display">Upper Limb Impairment</field>
+            <field name="definition">Impairment affecting arms, hands, or fine motor skills</field>
+            <field name="parent_id" ref="code_disability_physical" />
+            <field name="sequence">12</field>
+        </record>
+
+        <!-- Sensory Impairments -->
+        <record id="code_disability_sensory" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_disability_type" />
+            <field name="code">sensory</field>
+            <field name="display">Sensory Impairment</field>
+            <field name="definition">Impairments affecting sight, hearing, or other senses</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <record id="code_disability_visual" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_disability_type" />
+            <field name="code">visual</field>
+            <field name="display">Visual Impairment</field>
+            <field name="definition">Partial or total loss of vision</field>
+            <field name="parent_id" ref="code_disability_sensory" />
+            <field name="sequence">21</field>
+        </record>
+
+        <record id="code_disability_hearing" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_disability_type" />
+            <field name="code">hearing</field>
+            <field name="display">Hearing Impairment</field>
+            <field name="definition">Partial or total loss of hearing</field>
+            <field name="parent_id" ref="code_disability_sensory" />
+            <field name="sequence">22</field>
+        </record>
+
+        <record id="code_disability_deafblind" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_disability_type" />
+            <field name="code">deafblind</field>
+            <field name="display">Deafblindness</field>
+            <field name="definition">Combined vision and hearing impairment</field>
+            <field name="parent_id" ref="code_disability_sensory" />
+            <field name="sequence">23</field>
+        </record>
+
+        <!-- Cognitive/Intellectual Impairments -->
+        <record id="code_disability_cognitive" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_disability_type" />
+            <field name="code">cognitive</field>
+            <field name="display">Cognitive/Intellectual Impairment</field>
+            <field name="definition">Impairments affecting thinking, learning, or memory</field>
+            <field name="sequence">30</field>
+        </record>
+
+        <record id="code_disability_intellectual" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_disability_type" />
+            <field name="code">intellectual</field>
+            <field name="display">Intellectual Disability</field>
+            <field name="definition">Limitations in intellectual functioning and adaptive behavior</field>
+            <field name="parent_id" ref="code_disability_cognitive" />
+            <field name="sequence">31</field>
+        </record>
+
+        <record id="code_disability_learning" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_disability_type" />
+            <field name="code">learning</field>
+            <field name="display">Learning Disability</field>
+            <field name="definition">Specific learning difficulties affecting academic skills</field>
+            <field name="parent_id" ref="code_disability_cognitive" />
+            <field name="sequence">32</field>
+        </record>
+
+        <!-- Psychosocial/Mental Health -->
+        <record id="code_disability_psychosocial" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_disability_type" />
+            <field name="code">psychosocial</field>
+            <field name="display">Psychosocial Disability</field>
+            <field name="definition">Impairments arising from mental health conditions</field>
+            <field name="sequence">40</field>
+        </record>
+
+        <!-- Communication Impairments -->
+        <record id="code_disability_communication" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_disability_type" />
+            <field name="code">communication</field>
+            <field name="display">Communication Impairment</field>
+            <field name="definition">Difficulty with speech, language, or communication</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <record id="code_disability_speech" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_disability_type" />
+            <field name="code">speech</field>
+            <field name="display">Speech Impairment</field>
+            <field name="definition">Difficulty producing speech</field>
+            <field name="parent_id" ref="code_disability_communication" />
+            <field name="sequence">51</field>
+        </record>
+
+        <!-- Multiple Impairments -->
+        <record id="code_disability_multiple" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_disability_type" />
+            <field name="code">multiple</field>
+            <field name="display">Multiple Impairments</field>
+            <field name="definition">Two or more impairments occurring together</field>
+            <field name="sequence">60</field>
+        </record>
+
+        <!-- Other/Unspecified -->
+        <record id="code_disability_other" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_disability_type" />
+            <field name="code">other</field>
+            <field name="display">Other Impairment</field>
+            <field name="definition">Impairment not classified elsewhere</field>
+            <field name="sequence">90</field>
+        </record>
+</odoo>

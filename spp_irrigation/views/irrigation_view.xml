@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_spp_irrigation_asset_tree" model="ir.ui.view">
+        <field name="name">spp.irrigation.asset.tree</field>
+        <field name="model">spp.irrigation.asset</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+                <field name="asset_type_id" />
+                <field name="farm_id" />
+                <field name="total_capacity" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_spp_irrigation_asset_form" model="ir.ui.view">
+        <field name="name">spp.irrigation.asset.form</field>
+        <field name="model">spp.irrigation.asset</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group string="General">
+                            <field name="name" />
+                            <field name="asset_type_id" options="{'no_create': True}" />
+                            <field name="total_capacity" />
+                        </group>
+                        <group string="Ownership">
+                            <field name="farm_id" />
+                        </group>
+                    </group>
+                    <group string="Water Network">
+                        <field name="irrigation_source_ids" widget="many2many_tags" />
+                        <field name="irrigation_destination_ids" widget="many2many_tags" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- GIS View -->
+    <record id="view_spp_irrigation_asset_gis" model="ir.ui.view">
+        <field name="name">Irrigation GIS View</field>
+        <field eval="16" name="priority" />
+        <field name="model">spp.irrigation.asset</field>
+        <field name="arch" type="xml">
+            <gis editable="1">
+                <field name="id" />
+                <field name="name" select="1" />
+                <field name="display_name" />
+                <field name="coordinates" />
+                <field name="geo_polygon" />
+            </gis>
+        </field>
+    </record>
+
+    <record id="gis_coordinates_irrigation_asset" model="spp.gis.data.layer">
+        <field name="geo_field_id" ref="spp_irrigation.field_spp_irrigation_asset__coordinates" />
+        <field name="name">Irrigation Coordinates</field>
+        <field eval="1" name="sequence" />
+        <field name="view_id" ref="view_spp_irrigation_asset_gis" />
+        <field name="geo_repr">basic</field>
+        <field name="active_on_startup" eval="True" />
+        <field name="layer_opacity">0.8</field>
+        <field name="begin_color">#FF680A</field>
+    </record>
+
+    <record id="gis_geo_polygon_irrigation_asset" model="spp.gis.data.layer">
+        <field name="geo_field_id" ref="spp_irrigation.field_spp_irrigation_asset__geo_polygon" />
+        <field name="name">Irrigation Polygon</field>
+        <field eval="3" name="sequence" />
+        <field name="view_id" ref="view_spp_irrigation_asset_gis" />
+        <field name="geo_repr">basic</field>
+        <field name="active_on_startup" eval="True" />
+        <field name="layer_opacity">0.8</field>
+        <field name="begin_color">#FF680A</field>
+    </record>
+
+    <record id="geo_osm_irrigation_asset" model="spp.gis.raster.layer">
+        <field name="raster_type">osm</field>
+        <field name="name">Irrigation background</field>
+        <field name="view_id" ref="view_spp_irrigation_asset_gis" />
+    </record>
+</odoo>

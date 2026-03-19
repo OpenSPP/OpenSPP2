@@ -1,0 +1,539 @@
+{
+  "version": 16,
+  "sheets": [
+    {
+      "id": "sheet1",
+      "name": "Farmer Overview",
+      "colNumber": 26,
+      "rowNumber": 100,
+      "rows": {},
+      "cols": {
+        "0": {"size": 200},
+        "1": {"size": 150},
+        "2": {"size": 150},
+        "3": {"size": 150},
+        "4": {"size": 150},
+        "5": {"size": 150}
+      },
+      "merges": [],
+      "cells": {
+        "A1": {"style": 1, "content": "Farmer Registry Dashboard", "border": 1},
+        "A3": {"style": 2, "content": "Farm Metrics", "border": 2},
+        "B3": {"style": 2, "content": "Value", "border": 2},
+        "A4": {"style": 3, "content": "Total Farms", "border": 3},
+        "B4": {"content": "=ODOO.PIVOT(1,\"__count\")", "border": 3, "format": "#,##0"},
+        "A5": {"style": 3, "content": "Total Hectares", "border": 3},
+        "B5": {"content": "=ODOO.PIVOT(1,\"farm_total_size\")", "border": 3, "format": "#,##0.0"},
+        "A6": {"style": 3, "content": "Avg Farm Size (ha)", "border": 3},
+        "B6": {"content": "=B5/B4", "border": 3, "format": "#,##0.00"},
+
+        "A8": {"style": 2, "content": "Farm Type Distribution", "border": 2},
+        "B8": {"style": 2, "content": "Count", "border": 2},
+        "C8": {"style": 2, "content": "Hectares", "border": 2},
+        "A9": {"style": 3, "content": "=ODOO.PIVOT.HEADER(2,\"farm_type_id\",\"#1\")", "border": 3},
+        "B9": {"content": "=ODOO.PIVOT(2,\"__count\",\"farm_type_id\",\"#1\")", "border": 3, "format": "#,##0"},
+        "C9": {"content": "=ODOO.PIVOT(2,\"farm_total_size\",\"farm_type_id\",\"#1\")", "border": 3, "format": "#,##0.0"},
+        "A10": {"style": 3, "content": "=ODOO.PIVOT.HEADER(2,\"farm_type_id\",\"#2\")", "border": 3},
+        "B10": {"content": "=ODOO.PIVOT(2,\"__count\",\"farm_type_id\",\"#2\")", "border": 3, "format": "#,##0"},
+        "C10": {"content": "=ODOO.PIVOT(2,\"farm_total_size\",\"farm_type_id\",\"#2\")", "border": 3, "format": "#,##0.0"},
+        "A11": {"style": 3, "content": "=ODOO.PIVOT.HEADER(2,\"farm_type_id\",\"#3\")", "border": 3},
+        "B11": {"content": "=ODOO.PIVOT(2,\"__count\",\"farm_type_id\",\"#3\")", "border": 3, "format": "#,##0"},
+        "C11": {"content": "=ODOO.PIVOT(2,\"farm_total_size\",\"farm_type_id\",\"#3\")", "border": 3, "format": "#,##0.0"},
+        "A12": {"style": 3, "content": "=ODOO.PIVOT.HEADER(2,\"farm_type_id\",\"#4\")", "border": 3},
+        "B12": {"content": "=ODOO.PIVOT(2,\"__count\",\"farm_type_id\",\"#4\")", "border": 3, "format": "#,##0"},
+        "C12": {"content": "=ODOO.PIVOT(2,\"farm_total_size\",\"farm_type_id\",\"#4\")", "border": 3, "format": "#,##0.0"},
+
+        "A14": {"style": 2, "content": "Land Tenure Distribution", "border": 2},
+        "B14": {"style": 2, "content": "Count", "border": 2},
+        "A15": {"style": 3, "content": "=ODOO.PIVOT.HEADER(3,\"land_tenure_id\",\"#1\")", "border": 3},
+        "B15": {"content": "=ODOO.PIVOT(3,\"__count\",\"land_tenure_id\",\"#1\")", "border": 3, "format": "#,##0"},
+        "A16": {"style": 3, "content": "=ODOO.PIVOT.HEADER(3,\"land_tenure_id\",\"#2\")", "border": 3},
+        "B16": {"content": "=ODOO.PIVOT(3,\"__count\",\"land_tenure_id\",\"#2\")", "border": 3, "format": "#,##0"},
+        "A17": {"style": 3, "content": "=ODOO.PIVOT.HEADER(3,\"land_tenure_id\",\"#3\")", "border": 3},
+        "B17": {"content": "=ODOO.PIVOT(3,\"__count\",\"land_tenure_id\",\"#3\")", "border": 3, "format": "#,##0"},
+
+        "E3": {"style": 2, "content": "Smallholder Analysis", "border": 2},
+        "F3": {"style": 2, "content": "Count", "border": 2},
+        "E4": {"style": 3, "content": "Smallholder Farms (≤5 ha)", "border": 3},
+        "F4": {"content": "=ODOO.PIVOT(4,\"__count\",\"is_smallholder\",\"true\")", "border": 3, "format": "#,##0"},
+        "E5": {"style": 3, "content": "Large Farms (>5 ha)", "border": 3},
+        "F5": {"content": "=ODOO.PIVOT(4,\"__count\",\"is_smallholder\",\"false\")", "border": 3, "format": "#,##0"},
+
+        "E8": {"style": 2, "content": "Farm Size Ranges", "border": 2},
+        "F8": {"style": 2, "content": "Count", "border": 2},
+        "E9": {"style": 3, "content": "0-1 ha", "border": 3},
+        "F9": {"content": "=COUNTIF(B4:B100,\"<=1\")", "border": 3},
+        "E10": {"style": 3, "content": "1-3 ha", "border": 3},
+        "F10": {"content": "=COUNTIFS(B4:B100,\">1\",B4:B100,\"<=3\")", "border": 3},
+        "E11": {"style": 3, "content": "3-5 ha", "border": 3},
+        "F11": {"content": "=COUNTIFS(B4:B100,\">3\",B4:B100,\"<=5\")", "border": 3},
+        "E12": {"style": 3, "content": ">5 ha", "border": 3},
+        "F12": {"content": "=COUNTIF(B4:B100,\">5\")", "border": 3}
+      },
+      "figures": [
+        {
+          "id": "scorecard-total-farms",
+          "x": 10,
+          "y": 10,
+          "width": 250,
+          "height": 120,
+          "tag": "chart",
+          "data": {
+            "title": "Total Farms",
+            "background": "#2D7E84",
+            "type": "scorecard",
+            "keyValue": "B4",
+            "baseline": "",
+            "baselineMode": "difference",
+            "baselineDescr": "Registered Farms"
+          }
+        },
+        {
+          "id": "scorecard-total-hectares",
+          "x": 280,
+          "y": 10,
+          "width": 250,
+          "height": 120,
+          "tag": "chart",
+          "data": {
+            "title": "Total Hectares",
+            "background": "#4A9FA5",
+            "type": "scorecard",
+            "keyValue": "B5",
+            "baseline": "",
+            "baselineMode": "difference",
+            "baselineDescr": "Total Land Area"
+          }
+        },
+        {
+          "id": "scorecard-avg-size",
+          "x": 550,
+          "y": 10,
+          "width": 250,
+          "height": 120,
+          "tag": "chart",
+          "data": {
+            "title": "Avg Farm Size",
+            "background": "#6BB0B5",
+            "type": "scorecard",
+            "keyValue": "B6",
+            "baseline": "",
+            "baselineMode": "difference",
+            "baselineDescr": "Hectares per Farm"
+          }
+        },
+        {
+          "id": "scorecard-smallholders",
+          "x": 820,
+          "y": 10,
+          "width": 250,
+          "height": 120,
+          "tag": "chart",
+          "data": {
+            "title": "Smallholders",
+            "background": "#8BC1C5",
+            "type": "scorecard",
+            "keyValue": "F4",
+            "baseline": "",
+            "baselineMode": "difference",
+            "baselineDescr": "≤5 Hectares"
+          }
+        },
+        {
+          "id": "chart-farm-type-pie",
+          "x": 10,
+          "y": 150,
+          "width": 500,
+          "height": 350,
+          "tag": "chart",
+          "data": {
+            "title": "Farm Type Distribution",
+            "background": "#FFFFFF",
+            "legendPosition": "right",
+            "metaData": {
+              "groupBy": ["farm_type_id"],
+              "measure": "__count",
+              "order": null,
+              "resModel": "res.partner",
+              "mode": "pie",
+              "cumulated": false,
+              "cumulatedStart": false
+            },
+            "searchParams": {
+              "comparison": null,
+              "context": {},
+              "domain": [["is_registrant", "=", true], ["is_group", "=", true], ["farm_type_id", "!=", false]],
+              "groupBy": [],
+              "orderBy": []
+            },
+            "type": "odoo_pie",
+            "fieldMatching": {}
+          }
+        },
+        {
+          "id": "chart-land-tenure-pie",
+          "x": 530,
+          "y": 150,
+          "width": 500,
+          "height": 350,
+          "tag": "chart",
+          "data": {
+            "title": "Land Tenure Distribution",
+            "background": "#FFFFFF",
+            "legendPosition": "right",
+            "metaData": {
+              "groupBy": ["land_tenure_id"],
+              "measure": "__count",
+              "order": null,
+              "resModel": "res.partner",
+              "mode": "pie",
+              "cumulated": false,
+              "cumulatedStart": false
+            },
+            "searchParams": {
+              "comparison": null,
+              "context": {},
+              "domain": [["is_registrant", "=", true], ["is_group", "=", true], ["land_tenure_id", "!=", false]],
+              "groupBy": [],
+              "orderBy": []
+            },
+            "type": "odoo_pie",
+            "fieldMatching": {}
+          }
+        },
+        {
+          "id": "chart-farm-size-bar",
+          "x": 10,
+          "y": 520,
+          "width": 700,
+          "height": 300,
+          "tag": "chart",
+          "data": {
+            "title": "Farm Size by Type (Hectares)",
+            "background": "#FFFFFF",
+            "legendPosition": "top",
+            "verticalAxisPosition": "left",
+            "stacked": false,
+            "metaData": {
+              "groupBy": ["farm_type_id"],
+              "measure": "farm_total_size",
+              "order": null,
+              "resModel": "res.partner",
+              "mode": "bar",
+              "cumulated": false,
+              "cumulatedStart": false
+            },
+            "searchParams": {
+              "comparison": null,
+              "context": {},
+              "domain": [["is_registrant", "=", true], ["is_group", "=", true], ["farm_type_id", "!=", false]],
+              "groupBy": [],
+              "orderBy": []
+            },
+            "type": "odoo_bar",
+            "fieldMatching": {}
+          }
+        },
+        {
+          "id": "chart-smallholder-donut",
+          "x": 730,
+          "y": 520,
+          "width": 320,
+          "height": 300,
+          "tag": "chart",
+          "data": {
+            "title": "Smallholder vs Large Farms",
+            "background": "#FFFFFF",
+            "legendPosition": "bottom",
+            "metaData": {
+              "groupBy": ["is_smallholder"],
+              "measure": "__count",
+              "order": null,
+              "resModel": "spp.farm.details",
+              "mode": "pie",
+              "cumulated": false,
+              "cumulatedStart": false
+            },
+            "searchParams": {
+              "comparison": null,
+              "context": {},
+              "domain": [],
+              "groupBy": [],
+              "orderBy": []
+            },
+            "type": "odoo_pie",
+            "fieldMatching": {}
+          }
+        }
+      ],
+      "conditionalFormats": [],
+      "areGridLinesVisible": true,
+      "isVisible": true,
+      "headerGroups": {"ROW": [], "COL": []},
+      "dataValidationRules": [],
+      "filterTables": []
+    },
+    {
+      "id": "sheet2",
+      "name": "Activity Analysis",
+      "colNumber": 26,
+      "rowNumber": 100,
+      "rows": {},
+      "cols": {
+        "0": {"size": 200},
+        "1": {"size": 150},
+        "2": {"size": 150}
+      },
+      "merges": [],
+      "cells": {
+        "A1": {"style": 1, "content": "Agricultural Activities", "border": 1},
+        "A3": {"style": 2, "content": "Activity Type", "border": 2},
+        "B3": {"style": 2, "content": "Count", "border": 2},
+        "A4": {"style": 3, "content": "Crop Activities", "border": 3},
+        "B4": {"content": "=ODOO.PIVOT(5,\"__count\",\"activity_type\",\"crop\")", "border": 3, "format": "#,##0"},
+        "A5": {"style": 3, "content": "Livestock Activities", "border": 3},
+        "B5": {"content": "=ODOO.PIVOT(5,\"__count\",\"activity_type\",\"livestock\")", "border": 3, "format": "#,##0"},
+        "A6": {"style": 3, "content": "Aquaculture Activities", "border": 3},
+        "B6": {"content": "=ODOO.PIVOT(5,\"__count\",\"activity_type\",\"aquaculture\")", "border": 3, "format": "#,##0"},
+
+        "A8": {"style": 2, "content": "Top Crops", "border": 2},
+        "B8": {"style": 2, "content": "Area (ha)", "border": 2},
+        "A9": {"style": 3, "content": "=ODOO.PIVOT.HEADER(6,\"species_id\",\"#1\")", "border": 3},
+        "B9": {"content": "=ODOO.PIVOT(6,\"area_planted\",\"species_id\",\"#1\")", "border": 3, "format": "#,##0.0"},
+        "A10": {"style": 3, "content": "=ODOO.PIVOT.HEADER(6,\"species_id\",\"#2\")", "border": 3},
+        "B10": {"content": "=ODOO.PIVOT(6,\"area_planted\",\"species_id\",\"#2\")", "border": 3, "format": "#,##0.0"},
+        "A11": {"style": 3, "content": "=ODOO.PIVOT.HEADER(6,\"species_id\",\"#3\")", "border": 3},
+        "B11": {"content": "=ODOO.PIVOT(6,\"area_planted\",\"species_id\",\"#3\")", "border": 3, "format": "#,##0.0"},
+
+        "D3": {"style": 2, "content": "Top Livestock", "border": 2},
+        "E3": {"style": 2, "content": "Heads", "border": 2},
+        "D4": {"style": 3, "content": "=ODOO.PIVOT.HEADER(7,\"species_id\",\"#1\")", "border": 3},
+        "E4": {"content": "=ODOO.PIVOT(7,\"quantity\",\"species_id\",\"#1\")", "border": 3, "format": "#,##0"},
+        "D5": {"style": 3, "content": "=ODOO.PIVOT.HEADER(7,\"species_id\",\"#2\")", "border": 3},
+        "E5": {"content": "=ODOO.PIVOT(7,\"quantity\",\"species_id\",\"#2\")", "border": 3, "format": "#,##0"},
+        "D6": {"style": 3, "content": "=ODOO.PIVOT.HEADER(7,\"species_id\",\"#3\")", "border": 3},
+        "E6": {"content": "=ODOO.PIVOT(7,\"quantity\",\"species_id\",\"#3\")", "border": 3, "format": "#,##0"}
+      },
+      "figures": [
+        {
+          "id": "chart-activity-type",
+          "x": 10,
+          "y": 250,
+          "width": 500,
+          "height": 350,
+          "tag": "chart",
+          "data": {
+            "title": "Activities by Type",
+            "background": "#FFFFFF",
+            "legendPosition": "right",
+            "metaData": {
+              "groupBy": ["activity_type"],
+              "measure": "__count",
+              "order": null,
+              "resModel": "spp.farm.activity",
+              "mode": "pie",
+              "cumulated": false,
+              "cumulatedStart": false
+            },
+            "searchParams": {
+              "comparison": null,
+              "context": {},
+              "domain": [],
+              "groupBy": [],
+              "orderBy": []
+            },
+            "type": "odoo_pie",
+            "fieldMatching": {}
+          }
+        },
+        {
+          "id": "chart-crop-species",
+          "x": 530,
+          "y": 250,
+          "width": 500,
+          "height": 350,
+          "tag": "chart",
+          "data": {
+            "title": "Crop Species Distribution",
+            "background": "#FFFFFF",
+            "legendPosition": "right",
+            "verticalAxisPosition": "left",
+            "stacked": false,
+            "metaData": {
+              "groupBy": ["species_id"],
+              "measure": "area_planted",
+              "order": "area_planted DESC",
+              "resModel": "spp.farm.activity",
+              "mode": "bar",
+              "cumulated": false,
+              "cumulatedStart": false
+            },
+            "searchParams": {
+              "comparison": null,
+              "context": {},
+              "domain": [["activity_type", "=", "crop"]],
+              "groupBy": [],
+              "orderBy": []
+            },
+            "type": "odoo_bar",
+            "fieldMatching": {}
+          }
+        }
+      ],
+      "conditionalFormats": [],
+      "areGridLinesVisible": true,
+      "isVisible": true,
+      "headerGroups": {"ROW": [], "COL": []},
+      "dataValidationRules": [],
+      "filterTables": []
+    }
+  ],
+  "entities": {},
+  "styles": {
+    "1": {"bold": true, "fillColor": "#2D7E84", "textColor": "#FFFFFF", "fontSize": 16},
+    "2": {"bold": true, "fillColor": "#E6F2F3", "textColor": "#2D7E84"},
+    "3": {"fillColor": "#F8FAFA"}
+  },
+  "formats": {},
+  "borders": {
+    "1": {
+      "top": {"style": "thin", "color": "#2D7E84"},
+      "bottom": {"style": "thin", "color": "#2D7E84"},
+      "left": {"style": "thin", "color": "#2D7E84"},
+      "right": {"style": "thin", "color": "#2D7E84"}
+    },
+    "2": {
+      "bottom": {"style": "thin", "color": "#2D7E84"},
+      "left": {"style": "thin", "color": "#2D7E84"},
+      "right": {"style": "thin", "color": "#2D7E84"}
+    },
+    "3": {
+      "top": {"style": "thin", "color": "#CCCCCC"},
+      "bottom": {"style": "thin", "color": "#CCCCCC"},
+      "left": {"style": "thin", "color": "#CCCCCC"},
+      "right": {"style": "thin", "color": "#CCCCCC"}
+    }
+  },
+  "revisionId": "farmer-dashboard-v2-001",
+  "uniqueFigureIds": true,
+  "settings": {
+    "locale": {
+      "name": "English (US)",
+      "code": "en_US",
+      "thousandsSeparator": ",",
+      "decimalSeparator": ".",
+      "dateFormat": "m/d/yyyy",
+      "timeFormat": "hh:mm:ss a",
+      "formulaArgSeparator": ","
+    }
+  },
+  "odooVersion": 19,
+  "globalFilters": [],
+  "pivots": {
+    "1": {
+      "id": "1",
+      "name": "Farm Summary",
+      "model": "res.partner",
+      "domain": [["is_registrant", "=", true], ["is_group", "=", true]],
+      "measures": [
+        {"field": "__count", "name": "Count"},
+        {"field": "farm_total_size", "name": "Total Hectares"}
+      ],
+      "rowGroupBys": [],
+      "colGroupBys": [],
+      "context": {},
+      "sortedColumn": null,
+      "fieldMatching": {}
+    },
+    "2": {
+      "id": "2",
+      "name": "Farm Type Analysis",
+      "model": "res.partner",
+      "domain": [["is_registrant", "=", true], ["is_group", "=", true], ["farm_type_id", "!=", false]],
+      "measures": [
+        {"field": "__count", "name": "Count"},
+        {"field": "farm_total_size", "name": "Hectares"}
+      ],
+      "rowGroupBys": ["farm_type_id"],
+      "colGroupBys": [],
+      "context": {},
+      "sortedColumn": null,
+      "fieldMatching": {}
+    },
+    "3": {
+      "id": "3",
+      "name": "Land Tenure Analysis",
+      "model": "res.partner",
+      "domain": [["is_registrant", "=", true], ["is_group", "=", true], ["land_tenure_id", "!=", false]],
+      "measures": [{"field": "__count", "name": "Count"}],
+      "rowGroupBys": ["land_tenure_id"],
+      "colGroupBys": [],
+      "context": {},
+      "sortedColumn": null,
+      "fieldMatching": {}
+    },
+    "4": {
+      "id": "4",
+      "name": "Smallholder Analysis",
+      "model": "spp.farm.details",
+      "domain": [],
+      "measures": [{"field": "__count", "name": "Count"}],
+      "rowGroupBys": ["is_smallholder"],
+      "colGroupBys": [],
+      "context": {},
+      "sortedColumn": null,
+      "fieldMatching": {}
+    },
+    "5": {
+      "id": "5",
+      "name": "Activity Type Summary",
+      "model": "spp.farm.activity",
+      "domain": [],
+      "measures": [{"field": "__count", "name": "Count"}],
+      "rowGroupBys": ["activity_type"],
+      "colGroupBys": [],
+      "context": {},
+      "sortedColumn": null,
+      "fieldMatching": {}
+    },
+    "6": {
+      "id": "6",
+      "name": "Crop Species Summary",
+      "model": "spp.farm.activity",
+      "domain": [["activity_type", "=", "crop"]],
+      "measures": [{"field": "area_planted", "name": "Area Planted"}],
+      "rowGroupBys": ["species_id"],
+      "colGroupBys": [],
+      "context": {"group_by_no_leaf": 1},
+      "sortedColumn": {"measure": "area_planted", "order": "desc"},
+      "fieldMatching": {}
+    },
+    "7": {
+      "id": "7",
+      "name": "Livestock Species Summary",
+      "model": "spp.farm.activity",
+      "domain": [["activity_type", "=", "livestock"]],
+      "measures": [{"field": "quantity", "name": "Quantity"}],
+      "rowGroupBys": ["species_id"],
+      "colGroupBys": [],
+      "context": {"group_by_no_leaf": 1},
+      "sortedColumn": {"measure": "quantity", "order": "desc"},
+      "fieldMatching": {}
+    }
+  },
+  "pivotNextId": 8,
+  "lists": {
+    "1": {
+      "id": "1",
+      "name": "Recent Farms",
+      "model": "res.partner",
+      "domain": [["is_registrant", "=", true], ["is_group", "=", true]],
+      "columns": ["name", "farm_type_id", "farm_total_size", "land_tenure_id", "registration_date"],
+      "context": {"default_is_registrant": true, "default_is_group": true},
+      "orderBy": [{"name": "registration_date", "asc": false}],
+      "fieldMatching": {}
+    }
+  },
+  "listNextId": 2,
+  "chartOdooMenusReferences": {}
+}

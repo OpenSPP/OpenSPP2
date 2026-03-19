@@ -1,0 +1,300 @@
+# Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+"""Agricultural Season Management.
+
+Manages agricultural seasons with a clear state machine (draft → active → closed).
+Seasons control when farm activities can be recorded and modified.
+
+This model is preserved from V1 as it follows good patterns:
+- Clear state machine with proper transitions
+- Security-aware access control
+- Prevents modifications to closed seasons
+"""
+
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
+
+
+class SPPFarmSeason(models.Model):
+    """Agricultural Season with state machine management."""
+
+    _name = "spp.farm.season"
+    _description = "Agricultural Season"
+    _order = "date_start desc"
+
+    name = fields.Char(
+        string="Season Name",
+        required=True,
+        index=True,
+    )
+    description = fields.Text()
+    date_start = fields.Date(
+        string="Start Date",
+        required=True,
+        index=True,
+    )
+    date_end = fields.Date(
+        string="End Date",
+        required=True,
+        index=True,
+    )
+    active = fields.Boolean(default=True)
+    state = fields.Selection(
+        [
+            ("draft", "Draft"),
+            ("active", "Active"),
+            ("closed", "Closed"),
+        ],
+        string="Status",
+        default="draft",
+        required=True,
+        index=True,
+    )
+
+    activity_ids = fields.One2many(
+        "spp.farm.activity",
+        "season_id",
+        string="Agricultural Activities",
+    )
+    activity_count = fields.Integer(
+        string="Activities",
+        compute="_compute_activity_count",
+        store=True,
+    )
+
+    # Access control computed fields
+    can_edit = fields.Boolean(compute="_compute_access_rights")
+    can_activate = fields.Boolean(compute="_compute_access_rights")
+    can_close = fields.Boolean(compute="_compute_access_rights")
+    show_close_button = fields.Boolean(compute="_compute_show_close_button")
+
+    allow_overlap = fields.Boolean(
+        string="Allow Overlap with Other Seasons",
+        default=False,
+        help="If checked, this season can overlap with other active seasons",
+    )
+    force_close = fields.Boolean(
+        string="Force Close",
+        default=False,
+        help="If checked, allows closing the season before the end date",
+    )
+    show_force_close_button = fields.Boolean(compute="_compute_show_force_close_button")
+
+    # Constraints
+    _name_uniq = models.Constraint("unique(name)", "Season name must be unique!")
+    _date_check = models.Constraint(
+        "CHECK(date_end >= date_start)",
+        "End date must be after start date",
+    )
+
+    @api.depends("state")
+    def _compute_access_rights(self):
+        """Compute access rights based on user and state."""
+        is_manager = self.env.user.has_group("spp_farmer_registry.group_spp_farm_manager")
+        for record in self:
+            record.can_edit = is_manager and record.state != "closed"
+            record.can_activate = is_manager and record.state == "draft"
+            record.can_close = is_manager and record.state == "active"
+
+    @api.depends("date_end", "state")
+    def _compute_show_close_button(self):
+        for record in self:
+            if not record.date_end or record.state != "active":
+                record.show_close_button = False
+            else:
+                record.show_close_button = record.date_end <= fields.Date.today()
+
+    @api.depends("date_end", "state")
+    def _compute_show_force_close_button(self):
+        for record in self:
+            if not record.date_end or record.state != "active":
+                record.show_force_close_button = False
+            else:
+                record.show_force_close_button = record.date_end > fields.Date.today()
+
+    @api.depends("activity_ids")
+    def _compute_activity_count(self):
+        for record in self:
+            record.activity_count = len(record.activity_ids)
+
+    @api.constrains("date_start", "date_end")
+    def _check_dates(self):
+        for record in self:
+            if record.date_end < record.date_start:
+                raise ValidationError(_("End date must be after start date"))
+
+    def action_activate(self):
+        """Activate the season."""
+        self.ensure_one()
+        if not self.can_activate:
+            raise ValidationError(_("You don't have permission to activate seasons"))
+        if self.state != "draft":
+            raise ValidationError(_("Only draft seasons can be activated"))
+        self.write({"state": "active"})
+
+    def action_close(self):
+        """Close the season."""
+        self.ensure_one()
+        if not self.can_close:
+            raise ValidationError(_("You don't have permission to close seasons"))
+        if self.state != "active":
+            raise ValidationError(_("Only active seasons can be closed"))
+        self.write({"state": "closed"})
+
+    def action_force_close(self):
+        """Force close the season even before end date."""
+        self.ensure_one()
+        if not self.can_close:
+            raise ValidationError(_("You don't have permission to close seasons"))
+        if self.state != "active":
+            raise ValidationError(_("Only active seasons can be closed"))
+        self.write({"state": "closed", "force_close": True})
+
+    def action_draft(self):
+        """Reset season to draft state."""
+        self.ensure_one()
+        if not self.can_edit:
+            raise ValidationError(_("You don't have permission to modify this season"))
+        if self.state == "closed":
+            raise ValidationError(_("Closed seasons cannot be reopened"))
+        if self.activity_ids:
+            raise ValidationError(_("Cannot reset to draft when activities exist"))
+        self.write({"state": "draft"})
+
+    @api.constrains("state")
+    def _check_state_transition(self):
+        """Validate state transitions."""
+        for record in self:
+            if record.state == "closed":
+                if (
+                    record.date_end
+                    and record.date_end > fields.Date.today()
+                    and not record.force_close
+                ):
+                    raise ValidationError(
+                        _(
+                            "Cannot close season before the end date. "
+                            "Please wait until the season end date, adjust the end date, "
+                            "or enable 'Force Close' to override this restriction."
+                        )
+                    )
+
+    @api.constrains("date_start", "date_end", "state")
+    def _check_overlapping_active_seasons(self):
+        """Prevent overlapping active seasons unless explicitly allowed."""
+        for record in self:
+            if record.state == "active" and not record.allow_overlap:
+                overlapping = self.search(
+                    [
+                        ("id", "!=", record.id),
+                        ("state", "=", "active"),
+                        ("allow_overlap", "=", False),
+                        "|",
+                        "&",
+                        ("date_start", "<=", record.date_start),
+                        ("date_end", ">=", record.date_start),
+                        "&",
+                        ("date_start", "<=", record.date_end),
+                        ("date_end", ">=", record.date_end),
+                    ]
+                )
+                if overlapping:
+                    raise ValidationError(
+                        _(
+                            "This season overlaps with existing active seasons: %(seasons)s. "
+                            "If this is intended, please use the 'Allow Overlap' option."
+                        )
+                        % {"seasons": ", ".join(overlapping.mapped("name"))}
+                    )
+
+    def toggle_active(self):
+        """Override to prevent archiving closed seasons with activities."""
+        for record in self:
+            if not record.active and record.state == "closed":
+                if record.activity_ids:
+                    raise ValidationError(
+                        _("Cannot reactivate closed season with existing activities")
+                    )
+        return super().toggle_active()
+
+    @api.model
+    def _get_current_season(self):
+        """Helper method to get current active season."""
+        today = fields.Date.today()
+        return self.search(
+            [
+                ("state", "=", "active"),
+                ("date_start", "<=", today),
+                ("date_end", ">=", today),
+            ],
+            limit=1,
+            order="date_start desc",
+        )
+
+    def copy(self, default=None):
+        """Override copy to handle unique constraints and naming."""
+        self.ensure_one()
+        default = dict(default or {})
+        if "name" not in default:
+            default["name"] = _("%(name)s (Copy)") % {"name": self.name}
+        default.update(
+            {
+                "state": "draft",
+                "activity_ids": [],
+                "date_start": fields.Date.today(),
+                "date_end": fields.Date.today(),
+            }
+        )
+        return super().copy(default)
+
+    def write(self, vals):
+        """Override write to implement state-based access control."""
+        for record in self:
+            if not record.can_edit and (
+                set(vals.keys()) - {"message_ids", "message_follower_ids"}
+            ):
+                raise ValidationError(
+                    _("You don't have permission to modify this season")
+                )
+        return super().write(vals)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Override create to implement creation access control."""
+        if not self.env.user.has_group("spp_farmer_registry.group_spp_farm_manager"):
+            raise ValidationError(_("Only managers can create seasons"))
+        return super().create(vals_list)
+
+    def unlink(self):
+        """Override unlink to implement deletion access control."""
+        for record in self:
+            if not record.can_edit:
+                raise ValidationError(
+                    _("You don't have permission to delete this season")
+                )
+            if record.state == "closed":
+                raise ValidationError(_("Closed seasons cannot be deleted"))
+        return super().unlink()
+
+    def _compute_display_name(self):
+        """Custom display names with dates."""
+        for record in self:
+            if record.date_start and record.date_end:
+                record.display_name = f"{record.name} ({record.date_start} to {record.date_end})"
+            elif record.date_start:
+                record.display_name = f"{record.name} (from {record.date_start})"
+            elif record.date_end:
+                record.display_name = f"{record.name} (until {record.date_end})"
+            else:
+                record.display_name = record.name if record.name else _("New Season")
+
+    def action_view_activities(self):
+        """Open the activities related to this season."""
+        self.ensure_one()
+        return {
+            "name": _("Season Activities"),
+            "type": "ir.actions.act_window",
+            "res_model": "spp.farm.activity",
+            "view_mode": "tree,form",
+            "domain": [("season_id", "=", self.id)],
+            "context": {"default_season_id": self.id},
+        }

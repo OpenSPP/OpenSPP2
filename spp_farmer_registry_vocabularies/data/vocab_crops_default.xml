@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- FAO Indicative Crop Classification (ICC) v1.1 -->
+    <record id="vocab_crops" model="spp.vocabulary">
+        <field name="name">Crop Classification (FAO ICC)</field>
+        <field name="namespace_uri">urn:fao:icc:1.1</field>
+        <field name="version">1.1</field>
+        <field name="is_system">True</field>
+        <field name="is_hierarchical">True</field>
+        <field name="domain">agriculture</field>
+        <field name="description">FAO Indicative Crop Classification for agricultural statistics</field>
+        <field name="reference_url">https://www.fao.org/economic/ess/ess-standards/icc/en/</field>
+    </record>
+
+    <!-- Top-level categories (01-10) -->
+    <record id="code_crop_01" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="code">01</field>
+        <field name="display">Cereals</field>
+        <field name="definition">Cereal crops including wheat, rice, maize, and other grains</field>
+        <field name="sequence">1</field>
+    </record>
+
+    <record id="code_crop_02" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="code">02</field>
+        <field name="display">Vegetables and melons</field>
+        <field name="definition">Vegetable crops and melons</field>
+        <field name="sequence">2</field>
+    </record>
+
+    <record id="code_crop_03" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="code">03</field>
+        <field name="display">Fruits and nuts</field>
+        <field name="definition">Fruit and nut trees and crops</field>
+        <field name="sequence">3</field>
+    </record>
+
+    <record id="code_crop_04" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="code">04</field>
+        <field name="display">Oilseed crops and oleaginous fruits</field>
+        <field name="definition">Crops grown primarily for oil extraction</field>
+        <field name="sequence">4</field>
+    </record>
+
+    <record id="code_crop_05" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="code">05</field>
+        <field name="display">Root/tuber crops with high starch or inulin content</field>
+        <field name="definition">Root and tuber crops used as staple foods</field>
+        <field name="sequence">5</field>
+    </record>
+
+    <record id="code_crop_06" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="code">06</field>
+        <field name="display">Beverage and spice crops</field>
+        <field name="definition">Crops used for beverages and spices</field>
+        <field name="sequence">6</field>
+    </record>
+
+    <record id="code_crop_07" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="code">07</field>
+        <field name="display">Leguminous crops</field>
+        <field name="definition">Legume crops including pulses and forage legumes</field>
+        <field name="sequence">7</field>
+    </record>
+
+    <record id="code_crop_08" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="code">08</field>
+        <field name="display">Sugar crops</field>
+        <field name="definition">Crops grown primarily for sugar production</field>
+        <field name="sequence">8</field>
+    </record>
+
+    <record id="code_crop_09" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="code">09</field>
+        <field name="display">Other crops</field>
+        <field name="definition">Other crop categories not elsewhere classified</field>
+        <field name="sequence">9</field>
+    </record>
+
+    <record id="code_crop_10" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="code">10</field>
+        <field name="display">Grasses and other fodder crops</field>
+        <field name="definition">Crops grown primarily for animal feed</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <!-- Common cereals (category 01) -->
+    <record id="code_crop_0111" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="parent_id" ref="code_crop_01"/>
+        <field name="code">0111</field>
+        <field name="display">Wheat</field>
+        <field name="definition">Wheat (Triticum spp.)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_8373</field>
+        <field name="sequence">11</field>
+    </record>
+
+    <record id="code_crop_0115" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="parent_id" ref="code_crop_01"/>
+        <field name="code">0115</field>
+        <field name="display">Maize (corn)</field>
+        <field name="definition">Maize/Corn (Zea mays)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_12332</field>
+        <field name="sequence">15</field>
+    </record>
+
+    <record id="code_crop_0116" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="parent_id" ref="code_crop_01"/>
+        <field name="code">0116</field>
+        <field name="display">Rice (paddy)</field>
+        <field name="definition">Rice, paddy (Oryza spp.)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_6599</field>
+        <field name="sequence">16</field>
+    </record>
+
+    <record id="code_crop_0114" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="parent_id" ref="code_crop_01"/>
+        <field name="code">0114</field>
+        <field name="display">Sorghum</field>
+        <field name="definition">Sorghum (Sorghum bicolor)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_435824c5</field>
+        <field name="sequence">14</field>
+    </record>
+
+    <record id="code_crop_0113" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="parent_id" ref="code_crop_01"/>
+        <field name="code">0113</field>
+        <field name="display">Barley</field>
+        <field name="definition">Barley (Hordeum vulgare)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_823</field>
+        <field name="sequence">13</field>
+    </record>
+
+    <record id="code_crop_0117" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="parent_id" ref="code_crop_01"/>
+        <field name="code">0117</field>
+        <field name="display">Millet</field>
+        <field name="definition">Millet (various species)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_4838</field>
+        <field name="sequence">17</field>
+    </record>
+
+    <!-- Common vegetables (category 02) -->
+    <record id="code_crop_0221" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="parent_id" ref="code_crop_02"/>
+        <field name="code">0221</field>
+        <field name="display">Tomatoes</field>
+        <field name="definition">Tomatoes (Solanum lycopersicum)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_7805</field>
+        <field name="sequence">21</field>
+    </record>
+
+    <record id="code_crop_0222" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="parent_id" ref="code_crop_02"/>
+        <field name="code">0222</field>
+        <field name="display">Onions and shallots</field>
+        <field name="definition">Onions and shallots (Allium cepa)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_12934</field>
+        <field name="sequence">22</field>
+    </record>
+
+    <record id="code_crop_0224" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="parent_id" ref="code_crop_02"/>
+        <field name="code">0224</field>
+        <field name="display">Cabbages</field>
+        <field name="definition">Cabbages and other brassicas (Brassica oleracea)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_1173</field>
+        <field name="sequence">24</field>
+    </record>
+
+    <!-- Common fruits (category 03) -->
+    <record id="code_crop_0351" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="parent_id" ref="code_crop_03"/>
+        <field name="code">0351</field>
+        <field name="display">Bananas</field>
+        <field name="definition">Bananas (Musa spp.)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_806</field>
+        <field name="sequence">51</field>
+    </record>
+
+    <record id="code_crop_0352" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="parent_id" ref="code_crop_03"/>
+        <field name="code">0352</field>
+        <field name="display">Plantains</field>
+        <field name="definition">Plantains (Musa paradisiaca)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_5989</field>
+        <field name="sequence">52</field>
+    </record>
+
+    <record id="code_crop_0372" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="parent_id" ref="code_crop_03"/>
+        <field name="code">0372</field>
+        <field name="display">Mangoes</field>
+        <field name="definition">Mangoes, mangosteens, guavas</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_12367</field>
+        <field name="sequence">72</field>
+    </record>
+
+    <!-- Common root crops (category 05) -->
+    <record id="code_crop_0511" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="parent_id" ref="code_crop_05"/>
+        <field name="code">0511</field>
+        <field name="display">Potatoes</field>
+        <field name="definition">Potatoes (Solanum tuberosum)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_13551</field>
+        <field name="sequence">11</field>
+    </record>
+
+    <record id="code_crop_0512" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="parent_id" ref="code_crop_05"/>
+        <field name="code">0512</field>
+        <field name="display">Sweet potatoes</field>
+        <field name="definition">Sweet potatoes (Ipomoea batatas)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_14729</field>
+        <field name="sequence">12</field>
+    </record>
+
+    <record id="code_crop_0513" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="parent_id" ref="code_crop_05"/>
+        <field name="code">0513</field>
+        <field name="display">Cassava</field>
+        <field name="definition">Cassava (Manihot esculenta)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_9649</field>
+        <field name="sequence">13</field>
+    </record>
+
+    <!-- Common legumes (category 07) -->
+    <record id="code_crop_0713" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="parent_id" ref="code_crop_07"/>
+        <field name="code">0713</field>
+        <field name="display">Beans, dry</field>
+        <field name="definition">Beans, dry (Phaseolus spp.)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_331566</field>
+        <field name="sequence">13</field>
+    </record>
+
+    <record id="code_crop_0714" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="parent_id" ref="code_crop_07"/>
+        <field name="code">0714</field>
+        <field name="display">Peas, dry</field>
+        <field name="definition">Peas, dry (Pisum sativum)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_13177</field>
+        <field name="sequence">14</field>
+    </record>
+
+    <record id="code_crop_0716" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="parent_id" ref="code_crop_07"/>
+        <field name="code">0716</field>
+        <field name="display">Chickpeas</field>
+        <field name="definition">Chickpeas (Cicer arietinum)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_9785</field>
+        <field name="sequence">16</field>
+    </record>
+
+    <record id="code_crop_0717" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="parent_id" ref="code_crop_07"/>
+        <field name="code">0717</field>
+        <field name="display">Lentils</field>
+        <field name="definition">Lentils (Lens culinaris)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_12140</field>
+        <field name="sequence">17</field>
+    </record>
+
+    <!-- Sugar crops (category 08) -->
+    <record id="code_crop_0811" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="parent_id" ref="code_crop_08"/>
+        <field name="code">0811</field>
+        <field name="display">Sugar cane</field>
+        <field name="definition">Sugar cane (Saccharum officinarum)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_7501</field>
+        <field name="sequence">11</field>
+    </record>
+
+    <record id="code_crop_0812" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_crops"/>
+        <field name="parent_id" ref="code_crop_08"/>
+        <field name="code">0812</field>
+        <field name="display">Sugar beet</field>
+        <field name="definition">Sugar beet (Beta vulgaris)</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_7499</field>
+        <field name="sequence">12</field>
+    </record>
+</odoo>

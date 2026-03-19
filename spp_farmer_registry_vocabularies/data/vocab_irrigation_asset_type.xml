@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="vocab_irrigation_asset_type" model="spp.vocabulary">
+        <field name="name">Irrigation Asset Type</field>
+        <field name="namespace_uri">urn:openspp:vocab:irrigation-asset-type</field>
+        <field name="is_system">True</field>
+        <field name="domain">agriculture</field>
+        <field name="description">Types of irrigation infrastructure and assets</field>
+    </record>
+
+    <record id="code_irrigation_reservoir" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_irrigation_asset_type"/>
+        <field name="code">reservoir</field>
+        <field name="display">Reservoir</field>
+        <field name="definition">Water storage reservoir</field>
+        <field name="sequence">1</field>
+    </record>
+
+    <record id="code_irrigation_canal" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_irrigation_asset_type"/>
+        <field name="code">canal</field>
+        <field name="display">Canal</field>
+        <field name="definition">Water conveyance canal</field>
+        <field name="sequence">2</field>
+    </record>
+
+    <record id="code_irrigation_dam" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_irrigation_asset_type"/>
+        <field name="code">dam</field>
+        <field name="display">Dam</field>
+        <field name="definition">Water retention dam</field>
+        <field name="sequence">3</field>
+    </record>
+
+    <record id="code_irrigation_pump_station" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_irrigation_asset_type"/>
+        <field name="code">pump_station</field>
+        <field name="display">Pump Station</field>
+        <field name="definition">Water pumping station</field>
+        <field name="sequence">4</field>
+    </record>
+
+    <record id="code_irrigation_well" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_irrigation_asset_type"/>
+        <field name="code">well</field>
+        <field name="display">Well</field>
+        <field name="definition">Water well for irrigation</field>
+        <field name="sequence">5</field>
+    </record>
+
+    <record id="code_irrigation_pond" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_irrigation_asset_type"/>
+        <field name="code">pond</field>
+        <field name="display">Pond</field>
+        <field name="definition">Water storage pond</field>
+        <field name="sequence">6</field>
+    </record>
+
+    <record id="code_irrigation_pipe_network" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_irrigation_asset_type"/>
+        <field name="code">pipe_network</field>
+        <field name="display">Pipe Network</field>
+        <field name="definition">Underground or surface pipe distribution network</field>
+        <field name="sequence">7</field>
+    </record>
+</odoo>

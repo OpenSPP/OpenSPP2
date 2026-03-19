@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Assessment Form View -->
+    <record id="view_spp_disability_assessment_form" model="ir.ui.view">
+        <field name="name">spp.disability.assessment.form</field>
+        <field name="model">spp.disability.assessment</field>
+        <field name="arch" type="xml">
+            <form string="Disability Assessment">
+                <header>
+                    <button
+                        name="action_submit_for_approval"
+                        string="Submit"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'draft'"
+                        groups="spp_disability_registry.group_disability_assessor"
+                    />
+                    <button
+                        name="action_approve"
+                        string="Approve"
+                        type="object"
+                        class="btn-success"
+                        invisible="approval_state != 'pending'"
+                        groups="spp_disability_registry.group_disability_validator"
+                    />
+                    <button
+                        name="action_reject"
+                        string="Reject"
+                        type="object"
+                        class="btn-danger"
+                        invisible="approval_state != 'pending'"
+                        groups="spp_disability_registry.group_disability_validator"
+                    />
+                    <button
+                        name="action_reset_to_draft"
+                        string="Reset to Draft"
+                        type="object"
+                        invisible="approval_state not in ('rejected', 'revision')"
+                        groups="spp_disability_registry.group_disability_assessor"
+                    />
+                    <field
+                        name="approval_state"
+                        widget="statusbar"
+                        statusbar_visible="draft,pending,approved"
+                    />
+                </header>
+                <sheet>
+                    <!-- Ribbons for status -->
+                    <widget
+                        name="web_ribbon"
+                        title="Approved"
+                        bg_color="text-bg-success"
+                        invisible="approval_state != 'approved'"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Rejected"
+                        bg_color="text-bg-danger"
+                        invisible="approval_state != 'rejected'"
+                    />
+
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="action_view_registrant"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-user"
+                        >
+                            <span>View Registrant</span>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1" />
+                        </h1>
+                    </div>
+
+                    <!-- Disability indicator alert -->
+                    <div
+                        class="alert alert-info mb-3"
+                        role="status"
+                        invisible="not has_disability"
+                    >
+                        <div class="d-flex align-items-center">
+                            <i class="fa fa-wheelchair fa-2x me-3" aria-hidden="true" />
+                            <div>
+                                <strong>Disability Identified</strong>
+                                <p class="mb-0">
+                                    Based on WG responses, this person meets the disability threshold
+                                    (<field name="wg_domain_count" class="d-inline" /> domain(s) with significant difficulty).
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <notebook>
+                        <!-- Tab 1: Overview -->
+                        <page name="overview" string="Overview">
+                            <group col="2">
+                                <group string="Registrant">
+                                    <field
+                                        name="registrant_id"
+                                        readonly="approval_state != 'draft'"
+                                        options="{'no_create': True}"
+                                    />
+                                    <field name="age_at_assessment" />
+                                    <field name="assessment_type" />
+                                </group>
+                                <group string="Assessment Details">
+                                    <field
+                                        name="assessment_date"
+                                        readonly="approval_state != 'draft'"
+                                    />
+                                    <field name="assessor_id" readonly="approval_state != 'draft'" />
+                                    <field name="has_disability" />
+                                </group>
+                            </group>
+                            <group col="2">
+                                <group string="Impairment Classification">
+                                    <field
+                                        name="impairment_type_ids"
+                                        widget="many2many_tags"
+                                        options="{'color_field': 'color', 'no_create': True}"
+                                    />
+                                    <field name="impairment_cause_id" options="{'no_create': True}" />
+                                    <field name="severity_level_id" options="{'no_create': True}" />
+                                </group>
+                                <group string="Review Schedule">
+                                    <field name="review_category" />
+                                    <field name="next_review_date" />
+                                </group>
+                            </group>
+                        </page>
+
+                        <!-- Tab 2: Washington Group Assessment -->
+                        <page name="wg_assessment" string="WG Assessment">
+                            <div class="alert alert-light mb-3" role="status">
+                                <strong>Washington Group Short Set (WG-SS)</strong>
+                                <p class="mb-0">
+                                    Rate difficulty levels for each domain.
+                                    A person has a disability if they have "A lot of difficulty" or "Cannot do at all" in at least one domain.
+                                </p>
+                            </div>
+                            <group col="2">
+                                <group string="Sensory Functions">
+                                    <field name="wg_seeing" widget="radio" />
+                                    <field name="wg_hearing" widget="radio" />
+                                </group>
+                                <group string="Motor Functions">
+                                    <field name="wg_walking" widget="radio" />
+                                    <field name="wg_selfcare" widget="radio" />
+                                </group>
+                            </group>
+                            <group col="2">
+                                <group string="Cognitive Functions">
+                                    <field name="wg_remembering" widget="radio" />
+                                </group>
+                                <group string="Communication">
+                                    <field name="wg_communicating" widget="radio" />
+                                </group>
+                            </group>
+                        </page>
+
+                        <!-- Tab 3: Support Needs -->
+                        <page name="support" string="Support Needs">
+                            <group>
+                                <field
+                                    name="support_needs"
+                                    nolabel="1"
+                                    placeholder="Describe the person's support needs (human assistance, accessibility requirements, etc.)..."
+                                />
+                            </group>
+                        </page>
+
+                        <!-- Tab 4: Proxy Response -->
+                        <page name="proxy" string="Response Information">
+                            <group col="2">
+                                <group string="Response Type">
+                                    <field name="is_proxy_response" />
+                                </group>
+                                <group
+                                    string="Proxy Respondent"
+                                    invisible="not is_proxy_response"
+                                >
+                                    <field name="proxy_respondent_id" />
+                                    <field name="proxy_relationship" />
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <!-- Assessment List View -->
+    <record id="view_spp_disability_assessment_list" model="ir.ui.view">
+        <field name="name">spp.disability.assessment.list</field>
+        <field name="model">spp.disability.assessment</field>
+        <field name="arch" type="xml">
+            <list
+                decoration-muted="approval_state in ('rejected',)"
+                decoration-success="approval_state == 'approved'"
+                decoration-warning="approval_state == 'pending'"
+                sample="1"
+            >
+                <field name="name" />
+                <field name="registrant_id" />
+                <field name="assessment_date" />
+                <field name="assessment_type" />
+                <field name="impairment_type_ids" widget="many2many_tags" optional="show" />
+                <field
+                    name="severity_level_id"
+                    widget="badge"
+                    decoration-info="severity_level_id.code == 'mild'"
+                    decoration-warning="severity_level_id.code == 'moderate'"
+                    decoration-danger="severity_level_id.code in ('severe', 'profound')"
+                    optional="show"
+                />
+                <field
+                    name="has_disability"
+                    widget="boolean"
+                />
+                <field
+                    name="approval_state"
+                    widget="badge"
+                    decoration-info="approval_state == 'draft'"
+                    decoration-warning="approval_state == 'pending'"
+                    decoration-success="approval_state == 'approved'"
+                    decoration-danger="approval_state == 'rejected'"
+                />
+                <field name="next_review_date" optional="hide" />
+                <field name="assessor_id" widget="many2one_avatar_user" optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Assessment Search View -->
+    <record id="view_spp_disability_assessment_search" model="ir.ui.view">
+        <field name="name">spp.disability.assessment.search</field>
+        <field name="model">spp.disability.assessment</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="registrant_id" />
+                <field name="assessor_id" />
+                <field name="impairment_type_ids" />
+                <separator />
+                <filter
+                    name="filter_my_assessments"
+                    string="My Assessments"
+                    domain="[('assessor_id', '=', uid)]"
+                />
+                <separator />
+                <filter
+                    name="filter_draft"
+                    string="Draft"
+                    domain="[('approval_state', '=', 'draft')]"
+                />
+                <filter
+                    name="filter_pending"
+                    string="Pending Approval"
+                    domain="[('approval_state', '=', 'pending')]"
+                />
+                <filter
+                    name="filter_approved"
+                    string="Approved"
+                    domain="[('approval_state', '=', 'approved')]"
+                />
+                <filter
+                    name="filter_rejected"
+                    string="Rejected"
+                    domain="[('approval_state', '=', 'rejected')]"
+                />
+                <separator />
+                <filter
+                    name="filter_has_disability"
+                    string="Has Disability"
+                    domain="[('has_disability', '=', True)]"
+                />
+                <filter
+                    name="filter_review_due"
+                    string="Review Due"
+                    domain="[('next_review_date', '&lt;=', context_today())]"
+                />
+                <filter
+                    name="filter_severe_disability"
+                    string="Severe/Profound"
+                    domain="[('severity_level_id.code', 'in', ['severe', 'profound'])]"
+                />
+                <separator />
+                <filter
+                    name="group_approval_state"
+                    string="Status"
+                    context="{'group_by': 'approval_state'}"
+                />
+                <filter
+                    name="group_assessment_type"
+                    string="Assessment Type"
+                    context="{'group_by': 'assessment_type'}"
+                />
+                <filter
+                    name="group_severity"
+                    string="Severity"
+                    context="{'group_by': 'severity_level_id'}"
+                />
+                <filter
+                    name="group_assessor"
+                    string="Assessor"
+                    context="{'group_by': 'assessor_id'}"
+                />
+                <filter
+                    name="group_review_category"
+                    string="Review Category"
+                    context="{'group_by': 'review_category'}"
+                />
+            </search>
+        </field>
+    </record>
+
+    <!-- Assessment Action -->
+    <record id="action_spp_disability_assessment" model="ir.actions.act_window">
+        <field name="name">Disability Assessments</field>
+        <field name="res_model">spp.disability.assessment</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_spp_disability_assessment_search" />
+        <field name="context">{'search_default_filter_approved': 0}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new disability assessment
+            </p>
+            <p>
+                Track disability assessments using the Washington Group Short Set (WG-SS)
+                to identify persons with disabilities for social protection programs.
+            </p>
+        </field>
+    </record>
+
+    <!-- My Pending Assessments Action -->
+    <record id="action_spp_disability_assessment_my_pending" model="ir.actions.act_window">
+        <field name="name">My Pending Assessments</field>
+        <field name="res_model">spp.disability.assessment</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_spp_disability_assessment_search" />
+        <field name="domain">[('assessor_id', '=', uid), ('approval_state', '=', 'draft')]</field>
+    </record>
+
+    <!-- Pending Validation Action -->
+    <record id="action_spp_disability_assessment_pending_validation" model="ir.actions.act_window">
+        <field name="name">Pending Validation</field>
+        <field name="res_model">spp.disability.assessment</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_spp_disability_assessment_search" />
+        <field name="domain">[('approval_state', '=', 'pending')]</field>
+    </record>
+</odoo>

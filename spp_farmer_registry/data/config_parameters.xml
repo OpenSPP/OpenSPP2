@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- Restrict Registry CRUD to Admin only by default -->
+    <record id="config_registry_admin_only_crud" model="ir.config_parameter">
+        <field name="key">spp_farmer_registry.registry_admin_only_crud</field>
+        <field name="value">True</field>
+    </record>
+</odoo>

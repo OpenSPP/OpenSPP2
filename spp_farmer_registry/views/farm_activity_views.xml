@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         FARM ACTIVITY VIEWS
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Tree View -->
+    <record id="view_farm_activity_tree" model="ir.ui.view">
+        <field name="name">spp.farm.activity.tree</field>
+        <field name="model">spp.farm.activity</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="farm_id"/>
+                <field name="activity_type"/>
+                <field name="species_id"/>
+                <field name="purpose_id"/>
+                <field name="quantity"/>
+                <field name="season_id"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_farm_activity_form" model="ir.ui.view">
+        <field name="name">spp.farm.activity.form</field>
+        <field name="model">spp.farm.activity</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group string="Activity Information">
+                            <field name="activity_type"/>
+                            <field name="species_namespace" invisible="1"/>
+                            <field name="species_id"
+                                options="{'no_create': True, 'no_create_edit': True}"
+                                context="{'show_reference_uri': True}"/>
+                            <field name="purpose_id"
+                                options="{'no_create': True, 'no_create_edit': True}"/>
+                            <field name="cultivation_method_id"
+                                options="{'no_create': True, 'no_create_edit': True}"
+                                invisible="activity_type != 'crop'"/>
+                        </group>
+                        <group string="Farm &amp; Season">
+                            <field name="crop_farm_id" invisible="activity_type != 'crop'"/>
+                            <field name="livestock_farm_id" invisible="activity_type != 'livestock'"/>
+                            <field name="aquaculture_farm_id" invisible="activity_type != 'aquaculture'"/>
+                            <field name="land_id" invisible="activity_type != 'crop'"/>
+                            <field name="season_id"/>
+                            <field name="farm_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="Quantities">
+                        <group>
+                            <field name="quantity"/>
+                            <field name="quantity_unit"/>
+                            <field name="area_planted" invisible="activity_type != 'crop'"/>
+                        </group>
+                        <group>
+                            <field name="expected_yield"/>
+                            <field name="actual_yield"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_farm_activity_search" model="ir.ui.view">
+        <field name="name">spp.farm.activity.search</field>
+        <field name="model">spp.farm.activity</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="species_id"/>
+                <field name="farm_id"/>
+                <field name="season_id"/>
+                <filter name="filter_crop" string="Crop" domain="[('activity_type', '=', 'crop')]"/>
+                <filter name="filter_livestock" string="Livestock" domain="[('activity_type', '=', 'livestock')]"/>
+                <filter name="filter_aquaculture" string="Aquaculture" domain="[('activity_type', '=', 'aquaculture')]"/>
+                <separator/>
+                <group name="groupby">
+                    <filter name="group_activity_type" string="Activity Type" context="{'group_by': 'activity_type'}"/>
+                    <filter name="group_season" string="Season" context="{'group_by': 'season_id'}"/>
+                    <filter name="group_species" string="Species" context="{'group_by': 'species_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Crop Activity Action -->
+    <record id="action_farm_crop_activity" model="ir.actions.act_window">
+        <field name="name">Crop Activities</field>
+        <field name="res_model">spp.farm.activity</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('activity_type', '=', 'crop')]</field>
+        <field name="context">{'default_activity_type': 'crop'}</field>
+    </record>
+
+    <!-- Livestock Activity Action -->
+    <record id="action_farm_livestock_activity" model="ir.actions.act_window">
+        <field name="name">Livestock Activities</field>
+        <field name="res_model">spp.farm.activity</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('activity_type', '=', 'livestock')]</field>
+        <field name="context">{'default_activity_type': 'livestock'}</field>
+    </record>
+
+    <!-- Aquaculture Activity Action -->
+    <record id="action_farm_aquaculture_activity" model="ir.actions.act_window">
+        <field name="name">Aquaculture Activities</field>
+        <field name="res_model">spp.farm.activity</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('activity_type', '=', 'aquaculture')]</field>
+        <field name="context">{'default_activity_type': 'aquaculture'}</field>
+    </record>
+
+    <!-- All Activities Action -->
+    <record id="action_farm_activity_all" model="ir.actions.act_window">
+        <field name="name">All Farm Activities</field>
+        <field name="res_model">spp.farm.activity</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Record your first agricultural activity
+            </p>
+            <p>
+                Track crop cultivation, livestock rearing, and aquaculture activities
+                using FAO-aligned species vocabularies.
+            </p>
+        </field>
+    </record>
+
+</odoo>

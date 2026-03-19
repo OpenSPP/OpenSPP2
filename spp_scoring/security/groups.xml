@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- ============================================= -->
+        <!-- Tier 3: Technical Base Groups (Granular)      -->
+        <!-- ============================================= -->
+
+        <record id="group_scoring_read" model="res.groups">
+            <field name="name">Scoring: Read</field>
+            <field name="comment">Technical group for read access to scoring models and results.</field>
+        </record>
+
+        <record id="group_scoring_write" model="res.groups">
+            <field name="name">Scoring: Write</field>
+            <field name="comment">Technical group for write access to scoring results.</field>
+            <field name="implied_ids" eval="[Command.link(ref('group_scoring_read'))]"/>
+        </record>
+
+        <record id="group_scoring_create" model="res.groups">
+            <field name="name">Scoring: Create</field>
+            <field name="comment">Technical group for creating scoring results.</field>
+            <field name="implied_ids" eval="[Command.link(ref('group_scoring_read'))]"/>
+        </record>
+
+        <record id="group_scoring_config_admin" model="res.groups">
+            <field name="name">Scoring: Configure</field>
+            <field name="privilege_id" ref="privilege_scoring"/>
+            <field name="comment">Technical group for configuring scoring models, indicators, and thresholds.</field>
+            <field name="implied_ids" eval="[Command.link(ref('group_scoring_read'))]"/>
+        </record>
+
+        <!-- ============================================= -->
+        <!-- Tier 2: User-Facing Functional Groups         -->
+        <!-- ============================================= -->
+
+        <!-- Viewer: Can view scoring models and results, but cannot modify -->
+        <record id="group_scoring_viewer" model="res.groups">
+            <field name="name">Viewer</field>
+            <field name="privilege_id" ref="privilege_scoring"/>
+            <field name="comment">Can view scoring models and results. Cannot modify data or run scoring.</field>
+            <field name="implied_ids" eval="[
+                Command.link(ref('group_scoring_read')),
+            ]"/>
+        </record>
+
+        <!-- Officer: Can run scoring and view results -->
+        <record id="group_scoring_officer" model="res.groups">
+            <field name="name">Officer</field>
+            <field name="privilege_id" ref="privilege_scoring"/>
+            <field name="comment">Can run scoring calculations and view results. Cannot configure scoring models.</field>
+            <field name="implied_ids" eval="[
+                Command.link(ref('group_scoring_viewer')),
+                Command.link(ref('group_scoring_write')),
+                Command.link(ref('group_scoring_create')),
+            ]"/>
+        </record>
+
+        <!-- Manager: Full access including model configuration -->
+        <record id="group_scoring_manager" model="res.groups">
+            <field name="name">Manager</field>
+            <field name="privilege_id" ref="privilege_scoring"/>
+            <field name="comment">Full scoring management including model configuration, activation, and deletion.</field>
+            <field name="implied_ids" eval="[
+                Command.link(ref('group_scoring_officer')),
+                Command.link(ref('group_scoring_config_admin')),
+            ]"/>
+        </record>
+
+        <!-- Link manager to SPP admin -->
+        <record id="spp_security.group_spp_admin" model="res.groups">
+            <field name="implied_ids" eval="[Command.link(ref('group_scoring_manager'))]"/>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="res_config_settings_farmer_registry_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.farmer_registry</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app
+                    string="Farmer Registry Settings"
+                    name="spp_farmer_registry"
+                >
+                    <block title="Registry Access Control" name="registry_access_block">
+                        <setting
+                            string="Restrict Registry Edits to Admin Only"
+                            help="Only administrators can add, modify, or remove registrants.
+                                  Other users can still view all registry data but cannot make changes."
+                        >
+                            <field name="is_registry_admin_only_crud" />
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

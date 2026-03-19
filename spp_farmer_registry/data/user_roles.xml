@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- ═══════════════════════════════════════════════════════════════════════
+             FARMER REGISTRY ROLES
+             ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Farm User Role - Read access to farm records -->
+    <record id="global_role_farm_user" model="res.users.role">
+        <field name="name">Global Farm User</field>
+        <field name="role_type">global</field>
+        <field name="comment">Read access to farmer registry records (farms, activities, seasons).</field>
+        <field
+            name="implied_ids"
+            eval="[
+                Command.link(ref('base.group_user')),
+                Command.link(ref('group_spp_farm_user')),
+                Command.link(ref('spp_registry.group_registry_officer')),
+            ]"
+        />
+    </record>
+
+    <!-- Farm Manager Role - Full farm management + irrigation -->
+    <record id="global_role_farm_manager" model="res.users.role">
+        <field name="name">Global Farm Manager</field>
+        <field name="role_type">global</field>
+        <field name="comment">Full management of farmer registry including farm details, activities, seasons, and irrigation.</field>
+        <field
+            name="implied_ids"
+            eval="[
+                Command.link(ref('base.group_user')),
+                Command.link(ref('group_spp_farm_manager')),
+                Command.link(ref('spp_irrigation.group_irrigation_manager')),
+                Command.link(ref('spp_registry.group_registry_manager')),
+            ]"
+        />
+    </record>
+
+</odoo>

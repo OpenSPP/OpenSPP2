@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Irrigation Privilege under Registry Category -->
+    <record id="privilege_irrigation" model="res.groups.privilege">
+        <field name="name">Irrigation</field>
+        <field name="category_id" ref="spp_security.category_spp_registry"/>
+        <field name="sequence">40</field>
+    </record>
+</odoo>

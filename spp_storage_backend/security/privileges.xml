@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Storage Backend Privileges
+        ===========================
+        Only admin-level privilege needed for managing storage backends.
+        Regular users don't directly interact with storage backend configuration.
+    -->
+
+    <record id="privilege_storage_admin" model="res.groups.privilege">
+        <field name="name">Storage Administrator</field>
+        <field name="category_id" ref="spp_security.category_spp_admin"/>
+        <field name="sequence">15</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    CEL Variables for Farmer Registry V2
+
+    Farm-specific variables that can be used in Logic Studio for:
+    - Eligibility criteria (is_smallholder, has_productive_land)
+    - Benefit calculations (farm_size_hectares * per_hectare_rate)
+    - Program targeting (crop_count, livestock_count)
+-->
+<odoo>
+    <data noupdate="1">
+
+        <!-- ═══════════════════════════════════════════════════════════════════════
+             FIELD VARIABLES - Direct field access from spp.farm.details
+             ═══════════════════════════════════════════════════════════════════════ -->
+
+        <record id="var_farm_size_hectares" model="spp.cel.variable">
+            <field name="name">farm_size_hectares</field>
+            <field name="label">Farm Size (Hectares)</field>
+            <field name="description">Total farm area in hectares</field>
+            <field name="category_id" ref="variable_category_farm"/>
+            <field name="value_type">number</field>
+            <field name="unit">hectares</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">farm_size_hectares</field>
+            <field name="cel_accessor">farm_size_hectares</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_is_smallholder" model="spp.cel.variable">
+            <field name="name">is_smallholder</field>
+            <field name="label">Is Smallholder</field>
+            <field name="description">True if farm size is at or below smallholder threshold (configurable, default 5ha)</field>
+            <field name="category_id" ref="variable_category_farm"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">is_smallholder</field>
+            <field name="cel_accessor">is_smallholder</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_has_productive_land" model="spp.cel.variable">
+            <field name="name">has_productive_land</field>
+            <field name="label">Has Productive Land</field>
+            <field name="description">True if farm has any land under crops, livestock, or aquaculture</field>
+            <field name="category_id" ref="variable_category_farm"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">has_productive_land</field>
+            <field name="cel_accessor">has_productive_land</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_experience_years" model="spp.cel.variable">
+            <field name="name">experience_years</field>
+            <field name="label">Years of Experience</field>
+            <field name="description">Farmer's years of agricultural experience</field>
+            <field name="category_id" ref="variable_category_farm"/>
+            <field name="value_type">number</field>
+            <field name="unit">years</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">experience_years</field>
+            <field name="cel_accessor">experience_years</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════════════
+             AGGREGATE VARIABLES - Activity Counts
+             ═══════════════════════════════════════════════════════════════════════ -->
+
+        <record id="var_crop_count" model="spp.cel.variable">
+            <field name="name">crop_count</field>
+            <field name="label">Number of Crop Activities</field>
+            <field name="description">Count of crop cultivation activities on the farm</field>
+            <field name="category_id" ref="variable_category_farm_activity"/>
+            <field name="value_type">number</field>
+            <field name="source_type">aggregate</field>
+            <field name="aggregate_type">count</field>
+            <field name="aggregate_target">farm_crop_activities</field>
+            <field name="aggregate_filter">true</field>
+            <field name="cel_accessor">crop_count</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+            <field name="cache_strategy">ttl</field>
+            <field name="cache_ttl_seconds">86400</field>
+        </record>
+
+        <record id="var_livestock_count" model="spp.cel.variable">
+            <field name="name">livestock_count</field>
+            <field name="label">Number of Livestock Activities</field>
+            <field name="description">Count of livestock rearing activities on the farm</field>
+            <field name="category_id" ref="variable_category_farm_activity"/>
+            <field name="value_type">number</field>
+            <field name="source_type">aggregate</field>
+            <field name="aggregate_type">count</field>
+            <field name="aggregate_target">farm_livestock_activities</field>
+            <field name="aggregate_filter">true</field>
+            <field name="cel_accessor">livestock_count</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+            <field name="cache_strategy">ttl</field>
+            <field name="cache_ttl_seconds">86400</field>
+        </record>
+
+        <record id="var_aquaculture_count" model="spp.cel.variable">
+            <field name="name">aquaculture_count</field>
+            <field name="label">Number of Aquaculture Activities</field>
+            <field name="description">Count of aquaculture activities on the farm</field>
+            <field name="category_id" ref="variable_category_farm_activity"/>
+            <field name="value_type">number</field>
+            <field name="source_type">aggregate</field>
+            <field name="aggregate_type">count</field>
+            <field name="aggregate_target">farm_aquaculture_activities</field>
+            <field name="aggregate_filter">true</field>
+            <field name="cel_accessor">aquaculture_count</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+            <field name="cache_strategy">ttl</field>
+            <field name="cache_ttl_seconds">86400</field>
+        </record>
+
+        <record id="var_land_parcel_count" model="spp.cel.variable">
+            <field name="name">land_parcel_count</field>
+            <field name="label">Number of Land Parcels</field>
+            <field name="description">Count of registered land parcels for the farm</field>
+            <field name="category_id" ref="variable_category_farm"/>
+            <field name="value_type">number</field>
+            <field name="source_type">aggregate</field>
+            <field name="aggregate_type">count</field>
+            <field name="aggregate_target">land_parcels</field>
+            <field name="aggregate_filter">true</field>
+            <field name="cel_accessor">land_parcel_count</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+            <field name="cache_strategy">ttl</field>
+            <field name="cache_ttl_seconds">86400</field>
+        </record>
+
+        <!-- Total livestock heads (sum of quantities) -->
+        <record id="var_total_livestock_heads" model="spp.cel.variable">
+            <field name="name">total_livestock_heads</field>
+            <field name="label">Total Livestock Heads</field>
+            <field name="description">Sum of all livestock across all activities</field>
+            <field name="category_id" ref="variable_category_farm_activity"/>
+            <field name="value_type">number</field>
+            <field name="source_type">aggregate</field>
+            <field name="aggregate_type">sum</field>
+            <field name="aggregate_target">farm_livestock_activities</field>
+            <field name="aggregate_field">quantity</field>
+            <field name="aggregate_filter">true</field>
+            <field name="cel_accessor">total_livestock_heads</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+            <field name="cache_strategy">ttl</field>
+            <field name="cache_ttl_seconds">86400</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════════════
+             COMPUTED VARIABLES - Derived from other variables
+             ═══════════════════════════════════════════════════════════════════════ -->
+
+        <record id="var_is_female_farmer" model="spp.cel.variable">
+            <field name="name">is_female_farmer</field>
+            <field name="label">Female Farmer</field>
+            <field name="description">True if the head of household/farm is female</field>
+            <field name="category_id" ref="variable_category_farm"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">members.exists(m, head(m) &amp;&amp; is_female(m.gender_id))</field>
+            <field name="cel_accessor">is_female_farmer</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_has_crop_activities" model="spp.cel.variable">
+            <field name="name">has_crop_activities</field>
+            <field name="label">Has Crop Activities</field>
+            <field name="description">True if farm has any crop cultivation activities</field>
+            <field name="category_id" ref="variable_category_farm_activity"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">crop_count > 0</field>
+            <field name="cel_accessor">has_crop_activities</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_has_livestock" model="spp.cel.variable">
+            <field name="name">has_livestock</field>
+            <field name="label">Has Livestock</field>
+            <field name="description">True if farm has any livestock activities</field>
+            <field name="category_id" ref="variable_category_farm_activity"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">livestock_count > 0</field>
+            <field name="cel_accessor">has_livestock</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_is_mixed_farm" model="spp.cel.variable">
+            <field name="name">is_mixed_farm</field>
+            <field name="label">Is Mixed Farm</field>
+            <field name="description">True if farm has both crop and livestock activities</field>
+            <field name="category_id" ref="variable_category_farm"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">has_crop_activities &amp;&amp; has_livestock</field>
+            <field name="cel_accessor">is_mixed_farm</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+    </data>
+</odoo>

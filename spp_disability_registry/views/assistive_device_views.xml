@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Assistive Device Form View -->
+    <record id="view_spp_assistive_device_form" model="ir.ui.view">
+        <field name="name">spp.assistive.device.form</field>
+        <field name="model">spp.assistive.device</field>
+        <field name="arch" type="xml">
+            <form string="Assistive Device">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="action_view_registrant"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-user"
+                        >
+                            <span>View Registrant</span>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1" />
+                        </h1>
+                    </div>
+                    <group col="2">
+                        <group string="Device Information">
+                            <field
+                                name="registrant_id"
+                                options="{'no_create': True}"
+                            />
+                            <field
+                                name="device_type_id"
+                                options="{'no_create': True}"
+                            />
+                            <field name="status" widget="radio" />
+                        </group>
+                        <group string="Provision Details">
+                            <field
+                                name="provision_date"
+                                invisible="status != 'provided'"
+                            />
+                            <field
+                                name="provider"
+                                invisible="status != 'provided'"
+                            />
+                        </group>
+                    </group>
+                    <group>
+                        <field
+                            name="notes"
+                            placeholder="Additional notes about this device..."
+                        />
+                    </group>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <!-- Assistive Device List View -->
+    <record id="view_spp_assistive_device_list" model="ir.ui.view">
+        <field name="name">spp.assistive.device.list</field>
+        <field name="model">spp.assistive.device</field>
+        <field name="arch" type="xml">
+            <list
+                decoration-success="status == 'provided'"
+                decoration-warning="status == 'requested'"
+                decoration-info="status == 'needed'"
+                sample="1"
+            >
+                <field name="registrant_id" />
+                <field name="device_type_id" />
+                <field
+                    name="status"
+                    widget="badge"
+                    decoration-info="status == 'needed'"
+                    decoration-warning="status == 'requested'"
+                    decoration-success="status == 'provided'"
+                />
+                <field name="provision_date" optional="show" />
+                <field name="provider" optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Assistive Device Search View -->
+    <record id="view_spp_assistive_device_search" model="ir.ui.view">
+        <field name="name">spp.assistive.device.search</field>
+        <field name="model">spp.assistive.device</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="registrant_id" />
+                <field name="device_type_id" />
+                <separator />
+                <filter
+                    name="filter_needed"
+                    string="Needed"
+                    domain="[('status', '=', 'needed')]"
+                />
+                <filter
+                    name="filter_requested"
+                    string="Requested"
+                    domain="[('status', '=', 'requested')]"
+                />
+                <filter
+                    name="filter_provided"
+                    string="Provided"
+                    domain="[('status', '=', 'provided')]"
+                />
+                <separator />
+                <filter
+                    name="group_status"
+                    string="Status"
+                    context="{'group_by': 'status'}"
+                />
+                <filter
+                    name="group_device_type"
+                    string="Device Type"
+                    context="{'group_by': 'device_type_id'}"
+                />
+                <filter
+                    name="group_registrant"
+                    string="Registrant"
+                    context="{'group_by': 'registrant_id'}"
+                />
+            </search>
+        </field>
+    </record>
+
+    <!-- Assistive Device Action -->
+    <record id="action_spp_assistive_device" model="ir.actions.act_window">
+        <field name="name">Assistive Devices</field>
+        <field name="res_model">spp.assistive.device</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_spp_assistive_device_search" />
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Track assistive devices
+            </p>
+            <p>
+                Record and track assistive devices for persons with disabilities.
+            </p>
+        </field>
+    </record>
+</odoo>

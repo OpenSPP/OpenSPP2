@@ -1,0 +1,73 @@
+# Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+{
+    "name": "OpenSPP Farmer Registry",
+    "summary": "Farmer Registry with vocabulary-based fields, CEL variables, and Logic Studio integration",
+    "category": "OpenSPP",
+    "version": "19.0.1.0.0",
+    "sequence": 1,
+    "author": "OpenSPP.org",
+    "website": "https://github.com/OpenSPP/openspp-modules",
+    "license": "LGPL-3",
+    "development_status": "Beta",
+    "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],
+    "depends": [
+        # Foundation
+        "spp_registry",
+        "spp_registry_search",
+        "spp_security",
+        "spp_area",
+        # Vocabularies
+        "spp_vocabulary",
+        "spp_farmer_registry_vocabularies",
+        # CEL & Studio
+        "spp_cel_domain",
+        "spp_studio",
+        # Land & GIS (keep from V1)
+        "spp_land_record",
+        "spp_irrigation",
+        "spp_gis",
+    ],
+    "excludes": [
+        "spp_base_farmer_registry",  # V1 module - incompatible _inherits definitions
+    ],
+    "external_dependencies": {"python": ["shapely", "geojson", "pyproj"]},
+    "data": [
+        "security/privileges.xml",
+        "security/security.xml",
+        "security/ir.model.access.csv",
+        "data/cel_variable_categories.xml",
+        "data/cel_variables.xml",
+        "data/cel_constants.xml",
+        "data/config_parameters.xml",
+        "data/user_roles.xml",
+        "views/res_config_settings_views.xml",
+        "views/farm_season_views.xml",
+        "views/farm_details_views.xml",
+        "views/farm_activity_views.xml",
+        "views/farm_views.xml",
+    ],
+    "assets": {
+        "web.assets_backend": [
+            "spp_farmer_registry/static/src/js/registry_restriction.js",
+        ],
+    },
+    "demo": [],
+    "images": [],
+    "application": False,
+    "installable": True,
+    "auto_install": False,
+    "pre_init_hook": "pre_init_hook",
+    "description": """
+OpenSPP Farmer Registry
+=======================
+
+A comprehensive farmer registry module for managing farm data.
+
+Key Features
+------------
+- **Vocabulary Integration**: Uses FAO-aligned vocabularies (ICC crops, FAO livestock, ASFIS aquaculture)
+- **CEL Variables**: Farm metrics exposed as CEL variables for Logic Studio
+- **Extended Aggregates**: Crop count, livestock count, land parcel aggregations
+- **Cascading Species Selection**: Filtered by activity type
+    """,
+}

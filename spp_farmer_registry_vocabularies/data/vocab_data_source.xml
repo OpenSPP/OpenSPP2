@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="vocab_data_source" model="spp.vocabulary">
+        <field name="name">Data Source</field>
+        <field name="namespace_uri">urn:openspp:vocab:data-source</field>
+        <field name="is_system">True</field>
+        <field name="domain">agriculture</field>
+        <field name="description">Source of data collection for audit trail purposes</field>
+    </record>
+
+    <record id="code_data_source_census" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_data_source"/>
+        <field name="code">census</field>
+        <field name="display">Census</field>
+        <field name="definition">Data collected through agricultural census</field>
+        <field name="sequence">1</field>
+    </record>
+
+    <record id="code_data_source_self_registration" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_data_source"/>
+        <field name="code">self_registration</field>
+        <field name="display">Self Registration</field>
+        <field name="definition">Data provided by farmer through self-registration</field>
+        <field name="sequence">2</field>
+    </record>
+
+    <record id="code_data_source_field_visit" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_data_source"/>
+        <field name="code">field_visit</field>
+        <field name="display">Field Visit</field>
+        <field name="definition">Data collected during field visit by extension workers</field>
+        <field name="sequence">3</field>
+    </record>
+
+    <record id="code_data_source_external_system" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_data_source"/>
+        <field name="code">external_system</field>
+        <field name="display">External System</field>
+        <field name="definition">Data imported from external system or database</field>
+        <field name="sequence">4</field>
+    </record>
+</odoo>
