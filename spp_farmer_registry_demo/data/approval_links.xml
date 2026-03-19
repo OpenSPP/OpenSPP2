@@ -11,30 +11,54 @@
     <!-- Base CR Types (from spp_cr_types_base) -->
 
     <!-- Edit Individual -->
-    <record id="spp_cr_types_base.cr_type_edit_individual" model="spp.change.request.type">
-        <field name="approval_definition_id" ref="spp_farmer_registry_cr.approval_def_farmer_cr_local_to_hq" />
+    <record
+        id="spp_cr_types_base.cr_type_edit_individual"
+        model="spp.change.request.type"
+    >
+        <field
+            name="approval_definition_id"
+            ref="spp_farmer_registry_cr.approval_def_farmer_cr_local_to_hq"
+        />
     </record>
 
     <!-- Edit Group -->
     <record id="spp_cr_types_base.cr_type_edit_group" model="spp.change.request.type">
-        <field name="approval_definition_id" ref="spp_farmer_registry_cr.approval_def_farmer_cr_local_to_hq" />
+        <field
+            name="approval_definition_id"
+            ref="spp_farmer_registry_cr.approval_def_farmer_cr_local_to_hq"
+        />
     </record>
 
     <!-- Update ID -->
     <record id="spp_cr_types_base.cr_type_update_id" model="spp.change.request.type">
-        <field name="approval_definition_id" ref="spp_farmer_registry_cr.approval_def_farmer_cr_local_to_hq" />
+        <field
+            name="approval_definition_id"
+            ref="spp_farmer_registry_cr.approval_def_farmer_cr_local_to_hq"
+        />
     </record>
 
     <!-- Farmer CR Types (from spp_farmer_registry_cr) -->
 
     <!-- Update Farm Details -->
-    <record id="spp_farmer_registry_cr.cr_type_update_farm_details" model="spp.change.request.type">
-        <field name="approval_definition_id" ref="spp_farmer_registry_cr.approval_def_farmer_cr_local_to_hq" />
+    <record
+        id="spp_farmer_registry_cr.cr_type_update_farm_details"
+        model="spp.change.request.type"
+    >
+        <field
+            name="approval_definition_id"
+            ref="spp_farmer_registry_cr.approval_def_farmer_cr_local_to_hq"
+        />
     </record>
 
     <!-- Manage Farm Activity -->
-    <record id="spp_farmer_registry_cr.cr_type_manage_farm_activity" model="spp.change.request.type">
-        <field name="approval_definition_id" ref="spp_farmer_registry_cr.approval_def_farmer_cr_local_to_hq" />
+    <record
+        id="spp_farmer_registry_cr.cr_type_manage_farm_activity"
+        model="spp.change.request.type"
+    >
+        <field
+            name="approval_definition_id"
+            ref="spp_farmer_registry_cr.approval_def_farmer_cr_local_to_hq"
+        />
     </record>
 
     <!-- Manage Land Parcels — disabled until CR type is enabled
@@ -48,5 +72,4 @@
         <field name="approval_definition_id" ref="spp_farmer_registry_cr.approval_def_farmer_cr_local_to_hq" />
     </record>
     -->
-
 </odoo>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <record id="view_encryption_provider_list_tree" model="ir.ui.view">
+        <field name="name">view_encryption_provider_list_tree</field>
+        <field name="model">spp.encryption.provider</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+                <field name="type" />
+                <field name="key_id" optional="show" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_encryption_provider_form" model="ir.ui.view">
+        <field name="name">view_encryption_provider_form</field>
+        <field name="model">spp.encryption.provider</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <form string="Encryption Provider">
+                <sheet>
+                    <group name="base" string="Provider">
+                        <field name="name" />
+                        <field name="type" required="True" />
+                    </group>
+                    <group
+                        name="key_storage"
+                        string="Encryption Key"
+                        invisible="type != 'jwcrypto'"
+                    >
+                        <field
+                            name="key_id"
+                            options="{'no_create': True}"
+                            context="{'default_name': name}"
+                            groups="spp_encryption.group_crypto_officer,spp_encryption.group_crypto_manager,spp_encryption.group_crypto_admin"
+                        />
+                    </group>
+                    <div
+                        class="alert alert-info"
+                        role="alert"
+                        invisible="type != 'jwcrypto' or not key_id"
+                    >
+                        <strong>Key ID:</strong>
+                        <field
+                        name="key_id"
+                        widget="char"
+                        readonly="1"
+                        class="d-inline"
+                    />
+                        - Keys are stored encrypted in Key Management.
+                    </div>
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="type != 'jwcrypto' or key_id"
+                    >
+                        <strong>No Key Configured:</strong>
+                        Click "Generate Key" to create a new encryption key.
+                    </div>
+                </sheet>
+                <footer invisible="type != 'jwcrypto'">
+                    <button
+                        name="action_generate_key"
+                        string="Generate Key"
+                        type="object"
+                        class="oe_highlight btn-primary"
+                        invisible="key_id"
+                        groups="spp_encryption.group_crypto_manager,spp_encryption.group_crypto_admin"
+                    />
+                    <button
+                        name="action_generate_key"
+                        string="Regenerate Key"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="not key_id"
+                        confirm="This will replace the existing key. All data encrypted with the current key will become unreadable. Continue?"
+                        groups="spp_encryption.group_crypto_manager,spp_encryption.group_crypto_admin"
+                    />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_encryption_provider" model="ir.actions.act_window">
+        <field name="name">Encryption Provider</field>
+        <field name="res_model">spp.encryption.provider</field>
+        <field name="view_mode">list,form</field>
+        <field name="help">Manage encryption providers.</field>
+    </record>
+
+    <!-- Menu under Key Management -->
+    <menuitem
+        id="menu_encryption_provider"
+        name="Encryption Providers"
+        parent="spp_key_management.menu_key_management_root"
+        sequence="40"
+        action="action_encryption_provider"
+        groups="spp_security.group_spp_admin,spp_encryption.group_crypto_viewer,spp_encryption.group_crypto_officer,spp_encryption.group_crypto_manager,spp_encryption.group_crypto_admin"
+    />
+</odoo>

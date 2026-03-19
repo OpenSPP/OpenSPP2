@@ -1,182 +1,182 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <data noupdate="0">
-
-        <!-- ═══════════════════════════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════════════════════════
              FARMER REGISTRY DASHBOARD METRICS
 
              These variables are computed monthly by spp_dashboard_base and stored
              in spp.data.value for efficient PIVOT queries in spreadsheet dashboards.
              ═══════════════════════════════════════════════════════════════════════ -->
 
-        <!-- Dashboard Category -->
-        <record id="category_dashboard_farmer" model="spp.cel.variable.category">
-            <field name="name">Farmer Dashboard</field>
-            <field name="code">dashboard_farmer</field>
-            <field name="icon">fa-leaf</field>
-            <field name="color">#27ae60</field>
-            <field name="sequence">55</field>
-        </record>
+    <!-- Dashboard Category -->
+    <record id="category_dashboard_farmer" model="spp.cel.variable.category">
+        <field name="name">Farmer Dashboard</field>
+        <field name="code">dashboard_farmer</field>
+        <field name="icon">fa-leaf</field>
+        <field name="color">#27ae60</field>
+        <field name="sequence">55</field>
+    </record>
 
-        <!-- ═══════════════════════════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════════════════════════
              FARM COUNT METRICS
              ═══════════════════════════════════════════════════════════════════════ -->
 
-        <!-- Total farms -->
-        <record id="var_dashboard_total_farms" model="spp.cel.variable">
-            <field name="name">dashboard_total_farms</field>
-            <field name="label">Total Farms</field>
-            <field name="cel_accessor">total_farms</field>
-            <field name="source_type">aggregate</field>
-            <field name="aggregate_type">count</field>
-            <field name="aggregate_target">members</field>
-            <field name="value_type">number</field>
-            <field name="applies_to">group</field>
-            <field name="description">Total number of registered farms</field>
-            <field name="period_granularity">monthly</field>
-            <field name="cache_strategy">ttl</field>
-            <field name="cache_ttl_seconds">86400</field>
-            <field name="category_id" ref="category_dashboard_farmer"/>
-            <field name="state">active</field>
-        </record>
+    <!-- Total farms -->
+    <record id="var_dashboard_total_farms" model="spp.cel.variable">
+        <field name="name">dashboard_total_farms</field>
+        <field name="label">Total Farms</field>
+        <field name="cel_accessor">total_farms</field>
+        <field name="source_type">aggregate</field>
+        <field name="aggregate_type">count</field>
+        <field name="aggregate_target">members</field>
+        <field name="value_type">number</field>
+        <field name="applies_to">group</field>
+        <field name="description">Total number of registered farms</field>
+        <field name="period_granularity">monthly</field>
+        <field name="cache_strategy">ttl</field>
+        <field name="cache_ttl_seconds">86400</field>
+        <field name="category_id" ref="category_dashboard_farmer" />
+        <field name="state">active</field>
+    </record>
 
-        <!-- Smallholder farms count -->
-        <record id="var_dashboard_smallholder_count" model="spp.cel.variable">
-            <field name="name">dashboard_smallholder_count</field>
-            <field name="label">Smallholder Farms</field>
-            <field name="cel_accessor">smallholder_count</field>
-            <field name="source_type">aggregate</field>
-            <field name="aggregate_type">count</field>
-            <field name="aggregate_target">members</field>
-            <field name="aggregate_filter">is_smallholder</field>
-            <field name="value_type">number</field>
-            <field name="applies_to">group</field>
-            <field name="description">Number of smallholder farms (at or below threshold)</field>
-            <field name="period_granularity">monthly</field>
-            <field name="cache_strategy">ttl</field>
-            <field name="cache_ttl_seconds">86400</field>
-            <field name="category_id" ref="category_dashboard_farmer"/>
-            <field name="state">active</field>
-        </record>
+    <!-- Smallholder farms count -->
+    <record id="var_dashboard_smallholder_count" model="spp.cel.variable">
+        <field name="name">dashboard_smallholder_count</field>
+        <field name="label">Smallholder Farms</field>
+        <field name="cel_accessor">smallholder_count</field>
+        <field name="source_type">aggregate</field>
+        <field name="aggregate_type">count</field>
+        <field name="aggregate_target">members</field>
+        <field name="aggregate_filter">is_smallholder</field>
+        <field name="value_type">number</field>
+        <field name="applies_to">group</field>
+        <field
+            name="description"
+        >Number of smallholder farms (at or below threshold)</field>
+        <field name="period_granularity">monthly</field>
+        <field name="cache_strategy">ttl</field>
+        <field name="cache_ttl_seconds">86400</field>
+        <field name="category_id" ref="category_dashboard_farmer" />
+        <field name="state">active</field>
+    </record>
 
-        <!-- Female-headed farms count -->
-        <record id="var_dashboard_female_farmer_count" model="spp.cel.variable">
-            <field name="name">dashboard_female_farmer_count</field>
-            <field name="label">Female-Headed Farms</field>
-            <field name="cel_accessor">female_farmer_count</field>
-            <field name="source_type">computed</field>
-            <field name="cel_expression">members.count(m, head(m) &amp;&amp; is_female(m.gender_id))</field>
-            <field name="value_type">number</field>
-            <field name="applies_to">group</field>
-            <field name="description">Number of farms with female head of household</field>
-            <field name="period_granularity">monthly</field>
-            <field name="cache_strategy">ttl</field>
-            <field name="cache_ttl_seconds">86400</field>
-            <field name="category_id" ref="category_dashboard_farmer"/>
-            <field name="state">active</field>
-        </record>
+    <!-- Female-headed farms count -->
+    <record id="var_dashboard_female_farmer_count" model="spp.cel.variable">
+        <field name="name">dashboard_female_farmer_count</field>
+        <field name="label">Female-Headed Farms</field>
+        <field name="cel_accessor">female_farmer_count</field>
+        <field name="source_type">computed</field>
+        <field
+            name="cel_expression"
+        >members.count(m, head(m) &amp;&amp; is_female(m.gender_id))</field>
+        <field name="value_type">number</field>
+        <field name="applies_to">group</field>
+        <field name="description">Number of farms with female head of household</field>
+        <field name="period_granularity">monthly</field>
+        <field name="cache_strategy">ttl</field>
+        <field name="cache_ttl_seconds">86400</field>
+        <field name="category_id" ref="category_dashboard_farmer" />
+        <field name="state">active</field>
+    </record>
 
-        <!-- ═══════════════════════════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════════════════════════
              FARM SIZE METRICS
              ═══════════════════════════════════════════════════════════════════════ -->
 
-        <!-- Total hectares -->
-        <record id="var_dashboard_total_hectares" model="spp.cel.variable">
-            <field name="name">dashboard_total_hectares</field>
-            <field name="label">Total Farm Hectares</field>
-            <field name="cel_accessor">total_hectares</field>
-            <field name="source_type">aggregate</field>
-            <field name="aggregate_type">sum</field>
-            <field name="aggregate_target">members</field>
-            <field name="aggregate_field">farm_size_hectares</field>
-            <field name="value_type">number</field>
-            <field name="unit">hectares</field>
-            <field name="applies_to">group</field>
-            <field name="description">Total farm area in hectares</field>
-            <field name="period_granularity">monthly</field>
-            <field name="cache_strategy">ttl</field>
-            <field name="cache_ttl_seconds">86400</field>
-            <field name="category_id" ref="category_dashboard_farmer"/>
-            <field name="state">active</field>
-        </record>
+    <!-- Total hectares -->
+    <record id="var_dashboard_total_hectares" model="spp.cel.variable">
+        <field name="name">dashboard_total_hectares</field>
+        <field name="label">Total Farm Hectares</field>
+        <field name="cel_accessor">total_hectares</field>
+        <field name="source_type">aggregate</field>
+        <field name="aggregate_type">sum</field>
+        <field name="aggregate_target">members</field>
+        <field name="aggregate_field">farm_size_hectares</field>
+        <field name="value_type">number</field>
+        <field name="unit">hectares</field>
+        <field name="applies_to">group</field>
+        <field name="description">Total farm area in hectares</field>
+        <field name="period_granularity">monthly</field>
+        <field name="cache_strategy">ttl</field>
+        <field name="cache_ttl_seconds">86400</field>
+        <field name="category_id" ref="category_dashboard_farmer" />
+        <field name="state">active</field>
+    </record>
 
-        <!-- Average farm size -->
-        <record id="var_dashboard_avg_farm_size" model="spp.cel.variable">
-            <field name="name">dashboard_avg_farm_size</field>
-            <field name="label">Average Farm Size</field>
-            <field name="cel_accessor">avg_farm_size</field>
-            <field name="source_type">aggregate</field>
-            <field name="aggregate_type">avg</field>
-            <field name="aggregate_target">members</field>
-            <field name="aggregate_field">farm_size_hectares</field>
-            <field name="value_type">number</field>
-            <field name="unit">hectares</field>
-            <field name="applies_to">group</field>
-            <field name="description">Average farm size in hectares</field>
-            <field name="period_granularity">monthly</field>
-            <field name="cache_strategy">ttl</field>
-            <field name="cache_ttl_seconds">86400</field>
-            <field name="category_id" ref="category_dashboard_farmer"/>
-            <field name="state">active</field>
-        </record>
+    <!-- Average farm size -->
+    <record id="var_dashboard_avg_farm_size" model="spp.cel.variable">
+        <field name="name">dashboard_avg_farm_size</field>
+        <field name="label">Average Farm Size</field>
+        <field name="cel_accessor">avg_farm_size</field>
+        <field name="source_type">aggregate</field>
+        <field name="aggregate_type">avg</field>
+        <field name="aggregate_target">members</field>
+        <field name="aggregate_field">farm_size_hectares</field>
+        <field name="value_type">number</field>
+        <field name="unit">hectares</field>
+        <field name="applies_to">group</field>
+        <field name="description">Average farm size in hectares</field>
+        <field name="period_granularity">monthly</field>
+        <field name="cache_strategy">ttl</field>
+        <field name="cache_ttl_seconds">86400</field>
+        <field name="category_id" ref="category_dashboard_farmer" />
+        <field name="state">active</field>
+    </record>
 
-        <!-- ═══════════════════════════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════════════════════════
              ACTIVITY METRICS
              ═══════════════════════════════════════════════════════════════════════ -->
 
-        <!-- Total crop activities -->
-        <record id="var_dashboard_crop_activities" model="spp.cel.variable">
-            <field name="name">dashboard_crop_activities</field>
-            <field name="label">Crop Activities</field>
-            <field name="cel_accessor">total_crop_activities</field>
-            <field name="source_type">aggregate</field>
-            <field name="aggregate_type">count</field>
-            <field name="aggregate_target">farm_crop_activities</field>
-            <field name="value_type">number</field>
-            <field name="applies_to">group</field>
-            <field name="description">Total crop cultivation activities</field>
-            <field name="period_granularity">monthly</field>
-            <field name="cache_strategy">ttl</field>
-            <field name="cache_ttl_seconds">86400</field>
-            <field name="category_id" ref="category_dashboard_farmer"/>
-            <field name="state">active</field>
-        </record>
+    <!-- Total crop activities -->
+    <record id="var_dashboard_crop_activities" model="spp.cel.variable">
+        <field name="name">dashboard_crop_activities</field>
+        <field name="label">Crop Activities</field>
+        <field name="cel_accessor">total_crop_activities</field>
+        <field name="source_type">aggregate</field>
+        <field name="aggregate_type">count</field>
+        <field name="aggregate_target">farm_crop_activities</field>
+        <field name="value_type">number</field>
+        <field name="applies_to">group</field>
+        <field name="description">Total crop cultivation activities</field>
+        <field name="period_granularity">monthly</field>
+        <field name="cache_strategy">ttl</field>
+        <field name="cache_ttl_seconds">86400</field>
+        <field name="category_id" ref="category_dashboard_farmer" />
+        <field name="state">active</field>
+    </record>
 
-        <!-- Total livestock activities -->
-        <record id="var_dashboard_livestock_activities" model="spp.cel.variable">
-            <field name="name">dashboard_livestock_activities</field>
-            <field name="label">Livestock Activities</field>
-            <field name="cel_accessor">total_livestock_activities</field>
-            <field name="source_type">aggregate</field>
-            <field name="aggregate_type">count</field>
-            <field name="aggregate_target">farm_livestock_activities</field>
-            <field name="value_type">number</field>
-            <field name="applies_to">group</field>
-            <field name="description">Total livestock rearing activities</field>
-            <field name="period_granularity">monthly</field>
-            <field name="cache_strategy">ttl</field>
-            <field name="cache_ttl_seconds">86400</field>
-            <field name="category_id" ref="category_dashboard_farmer"/>
-            <field name="state">active</field>
-        </record>
+    <!-- Total livestock activities -->
+    <record id="var_dashboard_livestock_activities" model="spp.cel.variable">
+        <field name="name">dashboard_livestock_activities</field>
+        <field name="label">Livestock Activities</field>
+        <field name="cel_accessor">total_livestock_activities</field>
+        <field name="source_type">aggregate</field>
+        <field name="aggregate_type">count</field>
+        <field name="aggregate_target">farm_livestock_activities</field>
+        <field name="value_type">number</field>
+        <field name="applies_to">group</field>
+        <field name="description">Total livestock rearing activities</field>
+        <field name="period_granularity">monthly</field>
+        <field name="cache_strategy">ttl</field>
+        <field name="cache_ttl_seconds">86400</field>
+        <field name="category_id" ref="category_dashboard_farmer" />
+        <field name="state">active</field>
+    </record>
 
-        <!-- Total aquaculture activities -->
-        <record id="var_dashboard_aquaculture_activities" model="spp.cel.variable">
-            <field name="name">dashboard_aquaculture_activities</field>
-            <field name="label">Aquaculture Activities</field>
-            <field name="cel_accessor">total_aquaculture_activities</field>
-            <field name="source_type">aggregate</field>
-            <field name="aggregate_type">count</field>
-            <field name="aggregate_target">farm_aquaculture_activities</field>
-            <field name="value_type">number</field>
-            <field name="applies_to">group</field>
-            <field name="description">Total aquaculture activities</field>
-            <field name="period_granularity">monthly</field>
-            <field name="cache_strategy">ttl</field>
-            <field name="cache_ttl_seconds">86400</field>
-            <field name="category_id" ref="category_dashboard_farmer"/>
-            <field name="state">active</field>
-        </record>
-
-    </data>
+    <!-- Total aquaculture activities -->
+    <record id="var_dashboard_aquaculture_activities" model="spp.cel.variable">
+        <field name="name">dashboard_aquaculture_activities</field>
+        <field name="label">Aquaculture Activities</field>
+        <field name="cel_accessor">total_aquaculture_activities</field>
+        <field name="source_type">aggregate</field>
+        <field name="aggregate_type">count</field>
+        <field name="aggregate_target">farm_aquaculture_activities</field>
+        <field name="value_type">number</field>
+        <field name="applies_to">group</field>
+        <field name="description">Total aquaculture activities</field>
+        <field name="period_granularity">monthly</field>
+        <field name="cache_strategy">ttl</field>
+        <field name="cache_ttl_seconds">86400</field>
+        <field name="category_id" ref="category_dashboard_farmer" />
+        <field name="state">active</field>
+    </record>
 </odoo>

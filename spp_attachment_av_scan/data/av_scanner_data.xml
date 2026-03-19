@@ -5,7 +5,7 @@
         <field name="name">Default ClamAV Scanner</field>
         <field name="sequence">10</field>
         <field name="backend_type">clamd_socket</field>
-        <field name="is_active" eval="False"/>
+        <field name="is_active" eval="False" />
         <field name="clamd_socket_path">/var/run/clamav/clamd.sock</field>
         <field name="clamd_host">localhost</field>
         <field name="clamd_port">3310</field>

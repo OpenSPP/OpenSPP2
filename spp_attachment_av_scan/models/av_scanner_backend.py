@@ -116,7 +116,7 @@ class AVScannerBackend(models.Model):
         self.ensure_one()
 
         if not pyclamd:
-            raise UserError(_("The pyclamd library is not installed. " "Please install it to use antivirus scanning."))
+            raise UserError(_("The pyclamd library is not installed. Please install it to use antivirus scanning."))
 
         try:
             if self.backend_type == "clamd_socket":

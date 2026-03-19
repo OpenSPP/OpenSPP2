@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <!-- Scoring Threshold Form View -->
     <record id="view_spp_scoring_threshold_form" model="ir.ui.view">
         <field name="name">spp.scoring.threshold.form</field>
@@ -10,24 +9,30 @@
                 <sheet>
                     <group col="2">
                         <group name="basic" string="Basic Information">
-                            <field name="model_id" readonly="context.get('default_model_id')"/>
-                            <field name="name"/>
-                            <field name="sequence"/>
+                            <field
+                                name="model_id"
+                                readonly="context.get('default_model_id')"
+                            />
+                            <field name="name" />
+                            <field name="sequence" />
                         </group>
                         <group name="classification" string="Classification">
-                            <field name="classification_code"/>
-                            <field name="classification_label"/>
-                            <field name="display_color" widget="radio"/>
+                            <field name="classification_code" />
+                            <field name="classification_label" />
+                            <field name="display_color" widget="radio" />
                         </group>
                     </group>
 
                     <group col="2">
                         <group name="score_range" string="Score Range">
-                            <field name="min_score"/>
-                            <field name="max_score"/>
+                            <field name="min_score" />
+                            <field name="max_score" />
                         </group>
                         <group name="advanced" string="Advanced">
-                            <field name="cel_rule" placeholder="Optional CEL rule for complex threshold logic"/>
+                            <field
+                                name="cel_rule"
+                                placeholder="Optional CEL rule for complex threshold logic"
+                            />
                         </group>
                     </group>
                 </sheet>
@@ -41,14 +46,14 @@
         <field name="model">spp.scoring.threshold</field>
         <field name="arch" type="xml">
             <list string="Scoring Thresholds">
-                <field name="sequence" widget="handle"/>
-                <field name="model_id"/>
-                <field name="name"/>
-                <field name="min_score"/>
-                <field name="max_score"/>
-                <field name="classification_code"/>
-                <field name="classification_label"/>
-                <field name="display_color"/>
+                <field name="sequence" widget="handle" />
+                <field name="model_id" />
+                <field name="name" />
+                <field name="min_score" />
+                <field name="max_score" />
+                <field name="classification_code" />
+                <field name="classification_label" />
+                <field name="display_color" />
             </list>
         </field>
     </record>
@@ -59,13 +64,21 @@
         <field name="model">spp.scoring.threshold</field>
         <field name="arch" type="xml">
             <search string="Search Thresholds">
-                <field name="name"/>
-                <field name="classification_code"/>
-                <field name="classification_label"/>
-                <field name="model_id"/>
-                <separator/>
-                <filter name="group_model" string="Scoring Model" context="{'group_by': 'model_id'}"/>
-                <filter name="group_color" string="Color" context="{'group_by': 'display_color'}"/>
+                <field name="name" />
+                <field name="classification_code" />
+                <field name="classification_label" />
+                <field name="model_id" />
+                <separator />
+                <filter
+                    name="group_model"
+                    string="Scoring Model"
+                    context="{'group_by': 'model_id'}"
+                />
+                <filter
+                    name="group_color"
+                    string="Color"
+                    context="{'group_by': 'display_color'}"
+                />
             </search>
         </field>
     </record>
@@ -85,5 +98,4 @@
             </p>
         </field>
     </record>
-
 </odoo>

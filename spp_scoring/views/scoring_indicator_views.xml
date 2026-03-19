@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <!-- Scoring Indicator Form View -->
     <record id="view_spp_scoring_indicator_form" model="ir.ui.view">
         <field name="name">spp.scoring.indicator.form</field>
@@ -10,48 +9,75 @@
                 <sheet>
                     <group col="2">
                         <group name="basic" string="Basic Information">
-                            <field name="model_id" readonly="context.get('default_model_id')"/>
-                            <field name="name"/>
-                            <field name="code"/>
-                            <field name="sequence"/>
+                            <field
+                                name="model_id"
+                                readonly="context.get('default_model_id')"
+                            />
+                            <field name="name" />
+                            <field name="code" />
+                            <field name="sequence" />
                         </group>
                         <group name="calculation" string="Calculation">
-                            <field name="calculation_type"/>
-                            <field name="weight"/>
-                            <field name="min_score"/>
-                            <field name="max_score"/>
+                            <field name="calculation_type" />
+                            <field name="weight" />
+                            <field name="min_score" />
+                            <field name="max_score" />
                         </group>
                     </group>
 
                     <group col="2">
-                        <group name="field_config" string="Field Configuration"
-                               invisible="calculation_type in ('formula', 'derived')">
-                            <field name="source_model"/>
-                            <field name="field_path" placeholder="e.g., household.roof_material"/>
+                        <group
+                            name="field_config"
+                            string="Field Configuration"
+                            invisible="calculation_type in ('formula', 'derived')"
+                        >
+                            <field name="source_model" />
+                            <field
+                                name="field_path"
+                                placeholder="e.g., household.roof_material"
+                            />
                         </group>
                         <group name="defaults" string="Default Handling">
-                            <field name="is_required"/>
-                            <field name="default_value"/>
-                            <field name="default_score"/>
+                            <field name="is_required" />
+                            <field name="default_value" />
+                            <field name="default_score" />
                         </group>
                     </group>
 
                     <group invisible="calculation_type != 'formula'">
-                        <field name="cel_expression" placeholder="CEL expression for calculating this indicator"/>
+                        <field
+                            name="cel_expression"
+                            placeholder="CEL expression for calculating this indicator"
+                        />
                     </group>
 
-                    <field name="description" placeholder="Description of what this indicator measures..."/>
+                    <field
+                        name="description"
+                        placeholder="Description of what this indicator measures..."
+                    />
 
                     <notebook invisible="calculation_type not in ('mapped', 'range')">
                         <page string="Value Mappings" name="mappings">
-                            <field name="value_mapping_ids" context="{'default_indicator_id': id}">
+                            <field
+                                name="value_mapping_ids"
+                                context="{'default_indicator_id': id}"
+                            >
                                 <list editable="bottom">
-                                    <field name="sequence" widget="handle"/>
-                                    <field name="input_value" invisible="parent.calculation_type == 'range'"/>
-                                    <field name="range_min" invisible="parent.calculation_type == 'mapped'"/>
-                                    <field name="range_max" invisible="parent.calculation_type == 'mapped'"/>
-                                    <field name="output_score"/>
-                                    <field name="description"/>
+                                    <field name="sequence" widget="handle" />
+                                    <field
+                                        name="input_value"
+                                        invisible="parent.calculation_type == 'range'"
+                                    />
+                                    <field
+                                        name="range_min"
+                                        invisible="parent.calculation_type == 'mapped'"
+                                    />
+                                    <field
+                                        name="range_max"
+                                        invisible="parent.calculation_type == 'mapped'"
+                                    />
+                                    <field name="output_score" />
+                                    <field name="description" />
                                 </list>
                             </field>
                         </page>
@@ -67,14 +93,14 @@
         <field name="model">spp.scoring.indicator</field>
         <field name="arch" type="xml">
             <list string="Scoring Indicators">
-                <field name="sequence" widget="handle"/>
-                <field name="code"/>
-                <field name="name"/>
-                <field name="model_id"/>
-                <field name="field_path"/>
-                <field name="calculation_type"/>
-                <field name="weight"/>
-                <field name="is_required"/>
+                <field name="sequence" widget="handle" />
+                <field name="code" />
+                <field name="name" />
+                <field name="model_id" />
+                <field name="field_path" />
+                <field name="calculation_type" />
+                <field name="weight" />
+                <field name="is_required" />
             </list>
         </field>
     </record>
@@ -85,13 +111,25 @@
         <field name="model">spp.scoring.indicator</field>
         <field name="arch" type="xml">
             <search string="Search Indicators">
-                <field name="name"/>
-                <field name="code"/>
-                <field name="model_id"/>
-                <filter name="required" string="Required" domain="[('is_required', '=', True)]"/>
-                <separator/>
-                <filter name="group_model" string="Scoring Model" context="{'group_by': 'model_id'}"/>
-                <filter name="group_type" string="Calculation Type" context="{'group_by': 'calculation_type'}"/>
+                <field name="name" />
+                <field name="code" />
+                <field name="model_id" />
+                <filter
+                    name="required"
+                    string="Required"
+                    domain="[('is_required', '=', True)]"
+                />
+                <separator />
+                <filter
+                    name="group_model"
+                    string="Scoring Model"
+                    context="{'group_by': 'model_id'}"
+                />
+                <filter
+                    name="group_type"
+                    string="Calculation Type"
+                    context="{'group_by': 'calculation_type'}"
+                />
             </search>
         </field>
     </record>
@@ -111,5 +149,4 @@
             </p>
         </field>
     </record>
-
 </odoo>

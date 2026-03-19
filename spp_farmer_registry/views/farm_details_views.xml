@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- ═══════════════════════════════════════════════════════════════════════
          FARM DETAILS VIEWS
@@ -10,9 +10,9 @@
         <field name="model">spp.farm.details</field>
         <field name="arch" type="xml">
             <list>
-                <field name="farm_type_id"/>
-                <field name="farm_total_size"/>
-                <field name="land_tenure_id"/>
+                <field name="farm_type_id" />
+                <field name="farm_total_size" />
+                <field name="land_tenure_id" />
             </list>
         </field>
     </record>
@@ -26,33 +26,40 @@
                 <sheet>
                     <group>
                         <group string="Classification">
-                            <field name="farm_type_id"
-                                options="{'no_create': True, 'no_create_edit': True}"/>
-                            <field name="holder_type_id"
-                                options="{'no_create': True, 'no_create_edit': True}"/>
-                            <field name="land_tenure_id"
-                                options="{'no_create': True, 'no_create_edit': True}"/>
-                            <field name="data_source_id"
-                                options="{'no_create': True, 'no_create_edit': True}"/>
+                            <field
+                                name="farm_type_id"
+                                options="{'no_create': True, 'no_create_edit': True}"
+                            />
+                            <field
+                                name="holder_type_id"
+                                options="{'no_create': True, 'no_create_edit': True}"
+                            />
+                            <field
+                                name="land_tenure_id"
+                                options="{'no_create': True, 'no_create_edit': True}"
+                            />
+                            <field
+                                name="data_source_id"
+                                options="{'no_create': True, 'no_create_edit': True}"
+                            />
                         </group>
                         <group string="Size">
-                            <field name="farm_total_size"/>
+                            <field name="farm_total_size" />
                         </group>
                     </group>
                     <group string="Acreage Breakdown">
                         <group>
-                            <field name="farm_size_under_crops"/>
-                            <field name="farm_size_under_livestock"/>
-                            <field name="farm_size_under_aquaculture"/>
+                            <field name="farm_size_under_crops" />
+                            <field name="farm_size_under_livestock" />
+                            <field name="farm_size_under_aquaculture" />
                         </group>
                         <group>
-                            <field name="farm_size_leased_out"/>
-                            <field name="farm_size_idle"/>
+                            <field name="farm_size_leased_out" />
+                            <field name="farm_size_idle" />
                         </group>
                     </group>
                 </sheet>
             </form>
         </field>
     </record>
-
 </odoo>

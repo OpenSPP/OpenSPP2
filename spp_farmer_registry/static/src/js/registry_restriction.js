@@ -65,7 +65,8 @@ patch(FormController.prototype, {
     setup() {
         const modelName = this.props.resModel;
         // Check synchronous cache BEFORE super.setup() creates the model
-        this._registryRestricted = REGISTRY_MODELS.includes(modelName) && _restrictionResult === true;
+        this._registryRestricted =
+            REGISTRY_MODELS.includes(modelName) && _restrictionResult === true;
 
         super.setup(...arguments);
 
@@ -91,7 +92,10 @@ patch(FormController.prototype, {
             const rootEl = this.rootRef?.el;
             if (!rootEl) return;
 
-            const container = rootEl.closest(".o_action") || rootEl.closest(".o_dialog") || document.body;
+            const container =
+                rootEl.closest(".o_action") ||
+                rootEl.closest(".o_dialog") ||
+                document.body;
 
             const applyRestriction = () => {
                 const formView = container.querySelector(".o_form_view");
@@ -151,7 +155,9 @@ patch(FormController.prototype, {
 
         if (this._registryRestricted && REGISTRY_MODELS.includes(this.props.resModel)) {
             if (menuItems.action) {
-                menuItems.action = menuItems.action.filter((item) => !BLOCKED_ACTIONS.includes(item.key));
+                menuItems.action = menuItems.action.filter(
+                    (item) => !BLOCKED_ACTIONS.includes(item.key)
+                );
             }
         }
 
@@ -187,17 +193,22 @@ patch(ListController.prototype, {
             const rootEl = this.rootRef?.el;
             if (!rootEl) return;
 
-            const container = rootEl.closest(".o_action") || rootEl.closest(".o_dialog") || document.body;
+            const container =
+                rootEl.closest(".o_action") ||
+                rootEl.closest(".o_dialog") ||
+                document.body;
 
             const hideButtons = () => {
                 container.querySelectorAll(".o_list_button_add").forEach((el) => {
                     el.style.display = "none";
                 });
-                container.querySelectorAll(".o_cp_buttons .btn-primary").forEach((el) => {
-                    if (el.textContent.trim() === "New") {
-                        el.style.display = "none";
-                    }
-                });
+                container
+                    .querySelectorAll(".o_cp_buttons .btn-primary")
+                    .forEach((el) => {
+                        if (el.textContent.trim() === "New") {
+                            el.style.display = "none";
+                        }
+                    });
             };
 
             hideButtons();
@@ -229,7 +240,9 @@ patch(ListController.prototype, {
 
         if (this._registryRestricted && REGISTRY_MODELS.includes(this.props.resModel)) {
             if (menuItems.action) {
-                menuItems.action = menuItems.action.filter((item) => !BLOCKED_ACTIONS.includes(item.key));
+                menuItems.action = menuItems.action.filter(
+                    (item) => !BLOCKED_ACTIONS.includes(item.key)
+                );
             }
         }
 

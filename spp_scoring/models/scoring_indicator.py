@@ -223,8 +223,8 @@ class SppScoringIndicator(models.Model):
             if m.range_min is not None and m.range_max is not None
         ]
 
-        for i, (min1, max1, _) in enumerate(ranges):
-            for min2, max2, _ in ranges[i + 1 :]:
+        for i, (min1, max1, _id1) in enumerate(ranges):
+            for min2, max2, _id2 in ranges[i + 1 :]:
                 # Check overlap
                 if not (max1 < min2 or max2 < min1):
                     errors.append(_("Indicator '%(name)s': Overlapping ranges detected.") % {"name": self.name})

@@ -951,7 +951,7 @@ class SPPFarmerDemoGenerator(models.TransientModel):
                     }
                 )
                 _logger.info(
-                    "Added farm (partner_id=%s, name=%s) to cooperative " "(partner_id=%s, name=%s)",
+                    "Added farm (partner_id=%s, name=%s) to cooperative (partner_id=%s, name=%s)",
                     farm.id,
                     farm.name,
                     cooperative.id,
@@ -970,7 +970,7 @@ class SPPFarmerDemoGenerator(models.TransientModel):
 
             cooperatives[coop_id] = cooperative
             _logger.info(
-                "Created cooperative (partner_id=%s, name=%s, members=%d, " "total_ha=%.1f)",
+                "Created cooperative (partner_id=%s, name=%s, members=%d, total_ha=%.1f)",
                 cooperative.id,
                 cooperative.name,
                 len(member_farms),
@@ -1402,7 +1402,7 @@ class SPPFarmerDemoGenerator(models.TransientModel):
                 stats["funds_created"] = stats.get("funds_created", 0) + 1
 
                 _logger.info(
-                    "Posted fund of %.2f for program (program_id=%s, name=%s, " "members=%d, cycles=%d)",
+                    "Posted fund of %.2f for program (program_id=%s, name=%s, members=%d, cycles=%d)",
                     fund_amount,
                     program.id,
                     program.name,
@@ -1589,7 +1589,7 @@ class SPPFarmerDemoGenerator(models.TransientModel):
         pending_entitlements = cycle.entitlement_ids.filtered(lambda e: e.state in ("draft", "pending_validation"))
         if pending_entitlements:
             _logger.warning(
-                "Found %d pending entitlements in cycle (cycle_id=%s) — " "approving directly for demo data",
+                "Found %d pending entitlements in cycle (cycle_id=%s) — approving directly for demo data",
                 len(pending_entitlements),
                 cycle.id,
             )
@@ -1644,7 +1644,7 @@ class SPPFarmerDemoGenerator(models.TransientModel):
                 paid_entitlements.write({"state": "rdpd2ben"})
 
             _logger.info(
-                "Marked %d payments as reconciled and %d entitlements as paid " "for cycle (cycle_id=%s)",
+                "Marked %d payments as reconciled and %d entitlements as paid for cycle (cycle_id=%s)",
                 len(issued_payments),
                 len(paid_entitlements),
                 cycle.id,
@@ -1681,7 +1681,7 @@ class SPPFarmerDemoGenerator(models.TransientModel):
                 for idx, pay_def in enumerate(story_payments):
                     if idx >= len(cycles):
                         _logger.warning(
-                            "Story defines %d payments but only %d cycles exist " "for program %s",
+                            "Story defines %d payments but only %d cycles exist for program %s",
                             len(story_payments),
                             len(cycles),
                             program.name,
@@ -1741,7 +1741,7 @@ class SPPFarmerDemoGenerator(models.TransientModel):
                         entitlement = payment.entitlement_id
                         if entitlement:
                             self.env.cr.execute(
-                                "UPDATE spp_entitlement " "SET date_approved = %s, valid_from = %s " "WHERE id = %s",
+                                "UPDATE spp_entitlement SET date_approved = %s, valid_from = %s WHERE id = %s",
                                 (payment_date.date(), payment_date.date(), entitlement.id),
                             )
 
@@ -2071,7 +2071,7 @@ class SPPFarmerDemoGenerator(models.TransientModel):
 
         except Exception as e:
             _logger.warning(
-                "Approval flow failed for CR %s (target=%s): %s. " "CR remains in state %s.",
+                "Approval flow failed for CR %s (target=%s): %s. CR remains in state %s.",
                 cr_record.name,
                 target_state,
                 e,

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- ═══════════════════════════════════════════════════════════════════════
          FARM SEASON VIEWS
@@ -9,15 +9,21 @@
         <field name="name">spp.farm.season.tree</field>
         <field name="model">spp.farm.season</field>
         <field name="arch" type="xml">
-            <list decoration-success="state == 'active'" decoration-muted="state == 'closed'">
-                <field name="name"/>
-                <field name="date_start"/>
-                <field name="date_end"/>
-                <field name="activity_count"/>
-                <field name="state" widget="badge"
+            <list
+                decoration-success="state == 'active'"
+                decoration-muted="state == 'closed'"
+            >
+                <field name="name" />
+                <field name="date_start" />
+                <field name="date_end" />
+                <field name="activity_count" />
+                <field
+                    name="state"
+                    widget="badge"
                     decoration-success="state == 'active'"
                     decoration-info="state == 'draft'"
-                    decoration-muted="state == 'closed'"/>
+                    decoration-muted="state == 'closed'"
+                />
             </list>
         </field>
     </record>
@@ -29,47 +35,74 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_activate" string="Activate Season"
-                        type="object" class="btn-primary"
-                        invisible="state != 'draft'"/>
-                    <button name="action_close" string="Close Season"
-                        type="object" class="btn-primary"
-                        invisible="not show_close_button"/>
-                    <button name="action_force_close" string="Force Close"
-                        type="object" class="btn-warning"
-                        invisible="not show_force_close_button"
-                        confirm="Are you sure you want to force close this season before the end date?"/>
-                    <button name="action_draft" string="Reset to Draft"
+                    <button
+                        name="action_activate"
+                        string="Activate Season"
                         type="object"
-                        invisible="state != 'active' or activity_count > 0"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,active,closed"/>
+                        class="btn-primary"
+                        invisible="state != 'draft'"
+                    />
+                    <button
+                        name="action_close"
+                        string="Close Season"
+                        type="object"
+                        class="btn-primary"
+                        invisible="not show_close_button"
+                    />
+                    <button
+                        name="action_force_close"
+                        string="Force Close"
+                        type="object"
+                        class="btn-warning"
+                        invisible="not show_force_close_button"
+                        confirm="Are you sure you want to force close this season before the end date?"
+                    />
+                    <button
+                        name="action_draft"
+                        string="Reset to Draft"
+                        type="object"
+                        invisible="state != 'active' or activity_count > 0"
+                    />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,active,closed"
+                    />
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_view_activities" type="object"
-                            class="oe_stat_button" icon="fa-list">
-                            <field name="activity_count" widget="statinfo" string="Activities"/>
+                        <button
+                            name="action_view_activities"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-list"
+                        >
+                            <field
+                                name="activity_count"
+                                widget="statinfo"
+                                string="Activities"
+                            />
                         </button>
                     </div>
                     <group>
                         <group string="Season Information">
-                            <field name="name"/>
-                            <field name="description"/>
+                            <field name="name" />
+                            <field name="description" />
                         </group>
                         <group string="Duration">
-                            <field name="date_start"/>
-                            <field name="date_end"/>
+                            <field name="date_start" />
+                            <field name="date_end" />
                         </group>
                     </group>
                     <group string="Options" invisible="state == 'closed'">
-                        <field name="allow_overlap"/>
-                        <field name="force_close" invisible="state != 'active'"/>
+                        <field name="allow_overlap" />
+                        <field name="force_close" invisible="state != 'active'" />
                     </group>
-                    <field name="can_edit" invisible="1"/>
-                    <field name="can_activate" invisible="1"/>
-                    <field name="can_close" invisible="1"/>
-                    <field name="show_close_button" invisible="1"/>
-                    <field name="show_force_close_button" invisible="1"/>
+                    <field name="can_edit" invisible="1" />
+                    <field name="can_activate" invisible="1" />
+                    <field name="can_close" invisible="1" />
+                    <field name="show_close_button" invisible="1" />
+                    <field name="show_force_close_button" invisible="1" />
                 </sheet>
             </form>
         </field>
@@ -81,17 +114,36 @@
         <field name="model">spp.farm.season</field>
         <field name="arch" type="xml">
             <search>
-                <field name="name"/>
-                <field name="state"/>
-                <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
-                <filter name="filter_active" string="Active" domain="[('state', '=', 'active')]"/>
-                <filter name="filter_closed" string="Closed" domain="[('state', '=', 'closed')]"/>
-                <separator/>
-                <filter name="filter_current" string="Current"
+                <field name="name" />
+                <field name="state" />
+                <filter
+                    name="filter_draft"
+                    string="Draft"
+                    domain="[('state', '=', 'draft')]"
+                />
+                <filter
+                    name="filter_active"
+                    string="Active"
+                    domain="[('state', '=', 'active')]"
+                />
+                <filter
+                    name="filter_closed"
+                    string="Closed"
+                    domain="[('state', '=', 'closed')]"
+                />
+                <separator />
+                <filter
+                    name="filter_current"
+                    string="Current"
                     domain="[('date_start', '&lt;=', context_today().strftime('%Y-%m-%d')),
-                             ('date_end', '&gt;=', context_today().strftime('%Y-%m-%d'))]"/>
+                             ('date_end', '&gt;=', context_today().strftime('%Y-%m-%d'))]"
+                />
                 <group name="groupby">
-                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter
+                        name="group_state"
+                        string="Status"
+                        context="{'group_by': 'state'}"
+                    />
                 </group>
             </search>
         </field>
@@ -115,10 +167,11 @@
     </record>
 
     <!-- Menu -->
-    <menuitem id="menu_farm_season"
+    <menuitem
+        id="menu_farm_season"
         name="Seasons"
         parent="spp_registry.spp_configuration_menu_root"
         action="action_farm_season"
-        sequence="50"/>
-
+        sequence="50"
+    />
 </odoo>

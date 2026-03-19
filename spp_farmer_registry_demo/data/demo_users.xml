@@ -115,5 +115,4 @@
         <field name="company_id" ref="base.main_company" />
         <field name="active" eval="True" />
     </record>
-
 </odoo>

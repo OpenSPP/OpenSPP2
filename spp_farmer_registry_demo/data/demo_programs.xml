@@ -1,14 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
-        <!-- ═══════════════════════════════════════════════════════════════════════
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- ═══════════════════════════════════════════════════════════════════════
              FARMER DEMO PROGRAMS
 
              These programs are created by the demo wizard. This file documents
              the program specifications and can be used for manual setup if needed.
              ═══════════════════════════════════════════════════════════════════════ -->
 
-        <!--
+    <!--
         DEMO PROGRAM SPECIFICATIONS:
 
         1. Input Subsidy Program
@@ -38,6 +37,4 @@
            - Eligibility: is_smallholder && is_climate_vulnerable
            - Benefit: climate_adaptation_amount (fixed 200)
         -->
-
-    </data>
 </odoo>

@@ -23,41 +23,125 @@
         "A4": {"style": 3, "content": "Total Farms", "border": 3},
         "B4": {"content": "=ODOO.PIVOT(1,\"__count\")", "border": 3, "format": "#,##0"},
         "A5": {"style": 3, "content": "Total Hectares", "border": 3},
-        "B5": {"content": "=ODOO.PIVOT(1,\"farm_total_size\")", "border": 3, "format": "#,##0.0"},
+        "B5": {
+          "content": "=ODOO.PIVOT(1,\"farm_total_size\")",
+          "border": 3,
+          "format": "#,##0.0"
+        },
         "A6": {"style": 3, "content": "Avg Farm Size (ha)", "border": 3},
         "B6": {"content": "=B5/B4", "border": 3, "format": "#,##0.00"},
 
         "A8": {"style": 2, "content": "Farm Type Distribution", "border": 2},
         "B8": {"style": 2, "content": "Count", "border": 2},
         "C8": {"style": 2, "content": "Hectares", "border": 2},
-        "A9": {"style": 3, "content": "=ODOO.PIVOT.HEADER(2,\"farm_type_id\",\"#1\")", "border": 3},
-        "B9": {"content": "=ODOO.PIVOT(2,\"__count\",\"farm_type_id\",\"#1\")", "border": 3, "format": "#,##0"},
-        "C9": {"content": "=ODOO.PIVOT(2,\"farm_total_size\",\"farm_type_id\",\"#1\")", "border": 3, "format": "#,##0.0"},
-        "A10": {"style": 3, "content": "=ODOO.PIVOT.HEADER(2,\"farm_type_id\",\"#2\")", "border": 3},
-        "B10": {"content": "=ODOO.PIVOT(2,\"__count\",\"farm_type_id\",\"#2\")", "border": 3, "format": "#,##0"},
-        "C10": {"content": "=ODOO.PIVOT(2,\"farm_total_size\",\"farm_type_id\",\"#2\")", "border": 3, "format": "#,##0.0"},
-        "A11": {"style": 3, "content": "=ODOO.PIVOT.HEADER(2,\"farm_type_id\",\"#3\")", "border": 3},
-        "B11": {"content": "=ODOO.PIVOT(2,\"__count\",\"farm_type_id\",\"#3\")", "border": 3, "format": "#,##0"},
-        "C11": {"content": "=ODOO.PIVOT(2,\"farm_total_size\",\"farm_type_id\",\"#3\")", "border": 3, "format": "#,##0.0"},
-        "A12": {"style": 3, "content": "=ODOO.PIVOT.HEADER(2,\"farm_type_id\",\"#4\")", "border": 3},
-        "B12": {"content": "=ODOO.PIVOT(2,\"__count\",\"farm_type_id\",\"#4\")", "border": 3, "format": "#,##0"},
-        "C12": {"content": "=ODOO.PIVOT(2,\"farm_total_size\",\"farm_type_id\",\"#4\")", "border": 3, "format": "#,##0.0"},
+        "A9": {
+          "style": 3,
+          "content": "=ODOO.PIVOT.HEADER(2,\"farm_type_id\",\"#1\")",
+          "border": 3
+        },
+        "B9": {
+          "content": "=ODOO.PIVOT(2,\"__count\",\"farm_type_id\",\"#1\")",
+          "border": 3,
+          "format": "#,##0"
+        },
+        "C9": {
+          "content": "=ODOO.PIVOT(2,\"farm_total_size\",\"farm_type_id\",\"#1\")",
+          "border": 3,
+          "format": "#,##0.0"
+        },
+        "A10": {
+          "style": 3,
+          "content": "=ODOO.PIVOT.HEADER(2,\"farm_type_id\",\"#2\")",
+          "border": 3
+        },
+        "B10": {
+          "content": "=ODOO.PIVOT(2,\"__count\",\"farm_type_id\",\"#2\")",
+          "border": 3,
+          "format": "#,##0"
+        },
+        "C10": {
+          "content": "=ODOO.PIVOT(2,\"farm_total_size\",\"farm_type_id\",\"#2\")",
+          "border": 3,
+          "format": "#,##0.0"
+        },
+        "A11": {
+          "style": 3,
+          "content": "=ODOO.PIVOT.HEADER(2,\"farm_type_id\",\"#3\")",
+          "border": 3
+        },
+        "B11": {
+          "content": "=ODOO.PIVOT(2,\"__count\",\"farm_type_id\",\"#3\")",
+          "border": 3,
+          "format": "#,##0"
+        },
+        "C11": {
+          "content": "=ODOO.PIVOT(2,\"farm_total_size\",\"farm_type_id\",\"#3\")",
+          "border": 3,
+          "format": "#,##0.0"
+        },
+        "A12": {
+          "style": 3,
+          "content": "=ODOO.PIVOT.HEADER(2,\"farm_type_id\",\"#4\")",
+          "border": 3
+        },
+        "B12": {
+          "content": "=ODOO.PIVOT(2,\"__count\",\"farm_type_id\",\"#4\")",
+          "border": 3,
+          "format": "#,##0"
+        },
+        "C12": {
+          "content": "=ODOO.PIVOT(2,\"farm_total_size\",\"farm_type_id\",\"#4\")",
+          "border": 3,
+          "format": "#,##0.0"
+        },
 
         "A14": {"style": 2, "content": "Land Tenure Distribution", "border": 2},
         "B14": {"style": 2, "content": "Count", "border": 2},
-        "A15": {"style": 3, "content": "=ODOO.PIVOT.HEADER(3,\"land_tenure_id\",\"#1\")", "border": 3},
-        "B15": {"content": "=ODOO.PIVOT(3,\"__count\",\"land_tenure_id\",\"#1\")", "border": 3, "format": "#,##0"},
-        "A16": {"style": 3, "content": "=ODOO.PIVOT.HEADER(3,\"land_tenure_id\",\"#2\")", "border": 3},
-        "B16": {"content": "=ODOO.PIVOT(3,\"__count\",\"land_tenure_id\",\"#2\")", "border": 3, "format": "#,##0"},
-        "A17": {"style": 3, "content": "=ODOO.PIVOT.HEADER(3,\"land_tenure_id\",\"#3\")", "border": 3},
-        "B17": {"content": "=ODOO.PIVOT(3,\"__count\",\"land_tenure_id\",\"#3\")", "border": 3, "format": "#,##0"},
+        "A15": {
+          "style": 3,
+          "content": "=ODOO.PIVOT.HEADER(3,\"land_tenure_id\",\"#1\")",
+          "border": 3
+        },
+        "B15": {
+          "content": "=ODOO.PIVOT(3,\"__count\",\"land_tenure_id\",\"#1\")",
+          "border": 3,
+          "format": "#,##0"
+        },
+        "A16": {
+          "style": 3,
+          "content": "=ODOO.PIVOT.HEADER(3,\"land_tenure_id\",\"#2\")",
+          "border": 3
+        },
+        "B16": {
+          "content": "=ODOO.PIVOT(3,\"__count\",\"land_tenure_id\",\"#2\")",
+          "border": 3,
+          "format": "#,##0"
+        },
+        "A17": {
+          "style": 3,
+          "content": "=ODOO.PIVOT.HEADER(3,\"land_tenure_id\",\"#3\")",
+          "border": 3
+        },
+        "B17": {
+          "content": "=ODOO.PIVOT(3,\"__count\",\"land_tenure_id\",\"#3\")",
+          "border": 3,
+          "format": "#,##0"
+        },
 
         "E3": {"style": 2, "content": "Smallholder Analysis", "border": 2},
         "F3": {"style": 2, "content": "Count", "border": 2},
         "E4": {"style": 3, "content": "Smallholder Farms (≤5 ha)", "border": 3},
-        "F4": {"content": "=ODOO.PIVOT(4,\"__count\",\"is_smallholder\",\"true\")", "border": 3, "format": "#,##0"},
+        "F4": {
+          "content": "=ODOO.PIVOT(4,\"__count\",\"is_smallholder\",\"true\")",
+          "border": 3,
+          "format": "#,##0"
+        },
         "E5": {"style": 3, "content": "Large Farms (>5 ha)", "border": 3},
-        "F5": {"content": "=ODOO.PIVOT(4,\"__count\",\"is_smallholder\",\"false\")", "border": 3, "format": "#,##0"},
+        "F5": {
+          "content": "=ODOO.PIVOT(4,\"__count\",\"is_smallholder\",\"false\")",
+          "border": 3,
+          "format": "#,##0"
+        },
 
         "E8": {"style": 2, "content": "Farm Size Ranges", "border": 2},
         "F8": {"style": 2, "content": "Count", "border": 2},
@@ -162,7 +246,11 @@
             "searchParams": {
               "comparison": null,
               "context": {},
-              "domain": [["is_registrant", "=", true], ["is_group", "=", true], ["farm_type_id", "!=", false]],
+              "domain": [
+                ["is_registrant", "=", true],
+                ["is_group", "=", true],
+                ["farm_type_id", "!=", false]
+              ],
               "groupBy": [],
               "orderBy": []
             },
@@ -193,7 +281,11 @@
             "searchParams": {
               "comparison": null,
               "context": {},
-              "domain": [["is_registrant", "=", true], ["is_group", "=", true], ["land_tenure_id", "!=", false]],
+              "domain": [
+                ["is_registrant", "=", true],
+                ["is_group", "=", true],
+                ["land_tenure_id", "!=", false]
+              ],
               "groupBy": [],
               "orderBy": []
             },
@@ -226,7 +318,11 @@
             "searchParams": {
               "comparison": null,
               "context": {},
-              "domain": [["is_registrant", "=", true], ["is_group", "=", true], ["farm_type_id", "!=", false]],
+              "domain": [
+                ["is_registrant", "=", true],
+                ["is_group", "=", true],
+                ["farm_type_id", "!=", false]
+              ],
               "groupBy": [],
               "orderBy": []
             },
@@ -290,29 +386,89 @@
         "A3": {"style": 2, "content": "Activity Type", "border": 2},
         "B3": {"style": 2, "content": "Count", "border": 2},
         "A4": {"style": 3, "content": "Crop Activities", "border": 3},
-        "B4": {"content": "=ODOO.PIVOT(5,\"__count\",\"activity_type\",\"crop\")", "border": 3, "format": "#,##0"},
+        "B4": {
+          "content": "=ODOO.PIVOT(5,\"__count\",\"activity_type\",\"crop\")",
+          "border": 3,
+          "format": "#,##0"
+        },
         "A5": {"style": 3, "content": "Livestock Activities", "border": 3},
-        "B5": {"content": "=ODOO.PIVOT(5,\"__count\",\"activity_type\",\"livestock\")", "border": 3, "format": "#,##0"},
+        "B5": {
+          "content": "=ODOO.PIVOT(5,\"__count\",\"activity_type\",\"livestock\")",
+          "border": 3,
+          "format": "#,##0"
+        },
         "A6": {"style": 3, "content": "Aquaculture Activities", "border": 3},
-        "B6": {"content": "=ODOO.PIVOT(5,\"__count\",\"activity_type\",\"aquaculture\")", "border": 3, "format": "#,##0"},
+        "B6": {
+          "content": "=ODOO.PIVOT(5,\"__count\",\"activity_type\",\"aquaculture\")",
+          "border": 3,
+          "format": "#,##0"
+        },
 
         "A8": {"style": 2, "content": "Top Crops", "border": 2},
         "B8": {"style": 2, "content": "Area (ha)", "border": 2},
-        "A9": {"style": 3, "content": "=ODOO.PIVOT.HEADER(6,\"species_id\",\"#1\")", "border": 3},
-        "B9": {"content": "=ODOO.PIVOT(6,\"area_planted\",\"species_id\",\"#1\")", "border": 3, "format": "#,##0.0"},
-        "A10": {"style": 3, "content": "=ODOO.PIVOT.HEADER(6,\"species_id\",\"#2\")", "border": 3},
-        "B10": {"content": "=ODOO.PIVOT(6,\"area_planted\",\"species_id\",\"#2\")", "border": 3, "format": "#,##0.0"},
-        "A11": {"style": 3, "content": "=ODOO.PIVOT.HEADER(6,\"species_id\",\"#3\")", "border": 3},
-        "B11": {"content": "=ODOO.PIVOT(6,\"area_planted\",\"species_id\",\"#3\")", "border": 3, "format": "#,##0.0"},
+        "A9": {
+          "style": 3,
+          "content": "=ODOO.PIVOT.HEADER(6,\"species_id\",\"#1\")",
+          "border": 3
+        },
+        "B9": {
+          "content": "=ODOO.PIVOT(6,\"area_planted\",\"species_id\",\"#1\")",
+          "border": 3,
+          "format": "#,##0.0"
+        },
+        "A10": {
+          "style": 3,
+          "content": "=ODOO.PIVOT.HEADER(6,\"species_id\",\"#2\")",
+          "border": 3
+        },
+        "B10": {
+          "content": "=ODOO.PIVOT(6,\"area_planted\",\"species_id\",\"#2\")",
+          "border": 3,
+          "format": "#,##0.0"
+        },
+        "A11": {
+          "style": 3,
+          "content": "=ODOO.PIVOT.HEADER(6,\"species_id\",\"#3\")",
+          "border": 3
+        },
+        "B11": {
+          "content": "=ODOO.PIVOT(6,\"area_planted\",\"species_id\",\"#3\")",
+          "border": 3,
+          "format": "#,##0.0"
+        },
 
         "D3": {"style": 2, "content": "Top Livestock", "border": 2},
         "E3": {"style": 2, "content": "Heads", "border": 2},
-        "D4": {"style": 3, "content": "=ODOO.PIVOT.HEADER(7,\"species_id\",\"#1\")", "border": 3},
-        "E4": {"content": "=ODOO.PIVOT(7,\"quantity\",\"species_id\",\"#1\")", "border": 3, "format": "#,##0"},
-        "D5": {"style": 3, "content": "=ODOO.PIVOT.HEADER(7,\"species_id\",\"#2\")", "border": 3},
-        "E5": {"content": "=ODOO.PIVOT(7,\"quantity\",\"species_id\",\"#2\")", "border": 3, "format": "#,##0"},
-        "D6": {"style": 3, "content": "=ODOO.PIVOT.HEADER(7,\"species_id\",\"#3\")", "border": 3},
-        "E6": {"content": "=ODOO.PIVOT(7,\"quantity\",\"species_id\",\"#3\")", "border": 3, "format": "#,##0"}
+        "D4": {
+          "style": 3,
+          "content": "=ODOO.PIVOT.HEADER(7,\"species_id\",\"#1\")",
+          "border": 3
+        },
+        "E4": {
+          "content": "=ODOO.PIVOT(7,\"quantity\",\"species_id\",\"#1\")",
+          "border": 3,
+          "format": "#,##0"
+        },
+        "D5": {
+          "style": 3,
+          "content": "=ODOO.PIVOT.HEADER(7,\"species_id\",\"#2\")",
+          "border": 3
+        },
+        "E5": {
+          "content": "=ODOO.PIVOT(7,\"quantity\",\"species_id\",\"#2\")",
+          "border": 3,
+          "format": "#,##0"
+        },
+        "D6": {
+          "style": 3,
+          "content": "=ODOO.PIVOT.HEADER(7,\"species_id\",\"#3\")",
+          "border": 3
+        },
+        "E6": {
+          "content": "=ODOO.PIVOT(7,\"quantity\",\"species_id\",\"#3\")",
+          "border": 3,
+          "format": "#,##0"
+        }
       },
       "figures": [
         {
@@ -434,7 +590,10 @@
       "id": "1",
       "name": "Farm Summary",
       "model": "res.partner",
-      "domain": [["is_registrant", "=", true], ["is_group", "=", true]],
+      "domain": [
+        ["is_registrant", "=", true],
+        ["is_group", "=", true]
+      ],
       "measures": [
         {"field": "__count", "name": "Count"},
         {"field": "farm_total_size", "name": "Total Hectares"}
@@ -449,7 +608,11 @@
       "id": "2",
       "name": "Farm Type Analysis",
       "model": "res.partner",
-      "domain": [["is_registrant", "=", true], ["is_group", "=", true], ["farm_type_id", "!=", false]],
+      "domain": [
+        ["is_registrant", "=", true],
+        ["is_group", "=", true],
+        ["farm_type_id", "!=", false]
+      ],
       "measures": [
         {"field": "__count", "name": "Count"},
         {"field": "farm_total_size", "name": "Hectares"}
@@ -464,7 +627,11 @@
       "id": "3",
       "name": "Land Tenure Analysis",
       "model": "res.partner",
-      "domain": [["is_registrant", "=", true], ["is_group", "=", true], ["land_tenure_id", "!=", false]],
+      "domain": [
+        ["is_registrant", "=", true],
+        ["is_group", "=", true],
+        ["land_tenure_id", "!=", false]
+      ],
       "measures": [{"field": "__count", "name": "Count"}],
       "rowGroupBys": ["land_tenure_id"],
       "colGroupBys": [],
@@ -527,8 +694,17 @@
       "id": "1",
       "name": "Recent Farms",
       "model": "res.partner",
-      "domain": [["is_registrant", "=", true], ["is_group", "=", true]],
-      "columns": ["name", "farm_type_id", "farm_total_size", "land_tenure_id", "registration_date"],
+      "domain": [
+        ["is_registrant", "=", true],
+        ["is_group", "=", true]
+      ],
+      "columns": [
+        "name",
+        "farm_type_id",
+        "farm_total_size",
+        "land_tenure_id",
+        "registration_date"
+      ],
       "context": {"default_is_registrant": true, "default_is_group": true},
       "orderBy": [{"name": "registration_date", "asc": false}],
       "fieldMatching": {}

@@ -1,0 +1,345 @@
+# OpenSPP Access Management Compliance Specification
+# Module: spp_encryption
+# Version: 1.0
+#
+# This file declares the expected access control configuration for this module.
+# Run: python -m scripts.compliance.checker spp_encryption
+# Generate tests: python -m scripts.compliance.test_generator spp_encryption
+
+module: spp_encryption
+domain: encryption
+version: "1.0"
+
+# =============================================================================
+# SECURITY CONTEXT
+# =============================================================================
+#
+# This module provides cryptographic services for PII encryption, digital
+# signing, and key management. It is HIGHLY SENSITIVE infrastructure.
+#
+# Security Principles:
+# 1. Key Generation/Deletion - MANAGER ONLY (irreversible, can cause data loss)
+# 2. Provider Configuration - OFFICER+ (algorithm selection, provider settings)
+# 3. Audit/View Configuration - VIEWER+ (for security audits)
+# 4. No record rules needed - providers are global system configuration
+# 5. All operations logged (key generation, deletion, configuration changes)
+#
+# Risk Assessment:
+# - HIGH: Unauthorized key deletion → permanent data loss
+# - HIGH: Weak algorithm selection → compromised PII
+# - MEDIUM: Configuration viewing → potential security information disclosure
+# - LOW: Viewing provider list → minimal risk for auditing
+
+# =============================================================================
+# GROUP DEFINITIONS
+# Following ADR-004 Three-Tier Architecture
+# =============================================================================
+
+groups:
+  # --- Tier 3: Technical base groups ---
+  - id: group_crypto_read
+    tier: 3
+    comment: "Technical group for read access to encryption models."
+
+  - id: group_crypto_write
+    tier: 3
+    implied_ids: [group_crypto_read]
+    comment: "Technical group for write access to encryption models."
+
+  - id: group_crypto_create
+    tier: 3
+    implied_ids: [group_crypto_read]
+    comment: "Technical group for create access to encryption models."
+
+  # --- Tier 2: User-facing groups ---
+  - id: group_crypto_viewer
+    tier: 2
+    privilege_id: privilege_crypto_viewer
+    implied_ids: [group_crypto_read]
+    comment:
+      "Can view encryption provider configuration for audit purposes. Cannot modify."
+
+  - id: group_crypto_officer
+    tier: 2
+    privilege_id: privilege_crypto_officer
+    implied_ids: [group_crypto_viewer, group_crypto_write, group_crypto_create]
+    comment:
+      "Can configure encryption providers and algorithms. Cannot generate or delete
+      keys."
+
+  - id: group_crypto_manager
+    tier: 2
+    privilege_id: privilege_crypto_manager
+    implied_ids: [group_crypto_officer]
+    comment:
+      "Full cryptographic administration including key generation and deletion. HIGHEST
+      RISK."
+
+  # --- Legacy/Current group (maps to manager) ---
+  - id: group_crypto_admin
+    tier: 2
+    privilege_id: privilege_crypto_admin
+    implied_ids: [group_crypto_manager]
+    comment:
+      "Legacy admin group. Maps to Crypto Manager. Use group_crypto_manager for new
+      code."
+
+# Admin linkage - manager group links to spp_security.group_spp_admin
+admin_link_group: group_crypto_manager
+
+# =============================================================================
+# MODEL ACCESS (ir.model.access.csv)
+# Pattern: viewer=read, officer=read+write+create, manager=full CRUD
+# =============================================================================
+
+model_access:
+  # Main encryption provider model
+  - model: spp.encryption.provider
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+    comment: |
+      Viewer: Can audit encryption configuration
+      Officer: Can configure providers, select algorithms (but UI buttons prevent key operations)
+      Manager: Full control including key generation/deletion (data loss risk)
+
+  # Key generation wizard (future implementation)
+  - model: spp.encryption.key.wizard
+    viewer: []
+    officer: []
+    manager: [read, write, create, unlink]
+    comment: |
+      Manager only. Key generation is irreversible and can cause data loss if misused.
+      Referenced in encryption_provider.py action_generate_key() but not yet implemented.
+
+# =============================================================================
+# RECORD RULES (ir.rule)
+# Data visibility rules based on group membership
+# =============================================================================
+
+record_rules: []
+  # No record rules needed - encryption providers are global system configuration.
+  # All users with any crypto group can see all providers (filtered by model access).
+
+# =============================================================================
+# MENU VISIBILITY
+# Which groups can see which menus
+# =============================================================================
+
+menus:
+  - id: menu_encryption_provider
+    name: "Encryption Providers"
+    parent: spp_key_management.menu_key_management_root
+    groups:
+      [
+        spp_security.group_spp_admin,
+        group_crypto_viewer,
+        group_crypto_officer,
+        group_crypto_manager,
+        group_crypto_admin,
+      ]
+    comment:
+      "Currently restricted to group_crypto_admin only. Should open to viewer+ for
+      auditing."
+
+# =============================================================================
+# FIELD RESTRICTIONS
+# Fields with group-based visibility in views
+# =============================================================================
+
+field_restrictions:
+  - view_id: view_encryption_provider_form
+    field_name: key_id
+    groups: [group_crypto_officer, group_crypto_manager, group_crypto_admin]
+    reason: |
+      Key ID visibility could leak security information. Officers need to see which
+      key is assigned, but viewers should only see that encryption is enabled.
+
+# =============================================================================
+# ACTION RESTRICTIONS
+# Actions that are restricted to specific groups
+# =============================================================================
+
+actions:
+  - id: action_encryption_provider
+    name: "Encryption Provider"
+    groups:
+      [
+        spp_security.group_spp_admin,
+        group_crypto_viewer,
+        group_crypto_officer,
+        group_crypto_manager,
+        group_crypto_admin,
+      ]
+    comment: "Main action to view/manage providers. Access controlled via model ACLs."
+
+# =============================================================================
+# BUTTON RESTRICTIONS
+# UI buttons that should be restricted to specific groups
+# =============================================================================
+
+button_restrictions:
+  - view_id: view_encryption_provider_form
+    button_name: action_generate_key
+    groups: [group_crypto_manager, group_crypto_admin]
+    reason: |
+      CRITICAL: Key generation/regeneration must be manager-only.
+      - Regeneration makes data encrypted with old key permanently unreadable
+      - Accidental deletion can cause system-wide PII access failure
+      - Officers can configure providers but should not manage keys
+    current_state: "No group restriction on button - relies only on model access"
+    ideal_state:
+      "Button should have
+      groups='spp_encryption.group_crypto_manager,spp_encryption.group_crypto_admin'"
+
+# =============================================================================
+# PRIVILEGE DEFINITIONS
+# Tier 1 privileges that should exist for Tier 2 groups
+# =============================================================================
+
+privileges:
+  - id: privilege_crypto_viewer
+    name: "Crypto Viewer"
+    category_id: spp_security.category_spp_identity
+    sequence: 10
+    comment: "Can view encryption configuration for security audits"
+
+  - id: privilege_crypto_officer
+    name: "Crypto Officer"
+    category_id: spp_security.category_spp_identity
+    sequence: 20
+    comment: "Can configure encryption providers and algorithms"
+
+  - id: privilege_crypto_manager
+    name: "Crypto Manager"
+    category_id: spp_security.category_spp_identity
+    sequence: 30
+    comment: "Full cryptographic administration including key lifecycle"
+
+  - id: privilege_crypto_admin
+    name: "Crypto Administration"
+    category_id: spp_security.category_spp_identity
+    sequence: 10
+    comment: "Legacy privilege. Current implementation. Maps to Manager."
+
+# =============================================================================
+# GAPS & MIGRATION NOTES
+# =============================================================================
+
+gaps:
+  - type: missing_groups
+    description: "No viewer or officer groups defined. Only manager/admin exists."
+    impact: "HIGH - No separation of duties for encryption configuration"
+    migration: |
+      1. Create privilege_crypto_viewer and privilege_crypto_officer privileges
+      2. Create group_crypto_viewer and group_crypto_officer groups
+      3. Update menu to allow viewer/officer access
+      4. Add ACLs for viewer/officer to spp.encryption.provider
+      5. Add group restrictions to key generation buttons in view
+      6. Update group_crypto_admin to imply group_crypto_manager
+
+  - type: missing_model_access
+    description: "spp.encryption.key.wizard referenced in code but no ACL exists"
+    impact: "LOW - Model not yet implemented, but will need ACL when created"
+    migration: |
+      When implementing spp.encryption.key.wizard:
+      1. Add model definition
+      2. Add ACL entry for manager-only access
+      3. Ensure wizard can only be opened by managers
+      4. Add audit logging for key generation operations
+
+  - type: missing_button_restrictions
+    description: "Key generation buttons have no group restrictions in XML"
+    impact: "HIGH - Officers could accidentally regenerate keys if given write access"
+    migration: |
+      Update view_encryption_provider_form:
+      - Add groups="spp_encryption.group_crypto_manager,spp_encryption.group_crypto_admin"
+        to both "Generate Key" and "Regenerate Key" buttons
+      - This provides defense-in-depth beyond model access control
+
+  - type: missing_field_restrictions
+    description: "key_id field visible to all users with read access"
+    impact: "MEDIUM - Key IDs could leak security information"
+    migration: |
+      Add groups attribute to key_id field in view_encryption_provider_form:
+      - groups="spp_encryption.group_crypto_officer,spp_encryption.group_crypto_manager,spp_encryption.group_crypto_admin"
+      - Viewers can see encryption is enabled without seeing key details
+
+  - type: overly_restrictive_menu
+    description: "menu_encryption_provider only visible to group_crypto_admin"
+    impact: "MEDIUM - Prevents security auditors from viewing configuration"
+    migration: |
+      Update menu_encryption_provider groups attribute to:
+      groups="spp_security.group_spp_admin,spp_encryption.group_crypto_viewer,spp_encryption.group_crypto_officer,spp_encryption.group_crypto_manager,spp_encryption.group_crypto_admin"
+
+# =============================================================================
+# TESTING REQUIREMENTS
+# Critical security scenarios that MUST be tested
+# =============================================================================
+
+test_requirements:
+  - scenario: "Viewer can view providers but cannot modify"
+    groups: [group_crypto_viewer]
+    expected:
+      - Can read spp.encryption.provider records
+      - Cannot write/create/unlink spp.encryption.provider
+      - Cannot see key_id field values
+      - Cannot click key generation buttons
+      - Can access menu_encryption_provider
+
+  - scenario: "Officer can configure providers but cannot manage keys"
+    groups: [group_crypto_officer]
+    expected:
+      - Can read/write/create spp.encryption.provider records
+      - Cannot unlink spp.encryption.provider records
+      - Can see key_id field values
+      - Cannot click key generation buttons (future: after button groups added)
+      - Can access menu_encryption_provider
+
+  - scenario: "Manager has full control including key operations"
+    groups: [group_crypto_manager]
+    expected:
+      - Full CRUD on spp.encryption.provider
+      - Can see all fields including key_id
+      - Can generate/regenerate keys
+      - Can access all menus and actions
+      - Operations are logged for audit
+
+  - scenario: "Legacy admin group still works"
+    groups: [group_crypto_admin]
+    expected:
+      - Has same permissions as group_crypto_manager (via implication)
+      - All manager scenarios pass
+
+  - scenario: "Key regeneration shows confirmation dialog"
+    groups: [group_crypto_manager]
+    expected:
+      - Clicking "Regenerate Key" shows warning about data loss
+      - Confirmation required before proceeding
+      - Operation logged with timestamp and user
+
+# =============================================================================
+# AUDIT LOG REQUIREMENTS
+# Operations that must be logged for compliance
+# =============================================================================
+
+audit_requirements:
+  - operation: "Key generation"
+    log_level: WARNING
+    fields: [provider_name, key_type, key_id, user_id, timestamp]
+    reason: "Key generation affects all encrypted data. Must be auditable."
+
+  - operation: "Key regeneration"
+    log_level: WARNING
+    fields: [provider_name, old_key_id, new_key_id, user_id, timestamp]
+    reason: "CRITICAL: Makes old encrypted data unreadable. Must be logged."
+
+  - operation: "Provider deletion"
+    log_level: WARNING
+    fields: [provider_name, key_id, user_id, timestamp]
+    reason: "Could break encryption infrastructure. Must be auditable."
+
+  - operation: "Algorithm change"
+    log_level: INFO
+    fields: [provider_name, old_type, new_type, user_id, timestamp]
+    reason: "Algorithm changes affect security posture."

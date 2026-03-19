@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <!-- Batch Scoring Wizard Form View -->
     <record id="view_spp_batch_scoring_wizard_form" model="ir.ui.view">
         <field name="name">spp.batch.scoring.wizard.form</field>
@@ -9,41 +8,45 @@
             <form string="Batch Scoring">
                 <group invisible="state != 'draft'">
                     <group string="Scoring Configuration">
-                        <field name="model_id"/>
-                        <field name="is_fail_fast"/>
-                        <field name="max_records"/>
+                        <field name="model_id" />
+                        <field name="is_fail_fast" />
+                        <field name="max_records" />
                     </group>
                     <group string="Registrant Selection">
-                        <field name="registrant_domain"/>
-                        <field name="registrant_ids" widget="many2many_tags"/>
+                        <field name="registrant_domain" />
+                        <field name="registrant_ids" widget="many2many_tags" />
                     </group>
                 </group>
 
                 <group invisible="state != 'done'">
                     <group string="Results">
-                        <field name="result_count"/>
-                        <field name="error_count"/>
+                        <field name="result_count" />
+                        <field name="error_count" />
                     </group>
                 </group>
 
                 <group invisible="state != 'done'">
-                    <field name="result_summary" readonly="1"/>
+                    <field name="result_summary" readonly="1" />
                 </group>
 
-                <field name="state" invisible="1"/>
+                <field name="state" invisible="1" />
 
                 <footer>
-                    <button name="action_run_batch_scoring"
-                            string="Run Batch Scoring"
-                            type="object"
-                            class="btn-primary"
-                            invisible="state != 'draft'"/>
-                    <button name="action_view_results"
-                            string="View Results"
-                            type="object"
-                            class="btn-secondary"
-                            invisible="state != 'done'"/>
-                    <button string="Close" class="btn-secondary" special="cancel"/>
+                    <button
+                        name="action_run_batch_scoring"
+                        string="Run Batch Scoring"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'draft'"
+                    />
+                    <button
+                        name="action_view_results"
+                        string="View Results"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="state != 'done'"
+                    />
+                    <button string="Close" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
         </field>
@@ -56,5 +59,4 @@
         <field name="view_mode">form</field>
         <field name="target">new</field>
     </record>
-
 </odoo>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <!--
     CEL Constants for Farmer Registry V2
 
@@ -10,174 +10,180 @@
     These constants can be overridden at the program level
     when is_program_configurable is True.
 -->
-<odoo>
-    <data noupdate="1">
-
-        <!-- ═══════════════════════════════════════════════════════════════════════
+<odoo noupdate="1">
+    <!-- ═══════════════════════════════════════════════════════════════════════
              THRESHOLD CONSTANTS
              ═══════════════════════════════════════════════════════════════════════ -->
 
-        <record id="var_smallholder_threshold" model="spp.cel.variable">
-            <field name="name">smallholder_threshold</field>
-            <field name="label">Smallholder Threshold (Hectares)</field>
-            <field name="description">Maximum farm size to qualify as smallholder. Varies by region (FAO: 2-10ha).</field>
-            <field name="category_id" ref="variable_category_farm_constants"/>
-            <field name="value_type">number</field>
-            <field name="unit">hectares</field>
-            <field name="source_type">constant</field>
-            <field name="default_value">5.0</field>
-            <field name="is_program_configurable">True</field>
-            <field name="cel_accessor">smallholder_threshold</field>
-        </record>
+    <record id="var_smallholder_threshold" model="spp.cel.variable">
+        <field name="name">smallholder_threshold</field>
+        <field name="label">Smallholder Threshold (Hectares)</field>
+        <field
+            name="description"
+        >Maximum farm size to qualify as smallholder. Varies by region (FAO: 2-10ha).</field>
+        <field name="category_id" ref="variable_category_farm_constants" />
+        <field name="value_type">number</field>
+        <field name="unit">hectares</field>
+        <field name="source_type">constant</field>
+        <field name="default_value">5.0</field>
+        <field name="is_program_configurable">True</field>
+        <field name="cel_accessor">smallholder_threshold</field>
+    </record>
 
-        <record id="var_min_experience_years" model="spp.cel.variable">
-            <field name="name">min_experience_years</field>
-            <field name="label">Minimum Experience Years</field>
-            <field name="description">Minimum years of farming experience for some programs</field>
-            <field name="category_id" ref="variable_category_farm_constants"/>
-            <field name="value_type">number</field>
-            <field name="unit">years</field>
-            <field name="source_type">constant</field>
-            <field name="default_value">2</field>
-            <field name="is_program_configurable">True</field>
-            <field name="cel_accessor">min_experience_years</field>
-        </record>
+    <record id="var_min_experience_years" model="spp.cel.variable">
+        <field name="name">min_experience_years</field>
+        <field name="label">Minimum Experience Years</field>
+        <field
+            name="description"
+        >Minimum years of farming experience for some programs</field>
+        <field name="category_id" ref="variable_category_farm_constants" />
+        <field name="value_type">number</field>
+        <field name="unit">years</field>
+        <field name="source_type">constant</field>
+        <field name="default_value">2</field>
+        <field name="is_program_configurable">True</field>
+        <field name="cel_accessor">min_experience_years</field>
+    </record>
 
-        <!-- ═══════════════════════════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════════════════════════
              INPUT SUBSIDY PROGRAM CONSTANTS
              ═══════════════════════════════════════════════════════════════════════ -->
 
-        <record id="var_input_subsidy_base" model="spp.cel.variable">
-            <field name="name">input_subsidy_base</field>
-            <field name="label">Base Input Subsidy Amount</field>
-            <field name="description">Base amount for seed/fertilizer input subsidy</field>
-            <field name="category_id" ref="variable_category_farm_constants"/>
-            <field name="value_type">money</field>
-            <field name="source_type">constant</field>
-            <field name="default_value">100</field>
-            <field name="is_program_configurable">True</field>
-            <field name="cel_accessor">input_subsidy_base</field>
-        </record>
+    <record id="var_input_subsidy_base" model="spp.cel.variable">
+        <field name="name">input_subsidy_base</field>
+        <field name="label">Base Input Subsidy Amount</field>
+        <field name="description">Base amount for seed/fertilizer input subsidy</field>
+        <field name="category_id" ref="variable_category_farm_constants" />
+        <field name="value_type">money</field>
+        <field name="source_type">constant</field>
+        <field name="default_value">100</field>
+        <field name="is_program_configurable">True</field>
+        <field name="cel_accessor">input_subsidy_base</field>
+    </record>
 
-        <record id="var_per_hectare_subsidy" model="spp.cel.variable">
-            <field name="name">per_hectare_subsidy</field>
-            <field name="label">Per-Hectare Subsidy Rate</field>
-            <field name="description">Additional subsidy amount per hectare of cultivated land</field>
-            <field name="category_id" ref="variable_category_farm_constants"/>
-            <field name="value_type">money</field>
-            <field name="source_type">constant</field>
-            <field name="default_value">50</field>
-            <field name="is_program_configurable">True</field>
-            <field name="cel_accessor">per_hectare_subsidy</field>
-        </record>
+    <record id="var_per_hectare_subsidy" model="spp.cel.variable">
+        <field name="name">per_hectare_subsidy</field>
+        <field name="label">Per-Hectare Subsidy Rate</field>
+        <field
+            name="description"
+        >Additional subsidy amount per hectare of cultivated land</field>
+        <field name="category_id" ref="variable_category_farm_constants" />
+        <field name="value_type">money</field>
+        <field name="source_type">constant</field>
+        <field name="default_value">50</field>
+        <field name="is_program_configurable">True</field>
+        <field name="cel_accessor">per_hectare_subsidy</field>
+    </record>
 
-        <!-- ═══════════════════════════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════════════════════════
              EQUIPMENT GRANT CONSTANTS
              ═══════════════════════════════════════════════════════════════════════ -->
 
-        <record id="var_equipment_grant_amount" model="spp.cel.variable">
-            <field name="name">equipment_grant_amount</field>
-            <field name="label">Equipment Grant Amount</field>
-            <field name="description">Fixed grant amount for farm equipment</field>
-            <field name="category_id" ref="variable_category_farm_constants"/>
-            <field name="value_type">money</field>
-            <field name="source_type">constant</field>
-            <field name="default_value">500</field>
-            <field name="is_program_configurable">True</field>
-            <field name="cel_accessor">equipment_grant_amount</field>
-        </record>
+    <record id="var_equipment_grant_amount" model="spp.cel.variable">
+        <field name="name">equipment_grant_amount</field>
+        <field name="label">Equipment Grant Amount</field>
+        <field name="description">Fixed grant amount for farm equipment</field>
+        <field name="category_id" ref="variable_category_farm_constants" />
+        <field name="value_type">money</field>
+        <field name="source_type">constant</field>
+        <field name="default_value">500</field>
+        <field name="is_program_configurable">True</field>
+        <field name="cel_accessor">equipment_grant_amount</field>
+    </record>
 
-        <!-- ═══════════════════════════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════════════════════════
              LIVESTOCK SUPPORT CONSTANTS
              ═══════════════════════════════════════════════════════════════════════ -->
 
-        <record id="var_livestock_base_amount" model="spp.cel.variable">
-            <field name="name">livestock_base_amount</field>
-            <field name="label">Livestock Support Base Amount</field>
-            <field name="description">Base amount for livestock development support</field>
-            <field name="category_id" ref="variable_category_farm_constants"/>
-            <field name="value_type">money</field>
-            <field name="source_type">constant</field>
-            <field name="default_value">75</field>
-            <field name="is_program_configurable">True</field>
-            <field name="cel_accessor">livestock_base_amount</field>
-        </record>
+    <record id="var_livestock_base_amount" model="spp.cel.variable">
+        <field name="name">livestock_base_amount</field>
+        <field name="label">Livestock Support Base Amount</field>
+        <field name="description">Base amount for livestock development support</field>
+        <field name="category_id" ref="variable_category_farm_constants" />
+        <field name="value_type">money</field>
+        <field name="source_type">constant</field>
+        <field name="default_value">75</field>
+        <field name="is_program_configurable">True</field>
+        <field name="cel_accessor">livestock_base_amount</field>
+    </record>
 
-        <record id="var_per_head_amount" model="spp.cel.variable">
-            <field name="name">per_head_amount</field>
-            <field name="label">Per-Head Support Amount</field>
-            <field name="description">Additional support per livestock head</field>
-            <field name="category_id" ref="variable_category_farm_constants"/>
-            <field name="value_type">money</field>
-            <field name="source_type">constant</field>
-            <field name="default_value">10</field>
-            <field name="is_program_configurable">True</field>
-            <field name="cel_accessor">per_head_amount</field>
-        </record>
+    <record id="var_per_head_amount" model="spp.cel.variable">
+        <field name="name">per_head_amount</field>
+        <field name="label">Per-Head Support Amount</field>
+        <field name="description">Additional support per livestock head</field>
+        <field name="category_id" ref="variable_category_farm_constants" />
+        <field name="value_type">money</field>
+        <field name="source_type">constant</field>
+        <field name="default_value">10</field>
+        <field name="is_program_configurable">True</field>
+        <field name="cel_accessor">per_head_amount</field>
+    </record>
 
-        <!-- ═══════════════════════════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════════════════════════
              IRRIGATION SUPPORT CONSTANTS
              ═══════════════════════════════════════════════════════════════════════ -->
 
-        <record id="var_irrigation_subsidy_amount" model="spp.cel.variable">
-            <field name="name">irrigation_subsidy_amount</field>
-            <field name="label">Irrigation Subsidy Amount</field>
-            <field name="description">Subsidy for irrigation infrastructure</field>
-            <field name="category_id" ref="variable_category_farm_constants"/>
-            <field name="value_type">money</field>
-            <field name="source_type">constant</field>
-            <field name="default_value">300</field>
-            <field name="is_program_configurable">True</field>
-            <field name="cel_accessor">irrigation_subsidy_amount</field>
-        </record>
+    <record id="var_irrigation_subsidy_amount" model="spp.cel.variable">
+        <field name="name">irrigation_subsidy_amount</field>
+        <field name="label">Irrigation Subsidy Amount</field>
+        <field name="description">Subsidy for irrigation infrastructure</field>
+        <field name="category_id" ref="variable_category_farm_constants" />
+        <field name="value_type">money</field>
+        <field name="source_type">constant</field>
+        <field name="default_value">300</field>
+        <field name="is_program_configurable">True</field>
+        <field name="cel_accessor">irrigation_subsidy_amount</field>
+    </record>
 
-        <!-- ═══════════════════════════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════════════════════════
              CLIMATE RESILIENCE CONSTANTS
              ═══════════════════════════════════════════════════════════════════════ -->
 
-        <record id="var_climate_adaptation_amount" model="spp.cel.variable">
-            <field name="name">climate_adaptation_amount</field>
-            <field name="label">Climate Adaptation Amount</field>
-            <field name="description">Support for climate-smart agriculture practices</field>
-            <field name="category_id" ref="variable_category_farm_constants"/>
-            <field name="value_type">money</field>
-            <field name="source_type">constant</field>
-            <field name="default_value">200</field>
-            <field name="is_program_configurable">True</field>
-            <field name="cel_accessor">climate_adaptation_amount</field>
-        </record>
+    <record id="var_climate_adaptation_amount" model="spp.cel.variable">
+        <field name="name">climate_adaptation_amount</field>
+        <field name="label">Climate Adaptation Amount</field>
+        <field
+            name="description"
+        >Support for climate-smart agriculture practices</field>
+        <field name="category_id" ref="variable_category_farm_constants" />
+        <field name="value_type">money</field>
+        <field name="source_type">constant</field>
+        <field name="default_value">200</field>
+        <field name="is_program_configurable">True</field>
+        <field name="cel_accessor">climate_adaptation_amount</field>
+    </record>
 
-        <!-- ═══════════════════════════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════════════════════════
              AQUACULTURE SUPPORT CONSTANTS
              ═══════════════════════════════════════════════════════════════════════ -->
 
-        <record id="var_aquaculture_support_amount" model="spp.cel.variable">
-            <field name="name">aquaculture_support_amount</field>
-            <field name="label">Aquaculture Support Amount</field>
-            <field name="description">Support amount for aquaculture farmers</field>
-            <field name="category_id" ref="variable_category_farm_constants"/>
-            <field name="value_type">money</field>
-            <field name="source_type">constant</field>
-            <field name="default_value">250</field>
-            <field name="is_program_configurable">True</field>
-            <field name="cel_accessor">aquaculture_support_amount</field>
-        </record>
+    <record id="var_aquaculture_support_amount" model="spp.cel.variable">
+        <field name="name">aquaculture_support_amount</field>
+        <field name="label">Aquaculture Support Amount</field>
+        <field name="description">Support amount for aquaculture farmers</field>
+        <field name="category_id" ref="variable_category_farm_constants" />
+        <field name="value_type">money</field>
+        <field name="source_type">constant</field>
+        <field name="default_value">250</field>
+        <field name="is_program_configurable">True</field>
+        <field name="cel_accessor">aquaculture_support_amount</field>
+    </record>
 
-        <!-- ═══════════════════════════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════════════════════════
              ALIAS CONSTANTS (for CEL expression compatibility)
              ═══════════════════════════════════════════════════════════════════════ -->
 
-        <record id="var_livestock_base" model="spp.cel.variable">
-            <field name="name">livestock_base</field>
-            <field name="label">Livestock Base (Alias)</field>
-            <field name="description">Alias for livestock_base_amount for CEL compatibility</field>
-            <field name="category_id" ref="variable_category_farm_constants"/>
-            <field name="value_type">money</field>
-            <field name="source_type">constant</field>
-            <field name="default_value">75</field>
-            <field name="is_program_configurable">True</field>
-            <field name="cel_accessor">livestock_base</field>
-        </record>
-
-    </data>
+    <record id="var_livestock_base" model="spp.cel.variable">
+        <field name="name">livestock_base</field>
+        <field name="label">Livestock Base (Alias)</field>
+        <field
+            name="description"
+        >Alias for livestock_base_amount for CEL compatibility</field>
+        <field name="category_id" ref="variable_category_farm_constants" />
+        <field name="value_type">money</field>
+        <field name="source_type">constant</field>
+        <field name="default_value">75</field>
+        <field name="is_program_configurable">True</field>
+        <field name="cel_accessor">livestock_base</field>
+    </record>
 </odoo>

@@ -4,8 +4,8 @@ Pluggable storage backend configuration for OpenSPP file storage.
 
 ## Overview
 
-This module provides a flexible storage backend system that allows OpenSPP to store files in various storage systems
-beyond Odoo's default filestore. This is essential for:
+This module provides a flexible storage backend system that allows OpenSPP to store
+files in various storage systems beyond Odoo's default filestore. This is essential for:
 
 - **Scalability**: Store large volumes of files in cloud storage
 - **Security**: Isolate sensitive documents in dedicated storage systems
@@ -16,16 +16,18 @@ beyond Odoo's default filestore. This is essential for:
 
 ### 1. Odoo Default (Filesystem/Database)
 
-Uses Odoo's built-in filestore mechanism. Files are stored in the Odoo filestore directory or database depending on your
-configuration.
+Uses Odoo's built-in filestore mechanism. Files are stored in the Odoo filestore
+directory or database depending on your configuration.
 
 **Configuration**: No additional configuration required.
 
-**Use Case**: Development, small deployments, or when using Odoo's default storage is sufficient.
+**Use Case**: Development, small deployments, or when using Odoo's default storage is
+sufficient.
 
 ### 2. Amazon S3 / S3-Compatible
 
-Store files in Amazon S3 or S3-compatible services (MinIO, DigitalOcean Spaces, Wasabi, etc.).
+Store files in Amazon S3 or S3-compatible services (MinIO, DigitalOcean Spaces, Wasabi,
+etc.).
 
 **Configuration**:
 
@@ -38,7 +40,8 @@ Store files in Amazon S3 or S3-compatible services (MinIO, DigitalOcean Spaces, 
 
 **Requirements**: `boto3` Python library
 
-**Use Case**: Production deployments, high availability, automatic backups, content delivery.
+**Use Case**: Production deployments, high availability, automatic backups, content
+delivery.
 
 ### 3. Azure Blob Storage
 
@@ -63,7 +66,8 @@ Store files in an external filesystem path (network share, mounted volume, etc.)
 
 **Requirements**: Path must be writable by Odoo process
 
-**Use Case**: Network-attached storage (NAS), shared volumes in containerized deployments.
+**Use Case**: Network-attached storage (NAS), shared volumes in containerized
+deployments.
 
 ## Installation
 
@@ -96,7 +100,8 @@ odoo-bin -d <database> -i spp_storage_backend
 
 ## Configuration
 
-1. Navigate to **Settings → Technical → Storage Backends** (requires Storage Administrator role)
+1. Navigate to **Settings → Technical → Storage Backends** (requires Storage
+   Administrator role)
 2. Create a new storage backend or modify the default "Odoo Default Storage"
 3. Configure backend-specific settings
 4. Click "Test Connection" to verify configuration
@@ -146,9 +151,11 @@ archive_backend = self.env["spp.storage.backend"].search([("backend_type", "=", 
 ### Best Practices
 
 1. **Never log credentials**: The module follows OpenSPP's no-PII-in-logs principle
-2. **Use IAM roles when possible**: For S3, prefer IAM instance roles over static credentials
+2. **Use IAM roles when possible**: For S3, prefer IAM instance roles over static
+   credentials
 3. **Rotate credentials regularly**: Update access keys periodically
-4. **Test in development first**: Always test backend configuration in a non-production environment
+4. **Test in development first**: Always test backend configuration in a non-production
+   environment
 5. **Monitor storage costs**: Cloud storage can incur significant costs at scale
 
 ## Architecture Decision Records

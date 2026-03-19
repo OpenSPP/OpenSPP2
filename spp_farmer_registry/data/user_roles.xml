@@ -8,7 +8,9 @@
     <record id="global_role_farm_user" model="res.users.role">
         <field name="name">Global Farm User</field>
         <field name="role_type">global</field>
-        <field name="comment">Read access to farmer registry records (farms, activities, seasons).</field>
+        <field
+            name="comment"
+        >Read access to farmer registry records (farms, activities, seasons).</field>
         <field
             name="implied_ids"
             eval="[
@@ -23,7 +25,9 @@
     <record id="global_role_farm_manager" model="res.users.role">
         <field name="name">Global Farm Manager</field>
         <field name="role_type">global</field>
-        <field name="comment">Full management of farmer registry including farm details, activities, seasons, and irrigation.</field>
+        <field
+            name="comment"
+        >Full management of farmer registry including farm details, activities, seasons, and irrigation.</field>
         <field
             name="implied_ids"
             eval="[
@@ -34,5 +38,4 @@
             ]"
         />
     </record>
-
 </odoo>

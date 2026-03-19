@@ -1,7 +1,8 @@
 # OpenSPP Farmer Registry Demo - Use Cases Guide
 
-This document describes the demo use cases for the `spp_farmer_registry_demo` module. The demo is set in the
-**Philippines** context, showcasing farmer registry and agricultural subsidy programs for smallholder farmers.
+This document describes the demo use cases for the `spp_farmer_registry_demo` module.
+The demo is set in the **Philippines** context, showcasing farmer registry and
+agricultural subsidy programs for smallholder farmers.
 
 ## Table of Contents
 
@@ -18,14 +19,18 @@ This document describes the demo use cases for the `spp_farmer_registry_demo` mo
 
 ## Overview
 
-The Farmer Registry Demo module provides realistic demo data that showcases OpenSPP's capabilities for agricultural
-program management. It follows the "Fixed Stories + Volume" architecture:
+The Farmer Registry Demo module provides realistic demo data that showcases OpenSPP's
+capabilities for agricultural program management. It follows the "Fixed Stories +
+Volume" architecture:
 
-- **Fixed Stories**: 8 named farmer personas with predefined farm profiles and program journeys
+- **Fixed Stories**: 8 named farmer personas with predefined farm profiles and program
+  journeys
 - **GIS Data**: GPS coordinates and land parcel polygons across 8 Philippine provinces
-- **Farm Cooperatives**: 2 cooperative personas demonstrating group hierarchy (group of groups)
+- **Farm Cooperatives**: 2 cooperative personas demonstrating group hierarchy (group of
+  groups)
 - **Edge Cases**: 3 additional personas for testing eligibility boundaries
-- **Volume Data**: Random farm registrations with GIS coordinates for realistic map views
+- **Volume Data**: Random farm registrations with GIS coordinates for realistic map
+  views
 - **Demo Programs**: 5 programs covering different agricultural subsidy scenarios
 - **Logic Packs**: Pre-built CEL eligibility and benefit calculation rules
 
@@ -33,18 +38,18 @@ program management. It follows the "Fixed Stories + Volume" architecture:
 
 ## Philippines Context
 
-The demo simulates a **Department of Agriculture (DA)** farmer support initiative in the Philippines, targeting
-smallholder farmers across multiple provinces.
+The demo simulates a **Department of Agriculture (DA)** farmer support initiative in the
+Philippines, targeting smallholder farmers across multiple provinces.
 
 ### Setting
 
-| Attribute | Value |
-|-----------|-------|
-| **Country** | Philippines |
-| **Agency** | Department of Agriculture (DA) |
-| **Target Population** | Smallholder farmers (≤5 hectares) |
-| **Registry System** | Registry System for Basic Sectors in Agriculture (RSBSA) |
-| **Currency** | Philippine Peso (PHP) |
+| Attribute             | Value                                                    |
+| --------------------- | -------------------------------------------------------- |
+| **Country**           | Philippines                                              |
+| **Agency**            | Department of Agriculture (DA)                           |
+| **Target Population** | Smallholder farmers (≤5 hectares)                        |
+| **Registry System**   | Registry System for Basic Sectors in Agriculture (RSBSA) |
+| **Currency**          | Philippine Peso (PHP)                                    |
 
 ### Agricultural Context
 
@@ -56,16 +61,16 @@ smallholder farmers across multiple provinces.
 
 ### Regions Represented
 
-| Persona | Province | Region |
-|---------|----------|--------|
-| Maria Santos | Nueva Ecija | Central Luzon (Region III) |
-| Juan Dela Cruz | Pangasinan | Ilocos Region (Region I) |
-| Rosa Garcia | Bukidnon | Northern Mindanao (Region X) |
-| Amir Mangudadatu | Maguindanao | BARMM |
-| Sofia Martinez | Laguna | CALABARZON (Region IV-A) |
-| Ramon dela Cruz | Pampanga | Central Luzon (Region III) |
-| Sittie Pangandaman | Lanao del Sur | BARMM |
-| Danilo Villanueva | Davao del Sur | Davao Region (Region XI) |
+| Persona            | Province      | Region                       |
+| ------------------ | ------------- | ---------------------------- |
+| Maria Santos       | Nueva Ecija   | Central Luzon (Region III)   |
+| Juan Dela Cruz     | Pangasinan    | Ilocos Region (Region I)     |
+| Rosa Garcia        | Bukidnon      | Northern Mindanao (Region X) |
+| Amir Mangudadatu   | Maguindanao   | BARMM                        |
+| Sofia Martinez     | Laguna        | CALABARZON (Region IV-A)     |
+| Ramon dela Cruz    | Pampanga      | Central Luzon (Region III)   |
+| Sittie Pangandaman | Lanao del Sur | BARMM                        |
+| Danilo Villanueva  | Davao del Sur | Davao Region (Region XI)     |
 
 ---
 
@@ -73,13 +78,13 @@ smallholder farmers across multiple provinces.
 
 ### 1. Input Subsidy Program
 
-| Attribute | Value |
-|-----------|-------|
-| **Target Type** | Households (Groups) |
-| **Eligibility** | Smallholder (≤5 ha) with productive land |
-| **Benefit Formula** | Base amount + (farm hectares x per-hectare rate) |
-| **Example** | PHP 5,000 + (2.0 ha x PHP 2,500) = PHP 10,000 |
-| **Stories** | Maria Santos, Juan Dela Cruz, Sofia Martinez, Sittie Pangandaman |
+| Attribute           | Value                                                            |
+| ------------------- | ---------------------------------------------------------------- |
+| **Target Type**     | Households (Groups)                                              |
+| **Eligibility**     | Smallholder (≤5 ha) with productive land                         |
+| **Benefit Formula** | Base amount + (farm hectares x per-hectare rate)                 |
+| **Example**         | PHP 5,000 + (2.0 ha x PHP 2,500) = PHP 10,000                    |
+| **Stories**         | Maria Santos, Juan Dela Cruz, Sofia Martinez, Sittie Pangandaman |
 
 **Use Cases:**
 
@@ -99,12 +104,12 @@ smallholder farmers across multiple provinces.
 
 ### 2. Equipment Grant Program
 
-| Attribute | Value |
-|-----------|-------|
-| **Target Type** | Households (Groups) |
+| Attribute       | Value                                        |
+| --------------- | -------------------------------------------- |
+| **Target Type** | Households (Groups)                          |
 | **Eligibility** | Smallholder with 2+ years farming experience |
-| **Benefit** | Fixed grant amount |
-| **Stories** | Juan Dela Cruz, Sittie Pangandaman |
+| **Benefit**     | Fixed grant amount                           |
+| **Stories**     | Juan Dela Cruz, Sittie Pangandaman           |
 
 **Use Cases:**
 
@@ -123,13 +128,13 @@ smallholder farmers across multiple provinces.
 
 ### 3. Livestock Support Program
 
-| Attribute | Value |
-|-----------|-------|
-| **Target Type** | Households (Groups) |
-| **Eligibility** | Farms with livestock activities |
+| Attribute           | Value                                           |
+| ------------------- | ----------------------------------------------- |
+| **Target Type**     | Households (Groups)                             |
+| **Eligibility**     | Farms with livestock activities                 |
 | **Benefit Formula** | Base amount + (livestock count x per-head rate) |
-| **Example** | PHP 3,750 + (20 heads x PHP 500) = PHP 13,750 |
-| **Stories** | Rosa Garcia, Juan Dela Cruz, Danilo Villanueva |
+| **Example**         | PHP 3,750 + (20 heads x PHP 500) = PHP 13,750   |
+| **Stories**         | Rosa Garcia, Juan Dela Cruz, Danilo Villanueva  |
 
 **Use Cases:**
 
@@ -148,12 +153,12 @@ smallholder farmers across multiple provinces.
 
 ### 4. Climate Resilience Program
 
-| Attribute | Value |
-|-----------|-------|
-| **Target Type** | Households (Groups) |
+| Attribute       | Value                             |
+| --------------- | --------------------------------- |
+| **Target Type** | Households (Groups)               |
 | **Eligibility** | Smallholder with idle/fallow land |
-| **Benefit** | Fixed climate adaptation amount |
-| **Stories** | Amir Mangudadatu |
+| **Benefit**     | Fixed climate adaptation amount   |
+| **Stories**     | Amir Mangudadatu                  |
 
 **Use Cases:**
 
@@ -173,12 +178,12 @@ smallholder farmers across multiple provinces.
 
 ### 5. Aquaculture Support Program
 
-| Attribute | Value |
-|-----------|-------|
-| **Target Type** | Households (Groups) |
+| Attribute       | Value                             |
+| --------------- | --------------------------------- |
+| **Target Type** | Households (Groups)               |
 | **Eligibility** | Farms with aquaculture activities |
-| **Benefit** | Fixed aquaculture support amount |
-| **Stories** | Ramon dela Cruz |
+| **Benefit**     | Fixed aquaculture support amount  |
+| **Stories**     | Ramon dela Cruz                   |
 
 **Use Cases:**
 
@@ -208,13 +213,13 @@ smallholder farmers across multiple provinces.
 
 **Farm Data:**
 
-| Attribute | Value |
-|-----------|-------|
-| Farm Type | Crop |
-| Total Size | 2.0 ha |
-| Under Crops | 2.0 ha |
-| Crops | Rice (palay) |
-| Livestock | None |
+| Attribute   | Value        |
+| ----------- | ------------ |
+| Farm Type   | Crop         |
+| Total Size  | 2.0 ha       |
+| Under Crops | 2.0 ha       |
+| Crops       | Rice (palay) |
+| Livestock   | None         |
 
 **Program Eligibility:**
 
@@ -242,14 +247,14 @@ smallholder farmers across multiple provinces.
 
 **Farm Data:**
 
-| Attribute | Value |
-|-----------|-------|
-| Farm Type | Mixed |
-| Total Size | 3.0 ha |
-| Under Crops | 2.0 ha |
-| Under Livestock | 1.0 ha |
-| Crops | Rice, corn, vegetables |
-| Livestock | 50 chickens |
+| Attribute       | Value                  |
+| --------------- | ---------------------- |
+| Farm Type       | Mixed                  |
+| Total Size      | 3.0 ha                 |
+| Under Crops     | 2.0 ha                 |
+| Under Livestock | 1.0 ha                 |
+| Crops           | Rice, corn, vegetables |
+| Livestock       | 50 chickens            |
 
 **Program Eligibility:**
 
@@ -277,14 +282,14 @@ smallholder farmers across multiple provinces.
 
 **Farm Data:**
 
-| Attribute | Value |
-|-----------|-------|
-| Farm Type | Mixed |
-| Total Size | 1.0 ha |
-| Under Crops | 0.5 ha |
-| Under Livestock | 0.5 ha |
-| Crops | Vegetables |
-| Livestock | 20 goats |
+| Attribute       | Value      |
+| --------------- | ---------- |
+| Farm Type       | Mixed      |
+| Total Size      | 1.0 ha     |
+| Under Crops     | 0.5 ha     |
+| Under Livestock | 0.5 ha     |
+| Crops           | Vegetables |
+| Livestock       | 20 goats   |
 
 **Program Eligibility:**
 
@@ -312,14 +317,14 @@ smallholder farmers across multiple provinces.
 
 **Farm Data:**
 
-| Attribute | Value |
-|-----------|-------|
-| Farm Type | Crop |
-| Total Size | 4.0 ha |
+| Attribute   | Value  |
+| ----------- | ------ |
+| Farm Type   | Crop   |
+| Total Size  | 4.0 ha |
 | Under Crops | 3.0 ha |
 | Idle/Fallow | 1.0 ha |
-| Crops | Rice |
-| Livestock | None |
+| Crops       | Rice   |
+| Livestock   | None   |
 
 **Program Eligibility:**
 
@@ -347,13 +352,13 @@ smallholder farmers across multiple provinces.
 
 **Farm Data:**
 
-| Attribute | Value |
-|-----------|-------|
-| Farm Type | Crop |
-| Total Size | 2.0 ha |
-| Under Crops | 2.0 ha |
-| Crops | Vegetables, maize |
-| Livestock | None |
+| Attribute   | Value             |
+| ----------- | ----------------- |
+| Farm Type   | Crop              |
+| Total Size  | 2.0 ha            |
+| Under Crops | 2.0 ha            |
+| Crops       | Vegetables, maize |
+| Livestock   | None              |
 
 **Program Eligibility:**
 
@@ -381,13 +386,13 @@ smallholder farmers across multiple provinces.
 
 **Farm Data:**
 
-| Attribute | Value |
-|-----------|-------|
-| Farm Type | Aquaculture |
-| Total Size | 0.5 ha |
-| Under Aquaculture | 0.5 ha |
-| Aquaculture | 1 fishpond (tilapia) |
-| Crops | None |
+| Attribute         | Value                |
+| ----------------- | -------------------- |
+| Farm Type         | Aquaculture          |
+| Total Size        | 0.5 ha               |
+| Under Aquaculture | 0.5 ha               |
+| Aquaculture       | 1 fishpond (tilapia) |
+| Crops             | None                 |
 
 **Program Eligibility:**
 
@@ -415,13 +420,13 @@ smallholder farmers across multiple provinces.
 
 **Farm Data:**
 
-| Attribute | Value |
-|-----------|-------|
-| Farm Type | Crop |
-| Total Size | 1.5 ha |
-| Under Crops | 1.5 ha |
-| Crops | Rice, vegetables |
-| Livestock | None |
+| Attribute   | Value            |
+| ----------- | ---------------- |
+| Farm Type   | Crop             |
+| Total Size  | 1.5 ha           |
+| Under Crops | 1.5 ha           |
+| Crops       | Rice, vegetables |
+| Livestock   | None             |
 
 **Program Eligibility:**
 
@@ -449,14 +454,14 @@ smallholder farmers across multiple provinces.
 
 **Farm Data:**
 
-| Attribute | Value |
-|-----------|-------|
-| Farm Type | Mixed |
-| Total Size | 5.0 ha |
-| Under Crops | 3.0 ha |
-| Under Livestock | 2.0 ha |
-| Crops | Coconut, cacao |
-| Livestock | 45 heads (cattle + goats) |
+| Attribute       | Value                     |
+| --------------- | ------------------------- |
+| Farm Type       | Mixed                     |
+| Total Size      | 5.0 ha                    |
+| Under Crops     | 3.0 ha                    |
+| Under Livestock | 2.0 ha                    |
+| Crops           | Coconut, cacao            |
+| Livestock       | 45 heads (cattle + goats) |
 
 **Program Eligibility:**
 
@@ -475,8 +480,8 @@ smallholder farmers across multiple provinces.
 
 ## Farm Cooperative Personas (Group Hierarchy)
 
-Farm Cooperatives demonstrate the **group hierarchy** feature where a cooperative (group) contains individual farms
-(groups) as members — a group of groups.
+Farm Cooperatives demonstrate the **group hierarchy** feature where a cooperative
+(group) contains individual farms (groups) as members — a group of groups.
 
 ### Nueva Ecija Rice Cooperative
 
@@ -525,7 +530,8 @@ BARMM Farmers Federation (Group)
 
 - Regional farmer federation
 - BARMM-specific cooperative structures
-- Federation exceeds smallholder threshold (5.5 ha combined) even though individual members qualify
+- Federation exceeds smallholder threshold (5.5 ha combined) even though individual
+  members qualify
 - Climate-affected member (Ibrahim) within a broader federation
 
 ---
@@ -534,10 +540,10 @@ BARMM Farmers Federation (Group)
 
 ### AgriCorp Holdings - Large Commercial Farm
 
-| Attribute | Value |
-|-----------|-------|
-| Farm Size | 50 ha |
-| Is Smallholder | No |
+| Attribute       | Value                                  |
+| --------------- | -------------------------------------- |
+| Farm Size       | 50 ha                                  |
+| Is Smallholder  | No                                     |
 | Expected Result | Rejected from all smallholder programs |
 
 **Demo Point:** Demonstrates proper targeting exclusion for large commercial operations.
@@ -546,11 +552,11 @@ BARMM Farmers Federation (Group)
 
 ### Idle Land Farm - No Productive Land
 
-| Attribute | Value |
-|-----------|-------|
-| Farm Size | 3 ha (all idle/fallow) |
-| Has Productive Land | No |
-| Expected Result | Rejected from Input Subsidy, eligible for Climate Resilience |
+| Attribute           | Value                                                        |
+| ------------------- | ------------------------------------------------------------ |
+| Farm Size           | 3 ha (all idle/fallow)                                       |
+| Has Productive Land | No                                                           |
+| Expected Result     | Rejected from Input Subsidy, eligible for Climate Resilience |
 
 **Demo Point:** Tests edge case where land exists but isn't productive.
 
@@ -558,10 +564,10 @@ BARMM Farmers Federation (Group)
 
 ### New Farmer - No Experience
 
-| Attribute | Value |
-|-----------|-------|
-| Farm Size | 2 ha |
-| Experience | 1 year |
+| Attribute       | Value                                                     |
+| --------------- | --------------------------------------------------------- |
+| Farm Size       | 2 ha                                                      |
+| Experience      | 1 year                                                    |
 | Expected Result | Eligible for Input Subsidy, rejected from Equipment Grant |
 
 **Demo Point:** Tests experience-based eligibility threshold.
@@ -570,42 +576,43 @@ BARMM Farmers Federation (Group)
 
 ## Logic Packs
 
-Pre-built logic packages using CEL expressions for program eligibility and benefit calculations.
+Pre-built logic packages using CEL expressions for program eligibility and benefit
+calculations.
 
 ### Pack 1: Input Subsidy Program
 
-| Item | Type | CEL Expression |
-|------|------|----------------|
-| Smallholder Eligibility | Filter | `is_smallholder && has_productive_land` |
+| Item                      | Type    | CEL Expression                                                    |
+| ------------------------- | ------- | ----------------------------------------------------------------- |
+| Smallholder Eligibility   | Filter  | `is_smallholder && has_productive_land`                           |
 | Input Subsidy Calculation | Formula | `input_subsidy_base + (farm_size_hectares * per_hectare_subsidy)` |
 
 ### Pack 2: Equipment Grant Program
 
-| Item | Type | CEL Expression |
-|------|------|----------------|
-| Experienced Farmer Eligibility | Filter | `is_smallholder && experience_years >= 2` |
-| Equipment Grant Amount | Formula | `equipment_grant_amount` |
+| Item                           | Type    | CEL Expression                            |
+| ------------------------------ | ------- | ----------------------------------------- |
+| Experienced Farmer Eligibility | Filter  | `is_smallholder && experience_years >= 2` |
+| Equipment Grant Amount         | Formula | `equipment_grant_amount`                  |
 
 ### Pack 3: Livestock Support Program
 
-| Item | Type | CEL Expression |
-|------|------|----------------|
-| Livestock Farmer Eligibility | Filter | `livestock_count > 0` |
+| Item                          | Type    | CEL Expression                                         |
+| ----------------------------- | ------- | ------------------------------------------------------ |
+| Livestock Farmer Eligibility  | Filter  | `livestock_count > 0`                                  |
 | Livestock Support Calculation | Formula | `livestock_base + (livestock_count * per_head_amount)` |
 
 ### Pack 4: Climate Resilience Program
 
-| Item | Type | CEL Expression |
-|------|------|----------------|
-| Climate Vulnerability Eligibility | Filter | `is_smallholder && farm_size_idle > 0` |
-| Climate Adaptation Amount | Formula | `climate_adaptation_amount` |
+| Item                              | Type    | CEL Expression                         |
+| --------------------------------- | ------- | -------------------------------------- |
+| Climate Vulnerability Eligibility | Filter  | `is_smallholder && farm_size_idle > 0` |
+| Climate Adaptation Amount         | Formula | `climate_adaptation_amount`            |
 
 ### Pack 5: Aquaculture Support Program
 
-| Item | Type | CEL Expression |
-|------|------|----------------|
-| Aquaculture Farmer Eligibility | Filter | `aquaculture_count > 0` |
-| Aquaculture Support Amount | Formula | `aquaculture_support_amount` |
+| Item                           | Type    | CEL Expression               |
+| ------------------------------ | ------- | ---------------------------- |
+| Aquaculture Farmer Eligibility | Filter  | `aquaculture_count > 0`      |
+| Aquaculture Support Amount     | Formula | `aquaculture_support_amount` |
 
 ---
 
@@ -788,7 +795,8 @@ Pre-built logic packages using CEL expressions for program eligibility and benef
 4. Click into Maria Santos farm — show it is itself a group with individual members
 5. Return to cooperative level — show aggregated data (combined hectares)
 6. Open BARMM Farmers Federation — show federation-level view
-7. Demonstrate that the federation exceeds smallholder threshold (5.5 ha) while individual members qualify
+7. Demonstrate that the federation exceeds smallholder threshold (5.5 ha) while
+   individual members qualify
 
 **Key Messages:**
 
@@ -823,16 +831,16 @@ Pre-built logic packages using CEL expressions for program eligibility and benef
 
 **Geographic Coverage:**
 
-| Persona | Region | Province | Coordinates |
-|---------|--------|----------|-------------|
-| Maria Santos | Central Luzon | Nueva Ecija | 15.59°N, 120.97°E |
-| Juan Dela Cruz | Southern Luzon | Laguna | 14.27°N, 121.41°E |
-| Rosa Garcia | Southern Luzon | Batangas | 13.76°N, 121.06°E |
-| Sofia Martinez | Cordillera | Benguet | 16.40°N, 120.60°E |
-| Ramon dela Cruz | Ilocos | Pangasinan | 16.02°N, 120.22°E |
-| Amir Mangudadatu | BARMM | Maguindanao | 7.05°N, 124.85°E |
-| Sittie Pangandaman | BARMM | Lanao del Sur | 7.90°N, 124.29°E |
-| Danilo Villanueva | Northern Mindanao | Bukidnon | 8.05°N, 125.05°E |
+| Persona            | Region            | Province      | Coordinates       |
+| ------------------ | ----------------- | ------------- | ----------------- |
+| Maria Santos       | Central Luzon     | Nueva Ecija   | 15.59°N, 120.97°E |
+| Juan Dela Cruz     | Southern Luzon    | Laguna        | 14.27°N, 121.41°E |
+| Rosa Garcia        | Southern Luzon    | Batangas      | 13.76°N, 121.06°E |
+| Sofia Martinez     | Cordillera        | Benguet       | 16.40°N, 120.60°E |
+| Ramon dela Cruz    | Ilocos            | Pangasinan    | 16.02°N, 120.22°E |
+| Amir Mangudadatu   | BARMM             | Maguindanao   | 7.05°N, 124.85°E  |
+| Sittie Pangandaman | BARMM             | Lanao del Sur | 7.90°N, 124.29°E  |
+| Danilo Villanueva  | Northern Mindanao | Bukidnon      | 8.05°N, 125.05°E  |
 
 ---
 
@@ -840,38 +848,38 @@ Pre-built logic packages using CEL expressions for program eligibility and benef
 
 ### Farm Registry Features
 
-| Feature | Demo Persona | Description |
-|---------|-------------|-------------|
-| Crop farming | Maria Santos | Pure rice farming profile |
-| Mixed farming | Juan Dela Cruz | Crops + livestock combination |
-| Aquaculture | Ramon dela Cruz | Fishpond operations |
-| Female farmers | Maria, Rosa, Sofia, Sittie | Gender-disaggregated data |
-| Climate impact | Amir Mangudadatu | Idle/fallow land tracking |
-| Edge threshold | Danilo Villanueva | At 5 ha smallholder boundary |
-| Farm cooperative | Nueva Ecija Rice Cooperative | Group of groups hierarchy |
-| Farmer federation | BARMM Farmers Federation | Regional multi-farm federation |
-| GIS mapping | All 8 personas | GPS coordinates across 8 provinces |
-| Land parcels | All 8 personas | Land records with polygon boundaries |
-| Land use | All 8 personas | Cultivation, pasture, aquaculture, mixed |
+| Feature           | Demo Persona                 | Description                              |
+| ----------------- | ---------------------------- | ---------------------------------------- |
+| Crop farming      | Maria Santos                 | Pure rice farming profile                |
+| Mixed farming     | Juan Dela Cruz               | Crops + livestock combination            |
+| Aquaculture       | Ramon dela Cruz              | Fishpond operations                      |
+| Female farmers    | Maria, Rosa, Sofia, Sittie   | Gender-disaggregated data                |
+| Climate impact    | Amir Mangudadatu             | Idle/fallow land tracking                |
+| Edge threshold    | Danilo Villanueva            | At 5 ha smallholder boundary             |
+| Farm cooperative  | Nueva Ecija Rice Cooperative | Group of groups hierarchy                |
+| Farmer federation | BARMM Farmers Federation     | Regional multi-farm federation           |
+| GIS mapping       | All 8 personas               | GPS coordinates across 8 provinces       |
+| Land parcels      | All 8 personas               | Land records with polygon boundaries     |
+| Land use          | All 8 personas               | Cultivation, pasture, aquaculture, mixed |
 
 ### Program Features
 
-| Feature | Demo Program | Demo Persona |
-|---------|-------------|--------------|
-| CEL eligibility | Input Subsidy | All personas |
-| Formula benefits | Input Subsidy | Maria Santos (per-hectare) |
-| Fixed benefits | Equipment Grant | Juan Dela Cruz |
-| Per-head scaling | Livestock Support | Rosa Garcia (20 goats) |
-| Activity-based | Aquaculture Support | Ramon dela Cruz |
-| Climate targeting | Climate Resilience | Amir Mangudadatu |
+| Feature           | Demo Program        | Demo Persona               |
+| ----------------- | ------------------- | -------------------------- |
+| CEL eligibility   | Input Subsidy       | All personas               |
+| Formula benefits  | Input Subsidy       | Maria Santos (per-hectare) |
+| Fixed benefits    | Equipment Grant     | Juan Dela Cruz             |
+| Per-head scaling  | Livestock Support   | Rosa Garcia (20 goats)     |
+| Activity-based    | Aquaculture Support | Ramon dela Cruz            |
+| Climate targeting | Climate Resilience  | Amir Mangudadatu           |
 
 ### Change Request Features
 
-| Feature | CR Type | Description |
-|---------|---------|-------------|
-| Update farm details | Farm Details CR | Change farm size, classification |
-| Add farm activity | Farm Activity CR | Add new crop or livestock activity |
-| Update farm activity | Farm Activity CR | Modify existing activity details |
+| Feature              | CR Type          | Description                        |
+| -------------------- | ---------------- | ---------------------------------- |
+| Update farm details  | Farm Details CR  | Change farm size, classification   |
+| Add farm activity    | Farm Activity CR | Add new crop or livestock activity |
+| Update farm activity | Farm Activity CR | Modify existing activity details   |
 
 ---
 

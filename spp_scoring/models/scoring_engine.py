@@ -457,7 +457,7 @@ class SppScoringEngine(models.AbstractModel):
             jobs.append(
                 self.delayable(
                     channel="root.scoring.batch",
-                    description=f"Batch scoring chunk {i//ASYNC_CHUNK_SIZE + 1}",
+                    description=f"Batch scoring chunk {i // ASYNC_CHUNK_SIZE + 1}",
                 )._process_scoring_chunk(
                     chunk_ids,
                     scoring_model.id,

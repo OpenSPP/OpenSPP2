@@ -251,7 +251,7 @@ class IrAttachment(models.Model):
 
         if not provider:
             _logger.warning(
-                "No encryption provider configured for quarantine. " "Files will be quarantined without encryption."
+                "No encryption provider configured for quarantine. Files will be quarantined without encryption."
             )
             return None
 

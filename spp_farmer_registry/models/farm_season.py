@@ -165,11 +165,7 @@ class SPPFarmSeason(models.Model):
         """Validate state transitions."""
         for record in self:
             if record.state == "closed":
-                if (
-                    record.date_end
-                    and record.date_end > fields.Date.today()
-                    and not record.force_close
-                ):
+                if record.date_end and record.date_end > fields.Date.today() and not record.force_close:
                     raise ValidationError(
                         _(
                             "Cannot close season before the end date. "
@@ -211,9 +207,7 @@ class SPPFarmSeason(models.Model):
         for record in self:
             if not record.active and record.state == "closed":
                 if record.activity_ids:
-                    raise ValidationError(
-                        _("Cannot reactivate closed season with existing activities")
-                    )
+                    raise ValidationError(_("Cannot reactivate closed season with existing activities"))
         return super().toggle_active()
 
     @api.model
@@ -249,12 +243,8 @@ class SPPFarmSeason(models.Model):
     def write(self, vals):
         """Override write to implement state-based access control."""
         for record in self:
-            if not record.can_edit and (
-                set(vals.keys()) - {"message_ids", "message_follower_ids"}
-            ):
-                raise ValidationError(
-                    _("You don't have permission to modify this season")
-                )
+            if not record.can_edit and (set(vals.keys()) - {"message_ids", "message_follower_ids"}):
+                raise ValidationError(_("You don't have permission to modify this season"))
         return super().write(vals)
 
     @api.model_create_multi
@@ -268,9 +258,7 @@ class SPPFarmSeason(models.Model):
         """Override unlink to implement deletion access control."""
         for record in self:
             if not record.can_edit:
-                raise ValidationError(
-                    _("You don't have permission to delete this season")
-                )
+                raise ValidationError(_("You don't have permission to delete this season"))
             if record.state == "closed":
                 raise ValidationError(_("Closed seasons cannot be deleted"))
         return super().unlink()

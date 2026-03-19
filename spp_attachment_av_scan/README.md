@@ -4,15 +4,18 @@ System-wide antivirus scanning for file attachments in OpenSPP.
 
 ## Overview
 
-This module provides automatic malware scanning for all file attachments uploaded to the system using ClamAV antivirus
-engine. It integrates with the `queue_job` module for asynchronous scanning to avoid blocking file uploads.
+This module provides automatic malware scanning for all file attachments uploaded to the
+system using ClamAV antivirus engine. It integrates with the `queue_job` module for
+asynchronous scanning to avoid blocking file uploads.
 
 ## Features
 
-- **Automatic Scanning**: All binary attachments are automatically queued for malware scanning upon upload
+- **Automatic Scanning**: All binary attachments are automatically queued for malware
+  scanning upon upload
 - **Configurable Backends**: Support for ClamAV via Unix socket or network connection
 - **Quarantine**: Infected files are automatically quarantined and access is blocked
-- **Security Notifications**: Security administrators are notified when malware is detected
+- **Security Notifications**: Security administrators are notified when malware is
+  detected
 - **Manual Rescans**: Administrators can manually trigger rescans of attachments
 - **File Size Limits**: Configurable maximum file size to avoid scanning large files
 - **Scan Timeouts**: Configurable timeout to prevent long-running scans
@@ -65,7 +68,8 @@ engine. It integrates with the `queue_job` module for asynchronous scanning to a
 
 ### Security Groups
 
-- **Antivirus Administrator** (`group_av_admin`): Can manage scanner backends and view detailed scan results
+- **Antivirus Administrator** (`group_av_admin`): Can manage scanner backends and view
+  detailed scan results
 
 ## Usage
 

@@ -6,10 +6,7 @@
         <field name="inherit_id" ref="base.res_config_settings_view_form" />
         <field name="arch" type="xml">
             <xpath expr="//form" position="inside">
-                <app
-                    string="Farmer Registry Settings"
-                    name="spp_farmer_registry"
-                >
+                <app string="Farmer Registry Settings" name="spp_farmer_registry">
                     <block title="Registry Access Control" name="registry_access_block">
                         <setting
                             string="Restrict Registry Edits to Admin Only"

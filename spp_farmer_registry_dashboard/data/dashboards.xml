@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- ═══════════════════════════════════════════════════════════════════════
          FARMER REGISTRY DASHBOARD GROUP AND DASHBOARD
@@ -16,14 +16,19 @@
     -->
     <record id="dashboard_farmer_overview" model="spreadsheet.dashboard">
         <field name="name">Farmer Registry Overview</field>
-        <field name="spreadsheet_binary_data" type="base64"
-            file="spp_farmer_registry_dashboard/data/files/farmer_overview.json"/>
-        <field name="dashboard_group_id" ref="spreadsheet_dashboard_group_farmer"/>
-        <field name="group_ids" eval="[
+        <field
+            name="spreadsheet_binary_data"
+            type="base64"
+            file="spp_farmer_registry_dashboard/data/files/farmer_overview.json"
+        />
+        <field name="dashboard_group_id" ref="spreadsheet_dashboard_group_farmer" />
+        <field
+            name="group_ids"
+            eval="[
             Command.link(ref('spp_farmer_registry.group_spp_farm_manager')),
             Command.link(ref('spp_security.group_spp_admin'))
-        ]"/>
+        ]"
+        />
         <field name="sequence">10</field>
     </record>
-
 </odoo>

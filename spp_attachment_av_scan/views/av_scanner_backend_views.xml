@@ -6,12 +6,16 @@
         <field name="model">spp.av.scanner.backend</field>
         <field name="arch" type="xml">
             <list string="Antivirus Scanner Backends">
-                <field name="sequence" widget="handle"/>
-                <field name="name"/>
-                <field name="backend_type" optional="show"/>
-                <field name="is_active" widget="boolean_toggle"/>
-                <field name="last_connection_test_date" optional="show"/>
-                <field name="last_connection_test_result" widget="boolean" optional="show"/>
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="backend_type" optional="show" />
+                <field name="is_active" widget="boolean_toggle" />
+                <field name="last_connection_test_date" optional="show" />
+                <field
+                    name="last_connection_test_result"
+                    widget="boolean"
+                    optional="show"
+                />
             </list>
         </field>
     </record>
@@ -33,41 +37,55 @@
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <field name="is_active" widget="boolean_button"
-                               options="{'terminology': 'active'}"/>
+                        <field
+                            name="is_active"
+                            widget="boolean_button"
+                            options="{'terminology': 'active'}"
+                        />
                     </div>
                     <group name="main_section">
                         <group name="general_info">
-                            <field name="name"/>
-                            <field name="sequence"/>
-                            <field name="backend_type" widget="radio"/>
+                            <field name="name" />
+                            <field name="sequence" />
+                            <field name="backend_type" widget="radio" />
                         </group>
                         <group name="scan_settings">
-                            <field name="max_file_size_mb"/>
-                            <field name="scan_timeout_seconds"/>
+                            <field name="max_file_size_mb" />
+                            <field name="scan_timeout_seconds" />
                         </group>
                     </group>
                     <notebook>
                         <page string="Connection Settings" name="connection">
                             <group name="connection_section">
-                                <group name="unix_socket_settings" string="Unix Socket" invisible="backend_type != 'clamd_socket'">
-                                    <field name="clamd_socket_path"/>
+                                <group
+                                    name="unix_socket_settings"
+                                    string="Unix Socket"
+                                    invisible="backend_type != 'clamd_socket'"
+                                >
+                                    <field name="clamd_socket_path" />
                                 </group>
-                                <group name="network_settings" string="Network" invisible="backend_type != 'clamd_network'">
-                                    <field name="clamd_host"/>
-                                    <field name="clamd_port"/>
+                                <group
+                                    name="network_settings"
+                                    string="Network"
+                                    invisible="backend_type != 'clamd_network'"
+                                >
+                                    <field name="clamd_host" />
+                                    <field name="clamd_port" />
                                 </group>
                             </group>
                         </page>
                         <page string="Connection Status" name="status">
                             <group name="status_section">
                                 <group name="status_info">
-                                    <field name="last_connection_test_date"/>
-                                    <field name="last_connection_test_result"/>
+                                    <field name="last_connection_test_date" />
+                                    <field name="last_connection_test_result" />
                                 </group>
                                 <group name="status_error">
-                                    <field name="last_connection_error" widget="text"
-                                           invisible="last_connection_test_result == True"/>
+                                    <field
+                                        name="last_connection_error"
+                                        widget="text"
+                                        invisible="last_connection_test_result == True"
+                                    />
                                 </group>
                             </group>
                         </page>
@@ -102,5 +120,4 @@
         groups="spp_attachment_av_scan.group_av_admin"
         sequence="100"
     />
-
 </odoo>
