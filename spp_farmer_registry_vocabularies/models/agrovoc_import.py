@@ -298,9 +298,7 @@ class AgrovocImport(models.Model):
         # Get additional languages
         additional_langs = []
         if self.additional_languages:
-            additional_langs = [
-                lang.strip() for lang in self.additional_languages.split(",") if lang.strip()
-            ]
+            additional_langs = [lang.strip() for lang in self.additional_languages.split(",") if lang.strip()]
 
         # Determine which concepts to include
         allowed_uris = None
@@ -481,9 +479,9 @@ class AgrovocImport(models.Model):
                         parent_id = code_map.get(concept["parent_code"])
                         if parent_id:
                             try:
-                                self.env["spp.vocabulary.code"].browse(
-                                    code_map[concept["code"]]
-                                ).write({"parent_id": parent_id})
+                                self.env["spp.vocabulary.code"].browse(code_map[concept["code"]]).write(
+                                    {"parent_id": parent_id}
+                                )
                             except (ValueError, TypeError) as e:
                                 _logger.warning(
                                     "Failed to set parent for %s: %s",

@@ -22,15 +22,9 @@ class TestIrrigationAsset(TransactionCase):
         cls._test_id = int(time.time() * 1000)
 
         # Get vocabulary codes
-        cls.asset_type_reservoir = cls.env.ref(
-            "spp_farmer_registry_vocabularies.code_irrigation_reservoir"
-        )
-        cls.asset_type_canal = cls.env.ref(
-            "spp_farmer_registry_vocabularies.code_irrigation_canal"
-        )
-        cls.asset_type_pump = cls.env.ref(
-            "spp_farmer_registry_vocabularies.code_irrigation_pump_station"
-        )
+        cls.asset_type_reservoir = cls.env.ref("spp_farmer_registry_vocabularies.code_irrigation_reservoir")
+        cls.asset_type_canal = cls.env.ref("spp_farmer_registry_vocabularies.code_irrigation_canal")
+        cls.asset_type_pump = cls.env.ref("spp_farmer_registry_vocabularies.code_irrigation_pump_station")
 
         # Create test farm
         cls.test_farm = cls.env["res.partner"].create(
@@ -169,9 +163,7 @@ class TestIrrigationAsset(TransactionCase):
         asset2 = self.env["spp.irrigation.asset"].create(
             {
                 "name": _unique("Farm 2 Well"),
-                "asset_type_id": self.env.ref(
-                    "spp_farmer_registry_vocabularies.code_irrigation_well"
-                ).id,
+                "asset_type_id": self.env.ref("spp_farmer_registry_vocabularies.code_irrigation_well").id,
                 "farm_id": farm2.id,
             }
         )

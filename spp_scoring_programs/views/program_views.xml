@@ -1,28 +1,33 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <!-- Extend Program Form with scoring configuration -->
     <record id="view_spp_program_form_scoring" model="ir.ui.view">
         <field name="name">spp.program.form.scoring</field>
         <field name="model">spp.program</field>
-        <field name="inherit_id" ref="spp_programs.view_program_list_form"/>
+        <field name="inherit_id" ref="spp_programs.view_program_list_form" />
         <field name="arch" type="xml">
             <xpath expr="//notebook" position="inside">
                 <page string="Scoring" name="scoring">
                     <group col="2">
                         <group string="Scoring Model">
-                            <field name="scoring_model_id"/>
-                            <field name="is_use_scoring_eligibility"/>
-                            <field name="is_auto_score_on_enrollment"/>
-                            <field name="score_max_age_days"
-                                   invisible="not is_use_scoring_eligibility"/>
+                            <field name="scoring_model_id" />
+                            <field name="is_use_scoring_eligibility" />
+                            <field name="is_auto_score_on_enrollment" />
+                            <field
+                                name="score_max_age_days"
+                                invisible="not is_use_scoring_eligibility"
+                            />
                         </group>
-                        <group string="Eligibility Criteria"
-                               invisible="not is_use_scoring_eligibility">
-                            <field name="eligibility_min_score"/>
-                            <field name="eligibility_max_score"/>
-                            <field name="eligibility_classifications"
-                                   placeholder="e.g., POOR,EXTREME_POOR"/>
+                        <group
+                            string="Eligibility Criteria"
+                            invisible="not is_use_scoring_eligibility"
+                        >
+                            <field name="eligibility_min_score" />
+                            <field name="eligibility_max_score" />
+                            <field
+                                name="eligibility_classifications"
+                                placeholder="e.g., POOR,EXTREME_POOR"
+                            />
                         </group>
                     </group>
                 </page>
@@ -34,18 +39,20 @@
     <record id="view_spp_program_membership_form_scoring" model="ir.ui.view">
         <field name="name">spp.program.membership.form.scoring</field>
         <field name="model">spp.program.membership</field>
-        <field name="inherit_id" ref="spp_programs.view_program_membership_form"/>
+        <field name="inherit_id" ref="spp_programs.view_program_membership_form" />
         <field name="arch" type="xml">
             <xpath expr="//sheet" position="inside">
-                <group string="Scoring Information"
-                       invisible="not program_id.scoring_model_id">
+                <group
+                    string="Scoring Information"
+                    invisible="not program_id.scoring_model_id"
+                >
                     <group>
-                        <field name="enrollment_score"/>
-                        <field name="enrollment_classification"/>
+                        <field name="enrollment_score" />
+                        <field name="enrollment_classification" />
                     </group>
                     <group>
-                        <field name="latest_score"/>
-                        <field name="latest_classification"/>
+                        <field name="latest_score" />
+                        <field name="latest_classification" />
                     </group>
                 </group>
             </xpath>
@@ -56,15 +63,14 @@
     <record id="view_spp_program_membership_list_scoring" model="ir.ui.view">
         <field name="name">spp.program.membership.list.scoring</field>
         <field name="model">spp.program.membership</field>
-        <field name="inherit_id" ref="spp_programs.view_program_membership_tree"/>
+        <field name="inherit_id" ref="spp_programs.view_program_membership_tree" />
         <field name="arch" type="xml">
             <xpath expr="//list" position="inside">
-                <field name="enrollment_score" optional="hide"/>
-                <field name="enrollment_classification" optional="hide"/>
-                <field name="latest_score" optional="hide"/>
-                <field name="latest_classification" optional="hide"/>
+                <field name="enrollment_score" optional="hide" />
+                <field name="enrollment_classification" optional="hide" />
+                <field name="latest_score" optional="hide" />
+                <field name="latest_classification" optional="hide" />
             </xpath>
         </field>
     </record>
-
 </odoo>

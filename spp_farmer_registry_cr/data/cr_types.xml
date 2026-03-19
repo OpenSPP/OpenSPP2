@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
     <!-- ════════════════════════════════════════════════════════════════════════ -->
     <!-- FARMER REGISTRY CHANGE REQUEST TYPES -->
@@ -8,10 +8,15 @@
     <record id="cr_type_update_farm_details" model="spp.change.request.type">
         <field name="name">Update Farm Details</field>
         <field name="code">update_farm_details</field>
-        <field name="description">Update farm classification, size, and land tenure information</field>
+        <field
+            name="description"
+        >Update farm classification, size, and land tenure information</field>
         <field name="target_type">group</field>
         <field name="detail_model">spp.cr.detail.farm_details</field>
-        <field name="detail_form_view_id" ref="spp_farmer_registry_cr.spp_cr_detail_farm_details_form"/>
+        <field
+            name="detail_form_view_id"
+            ref="spp_farmer_registry_cr.spp_cr_detail_farm_details_form"
+        />
         <field name="apply_strategy">custom</field>
         <field name="apply_model">spp.cr.apply.update_farm_details</field>
         <field name="icon">fa-tractor</field>
@@ -24,62 +29,92 @@
     </record>
 
     <!-- Field mappings for Update Farm Details -->
-    <record id="cr_type_farm_details_mapping_farm_type" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_update_farm_details"/>
+    <record
+        id="cr_type_farm_details_mapping_farm_type"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_update_farm_details" />
         <field name="source_field">farm_type_id</field>
         <field name="target_field">farm_type_id</field>
         <field name="sequence">10</field>
     </record>
-    <record id="cr_type_farm_details_mapping_holder_type" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_update_farm_details"/>
+    <record
+        id="cr_type_farm_details_mapping_holder_type"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_update_farm_details" />
         <field name="source_field">holder_type_id</field>
         <field name="target_field">holder_type_id</field>
         <field name="sequence">20</field>
     </record>
-    <record id="cr_type_farm_details_mapping_land_tenure" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_update_farm_details"/>
+    <record
+        id="cr_type_farm_details_mapping_land_tenure"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_update_farm_details" />
         <field name="source_field">land_tenure_id</field>
         <field name="target_field">land_tenure_id</field>
         <field name="sequence">30</field>
     </record>
-    <record id="cr_type_farm_details_mapping_total_size" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_update_farm_details"/>
+    <record
+        id="cr_type_farm_details_mapping_total_size"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_update_farm_details" />
         <field name="source_field">farm_total_size</field>
         <field name="target_field">farm_total_size</field>
         <field name="sequence">50</field>
     </record>
-    <record id="cr_type_farm_details_mapping_under_crops" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_update_farm_details"/>
+    <record
+        id="cr_type_farm_details_mapping_under_crops"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_update_farm_details" />
         <field name="source_field">farm_size_under_crops</field>
         <field name="target_field">farm_size_under_crops</field>
         <field name="sequence">60</field>
     </record>
-    <record id="cr_type_farm_details_mapping_under_livestock" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_update_farm_details"/>
+    <record
+        id="cr_type_farm_details_mapping_under_livestock"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_update_farm_details" />
         <field name="source_field">farm_size_under_livestock</field>
         <field name="target_field">farm_size_under_livestock</field>
         <field name="sequence">70</field>
     </record>
-    <record id="cr_type_farm_details_mapping_under_aquaculture" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_update_farm_details"/>
+    <record
+        id="cr_type_farm_details_mapping_under_aquaculture"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_update_farm_details" />
         <field name="source_field">farm_size_under_aquaculture</field>
         <field name="target_field">farm_size_under_aquaculture</field>
         <field name="sequence">80</field>
     </record>
-    <record id="cr_type_farm_details_mapping_leased_out" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_update_farm_details"/>
+    <record
+        id="cr_type_farm_details_mapping_leased_out"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_update_farm_details" />
         <field name="source_field">farm_size_leased_out</field>
         <field name="target_field">farm_size_leased_out</field>
         <field name="sequence">90</field>
     </record>
-    <record id="cr_type_farm_details_mapping_idle" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_update_farm_details"/>
+    <record
+        id="cr_type_farm_details_mapping_idle"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_update_farm_details" />
         <field name="source_field">farm_size_idle</field>
         <field name="target_field">farm_size_idle</field>
         <field name="sequence">100</field>
     </record>
-    <record id="cr_type_farm_details_mapping_experience" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_update_farm_details"/>
+    <record
+        id="cr_type_farm_details_mapping_experience"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_update_farm_details" />
         <field name="source_field">experience_years</field>
         <field name="target_field">experience_years</field>
         <field name="sequence">110</field>
@@ -89,10 +124,15 @@
     <record id="cr_type_manage_farm_activity" model="spp.change.request.type">
         <field name="name">Manage Farm Activity</field>
         <field name="code">manage_farm_activity</field>
-        <field name="description">Add, edit, or remove crop, livestock, or aquaculture activities</field>
+        <field
+            name="description"
+        >Add, edit, or remove crop, livestock, or aquaculture activities</field>
         <field name="target_type">group</field>
         <field name="detail_model">spp.cr.detail.manage_farm_activity</field>
-        <field name="detail_form_view_id" ref="spp_farmer_registry_cr.spp_cr_detail_manage_farm_activity_form"/>
+        <field
+            name="detail_form_view_id"
+            ref="spp_farmer_registry_cr.spp_cr_detail_manage_farm_activity_form"
+        />
         <field name="apply_strategy">custom</field>
         <field name="apply_model">spp.cr.apply.manage_farm_activity</field>
         <field name="icon">fa-leaf</field>
@@ -151,5 +191,4 @@
         <field name="source_module">spp_farmer_registry_cr</field>
     </record>
     -->
-
 </odoo>

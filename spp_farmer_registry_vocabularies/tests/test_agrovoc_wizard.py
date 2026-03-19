@@ -26,9 +26,7 @@ def _unique(base):
 _AGR = "http://aims.fao.org/aos/agrovoc"
 _RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns"
 _SKOS = "http://www.w3.org/2004/02/skos/core"
-_SAMPLE_NT = (
-    f"<{_AGR}/c_1111> <{_RDF}#type> <{_SKOS}#Concept> .\n" f'<{_AGR}/c_1111> <{_SKOS}#prefLabel> "Maize"@en .\n'
-)
+_SAMPLE_NT = f'<{_AGR}/c_1111> <{_RDF}#type> <{_SKOS}#Concept> .\n<{_AGR}/c_1111> <{_SKOS}#prefLabel> "Maize"@en .\n'
 
 
 def _make_nt_binary(content=_SAMPLE_NT):

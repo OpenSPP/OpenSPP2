@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- ═══════════════════════════════════════════════════════════════════════
          CR DETAIL: MANAGE FARM ACTIVITY VIEW
@@ -61,16 +61,25 @@
 
                     <field name="approval_state" invisible="1" />
 
-                    <div class="alert alert-info" role="alert"
-                        invisible="operation != 'add'">
+                    <div
+                        class="alert alert-info"
+                        role="alert"
+                        invisible="operation != 'add'"
+                    >
                         Select an activity type, then fill in the details to add a new farm activity.
                     </div>
-                    <div class="alert alert-info" role="alert"
-                        invisible="operation != 'update'">
+                    <div
+                        class="alert alert-info"
+                        role="alert"
+                        invisible="operation != 'update'"
+                    >
                         Select an existing activity, then update the fields you want to change.
                     </div>
-                    <div class="alert alert-info" role="alert"
-                        invisible="operation != 'remove'">
+                    <div
+                        class="alert alert-info"
+                        role="alert"
+                        invisible="operation != 'remove'"
+                    >
                         Select the activity to remove. It will be permanently deleted upon approval.
                     </div>
 
@@ -82,26 +91,38 @@
                     <group>
                         <group>
                             <!-- Operation selector (hidden when locked) -->
-                            <field name="operation"
+                            <field
+                                name="operation"
                                 widget="filterable_radio"
                                 options="{'disabled_map': {'update': 'allow_activity_update', 'remove': 'allow_activity_remove'}}"
                                 readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                                invisible="is_operation_locked" />
+                                invisible="is_operation_locked"
+                            />
                             <!-- Locked display -->
-                            <field name="operation_display" string="Operation"
-                                invisible="not is_operation_locked" readonly="1" />
+                            <field
+                                name="operation_display"
+                                string="Operation"
+                                invisible="not is_operation_locked"
+                                readonly="1"
+                            />
                         </group>
                     </group>
 
                     <!-- Select existing activity (for update/remove) -->
                     <group invisible="operation == 'add'">
                         <group>
-                            <field name="activity_id"
+                            <field
+                                name="activity_id"
                                 string="Select Activity"
                                 required="operation in ('update', 'remove')"
-                                options="{'no_open': True}" />
-                            <field name="activity_type" readonly="1" force_save="1"
-                                invisible="not activity_id" />
+                                options="{'no_open': True}"
+                            />
+                            <field
+                                name="activity_type"
+                                readonly="1"
+                                force_save="1"
+                                invisible="not activity_id"
+                            />
                         </group>
                     </group>
 
@@ -114,21 +135,28 @@
                     <!-- Add: Activity Type selector -->
                     <group invisible="operation != 'add'">
                         <group>
-                            <field name="activity_type"
-                                required="operation == 'add'" />
+                            <field name="activity_type" required="operation == 'add'" />
                         </group>
                     </group>
 
                     <!-- Add: Crop fields -->
-                    <group string="Activity Information"
-                        invisible="operation != 'add' or activity_type != 'crop'">
+                    <group
+                        string="Activity Information"
+                        invisible="operation != 'add' or activity_type != 'crop'"
+                    >
                         <group>
-                            <field name="species_id"
-                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" />
-                            <field name="purpose_id"
-                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" />
-                            <field name="cultivation_method_id"
-                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" />
+                            <field
+                                name="species_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field
+                                name="purpose_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field
+                                name="cultivation_method_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
                             <field name="land_id" options="{'no_open': True}" />
                         </group>
                         <group>
@@ -139,13 +167,19 @@
                     </group>
 
                     <!-- Add: Livestock fields -->
-                    <group string="Activity Information"
-                        invisible="operation != 'add' or activity_type != 'livestock'">
+                    <group
+                        string="Activity Information"
+                        invisible="operation != 'add' or activity_type != 'livestock'"
+                    >
                         <group>
-                            <field name="species_id"
-                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" />
-                            <field name="purpose_id"
-                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" />
+                            <field
+                                name="species_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field
+                                name="purpose_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
                         </group>
                         <group>
                             <field name="quantity" string="Heads" />
@@ -154,13 +188,19 @@
                     </group>
 
                     <!-- Add: Aquaculture fields -->
-                    <group string="Activity Information"
-                        invisible="operation != 'add' or activity_type != 'aquaculture'">
+                    <group
+                        string="Activity Information"
+                        invisible="operation != 'add' or activity_type != 'aquaculture'"
+                    >
                         <group>
-                            <field name="species_id"
-                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" />
-                            <field name="purpose_id"
-                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" />
+                            <field
+                                name="species_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field
+                                name="purpose_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
                         </group>
                         <group>
                             <field name="quantity" />
@@ -174,15 +214,23 @@
                     <!-- ═══════════════════════════════════════════════════════ -->
 
                     <!-- Update: Crop fields -->
-                    <group string="Activity Information"
-                        invisible="operation != 'update' or not activity_id or activity_type != 'crop'">
+                    <group
+                        string="Activity Information"
+                        invisible="operation != 'update' or not activity_id or activity_type != 'crop'"
+                    >
                         <group>
-                            <field name="species_id"
-                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" />
-                            <field name="purpose_id"
-                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" />
-                            <field name="cultivation_method_id"
-                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" />
+                            <field
+                                name="species_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field
+                                name="purpose_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field
+                                name="cultivation_method_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
                         </group>
                         <group>
                             <field name="area_planted" />
@@ -192,13 +240,19 @@
                     </group>
 
                     <!-- Update: Livestock fields -->
-                    <group string="Activity Information"
-                        invisible="operation != 'update' or not activity_id or activity_type != 'livestock'">
+                    <group
+                        string="Activity Information"
+                        invisible="operation != 'update' or not activity_id or activity_type != 'livestock'"
+                    >
                         <group>
-                            <field name="species_id"
-                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" />
-                            <field name="purpose_id"
-                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" />
+                            <field
+                                name="species_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field
+                                name="purpose_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
                         </group>
                         <group>
                             <field name="quantity" string="Heads" />
@@ -206,24 +260,28 @@
                     </group>
 
                     <!-- Update: Aquaculture fields -->
-                    <group string="Activity Information"
-                        invisible="operation != 'update' or not activity_id or activity_type != 'aquaculture'">
+                    <group
+                        string="Activity Information"
+                        invisible="operation != 'update' or not activity_id or activity_type != 'aquaculture'"
+                    >
                         <group>
-                            <field name="species_id"
-                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" />
-                            <field name="purpose_id"
-                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" />
+                            <field
+                                name="species_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field
+                                name="purpose_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
                         </group>
                         <group>
                             <field name="quantity" />
                             <field name="quantity_unit" />
                         </group>
                     </group>
-
                 </sheet>
                 <chatter />
             </form>
         </field>
     </record>
-
 </odoo>

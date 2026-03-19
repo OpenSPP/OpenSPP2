@@ -47,33 +47,33 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-------------------------------+-------------------------------------+
-| Model                         | Description                         |
-+===============================+=====================================+
-| ``spp.scoring.model``         | Defines a scoring methodology with  |
-|                               | indicators and thresholds           |
-+-------------------------------+-------------------------------------+
-| ``spp.scoring.indicator``     | Individual scoring component with   |
-|                               | field mapping and weight            |
-+-------------------------------+-------------------------------------+
-| ``spp.scoring.result``        | Calculated score with               |
-|                               | classification and audit trail      |
-+-------------------------------+-------------------------------------+
-| ``spp.scoring.threshold``     | Maps score ranges to classification |
-|                               | categories                          |
-+-------------------------------+-------------------------------------+
-| ``spp.scoring.value_mapping`` | Maps field values to scores for     |
-|                               | indicators                          |
-+-------------------------------+-------------------------------------+
-| ``spp.scoring.result.detail`` | Per-indicator breakdown for a       |
-|                               | scoring result                      |
-+-------------------------------+-------------------------------------+
-| ``spp.scoring.engine``        | Abstract model providing scoring    |
-|                               | calculation service                 |
-+-------------------------------+-------------------------------------+
-| ``spp.scoring.batch.job``     | Tracks progress of async batch      |
-|                               | scoring operations                  |
-+-------------------------------+-------------------------------------+
++-------------------------------+--------------------------------------+
+| Model                         | Description                          |
++===============================+======================================+
+| ``spp.scoring.model``         | Defines a scoring methodology with   |
+|                               | indicators and thresholds            |
++-------------------------------+--------------------------------------+
+| ``spp.scoring.indicator``     | Individual scoring component with    |
+|                               | field mapping and weight             |
++-------------------------------+--------------------------------------+
+| ``spp.scoring.result``        | Calculated score with classification |
+|                               | and audit trail                      |
++-------------------------------+--------------------------------------+
+| ``spp.scoring.threshold``     | Maps score ranges to classification  |
+|                               | categories                           |
++-------------------------------+--------------------------------------+
+| ``spp.scoring.value_mapping`` | Maps field values to scores for      |
+|                               | indicators                           |
++-------------------------------+--------------------------------------+
+| ``spp.scoring.result.detail`` | Per-indicator breakdown for a        |
+|                               | scoring result                       |
++-------------------------------+--------------------------------------+
+| ``spp.scoring.engine``        | Abstract model providing scoring     |
+|                               | calculation service                  |
++-------------------------------+--------------------------------------+
+| ``spp.scoring.batch.job``     | Tracks progress of async batch       |
+|                               | scoring operations                   |
++-------------------------------+--------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -104,18 +104,17 @@ UI Location
 Security
 ~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Group                            | Access                           |
-+==================================+==================================+
-| ``sp                             | Read scoring models and results  |
-| p_scoring.group_scoring_viewer`` |                                  |
-+----------------------------------+----------------------------------+
-| ``spp                            | Run scoring calculations,        |
-| _scoring.group_scoring_officer`` | create/edit results (no delete)  |
-+----------------------------------+----------------------------------+
-| ``spp                            | Full CRUD including model        |
-| _scoring.group_scoring_manager`` | configuration                    |
-+----------------------------------+----------------------------------+
++---------------------------------------+----------------------------------+
+| Group                                 | Access                           |
++=======================================+==================================+
+| ``spp_scoring.group_scoring_viewer``  | Read scoring models and results  |
++---------------------------------------+----------------------------------+
+| ``spp_scoring.group_scoring_officer`` | Run scoring calculations,        |
+|                                       | create/edit results (no delete)  |
++---------------------------------------+----------------------------------+
+| ``spp_scoring.group_scoring_manager`` | Full CRUD including model        |
+|                                       | configuration                    |
++---------------------------------------+----------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~

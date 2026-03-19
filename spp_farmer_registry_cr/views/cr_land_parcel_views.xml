@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- ═══════════════════════════════════════════════════════════════════════
          CR DETAIL: MANAGE LAND PARCEL VIEWS
@@ -59,14 +59,26 @@
                         <field name="change_request_id" invisible="1" />
                     </group>
 
-                    <div class="alert alert-info" role="alert" invisible="operation != 'add'">
+                    <div
+                        class="alert alert-info"
+                        role="alert"
+                        invisible="operation != 'add'"
+                    >
                         <field name="approval_state" invisible="1" />
                         Fill in the land parcel details below to add a new parcel.
                     </div>
-                    <div class="alert alert-warning" role="alert" invisible="operation != 'update'">
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="operation != 'update'"
+                    >
                         Select the land parcel to edit, then update the fields you want to change.
                     </div>
-                    <div class="alert alert-danger" role="alert" invisible="operation != 'remove'">
+                    <div
+                        class="alert alert-danger"
+                        role="alert"
+                        invisible="operation != 'remove'"
+                    >
                         Select the land parcel to remove. This action cannot be undone after approval.
                     </div>
 
@@ -77,9 +89,14 @@
                             widget="filterable_radio"
                             options="{'disabled_map': {'update': 'allow_parcel_update', 'remove': 'allow_parcel_remove'}}"
                             readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            invisible="is_operation_locked" />
-                        <field name="operation_display" string="Operation"
-                            invisible="not is_operation_locked" readonly="1" />
+                            invisible="is_operation_locked"
+                        />
+                        <field
+                            name="operation_display"
+                            string="Operation"
+                            invisible="not is_operation_locked"
+                            readonly="1"
+                        />
                         <field name="is_operation_locked" invisible="1" />
                         <field name="allow_parcel_add" invisible="1" />
                         <field name="allow_parcel_update" invisible="1" />
@@ -88,18 +105,25 @@
 
                     <!-- SELECT EXISTING PARCEL (update/remove) -->
                     <group invisible="operation == 'add'" string="Select Land Parcel">
-                        <field name="land_record_id"
+                        <field
+                            name="land_record_id"
                             required="operation in ('update', 'remove')"
-                            options="{'no_create': True, 'no_create_edit': True}" />
+                            options="{'no_create': True, 'no_create_edit': True}"
+                        />
                     </group>
 
                     <!-- PARCEL DETAILS (add/update) -->
-                    <group invisible="operation == 'remove'" string="Land Parcel Details">
+                    <group
+                        invisible="operation == 'remove'"
+                        string="Land Parcel Details"
+                    >
                         <group>
                             <field name="land_name" required="operation == 'add'" />
                             <field name="land_acreage" />
-                            <field name="land_use_id"
-                                options="{'no_create': True, 'no_create_edit': True}" />
+                            <field
+                                name="land_use_id"
+                                options="{'no_create': True, 'no_create_edit': True}"
+                            />
                         </group>
                         <group>
                             <field name="owner_id" />
@@ -113,5 +137,4 @@
             </form>
         </field>
     </record>
-
 </odoo>

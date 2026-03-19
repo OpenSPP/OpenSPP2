@@ -1,15 +1,17 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <record id="vocab_land_tenure" model="spp.vocabulary">
         <field name="name">Land Tenure/Ownership</field>
         <field name="namespace_uri">urn:openspp:vocab:land-tenure</field>
         <field name="is_system">True</field>
         <field name="domain">agriculture</field>
-        <field name="description">Types of land ownership and tenure arrangements</field>
+        <field
+            name="description"
+        >Types of land ownership and tenure arrangements</field>
     </record>
 
     <record id="code_land_tenure_self" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_land_tenure"/>
+        <field name="vocabulary_id" ref="vocab_land_tenure" />
         <field name="code">self</field>
         <field name="display">Self-Owned</field>
         <field name="definition">Land owned by the individual or household</field>
@@ -17,7 +19,7 @@
     </record>
 
     <record id="code_land_tenure_family" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_land_tenure"/>
+        <field name="vocabulary_id" ref="vocab_land_tenure" />
         <field name="code">family</field>
         <field name="display">Family Owned</field>
         <field name="definition">Land owned by the extended family</field>
@@ -25,15 +27,17 @@
     </record>
 
     <record id="code_land_tenure_extended_community" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_land_tenure"/>
+        <field name="vocabulary_id" ref="vocab_land_tenure" />
         <field name="code">extended_community</field>
         <field name="display">Community/Extended Family</field>
-        <field name="definition">Land owned by the broader community or extended family</field>
+        <field
+            name="definition"
+        >Land owned by the broader community or extended family</field>
         <field name="sequence">3</field>
     </record>
 
     <record id="code_land_tenure_cooperative" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_land_tenure"/>
+        <field name="vocabulary_id" ref="vocab_land_tenure" />
         <field name="code">cooperative</field>
         <field name="display">Cooperative</field>
         <field name="definition">Land owned by an agricultural cooperative</field>
@@ -41,7 +45,7 @@
     </record>
 
     <record id="code_land_tenure_government" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_land_tenure"/>
+        <field name="vocabulary_id" ref="vocab_land_tenure" />
         <field name="code">government</field>
         <field name="display">Government</field>
         <field name="definition">Land owned by government entities</field>
@@ -49,7 +53,7 @@
     </record>
 
     <record id="code_land_tenure_leased" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_land_tenure"/>
+        <field name="vocabulary_id" ref="vocab_land_tenure" />
         <field name="code">leased</field>
         <field name="display">Leased</field>
         <field name="definition">Land rented or leased from another party</field>
@@ -57,7 +61,7 @@
     </record>
 
     <record id="code_land_tenure_unknown" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_land_tenure"/>
+        <field name="vocabulary_id" ref="vocab_land_tenure" />
         <field name="code">unknown</field>
         <field name="display">Unknown</field>
         <field name="definition">Land tenure type is not known</field>

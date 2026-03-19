@@ -88,7 +88,10 @@
                                 <strong>Disability Identified</strong>
                                 <p class="mb-0">
                                     Based on WG responses, this person meets the disability threshold
-                                    (<field name="wg_domain_count" class="d-inline" /> domain(s) with significant difficulty).
+                                    (<field
+                                    name="wg_domain_count"
+                                    class="d-inline"
+                                /> domain(s) with significant difficulty).
                                 </p>
                             </div>
                         </div>
@@ -112,7 +115,10 @@
                                         name="assessment_date"
                                         readonly="approval_state != 'draft'"
                                     />
-                                    <field name="assessor_id" readonly="approval_state != 'draft'" />
+                                    <field
+                                        name="assessor_id"
+                                        readonly="approval_state != 'draft'"
+                                    />
                                     <field name="has_disability" />
                                 </group>
                             </group>
@@ -123,8 +129,14 @@
                                         widget="many2many_tags"
                                         options="{'color_field': 'color', 'no_create': True}"
                                     />
-                                    <field name="impairment_cause_id" options="{'no_create': True}" />
-                                    <field name="severity_level_id" options="{'no_create': True}" />
+                                    <field
+                                        name="impairment_cause_id"
+                                        options="{'no_create': True}"
+                                    />
+                                    <field
+                                        name="severity_level_id"
+                                        options="{'no_create': True}"
+                                    />
                                 </group>
                                 <group string="Review Schedule">
                                     <field name="review_category" />
@@ -210,7 +222,11 @@
                 <field name="registrant_id" />
                 <field name="assessment_date" />
                 <field name="assessment_type" />
-                <field name="impairment_type_ids" widget="many2many_tags" optional="show" />
+                <field
+                    name="impairment_type_ids"
+                    widget="many2many_tags"
+                    optional="show"
+                />
                 <field
                     name="severity_level_id"
                     widget="badge"
@@ -219,10 +235,7 @@
                     decoration-danger="severity_level_id.code in ('severe', 'profound')"
                     optional="show"
                 />
-                <field
-                    name="has_disability"
-                    widget="boolean"
-                />
+                <field name="has_disability" widget="boolean" />
                 <field
                     name="approval_state"
                     widget="badge"
@@ -232,7 +245,11 @@
                     decoration-danger="approval_state == 'rejected'"
                 />
                 <field name="next_review_date" optional="hide" />
-                <field name="assessor_id" widget="many2one_avatar_user" optional="hide" />
+                <field
+                    name="assessor_id"
+                    widget="many2one_avatar_user"
+                    optional="hide"
+                />
             </list>
         </field>
     </record>
@@ -339,16 +356,24 @@
     </record>
 
     <!-- My Pending Assessments Action -->
-    <record id="action_spp_disability_assessment_my_pending" model="ir.actions.act_window">
+    <record
+        id="action_spp_disability_assessment_my_pending"
+        model="ir.actions.act_window"
+    >
         <field name="name">My Pending Assessments</field>
         <field name="res_model">spp.disability.assessment</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_spp_disability_assessment_search" />
-        <field name="domain">[('assessor_id', '=', uid), ('approval_state', '=', 'draft')]</field>
+        <field
+            name="domain"
+        >[('assessor_id', '=', uid), ('approval_state', '=', 'draft')]</field>
     </record>
 
     <!-- Pending Validation Action -->
-    <record id="action_spp_disability_assessment_pending_validation" model="ir.actions.act_window">
+    <record
+        id="action_spp_disability_assessment_pending_validation"
+        model="ir.actions.act_window"
+    >
         <field name="name">Pending Validation</field>
         <field name="res_model">spp.disability.assessment</field>
         <field name="view_mode">list,form</field>

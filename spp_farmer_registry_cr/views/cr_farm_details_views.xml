@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- ═══════════════════════════════════════════════════════════════════════
          CR DETAIL: FARM DETAILS VIEWS
@@ -67,14 +67,22 @@
 
                     <group string="Farm Classification">
                         <group>
-                            <field name="farm_type_id"
-                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" />
-                            <field name="holder_type_id"
-                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" />
-                            <field name="land_tenure_id"
-                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" />
-                            <field name="data_source_id"
-                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" />
+                            <field
+                                name="farm_type_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field
+                                name="holder_type_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field
+                                name="land_tenure_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field
+                                name="data_source_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
                             <field name="last_field_visit" />
                         </group>
                         <group string="Farm Size">
@@ -99,5 +107,4 @@
             </form>
         </field>
     </record>
-
 </odoo>

@@ -3,7 +3,6 @@
    Part of OpenSPP Modules. See LICENSE file for full copyright and licensing details.
 -->
 <odoo>
-
     <record id="view_groups_form_membership_spp_custom" model="ir.ui.view">
         <field name="name">view_groups_form_membership_spp_custom</field>
         <field name="model">res.partner</field>
@@ -18,7 +17,10 @@
                     individual_domain
                 </attribute>
             </xpath>
-            <xpath expr="//field[@name='group_membership_ids']/list/field[@name='status']" position="after">
+            <xpath
+                expr="//field[@name='group_membership_ids']/list/field[@name='status']"
+                position="after"
+            >
                 <field name="individual_domain" column_invisible="1" />
             </xpath>
 
@@ -79,5 +81,4 @@
             </xpath>
         </field>
     </record>
-
 </odoo>

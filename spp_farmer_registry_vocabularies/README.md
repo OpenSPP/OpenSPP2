@@ -1,27 +1,34 @@
 # OpenSPP Farmer Registry: Vocabularies
 
-FAO-aligned vocabularies for farmer registry including crops, livestock, and aquaculture classifications.
+FAO-aligned vocabularies for farmer registry including crops, livestock, and aquaculture
+classifications.
 
 ## Overview
 
-This module provides standardized vocabularies for agricultural data collection aligned with FAO standards:
+This module provides standardized vocabularies for agricultural data collection aligned
+with FAO standards:
 
 - **FAO ICC (Indicative Crop Classification)** - Hierarchical crop classification
-- **FAO WCA 2020 (World Census of Agriculture)** - Livestock classification and holder types
-- **FAO ASFIS (Aquatic Sciences and Fisheries Information System)** - Aquaculture species
-- **OpenSPP-specific** - Farm types, land tenure, cultivation methods, activity purposes, data sources
+- **FAO WCA 2020 (World Census of Agriculture)** - Livestock classification and holder
+  types
+- **FAO ASFIS (Aquatic Sciences and Fisheries Information System)** - Aquaculture
+  species
+- **OpenSPP-specific** - Farm types, land tenure, cultivation methods, activity
+  purposes, data sources
 
 ## Features
 
 ### Pre-loaded Vocabularies
 
 #### Farm Type (`urn:openspp:vocab:farm-type`)
+
 - Crop production
 - Livestock
 - Aquaculture
 - Mixed farming
 
 #### Land Tenure (`urn:openspp:vocab:land-tenure`)
+
 - Self-owned
 - Family owned
 - Community/extended family
@@ -31,27 +38,33 @@ This module provides standardized vocabularies for agricultural data collection 
 - Unknown
 
 #### Cultivation Method (`urn:openspp:vocab:cultivation-method`)
+
 - Irrigated
 - Rainfed
 
 #### Activity Purpose (`urn:openspp:vocab:activity-purpose`)
+
 - Subsistence
 - Commercial
 - Both
 
 #### Holder Type (`urn:fao:wca:2020:holder-type`)
+
 - Individual
 - Joint
 - Institutional
 
 #### Data Source (`urn:openspp:vocab:data-source`)
+
 - Census
 - Self registration
 - Field visit
 - External system
 
 #### Crops (`urn:fao:icc:1.1`)
+
 Hierarchical crop classification based on FAO ICC v1.1:
+
 - Cereals (wheat, maize, rice, sorghum, barley, millet)
 - Vegetables and melons (tomatoes, onions, cabbages)
 - Fruits and nuts (bananas, plantains, mangoes)
@@ -61,7 +74,9 @@ Hierarchical crop classification based on FAO ICC v1.1:
 - And more...
 
 #### Livestock (`urn:fao:livestock:2020`)
+
 Hierarchical livestock classification:
+
 - Cattle (dairy, beef, draught)
 - Buffaloes
 - Sheep and goats
@@ -70,7 +85,9 @@ Hierarchical livestock classification:
 - Other (horses, donkeys, camels, rabbits, bees)
 
 #### Aquaculture (`urn:fao:asfis:2024`)
+
 ASFIS species with 3-alpha codes:
+
 - Finfish (tilapia, carp, salmon, trout, catfish, milkfish, etc.)
 - Crustaceans (prawns, shrimp, crayfish, crabs)
 - Molluscs (oysters, mussels, clams, scallops, abalone)
@@ -90,6 +107,7 @@ Import AGROVOC vocabulary data to extend crop, livestock, and aquaculture vocabu
 #### AGROVOC URIs
 
 All imported codes include `reference_uri` linking to AGROVOC concepts:
+
 ```
 http://aims.fao.org/aos/agrovoc/c_12332  (Maize)
 http://aims.fao.org/aos/agrovoc/c_6599   (Rice)
@@ -112,6 +130,7 @@ http://aims.fao.org/aos/agrovoc/c_8373   (Wheat)
 ### Data Files
 
 All vocabularies are loaded as system vocabularies (`is_system=True`):
+
 - `vocab_farm_type.xml`
 - `vocab_land_tenure.xml`
 - `vocab_cultivation_method.xml`

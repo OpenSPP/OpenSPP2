@@ -24,10 +24,7 @@
                     </div>
                     <group col="2">
                         <group string="Device Information">
-                            <field
-                                name="registrant_id"
-                                options="{'no_create': True}"
-                            />
+                            <field name="registrant_id" options="{'no_create': True}" />
                             <field
                                 name="device_type_id"
                                 options="{'no_create': True}"
@@ -39,10 +36,7 @@
                                 name="provision_date"
                                 invisible="status != 'provided'"
                             />
-                            <field
-                                name="provider"
-                                invisible="status != 'provided'"
-                            />
+                            <field name="provider" invisible="status != 'provided'" />
                         </group>
                     </group>
                     <group>

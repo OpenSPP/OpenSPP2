@@ -408,8 +408,8 @@ quarantined files</li>
 (socket/network) and limits</td>
 </tr>
 <tr><td><tt class="docutils literal">ir.attachment</tt></td>
-<td>Extended with scan status, threat
-name, and quarantine</td>
+<td>Extended with scan status, threat name,
+and quarantine</td>
 </tr>
 </tbody>
 </table>
@@ -458,9 +458,9 @@ ClamAV</li>
 <h1>Security</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="33%" />
-<col width="33%" />
-<col width="33%" />
+<col width="46%" />
+<col width="30%" />
+<col width="24%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -470,24 +470,18 @@ ClamAV</li>
 </thead>
 <tbody valign="top">
 <tr><td><tt class="docutils literal">base.group_user</tt></td>
-<td><tt class="docutils literal">spp.
-av.scanner.backend</tt></td>
+<td><tt class="docutils literal">spp.av.scanner.backend</tt></td>
 <td>Read</td>
 </tr>
 <tr><td><tt class="docutils literal">base.group_user</tt></td>
 <td><tt class="docutils literal">ir.attachment</tt></td>
 <td>Read scan status</td>
 </tr>
-<tr><td>`
-<cite>spp_attachment_av_s
-can.group_av_admin`</cite></td>
-<td><tt class="docutils literal">spp.
-av.scanner.backend</tt></td>
+<tr><td><tt class="docutils literal">spp_attachment_av_scan.group_av_admin</tt></td>
+<td><tt class="docutils literal">spp.av.scanner.backend</tt></td>
 <td>Full CRUD</td>
 </tr>
-<tr><td>`
-<cite>spp_attachment_av_s
-can.group_av_admin`</cite></td>
+<tr><td><tt class="docutils literal">spp_attachment_av_scan.group_av_admin</tt></td>
 <td><tt class="docutils literal">ir.attachment</tt></td>
 <td>Manage quarantined
 files</td>

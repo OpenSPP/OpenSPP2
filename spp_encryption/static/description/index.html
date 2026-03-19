@@ -369,7 +369,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:360c8a4a98627107b0eb0bd9691f38f2a66e3ea9e63ef5f9861b84b3965e033f
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Alpha" src="https://img.shields.io/badge/maturity-Alpha-red.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_encryption"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Beta" src="https://img.shields.io/badge/maturity-Beta-yellow.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_encryption"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Provides encryption, decryption, digital signing, and signature
 verification for sensitive OpenSPP data. Implements JWE (JSON Web
 Encryption) for data protection and JWT (JSON Web Token) for signing.
@@ -394,8 +394,8 @@ method dispatch</li>
 <h1>Key Models</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="43%" />
-<col width="57%" />
+<col width="42%" />
+<col width="58%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -433,8 +433,8 @@ crypto operations and key linkage</td>
 <h1>Security</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="55%" />
+<col width="45%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -442,20 +442,16 @@ crypto operations and key linkage</td>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><tt class="docutils literal">spp_
-encryption.group_crypto_viewer</tt></td>
+<tr><td><tt class="docutils literal">spp_encryption.group_crypto_viewer</tt></td>
 <td>Read only (audit purposes)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_e
-ncryption.group_crypto_officer</tt></td>
+<tr><td><tt class="docutils literal">spp_encryption.group_crypto_officer</tt></td>
 <td>Read/Write/Create (no delete)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_e
-ncryption.group_crypto_manager</tt></td>
+<tr><td><tt class="docutils literal">spp_encryption.group_crypto_manager</tt></td>
 <td>Full CRUD including key deletion</td>
 </tr>
-<tr><td><tt class="docutils literal">spp
-_encryption.group_crypto_admin</tt></td>
+<tr><td><tt class="docutils literal">spp_encryption.group_crypto_admin</tt></td>
 <td>Full CRUD (legacy, maps to
 manager)</td>
 </tr>
@@ -480,11 +476,6 @@ formats</li>
 <h1>Dependencies</h1>
 <p><tt class="docutils literal">spp_security</tt>, <tt class="docutils literal">spp_key_management</tt></p>
 <p>External: <tt class="docutils literal"><span class="pre">jwcrypto&gt;=1.5.6</span></tt>, <tt class="docutils literal">pyld</tt> (for JSON-LD normalization)</p>
-<div class="admonition important">
-<p class="first admonition-title">Important</p>
-<p class="last">This is an alpha version, the data model and design can change at any time without warning.
-Only for development or testing purpose, do not use in production.</p>
-</div>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">

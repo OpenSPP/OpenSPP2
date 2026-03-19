@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo noupdate="1">
-        <!--
+    <!--
             Impairment Severity Level Vocabulary
             Based on DCI CD.DR.02 and ICF qualifiers
 
@@ -8,44 +8,54 @@
             distinct from the WG per-domain severity scale (1-4) in spp_vocabulary.
             Use this for official disability certification/registration.
         -->
-        <record id="vocab_impairment_severity" model="spp.vocabulary">
-            <field name="name">Impairment Severity (ICF)</field>
-            <field name="namespace_uri">urn:dci:cd:dr:02</field>
-            <field name="version">2024</field>
-            <field name="description">Overall impairment severity levels aligned with ICF qualifiers. Used for disability certification and registration, distinct from WG per-domain response scale.</field>
-            <field name="is_system">True</field>
-            <field name="domain">disability</field>
-        </record>
+    <record id="vocab_impairment_severity" model="spp.vocabulary">
+        <field name="name">Impairment Severity (ICF)</field>
+        <field name="namespace_uri">urn:dci:cd:dr:02</field>
+        <field name="version">2024</field>
+        <field
+            name="description"
+        >Overall impairment severity levels aligned with ICF qualifiers. Used for disability certification and registration, distinct from WG per-domain response scale.</field>
+        <field name="is_system">True</field>
+        <field name="domain">disability</field>
+    </record>
 
-        <record id="code_severity_mild" model="spp.vocabulary.code">
-            <field name="vocabulary_id" ref="vocab_impairment_severity" />
-            <field name="code">mild</field>
-            <field name="display">Mild</field>
-            <field name="definition">Minor functional limitation (5-24% impairment per ICF)</field>
-            <field name="sequence">10</field>
-        </record>
+    <record id="code_severity_mild" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_impairment_severity" />
+        <field name="code">mild</field>
+        <field name="display">Mild</field>
+        <field
+            name="definition"
+        >Minor functional limitation (5-24% impairment per ICF)</field>
+        <field name="sequence">10</field>
+    </record>
 
-        <record id="code_severity_moderate" model="spp.vocabulary.code">
-            <field name="vocabulary_id" ref="vocab_impairment_severity" />
-            <field name="code">moderate</field>
-            <field name="display">Moderate</field>
-            <field name="definition">Medium functional limitation (25-49% impairment per ICF)</field>
-            <field name="sequence">20</field>
-        </record>
+    <record id="code_severity_moderate" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_impairment_severity" />
+        <field name="code">moderate</field>
+        <field name="display">Moderate</field>
+        <field
+            name="definition"
+        >Medium functional limitation (25-49% impairment per ICF)</field>
+        <field name="sequence">20</field>
+    </record>
 
-        <record id="code_severity_severe" model="spp.vocabulary.code">
-            <field name="vocabulary_id" ref="vocab_impairment_severity" />
-            <field name="code">severe</field>
-            <field name="display">Severe</field>
-            <field name="definition">High functional limitation (50-95% impairment per ICF)</field>
-            <field name="sequence">30</field>
-        </record>
+    <record id="code_severity_severe" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_impairment_severity" />
+        <field name="code">severe</field>
+        <field name="display">Severe</field>
+        <field
+            name="definition"
+        >High functional limitation (50-95% impairment per ICF)</field>
+        <field name="sequence">30</field>
+    </record>
 
-        <record id="code_severity_profound" model="spp.vocabulary.code">
-            <field name="vocabulary_id" ref="vocab_impairment_severity" />
-            <field name="code">profound</field>
-            <field name="display">Profound</field>
-            <field name="definition">Total or near-total functional limitation (96-100% impairment per ICF)</field>
-            <field name="sequence">40</field>
-        </record>
+    <record id="code_severity_profound" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_impairment_severity" />
+        <field name="code">profound</field>
+        <field name="display">Profound</field>
+        <field
+            name="definition"
+        >Total or near-total functional limitation (96-100% impairment per ICF)</field>
+        <field name="sequence">40</field>
+    </record>
 </odoo>

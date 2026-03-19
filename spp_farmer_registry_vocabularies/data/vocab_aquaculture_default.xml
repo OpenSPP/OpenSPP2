@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!-- FAO ASFIS (Aquatic Sciences and Fisheries Information System) Species List -->
     <record id="vocab_aquaculture" model="spp.vocabulary">
@@ -8,13 +8,17 @@
         <field name="is_system">True</field>
         <field name="is_hierarchical">False</field>
         <field name="domain">agriculture</field>
-        <field name="description">FAO ASFIS aquaculture species classification with 3-alpha codes</field>
-        <field name="reference_url">https://www.fao.org/fishery/collection/asfis/en</field>
+        <field
+            name="description"
+        >FAO ASFIS aquaculture species classification with 3-alpha codes</field>
+        <field
+            name="reference_url"
+        >https://www.fao.org/fishery/collection/asfis/en</field>
     </record>
 
     <!-- Common finfish species -->
     <record id="code_aqua_til" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_aquaculture"/>
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
         <field name="code">TIL</field>
         <field name="display">Nile tilapia</field>
         <field name="definition">Oreochromis niloticus</field>
@@ -23,7 +27,7 @@
     </record>
 
     <record id="code_aqua_cco" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_aquaculture"/>
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
         <field name="code">CCO</field>
         <field name="display">Common carp</field>
         <field name="definition">Cyprinus carpio</field>
@@ -32,7 +36,7 @@
     </record>
 
     <record id="code_aqua_sal" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_aquaculture"/>
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
         <field name="code">SAL</field>
         <field name="display">Atlantic salmon</field>
         <field name="definition">Salmo salar</field>
@@ -41,7 +45,7 @@
     </record>
 
     <record id="code_aqua_ont" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_aquaculture"/>
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
         <field name="code">ONT</field>
         <field name="display">Rainbow trout</field>
         <field name="definition">Oncorhynchus mykiss</field>
@@ -50,7 +54,7 @@
     </record>
 
     <record id="code_aqua_cat" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_aquaculture"/>
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
         <field name="code">CAT</field>
         <field name="display">Catfish</field>
         <field name="definition">Clarias spp.</field>
@@ -59,7 +63,7 @@
     </record>
 
     <record id="code_aqua_mga" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_aquaculture"/>
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
         <field name="code">MGA</field>
         <field name="display">Milkfish</field>
         <field name="definition">Chanos chanos</field>
@@ -68,7 +72,7 @@
     </record>
 
     <record id="code_aqua_snk" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_aquaculture"/>
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
         <field name="code">SNK</field>
         <field name="display">Snakehead</field>
         <field name="definition">Channa spp.</field>
@@ -77,7 +81,7 @@
     </record>
 
     <record id="code_aqua_pan" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_aquaculture"/>
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
         <field name="code">PAN</field>
         <field name="display">Pangasius</field>
         <field name="definition">Pangasianodon hypophthalmus</field>
@@ -87,7 +91,7 @@
 
     <!-- Crustaceans -->
     <record id="code_aqua_pra" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_aquaculture"/>
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
         <field name="code">PRA</field>
         <field name="display">Giant river prawn</field>
         <field name="definition">Macrobrachium rosenbergii</field>
@@ -96,7 +100,7 @@
     </record>
 
     <record id="code_aqua_pen" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_aquaculture"/>
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
         <field name="code">PEN</field>
         <field name="display">Whiteleg shrimp</field>
         <field name="definition">Penaeus vannamei</field>
@@ -105,7 +109,7 @@
     </record>
 
     <record id="code_aqua_cra" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_aquaculture"/>
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
         <field name="code">CRA</field>
         <field name="display">Red swamp crayfish</field>
         <field name="definition">Procambarus clarkii</field>
@@ -114,7 +118,7 @@
     </record>
 
     <record id="code_aqua_scr" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_aquaculture"/>
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
         <field name="code">SCR</field>
         <field name="display">Swimming crab</field>
         <field name="definition">Portunus spp.</field>
@@ -124,7 +128,7 @@
 
     <!-- Molluscs -->
     <record id="code_aqua_oys" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_aquaculture"/>
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
         <field name="code">OYS</field>
         <field name="display">Pacific oyster</field>
         <field name="definition">Crassostrea gigas</field>
@@ -133,7 +137,7 @@
     </record>
 
     <record id="code_aqua_mus" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_aquaculture"/>
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
         <field name="code">MUS</field>
         <field name="display">Blue mussel</field>
         <field name="definition">Mytilus edulis</field>
@@ -142,7 +146,7 @@
     </record>
 
     <record id="code_aqua_cla" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_aquaculture"/>
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
         <field name="code">CLA</field>
         <field name="display">Hard clam</field>
         <field name="definition">Mercenaria mercenaria</field>
@@ -151,7 +155,7 @@
     </record>
 
     <record id="code_aqua_sca" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_aquaculture"/>
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
         <field name="code">SCA</field>
         <field name="display">Scallop</field>
         <field name="definition">Pecten spp.</field>
@@ -160,7 +164,7 @@
     </record>
 
     <record id="code_aqua_aba" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_aquaculture"/>
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
         <field name="code">ABA</field>
         <field name="display">Abalone</field>
         <field name="definition">Haliotis spp.</field>
@@ -170,7 +174,7 @@
 
     <!-- Aquatic plants -->
     <record id="code_aqua_sea" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_aquaculture"/>
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
         <field name="code">SEA</field>
         <field name="display">Seaweed</field>
         <field name="definition">Various algae species</field>
@@ -179,7 +183,7 @@
     </record>
 
     <record id="code_aqua_kel" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_aquaculture"/>
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
         <field name="code">KEL</field>
         <field name="display">Kelp</field>
         <field name="definition">Laminaria spp.</field>
@@ -188,7 +192,7 @@
     </record>
 
     <record id="code_aqua_nor" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_aquaculture"/>
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
         <field name="code">NOR</field>
         <field name="display">Nori</field>
         <field name="definition">Porphyra spp.</field>

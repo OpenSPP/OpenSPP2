@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- ═══════════════════════════════════════════════════════════════════════
          EXTEND CR TYPE FORM: ACTIVITY OPERATIONS TAB
@@ -7,7 +7,10 @@
     <record id="spp_change_request_type_form_activity_ops" model="ir.ui.view">
         <field name="name">spp.change.request.type.form.activity.ops</field>
         <field name="model">spp.change.request.type</field>
-        <field name="inherit_id" ref="spp_change_request_v2.spp_change_request_type_form" />
+        <field
+            name="inherit_id"
+            ref="spp_change_request_v2.spp_change_request_type_form"
+        />
         <field name="arch" type="xml">
             <xpath expr="//page[@name='approval']" position="before">
                 <page
@@ -23,7 +26,8 @@
                     <div class="alert alert-info" role="status">
                         <p class="mb-0">
                             <strong>Add Activity</strong> is always enabled.
-                            Toggle <strong>Edit Activity</strong> and <strong>Remove Activity</strong>
+                            Toggle <strong>Edit Activity</strong> and <strong
+                        >Remove Activity</strong>
                             to control which operations are available to users.
                         </p>
                     </div>
@@ -67,5 +71,4 @@
             </xpath>
         </field>
     </record>
-
 </odoo>

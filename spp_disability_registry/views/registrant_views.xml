@@ -21,8 +21,14 @@
                             class="o_stat_text"
                             invisible="not has_disability"
                         />
-                        <span class="o_stat_text" invisible="not has_disability">Disability</span>
-                        <span class="o_stat_text text-muted" invisible="has_disability">No Disability</span>
+                        <span
+                            class="o_stat_text"
+                            invisible="not has_disability"
+                        >Disability</span>
+                        <span
+                            class="o_stat_text text-muted"
+                            invisible="has_disability"
+                        >No Disability</span>
                     </div>
                 </button>
                 <!-- Assessment Count Button -->
@@ -92,7 +98,9 @@
                                         />
                                     </div>
                                     <div class="col-md-3">
-                                        <div class="small text-muted">Review Category</div>
+                                        <div
+                                            class="small text-muted"
+                                        >Review Category</div>
                                         <field name="disability_review_category" />
                                     </div>
                                     <div class="col-md-3">
@@ -114,7 +122,10 @@
                         invisible="not disability_next_review or disability_next_review &gt; context_today()"
                     >
                         <div class="d-flex align-items-center">
-                            <i class="fa fa-exclamation-triangle fa-lg me-3" aria-hidden="true" />
+                            <i
+                                class="fa fa-exclamation-triangle fa-lg me-3"
+                                aria-hidden="true"
+                            />
                             <div>
                                 <strong>Reassessment Required</strong>
                                 <p class="mb-0">
@@ -126,7 +137,10 @@
 
                     <!-- No Disability Status -->
                     <div class="text-center text-muted py-4" invisible="has_disability">
-                        <i class="fa fa-wheelchair fa-3x mb-3 opacity-50" aria-hidden="true" />
+                        <i
+                            class="fa fa-wheelchair fa-3x mb-3 opacity-50"
+                            aria-hidden="true"
+                        />
                         <h5>No Disability Status Recorded</h5>
                         <p>No approved disability assessment exists for this person.</p>
                         <button
@@ -141,7 +155,9 @@
 
                     <!-- Assessment History -->
                     <div invisible="disability_assessment_count == 0">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div
+                            class="d-flex justify-content-between align-items-center mb-2"
+                        >
                             <h5 class="mb-0">Assessment History</h5>
                             <button
                                 name="action_create_disability_assessment"
@@ -152,7 +168,11 @@
                                 <i class="fa fa-plus me-1" /> New Assessment
                             </button>
                         </div>
-                        <field name="disability_assessment_ids" readonly="1" nolabel="1">
+                        <field
+                            name="disability_assessment_ids"
+                            readonly="1"
+                            nolabel="1"
+                        >
                             <list
                                 limit="10"
                                 decoration-muted="approval_state == 'rejected'"
@@ -160,7 +180,10 @@
                             >
                                 <field name="assessment_date" />
                                 <field name="assessment_type" />
-                                <field name="impairment_type_ids" widget="many2many_tags" />
+                                <field
+                                    name="impairment_type_ids"
+                                    widget="many2many_tags"
+                                />
                                 <field name="severity_level_id" widget="badge" />
                                 <field
                                     name="approval_state"
@@ -189,7 +212,10 @@
                         </div>
                         <field name="assistive_device_ids" nolabel="1">
                             <list editable="bottom">
-                                <field name="device_type_id" options="{'no_create': True}" />
+                                <field
+                                    name="device_type_id"
+                                    options="{'no_create': True}"
+                                />
                                 <field
                                     name="status"
                                     widget="badge"
@@ -197,7 +223,10 @@
                                     decoration-warning="status == 'requested'"
                                     decoration-success="status == 'provided'"
                                 />
-                                <field name="provision_date" invisible="status != 'provided'" />
+                                <field
+                                    name="provision_date"
+                                    invisible="status != 'provided'"
+                                />
                                 <field name="notes" optional="hide" />
                             </list>
                         </field>

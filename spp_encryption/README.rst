@@ -10,9 +10,9 @@ OpenSPP Encryption: Base
    !! source digest: sha256:360c8a4a98627107b0eb0bd9691f38f2a66e3ea9e63ef5f9861b84b3965e033f
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Alpha
+    :alt: Beta
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
@@ -45,12 +45,12 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-----------------------------+---------------------------------------+
-| Model                       | Description                           |
-+=============================+=======================================+
-| ``spp.encryption.provider`` | Defines encryption provider with      |
-|                             | crypto operations and key linkage     |
-+-----------------------------+---------------------------------------+
++-----------------------------+----------------------------------------+
+| Model                       | Description                            |
++=============================+========================================+
+| ``spp.encryption.provider`` | Defines encryption provider with       |
+|                             | crypto operations and key linkage      |
++-----------------------------+----------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -73,21 +73,18 @@ UI Location
 Security
 ~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Group                            | Access                           |
-+==================================+==================================+
-| ``spp_                           | Read only (audit purposes)       |
-| encryption.group_crypto_viewer`` |                                  |
-+----------------------------------+----------------------------------+
-| ``spp_e                          | Read/Write/Create (no delete)    |
-| ncryption.group_crypto_officer`` |                                  |
-+----------------------------------+----------------------------------+
-| ``spp_e                          | Full CRUD including key deletion |
-| ncryption.group_crypto_manager`` |                                  |
-+----------------------------------+----------------------------------+
-| ``spp                            | Full CRUD (legacy, maps to       |
-| _encryption.group_crypto_admin`` | manager)                         |
-+----------------------------------+----------------------------------+
++-----------------------------------------+----------------------------------+
+| Group                                   | Access                           |
++=========================================+==================================+
+| ``spp_encryption.group_crypto_viewer``  | Read only (audit purposes)       |
++-----------------------------------------+----------------------------------+
+| ``spp_encryption.group_crypto_officer`` | Read/Write/Create (no delete)    |
++-----------------------------------------+----------------------------------+
+| ``spp_encryption.group_crypto_manager`` | Full CRUD including key deletion |
++-----------------------------------------+----------------------------------+
+| ``spp_encryption.group_crypto_admin``   | Full CRUD (legacy, maps to       |
+|                                         | manager)                         |
++-----------------------------------------+----------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~
@@ -108,10 +105,6 @@ Dependencies
 ``spp_security``, ``spp_key_management``
 
 External: ``jwcrypto>=1.5.6``, ``pyld`` (for JSON-LD normalization)
-
-.. IMPORTANT::
-   This is an alpha version, the data model and design can change at any time without warning.
-   Only for development or testing purpose, do not use in production.
 
 **Table of contents**
 

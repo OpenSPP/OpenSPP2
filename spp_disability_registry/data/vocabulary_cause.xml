@@ -1,105 +1,111 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo noupdate="1">
-        <!--
+    <!--
             Impairment Cause Vocabulary
             Based on DCI CD.DR.03
         -->
-        <record id="vocab_impairment_cause" model="spp.vocabulary">
-            <field name="name">Impairment Cause</field>
-            <field name="namespace_uri">urn:dci:cd:dr:03</field>
-            <field name="version">2024</field>
-            <field name="description">Causes or origins of impairment aligned with DCI Code Directory DR.03</field>
-            <field name="is_system">True</field>
-            <field name="domain">disability</field>
-        </record>
+    <record id="vocab_impairment_cause" model="spp.vocabulary">
+        <field name="name">Impairment Cause</field>
+        <field name="namespace_uri">urn:dci:cd:dr:03</field>
+        <field name="version">2024</field>
+        <field
+            name="description"
+        >Causes or origins of impairment aligned with DCI Code Directory DR.03</field>
+        <field name="is_system">True</field>
+        <field name="domain">disability</field>
+    </record>
 
-        <!-- Congenital/Genetic -->
-        <record id="code_cause_congenital" model="spp.vocabulary.code">
-            <field name="vocabulary_id" ref="vocab_impairment_cause" />
-            <field name="code">congenital</field>
-            <field name="display">Congenital/Genetic</field>
-            <field name="definition">Present at birth or due to genetic conditions</field>
-            <field name="sequence">10</field>
-        </record>
+    <!-- Congenital/Genetic -->
+    <record id="code_cause_congenital" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_impairment_cause" />
+        <field name="code">congenital</field>
+        <field name="display">Congenital/Genetic</field>
+        <field name="definition">Present at birth or due to genetic conditions</field>
+        <field name="sequence">10</field>
+    </record>
 
-        <!-- Disease/Illness -->
-        <record id="code_cause_disease" model="spp.vocabulary.code">
-            <field name="vocabulary_id" ref="vocab_impairment_cause" />
-            <field name="code">disease</field>
-            <field name="display">Disease/Illness</field>
-            <field name="definition">Resulting from infectious or chronic disease</field>
-            <field name="sequence">20</field>
-        </record>
+    <!-- Disease/Illness -->
+    <record id="code_cause_disease" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_impairment_cause" />
+        <field name="code">disease</field>
+        <field name="display">Disease/Illness</field>
+        <field name="definition">Resulting from infectious or chronic disease</field>
+        <field name="sequence">20</field>
+    </record>
 
-        <!-- Injury/Accident -->
-        <record id="code_cause_injury" model="spp.vocabulary.code">
-            <field name="vocabulary_id" ref="vocab_impairment_cause" />
-            <field name="code">injury</field>
-            <field name="display">Injury/Accident</field>
-            <field name="definition">Resulting from accidental injury</field>
-            <field name="sequence">30</field>
-        </record>
+    <!-- Injury/Accident -->
+    <record id="code_cause_injury" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_impairment_cause" />
+        <field name="code">injury</field>
+        <field name="display">Injury/Accident</field>
+        <field name="definition">Resulting from accidental injury</field>
+        <field name="sequence">30</field>
+    </record>
 
-        <!-- Work-related -->
-        <record id="code_cause_occupational" model="spp.vocabulary.code">
-            <field name="vocabulary_id" ref="vocab_impairment_cause" />
-            <field name="code">occupational</field>
-            <field name="display">Occupational/Work-related</field>
-            <field name="definition">Resulting from work-related injury or exposure</field>
-            <field name="sequence">40</field>
-        </record>
+    <!-- Work-related -->
+    <record id="code_cause_occupational" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_impairment_cause" />
+        <field name="code">occupational</field>
+        <field name="display">Occupational/Work-related</field>
+        <field name="definition">Resulting from work-related injury or exposure</field>
+        <field name="sequence">40</field>
+    </record>
 
-        <!-- Conflict/Violence -->
-        <record id="code_cause_conflict" model="spp.vocabulary.code">
-            <field name="vocabulary_id" ref="vocab_impairment_cause" />
-            <field name="code">conflict</field>
-            <field name="display">Conflict/Violence</field>
-            <field name="definition">Resulting from armed conflict, violence, or landmines</field>
-            <field name="sequence">50</field>
-        </record>
+    <!-- Conflict/Violence -->
+    <record id="code_cause_conflict" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_impairment_cause" />
+        <field name="code">conflict</field>
+        <field name="display">Conflict/Violence</field>
+        <field
+            name="definition"
+        >Resulting from armed conflict, violence, or landmines</field>
+        <field name="sequence">50</field>
+    </record>
 
-        <!-- Age-related -->
-        <record id="code_cause_aging" model="spp.vocabulary.code">
-            <field name="vocabulary_id" ref="vocab_impairment_cause" />
-            <field name="code">aging</field>
-            <field name="display">Age-related</field>
-            <field name="definition">Resulting from natural aging processes</field>
-            <field name="sequence">60</field>
-        </record>
+    <!-- Age-related -->
+    <record id="code_cause_aging" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_impairment_cause" />
+        <field name="code">aging</field>
+        <field name="display">Age-related</field>
+        <field name="definition">Resulting from natural aging processes</field>
+        <field name="sequence">60</field>
+    </record>
 
-        <!-- Birth complications -->
-        <record id="code_cause_birth" model="spp.vocabulary.code">
-            <field name="vocabulary_id" ref="vocab_impairment_cause" />
-            <field name="code">birth</field>
-            <field name="display">Birth Complications</field>
-            <field name="definition">Resulting from complications during birth</field>
-            <field name="sequence">70</field>
-        </record>
+    <!-- Birth complications -->
+    <record id="code_cause_birth" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_impairment_cause" />
+        <field name="code">birth</field>
+        <field name="display">Birth Complications</field>
+        <field name="definition">Resulting from complications during birth</field>
+        <field name="sequence">70</field>
+    </record>
 
-        <!-- Malnutrition -->
-        <record id="code_cause_malnutrition" model="spp.vocabulary.code">
-            <field name="vocabulary_id" ref="vocab_impairment_cause" />
-            <field name="code">malnutrition</field>
-            <field name="display">Malnutrition</field>
-            <field name="definition">Resulting from malnutrition or nutritional deficiencies</field>
-            <field name="sequence">80</field>
-        </record>
+    <!-- Malnutrition -->
+    <record id="code_cause_malnutrition" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_impairment_cause" />
+        <field name="code">malnutrition</field>
+        <field name="display">Malnutrition</field>
+        <field
+            name="definition"
+        >Resulting from malnutrition or nutritional deficiencies</field>
+        <field name="sequence">80</field>
+    </record>
 
-        <!-- Unknown -->
-        <record id="code_cause_unknown" model="spp.vocabulary.code">
-            <field name="vocabulary_id" ref="vocab_impairment_cause" />
-            <field name="code">unknown</field>
-            <field name="display">Unknown/Undetermined</field>
-            <field name="definition">Cause not determined or unknown</field>
-            <field name="sequence">90</field>
-        </record>
+    <!-- Unknown -->
+    <record id="code_cause_unknown" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_impairment_cause" />
+        <field name="code">unknown</field>
+        <field name="display">Unknown/Undetermined</field>
+        <field name="definition">Cause not determined or unknown</field>
+        <field name="sequence">90</field>
+    </record>
 
-        <!-- Other -->
-        <record id="code_cause_other" model="spp.vocabulary.code">
-            <field name="vocabulary_id" ref="vocab_impairment_cause" />
-            <field name="code">other</field>
-            <field name="display">Other</field>
-            <field name="definition">Other cause not listed</field>
-            <field name="sequence">99</field>
-        </record>
+    <!-- Other -->
+    <record id="code_cause_other" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_impairment_cause" />
+        <field name="code">other</field>
+        <field name="display">Other</field>
+        <field name="definition">Other cause not listed</field>
+        <field name="sequence">99</field>
+    </record>
 </odoo>

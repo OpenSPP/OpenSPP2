@@ -18,9 +18,7 @@ class TestLandRecord(TransactionCase):
         )
 
         # Get land use vocabulary code
-        cls.land_use_cultivation = cls.env.ref(
-            "spp_farmer_registry_vocabularies.code_land_use_cultivation"
-        )
+        cls.land_use_cultivation = cls.env.ref("spp_farmer_registry_vocabularies.code_land_use_cultivation")
 
         cls.land_record = cls.env["spp.land.record"].create(
             {
@@ -100,9 +98,7 @@ class TestLandRecord(TransactionCase):
         self.assertEqual(self.land_record.land_use, "cultivation")
 
         # Change to different land use
-        land_use_livestock = self.env.ref(
-            "spp_farmer_registry_vocabularies.code_land_use_livestock"
-        )
+        land_use_livestock = self.env.ref("spp_farmer_registry_vocabularies.code_land_use_livestock")
         self.land_record.land_use_id = land_use_livestock.id
         self.assertEqual(self.land_record.land_use, "livestock")
 
@@ -121,6 +117,4 @@ class TestLandRecord(TransactionCase):
         """Test GeoJSON includes land_use_display property."""
         geojson = self.env["spp.land.record"].get_geojson(from_srid=4326, to_srid=3857)
         geojson = json.loads(geojson)
-        self.assertEqual(
-            geojson["features"][0]["properties"]["land_use_display"], "Cultivation"
-        )
+        self.assertEqual(geojson["features"][0]["properties"]["land_use_display"], "Cultivation")

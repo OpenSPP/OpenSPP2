@@ -1,45 +1,63 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo noupdate="1">
-        <!--
+    <!--
             Concept Groups for Disability Registry
             Used by CEL functions for categorical matching
         -->
 
-        <!-- Severe Disability Group (for program eligibility) -->
-        <record id="group_severe_disability" model="spp.vocabulary.concept.group">
-            <field name="name">severe_disability</field>
-            <field name="label">Severe Disability</field>
-            <field name="cel_function">is_severe_disability</field>
-            <field name="target_field">disability_severity_id</field>
-            <field name="description">Severity levels indicating severe or profound disability. Used for enhanced benefit eligibility.</field>
-            <field name="code_ids" eval="[Command.set([ref('code_severity_severe'), ref('code_severity_profound')])]" />
-        </record>
+    <!-- Severe Disability Group (for program eligibility) -->
+    <record id="group_severe_disability" model="spp.vocabulary.concept.group">
+        <field name="name">severe_disability</field>
+        <field name="label">Severe Disability</field>
+        <field name="cel_function">is_severe_disability</field>
+        <field name="target_field">disability_severity_id</field>
+        <field
+            name="description"
+        >Severity levels indicating severe or profound disability. Used for enhanced benefit eligibility.</field>
+        <field
+            name="code_ids"
+            eval="[Command.set([ref('code_severity_severe'), ref('code_severity_profound')])]"
+        />
+    </record>
 
-        <!-- Any Certified Disability Group -->
-        <record id="group_certified_disability" model="spp.vocabulary.concept.group">
-            <field name="name">certified_disability</field>
-            <field name="label">Certified Disability</field>
-            <field name="cel_function">has_certified_disability</field>
-            <field name="target_field">disability_severity_id</field>
-            <field name="description">Any severity level indicating certified disability status.</field>
-            <field name="code_ids" eval="[Command.set([ref('code_severity_mild'), ref('code_severity_moderate'), ref('code_severity_severe'), ref('code_severity_profound')])]" />
-        </record>
+    <!-- Any Certified Disability Group -->
+    <record id="group_certified_disability" model="spp.vocabulary.concept.group">
+        <field name="name">certified_disability</field>
+        <field name="label">Certified Disability</field>
+        <field name="cel_function">has_certified_disability</field>
+        <field name="target_field">disability_severity_id</field>
+        <field
+            name="description"
+        >Any severity level indicating certified disability status.</field>
+        <field
+            name="code_ids"
+            eval="[Command.set([ref('code_severity_mild'), ref('code_severity_moderate'), ref('code_severity_severe'), ref('code_severity_profound')])]"
+        />
+    </record>
 
-        <!-- Physical Impairment Group -->
-        <record id="group_physical_impairment" model="spp.vocabulary.concept.group">
-            <field name="name">physical_impairment</field>
-            <field name="label">Physical Impairment</field>
-            <field name="cel_function">has_physical_impairment</field>
-            <field name="description">Impairment types related to physical/mobility limitations.</field>
-            <field name="code_ids" eval="[Command.set([ref('code_disability_physical'), ref('code_disability_mobility'), ref('code_disability_upper_limb')])]" />
-        </record>
+    <!-- Physical Impairment Group -->
+    <record id="group_physical_impairment" model="spp.vocabulary.concept.group">
+        <field name="name">physical_impairment</field>
+        <field name="label">Physical Impairment</field>
+        <field name="cel_function">has_physical_impairment</field>
+        <field
+            name="description"
+        >Impairment types related to physical/mobility limitations.</field>
+        <field
+            name="code_ids"
+            eval="[Command.set([ref('code_disability_physical'), ref('code_disability_mobility'), ref('code_disability_upper_limb')])]"
+        />
+    </record>
 
-        <!-- Sensory Impairment Group -->
-        <record id="group_sensory_impairment" model="spp.vocabulary.concept.group">
-            <field name="name">sensory_impairment</field>
-            <field name="label">Sensory Impairment</field>
-            <field name="cel_function">has_sensory_impairment</field>
-            <field name="description">Impairment types related to vision or hearing.</field>
-            <field name="code_ids" eval="[Command.set([ref('code_disability_sensory'), ref('code_disability_visual'), ref('code_disability_hearing'), ref('code_disability_deafblind')])]" />
-        </record>
+    <!-- Sensory Impairment Group -->
+    <record id="group_sensory_impairment" model="spp.vocabulary.concept.group">
+        <field name="name">sensory_impairment</field>
+        <field name="label">Sensory Impairment</field>
+        <field name="cel_function">has_sensory_impairment</field>
+        <field name="description">Impairment types related to vision or hearing.</field>
+        <field
+            name="code_ids"
+            eval="[Command.set([ref('code_disability_sensory'), ref('code_disability_visual'), ref('code_disability_hearing'), ref('code_disability_deafblind')])]"
+        />
+    </record>
 </odoo>

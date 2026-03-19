@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <record id="vocab_holder_type" model="spp.vocabulary">
         <field name="name">Holder Type (FAO WCA 2020)</field>
@@ -6,12 +6,16 @@
         <field name="version">2020</field>
         <field name="is_system">True</field>
         <field name="domain">agriculture</field>
-        <field name="description">FAO World Census of Agriculture 2020 agricultural holder types</field>
-        <field name="reference_url">https://www.fao.org/world-census-agriculture/</field>
+        <field
+            name="description"
+        >FAO World Census of Agriculture 2020 agricultural holder types</field>
+        <field
+            name="reference_url"
+        >https://www.fao.org/world-census-agriculture/</field>
     </record>
 
     <record id="code_holder_type_individual" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_holder_type"/>
+        <field name="vocabulary_id" ref="vocab_holder_type" />
         <field name="code">individual</field>
         <field name="display">Individual</field>
         <field name="definition">Single person holding</field>
@@ -19,7 +23,7 @@
     </record>
 
     <record id="code_holder_type_joint" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_holder_type"/>
+        <field name="vocabulary_id" ref="vocab_holder_type" />
         <field name="code">joint</field>
         <field name="display">Joint</field>
         <field name="definition">Jointly held by two or more individuals</field>
@@ -27,7 +31,7 @@
     </record>
 
     <record id="code_holder_type_institutional" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_holder_type"/>
+        <field name="vocabulary_id" ref="vocab_holder_type" />
         <field name="code">institutional</field>
         <field name="display">Institutional</field>
         <field name="definition">Held by an institution or organization</field>

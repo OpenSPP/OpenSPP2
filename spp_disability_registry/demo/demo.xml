@@ -1,102 +1,111 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo noupdate="1">
-        <!--
+    <!--
             Disability Registry Demo Data
             Minimal set for testing and demonstration
         -->
 
-        <!-- Demo Registrants -->
-        <record id="demo_registrant_adult" model="res.partner">
-            <field name="name">Maria Santos (Demo PWD)</field>
-            <field name="is_registrant">True</field>
-            <field name="is_group">False</field>
-            <field name="birthdate">1985-03-15</field>
-        </record>
+    <!-- Demo Registrants -->
+    <record id="demo_registrant_adult" model="res.partner">
+        <field name="name">Maria Santos (Demo PWD)</field>
+        <field name="is_registrant">True</field>
+        <field name="is_group">False</field>
+        <field name="birthdate">1985-03-15</field>
+    </record>
 
-        <record id="demo_registrant_child" model="res.partner">
-            <field name="name">Juan Cruz Jr (Demo PWD Child)</field>
-            <field name="is_registrant">True</field>
-            <field name="is_group">False</field>
-            <field name="birthdate">2015-08-22</field>
-        </record>
+    <record id="demo_registrant_child" model="res.partner">
+        <field name="name">Juan Cruz Jr (Demo PWD Child)</field>
+        <field name="is_registrant">True</field>
+        <field name="is_group">False</field>
+        <field name="birthdate">2015-08-22</field>
+    </record>
 
-        <record id="demo_registrant_no_disability" model="res.partner">
-            <field name="name">Ana Reyes (Demo No PWD)</field>
-            <field name="is_registrant">True</field>
-            <field name="is_group">False</field>
-            <field name="birthdate">1990-11-05</field>
-        </record>
+    <record id="demo_registrant_no_disability" model="res.partner">
+        <field name="name">Ana Reyes (Demo No PWD)</field>
+        <field name="is_registrant">True</field>
+        <field name="is_group">False</field>
+        <field name="birthdate">1990-11-05</field>
+    </record>
 
-        <!-- Demo Assessments -->
-        <!-- Adult with approved severe disability -->
-        <record id="demo_assessment_adult_approved" model="spp.disability.assessment">
-            <field name="registrant_id" ref="demo_registrant_adult" />
-            <field name="assessment_date">2025-01-10</field>
-            <field name="wg_seeing">a_lot</field>
-            <field name="wg_hearing">some</field>
-            <field name="wg_walking">cannot</field>
-            <field name="wg_remembering">none</field>
-            <field name="wg_selfcare">a_lot</field>
-            <field name="wg_communicating">some</field>
-            <field name="impairment_type_ids" eval="[Command.link(ref('code_disability_physical'))]" />
-            <field name="severity_level_id" ref="code_severity_severe" />
-            <field name="review_category">mine</field>
-            <field name="support_needs">Requires wheelchair and mobility assistance. Uses screen reader for vision support.</field>
-            <field name="approval_state">approved</field>
-        </record>
+    <!-- Demo Assessments -->
+    <!-- Adult with approved severe disability -->
+    <record id="demo_assessment_adult_approved" model="spp.disability.assessment">
+        <field name="registrant_id" ref="demo_registrant_adult" />
+        <field name="assessment_date">2025-01-10</field>
+        <field name="wg_seeing">a_lot</field>
+        <field name="wg_hearing">some</field>
+        <field name="wg_walking">cannot</field>
+        <field name="wg_remembering">none</field>
+        <field name="wg_selfcare">a_lot</field>
+        <field name="wg_communicating">some</field>
+        <field
+            name="impairment_type_ids"
+            eval="[Command.link(ref('code_disability_physical'))]"
+        />
+        <field name="severity_level_id" ref="code_severity_severe" />
+        <field name="review_category">mine</field>
+        <field
+            name="support_needs"
+        >Requires wheelchair and mobility assistance. Uses screen reader for vision support.</field>
+        <field name="approval_state">approved</field>
+    </record>
 
-        <!-- Child with pending assessment -->
-        <record id="demo_assessment_child_pending" model="spp.disability.assessment">
-            <field name="registrant_id" ref="demo_registrant_child" />
-            <field name="assessment_date">2025-01-12</field>
-            <field name="wg_seeing">none</field>
-            <field name="wg_hearing">a_lot</field>
-            <field name="wg_walking">none</field>
-            <field name="wg_remembering">some</field>
-            <field name="wg_selfcare">none</field>
-            <field name="wg_communicating">a_lot</field>
-            <field name="impairment_type_ids" eval="[Command.link(ref('code_disability_hearing'))]" />
-            <field name="severity_level_id" ref="code_severity_moderate" />
-            <field name="review_category">mip</field>
-            <field name="is_proxy_response">True</field>
-            <field name="proxy_relationship">parent</field>
-            <field name="approval_state">pending</field>
-        </record>
+    <!-- Child with pending assessment -->
+    <record id="demo_assessment_child_pending" model="spp.disability.assessment">
+        <field name="registrant_id" ref="demo_registrant_child" />
+        <field name="assessment_date">2025-01-12</field>
+        <field name="wg_seeing">none</field>
+        <field name="wg_hearing">a_lot</field>
+        <field name="wg_walking">none</field>
+        <field name="wg_remembering">some</field>
+        <field name="wg_selfcare">none</field>
+        <field name="wg_communicating">a_lot</field>
+        <field
+            name="impairment_type_ids"
+            eval="[Command.link(ref('code_disability_hearing'))]"
+        />
+        <field name="severity_level_id" ref="code_severity_moderate" />
+        <field name="review_category">mip</field>
+        <field name="is_proxy_response">True</field>
+        <field name="proxy_relationship">parent</field>
+        <field name="approval_state">pending</field>
+    </record>
 
-        <!-- Adult with no disability (draft) -->
-        <record id="demo_assessment_no_disability" model="spp.disability.assessment">
-            <field name="registrant_id" ref="demo_registrant_no_disability" />
-            <field name="assessment_date">2025-01-14</field>
-            <field name="wg_seeing">none</field>
-            <field name="wg_hearing">none</field>
-            <field name="wg_walking">some</field>
-            <field name="wg_remembering">none</field>
-            <field name="wg_selfcare">none</field>
-            <field name="wg_communicating">none</field>
-            <field name="approval_state">draft</field>
-        </record>
+    <!-- Adult with no disability (draft) -->
+    <record id="demo_assessment_no_disability" model="spp.disability.assessment">
+        <field name="registrant_id" ref="demo_registrant_no_disability" />
+        <field name="assessment_date">2025-01-14</field>
+        <field name="wg_seeing">none</field>
+        <field name="wg_hearing">none</field>
+        <field name="wg_walking">some</field>
+        <field name="wg_remembering">none</field>
+        <field name="wg_selfcare">none</field>
+        <field name="wg_communicating">none</field>
+        <field name="approval_state">draft</field>
+    </record>
 
-        <!-- Demo Assistive Devices -->
-        <record id="demo_device_wheelchair" model="spp.assistive.device">
-            <field name="registrant_id" ref="demo_registrant_adult" />
-            <field name="device_type_id" ref="code_device_wheelchair" />
-            <field name="status">provided</field>
-            <field name="provision_date">2024-06-15</field>
-            <field name="provider">National Disability Council</field>
-        </record>
+    <!-- Demo Assistive Devices -->
+    <record id="demo_device_wheelchair" model="spp.assistive.device">
+        <field name="registrant_id" ref="demo_registrant_adult" />
+        <field name="device_type_id" ref="code_device_wheelchair" />
+        <field name="status">provided</field>
+        <field name="provision_date">2024-06-15</field>
+        <field name="provider">National Disability Council</field>
+    </record>
 
-        <record id="demo_device_hearing_aid" model="spp.assistive.device">
-            <field name="registrant_id" ref="demo_registrant_child" />
-            <field name="device_type_id" ref="code_device_hearing_aid" />
-            <field name="status">needed</field>
-            <field name="notes">Child needs bilateral hearing aids for school participation</field>
-        </record>
+    <record id="demo_device_hearing_aid" model="spp.assistive.device">
+        <field name="registrant_id" ref="demo_registrant_child" />
+        <field name="device_type_id" ref="code_device_hearing_aid" />
+        <field name="status">needed</field>
+        <field
+            name="notes"
+        >Child needs bilateral hearing aids for school participation</field>
+    </record>
 
-        <record id="demo_device_magnifier" model="spp.assistive.device">
-            <field name="registrant_id" ref="demo_registrant_adult" />
-            <field name="device_type_id" ref="code_device_magnifier" />
-            <field name="status">requested</field>
-            <field name="notes">Electronic magnifier for reading documents</field>
-        </record>
-
+    <record id="demo_device_magnifier" model="spp.assistive.device">
+        <field name="registrant_id" ref="demo_registrant_adult" />
+        <field name="device_type_id" ref="code_device_magnifier" />
+        <field name="status">requested</field>
+        <field name="notes">Electronic magnifier for reading documents</field>
+    </record>
 </odoo>
