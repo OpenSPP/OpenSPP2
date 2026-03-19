@@ -647,7 +647,7 @@ class SPPFarmerDemoGenerator(models.TransientModel):
         is_female=False,
     ):
         """Create a farm with the given attributes."""
-        Partner = self.env["res.partner"].sudo()
+        Partner = self.env["res.partner"].sudo()  # nosemgrep: semgrep.odoo-sudo-on-sensitive-models
 
         farm_vals = {
             "name": name,
@@ -885,7 +885,7 @@ class SPPFarmerDemoGenerator(models.TransientModel):
         Returns:
             dict: cooperative_id -> cooperative (res.partner)
         """
-        Partner = self.env["res.partner"].sudo()
+        Partner = self.env["res.partner"].sudo()  # nosemgrep: semgrep.odoo-sudo-on-sensitive-models
         Membership = self.env["spp.group.membership"].sudo()
 
         # Get or create the "cooperative" group type vocabulary code

@@ -134,7 +134,8 @@ class SPPEncryptionProvider(models.Model):
             error_str = str(e).lower()
 
             # Try again with cached local contexts to keep canonical output
-            if "remote context" in error_str or "w3id.org" in error_str or "loading remote context" in error_str:
+            remote_context_indicators = ("remote context", "w3id.org", "loading remote context")
+            if any(indicator in error_str for indicator in remote_context_indicators):
                 ld_proof_local = self._inline_local_contexts(ld_proof)
                 credential_local = self._inline_local_contexts(credential)
                 try:
