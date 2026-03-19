@@ -2,7 +2,7 @@
 {
     "name": "OpenSPP GRM: CEL Rules",
     "summary": "CEL-based routing and escalation rules for GRM tickets",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "license": "LGPL-3",
     "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],

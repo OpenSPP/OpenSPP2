@@ -20,4 +20,5 @@
     "installable": True,
     "application": False,
     "auto_install": True,
+    "maintainers": ["jeremi", "gonzalesedwin1123"],
 }

@@ -1,7 +1,7 @@
 # pylint: disable=pointless-statement
 {
     "name": "OpenSPP GRM Registry Integration",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "category": "OpenSPP/Monitoring",
     "summary": "Link GRM tickets to OpenSPP registry (registrants)",
     "author": "OpenSPP.org",

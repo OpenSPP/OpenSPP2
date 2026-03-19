@@ -1,7 +1,7 @@
 # pylint: disable=pointless-statement
 {
     "name": "OpenSPP Case Management Base",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "category": "OpenSPP/Monitoring",
     "summary": "Core case management functionality for OpenSPP",
     "author": "OpenSPP.org",

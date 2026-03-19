@@ -21,4 +21,5 @@
     "installable": True,
     # Bridge module: auto-install when both spp_indicator and spp_studio are present
     "auto_install": True,
+    "maintainers": ["jeremi", "gonzalesedwin1123"],
 }
