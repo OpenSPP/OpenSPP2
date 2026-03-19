@@ -150,7 +150,6 @@ export class CRReviewPanel extends Component {
         }
     }
 
-
     // Action handlers
     async onApprove() {
         if (this.state.showApproveComment) {
