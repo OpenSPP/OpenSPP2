@@ -577,10 +577,13 @@ class DefaultCashEntitlementManager(models.Model):
         entitlements.mapped("partner_id")
         entitlements.mapped("journal_id.currency_id")
 
+        # Fetch fund balance once for the whole batch instead of per entitlement
+        fund_balance = self.check_fund_balance(entitlements[0].cycle_id.program_id.id)
+
         for rec in entitlements:
             if rec.state in ("draft", "pending_validation"):
-                fund_balance = self.check_fund_balance(rec.cycle_id.program_id.id) - amt
-                if fund_balance >= rec.initial_amount:
+                remaining_balance = fund_balance - amt
+                if remaining_balance >= rec.initial_amount:
                     amt += rec.initial_amount
                     # Prepare journal entry (account.move) via account.payment
                     amount = rec.initial_amount
@@ -634,7 +637,7 @@ class DefaultCashEntitlementManager(models.Model):
                         + "is insufficient for the entitlement: %(entitlement)s"
                     ) % {
                         "program": rec.cycle_id.program_id.name,
-                        "fund": fund_balance,
+                        "fund": remaining_balance,
                         "entitlement": rec.code,
                     }
                     # Stop the process and return an error

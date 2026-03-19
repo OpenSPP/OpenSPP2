@@ -21,3 +21,4 @@ from . import test_sql_constraints
 from . import test_stock_rule
 from . import test_composite_indexes
 from . import test_cycle_computed_fields
+from . import test_fund_balance
