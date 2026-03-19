@@ -5,7 +5,7 @@
     "category": "OpenSPP",
     "version": "19.0.2.0.0",
     "author": "OpenSPP.org",
-    "development_status": "Beta",
+    "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "reichie020212"],
     "external_dependencies": {"python": ["pyjwt>=2.4.0", "cryptography"]},
     "website": "https://github.com/OpenSPP/OpenSPP2",
