@@ -3,7 +3,7 @@
     "name": "OpenSPP Farmer Registry: Change Request Types",
     "summary": "Farmer-specific change request types for farm details and activities",
     "category": "OpenSPP",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
