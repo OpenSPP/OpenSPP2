@@ -4,6 +4,7 @@
     "version": "19.0.2.0.0",
     "category": "OpenSPP",
     "license": "LGPL-3",
+    "development_status": "Alpha",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "author": "OpenSPP.org",
     "depends": [
