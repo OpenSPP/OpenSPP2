@@ -247,8 +247,10 @@ class IrAttachment(models.Model):
             if provider.exists():
                 return provider
 
-        provider = self.env["spp.encryption.provider"].sudo().search(  # nosemgrep
-            [("type", "=", "jwcrypto")], order="id asc", limit=1
+        provider = (
+            self.env["spp.encryption.provider"]  # nosemgrep
+            .sudo()
+            .search([("type", "=", "jwcrypto")], order="id asc", limit=1)
         )
 
         if not provider:
