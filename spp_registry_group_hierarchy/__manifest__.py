@@ -5,7 +5,7 @@
     "name": "OpenSPP Registry Group Hierarchy",
     "summary": "The module introduces hierarchical relationships among OpenSPP registry groups, enabling the creation of nested structures where groups can contain both individuals and other sub-groups. It extends g2p_registry_group and g2p_registry_membership modules.",
     "category": "OpenSPP",
-    "version": "19.0.1.3.1",
+    "version": "19.0.2.0.0",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
