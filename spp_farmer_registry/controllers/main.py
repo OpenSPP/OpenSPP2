@@ -9,7 +9,5 @@ class FarmerRegistryController(http.Controller):
     def get_registry_restriction(self):
         """Return whether registry CRUD is restricted to admin only."""
         ICP = request.env["ir.config_parameter"].sudo()  # nosemgrep
-        value = ICP.get_param(
-            "spp_farmer_registry.registry_admin_only_crud", "False"
-        )
+        value = ICP.get_param("spp_farmer_registry.registry_admin_only_crud", "False")
         return {"restricted": value == "True"}
