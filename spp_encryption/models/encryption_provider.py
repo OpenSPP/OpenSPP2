@@ -194,7 +194,8 @@ class SPPEncryptionProvider(models.Model):
         return ret
 
     def _allow_jsonld_fallback(self) -> bool:
-        param_val = self.env["ir.config_parameter"].sudo().get_param("spp.vc.allow_jsonld_fallback", "True")  # nosemgrep
+        ICP = self.env["ir.config_parameter"].sudo()  # nosemgrep
+        param_val = ICP.get_param("spp.vc.allow_jsonld_fallback", "True")
         return str(param_val).lower() in ("1", "true", "yes", "y")
 
     def _load_local_context(self, url: str):

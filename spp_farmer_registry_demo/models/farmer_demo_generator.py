@@ -320,7 +320,8 @@ class SPPFarmerDemoGenerator(models.TransientModel):
     @api.depends_context("uid")
     def _compute_demo_already_loaded(self):
         """Check if demo data has already been generated."""
-        is_loaded = self.env["ir.config_parameter"].sudo().get_param("spp.farmer.demo.loaded", "False") == "True"  # nosemgrep
+        ICP = self.env["ir.config_parameter"].sudo()  # nosemgrep
+        is_loaded = ICP.get_param("spp.farmer.demo.loaded", "False") == "True"
         for record in self:
             record.demo_already_loaded = is_loaded
 
@@ -2015,8 +2016,8 @@ class SPPFarmerDemoGenerator(models.TransientModel):
                 )
                 if detail_vals:
                     detail.write(detail_vals)
-                    self.env.cr.execute(  # nosec B608
-                        f"UPDATE {detail._table} SET create_date = %s WHERE id = %s",
+                    self.env.cr.execute(
+                        f"UPDATE {detail._table} SET create_date = %s WHERE id = %s",  # nosec B608
                         (request_date, detail.id),
                     )
 
