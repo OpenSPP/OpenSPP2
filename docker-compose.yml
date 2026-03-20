@@ -47,12 +47,19 @@ services:
   db:
     image: postgis/postgis:18-3.6-alpine
     platform: linux/amd64 # Use Rosetta 2 on Apple Silicon
+    command:
+      - postgres
+      - -c
+      - config_file=/etc/postgresql/postgresql.conf
+      - -c
+      - log_min_duration_statement=${PG_LOG_MIN_DURATION:-500}
     environment:
       POSTGRES_USER: odoo
       POSTGRES_PASSWORD: odoo
       POSTGRES_DB: openspp
     volumes:
       - postgres_data:/var/lib/postgresql
+      - ./docker/postgresql.conf:/etc/postgresql/postgresql.conf:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U odoo -d postgres"]
       interval: 5s
@@ -90,6 +97,7 @@ services:
       # Performance settings (minimal for local dev/testing)
       ODOO_WORKERS: "0"
       ODOO_CRON_THREADS: "0"
+      ODOO_DB_MAXCONN: "128"
 
       # Modules to initialize (configurable via env)
       # For E2E: ODOO_INIT_MODULES=spp_mis_demo_v2
@@ -144,6 +152,7 @@ services:
       # Performance settings (minimal for local dev/testing)
       ODOO_WORKERS: "0"
       ODOO_CRON_THREADS: "0"
+      ODOO_DB_MAXCONN: "128"
 
       # Modules to initialize (configurable via env)
       ODOO_INIT_MODULES: "${ODOO_INIT_MODULES:-spp_base}"
