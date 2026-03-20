@@ -2,10 +2,10 @@
 import json
 import logging
 
-from odoo import Command, _, api, fields, models
+from odoo import _, api, fields, models
 
 try:
-    from odoo.addons.queue_job.delay import group
+    from odoo.addons.job_worker.delay import group
 except ImportError:
     group = None
 
@@ -222,8 +222,9 @@ class GeofenceMembershipManager(models.Model):
 
     def _import_registrants(self, new_beneficiaries, state="draft", do_count=False):
         _logger.info("spp_program_geofence: Importing %s beneficiaries", len(new_beneficiaries))
-        beneficiaries_val = [Command.create({"partner_id": b.id, "state": state}) for b in new_beneficiaries]
-        self.program_id.update({"program_membership_ids": beneficiaries_val})
+        self.env["spp.program.membership"].create(
+            [{"program_id": self.program_id.id, "partner_id": b.id, "state": state} for b in new_beneficiaries]
+        )
 
         if do_count:
             self.program_id._compute_eligible_beneficiary_count()
