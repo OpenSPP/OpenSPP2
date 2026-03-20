@@ -156,13 +156,16 @@ class SppCashEntitlementManager(models.Model):
                 if addl_fields:
                     new_entitlements_to_create[beneficiary_id.id].update(addl_fields)
 
-        # Create entitlement records
+        # Create entitlement records in a single batch
+        vals_list = []
         for ent in new_entitlements_to_create:
             initial_amount = new_entitlements_to_create[ent]["initial_amount"]
             new_entitlements_to_create[ent]["initial_amount"] = self._check_subsidy(initial_amount)
             # Create non-zero entitlements only
             if new_entitlements_to_create[ent]["initial_amount"] > 0.0:
-                self.env["spp.entitlement"].create(new_entitlements_to_create[ent])
+                vals_list.append(new_entitlements_to_create[ent])
+        if vals_list:
+            self.env["spp.entitlement"].create(vals_list)
 
     def _get_addl_entitlement_fields(self, beneficiary_id):
         """
