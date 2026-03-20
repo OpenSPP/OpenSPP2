@@ -24,7 +24,7 @@
         >[('is_registrant', '=', True), ('is_group', '=', True)]</field>
         <field name="aggregation_method">count</field>
         <field name="base_area_level">2</field>
-        <field name="normalization_method">raw</field>
+        <field name="normalization_method">per_population</field>
         <field name="enable_rollup">True</field>
         <field name="rollup_method">sum</field>
         <field name="rollup_weight_source">count</field>
@@ -62,7 +62,7 @@
         <field name="rollup_method">weighted_avg</field>
         <field name="rollup_weight_source">area_sqkm</field>
         <field name="color_scheme_id" ref="spp_gis.scheme_blues" />
-        <field name="threshold_mode">auto_jenks</field>
+        <field name="threshold_mode">auto_quartile</field>
         <field name="bucket_count">5</field>
         <field
             name="dimension_ids"

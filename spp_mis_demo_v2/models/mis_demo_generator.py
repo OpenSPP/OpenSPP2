@@ -357,7 +357,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "generate_volume": True,
                 "volume_enrollments": 5000,
                 "generate_random_groups": True,
-                "random_groups_count": 7000,
+                "random_groups_count": 10000,
                 "create_cycles": True,
                 "cycles_per_program": 3,
                 "create_event_data": False,
@@ -4038,6 +4038,81 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         return result
 
+    def _populate_area_metadata(self, municipalities, weights_by_area_id):
+        """Populate area_sqkm and population on spp.area records.
+
+        GIS report normalization (per_area_sqkm, per_population) needs these
+        fields filled in. area_sqkm is computed from the geo_polygon geometry,
+        population is copied from the demo population weights CSV, then
+        both are rolled up to parent levels (province, region).
+
+        Args:
+            municipalities: spp.area recordset with geo_polygon
+            weights_by_area_id: dict mapping area_id to population count, or None
+        """
+        # Compute area_sqkm from geometry for ALL areas missing it (including parents)
+        self.env.cr.execute(
+            """
+            UPDATE spp_area
+            SET area_sqkm = ST_Area(geo_polygon::geography) / 1000000.0
+            WHERE (area_sqkm IS NULL OR area_sqkm = 0)
+              AND geo_polygon IS NOT NULL
+            """,
+        )
+        updated_sqkm = self.env.cr.rowcount
+        if updated_sqkm:
+            _logger.info("[spp.mis.demo] Computed area_sqkm for %d areas", updated_sqkm)
+
+        # Copy population from weights CSV into spp_area.population
+        if weights_by_area_id:
+            pop_updates = [
+                (pop, area_id)
+                for area_id, pop in weights_by_area_id.items()
+                if area_id in municipalities._ids
+            ]
+            if pop_updates:
+                self.env.cr.executemany(
+                    "UPDATE spp_area SET population = %s WHERE id = %s AND (population IS NULL OR population = 0)",
+                    pop_updates,
+                )
+                _logger.info("[spp.mis.demo] Set population for %d municipalities", len(pop_updates))
+
+            # Roll up population to parent areas (province, region)
+            self.env.cr.execute(
+                """
+                UPDATE spp_area parent
+                SET population = sub.total_pop
+                FROM (
+                    SELECT child.parent_id as pid, SUM(child.population) as total_pop
+                    FROM spp_area child
+                    WHERE child.population > 0 AND child.parent_id IS NOT NULL
+                    GROUP BY child.parent_id
+                ) sub
+                WHERE parent.id = sub.pid
+                  AND (parent.population IS NULL OR parent.population = 0)
+                """,
+            )
+            rolled = self.env.cr.rowcount
+            if rolled:
+                _logger.info("[spp.mis.demo] Rolled up population to %d parent areas", rolled)
+                # Second pass for grandparent level (regions)
+                self.env.cr.execute(
+                    """
+                    UPDATE spp_area parent
+                    SET population = sub.total_pop
+                    FROM (
+                        SELECT child.parent_id as pid, SUM(child.population) as total_pop
+                        FROM spp_area child
+                        WHERE child.population > 0 AND child.parent_id IS NOT NULL
+                        GROUP BY child.parent_id
+                    ) sub
+                    WHERE parent.id = sub.pid
+                      AND (parent.population IS NULL OR parent.population = 0)
+                    """,
+                )
+
+        self.env.invalidate_all()
+
     def _assign_registrant_areas(self, stats):
         """Assign geographic areas to registrants.
 
@@ -4094,6 +4169,10 @@ class SPPMISDemoGenerator(models.TransientModel):
             except Exception as e:
                 _logger.warning("[spp.mis.demo] Could not load population weights: %s", e)
 
+        # Populate area metadata (area_sqkm from geometry, population from weights)
+        # so that GIS report normalization (per_area_sqkm, per_population) works correctly.
+        self._populate_area_metadata(municipalities, weights_by_area_id)
+
         # Build weighted selection if population data available
         muni_ids = municipalities.ids
         if weights_by_area_id:
@@ -4102,11 +4181,27 @@ class SPPMISDemoGenerator(models.TransientModel):
         else:
             weights = None
 
-        # Pre-assign areas for all groups at once
-        if weights:
-            assigned_ids = random.choices(muni_ids, weights=weights, k=len(groups))
+        # Pre-assign areas for all groups at once.
+        # Guarantee a minimum floor per area so no municipality ends up with zero groups
+        # (which would show as "No Data" gray on the map).
+        MIN_PER_AREA = 2
+        num_groups = len(groups)
+        floor_total = MIN_PER_AREA * len(muni_ids)
+
+        if num_groups >= floor_total:
+            # Assign minimum floor to every municipality, then distribute the rest by weight
+            assigned_ids = muni_ids * MIN_PER_AREA  # each muni gets MIN_PER_AREA groups
+            remaining = num_groups - floor_total
+            if remaining > 0:
+                if weights:
+                    assigned_ids += random.choices(muni_ids, weights=weights, k=remaining)
+                else:
+                    assigned_ids += [random.choice(muni_ids) for _ in range(remaining)]
+            random.shuffle(assigned_ids)
+        elif weights:
+            assigned_ids = random.choices(muni_ids, weights=weights, k=num_groups)
         else:
-            assigned_ids = [random.choice(muni_ids) for _ in range(len(groups))]
+            assigned_ids = [random.choice(muni_ids) for _ in range(num_groups)]
 
         # Batch-assign areas to groups via raw SQL (avoids N+1 ORM writes)
         group_area_pairs = list(zip(groups.ids, assigned_ids, strict=False))
