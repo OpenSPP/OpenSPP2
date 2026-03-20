@@ -353,8 +353,12 @@ class TestGISReportAPI(HttpCase):
         # The stored disaggregation has gender.male=60, gender.female=40
         self.assertIn("disagg_gender_male", props)
         self.assertEqual(props["disagg_gender_male"], 60)
+        self.assertIn("disagg_gender_male_pct", props)
+        self.assertEqual(props["disagg_gender_male_pct"], 60.0)
         self.assertIn("disagg_gender_female", props)
         self.assertEqual(props["disagg_gender_female"], 40)
+        self.assertIn("disagg_gender_female_pct", props)
+        self.assertEqual(props["disagg_gender_female_pct"], 40.0)
 
         # Verify disaggregation metadata in the metadata block
         metadata = result.get("metadata", {})

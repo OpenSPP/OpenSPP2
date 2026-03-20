@@ -211,9 +211,11 @@ class TestDisaggregation(GISReportTestBase):
         feature = next(f for f in features if f["id"] == self.area_district_1.code)
         props = feature["properties"]
 
-        # Should have flat disagg_* properties
+        # Should have flat disagg_* properties (counts and percentages)
         self.assertEqual(props["disagg_gender_1"], 60)
+        self.assertEqual(props["disagg_gender_1_pct"], 60.0)
         self.assertEqual(props["disagg_gender_2"], 40)
+        self.assertEqual(props["disagg_gender_2_pct"], 40.0)
 
     def test_geojson_no_disagg_without_flag(self):
         """Test GeoJSON without include_disaggregation has no disagg_* properties."""
