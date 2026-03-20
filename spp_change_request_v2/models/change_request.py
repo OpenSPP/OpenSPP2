@@ -713,10 +713,15 @@ class SPPChangeRequest(models.Model):
     # ══════════════════════════════════════════════════════════════════════════
 
     def get_detail(self):
-        """Get the detail record for this CR."""
+        """Get the detail record for this CR.
+
+        Uses with_prefetch() to isolate from _ensure_detail's sudo()
+        prefetch set — without this, non-stored computed fields can
+        trigger record-rule checks against the wrong user.
+        """
         self.ensure_one()
         if self.detail_res_model and self.detail_res_id:
-            return self.env[self.detail_res_model].browse(self.detail_res_id)
+            return self.env[self.detail_res_model].browse(self.detail_res_id).with_prefetch()
         return None
 
     def _ensure_detail(self):
