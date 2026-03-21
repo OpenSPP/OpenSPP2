@@ -1904,11 +1904,8 @@ class GISReport(models.Model):
             # Add disaggregation as flat disagg_* properties for QGIS compatibility
             if include_disaggregation and data.disaggregation:
                 for dim_name, value_counts in data.disaggregation.items():
-                    dim_total = sum(value_counts.values())
                     for raw_value, count in value_counts.items():
                         properties[f"disagg_{dim_name}_{raw_value}"] = count
-                        if dim_total > 0:
-                            properties[f"disagg_{dim_name}_{raw_value}_pct"] = round(count / dim_total * 100, 1)
 
             # Build feature
             feature = {
@@ -1991,7 +1988,6 @@ class GISReport(models.Model):
                     "name": dim.name,
                     "label": dim.label,
                     "property_prefix": f"disagg_{dim.name}_",
-                    "percentage_suffix": "_pct",
                 }
                 if dim.value_labels_json:
                     labels = dim.value_labels_json
