@@ -1,9 +1,9 @@
-Demo data generator for Case Management system. Creates realistic cases with intervention plans, home visits, progress notes, and service referrals. Includes 9 fixed demo stories for training and sales demos, plus configurable random case generation for volume testing.
+Demo data generator for Case Management system. Creates realistic cases with intervention plans, home visits, progress notes, and service referrals. Includes 9 fixed demo stories plus 3 background cases for training and sales demos, and configurable volume case generation using Faker for locale-aware random data (non-deterministic — each run produces different results).
 
 ### Key Capabilities
 
-- Generate 9 fixed demo stories with predictable personas and case progressions for consistent training scenarios
-- Create random volume cases with configurable distribution percentages for plans, visits, notes, and closures
+- Generate 9 fixed demo stories with predictable personas and case progressions for consistent training scenarios, plus 3 background cases (Fernandez Intake Pending, Johnson Assessment, Kim Case Closed) for variety
+- Create random volume cases using Faker (non-seeded) with configurable distribution percentages for plans, visits, notes, and closures
 - Link generated cases to existing registrants or create standalone cases
 - Backdate case records and related activities to simulate realistic timelines over configurable day ranges
 - Create intervention plans with multiple interventions across case lifecycle stages
