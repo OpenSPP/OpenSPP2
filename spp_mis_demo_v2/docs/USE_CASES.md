@@ -26,7 +26,7 @@ Seeded RNG** architecture:
 - **Fixed Stories**: 8 named personas with predefined program journeys (unchanged)
 - **Deterministic Volume**: ~730 households with ~2,500 members from 28 blueprint
   templates
-- **Demo Programs**: 6 programs covering different social protection scenarios
+- **Demo Programs**: 7 programs covering different social protection scenarios
 - **100% Reproducible**: Same country selection = identical output every run
 - **Country-aware Names**: Names change by locale (Philippines, Sri Lanka, Togo)
 
