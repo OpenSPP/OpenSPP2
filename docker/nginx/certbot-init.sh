@@ -45,6 +45,18 @@ docker compose -f "$COMPOSE_FILE" run --rm --entrypoint sh nginx -c "
 echo "==> Starting Nginx (temporary certificate) ..."
 docker compose -f "$COMPOSE_FILE" up -d nginx
 
+echo "==> Waiting for Nginx to become ready ..."
+for i in $(seq 1 30); do
+    if docker compose -f "$COMPOSE_FILE" exec nginx curl -sf http://localhost:80/.well-known/acme-challenge/ >/dev/null 2>&1; then
+        break
+    fi
+    if [ "$i" -eq 30 ]; then
+        echo "Error: Nginx did not become ready within 30 seconds"
+        exit 1
+    fi
+    sleep 1
+done
+
 echo "==> Requesting certificate from Let's Encrypt for $DOMAIN ..."
 docker compose -f "$COMPOSE_FILE" --profile certbot run --rm certbot \
     certonly --webroot -w /var/www/certbot \

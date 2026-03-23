@@ -19,31 +19,31 @@ See [Production Deployment](#production-deployment) below.
 
 ## Files
 
-| File                            | Description                                       |
-| ------------------------------- | ------------------------------------------------- |
-| `Dockerfile`                    | Multi-stage build for OpenSPP                     |
-| `docker-compose.production.yml` | Production stack (Traefik + Odoo + Queue Worker)  |
-| `docker-compose.nginx.yml`      | Production stack (Nginx + Certbot + Fluentd)      |
-| `.env.production.example`       | Production configuration template                 |
-| `entrypoint.sh`                 | Container entrypoint with database initialization |
-| `odoo.conf.template`            | Odoo configuration template                       |
-| `nginx/odoo.conf.template`      | Nginx HTTPS reverse proxy config (Odoo docs)      |
-| `nginx/odoo-http-only.conf.template` | Nginx HTTP-only reverse proxy config         |
-| `nginx/certbot-init.sh`         | Bootstrap script for initial SSL certificate      |
-| `fluentd/`                      | Fluentd log collection configs                    |
-| `backup.sh`                     | Automated PostgreSQL/PostGIS backup script        |
-| `backup-entrypoint.sh`          | Backup container entrypoint with cron scheduling  |
-| `requirements.txt`              | Python dependencies beyond module manifests       |
-| `requirements-dev.txt`          | Development-only dependencies                     |
+| File                                 | Description                                       |
+| ------------------------------------ | ------------------------------------------------- |
+| `Dockerfile`                         | Multi-stage build for OpenSPP                     |
+| `docker-compose.production.yml`      | Production stack (Traefik + Odoo + Queue Worker)  |
+| `docker-compose.nginx.yml`           | Production stack (Nginx + Certbot + Fluentd)      |
+| `.env.production.example`            | Production configuration template                 |
+| `entrypoint.sh`                      | Container entrypoint with database initialization |
+| `odoo.conf.template`                 | Odoo configuration template                       |
+| `nginx/odoo.conf.template`           | Nginx HTTPS reverse proxy config (Odoo docs)      |
+| `nginx/odoo-http-only.conf.template` | Nginx HTTP-only reverse proxy config              |
+| `nginx/certbot-init.sh`              | Bootstrap script for initial SSL certificate      |
+| `fluentd/`                           | Fluentd log collection configs                    |
+| `backup.sh`                          | Automated PostgreSQL/PostGIS backup script        |
+| `backup-entrypoint.sh`               | Backup container entrypoint with cron scheduling  |
+| `requirements.txt`                   | Python dependencies beyond module manifests       |
+| `requirements-dev.txt`               | Development-only dependencies                     |
 
 ## Production Deployment
 
 Two production compose files are available:
 
-| Compose file                    | Reverse proxy | SSL            | Logging  |
-| ------------------------------- | ------------- | -------------- | -------- |
+| Compose file                    | Reverse proxy | SSL                       | Logging        |
+| ------------------------------- | ------------- | ------------------------- | -------------- |
 | `docker-compose.production.yml` | Traefik       | Let's Encrypt (automatic) | Docker default |
-| `docker-compose.nginx.yml`      | Nginx         | Certbot (Let's Encrypt)   | Fluentd  |
+| `docker-compose.nginx.yml`      | Nginx         | Certbot (Let's Encrypt)   | Fluentd        |
 
 ### Architecture (Traefik)
 
@@ -117,11 +117,11 @@ docker compose -f docker/docker-compose.nginx.yml logs -f odoo
 
 The Nginx compose file uses profiles to select the deployment mode:
 
-| Profile  | Services added               | Use case                                   |
-| -------- | ---------------------------- | ------------------------------------------ |
-| `https`  | Nginx (SSL) + Certbot        | Production with HTTPS and auto-renewal     |
-| `http`   | Nginx (HTTP only)             | Dev or isolated on-premises networks       |
-| `clamav` | ClamAV antivirus              | File upload scanning (~1GB extra RAM)      |
+| Profile  | Services added        | Use case                               |
+| -------- | --------------------- | -------------------------------------- |
+| `https`  | Nginx (SSL) + Certbot | Production with HTTPS and auto-renewal |
+| `http`   | Nginx (HTTP only)     | Dev or isolated on-premises networks   |
+| `clamav` | ClamAV antivirus      | File upload scanning (~1GB extra RAM)  |
 
 Profiles can be combined:
 
@@ -156,7 +156,7 @@ docker compose -f docker/docker-compose.nginx.yml exec nginx nginx -s reload
 
 ```bash
 # Add to system crontab (runs monthly)
-0 3 1 * * docker compose -f /path/to/docker/docker-compose.nginx.yml run --rm certbot renew && docker compose -f /path/to/docker/docker-compose.nginx.yml exec nginx nginx -s reload
+0 3 1 * * cd /path/to/your/project && docker compose -f docker/docker-compose.nginx.yml run --rm certbot renew && docker compose -f docker/docker-compose.nginx.yml exec nginx nginx -s reload
 ```
 
 ### Nginx Security Hardening
@@ -165,33 +165,38 @@ All services in the Nginx compose file include:
 
 - **Capability dropping:** `cap_drop: ALL` with minimal `cap_add` per service
 - **No privilege escalation:** `security_opt: no-new-privileges:true`
-- **Read-only filesystems:** `read_only: true` with targeted tmpfs mounts (where possible)
+- **Read-only filesystems:** `read_only: true` with targeted tmpfs mounts (where
+  possible)
 - **Resource limits:** CPU and memory limits on every service
 - **Log rotation:** `json-file` driver with 5MB/3-file rotation (15MB max per service)
 - **SELinux compatibility:** `:ro,z` and `:rw,z` volume flags
 
-Nginx adds: rate limiting, security headers (HSTS, CSP, X-Frame-Options), OCSP stapling, proxy buffering, `/web/database` blocking.
+Nginx adds: rate limiting, security headers (HSTS, CSP, X-Frame-Options), OCSP stapling,
+proxy buffering, `/web/database` blocking.
 
 ### Centralized Logging with Fluentd (Nginx stack)
 
-The Nginx compose file includes Fluentd for centralized log collection. It uses file tailing (not Docker's log driver), so `docker compose logs` keeps working and logs are never lost if Fluentd goes down.
+The Nginx compose file includes Fluentd for centralized log collection. It uses file
+tailing (not Docker's log driver), so `docker compose logs` keeps working and logs are
+never lost if Fluentd goes down.
 
 **Default backend:** Local filesystem / NFS (`output-file.conf`)
 
 **Available backends:**
 
-| Backend           | Config file                      | Plugins required |
-| ----------------- | -------------------------------- | ---------------- |
-| Local / NFS       | `output-file.conf` (default)     | None (built-in)  |
-| AWS S3            | `output-s3.conf.example`         | fluent-plugin-s3 |
-| Google Cloud GCS  | `output-gcs.conf.example`        | fluent-plugin-gcs|
-| Azure Blob        | `output-azure.conf.example`      | fluent-plugin-azure-storage-append-blob |
-| MinIO             | `output-minio.conf.example`      | fluent-plugin-s3 |
+| Backend          | Config file                  | Plugins required                        |
+| ---------------- | ---------------------------- | --------------------------------------- |
+| Local / NFS      | `output-file.conf` (default) | None (built-in)                         |
+| AWS S3           | `output-s3.conf.example`     | fluent-plugin-s3                        |
+| Google Cloud GCS | `output-gcs.conf.example`    | fluent-plugin-gcs                       |
+| Azure Blob       | `output-azure.conf.example`  | fluent-plugin-azure-storage-append-blob |
+| MinIO            | `output-minio.conf.example`  | fluent-plugin-s3                        |
 
 To switch backends:
 
 1. Edit `docker/fluentd/fluent.conf` to `@include` the desired output config
-2. For cloud backends, uncomment the `build:` block in the fluentd service to install plugins
+2. For cloud backends, uncomment the `build:` block in the fluentd service to install
+   plugins
 
 ### Using External Database (RDS/Cloud SQL)
 
@@ -316,17 +321,17 @@ docker compose -f docker/docker-compose.production.yml exec clamav clamscan --ve
 
 ### Resource Limits (Nginx stack)
 
-| Variable                     | Default | Description                    |
-| ---------------------------- | ------- | ------------------------------ |
-| `ODOO_CPU_LIMIT`             | 2       | Odoo CPU cores                 |
-| `ODOO_MEMORY_LIMIT`         | 4G      | Odoo memory limit              |
-| `DB_CPU_LIMIT`               | 2       | PostgreSQL CPU cores           |
-| `DB_MEMORY_LIMIT`           | 4G      | PostgreSQL memory limit        |
-| `QUEUE_CPU_LIMIT`            | 1       | Queue worker CPU cores         |
-| `QUEUE_MEMORY_LIMIT`        | 2G      | Queue worker memory limit      |
-| `NGINX_CPU_LIMIT`            | 1       | Nginx CPU cores                |
-| `NGINX_MEMORY_LIMIT`        | 256M    | Nginx memory limit             |
-| `CLAMAV_MEMORY_LIMIT`       | 1536M   | ClamAV memory limit            |
+| Variable              | Default | Description               |
+| --------------------- | ------- | ------------------------- |
+| `ODOO_CPU_LIMIT`      | 2       | Odoo CPU cores            |
+| `ODOO_MEMORY_LIMIT`   | 4G      | Odoo memory limit         |
+| `DB_CPU_LIMIT`        | 2       | PostgreSQL CPU cores      |
+| `DB_MEMORY_LIMIT`     | 4G      | PostgreSQL memory limit   |
+| `QUEUE_CPU_LIMIT`     | 1       | Queue worker CPU cores    |
+| `QUEUE_MEMORY_LIMIT`  | 2G      | Queue worker memory limit |
+| `NGINX_CPU_LIMIT`     | 1       | Nginx CPU cores           |
+| `NGINX_MEMORY_LIMIT`  | 256M    | Nginx memory limit        |
+| `CLAMAV_MEMORY_LIMIT` | 1536M   | ClamAV memory limit       |
 
 ### Logging
 

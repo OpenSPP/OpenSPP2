@@ -81,16 +81,15 @@ x-nginx-common: &nginx-common
     - /tmp:size=10M
     - /var/cache/nginx:size=50M
     - /run:size=5M
-    - /etc/nginx/conf.d:size=1M  # envsubst writes generated config here at startup
+    - /etc/nginx/conf.d:size=1M # envsubst writes generated config here at startup
   logging: *default-logging
   cap_drop:
     - ALL
   cap_add:
-    - NET_BIND_SERVICE  # Bind to ports 80/443
-    - CHOWN             # Set file ownership (master process)
-    - SETGID            # Switch to nginx group (worker processes)
-    - SETUID            # Switch to nginx user (worker processes)
-    - DAC_OVERRIDE      # Read SSL certs and config owned by root
+    - NET_BIND_SERVICE # Bind to ports 80/443
+    - CHOWN # Set file ownership (master process)
+    - SETGID # Switch to nginx group (worker processes)
+    - SETUID # Switch to nginx user (worker processes)
   security_opt:
     - no-new-privileges:true
   deploy:
@@ -118,7 +117,12 @@ services:
       - certbot_certs:/etc/letsencrypt:ro,z
       - nginx_logs:/var/log/nginx:rw,z
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:80/.well-known/acme-challenge/ || curl -sf -k https://localhost:443/web/health"]
+      test:
+        [
+          "CMD-SHELL",
+          "curl -sf http://localhost:80/.well-known/acme-challenge/ || curl -sf -k
+          https://localhost:443/web/health",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -171,8 +175,7 @@ services:
     cap_drop:
       - ALL
     cap_add:
-      - CHOWN             # Own certificate files
-      - DAC_OVERRIDE      # Write to /etc/letsencrypt
+      - CHOWN # Own certificate files
       - SETGID
       - SETUID
     security_opt:
@@ -218,7 +221,7 @@ services:
       - ALL
     cap_add:
       - CHOWN
-      - DAC_OVERRIDE
+      - DAC_OVERRIDE # Entrypoint needs to access /var/lib/postgresql data dirs
       - FOWNER
       - SETGID
       - SETUID
@@ -313,7 +316,6 @@ services:
       - ALL
     cap_add:
       - CHOWN
-      - DAC_OVERRIDE
       - FOWNER
       - SETGID
       - SETUID
@@ -360,7 +362,13 @@ services:
       # Logging
       LOG_LEVEL: ${LOG_LEVEL:-info}
     # Run job_worker standalone runner process
-    command: ["python", "/mnt/extra-addons/odoo-job-worker/job_worker_runner.py", "-c", "/etc/odoo/odoo.conf"]
+    command:
+      [
+        "python",
+        "/mnt/extra-addons/odoo-job-worker/job_worker_runner.py",
+        "-c",
+        "/etc/odoo/odoo.conf",
+      ]
     volumes:
       - odoo_data:/var/lib/odoo:rw,z
       - odoo_addons:/mnt/extra-addons:rw,z
@@ -377,7 +385,6 @@ services:
       - ALL
     cap_add:
       - CHOWN
-      - DAC_OVERRIDE
       - FOWNER
       - SETGID
       - SETUID
@@ -427,16 +434,16 @@ services:
     tmpfs:
       - /tmp:size=256M
       - /run:size=5M
-      - /etc/crontabs:size=1M   # backup-entrypoint.sh writes cron schedule here
-      - /etc/profile.d:size=1M  # backup-entrypoint.sh writes pg_env.sh here
-      - /var/log:size=10M       # backup log file
+      - /etc/crontabs:size=1M # backup-entrypoint.sh writes cron schedule here
+      - /etc/profile.d:size=1M # backup-entrypoint.sh writes pg_env.sh here
+      - /var/log:size=10M # backup log file
     logging: *default-logging
     # Security: backup needs file write and process management for cron
     cap_drop:
       - ALL
     cap_add:
       - CHOWN
-      - DAC_OVERRIDE
+      - DAC_OVERRIDE # Same PostGIS image as db; entrypoint needs this
       - FOWNER
       - SETGID
       - SETUID
@@ -470,15 +477,14 @@ services:
     read_only: true
     tmpfs:
       - /tmp:size=256M
-      - /run/clamav:uid=100,gid=101,size=5M  # ClamAV entrypoint expects /run/clamav writable by clamav user
+      - /run/clamav:uid=100,gid=101,size=5M # ClamAV entrypoint expects /run/clamav writable by clamav user
     logging: *default-logging
     # Security: ClamAV needs minimal capabilities
     cap_drop:
       - ALL
     cap_add:
       - CHOWN
-      - DAC_OVERRIDE
-      - FOWNER            # Set ownership on /run/clamav at startup
+      - FOWNER # Set ownership on /run/clamav at startup
       - SETGID
       - SETUID
     security_opt:
@@ -516,7 +522,7 @@ services:
   #   docker compose -f docker/docker-compose.nginx.yml build fluentd
   # Then uncomment the `build:` block below and comment out `image:`.
   fluentd:
-    image: fluentd:v1.19-1
+    image: fluent/fluentd:v1.19-2
     # Uncomment to build with cloud storage plugins (S3, GCS, Azure, MinIO):
     # build:
     #   context: ./fluentd
@@ -550,7 +556,6 @@ services:
       - ALL
     cap_add:
       - CHOWN
-      - DAC_OVERRIDE
       - SETGID
       - SETUID
     security_opt:
