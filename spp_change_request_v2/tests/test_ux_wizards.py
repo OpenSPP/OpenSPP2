@@ -254,16 +254,26 @@ class TestBatchApprovalWizard(TestChangeRequestBase):
             cr.action_submit_for_approval()
             self.pending_crs |= cr
 
+    def _create_wizard(self, cr_ids, action_type="approve", **kwargs):
+        """Helper to create a batch wizard via create_from_selection."""
+        result = (
+            self.env["spp.cr.batch.approval.wizard"].with_context(active_ids=cr_ids).create_from_selection(action_type)
+        )
+        wizard = self.env["spp.cr.batch.approval.wizard"].browse(result["res_id"])
+        if kwargs:
+            wizard.write(kwargs)
+        return wizard
+
     def test_batch_wizard_initialization(self):
         """Test batch wizard initializes with selected CRs."""
-        wizard = self.env["spp.cr.batch.approval.wizard"].with_context(active_ids=self.pending_crs.ids).create({})
+        wizard = self._create_wizard(self.pending_crs.ids)
 
         self.assertEqual(wizard.total_count, 3)
         self.assertEqual(len(wizard.line_ids), 3)
 
     def test_batch_wizard_counts(self):
         """Test batch wizard computes valid/invalid counts correctly."""
-        wizard = self.env["spp.cr.batch.approval.wizard"].with_context(active_ids=self.pending_crs.ids).create({})
+        wizard = self._create_wizard(self.pending_crs.ids)
 
         # All should be valid if user can approve
         self.assertEqual(wizard.total_count, wizard.valid_count + wizard.invalid_count)
@@ -279,7 +289,7 @@ class TestBatchApprovalWizard(TestChangeRequestBase):
             }
         )
 
-        wizard = self.env["spp.cr.batch.approval.wizard"].with_context(active_ids=[draft_cr.id]).create({})
+        wizard = self._create_wizard([draft_cr.id])
 
         # Should have 0 valid CRs
         self.assertEqual(wizard.valid_count, 0)
@@ -289,16 +299,7 @@ class TestBatchApprovalWizard(TestChangeRequestBase):
 
     def test_batch_reject_requires_comment(self):
         """Test batch reject requires a reason."""
-        wizard = (
-            self.env["spp.cr.batch.approval.wizard"]
-            .with_context(active_ids=self.pending_crs.ids)
-            .create(
-                {
-                    "action_type": "reject",
-                    "comment": "",
-                }
-            )
-        )
+        wizard = self._create_wizard(self.pending_crs.ids, action_type="reject", comment="")
 
         # Should fail without comment
         with self.assertRaises(UserError):
