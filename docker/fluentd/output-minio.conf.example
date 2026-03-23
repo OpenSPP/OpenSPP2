@@ -1,0 +1,47 @@
+# Output: MinIO (S3-compatible, on-premises)
+#
+# Ships logs to a MinIO instance using the S3 plugin. MinIO is fully
+# compatible with the AWS S3 API, so we use fluent-plugin-s3 with a
+# custom endpoint.
+#
+# To use:
+#   1. Copy this file to output-minio.conf
+#   2. Update fluent.conf to: @include output-minio.conf
+#   3. Set the environment variables below in your .env.production
+#
+# Required environment variables:
+#   MINIO_ENDPOINT    — MinIO server URL (e.g., http://minio:9000)
+#   MINIO_ACCESS_KEY  — MinIO access key
+#   MINIO_SECRET_KEY  — MinIO secret key
+#   MINIO_BUCKET      — MinIO bucket name
+
+<match docker.**>
+  @type s3
+
+  aws_key_id "#{ENV['MINIO_ACCESS_KEY']}"
+  aws_sec_key "#{ENV['MINIO_SECRET_KEY']}"
+  s3_bucket "#{ENV['MINIO_BUCKET']}"
+  s3_endpoint "#{ENV['MINIO_ENDPOINT']}"
+  s3_region us-east-1
+  force_path_style true
+
+  path "openspp-logs/${tag}/"
+  s3_object_key_format %{path}%{time_slice}_%{index}.%{file_extension}
+  store_as gzip
+
+  <format>
+    @type json
+  </format>
+
+  <buffer tag,time>
+    @type file
+    path /fluentd/buffer
+    timekey 3600
+    timekey_wait 10m
+    timekey_use_utc true
+    chunk_limit_size 256m
+    flush_at_shutdown true
+    retry_max_interval 30s
+    retry_forever true
+  </buffer>
+</match>

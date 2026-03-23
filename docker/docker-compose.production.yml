@@ -278,7 +278,7 @@ services:
       # Logging
       LOG_LEVEL: ${LOG_LEVEL:-info}
     # Run job_worker standalone runner process
-    command: ["python", "-m", "odoo.addons.job_worker.cli"]
+    command: ["python", "/mnt/extra-addons/odoo-job-worker/job_worker_runner.py", "-c", "/etc/odoo/odoo.conf"]
     volumes:
       - odoo_data:/var/lib/odoo
       - odoo_addons:/mnt/extra-addons

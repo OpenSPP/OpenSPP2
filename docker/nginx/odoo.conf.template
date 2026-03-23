@@ -1,0 +1,197 @@
+# Nginx reverse proxy configuration for Odoo
+#
+# Based on the official Odoo deployment documentation:
+# https://www.odoo.com/documentation/19.0/administration/on_premise/deploy.html
+#
+# Environment variables (substituted by envsubst at container start):
+#   DOMAIN - The server domain name (e.g., openspp.example.org)
+
+# Hide Nginx version in error pages and response headers
+server_tokens off;
+
+upstream odoo {
+    server odoo:8069;
+}
+
+upstream odoochat {
+    server odoo:8072;
+}
+
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+}
+
+# Rate limiting zones
+# General: 10 requests/sec per IP with burst allowance
+limit_req_zone $binary_remote_addr zone=general:10m rate=10r/s;
+# Login/sensitive endpoints: stricter 2 requests/sec per IP
+limit_req_zone $binary_remote_addr zone=login:10m rate=2r/s;
+
+# HTTP -> HTTPS redirect + ACME challenge
+server {
+    listen 80;
+    server_name ${DOMAIN};
+
+    # Certbot ACME challenge
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# HTTPS server
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name ${DOMAIN};
+
+    # =========================================================================
+    # SSL configuration
+    # =========================================================================
+    ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
+    ssl_session_timeout 30m;
+    ssl_session_cache shared:SSL:10m;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers off;
+
+    # OCSP stapling — Nginx fetches and caches the OCSP response so clients
+    # don't have to contact the CA, improving TLS handshake performance.
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    ssl_trusted_certificate /etc/letsencrypt/live/${DOMAIN}/chain.pem;
+    resolver 1.1.1.1 8.8.8.8 valid=300s;
+    resolver_timeout 5s;
+
+    # =========================================================================
+    # Timeouts (from Odoo docs)
+    # =========================================================================
+    proxy_read_timeout 720s;
+    proxy_connect_timeout 720s;
+    proxy_send_timeout 720s;
+
+    # =========================================================================
+    # Proxy buffering — buffer responses from Odoo to free up worker processes
+    # faster and handle slow clients without tying up Odoo workers.
+    # =========================================================================
+    proxy_buffering on;
+    proxy_buffer_size 16k;
+    proxy_buffers 16 64k;
+    proxy_busy_buffers_size 128k;
+
+    # =========================================================================
+    # Logging
+    # =========================================================================
+    access_log /var/log/nginx/odoo.access.log;
+    error_log /var/log/nginx/odoo.error.log;
+
+    # =========================================================================
+    # Gzip compression (from Odoo docs)
+    # =========================================================================
+    gzip_types text/css text/scss text/plain text/xml application/xml application/json application/javascript;
+    gzip on;
+
+    # Increase body size for file uploads
+    client_max_body_size 100m;
+
+    # =========================================================================
+    # Security headers
+    # =========================================================================
+    # HSTS — force HTTPS for 1 year including subdomains
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    # Prevent MIME-type sniffing
+    add_header X-Content-Type-Options "nosniff" always;
+    # Clickjacking protection
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    # XSS filter (legacy browsers)
+    add_header X-XSS-Protection "1; mode=block" always;
+    # Referrer policy
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    # Disable unused browser features
+    add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()" always;
+    # Content Security Policy
+    # NOTE: unsafe-inline and unsafe-eval are required by Odoo's OWL framework
+    # and legacy JS. This CSP restricts resource origins and prevents framing.
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; frame-ancestors 'self'; base-uri 'self'; form-action 'self';" always;
+    # Hide upstream server identity (X-Powered-By from Werkzeug/Python)
+    # NOTE: server_tokens off (above) hides the Nginx version from the Server
+    # header. Fully removing the Server header requires headers-more-nginx-module.
+    proxy_hide_header X-Powered-By;
+
+    # =========================================================================
+    # Block database manager access (redirect to login)
+    # =========================================================================
+    # NOTE: This is a URL rewrite, not a true block. The real controls are
+    # LIST_DB=False and a strong ODOO_ADMIN_PASSWD in the Odoo configuration.
+    location /web/database {
+        return 302 /web/login;
+    }
+
+    # =========================================================================
+    # Rate-limited sensitive endpoints
+    # =========================================================================
+    location /web/login {
+        limit_req zone=login burst=5 nodelay;
+        limit_req_status 429;
+
+        proxy_set_header X-Forwarded-Host $http_host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_redirect off;
+        proxy_pass http://odoo;
+
+        proxy_cookie_flags session_id samesite=lax secure;
+    }
+
+    location /web/session/authenticate {
+        limit_req zone=login burst=5 nodelay;
+        limit_req_status 429;
+
+        proxy_set_header X-Forwarded-Host $http_host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_redirect off;
+        proxy_pass http://odoo;
+
+        proxy_cookie_flags session_id samesite=lax secure;
+    }
+
+    # =========================================================================
+    # WebSocket routing for longpolling/live updates (from Odoo docs)
+    # =========================================================================
+    location /websocket {
+        proxy_pass http://odoochat;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        proxy_set_header X-Forwarded-Host $http_host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+
+        proxy_cookie_flags session_id samesite=lax secure;
+    }
+
+    # =========================================================================
+    # Main Odoo proxy (from Odoo docs)
+    # =========================================================================
+    location / {
+        limit_req zone=general burst=20 nodelay;
+        limit_req_status 429;
+
+        proxy_set_header X-Forwarded-Host $http_host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_redirect off;
+        proxy_pass http://odoo;
+
+        proxy_cookie_flags session_id samesite=lax secure;
+    }
+}

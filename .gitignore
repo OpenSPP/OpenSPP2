@@ -98,9 +98,13 @@ static/security/
 docker-compose.override.yml
 
 # Production environment files (contain secrets)
+docker/.env
 docker/.env.production
 .env.production
 .env.local
+
+# Fluentd runtime log output
+docker/fluentd/log/
 
 # act (local GitHub Actions runner)
 .act-secrets

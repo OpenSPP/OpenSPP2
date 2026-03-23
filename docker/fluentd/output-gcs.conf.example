@@ -1,0 +1,45 @@
+# Output: Google Cloud Storage
+#
+# Ships logs to a GCS bucket. Buffers locally and flushes hourly.
+#
+# To use:
+#   1. Copy this file to output-gcs.conf
+#   2. Update fluent.conf to: @include output-gcs.conf
+#   3. Set the environment variables below in your .env.production
+#   4. Mount your GCP service account key into the container:
+#      Add to fluentd volumes:
+#        - ./gcp-sa-key.json:/fluentd/gcp-sa-key.json:ro,z
+#
+# Required environment variables:
+#   GCS_PROJECT       — GCP project ID
+#   GCS_BUCKET        — GCS bucket name
+#
+# IAM permissions required:
+#   roles/storage.objectCreator on the bucket
+
+<match docker.**>
+  @type gcs
+
+  project "#{ENV['GCS_PROJECT']}"
+  keyfile /fluentd/gcp-sa-key.json
+  bucket "#{ENV['GCS_BUCKET']}"
+
+  path "openspp-logs/${tag}/"
+  object_key_format %{path}%{time_slice}_%{index}.%{file_extension}
+
+  <format>
+    @type json
+  </format>
+
+  <buffer tag,time>
+    @type file
+    path /fluentd/buffer
+    timekey 3600
+    timekey_wait 10m
+    timekey_use_utc true
+    chunk_limit_size 256m
+    flush_at_shutdown true
+    retry_max_interval 30s
+    retry_forever true
+  </buffer>
+</match>
