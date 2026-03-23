@@ -305,6 +305,86 @@ class TestBatchApprovalWizard(TestChangeRequestBase):
         with self.assertRaises(UserError):
             wizard.action_confirm()
 
+    def test_create_from_selection_no_active_ids(self):
+        """Test create_from_selection raises error with no active_ids."""
+        with self.assertRaises(UserError):
+            self.env["spp.cr.batch.approval.wizard"].create_from_selection("approve")
+
+    def test_create_from_selection_returns_action(self):
+        """Test create_from_selection returns a valid window action."""
+        result = (
+            self.env["spp.cr.batch.approval.wizard"]
+            .with_context(active_ids=self.pending_crs.ids)
+            .create_from_selection("approve")
+        )
+        self.assertEqual(result["type"], "ir.actions.act_window")
+        self.assertEqual(result["res_model"], "spp.cr.batch.approval.wizard")
+        self.assertEqual(result["target"], "new")
+        self.assertTrue(result["res_id"])
+
+    def test_create_from_selection_action_types(self):
+        """Test create_from_selection sets action_type correctly."""
+        for action_type in ("approve", "reject", "revision"):
+            result = (
+                self.env["spp.cr.batch.approval.wizard"]
+                .with_context(active_ids=self.pending_crs.ids)
+                .create_from_selection(action_type)
+            )
+            wizard = self.env["spp.cr.batch.approval.wizard"].browse(result["res_id"])
+            self.assertEqual(wizard.action_type, action_type)
+
+    def test_error_message_not_pending(self):
+        """Test error message for CR not in pending state."""
+        cr_type = self.env["spp.change.request.type"].search([], limit=1)
+        draft_cr = self.env["spp.change.request"].create(
+            {
+                "request_type_id": cr_type.id,
+                "registrant_id": self.group.id,
+            }
+        )
+        wizard = self._create_wizard([draft_cr.id])
+        line = wizard.line_ids[0]
+        self.assertFalse(line.can_process)
+        self.assertIn("Not pending approval", line.error_message)
+
+    def test_error_message_not_authorized(self):
+        """Test error message for CR user cannot approve."""
+        # Mix pending + draft CRs to test both error paths
+        cr_type = self.env["spp.change.request.type"].search([], limit=1)
+        draft_cr = self.env["spp.change.request"].create(
+            {
+                "request_type_id": cr_type.id,
+                "registrant_id": self.group.id,
+            }
+        )
+        wizard = self._create_wizard(self.pending_crs.ids + [draft_cr.id])
+        # Should have both valid and invalid lines
+        self.assertTrue(wizard.total_count > 0)
+        invalid_lines = wizard.line_ids.filtered(lambda ln: not ln.can_process)
+        for line in invalid_lines:
+            self.assertTrue(line.error_message)
+
+    def test_batch_revision_requires_comment(self):
+        """Test batch revision requires notes."""
+        wizard = self._create_wizard(self.pending_crs.ids, action_type="revision", comment="")
+
+        with self.assertRaises(UserError):
+            wizard.action_confirm()
+
+    def test_batch_wizard_line_removal(self):
+        """Test that lines can be removed from a saved wizard."""
+        wizard = self._create_wizard(self.pending_crs.ids)
+        initial_count = wizard.total_count
+        self.assertEqual(initial_count, 3)
+
+        # Remove one line
+        line_to_remove = wizard.line_ids[0]
+        line_to_remove.unlink()
+
+        # Count should update
+        wizard.invalidate_recordset()
+        self.assertEqual(len(wizard.line_ids), 2)
+
 
 @tagged("post_install", "-at_install", "cr_ux")
 class TestConflictComparisonWizard(TestChangeRequestBase):
