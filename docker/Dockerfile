@@ -222,6 +222,9 @@ RUN --mount=type=cache,target=/tmp/downloads,sharing=locked \
         GEOIP_CHECKSUM=$GEOIP_ARM64_CHECKSUM; \
     elif [ "$TARGETARCH" = "amd64" ]; then \
         GEOIP_CHECKSUM=$GEOIP_AMD64_CHECKSUM; \
+    else \
+        echo "Unsupported architecture for geoipupdate: $TARGETARCH" >&2; \
+        exit 1; \
     fi; \
     GEOIP_DEB="/tmp/downloads/geoipupdate_${GEOIP_UPDATER_VERSION}_linux_${TARGETARCH}.deb"; \
     if [ ! -f "$GEOIP_DEB" ] || ! echo "${GEOIP_CHECKSUM} ${GEOIP_DEB}" | sha256sum -c - >/dev/null 2>&1; then \
