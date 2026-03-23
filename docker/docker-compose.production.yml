@@ -285,6 +285,12 @@ services:
     networks:
       - openspp-prod
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'odoo.addons.job_worker.cli' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
     deploy:
       resources:
         limits:
