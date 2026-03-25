@@ -629,6 +629,14 @@ Test 10: Edge Cases
    pathways
 2. Verify both can exist independently and have separate scores/states
 
+Changelog
+=========
+
+19.0.2.0.0
+~~~~~~~~~~
+
+- Initial migration to OpenSPP2
+
 Bug Tracker
 ===========
 
