@@ -61,7 +61,7 @@ class SPPMISDemoGenerator(models.TransientModel):
     create_demo_programs = fields.Boolean(
         string="Create Demo Programs",
         default=True,
-        help="Create the predefined demo programs (Input Subsidy, Cash Transfer, etc.)",
+        help="Create the predefined demo programs (Child Grant, Cash Transfer, etc.)",
     )
 
     # Story enrollment options
