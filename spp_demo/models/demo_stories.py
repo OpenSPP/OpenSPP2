@@ -363,14 +363,12 @@ DEMO_STORIES = [
     },
     {
         "id": "jose_reyes_multigenerational",
-        "name": # Reyes multigenerational household
-    "Jose Reyes Sr",
+        "name": "Jose Reyes Sr",
         "type": "household",
         "story_title": "Multi-Generational Household",
         "story_description": "Three generations living together - grandparents, parents, children",
         "profile": {
-            "head": {"name": # Reyes multigenerational household
-    "Jose Reyes Sr", "gender": "male", "age": 72},
+            "head": {"name": "Jose Reyes Sr", "gender": "male", "age": 72},
             "spouse": {"name": "Carmen Reyes", "gender": "female", "age": 68},
             "adults": [
                 {"name": "Miguel Reyes", "gender": "male", "age": 45, "relation": "son"},
