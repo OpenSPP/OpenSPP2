@@ -95,7 +95,7 @@
                     <!-- Selected requests -->
                     <notebook>
                         <page string="Selected Requests" name="requests">
-                            <field name="line_ids" nolabel="1" readonly="1">
+                            <field name="line_ids" nolabel="1">
                                 <list
                                     decoration-muted="not can_process"
                                     decoration-danger="not can_process"
@@ -114,12 +114,6 @@
                                         icon="fa-check text-success"
                                         invisible="not can_process"
                                         title="Ready to process"
-                                    />
-                                    <button
-                                        name="action_remove_line"
-                                        type="object"
-                                        icon="fa-trash"
-                                        title="Remove from batch"
                                     />
                                 </list>
                             </field>
@@ -211,39 +205,40 @@
     </record>
 
     <!-- ══════════════════════════════════════════════════════════════════════════
-         BATCH APPROVAL - SERVER ACTION (for list view context menu)
+         BATCH APPROVAL - SERVER ACTIONS (for list view context menu)
+         Creates the wizard record before opening it, so One2many line
+         operations (delete, buttons) work without "Please save first" errors.
          ══════════════════════════════════════════════════════════════════════════ -->
-    <!-- Note: Security is enforced via ir.model.access.csv - only validators can access wizard -->
-    <record id="action_batch_approve" model="ir.actions.act_window">
+    <record id="server_action_batch_approve" model="ir.actions.server">
         <field name="name">Batch Approve</field>
-        <field name="res_model">spp.cr.batch.approval.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="view_id" ref="view_batch_approval_wizard_form" />
-        <field name="target">new</field>
+        <field name="model_id" ref="model_spp_change_request" />
         <field name="binding_model_id" ref="model_spp_change_request" />
         <field name="binding_view_types">list</field>
-        <field name="context">{'default_action_type': 'approve'}</field>
+        <field name="state">code</field>
+        <field name="code">
+action = env["spp.cr.batch.approval.wizard"].with_context(active_ids=records.ids).create_from_selection("approve")
+        </field>
     </record>
 
-    <record id="action_batch_reject" model="ir.actions.act_window">
+    <record id="server_action_batch_reject" model="ir.actions.server">
         <field name="name">Batch Decline</field>
-        <field name="res_model">spp.cr.batch.approval.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="view_id" ref="view_batch_approval_wizard_form" />
-        <field name="target">new</field>
+        <field name="model_id" ref="model_spp_change_request" />
         <field name="binding_model_id" ref="model_spp_change_request" />
         <field name="binding_view_types">list</field>
-        <field name="context">{'default_action_type': 'reject'}</field>
+        <field name="state">code</field>
+        <field name="code">
+action = env["spp.cr.batch.approval.wizard"].with_context(active_ids=records.ids).create_from_selection("reject")
+        </field>
     </record>
 
-    <record id="action_batch_request_changes" model="ir.actions.act_window">
+    <record id="server_action_batch_request_changes" model="ir.actions.server">
         <field name="name">Batch Request Changes</field>
-        <field name="res_model">spp.cr.batch.approval.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="view_id" ref="view_batch_approval_wizard_form" />
-        <field name="target">new</field>
+        <field name="model_id" ref="model_spp_change_request" />
         <field name="binding_model_id" ref="model_spp_change_request" />
         <field name="binding_view_types">list</field>
-        <field name="context">{'default_action_type': 'revision'}</field>
+        <field name="state">code</field>
+        <field name="code">
+action = env["spp.cr.batch.approval.wizard"].with_context(active_ids=records.ids).create_from_selection("revision")
+        </field>
     </record>
 </odoo>
