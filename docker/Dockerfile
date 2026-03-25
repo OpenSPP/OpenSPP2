@@ -129,6 +129,8 @@ ARG WKHTMLTOPDF_VERSION=0.12.6.1
 ARG WKHTMLTOPDF_AMD64_CHECKSUM='98ba0d157b50d36f23bd0dedf4c0aa28c7b0c50fcdcdc54aa5b6bbba81a3941d'
 ARG WKHTMLTOPDF_ARM64_CHECKSUM='b6606157b27c13e044d0abbe670301f88de4e1782afca4f9c06a5817f3e03a9c'
 ARG GEOIP_UPDATER_VERSION=6.0.0
+ARG GEOIP_AMD64_CHECKSUM='ccbd3f99618c8b8858a284a122e93c1c287a00cada3f818921b47cf9a43403fb'
+ARG GEOIP_ARM64_CHECKSUM='a2f985db417e9f13288725710e63280a0331536510b01e6b94f8b852fba8c2b3'
 ARG ODOO_VERSION=19.0
 ARG UID=1000
 ARG GID=1000
@@ -216,11 +218,20 @@ RUN --mount=type=cache,target=/tmp/downloads,sharing=locked \
     fi; \
     apt-get install -y --no-install-recommends "$WKHTMLTOPDF_DEB"; \
     # geoipupdate
-    GEOIP_DEB="/tmp/downloads/geoipupdate_${GEOIP_UPDATER_VERSION}_${TARGETARCH}.deb"; \
-    if [ ! -f "$GEOIP_DEB" ] || ! dpkg --info "$GEOIP_DEB" >/dev/null 2>&1; then \
+    if [ "$TARGETARCH" = "arm64" ]; then \
+        GEOIP_CHECKSUM=$GEOIP_ARM64_CHECKSUM; \
+    elif [ "$TARGETARCH" = "amd64" ]; then \
+        GEOIP_CHECKSUM=$GEOIP_AMD64_CHECKSUM; \
+    else \
+        echo "Unsupported architecture: $TARGETARCH" >&2; \
+        exit 1; \
+    fi; \
+    GEOIP_DEB="/tmp/downloads/geoipupdate_${GEOIP_UPDATER_VERSION}_linux_${TARGETARCH}.deb"; \
+    if [ ! -f "$GEOIP_DEB" ] || ! echo "${GEOIP_CHECKSUM} ${GEOIP_DEB}" | sha256sum -c - >/dev/null 2>&1; then \
         rm -f "$GEOIP_DEB"; \
         curl -sSL -o "$GEOIP_DEB" \
             "https://github.com/maxmind/geoipupdate/releases/download/v${GEOIP_UPDATER_VERSION}/geoipupdate_${GEOIP_UPDATER_VERSION}_linux_${TARGETARCH}.deb"; \
+        echo "${GEOIP_CHECKSUM} ${GEOIP_DEB}" | sha256sum -c -; \
     fi; \
     dpkg -i "$GEOIP_DEB"
 
