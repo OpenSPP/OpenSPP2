@@ -77,65 +77,72 @@ set of records.
 
 ## Demo Programs
 
-### 1. Input Subsidy Program
+### 1. Universal Child Grant
 
-| Attribute          | Value                                     |
-| ------------------ | ----------------------------------------- |
-| **Target Type**    | Households (Groups)                       |
-| **Entitlement**    | $200 per cycle                            |
-| **Cycle Duration** | 30 days                                   |
-| **Stories**        | Maria Santos, Ana Mendoza, Luis Fernandez |
-
-**Use Cases:**
-
-- Agricultural support programs
-- Seasonal subsidy disbursements
-- Farmer registration workflows
-- Graduation pathways (Maria Santos graduated after 3 payments)
-
-**Features Demonstrated:**
-
-- Group-based targeting
-- Multi-cycle payments
-- Program graduation
-- In-kind and cash entitlements
-
----
-
-### 2. Cash Transfer Program
-
-| Attribute          | Value                      |
-| ------------------ | -------------------------- |
-| **Target Type**    | Households (Groups)        |
-| **Entitlement**    | $150 per cycle             |
-| **Cycle Duration** | 30 days                    |
-| **Stories**        | Juan Dela Cruz, Ahmed Said |
+| Attribute          | Value                                                      |
+| ------------------ | ---------------------------------------------------------- |
+| **Program ID**     | `universal_child_grant`                                    |
+| **Target Type**    | Households (Groups)                                        |
+| **Entitlement**    | `base_child_grant * child_count` (default $150)            |
+| **Cycle Duration** | 30 days                                                    |
+| **CEL Expression** | `r.is_group == true and child_count > 0`                   |
+| **Logic Pack**     | `child_benefit`                                            |
+| **Stories**        | Carlos & Elena Morales                                     |
 
 **Use Cases:**
 
-- Regular cash assistance
-- Payment failure and recovery workflows
-- GRM integration for payment issues
-- Bank transfer delivery mechanisms
+- Child-focused social protection
+- Household composition analysis
+- Dynamic entitlement calculation (per-child amount)
+- Monthly disbursement schedules
 
 **Features Demonstrated:**
 
-- Payment processing
-- Failed payment handling (Juan Dela Cruz story)
-- Payment reconciliation
-- GRM ticket creation
+- Household-based targeting
+- Child-dependent eligibility via `child_count` variable
+- Per-child entitlement formula using `base_child_grant` constant
+- Logic Pack: child_benefit
 
 ---
 
-### 3. Elderly Pension
+### 2. Conditional Child Grant
 
-| Attribute          | Value          |
-| ------------------ | -------------- |
-| **Target Type**    | Individuals    |
-| **Entitlement**    | $100 per cycle |
-| **Cycle Duration** | 30 days        |
-| **Eligibility**    | Age 65+        |
-| **Stories**        | Rosa Garcia    |
+| Attribute          | Value                                                                        |
+| ------------------ | ---------------------------------------------------------------------------- |
+| **Program ID**     | `conditional_child_grant`                                                    |
+| **Target Type**    | Households (Groups)                                                          |
+| **Entitlement**    | `first_1000_days_grant` ($10/month)                                          |
+| **Cycle Duration** | 30 days                                                                      |
+| **CEL Expression** | `r.is_group == true and members.exists(m, age_years(m.birthdate) < 2)`       |
+| **Logic Pack**     | `child_benefit`                                                              |
+| **Stories**        | (no named persona — volume data only)                                        |
+
+**Use Cases:**
+
+- First 1,000 days targeting (children aged 0-2)
+- Conditional cash transfers with compliance requirements
+- Health visit and immunization tracking
+
+**Features Demonstrated:**
+
+- `members.exists()` CEL pattern for member-level eligibility
+- Compliance manager with CEL expression
+- Conditional benefit with health checkup requirements
+- Logic Pack: child_benefit
+
+---
+
+### 3. Elderly Social Pension
+
+| Attribute          | Value                                                |
+| ------------------ | ---------------------------------------------------- |
+| **Program ID**     | `elderly_social_pension`                             |
+| **Target Type**    | Individuals                                          |
+| **Entitlement**    | `elderly_pension_amount` ($100/cycle)                |
+| **Cycle Duration** | 30 days                                              |
+| **CEL Expression** | `r.is_group == false and age >= retirement_age`      |
+| **Logic Pack**     | `social_pension`                                     |
+| **Stories**        | Rosa Garcia                                          |
 
 **Use Cases:**
 
@@ -147,112 +154,126 @@ set of records.
 **Features Demonstrated:**
 
 - Individual-level programs
-- Age-based eligibility criteria
+- Age-based eligibility using `age` computed variable
+- Uses `retirement_age` constant (65)
 - Multi-program enrollment (Rosa is also in Food Assistance)
-- Monthly payment schedules
+- Logic Pack: social_pension
 
 ---
 
-### 4. Food Assistance
+### 4. Emergency Relief Fund
 
-| Attribute            | Value                         |
-| -------------------- | ----------------------------- |
-| **Target Type**      | Individuals                   |
-| **Entitlement Type** | In-kind (Food Basket)         |
-| **Cycle Duration**   | 30 days                       |
-| **Stories**          | Rosa Garcia, Fatima Al-Rahman |
-
-**Use Cases:**
-
-- In-kind entitlement distribution
-- Food security programs
-- Warehouse/inventory management
-- Distribution point tracking
-
-**Features Demonstrated:**
-
-- In-kind entitlements (non-cash)
-- Item-based distribution
-- Multi-program beneficiaries
-- GRM-to-enrollment pathway (Fatima)
-
----
-
-### 5. Livestock Improvement Program
-
-| Attribute            | Value                           |
-| -------------------- | ------------------------------- |
-| **Target Type**      | Households (Groups)             |
-| **Entitlement Type** | In-kind (Improved Breed Cattle) |
-| **Cycle Duration**   | 90 days (Quarterly)             |
-| **Stories**          | Pedro Reyes                     |
-
-**Use Cases:**
-
-- Agricultural development programs
-- High-value in-kind asset distribution
-- Cooperative/group leader support
-- Extension service integration
-
-**Features Demonstrated:**
-
-- Long cycle duration (quarterly)
-- High-value in-kind entitlements
-- Cooperative leadership identification
-- Farmer registry integration
-
----
-
-### 6. Child Support Grant
-
-| Attribute          | Value                    |
-| ------------------ | ------------------------ |
-| **Target Type**    | Households (Groups)      |
-| **Entitlement**    | $300 per cycle           |
-| **Cycle Duration** | 90 days (Quarterly)      |
-| **Eligibility**    | Households with children |
-| **Stories**        | Carlos & Elena Morales   |
-
-**Use Cases:**
-
-- Child-focused social protection
-- Household composition analysis
-- Quarterly disbursement schedules
-- Family support programs
-
-**Features Demonstrated:**
-
-- Household-based targeting
-- Child-dependent eligibility
-- Quarterly payment cycles
-- Higher payment amounts
-
----
-
-### 7. Emergency Cash Transfer
-
-| Attribute          | Value                |
-| ------------------ | -------------------- |
-| **Target Type**    | Households (Groups)  |
-| **Entitlement**    | $500 per cycle       |
-| **Cycle Duration** | 15 days (Fast-track) |
-| **Priority**       | High                 |
-| **Stories**        | Ibrahim Hassan       |
+| Attribute          | Value                                                                                          |
+| ------------------ | ---------------------------------------------------------------------------------------------- |
+| **Program ID**     | `emergency_relief_fund`                                                                        |
+| **Target Type**    | Households (Groups)                                                                            |
+| **Entitlement**    | Tiered: $500 (score >= 90), $400 (score >= 80), $300 (score >= 70)                             |
+| **Cycle Duration** | 15 days (fast-track)                                                                           |
+| **Priority**       | High                                                                                           |
+| **CEL Expression** | `r.is_group == true and (dependency_ratio >= 1.5 or (is_female_headed and elderly_count > 0))` |
+| **Logic Pack**     | `vulnerability_assessment`                                                                     |
+| **Stories**        | Ramon Gutierrez                                                                                 |
 
 **Use Cases:**
 
 - Emergency response programs
 - Displacement support
 - Rapid enrollment workflows
-- Crisis response
+- Vulnerability-based targeting
 
 **Features Demonstrated:**
 
-- Fast-track enrollment
-- Short cycle duration
-- Higher payment amounts
+- Fast-track enrollment with 15-day cycles
+- Tiered benefit amounts using `emergency_tier_1/2/3` constants
+- Compound CEL conditions with `dependency_ratio`, `is_female_headed`, `elderly_count`
 - Emergency prioritization
-- Displacement tracking
+- Logic Pack: vulnerability_assessment
+
+---
+
+### 5. Cash Transfer Program
+
+| Attribute          | Value                                                                       |
+| ------------------ | --------------------------------------------------------------------------- |
+| **Program ID**     | `cash_transfer_program`                                                     |
+| **Target Type**    | Households (Groups)                                                         |
+| **Entitlement**    | `cash_transfer_amount` ($150/cycle)                                         |
+| **Cycle Duration** | 30 days                                                                     |
+| **CEL Expression** | `r.is_group == true and hh_total_income < poverty_line and hh_size >= 2`    |
+| **Logic Pack**     | `cash_transfer_basic`                                                       |
+| **Stories**        | Maria Santos, Juan Dela Cruz, Roberto Castillo                                    |
+
+**Use Cases:**
+
+- Regular cash assistance
+- Income-based eligibility with poverty line threshold
+- Payment failure and recovery workflows
+- GRM integration for payment issues
+- Graduation pathways (Maria Santos)
+
+**Features Demonstrated:**
+
+- Income-based targeting using `hh_total_income` and `poverty_line`
+- Household size requirement via `hh_size` variable
+- Payment processing and failed payment handling
+- GRM ticket creation for payment issues
+- Program graduation (Maria Santos graduated after 3 payments)
+- Logic Pack: cash_transfer_basic
+
+---
+
+### 6. Disability Support Grant
+
+| Attribute          | Value                                                                 |
+| ------------------ | --------------------------------------------------------------------- |
+| **Program ID**     | `disability_support_grant`                                            |
+| **Target Type**    | Households (Groups)                                                   |
+| **Entitlement**    | `disability_grant_base + (disabled_count * disability_grant_per_member)` ($175 default) |
+| **Cycle Duration** | 30 days                                                               |
+| **CEL Expression** | `r.is_group == true and has_disabled_member`                          |
+| **Logic Pack**     | `disability_assistance`                                               |
+| **Stories**        | David Martinez                                                        |
+
+**Use Cases:**
+
+- Disability-focused social protection
+- Per-member benefit calculation
+- Household composition with disability status
+
+**Features Demonstrated:**
+
+- `has_disabled_member` boolean variable for eligibility
+- `disabled_count` aggregate for entitlement calculation
+- Base amount plus per-member bonus formula
+- Logic Pack: disability_assistance
+
+---
+
+### 7. Food Assistance
+
+| Attribute            | Value                                          |
+| -------------------- | ---------------------------------------------- |
+| **Program ID**       | `food_assistance`                              |
+| **Target Type**      | Individuals                                    |
+| **Entitlement Type** | In-kind (Food Basket)                          |
+| **Cycle Duration**   | 30 days                                        |
+| **CEL Expression**   | `r.is_registrant == true and r.active == true` |
+| **Logic Pack**       | None (simple inline CEL)                       |
+| **Stories**          | Rosa Garcia, Teresa Villanueva                  |
+
+**Use Cases:**
+
+- In-kind entitlement distribution
+- Food security programs
+- Simple eligibility (no Logic Pack needed)
+- GRM-to-enrollment pathway (Fatima)
+
+**Features Demonstrated:**
+
+- In-kind entitlements (non-cash)
+- Simple CEL expression without Logic Pack
+- Multi-program beneficiaries (Rosa also in Elderly Pension)
+- GRM information request converted to enrollment (Fatima)
 
 ---
 
@@ -262,14 +283,13 @@ set of records.
 
 **Profile:**
 
-- 45-year-old smallholder farmer
-- Household of 5 members
-- 2 hectares of farmland
+- 42-year-old woman, head of household
+- Household of 5 members (Maria, husband Ricardo, 2 children, elderly parent)
 
 **Journey:**
 
-1. Enrolled in Input Subsidy Program 150 days ago
-2. Received 3 monthly payments of $200 each
+1. Enrolled in Cash Transfer Program 150 days ago
+2. Received 3 monthly payments of $150 each
 3. Graduated from program 30 days ago
 
 **Demo Points:**
@@ -285,8 +305,8 @@ set of records.
 
 **Profile:**
 
-- 38-year-old day laborer
-- Household of 4 members
+- 38-year-old man, head of household
+- Household of 4 members (Juan, wife Ana, 2 children)
 - Bank account holder
 
 **Journey:**
@@ -316,7 +336,7 @@ set of records.
 
 **Journey:**
 
-1. Enrolled in Elderly Pension 180 days ago
+1. Enrolled in Elderly Social Pension 180 days ago
 2. Received 4 monthly pension payments ($100 each)
 3. Also enrolled in Food Assistance 175 days ago
 4. Receives monthly food baskets
@@ -330,52 +350,6 @@ set of records.
 
 ---
 
-### Pedro Reyes - Cooperative Leader
-
-**Profile:**
-
-- 55-year-old cattle farmer
-- Head of farming household
-- Local cooperative leader
-
-**Journey:**
-
-1. Enrolled in Livestock Improvement Program 300 days ago
-2. Received 2 improved breed cattle 150 days ago
-3. Active in extension services
-
-**Demo Points:**
-
-- In-kind asset distribution
-- Cooperative engagement
-- Extension service integration
-- Long-term program tracking
-
----
-
-### Ana Mendoza - Modern Farmer
-
-**Profile:**
-
-- 28-year-old young farmer
-- Tech-savvy, uses mobile app
-- Recent program enrollee
-
-**Journey:**
-
-1. Enrolled in Input Subsidy Program 70 days ago
-2. Received inputs package 45 days ago
-3. Active program participant
-
-**Demo Points:**
-
-- Digital registration
-- GPS field mapping
-- Recent enrollment workflow
-- Young farmer demographics
-
----
-
 ### Carlos & Elena Morales - Family Unit
 
 **Profile:**
@@ -386,43 +360,65 @@ set of records.
 
 **Journey:**
 
-1. Enrolled in Child Support Grant 140 days ago
-2. Received 2 quarterly payments ($300 each)
+1. Enrolled in Universal Child Grant 140 days ago
+2. Received 4 monthly payments ($150 each)
 3. Children attending school
 
 **Demo Points:**
 
 - Household composition
 - Child-focused programs
-- Quarterly payment schedule
+- Monthly payment schedule using `base_child_grant * child_count`
 - Education linkage
 
 ---
 
-### Ibrahim Hassan - Emergency Beneficiary
+### Ramon Gutierrez - Emergency Beneficiary
 
 **Profile:**
 
-- 42-year-old displaced farmer
-- Recently relocated due to conflict
-- High vulnerability, urgent need
+- 50-year-old displaced man, head of household
+- Household of 7 members (Ramon, wife Elena, 5 children)
+- Recently relocated, high vulnerability, urgent need
 
 **Journey:**
 
-1. Fast-track enrolled in Emergency Cash Transfer 55 days ago
-2. Received 2 emergency payments ($500 each)
-3. Rapid assessment completed
+1. Fast-track enrolled in Emergency Relief Fund 55 days ago
+2. Received 2 emergency payments ($400 each, Tier 2)
+3. Rapid vulnerability assessment completed
 
 **Demo Points:**
 
 - Emergency enrollment
-- Fast-track processing
-- High-value payments
+- Fast-track processing (15-day cycles)
+- Tiered benefit amounts
 - Displacement tracking
 
 ---
 
-### Fatima Al-Rahman - Information Seeker
+### David Martinez - Disability Support
+
+**Profile:**
+
+- Household with disabled member(s)
+- Enrolled via disability-based eligibility
+
+**Journey:**
+
+1. Enrolled in Disability Support Grant 100 days ago
+2. Received 3 monthly payments ($175 each: base $100 + 1 member x $75)
+3. Active program participant
+
+**Demo Points:**
+
+- Disability-focused program
+- Per-member benefit calculation
+- `has_disabled_member` eligibility check
+- `disabled_count` aggregate for entitlement
+
+---
+
+### Teresa Villanueva - Information Seeker
 
 **Profile:**
 
@@ -442,6 +438,20 @@ set of records.
 - Information request handling
 - Proactive outreach
 - Service quality
+
+---
+
+### Roberto Castillo - Background Story
+
+**Profile:**
+
+- Cash Transfer beneficiary
+- Multi-ticket GRM integration
+
+**Journey:**
+
+1. Enrolled in Cash Transfer Program 180 days ago
+2. Background story for GRM multi-ticket scenarios
 
 ---
 
@@ -466,12 +476,12 @@ auditable business rules for eligibility, entitlements, and scoring.
 
 #### PMT Eligibility (`PMT_ELIGIBLE`)
 
-| Attribute         | Value                              |
-| ----------------- | ---------------------------------- |
-| **Type**          | Boolean                            |
-| **Profile**       | Registry Groups                    |
-| **Used By**       | Cash Transfer, Child Support Grant |
-| **Test Coverage** | 4 test cases                       |
+| Attribute         | Value                                     |
+| ----------------- | ----------------------------------------- |
+| **Type**          | Boolean                                   |
+| **Profile**       | Registry Groups                           |
+| **Used By**       | Cash Transfer, Universal Child Grant      |
+| **Test Coverage** | 4 test cases                              |
 
 **Expression (v1.0):**
 
@@ -480,9 +490,9 @@ household.pmt_score < 45.0 && household.member_count > 0
 ```
 
 **Test Cases:** | Persona | PMT Score | Expected | Result |
-|---------|-----------|----------|--------| | Maria Santos | 38 | `true` | ✓ Eligible |
-| Rosa Garcia | 42 | `true` | ✓ Eligible | | Carlos Morales | 48 | `false` | ✗ Not
-eligible | | Ibrahim Hassan | 35 | `true` | ✓ Eligible |
+|---------|-----------|----------|--------| | Maria Santos | 38 | `true` | Eligible |
+| Rosa Garcia | 42 | `true` | Eligible | | Carlos Morales | 48 | `false` | Not
+eligible | | Ramon Gutierrez | 35 | `true` | Eligible |
 
 ---
 
@@ -492,7 +502,7 @@ eligible | | Ibrahim Hassan | 35 | `true` | ✓ Eligible |
 | ----------------- | -------------------- |
 | **Type**          | Boolean              |
 | **Profile**       | Registry Individuals |
-| **Used By**       | Elderly Pension      |
+| **Used By**       | Elderly Social Pension |
 | **Test Coverage** | 3 test cases         |
 
 **Expression:**
@@ -502,8 +512,8 @@ individual.age >= 65 && !individual.receives_other_pension
 ```
 
 **Test Cases:** | Persona | Age | Other Pension | Expected |
-|---------|-----|---------------|----------| | Rosa Garcia | 72 | No | `true` ✓ | |
-Maria Santos | 45 | No | `false` ✗ | | Pedro Reyes | 55 | No | `false` ✗ |
+|---------|-----|---------------|----------| | Rosa Garcia | 72 | No | `true` | |
+Maria Santos | 45 | No | `false` | | Pedro Reyes | 55 | No | `false` |
 
 ---
 
@@ -513,7 +523,7 @@ Maria Santos | 45 | No | `false` ✗ | | Pedro Reyes | 55 | No | `false` ✗ |
 | ----------- | --------------------- |
 | **Type**    | Numeric               |
 | **Profile** | Registry Groups       |
-| **Used By** | Child Support Grant   |
+| **Used By** | Universal Child Grant |
 | **Return**  | Benefit amount in USD |
 
 **Expression:**
@@ -548,19 +558,19 @@ min(40, (100 - household.pmt_score) * 0.5)
 
 **Test Cases:** | Persona | Female-Headed | Disabled | Dep. Ratio | PMT | Score |
 |---------|---------------|----------|------------|-----|-------| | Rosa Garcia | No |
-No | 0.0 | 42 | 29 | | Maria Santos | Yes | No | 0.4 | 38 | 51 | | Ibrahim Hassan | No |
+No | 0.0 | 42 | 29 | | Maria Santos | Yes | No | 0.4 | 38 | 51 | | Ramon Gutierrez | No |
 Yes | 0.6 | 35 | 72 |
 
 ---
 
 #### Emergency Priority (`EMERGENCY_PRIORITY`)
 
-| Attribute   | Value                   |
-| ----------- | ----------------------- |
-| **Type**    | Numeric                 |
-| **Profile** | Registry Groups         |
-| **Used By** | Emergency Cash Transfer |
-| **Return**  | Priority score 0-100    |
+| Attribute   | Value                |
+| ----------- | -------------------- |
+| **Type**    | Numeric              |
+| **Profile** | Registry Groups      |
+| **Used By** | Emergency Relief Fund |
+| **Return**  | Priority score 0-100 |
 
 **Expression:**
 
@@ -644,12 +654,12 @@ from 45 to 50.
 
 ### Formula Integration Points
 
-| Integration         | Description                       | Demo Location                  |
-| ------------------- | --------------------------------- | ------------------------------ |
-| Program Eligibility | Formulas determine who qualifies  | Cash Transfer, Elderly Pension |
-| Benefit Calculation | Formulas compute amounts          | Child Support Grant            |
-| Targeting Score     | Formulas prioritize beneficiaries | Emergency Cash Transfer        |
-| MIS Indicators      | Formulas referenced in metrics    | Dashboard indicators           |
+| Integration         | Description                       | Demo Location                        |
+| ------------------- | --------------------------------- | ------------------------------------ |
+| Program Eligibility | Formulas determine who qualifies  | Cash Transfer, Elderly Social Pension |
+| Benefit Calculation | Formulas compute amounts          | Universal Child Grant                |
+| Targeting Score     | Formulas prioritize beneficiaries | Emergency Relief Fund                |
+| MIS Indicators      | Formulas referenced in metrics    | Dashboard indicators                 |
 
 ---
 
@@ -678,8 +688,8 @@ from 45 to 50.
 **Administrator Training:**
 
 - Use all 7 programs to explain different configurations
-- Demonstrate cycle management with different durations
-- Show entitlement manager configuration
+- Demonstrate cycle management with different durations (15-day, 30-day)
+- Show entitlement manager configuration (cash vs in-kind)
 
 **Operator Training:**
 
@@ -690,7 +700,7 @@ from 45 to 50.
 **GRM Training:**
 
 - Use Juan Dela Cruz story for payment issues
-- Use Fatima Al-Rahman for information requests
+- Use Teresa Villanueva for information requests
 - Practice ticket creation and resolution
 
 ### For Testing
@@ -718,9 +728,9 @@ from 45 to 50.
 **Steps:**
 
 1. Open Maria Santos profile
-2. Show enrollment date (150 days ago)
-3. Navigate to payment history (3 payments)
-4. Show graduation date and exit status
+2. Show enrollment in Cash Transfer Program (150 days ago)
+3. Navigate to payment history (3 payments of $150)
+4. Show graduation date and exit status (graduated 30 days ago)
 5. Demonstrate reporting on graduated beneficiaries
 
 **Key Messages:**
@@ -758,8 +768,8 @@ from 45 to 50.
 **Steps:**
 
 1. Open Rosa Garcia profile
-2. Show Elderly Pension enrollment and payments
-3. Show Food Assistance enrollment
+2. Show Elderly Social Pension enrollment and payments ($100 x 4)
+3. Show Food Assistance enrollment (in-kind food baskets)
 4. Demonstrate consolidated beneficiary view
 
 **Key Messages:**
@@ -776,16 +786,36 @@ from 45 to 50.
 
 **Steps:**
 
-1. Open Ibrahim Hassan profile
-2. Show fast enrollment date
-3. Display rapid payment schedule (15-day cycles)
-4. Show emergency priority flags
+1. Open Ramon Gutierrez profile
+2. Show fast enrollment date (55 days ago)
+3. Display rapid payment schedule (15-day cycles, $400 tiered payments)
+4. Show emergency priority flags and vulnerability assessment
 
 **Key Messages:**
 
 - Fast-track enrollment capability
 - Emergency response readiness
+- Tiered benefit amounts based on vulnerability
 - Priority handling
+
+---
+
+### Scenario 5: Disability Support
+
+**Objective:** Demonstrate disability-focused targeting and per-member benefits
+
+**Steps:**
+
+1. Open David Martinez household profile
+2. Show Disability Support Grant enrollment (100 days ago)
+3. Display payment history (3 payments of $175: base $100 + 1 member x $75)
+4. Show `has_disabled_member` and `disabled_count` variables in action
+
+**Key Messages:**
+
+- Disability-focused eligibility
+- Dynamic entitlement based on household composition
+- Per-member benefit calculation
 
 ---
 
@@ -793,37 +823,40 @@ from 45 to 50.
 
 ### Program Configuration
 
-| Feature              | Demo Program            | Story          |
-| -------------------- | ----------------------- | -------------- |
-| Cash entitlements    | Cash Transfer           | Juan Dela Cruz |
-| In-kind entitlements | Food Assistance         | Rosa Garcia    |
-| Quarterly cycles     | Child Support Grant     | Carlos Morales |
-| Fast-track cycles    | Emergency Cash Transfer | Ibrahim Hassan |
-| Group targeting      | Input Subsidy           | Maria Santos   |
-| Individual targeting | Elderly Pension         | Rosa Garcia    |
+| Feature                     | Demo Program           | Story            |
+| --------------------------- | ---------------------- | ---------------- |
+| Cash entitlements           | Cash Transfer          | Juan Dela Cruz   |
+| In-kind entitlements        | Food Assistance        | Rosa Garcia      |
+| Per-child calculation       | Universal Child Grant  | Carlos Morales   |
+| Fast-track cycles (15-day)  | Emergency Relief Fund  | Ramon Gutierrez   |
+| Tiered benefit amounts      | Emergency Relief Fund  | Ramon Gutierrez   |
+| Group targeting             | Cash Transfer          | Maria Santos     |
+| Individual targeting        | Elderly Social Pension | Rosa Garcia      |
+| Disability targeting        | Disability Support Grant | David Martinez |
+| Conditional compliance      | Conditional Child Grant | (volume data)   |
 
 ### Workflow Features
 
-| Feature                 | Demo Program           | Story            |
-| ----------------------- | ---------------------- | ---------------- |
-| Program graduation      | Input Subsidy          | Maria Santos     |
-| Payment failure         | Cash Transfer          | Juan Dela Cruz   |
-| GRM integration         | Cash Transfer          | Juan Dela Cruz   |
-| Multi-program           | Elderly Pension + Food | Rosa Garcia      |
-| Pending application     | Input Subsidy          | Luis Fernandez   |
-| Rejected application    | Elderly Pension        | Mary Johnson     |
-| GRM payment issue       | Cash Transfer          | Juan Dela Cruz   |
-| GRM information request | Food Assistance        | Fatima Al-Rahman |
+| Feature                 | Demo Program             | Story            |
+| ----------------------- | ------------------------ | ---------------- |
+| Program graduation      | Cash Transfer            | Maria Santos     |
+| Payment failure         | Cash Transfer            | Juan Dela Cruz   |
+| GRM integration         | Cash Transfer            | Juan Dela Cruz   |
+| Multi-program           | Elderly Pension + Food   | Rosa Garcia      |
+| Rejected application    | Elderly Social Pension   | Lorna Pascual     |
+| GRM payment issue       | Cash Transfer            | Juan Dela Cruz   |
+| GRM information request | Food Assistance          | Teresa Villanueva |
+| Disability support      | Disability Support Grant | David Martinez   |
 
 ### Reporting Features
 
-| Report                   | Data Source             |
+| Report                   | Data Source              |
 | ------------------------ | ----------------------- |
-| Enrollment statistics    | All programs            |
-| Payment summaries        | Cash programs           |
-| Program completion       | Maria Santos graduation |
-| Failed payments          | Juan Dela Cruz          |
-| Beneficiary demographics | Volume data             |
+| Enrollment statistics    | All programs             |
+| Payment summaries        | Cash programs            |
+| Program completion       | Maria Santos graduation  |
+| Failed payments          | Juan Dela Cruz           |
+| Beneficiary demographics | Volume data              |
 
 ---
 
@@ -834,22 +867,22 @@ system.
 
 ### Event Types
 
-| Event Type               | Code                       | Purpose                                      |
-| ------------------------ | -------------------------- | -------------------------------------------- |
-| Training Session         | `training`                 | Agricultural and financial literacy training |
-| Extension Visit          | `extension_visit`          | Field visits by extension officers           |
-| Verification Visit       | `verification`             | Eligibility verification                     |
-| Vulnerability Assessment | `vulnerability_assessment` | Needs assessment for targeting               |
+| Event Type               | Code                       | Purpose                                |
+| ------------------------ | -------------------------- | -------------------------------------- |
+| Training Session         | `training`                 | Training sessions                      |
+| Extension Visit          | `extension_visit`          | Field visits by extension officers     |
+| Verification Visit       | `verification`             | Eligibility verification               |
+| Vulnerability Assessment | `vulnerability_assessment` | Needs assessment for targeting         |
 
 ### Story Events
 
 | Story          | Event                    | Days Back | Details                              |
 | -------------- | ------------------------ | --------- | ------------------------------------ |
-| Maria Santos   | Training                 | 145       | Agricultural Best Practices training |
-| Pedro Reyes    | Extension Visit          | 250       | Initial farm assessment              |
+| Maria Santos   | Training                 | 145       | Financial Literacy and Livelihood Skills |
+| Pedro Reyes    | Extension Visit          | 250       | Initial assessment                   |
 | Pedro Reyes    | Extension Visit          | 200       | Follow-up visit                      |
 | Rosa Garcia    | Vulnerability Assessment | 195       | Score: High - elderly, lives alone   |
-| Ibrahim Hassan | Vulnerability Assessment | 58        | Score: Very High - displaced family  |
+| Ramon Gutierrez | Vulnerability Assessment | 58        | Score: Very High - displaced family  |
 | Ana Mendoza    | Verification             | 75        | Eligibility check - approved         |
 
 ### Demo Scenario: Event-Driven Eligibility
@@ -858,10 +891,10 @@ system.
 
 **Steps:**
 
-1. Open Ibrahim Hassan profile
+1. Open Ramon Gutierrez profile
 2. Navigate to Events tab
 3. Show vulnerability assessment with "very_high" score
-4. Navigate to Emergency Cash Transfer enrollment
+4. Navigate to Emergency Relief Fund enrollment
 5. Highlight quick enrollment (3 days after assessment)
 
 **Key Messages:**
@@ -874,15 +907,38 @@ system.
 
 ## Change Requests
 
-The MIS Demo generates change request records at various workflow stages.
+The MIS Demo generates change request records at various workflow stages, demonstrating
+access control with separation of duties (officer creates, supervisor submits/validates,
+manager approves/applies).
 
 ### Story Change Requests
 
-| Story          | Request Type | State   | Description                             |
-| -------------- | ------------ | ------- | --------------------------------------- |
-| Ana Mendoza    | Info Update  | Applied | Phone number changed                    |
-| Rosa Garcia    | Info Update  | Pending | Address change - moved to care facility |
-| Carlos Morales | Info Update  | Draft   | Household size change - new baby        |
+| Story                  | Request Type      | State    | Description                                      |
+| ---------------------- | ----------------- | -------- | ------------------------------------------------ |
+| Maria Santos           | Edit Individual   | Approved | Phone/address update after moving                |
+| Maria Santos (CR1)     | Edit Individual   | Pending  | Phone update (conflicts with CR2)                |
+| Maria Santos (CR2)     | Edit Individual   | Pending  | Address update (conflicts with CR1)              |
+| Rosario Aquino            | Edit Group        | Draft    | Draft CR for UI workflow demo                    |
+| Juan Dela Cruz         | Update ID         | Approved | Correct national ID number                       |
+| Rosa Garcia            | Exit Registrant   | Applied  | Graduated from assistance program (3-tier)       |
+| Carlos Morales         | Add Member        | Approved | Add newborn to household                         |
+| Carlos Morales         | Remove Member     | Pending  | Adult child moving out for university            |
+| Bautista Large Family      | Transfer Member   | Pending  | Transfer child to elderly relatives              |
+| Navarro Extended Family | Change HoH        | Approved | Set Lourdes Navarro as new head of household        |
+| Maricel Ramos          | Create Group      | Draft    | Register new household after marriage            |
+| Bautista Large Family      | Split Household   | Rejected | Incomplete documentation for property division   |
+| Luis Fernandez         | Merge Registrants | Revision | Merge duplicate registrations from data quality  |
+
+### Change Request States
+
+| State     | Meaning                     | Demo Example              |
+| --------- | --------------------------- | ------------------------- |
+| Draft     | Initial submission          | Rosario Aquino, Maricel Ramos |
+| Pending   | Awaiting validation         | Maria Santos CR1/CR2, Bautista transfer, Carlos remove |
+| Approved  | Approved, ready to apply    | Juan Dela Cruz, Carlos add, Navarro HoH |
+| Applied   | Changes committed           | Rosa Garcia               |
+| Rejected  | Denied with reason          | Bautista split                |
+| Revision  | Sent back for corrections   | Luis Fernandez merge      |
 
 ### Demo Scenario: Change Request Workflow
 
@@ -891,27 +947,20 @@ The MIS Demo generates change request records at various workflow stages.
 **Steps:**
 
 1. Navigate to Change Requests list
-2. Show draft CR (Carlos Morales - household update)
-3. Show pending CR (Rosa Garcia - address change)
-4. Show applied CR (Ana Mendoza - phone update)
-5. Open Ana's profile to show updated phone number
+2. Show draft CR (Rosario Aquino - group edit)
+3. Show pending CR (Maria Santos - conflict detection with 2 pending CRs)
+4. Show approved CR (Carlos Morales - add newborn)
+5. Show applied CR (Rosa Garcia - program exit)
+6. Show rejected CR (Bautista - household split with rejection reason)
+7. Show revision CR (Luis Fernandez - merge sent back for corrections)
 
 **Key Messages:**
 
 - Structured process for data changes
-- Multi-stage approval workflow
+- Multi-stage approval workflow with role-based access
+- Conflict detection for overlapping changes
 - Complete audit trail
 - Data integrity protection
-
-### Change Request States
-
-| State     | Meaning                  | Demo Example   |
-| --------- | ------------------------ | -------------- |
-| Draft     | Initial submission       | Carlos Morales |
-| Pending   | Awaiting validation      | Rosa Garcia    |
-| Validated | Approved, ready to apply | N/A            |
-| Applied   | Changes committed        | Ana Mendoza    |
-| Rejected  | Denied with reason       | N/A            |
 
 ---
 
@@ -933,8 +982,8 @@ journeys:
 | Story            | GRM Ticket           | Links To                   |
 | ---------------- | -------------------- | -------------------------- |
 | Juan Dela Cruz   | Payment not received | Cash Transfer Program      |
-| Fatima Al-Rahman | Program inquiry      | Food Assistance enrollment |
-| Ibrahim Hassan   | Resettlement support | Emergency program          |
-| Ahmed Said       | Multiple tickets     | Cash Transfer Program      |
+| Teresa Villanueva | Program inquiry      | Food Assistance enrollment |
+| Ramon Gutierrez   | Resettlement support | Emergency Relief Fund      |
+| Roberto Castillo       | Multiple tickets     | Cash Transfer Program      |
 
 See `spp_grm_demo/README.md` for full GRM demo documentation.

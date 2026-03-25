@@ -428,13 +428,13 @@ class TestDemoPrograms(TransactionCase):
         Each story persona should be enrolled in programs that match their:
         - Demographics (age, household composition)
         - Circumstances (income, disability status, vulnerability)
-        - Story narrative (farmer, elderly, displaced, etc.)
+        - Story narrative (elderly, displaced, disability, etc.)
         """
         from odoo.addons.spp_mis_demo_v2.models import demo_programs
 
         # Expected story-to-program mappings based on V3 spec
         expected_mappings = {
-            # Maria Santos - Farmer success story with graduation from Cash Transfer
+            # Maria Santos - Success story with graduation from Cash Transfer
             "maria_santos": ["Cash Transfer Program"],
             # Juan Dela Cruz - Cash Transfer recipient with GRM issue
             "juan_dela_cruz": ["Cash Transfer Program"],
@@ -442,13 +442,13 @@ class TestDemoPrograms(TransactionCase):
             "rosa_garcia": ["Elderly Social Pension", "Food Assistance"],
             # Carlos/Elena Morales - Household with 3 children
             "carlos_elena_morales": ["Universal Child Grant"],
-            # Ibrahim Hassan - Displaced/Vulnerable
+            # Ramon Gutierrez - Displaced/Vulnerable
             "ibrahim_hassan": ["Emergency Relief Fund"],
-            # Fatima Al-Rahman - Food Assistance recipient
+            # Teresa Villanueva - Food Assistance recipient
             "fatima_al_rahman": ["Food Assistance"],
             # David/Sofia Martinez - Household with disabled member
             "david_martinez": ["Disability Support Grant"],
-            # Ahmed Said - Background Cash Transfer
+            # Roberto Castillo - Background Cash Transfer
             "ahmed_said": ["Cash Transfer Program"],
         }
 
@@ -549,9 +549,9 @@ class TestDemoPrograms(TransactionCase):
         self.assertIn("Disability Support Grant", program_names)
 
     def test_emergency_story_eligibility(self):
-        """Test Ibrahim Hassan meets emergency eligibility criteria.
+        """Test Ramon Gutierrez meets emergency eligibility criteria.
 
-        Ibrahim should be eligible because:
+        Ramon Gutierrez should be eligible because:
         - dependency_ratio >= 1.5 (using computed variable)
         - OR is_female_headed and elderly_count > 0
         """
@@ -564,7 +564,7 @@ class TestDemoPrograms(TransactionCase):
     def test_rejected_story_documented(self):
         """Test that rejected application story is properly documented.
 
-        Mary Johnson should be rejected for age requirement not met.
+        Lorna Pascual should be rejected for age requirement not met.
         """
         from odoo.addons.spp_mis_demo_v2.models import demo_programs
 

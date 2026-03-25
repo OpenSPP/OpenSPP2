@@ -1896,9 +1896,9 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "event_type_code": "training",
                 "days_back": 145,
                 "data": {
-                    "topic": "Agricultural Best Practices",
+                    "topic": "Financial Literacy and Livelihood Skills",
                     "duration_hours": 4,
-                    "trainer": "Agricultural Extension Office",
+                    "trainer": "Social Welfare Office",
                     "location": "Community Center",
                     "outcome": "Completed successfully",
                 },
@@ -1910,8 +1910,8 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "days_back": 250,
                 "data": {
                     "visit_type": "Initial Assessment",
-                    "findings": "Large dairy farm with 15 cattle. Good infrastructure.",
-                    "recommendations": "Consider improved breed cattle for higher yield.",
+                    "findings": "Large household with multiple dependents. Good living conditions.",
+                    "recommendations": "Consider additional livelihood support programs.",
                     "officer": "Extension Officer Martinez",
                 },
             },
@@ -1920,8 +1920,8 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "days_back": 200,
                 "data": {
                     "visit_type": "Follow-up",
-                    "findings": "Farm improvements implemented. Cattle health good.",
-                    "recommendations": "Continue current practices. Eligible for livestock program.",
+                    "findings": "Household conditions improved. Dependents well cared for.",
+                    "recommendations": "Continue current practices. Monitor progress.",
                     "officer": "Extension Officer Martinez",
                 },
             },
@@ -1960,9 +1960,9 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "days_back": 75,
                 "data": {
                     "verification_type": "Eligibility Check",
-                    "verified_items": ["farm_ownership", "residence", "income_level"],
+                    "verified_items": ["identity", "residence", "income_level"],
                     "result": "Eligible",
-                    "notes": "Young farmer with modern farming practices. GPS coordinates verified.",
+                    "notes": "Young beneficiary with verified documentation. GPS coordinates verified.",
                     "verifier": "Field Officer Chen",
                 },
             },
@@ -2318,7 +2318,7 @@ class SPPMISDemoGenerator(models.TransientModel):
             "days_back": 5,
             "state": "draft",
             "description": "Keep one draft change request for UI workflow demo",
-            "registrant_name": "Amina Osman",
+            "registrant_name": "Rosario Aquino",
             "is_group": True,
             "proposed_changes": {
                 "address_line1": "123 Demo Street",
@@ -2376,10 +2376,10 @@ class SPPMISDemoGenerator(models.TransientModel):
             "type_code": "transfer_member",
             "days_back": 8,
             "state": "pending",
-            "description": "Transfer Chen Ling to elderly relatives for school",
+            "description": "Transfer Patricia Bautista to elderly relatives for school",
             "is_group": True,
             "proposed_changes": {
-                "member_name": "Chen Ling",
+                "member_name": "Patricia Bautista",
                 "target_group_story": "manuel_gloria_elderly",
                 "transfer_reason": "relocation",
             },
@@ -2389,10 +2389,10 @@ class SPPMISDemoGenerator(models.TransientModel):
             "days_back": 6,
             # Keep approved to match unit test expectations
             "state": "approved",
-            "description": "Set Linda Nguyen as new head of household (approved)",
+            "description": "Set Lourdes Navarro as new head of household (approved)",
             "is_group": True,
             "proposed_changes": {
-                "new_head_name": "Linda Nguyen",
+                "new_head_name": "Lourdes Navarro",
             },
         },
         # Phase 5.1: Add create_group CR
@@ -2401,11 +2401,11 @@ class SPPMISDemoGenerator(models.TransientModel):
             "days_back": 4,
             "state": "draft",
             "description": "Register new household after marriage",
-            "registrant_name": "Grace Okonkwo",
+            "registrant_name": "Maricel Ramos",
             "is_group": False,  # Creating from individual
             "proposed_changes": {
-                "group_name": "Okonkwo Household",
-                "head_name": "Grace Okonkwo",
+                "group_name": "Ramos Household",
+                "head_name": "Maricel Ramos",
                 "address_line1": "123 Marriage Lane",
                 "city": "New Family City",
             },
@@ -2417,17 +2417,17 @@ class SPPMISDemoGenerator(models.TransientModel):
             "days_back": 12,
             "state": "rejected",
             "description": "Split Chen household due to family separation",
-            "registrant_name": "Chen Wei",
+            "registrant_name": "Eduardo Bautista",
             "is_group": True,
             "rejection_reason": "Incomplete documentation for property division",
             "proposed_changes": {
                 "split_reason": "separation",
-                "new_group_name": "Chen Family - Unit B",
-                "members_to_transfer": ["Chen Ling", "Chen Jun"],
+                "new_group_name": "Bautista Family - Unit B",
+                "members_to_transfer": ["Patricia Bautista", "Fernando Bautista"],
             },
         },
         # Phase 5.1 & 5.2: Add merge_registrants CR (REVISION)
-        # Uses luis_fernandez (pending farmer) for realistic duplicate detection demo
+        # Uses luis_fernandez for realistic duplicate detection demo
         "luis_fernandez_merge": {
             "type_code": "merge_registrants",
             "days_back": 9,

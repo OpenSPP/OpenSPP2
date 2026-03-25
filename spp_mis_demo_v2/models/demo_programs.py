@@ -192,7 +192,7 @@ DEMO_PROGRAMS = [
         "use_logic_studio": True,
         "logic_name": "Disability Assistance Eligibility",
         "expression_type": "filter",
-        "stories": ["david_martinez"],
+        "stories": ["david_sofia_martinez"],
         "demo_points": [
             "Disability-focused program",
             "Uses has_disabled_member variable",
@@ -268,8 +268,7 @@ def get_programs_by_pack(pack_code):
 
 # Story-to-program enrollment mapping with journey details
 STORY_ENROLLMENTS = {
-    # Story 1: Maria Santos - Farmer success story with graduation
-    # Original Input Subsidy removed; using Cash Transfer to maintain cash-based journey
+    # Story 1: Maria Santos - Success story with graduation from Cash Transfer
     "maria_santos": [
         {
             "program": "Cash Transfer Program",
@@ -327,7 +326,7 @@ STORY_ENROLLMENTS = {
             ],
         }
     ],
-    # Story 7: Ibrahim Hassan - Emergency Relief
+    # Story 7: Ramon Gutierrez - Emergency Relief
     "ibrahim_hassan": [
         {
             "program": "Emergency Relief Fund",
@@ -338,7 +337,7 @@ STORY_ENROLLMENTS = {
             ],
         }
     ],
-    # Story 8: Fatima Al-Rahman - Food Assistance
+    # Story 8: Teresa Villanueva - Food Assistance
     "fatima_al_rahman": [
         {
             "program": "Food Assistance",
@@ -346,7 +345,7 @@ STORY_ENROLLMENTS = {
         }
     ],
     # Story 9: David Martinez - Disability Support Grant (NEW)
-    "david_martinez": [
+    "david_sofia_martinez": [
         {
             "program": "Disability Support Grant",
             "enrolled_days_back": 100,
