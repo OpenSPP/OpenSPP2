@@ -447,7 +447,7 @@ class TestDemoPrograms(TransactionCase):
             # Teresa Villanueva - Food Assistance recipient
             "fatima_al_rahman": ["Food Assistance"],
             # David/Sofia Martinez - Household with disabled member
-            "david_martinez": ["Disability Support Grant"],
+            "david_sofia_martinez": ["Disability Support Grant"],
             # Roberto Castillo - Background Cash Transfer
             "ahmed_said": ["Cash Transfer Program"],
         }
@@ -544,7 +544,7 @@ class TestDemoPrograms(TransactionCase):
         """
         from odoo.addons.spp_mis_demo_v2.models import demo_programs
 
-        programs = demo_programs.get_programs_for_story("david_martinez")
+        programs = demo_programs.get_programs_for_story("david_sofia_martinez")
         program_names = [p["name"] for p in programs]
         self.assertIn("Disability Support Grant", program_names)
 

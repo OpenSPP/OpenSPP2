@@ -431,8 +431,15 @@ class TestDemoStories(TransactionCase):
 
         # Journey, profile (except names), demo_points should be unchanged
         self.assertEqual(lk_maria["journey"], orig_maria["journey"])
-        self.assertEqual(lk_maria["profile"]["age"], orig_maria["profile"]["age"])
-        self.assertEqual(lk_maria["profile"]["gender"], orig_maria["profile"]["gender"])
+        # maria_santos is a household - check head's age/gender are preserved
+        self.assertEqual(
+            lk_maria["profile"]["head"]["age"],
+            orig_maria["profile"]["head"]["age"],
+        )
+        self.assertEqual(
+            lk_maria["profile"]["head"]["gender"],
+            orig_maria["profile"]["head"]["gender"],
+        )
 
     def test_23_localized_stories_no_name_collisions(self):
         """Test that localized names don't collide within a locale."""
