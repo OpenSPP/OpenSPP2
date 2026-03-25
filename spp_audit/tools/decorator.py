@@ -22,15 +22,15 @@ def audit_decorator(method):
     audit_unlink, depending on the value of the method parameter.
     """
 
-    @api.model
-    def audit_create(self, vals):
-        result = audit_create.origin(self, vals)
-        record = self.browse(result) if isinstance(result, int | long) else result
+    @api.model_create_multi
+    def audit_create(self, vals_list):
+        result = audit_create.origin(self, vals_list)
+        records = self.browse(result) if isinstance(result, list) else result
         rules = self.get_audit_rules("create")
 
         # Use sudo() to avoid access errors when reading computed fields
         new_values = (
-            record.sudo()  # nosemgrep: odoo-sudo-without-context
+            records.sudo()  # nosemgrep: odoo-sudo-without-context
             .with_context(allowed_company_ids=[])
             .read(  # nosemgrep: odoo-sudo-without-context
                 load="_classic_write"
@@ -39,8 +39,9 @@ def audit_decorator(method):
         if new_values:
             keys = new_values[0].keys()
             for key in keys:
-                if str(type(new_values[0][key])) == "<class 'markupsafe.Markup'>":
-                    new_values[0][key] = str(new_values[0][key])
+                for nv in new_values:
+                    if str(type(nv[key])) == "<class 'markupsafe.Markup'>":
+                        nv[key] = str(nv[key])
 
             rules.log("create", new_values=new_values)
         return result
