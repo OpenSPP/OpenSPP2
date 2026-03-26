@@ -6,8 +6,6 @@ import logging
 
 from odoo import api
 
-long = int
-
 _logger = logging.getLogger(__name__)
 
 
@@ -25,7 +23,7 @@ def audit_decorator(method):
     @api.model_create_multi
     def audit_create(self, vals_list):
         result = audit_create.origin(self, vals_list)
-        records = self.browse(result) if isinstance(result, list) else result
+        records = result
         rules = self.get_audit_rules("create")
 
         # Use sudo() to avoid access errors when reading computed fields
