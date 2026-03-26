@@ -28,4 +28,6 @@ from . import test_entitlement_amount_cel
 from . import test_entitlement_amount_cel_advanced
 from . import test_entitlement_condition_cel
 from . import test_entitlement_manager_inkind
+from . import test_rejection_wizards
+from . import test_program_membership
 # test_cycle_auto_approve_fund_check: needs rewrite for approval mixin workflow
