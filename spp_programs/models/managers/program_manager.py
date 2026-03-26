@@ -214,8 +214,10 @@ class DefaultProgramManager(models.Model):
         for el in eligibility_managers:
             members = el.enroll_eligible_registrants(members)
         # enroll the one not already enrolled:
+        # Exclude members that are duplicated or exited — those states
+        # should only be changed through their own workflows.
         _logger.debug("members filtered: %s", members)
-        not_enrolled = members.filtered(lambda m: m.state != "enrolled")
+        not_enrolled = members.filtered(lambda m: m.state not in ("enrolled", "duplicated", "exited"))
         _logger.debug("not_enrolled: %s", not_enrolled)
         not_enrolled.write(
             {
@@ -226,7 +228,7 @@ class DefaultProgramManager(models.Model):
         # dis-enroll the one not eligible anymore:
         enrolled_members_ids = members.ids
         members_to_remove = member_before.filtered(
-            lambda m: m.state != "not_eligible" and m.id not in enrolled_members_ids
+            lambda m: m.state not in ("not_eligible", "duplicated", "exited") and m.id not in enrolled_members_ids
         )
         # _logger.debug("members_to_remove: %s", members_to_remove)
         members_to_remove.write(

@@ -380,17 +380,38 @@ class SPPProgram(models.Model):
             message = None
             kind = "success"
             if len(deduplication_managers):
+                # Count already-flagged duplicates before running
+                already_duplicated = self.env["spp.program.membership"].search_count(
+                    [("program_id", "=", rec.id), ("state", "=", "duplicated")]
+                )
+
                 states = ["draft", "enrolled", "eligible", "paused", "duplicated"]
                 duplicates = 0
                 for el in deduplication_managers:
                     duplicates += el.deduplicate_beneficiaries(states)
 
-                if duplicates > 0:
-                    message = _("%s Instances of Beneficiaries duplicate.", duplicates)
+                # Count total duplicates after running
+                total_duplicated = self.env["spp.program.membership"].search_count(
+                    [("program_id", "=", rec.id), ("state", "=", "duplicated")]
+                )
+                new_duplicates = total_duplicated - already_duplicated
+
+                if total_duplicated > 0:
+                    parts = []
+                    if new_duplicates > 0:
+                        parts.append(_("%(new)s new duplicate(s) found", new=new_duplicates))
+                    if already_duplicated > 0:
+                        parts.append(_("%(existing)s already flagged", existing=already_duplicated))
+                    message = ", ".join(parts) + "."
+                    kind = "warning"
+                elif duplicates > 0:
+                    message = _(
+                        "Found %(count)s duplicate beneficiaries.",
+                        count=duplicates,
+                    )
                     kind = "warning"
                 else:
                     message = _("No duplicates found.")
-                    kind = "success"
             else:
                 raise UserError(_("No Deduplication Manager defined."))
 
@@ -399,7 +420,6 @@ class SPPProgram(models.Model):
                     "type": "ir.actions.client",
                     "tag": "display_notification",
                     "params": {
-                        "title": _("Deduplication"),
                         "message": message,
                         "sticky": False,
                         "type": kind,
@@ -701,7 +721,7 @@ class SPPProgram(models.Model):
                 combined_message = ", ".join(error_messages)
                 raise UserError(
                     f"Only one manager can be configured under {combined_message}."
-                    f"Please delete any new manager(s) before saving your changes."  # noqa: B950
+                    f"Please delete any new manager(s) before saving your changes."
                 )
 
     def _pre_enrollment_hook(self, partner):

@@ -52,6 +52,23 @@ class SPPProgramMembership(models.Model):
 
     registrant_id = fields.Integer(string="Registrant ID", related="partner_id.id")
 
+    duplicate_reason = fields.Char(
+        string="Duplicate Reason",
+        compute="_compute_duplicate_reason",
+    )
+
+    def _compute_duplicate_reason(self):
+        for rec in self:
+            if rec.state == "duplicated":
+                dup_records = self.env["spp.program.membership.duplicate"].search(
+                    [("beneficiary_ids", "in", rec.id), ("state", "=", "duplicate")],
+                    order="id desc",
+                    limit=1,
+                )
+                rec.duplicate_reason = dup_records.reason if dup_records else False
+            else:
+                rec.duplicate_reason = False
+
     @api.constrains("partner_id", "program_id")
     def _check_unique_partner_per_program(self):
         # Prefetch partner_id and program_id to avoid N+1 queries in loop
@@ -212,7 +229,13 @@ class SPPProgramMembership(models.Model):
             member = em.enroll_eligible_registrants(member)
 
         if len(member) > 0:
-            if self.state != "enrolled":
+            if self.state in ("duplicated", "exited"):
+                message = _(
+                    "Cannot enroll: beneficiary is currently %s.",
+                    dict(self._fields["state"].selection).get(self.state, self.state),
+                )
+                kind = "warning"
+            elif self.state != "enrolled":
                 self.write(
                     {
                         "state": "enrolled",
@@ -221,19 +244,22 @@ class SPPProgramMembership(models.Model):
                 )
                 message = _("%s Beneficiaries enrolled.", len(member))
                 kind = "success"
-                return {
-                    "type": "ir.actions.client",
-                    "tag": "display_notification",
-                    "params": {
-                        "title": _("Enrollment"),
-                        "message": message,
-                        "sticky": False,
-                        "type": kind,
-                        "next": {
-                            "type": "ir.actions.act_window_close",
-                        },
+            else:
+                message = _("Beneficiary is already enrolled.")
+                kind = "info"
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("Enrollment"),
+                    "message": message,
+                    "sticky": False,
+                    "type": kind,
+                    "next": {
+                        "type": "ir.actions.act_window_close",
                     },
-                }
+                },
+            }
 
         else:
             self.state = "not_eligible"
