@@ -1,9 +1,12 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 import uuid
 
+from psycopg2 import IntegrityError
+
 from odoo import fields
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError
 from odoo.tests import TransactionCase
+from odoo.tools import mute_logger
 
 
 class TestProgramMembership(TransactionCase):
@@ -40,10 +43,11 @@ class TestProgramMembership(TransactionCase):
             }
         )
 
+    @mute_logger("odoo.sql_db")
     def test_unique_partner_per_program(self):
         """Cannot have duplicate memberships for same partner+program."""
         self._create_membership()
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(IntegrityError), self.cr.savepoint():
             self._create_membership()
 
     def test_enrollment_date_set_on_enrolled(self):

@@ -1,5 +1,5 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
-from odoo import _, api, fields, models
+from odoo import _, fields, models
 from odoo.exceptions import ValidationError
 
 
@@ -7,6 +7,11 @@ class SPPCycleMembership(models.Model):
     _name = "spp.cycle.membership"
     _description = "Cycle Membership"
     _order = "partner_id asc,id desc"
+
+    _unique_partner_cycle = models.Constraint(
+        "UNIQUE(partner_id, cycle_id)",
+        "Beneficiary must be unique per cycle.",
+    )
 
     partner_id = fields.Many2one("res.partner", "Registrant", help="A beneficiary", required=True, index=True)
     cycle_id = fields.Many2one("spp.cycle", "Cycle", help="A cycle", required=True, index=True)
@@ -23,25 +28,6 @@ class SPPCycleMembership(models.Model):
         default="draft",
         copy=False,
     )
-
-    @api.constrains("partner_id", "cycle_id")
-    def _check_unique_partner_per_cycle(self):
-        # Prefetch partner_id and cycle_id to avoid N+1 queries in loop
-        self.mapped("partner_id")
-        self.mapped("cycle_id")
-
-        for record in self:
-            if record.partner_id and record.cycle_id:
-                existing = self.search(
-                    [
-                        ("partner_id", "=", record.partner_id.id),
-                        ("cycle_id", "=", record.cycle_id.id),
-                        ("id", "!=", record.id),
-                    ],
-                    limit=1,
-                )
-                if existing:
-                    raise ValidationError(_("Beneficiary must be unique per cycle."))
 
     def _compute_display_name(self):
         res = super()._compute_display_name()

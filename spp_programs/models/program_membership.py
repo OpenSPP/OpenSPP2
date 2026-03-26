@@ -3,7 +3,7 @@
 from lxml import etree
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError
 
 from . import constants
 
@@ -18,6 +18,11 @@ class SPPProgramMembership(models.Model):
     _description = "Program Membership"
     _inherits = {"res.partner": "partner_id"}
     _order = "id desc"
+
+    _unique_partner_program = models.Constraint(
+        "UNIQUE(partner_id, program_id)",
+        "Beneficiary must be unique per program.",
+    )
 
     partner_id = fields.Many2one(
         "res.partner",
@@ -68,25 +73,6 @@ class SPPProgramMembership(models.Model):
                 rec.duplicate_reason = dup_records.reason if dup_records else False
             else:
                 rec.duplicate_reason = False
-
-    @api.constrains("partner_id", "program_id")
-    def _check_unique_partner_per_program(self):
-        # Prefetch partner_id and program_id to avoid N+1 queries in loop
-        self.mapped("partner_id")
-        self.mapped("program_id")
-
-        for record in self:
-            if record.partner_id and record.program_id:
-                existing = self.search(
-                    [
-                        ("partner_id", "=", record.partner_id.id),
-                        ("program_id", "=", record.program_id.id),
-                        ("id", "!=", record.id),
-                    ],
-                    limit=1,
-                )
-                if existing:
-                    raise ValidationError(_("Beneficiary must be unique per program."))
 
     # TODO: Implement exit reasons
     # exit_reason_id = fields.Many2one("Exit Reason") Default: Completed, Opt-Out, Other

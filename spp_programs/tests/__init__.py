@@ -17,4 +17,5 @@ from . import test_programs
 from . import test_registrant
 from . import test_spp_cycle_compliance
 from . import test_spp_program_create_wizard_compliance
+from . import test_sql_constraints
 from . import test_stock_rule
