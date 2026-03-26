@@ -244,7 +244,7 @@ Dependencies
 ``spp_banking``, ``calendar``, ``product``, ``stock``, ``spp_security``,
 ``spp_area``, ``spp_service_points``, ``spp_user_roles``,
 ``spp_base_common``, ``spp_approval``, ``spp_cel_domain``,
-``spp_cel_widget``
+``spp_cel_widget``, ``job_worker``
 
 **Table of contents**
 
