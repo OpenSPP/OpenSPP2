@@ -16,8 +16,7 @@ class TestCompositeIndexes(TransactionCase):
             """
             SELECT 1 FROM pg_indexes
             WHERE tablename = 'spp_entitlement'
-              AND indexdef LIKE '%%cycle_id%%'
-              AND indexdef LIKE '%%partner_id%%'
+              AND indexdef LIKE '%%(cycle_id, partner_id)%%'
             """
         )
         self.assertTrue(
@@ -35,8 +34,7 @@ class TestCompositeIndexes(TransactionCase):
             """
             SELECT 1 FROM pg_indexes
             WHERE tablename = 'spp_entitlement'
-              AND indexdef LIKE '%%cycle_id%%'
-              AND indexdef LIKE '%%state%%'
+              AND indexdef LIKE '%%(cycle_id, state)%%'
             """
         )
         self.assertTrue(
@@ -54,8 +52,7 @@ class TestCompositeIndexes(TransactionCase):
             """
             SELECT 1 FROM pg_indexes
             WHERE tablename = 'spp_program_membership'
-              AND indexdef LIKE '%%program_id%%'
-              AND indexdef LIKE '%%state%%'
+              AND indexdef LIKE '%%(program_id, state)%%'
             """
         )
         self.assertTrue(
