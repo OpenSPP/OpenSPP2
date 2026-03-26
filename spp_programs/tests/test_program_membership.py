@@ -1,10 +1,10 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 import uuid
 
-from odoo import fields
 from psycopg2 import IntegrityError
 
-from odoo.exceptions import UserError, ValidationError
+from odoo import fields
+from odoo.exceptions import UserError
 from odoo.tests import TransactionCase
 from odoo.tools import mute_logger
 
