@@ -254,6 +254,12 @@ Dependencies
 Changelog
 =========
 
+19.0.2.0.3
+~~~~~~~~~~
+
+- Replace cycle computed fields (total_amount, entitlements_count,
+  approval flags) with SQL aggregation queries
+
 19.0.2.0.2
 ~~~~~~~~~~
 

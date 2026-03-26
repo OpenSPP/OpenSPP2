@@ -36,7 +36,8 @@ class TestCycleComputedFields(TransactionCase):
             }
         )
         if state != "draft":
-            ent.write({"state": state})
+            ent.state = state
+        ent.flush_recordset()
         return ent
 
     # -- total_amount --
