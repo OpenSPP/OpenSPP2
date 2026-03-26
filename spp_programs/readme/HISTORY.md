@@ -1,3 +1,7 @@
+### 19.0.2.0.5
+
+- Batch create entitlements and payments instead of one-by-one ORM creates
+
 ### 19.0.2.0.4
 
 - Fetch fund balance once per approval batch instead of per entitlement
