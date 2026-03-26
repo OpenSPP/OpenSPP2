@@ -318,9 +318,9 @@ class TestSPPProgram(TransactionCase):
                 "program_id": program.id,
             }
         )
-        from odoo.exceptions import ValidationError
+        from psycopg2 import IntegrityError
 
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(IntegrityError), self.cr.savepoint():
             self.env["spp.program.membership"].create(
                 {
                     "partner_id": self.registrant_group.id,

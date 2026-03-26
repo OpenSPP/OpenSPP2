@@ -2,6 +2,8 @@
 
 import logging
 
+from psycopg2 import IntegrityError
+
 from odoo import fields
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import TransactionCase, tagged
@@ -90,7 +92,7 @@ class TestProgramMembership(TransactionCase):
         """A partner cannot be enrolled in the same program twice."""
         self._create_membership(partner=self.registrant_1, program=self.program)
 
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(IntegrityError), self.cr.savepoint():
             self._create_membership(partner=self.registrant_1, program=self.program)
 
     def test_04_same_partner_different_programs_allowed(self):
@@ -405,5 +407,5 @@ class TestProgramMembership(TransactionCase):
 
         self.env["spp.cycle.membership"].create({"partner_id": partner.id, "cycle_id": cycle.id})
 
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(IntegrityError), self.cr.savepoint():
             self.env["spp.cycle.membership"].create({"partner_id": partner.id, "cycle_id": cycle.id})

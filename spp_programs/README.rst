@@ -254,6 +254,14 @@ Dependencies
 Changelog
 =========
 
+19.0.2.0.6
+~~~~~~~~~~
+
+- Remove unused entitlement_base_model.py (dead code, never imported)
+- Fix manifest summary to remove marketing language
+- Recover 5 orphaned test files and add core model, wizard, manager,
+  payment, and fund tests (172 → 492 tests)
+
 19.0.2.0.5
 ~~~~~~~~~~
 
