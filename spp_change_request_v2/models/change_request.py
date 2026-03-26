@@ -380,11 +380,11 @@ class SPPChangeRequest(models.Model):
     @api.depends("name", "request_type_id", "registrant_id")
     def _compute_stage_banner_html(self):
         for rec in self:
-            cr_ref = rec.name or ""
-            cr_type = rec.request_type_id.name if rec.request_type_id else ""
+            cr_ref = html_escape(rec.name or "")
+            cr_type = html_escape(rec.request_type_id.name) if rec.request_type_id else ""
             html = f'<span class="fw-bold">{cr_ref}</span><span class="text-muted mx-2">|</span><span>{cr_type}</span>'
             if rec.registrant_id:
-                registrant = rec.registrant_id.name or ""
+                registrant = html_escape(rec.registrant_id.name or "")
                 html += (
                     f'<span class="text-muted mx-2">|</span>'
                     f'<i class="fa fa-user me-1 text-muted"></i>'
@@ -422,14 +422,11 @@ class SPPChangeRequest(models.Model):
             uploaded_types = rec.document_ids.mapped("document_type_id").filtered(lambda c: c)
             items = []
             for doc_type in required:
+                escaped_name = html_escape(doc_type.display_name)
                 if doc_type in uploaded_types:
-                    items.append(
-                        f'<li class="text-success"><i class="fa fa-check-circle me-1"></i>{doc_type.display_name}</li>'
-                    )
+                    items.append(f'<li class="text-success"><i class="fa fa-check-circle me-1"></i>{escaped_name}</li>')
                 else:
-                    items.append(
-                        f'<li class="text-danger"><i class="fa fa-times-circle me-1"></i>{doc_type.display_name}</li>'
-                    )
+                    items.append(f'<li class="text-danger"><i class="fa fa-times-circle me-1"></i>{escaped_name}</li>')
 
             rec.required_documents_html = (
                 '<div class="mb-3">'
@@ -508,8 +505,8 @@ class SPPChangeRequest(models.Model):
             html.append("<tbody>")
 
             for doc in rec.document_ids:
-                doc_name = doc.name or ""
-                doc_type = doc.document_type_id.display_name if doc.document_type_id else ""
+                doc_name = html_escape(doc.name or "")
+                doc_type = html_escape(doc.document_type_id.display_name) if doc.document_type_id else ""
                 uploaded = doc.create_date.strftime("%Y-%m-%d") if doc.create_date else ""
                 html.append(
                     f"<tr>"
@@ -1168,7 +1165,7 @@ class SPPChangeRequest(models.Model):
         """Render a three-column comparison table for field-mapping CR types."""
         html = []
         if header:
-            html.append(f"<h4>{header}</h4>")
+            html.append(f"<h4>{html_escape(header)}</h4>")
         html.append('<table class="table table-sm table-bordered mb-0" style="width:100%">')
         html.append(
             "<thead><tr>"
@@ -1183,7 +1180,7 @@ class SPPChangeRequest(models.Model):
             if key.startswith("_"):
                 continue
             # Use key as-is if it contains spaces (human-readable), otherwise convert
-            display_key = key if " " in key else key.replace("_", " ").title()
+            display_key = html_escape(key if " " in key else key.replace("_", " ").title())
 
             if isinstance(value, dict) and "old" in value:
                 old_val = value.get("old")
@@ -1221,7 +1218,7 @@ class SPPChangeRequest(models.Model):
         html = []
 
         if header:
-            html.append(f"<h4>{header}</h4>")
+            html.append(f"<h4>{html_escape(header)}</h4>")
 
         if not changes:
             html.append('<p class="text-muted mb-0"><i class="fa fa-info-circle me-2"></i>No details to display.</p>')
@@ -1234,7 +1231,7 @@ class SPPChangeRequest(models.Model):
         for key, value in changes.items():
             if key.startswith("_"):
                 continue
-            display_key = key if " " in key else key.replace("_", " ").title()
+            display_key = html_escape(key if " " in key else key.replace("_", " ").title())
             display_value = self._format_review_value(value)
             html.append(f'<tr><td class="bg-light"><strong>{display_key}</strong></td><td>{display_value}</td></tr>')
 

@@ -21,9 +21,7 @@ class TestWizardHtmlEscaping(TestChangeRequestBase):
 
     def _create_wizard(self, cr):
         """Create a preview wizard for the given CR."""
-        return self.env["spp.cr.preview.wizard"].create(
-            {"change_request_id": cr.id}
-        )
+        return self.env["spp.cr.preview.wizard"].create({"change_request_id": cr.id})
 
     def test_wizard_preview_escapes_action(self):
         """Verify wizard preview_html escapes XSS in action value."""
@@ -47,7 +45,7 @@ class TestWizardHtmlEscaping(TestChangeRequestBase):
         wizard = self._create_wizard(cr)
         xss_changes = {
             "_action": "update",
-            "safe_field": '<img src=x onerror=alert(1)>',
+            "safe_field": "<img src=x onerror=alert(1)>",
         }
         with patch.object(type(cr.request_type_id), "get_apply_strategy") as mock_strategy:
             mock_strategy.return_value.preview.return_value = xss_changes
@@ -63,7 +61,7 @@ class TestWizardHtmlEscaping(TestChangeRequestBase):
         wizard = self._create_wizard(cr)
         xss_changes = {
             "_action": "update",
-            "tags": ['<script>alert(1)</script>', "safe"],
+            "tags": ["<script>alert(1)</script>", "safe"],
         }
         with patch.object(type(cr.request_type_id), "get_apply_strategy") as mock_strategy:
             mock_strategy.return_value.preview.return_value = xss_changes
@@ -77,10 +75,12 @@ class TestWizardHtmlEscaping(TestChangeRequestBase):
     def test_wizard_preview_from_snapshot_escapes(self):
         """Verify wizard escapes values from stored JSON snapshots."""
         cr = self._create_cr()
-        xss_snapshot = json.dumps({
-            "_action": "update",
-            "name": '<script>alert("snapshot")</script>',
-        })
+        xss_snapshot = json.dumps(
+            {
+                "_action": "update",
+                "name": '<script>alert("snapshot")</script>',
+            }
+        )
         cr.write({"is_applied": True, "preview_json_snapshot": xss_snapshot})
         wizard = self._create_wizard(cr)
         wizard.invalidate_recordset()

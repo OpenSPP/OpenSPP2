@@ -41,8 +41,8 @@ class TestHtmlEscaping(TestChangeRequestBase):
                 "name": "Safe Name",
                 "is_registrant": True,
                 "is_group": False,
-                "street": '<img src=x onerror=alert(1)>',
-                "city": '<b onmouseover=alert(2)>City</b>',
+                "street": "<img src=x onerror=alert(1)>",
+                "city": "<b onmouseover=alert(2)>City</b>",
             }
         )
         cr = self._create_cr(registrant=registrant)
@@ -96,7 +96,7 @@ class TestHtmlEscaping(TestChangeRequestBase):
         cr = self._create_cr()
         xss_changes = {
             "_action": "update",
-            "tags": ['<script>alert(1)</script>', "safe value"],
+            "tags": ["<script>alert(1)</script>", "safe value"],
         }
         with patch.object(type(cr.request_type_id), "get_apply_strategy") as mock_strategy:
             mock_strategy.return_value.preview.return_value = xss_changes
