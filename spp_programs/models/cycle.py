@@ -238,8 +238,22 @@ class SPPCycle(models.Model):
 
     @api.depends("entitlement_ids")
     def _compute_total_amount(self):
+        if not self.ids:
+            for rec in self:
+                rec.total_amount = 0
+            return
+        self.env.cr.execute(
+            """
+            SELECT cycle_id, COALESCE(SUM(initial_amount), 0)
+            FROM spp_entitlement
+            WHERE cycle_id IN %s
+            GROUP BY cycle_id
+            """,
+            (tuple(self.ids),),
+        )
+        totals = dict(self.env.cr.fetchall())
         for rec in self:
-            rec.total_amount = sum(entitlement.initial_amount for entitlement in rec.entitlement_ids)
+            rec.total_amount = totals.get(rec.id, 0)
 
     @api.depends("total_amount", "currency_id")
     def _compute_total_amount_in_words(self):
@@ -263,8 +277,33 @@ class SPPCycle(models.Model):
 
     @api.depends("entitlement_ids", "inkind_entitlement_ids")
     def _compute_total_entitlements_count(self):
+        if not self.ids:
+            for rec in self:
+                rec.total_entitlements_count = 0
+            return
+        cycle_ids = tuple(self.ids)
+        self.env.cr.execute(
+            """
+            SELECT cycle_id, COUNT(*)
+            FROM spp_entitlement
+            WHERE cycle_id IN %s
+            GROUP BY cycle_id
+            """,
+            (cycle_ids,),
+        )
+        cash_counts = dict(self.env.cr.fetchall())
+        self.env.cr.execute(
+            """
+            SELECT cycle_id, COUNT(*)
+            FROM spp_entitlement_inkind
+            WHERE cycle_id IN %s
+            GROUP BY cycle_id
+            """,
+            (cycle_ids,),
+        )
+        inkind_counts = dict(self.env.cr.fetchall())
         for rec in self:
-            rec.total_entitlements_count = len(rec.entitlement_ids) + len(rec.inkind_entitlement_ids)
+            rec.total_entitlements_count = cash_counts.get(rec.id, 0) + inkind_counts.get(rec.id, 0)
 
     def _compute_payments_count(self):
         for rec in self:
@@ -274,11 +313,24 @@ class SPPCycle(models.Model):
     @api.depends("entitlement_ids.state", "inkind_entitlement_ids.state")
     def _compute_show_approve_entitlement(self):
         """Show the 'Validate Entitlements' button when there are entitlements pending validation."""
+        if not self.ids:
+            for rec in self:
+                rec.show_approve_entitlements_button = False
+            return
+        cycle_ids = tuple(self.ids)
+        self.env.cr.execute(
+            """
+            SELECT DISTINCT cycle_id FROM spp_entitlement
+            WHERE cycle_id IN %s AND state = 'pending_validation'
+            UNION
+            SELECT DISTINCT cycle_id FROM spp_entitlement_inkind
+            WHERE cycle_id IN %s AND state = 'pending_validation'
+            """,
+            (cycle_ids, cycle_ids),
+        )
+        pending_cycle_ids = {row[0] for row in self.env.cr.fetchall()}
         for rec in self:
-            # Show button if there are any cash or in-kind entitlements in pending_validation state
-            cash_pending = any(ent.state == "pending_validation" for ent in rec.entitlement_ids)
-            inkind_pending = any(ent.state == "pending_validation" for ent in rec.inkind_entitlement_ids)
-            rec.show_approve_entitlements_button = cash_pending or inkind_pending
+            rec.show_approve_entitlements_button = rec.id in pending_cycle_ids
 
     @api.depends("program_id", "entitlement_ids.state", "inkind_entitlement_ids.state")
     def _compute_can_approve_entitlements(self):
@@ -377,20 +429,40 @@ class SPPCycle(models.Model):
     @api.depends("entitlement_ids.state", "inkind_entitlement_ids.state")
     def _compute_all_entitlements_approved(self):
         """Check if all entitlements have been approved."""
-        for rec in self:
-            has_entitlements = rec.entitlement_ids or rec.inkind_entitlement_ids
-            if not has_entitlements:
+        if not self.ids:
+            for rec in self:
                 rec.all_entitlements_approved = False
-                continue
-            all_cash_approved = (
-                all(ent.state == "approved" for ent in rec.entitlement_ids) if rec.entitlement_ids else True
-            )
-            all_inkind_approved = (
-                all(ent.state == "approved" for ent in rec.inkind_entitlement_ids)
-                if rec.inkind_entitlement_ids
-                else True
-            )
-            rec.all_entitlements_approved = all_cash_approved and all_inkind_approved
+            return
+        cycle_ids = tuple(self.ids)
+        # Find cycles that have at least one entitlement (cash or inkind)
+        self.env.cr.execute(
+            """
+            SELECT DISTINCT cycle_id FROM spp_entitlement
+            WHERE cycle_id IN %s
+            UNION
+            SELECT DISTINCT cycle_id FROM spp_entitlement_inkind
+            WHERE cycle_id IN %s
+            """,
+            (cycle_ids, cycle_ids),
+        )
+        cycles_with_entitlements = {row[0] for row in self.env.cr.fetchall()}
+        # Find cycles that have any non-approved entitlement
+        self.env.cr.execute(
+            """
+            SELECT DISTINCT cycle_id FROM spp_entitlement
+            WHERE cycle_id IN %s AND state != 'approved'
+            UNION
+            SELECT DISTINCT cycle_id FROM spp_entitlement_inkind
+            WHERE cycle_id IN %s AND state != 'approved'
+            """,
+            (cycle_ids, cycle_ids),
+        )
+        cycles_with_unapproved = {row[0] for row in self.env.cr.fetchall()}
+        for rec in self:
+            if rec.id not in cycles_with_entitlements:
+                rec.all_entitlements_approved = False
+            else:
+                rec.all_entitlements_approved = rec.id not in cycles_with_unapproved
 
     @api.depends("program_id")
     def _compute_entitlement_type(self):
