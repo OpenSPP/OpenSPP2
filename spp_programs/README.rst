@@ -244,7 +244,7 @@ Dependencies
 ``spp_banking``, ``calendar``, ``product``, ``stock``, ``spp_security``,
 ``spp_area``, ``spp_service_points``, ``spp_user_roles``,
 ``spp_base_common``, ``spp_approval``, ``spp_cel_domain``,
-``spp_cel_widget``
+``spp_cel_widget``, ``job_worker``
 
 **Table of contents**
 
@@ -253,6 +253,14 @@ Dependencies
 
 Changelog
 =========
+
+19.0.2.0.6
+~~~~~~~~~~
+
+- Remove unused entitlement_base_model.py (dead code, never imported)
+- Fix manifest summary to remove marketing language
+- Recover 5 orphaned test files and add core model, wizard, manager,
+  payment, and fund tests (172 → 492 tests)
 
 19.0.2.0.5
 ~~~~~~~~~~
