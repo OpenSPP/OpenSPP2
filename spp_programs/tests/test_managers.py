@@ -1163,7 +1163,7 @@ class TestPaymentManagerBase(TransactionCase):
     # ------------------------------------------------------------------
 
     def test_batch_tag_constraint_empty_tags_with_create_batch_raises(self):
-        """batch_tag_ids constraint must raise ValidationError when clearing tags on a manager with create_batch=True."""
+        """batch_tag_ids constraint raises ValidationError when clearing tags with create_batch=True."""
         manager = self.env["spp.program.payment.manager.default"].create(
             {
                 "name": "Constraint Test Pay Manager [PAY MGR TEST]",
