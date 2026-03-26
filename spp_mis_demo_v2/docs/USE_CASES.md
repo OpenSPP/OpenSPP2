@@ -30,6 +30,17 @@ Seeded RNG** architecture:
 - **100% Reproducible**: Same country selection = identical output every run
 - **Country-aware Names**: Names change by locale (Philippines, Sri Lanka, Togo)
 
+### Household vs Individual Enrollment
+
+Most programs target **households (groups)**, not individuals. When a program has
+`target_type = group`, the **household** is enrolled — not the person. Each story
+persona is the **head of household** who represents the family. For example, "Maria
+Santos enrolled in Cash Transfer" means the Santos Household (5 members) is the enrolled
+entity, with Maria as the head.
+
+Only individual-targeting programs (Elderly Social Pension, Food Assistance) enroll the
+person directly.
+
 ---
 
 ## Blueprint Architecture
@@ -288,13 +299,13 @@ set of records.
 
 **Journey:**
 
-1. Enrolled in Cash Transfer Program 150 days ago
+1. Santos Household enrolled in Cash Transfer Program 150 days ago
 2. Received 3 monthly payments of $150 each
-3. Graduated from program 30 days ago
+3. Graduated from program 30 days ago (household exited)
 
 **Demo Points:**
 
-- Complete program lifecycle
+- Complete household program lifecycle
 - Graduation pathway demonstration
 - Payment history tracking
 - Success metrics
@@ -311,7 +322,7 @@ set of records.
 
 **Journey:**
 
-1. Enrolled in Cash Transfer Program 100 days ago
+1. Dela Cruz Household enrolled in Cash Transfer Program 100 days ago
 2. First payment ($150) - Successful
 3. Second payment ($150) - **Failed** (bank issue)
 4. GRM ticket filed for payment failure
@@ -360,7 +371,7 @@ set of records.
 
 **Journey:**
 
-1. Enrolled in Universal Child Grant 140 days ago
+1. Morales Household enrolled in Universal Child Grant 140 days ago
 2. Received 4 monthly payments ($150 each)
 3. Children attending school
 
@@ -383,7 +394,7 @@ set of records.
 
 **Journey:**
 
-1. Fast-track enrolled in Emergency Relief Fund 55 days ago
+1. Gutierrez Household fast-track enrolled in Emergency Relief Fund 55 days ago
 2. Received 2 emergency payments ($400 each, Tier 2)
 3. Rapid vulnerability assessment completed
 
@@ -405,7 +416,7 @@ set of records.
 
 **Journey:**
 
-1. Enrolled in Disability Support Grant 100 days ago
+1. Martinez Household enrolled in Disability Support Grant 100 days ago
 2. Received 3 monthly payments ($175 each: base $100 + 1 member x $75)
 3. Active program participant
 
@@ -445,12 +456,12 @@ set of records.
 
 **Profile:**
 
-- Cash Transfer beneficiary
+- Cash Transfer beneficiary household
 - Multi-ticket GRM integration
 
 **Journey:**
 
-1. Enrolled in Cash Transfer Program 180 days ago
+1. Castillo Household enrolled in Cash Transfer Program 180 days ago
 2. Background story for GRM multi-ticket scenarios
 
 ---

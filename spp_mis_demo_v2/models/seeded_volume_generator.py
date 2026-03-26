@@ -46,12 +46,22 @@ class SeededVolumeGenerator:
         if provider:
             self._male_names = list(provider.first_names_male)
             self._female_names = list(provider.first_names_female)
-            self._last_names = list(provider.last_names)
+            all_last_names = list(provider.last_names)
         else:
             # Fallback: generic English names
             self._male_names = ["John", "James", "Robert", "Michael", "David", "William"]
             self._female_names = ["Mary", "Patricia", "Jennifer", "Linda", "Elizabeth", "Susan"]
-            self._last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia"]
+            all_last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia"]
+
+        # Extract family names from reserved story names to avoid collisions.
+        # Seeded groups use family_name as the group name, so a seeded "Santos"
+        # group would be confusing next to story group "Maria Santos".
+        reserved_family_names = set()
+        for name in self.reserved_names:
+            parts = name.split()
+            if len(parts) >= 2:
+                reserved_family_names.add(parts[-1])
+        self._last_names = [n for n in all_last_names if n not in reserved_family_names]
 
         # Caches
         self._gender_cache = {}
