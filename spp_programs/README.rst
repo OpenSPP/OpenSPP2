@@ -254,6 +254,11 @@ Dependencies
 Changelog
 =========
 
+19.0.2.0.4
+~~~~~~~~~~
+
+- Fetch fund balance once per approval batch instead of per entitlement
+
 19.0.2.0.3
 ~~~~~~~~~~
 

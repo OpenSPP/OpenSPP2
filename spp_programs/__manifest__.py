@@ -4,7 +4,7 @@
     "name": "OpenSPP Programs",
     "summary": "Manage cash and in-kind entitlements, integrate with inventory, and enhance program management features for comprehensive social protection and agricultural support.",
     "category": "OpenSPP/Core",
-    "version": "19.0.2.0.3",
+    "version": "19.0.2.0.4",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",

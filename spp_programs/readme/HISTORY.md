@@ -1,3 +1,7 @@
+### 19.0.2.0.4
+
+- Fetch fund balance once per approval batch instead of per entitlement
+
 ### 19.0.2.0.3
 
 - Replace cycle computed fields (total_amount, entitlements_count, approval flags) with SQL aggregation queries
