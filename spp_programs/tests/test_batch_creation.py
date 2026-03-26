@@ -62,9 +62,7 @@ class TestBatchEntitlementCreation(TransactionCase):
         using a single batch vals_list passed to create()."""
         self.manager.prepare_entitlements(self.cycle, self.memberships)
 
-        entitlements = self.env["spp.entitlement"].search(
-            [("cycle_id", "=", self.cycle.id)]
-        )
+        entitlements = self.env["spp.entitlement"].search([("cycle_id", "=", self.cycle.id)])
         self.assertEqual(
             len(entitlements),
             5,
