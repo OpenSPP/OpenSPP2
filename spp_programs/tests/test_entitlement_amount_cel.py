@@ -283,7 +283,7 @@ class TestEntitlementAmountCEL(TransactionCase):
         item = self.env["spp.program.entitlement.manager.cash.item"].create(
             {
                 "entitlement_id": self.entitlement_manager.id,
-                "amount_cel_expression": "500 if r.active else 300",
+                "amount_cel_expression": "me.active ? 500 : 300",
             }
         )
 
@@ -294,73 +294,76 @@ class TestEntitlementAmountCEL(TransactionCase):
         self.assertEqual(result2, 300.0)
 
     def test_14_security_no_env_access(self):
-        """Test that formulas cannot access r.env (security).
+        """Test that formulas cannot access me.env (security).
 
-        Security checks happen at validation time when creating the item.
+        Security blocking happens at runtime via SafeRecordProxy, not at
+        validation time. The item is created successfully, but calculating
+        the amount raises a UserError.
         """
-        with self.assertRaises(ValidationError) as context:
-            self.env["spp.program.entitlement.manager.cash.item"].create(
-                {
-                    "entitlement_id": self.entitlement_manager.id,
-                    "amount_cel_expression": "r.env",
-                }
-            )
+        item = self.env["spp.program.entitlement.manager.cash.item"].create(
+            {
+                "entitlement_id": self.entitlement_manager.id,
+                "amount_cel_expression": "me.env",
+            }
+        )
 
-        self.assertIn("env", str(context.exception).lower())
+        with self.assertRaises(UserError):
+            item._calculate_cel_amount(self.beneficiary1)
 
     def test_15_security_no_sudo_access(self):
-        """Test that formulas cannot access r.sudo() (security).
+        """Test that formulas cannot access me.sudo() (security).
 
-        Security checks happen at validation time when creating the item.
+        Security blocking happens at runtime via SafeRecordProxy, not at
+        validation time. The item is created successfully, but calculating
+        the amount raises a UserError.
         """
-        with self.assertRaises(ValidationError) as context:
-            self.env["spp.program.entitlement.manager.cash.item"].create(
-                {
-                    "entitlement_id": self.entitlement_manager.id,
-                    "amount_cel_expression": "r.sudo()",
-                }
-            )
+        item = self.env["spp.program.entitlement.manager.cash.item"].create(
+            {
+                "entitlement_id": self.entitlement_manager.id,
+                "amount_cel_expression": "me.sudo()",
+            }
+        )
 
-        self.assertIn("sudo", str(context.exception).lower())
+        with self.assertRaises(UserError):
+            item._calculate_cel_amount(self.beneficiary1)
 
     def test_16_security_no_write_access(self):
-        """Test that formulas cannot access r.write() (security).
+        """Test that formulas with invalid CEL syntax are rejected at validation.
 
-        Security checks happen at validation time when creating the item.
+        The CEL parser rejects curly braces as unknown characters, so
+        expressions like me.write({...}) fail at validation time.
         """
-        with self.assertRaises(ValidationError) as context:
+        with self.assertRaises(ValidationError):
             self.env["spp.program.entitlement.manager.cash.item"].create(
                 {
                     "entitlement_id": self.entitlement_manager.id,
-                    "amount_cel_expression": "r.write({'name': 'hacked'})",
+                    "amount_cel_expression": "me.write({'name': 'hacked'})",
                 }
             )
-
-        self.assertIn("write", str(context.exception).lower())
 
     def test_17_security_no_private_attributes(self):
         """Test that formulas cannot access private attributes (security).
 
-        Security checks happen at validation time when creating the item.
+        Security blocking happens at runtime via SafeRecordProxy, not at
+        validation time. The item is created successfully, but calculating
+        the amount raises a UserError.
         """
-        with self.assertRaises(ValidationError) as context:
-            self.env["spp.program.entitlement.manager.cash.item"].create(
-                {
-                    "entitlement_id": self.entitlement_manager.id,
-                    "amount_cel_expression": "r._partner",
-                }
-            )
+        item = self.env["spp.program.entitlement.manager.cash.item"].create(
+            {
+                "entitlement_id": self.entitlement_manager.id,
+                "amount_cel_expression": "me._partner",
+            }
+        )
 
-        # The error message indicates access was blocked
-        error_msg = str(context.exception).lower()
-        self.assertIn("private", error_msg)
+        with self.assertRaises(UserError):
+            item._calculate_cel_amount(self.beneficiary1)
 
     def test_18_security_safe_field_access(self):
         """Test that formulas can access safe fields like id and name."""
         item = self.env["spp.program.entitlement.manager.cash.item"].create(
             {
                 "entitlement_id": self.entitlement_manager.id,
-                "amount_cel_expression": "100 if r.id > 0 else 0",
+                "amount_cel_expression": "me.id > 0 ? 100 : 0",
             }
         )
 

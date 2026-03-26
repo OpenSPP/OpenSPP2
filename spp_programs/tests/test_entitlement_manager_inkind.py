@@ -79,7 +79,7 @@ class TestEntitlementManager(TransactionCase):
         )
         cls.program = cls.env["spp.program"].create(
             {
-                "name": "Program 1 [TEST]",
+                "name": "Program Inkind 1 [TEST]",
                 "program_membership_ids": [
                     (
                         0,
@@ -108,13 +108,32 @@ class TestEntitlementManager(TransactionCase):
                 "end_date": fields.Date.today(),
             }
         )
+        inkind_model = cls.env["ir.model"].search([("model", "=", "spp.entitlement.inkind")], limit=1)
+        cls._approval_definition = cls.env["spp.approval.definition"].create(
+            {
+                "name": "Test Inkind Entitlement Approval [TEST]",
+                "model_id": inkind_model.id,
+                "approval_type": "group",
+                "approval_group_id": cls.env.ref("base.group_user").id,
+            }
+        )
         cls._inkind_entitlement_manager = cls.env["spp.program.entitlement.manager.inkind"].create(
             {
                 "name": "Entitlement Manager Inkind 1 [TEST]",
                 "program_id": cls.program.id,
                 "warehouse_id": cls.env.ref("stock.warehouse0").id,
+                "approval_definition_id": cls._approval_definition.id,
             }
         )
+        # Create the junction record and link it to the program so that
+        # entitlements can resolve the approval definition via get_manager()
+        entitlement_manager_junction = cls.env["spp.program.entitlement.manager"].create(
+            {
+                "program_id": cls.program.id,
+                "manager_ref_id": f"spp.program.entitlement.manager.inkind,{cls._inkind_entitlement_manager.id}",
+            }
+        )
+        cls.program.write({"entitlement_manager_ids": [(4, entitlement_manager_junction.id)]})
 
     def create_entitlement_inkind(self):
         return self.env["spp.entitlement.inkind"].create(
@@ -170,6 +189,9 @@ class TestEntitlementManager(TransactionCase):
         mock_today.__name__ = "mock_today"
         mock_today.return_value = date(2023, 5, 23)
         entitlement = self.create_entitlement_inkind()
+        # The approval system requires entitlements to be in pending_validation
+        # state (approval_state='pending') before they can be approved.
+        self._inkind_entitlement_manager.set_pending_validation_entitlements(self.cycle)
         res = self._inkind_entitlement_manager.validate_entitlements(self.cycle)
         self.assertEqual(res["params"]["type"], "success", "Should display success notification!")
         self.assertEqual(entitlement.state, "approved", "Entitlement should now approved!")

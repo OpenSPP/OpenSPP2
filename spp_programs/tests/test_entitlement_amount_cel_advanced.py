@@ -79,16 +79,16 @@ class TestEntitlementAmountCELAdvanced(TransactionCase):
     # ========== Edge Cases: Math Operations ==========
 
     def test_division_by_zero(self):
-        """Test that division by zero raises error at validation time."""
-        with self.assertRaises(ValidationError) as context:
-            self.env["spp.program.entitlement.manager.cash.item"].create(
-                {
-                    "entitlement_id": self.entitlement_manager.id,
-                    "amount_cel_expression": "100 / 0",
-                }
-            )
+        """Test that division by zero raises an error at runtime."""
+        item = self.env["spp.program.entitlement.manager.cash.item"].create(
+            {
+                "entitlement_id": self.entitlement_manager.id,
+                "amount_cel_expression": "100 / 0",
+            }
+        )
 
-        self.assertIn("zero", str(context.exception).lower())
+        with self.assertRaises(UserError):
+            item._calculate_cel_amount(self.beneficiary)
 
     def test_infinity_result(self):
         """Test that infinity results are handled."""
@@ -344,17 +344,25 @@ class TestEntitlementAmountCELAdvanced(TransactionCase):
             pass
 
     def test_large_list_creation(self):
-        """Test that creating large lists is handled."""
-        item = self.env["spp.program.entitlement.manager.cash.item"].create(
-            {
-                "entitlement_id": self.entitlement_manager.id,
-                "amount_cel_expression": "len([i for i in range(10000)])",
-            }
-        )
+        """Test that unsupported CEL constructs (Python list comprehensions) are rejected.
 
-        # Should either reject or handle gracefully
-        with self.assertRaises(UserError):
-            item._calculate_cel_amount(self.beneficiary)
+        CEL does not support Python-style list comprehensions. The expression
+        is expected to fail at validation or runtime.
+        """
+        # CEL does not support Python list comprehensions; should be rejected
+        try:
+            item = self.env["spp.program.entitlement.manager.cash.item"].create(
+                {
+                    "entitlement_id": self.entitlement_manager.id,
+                    "amount_cel_expression": "len([i for i in range(10000)])",
+                }
+            )
+            # If creation succeeds, runtime evaluation must raise an error
+            with self.assertRaises(UserError):
+                item._calculate_cel_amount(self.beneficiary)
+        except (UserError, ValidationError):
+            # Also acceptable to reject at validation time
+            pass
 
     # ========== SafeBeneficiaryProxy Edge Cases ==========
 
@@ -364,7 +372,7 @@ class TestEntitlementAmountCELAdvanced(TransactionCase):
         item = self.env["spp.program.entitlement.manager.cash.item"].create(
             {
                 "entitlement_id": self.entitlement_manager.id,
-                "amount_cel_expression": "100 if r.id > 0 else 0",
+                "amount_cel_expression": "me.id > 0 ? 100 : 0",
             }
         )
 
@@ -372,54 +380,64 @@ class TestEntitlementAmountCELAdvanced(TransactionCase):
         self.assertEqual(result, 100.0)
 
     def test_proxy_callable_blocked(self):
-        """Test that method calls are blocked at validation time."""
-        with self.assertRaises(ValidationError):
-            self.env["spp.program.entitlement.manager.cash.item"].create(
-                {
-                    "entitlement_id": self.entitlement_manager.id,
-                    "amount_cel_expression": "r.copy()",
-                }
-            )
+        """Test that method calls (e.g. copy) are blocked by SafeRecordProxy at runtime."""
+        item = self.env["spp.program.entitlement.manager.cash.item"].create(
+            {
+                "entitlement_id": self.entitlement_manager.id,
+                "amount_cel_expression": "me.copy()",
+            }
+        )
+
+        with self.assertRaises(UserError):
+            item._calculate_cel_amount(self.beneficiary)
 
     def test_proxy_search_blocked(self):
-        """Test that search() is blocked at validation time."""
-        with self.assertRaises(ValidationError):
-            self.env["spp.program.entitlement.manager.cash.item"].create(
-                {
-                    "entitlement_id": self.entitlement_manager.id,
-                    "amount_cel_expression": "r.search",
-                }
-            )
+        """Test that search is blocked by SafeRecordProxy at runtime."""
+        item = self.env["spp.program.entitlement.manager.cash.item"].create(
+            {
+                "entitlement_id": self.entitlement_manager.id,
+                "amount_cel_expression": "me.search",
+            }
+        )
+
+        with self.assertRaises(UserError):
+            item._calculate_cel_amount(self.beneficiary)
 
     def test_proxy_browse_blocked(self):
-        """Test that browse() is blocked at validation time."""
-        with self.assertRaises(ValidationError):
-            self.env["spp.program.entitlement.manager.cash.item"].create(
-                {
-                    "entitlement_id": self.entitlement_manager.id,
-                    "amount_cel_expression": "r.browse",
-                }
-            )
+        """Test that browse is blocked by SafeRecordProxy at runtime."""
+        item = self.env["spp.program.entitlement.manager.cash.item"].create(
+            {
+                "entitlement_id": self.entitlement_manager.id,
+                "amount_cel_expression": "me.browse",
+            }
+        )
+
+        with self.assertRaises(UserError):
+            item._calculate_cel_amount(self.beneficiary)
 
     def test_proxy_create_blocked(self):
-        """Test that create() is blocked at validation time."""
-        with self.assertRaises(ValidationError):
-            self.env["spp.program.entitlement.manager.cash.item"].create(
-                {
-                    "entitlement_id": self.entitlement_manager.id,
-                    "amount_cel_expression": "r.create",
-                }
-            )
+        """Test that create is blocked by SafeRecordProxy at runtime."""
+        item = self.env["spp.program.entitlement.manager.cash.item"].create(
+            {
+                "entitlement_id": self.entitlement_manager.id,
+                "amount_cel_expression": "me.create",
+            }
+        )
+
+        with self.assertRaises(UserError):
+            item._calculate_cel_amount(self.beneficiary)
 
     def test_proxy_unlink_blocked(self):
-        """Test that unlink() is blocked at validation time."""
-        with self.assertRaises(ValidationError):
-            self.env["spp.program.entitlement.manager.cash.item"].create(
-                {
-                    "entitlement_id": self.entitlement_manager.id,
-                    "amount_cel_expression": "r.unlink",
-                }
-            )
+        """Test that unlink is blocked by SafeRecordProxy at runtime."""
+        item = self.env["spp.program.entitlement.manager.cash.item"].create(
+            {
+                "entitlement_id": self.entitlement_manager.id,
+                "amount_cel_expression": "me.unlink",
+            }
+        )
+
+        with self.assertRaises(UserError):
+            item._calculate_cel_amount(self.beneficiary)
 
     # ========== Integration Tests ==========
 
@@ -450,19 +468,21 @@ class TestEntitlementAmountCELAdvanced(TransactionCase):
         self.assertEqual(len(entitlement), 1)
         self.assertEqual(entitlement.initial_amount, 500.0)
 
-    def test_formula_failure_caught_at_validation(self):
-        """Test that formulas that would fail are caught at validation time.
+    def test_formula_failure_caught_at_runtime(self):
+        """Test that formulas accessing non-existent fields fail at runtime.
 
-        Invalid formulas (like accessing non-existent fields in operations)
-        are caught during item creation, preventing runtime errors.
+        The ValidationProxy returns None for unknown fields, so validation
+        passes. The error surfaces when calculating against a real record.
         """
-        with self.assertRaises(ValidationError):
-            self.env["spp.program.entitlement.manager.cash.item"].create(
-                {
-                    "entitlement_id": self.entitlement_manager.id,
-                    "amount_cel_expression": "r.nonexistent_field * 100",
-                }
-            )
+        item = self.env["spp.program.entitlement.manager.cash.item"].create(
+            {
+                "entitlement_id": self.entitlement_manager.id,
+                "amount_cel_expression": "me.nonexistent_field * 100",
+            }
+        )
+
+        with self.assertRaises(UserError):
+            item._calculate_cel_amount(self.beneficiary)
 
     def test_zero_amount_not_created(self):
         """Test that zero-amount entitlements are not created."""
@@ -541,7 +561,7 @@ class TestEntitlementAmountCELAdvanced(TransactionCase):
         self.env["spp.program.entitlement.manager.cash.item"].create(
             {
                 "entitlement_id": self.entitlement_manager.id,
-                "amount_cel_expression": "100 * r.id",
+                "amount_cel_expression": "100 * me.id",
             }
         )
 
@@ -563,7 +583,7 @@ class TestEntitlementAmountCELAdvanced(TransactionCase):
         item = self.env["spp.program.entitlement.manager.cash.item"].create(
             {
                 "entitlement_id": self.entitlement_manager.id,
-                "amount_cel_expression": "500 if r.name == 'José García' else 300",
+                "amount_cel_expression": "me.name == 'José García' ? 500 : 300",
             }
         )
 

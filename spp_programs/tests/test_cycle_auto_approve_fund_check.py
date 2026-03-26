@@ -50,7 +50,7 @@ class TestCycleAutoApproveFundCheck(TransactionCase):
         )
 
         # Create cash entitlement manager with auto-approve enabled
-        cls.entitlement_manager = cls.env["spp.program.entitlement.manager.default"].create(
+        cls.entitlement_manager_default = cls.env["spp.program.entitlement.manager.default"].create(
             {
                 "name": "Test Cash Entitlement Manager",
                 "program_id": cls.program.id,
@@ -58,20 +58,44 @@ class TestCycleAutoApproveFundCheck(TransactionCase):
                 "amount_per_individual_in_group": 0.0,
             }
         )
+        cls.entitlement_manager = cls.env["spp.program.entitlement.manager"].create(
+            {
+                "program_id": cls.program.id,
+                "manager_ref_id": f"spp.program.entitlement.manager.default,{cls.entitlement_manager_default.id}",
+            }
+        )
+
+        # Create approval definition for cycles
+        cycle_model = cls.env["ir.model"].search([("model", "=", "spp.cycle")], limit=1)
+        cls.cycle_approval_definition = cls.env["spp.approval.definition"].create(
+            {
+                "name": "Test Cycle Approval [TEST]",
+                "model_id": cycle_model.id,
+                "approval_type": "group",
+                "approval_group_id": cls.env.ref("base.group_user").id,
+            }
+        )
 
         # Create cycle manager with auto-approve enabled
-        cls.cycle_manager = cls.env["spp.cycle.manager.default"].create(
+        cls.cycle_manager_default = cls.env["spp.cycle.manager.default"].create(
             {
                 "name": "Test Cycle Manager",
                 "program_id": cls.program.id,
                 "auto_approve_entitlements": True,
+                "approval_definition_id": cls.cycle_approval_definition.id,
+            }
+        )
+        cls.cycle_manager = cls.env["spp.cycle.manager"].create(
+            {
+                "program_id": cls.program.id,
+                "manager_ref_id": f"spp.cycle.manager.default,{cls.cycle_manager_default.id}",
             }
         )
 
         # Link managers to program
         cls.program.write(
             {
-                "cycle_manager_id": cls.cycle_manager.id,
+                "cycle_manager_ids": [(4, cls.cycle_manager.id)],
                 "entitlement_manager_ids": [(4, cls.entitlement_manager.id)],
             }
         )
@@ -259,11 +283,12 @@ class TestCycleAutoApproveFundCheck(TransactionCase):
         mock_today.return_value = date(2024, 8, 1)
 
         # Create cycle manager without auto-approve
-        cycle_manager_no_auto = self.env["spp.cycle.manager.default"].create(
+        cycle_manager_no_auto_default = self.env["spp.cycle.manager.default"].create(
             {
                 "name": "Test Cycle Manager - No Auto Approve",
                 "program_id": self.program.id,
                 "auto_approve_entitlements": False,
+                "approval_definition_id": self.cycle_approval_definition.id,
             }
         )
 
@@ -272,9 +297,15 @@ class TestCycleAutoApproveFundCheck(TransactionCase):
             {
                 "name": "Test Program - No Auto Approve",
                 "journal_id": self.journal.id,
-                "cycle_manager_id": cycle_manager_no_auto.id,
             }
         )
+        cycle_manager_no_auto = self.env["spp.cycle.manager"].create(
+            {
+                "program_id": program_no_auto.id,
+                "manager_ref_id": f"spp.cycle.manager.default,{cycle_manager_no_auto_default.id}",
+            }
+        )
+        program_no_auto.write({"cycle_manager_ids": [(4, cycle_manager_no_auto.id)]})
 
         # Create cycle
         today = fields.Date.today()
@@ -312,7 +343,25 @@ class TestCycleAutoApproveFundCheck(TransactionCase):
             {
                 "name": "Test Program - Empty",
                 "journal_id": self.journal.id,
-                "cycle_manager_id": self.cycle_manager.id,
+            }
+        )
+        empty_cm_default = self.env["spp.cycle.manager.default"].create(
+            {
+                "name": "Empty Cycle Manager",
+                "program_id": empty_program.id,
+                "auto_approve_entitlements": True,
+                "approval_definition_id": self.cycle_approval_definition.id,
+            }
+        )
+        empty_cm = self.env["spp.cycle.manager"].create(
+            {
+                "program_id": empty_program.id,
+                "manager_ref_id": f"spp.cycle.manager.default,{empty_cm_default.id}",
+            }
+        )
+        empty_program.write(
+            {
+                "cycle_manager_ids": [(4, empty_cm.id)],
                 "entitlement_manager_ids": [(4, self.entitlement_manager.id)],
             }
         )

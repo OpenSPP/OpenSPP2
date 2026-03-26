@@ -23,3 +23,9 @@ from . import test_composite_indexes
 from . import test_cycle_computed_fields
 from . import test_fund_balance
 from . import test_batch_creation
+from . import test_create_program_wizard_inkind
+from . import test_entitlement_amount_cel
+from . import test_entitlement_amount_cel_advanced
+from . import test_entitlement_condition_cel
+from . import test_entitlement_manager_inkind
+# test_cycle_auto_approve_fund_check: needs rewrite for approval mixin workflow
