@@ -69,7 +69,7 @@ class TestDemoStories(TransactionCase):
 
         maria = demo_stories.get_story_by_id("maria_santos")
         self.assertIsNotNone(maria)
-        self.assertEqual(maria["name"], "Maria Santos")
+        self.assertEqual(maria["name"], "Santos")
 
         nonexistent = demo_stories.get_story_by_id("nonexistent_story")
         self.assertIsNone(nonexistent)
@@ -78,7 +78,7 @@ class TestDemoStories(TransactionCase):
         """Test get_story_by_name function."""
         from odoo.addons.spp_demo.models import demo_stories
 
-        juan = demo_stories.get_story_by_name("Juan Dela Cruz")
+        juan = demo_stories.get_story_by_name("Dela Cruz")
         self.assertIsNotNone(juan)
         self.assertEqual(juan["id"], "juan_dela_cruz")
 
@@ -222,9 +222,7 @@ class TestDemoStories(TransactionCase):
         self.assertEqual(len(created1), len(created2))
 
         # Check no duplicates
-        maria_count = self.env["res.partner"].search_count(
-            [("name", "=", "Maria Santos"), ("is_registrant", "=", True)]
-        )
+        maria_count = self.env["res.partner"].search_count([("name", "=", "Santos"), ("is_registrant", "=", True)])
         self.assertEqual(maria_count, 1)
 
     def test_12_maria_santos_story(self):
@@ -239,7 +237,7 @@ class TestDemoStories(TransactionCase):
         generator.generate_stories()
 
         maria = self.env["res.partner"].search(
-            [("name", "=", "Maria Santos"), ("is_registrant", "=", True)],
+            [("name", "=", "Santos"), ("is_registrant", "=", True)],
             limit=1,
         )
 
@@ -258,9 +256,9 @@ class TestDemoStories(TransactionCase):
 
         generator.generate_stories()
 
-        # Carlos Morales is a household head
+        # Morales is a household group (Carlos Morales is head)
         carlos = self.env["res.partner"].search(
-            [("name", "=", "Carlos Morales"), ("is_registrant", "=", True)],
+            [("name", "=", "Morales"), ("is_registrant", "=", True)],
             limit=1,
         )
 
@@ -308,7 +306,7 @@ class TestDemoStories(TransactionCase):
         generator.generate_stories()
 
         maria = self.env["res.partner"].search(
-            [("name", "=", "Maria Santos"), ("is_registrant", "=", True)],
+            [("name", "=", "Santos"), ("is_registrant", "=", True)],
             limit=1,
         )
 
@@ -335,8 +333,8 @@ class TestDemoStories(TransactionCase):
         self.assertEqual(len(stories_ph), len(all_stories))
 
         # Names should be unchanged
-        self.assertEqual(stories_none[0]["name"], "Maria Santos")
-        self.assertEqual(stories_ph[0]["name"], "Maria Santos")
+        self.assertEqual(stories_none[0]["name"], "Santos")
+        self.assertEqual(stories_ph[0]["name"], "Santos")
 
     def test_17_get_localized_stories_sri_lanka(self):
         """Test that si_LK locale returns Sinhalese names."""
@@ -348,11 +346,11 @@ class TestDemoStories(TransactionCase):
 
         # Find maria_santos story
         maria = next(s for s in stories if s["id"] == "maria_santos")
-        self.assertEqual(maria["name"], "Kumari Perera")
+        self.assertEqual(maria["name"], "Perera")
 
         # Find household story (carlos_elena_morales)
         carlos = next(s for s in stories if s["id"] == "carlos_elena_morales")
-        self.assertEqual(carlos["name"], "Kasun Fernando")
+        self.assertEqual(carlos["name"], "Fernando")
         self.assertEqual(carlos["profile"]["head"]["name"], "Kasun Fernando")
         self.assertEqual(carlos["profile"]["spouse"]["name"], "Dilani Fernando")
         self.assertEqual(carlos["profile"]["children"][0]["name"], "Nuwan Fernando")
@@ -364,10 +362,10 @@ class TestDemoStories(TransactionCase):
         stories = demo_stories.get_localized_stories("fr_TG")
 
         maria = next(s for s in stories if s["id"] == "maria_santos")
-        self.assertEqual(maria["name"], "Ama Koffi")
+        self.assertEqual(maria["name"], "Koffi")
 
         carlos = next(s for s in stories if s["id"] == "carlos_elena_morales")
-        self.assertEqual(carlos["name"], "Kodjo Agbeko")
+        self.assertEqual(carlos["name"], "Agbeko")
         self.assertEqual(carlos["profile"]["head"]["name"], "Kodjo Agbeko")
         self.assertEqual(carlos["profile"]["spouse"]["name"], "Esi Agbeko")
 
@@ -383,27 +381,27 @@ class TestDemoStories(TransactionCase):
         self.assertEqual(ph_names, demo_stories.RESERVED_NAMES)
 
         # si_LK should have Sinhalese names
-        self.assertIn("Kumari Perera", lk_names)
-        self.assertNotIn("Maria Santos", lk_names)
+        self.assertIn("Perera", lk_names)
+        self.assertNotIn("Santos", lk_names)
 
         # fr_TG should have Togolese names
-        self.assertIn("Ama Koffi", tg_names)
-        self.assertNotIn("Maria Santos", tg_names)
+        self.assertIn("Koffi", tg_names)
+        self.assertNotIn("Santos", tg_names)
 
     def test_20_get_localized_name(self):
         """Test single name lookup by story ID and locale."""
         from odoo.addons.spp_demo.models import demo_stories
 
         # Default/Filipino
-        self.assertEqual(demo_stories.get_localized_name("maria_santos"), "Maria Santos")
-        self.assertEqual(demo_stories.get_localized_name("maria_santos", "fil_PH"), "Maria Santos")
+        self.assertEqual(demo_stories.get_localized_name("maria_santos"), "Santos")
+        self.assertEqual(demo_stories.get_localized_name("maria_santos", "fil_PH"), "Santos")
 
         # Sri Lanka
-        self.assertEqual(demo_stories.get_localized_name("maria_santos", "si_LK"), "Kumari Perera")
-        self.assertEqual(demo_stories.get_localized_name("juan_dela_cruz", "si_LK"), "Nimal Bandara")
+        self.assertEqual(demo_stories.get_localized_name("maria_santos", "si_LK"), "Perera")
+        self.assertEqual(demo_stories.get_localized_name("juan_dela_cruz", "si_LK"), "Bandara")
 
         # Togo
-        self.assertEqual(demo_stories.get_localized_name("maria_santos", "fr_TG"), "Ama Koffi")
+        self.assertEqual(demo_stories.get_localized_name("maria_santos", "fr_TG"), "Koffi")
 
         # Unknown story ID falls back to None
         self.assertIsNone(demo_stories.get_localized_name("nonexistent", "si_LK"))

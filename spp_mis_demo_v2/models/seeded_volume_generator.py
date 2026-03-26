@@ -54,14 +54,21 @@ class SeededVolumeGenerator:
             all_last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia"]
 
         # Extract family names from reserved story names to avoid collisions.
-        # Seeded groups use family_name as the group name, so a seeded "Santos"
-        # group would be confusing next to story group "Maria Santos".
+        # Use suffix matching so compound names like "Delos Santos" are also
+        # filtered when "Santos" is a reserved story family name.
         reserved_family_names = set()
         for name in self.reserved_names:
             parts = name.split()
             if len(parts) >= 2:
                 reserved_family_names.add(parts[-1])
-        self._last_names = [n for n in all_last_names if n not in reserved_family_names]
+        self._last_names = [
+            n for n in all_last_names if not any(n == fam or n.endswith(" " + fam) for fam in reserved_family_names)
+        ]
+
+        # Shuffle and prepare as a pool for unique group name assignment.
+        # Each group pops a name so no two groups share a family name.
+        self._group_name_pool = list(self._last_names)
+        self.rng.shuffle(self._group_name_pool)
 
         # Caches
         self._gender_cache = {}
@@ -119,7 +126,7 @@ class SeededVolumeGenerator:
                     gvals["gps_coordinates"] = gps
 
                 group_vals_list.append(gvals)
-                member_specs.append((bp, i))
+                member_specs.append((bp, i, group_name))
 
         # Phase 2: Batch-create groups
         _logger.info("Phase 2/%d: Creating %d groups in batches...", 4, len(group_vals_list))
@@ -130,12 +137,12 @@ class SeededVolumeGenerator:
         all_individual_vals = []
         individual_to_group = []  # (group_record, member_spec_from_blueprint)
 
-        for group_idx, (bp, _instance_idx) in enumerate(member_specs):
+        for group_idx, (bp, _instance_idx, group_family_name) in enumerate(member_specs):
             group_record = groups[group_idx]
             for member_spec in bp["members"]:
                 gender = self._resolve_gender(member_spec.get("gender", "any"))
                 age = self.rng.randint(*member_spec["age_range"])
-                given_name, family_name = self._generate_member_name(gender)
+                given_name, family_name = self._generate_member_name(gender, family_name=group_family_name)
 
                 # Compute name in standard format
                 name_parts = [
@@ -370,14 +377,22 @@ class SeededVolumeGenerator:
     # =========================================================================
 
     def _batch_create(self, model_name, vals_list):
-        """Create records in batches for performance."""
+        """Create records in batches for performance.
+
+        Disables mail.thread logging and tracking for faster bulk creation.
+        """
         if not vals_list:
             return self.env[model_name]
 
-        all_records = self.env[model_name]
+        model = self.env[model_name].with_context(
+            mail_create_nolog=True,
+            tracking_disable=True,
+            no_reset_password=True,
+        )
+        all_records = model
         for i in range(0, len(vals_list), BATCH_SIZE):
             batch = vals_list[i : i + BATCH_SIZE]
-            records = self.env[model_name].create(batch)
+            records = model.create(batch)
             all_records |= records
             if len(vals_list) > BATCH_SIZE:
                 _logger.info(
@@ -390,19 +405,29 @@ class SeededVolumeGenerator:
         return all_records
 
     def _generate_group_name(self):
-        """Generate a household name from seeded RNG."""
-        family_name = self.rng.choice(self._last_names)
-        return f"{family_name} Household"
+        """Generate a household family name from seeded pool.
 
-    def _generate_member_name(self, gender):
-        """Generate a (given_name, family_name) tuple, avoiding reserved names."""
+        Pops from a pre-shuffled pool for unique names as long as possible.
+        When exhausted, falls back to random choice (some duplicates expected
+        for locales with smaller name pools).
+        """
+        if self._group_name_pool:
+            return self._group_name_pool.pop()
+        return self.rng.choice(self._last_names)
+
+    def _generate_member_name(self, gender, family_name=None):
+        """Generate a (given_name, family_name) tuple, avoiding reserved names.
+
+        If family_name is provided, all members share that surname (realistic
+        household naming). Otherwise picks a random family name.
+        """
         max_attempts = 20
         for _ in range(max_attempts):
             if gender == "male":
                 given = self.rng.choice(self._male_names)
             else:
                 given = self.rng.choice(self._female_names)
-            family = self.rng.choice(self._last_names)
+            family = family_name or self.rng.choice(self._last_names)
             full_name = f"{given} {family}"
             if full_name not in self.reserved_names:
                 return given, family

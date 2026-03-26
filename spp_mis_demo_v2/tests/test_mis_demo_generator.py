@@ -460,17 +460,17 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
         # Based on demo_stories.py definitions
         cls.EXPECTED_HOUSEHOLD_MEMBERS = {
             # story_name: expected_member_count
-            "Carlos Morales": 5,  # head + spouse + 3 children
-            "Maria Santos": 5,  # head + spouse + 2 children + 1 adult
-            "Juan Dela Cruz": 4,  # head + spouse + 2 children
-            "Ramon Gutierrez": 7,  # head + spouse + 5 children
-            "Roberto Castillo": 3,  # head + spouse + 1 child
-            "Rosario Aquino": 4,  # head + 3 children
-            "Jose Reyes Sr": 8,  # head + spouse + 2 adults + 4 children
-            "Eduardo Bautista": 7,  # head + spouse + 5 children
-            "Manuel Santos": 2,  # head + spouse
-            "Ricardo Navarro": 4,  # head + 3 adults
-            "David Martinez": 3,  # head + spouse + 1 child
+            "Morales": 5,  # head + spouse + 3 children
+            "Santos": 5,  # head + spouse + 2 children + 1 adult
+            "Dela Cruz": 4,  # head + spouse + 2 children
+            "Gutierrez": 7,  # head + spouse + 5 children
+            "Castillo": 3,  # head + spouse + 1 child
+            "Aquino": 4,  # head + 3 children
+            "Reyes": 8,  # head + spouse + 2 adults + 4 children
+            "Bautista": 7,  # head + spouse + 5 children
+            "Pangilinan": 2,  # head + spouse
+            "Navarro": 4,  # head + 3 adults
+            "Martinez": 3,  # head + spouse + 1 child
         }
 
     def _run_generator_for_stories(self):
@@ -522,7 +522,7 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
 
         group = self.env["res.partner"].search(
             [
-                ("name", "=", "Eduardo Bautista"),
+                ("name", "=", "Bautista"),
                 ("is_group", "=", True),
             ],
             limit=1,
@@ -552,7 +552,7 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
 
         group = self.env["res.partner"].search(
             [
-                ("name", "=", "Ricardo Navarro"),
+                ("name", "=", "Navarro"),
                 ("is_group", "=", True),
             ],
             limit=1,
@@ -580,7 +580,7 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
         # First, delete any existing Bautista group to simulate a fresh state
         existing = self.env["res.partner"].search(
             [
-                ("name", "=", "Eduardo Bautista"),
+                ("name", "=", "Bautista"),
                 ("is_registrant", "=", True),
                 ("is_group", "=", True),
             ]
@@ -593,7 +593,7 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
         # Create an empty Bautista group (simulating partial creation bug)
         empty_group = self.env["res.partner"].create(
             {
-                "name": "Eduardo Bautista",
+                "name": "Bautista",
                 "is_registrant": True,
                 "is_group": True,
             }
@@ -621,7 +621,7 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
             self.skipTest("Head membership type not configured")
 
         # Check a few households
-        for story_name in ["Eduardo Bautista", "Ricardo Navarro", "Carlos Morales"]:
+        for story_name in ["Bautista", "Navarro", "Morales"]:
             group = self.env["res.partner"].search(
                 [
                     ("name", "=", story_name),
@@ -653,7 +653,7 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
         # Count members for Bautista family
         group = self.env["res.partner"].search(
             [
-                ("name", "=", "Eduardo Bautista"),
+                ("name", "=", "Bautista"),
                 ("is_group", "=", True),
             ],
             limit=1,

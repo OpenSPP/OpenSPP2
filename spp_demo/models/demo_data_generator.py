@@ -1468,7 +1468,7 @@ class SPPDemoDataGenerator(models.Model):
         # Build group values
         vals = {
             "demo_data_group_generator_id": self.id,
-            "name": head_info.get("name", story["name"]),
+            "name": story["name"],
             "is_registrant": True,
             "is_group": True,
             "registration_date": registration_date,

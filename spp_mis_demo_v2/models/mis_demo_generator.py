@@ -1707,18 +1707,25 @@ class SPPMISDemoGenerator(models.TransientModel):
         if existing_cycle:
             return existing_cycle
 
-        # Create a new cycle
+        # Create a new cycle — use today as start_date to satisfy the
+        # _check_dates constraint, then backdate via SQL for realistic demo data.
         try:
             today = fields.Date.today()
             cycle_vals = {
                 "name": f"{program.name} - Demo Cycle 1",
                 "program_id": program.id,
-                "start_date": today - datetime.timedelta(days=180),
+                "start_date": today,
                 "end_date": today + datetime.timedelta(days=30),
                 "sequence": 1,
                 "state": "approved",
             }
             cycle = self.env["spp.cycle"].create(cycle_vals)
+            # Backdate start_date for realistic payment history
+            past_start = today - datetime.timedelta(days=180)
+            self.env.cr.execute(
+                "UPDATE spp_cycle SET start_date = %s WHERE id = %s",
+                (past_start, cycle.id),
+            )
             return cycle
         except Exception as e:
             _logger.error("Could not create demo cycle: %s", e)
@@ -2318,7 +2325,7 @@ class SPPMISDemoGenerator(models.TransientModel):
             "days_back": 5,
             "state": "draft",
             "description": "Keep one draft change request for UI workflow demo",
-            "registrant_name": "Rosario Aquino",
+            "registrant_name": "Aquino",
             "is_group": True,
             "proposed_changes": {
                 "address_line1": "123 Demo Street",
@@ -2364,7 +2371,7 @@ class SPPMISDemoGenerator(models.TransientModel):
             "days_back": 8,
             "state": "pending",
             "description": "Adult child (16) moving out for university studies",
-            "registrant_name": "Carlos Morales",
+            "registrant_name": "Morales",
             "is_group": True,
             "proposed_changes": {
                 "member_name": "Teen Morales",
@@ -2404,7 +2411,7 @@ class SPPMISDemoGenerator(models.TransientModel):
             "registrant_name": "Maricel Ramos",
             "is_group": False,  # Creating from individual
             "proposed_changes": {
-                "group_name": "Ramos Household",
+                "group_name": "Ramos",
                 "head_name": "Maricel Ramos",
                 "address_line1": "123 Marriage Lane",
                 "city": "New Family City",
@@ -2417,12 +2424,12 @@ class SPPMISDemoGenerator(models.TransientModel):
             "days_back": 12,
             "state": "rejected",
             "description": "Split Chen household due to family separation",
-            "registrant_name": "Eduardo Bautista",
+            "registrant_name": "Bautista",
             "is_group": True,
             "rejection_reason": "Incomplete documentation for property division",
             "proposed_changes": {
                 "split_reason": "separation",
-                "new_group_name": "Bautista Family - Unit B",
+                "new_group_name": "Bautista B",
                 "members_to_transfer": ["Patricia Bautista", "Fernando Bautista"],
             },
         },

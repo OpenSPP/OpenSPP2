@@ -15,6 +15,19 @@ import copy
 
 # Reserved names that should not be used for random volume generation
 RESERVED_NAMES = [
+    # Household group names (family name only)
+    "Santos",
+    "Dela Cruz",
+    "Morales",
+    "Aquino",
+    "Reyes",
+    "Bautista",
+    "Pangilinan",
+    "Navarro",
+    "Gutierrez",
+    "Martinez",
+    "Castillo",
+    # Individual story names
     "Maria Santos",
     "Juan Dela Cruz",
     "Rosa Garcia",
@@ -54,8 +67,8 @@ RESERVED_NAMES = [
     "Lucia Bautista",
     "Rosalie Bautista",
     "Antonio Bautista",
-    "Manuel Santos",
-    "Gloria Santos",
+    "Manuel Pangilinan",
+    "Gloria Pangilinan",
     "Ricardo Navarro",
     "Lourdes Navarro",
     "Eduardo Navarro",
@@ -69,19 +82,19 @@ RESERVED_NAMES = [
     "Roberto Garcia",
     "Maria Garcia",
     "Carlos Garcia",
-    "Santos Family",
-    "Jose Santos",
-    "Ana Santos",
-    "Mia Santos",
-    "Cruz Family",
-    "Pedro Cruz",
-    "Teresa Cruz",
-    "Juan Cruz",
-    "Maria Cruz",
-    "Reyes Family",
-    "Ramon Reyes",
-    "Elena Reyes",
-    "Lucia Reyes",
+    "Tolentino Family",
+    "Jose Tolentino",
+    "Ana Tolentino",
+    "Mia Tolentino",
+    "Salazar Family",
+    "Pedro Salazar",
+    "Teresa Salazar",
+    "Juan Salazar",
+    "Maria Salazar",
+    "Mercado Family",
+    "Ramon Mercado",
+    "Elena Mercado",
+    "Lucia Mercado",
     "Ramos Family",
     "Antonio Ramos",
     "Rosa Ramos",
@@ -92,7 +105,7 @@ RESERVED_NAMES = [
 DEMO_STORIES = [
     {
         "id": "maria_santos",
-        "name": "Maria Santos",
+        "name": "Santos",
         "type": "household",
         "story_title": "The Success Story",
         "story_description": "Happy path from registration to graduation",
@@ -135,7 +148,7 @@ DEMO_STORIES = [
     },
     {
         "id": "juan_dela_cruz",
-        "name": "Juan Dela Cruz",
+        "name": "Dela Cruz",
         "type": "household",
         "story_title": "GRM Resolution",
         "story_description": "Demonstrate grievance handling workflow",
@@ -287,7 +300,7 @@ DEMO_STORIES = [
     },
     {
         "id": "carlos_elena_morales",
-        "name": "Carlos Morales",
+        "name": "Morales",
         "type": "household",
         "story_title": "Household Unit",
         "story_description": "Demonstrate household/group registration",
@@ -323,7 +336,7 @@ DEMO_STORIES = [
     },
     {
         "id": "amina_osman_household",
-        "name": "Rosario Aquino",
+        "name": "Aquino",
         "type": "household",
         "story_title": "Single-Parent Household",
         "story_description": "Widowed mother with children - vulnerable household",
@@ -363,7 +376,7 @@ DEMO_STORIES = [
     },
     {
         "id": "jose_reyes_multigenerational",
-        "name": "Jose Reyes Sr",
+        "name": "Reyes",
         "type": "household",
         "story_title": "Multi-Generational Household",
         "story_description": "Three generations living together - grandparents, parents, children",
@@ -439,7 +452,7 @@ DEMO_STORIES = [
     },
     {
         "id": "chen_large_family",
-        "name": "Eduardo Bautista",
+        "name": "Bautista",
         "type": "household",
         "story_title": "Large Family",
         "story_description": "Large family with many children - demonstrates scale",
@@ -477,13 +490,13 @@ DEMO_STORIES = [
     },
     {
         "id": "manuel_gloria_elderly",
-        "name": "Manuel Santos",
+        "name": "Pangilinan",
         "type": "household",
         "story_title": "Elderly Couple",
         "story_description": "Elderly couple without dependents",
         "profile": {
-            "head": {"name": "Manuel Santos", "gender": "male", "age": 75},
-            "spouse": {"name": "Gloria Santos", "gender": "female", "age": 71},
+            "head": {"name": "Manuel Pangilinan", "gender": "male", "age": 75},
+            "spouse": {"name": "Gloria Pangilinan", "gender": "female", "age": 71},
             "vulnerability": ["elderly", "health_issues", "limited_mobility"],
             "vulnerability_score": 70,  # CEL: Elderly couple vulnerability
             "has_formal_pension": False,  # CEL: Elderly pension eligibility
@@ -515,7 +528,7 @@ DEMO_STORIES = [
     },
     {
         "id": "nguyen_extended_family",
-        "name": "Ricardo Navarro",
+        "name": "Navarro",
         "type": "household",
         "story_title": "Extended Family",
         "story_description": "Siblings and their families living together",
@@ -557,7 +570,7 @@ DEMO_STORIES = [
     },
     {
         "id": "ibrahim_hassan",
-        "name": "Ramon Gutierrez",
+        "name": "Gutierrez",
         "type": "household",
         "story_title": "Displaced Family",
         "story_description": "Demonstrate emergency/vulnerability response",
@@ -639,7 +652,7 @@ DEMO_STORIES = [
     },
     {
         "id": "david_sofia_martinez",
-        "name": "David Martinez",
+        "name": "Martinez",
         "type": "household",
         "story_title": "Disability Support",
         "story_description": "Household with disabled child - demonstrates disability assistance",
@@ -710,7 +723,7 @@ BACKGROUND_STORIES = [
     },
     {
         "id": "ahmed_said",
-        "name": "Roberto Castillo",
+        "name": "Castillo",
         "type": "household",
         "story_title": "Multiple GRM Tickets",
         "story_description": "Shows GRM history",
@@ -788,15 +801,15 @@ TUTORIAL_STORIES = [
     },
     {
         "id": "tutorial_santos_family",
-        "name": "Santos Family",
+        "name": "Tolentino Family",
         "type": "household",
         "story_title": "Tutorial: Eligible (Low Income + Child Under 5)",
         "story_description": "Tutorial household meeting both criteria - ELIGIBLE",
         "profile": {
-            "head": {"name": "Jose Santos", "gender": "male", "age": 35, "income": 8000},
-            "spouse": {"name": "Ana Santos", "gender": "female", "age": 32},
+            "head": {"name": "Jose Tolentino", "gender": "male", "age": 35, "income": 8000},
+            "spouse": {"name": "Ana Tolentino", "gender": "female", "age": 32},
             "children": [
-                {"name": "Mia Santos", "gender": "female", "age": 4},  # Born ~2021, under 5
+                {"name": "Mia Tolentino", "gender": "female", "age": 4},  # Born ~2021, under 5
             ],
             "child_count": 1,
             "district": "Northern District",
@@ -812,16 +825,16 @@ TUTORIAL_STORIES = [
     },
     {
         "id": "tutorial_cruz_family",
-        "name": "Cruz Family",
+        "name": "Salazar Family",
         "type": "household",
         "story_title": "Tutorial: Not Eligible (Income Above Threshold)",
         "story_description": "Tutorial household with income above threshold - NOT ELIGIBLE",
         "profile": {
-            "head": {"name": "Pedro Cruz", "gender": "male", "age": 45, "income": 12000},
-            "spouse": {"name": "Teresa Cruz", "gender": "female", "age": 42},
+            "head": {"name": "Pedro Salazar", "gender": "male", "age": 45, "income": 12000},
+            "spouse": {"name": "Teresa Salazar", "gender": "female", "age": 42},
             "children": [
-                {"name": "Juan Cruz", "gender": "male", "age": 15},
-                {"name": "Maria Cruz", "gender": "female", "age": 10},
+                {"name": "Juan Salazar", "gender": "male", "age": 15},
+                {"name": "Maria Salazar", "gender": "female", "age": 10},
             ],
             "child_count": 2,
             "district": "Eastern District",
@@ -838,15 +851,15 @@ TUTORIAL_STORIES = [
     },
     {
         "id": "tutorial_reyes_family",
-        "name": "Reyes Family",
+        "name": "Mercado Family",
         "type": "household",
         "story_title": "Tutorial: Eligible (Low Income + Child Under 5)",
         "story_description": "Tutorial household meeting both criteria - ELIGIBLE",
         "profile": {
-            "head": {"name": "Ramon Reyes", "gender": "male", "age": 30, "income": 6000},
-            "spouse": {"name": "Elena Reyes", "gender": "female", "age": 28},
+            "head": {"name": "Ramon Mercado", "gender": "male", "age": 30, "income": 6000},
+            "spouse": {"name": "Elena Mercado", "gender": "female", "age": 28},
             "children": [
-                {"name": "Lucia Reyes", "gender": "female", "age": 2},  # Born ~2023, under 5
+                {"name": "Lucia Mercado", "gender": "female", "age": 2},  # Born ~2023, under 5
             ],
             "child_count": 1,
             "district": "Southern District",
@@ -904,7 +917,7 @@ LOCALE_NAMES = {
     "si_LK": {
         # DEMO_STORIES
         "maria_santos": {
-            "name": "Kumari Perera",
+            "name": "Perera",
             "profile_names": {
                 "head": "Kumari Perera",
                 "spouse": "Sunil Perera",
@@ -913,7 +926,7 @@ LOCALE_NAMES = {
             },
         },
         "juan_dela_cruz": {
-            "name": "Nimal Bandara",
+            "name": "Bandara",
             "profile_names": {
                 "head": "Nimal Bandara",
                 "spouse": "Kamani Bandara",
@@ -924,7 +937,7 @@ LOCALE_NAMES = {
         "pedro_reyes": {"name": "Saman Jayawardena"},
         "ana_mendoza": {"name": "Sachini Dissanayake"},
         "carlos_elena_morales": {
-            "name": "Kasun Fernando",
+            "name": "Fernando",
             "profile_names": {
                 "head": "Kasun Fernando",
                 "spouse": "Dilani Fernando",
@@ -932,14 +945,14 @@ LOCALE_NAMES = {
             },
         },
         "amina_osman_household": {
-            "name": "Anoma Herath",
+            "name": "Herath",
             "profile_names": {
                 "head": "Anoma Herath",
                 "children": ["Lahiru Herath", "Hiruni Herath", "Dinesh Herath"],
             },
         },
         "jose_reyes_multigenerational": {
-            "name": "Kamal Rathnayake",
+            "name": "Rathnayake",
             "profile_names": {
                 "head": "Kamal Rathnayake",
                 "spouse": "Ramya Rathnayake",
@@ -953,7 +966,7 @@ LOCALE_NAMES = {
             },
         },
         "chen_large_family": {
-            "name": "Thilak Gunasekara",
+            "name": "Gunasekara",
             "profile_names": {
                 "head": "Thilak Gunasekara",
                 "spouse": "Kusum Gunasekara",
@@ -967,14 +980,14 @@ LOCALE_NAMES = {
             },
         },
         "manuel_gloria_elderly": {
-            "name": "Sunil Wijesinghe",
+            "name": "Wijesinghe",
             "profile_names": {
                 "head": "Sunil Wijesinghe",
                 "spouse": "Sirima Wijesinghe",
             },
         },
         "nguyen_extended_family": {
-            "name": "Ranjith Amarasinghe",
+            "name": "Amarasinghe",
             "profile_names": {
                 "head": "Ranjith Amarasinghe",
                 "adults": [
@@ -985,7 +998,7 @@ LOCALE_NAMES = {
             },
         },
         "ibrahim_hassan": {
-            "name": "Asanka Kumara",
+            "name": "Kumara",
             "profile_names": {
                 "head": "Asanka Kumara",
                 "spouse": "Chamari Kumara",
@@ -1000,7 +1013,7 @@ LOCALE_NAMES = {
         },
         "fatima_al_rahman": {"name": "Ishara Senanayake"},
         "david_sofia_martinez": {
-            "name": "Sanjeewa Wickramasinghe",
+            "name": "Wickramasinghe",
             "profile_names": {
                 "head": "Sanjeewa Wickramasinghe",
                 "spouse": "Nisansala Wickramasinghe",
@@ -1011,7 +1024,7 @@ LOCALE_NAMES = {
         "luis_fernandez": {"name": "Dinesh Rajapaksa"},
         "mary_johnson": {"name": "Priyanka Mendis"},
         "ahmed_said": {
-            "name": "Ruwan Weerasinghe",
+            "name": "Weerasinghe",
             "profile_names": {
                 "head": "Ruwan Weerasinghe",
                 "spouse": "Nilmini Weerasinghe",
@@ -1068,7 +1081,7 @@ LOCALE_NAMES = {
     "fr_TG": {
         # DEMO_STORIES
         "maria_santos": {
-            "name": "Ama Koffi",
+            "name": "Koffi",
             "profile_names": {
                 "head": "Ama Koffi",
                 "spouse": "Kokou Koffi",
@@ -1077,7 +1090,7 @@ LOCALE_NAMES = {
             },
         },
         "juan_dela_cruz": {
-            "name": "Kofi Mensah",
+            "name": "Mensah",
             "profile_names": {
                 "head": "Kofi Mensah",
                 "spouse": "Akosua Mensah",
@@ -1088,7 +1101,7 @@ LOCALE_NAMES = {
         "pedro_reyes": {"name": "Yao Dossou"},
         "ana_mendoza": {"name": "Akua Ayivi"},
         "carlos_elena_morales": {
-            "name": "Kodjo Agbeko",
+            "name": "Agbeko",
             "profile_names": {
                 "head": "Kodjo Agbeko",
                 "spouse": "Esi Agbeko",
@@ -1096,14 +1109,14 @@ LOCALE_NAMES = {
             },
         },
         "amina_osman_household": {
-            "name": "Adjoa Tetteh",
+            "name": "Tetteh",
             "profile_names": {
                 "head": "Adjoa Tetteh",
                 "children": ["Messan Tetteh", "Akossiwa Tetteh", "Edem Tetteh"],
             },
         },
         "jose_reyes_multigenerational": {
-            "name": "Kwame Lawson",
+            "name": "Lawson",
             "profile_names": {
                 "head": "Kwame Lawson",
                 "spouse": "Afia Lawson",
@@ -1117,7 +1130,7 @@ LOCALE_NAMES = {
             },
         },
         "chen_large_family": {
-            "name": "Mawuli Akakpo",
+            "name": "Akakpo",
             "profile_names": {
                 "head": "Mawuli Akakpo",
                 "spouse": "Kafui Akakpo",
@@ -1131,21 +1144,21 @@ LOCALE_NAMES = {
             },
         },
         "manuel_gloria_elderly": {
-            "name": "Atsu Amouzou",
+            "name": "Amouzou",
             "profile_names": {
                 "head": "Atsu Amouzou",
                 "spouse": "Akpene Amouzou",
             },
         },
         "nguyen_extended_family": {
-            "name": "Selom Gbeho",
+            "name": "Gbeho",
             "profile_names": {
                 "head": "Selom Gbeho",
                 "adults": ["Mawusi Gbeho", "Senyo Gbeho", "Ayele Gbeho"],
             },
         },
         "ibrahim_hassan": {
-            "name": "Kosi Deku",
+            "name": "Deku",
             "profile_names": {
                 "head": "Kosi Deku",
                 "spouse": "Akua Deku",
@@ -1160,7 +1173,7 @@ LOCALE_NAMES = {
         },
         "fatima_al_rahman": {"name": "Afia Sossou"},
         "david_sofia_martinez": {
-            "name": "Ata Koudawo",
+            "name": "Koudawo",
             "profile_names": {
                 "head": "Ata Koudawo",
                 "spouse": "Ama Koudawo",
@@ -1171,7 +1184,7 @@ LOCALE_NAMES = {
         "luis_fernandez": {"name": "Messan Ameganvi"},
         "mary_johnson": {"name": "Ablavi Gbeassor"},
         "ahmed_said": {
-            "name": "Komla Agbodjan",
+            "name": "Agbodjan",
             "profile_names": {
                 "head": "Komla Agbodjan",
                 "spouse": "Adjoa Agbodjan",
