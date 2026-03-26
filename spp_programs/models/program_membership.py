@@ -24,6 +24,16 @@ class SPPProgramMembership(models.Model):
         "Beneficiary must be unique per program.",
     )
 
+    def init(self):
+        super().init()
+        self.env.cr.execute(
+            """
+            CREATE INDEX IF NOT EXISTS
+                spp_program_membership_program_id_state_idx
+            ON spp_program_membership (program_id, state)
+            """
+        )
+
     partner_id = fields.Many2one(
         "res.partner",
         "Registrant",

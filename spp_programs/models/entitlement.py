@@ -34,6 +34,23 @@ class SPPEntitlement(models.Model):
     # Cached model ID for performance (class-level cache)
     _entitlement_model_id_cache = None
 
+    def init(self):
+        super().init()
+        self.env.cr.execute(
+            """
+            CREATE INDEX IF NOT EXISTS
+                spp_entitlement_cycle_id_partner_id_idx
+            ON spp_entitlement (cycle_id, partner_id)
+            """
+        )
+        self.env.cr.execute(
+            """
+            CREATE INDEX IF NOT EXISTS
+                spp_entitlement_cycle_id_state_idx
+            ON spp_entitlement (cycle_id, state)
+            """
+        )
+
     @api.model
     def _generate_code(self):
         return str(uuid4())[4:-8][3:]
