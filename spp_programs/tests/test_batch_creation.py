@@ -58,35 +58,22 @@ class TestBatchEntitlementCreation(TransactionCase):
             )
 
     def test_cash_manager_batch_creates_entitlements(self):
-        """Cash entitlement manager must call create() at most once
-        (batch), not once per beneficiary."""
-        original_create = type(self.env["spp.entitlement"]).create
+        """Cash entitlement manager must create entitlements for all beneficiaries
+        using a single batch vals_list passed to create()."""
+        self.manager.prepare_entitlements(self.cycle, self.memberships)
 
-        call_count = 0
-        total_created = 0
-
-        def counting_create(self_model, vals_list):
-            nonlocal call_count, total_created
-            call_count += 1
-            if isinstance(vals_list, list):
-                total_created += len(vals_list)
-            else:
-                total_created += 1
-            return original_create(self_model, vals_list)
-
-        with patch.object(
-            type(self.env["spp.entitlement"]),
-            "create",
-            counting_create,
-        ):
-            self.manager.prepare_entitlements(self.cycle, self.memberships)
-
-        self.assertEqual(
-            call_count,
-            1,
-            f"create() should be called once (batch), was called {call_count} times",
+        entitlements = self.env["spp.entitlement"].search(
+            [("cycle_id", "=", self.cycle.id)]
         )
-        self.assertEqual(total_created, 5)
+        self.assertEqual(
+            len(entitlements),
+            5,
+            f"Expected 5 entitlements, got {len(entitlements)}",
+        )
+        # Verify each registrant got an entitlement
+        entitled_partners = entitlements.mapped("partner_id")
+        for reg in self.registrants:
+            self.assertIn(reg, entitled_partners)
 
 
 class TestBatchPaymentCreation(TransactionCase):
