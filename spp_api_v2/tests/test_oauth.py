@@ -269,6 +269,129 @@ class TestOAuthEndpoint(ApiV2HttpTestCase):
         self.assertIn("individual:read", data["scope"])
         self.assertIn("group:search", data["scope"])
 
+    def test_basic_auth_only_no_body(self):
+        """Basic Auth header with no body or Content-Type returns access token"""
+        credentials = base64.b64encode(f"{self.client.client_id}:{self.client.client_secret}".encode()).decode("utf-8")
+
+        response = self.url_open(
+            self.url,
+            data="{}",
+            headers={"Authorization": f"Basic {credentials}"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        data = json.loads(response.content)
+        self.assertIn("access_token", data)
+        self.assertEqual(data["token_type"], "Bearer")
+
+    def test_basic_auth_header_with_form_body_override(self):
+        """Form body credentials take precedence over Basic Auth header"""
+        # Basic Auth header has WRONG secret
+        wrong_credentials = base64.b64encode(f"{self.client.client_id}:wrong-secret".encode()).decode("utf-8")
+
+        # Form body has CORRECT credentials
+        body = urlencode(
+            {
+                "grant_type": "client_credentials",
+                "client_id": self.client.client_id,
+                "client_secret": self.client.client_secret,
+            }
+        )
+
+        response = self.url_open(
+            self.url,
+            data=body,
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": f"Basic {wrong_credentials}",
+            },
+        )
+
+        # Should succeed because form body credentials take precedence
+        self.assertEqual(response.status_code, 200)
+
+    def test_basic_auth_supplements_form_body(self):
+        """Basic Auth fills in missing form body credentials"""
+        credentials = base64.b64encode(f"{self.client.client_id}:{self.client.client_secret}".encode()).decode("utf-8")
+
+        # Form body has grant_type only, no client_id/client_secret
+        body = urlencode({"grant_type": "client_credentials"})
+
+        response = self.url_open(
+            self.url,
+            data=body,
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": f"Basic {credentials}",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        data = json.loads(response.content)
+        self.assertIn("access_token", data)
+
+    def test_malformed_base64_auth_header(self):
+        """Malformed base64 in Authorization header is ignored gracefully"""
+        body = urlencode(
+            {
+                "grant_type": "client_credentials",
+                "client_id": self.client.client_id,
+                "client_secret": self.client.client_secret,
+            }
+        )
+
+        response = self.url_open(
+            self.url,
+            data=body,
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": "Basic !!!not-valid-base64!!!",
+            },
+        )
+
+        # Should still succeed via form body credentials
+        self.assertEqual(response.status_code, 200)
+
+    def test_basic_auth_no_colon_in_decoded(self):
+        """Basic Auth with no colon separator is ignored"""
+        # Encode a value without colon
+        no_colon = base64.b64encode(b"no-colon-here").decode("utf-8")
+
+        body = urlencode(
+            {
+                "grant_type": "client_credentials",
+                "client_id": self.client.client_id,
+                "client_secret": self.client.client_secret,
+            }
+        )
+
+        response = self.url_open(
+            self.url,
+            data=body,
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": f"Basic {no_colon}",
+            },
+        )
+
+        # Should still succeed via form body credentials
+        self.assertEqual(response.status_code, 200)
+
+    def test_no_credentials_returns_400(self):
+        """No credentials at all returns 400"""
+        response = self.url_open(
+            self.url,
+            data="not-json-not-form",
+            headers={"Content-Type": "text/plain"},
+        )
+
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.content)
+        self.assertIn("detail", data)
+        self.assertIn("Unable to parse", data["detail"])
+
     def test_token_no_scopes(self):
         """Client with no scopes still gets token but empty scope string"""
         # Create client without scopes
