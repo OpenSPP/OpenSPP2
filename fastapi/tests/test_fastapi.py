@@ -104,11 +104,14 @@ class FastAPIHttpCase(HttpCase):
             if thread.name.startswith("odoo.service.http.request."):
                 # Walk the call stack to check if we're inside retrying().
                 frame = sys._getframe(1)
-                while frame is not None:
-                    if frame.f_code.co_name == "retrying":
-                        tracker()
-                        break
-                    frame = frame.f_back
+                try:
+                    while frame is not None:
+                        if frame.f_code.co_name == "retrying":
+                            tracker()
+                            break
+                        frame = frame.f_back
+                finally:
+                    del frame
             return original_commit(cursor_self)
 
         with unittest.mock.patch.object(TestCursor, "commit", new=tracked_commit):
@@ -237,7 +240,7 @@ class FastAPIHttpCase(HttpCase):
             url = "/fastapi_demo/demo"
             response = self.url_open(url, timeout=600)
             self.assertEqual(response.status_code, 200)
-            mocked_commit.assert_called()
+            mocked_commit.assert_called_once()
 
         self.assert_exception_processed(
             exception_type=DemoExceptionType.http_exception,
