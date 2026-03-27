@@ -379,6 +379,51 @@ class TestOAuthEndpoint(ApiV2HttpTestCase):
         # Should still succeed via form body credentials
         self.assertEqual(response.status_code, 200)
 
+    def test_form_encoded_without_content_type_falls_back(self):
+        """Form-encoded body without Content-Type header falls back to Basic Auth"""
+        credentials = base64.b64encode(f"{self.client.client_id}:{self.client.client_secret}".encode()).decode("utf-8")
+
+        # Send form-encoded body but WITHOUT the Content-Type header.
+        # The endpoint won't parse it as form data, JSON parsing will also
+        # fail, so it must fall back to the Basic Auth header.
+        body = urlencode(
+            {
+                "grant_type": "client_credentials",
+                "client_id": self.client.client_id,
+                "client_secret": self.client.client_secret,
+            }
+        )
+
+        response = self.url_open(
+            self.url,
+            data=body,
+            headers={"Authorization": f"Basic {credentials}"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        data = json.loads(response.content)
+        self.assertIn("access_token", data)
+
+    def test_form_encoded_without_content_type_no_fallback_returns_400(self):
+        """Form-encoded body without Content-Type and no Basic Auth returns 400"""
+        body = urlencode(
+            {
+                "grant_type": "client_credentials",
+                "client_id": self.client.client_id,
+                "client_secret": self.client.client_secret,
+            }
+        )
+
+        response = self.url_open(
+            self.url,
+            data=body,
+        )
+
+        # Form body is not parsed (no Content-Type), JSON parsing fails,
+        # no Basic Auth header to fall back on → 400
+        self.assertEqual(response.status_code, 400)
+
     def test_no_credentials_returns_400(self):
         """No credentials at all returns 400"""
         response = self.url_open(
