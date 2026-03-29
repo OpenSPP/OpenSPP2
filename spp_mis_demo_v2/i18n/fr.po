@@ -138,8 +138,8 @@ msgstr ""
 
 #. module: spp_mis_demo_v2
 #: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
-msgid "<strong>Social Protection Programs (6):</strong>"
-msgstr "<strong>Programmes de protection sociale (6) :</strong>"
+msgid "<strong>Social Protection Programs (7):</strong>"
+msgstr "<strong>Programmes de protection sociale (7) :</strong>"
 
 #. module: spp_mis_demo_v2
 #: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form

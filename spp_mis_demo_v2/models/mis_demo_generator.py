@@ -961,6 +961,14 @@ class SPPMISDemoGenerator(models.TransientModel):
                 if program_def.get("cycle_duration"):
                     self._configure_cycle_manager(program, program_def)
 
+                # Configure compliance manager (CEL expression)
+                if program_def.get("compliance_cel_expression"):
+                    self._configure_compliance_manager(program, program_def)
+
+                # Configure program-level constant overrides
+                if program_def.get("program_constants"):
+                    self._configure_program_constants(program, program_def)
+
             except Exception as e:
                 _logger.error("Error creating program (program_id=%s): %s", program_def.get("id", "unknown"), e)
 
@@ -1091,6 +1099,87 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "Could not configure eligibility manager for program (program_id=%s): %s",
                 program.id,
                 e,
+            )
+
+    def _configure_compliance_manager(self, program, program_def):
+        """Configure the compliance manager with a CEL expression.
+
+        The default compliance manager is already created by _ensure_program_managers().
+        This method sets the CEL expression on it.
+        """
+        try:
+            cel_expression = program_def.get("compliance_cel_expression")
+            if not cel_expression:
+                return
+
+            for wrapper in program.compliance_manager_ids:
+                concrete = wrapper.manager_ref_id
+                if hasattr(concrete, "compliance_cel_expression"):
+                    concrete.write(
+                        {
+                            "compliance_cel_expression": cel_expression,
+                        }
+                    )
+                    _logger.info(
+                        "Configured compliance CEL for program (program_id=%s): %s",
+                        program.id,
+                        cel_expression,
+                    )
+                    break
+
+        except Exception as e:
+            _logger.warning(
+                "Could not configure compliance manager for program (program_id=%s): %s",
+                program.id,
+                e,
+            )
+
+    def _configure_program_constants(self, program, program_def):
+        """Configure program-level constant overrides via CEL Program Parameters.
+
+        Creates spp.cel.program.parameter records that override default variable
+        values for a specific program (e.g., income_threshold=2000 for Conditional
+        Child Grant instead of the global default 5000).
+        """
+        constants = program_def.get("program_constants", {})
+        if not constants:
+            return
+
+        CelVariable = self.env["spp.cel.variable"]
+        ProgramParam = self.env["spp.cel.program.parameter"]
+
+        for var_name, value in constants.items():
+            variable = CelVariable.search([("name", "=", var_name)], limit=1)
+            if not variable:
+                _logger.warning(
+                    "CEL variable '%s' not found, skipping constant override for program (program_id=%s)",
+                    var_name,
+                    program.id,
+                )
+                continue
+
+            existing = ProgramParam.search(
+                [
+                    ("program_id", "=", program.id),
+                    ("variable_id", "=", variable.id),
+                ],
+                limit=1,
+            )
+            if existing:
+                continue
+
+            ProgramParam.create(
+                {
+                    "program_id": program.id,
+                    "variable_id": variable.id,
+                    "value": str(value),
+                }
+            )
+            _logger.info(
+                "Set program constant %s=%s for program (program_id=%s)",
+                var_name,
+                value,
+                program.id,
             )
 
     def _configure_logic_studio(self, program, program_def):
@@ -1309,10 +1398,28 @@ class SPPMISDemoGenerator(models.TransientModel):
                     )
                     continue
 
+                # Determine enrollee: group (default) or individual head member
+                enrollee = registrant
+                if enrollment_def.get("enroll_individual") and registrant.is_group:
+                    # Find the head member of this group
+                    head_membership = self.env["spp.group.membership"].search(
+                        [("group", "=", registrant.id)],
+                        limit=1,
+                        order="id",
+                    )
+                    if head_membership:
+                        enrollee = head_membership.individual
+                        _logger.info(
+                            "Individual enrollment: using head member %s (id=%s) from group %s",
+                            enrollee.name,
+                            enrollee.id,
+                            registrant.name,
+                        )
+
                 # Check if already enrolled
                 existing_membership = self.env["spp.program.membership"].search(
                     [
-                        ("partner_id", "=", registrant.id),
+                        ("partner_id", "=", enrollee.id),
                         ("program_id", "=", program.id),
                     ],
                     limit=1,
@@ -1330,14 +1437,14 @@ class SPPMISDemoGenerator(models.TransientModel):
                     continue
 
                 # Create enrollment
-                enrollment = self._create_story_enrollment(registrant, program, enrollment_def)
+                enrollment = self._create_story_enrollment(enrollee, program, enrollment_def)
                 if enrollment:
                     result["enrollments"].append(enrollment)
                     stats["enrollments_created"] += 1
                     _logger.info(
                         "Enrolled (membership_id=%s, partner_id=%s, program_id=%s, story_id=%s)",
                         enrollment.id,
-                        registrant.id,
+                        enrollee.id,
                         program.id,
                         story_id,
                     )
@@ -1345,7 +1452,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                     # Create payment history if enabled and defined (cash programs)
                     if self.create_story_payments and enrollment_def.get("payments"):
                         payments, cycle = self._create_story_payments(
-                            registrant, program, enrollment, enrollment_def, stats
+                            enrollee, program, enrollment, enrollment_def, stats
                         )
                         result["payments"].extend(payments)
                         # Track payments by cycle for batch creation
@@ -1356,7 +1463,11 @@ class SPPMISDemoGenerator(models.TransientModel):
 
                     # Create in-kind entitlements if defined
                     if self.create_story_payments and enrollment_def.get("entitlements"):
-                        self._create_story_inkind_entitlements(registrant, program, enrollment, enrollment_def, stats)
+                        self._create_story_inkind_entitlements(enrollee, program, enrollment, enrollment_def, stats)
+
+                    # Mark cycle membership as non_compliant (compliance failure)
+                    if self.create_story_payments and enrollment_def.get("non_compliant_cycle"):
+                        self._mark_cycle_membership_non_compliant(enrollee, program, enrollment_def, stats)
 
         # Create payment batches for each cycle
         if payments_by_cycle:
@@ -1412,6 +1523,73 @@ class SPPMISDemoGenerator(models.TransientModel):
         except Exception as e:
             _logger.error("Error creating enrollment: %s", e)
             return None
+
+    def _mark_cycle_membership_non_compliant(self, registrant, program, enrollment_def, stats):
+        """Mark an existing cycle membership as non_compliant for compliance failure demo.
+
+        Used when a story requires showing that a beneficiary passed eligibility
+        but failed compliance in a cycle (e.g., Santos income improved above threshold).
+        Updates the existing cycle membership state from 'enrolled' to 'non_compliant'.
+        """
+        try:
+            nc_def = enrollment_def.get("non_compliant_cycle")
+            if not nc_def:
+                return
+
+            # Find the cycle for this program (same cycle used for payments)
+            cycle = self._get_or_create_demo_cycle(program)
+            if not cycle:
+                _logger.warning(
+                    "No cycle found for non_compliant marking (program_id=%s)",
+                    program.id,
+                )
+                return
+
+            # Find existing cycle membership
+            cycle_membership = self.env["spp.cycle.membership"].search(
+                [
+                    ("partner_id", "=", registrant.id),
+                    ("cycle_id", "=", cycle.id),
+                ],
+                limit=1,
+            )
+
+            if cycle_membership:
+                cycle_membership.write({"state": "non_compliant"})
+                _logger.info(
+                    "Marked cycle membership as non_compliant (partner_id=%s, cycle_id=%s, membership_id=%s)",
+                    registrant.id,
+                    cycle.id,
+                    cycle_membership.id,
+                )
+            else:
+                # Create new cycle membership with non_compliant state
+                days_back = nc_def.get("days_back", 30)
+                enrollment_date = fields.Date.today() - datetime.timedelta(days=days_back)
+                self.env["spp.cycle.membership"].create(
+                    {
+                        "partner_id": registrant.id,
+                        "cycle_id": cycle.id,
+                        "state": "non_compliant",
+                        "enrollment_date": enrollment_date,
+                    }
+                )
+                _logger.info(
+                    "Created non_compliant cycle membership (partner_id=%s, cycle_id=%s)",
+                    registrant.id,
+                    cycle.id,
+                )
+
+            stats.setdefault("non_compliant_memberships", 0)
+            stats["non_compliant_memberships"] += 1
+
+        except Exception as e:
+            _logger.warning(
+                "Could not mark cycle membership as non_compliant (partner_id=%s, program_id=%s): %s",
+                registrant.id,
+                program.id,
+                e,
+            )
 
     def _create_story_payments(self, registrant, program, membership, enrollment_def, stats):
         """Create payment history for a story enrollment.

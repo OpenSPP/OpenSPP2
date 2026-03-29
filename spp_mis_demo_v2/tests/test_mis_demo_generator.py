@@ -736,3 +736,137 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
                 f"but got '{actual_name}'. This can cause duplicate registrants "
                 f"with incorrect names.",
             )
+
+    # ===================================================================
+    # Compliance manager tests
+    # ===================================================================
+
+    def test_compliance_managers_configured_after_generation(self):
+        """Test that compliance managers have CEL expressions after program creation."""
+        generator = self.env["spp.mis.demo.generator"].create(
+            {
+                "name": "Test Compliance",
+                "create_demo_programs": True,
+                "enroll_demo_stories": False,
+                "generate_volume": False,
+                "create_cycles": False,
+                "locale_origin": self.test_country.id,
+            }
+        )
+        generator.action_generate()
+
+        # Cash Transfer should have compliance CEL
+        cash_transfer = self.env["spp.program"].search([("name", "=", "Cash Transfer Program")], limit=1)
+        self.assertTrue(cash_transfer, "Cash Transfer Program not found")
+        self.assertTrue(cash_transfer.compliance_manager_ids, "No compliance manager on Cash Transfer")
+
+        for wrapper in cash_transfer.compliance_manager_ids:
+            concrete = wrapper.manager_ref_id
+            if hasattr(concrete, "compliance_cel_expression"):
+                self.assertEqual(
+                    concrete.compliance_cel_expression,
+                    "per_capita_income < poverty_line",
+                )
+                break
+        else:
+            self.fail("No concrete compliance manager found for Cash Transfer")
+
+    def test_conditional_child_grant_compliance_configured(self):
+        """Test that Conditional Child Grant has compliance CEL and program constant."""
+        generator = self.env["spp.mis.demo.generator"].create(
+            {
+                "name": "Test CCG Compliance",
+                "create_demo_programs": True,
+                "enroll_demo_stories": False,
+                "generate_volume": False,
+                "create_cycles": False,
+                "locale_origin": self.test_country.id,
+            }
+        )
+        generator.action_generate()
+
+        ccg = self.env["spp.program"].search([("name", "=", "Conditional Child Grant")], limit=1)
+        self.assertTrue(ccg, "Conditional Child Grant not found")
+
+        # Check compliance expression
+        for wrapper in ccg.compliance_manager_ids:
+            concrete = wrapper.manager_ref_id
+            if hasattr(concrete, "compliance_cel_expression"):
+                self.assertEqual(
+                    concrete.compliance_cel_expression,
+                    "per_capita_income < income_threshold",
+                )
+                break
+        else:
+            self.fail("No concrete compliance manager found for CCG")
+
+        # Check program constant override
+        param = self.env["spp.cel.program.parameter"].search([("program_id", "=", ccg.id)], limit=1)
+        self.assertTrue(param, "No program parameter found for CCG")
+        self.assertEqual(param.value, "2000")
+
+    def test_non_compliant_cycle_membership_created(self):
+        """Test that Santos has non_compliant cycle membership after generation."""
+        generator = self.env["spp.mis.demo.generator"].create(
+            {
+                "name": "Test Non-Compliant",
+                "create_demo_programs": True,
+                "enroll_demo_stories": True,
+                "create_story_payments": True,
+                "generate_volume": False,
+                "create_cycles": False,
+                "locale_origin": self.test_country.id,
+            }
+        )
+        generator.action_generate()
+
+        # Find Santos household
+        santos = self.env["res.partner"].search(
+            [("name", "=", "Santos"), ("is_group", "=", True), ("is_registrant", "=", True)],
+            limit=1,
+        )
+        if not santos:
+            # Story registrant may not have been created in test environment
+            return
+
+        # Check Cash Transfer cycle membership is non_compliant
+        cash_transfer = self.env["spp.program"].search([("name", "=", "Cash Transfer Program")], limit=1)
+        if not cash_transfer:
+            return
+
+        cycle = self.env["spp.cycle"].search([("program_id", "=", cash_transfer.id)], limit=1)
+        if not cycle:
+            return
+
+        cm = self.env["spp.cycle.membership"].search(
+            [("partner_id", "=", santos.id), ("cycle_id", "=", cycle.id)],
+            limit=1,
+        )
+        self.assertTrue(cm, "No cycle membership found for Santos in Cash Transfer")
+        self.assertEqual(cm.state, "non_compliant", "Santos should be non_compliant")
+
+    def test_programs_without_compliance_have_empty_expression(self):
+        """Programs without compliance_cel_expression should have empty compliance managers."""
+        generator = self.env["spp.mis.demo.generator"].create(
+            {
+                "name": "Test No Compliance",
+                "create_demo_programs": True,
+                "enroll_demo_stories": False,
+                "generate_volume": False,
+                "create_cycles": False,
+                "locale_origin": self.test_country.id,
+            }
+        )
+        generator.action_generate()
+
+        # Food Assistance should NOT have a compliance expression
+        food = self.env["spp.program"].search([("name", "=", "Food Assistance")], limit=1)
+        self.assertTrue(food, "Food Assistance not found")
+
+        for wrapper in food.compliance_manager_ids:
+            concrete = wrapper.manager_ref_id
+            if hasattr(concrete, "compliance_cel_expression"):
+                self.assertFalse(
+                    concrete.compliance_cel_expression,
+                    "Food Assistance should not have a compliance expression",
+                )

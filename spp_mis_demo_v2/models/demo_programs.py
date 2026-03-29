@@ -48,7 +48,7 @@ DEMO_PROGRAMS = [
         "use_logic_studio": True,
         "logic_name": "Child Benefit Eligibility",
         "expression_type": "filter",
-        "stories": ["carlos_elena_morales"],
+        "stories": ["carlos_elena_morales", "maria_santos"],
         "demo_points": [
             "Household-based program",
             "Child-focused eligibility",
@@ -62,8 +62,8 @@ DEMO_PROGRAMS = [
         "name": "Conditional Child Grant",
         "description": "Monthly grant for households with pregnant women and children aged 0-2. "
         "Targets the critical first 1,000 days of life to support nutrition and "
-        "health-seeking behavior. Compliance requires prenatal visits, health "
-        "checkups, and immunizations.",
+        "health-seeking behavior. Compliance enforces an income cap to ensure "
+        "benefits reach low-income families.",
         "target_type": "group",
         "entitlement_amount": 10.0,
         "entitlement_formula": "first_1000_days_grant",
@@ -71,8 +71,10 @@ DEMO_PROGRAMS = [
         # CEL: Households with children under 2 (first 1,000 days)
         # Pattern: Member age check via members.exists()
         "cel_expression": "r.is_group == true and members.exists(m, age_years(m.birthdate) < 2)",
-        # Compliance: prenatal visits, health checkups, immunizations
-        "compliance_cel_expression": "members.exists(m, age_years(m.birthdate) <= 2)",
+        # Compliance: Income cap — per-capita income must stay below threshold
+        "compliance_cel_expression": "per_capita_income < income_threshold",
+        # Override income_threshold from default 5000 to 2000 for this program
+        "program_constants": {"income_threshold": "2000"},
         # Link to Logic Pack
         "logic_pack": "child_benefit",
         "use_logic_studio": True,
@@ -82,9 +84,9 @@ DEMO_PROGRAMS = [
         "demo_points": [
             "Conditional cash transfer",
             "First 1,000 days targeting (0-2 years)",
-            "Health visit and immunization compliance",
+            "Income-cap compliance (per_capita_income < income_threshold)",
             "Compliance manager with CEL expression",
-            "CEL: members.exists() for eligibility and compliance",
+            "CEL: members.exists() for eligibility, per_capita_income for compliance",
             "Logic Pack: child_benefit",
         ],
     },
@@ -105,7 +107,7 @@ DEMO_PROGRAMS = [
         "use_logic_studio": True,
         "logic_name": "Social Pension Eligibility",
         "expression_type": "filter",
-        "stories": ["rosa_garcia"],
+        "stories": ["rosa_garcia", "manuel_gloria_elderly"],
         "demo_points": [
             "Individual targeting",
             "Age-based eligibility",
@@ -151,7 +153,8 @@ DEMO_PROGRAMS = [
         "id": "cash_transfer_program",
         "name": "Cash Transfer Program",
         "description": "Regular cash transfers to low-income households. "
-        "Fixed monthly amount using cash_transfer_amount constant.",
+        "Fixed monthly amount using cash_transfer_amount constant. "
+        "Compliance rechecks per-capita income each cycle.",
         "target_type": "group",
         "entitlement_amount": 150.0,
         "entitlement_formula": "cash_transfer_amount",  # Uses constant
@@ -159,6 +162,8 @@ DEMO_PROGRAMS = [
         # CEL: Income below poverty line and household size >= 2
         # Pattern: Constant comparison using activated variables
         "cel_expression": "r.is_group == true and hh_total_income < poverty_line and hh_size >= 2",
+        # Compliance: Per-capita income must remain below poverty line each cycle
+        "compliance_cel_expression": "per_capita_income < poverty_line",
         # Link to Logic Pack
         "logic_pack": "cash_transfer_basic",
         "use_logic_studio": True,
@@ -168,7 +173,8 @@ DEMO_PROGRAMS = [
         "demo_points": [
             "Regular cash disbursements",
             "Income-based eligibility",
-            "Graduation pathway (Maria Santos)",
+            "Per-capita income compliance (per_capita_income < poverty_line)",
+            "Graduation via compliance failure (Maria Santos)",
             "Uses poverty_line constant",
             "Uses hh_total_income aggregate",
             "Logic Pack: cash_transfer_basic",
@@ -216,7 +222,7 @@ DEMO_PROGRAMS = [
         # No Logic Pack - demonstrates simple inline CEL
         "logic_pack": None,
         "use_logic_studio": False,
-        "stories": ["rosa_garcia", "fatima_al_rahman"],
+        "stories": ["rosa_garcia", "fatima_al_rahman", "pedro_reyes", "ana_mendoza", "maria_santos", "ibrahim_hassan"],
         "demo_points": [
             "In-kind entitlements",
             "Multi-program enrollment",
@@ -268,18 +274,31 @@ def get_programs_by_pack(pack_code):
 
 # Story-to-program enrollment mapping with journey details
 STORY_ENROLLMENTS = {
-    # Story 1: Maria Santos - Success story with graduation from Cash Transfer
+    # Story 1: Maria Santos - Cash Transfer (graduated via compliance failure) +
+    # Universal Child Grant (active) + Food Assistance (individual)
     "maria_santos": [
         {
             "program": "Cash Transfer Program",
-            "enrolled_days_back": 150,
-            "graduated_days_back": 30,  # Successfully graduated from the program
+            "enrolled_days_back": 180,
+            "graduated_days_back": 30,  # Exited after compliance failure
             "payments": [
+                {"amount": 150, "days_back": 150, "status": "paid"},
                 {"amount": 150, "days_back": 120, "status": "paid"},
                 {"amount": 150, "days_back": 90, "status": "paid"},
-                {"amount": 150, "days_back": 60, "status": "paid"},
             ],
-        }
+            # Compliance failure: income improved, per_capita_income exceeded poverty_line
+            # Cycle membership will be set to non_compliant after payments are created
+            "non_compliant_cycle": {"days_back": 30},
+        },
+        {
+            "program": "Universal Child Grant",
+            "enrolled_days_back": 150,
+        },
+        {
+            "program": "Food Assistance",
+            "enrolled_days_back": 120,
+            "enroll_individual": True,  # Enroll head member, not the group
+        },
     ],
     # Story 2: Juan Dela Cruz - Cash Transfer with GRM issue
     "juan_dela_cruz": [
@@ -335,7 +354,12 @@ STORY_ENROLLMENTS = {
                 {"amount": 400, "days_back": 50, "status": "paid"},  # Tier 2 (score 85)
                 {"amount": 400, "days_back": 35, "status": "paid"},
             ],
-        }
+        },
+        {
+            "program": "Food Assistance",
+            "enrolled_days_back": 50,
+            "enroll_individual": True,  # Enroll head member, not the group
+        },
     ],
     # Story 8: Teresa Villanueva - Food Assistance
     "fatima_al_rahman": [
@@ -344,7 +368,21 @@ STORY_ENROLLMENTS = {
             "enrolled_days_back": 30,
         }
     ],
-    # Story 9: David Martinez - Disability Support Grant (NEW)
+    # Pedro Reyes - Food Assistance (individual)
+    "pedro_reyes": [
+        {
+            "program": "Food Assistance",
+            "enrolled_days_back": 90,
+        }
+    ],
+    # Ana Mendoza - Food Assistance (individual)
+    "ana_mendoza": [
+        {
+            "program": "Food Assistance",
+            "enrolled_days_back": 70,
+        }
+    ],
+    # Story 9: David Martinez - Disability Support Grant
     "david_sofia_martinez": [
         {
             "program": "Disability Support Grant",
@@ -353,6 +391,20 @@ STORY_ENROLLMENTS = {
                 {"amount": 175, "days_back": 90, "status": "paid"},  # base 100 + 75*1
                 {"amount": 175, "days_back": 60, "status": "paid"},
                 {"amount": 175, "days_back": 30, "status": "paid"},
+            ],
+        }
+    ],
+    # Manuel Pangilinan - Elderly Social Pension (individual, age 75)
+    "manuel_gloria_elderly": [
+        {
+            "program": "Elderly Social Pension",
+            "enrolled_days_back": 200,
+            "enroll_individual": True,  # Enroll head member, not the group
+            "payments": [
+                {"amount": 100, "days_back": 170, "status": "paid"},
+                {"amount": 100, "days_back": 140, "status": "paid"},
+                {"amount": 100, "days_back": 110, "status": "paid"},
+                {"amount": 100, "days_back": 80, "status": "paid"},
             ],
         }
     ],

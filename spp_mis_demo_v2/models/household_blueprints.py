@@ -16,6 +16,7 @@ Total: ~28 blueprints, ~730 households, ~2555 members
 
 # Program IDs matching DEMO_PROGRAMS in demo_programs.py
 _UCG = "universal_child_grant"
+_CCG = "conditional_child_grant"
 _ESP = "elderly_social_pension"
 _ERF = "emergency_relief_fund"
 _CTP = "cash_transfer_program"
@@ -38,7 +39,7 @@ HOUSEHOLD_BLUEPRINTS = [
             {"role": "spouse", "gender": "female", "age_range": (23, 33)},
             {"role": "child", "gender": "any", "age_range": (1, 4)},
         ],
-        "eligibility": {_UCG: True, _CTP: True, _ERF: False, _DSG: False},
+        "eligibility": {_UCG: True, _CCG: True, _CTP: True, _ERF: False, _DSG: False},
     },
     {
         "id": "bp_02_young_couple_2children_rural_vlow",
@@ -84,7 +85,7 @@ HOUSEHOLD_BLUEPRINTS = [
             {"role": "child", "gender": "any", "age_range": (4, 8)},
             {"role": "child", "gender": "any", "age_range": (8, 12)},
         ],
-        "eligibility": {_UCG: True, _CTP: True, _ERF: False, _DSG: False},
+        "eligibility": {_UCG: True, _CCG: True, _CTP: True, _ERF: False, _DSG: False},
     },
     {
         "id": "bp_05_single_father_1child_periurban_mod",
@@ -112,7 +113,7 @@ HOUSEHOLD_BLUEPRINTS = [
             {"role": "child", "gender": "any", "age_range": (0, 1)},
             {"role": "child", "gender": "any", "age_range": (1, 3)},
         ],
-        "eligibility": {_UCG: True, _CTP: True, _ERF: True, _DSG: False},
+        "eligibility": {_UCG: True, _CCG: True, _CTP: True, _ERF: True, _DSG: False},
     },
     # =========================================================================
     # Middle-age Families (6 blueprints, ~150 households)
@@ -442,7 +443,7 @@ HOUSEHOLD_BLUEPRINTS = [
             {"role": "child", "gender": "any", "age_range": (5, 10), "is_disabled": True},
             {"role": "elderly", "gender": "any", "age_range": (68, 80)},
         ],
-        "eligibility": {_UCG: True, _ESP: True, _CTP: True, _ERF: True, _DSG: True},
+        "eligibility": {_UCG: True, _CCG: True, _ESP: True, _CTP: True, _ERF: True, _DSG: True},
     },
 ]
 
