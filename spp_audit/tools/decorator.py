@@ -4,6 +4,8 @@
 import copy
 import logging
 
+from markupsafe import Markup
+
 from odoo import api
 
 _logger = logging.getLogger(__name__)
@@ -35,11 +37,10 @@ def audit_decorator(method):
             )
         )
         if new_values:
-            keys = new_values[0].keys()
-            for key in keys:
-                for nv in new_values:
-                    if str(type(nv[key])) == "<class 'markupsafe.Markup'>":
-                        nv[key] = str(nv[key])
+            for nv in new_values:
+                for key, value in nv.items():
+                    if isinstance(value, Markup):
+                        nv[key] = str(value)
 
             rules.log("create", new_values=new_values)
         return result
@@ -71,13 +72,14 @@ def audit_decorator(method):
         )
 
         if new_values and old_values_copy:
-            keys = new_values[0].keys()
-            for key in keys:
-                for nv, ov in zip(new_values, old_values_copy, strict=False):
-                    if str(type(nv[key])) == "<class 'markupsafe.Markup'>":
-                        nv[key] = str(nv[key])
-                    if str(type(ov[key])) == "<class 'markupsafe.Markup'>":
-                        ov[key] = str(ov[key])
+            for nv in new_values:
+                for key, value in nv.items():
+                    if isinstance(value, Markup):
+                        nv[key] = str(value)
+            for ov in old_values_copy:
+                for key, value in ov.items():
+                    if isinstance(value, Markup):
+                        ov[key] = str(value)
 
             rules.log("write", old_values_copy, new_values)
         return result
@@ -92,11 +94,10 @@ def audit_decorator(method):
         )
 
         if old_values:
-            keys = old_values[0].keys()
-            for key in keys:
-                for ov in old_values:
-                    if str(type(ov[key])) == "<class 'markupsafe.Markup'>":
-                        ov[key] = str(ov[key])
+            for ov in old_values:
+                for key, value in ov.items():
+                    if isinstance(value, Markup):
+                        ov[key] = str(value)
 
             rules.log("unlink", old_values)
         return audit_unlink.origin(self)

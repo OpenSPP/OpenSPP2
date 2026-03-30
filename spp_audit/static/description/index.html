@@ -522,6 +522,8 @@ domain-specific actions</li>
 create overrides (#138)</li>
 <li>fix: Markup sanitization in audit_write and audit_unlink now handles
 all records, not just the first</li>
+<li>refactor: use <tt class="docutils literal">isinstance(value, Markup)</tt> instead of fragile
+<tt class="docutils literal"><span class="pre">str(type(...))</span></tt> comparison in all audit decorator methods</li>
 </ul>
 </div>
 <div class="section" id="section-2">
