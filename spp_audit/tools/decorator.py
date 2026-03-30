@@ -73,9 +73,11 @@ def audit_decorator(method):
         if new_values and old_values_copy:
             keys = new_values[0].keys()
             for key in keys:
-                if str(type(new_values[0][key])) == "<class 'markupsafe.Markup'>":
-                    new_values[0][key] = str(new_values[0][key])
-                    old_values_copy[0][key] = str(old_values_copy[0][key])
+                for nv, ov in zip(new_values, old_values_copy, strict=False):
+                    if str(type(nv[key])) == "<class 'markupsafe.Markup'>":
+                        nv[key] = str(nv[key])
+                    if str(type(ov[key])) == "<class 'markupsafe.Markup'>":
+                        ov[key] = str(ov[key])
 
             rules.log("write", old_values_copy, new_values)
         return result
@@ -92,8 +94,9 @@ def audit_decorator(method):
         if old_values:
             keys = old_values[0].keys()
             for key in keys:
-                if str(type(old_values[0][key])) == "<class 'markupsafe.Markup'>":
-                    old_values[0][key] = str(old_values[0][key])
+                for ov in old_values:
+                    if str(type(ov[key])) == "<class 'markupsafe.Markup'>":
+                        ov[key] = str(ov[key])
 
             rules.log("unlink", old_values)
         return audit_unlink.origin(self)
