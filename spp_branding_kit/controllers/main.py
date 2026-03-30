@@ -5,6 +5,7 @@ from werkzeug.wrappers import Response
 
 from odoo import http
 from odoo.http import request
+from odoo.modules import get_manifest
 
 from odoo.addons.portal.controllers.web import Home
 
@@ -50,9 +51,10 @@ class OpenSPPBrandingController(http.Controller):
     @http.route("/openspp/about", type="http", auth="user")
     def openspp_about(self, **kwargs):
         """Custom about page for OpenSPP"""
+        manifest = get_manifest("spp_branding_kit")
         payload = {
             "title": "About OpenSPP",
-            "version": "1.0.0",
+            "version": manifest.get("version", "0.0.0"),
             "system_name": get_param(request.env, "spp.system.name", "OpenSPP Platform"),
             "documentation_url": get_param(request.env, "spp.documentation.url", "https://docs.openspp.org"),
             "support_url": get_param(request.env, "spp.support.url", "https://openspp.org"),

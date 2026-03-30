@@ -79,7 +79,7 @@ class TestBrandingHttp(HttpCase):
         self.assertIn("application/json", resp.headers.get("Content-Type", ""))
         data = json.loads(resp.text)
         self.assertEqual(data["title"], "About OpenSPP")
-        self.assertEqual(data["version"], "1.0.0")
+        self.assertEqual(data["version"], "19.0.2.0.1")
         self.assertIn("system_name", data)
         self.assertIn("documentation_url", data)
         self.assertIn("support_url", data)
