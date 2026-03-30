@@ -4,9 +4,9 @@
 import copy
 import logging
 
-from odoo import api
+from markupsafe import Markup
 
-long = int
+from odoo import api
 
 _logger = logging.getLogger(__name__)
 
@@ -22,25 +22,25 @@ def audit_decorator(method):
     audit_unlink, depending on the value of the method parameter.
     """
 
-    @api.model
-    def audit_create(self, vals):
-        result = audit_create.origin(self, vals)
-        record = self.browse(result) if isinstance(result, int | long) else result
+    @api.model_create_multi
+    def audit_create(self, vals_list):
+        result = audit_create.origin(self, vals_list)
+        records = result
         rules = self.get_audit_rules("create")
 
         # Use sudo() to avoid access errors when reading computed fields
         new_values = (
-            record.sudo()  # nosemgrep: odoo-sudo-without-context
+            records.sudo()  # nosemgrep: odoo-sudo-without-context
             .with_context(allowed_company_ids=[])
             .read(  # nosemgrep: odoo-sudo-without-context
                 load="_classic_write"
             )
         )
         if new_values:
-            keys = new_values[0].keys()
-            for key in keys:
-                if str(type(new_values[0][key])) == "<class 'markupsafe.Markup'>":
-                    new_values[0][key] = str(new_values[0][key])
+            for nv in new_values:
+                for key, value in nv.items():
+                    if isinstance(value, Markup):
+                        nv[key] = str(value)
 
             rules.log("create", new_values=new_values)
         return result
@@ -72,11 +72,14 @@ def audit_decorator(method):
         )
 
         if new_values and old_values_copy:
-            keys = new_values[0].keys()
-            for key in keys:
-                if str(type(new_values[0][key])) == "<class 'markupsafe.Markup'>":
-                    new_values[0][key] = str(new_values[0][key])
-                    old_values_copy[0][key] = str(old_values_copy[0][key])
+            for nv in new_values:
+                for key, value in nv.items():
+                    if isinstance(value, Markup):
+                        nv[key] = str(value)
+            for ov in old_values_copy:
+                for key, value in ov.items():
+                    if isinstance(value, Markup):
+                        ov[key] = str(value)
 
             rules.log("write", old_values_copy, new_values)
         return result
@@ -91,10 +94,10 @@ def audit_decorator(method):
         )
 
         if old_values:
-            keys = old_values[0].keys()
-            for key in keys:
-                if str(type(old_values[0][key])) == "<class 'markupsafe.Markup'>":
-                    old_values[0][key] = str(old_values[0][key])
+            for ov in old_values:
+                for key, value in ov.items():
+                    if isinstance(value, Markup):
+                        ov[key] = str(value)
 
             rules.log("unlink", old_values)
         return audit_unlink.origin(self)
