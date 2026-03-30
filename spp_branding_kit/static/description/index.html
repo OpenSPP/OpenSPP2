@@ -57,31 +57,25 @@
             margin-top: 0;
             color: #2c3e50;
         }
-        .installation {
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        code {
             background: #f0f0f0;
-            padding: 20px;
-            border-radius: 5px;
-            margin: 20px 0;
-        }
-        .code {
-            background: #2c3e50;
-            color: white;
-            padding: 15px;
-            border-radius: 5px;
-            font-family: 'Courier New', monospace;
-            overflow-x: auto;
-        }
-        .warning {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 15px;
-            margin: 20px 0;
-        }
-        .info {
-            background: #d1ecf1;
-            border-left: 4px solid #17a2b8;
-            padding: 15px;
-            margin: 20px 0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
         }
     </style>
 </head>
@@ -89,130 +83,92 @@
     <div class="container">
         <div class="header">
             <h1>OpenSPP Branding Kit</h1>
-            <p>Complete debranding and rebranding solution for Odoo 17</p>
+            <p>Branding customization, URL routing and telemetry management for OpenSPP</p>
         </div>
-        
+
         <div class="content">
             <div class="section">
                 <h2>Overview</h2>
-                <p>The OpenSPP Branding Kit is a comprehensive module that removes all Odoo branding and replaces it with OpenSPP branding throughout the entire platform. This module is designed specifically for Odoo 17 and follows best practices for maintainability and upgrade-safety.</p>
+                <p>Replaces Odoo branding with OpenSPP branding across the platform. Adds <code>/openspp</code> URL routing as an alias for <code>/odoo</code> routes, redirects telemetry to OpenSPP endpoints or disables it entirely, and customizes system messages, email signatures, and report footers. Works with <code>theme_openspp_muk</code> for visual styling.</p>
             </div>
-            
+
             <div class="section">
                 <h2>Key Features</h2>
                 <div class="features">
                     <div class="feature">
-                        <h3>🎨 Complete Debranding</h3>
-                        <p>Removes all Odoo references from backend, frontend, login pages, and reports</p>
+                        <h3>URL Routing</h3>
+                        <p><code>/openspp/programs/123</code> works as an alias for <code>/odoo/programs/123</code>. Both routes remain functional.</p>
                     </div>
                     <div class="feature">
-                        <h3>🔒 Telemetry Disabled</h3>
-                        <p>Blocks all external communications and telemetry to Odoo servers</p>
+                        <h3>Telemetry Control</h3>
+                        <p>Redirect telemetry to an OpenSPP endpoint or disable it entirely via Settings.</p>
                     </div>
                     <div class="feature">
-                        <h3>📄 Custom Reports</h3>
-                        <p>Professional PDF reports with OpenSPP headers and footers</p>
+                        <h3>Session Branding</h3>
+                        <p>Injects OpenSPP system name and version into the web client session for consistent UI branding.</p>
                     </div>
                     <div class="feature">
-                        <h3>🌐 Website Customization</h3>
-                        <p>Fully branded website with custom footer and navigation</p>
+                        <h3>Report Customization</h3>
+                        <p>Updates company report headers and footers with OpenSPP text during installation.</p>
                     </div>
                     <div class="feature">
-                        <h3>👤 User Interface</h3>
-                        <p>Customized login page, user menu, and backend interface</p>
+                        <h3>Debug Restriction</h3>
+                        <p>Optionally restricts debug mode access to administrators only.</p>
                     </div>
                     <div class="feature">
-                        <h3>🚀 OCA Integration</h3>
-                        <p>Compatible with OCA debranding modules for enhanced functionality</p>
+                        <h3>Module Filtering</h3>
+                        <p>Adds an "OpenSPP Apps" filter and dedicated menu to browse OpenSPP-specific applications.</p>
                     </div>
                 </div>
             </div>
-            
+
             <div class="section">
-                <h2>Installation</h2>
-                <div class="installation">
-                    <h3>Prerequisites</h3>
-                    <ul>
-                        <li>Odoo 17 Community Edition</li>
-                        <li>OpenSPP modules (if using with OpenSPP suite)</li>
-                        <li>OCA server-brand repository (recommended)</li>
-                    </ul>
-                    
-                    <h3>Installation Steps</h3>
-                    <ol>
-                        <li>Clone the OCA server-brand repository:
-                            <div class="code">git clone --branch 17.0 https://github.com/OCA/server-brand.git</div>
-                        </li>
-                        <li>Add both module paths to your Odoo configuration (directories containing your addons):
-                            <div class="code">addons_path = /path/to/custom-addons,/path/to/server-brand,/path/to/odoo/addons</div>
-                        </li>
-                        <li>Restart Odoo server and update the apps list</li>
-                        <li>Install the OpenSPP Branding Kit module from the Apps menu</li>
-                    </ol>
-                </div>
+                <h2>Extended Models</h2>
+                <table>
+                    <tr><th>Model</th><th>Extension Purpose</th></tr>
+                    <tr><td><code>res.users</code></td><td>Custom email signature, removes Odoo account URL</td></tr>
+                    <tr><td><code>res.config.settings</code></td><td>Adds branding and telemetry configuration fields</td></tr>
+                    <tr><td><code>ir.http</code></td><td>Injects OpenSPP branding into web client session info</td></tr>
+                    <tr><td><code>ir.module.module</code></td><td>Provides utility to count paid/proprietary apps</td></tr>
+                </table>
             </div>
-            
+
             <div class="section">
                 <h2>Configuration</h2>
-                <div class="info">
-                    <strong>Automatic Setup:</strong> The module automatically configures all branding elements upon installation. No manual configuration is required.
-                </div>
-                
-                <h3>Optional Configuration</h3>
-                <ul>
-                    <li><strong>Company Logo:</strong> Upload your logo via Settings → Companies → Your Company</li>
-                    <li><strong>Website Footer:</strong> Can be further customized using the website builder</li>
-                    <li><strong>Email Templates:</strong> Modify email signatures in Settings → Technical → Email Templates</li>
-                    <li><strong>Report Headers:</strong> Adjust report layouts in Settings → Technical → Reports</li>
-                </ul>
+                <ol>
+                    <li>Open <strong>Settings</strong></li>
+                    <li>Scroll to the <strong>OpenSPP Branding</strong> app card</li>
+                    <li>Configure <strong>System Name</strong> (default: "OpenSPP Platform")</li>
+                    <li>Set <strong>Documentation URL</strong> and <strong>Support URL</strong></li>
+                    <li>Toggle <strong>Display OpenSPP Branding</strong> to show/hide "Powered by OpenSPP"</li>
+                    <li>Configure telemetry: enable (redirects to OpenSPP endpoint) or disable</li>
+                    <li>Set <strong>Telemetry Endpoint</strong> if redirecting</li>
+                </ol>
+                <p>Post-install hook automatically disables Odoo brand promotion, module update notifications, and theme store menu.</p>
             </div>
-            
+
             <div class="section">
-                <h2>Technical Details</h2>
-                <h3>Module Structure</h3>
-                <ul>
-                    <li><strong>Views:</strong> XML templates for UI customization</li>
-                    <li><strong>Data:</strong> Configuration records for debranding</li>
-                    <li><strong>Static:</strong> CSS, JavaScript, and image assets</li>
-                    <li><strong>Models:</strong> Python overrides for backend logic</li>
-                    <li><strong>Controllers:</strong> Custom routes and endpoints</li>
-                </ul>
-                
-                <h3>Dependencies</h3>
-                <p>The module can work standalone but achieves best results when used with:</p>
-                <ul>
-                    <li>disable_odoo_online (OCA)</li>
-                    <li>portal_odoo_debranding (OCA)</li>
-                    <li>remove_odoo_enterprise (OCA)</li>
-                </ul>
+                <h2>Dependencies</h2>
+                <table>
+                    <tr><th>Module</th><th>Purpose</th></tr>
+                    <tr><td><code>spp_security</code></td><td>OpenSPP security framework</td></tr>
+                    <tr><td><code>base</code></td><td>Odoo core</td></tr>
+                    <tr><td><code>web</code></td><td>Web client</td></tr>
+                    <tr><td><code>base_setup</code></td><td>Settings infrastructure</td></tr>
+                    <tr><td><code>theme_openspp_muk</code></td><td>OpenSPP visual styling</td></tr>
+                </table>
             </div>
-            
-            <div class="section">
-                <h2>Upgrade Safety</h2>
-                <div class="warning">
-                    <strong>Important:</strong> This module uses inheritance and XML modifications to ensure upgrade safety. All customizations are contained within the module and will not be lost during Odoo updates.
-                </div>
-                
-                <p>The module follows Odoo best practices:</p>
-                <ul>
-                    <li>No core code modifications</li>
-                    <li>Uses proper inheritance mechanisms</li>
-                    <li>Declarative XML customizations</li>
-                    <li>Version-controlled development</li>
-                </ul>
-            </div>
-            
+
             <div class="section">
                 <h2>Support</h2>
                 <p>For support and contributions:</p>
                 <ul>
                     <li><strong>Website:</strong> <a href="https://openspp.org">openspp.org</a></li>
-                    <li><strong>Documentation:</strong> <a href="https://openspp.org/documentation">OpenSPP Documentation</a></li>
-                    <li><strong>GitHub:</strong> <a href="https://github.com/openspp">github.com/openspp</a></li>
-                    <li><strong>Community:</strong> <a href="https://openspp.org/community">OpenSPP Community</a></li>
+                    <li><strong>Documentation:</strong> <a href="https://docs.openspp.org">docs.openspp.org</a></li>
+                    <li><strong>GitHub:</strong> <a href="https://github.com/OpenSPP/OpenSPP2">github.com/OpenSPP/OpenSPP2</a></li>
                 </ul>
             </div>
-            
+
             <div class="section">
                 <h2>License</h2>
                 <p>This module is licensed under LGPL-3. See LICENSE file for details.</p>

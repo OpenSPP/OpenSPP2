@@ -24,9 +24,7 @@
         "data/debranding_data.xml",
         # Views - UI customizations
         "views/webclient_templates.xml",
-        "views/login_templates.xml",
         "views/report_templates.xml",
-        "views/backend_customization.xml",
         "views/res_config_settings_views.xml",
         "views/about_settings.xml",
         "views/ir_module_module_views.xml",
@@ -43,7 +41,6 @@
     },
     "images": [
         "static/description/icon.png",
-        "static/description/banner.png",
     ],
     "installable": True,
     "application": False,

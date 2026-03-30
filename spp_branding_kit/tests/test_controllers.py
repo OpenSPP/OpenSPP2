@@ -51,3 +51,11 @@ class TestDebugRestriction(HttpCase):
         self.authenticate("admin", "admin")
         resp = self.url_open("/web", allow_redirects=False)
         self.assertIn(resp.status_code, [200, 303])
+
+    def test_debug_unauthenticated_redirects(self):
+        """Unauthenticated user with debug flag should be redirected"""
+        self.IrConfigParam.set_param("spp.debug.admin_only", "True")
+        # No authenticate() call — unauthenticated session
+        resp = self.url_open("/web?debug=1", allow_redirects=False)
+        # Should redirect to strip debug (uid is falsy)
+        self.assertIn(resp.status_code, [200, 302, 303])

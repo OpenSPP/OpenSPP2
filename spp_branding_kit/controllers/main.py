@@ -47,7 +47,7 @@ class OpenSPPHome(Home):
 class OpenSPPBrandingController(http.Controller):
     """Custom routes for OpenSPP branding"""
 
-    @http.route("/openspp/about", type="http", auth="public")
+    @http.route("/openspp/about", type="http", auth="user")
     def openspp_about(self, **kwargs):
         """Custom about page for OpenSPP"""
         payload = {
@@ -64,6 +64,9 @@ class OpenSPPBrandingController(http.Controller):
         """Override version info to show OpenSPP branding"""
         return version_info_payload(request.env)
 
+    # csrf=False: This endpoint mimics Odoo's built-in telemetry route which receives
+    # unauthenticated machine-to-machine POST requests from the Odoo client library.
+    # CSRF protection does not apply to non-browser API endpoints.
     @http.route("/publisher-warranty", type="http", auth="none", csrf=False)
     def publisher_warranty(self, **kwargs):
         """Handle telemetry based on configuration"""

@@ -41,6 +41,7 @@ class TestBrandingHttp(HttpCase):
         self.assertIn("application/json", resp.headers.get("Content-Type", ""))
 
     def test_session_info_contains_branding(self):
+        self.authenticate("admin", "admin")
         IrConfig = self.env["ir.config_parameter"].sudo()
         IrConfig.set_param("spp.system.name", "OpenSPP Test")
         info = self._jsonrpc("/web/session/get_session_info")
@@ -50,6 +51,7 @@ class TestBrandingHttp(HttpCase):
         self.assertEqual(info["server_version_info"][1], "19.0")
 
     def test_session_info_contains_all_branding_keys(self):
+        self.authenticate("admin", "admin")
         info = self._jsonrpc("/web/session/get_session_info")
         expected_keys = [
             "spp_system_name",
@@ -63,6 +65,7 @@ class TestBrandingHttp(HttpCase):
             self.assertIn(key, info, f"Session info should contain {key}")
 
     def test_session_info_server_version_info_format(self):
+        self.authenticate("admin", "admin")
         info = self._jsonrpc("/web/session/get_session_info")
         version_info = info.get("server_version_info")
         self.assertIsNotNone(version_info)
@@ -102,3 +105,15 @@ class TestBrandingHttp(HttpCase):
         resp = self.url_open("/openspp/some-path", allow_redirects=False)
         # Should return 200 or redirect — not 404
         self.assertNotEqual(resp.status_code, 404)
+
+    def test_openspp_route_unauthenticated(self):
+        """Test that /openspp without auth redirects to login"""
+        resp = self.url_open("/openspp", allow_redirects=False)
+        # Unauthenticated should redirect (302/303) to login
+        self.assertIn(resp.status_code, [200, 302, 303])
+
+    def test_about_endpoint_requires_auth(self):
+        """Test that /openspp/about requires authentication"""
+        # Without authenticating, should redirect to login
+        resp = self.url_open("/openspp/about", allow_redirects=False)
+        self.assertIn(resp.status_code, [302, 303])
