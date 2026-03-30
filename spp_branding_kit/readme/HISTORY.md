@@ -1,3 +1,13 @@
+### 19.0.2.0.1
+
+- Upgrade to Production/Stable status
+- Fix category to `OpenSPP/Configuration`
+- Use `search_count()` in `get_paid_apps_count()` for efficiency
+- Add proper JSON response content-type to `/openspp/about` endpoint
+- Clean up outdated `requirements.txt` referencing Odoo 17
+- Increase test coverage to 95%+ (utils, settings, controllers, HTTP endpoints)
+- Update `readme/DESCRIPTION.md` to follow module description template
+
 ### 19.0.2.0.0
 
 - Initial migration to OpenSPP2

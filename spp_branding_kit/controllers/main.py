@@ -50,15 +50,14 @@ class OpenSPPBrandingController(http.Controller):
     @http.route("/openspp/about", type="http", auth="public")
     def openspp_about(self, **kwargs):
         """Custom about page for OpenSPP"""
-        return json.dumps(
-            {
-                "title": "About OpenSPP",
-                "version": "1.0.0",
-                "system_name": get_param(request.env, "spp.system.name", "OpenSPP Platform"),
-                "documentation_url": get_param(request.env, "spp.documentation.url", "https://docs.openspp.org"),
-                "support_url": get_param(request.env, "spp.support.url", "https://openspp.org"),
-            }
-        )
+        payload = {
+            "title": "About OpenSPP",
+            "version": "1.0.0",
+            "system_name": get_param(request.env, "spp.system.name", "OpenSPP Platform"),
+            "documentation_url": get_param(request.env, "spp.documentation.url", "https://docs.openspp.org"),
+            "support_url": get_param(request.env, "spp.support.url", "https://openspp.org"),
+        }
+        return Response(json.dumps(payload), content_type="application/json")
 
     @http.route("/web/webclient/version_info", type="jsonrpc", auth="none")
     def version_info(self):
