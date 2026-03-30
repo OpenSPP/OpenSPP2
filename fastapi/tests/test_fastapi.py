@@ -5,7 +5,7 @@ import os
 import unittest
 from contextlib import contextmanager
 
-from odoo import Command, sql_db
+from odoo import Command
 from odoo.tests.common import HttpCase
 from odoo.tools import mute_logger
 
@@ -86,9 +86,36 @@ class FastAPIHttpCase(HttpCase):
 
     @contextmanager
     def _mocked_commit(self):
-        cursor_cls = getattr(sql_db, "TestCursor", None) or sql_db.BaseCursor
-        with unittest.mock.patch.object(cursor_cls, "commit", return_value=None) as mocked_commit:
-            yield mocked_commit
+        # Odoo 19 moved TestCursor from sql_db to odoo.tests.test_cursor.
+        # HttpCase uses TestCursor (not Cursor) for the HTTP server thread.
+        # We track only commits originating from odoo.service.model.retrying()
+        # to avoid false positives from unrelated commits (e.g., routing map
+        # generation in endpoint_route_handler opens its own cursor).
+        import sys
+        import threading
+
+        from odoo.tests.test_cursor import TestCursor
+
+        original_commit = TestCursor.commit
+        tracker = unittest.mock.MagicMock()
+
+        def tracked_commit(cursor_self):
+            thread = threading.current_thread()
+            if thread.name.startswith("odoo.service.http.request."):
+                # Walk the call stack to check if we're inside retrying().
+                frame = sys._getframe(1)
+                try:
+                    while frame is not None:
+                        if frame.f_code.co_name == "retrying":
+                            tracker()
+                            break
+                        frame = frame.f_back
+                finally:
+                    del frame
+            return original_commit(cursor_self)
+
+        with unittest.mock.patch.object(TestCursor, "commit", new=tracked_commit):
+            yield tracker
 
     def _assert_expected_lang(self, accept_language, expected_lang):
         route = "/fastapi_demo/demo/lang"
@@ -206,7 +233,6 @@ class FastAPIHttpCase(HttpCase):
             mocked_commit.assert_not_called()
             self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-    @unittest.skip("Odoo 19: BaseCursor.commit mock not invoked by HTTP test runner (#54)")
     def test_no_commit_on_exception(self) -> None:
         # this test check that the way we mock the cursor is working as expected
         # and that the transaction is rolled back in case of exception.
