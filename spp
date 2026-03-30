@@ -22,7 +22,14 @@ import shutil
 import subprocess
 import sys
 import time
-import tomllib
+
+try:
+    import tomllib
+except ModuleNotFoundError:
+    try:
+        import tomli as tomllib
+    except ModuleNotFoundError:
+        tomllib = None
 from pathlib import Path
 
 try:
@@ -99,13 +106,15 @@ DEFAULT_CONFIG = {
 def load_config() -> dict:
     """Load config from ~/.spp.toml, returning defaults if not found."""
     config = DEFAULT_CONFIG.copy()
-    if CONFIG_PATH.exists():
+    if CONFIG_PATH.exists() and tomllib is not None:
         try:
             with open(CONFIG_PATH, "rb") as f:
                 user_config = tomllib.load(f)
                 config.update(user_config)
         except (tomllib.TOMLDecodeError, OSError) as e:
             warn(f"Could not load config from {CONFIG_PATH}: {e}")
+    elif CONFIG_PATH.exists() and tomllib is None:
+        warn("tomllib not available (Python < 3.11). Install 'tomli' or upgrade Python to load ~/.spp.toml config.")
     return config
 
 

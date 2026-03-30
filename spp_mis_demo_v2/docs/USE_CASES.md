@@ -16,7 +16,7 @@
 Each household and individual has locale-specific names. The demo generator selects
 names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 
-### Household Surnames
+### Household
 
 | Story ID  | Filipino  | Togolese | Sri Lankan     |
 | --------- | --------- | -------- | -------------- |
