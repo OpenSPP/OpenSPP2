@@ -140,7 +140,7 @@ DEMO_PROFILES = {
 }
 
 
-def run(cmd: str | list, check: bool = True, capture: bool = False, **kwargs) -> subprocess.CompletedProcess:
+def run(cmd, check: bool = True, capture: bool = False, **kwargs) -> subprocess.CompletedProcess:
     """Run a command with nice defaults."""
     if isinstance(cmd, str):
         kwargs.setdefault("shell", True)
@@ -918,7 +918,7 @@ def cmd_sql(args):
         run(docker_compose("exec", "db", "psql", "-U", "odoo", "-d", db_name))
 
 
-def _show_url(open_browser: bool = False) -> str | None:
+def _show_url(open_browser: bool = False):
     """Get the running Odoo server URL."""
     service, profile = _find_running_odoo()
     if not service:
