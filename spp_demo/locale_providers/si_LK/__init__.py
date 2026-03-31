@@ -4,6 +4,73 @@ from faker.providers.person import Provider as PersonProvider
 class Provider(PersonProvider):
     formats = ["{{first_name}} {{last_name}}"]
 
+    # ISO country code
+    country_code = "LK"
+
+    # Address data: (city, province, zip_code)
+    cities = [
+        ("Colombo", "Western Province", "00100"),
+        ("Kandy", "Central Province", "20000"),
+        ("Galle", "Southern Province", "80000"),
+        ("Jaffna", "Northern Province", "40000"),
+        ("Negombo", "Western Province", "11500"),
+        ("Batticaloa", "Eastern Province", "30000"),
+        ("Trincomalee", "Eastern Province", "31000"),
+        ("Matara", "Southern Province", "81000"),
+        ("Anuradhapura", "North Central Province", "50000"),
+        ("Kurunegala", "North Western Province", "60000"),
+        ("Ratnapura", "Sabaragamuwa Province", "70000"),
+        ("Badulla", "Uva Province", "90000"),
+        ("Gampaha", "Western Province", "11000"),
+        ("Kalutara", "Western Province", "12000"),
+        ("Nuwara Eliya", "Central Province", "22200"),
+    ]
+
+    street_names = [
+        "Galle Road",
+        "Kandy Road",
+        "Duplication Road",
+        "Havelock Road",
+        "Baseline Road",
+        "High Level Road",
+        "Bauddhaloka Mawatha",
+        "Wijerama Mawatha",
+        "Dharmapala Mawatha",
+        "Peradeniya Road",
+        "Temple Street",
+        "Lotus Road",
+        "Chatham Street",
+        "York Street",
+        "Dam Street",
+    ]
+
+    mobile_format = "+947{d1}{d3}{d4}"
+    email_domains = ["gmail.com", "yahoo.com", "outlook.com"]
+
+    birth_places = [
+        "Colombo",
+        "Kandy",
+        "Galle",
+        "Jaffna",
+        "Negombo",
+        "Matara",
+        "Kurunegala",
+        "Batticaloa",
+        "Anuradhapura",
+        "Ratnapura",
+    ]
+
+    banks = [
+        ("Bank of Ceylon", "BABORLKLXXX"),
+        ("People's Bank", "PABORLKLXXX"),
+        ("Commercial Bank of Ceylon", "CABORLKLXXX"),
+        ("Hatton National Bank", "HABORLKLXXX"),
+        ("Sampath Bank", "SABORLKLXXX"),
+    ]
+
+    national_id_format = "{d9}V"
+    household_id_format = "HH-{d4}-{d6}"
+
     first_names_male = [
         "Aruna",
         "Chamara",

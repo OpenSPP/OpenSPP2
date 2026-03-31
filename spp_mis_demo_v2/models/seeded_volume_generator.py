@@ -206,6 +206,39 @@ class SeededVolumeGenerator:
 
         self._batch_create("spp.group.membership", membership_vals_list)
 
+        # Phase 5+6: Enrich with demographic data (address, email, phone, IDs, bank)
+        try:
+            from .demographic_enricher import DemographicEnricher
+
+            enricher = DemographicEnricher(self.env, self.locale, self.rng)
+
+            # Phase 5: Enrich groups
+            _logger.info("Phase 5/6: Enriching %d groups with demographic data...", len(groups))
+            group_meta = [{"record": g, "name": g.name} for g in groups]
+            enricher.batch_enrich_groups(group_meta)
+
+            # Phase 6: Enrich individuals
+            _logger.info("Phase 6/6: Enriching %d individuals with demographic data...", len(individuals))
+            ind_meta = []
+            for ind_idx, individual in enumerate(individuals):
+                _group_record, member_spec = individual_to_group[ind_idx]
+                age = None
+                if individual.birthdate:
+                    age = (fields.Date.today() - individual.birthdate).days // 365
+                ind_meta.append(
+                    {
+                        "record": individual,
+                        "age": age,
+                        "gender": member_spec.get("gender", ""),
+                        "role": member_spec.get("role", ""),
+                        "given_name": individual.given_name or "",
+                        "family_name": individual.family_name or "",
+                    }
+                )
+            enricher.batch_enrich_individuals(ind_meta)
+        except Exception as e:
+            _logger.warning("Demographic enrichment failed (non-critical): %s", e)
+
         # Build result list
         group_households = {}
         for ind_idx, individual in enumerate(individuals):

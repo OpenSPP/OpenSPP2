@@ -4,6 +4,73 @@ from faker.providers.person import Provider as PersonProvider
 class Provider(PersonProvider):
     formats = ["{{first_name}} {{last_name}}"]
 
+    # ISO country code
+    country_code = "TG"
+
+    # Address data: (city, region, zip_code)
+    cities = [
+        ("Lomé", "Maritime", "01 BP"),
+        ("Kara", "Kara", "04 BP"),
+        ("Sokodé", "Centrale", "03 BP"),
+        ("Atakpamé", "Plateaux", "02 BP"),
+        ("Kpalimé", "Plateaux", "02 BP"),
+        ("Dapaong", "Savanes", "05 BP"),
+        ("Tsévié", "Maritime", "01 BP"),
+        ("Aného", "Maritime", "01 BP"),
+        ("Bassar", "Kara", "04 BP"),
+        ("Notsé", "Plateaux", "02 BP"),
+        ("Tabligbo", "Maritime", "01 BP"),
+        ("Badou", "Plateaux", "02 BP"),
+        ("Vogan", "Maritime", "01 BP"),
+        ("Niamtougou", "Kara", "04 BP"),
+        ("Mango", "Savanes", "05 BP"),
+    ]
+
+    street_names = [
+        "Boulevard de la Paix",
+        "Rue du Commerce",
+        "Avenue de la Libération",
+        "Rue de la Gare",
+        "Boulevard du Mono",
+        "Avenue de la Nouvelle Marche",
+        "Rue des Nimes",
+        "Boulevard Circulaire",
+        "Avenue du 24 Janvier",
+        "Rue de l'Hôpital",
+        "Avenue de Sarakawa",
+        "Rue du Grand Marché",
+        "Boulevard de la République",
+        "Avenue de la Chance",
+        "Rue de l'Indépendance",
+    ]
+
+    mobile_format = "+228 9{d1} {d2} {d2} {d2}"
+    email_domains = ["gmail.com", "yahoo.fr", "hotmail.com"]
+
+    birth_places = [
+        "Lomé",
+        "Kara",
+        "Sokodé",
+        "Atakpamé",
+        "Kpalimé",
+        "Dapaong",
+        "Tsévié",
+        "Aného",
+        "Bassar",
+        "Notsé",
+    ]
+
+    banks = [
+        ("Ecobank Togo", "ABORSMXX"),
+        ("Union Togolaise de Banque", "UTBKTGTG"),
+        ("BTCI", "BTCITGTG"),
+        ("Banque Populaire pour l'Épargne et le Crédit", "BPECTGTG"),
+        ("Orabank Togo", "ORANTGTG"),
+    ]
+
+    national_id_format = "TG-{d4}-{d4}-{d2}"
+    household_id_format = "MEN-{d4}-{d6}"
+
     first_names_male = [
         "Koffi",
         "Kodjo",

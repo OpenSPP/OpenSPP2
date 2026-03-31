@@ -4,6 +4,92 @@ from faker.providers.person import Provider as PersonProvider
 class Provider(PersonProvider):
     formats = ["{{first_name}} {{last_name}}"]
 
+    # ISO country code for res.country lookup
+    country_code = "PH"
+
+    # Address data: (city, province/region, zip_code)
+    cities = [
+        ("Quezon City", "Metro Manila", "1100"),
+        ("Manila", "Metro Manila", "1000"),
+        ("Makati", "Metro Manila", "1200"),
+        ("Taguig", "Metro Manila", "1630"),
+        ("Pasig", "Metro Manila", "1600"),
+        ("Caloocan", "Metro Manila", "1400"),
+        ("Cebu City", "Cebu", "6000"),
+        ("Davao City", "Davao del Sur", "8000"),
+        ("Iloilo City", "Iloilo", "5000"),
+        ("Zamboanga City", "Zamboanga del Sur", "7000"),
+        ("Cagayan de Oro", "Misamis Oriental", "9000"),
+        ("Bacolod", "Negros Occidental", "6100"),
+        ("General Santos", "South Cotabato", "9500"),
+        ("Batangas City", "Batangas", "4200"),
+        ("Cabanatuan", "Nueva Ecija", "3100"),
+        ("San Fernando", "Pampanga", "2000"),
+        ("Lipa", "Batangas", "4217"),
+        ("Lucena", "Quezon", "4301"),
+        ("Dagupan", "Pangasinan", "2400"),
+        ("Baguio", "Benguet", "2600"),
+    ]
+
+    street_names = [
+        "Rizal Street",
+        "Mabini Avenue",
+        "Bonifacio Drive",
+        "Quezon Boulevard",
+        "Aguinaldo Highway",
+        "Roxas Boulevard",
+        "Osmeña Street",
+        "Magsaysay Avenue",
+        "Laurel Street",
+        "Del Pilar Street",
+        "Luna Street",
+        "Jacinto Street",
+        "Silang Drive",
+        "Katipunan Avenue",
+        "Sampaguita Street",
+        "Narra Street",
+        "Acacia Lane",
+        "Mahogany Drive",
+        "Camia Street",
+        "Ilang-Ilang Street",
+    ]
+
+    # Phone format: {dN} means N random digits
+    mobile_format = "+639{d2}{d3}{d4}"
+    email_domains = ["gmail.com", "yahoo.com.ph", "outlook.com"]
+
+    birth_places = [
+        "Quezon City",
+        "Manila",
+        "Cebu City",
+        "Davao City",
+        "Makati",
+        "Iloilo City",
+        "Bacolod",
+        "Zamboanga City",
+        "Cagayan de Oro",
+        "General Santos",
+        "Batangas City",
+        "Cabanatuan",
+        "San Fernando",
+        "Baguio",
+        "Dagupan",
+    ]
+
+    # Banks: (full_name, bic_code)
+    banks = [
+        ("BDO Unibank", "BNORPHMM"),
+        ("Bank of the Philippine Islands", "BOPIPHMM"),
+        ("Metropolitan Bank and Trust", "MABORSMX"),
+        ("Land Bank of the Philippines", "TLBPPHMM"),
+        ("Philippine National Bank", "PNBMPHMM"),
+    ]
+
+    # National ID format template
+    national_id_format = "PSN-{d4}-{d4}-{d4}"
+    # Household registration format
+    household_id_format = "HH-{d4}-{d6}"
+
     first_names_male = [
         "Juan",
         "Jose",

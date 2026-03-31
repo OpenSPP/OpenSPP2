@@ -669,6 +669,8 @@ class SPPMISDemoGenerator(models.TransientModel):
                                 group.id,
                                 story.get("id", "unknown"),
                             )
+                            # Enrich with demographic data
+                            self._enrich_story_household(group, members, profile)
                     except Exception as e:
                         _logger.warning(
                             "Could not create members for group (story_id=%s): %s",
@@ -677,6 +679,11 @@ class SPPMISDemoGenerator(models.TransientModel):
                         )
 
             stats["stories_created"] = created_count
+
+            # Enrich ALL story registrants with demographic data
+            # (covers both newly created and pre-existing registrants)
+            self._enrich_all_story_registrants(stories)
+
             return created_count
 
         except ImportError:
@@ -775,6 +782,121 @@ class SPPMISDemoGenerator(models.TransientModel):
             self._create_household_members(registrant, profile, days_back)
 
         return registrant
+
+    def _get_demographic_enricher(self):
+        """Get or create the demographic enricher for story registrants.
+
+        Uses a class-level cache since Odoo model instances don't support
+        arbitrary attribute assignment.
+        """
+        cache_key = "_demo_enricher_cache"
+        if not hasattr(type(self), cache_key) or getattr(type(self), cache_key) is None:
+            import random
+
+            from .demographic_enricher import DemographicEnricher
+
+            locale = self.env.context.get("demo_locale", "fil_PH")
+            rng = random.Random(99)  # Separate seed from volume generation
+            setattr(type(self), cache_key, DemographicEnricher(self.env, locale, rng))
+        return getattr(type(self), cache_key)
+
+    def _enrich_all_story_registrants(self, stories):
+        """Enrich all story registrants with demographic data if not already set.
+
+        Runs after all story registrants are created/ensured, so it covers
+        both newly created and pre-existing registrants.
+        """
+        try:
+            enricher = self._get_demographic_enricher()
+        except Exception as e:
+            _logger.warning("Could not initialize demographic enricher: %s", e)
+            return
+
+        _logger.info("Enriching %d story registrants with demographic data...", len(stories))
+
+        for story in stories:
+            story_name = story["name"]
+            story_type = story.get("type", "individual")
+            profile = story.get("profile", {})
+
+            registrant = self.env["res.partner"].search(
+                [("name", "=", story_name), ("is_registrant", "=", True)],
+                limit=1,
+            )
+            if not registrant:
+                continue
+
+            # Skip if already enriched (check for street as proxy)
+            if registrant.street:
+                continue
+
+            try:
+                if story_type == "household" and registrant.is_group:
+                    # Enrich the group
+                    enricher.enrich_group(registrant)
+
+                    # Enrich individual members
+                    memberships = self.env["spp.group.membership"].search([("group", "=", registrant.id)])
+                    all_member_defs = []
+                    head = profile.get("head", {})
+                    if head:
+                        all_member_defs.append(("head", head))
+                    spouse = profile.get("spouse", {})
+                    if spouse:
+                        all_member_defs.append(("spouse", spouse))
+                    for adult in profile.get("adults", []):
+                        all_member_defs.append(("adult", adult))
+                    for child in profile.get("children", []):
+                        all_member_defs.append(("child", child))
+
+                    for idx, membership in enumerate(memberships):
+                        member = membership.individual
+                        if member.street:
+                            continue  # Already enriched
+                        if idx < len(all_member_defs):
+                            role, member_def = all_member_defs[idx]
+                            age = member_def.get("age")
+                        else:
+                            role = "child"
+                            age = None
+                        enricher.enrich_individual(member, age=age, role=role)
+                else:
+                    # Individual story
+                    age = profile.get("age")
+                    enricher.enrich_individual(registrant, age=age, role="adult")
+
+            except Exception as e:
+                _logger.warning("Could not enrich story registrant %s: %s", story_name, e)
+
+    def _enrich_story_household(self, group, members, profile):
+        """Enrich a story household and its members with demographic data."""
+        try:
+            enricher = self._get_demographic_enricher()
+            enricher.enrich_group(group)
+
+            # Map members to roles from profile
+            all_member_defs = []
+            head = profile.get("head", {})
+            if head:
+                all_member_defs.append(("head", head))
+            spouse = profile.get("spouse", {})
+            if spouse:
+                all_member_defs.append(("spouse", spouse))
+            for adult in profile.get("adults", []):
+                all_member_defs.append(("adult", adult))
+            for child in profile.get("children", []):
+                all_member_defs.append(("child", child))
+
+            for idx, member in enumerate(members):
+                if idx < len(all_member_defs):
+                    role, member_def = all_member_defs[idx]
+                    age = member_def.get("age")
+                else:
+                    role = "child"
+                    age = None
+                enricher.enrich_individual(member, age=age, role=role)
+        except Exception as e:
+            _logger.warning("Story demographic enrichment failed: %s", e)
 
     def _create_household_members(self, group, profile, days_back):
         """Create household members for a group registrant."""
