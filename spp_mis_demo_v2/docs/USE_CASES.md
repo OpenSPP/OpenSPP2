@@ -16,7 +16,7 @@
 Each household and individual has locale-specific names. The demo generator selects
 names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 
-### Household
+### Household Surnames
 
 | Story ID  | Filipino  | Togolese | Sri Lankan     |
 | --------- | --------- | -------- | -------------- |
@@ -178,28 +178,29 @@ triggering graduation from one program while remaining in another. Shows that ex
 one program doesn't affect other enrollments. Primary story for demonstrating the
 compliance manager.
 
-**Household (4 members):**
+**Household (5 members):**
 
-| Member         | Role   | Age | Gender |
-| -------------- | ------ | --- | ------ |
-| Maria Santos   | Head   | 42  | Female |
-| Ricardo Santos | Spouse | 44  | Male   |
-| Sofia Santos   | Child  | 14  | Female |
-| Miguel Santos  | Child  | 10  | Male   |
+| Member         | Role           | Age | Gender |
+| -------------- | -------------- | --- | ------ |
+| Maria Santos   | Head           | 42  | Female |
+| Ricardo Santos | Spouse         | 44  | Male   |
+| Lola Santos    | Parent (elder) | 68  | Female |
+| Sofia Santos   | Child          | 14  | Female |
+| Miguel Santos  | Child          | 10  | Male   |
 
 **Household Programs:**
 
-| Program               | Why Eligible                      | Compliance                                                                              | Status                 |
-| --------------------- | --------------------------------- | --------------------------------------------------------------------------------------- | ---------------------- |
-| Cash Transfer         | income 3,500 < 5,000, size 4 >= 2 | **Failed** — per_capita_income 1,625 >= poverty_line 1,250 (after income rise to 6,500) | **Exited** (graduated) |
-| Universal Child Grant | child_count 2 > 0                 | N/A (no compliance on this program)                                                     | Enrolled               |
+| Program               | Why Eligible                      | Compliance                                                                    | Status                 |
+| --------------------- | --------------------------------- | ----------------------------------------------------------------------------- | ---------------------- |
+| Cash Transfer         | income 3,500 < 5,000, size 5 >= 2 | **Failed** — per_capita_income exceeded poverty_line after income improvement | **Exited** (graduated) |
+| Universal Child Grant | child_count 2 > 0                 | N/A (no compliance on this program)                                           | Enrolled               |
 
 **Journey:**
 
-1. Enrolled in Cash Transfer 180 days ago (hh_total_income 3,500, per_capita 875)
+1. Enrolled in Cash Transfer 180 days ago (hh_total_income 3,500, per_capita 700)
 2. Also enrolled in Universal Child Grant
 3. 3 Cash Transfer payments of $150 (compliant — per_capita_income < poverty_line)
-4. Income improved to 6,500 (per_capita 1,625) → **compliance check fails** in cycle 4
+4. Income improved → **compliance check fails** in cycle 4
 5. Marked `non_compliant` on cycle membership → no entitlement generated
 6. Non-compliance triggers graduation review → exited from Cash Transfer 30 days ago
 7. Still receiving Universal Child Grant (2 children x $50 = $100/month)
@@ -222,40 +223,38 @@ Transfer graduation.
 
 ---
 
-### Story 3: Reyes — Young Family with Newborn
+### Story 3: Reyes — Multi-Generational Household
 
-**Purpose:** Demonstrates Conditional Child Grant (baby under 2) alongside Universal
-Child Grant. The `add_member` change request ties directly to the baby's birth
-triggering new program eligibility.
+**Purpose:** Demonstrates a large multi-generational household with three generations
+living together — grandparents, parents, and children. Shows household composition
+complexity and how multiple individuals within a household can qualify for different
+individual-targeting programs (e.g., elderly members for pension).
 
-**Household (5 members):**
+**Household (8 members):**
 
-| Member       | Role   | Age | Gender | Notes                                      |
-| ------------ | ------ | --- | ------ | ------------------------------------------ |
-| Lito Reyes   | Head   | 40  | Male   |                                            |
-| Carmen Reyes | Spouse | 38  | Female |                                            |
-| Jun Reyes    | Child  | 15  | Male   |                                            |
-| Lovely Reyes | Child  | 10  | Female |                                            |
-| Baby Reyes   | Child  | 1   | Female | Under 2 — triggers Conditional Child Grant |
+| Member         | Role                    | Age | Gender |
+| -------------- | ----------------------- | --- | ------ |
+| Jose Reyes Sr  | Head                    | 72  | Male   |
+| Carmen Reyes   | Spouse                  | 68  | Female |
+| Miguel Reyes   | Adult (son)             | 45  | Male   |
+| Teresa Reyes   | Adult (daughter-in-law) | 42  | Female |
+| Jose Reyes Jr  | Child                   | 18  | Male   |
+| Lucia Reyes    | Child                   | 14  | Female |
+| Antonio Reyes  | Child                   | 10  | Male   |
+| Isabella Reyes | Child                   | 6   | Female |
 
 **Household Programs:**
 
-| Program                 | Why Eligible                                               | Status   |
-| ----------------------- | ---------------------------------------------------------- | -------- |
-| Conditional Child Grant | members.exists(m, age_years(m.birthdate) < 2) — Baby age 1 | Enrolled |
-| Universal Child Grant   | child_count 3 > 0                                          | Enrolled |
+Not enrolled in group programs via named stories. Volume-generated households with
+similar composition are enrolled based on blueprint eligibility flags.
 
-**Journey:**
+**Demo Points:**
 
-1. Registered 150 days ago (4 members, already in Universal Child Grant)
-2. Baby born → `add_member` CR filed and applied
-3. Conditional Child Grant eligibility triggered by baby under 2
-4. Enrolled in Conditional Child Grant
-5. Receiving $10/month (Conditional) + $150/month (3 children x $50, Universal)
-
-**Change Request:**
-
-- `add_member` (applied) — Baby Reyes added to household after birth
+- Multi-generational household structure (grandparents + parents + children)
+- Elderly head (72) and spouse (68) — both individually eligible for Elderly Social
+  Pension
+- child_count = 3 (under 18: Lucia 14, Antonio 10, Isabella 6; Jose Jr 18 excluded)
+- Large household (8 members) for household composition analysis
 
 **GIS:** Northern region (Nueva Ecija) — agricultural area
 
@@ -376,7 +375,8 @@ receiving both cash (pension) and in-kind (food). GRM inquiry.
 
 **Change Request:**
 
-- `exit_registrant` (applied) — Graduated from food assistance program
+- `exit_registrant` (pending) — Graduated from food assistance program (pending
+  approval)
 
 **GIS:** Elderly corridor (Pangasinan)
 
@@ -395,28 +395,19 @@ receiving both cash (pension) and in-kind (food). GRM inquiry.
 
 ---
 
-## Rejection Stories (Minimal)
-
-These registrants exist solely to verify that eligibility rules correctly reject
-ineligible applicants. They are minimal records — no program journeys or payments.
+## Rejection Stories
 
 ### Lorna Pascual — Age Rejection
 
 - 55-year-old woman
 - Applied for Elderly Social Pension → **rejected** (age 55 < retirement_age 65)
+- The only named story with an explicit rejection status in STORY_ENROLLMENTS
 
-### Castillo Household — Income Rejection
+### Other Households (Not Rejected, Background Stories)
 
-- Roberto Castillo (head, 45), Linda Castillo (spouse, 40), Paolo Castillo (child, 14)
-- Household income: 12,000
-- Applied for Cash Transfer → **rejected** (income 12,000 > poverty_line 5,000)
-
-### Navarro Household — No Children Rejection
-
-- Ricardo Navarro (head, 52), Lourdes Navarro (spouse, 48), Eduardo Navarro (brother,
-  46), Cristina Navarro (sister-in-law, 44)
-- No children under 18
-- Applied for Universal Child Grant → **rejected** (child_count 0)
+**Note:** Castillo and Navarro households exist as registered stories but are NOT
+explicitly rejected in the demo generator. Castillo (`ahmed_said`) is enrolled in Cash
+Transfer as a background story. Navarro has no program enrollments.
 
 ---
 
@@ -427,30 +418,34 @@ matrix is the source of truth for reproducibility testing.
 
 ### Cash Transfer Program
 
-| Registrant  | is_group | hh_total_income | hh_size | Expected                  |
-| ----------- | -------- | --------------- | ------- | ------------------------- |
-| Dela Cruz   | true     | 4,000           | 4       | PASS                      |
-| Santos      | true     | 3,500           | 4       | PASS (graduated)          |
-| Gutierrez   | true     | 2,000           | 7       | PASS (post-stabilization) |
-| Castillo    | true     | 12,000          | 3       | FAIL (income)             |
-| Rosa Garcia | false    | -               | -       | FAIL (not group)          |
+| Registrant  | is_group | hh_total_income | hh_size | Expected                                                                         |
+| ----------- | -------- | --------------- | ------- | -------------------------------------------------------------------------------- |
+| Dela Cruz   | true     | 4,000           | 4       | PASS                                                                             |
+| Santos      | true     | 3,500           | 4       | PASS (graduated)                                                                 |
+| Gutierrez   | true     | 2,000           | 7       | PASS (post-stabilization)                                                        |
+| Castillo    | true     | 12,000          | 3       | PASS (enrolled as background story — high income but no CEL enforcement in demo) |
+| Rosa Garcia | false    | -               | -       | FAIL (not group)                                                                 |
 
 ### Universal Child Grant
 
-| Registrant | is_group | child_count | Expected                                                |
-| ---------- | -------- | ----------- | ------------------------------------------------------- |
-| Santos     | true     | 2           | PASS                                                    |
-| Reyes      | true     | 3           | PASS                                                    |
-| Navarro    | true     | 0           | FAIL (no children)                                      |
-| Martinez   | true     | 1           | PASS (eligible but not enrolled — single program focus) |
+| Registrant | is_group | child_count | Expected                                                  |
+| ---------- | -------- | ----------- | --------------------------------------------------------- |
+| Santos     | true     | 2           | PASS                                                      |
+| Reyes      | true     | 3           | PASS (not enrolled via stories — eligible by composition) |
+| Navarro    | true     | 0           | FAIL (no children — not enrolled)                         |
+| Martinez   | true     | 1           | PASS (eligible but not enrolled — single program focus)   |
 
 ### Conditional Child Grant
 
-| Registrant | is_group | Has member under 2  | Expected |
-| ---------- | -------- | ------------------- | -------- |
-| Reyes      | true     | Yes (Baby, age 1)   | PASS     |
-| Santos     | true     | No (youngest is 10) | FAIL     |
-| Dela Cruz  | true     | No (youngest is 8)  | FAIL     |
+| Registrant | is_group | Has member under 2           | Expected |
+| ---------- | -------- | ---------------------------- | -------- |
+| Reyes      | true     | No (youngest is Isabella, 6) | FAIL     |
+| Santos     | true     | No (youngest is 10)          | FAIL     |
+| Dela Cruz  | true     | No (youngest is 8)           | FAIL     |
+
+**Note:** No named story households have members under 2. Conditional Child Grant
+enrollments come from volume-generated households (blueprints bp_01, bp_04, bp_06,
+bp_28).
 
 ### Elderly Social Pension
 
@@ -511,21 +506,28 @@ compliance check during cycle processing.
 
 ---
 
-## Change Request Lifecycle (8)
+## Change Request Lifecycle (13)
 
-| #   | Type            | Registrant        | State    | Life Event                                     |
-| --- | --------------- | ----------------- | -------- | ---------------------------------------------- |
-| 1   | update_id       | Dela Cruz (Juan)  | Approved | Correct national ID after data entry error     |
-| 2   | edit_individual | Santos (Maria)    | Approved | Phone/address update after moving              |
-| 3   | edit_individual | Santos (Maria)    | Pending  | Conflict CR #1 — overlaps with #4              |
-| 4   | edit_individual | Santos (Maria)    | Pending  | Conflict CR #2 — overlaps with #3              |
-| 5   | add_member      | Reyes             | Applied  | Baby Reyes added after birth                   |
-| 6   | edit_individual | Gutierrez (Ramon) | Approved | Address update after relocation to shelter     |
-| 7   | edit_individual | Martinez (Miguel) | Pending  | Disability reassessment — updated medical docs |
-| 8   | exit_registrant | Rosa Garcia       | Applied  | Graduated from food assistance                 |
+| #   | Type              | Registrant       | State    | Life Event                                        |
+| --- | ----------------- | ---------------- | -------- | ------------------------------------------------- |
+| 1   | edit_individual   | Santos (Maria)   | Approved | Phone/address update after moving                 |
+| 2   | edit_individual   | Santos (Maria)   | Pending  | Conflict CR #1 — overlaps with #3                 |
+| 3   | edit_individual   | Santos (Maria)   | Pending  | Conflict CR #2 — overlaps with #2                 |
+| 4   | edit_group        | Aquino           | Draft    | Draft CR for UI workflow demo                     |
+| 5   | update_id         | Dela Cruz (Juan) | Approved | Correct national ID after data entry error        |
+| 6   | exit_registrant   | Rosa Garcia      | Pending  | Graduated from food assistance (pending approval) |
+| 7   | add_member        | Morales          | Approved | Add newborn to Morales household                  |
+| 8   | remove_member     | Morales          | Pending  | Adult child moving out for university             |
+| 9   | transfer_member   | Bautista         | Pending  | Transfer child to elderly relatives               |
+| 10  | change_hoh        | Navarro          | Approved | Set Lourdes Navarro as new head of household      |
+| 11  | create_group      | Maricel Ramos    | Draft    | Register new household after marriage             |
+| 12  | split_household   | Bautista         | Rejected | Incomplete documentation for property division    |
+| 13  | merge_registrants | Luis Fernandez   | Revision | Merge duplicate registrations from data quality   |
 
-**CR types covered:** update_id, edit_individual, add_member, exit_registrant **CR
-states covered:** Approved, Pending, Applied
+**CR types covered:** edit_individual, edit_group, update_id, exit_registrant,
+add_member, remove_member, transfer_member, change_hoh, create_group, split_household,
+merge_registrants **CR states covered:** Draft, Pending, Approved, Applied (auto-applied
+on approval for some CR types), Rejected, Revision
 
 ---
 
@@ -580,7 +582,7 @@ Show Dela Cruz household payment issue and GRM resolution.
 
 Show Santos household graduating from Cash Transfer after compliance failure.
 
-1. Open Santos household -> 4 members
+1. Open Santos household -> 5 members
 2. Cash Transfer program -> show compliance manager (`per_capita_income < poverty_line`)
 3. Show cycle history: 3 cycles compliant, cycle 4 **non_compliant** (income improved)
 4. Show cycle 4 membership state: `non_compliant` — no entitlement generated
@@ -588,14 +590,15 @@ Show Santos household graduating from Cash Transfer after compliance failure.
 6. Universal Child Grant: still **enrolled** (2 children x $50) — unaffected
 7. Open Maria Santos individually -> Food Assistance (dual enrollment continues)
 
-### Scenario 3: Newborn Triggers New Eligibility
+### Scenario 3: Multi-Generational Household
 
-Show Reyes household gaining Conditional Child Grant after baby's birth.
+Show Reyes household as a large multi-generational family.
 
-1. Open Reyes household -> 5 members (including Baby, age 1)
-2. Show `add_member` CR that added Baby
-3. Show Conditional Child Grant enrollment (triggered by baby under 2)
-4. Show Universal Child Grant alongside (3 children x $50)
+1. Open Reyes household -> 8 members (3 generations)
+2. Show household composition: grandparents (72, 68), parents (45, 42), children (18,
+   14, 10, 6)
+3. Show elderly members individually eligible for Elderly Social Pension
+4. Demonstrate household composition analysis
 
 ### Scenario 4: Emergency to Long-Term Support
 
@@ -637,14 +640,21 @@ Show same person in individual + household programs.
 
 ### Scenario 8: Change Request Lifecycle
 
-Show different CR types and states.
+Show different CR types and states across 13 change requests.
 
 1. Approved: Juan Dela Cruz `update_id` — corrected national ID
-2. Approved: Maria Santos `edit_individual` — phone update
+2. Approved: Maria Santos `edit_individual` — phone/address update
 3. Pending (conflict): Maria Santos — two overlapping CRs
-4. Applied: Baby Reyes `add_member` — newborn added
-5. Applied: Rosa Garcia `exit_registrant` — food assistance graduation
-6. Pending: Miguel Martinez `edit_individual` — disability reassessment
+4. Draft: Aquino `edit_group` — UI workflow demo
+5. Pending: Rosa Garcia `exit_registrant` — food assistance graduation (pending
+   approval)
+6. Approved: Morales `add_member` — newborn added
+7. Pending: Morales `remove_member` — adult child moving out
+8. Pending: Bautista `transfer_member` — child to elderly relatives
+9. Approved: Navarro `change_hoh` — new head of household
+10. Draft: Maricel Ramos `create_group` — new household after marriage
+11. Rejected: Bautista `split_household` — incomplete documentation
+12. Revision: Luis Fernandez `merge_registrants` — duplicate data quality
 
 ### Scenario 9: Compliance Manager Overview
 
@@ -664,28 +674,29 @@ a pass (Dela Cruz) on the same program.
 
 ## Program Coverage Summary
 
-| Program                 | Enrolled Stories                                                                                 | Rejection Stories           | Compliance                                  |
-| ----------------------- | ------------------------------------------------------------------------------------------------ | --------------------------- | ------------------------------------------- |
-| Cash Transfer           | Dela Cruz (active, **compliant**), Santos (graduated, **non_compliant**), Gutierrez (transition) | Castillo (income)           | Dela Cruz passes, Santos fails → graduation |
-| Universal Child Grant   | Santos (active), Reyes (active)                                                                  | Navarro (no children)       | None                                        |
-| Conditional Child Grant | Reyes (active)                                                                                   | Santos, Dela Cruz (no baby) | Configured (volume data only)               |
-| Elderly Social Pension  | Rosa Garcia (active)                                                                             | Lorna Pascual (age)         | None                                        |
-| Emergency Relief        | Gutierrez (active)                                                                               | Dela Cruz (ratio too low)   | None                                        |
-| Disability Support      | Martinez (active)                                                                                | Santos (no disabled)        | None                                        |
-| Food Assistance         | Maria Santos, Ramon Gutierrez, Rosa Garcia                                                       | -                           | None                                        |
+| Program                 | Enrolled Stories                                                                                 | Rejection Stories                   | Compliance                                  |
+| ----------------------- | ------------------------------------------------------------------------------------------------ | ----------------------------------- | ------------------------------------------- |
+| Cash Transfer           | Dela Cruz (active, **compliant**), Santos (graduated, **non_compliant**), Gutierrez (transition) | Castillo (income)                   | Dela Cruz passes, Santos fails → graduation |
+| Universal Child Grant   | Santos (active)                                                                                  | Navarro (no children)               | None                                        |
+| Conditional Child Grant | (volume data only)                                                                               | All named stories (no baby under 2) | Configured (volume data only)               |
+| Elderly Social Pension  | Rosa Garcia (active)                                                                             | Lorna Pascual (age 55)              | None                                        |
+| Emergency Relief        | Gutierrez (active)                                                                               | Dela Cruz (ratio too low)           | None                                        |
+| Disability Support      | Martinez (active)                                                                                | Santos (no disabled)                | None                                        |
+| Food Assistance         | Maria Santos, Ramon Gutierrez, Rosa Garcia                                                       | -                                   | None                                        |
 
 ## Totals
 
-| Metric                    | Count                                                                     |
-| ------------------------- | ------------------------------------------------------------------------- |
-| Enrolled households       | 5 (Dela Cruz, Santos, Reyes, Gutierrez, Martinez)                         |
-| Standalone individuals    | 1 (Rosa Garcia)                                                           |
-| Dual-enrolled individuals | 2 (Maria Santos, Ramon Gutierrez)                                         |
-| Rejection records         | 3 (Lorna Pascual, Castillo, Navarro)                                      |
-| Programs covered          | All 7                                                                     |
-| Programs with compliance  | 2 (Cash Transfer, Conditional Child Grant)                                |
-| Compliance outcomes       | 1 non_compliant (Santos), 1 compliant (Dela Cruz) — same program contrast |
-| Change requests           | 8                                                                         |
-| Demo scenarios            | 9                                                                         |
-| Locales                   | 3 (fil_PH, fr_TG, si_LK)                                                  |
-| Seeded volume             | ~680 (via SeededVolumeGenerator, seed=42)                                 |
+| Metric                         | Count                                                                       |
+| ------------------------------ | --------------------------------------------------------------------------- |
+| Story households               | 5 (Dela Cruz, Santos, Reyes, Gutierrez, Martinez)                           |
+| Enrolled in programs (stories) | 4 (Dela Cruz, Santos, Gutierrez, Martinez) — Reyes not enrolled via stories |
+| Standalone individuals         | 1 (Rosa Garcia)                                                             |
+| Dual-enrolled individuals      | 2 (Maria Santos, Ramon Gutierrez)                                           |
+| Rejection records              | 1 (Lorna Pascual age 55 < 65)                                               |
+| Programs covered               | All 7                                                                       |
+| Programs with compliance       | 2 (Cash Transfer, Conditional Child Grant)                                  |
+| Compliance outcomes            | 1 non_compliant (Santos), 1 compliant (Dela Cruz) — same program contrast   |
+| Change requests                | 13                                                                          |
+| Demo scenarios                 | 9                                                                           |
+| Locales                        | 3 (fil_PH, fr_TG, si_LK)                                                    |
+| Seeded volume                  | ~680 (via SeededVolumeGenerator, seed=42)                                   |

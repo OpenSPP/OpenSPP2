@@ -1059,40 +1059,40 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         Sets the eligibility mode to 'cel' and configures the CEL expression
         for dynamic eligibility evaluation.
+
+        Note: Eligibility uses get_managers() (plural) not get_manager(),
+        because the program model routes MANAGER_ELIGIBILITY through get_managers.
         """
         try:
-            eligibility_manager = program.get_manager(program.MANAGER_ELIGIBILITY)
-            if not eligibility_manager:
-                _logger.warning(
-                    "No eligibility manager found for program (program_id=%s)",
-                    program.id,
-                )
-                return
-
             cel_expression = program_def.get("cel_expression")
             if not cel_expression:
                 return
 
-            # Check if the model supports CEL mode (spp_programs CEL features)
-            if "eligibility_mode" not in eligibility_manager._fields:
-                _logger.info(
-                    "CEL mode not available (spp_programs CEL not configured) for program (program_id=%s)",
-                    program.id,
-                )
-                return
+            # Access eligibility managers via the wrapper (same pattern as compliance)
+            for wrapper in program.eligibility_manager_ids:
+                concrete = wrapper.manager_ref_id
+                if not concrete:
+                    continue
 
-            # Configure CEL eligibility
-            eligibility_manager.write(
-                {
-                    "eligibility_mode": "cel",
-                    "cel_expression": cel_expression,
-                }
-            )
-            _logger.info(
-                "Configured CEL eligibility for program (program_id=%s): %s",
-                program.id,
-                cel_expression,
-            )
+                if "cel_expression" not in concrete._fields:
+                    _logger.info(
+                        "CEL expression not supported on eligibility manager for program (program_id=%s)",
+                        program.id,
+                    )
+                    continue
+
+                concrete.write(
+                    {
+                        "eligibility_mode": "cel",
+                        "cel_expression": cel_expression,
+                    }
+                )
+                _logger.info(
+                    "Configured CEL eligibility for program (program_id=%s): %s",
+                    program.id,
+                    cel_expression,
+                )
+                break
 
         except Exception as e:
             _logger.warning(
@@ -1249,18 +1249,25 @@ class SPPMISDemoGenerator(models.TransientModel):
                     cel_expression,
                 )
 
-            # Configure program to use Logic Studio
-            program.write(
-                {
-                    "use_logic_eligibility": True,
-                    "logic_mode": "select",
-                    "logic_id": logic.id,
-                }
-            )
-            _logger.info(
-                "Configured program (program_id=%s) to use Logic Studio eligibility",
-                program.id,
-            )
+            # Try to link Logic Studio to program (fields may not exist)
+            logic_fields = {"use_logic_eligibility", "logic_mode", "logic_id"}
+            if logic_fields.issubset(set(program._fields)):
+                program.write(
+                    {
+                        "use_logic_eligibility": True,
+                        "logic_mode": "select",
+                        "logic_id": logic.id,
+                    }
+                )
+                _logger.info(
+                    "Configured program (program_id=%s) to use Logic Studio eligibility",
+                    program.id,
+                )
+
+            # Always set CEL on the eligibility manager as well, so the
+            # eligibility criteria is visible and functional even if Logic
+            # Studio integration fields are not available on the program model.
+            self._configure_eligibility_manager(program, program_def)
 
         except Exception as e:
             _logger.warning(
@@ -2448,6 +2455,8 @@ class SPPMISDemoGenerator(models.TransientModel):
             "supervisor": "spp_demo.demo_supervisor",
             "manager": "spp_demo.demo_manager",
             "admin": "spp_demo.demo_admin",
+            "cr_validator": "spp_mis_demo_v2.demo_user_cr_local_validator",
+            "cr_validator_hq": "spp_mis_demo_v2.demo_user_cr_hq_validator",
         }
         xmlid = user_map.get(role)
         if not xmlid:
@@ -2522,8 +2531,8 @@ class SPPMISDemoGenerator(models.TransientModel):
         "rosa_garcia": {
             "type_code": "exit_registrant",
             "days_back": 7,
-            "state": "applied",
-            "description": "Graduated from assistance program (3-tier approval)",
+            "state": "pending",
+            "description": "Graduated from assistance program (pending approval)",
             "proposed_changes": {
                 "exit_reason": "other",
                 "remarks": "Graduated; no longer receiving benefits",
@@ -2881,12 +2890,14 @@ class SPPMISDemoGenerator(models.TransientModel):
             return None
 
     def _set_cr_state(self, cr, target_state, apply=False, rejection_reason=None, revision_notes=None):
-        """Transition CR to target state using sudo for approval workflow access.
+        """Transition CR to target state using the proper approval workflow.
 
-        Uses sudo() because demo users don't have ACL access to spp.approval.definition.
-        The audit trail (create_uid, write_uid) still reflects who made the changes.
+        The approval system checks actual user group membership (not just ACL),
+        so we must use with_user() to switch to a user with the right role:
+        - Submit: demo_officer (requestor)
+        - Approve/Reject/Revision: demo_cr_validator (has CR validator group)
 
-        Falls back to direct write if approval workflow not configured.
+        Falls back to admin if demo validator user is not available.
 
         Args:
             cr: Change request record
@@ -2895,28 +2906,35 @@ class SPPMISDemoGenerator(models.TransientModel):
             rejection_reason: Reason for rejection (for rejected state)
             revision_notes: Notes for revision request (for revision state)
         """
+        # Get validator users for approval actions (approve, reject, revision)
+        # Multi-tier approvals need both local and HQ validators
+        local_validator = self._get_demo_user("cr_validator")
+        hq_validator = self._get_demo_user("cr_validator_hq")
+        # Fall back to admin if no validator users
+        fallback = self.env.ref("base.user_admin", raise_if_not_found=False)
+        local_validator = local_validator or fallback
+        hq_validator = hq_validator or fallback
+
         try:
             if target_state == "pending":
                 cr.sudo().action_submit_for_approval()
             elif target_state == "approved":
                 cr.sudo().action_submit_for_approval()
-                cr.sudo().action_approve()
+                # Approve all tiers — multi-tier requires each tier's validator
+                cr.with_user(local_validator).sudo().action_approve()
+                if cr.approval_state == "pending":
+                    # Still pending = more tiers, approve with HQ validator
+                    cr.with_user(hq_validator).sudo().action_approve()
             elif target_state == "rejected":
-                # Submit first, then reject
                 cr.sudo().action_submit_for_approval()
-                if hasattr(cr, "action_reject"):
-                    cr.sudo().action_reject()
-                # Set rejection reason if field exists
-                if rejection_reason and "rejection_reason" in cr._fields:
-                    cr.sudo().write({"rejection_reason": rejection_reason})
+                # Use _do_reject directly to bypass the wizard
+                cr.with_user(local_validator).sudo()._do_reject(rejection_reason or "Request rejected")
             elif target_state == "revision":
-                # Submit first, then request revision
                 cr.sudo().action_submit_for_approval()
-                if hasattr(cr, "action_request_revision"):
-                    cr.sudo().action_request_revision()
-                # Set revision notes if field exists
-                if revision_notes and "revision_notes" in cr._fields:
-                    cr.sudo().write({"revision_notes": revision_notes})
+                # Use _do_request_revision directly to bypass the wizard
+                cr.with_user(local_validator).sudo()._do_request_revision(
+                    revision_notes or "Please revise and resubmit"
+                )
         except Exception as e:
             # Don't fall back to direct state write for states that require approval reviews.
             # This would create an inconsistent state (approval_state=pending but no pending reviews).
@@ -2931,7 +2949,7 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         if apply:
             try:
-                cr.sudo().action_apply()
+                cr.with_user(hq_validator).sudo().action_apply()
             except Exception as e:
                 _logger.warning("Apply step failed, setting applied flags directly: %s", e)
                 cr.sudo().write(

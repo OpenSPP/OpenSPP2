@@ -193,7 +193,7 @@ DEMO_STORIES = [
         "story_description": "Demonstrate targeting and multi-program enrollment",
         "profile": {
             "gender": "female",
-            "age": 67,
+            "age": 72,
             "education": "none",
             "marital_status": "widowed",
             "household_size": 1,
@@ -709,14 +709,14 @@ BACKGROUND_STORIES = [
         "type": "individual",
         "story_title": "Rejected Application",
         "story_description": "Shows eligibility rules",
-        "profile": {"gender": "female", "age": 32},
+        "profile": {"gender": "female", "age": 55},
         "journey": [
             {"action": "register", "days_back": 60},
             {
                 "action": "apply_program",
                 "program": "Elderly Social Pension",
                 "status": "rejected",
-                "reason": "Age requirement not met",
+                "reason": "Age requirement not met (55 < 65)",
                 "days_back": 55,
             },
         ],
