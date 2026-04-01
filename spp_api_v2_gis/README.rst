@@ -10,9 +10,9 @@ OpenSPP GIS API
    !! source digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Alpha
+    :alt: Beta
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
@@ -144,10 +144,6 @@ Dependencies
 - ``spp_gis_report`` - Report configuration
 - ``spp_area`` - Administrative area data
 
-.. IMPORTANT::
-   This is an alpha version, the data model and design can change at any time without warning.
-   Only for development or testing purpose, do not use in production.
-
 **Table of contents**
 
 .. contents::
@@ -155,6 +151,16 @@ Dependencies
 
 Changelog
 =========
+
+19.0.2.0.1
+~~~~~~~~~~
+
+- Promoted to Beta
+- fix(schemas): Add GeoJSON geometry validation for spatial queries and
+  geofences
+- fix(routers): Use proper exception chaining (from e) for better
+  debugging
+- feat: Add SPP module icon
 
 19.0.2.0.0
 ~~~~~~~~~~

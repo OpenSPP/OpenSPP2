@@ -3,13 +3,36 @@
 
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+_VALID_GEOMETRY_TYPES = {"Polygon", "MultiPolygon"}
+
+
+def _validate_geojson_geometry(v):
+    """Validate that a dict is a valid GeoJSON geometry (Polygon or MultiPolygon)."""
+    if not isinstance(v, dict):
+        raise ValueError("geometry must be a JSON object")
+    geo_type = v.get("type")
+    if not geo_type:
+        raise ValueError("geometry must have a 'type' field")
+    if geo_type not in _VALID_GEOMETRY_TYPES:
+        raise ValueError(f"geometry type must be one of {_VALID_GEOMETRY_TYPES}, got '{geo_type}'")
+    coords = v.get("coordinates")
+    if not coords or not isinstance(coords, list):
+        raise ValueError("geometry must have a non-empty 'coordinates' array")
+    return v
 
 
 class SpatialQueryRequest(BaseModel):
     """Request for spatial query."""
 
     geometry: dict = Field(..., description="Query geometry as GeoJSON (Polygon or MultiPolygon)")
+
+    @field_validator("geometry")
+    @classmethod
+    def check_geometry(cls, v):
+        return _validate_geojson_geometry(v)
+
     filters: dict | None = Field(default=None, description="Additional filters for registrants")
     variables: list[str] | None = Field(
         default=None,
@@ -49,6 +72,11 @@ class GeometryItem(BaseModel):
 
     id: str = Field(..., description="Unique identifier for this geometry (e.g., feature ID)")
     geometry: dict = Field(..., description="GeoJSON geometry (Polygon or MultiPolygon)")
+
+    @field_validator("geometry")
+    @classmethod
+    def check_geometry(cls, v):
+        return _validate_geojson_geometry(v)
 
 
 class BatchSpatialQueryRequest(BaseModel):

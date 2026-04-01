@@ -128,10 +128,10 @@ async def query_statistics_batch(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
-        ) from None
-    except Exception:
+        ) from e
+    except Exception as e:
         _logger.exception("Batch spatial query failed")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Batch spatial query failed",
-        ) from None
+        ) from e

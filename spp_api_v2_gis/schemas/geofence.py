@@ -1,7 +1,11 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Pydantic schemas for Geofence API."""
 
-from pydantic import BaseModel, Field
+from typing import Literal
+
+from pydantic import BaseModel, Field, field_validator
+
+from .query import _validate_geojson_geometry
 
 
 class GeofenceCreateRequest(BaseModel):
@@ -10,7 +14,15 @@ class GeofenceCreateRequest(BaseModel):
     name: str = Field(..., description="Name of the geofence")
     description: str | None = Field(default=None, description="Description of the geofence")
     geometry: dict = Field(..., description="Geometry as GeoJSON (Polygon or MultiPolygon)")
-    geofence_type: str = Field(default="custom", description="Type of geofence")
+    geofence_type: Literal["hazard_zone", "service_area", "targeting_area", "custom"] = Field(
+        default="custom", description="Type of geofence"
+    )
+
+    @field_validator("geometry")
+    @classmethod
+    def check_geometry(cls, v):
+        return _validate_geojson_geometry(v)
+
     incident_code: str | None = Field(default=None, description="Related incident code")
 
 

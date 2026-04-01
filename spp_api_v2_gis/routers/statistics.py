@@ -84,9 +84,9 @@ async def list_statistics(
             total_count=total_count,
         )
 
-    except Exception:
+    except Exception as e:
         _logger.exception("Failed to list statistics")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to list statistics",
-        ) from None
+        ) from e
