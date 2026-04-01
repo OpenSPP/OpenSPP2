@@ -23,8 +23,13 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     decoration-primary="state=='draft'"
                     decoration-warning="state=='paused'"
                     decoration-success="state=='enrolled'"
-                    decoration-danger="state=='exited'"
+                    decoration-danger="state in ('exited', 'non_compliant')"
                     widget="badge"
+                />
+                <field
+                    name="compliance_criteria"
+                    string="Compliance Criteria"
+                    optional="show"
                 />
             </list>
         </field>
@@ -123,6 +128,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     name="not_eligible"
                     string="Not Eligible"
                     domain="[('state','=','not_eligible')]"
+                />
+                <filter
+                    name="non_compliant"
+                    string="Non-Compliant"
+                    domain="[('state','=','non_compliant')]"
                 />
                 <separator />
                 <filter

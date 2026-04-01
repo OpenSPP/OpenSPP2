@@ -16,6 +16,13 @@ class SPPCycleMembership(models.Model):
     partner_id = fields.Many2one("res.partner", "Registrant", help="A beneficiary", required=True, index=True)
     cycle_id = fields.Many2one("spp.cycle", "Cycle", help="A cycle", required=True, index=True)
     enrollment_date = fields.Date(default=lambda self: fields.Datetime.now())
+
+    compliance_criteria = fields.Char(
+        string="Compliance Criteria",
+        compute="_compute_compliance_criteria",
+        help="The compliance CEL expression from the program that this registrant failed to meet",
+    )
+
     state = fields.Selection(
         selection=[
             ("draft", "Draft"),
@@ -28,6 +35,21 @@ class SPPCycleMembership(models.Model):
         default="draft",
         copy=False,
     )
+
+    def _compute_compliance_criteria(self):
+        """Show the compliance CEL expression from the program when non-compliant."""
+        for rec in self:
+            if rec.state == "non_compliant" and rec.cycle_id and rec.cycle_id.program_id:
+                program = rec.cycle_id.program_id
+                for wrapper in program.compliance_manager_ids:
+                    concrete = wrapper.manager_ref_id
+                    if hasattr(concrete, "compliance_cel_expression") and concrete.compliance_cel_expression:
+                        rec.compliance_criteria = concrete.compliance_cel_expression
+                        break
+                else:
+                    rec.compliance_criteria = False
+            else:
+                rec.compliance_criteria = False
 
     def _compute_display_name(self):
         res = super()._compute_display_name()
