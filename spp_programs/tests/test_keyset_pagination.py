@@ -386,3 +386,114 @@ class TestAsyncDispatchUsesIdRanges(TransactionCase):
                 self.fail("_prepare_entitlements must accept min_id/max_id params")
         except UserError:
             pass  # Expected: no entitlement manager configured
+
+    def test_check_eligibility_async_uses_compute_id_ranges(self):
+        """_check_eligibility_async must use compute_id_ranges for dispatch."""
+        partners = self.env["res.partner"].create(
+            [{"name": f"Registrant {i}", "is_registrant": True} for i in range(5)]
+        )
+        self.env["spp.cycle.membership"].create(
+            [
+                {
+                    "partner_id": p.id,
+                    "cycle_id": self.cycle.id,
+                    "state": "draft",
+                }
+                for p in partners
+            ]
+        )
+
+        cycle_manager = self.env["spp.cycle.manager.default"].create(
+            {
+                "name": "Test Cycle Manager",
+                "program_id": self.program.id,
+            }
+        )
+
+        with patch(
+            "odoo.addons.spp_programs.models.managers.cycle_manager_base.compute_id_ranges",
+            return_value=[(1, 3), (4, 6)],
+        ) as mock_ranges:
+            with patch.object(type(cycle_manager), "delayable", return_value=cycle_manager):
+                try:
+                    cycle_manager._check_eligibility_async(self.cycle, 5)
+                except Exception:  # pylint: disable=except-pass
+                    pass
+
+            mock_ranges.assert_called_once()
+            self.assertEqual(mock_ranges.call_args[0][1], "spp_cycle_membership")
+
+    def test_prepare_entitlements_async_uses_compute_id_ranges(self):
+        """_prepare_entitlements_async must use compute_id_ranges for dispatch."""
+        partners = self.env["res.partner"].create(
+            [{"name": f"Registrant {i}", "is_registrant": True} for i in range(5)]
+        )
+        self.env["spp.cycle.membership"].create(
+            [
+                {
+                    "partner_id": p.id,
+                    "cycle_id": self.cycle.id,
+                    "state": "enrolled",
+                }
+                for p in partners
+            ]
+        )
+
+        cycle_manager = self.env["spp.cycle.manager.default"].create(
+            {
+                "name": "Test Cycle Manager",
+                "program_id": self.program.id,
+            }
+        )
+
+        with patch(
+            "odoo.addons.spp_programs.models.managers.cycle_manager_base.compute_id_ranges",
+            return_value=[(1, 3), (4, 6)],
+        ) as mock_ranges:
+            with patch.object(type(cycle_manager), "delayable", return_value=cycle_manager):
+                try:
+                    cycle_manager._prepare_entitlements_async(self.cycle, 5)
+                except Exception:  # pylint: disable=except-pass
+                    pass
+
+            mock_ranges.assert_called_once()
+            self.assertEqual(mock_ranges.call_args[0][1], "spp_cycle_membership")
+
+    def test_enroll_eligible_async_handles_string_state(self):
+        """_enroll_eligible_registrants_async must handle string state arg."""
+        partners = self.env["res.partner"].create(
+            [{"name": f"Registrant {i}", "is_registrant": True} for i in range(5)]
+        )
+        self.env["spp.program.membership"].create(
+            [
+                {
+                    "partner_id": p.id,
+                    "program_id": self.program.id,
+                    "state": "draft",
+                }
+                for p in partners
+            ]
+        )
+
+        manager = self.env["spp.program.manager.default"].create(
+            {
+                "name": "Test Manager",
+                "program_id": self.program.id,
+            }
+        )
+
+        # Pass a string instead of list — the isinstance branch should convert it
+        with patch(
+            "odoo.addons.spp_programs.models.managers.program_manager.compute_id_ranges",
+            return_value=[(1, 5)],
+        ) as mock_ranges:
+            with patch.object(type(manager), "delayable", return_value=manager):
+                try:
+                    manager._enroll_eligible_registrants_async("draft", 5)
+                except Exception:  # pylint: disable=except-pass
+                    pass
+
+            mock_ranges.assert_called_once()
+            # Verify the states param was converted from string to tuple
+            call_params = mock_ranges.call_args[0][3]
+            self.assertIsInstance(call_params[1], tuple)
