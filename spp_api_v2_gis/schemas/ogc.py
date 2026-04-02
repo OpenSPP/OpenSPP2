@@ -73,6 +73,10 @@ class CollectionInfo(BaseModel):
         default=["http://www.opengis.net/def/crs/OGC/1.3/CRS84"],
         description="Supported CRS list",
     )
+    storageCrs: str | None = Field(  # noqa: N815
+        default=None,
+        description="CRS used to store features in this collection",
+    )
     links: list[OGCLink] = Field(default_factory=list, description="Navigation links")
 
 

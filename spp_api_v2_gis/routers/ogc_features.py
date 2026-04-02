@@ -30,8 +30,14 @@ from odoo.exceptions import MissingError
 from odoo.addons.fastapi.dependencies import odoo_env
 from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, Response, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query, Request, Response, status
 
+from ..schemas.geojson import (
+    CreateGeofenceInput,
+    GeoJSONFeature,
+    GeoJSONFeatureCollection,
+    ReplaceGeofenceInput,
+)
 from ..schemas.ogc import (
     CollectionInfo,
     Collections,
@@ -182,6 +188,7 @@ async def get_collection(
         "Returns features from a collection as a GeoJSON FeatureCollection. "
         "Supports pagination via limit/offset and spatial filtering via bbox."
     ),
+    responses={200: {"content": {"application/geo+json": {"schema": GeoJSONFeatureCollection.model_json_schema()}}}},
 )
 async def get_collection_items(
     collection_id: Annotated[str, Path(description="Collection identifier")],
@@ -285,12 +292,14 @@ async def options_collection_items(
     summary="Create feature (OGC Part 4)",
     description="Create a new feature in the collection. Only supported for the geofences collection.",
     status_code=status.HTTP_201_CREATED,
+    responses={201: {"content": {"application/geo+json": {"schema": GeoJSONFeature.model_json_schema()}}}},
 )
 async def post_collection_item(
     collection_id: Annotated[str, Path(description="Collection identifier")],
     request: Request,
     env: Annotated[Environment, Depends(odoo_env)],
     api_client: Annotated[dict, Depends(get_authenticated_client)],
+    feature: Annotated[CreateGeofenceInput, Body(...)],
 ):
     """Create a new feature (OGC API - Features Part 4)."""
     if collection_id != GEOFENCES_COLLECTION_ID:
@@ -302,16 +311,9 @@ async def post_collection_item(
     _check_gis_geofence_scope(api_client)
 
     try:
-        body = await request.json()
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid JSON body: {e}",
-        ) from e
-
-    try:
         base_url = _get_base_url(request)
         service = OGCService(env, base_url)
+        body = feature.model_dump()
         result = service.create_geofence_feature(body)
 
         return Response(
@@ -334,6 +336,7 @@ async def post_collection_item(
     "/collections/{collection_id}/items/{feature_id}",
     summary="Replace feature (OGC Part 4)",
     description="Replace a feature in the collection. Only supported for the geofences collection.",
+    responses={200: {"content": {"application/geo+json": {"schema": GeoJSONFeature.model_json_schema()}}}},
 )
 async def put_collection_item(
     collection_id: Annotated[str, Path(description="Collection identifier")],
@@ -341,6 +344,7 @@ async def put_collection_item(
     request: Request,
     env: Annotated[Environment, Depends(odoo_env)],
     api_client: Annotated[dict, Depends(get_authenticated_client)],
+    feature: Annotated[ReplaceGeofenceInput, Body(...)],
 ):
     """Replace a feature (OGC API - Features Part 4)."""
     if collection_id != GEOFENCES_COLLECTION_ID:
@@ -352,16 +356,9 @@ async def put_collection_item(
     _check_gis_geofence_scope(api_client)
 
     try:
-        body = await request.json()
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid JSON body: {e}",
-        ) from e
-
-    try:
         base_url = _get_base_url(request)
         service = OGCService(env, base_url)
+        body = feature.model_dump()
         result = service.replace_geofence_feature(feature_id, body)
 
         return Response(
@@ -421,6 +418,7 @@ async def delete_collection_item(
     "/collections/{collection_id}/items/{feature_id}",
     summary="Single feature",
     description="Returns a single feature from a collection.",
+    responses={200: {"content": {"application/geo+json": {"schema": GeoJSONFeature.model_json_schema()}}}},
 )
 async def get_collection_item(
     collection_id: Annotated[str, Path(description="Collection identifier")],

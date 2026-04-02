@@ -19,7 +19,13 @@ from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, status
 
-from ..schemas.processes import JobList, StatusInfo
+from ..schemas.processes import (
+    BatchStatisticsResult,
+    JobList,
+    ProximityResult,
+    SingleStatisticsResult,
+    StatusInfo,
+)
 from ._helpers import RETRY_AFTER_SECONDS, build_status_info, build_status_response, check_gis_scope, get_base_url
 
 _logger = logging.getLogger(__name__)
@@ -116,6 +122,22 @@ async def get_job_status(
     "/jobs/{job_id}/results",
     summary="Job results",
     description="Get the results of a completed process job.",
+    responses={
+        200: {
+            "description": "Process results (schema varies by process type)",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "oneOf": [
+                            SingleStatisticsResult.model_json_schema(),
+                            BatchStatisticsResult.model_json_schema(),
+                            ProximityResult.model_json_schema(),
+                        ],
+                    },
+                },
+            },
+        },
+    },
 )
 async def get_job_results(
     job_id: Annotated[str, Path(description="Job identifier")],

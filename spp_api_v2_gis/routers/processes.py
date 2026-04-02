@@ -21,10 +21,14 @@ from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
 from fastapi import APIRouter, Body, Depends, Header, HTTPException, Path, Request, Response, status
 
 from ..schemas.processes import (
+    BatchStatisticsResult,
     ExecuteRequest,
     ProcessDescription,
     ProcessList,
     ProcessSummary,
+    ProximityResult,
+    SingleStatisticsResult,
+    StatusInfo,
 )
 from ..services.process_execution import run_proximity_statistics, run_spatial_statistics
 from ..services.process_registry import (
@@ -97,6 +101,30 @@ async def get_process_description(
     summary="Execute a process",
     description="Execute an OGC process synchronously or asynchronously.",
     status_code=200,
+    responses={
+        200: {
+            "description": "Synchronous result (schema varies by process)",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "oneOf": [
+                            SingleStatisticsResult.model_json_schema(),
+                            BatchStatisticsResult.model_json_schema(),
+                            ProximityResult.model_json_schema(),
+                        ],
+                    },
+                },
+            },
+        },
+        201: {
+            "description": "Asynchronous execution accepted",
+            "content": {
+                "application/json": {
+                    "schema": StatusInfo.model_json_schema(),
+                },
+            },
+        },
+    },
 )
 async def execute_process(
     process_id: Annotated[str, Path(description="Process identifier")],

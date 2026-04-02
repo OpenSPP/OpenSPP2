@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field
 
 from ..schemas.ogc import OGCLink
@@ -22,6 +24,7 @@ class ProcessSummary(BaseModel):
         alias="jobControlOptions",
         description="Supported job control options (e.g. sync-execute, async-execute, dismiss)",
     )
+    links: list[OGCLink] = Field(default_factory=list, description="Related links")
 
 
 class ProcessDescription(BaseModel):
@@ -40,12 +43,14 @@ class ProcessDescription(BaseModel):
     )
     inputs: dict = Field(..., description="Input parameter definitions")
     outputs: dict = Field(..., description="Output schema definitions")
+    links: list[OGCLink] = Field(default_factory=list, description="Related links")
 
 
 class ProcessList(BaseModel):
     """List of available processes."""
 
     processes: list[ProcessSummary] = Field(..., description="Available processes")
+    links: list[OGCLink] = Field(default_factory=list, description="Navigation links")
 
 
 class ExecuteRequest(BaseModel):
@@ -53,7 +58,7 @@ class ExecuteRequest(BaseModel):
 
     inputs: dict = Field(..., description="Process input values")
     outputs: dict | None = Field(default=None, description="Requested output values")
-    response: str | None = Field(
+    response: Literal["raw", "document"] | None = Field(
         default=None,
         description="Response type: raw or document",
     )
