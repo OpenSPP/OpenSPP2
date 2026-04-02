@@ -125,17 +125,7 @@ async def get_job_status(
     responses={
         200: {
             "description": "Process results (schema varies by process type)",
-            "content": {
-                "application/json": {
-                    "schema": {
-                        "oneOf": [
-                            SingleStatisticsResult.model_json_schema(),
-                            BatchStatisticsResult.model_json_schema(),
-                            ProximityResult.model_json_schema(),
-                        ],
-                    },
-                },
-            },
+            "model": SingleStatisticsResult | BatchStatisticsResult | ProximityResult,
         },
     },
 )

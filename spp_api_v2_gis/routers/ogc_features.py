@@ -188,7 +188,7 @@ async def get_collection(
         "Returns features from a collection as a GeoJSON FeatureCollection. "
         "Supports pagination via limit/offset and spatial filtering via bbox."
     ),
-    responses={200: {"content": {"application/geo+json": {"schema": GeoJSONFeatureCollection.model_json_schema()}}}},
+    responses={200: {"model": GeoJSONFeatureCollection}},
 )
 async def get_collection_items(
     collection_id: Annotated[str, Path(description="Collection identifier")],
@@ -292,7 +292,7 @@ async def options_collection_items(
     summary="Create feature (OGC Part 4)",
     description="Create a new feature in the collection. Only supported for the geofences collection.",
     status_code=status.HTTP_201_CREATED,
-    responses={201: {"content": {"application/geo+json": {"schema": GeoJSONFeature.model_json_schema()}}}},
+    responses={201: {"model": GeoJSONFeature}},
 )
 async def post_collection_item(
     collection_id: Annotated[str, Path(description="Collection identifier")],
@@ -336,7 +336,7 @@ async def post_collection_item(
     "/collections/{collection_id}/items/{feature_id}",
     summary="Replace feature (OGC Part 4)",
     description="Replace a feature in the collection. Only supported for the geofences collection.",
-    responses={200: {"content": {"application/geo+json": {"schema": GeoJSONFeature.model_json_schema()}}}},
+    responses={200: {"model": GeoJSONFeature}},
 )
 async def put_collection_item(
     collection_id: Annotated[str, Path(description="Collection identifier")],
@@ -418,7 +418,7 @@ async def delete_collection_item(
     "/collections/{collection_id}/items/{feature_id}",
     summary="Single feature",
     description="Returns a single feature from a collection.",
-    responses={200: {"content": {"application/geo+json": {"schema": GeoJSONFeature.model_json_schema()}}}},
+    responses={200: {"model": GeoJSONFeature}},
 )
 async def get_collection_item(
     collection_id: Annotated[str, Path(description="Collection identifier")],

@@ -104,25 +104,11 @@ async def get_process_description(
     responses={
         200: {
             "description": "Synchronous result (schema varies by process)",
-            "content": {
-                "application/json": {
-                    "schema": {
-                        "oneOf": [
-                            SingleStatisticsResult.model_json_schema(),
-                            BatchStatisticsResult.model_json_schema(),
-                            ProximityResult.model_json_schema(),
-                        ],
-                    },
-                },
-            },
+            "model": SingleStatisticsResult | BatchStatisticsResult | ProximityResult,
         },
         201: {
             "description": "Asynchronous execution accepted",
-            "content": {
-                "application/json": {
-                    "schema": StatusInfo.model_json_schema(),
-                },
-            },
+            "model": StatusInfo,
         },
     },
 )
