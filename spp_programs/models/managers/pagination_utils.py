@@ -43,7 +43,7 @@ def compute_id_ranges(cr, table, where_clause, params, batch_size):
             params,
         )
         row = cr.fetchone()
-        return [(row[0], row[1])]
+        return [(row[0], row[1])] if row and row[0] is not None else []
 
     # Use NTILE to split rows into equal-sized buckets, then get
     # the min/max ID of each bucket as the range boundaries.
