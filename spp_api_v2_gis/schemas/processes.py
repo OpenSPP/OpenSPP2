@@ -56,6 +56,56 @@ class ProcessList(BaseModel):
 class ExecuteRequest(BaseModel):
     """Request body for POST /processes/{id}/execution."""
 
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "inputs": {
+                        "geometry": {
+                            "type": "Polygon",
+                            "coordinates": [[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]]],
+                        },
+                        "variables": ["total_households", "total_individuals"],
+                    },
+                },
+                {
+                    "inputs": {
+                        "geometry": [
+                            {
+                                "id": "zone_1",
+                                "value": {
+                                    "type": "Polygon",
+                                    "coordinates": [
+                                        [[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]]
+                                    ],
+                                },
+                            },
+                            {
+                                "id": "zone_2",
+                                "value": {
+                                    "type": "Polygon",
+                                    "coordinates": [
+                                        [[102.0, 2.0], [103.0, 2.0], [103.0, 3.0], [102.0, 3.0], [102.0, 2.0]]
+                                    ],
+                                },
+                            },
+                        ],
+                    },
+                },
+                {
+                    "inputs": {
+                        "reference_points": [
+                            {"longitude": 100.5, "latitude": 0.5},
+                            {"longitude": 101.5, "latitude": 1.5},
+                        ],
+                        "radius_km": 50.0,
+                        "relation": "within",
+                    },
+                },
+            ],
+        },
+    )
+
     inputs: dict = Field(..., description="Process input values")
     outputs: dict | None = Field(default=None, description="Requested output values")
     response: Literal["raw", "document"] | None = Field(
@@ -67,7 +117,35 @@ class ExecuteRequest(BaseModel):
 class StatusInfo(BaseModel):
     """OGC API job status information."""
 
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(
+        populate_by_name=True,
+        json_schema_extra={
+            "examples": [
+                {
+                    "jobID": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                    "type": "process",
+                    "processID": "spatial-statistics",
+                    "status": "successful",
+                    "created": "2024-06-15T10:30:00Z",
+                    "started": "2024-06-15T10:30:01Z",
+                    "finished": "2024-06-15T10:30:05Z",
+                    "progress": 100,
+                    "links": [
+                        {
+                            "href": "/api/v2/spp/gis/ogc/jobs/a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                            "rel": "self",
+                            "type": "application/json",
+                        },
+                        {
+                            "href": "/api/v2/spp/gis/ogc/jobs/a1b2c3d4-e5f6-7890-abcd-ef1234567890/results",
+                            "rel": "results",
+                            "type": "application/json",
+                        },
+                    ],
+                },
+            ],
+        },
+    )
 
     jobID: str = Field(..., alias="jobID", description="Unique job identifier")  # noqa: N815
     type: str = Field(default="process", description="Resource type")
@@ -97,6 +175,29 @@ class JobList(BaseModel):
 
 class SingleStatisticsResult(BaseModel):
     """Result of a spatial statistics query for a single geometry."""
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "total_count": 1250,
+                    "query_method": "coordinates",
+                    "areas_matched": 3,
+                    "statistics": {
+                        "total_households": {"value": 312, "suppressed": False},
+                        "total_individuals": {"value": 1250, "suppressed": False},
+                    },
+                    "breakdown": {
+                        "1": {"count": 620, "labels": {"gender": {"value": "1", "display": "Male"}}},
+                        "2": {"count": 630, "labels": {"gender": {"value": "2", "display": "Female"}}},
+                    },
+                    "access_level": "aggregate",
+                    "from_cache": False,
+                    "computed_at": "2024-06-15T10:30:05Z",
+                },
+            ],
+        },
+    )
 
     total_count: int = Field(..., description="Total number of matched records")
     query_method: str = Field(..., description="Method used for the spatial query")
@@ -139,12 +240,74 @@ class BatchSummary(BaseModel):
 class BatchStatisticsResult(BaseModel):
     """Result of a spatial statistics query for multiple geometries."""
 
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "results": [
+                        {
+                            "id": "zone_1",
+                            "total_count": 800,
+                            "query_method": "coordinates",
+                            "areas_matched": 2,
+                            "statistics": {"total_individuals": {"value": 800, "suppressed": False}},
+                            "access_level": "aggregate",
+                            "from_cache": False,
+                            "computed_at": "2024-06-15T10:30:05Z",
+                        },
+                        {
+                            "id": "zone_2",
+                            "total_count": 450,
+                            "query_method": "area_fallback",
+                            "areas_matched": 1,
+                            "statistics": {"total_individuals": {"value": 450, "suppressed": False}},
+                            "access_level": "aggregate",
+                            "from_cache": False,
+                            "computed_at": "2024-06-15T10:30:06Z",
+                        },
+                    ],
+                    "summary": {
+                        "total_count": 1250,
+                        "geometries_queried": 2,
+                        "geometries_failed": 0,
+                        "statistics": {"total_individuals": {"value": 1250, "suppressed": False}},
+                        "access_level": "aggregate",
+                        "from_cache": False,
+                        "computed_at": "2024-06-15T10:30:06Z",
+                    },
+                },
+            ],
+        },
+    )
+
     results: list[BatchResultItem] = Field(..., description="Per-geometry results")
     summary: BatchSummary = Field(..., description="Aggregate summary across all geometries")
 
 
 class ProximityResult(BaseModel):
     """Result of a proximity-based spatial statistics query."""
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "total_count": 340,
+                    "query_method": "coordinates",
+                    "areas_matched": 0,
+                    "reference_points_count": 5,
+                    "radius_km": 50.0,
+                    "relation": "within",
+                    "statistics": {
+                        "total_households": {"value": 85, "suppressed": False},
+                        "total_individuals": {"value": 340, "suppressed": False},
+                    },
+                    "access_level": "aggregate",
+                    "from_cache": False,
+                    "computed_at": "2024-06-15T10:30:05Z",
+                },
+            ],
+        },
+    )
 
     total_count: int = Field(..., description="Total number of matched records")
     query_method: str = Field(..., description="Method used for the spatial query")
