@@ -8,6 +8,7 @@ from odoo.exceptions import UserError
 from odoo.addons.job_worker.delay import group
 
 from ..programs import SPPProgram
+from .pagination_utils import compute_id_ranges
 
 _logger = logging.getLogger(__name__)
 
@@ -184,28 +185,43 @@ class DefaultProgramManager(models.Model):
         program.message_post(body=_("Eligibility check of %s beneficiaries started.", members_count))
         program.write({"is_locked": True, "locked_reason": "Eligibility check of beneficiaries"})
 
+        if isinstance(states, str):
+            states = [states]
+
+        id_ranges = compute_id_ranges(
+            self.env.cr,
+            "spp_program_membership",
+            "program_id = %s AND state IN %s",
+            (program.id, tuple(states)),
+            self.MAX_ROW_JOB_QUEUE,
+        )
+
         jobs = []
-        for i in range(0, members_count, self.MAX_ROW_JOB_QUEUE):
+        for min_id, max_id in id_ranges:
             jobs.append(
                 self.delayable(channel="program_manager")._enroll_eligible_registrants(
-                    states, i, self.MAX_ROW_JOB_QUEUE
+                    states, min_id=min_id, max_id=max_id
                 )
             )
         main_job = group(*jobs)
         main_job.on_done(self.delayable(channel="program_manager").mark_enroll_eligible_as_done())
         main_job.delay()
 
-    def _enroll_eligible_registrants(self, states, offset=0, limit=None, do_count=False):
+    def _enroll_eligible_registrants(self, states, offset=0, limit=None, min_id=None, max_id=None, do_count=False):
         """Enroll Eligible Registrants
 
         :param states: List of states to be used in domain filter
-        :param offset: Optional integer value for the ORM search offset
-        :param limit: Optional integer value for the ORM search limit
+        :param offset: Optional integer value for the ORM search offset (deprecated, use min_id/max_id)
+        :param limit: Optional integer value for the ORM search limit (deprecated, use min_id/max_id)
+        :param min_id: Minimum record ID for ID-range pagination (inclusive)
+        :param max_id: Maximum record ID for ID-range pagination (inclusive)
         :param do_count: Boolean - set to False to not run compute functions
         :return: Integer - count of not enrolled members
         """
         program = self.program_id
-        members = program.get_beneficiaries(state=states, offset=offset, limit=limit, order="id")
+        members = program.get_beneficiaries(
+            state=states, offset=offset, limit=limit, min_id=min_id, max_id=max_id, order="id"
+        )
 
         member_before = members
 

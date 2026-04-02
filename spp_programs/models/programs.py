@@ -314,7 +314,9 @@ class SPPProgram(models.Model):
             return [el.manager_ref_id for el in managers]
 
     @api.model
-    def get_beneficiaries(self, state=None, offset=0, limit=None, order=None, count=False, last_id=None):
+    def get_beneficiaries(
+        self, state=None, offset=0, limit=None, order=None, count=False, last_id=None, min_id=None, max_id=None
+    ):
         """
         Get program beneficiaries with pagination support.
 
@@ -324,9 +326,12 @@ class SPPProgram(models.Model):
         :param order: Sort order
         :param count: If True, return count instead of records
         :param last_id: For cursor-based pagination - ID of last record from previous batch (more efficient)
+        :param min_id: For ID-range pagination - minimum record ID (inclusive)
+        :param max_id: For ID-range pagination - maximum record ID (inclusive)
         :return: Recordset or count
 
-        Note: For large datasets, use cursor-based pagination with last_id parameter instead of offset.
+        Note: For large datasets, prefer min_id/max_id (ID-range) or last_id (cursor)
+        pagination over offset-based pagination.
         """
         self.ensure_one()
         if isinstance(state, str):
@@ -337,7 +342,12 @@ class SPPProgram(models.Model):
         if count:
             return self.env["spp.program.membership"].search_count(domain, limit=limit)
 
-        # Use cursor-based pagination if last_id is provided (more efficient)
+        # ID-range pagination (best for parallel job dispatch)
+        if min_id is not None and max_id is not None:
+            domain = domain + [("id", ">=", min_id), ("id", "<=", max_id)]
+            return self.env["spp.program.membership"].search(domain, order=order or "id")
+
+        # Cursor-based pagination (good for sequential iteration)
         if last_id is not None:
             domain = domain + [("id", ">", last_id)]
             return self.env["spp.program.membership"].search(domain, limit=limit, order=order or "id")
