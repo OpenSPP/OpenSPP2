@@ -13,7 +13,21 @@ from ..schemas.ogc import OGCLink
 class ProcessSummary(BaseModel):
     """Summary of a single process, used in process list responses."""
 
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(
+        populate_by_name=True,
+        json_schema_extra={
+            "examples": [
+                {
+                    "id": "spatial-statistics",
+                    "title": "Spatial Statistics",
+                    "description": "Compute aggregate registrant statistics within arbitrary polygons.",
+                    "version": "1.0.0",
+                    "jobControlOptions": ["sync-execute", "async-execute", "dismiss"],
+                    "links": [],
+                },
+            ],
+        },
+    )
 
     id: str = Field(..., description="Process identifier (e.g. 'spatial-statistics')")
     title: str = Field(..., description="Human-readable process title")
@@ -30,7 +44,46 @@ class ProcessSummary(BaseModel):
 class ProcessDescription(BaseModel):
     """Full process description including input and output schemas."""
 
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(
+        populate_by_name=True,
+        json_schema_extra={
+            "examples": [
+                {
+                    "id": "proximity-statistics",
+                    "title": "Proximity Statistics",
+                    "description": "Compute statistics within a radius from reference points.",
+                    "version": "1.0.0",
+                    "jobControlOptions": ["sync-execute", "async-execute", "dismiss"],
+                    "inputs": {
+                        "reference_points": {
+                            "title": "Reference Points",
+                            "description": "Locations to measure proximity from.",
+                            "minOccurs": 1,
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "longitude": {"type": "number"},
+                                    "latitude": {"type": "number"},
+                                },
+                                "required": ["longitude", "latitude"],
+                            },
+                        },
+                        "radius_km": {
+                            "title": "Search Radius",
+                            "schema": {"type": "number", "maximum": 500},
+                        },
+                    },
+                    "outputs": {
+                        "result": {
+                            "title": "Proximity Statistics Result",
+                            "schema": {"type": "object"},
+                        },
+                    },
+                    "links": [],
+                },
+            ],
+        },
+    )
 
     id: str = Field(..., description="Process identifier (e.g. 'spatial-statistics')")
     title: str = Field(..., description="Human-readable process title")
@@ -48,6 +101,30 @@ class ProcessDescription(BaseModel):
 
 class ProcessList(BaseModel):
     """List of available processes."""
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "processes": [
+                        {
+                            "id": "spatial-statistics",
+                            "title": "Spatial Statistics",
+                            "version": "1.0.0",
+                            "jobControlOptions": ["sync-execute", "async-execute", "dismiss"],
+                        },
+                        {
+                            "id": "proximity-statistics",
+                            "title": "Proximity Statistics",
+                            "version": "1.0.0",
+                            "jobControlOptions": ["sync-execute", "async-execute", "dismiss"],
+                        },
+                    ],
+                    "links": [],
+                },
+            ],
+        },
+    )
 
     processes: list[ProcessSummary] = Field(..., description="Available processes")
     links: list[OGCLink] = Field(default_factory=list, description="Navigation links")
