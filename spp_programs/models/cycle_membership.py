@@ -120,6 +120,7 @@ class SPPCycleMembership(models.Model):
         cr = self.env.cr
         uid = self.env.uid
         total_inserted = 0
+        today = fields.Date.today()
 
         for i in range(0, len(vals_list), chunk_size):
             batch = vals_list[i : i + chunk_size]
@@ -132,7 +133,7 @@ class SPPCycleMembership(models.Model):
                         v["partner_id"],
                         v["cycle_id"],
                         v.get("state", "draft"),
-                        v.get("enrollment_date", fields.Date.today()),
+                        v.get("enrollment_date", today),
                         uid,
                         uid,
                     ]

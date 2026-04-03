@@ -405,17 +405,22 @@ class SPPProgramMembership(models.Model):
         uid = self.env.uid
         total_inserted = 0
 
+        now = fields.Datetime.now()
+
         for i in range(0, len(vals_list), chunk_size):
             batch = vals_list[i : i + chunk_size]
             values = []
             params = []
             for v in batch:
-                values.append("(%s, %s, %s, %s, %s, now(), now())")
+                state = v.get("state", "draft")
+                enrollment_date = now if state == "enrolled" else None
+                values.append("(%s, %s, %s, %s, %s, %s, now(), now())")
                 params.extend(
                     [
                         v["partner_id"],
                         v["program_id"],
-                        v.get("state", "draft"),
+                        state,
+                        enrollment_date,
                         uid,
                         uid,
                     ]
@@ -423,7 +428,7 @@ class SPPProgramMembership(models.Model):
 
             sql = """
                 INSERT INTO spp_program_membership
-                    (partner_id, program_id, state,
+                    (partner_id, program_id, state, enrollment_date,
                      create_uid, write_uid, create_date, write_date)
                 VALUES {}
                 ON CONFLICT (partner_id, program_id) DO NOTHING
