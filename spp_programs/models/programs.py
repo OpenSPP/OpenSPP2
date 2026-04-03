@@ -187,8 +187,23 @@ class SPPProgram(models.Model):
 
     @api.depends("program_membership_ids")
     def _compute_has_members(self):
+        if self.env.context.get("skip_program_statistics"):
+            return
+        if not self.ids:
+            for rec in self:
+                rec.has_members = False
+            return
+        self.env.cr.execute(
+            """
+            SELECT program_id FROM spp_program_membership
+            WHERE program_id IN %s
+            GROUP BY program_id
+            """,
+            (tuple(self.ids),),
+        )
+        programs_with_members = {row[0] for row in self.env.cr.fetchall()}
         for rec in self:
-            rec.has_members = bool(rec.program_membership_ids)
+            rec.has_members = rec.id in programs_with_members
 
     @api.depends("compliance_manager_ids", "compliance_manager_ids.manager_ref_id")
     def _compute_has_compliance_criteria(self):
@@ -272,6 +287,16 @@ class SPPProgram(models.Model):
         for rec in self:
             count = rec.count_beneficiaries(None)["value"]
             rec.update({"beneficiaries_count": count})
+
+    def refresh_beneficiary_counts(self):
+        """Refresh all beneficiary statistics after bulk operations.
+
+        Call this after raw SQL inserts that bypass ORM dependency tracking
+        (e.g. bulk_create_memberships with skip_duplicates=True).
+        """
+        self._compute_beneficiary_count()
+        self._compute_eligible_beneficiary_count()
+        self._compute_has_members()
 
     @api.depends("cycle_ids")
     def _compute_cycle_count(self):
