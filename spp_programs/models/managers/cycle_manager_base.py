@@ -527,9 +527,14 @@ class DefaultCycleManager(models.Model):
 
         jobs = []
         for min_id, max_id in id_ranges:
-            jobs.append(self.delayable(channel="cycle")._check_eligibility(cycle, min_id=min_id, max_id=max_id))
+            jobs.append(
+                self.delayable(
+                    channel="cycle",
+                    identity_key=f"check_elig_{cycle.id}_{min_id}",
+                )._check_eligibility(cycle, min_id=min_id, max_id=max_id)
+            )
         main_job = group(*jobs)
-        main_job.on_done(self.delayable(channel="cycle").mark_check_eligibility_as_done(cycle))
+        main_job.on_done(self.delayable(channel="statistics_refresh").mark_check_eligibility_as_done(cycle))
         main_job.delay()
 
     def _check_eligibility(
@@ -607,10 +612,17 @@ class DefaultCycleManager(models.Model):
 
         jobs = []
         for min_id, max_id in id_ranges:
-            jobs.append(self.delayable(channel="cycle")._prepare_entitlements(cycle, min_id=min_id, max_id=max_id))
+            jobs.append(
+                self.delayable(
+                    channel="cycle",
+                    identity_key=f"prepare_ent_{cycle.id}_{min_id}",
+                )._prepare_entitlements(cycle, min_id=min_id, max_id=max_id)
+            )
         main_job = group(*jobs)
         main_job.on_done(
-            self.delayable(channel="cycle").mark_prepare_entitlement_as_done(cycle, _("Entitlement Ready."))
+            self.delayable(channel="statistics_refresh").mark_prepare_entitlement_as_done(
+                cycle, _("Entitlement Ready.")
+            )
         )
         main_job.delay()
 
@@ -844,7 +856,10 @@ class DefaultCycleManager(models.Model):
         jobs = []
         for i in range(0, beneficiaries_count, self.MAX_ROW_JOB_QUEUE):
             jobs.append(
-                self.delayable(channel="cycle")._add_beneficiaries(
+                self.delayable(
+                    channel="cycle",
+                    identity_key=f"add_benef_{cycle.id}_{i}",
+                )._add_beneficiaries(
                     cycle,
                     beneficiaries[i : i + self.MAX_ROW_JOB_QUEUE],
                     state,
@@ -852,7 +867,9 @@ class DefaultCycleManager(models.Model):
             )
 
         main_job = group(*jobs)
-        main_job.on_done(self.delayable(channel="cycle").mark_import_as_done(cycle, _("Beneficiary import finished.")))
+        main_job.on_done(
+            self.delayable(channel="statistics_refresh").mark_import_as_done(cycle, _("Beneficiary import finished."))
+        )
         main_job.delay()
 
     def _add_beneficiaries(self, cycle, beneficiaries, state="draft", do_count=False):

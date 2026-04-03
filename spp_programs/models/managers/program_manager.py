@@ -199,12 +199,13 @@ class DefaultProgramManager(models.Model):
         jobs = []
         for min_id, max_id in id_ranges:
             jobs.append(
-                self.delayable(channel="program_manager")._enroll_eligible_registrants(
-                    states, min_id=min_id, max_id=max_id
-                )
+                self.delayable(
+                    channel="program_manager",
+                    identity_key=f"enroll_eligible_{program.id}_{min_id}",
+                )._enroll_eligible_registrants(states, min_id=min_id, max_id=max_id)
             )
         main_job = group(*jobs)
-        main_job.on_done(self.delayable(channel="program_manager").mark_enroll_eligible_as_done())
+        main_job.on_done(self.delayable(channel="statistics_refresh").mark_enroll_eligible_as_done())
         main_job.delay()
 
     def _enroll_eligible_registrants(self, states, offset=0, limit=None, min_id=None, max_id=None, do_count=False):
