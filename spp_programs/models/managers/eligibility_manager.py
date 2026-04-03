@@ -1,7 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 import logging
 
-from odoo import Command, _, api, fields, models
+from odoo import _, api, fields, models
 
 from odoo.addons.job_worker.delay import group
 
@@ -174,11 +174,13 @@ class DefaultEligibilityManager(models.Model):
 
     def _import_registrants(self, new_beneficiaries, state="draft", do_count=False):
         _logger.info("Importing %s beneficiaries", len(new_beneficiaries))
-        _logger.info("updated")
-        beneficiaries_val = []
-        for beneficiary in new_beneficiaries:
-            beneficiaries_val.append(Command.create({"partner_id": beneficiary.id, "state": state}))
-        self.program_id.update({"program_membership_ids": beneficiaries_val})
+        vals_list = [{"partner_id": b.id, "program_id": self.program_id.id, "state": state} for b in new_beneficiaries]
+        count = self.env["spp.program.membership"].bulk_create_memberships(vals_list, skip_duplicates=True)
+        _logger.info("Imported %d new memberships (%d duplicates skipped)", count, len(vals_list) - count)
+
+        # Raw SQL bypasses the ORM cache — invalidate so subsequent reads
+        # (e.g. program.program_membership_ids) reflect the new rows.
+        self.program_id.invalidate_recordset(["program_membership_ids"])
 
         if do_count:
             # Compute Statistics
