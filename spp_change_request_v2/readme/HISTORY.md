@@ -1,3 +1,7 @@
+### 19.0.2.0.3
+
+- fix: add HTML escaping to all computed Html fields with `sanitize=False` to prevent stored XSS (#50)
+
 ### 19.0.2.0.2
 
 - fix: fix batch approval wizard line deletion (#130)

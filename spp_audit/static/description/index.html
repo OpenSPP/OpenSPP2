@@ -524,6 +524,8 @@ create overrides (#138)</li>
 all records, not just the first</li>
 <li>refactor: use <tt class="docutils literal">isinstance(value, Markup)</tt> instead of fragile
 <tt class="docutils literal"><span class="pre">str(type(...))</span></tt> comparison in all audit decorator methods</li>
+<li>fix: add HTML escaping to computed <tt class="docutils literal">data_html</tt> and
+<tt class="docutils literal">parent_data_html</tt> fields to prevent stored XSS (#50)</li>
 </ul>
 </div>
 <div class="section" id="section-2">
