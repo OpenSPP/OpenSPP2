@@ -1,11 +1,19 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
+import json
 import logging
+import uuid as uuid_lib
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
+
+# CAP vocabulary namespace URIs
+CAP_SEVERITY_NS = "urn:oasis:names:tc:cap:severity"
+CAP_URGENCY_NS = "urn:oasis:names:tc:cap:urgency"
+CAP_CERTAINTY_NS = "urn:oasis:names:tc:cap:certainty"
+CAP_MSG_TYPE_NS = "urn:oasis:names:tc:cap:msg-type"
 
 
 class HazardIncident(models.Model):
@@ -22,6 +30,13 @@ class HazardIncident(models.Model):
     _order = "start_date desc, name"
     _inherit = ["mail.thread", "mail.activity.mixin"]
 
+    uuid = fields.Char(
+        default=lambda self: str(uuid_lib.uuid4()),
+        readonly=True,
+        copy=False,
+        index=True,
+        help="External identifier for this incident",
+    )
     name = fields.Char(
         required=True,
         tracking=True,
@@ -35,7 +50,6 @@ class HazardIncident(models.Model):
     category_id = fields.Many2one(
         "spp.hazard.category",
         string="Hazard Category",
-        required=True,
         tracking=True,
         ondelete="restrict",
         domain=[("active", "=", True)],
@@ -45,7 +59,6 @@ class HazardIncident(models.Model):
         help="Narrative details about the incident",
     )
     start_date = fields.Date(
-        required=True,
         tracking=True,
         help="When the hazard began",
     )
@@ -65,16 +78,53 @@ class HazardIncident(models.Model):
         tracking=True,
         help="Current status of the incident",
     )
-    severity = fields.Selection(
-        [
-            ("1", "Level 1 - Minor"),
-            ("2", "Level 2 - Moderate"),
-            ("3", "Level 3 - Significant"),
-            ("4", "Level 4 - Severe"),
-            ("5", "Level 5 - Catastrophic"),
-        ],
+    severity_id = fields.Many2one(
+        "spp.vocabulary.code",
+        string="Severity",
         tracking=True,
-        help="Overall magnitude/severity of the incident",
+        domain=f"[('namespace_uri', '=', '{CAP_SEVERITY_NS}')]",
+        help="Overall magnitude/severity of the incident (CAP vocabulary)",
+    )
+
+    # CAP (Common Alerting Protocol) fields
+    cap_urgency_id = fields.Many2one(
+        "spp.vocabulary.code",
+        string="Urgency",
+        tracking=True,
+        domain=f"[('namespace_uri', '=', '{CAP_URGENCY_NS}')]",
+        help="CAP urgency: how quickly action is needed",
+    )
+    cap_certainty_id = fields.Many2one(
+        "spp.vocabulary.code",
+        string="Certainty",
+        tracking=True,
+        domain=f"[('namespace_uri', '=', '{CAP_CERTAINTY_NS}')]",
+        help="CAP certainty: confidence in the observation or prediction",
+    )
+    cap_event = fields.Char(
+        string="Event Type",
+        help="Raw event type from CAP alert (e.g., 'Flood', 'Typhoon'). "
+        "Complements the structured category_id field.",
+    )
+    cap_msg_type_id = fields.Many2one(
+        "spp.vocabulary.code",
+        string="Message Type",
+        domain=f"[('namespace_uri', '=', '{CAP_MSG_TYPE_NS}')]",
+        help="CAP message type: alert (new), update, or cancel",
+    )
+    effective = fields.Datetime(
+        help="When the alert becomes active (CAP effective time)",
+    )
+    expires = fields.Datetime(
+        help="When the alert expires (CAP expiry time)",
+    )
+    source = fields.Char(
+        help="Organization that issued the alert (e.g., 'INAM Mozambique')",
+    )
+    source_alert_id = fields.Char(
+        index=True,
+        help="External alert reference ID from the EWS (e.g., 'MOZ-FLOOD-2026-042'). "
+        "Used for duplicate detection on API create.",
     )
     is_ongoing = fields.Boolean(
         compute="_compute_is_ongoing",
@@ -123,6 +173,22 @@ class HazardIncident(models.Model):
         "unique (code)",
         "An incident with this code already exists!",
     )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Auto-populate start_date/end_date from effective/expires if not set."""
+        for vals in vals_list:
+            if not vals.get("start_date") and vals.get("effective"):
+                effective = vals["effective"]
+                if isinstance(effective, str):
+                    effective = fields.Datetime.from_string(effective)
+                vals["start_date"] = effective.date()
+            if not vals.get("end_date") and vals.get("expires"):
+                expires = vals["expires"]
+                if isinstance(expires, str):
+                    expires = fields.Datetime.from_string(expires)
+                vals["end_date"] = expires.date()
+        return super().create(vals_list)
 
     @api.constrains("start_date", "end_date")
     def _check_dates(self):
@@ -245,14 +311,10 @@ class HazardIncidentArea(models.Model):
         ondelete="restrict",
         index=True,
     )
-    severity_override = fields.Selection(
-        [
-            ("1", "Level 1 - Minor"),
-            ("2", "Level 2 - Moderate"),
-            ("3", "Level 3 - Significant"),
-            ("4", "Level 4 - Severe"),
-            ("5", "Level 5 - Catastrophic"),
-        ],
+    severity_override_id = fields.Many2one(
+        "spp.vocabulary.code",
+        string="Severity Override",
+        domain=f"[('namespace_uri', '=', '{CAP_SEVERITY_NS}')]",
         help="Area-specific severity (overrides incident-wide severity)",
     )
     notes = fields.Text(

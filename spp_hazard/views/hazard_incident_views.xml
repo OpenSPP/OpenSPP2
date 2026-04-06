@@ -23,7 +23,7 @@
                     decoration-warning="status == 'recovery'"
                     decoration-muted="status == 'closed'"
                 />
-                <field name="severity" />
+                <field name="severity_id" />
                 <field name="area_count" string="Areas" />
                 <field name="affected_registrant_count" string="Affected" />
             </list>
@@ -113,13 +113,14 @@
                             />
                             <field
                                 name="category_id"
+                                required="1"
                                 options="{'no_create': True}"
                                 readonly="status == 'closed'"
                             />
-                            <field name="severity" readonly="status == 'closed'" />
+                            <field name="severity_id" readonly="status == 'closed'" />
                         </group>
                         <group name="dates">
-                            <field name="start_date" readonly="status == 'closed'" />
+                            <field name="start_date" required="1" readonly="status == 'closed'" />
                             <field name="end_date" readonly="status == 'closed'" />
                             <field name="is_ongoing" invisible="1" />
                         </group>
@@ -131,6 +132,26 @@
                                 placeholder="Describe the incident in detail..."
                                 readonly="status == 'closed'"
                             />
+                        </page>
+                        <page string="Alert Details" name="alert_details">
+                            <group>
+                                <group string="CAP Properties">
+                                    <field name="cap_event" readonly="status == 'closed'" />
+                                    <field name="cap_urgency_id" readonly="status == 'closed'" />
+                                    <field name="cap_certainty_id" readonly="status == 'closed'" />
+                                    <field name="cap_msg_type_id" readonly="status == 'closed'" />
+                                </group>
+                                <group string="Alert Timing">
+                                    <field name="effective" readonly="status == 'closed'" />
+                                    <field name="expires" readonly="status == 'closed'" />
+                                </group>
+                            </group>
+                            <group>
+                                <group string="External Source">
+                                    <field name="source" readonly="status == 'closed'" />
+                                    <field name="source_alert_id" readonly="status == 'closed'" />
+                                </group>
+                            </group>
                         </page>
                         <page string="Affected Areas" name="areas">
                             <p
@@ -146,7 +167,7 @@
                                         name="area_id"
                                         options="{'no_create': True}"
                                     />
-                                    <field name="severity_override" />
+                                    <field name="severity_override_id" />
                                     <field name="affected_population_estimate" />
                                     <field name="notes" />
                                 </list>
@@ -186,6 +207,8 @@
                 <field name="name" />
                 <field name="code" />
                 <field name="category_id" />
+                <field name="cap_event" />
+                <field name="source" />
                 <filter
                     name="alert"
                     string="Alert"
@@ -227,7 +250,17 @@
                     <filter
                         name="grp_severity"
                         string="Severity"
-                        context="{'group_by': 'severity'}"
+                        context="{'group_by': 'severity_id'}"
+                    />
+                    <filter
+                        name="grp_urgency"
+                        string="Urgency"
+                        context="{'group_by': 'cap_urgency_id'}"
+                    />
+                    <filter
+                        name="grp_certainty"
+                        string="Certainty"
+                        context="{'group_by': 'cap_certainty_id'}"
                     />
                     <filter
                         name="grp_start"
@@ -267,7 +300,7 @@
             <list editable="bottom">
                 <field name="incident_id" />
                 <field name="area_id" />
-                <field name="severity_override" />
+                <field name="severity_override_id" />
                 <field name="affected_population_estimate" />
                 <field name="notes" />
             </list>

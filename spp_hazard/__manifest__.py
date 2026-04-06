@@ -21,10 +21,12 @@
         "spp_registry",
         "spp_area",
         "spp_gis",
+        "spp_vocabulary",
     ],
     "data": [
         "security/groups.xml",
         "security/ir.model.access.csv",
+        "data/vocabulary_cap.xml",
         "data/impact_type_data.xml",
         "views/hazard_category_views.xml",
         "views/hazard_incident_views.xml",

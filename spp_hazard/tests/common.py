@@ -52,6 +52,17 @@ class HazardTestCase(TransactionCase):
             }
         )
 
+        # Resolve CAP vocabulary codes (loaded from data/vocabulary_cap.xml)
+        VocabCode = cls.env["spp.vocabulary.code"]
+        cls.severity_extreme = VocabCode.get_code("urn:oasis:names:tc:cap:severity", "extreme")
+        cls.severity_severe = VocabCode.get_code("urn:oasis:names:tc:cap:severity", "severe")
+        cls.severity_moderate = VocabCode.get_code("urn:oasis:names:tc:cap:severity", "moderate")
+        cls.severity_minor = VocabCode.get_code("urn:oasis:names:tc:cap:severity", "minor")
+        cls.urgency_immediate = VocabCode.get_code("urn:oasis:names:tc:cap:urgency", "immediate")
+        cls.certainty_observed = VocabCode.get_code("urn:oasis:names:tc:cap:certainty", "observed")
+        cls.msg_type_alert = VocabCode.get_code("urn:oasis:names:tc:cap:msg-type", "alert")
+        cls.msg_type_cancel = VocabCode.get_code("urn:oasis:names:tc:cap:msg-type", "cancel")
+
         # Create impact type
         cls.impact_type_displacement = cls.env["spp.hazard.impact.type"].create(
             {

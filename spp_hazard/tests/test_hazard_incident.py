@@ -25,7 +25,7 @@ class TestHazardIncident(HazardTestCase):
                 "code": "TEST-INC-001",
                 "category_id": cls.category_typhoon.id,
                 "start_date": "2024-01-01",
-                "severity": "3",
+                "severity_id": cls.severity_severe.id,
             }
         )
 
@@ -111,12 +111,12 @@ class TestHazardIncident(HazardTestCase):
             {
                 "incident_id": self.incident.id,
                 "area_id": self.area.id,
-                "severity_override": "5",
+                "severity_override_id": self.severity_extreme.id,
                 "affected_population_estimate": 1000,
             }
         )
         self.assertTrue(incident_area)
-        self.assertEqual(incident_area.severity_override, "5")
+        self.assertEqual(incident_area.severity_override_id, self.severity_extreme)
         self.assertEqual(incident_area.affected_population_estimate, 1000)
 
     def test_08_identify_potentially_affected(self):
