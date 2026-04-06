@@ -7,7 +7,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from ..schemas.ogc import OGCLink
+from .geojson import GeoJSONGeometry
+from .ogc import OGCLink
 
 
 class ProcessSummary(BaseModel):
@@ -130,6 +131,67 @@ class ProcessList(BaseModel):
     links: list[OGCLink] = Field(default_factory=list, description="Navigation links")
 
 
+class BatchGeometryItem(BaseModel):
+    """A single geometry with an identifier for batch spatial-statistics queries."""
+
+    id: str = Field(..., description="Unique identifier for this geometry (e.g., feature ID)")
+    value: GeoJSONGeometry = Field(..., description="GeoJSON geometry (Polygon or MultiPolygon)")
+
+
+class SpatialStatisticsInputs(BaseModel):
+    """Inputs for the spatial-statistics process."""
+
+    geometry: GeoJSONGeometry | list[BatchGeometryItem] = Field(
+        ...,
+        description=(
+            "Query geometry as a single GeoJSON object or a list of "
+            "{id, value} objects for batch processing."
+        ),
+    )
+    filters: dict | None = Field(
+        default=None,
+        description="Additional filters for registrants (e.g. {'is_group': true})",
+    )
+    variables: list[str] | None = Field(
+        default=None,
+        description="List of statistic names to compute (defaults to GIS-published statistics)",
+    )
+    group_by: list[str] | None = Field(
+        default=None,
+        description="List of dimension names for demographic breakdown (e.g. ['gender'])",
+    )
+    population_filter: dict | None = Field(
+        default=None,
+        description=(
+            "Filter registrants by program membership or CEL expression. "
+            "Example: {'program': 'HCP', 'mode': 'and'}"
+        ),
+    )
+
+
+class ProximityStatisticsInputs(BaseModel):
+    """Inputs for the proximity-statistics process."""
+
+    reference_points: list[dict] = Field(
+        ...,
+        description="Reference locations as lon/lat points: [{'longitude': 100.5, 'latitude': 0.5}]",
+    )
+    radius_km: float = Field(
+        ...,
+        gt=0,
+        le=500,
+        description="Search radius in kilometres",
+    )
+    relation: Literal["within", "beyond"] = Field(
+        default="within",
+        description="'within' returns registrants inside the radius; 'beyond' returns those outside",
+    )
+    filters: dict | None = Field(default=None, description="Additional filters for registrants")
+    variables: list[str] | None = Field(default=None, description="List of statistic names to compute")
+    group_by: list[str] | None = Field(default=None, description="Demographic breakdown dimensions")
+    population_filter: dict | None = Field(default=None, description="Population program/CEL filter")
+
+
 class ExecuteRequest(BaseModel):
     """Request body for POST /processes/{id}/execution."""
 
@@ -157,33 +219,23 @@ class ExecuteRequest(BaseModel):
                                     ],
                                 },
                             },
-                            {
-                                "id": "zone_2",
-                                "value": {
-                                    "type": "Polygon",
-                                    "coordinates": [
-                                        [[102.0, 2.0], [103.0, 2.0], [103.0, 3.0], [102.0, 3.0], [102.0, 2.0]]
-                                    ],
-                                },
-                            },
                         ],
                     },
                 },
                 {
                     "inputs": {
-                        "reference_points": [
-                            {"longitude": 100.5, "latitude": 0.5},
-                            {"longitude": 101.5, "latitude": 1.5},
-                        ],
-                        "radius_km": 50.0,
-                        "relation": "within",
+                        "reference_points": [{"longitude": 100.5, "latitude": 0.5}],
+                        "radius_km": 10.0,
                     },
                 },
             ],
         },
     )
 
-    inputs: dict = Field(..., description="Process input values")
+    inputs: SpatialStatisticsInputs | ProximityStatisticsInputs | dict = Field(
+        ...,
+        description="Process input values. Structure depends on the process being executed.",
+    )
     outputs: dict | None = Field(default=None, description="Requested output values")
     response: Literal["raw", "document"] | None = Field(
         default=None,
@@ -277,11 +329,23 @@ class SingleStatisticsResult(BaseModel):
     )
 
     total_count: int = Field(..., description="Total number of matched records")
-    query_method: str = Field(..., description="Method used for the spatial query")
-    areas_matched: int = Field(..., description="Number of geographic areas matched")
-    statistics: dict = Field(..., description="Computed statistics by indicator")
-    breakdown: dict | None = Field(default=None, description="Demographic breakdown by dimension")
-    access_level: str | None = Field(default=None, description="Data access level applied")
+    query_method: str = Field(..., description="Method used for the spatial query (coordinates or area_fallback)")
+    areas_matched: int = Field(..., description="Number of geographic areas matched (0 if using coordinates)")
+    statistics: dict = Field(
+        ...,
+        description=(
+            "Computed statistics by indicator name. Each value is an object "
+            "with 'value' and 'suppressed' boolean."
+        ),
+    )
+    breakdown: dict | None = Field(
+        default=None,
+        description=(
+            "Demographic breakdown by dimension combinations (e.g. gender, age). "
+            "Map from cell ID to object with 'count' and 'labels'."
+        ),
+    )
+    access_level: str | None = Field(default=None, description="Data access level applied (aggregate/individual)")
     from_cache: bool = Field(default=False, description="Whether the result was served from cache")
     computed_at: str | None = Field(default=None, description="ISO 8601 datetime of computation")
 
@@ -291,12 +355,18 @@ class BatchResultItem(BaseModel):
 
     id: str = Field(..., description="Geometry identifier from the request")
     total_count: int = Field(..., description="Total number of matched records")
-    query_method: str = Field(..., description="Method used for the spatial query")
-    areas_matched: int = Field(..., description="Number of geographic areas matched")
-    statistics: dict = Field(..., description="Computed statistics by indicator")
+    query_method: str = Field(..., description="Method used for the spatial query (coordinates or area_fallback)")
+    areas_matched: int = Field(..., description="Number of geographic areas matched (0 if using coordinates)")
+    statistics: dict = Field(
+        ...,
+        description=(
+            "Computed statistics for this geometry. Map of indicator name to "
+            "object with 'value' and 'suppressed' boolean."
+        ),
+    )
     breakdown: dict | None = Field(default=None, description="Demographic breakdown by dimension")
-    access_level: str | None = Field(default=None, description="Data access level applied")
-    from_cache: bool = Field(default=False, description="Whether the result was served from cache")
+    access_level: str | None = Field(default=None, description="Data access level applied (aggregate/individual)")
+    from_cache: bool = Field(default=False, description="Whether this result was served from cache")
     computed_at: str | None = Field(default=None, description="ISO 8601 datetime of computation")
     error: str | None = Field(default=None, description="Error message if this item failed")
 
@@ -304,11 +374,14 @@ class BatchResultItem(BaseModel):
 class BatchSummary(BaseModel):
     """Aggregate summary across all geometries in a batch request."""
 
-    total_count: int = Field(..., description="Total number of matched records across all geometries")
+    total_count: int = Field(..., description="Total number of unique matched records across all geometries")
     geometries_queried: int = Field(..., description="Number of geometries successfully queried")
     geometries_failed: int = Field(default=0, description="Number of geometries that failed")
-    statistics: dict = Field(..., description="Aggregated statistics across all geometries")
-    breakdown: dict | None = Field(default=None, description="Demographic breakdown by dimension")
+    statistics: dict = Field(
+        ...,
+        description="Aggregated statistics (deduplicated) across all geometries.",
+    )
+    breakdown: dict | None = Field(default=None, description="Aggregated demographic breakdown")
     access_level: str | None = Field(default=None, description="Data access level applied")
     from_cache: bool = Field(default=False, description="Whether all results were served from cache")
     computed_at: str | None = Field(default=None, description="ISO 8601 datetime of computation")
@@ -387,13 +460,28 @@ class ProximityResult(BaseModel):
     )
 
     total_count: int = Field(..., description="Total number of matched records")
-    query_method: str = Field(..., description="Method used for the spatial query")
-    areas_matched: int = Field(..., description="Number of geographic areas matched")
+    query_method: str = Field(..., description="Method used for the spatial query (coordinates or area_fallback)")
+    areas_matched: int = Field(..., description="Number of geographic areas matched (0 if using coordinates)")
     reference_points_count: int = Field(..., description="Number of reference points used")
     radius_km: float = Field(..., description="Search radius in kilometres")
-    relation: str = Field(..., description="Spatial relation used (e.g. within, intersects)")
-    statistics: dict = Field(..., description="Computed statistics by indicator")
+    relation: str = Field(..., description="Spatial relation used (within, beyond)")
+    statistics: dict = Field(
+        ...,
+        description="Computed statistics by indicator. Map of indicator name to object with 'value' and 'suppressed' flag.",
+    )
     breakdown: dict | None = Field(default=None, description="Demographic breakdown by dimension")
     access_level: str | None = Field(default=None, description="Data access level applied")
     from_cache: bool = Field(default=False, description="Whether the result was served from cache")
     computed_at: str | None = Field(default=None, description="ISO 8601 datetime of computation")
+
+
+BatchGeometryItem.model_rebuild()
+SpatialStatisticsInputs.model_rebuild()
+ProximityStatisticsInputs.model_rebuild()
+ExecuteRequest.model_rebuild()
+StatusInfo.model_rebuild()
+BatchResultItem.model_rebuild()
+BatchSummary.model_rebuild()
+BatchStatisticsResult.model_rebuild()
+ProximityResult.model_rebuild()
+

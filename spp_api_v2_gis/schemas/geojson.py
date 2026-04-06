@@ -20,7 +20,7 @@ GeometryType = Literal[
 
 
 class GeoJSONGeometry(BaseModel):
-    """GeoJSON geometry (RFC 7946)."""
+    """GeoJSON geometry object (RFC 7946)."""
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -37,12 +37,25 @@ class GeoJSONGeometry(BaseModel):
                         ]
                     ],
                 },
+                {
+                    "type": "Point",
+                    "coordinates": [100.5, 0.5],
+                },
             ],
         },
     )
 
-    type: GeometryType = Field(..., description="Geometry type")
-    coordinates: list = Field(..., description="Coordinates array")
+    type: GeometryType = Field(
+        ...,
+        description="The type of the GeoJSON geometry.",
+    )
+    coordinates: list = Field(
+        ...,
+        description=(
+            "The coordinates of the geometry. For Point, it is [longitude, latitude]. "
+            "For Polygon, it is an array of linear ring coordinate arrays."
+        ),
+    )
 
 
 class GeoJSONFeature(BaseModel):
@@ -173,6 +186,19 @@ class GeoJSONFeatureCollection(BaseModel):
 
 class GeofenceProperties(BaseModel):
     """Typed properties for a geofence feature."""
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "name": "Flood Response Zone A",
+                    "geofence_type": "hazard_zone",
+                    "description": "Northern flood-affected area",
+                    "tags": ["flood", "response-2024"],
+                },
+            ],
+        },
+    )
 
     name: str = Field(..., description="Geofence name")
     description: str | None = Field(default=None, description="Geofence description")

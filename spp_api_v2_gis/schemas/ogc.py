@@ -80,6 +80,17 @@ class Conformance(BaseModel):
 class SpatialExtent(BaseModel):
     """Spatial extent with bounding box."""
 
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "bbox": [[95.0, -11.0, 141.0, 6.0]],
+                    "crs": "http://www.opengis.net/def/crs/OGC/1.3/CRS84",
+                },
+            ],
+        },
+    )
+
     bbox: list[list[float]] = Field(..., description="Bounding box coordinates [[west, south, east, north]]")
     crs: str = Field(
         default="http://www.opengis.net/def/crs/OGC/1.3/CRS84",
@@ -90,11 +101,37 @@ class SpatialExtent(BaseModel):
 class TemporalExtent(BaseModel):
     """Temporal extent with time interval."""
 
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "interval": [["2024-01-01T00:00:00Z", None]],
+                },
+            ],
+        },
+    )
+
     interval: list[list[str | None]] = Field(..., description="Time interval [[start, end]]")
 
 
 class Extent(BaseModel):
     """Collection extent (spatial and temporal)."""
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "spatial": {
+                        "bbox": [[95.0, -11.0, 141.0, 6.0]],
+                        "crs": "http://www.opengis.net/def/crs/OGC/1.3/CRS84",
+                    },
+                    "temporal": {
+                        "interval": [["2024-01-01T00:00:00Z", None]],
+                    },
+                },
+            ],
+        },
+    )
 
     spatial: SpatialExtent | None = Field(default=None, description="Spatial extent")
     temporal: TemporalExtent | None = Field(default=None, description="Temporal extent")
