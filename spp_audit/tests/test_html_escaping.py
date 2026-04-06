@@ -87,3 +87,4 @@ class TestAuditHtmlEscaping(TransactionCase):
         )
         html = log.parent_data_html
         self.assertNotIn("<script>", html)
+        self.assertIn("&lt;script&gt;", html)

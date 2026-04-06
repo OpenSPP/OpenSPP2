@@ -68,6 +68,7 @@ class TestHtmlEscaping(TestChangeRequestBase):
             cr.invalidate_recordset()
             html = cr.registrant_summary_html
             self.assertNotIn("<script>", html)
+            self.assertIn("&lt;script&gt;", html)
 
     def test_preview_html_escapes_field_values(self):
         """Verify _generate_preview_html escapes dynamic values."""
