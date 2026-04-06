@@ -3,6 +3,7 @@
 import json
 import logging
 import uuid as uuid_lib
+from datetime import datetime
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
@@ -14,6 +15,20 @@ CAP_SEVERITY_NS = "urn:oasis:names:tc:cap:severity"
 CAP_URGENCY_NS = "urn:oasis:names:tc:cap:urgency"
 CAP_CERTAINTY_NS = "urn:oasis:names:tc:cap:certainty"
 CAP_MSG_TYPE_NS = "urn:oasis:names:tc:cap:msg-type"
+
+
+def _parse_datetime_string(value):
+    """Parse a datetime string in either ISO 8601 or Odoo format.
+
+    Handles both '2026-04-01T00:00:00Z' (ISO 8601) and
+    '2026-04-01 00:00:00' (Odoo Datetime format).
+
+    Returns:
+        datetime object
+    """
+    # Replace 'Z' with '+00:00' for fromisoformat compatibility
+    normalized = value.replace("Z", "+00:00")
+    return datetime.fromisoformat(normalized)
 
 
 class HazardIncident(models.Model):
@@ -180,12 +195,12 @@ class HazardIncident(models.Model):
             if not vals.get("start_date") and vals.get("effective"):
                 effective = vals["effective"]
                 if isinstance(effective, str):
-                    effective = fields.Datetime.from_string(effective)
+                    effective = _parse_datetime_string(effective)
                 vals["start_date"] = effective.date()
             if not vals.get("end_date") and vals.get("expires"):
                 expires = vals["expires"]
                 if isinstance(expires, str):
-                    expires = fields.Datetime.from_string(expires)
+                    expires = _parse_datetime_string(expires)
                 vals["end_date"] = expires.date()
         return super().create(vals_list)
 
