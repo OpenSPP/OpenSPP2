@@ -1530,12 +1530,24 @@ class SPPMISDemoGenerator(models.TransientModel):
                 # Determine enrollee: group (default) or individual head member
                 enrollee = registrant
                 if enrollment_def.get("enroll_individual") and registrant.is_group:
-                    # Find the head member of this group
-                    head_membership = self.env["spp.group.membership"].search(
-                        [("group", "=", registrant.id)],
-                        limit=1,
-                        order="id",
+                    # Find the head member of this group (by membership type)
+                    head_type = self.env["spp.vocabulary.code"].get_code(
+                        "urn:openspp:vocab:group-membership-type", "head"
                     )
+                    domain = [("group", "=", registrant.id)]
+                    if head_type:
+                        domain.append(("membership_type_ids", "in", [head_type.id]))
+                    head_membership = self.env["spp.group.membership"].search(
+                        domain,
+                        limit=1,
+                    )
+                    if not head_membership:
+                        # Fallback: first member if no head type found
+                        head_membership = self.env["spp.group.membership"].search(
+                            [("group", "=", registrant.id)],
+                            limit=1,
+                            order="id",
+                        )
                     if head_membership:
                         enrollee = head_membership.individual
                         _logger.info(
@@ -3842,13 +3854,64 @@ class SPPMISDemoGenerator(models.TransientModel):
             _logger.warning("[spp.mis.demo] Failed to load geographic data: %s", e)
             return None
 
+    # Locale-aware area assignments for story registrants.
+    # Each story gets a specific area per country for consistent demo scenarios.
+    # Keys: story_id -> {locale: area_xmlid}
+    STORY_AREA_MAP = {
+        "juan_dela_cruz": {
+            "fil_PH": "spp_demo.area_phl_calamba",
+            "fr_TG": "spp_demo.area_tgo_lome_tokoin",
+            "si_LK": "spp_demo.area_lka_moratuwa",
+        },
+        "maria_santos": {
+            "fil_PH": "spp_demo.area_phl_santa_rosa",
+            "fr_TG": "spp_demo.area_tgo_aflao",
+            "si_LK": "spp_demo.area_lka_kolonnawa",
+        },
+        "jose_reyes_multigenerational": {
+            "fil_PH": "spp_demo.area_phl_san_pablo",
+            "fr_TG": "spp_demo.area_tgo_kpalime",
+            "si_LK": "spp_demo.area_lka_kandy_ds",
+        },
+        "ibrahim_hassan": {
+            "fil_PH": "spp_demo.area_phl_antipolo",
+            "fr_TG": "spp_demo.area_tgo_sokode",
+            "si_LK": "spp_demo.area_lka_galle_ds",
+        },
+        "david_sofia_martinez": {
+            "fil_PH": "spp_demo.area_phl_makati",
+            "fr_TG": "spp_demo.area_tgo_lome",
+            "si_LK": "spp_demo.area_lka_dehiwala",
+        },
+        "rosa_garcia": {
+            "fil_PH": "spp_demo.area_phl_quezon_city",
+            "fr_TG": "spp_demo.area_tgo_lome_be",
+            "si_LK": "spp_demo.area_lka_colombo_fort",
+        },
+        "mary_johnson": {
+            "fil_PH": "spp_demo.area_phl_pasig",
+            "fr_TG": "spp_demo.area_tgo_lome_nyekonakpoe",
+            "si_LK": "spp_demo.area_lka_colombo_pettah",
+        },
+        "ahmed_said": {
+            "fil_PH": "spp_demo.area_phl_taguig",
+            "fr_TG": "spp_demo.area_tgo_lome_adidogome",
+            "si_LK": "spp_demo.area_lka_colombo_slave_island",
+        },
+        "nguyen_extended_family": {
+            "fil_PH": "spp_demo.area_phl_bacoor",
+            "fr_TG": "spp_demo.area_tgo_baguida_centre",
+            "si_LK": "spp_demo.area_lka_hikkaduwa",
+        },
+    }
+
     def _assign_registrant_areas(self, stats):
         """Assign geographic areas to registrants.
 
         Strategy:
-        - Get all municipalities (level 3 areas) from the loaded country
-        - For each group, assign a random municipality to area_id
-        - Individual members inherit area_id from their group
+        1. Assign specific areas to story registrants (locale-aware)
+        2. Assign random municipalities to remaining groups
+        3. Individual members inherit area_id from their group
 
         Args:
             stats: Statistics dictionary to update
@@ -3860,22 +3923,36 @@ class SPPMISDemoGenerator(models.TransientModel):
         municipalities = Area.search([("area_level", "=", 3), ("geo_polygon", "!=", False)])
 
         if not municipalities:
-            _logger.warning("[spp.mis.demo] No municipalities with GIS data found, skipping area assignment")
+            # Fall back to any level 3 areas even without polygons
+            municipalities = Area.search([("area_level", "=", 3)])
+
+        if not municipalities:
+            _logger.warning("[spp.mis.demo] No municipalities found, skipping area assignment")
             stats["areas_assigned"] = 0
             return
 
-        _logger.info("[spp.mis.demo] Found %d municipalities with GIS data", len(municipalities))
+        _logger.info("[spp.mis.demo] Found %d municipalities for area assignment", len(municipalities))
 
-        # Get all groups (households)
-        groups = Partner.search([("is_group", "=", True), ("is_registrant", "=", True)])
+        # Step 1: Assign specific areas to story registrants
+        locale = self.env.context.get("demo_locale", "fil_PH")
+        story_assigned = self._assign_story_areas(locale)
+
+        # Step 2: Get all groups (households) without area_id
+        groups = Partner.search(
+            [
+                ("is_group", "=", True),
+                ("is_registrant", "=", True),
+                ("area_id", "=", False),
+            ]
+        )
 
         if not groups:
-            _logger.warning("[spp.mis.demo] No groups found, skipping area assignment")
-            stats["areas_assigned"] = 0
+            _logger.info("[spp.mis.demo] All groups already have areas assigned")
+            stats["areas_assigned"] = story_assigned
             return
 
-        # Assign random municipality to each group
-        groups_assigned = 0
+        # Assign random municipality to each remaining group
+        groups_assigned = story_assigned
         for group in groups:
             municipality = random.choice(municipalities)
             group.write({"area_id": municipality.id})
@@ -3886,8 +3963,80 @@ class SPPMISDemoGenerator(models.TransientModel):
             if members:
                 members.write({"area_id": municipality.id})
 
+        # Also assign areas to standalone individuals without area_id
+        individuals = Partner.search(
+            [
+                ("is_group", "=", False),
+                ("is_registrant", "=", True),
+                ("area_id", "=", False),
+                ("individual_membership_ids", "=", False),
+            ]
+        )
+        for ind in individuals:
+            municipality = random.choice(municipalities)
+            ind.write({"area_id": municipality.id})
+
         stats["areas_assigned"] = groups_assigned
-        _logger.info("[spp.mis.demo] Assigned areas to %d groups", groups_assigned)
+        _logger.info("[spp.mis.demo] Assigned areas to %d groups (%d story-specific)", groups_assigned, story_assigned)
+
+    def _assign_story_areas(self, locale):
+        """Assign locale-specific areas to story registrants.
+
+        Returns:
+            int: Number of stories assigned
+        """
+        assigned = 0
+
+        try:
+            from odoo.addons.spp_demo.models import demo_stories
+
+            stories = demo_stories.get_localized_stories(locale)
+        except ImportError:
+            return 0
+
+        Partner = self.env["res.partner"]
+
+        for story in stories:
+            story_id = story["id"]
+            story_name = story["name"]
+
+            area_map = self.STORY_AREA_MAP.get(story_id, {})
+            area_xmlid = area_map.get(locale)
+            if not area_xmlid:
+                continue
+
+            area = self.env.ref(area_xmlid, raise_if_not_found=False)
+            if not area:
+                _logger.warning("[spp.mis.demo] Area %s not found for story %s", area_xmlid, story_id)
+                continue
+
+            # Find the registrant
+            registrant = Partner.search(
+                [("name", "=", story_name), ("is_registrant", "=", True)],
+                limit=1,
+            )
+            if not registrant:
+                continue
+
+            # Assign area
+            registrant.write({"area_id": area.id})
+            assigned += 1
+
+            # If group, also assign to members
+            if registrant.is_group:
+                members = Partner.search([("group_membership_ids.group", "=", registrant.id)])
+                if members:
+                    members.write({"area_id": area.id})
+
+            _logger.debug(
+                "[spp.mis.demo] Assigned %s to story %s (%s)",
+                area.draft_name,
+                story_name,
+                story_id,
+            )
+
+        _logger.info("[spp.mis.demo] Assigned areas to %d story registrants", assigned)
+        return assigned
 
     def _generate_coordinates(self, stats):
         """Generate GPS coordinates for registrants.
