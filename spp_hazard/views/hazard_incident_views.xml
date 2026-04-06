@@ -10,10 +10,10 @@
                 decoration-warning="status == 'recovery'"
                 decoration-muted="status == 'closed'"
             >
-                <field name="name" />
-                <field name="code" />
-                <field name="category_id" />
-                <field name="start_date" />
+                <field name="name" optional="show" />
+                <field name="code" optional="show" />
+                <field name="category_id" optional="show" />
+                <field name="start_date" optional="show" />
                 <field name="end_date" optional="show" />
                 <field
                     name="status"
@@ -22,10 +22,15 @@
                     decoration-success="status == 'active'"
                     decoration-warning="status == 'recovery'"
                     decoration-muted="status == 'closed'"
+                    optional="show"
                 />
-                <field name="severity_id" />
-                <field name="area_count" string="Areas" />
-                <field name="affected_registrant_count" string="Affected" />
+                <field name="severity_id" optional="show" />
+                <field name="area_count" string="Areas" optional="hide" />
+                <field
+                    name="affected_registrant_count"
+                    string="Affected"
+                    optional="hide"
+                />
             </list>
         </field>
     </record>
@@ -117,10 +122,18 @@
                                 options="{'no_create': True}"
                                 readonly="status == 'closed'"
                             />
-                            <field name="severity_id" readonly="status == 'closed'" />
+                            <field
+                                name="severity_id"
+                                readonly="status == 'closed'"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
                         </group>
                         <group name="dates">
-                            <field name="start_date" required="1" readonly="status == 'closed'" />
+                            <field
+                                name="start_date"
+                                required="1"
+                                readonly="status == 'closed'"
+                            />
                             <field name="end_date" readonly="status == 'closed'" />
                             <field name="is_ongoing" invisible="1" />
                         </group>
@@ -136,20 +149,49 @@
                         <page string="Alert Details" name="alert_details">
                             <group>
                                 <group string="CAP Properties">
-                                    <field name="cap_event" readonly="status == 'closed'" />
-                                    <field name="cap_urgency_id" readonly="status == 'closed'" />
-                                    <field name="cap_certainty_id" readonly="status == 'closed'" />
-                                    <field name="cap_msg_type_id" readonly="status == 'closed'" />
+                                    <field
+                                        name="cap_event"
+                                        readonly="status == 'closed'"
+                                    />
+                                    <field
+                                        name="cap_urgency_id"
+                                        readonly="status == 'closed'"
+                                        options="{'no_create': True, 'no_open': True}"
+                                    />
+                                    <field
+                                        name="cap_certainty_id"
+                                        readonly="status == 'closed'"
+                                        options="{'no_create': True, 'no_open': True}"
+                                    />
+                                    <field
+                                        name="cap_msg_type_id"
+                                        readonly="status == 'closed'"
+                                        options="{'no_create': True, 'no_open': True}"
+                                    />
                                 </group>
                                 <group string="Alert Timing">
-                                    <field name="effective" readonly="status == 'closed'" />
-                                    <field name="expires" readonly="status == 'closed'" />
+                                    <field
+                                        name="effective"
+                                        string="Effective From"
+                                        readonly="status == 'closed'"
+                                    />
+                                    <field
+                                        name="expires"
+                                        string="Expires At"
+                                        readonly="status == 'closed'"
+                                    />
                                 </group>
                             </group>
                             <group>
                                 <group string="External Source">
-                                    <field name="source" readonly="status == 'closed'" />
-                                    <field name="source_alert_id" readonly="status == 'closed'" />
+                                    <field
+                                        name="source"
+                                        readonly="status == 'closed'"
+                                    />
+                                    <field
+                                        name="source_alert_id"
+                                        readonly="status == 'closed'"
+                                    />
                                 </group>
                             </group>
                         </page>
@@ -167,13 +209,20 @@
                                         name="area_id"
                                         options="{'no_create': True}"
                                     />
-                                    <field name="severity_override_id" />
+                                    <field
+                                        name="severity_override_id"
+                                        options="{'no_create': True, 'no_open': True}"
+                                    />
                                     <field name="affected_population_estimate" />
                                     <field name="notes" />
                                 </list>
                             </field>
                         </page>
                         <page string="Impacts" name="impacts">
+                            <p
+                                class="text-muted"
+                                invisible="impact_ids != []"
+                            >No impacts recorded. Impacts track damage assessments linked to this incident.</p>
                             <field name="impact_ids" readonly="status == 'closed'">
                                 <list>
                                     <field name="registrant_id" />
@@ -261,6 +310,11 @@
                         name="grp_certainty"
                         string="Certainty"
                         context="{'group_by': 'cap_certainty_id'}"
+                    />
+                    <filter
+                        name="grp_msg_type"
+                        string="Message Type"
+                        context="{'group_by': 'cap_msg_type_id'}"
                     />
                     <filter
                         name="grp_start"

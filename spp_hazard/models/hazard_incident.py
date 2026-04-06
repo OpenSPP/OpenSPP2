@@ -3,9 +3,11 @@
 import json
 import logging
 import uuid as uuid_lib
-from datetime import datetime
+from datetime import UTC, datetime
 
-from odoo import _, api, fields, models
+import psycopg2
+
+from odoo import Command, _, api, fields, models
 from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
@@ -28,7 +30,11 @@ def _parse_datetime_string(value):
     """
     # Replace 'Z' with '+00:00' for fromisoformat compatibility
     normalized = value.replace("Z", "+00:00")
-    return datetime.fromisoformat(normalized)
+    dt = datetime.fromisoformat(normalized)
+    # Odoo requires naive (UTC) datetimes
+    if dt.tzinfo is not None:
+        dt = dt.astimezone(UTC).replace(tzinfo=None)
+    return dt
 
 
 class HazardIncident(models.Model):
@@ -346,7 +352,6 @@ class HazardIncident(models.Model):
         """
         self.ensure_one()
         vals = self._map_alert_properties_to_vals(properties)
-        self.write(vals)
 
         if geometry_dict:
             self._validate_alert_geometry(geometry_dict)
@@ -377,13 +382,17 @@ class HazardIncident(models.Model):
             # Re-link areas from updated geometry
             self._link_areas_from_geometry(geometry_dict)
 
-        # Handle cancellation
+        # Handle cancellation: merge close fields into a single write rather
+        # than calling action_close() separately (avoids two ORM writes).
         cap_msg_type_id = vals.get("cap_msg_type_id")
         if cap_msg_type_id:
             VocabCode = self.env["spp.vocabulary.code"]
             cancel_code = VocabCode.get_code(CAP_MSG_TYPE_NS, "cancel")
             if cancel_code and cap_msg_type_id == cancel_code.id:
-                self.action_close()
+                vals["status"] = "closed"
+                vals["end_date"] = self.end_date or fields.Date.today()
+
+        self.write(vals)
 
     def _validate_alert_geometry(self, geometry_dict):
         """Validate that geometry is Polygon or MultiPolygon.
@@ -424,9 +433,9 @@ class HazardIncident(models.Model):
         if "source_alert_id" in properties:
             vals["source_alert_id"] = properties["source_alert_id"]
         if "effective" in properties and properties["effective"]:
-            vals["effective"] = properties["effective"]
+            vals["effective"] = _parse_datetime_string(properties["effective"])
         if "expires" in properties and properties["expires"]:
-            vals["expires"] = properties["expires"]
+            vals["expires"] = _parse_datetime_string(properties["expires"])
 
         # Resolve vocabulary-backed fields by code
         for prop_key, field_name, namespace in [
@@ -443,6 +452,8 @@ class HazardIncident(models.Model):
         # Auto-generate code if not provided (for create)
         if "code" not in vals and "source_alert_id" in properties and properties["source_alert_id"]:
             vals["code"] = properties["source_alert_id"]
+        if "code" not in vals:
+            vals["code"] = f"INC-{uuid_lib.uuid4().hex[:8].upper()}"
 
         return vals
 
@@ -492,15 +503,13 @@ class HazardIncident(models.Model):
             )
             area_ids = [row[0] for row in self.env.cr.fetchall()]
             if area_ids:
-                from odoo import Command
-
                 self.write({"area_ids": [Command.set(area_ids)]})
             else:
                 _logger.info(
                     "No intersecting areas found for incident %s",
                     self.code,
                 )
-        except Exception as e:
+        except psycopg2.Error as e:
             _logger.warning(
                 "Failed to link areas from geometry for incident %s: %s",
                 self.code,
@@ -628,13 +637,10 @@ class HazardIncidentArea(models.Model):
         "This area is already linked to this incident!",
     )
 
-    def name_get(self):
-        """Return a descriptive name for the record."""
+    def _compute_display_name(self):
+        """Compute a descriptive display name for the record."""
         # Prefetch related records to avoid N+1 queries
         self.mapped("incident_id")
         self.mapped("area_id")
-        result = []
         for rec in self:
-            name = f"{rec.incident_id.name} - {rec.area_id.name}"
-            result.append((rec.id, name))
-        return result
+            rec.display_name = f"{rec.incident_id.name} - {rec.area_id.name}"

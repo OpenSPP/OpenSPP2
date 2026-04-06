@@ -1171,7 +1171,7 @@ class OGCService:
             domain.append(("cap_event", "=ilike", event))
 
         if severity:
-            VocabCode = self.env["spp.vocabulary.code"]
+            VocabCode = self.env["spp.vocabulary.code"].sudo()
             severity_code = VocabCode.get_code("urn:oasis:names:tc:cap:severity", severity)
             if severity_code:
                 domain.append(("severity_id", "=", severity_code.id))
@@ -1184,7 +1184,9 @@ class OGCService:
         if datetime_param:
             dt_start, dt_end = self._parse_datetime_param(datetime_param)
             # Temporal overlap: effective <= end AND (expires >= start OR expires IS NULL)
+            # Incidents with no effective date have no temporal extent and must not match.
             if dt_end:
+                domain.append(("effective", "!=", False))
                 domain.append(("effective", "<=", dt_end))
             if dt_start:
                 domain.append("|")
@@ -1198,6 +1200,7 @@ class OGCService:
             bbox_geojson = self.layers_service._bbox_to_geojson(bbox)
             geofences = Geofence.search(
                 [
+                    ("active", "=", True),
                     ("geofence_type", "=", "hazard_zone"),
                     ("geometry", "gis_intersects", bbox_geojson),
                 ]

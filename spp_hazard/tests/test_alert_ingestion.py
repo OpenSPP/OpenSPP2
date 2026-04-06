@@ -165,11 +165,10 @@ class TestCreateFromAlert(HazardTestCase):
 class TestUpdateFromAlert(HazardTestCase):
     """Tests for update_from_alert method."""
 
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        Incident = cls.env["spp.hazard.incident"]
-        cls.incident = Incident.create_from_alert(
+    def setUp(self):
+        super().setUp()
+        Incident = self.env["spp.hazard.incident"]
+        self.incident = Incident.create_from_alert(
             SAMPLE_POLYGON,
             {
                 "event": "Flood",
@@ -205,6 +204,21 @@ class TestUpdateFromAlert(HazardTestCase):
         )
         self.assertTrue(geofence)
         self.assertEqual(self.incident.name, "Flood Moved East")
+
+        # Verify the geofence geometry was updated to SAMPLE_POLYGON_2.
+        # SAMPLE_POLYGON_2 starts at longitude 102, which is distinct from
+        # SAMPLE_POLYGON which starts at longitude 100.
+        self.assertTrue(geofence.geometry, "Geofence geometry must not be empty after update")
+        from shapely.geometry import mapping
+
+        stored_geom = mapping(geofence.geometry)
+        coords = stored_geom.get("coordinates", [[[]]])
+        outer_ring = coords[0]
+        longitudes = [pt[0] for pt in outer_ring]
+        self.assertTrue(
+            any(lon >= 102.0 for lon in longitudes),
+            f"Expected geometry with longitudes >= 102 (SAMPLE_POLYGON_2), got: {longitudes}",
+        )
 
     def test_update_cancel_closes_incident(self):
         """update_from_alert with cap_msg_type=cancel closes the incident."""

@@ -405,6 +405,79 @@ class TestOGCDatetimeParsing(TransactionCase):
 
 
 @tagged("post_install", "-at_install")
+class TestIncidentScopeEnforcement(TransactionCase):
+    """Tests that scope checks block or allow incident write operations."""
+
+    def _make_client(self, scopes):
+        """Create an spp.api.client record with the given scopes.
+
+        Args:
+            scopes: List of {"resource": str, "action": str} dicts
+
+        Returns:
+            spp.api.client record
+        """
+        partner = self.env["res.partner"].create({"name": "Scope Test Org"})
+        org_type = self.env.ref("spp_consent.org_type_government", raise_if_not_found=False)
+        if not org_type:
+            org_type = self.env["spp.consent.org.type"].search([("code", "=", "government")], limit=1)
+        if not org_type:
+            org_type = self.env["spp.consent.org.type"].create({"name": "Government", "code": "government"})
+        client = self.env["spp.api.client"].create(
+            {
+                "name": "Scope Test Client",
+                "partner_id": partner.id,
+                "organization_type_id": org_type.id,
+            }
+        )
+        for scope_def in scopes:
+            self.env["spp.api.client.scope"].create(
+                {
+                    "client_id": client.id,
+                    "resource": scope_def["resource"],
+                    "action": scope_def["action"],
+                }
+            )
+        return client
+
+    def test_gis_read_scope_cannot_post_incident(self):
+        """A client with only gis:read scope must be denied gis:incident write access."""
+        from fastapi import HTTPException
+
+        from ..routers.ogc_features import _check_gis_incident_scope
+
+        client = self._make_client([{"resource": "gis", "action": "read"}])
+
+        self.assertFalse(client.has_scope("gis", "incident"))
+        with self.assertRaises(HTTPException) as cm:
+            _check_gis_incident_scope(client)
+        self.assertEqual(cm.exception.status_code, 403)
+
+    def test_gis_geofence_scope_cannot_post_incident(self):
+        """A client with only gis:geofence scope must be denied gis:incident write access."""
+        from fastapi import HTTPException
+
+        from ..routers.ogc_features import _check_gis_incident_scope
+
+        client = self._make_client([{"resource": "gis", "action": "geofence"}])
+
+        self.assertFalse(client.has_scope("gis", "incident"))
+        with self.assertRaises(HTTPException) as cm:
+            _check_gis_incident_scope(client)
+        self.assertEqual(cm.exception.status_code, 403)
+
+    def test_gis_incident_scope_allows_post_incident(self):
+        """A client with gis:incident scope must pass the incident scope check."""
+        from ..routers.ogc_features import _check_gis_incident_scope
+
+        client = self._make_client([{"resource": "gis", "action": "incident"}])
+
+        self.assertTrue(client.has_scope("gis", "incident"))
+        # Must not raise
+        _check_gis_incident_scope(client)
+
+
+@tagged("post_install", "-at_install")
 class TestOGCGeofenceIncidentFilter(TransactionCase):
     """Tests for incident_code filter on geofences collection."""
 
