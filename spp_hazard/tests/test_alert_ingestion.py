@@ -1,7 +1,6 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Tests for alert ingestion business logic (create_from_alert, update_from_alert, etc.)."""
 
-import json
 import logging
 
 from odoo.exceptions import ValidationError

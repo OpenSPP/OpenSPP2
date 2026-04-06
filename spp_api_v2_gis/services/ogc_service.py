@@ -1196,10 +1196,12 @@ class OGCService:
             # nosemgrep: odoo-sudo-without-context
             Geofence = self.env["spp.gis.geofence"].sudo()
             bbox_geojson = self.layers_service._bbox_to_geojson(bbox)
-            geofences = Geofence.search([
-                ("geofence_type", "=", "hazard_zone"),
-                ("geometry", "gis_intersects", bbox_geojson),
-            ])
+            geofences = Geofence.search(
+                [
+                    ("geofence_type", "=", "hazard_zone"),
+                    ("geometry", "gis_intersects", bbox_geojson),
+                ]
+            )
             incident_ids = geofences.mapped("incident_id").ids
             domain.append(("id", "in", incident_ids))
 
@@ -1325,9 +1327,7 @@ class OGCService:
         if source_alert_id:
             # nosemgrep: odoo-sudo-without-context
             existing = (
-                self.env["spp.hazard.incident"]
-                .sudo()
-                .search([("source_alert_id", "=", source_alert_id)], limit=1)
+                self.env["spp.hazard.incident"].sudo().search([("source_alert_id", "=", source_alert_id)], limit=1)
             )
             if existing:
                 ogc_base = f"{self.base_url}/gis/ogc"

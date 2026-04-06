@@ -51,11 +51,11 @@ from ..schemas.ogc import (
     LandingPage,
 )
 from ..services.ogc_service import (
-    DuplicateAlertError,
     GEOFENCES_COLLECTION_ID,
     INCIDENTS_COLLECTION_ID,
-    OGCService,
     WRITABLE_COLLECTIONS,
+    DuplicateAlertError,
+    OGCService,
 )
 from ..services.qml_template_service import QMLTemplateService
 

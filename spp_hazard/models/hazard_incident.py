@@ -103,8 +103,7 @@ class HazardIncident(models.Model):
     )
     cap_event = fields.Char(
         string="Event Type",
-        help="Raw event type from CAP alert (e.g., 'Flood', 'Typhoon'). "
-        "Complements the structured category_id field.",
+        help="Raw event type from CAP alert (e.g., 'Flood', 'Typhoon'). Complements the structured category_id field.",
     )
     cap_msg_type_id = fields.Many2one(
         "spp.vocabulary.code",
@@ -338,13 +337,17 @@ class HazardIncident(models.Model):
             self._validate_alert_geometry(geometry_dict)
             # Find existing hazard_zone geofence for this incident
             # nosemgrep: odoo-sudo-without-context
-            geofence = self.env["spp.gis.geofence"].sudo().search(
-                [
-                    ("incident_id", "=", self.id),
-                    ("geofence_type", "=", "hazard_zone"),
-                ],
-                limit=1,
-                order="create_date",
+            geofence = (
+                self.env["spp.gis.geofence"]
+                .sudo()
+                .search(
+                    [
+                        ("incident_id", "=", self.id),
+                        ("geofence_type", "=", "hazard_zone"),
+                    ],
+                    limit=1,
+                    order="create_date",
+                )
             )
             if geofence:
                 geofence.write({"geometry": json.dumps(geometry_dict)})
@@ -379,9 +382,7 @@ class HazardIncident(models.Model):
         allowed = {"Polygon", "MultiPolygon"}
         geom_type = geometry_dict.get("type", "") if isinstance(geometry_dict, dict) else ""
         if geom_type not in allowed:
-            raise ValidationError(
-                _("Alert geometry must be Polygon or MultiPolygon, got '%s'.") % geom_type
-            )
+            raise ValidationError(_("Alert geometry must be Polygon or MultiPolygon, got '%s'.") % geom_type)
 
     def _map_alert_properties_to_vals(self, properties):
         """Map CAP-aligned properties dict to incident field values.
@@ -517,13 +518,17 @@ class HazardIncident(models.Model):
         from shapely.geometry import mapping
 
         # nosemgrep: odoo-sudo-without-context
-        geofence = self.env["spp.gis.geofence"].sudo().search(
-            [
-                ("incident_id", "=", self.id),
-                ("geofence_type", "=", "hazard_zone"),
-            ],
-            limit=1,
-            order="create_date",
+        geofence = (
+            self.env["spp.gis.geofence"]
+            .sudo()
+            .search(
+                [
+                    ("incident_id", "=", self.id),
+                    ("geofence_type", "=", "hazard_zone"),
+                ],
+                limit=1,
+                order="create_date",
+            )
         )
         if not geofence or not geofence.geometry:
             return None
