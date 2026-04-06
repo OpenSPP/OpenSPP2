@@ -32,8 +32,12 @@ CONFORMANCE_CLASSES = [
     "http://www.opengis.net/spec/ogcapi-features-4/1.0/conf/create-replace-delete",
 ]
 
-# Geofence collection ID constant
+# Collection ID constants
 GEOFENCES_COLLECTION_ID = "geofences"
+INCIDENTS_COLLECTION_ID = "incidents"
+
+# Writable collections (OGC Features Part 4)
+WRITABLE_COLLECTIONS = {GEOFENCES_COLLECTION_ID, INCIDENTS_COLLECTION_ID}
 
 # Allowed geometry types for geofence creation/update
 _ALLOWED_GEOFENCE_GEOMETRY_TYPES = {"Polygon", "MultiPolygon"}
@@ -148,6 +152,10 @@ class OGCService:
         geofence_collection = self._geofences_to_collection()
         collections.append(geofence_collection)
 
+        # Add incidents as a static collection
+        incidents_collection = self._incidents_to_collection()
+        collections.append(incidents_collection)
+
         return {
             "links": [
                 {
@@ -183,6 +191,10 @@ class OGCService:
         if layer_type == "geofence":
             return self._geofences_to_collection()
 
+        # Incidents collection
+        if layer_type == "incident":
+            return self._incidents_to_collection()
+
         # Data layer lookup
         if layer_type == "layer":
             catalog = self.catalog_service.get_catalog()
@@ -212,6 +224,11 @@ class OGCService:
         bbox=None,
         geofence_type=None,
         active=None,
+        datetime_param=None,
+        event=None,
+        severity=None,
+        incident_status=None,
+        incident_code=None,
     ):
         """Get features from a collection.
 
@@ -227,6 +244,11 @@ class OGCService:
             bbox: Bounding box filter [west, south, east, north]
             geofence_type: Filter by geofence type (geofences collection only)
             active: Include archived geofences (geofences collection only)
+            datetime_param: OGC datetime filter string (incidents/geofences)
+            event: Filter by event type (incidents collection only)
+            severity: Filter by severity code (incidents collection only)
+            incident_status: Filter by status (incidents collection only)
+            incident_code: Filter geofences by incident code
 
         Returns:
             dict: GeoJSON FeatureCollection with OGC pagination links
@@ -236,6 +258,18 @@ class OGCService:
         """
         layer_type, layer_id, admin_level = self._parse_collection_id(collection_id)
 
+        # Incident collection: handle separately
+        if layer_type == "incident":
+            return self._get_incident_items(
+                limit=limit,
+                offset=offset,
+                bbox=bbox,
+                datetime_param=datetime_param,
+                event=event,
+                severity=severity,
+                status=incident_status,
+            )
+
         # Geofence collection: handle separately
         if layer_type == "geofence":
             return self._get_geofence_items(
@@ -244,6 +278,8 @@ class OGCService:
                 bbox=bbox,
                 geofence_type=geofence_type,
                 active=active,
+                datetime_param=datetime_param,
+                incident_code=incident_code,
             )
 
         # For bare report codes, default to base_area_level
@@ -347,6 +383,10 @@ class OGCService:
         # Geofence: look up by UUID
         if layer_type == "geofence":
             return self._get_geofence_item(feature_id)
+
+        # Incident: look up by UUID
+        if layer_type == "incident":
+            return self._get_incident_item(feature_id)
 
         feature = self.layers_service.get_feature_by_id(
             layer_id=layer_id,
@@ -589,6 +629,9 @@ class OGCService:
         if collection_id == GEOFENCES_COLLECTION_ID:
             return "geofence", None, None
 
+        if collection_id == INCIDENTS_COLLECTION_ID:
+            return "incident", None, None
+
         if collection_id.startswith("layer_"):
             return "layer", collection_id[6:], None
 
@@ -670,7 +713,9 @@ class OGCService:
             _logger.warning("Failed to compute bbox for geofences: %s", e)
         return None
 
-    def _get_geofence_items(self, limit=1000, offset=0, bbox=None, geofence_type=None, active=None):
+    def _get_geofence_items(
+        self, limit=1000, offset=0, bbox=None, geofence_type=None, active=None, datetime_param=None, incident_code=None
+    ):
         """Get geofence features as a GeoJSON FeatureCollection.
 
         Args:
@@ -679,6 +724,8 @@ class OGCService:
             bbox: Bounding box filter [west, south, east, north]
             geofence_type: Filter by geofence type
             active: Include archived (default: only active)
+            datetime_param: OGC datetime filter (filters on create_date)
+            incident_code: Filter by linked incident code
 
         Returns:
             dict: GeoJSON FeatureCollection with OGC pagination
@@ -694,6 +741,22 @@ class OGCService:
 
         if geofence_type:
             domain.append(("geofence_type", "=", geofence_type))
+
+        if incident_code:
+            # nosemgrep: odoo-sudo-without-context
+            incident = self.env["spp.hazard.incident"].sudo().search([("code", "=", incident_code)], limit=1)
+            if incident:
+                domain.append(("incident_id", "=", incident.id))
+            else:
+                # No matching incident: return empty
+                domain.append(("id", "=", 0))
+
+        if datetime_param:
+            dt_start, dt_end = self._parse_datetime_param(datetime_param)
+            if dt_start:
+                domain.append(("create_date", ">=", dt_start))
+            if dt_end:
+                domain.append(("create_date", "<=", dt_end))
 
         if bbox:
             bbox_geojson = self.layers_service._bbox_to_geojson(bbox)
@@ -1048,3 +1111,297 @@ class OGCService:
         if report:
             return report.base_area_level
         return None
+
+    # --- Incident collection methods ---
+
+    def _incidents_to_collection(self):
+        """Build OGC collection metadata for incidents.
+
+        Returns:
+            dict: OGC CollectionInfo for incidents
+        """
+        ogc_base = f"{self.base_url}/gis/ogc"
+        return {
+            "id": INCIDENTS_COLLECTION_ID,
+            "title": "Hazard Incidents",
+            "description": "Hazard incidents from external alert systems and internal reporting",
+            "itemType": "feature",
+            "crs": ["http://www.opengis.net/def/crs/OGC/1.3/CRS84"],
+            "links": [
+                {
+                    "href": f"{ogc_base}/collections/{INCIDENTS_COLLECTION_ID}",
+                    "rel": "self",
+                    "type": "application/json",
+                    "title": "Collection metadata",
+                },
+                {
+                    "href": f"{ogc_base}/collections/{INCIDENTS_COLLECTION_ID}/items",
+                    "rel": "items",
+                    "type": "application/geo+json",
+                    "title": "Feature items",
+                },
+            ],
+            "storageCrs": "http://www.opengis.net/def/crs/OGC/1.3/CRS84",
+            "geometryDimension": 2,
+        }
+
+    def _get_incident_items(
+        self, limit=1000, offset=0, bbox=None, datetime_param=None, event=None, severity=None, status=None
+    ):
+        """Get incident features as a GeoJSON FeatureCollection.
+
+        Args:
+            limit: Maximum features to return
+            offset: Pagination offset
+            bbox: Bounding box filter (filters through linked geofences)
+            datetime_param: OGC datetime filter on [effective, expires]
+            event: Filter by cap_event
+            severity: Filter by severity vocabulary code
+            status: Filter by incident status
+
+        Returns:
+            dict: GeoJSON FeatureCollection with OGC pagination
+        """
+        # nosemgrep: odoo-sudo-without-context
+        Incident = self.env["spp.hazard.incident"].sudo()
+
+        domain = []
+
+        if event:
+            domain.append(("cap_event", "=ilike", event))
+
+        if severity:
+            VocabCode = self.env["spp.vocabulary.code"]
+            severity_code = VocabCode.get_code("urn:oasis:names:tc:cap:severity", severity)
+            if severity_code:
+                domain.append(("severity_id", "=", severity_code.id))
+            else:
+                domain.append(("id", "=", 0))  # No match
+
+        if status:
+            domain.append(("status", "=", status))
+
+        if datetime_param:
+            dt_start, dt_end = self._parse_datetime_param(datetime_param)
+            # Temporal overlap: effective <= end AND (expires >= start OR expires IS NULL)
+            if dt_end:
+                domain.append(("effective", "<=", dt_end))
+            if dt_start:
+                domain.append("|")
+                domain.append(("expires", ">=", dt_start))
+                domain.append(("expires", "=", False))
+
+        if bbox:
+            # Filter through linked geofences
+            # nosemgrep: odoo-sudo-without-context
+            Geofence = self.env["spp.gis.geofence"].sudo()
+            bbox_geojson = self.layers_service._bbox_to_geojson(bbox)
+            geofences = Geofence.search([
+                ("geofence_type", "=", "hazard_zone"),
+                ("geometry", "gis_intersects", bbox_geojson),
+            ])
+            incident_ids = geofences.mapped("incident_id").ids
+            domain.append(("id", "in", incident_ids))
+
+        total_count = Incident.search_count(domain)
+        incidents = Incident.search(domain, limit=limit, offset=offset, order="start_date desc, name")
+
+        # Prefetch related fields
+        incidents.mapped("severity_id.code")
+        incidents.mapped("cap_urgency_id.code")
+        incidents.mapped("cap_certainty_id.code")
+        incidents.mapped("cap_msg_type_id.code")
+        incidents.mapped("category_id.name")
+
+        features = [rec.to_geojson() for rec in incidents]
+
+        # Build OGC response with pagination links
+        ogc_base = f"{self.base_url}/gis/ogc"
+        items_url = f"{ogc_base}/collections/{INCIDENTS_COLLECTION_ID}/items"
+
+        links = [
+            {
+                "href": f"{items_url}?limit={limit}&offset={offset}",
+                "rel": "self",
+                "type": "application/geo+json",
+                "title": "This page",
+            },
+            {
+                "href": f"{ogc_base}/collections/{INCIDENTS_COLLECTION_ID}",
+                "rel": "collection",
+                "type": "application/json",
+                "title": "Collection metadata",
+            },
+        ]
+
+        if offset + limit < total_count:
+            links.append(
+                {
+                    "href": f"{items_url}?limit={limit}&offset={offset + limit}",
+                    "rel": "next",
+                    "type": "application/geo+json",
+                    "title": "Next page",
+                }
+            )
+
+        if offset > 0:
+            links.append(
+                {
+                    "href": f"{items_url}?limit={limit}&offset={max(0, offset - limit)}",
+                    "rel": "prev",
+                    "type": "application/geo+json",
+                    "title": "Previous page",
+                }
+            )
+
+        return {
+            "type": "FeatureCollection",
+            "features": features,
+            "links": links,
+            "numberMatched": total_count,
+            "numberReturned": len(features),
+        }
+
+    def _get_incident_item(self, feature_id):
+        """Get a single incident by UUID.
+
+        Args:
+            feature_id: Incident UUID
+
+        Returns:
+            dict: GeoJSON Feature with OGC links
+
+        Raises:
+            MissingError: If incident not found
+        """
+        # nosemgrep: odoo-sudo-without-context
+        incident = self.env["spp.hazard.incident"].sudo().search([("uuid", "=", feature_id)], limit=1)
+        if not incident:
+            raise MissingError(f"Feature {feature_id} not found in collection incidents")
+
+        feature = incident.to_geojson()
+
+        # Add OGC links
+        ogc_base = f"{self.base_url}/gis/ogc"
+        feature.setdefault("links", [])
+        feature["links"].append(
+            {
+                "href": f"{ogc_base}/collections/{INCIDENTS_COLLECTION_ID}/items/{feature_id}",
+                "rel": "self",
+                "type": "application/geo+json",
+            }
+        )
+        feature["links"].append(
+            {
+                "href": f"{ogc_base}/collections/{INCIDENTS_COLLECTION_ID}",
+                "rel": "collection",
+                "type": "application/json",
+            }
+        )
+        return feature
+
+    def create_incident_feature(self, feature_input):
+        """Create an incident from a GeoJSON Feature.
+
+        Delegates to spp.hazard.incident.create_from_alert().
+
+        Args:
+            feature_input: GeoJSON Feature dict with geometry and properties
+
+        Returns:
+            dict: {"feature": GeoJSON Feature, "location": URL string}
+
+        Raises:
+            ValueError: If input validation fails or duplicate detected
+        """
+        geometry = feature_input.get("geometry")
+        properties = feature_input.get("properties", {})
+
+        if not geometry:
+            raise ValueError("Geometry is required for incident creation")
+
+        # Duplicate detection: check source_alert_id
+        source_alert_id = properties.get("source_alert_id")
+        if source_alert_id:
+            # nosemgrep: odoo-sudo-without-context
+            existing = (
+                self.env["spp.hazard.incident"]
+                .sudo()
+                .search([("source_alert_id", "=", source_alert_id)], limit=1)
+            )
+            if existing:
+                ogc_base = f"{self.base_url}/gis/ogc"
+                location = f"{ogc_base}/collections/{INCIDENTS_COLLECTION_ID}/items/{existing.uuid}"
+                raise DuplicateAlertError(
+                    f"Incident with source_alert_id '{source_alert_id}' already exists",
+                    location=location,
+                )
+
+        # nosemgrep: odoo-sudo-without-context
+        Incident = self.env["spp.hazard.incident"].sudo()
+        incident = Incident.create_from_alert(geometry, properties)
+
+        feature = incident.to_geojson()
+        ogc_base = f"{self.base_url}/gis/ogc"
+        location = f"{ogc_base}/collections/{INCIDENTS_COLLECTION_ID}/items/{incident.uuid}"
+
+        return {"feature": feature, "location": location}
+
+    def replace_incident_feature(self, feature_id, feature_input):
+        """Update an incident (PUT semantics).
+
+        Args:
+            feature_id: Incident UUID
+            feature_input: GeoJSON Feature dict
+
+        Returns:
+            dict: Updated GeoJSON Feature
+
+        Raises:
+            MissingError: If incident not found
+        """
+        # nosemgrep: odoo-sudo-without-context
+        incident = self.env["spp.hazard.incident"].sudo().search([("uuid", "=", feature_id)], limit=1)
+        if not incident:
+            raise MissingError(f"Feature {feature_id} not found in collection incidents")
+
+        geometry = feature_input.get("geometry")
+        properties = feature_input.get("properties", {})
+
+        incident.update_from_alert(geometry, properties)
+
+        return incident.to_geojson()
+
+    # --- Datetime parsing ---
+
+    def _parse_datetime_param(self, datetime_str):
+        """Parse OGC datetime parameter into (start, end) tuple.
+
+        Formats:
+            "2026-04-01T00:00:00Z"      -> (instant, instant)
+            "2026-01-01/2026-06-01"     -> (start, end)
+            "../2026-06-01"             -> (None, end)
+            "2026-01-01/.."             -> (start, None)
+
+        Returns:
+            tuple: (start_str, end_str) - either may be None for open intervals
+        """
+        if "/" in datetime_str:
+            parts = datetime_str.split("/", 1)
+            start = parts[0] if parts[0] != ".." else None
+            end = parts[1] if parts[1] != ".." else None
+            return start, end
+        # Single instant
+        return datetime_str, datetime_str
+
+
+class DuplicateAlertError(ValueError):
+    """Raised when a POST arrives with a source_alert_id that already exists.
+
+    Carries a location URL pointing to the existing resource so the router
+    can return 409 Conflict with a Location header.
+    """
+
+    def __init__(self, message, location=None):
+        super().__init__(message)
+        self.location = location
