@@ -5,3 +5,4 @@ from . import test_hazard_incident
 from . import test_hazard_impact
 from . import test_hazard_impact_type
 from . import test_geofence
+from . import test_alert_ingestion
