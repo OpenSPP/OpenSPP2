@@ -169,7 +169,7 @@ calculation. Demonstrates disability assessment and the pending reassessment wor
 Individuals enrolled directly in individual-targeting programs. Some are also heads of
 households listed above (dual enrollment).
 
-### HH6M1 — Elder living alone
+### Story 6: HH6M1 — Elder living alone
 
 **Demonstration purpose:** Individual-only enrollment with no household. Multi-program
 beneficiary receiving both cash (pension) and in-kind (food).
@@ -198,24 +198,11 @@ beneficiary receiving both cash (pension) and in-kind (food).
 
 **Geographical location:** Elderly corridor
 
-### HH2M1 — Dual enrollment (from HH2)
-
-- Head of HH2 (enrolled in Cash Transfer graduated + Universal Child Grant)
-- Individually enrolled in Food Assistance 120 days ago
-- **Demo point:** Same person visible in both individual and household program contexts
-
-### HH4M1 — Dual enrollment (from HH4)
-
-- Head of HH4 (enrolled in Emergency Relief + Cash Transfer)
-- Individually enrolled in Food Assistance 50 days ago
-- **Demo point:** Displaced person receiving household emergency aid + individual food
-  support
-
 ---
 
 ## Rejection stories
 
-### HH7M1 — Age rejection
+### Story 7: HH7M1 — Age rejection
 
 - 55-year-old woman
 - Applied for Elderly Social Pension → **rejected** (age 55 < retirement_age 65)
@@ -226,6 +213,23 @@ beneficiary receiving both cash (pension) and in-kind (food).
 **Note:** HH8 and HH9 exist as registered stories but are NOT explicitly rejected in the
 demo generator. HH8 is enrolled in Cash Transfer as a background story. HH9 has no
 program enrollments.
+
+---
+
+## Dual enrolment
+
+### Story 8: HH2M1 — Dual enrollment (from HH2)
+
+- Head of HH2 (enrolled in Cash Transfer graduated + Universal Child Grant)
+- Individually enrolled in Food Assistance 120 days ago
+- **Demo point:** Same person visible in both individual and household program contexts
+
+### Story 9: HH4M1 — Dual enrollment (from HH4)
+
+- Head of HH4 (enrolled in Emergency Relief + Cash Transfer)
+- Individually enrolled in Food Assistance 50 days ago
+- **Demo point:** Displaced person receiving household emergency aid + individual food
+  support
 
 ---
 
