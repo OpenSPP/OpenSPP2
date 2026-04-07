@@ -207,12 +207,6 @@ receiving both cash (pension) and in-kind (food).
 - Applied for Elderly Social Pension → **rejected** (age 55 < retirement_age 65)
 - The only named story with an explicit rejection status in STORY_ENROLLMENTS
 
-### Other households (not rejected, background stories)
-
-**Note:** HH8 and HH9 exist as registered stories but are NOT
-explicitly rejected in the demo generator. HH8 (`ahmed_said`) is enrolled in Cash
-Transfer as a background story. HH9 has no program enrollments.
-
 ---
 
 ## Dual enrolment
@@ -346,36 +340,36 @@ names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 
 #### Households used in stories
 
-| HH NN | Filipino      | Togolese        | Sri Lankan      | Story ID                     |
-| ----- | ------------- | --------------- | --------------- | ---------------------------- |
-| HH1   | Dela Cruz     | Mensah          | Bandara         | juan_dela_cruz               |
-| HH2   | Santos        | Koffi           | Perera          | maria_santos                 |
-| HH3   | Reyes         | Lawson          | Rathnayake      | jose_reyes_multigenerational |
-| HH4   | Gutierrez     | Deku            | Kumara          | ibrahim_hassan               |
-| HH5   | Martinez      | Koudawo         | Wickramasinghe  | david_sofia_martinez         |
-| HH6M1 | Rosa Garcia   | Adzo Amegah     | Malini Silva    | rosa_garcia                  |
-| HH7M1 | Lorna Pascual | Ablavi Gbeassor | Priyanka Mendis | mary_johnson                 |
-| HH8   | Castillo      | Agbodjan        | Weerasinghe     | ahmed_said                   |
-| HH9   | Navarro       | Gbeho           | Amarasinghe     | nguyen_extended_family       |
-| HH10  | Aquino        | Tetteh          | Herath          | amina_osman_household        |
-| HH11  | Morales       | Agbeko          | Fernando        | carlos_elena_morales         |
-| HH12  | Bautista      | Akakpo          | Gunasekara      | chen_large_family            |
-| HH13  | Ramos         | Adjakly         | Karunaratne     | grace_okonkwo                |
+| HH NN | Filipino      | Togolese        | Sri Lankan      |
+| ----- | ------------- | --------------- | --------------- |
+| HH1   | Dela Cruz     | Mensah          | Bandara         |
+| HH2   | Santos        | Koffi           | Perera          |
+| HH3   | Reyes         | Lawson          | Rathnayake      |
+| HH4   | Gutierrez     | Deku            | Kumara          |
+| HH5   | Martinez      | Koudawo         | Wickramasinghe  |
+| HH6M1 | Rosa Garcia   | Adzo Amegah     | Malini Silva    |
+| HH7M1 | Lorna Pascual | Ablavi Gbeassor | Priyanka Mendis |
+| HH8   | Castillo      | Agbodjan        | Weerasinghe     |
+| HH9   | Navarro       | Gbeho           | Amarasinghe     |
+| HH10  | Aquino        | Tetteh          | Herath          |
+| HH11  | Morales       | Agbeko          | Fernando        |
+| HH12  | Bautista      | Akakpo          | Gunasekara      |
+| HH13  | Ramos         | Adjakly         | Karunaratne     |
 
 #### Standalone individuals (not households)
 
-| ID             | Filipino       | Togolese         | Sri Lankan          | Story ID       |
-| -------------- | -------------- | ---------------- | ------------------- | -------------- |
-| Maricel Ramos  | Maricel Ramos  | Akossiwa Adjakly | Sanduni Karunaratne | grace_okonkwo  |
-| Luis Fernandez | Luis Fernandez | Messan Ameganvi  | Dinesh Rajapaksa    | luis_fernandez |
+| ID             | Filipino       | Togolese         | Sri Lankan          |
+| -------------- | -------------- | ---------------- | ------------------- |
+| Maricel Ramos  | Maricel Ramos  | Akossiwa Adjakly | Sanduni Karunaratne |
+| Luis Fernandez | Luis Fernandez | Messan Ameganvi  | Dinesh Rajapaksa    |
 
 #### Household information
 
 ##### Information about HH1
 
-| HH NN | Filipino  | Togolese | Sri Lankan | Story ID       |
-| ----- | --------- | -------- | ---------- | -------------- |
-| HH1   | Dela Cruz | Mensah   | Bandara    | juan_dela_cruz |
+| HH NN | Filipino  | Togolese | Sri Lankan |
+| ----- | --------- | -------- | ---------- |
+| HH1   | Dela Cruz | Mensah   | Bandara    |
 
 |            | Geographic location |
 | ---------- | ------------------- |
@@ -392,9 +386,9 @@ names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 
 ##### Information about HH2
 
-| HH NN | Filipino | Togolese | Sri Lankan | Story ID     |
-| ----- | -------- | -------- | ---------- | ------------ |
-| HH2   | Santos   | Koffi    | Perera     | maria_santos |
+| HH NN | Filipino | Togolese | Sri Lankan |
+| ----- | -------- | -------- | ---------- |
+| HH2   | Santos   | Koffi    | Perera     |
 
 |            | Geographic location |
 | ---------- | ------------------- |
@@ -412,9 +406,9 @@ names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 
 ##### Information about HH3
 
-| HH NN | Filipino | Togolese | Sri Lankan | Story ID                     |
-| ----- | -------- | -------- | ---------- | ---------------------------- |
-| HH3   | Reyes    | Lawson   | Rathnayake | jose_reyes_multigenerational |
+| HH NN | Filipino | Togolese | Sri Lankan |
+| ----- | -------- | -------- | ---------- |
+| HH3   | Reyes    | Lawson   | Rathnayake |
 
 |            | Geographic location |
 | ---------- | ------------------- |
@@ -435,9 +429,9 @@ names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 
 ##### Information about HH4
 
-| HH NN | Filipino  | Togolese | Sri Lankan | Story ID       |
-| ----- | --------- | -------- | ---------- | -------------- |
-| HH4   | Gutierrez | Deku     | Kumara     | ibrahim_hassan |
+| HH NN | Filipino  | Togolese | Sri Lankan |
+| ----- | --------- | -------- | ---------- |
+| HH4   | Gutierrez | Deku     | Kumara     |
 
 |            | Geographic location |
 | ---------- | ------------------- |
@@ -457,9 +451,9 @@ names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 
 ##### Information about HH5
 
-| HH NN | Filipino | Togolese | Sri Lankan     | Story ID             |
-| ----- | -------- | -------- | -------------- | -------------------- |
-| HH5   | Martinez | Koudawo  | Wickramasinghe | david_sofia_martinez |
+| HH NN | Filipino | Togolese | Sri Lankan     |
+| ----- | -------- | -------- | -------------- |
+| HH5   | Martinez | Koudawo  | Wickramasinghe |
 
 |            | Geographic location    |
 | ---------- | ---------------------- |
@@ -475,9 +469,9 @@ names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 
 ##### Information about HH6
 
-| HH NN | Filipino    | Togolese    | Sri Lankan   | Story ID    |
-| ----- | ----------- | ----------- | ------------ | ----------- |
-| HH6M1 | Rosa Garcia | Adzo Amegah | Malini Silva | rosa_garcia |
+| HH NN | Filipino    | Togolese    | Sri Lankan   |
+| ----- | ----------- | ----------- | ------------ |
+| HH6M1 | Rosa Garcia | Adzo Amegah | Malini Silva |
 
 |            | Geographic location |
 | ---------- | ------------------- |
@@ -487,9 +481,9 @@ names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 
 ##### Information about HH7
 
-| HH NN | Filipino      | Togolese        | Sri Lankan      | Story ID     |
-| ----- | ------------- | --------------- | --------------- | ------------ |
-| HH7M1 | Lorna Pascual | Ablavi Gbeassor | Priyanka Mendis | mary_johnson |
+| HH NN | Filipino      | Togolese        | Sri Lankan      |
+| ----- | ------------- | --------------- | --------------- |
+| HH7M1 | Lorna Pascual | Ablavi Gbeassor | Priyanka Mendis |
 
 |            | Geographic location |
 | ---------- | ------------------- |
@@ -499,9 +493,9 @@ names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 
 ##### Information about HH8
 
-| HH NN | Filipino | Togolese | Sri Lankan  | Story ID   |
-| ----- | -------- | -------- | ----------- | ---------- |
-| HH8   | Castillo | Agbodjan | Weerasinghe | ahmed_said |
+| HH NN | Filipino | Togolese | Sri Lankan  |
+| ----- | -------- | -------- | ----------- |
+| HH8   | Castillo | Agbodjan | Weerasinghe |
 
 |            | Geographic location |
 | ---------- | ------------------- |
@@ -517,9 +511,9 @@ names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 
 ##### Information about HH9
 
-| HH NN | Filipino | Togolese | Sri Lankan  | Story ID               |
-| ----- | -------- | -------- | ----------- | ---------------------- |
-| HH9   | Navarro  | Gbeho    | Amarasinghe | nguyen_extended_family |
+| HH NN | Filipino | Togolese | Sri Lankan  |
+| ----- | -------- | -------- | ----------- |
+| HH9   | Navarro  | Gbeho    | Amarasinghe |
 
 |            | Geographic location |
 | ---------- | ------------------- |
@@ -536,34 +530,34 @@ names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 
 ##### Information about HH10
 
-| HH NN | Filipino | Togolese | Sri Lankan | Story ID              |
-| ----- | -------- | -------- | ---------- | --------------------- |
-| HH10  | Aquino   | Tetteh   | Herath     | amina_osman_household |
+| HH NN | Filipino | Togolese | Sri Lankan |
+| ----- | -------- | -------- | ---------- |
+| HH10  | Aquino   | Tetteh   | Herath     |
 
 |            | Geographic location |
 | ---------- | ------------------- |
-| Filipino   |                     |
-| Togolese   |                     |
-| Sri Lankan |                     |
+| Filipino   | Marikina City       |
+| Togolese   | Tsevie              |
+| Sri Lankan | Negombo             |
 
 | Member ID | Role  | Age | Gender | Filipino | Togolese | Sri Lankan |
 | --------- | ----- | --- | ------ | -------- | -------- | ---------- |
 | HH10M1    | Head  | 38  | Female | Rosario  | Adjoa    | Anoma      |
-| HH10M2    | Child | —   | —      | Daniel   | Messan   | Lahiru     |
-| HH10M3    | Child | —   | —      | Angela   | Akossiwa | Hiruni     |
-| HH10M4    | Child | —   | —      | Rafael   | Edem     | Dinesh     |
+| HH10M2    | Child | 15  | Male   | Daniel   | Messan   | Lahiru     |
+| HH10M3    | Child | 11  | Female | Angela   | Akossiwa | Hiruni     |
+| HH10M4    | Child | 7   | Male   | Rafael   | Edem     | Dinesh     |
 
 ##### Information about HH11
 
-| HH NN | Filipino | Togolese | Sri Lankan | Story ID             |
-| ----- | -------- | -------- | ---------- | -------------------- |
-| HH11  | Morales  | Agbeko   | Fernando   | carlos_elena_morales |
+| HH NN | Filipino | Togolese | Sri Lankan |
+| ----- | -------- | -------- | ---------- |
+| HH11  | Morales  | Agbeko   | Fernando   |
 
 |            | Geographic location |
 | ---------- | ------------------- |
-| Filipino   |                     |
-| Togolese   |                     |
-| Sri Lankan |                     |
+| Filipino   | Las Piñas City      |
+| Togolese   | Aného               |
+| Sri Lankan | Gampaha             |
 
 | Member ID | Role   | Age | Gender | Filipino | Togolese | Sri Lankan |
 | --------- | ------ | --- | ------ | -------- | -------- | ---------- |
@@ -575,37 +569,41 @@ names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 
 ##### Information about HH12
 
-| HH NN | Filipino | Togolese | Sri Lankan | Story ID        |
-| ----- | -------- | -------- | ---------- | --------------- |
-| HH12  | Bautista | Akakpo   | Gunasekara | chen_large_family |
+| HH NN | Filipino | Togolese | Sri Lankan |
+| ----- | -------- | -------- | ---------- |
+| HH12  | Bautista | Akakpo   | Gunasekara |
 
 |            | Geographic location |
 | ---------- | ------------------- |
-| Filipino   |                     |
-| Togolese   |                     |
-| Sri Lankan |                     |
+| Filipino   | Muntinlupa City     |
+| Togolese   | Notsé               |
+| Sri Lankan | Ratnapura           |
 
 | Member ID | Role   | Age | Gender | Filipino | Togolese | Sri Lankan |
 | --------- | ------ | --- | ------ | -------- | -------- | ---------- |
 | HH12M1    | Head   | 48  | Male   | Eduardo  | Mawuli   | Thilak     |
-| HH12M2    | Spouse | 45  | Female | Carmen   | Kafui    | Kusum      |
-| HH12M3    | Child  | —   | —      | Patricia | Dede     | Gayani     |
-| HH12M4    | Child  | —   | —      | Fernando | Yaovi    | Ashan      |
-| HH12M5    | Child  | —   | Female | Lucia    | Yawa     | Chathurika |
-| HH12M6    | Child  | —   | —      | Rosalie  | Abla     | Ruwanthi   |
-| HH12M7    | Child  | —   | Male   | Antonio  | Komi     | Mahesh     |
+| HH12M2    | Spouse | 44  | Female | Carmen   | Kafui    | Kusum      |
+| HH12M3    | Child  | 22  | Female | Patricia | Dede     | Gayani     |
+| HH12M4    | Child  | 19  | Male   | Fernando | Yaovi    | Ashan      |
+| HH12M5    | Child  | 16  | Female | Lucia    | Yawa     | Chathurika |
+| HH12M6    | Child  | 13  | Female | Rosalie  | Abla     | Ruwanthi   |
+| HH12M7    | Child  | 9   | Male   | Antonio  | Komi     | Mahesh     |
 
 ##### Information about HH13
 
-| HH NN | Filipino | Togolese | Sri Lankan  | Story ID      |
-| ----- | -------- | -------- | ----------- | ------------- |
-| HH13  | Ramos    | Adjakly  | Karunaratne | grace_okonkwo |
+| HH NN | Filipino | Togolese | Sri Lankan  |
+| ----- | -------- | -------- | ----------- |
+| HH13  | Ramos    | Adjakly  | Karunaratne |
 
 |            | Geographic location |
 | ---------- | ------------------- |
-| Filipino   |                     |
-| Togolese   |                     |
-| Sri Lankan |                     |
+| Filipino   | Parañaque City      |
+| Togolese   | Bassar              |
+| Sri Lankan | Kurunegala          |
+
+| Member ID | Role       | Age | Gender | Filipino      | Togolese         | Sri Lankan          |
+| --------- | ---------- | --- | ------ | ------------- | ---------------- | ------------------- |
+| HH13M1    | Individual | 35  | Female | Maricel Ramos | Akossiwa Adjakly | Sanduni Karunaratne |
 
 ---
 
