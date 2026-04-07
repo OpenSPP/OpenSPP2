@@ -3896,7 +3896,7 @@ class SPPMISDemoGenerator(models.TransientModel):
         "ahmed_said": {
             "fil_PH": "spp_demo.area_phl_taguig",
             "fr_TG": "spp_demo.area_tgo_lome_adidogome",
-            "si_LK": "spp_demo.area_lka_colombo_slave_island",
+            "si_LK": "spp_demo.area_lka_dehiwala_gn",
         },
         "nguyen_extended_family": {
             "fil_PH": "spp_demo.area_phl_bacoor",

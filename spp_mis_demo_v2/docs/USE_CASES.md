@@ -7,9 +7,9 @@ household — not individual members. Max 2 group programs per household.
 
 ### Story 1: HH1 — Payment failure, recovery, and compliance pass
 
-**Demonstration purpose:** Cash Transfer with a payment failure, GRM resolution, and
-successful reprocessing. Also demonstrates compliance passing — HH1 remains compliant
-each cycle, contrasting with HH2 who fails compliance and graduates.
+**Demonstration purpose:** Cash Transfer with a payment failure and successful
+reprocessing. Also demonstrates compliance passing — HH1 remains compliant each cycle,
+contrasting with HH2 who fails compliance and graduates.
 
 **Program(s) that the household is enrolled in:**
 
@@ -22,9 +22,8 @@ each cycle, contrasting with HH2 who fails compliance and graduates.
 1. Enrolled 100 days ago
 2. Payment #1 ($150) — paid
 3. Payment #2 ($150) — **failed** (bank issue)
-4. GRM ticket filed for payment failure → resolved
-5. Payment #3 ($150) — paid (reprocessed)
-6. Compliance check passes each cycle (per_capita_income 1,000 < poverty_line 5,000)
+4. Payment #3 ($150) — paid (reprocessed)
+5. Compliance check passes each cycle (per_capita_income 1,000 < poverty_line 5,000)
 
 **Existing change requests for the household:**
 
@@ -173,7 +172,7 @@ households listed above (dual enrollment).
 ### HH6M1 — Elder living alone
 
 **Demonstration purpose:** Individual-only enrollment with no household. Multi-program
-beneficiary receiving both cash (pension) and in-kind (food). GRM inquiry.
+beneficiary receiving both cash (pension) and in-kind (food).
 
 **Profile:** 72-year-old widow, lives alone, high vulnerability.
 
@@ -191,7 +190,6 @@ beneficiary receiving both cash (pension) and in-kind (food). GRM inquiry.
 3. Enrolled in Elderly Social Pension 180 days ago
 4. 4 monthly pension payments of $100
 5. Enrolled in Food Assistance 175 days ago — receives monthly food baskets
-6. GRM ticket: asked about available medication assistance (inquiry resolved)
 
 **Change request:**
 
@@ -235,13 +233,12 @@ program enrollments.
 
 ### Scenario 1: Payment failure and recovery
 
-Show HH1 household payment issue and GRM resolution.
+Show HH1 household payment failure and recovery.
 
 1. Open HH1 household -> 4 members
 2. Show Cash Transfer enrollment
 3. Show payment history: paid -> **failed** -> paid (reprocessed)
-4. Navigate to GRM ticket for the failed payment
-5. Show resolution and successful reprocessing
+4. Show successful reprocessing of failed payment
 
 ### Scenario 2: Program graduation via compliance failure
 
@@ -313,7 +310,7 @@ Show different CR types and states across 13 change requests.
 7. Pending: HH11 `remove_member` — adult child moving out
 8. Pending: HH12 `transfer_member` — child to elderly relatives
 9. Approved: HH9 `change_hoh` — set HH9M2 as new head of household
-10. Draft: Maricel Ramos `create_group` — new household after marriage
+10. Draft: Maricel Ramos `create_group` — register new household
 11. Rejected: HH12 `split_household` — incomplete documentation
 12. Revision: Luis Fernandez `merge_registrants` — duplicate data quality
 
@@ -363,7 +360,6 @@ names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 | -------------- | -------------- | ---------------- | ------------------- | -------------- |
 | Maricel Ramos  | Maricel Ramos  | Akossiwa Adjakly | Sanduni Karunaratne | grace_okonkwo  |
 | Luis Fernandez | Luis Fernandez | Messan Ameganvi  | Dinesh Rajapaksa    | luis_fernandez |
-| Eduardo Tan    | Eduardo Tan    | Yaovi Assignon   | Mahesh Gamage       | david_kim      |
 
 #### Household information
 
@@ -566,7 +562,7 @@ names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 | 8   | Remove member            | Group      | HH11           | Pending  | Adult child moving out for university             |
 | 9   | Transfer member          | Group      | HH12           | Pending  | Transfer child to elderly relatives               |
 | 10  | Change head of household | Group      | HH9            | Approved | Set HH9M2 as new head of household                |
-| 11  | Create group             |            | Maricel Ramos  | Draft    | Register new household after marriage             |
+| 11  | Create group             |            | Maricel Ramos  | Draft    | Register new household                            |
 | 12  | Split household          | Group      | HH12           | Rejected | Incomplete documentation for property division    |
 | 13  | Merge registrants        |            | Luis Fernandez | Revision | Merge duplicate registrations from data quality   |
 
@@ -610,5 +606,5 @@ area data.
 | Urban, disability services       | HH5   | Makati City          | Lome Commune   | Dehiwala Mount Lavinia |
 | Elderly, aging population        | HH6M1 | Quezon City          | Be             | Fort                   |
 | Rejection demonstration          | HH7M1 | Pasig City           | Nyekonakpoe    | Pettah                 |
-| GRM multi-ticket                 | HH8   | Taguig City          | Adidogome      | Slave Island           |
+| Background story                 | HH8   | Taguig City          | Adidogome      | Dehiwala               |
 | Extended family, disability      | HH9   | Bacoor City          | Baguida Centre | Hikkaduwa              |
