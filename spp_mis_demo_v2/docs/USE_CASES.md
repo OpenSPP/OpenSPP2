@@ -140,8 +140,8 @@ HH4M1 receives food baskets individually during the emergency period.
 
 ### Story 5: HH5 — Disability support
 
-**Demonstration purpose:** Disability-focused support with per-member benefit calculation.
-Demonstrates disability assessment and the pending reassessment workflow.
+**Demonstration purpose:** Disability-focused support with per-member benefit
+calculation. Demonstrates disability assessment and the pending reassessment workflow.
 
 **Program(s) that the household is enrolled in:**
 
@@ -170,8 +170,8 @@ Individuals enrolled directly in individual-targeting programs.
 
 ### Story 6: HH6M1 — Elder living alone
 
-**Demonstration purpose:** Individual-only enrollment with no household. Multi-program beneficiary
-receiving both cash (pension) and in-kind (food).
+**Demonstration purpose:** Individual-only enrollment with no household. Multi-program
+beneficiary receiving both cash (pension) and in-kind (food).
 
 **Profile:** 72-year-old widow, lives alone, high vulnerability.
 
@@ -709,21 +709,21 @@ names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 
 ### Overview of included change requests
 
-| #   | Type                     | Target     | Registrant     | State    | Life Event                                        |
-| --- | ------------------------ | ---------- | -------------- | -------- | ------------------------------------------------- |
-| 1   | Edit individual          | Individual | HH2M1          | Applied  | Phone/address update after moving (auto-applied)  |
-| 2   | Edit individual          | Individual | HH2M1          | Pending  | Conflict CR #1 — overlaps with #3                 |
-| 3   | Edit individual          | Individual | HH2M1          | Pending  | Conflict CR #2 — overlaps with #2                 |
-| 4   | Edit group               | Group      | HH10           | Draft    | Draft CR for UI workflow demo                     |
-| 5   | Update ID                | Individual | HH1M1          | Approved | Correct national ID after data entry error        |
-| 6   | Exit registrant          | Individual | HH6M1          | Pending  | Graduated from food assistance (pending approval) |
-| 7   | Add member               | Group      | HH11           | Approved | Add newborn to Morales household                  |
-| 8   | Remove member            | Group      | HH11           | Pending  | Adult child moving out for university             |
-| 9   | Transfer member          | Group      | HH12           | Pending  | Transfer child to elderly relatives               |
-| 10  | Change head of household | Group      | HH9            | Approved | Set HH9M2 as new head of household                |
-| 11  | Create group             | Group      | IND1           | Draft    | Register new household                            |
-| 12  | Split household          | Group      | HH12           | Rejected | Incomplete documentation for property division    |
-| 13  | Merge registrants        | Individual | IND2           | Revision | Merge duplicate registrations from data quality   |
+| #   | Type                     | Target     | Registrant | State    | Life Event                                        |
+| --- | ------------------------ | ---------- | ---------- | -------- | ------------------------------------------------- |
+| 1   | Edit individual          | Individual | HH2M1      | Applied  | Phone/address update after moving (auto-applied)  |
+| 2   | Edit individual          | Individual | HH2M1      | Pending  | Conflict CR #1 — overlaps with #3                 |
+| 3   | Edit individual          | Individual | HH2M1      | Pending  | Conflict CR #2 — overlaps with #2                 |
+| 4   | Edit group               | Group      | HH10       | Draft    | Draft CR for UI workflow demo                     |
+| 5   | Update ID                | Individual | HH1M1      | Approved | Correct national ID after data entry error        |
+| 6   | Exit registrant          | Individual | HH6M1      | Pending  | Graduated from food assistance (pending approval) |
+| 7   | Add member               | Group      | HH11       | Approved | Add newborn to Morales household                  |
+| 8   | Remove member            | Group      | HH11       | Pending  | Adult child moving out for university             |
+| 9   | Transfer member          | Group      | HH12       | Pending  | Transfer child to elderly relatives               |
+| 10  | Change head of household | Group      | HH9        | Approved | Set HH9M2 as new head of household                |
+| 11  | Create group             | Group      | IND1       | Draft    | Register new household                            |
+| 12  | Split household          | Group      | HH12       | Rejected | Incomplete documentation for property division    |
+| 13  | Merge registrants        | Individual | IND2       | Revision | Merge duplicate registrations from data quality   |
 
 **CR types covered:** edit_individual, edit_group, update_id, exit_registrant,
 add_member, remove_member, transfer_member, change_hoh, create_group, split_household,
