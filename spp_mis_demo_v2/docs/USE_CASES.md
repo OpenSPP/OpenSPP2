@@ -479,6 +479,10 @@ names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 | Togolese   | Be                  |
 | Sri Lankan | Fort                |
 
+| Member ID | Role       | Age | Gender | Filipino    | Togolese    | Sri Lankan   |
+| --------- | ---------- | --- | ------ | ----------- | ----------- | ------------ |
+| HH6M1     | Individual | 72  | Female | Rosa Garcia | Adzo Amegah | Malini Silva |
+
 ##### Information about HH7
 
 | HH NN | Filipino      | Togolese        | Sri Lankan      |
@@ -490,6 +494,10 @@ names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 | Filipino   | Pasig City          |
 | Togolese   | Nyekonakpoe         |
 | Sri Lankan | Pettah              |
+
+| Member ID | Role       | Age | Gender | Filipino      | Togolese        | Sri Lankan      |
+| --------- | ---------- | --- | ------ | ------------- | --------------- | --------------- |
+| HH7M1     | Individual | 55  | Female | Lorna Pascual | Ablavi Gbeassor | Priyanka Mendis |
 
 ##### Information about HH8
 
