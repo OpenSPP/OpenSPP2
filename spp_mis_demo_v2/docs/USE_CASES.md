@@ -230,30 +230,30 @@ receiving both cash (pension) and in-kind (food).
 
 ### Scenario 1: Payment failure and recovery
 
-Show Dela Cruz household payment failure and recovery.
+Show HH1 household payment failure and recovery.
 
-1. Open Dela Cruz household -> 4 members
+1. Open HH1 household -> 4 members
 2. Show Cash Transfer enrollment
 3. Show payment history: paid -> **failed** -> paid (reprocessed)
 4. Show successful reprocessing of failed payment
 
 ### Scenario 2: Program graduation via compliance failure
 
-Show Santos household graduating from Cash Transfer after compliance failure.
+Show HH2 household graduating from Cash Transfer after compliance failure.
 
-1. Open Santos household -> 5 members
+1. Open HH2 household -> 5 members
 2. Cash Transfer program -> show compliance manager (`per_capita_income < poverty_line`)
 3. Show cycle history: 3 cycles compliant, cycle 4 **non_compliant** (income improved)
 4. Show cycle 4 membership state: `non_compliant` — no entitlement generated
 5. Cash Transfer: **exited** (graduation triggered by compliance failure)
 6. Universal Child Grant: still **enrolled** (2 children x $50) — unaffected
-7. Open Maria Santos individually -> Food Assistance (dual enrollment continues)
+7. Open HH2M1 individually -> Food Assistance (dual enrollment continues)
 
 ### Scenario 3: Multi-generational household
 
-Show Reyes household as a large multi-generational family.
+Show HH3 household as a large multi-generational family.
 
-1. Open Reyes household -> 8 members (3 generations)
+1. Open HH3 household -> 8 members (3 generations)
 2. Show household composition: grandparents (72, 68), parents (45, 42), children (18,
    14, 10, 6)
 3. Show elderly members individually eligible for Elderly Social Pension
@@ -261,21 +261,21 @@ Show Reyes household as a large multi-generational family.
 
 ### Scenario 4: Emergency to long-term support
 
-Show Gutierrez displaced family transitioning from emergency to cash transfer.
+Show HH4 displaced family transitioning from emergency to cash transfer.
 
-1. Open Gutierrez household -> 7 members, displaced
+1. Open HH4 household -> 7 members, displaced
 2. Show Emergency Relief enrollment (fast-track 15-day cycles)
 3. Show vulnerability assessment (score: very_high)
 4. Show $400 Tier 2 payments
 5. Show transition to Cash Transfer (30-day cycles, $150)
-6. Open Ramon Gutierrez individually -> Food Assistance
+6. Open HH4M1 individually -> Food Assistance
 
 ### Scenario 5: Disability support
 
-Show Martinez family with disabled child and pending reassessment.
+Show HH5 family with disabled child and pending reassessment.
 
-1. Open Martinez household -> 3 members
-2. Show Miguel's disability status
+1. Open HH5 household -> 3 members
+2. Show HH5M3's disability status
 3. Show Disability Support Grant: $175 (base $100 + 1 member x $75)
 4. Show 3 payment records
 5. Show pending disability reassessment CR
@@ -284,47 +284,45 @@ Show Martinez family with disabled child and pending reassessment.
 
 Show rejections working correctly.
 
-1. Lorna Pascual -> rejected for Elderly Pension (age 55 < 65)
-2. Castillo household -> rejected for Cash Transfer (income 12,000 > 5,000)
-3. Navarro household -> rejected for Child Grant (0 children)
+1. HH7M1 -> rejected for Elderly Pension (age 55 < 65)
+2. HH8 household -> rejected for Cash Transfer (income 12,000 > 5,000)
+3. HH9 household -> rejected for Child Grant (0 children)
 
 ### Scenario 7: Dual enrollment
 
 Show same person in individual + household programs.
 
-1. Open Maria Santos individual -> enrolled in Food Assistance
-2. Open Santos household -> enrolled in Universal Child Grant, graduated from Cash
-   Transfer
-3. Show both visible from Maria's profile
+1. Open HH2M1 individual -> enrolled in Food Assistance
+2. Open HH2 household -> enrolled in Universal Child Grant, graduated from Cash Transfer
+3. Show both visible from HH2M1's profile
 
 ### Scenario 8: Change request lifecycle
 
 Show different CR types and states across 13 change requests.
 
-1. Approved: Juan Dela Cruz `update_id` — corrected national ID
-2. Approved: Maria Santos `edit_individual` — phone/address update
-3. Pending (conflict): Maria Santos — two overlapping CRs
-4. Draft: Aquino `edit_group` — UI workflow demo
-5. Pending: Rosa Garcia `exit_registrant` — food assistance graduation (pending
-   approval)
-6. Approved: Morales `add_member` — newborn added
-7. Pending: Morales `remove_member` — adult child moving out
-8. Pending: Bautista `transfer_member` — child to elderly relatives
-9. Approved: Navarro `change_hoh` — new head of household
-10. Draft: Maricel Ramos `create_group` — register new household
-11. Rejected: Bautista `split_household` — incomplete documentation
-12. Revision: Luis Fernandez `merge_registrants` — duplicate data quality
+1. Approved: HH1M1 `update_id` — corrected national ID
+2. Approved: HH2M1 `edit_individual` — phone/address update
+3. Pending (conflict): HH2M1 — two overlapping CRs
+4. Draft: HH10 `edit_group` — UI workflow demo
+5. Pending: HH6M1 `exit_registrant` — food assistance graduation (pending approval)
+6. Approved: HH11 `add_member` — newborn added
+7. Pending: HH11 `remove_member` — adult child moving out
+8. Pending: HH12 `transfer_member` — child to elderly relatives
+9. Approved: HH9 `change_hoh` — set HH9M2 as new head of household
+10. Draft: IND1 `create_group` — register new household
+11. Rejected: HH12 `split_household` — incomplete documentation
+12. Revision: IND2 `merge_registrants` — duplicate data quality
 
 ### Scenario 9: Compliance manager overview
 
-Show how compliance criteria work on Cash Transfer — contrasting a failure (Santos) with
-a pass (Dela Cruz) on the same program.
+Show how compliance criteria work on Cash Transfer — contrasting a failure (HH2) with a
+pass (HH1) on the same program.
 
 1. Open Cash Transfer program -> show compliance manager config
 2. Show CEL expression: `per_capita_income < poverty_line`
-3. Open Santos cycle membership -> state: `non_compliant` (income improved)
-4. Contrast with Dela Cruz cycle membership -> state: `enrolled` (compliant, per_capita
-   1,000 < 5,000)
+3. Open HH2 cycle membership -> state: `non_compliant` (income improved)
+4. Contrast with HH1 cycle membership -> state: `enrolled` (compliant, per_capita 1,000
+   < 5,000)
 5. Show Conditional Child Grant -> also has compliance manager
    (`per_capita_income < income_threshold`)
 6. **Key point:** Eligibility gates enrollment; compliance gates each cycle's payment
@@ -333,7 +331,7 @@ a pass (Dela Cruz) on the same program.
 
 ## References
 
-### Constellation of included households
+### Constellation of included registrants
 
 Each household and individual has locale-specific names. The demo generator selects
 names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
@@ -354,14 +352,6 @@ names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 | HH10  | Aquino        | Tetteh          | Herath          |
 | HH11  | Morales       | Agbeko          | Fernando        |
 | HH12  | Bautista      | Akakpo          | Gunasekara      |
-| HH13  | Ramos         | Adjakly         | Karunaratne     |
-
-#### Standalone individuals (not households)
-
-| ID             | Filipino       | Togolese         | Sri Lankan          |
-| -------------- | -------------- | ---------------- | ------------------- |
-| Maricel Ramos  | Maricel Ramos  | Akossiwa Adjakly | Sanduni Karunaratne |
-| Luis Fernandez | Luis Fernandez | Messan Ameganvi  | Dinesh Rajapaksa    |
 
 #### Household information
 
@@ -544,9 +534,9 @@ names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 
 |            | Geographic location |
 | ---------- | ------------------- |
-| Filipino   | Marikina City       |
-| Togolese   | Tsevie              |
-| Sri Lankan | Negombo             |
+| Filipino   | Manila              |
+| Togolese   | Kpalime Centre      |
+| Sri Lankan | Mount Lavinia       |
 
 | Member ID | Role  | Age | Gender | Filipino | Togolese | Sri Lankan |
 | --------- | ----- | --- | ------ | -------- | -------- | ---------- |
@@ -563,9 +553,9 @@ names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 
 |            | Geographic location |
 | ---------- | ------------------- |
-| Filipino   | Las Piñas City      |
-| Togolese   | Aného               |
-| Sri Lankan | Gampaha             |
+| Filipino   | Dasmarinas          |
+| Togolese   | Tove                |
+| Sri Lankan | Galle Fort          |
 
 | Member ID | Role   | Age | Gender | Filipino | Togolese | Sri Lankan |
 | --------- | ------ | --- | ------ | -------- | -------- | ---------- |
@@ -583,9 +573,9 @@ names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 
 |            | Geographic location |
 | ---------- | ------------------- |
-| Filipino   | Muntinlupa City     |
-| Togolese   | Notsé               |
-| Sri Lankan | Ratnapura           |
+| Filipino   | Commonwealth        |
+| Togolese   | Zio                 |
+| Sri Lankan | Gampaha             |
 
 | Member ID | Role   | Age | Gender | Filipino | Togolese | Sri Lankan |
 | --------- | ------ | --- | ------ | -------- | -------- | ---------- |
@@ -597,21 +587,40 @@ names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 | HH12M6    | Child  | 13  | Female | Rosalie  | Abla     | Ruwanthi   |
 | HH12M7    | Child  | 9   | Male   | Antonio  | Komi     | Mahesh     |
 
-##### Information about HH13
+---
 
-| HH NN | Filipino | Togolese | Sri Lankan  |
-| ----- | -------- | -------- | ----------- |
-| HH13  | Ramos    | Adjakly  | Karunaratne |
+#### Individuals used in stories
+
+| ID   | Filipino       | Togolese         | Sri Lankan          |
+| ---- | -------------- | ---------------- | ------------------- |
+| IND1 | Maricel Ramos  | Akossiwa Adjakly | Sanduni Karunaratne |
+| IND2 | Luis Fernandez | Messan Ameganvi  | Dinesh Rajapaksa    |
+
+#### Individual information
+
+##### Information about IND1
+
+| ID   | Age | Gender | Filipino      | Togolese         | Sri Lankan          |
+| ---- | --- | ------ | ------------- | ---------------- | ------------------- |
+| IND1 | 35  | Female | Maricel Ramos | Akossiwa Adjakly | Sanduni Karunaratne |
 
 |            | Geographic location |
 | ---------- | ------------------- |
-| Filipino   | Parañaque City      |
-| Togolese   | Bassar              |
-| Sri Lankan | Kurunegala          |
+| Filipino   | Poblacion           |
+| Togolese   | Ogou                |
+| Sri Lankan | Kalutara            |
 
-| Member ID | Role       | Age | Gender | Filipino      | Togolese         | Sri Lankan          |
-| --------- | ---------- | --- | ------ | ------------- | ---------------- | ------------------- |
-| HH13M1    | Individual | 35  | Female | Maricel Ramos | Akossiwa Adjakly | Sanduni Karunaratne |
+##### Information about IND2
+
+| ID   | Age | Gender | Filipino       | Togolese        | Sri Lankan       |
+| ---- | --- | ------ | -------------- | --------------- | ---------------- |
+| IND2 | 40  | Male   | Luis Fernandez | Messan Ameganvi | Dinesh Rajapaksa |
+
+|            | Geographic location |
+| ---------- | ------------------- |
+| Filipino   | Real                |
+| Togolese   | Lacs                |
+| Sri Lankan | Matara              |
 
 ---
 
@@ -712,9 +721,9 @@ names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 | 8   | Remove member            | Group      | HH11           | Pending  | Adult child moving out for university             |
 | 9   | Transfer member          | Group      | HH12           | Pending  | Transfer child to elderly relatives               |
 | 10  | Change head of household | Group      | HH9            | Approved | Set HH9M2 as new head of household                |
-| 11  | Create group             |            | Maricel Ramos  | Draft    | Register new household                            |
+| 11  | Create group             | Group      | IND1           | Draft    | Register new household                            |
 | 12  | Split household          | Group      | HH12           | Rejected | Incomplete documentation for property division    |
-| 13  | Merge registrants        |            | Luis Fernandez | Revision | Merge duplicate registrations from data quality   |
+| 13  | Merge registrants        | Individual | IND2           | Revision | Merge duplicate registrations from data quality   |
 
 **CR types covered:** edit_individual, edit_group, update_id, exit_registrant,
 add_member, remove_member, transfer_member, change_hoh, create_group, split_household,
@@ -730,9 +739,8 @@ auto-applies when all approval tiers are completed.
 
 ### Geographic distribution
 
-Each story household is assigned to an administrative area appropriate to its locale.
-Area assignments use level-3 areas (municipalities/communes/DS divisions) from the demo
-area data.
+Each story registrant is assigned to an administrative area appropriate to its locale
+from the demo area data.
 
 | Character                        | HH    | Philippines (fil_PH) | Togo (fr_TG)   | Sri Lanka (si_LK)      |
 | -------------------------------- | ----- | -------------------- | -------------- | ---------------------- |
@@ -745,6 +753,11 @@ area data.
 | Rejection demonstration          | HH7M1 | Pasig City           | Nyekonakpoe    | Pettah                 |
 | Background story                 | HH8   | Taguig City          | Adidogome      | Dehiwala               |
 | Extended family, disability      | HH9   | Bacoor City          | Baguida Centre | Hikkaduwa              |
+| Single mother, CR demo           | HH10  | Manila               | Kpalime Centre | Mount Lavinia          |
+| Family, add/remove member CR     | HH11  | Dasmarinas           | Tove           | Galle Fort             |
+| Large family, transfer/split CR  | HH12  | Commonwealth         | Zio            | Gampaha                |
+| Individual, create group CR      | IND1  | Poblacion            | Ogou           | Kalutara               |
+| Individual, merge CR             | IND2  | Real                 | Lacs           | Matara                 |
 
 ---
 

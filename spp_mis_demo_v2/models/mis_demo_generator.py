@@ -3903,6 +3903,31 @@ class SPPMISDemoGenerator(models.TransientModel):
             "fr_TG": "spp_demo.area_tgo_baguida_centre",
             "si_LK": "spp_demo.area_lka_hikkaduwa",
         },
+        "amina_osman_household": {
+            "fil_PH": "spp_demo.area_phl_manila",
+            "fr_TG": "spp_demo.area_tgo_kpalime_centre",
+            "si_LK": "spp_demo.area_lka_mount_lavinia_gn",
+        },
+        "carlos_elena_morales": {
+            "fil_PH": "spp_demo.area_phl_dasmarinas",
+            "fr_TG": "spp_demo.area_tgo_kpalime_tove",
+            "si_LK": "spp_demo.area_lka_galle_fort",
+        },
+        "chen_large_family": {
+            "fil_PH": "spp_demo.area_phl_qc_commonwealth",
+            "fr_TG": "spp_demo.area_tgo_zio",
+            "si_LK": "spp_demo.area_lka_gampaha",
+        },
+        "grace_okonkwo": {
+            "fil_PH": "spp_demo.area_phl_makati_poblacion",
+            "fr_TG": "spp_demo.area_tgo_ogou",
+            "si_LK": "spp_demo.area_lka_kalutara",
+        },
+        "luis_fernandez": {
+            "fil_PH": "spp_demo.area_phl_calamba_real",
+            "fr_TG": "spp_demo.area_tgo_lacs",
+            "si_LK": "spp_demo.area_lka_matara",
+        },
     }
 
     def _assign_registrant_areas(self, stats):
