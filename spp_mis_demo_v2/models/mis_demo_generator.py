@@ -791,8 +791,6 @@ class SPPMISDemoGenerator(models.TransientModel):
         """
         cache_key = "_demo_enricher_cache"
         if not hasattr(type(self), cache_key) or getattr(type(self), cache_key) is None:
-            import random
-
             from .demographic_enricher import DemographicEnricher
 
             locale = self.env.context.get("demo_locale", "fil_PH")
