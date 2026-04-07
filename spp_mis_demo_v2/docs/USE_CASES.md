@@ -8,8 +8,8 @@ household — not individual members. Max 2 group programs per household.
 ### Story 1: HH1 — Payment failure, recovery, and compliance pass
 
 **Demonstration purpose:** Cash Transfer with a payment failure and successful
-reprocessing. Also demonstrates compliance passing — HH1 remains compliant each
-cycle, contrasting with HH2 who fails compliance and graduates.
+reprocessing. Also demonstrates compliance passing — HH1 remains compliant each cycle,
+contrasting with HH2 who fails compliance and graduates.
 
 **Program(s) that the household is enrolled in:**
 
@@ -35,10 +35,10 @@ cycle, contrasting with HH2 who fails compliance and graduates.
 
 ### Story 2: HH2 — Graduation and partial exit
 
-**Demonstration purpose:** Complete program lifecycle — enrollment, payments, compliance failure
-triggering graduation from one program while remaining in another. Shows that exiting
-one program doesn't affect other enrollments. Primary story for demonstrating the
-compliance manager.
+**Demonstration purpose:** Complete program lifecycle — enrollment, payments, compliance
+failure triggering graduation from one program while remaining in another. Shows that
+exiting one program doesn't affect other enrollments. Primary story for demonstrating
+the compliance manager.
 
 **Program(s) that the household is enrolled in:**
 
@@ -77,10 +77,10 @@ Transfer graduation.
 
 ### Story 3: HH3 — Multi-generational household
 
-**Demonstration purpose:** Demonstrates a large multi-generational household with three generations
-living together — grandparents, parents, and children. Shows household composition
-complexity and how multiple individuals within a household can qualify for different
-individual-targeting programs (e.g., elderly members for pension).
+**Demonstration purpose:** Demonstrates a large multi-generational household with three
+generations living together — grandparents, parents, and children. Shows household
+composition complexity and how multiple individuals within a household can qualify for
+different individual-targeting programs (e.g., elderly members for pension).
 
 **Program(s) that the household is enrolled in:**
 
@@ -101,15 +101,15 @@ similar composition are enrolled based on blueprint eligibility flags.
 
 ### Story 4: HH4 — Emergency relief and transition
 
-**Demonstration purpose:** Emergency response with fast-track enrollment, then transition to
-longer-term Cash Transfer support after stabilization. Shows how displaced families move
-through the system.
+**Demonstration purpose:** Emergency response with fast-track enrollment, then
+transition to longer-term Cash Transfer support after stabilization. Shows how displaced
+families move through the system.
 
 **Program(s) that the household is enrolled in:**
 
-| Program          | Reason for eligibility                         | Status   |
-| ---------------- | ---------------------------------------------- | -------- |
-| Emergency Relief | dependency_ratio 5/2 = 2.5, displaced          | Enrolled |
+| Program          | Reason for eligibility                                 | Status   |
+| ---------------- | ------------------------------------------------------ | -------- |
+| Emergency Relief | dependency_ratio 5/2 = 2.5, displaced                  | Enrolled |
 | Cash Transfer    | income 2,000 < 5,000, size 7 >= 2 (post-stabilization) | Enrolled |
 
 **Household journey:**
