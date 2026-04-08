@@ -617,3 +617,115 @@ class TestOGCService(TransactionCase):
         # Title should contain parenthetical level info
         self.assertIn("(", report1_collection["title"])
         self.assertIn(")", report1_collection["title"])
+
+    # === Additional Coverage Tests ===
+
+    def test_get_collection_bare_code_returns_base_level_collection(self):
+        """Test get_collection with bare report code defaults to base_area_level."""
+        from ..services.ogc_service import OGCService
+
+        service = OGCService(self.env, "http://localhost:8069/api/v2/spp")
+
+        # report1 has base_area_level=2, so bare code should default to _adm2
+        collection = service.get_collection("ogc_report_one")
+        self.assertEqual(collection["id"], "ogc_report_one_adm2")
+        self.assertIn("OGC Report One", collection["title"])
+
+    def test_get_collection_items_pagination_next_link(self):
+        """Test items pagination produces next link when more items exist."""
+        from ..services.ogc_service import OGCService
+
+        service = OGCService(self.env, "http://localhost:8069/api/v2/spp")
+
+        # Request with limit=1 to force pagination when data exists
+        result = service.get_collection_items("ogc_report_one", limit=1, offset=0)
+
+        self.assertEqual(result["type"], "FeatureCollection")
+        self.assertLessEqual(result["numberReturned"], 1)
+
+        # If there are more items than the limit, a next link should be present
+        if result["numberMatched"] > 1:
+            link_rels = [link["rel"] for link in result["links"]]
+            self.assertIn("next", link_rels)
+
+            next_link = next(link for link in result["links"] if link["rel"] == "next")
+            self.assertIn("offset=1", next_link["href"])
+            self.assertIn("limit=1", next_link["href"])
+
+    def test_get_collection_items_pagination_prev_link(self):
+        """Test items pagination produces prev link when offset > 0."""
+        from ..services.ogc_service import OGCService
+
+        service = OGCService(self.env, "http://localhost:8069/api/v2/spp")
+
+        # Request with offset > 0 to get a previous link
+        result = service.get_collection_items("ogc_report_one", limit=10, offset=1)
+
+        link_rels = [link["rel"] for link in result["links"]]
+        self.assertIn("prev", link_rels)
+
+        prev_link = next(link for link in result["links"] if link["rel"] == "prev")
+        self.assertIn("offset=0", prev_link["href"])
+
+    def test_get_collection_items_no_next_link_when_all_returned(self):
+        """Test items pagination has no next link when all items fit in one page."""
+        from ..services.ogc_service import OGCService
+
+        service = OGCService(self.env, "http://localhost:8069/api/v2/spp")
+
+        # Request with large limit so everything fits
+        result = service.get_collection_items("ogc_report_one", limit=10000, offset=0)
+
+        link_rels = [link["rel"] for link in result["links"]]
+        self.assertNotIn("next", link_rels)
+
+    def test_get_report_base_level_existing_report(self):
+        """Test _get_report_base_level returns correct level for existing report."""
+        from ..services.ogc_service import OGCService
+
+        service = OGCService(self.env, "http://localhost:8069/api/v2/spp")
+
+        level = service._get_report_base_level("ogc_report_one")
+        self.assertEqual(level, 2)  # report1 has base_area_level=2
+
+    def test_get_report_base_level_nonexistent_report(self):
+        """Test _get_report_base_level returns None for nonexistent report."""
+        from ..services.ogc_service import OGCService
+
+        service = OGCService(self.env, "http://localhost:8069/api/v2/spp")
+
+        level = service._get_report_base_level("totally_nonexistent_report_xyz")
+        self.assertIsNone(level)
+
+    def test_get_collection_items_bare_code_uses_base_level(self):
+        """Test get_collection_items with bare code uses base_area_level."""
+        from ..services.ogc_service import OGCService
+
+        service = OGCService(self.env, "http://localhost:8069/api/v2/spp")
+
+        # Bare code should internally resolve to base_area_level
+        result = service.get_collection_items("ogc_report_one")
+
+        self.assertEqual(result["type"], "FeatureCollection")
+        self.assertIn("features", result)
+        self.assertIn("numberMatched", result)
+
+    def test_get_collection_nonexistent_raises_missing_error(self):
+        """Test get_collection raises MissingError for nonexistent report."""
+        from ..services.ogc_service import OGCService
+
+        service = OGCService(self.env, "http://localhost:8069/api/v2/spp")
+
+        with self.assertRaises(MissingError):
+            service.get_collection("totally_nonexistent_report_xyz")
+
+    def test_parse_collection_id_bare_code_no_admin_level(self):
+        """Test _parse_collection_id returns None admin_level for bare code."""
+        from ..services.ogc_service import OGCService
+
+        service = OGCService(self.env)
+        layer_type, layer_id, admin_level = service._parse_collection_id("some_report")
+
+        self.assertEqual(layer_type, "report")
+        self.assertEqual(layer_id, "some_report")
+        self.assertIsNone(admin_level)

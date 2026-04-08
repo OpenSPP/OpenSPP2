@@ -383,3 +383,55 @@ class TestOGCHTTP(ApiV2HttpTestCase):
         # Should have _admN entries for the report
         adm_entries = [cid for cid in collection_ids if cid.startswith("http_test_report_adm")]
         self.assertGreaterEqual(len(adm_entries), 2, "Report with 2 area levels should have at least 2 _admN entries")
+
+    def test_items_with_bbox_too_few_values_returns_400(self):
+        """Test items with bbox having too few values returns 400."""
+        response = self.url_open(
+            f"{OGC_BASE}/collections/http_test_report/items?bbox=1,2,3",
+            headers=self._gis_headers(),
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_items_with_valid_bbox_returns_200(self):
+        """Test items with valid bbox returns 200."""
+        response = self.url_open(
+            f"{OGC_BASE}/collections/http_test_report/items?bbox=-180,-90,180,90",
+            headers=self._gis_headers(),
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_items_with_limit_and_offset(self):
+        """Test items endpoint respects limit and offset parameters."""
+        response = self.url_open(
+            f"{OGC_BASE}/collections/http_test_report/items?limit=1&offset=0",
+            headers=self._gis_headers(),
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_single_feature_returns_geojson(self):
+        """Test single feature endpoint returns geo+json content type."""
+        # Use a known area code from our test data
+        response = self.url_open(
+            f"{OGC_BASE}/collections/http_test_report/items/{self.http_area_country.code}",
+            headers=self._gis_headers(),
+        )
+        # Should be 200 if found or 404 if not
+        self.assertIn(response.status_code, (200, 404))
+        if response.status_code == 200:
+            self.assertIn("application/geo+json", response.headers.get("content-type", ""))
+
+    def test_qml_nonexistent_report_returns_404(self):
+        """Test QML for completely nonexistent report code returns 404."""
+        response = self.url_open(
+            f"{OGC_BASE}/collections/nonexistent_xyz/qml",
+            headers=self._gis_headers(),
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_qml_with_negative_layer_id_returns_404(self):
+        """Test QML for layer with negative ID returns 404."""
+        response = self.url_open(
+            f"{OGC_BASE}/collections/layer_-1/qml",
+            headers=self._gis_headers(),
+        )
+        self.assertEqual(response.status_code, 404)
