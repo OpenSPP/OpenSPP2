@@ -16,3 +16,4 @@ from . import test_logic_variable
 from . import test_logic_packs
 from . import test_deferred_resolution
 from . import test_variable_install_wizard
+from . import test_pack_vocabulary
