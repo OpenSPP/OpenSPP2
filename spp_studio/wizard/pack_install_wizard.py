@@ -188,20 +188,26 @@ class PackInstallWizard(models.TransientModel):
 
             # Install each code
             for code_item in vocab_item.code_ids:
+                # Check if the code already exists before calling get_or_create
+                existing_before = VocabCode.with_context(active_test=False).search(
+                    [("namespace_uri", "=", namespace_uri), ("code", "=", code_item.code)],
+                    limit=1,
+                )
+                is_new = not existing_before
+
                 if code_item.is_local:
                     code_rec = VocabCode.get_or_create_local(namespace_uri, code_item.code, display=code_item.display)
                 else:
                     code_rec = VocabCode.get_or_create(namespace_uri, code_item.code, display=code_item.display)
 
                 # Set extra fields only on freshly created codes
-                # (codes returned by get_or_create that already existed keep their values)
-                if not code_item.installed_code_id:
+                if is_new:
                     extra_vals = {}
-                    if code_item.definition and not code_rec.definition:
+                    if code_item.definition:
                         extra_vals["definition"] = code_item.definition
-                    if code_item.sequence and code_rec.sequence == 10:
+                    if code_item.sequence:
                         extra_vals["sequence"] = code_item.sequence
-                    if code_item.target_type and not code_rec.target_type:
+                    if code_item.target_type:
                         extra_vals["target_type"] = code_item.target_type
                     if extra_vals:
                         code_rec.sudo().write(extra_vals)

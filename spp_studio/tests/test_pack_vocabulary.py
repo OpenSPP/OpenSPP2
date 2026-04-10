@@ -735,20 +735,23 @@ class TestPackVocabularyInstallation(TransactionCase):
     def test_acl_viewer_cannot_create_pack_vocabulary(self):
         """Viewer group cannot create pack vocabulary records."""
         viewer_group = self.env.ref("spp_studio.group_studio_viewer")
+        base_user_group = self.env.ref("base.group_user")
 
         test_user = self.env["res.users"].create(
             {
                 "name": "Test Viewer",
                 "login": "test_pack_vocab_viewer",
-                "groups_id": [(6, 0, [viewer_group.id])],
+                "email": "test_pack_vocab_viewer@example.com",
+                "groups_id": [(6, 0, [viewer_group.id, base_user_group.id])],
             }
         )
 
+        pack = self._create_pack_with_vocab("acl_test_pack")
         PackVocab = self.env["spp.studio.pack.vocabulary"].with_user(test_user)
         with self.assertRaises(AccessError):
             PackVocab.create(
                 {
-                    "pack_id": self.test_pack.id,
+                    "pack_id": pack.id,
                     "name": "Should fail",
                     "vocabulary_id": self.test_vocab.id,
                 }

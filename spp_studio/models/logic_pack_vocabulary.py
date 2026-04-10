@@ -107,7 +107,18 @@ class PackVocabulary(models.Model):
         for rec in self:
             rec.code_count = len(rec.code_ids)
 
-    @api.constrains("vocabulary_id", "new_vocabulary_name", "new_vocabulary_namespace")
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._check_mode_consistency()
+        return records
+
+    def write(self, vals):
+        result = super().write(vals)
+        if any(f in vals for f in ("vocabulary_id", "new_vocabulary_name", "new_vocabulary_namespace")):
+            self._check_mode_consistency()
+        return result
+
     def _check_mode_consistency(self):
         """Ensure either vocabulary_id OR new_vocabulary_* fields are set, not both."""
         for rec in self:
