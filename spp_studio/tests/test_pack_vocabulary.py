@@ -11,6 +11,7 @@ Tests cover:
 
 import logging
 
+from odoo import Command
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests import TransactionCase, tagged
 
@@ -742,7 +743,10 @@ class TestPackVocabularyInstallation(TransactionCase):
                 "name": "Test Viewer",
                 "login": "test_pack_vocab_viewer",
                 "email": "test_pack_vocab_viewer@example.com",
-                "groups_id": [(6, 0, [viewer_group.id, base_user_group.id])],
+                "group_ids": [
+                    Command.link(base_user_group.id),
+                    Command.link(viewer_group.id),
+                ],
             }
         )
 
