@@ -481,7 +481,7 @@ class TestPackVocabularyInstallation(TransactionCase):
             {
                 "name": "merge_test_group",
                 "label": "Merge Test",
-                "code_ids": [(6, 0, [existing_code.id])],
+                "code_ids": [Command.set([existing_code.id])],
             }
         )
         self.assertEqual(len(existing_group.code_ids), 1)

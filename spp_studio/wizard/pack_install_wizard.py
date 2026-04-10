@@ -126,7 +126,7 @@ class PackInstallWizard(models.TransientModel):
     def _compute_vocabulary_summary(self):
         """Build a human-readable summary of vocabulary changes the pack will make."""
         for wizard in self:
-            if not wizard.pack_id or not wizard.pack_id.vocabulary_ids:
+            if not wizard.pack_id or (not wizard.pack_id.vocabulary_ids and not wizard.pack_id.concept_ids):
                 wizard.vocabulary_summary = ""
                 wizard.has_vocabulary_items = False
                 continue
@@ -158,6 +158,9 @@ class PackInstallWizard(models.TransientModel):
         For create-new mode, creates the vocabulary then adds codes.
         Uses sudo() for cross-module vocabulary operations.
         """
+        # sudo() is needed because spp_vocabulary owns the ACLs for these models
+        # and does not grant write access to spp_studio groups. The wizard is already
+        # gated behind group_studio_manager, and pack data comes from trusted XML.
         VocabCode = self.env["spp.vocabulary.code"].sudo()
         Vocabulary = self.env["spp.vocabulary"].sudo()
 
@@ -213,7 +216,8 @@ class PackInstallWizard(models.TransientModel):
                         code_rec.sudo().write(extra_vals)
 
                 code_item.installed_code_id = code_rec.id
-                installed_code_count += 1
+                if is_new:
+                    installed_code_count += 1
 
         return installed_vocab_count, installed_code_count
 
@@ -253,7 +257,7 @@ class PackInstallWizard(models.TransientModel):
                 existing_codes = existing_group.code_ids
                 new_codes = resolved_codes - existing_codes
                 if new_codes:
-                    existing_group.write({"code_ids": [(4, c.id) for c in new_codes]})
+                    existing_group.write({"code_ids": [Command.link(c.id) for c in new_codes]})
                 concept.installed_group_id = existing_group.id
             else:
                 # Create new concept group
@@ -263,7 +267,7 @@ class PackInstallWizard(models.TransientModel):
                     "cel_function": concept.cel_function,
                     "target_field": concept.target_field,
                     "description": concept.description,
-                    "code_ids": [(6, 0, resolved_codes.ids)],
+                    "code_ids": [Command.set(resolved_codes.ids)],
                 }
                 new_group = ConceptGroup.create(group_vals)
                 concept.installed_group_id = new_group.id
