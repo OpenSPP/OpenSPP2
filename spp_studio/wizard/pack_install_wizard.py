@@ -70,6 +70,13 @@ class PackInstallWizard(models.TransientModel):
         help="Optional: Program for constant value lookups",
     )
 
+    # Vocabulary summary
+    vocabulary_summary = fields.Text(
+        string="Vocabulary Changes",
+        compute="_compute_vocabulary_summary",
+    )
+    has_vocabulary_items = fields.Boolean(compute="_compute_vocabulary_summary")
+
     # Results
     result_message = fields.Text(string="Result", readonly=True)
     installed_logic_ids = fields.Many2many(
@@ -114,6 +121,159 @@ class PackInstallWizard(models.TransientModel):
             else:
                 wizard.missing_variables = _("All required variables are available.")
                 wizard.has_missing_variables = False
+
+    @api.depends("pack_id")
+    def _compute_vocabulary_summary(self):
+        """Build a human-readable summary of vocabulary changes the pack will make."""
+        for wizard in self:
+            if not wizard.pack_id or not wizard.pack_id.vocabulary_ids:
+                wizard.vocabulary_summary = ""
+                wizard.has_vocabulary_items = False
+                continue
+
+            wizard.has_vocabulary_items = True
+            lines = []
+            for vocab_item in wizard.pack_id.vocabulary_ids:
+                code_count = len(vocab_item.code_ids)
+                if vocab_item.vocabulary_id:
+                    lines.append(
+                        _("Add %d code(s) to '%s'") % (code_count, vocab_item.vocabulary_id.name)
+                    )
+                else:
+                    lines.append(
+                        _("Create vocabulary '%s' with %d code(s)")
+                        % (vocab_item.new_vocabulary_name, code_count)
+                    )
+
+            for concept in wizard.pack_id.concept_ids:
+                ref_count = len(concept.code_ref_ids)
+                lines.append(
+                    _("Create concept group '%s' (%s) with %d code reference(s)")
+                    % (concept.name, concept.cel_function or "no CEL function", ref_count)
+                )
+
+            wizard.vocabulary_summary = "\n".join(lines)
+
+    def _install_vocabularies(self):
+        """Phase 1: Provision vocabularies and codes.
+
+        For add-codes mode, adds codes to existing vocabularies.
+        For create-new mode, creates the vocabulary then adds codes.
+        Uses sudo() for cross-module vocabulary operations.
+        """
+        VocabCode = self.env["spp.vocabulary.code"].sudo()
+        Vocabulary = self.env["spp.vocabulary"].sudo()
+
+        installed_vocab_count = 0
+        installed_code_count = 0
+
+        for vocab_item in self.pack_id.vocabulary_ids:
+            if vocab_item.vocabulary_id:
+                # Add-codes mode
+                namespace_uri = vocab_item.vocabulary_id.namespace_uri
+            else:
+                # Create-new mode: find or create the vocabulary
+                namespace_uri = vocab_item.new_vocabulary_namespace
+                existing_vocab = Vocabulary.search(
+                    [("namespace_uri", "=", namespace_uri)], limit=1
+                )
+                if existing_vocab:
+                    vocab_item.installed_vocabulary_id = existing_vocab.id
+                else:
+                    new_vocab = Vocabulary.create(
+                        {
+                            "name": vocab_item.new_vocabulary_name,
+                            "namespace_uri": namespace_uri,
+                            "domain": vocab_item.new_vocabulary_domain or "core",
+                            "is_hierarchical": vocab_item.new_vocabulary_hierarchical,
+                        }
+                    )
+                    vocab_item.installed_vocabulary_id = new_vocab.id
+                    installed_vocab_count += 1
+
+            # Install each code
+            for code_item in vocab_item.code_ids:
+                if code_item.is_local:
+                    code_rec = VocabCode.get_or_create_local(
+                        namespace_uri, code_item.code, display=code_item.display
+                    )
+                else:
+                    code_rec = VocabCode.get_or_create(
+                        namespace_uri, code_item.code, display=code_item.display
+                    )
+
+                # Set extra fields only on freshly created codes
+                # (codes returned by get_or_create that already existed keep their values)
+                if not code_item.installed_code_id:
+                    extra_vals = {}
+                    if code_item.definition and not code_rec.definition:
+                        extra_vals["definition"] = code_item.definition
+                    if code_item.sequence and code_rec.sequence == 10:
+                        extra_vals["sequence"] = code_item.sequence
+                    if code_item.target_type and not code_rec.target_type:
+                        extra_vals["target_type"] = code_item.target_type
+                    if extra_vals:
+                        code_rec.sudo().write(extra_vals)
+
+                code_item.installed_code_id = code_rec.id
+                installed_code_count += 1
+
+        return installed_vocab_count, installed_code_count
+
+    def _install_concept_groups(self):
+        """Phase 2: Provision concept groups.
+
+        Resolves code URI references to actual code records.
+        If a concept group with the same name exists, merges codes into it.
+        """
+        VocabCode = self.env["spp.vocabulary.code"].sudo()
+        ConceptGroup = self.env["spp.vocabulary.concept.group"].sudo()
+
+        installed_count = 0
+
+        for concept in self.pack_id.concept_ids:
+            # Resolve all code URIs
+            resolved_codes = self.env["spp.vocabulary.code"]
+            missing_uris = []
+
+            for code_ref in concept.code_ref_ids:
+                code_rec = VocabCode.search([("uri", "=", code_ref.uri)], limit=1)
+                if not code_rec:
+                    missing_uris.append(code_ref.uri)
+                else:
+                    resolved_codes |= code_rec
+
+            if missing_uris:
+                raise UserError(
+                    _("Cannot install concept group '%s': unresolvable code URIs:\n%s")
+                    % (concept.name, "\n".join("- " + uri for uri in missing_uris))
+                )
+
+            # Check if concept group already exists
+            existing_group = ConceptGroup.search([("name", "=", concept.name)], limit=1)
+            if existing_group:
+                # Merge codes (additive)
+                existing_codes = existing_group.code_ids
+                new_codes = resolved_codes - existing_codes
+                if new_codes:
+                    existing_group.write({"code_ids": [(4, c.id) for c in new_codes]})
+                concept.installed_group_id = existing_group.id
+            else:
+                # Create new concept group
+                group_vals = {
+                    "name": concept.name,
+                    "label": concept.label,
+                    "cel_function": concept.cel_function,
+                    "target_field": concept.target_field,
+                    "description": concept.description,
+                    "code_ids": [(6, 0, resolved_codes.ids)],
+                }
+                new_group = ConceptGroup.create(group_vals)
+                concept.installed_group_id = new_group.id
+
+            installed_count += 1
+
+        return installed_count
 
     def action_preview(self):
         """Generate preview showing original expressions and runtime resolution preview.
@@ -182,15 +342,21 @@ class PackInstallWizard(models.TransientModel):
         if not self.pack_id:
             raise UserError(_("Please select a Logic Pack to install."))
 
-        if not self.item_ids:
+        if not self.item_ids and not self.pack_id.vocabulary_ids and not self.pack_id.concept_ids:
             raise UserError(_("No items selected for installation."))
+
+        # Phase 1: Provision vocabularies and codes
+        installed_vocab_count, installed_code_count = self._install_vocabularies()
+
+        # Phase 2: Provision concept groups
+        installed_concept_count = self._install_concept_groups()
 
         Logic = self.env["spp.cel.expression"]
 
         installed_logic = self.env["spp.cel.expression"]
         installed_personas = self.env["spp.studio.test.persona"]
 
-        # Install each item with ORIGINAL expression (deferred resolution)
+        # Phase 3: Install each item with ORIGINAL expression (deferred resolution)
         for item in self.item_ids:
             try:
                 logic_data = json.loads(item.logic_data)
@@ -245,6 +411,12 @@ class PackInstallWizard(models.TransientModel):
 
         # Build result message
         message = _("Pack '%s' installed successfully!\n\n") % self.pack_id.name
+        if installed_vocab_count:
+            message += _("Vocabularies created: %d\n") % installed_vocab_count
+        if installed_code_count:
+            message += _("Vocabulary codes provisioned: %d\n") % installed_code_count
+        if installed_concept_count:
+            message += _("Concept groups provisioned: %d\n") % installed_concept_count
         message += _("Logic items installed: %d\n") % len(installed_logic)
         if installed_personas:
             message += _("Test personas installed: %d\n") % len(installed_personas)
