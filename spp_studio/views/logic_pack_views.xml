@@ -286,6 +286,28 @@
                         >
                             <field name="item_count" widget="statinfo" string="Items" />
                         </button>
+                        <button
+                            class="oe_stat_button"
+                            icon="fa-book"
+                            invisible="vocabulary_count == 0"
+                        >
+                            <field
+                                name="vocabulary_count"
+                                widget="statinfo"
+                                string="Vocabularies"
+                            />
+                        </button>
+                        <button
+                            class="oe_stat_button"
+                            icon="fa-sitemap"
+                            invisible="concept_count == 0"
+                        >
+                            <field
+                                name="concept_count"
+                                widget="statinfo"
+                                string="Concepts"
+                            />
+                        </button>
                     </div>
 
                     <widget
@@ -422,6 +444,60 @@
                                 <i class="fa fa-info-circle" title="Information" />
                                 No test personas included with this package.
                                 Test personas help validate that the expressions work correctly.
+                            </div>
+                        </page>
+
+                        <page string="Vocabularies" name="vocabularies">
+                            <field name="vocabulary_ids" nolabel="1">
+                                <list>
+                                    <field name="sequence" widget="handle" />
+                                    <field name="name" />
+                                    <field name="vocabulary_id" string="Existing Vocabulary" />
+                                    <field
+                                        name="new_vocabulary_name"
+                                        string="New Vocabulary"
+                                        invisible="vocabulary_id"
+                                    />
+                                    <field name="code_count" />
+                                    <field
+                                        name="is_installed"
+                                        widget="boolean_toggle"
+                                        readonly="1"
+                                    />
+                                </list>
+                            </field>
+                            <div class="text-muted mt-2" invisible="vocabulary_ids">
+                                <i class="fa fa-info-circle" title="Information" />
+                                No vocabulary provisioning in this package.
+                            </div>
+                            <div
+                                class="alert alert-info mt-2"
+                                role="alert"
+                                invisible="not vocabulary_ids"
+                            >
+                                <i class="fa fa-info-circle" title="Information" />
+                                Vocabulary items without an existing vocabulary reference
+                                will create a new vocabulary when the pack is installed.
+                            </div>
+                        </page>
+
+                        <page string="Concept Groups" name="concepts">
+                            <field name="concept_ids" nolabel="1">
+                                <list>
+                                    <field name="name" />
+                                    <field name="label" />
+                                    <field name="cel_function" />
+                                    <field name="target_field" />
+                                    <field
+                                        name="is_installed"
+                                        widget="boolean_toggle"
+                                        readonly="1"
+                                    />
+                                </list>
+                            </field>
+                            <div class="text-muted mt-2" invisible="concept_ids">
+                                <i class="fa fa-info-circle" title="Information" />
+                                No concept group provisioning in this package.
                             </div>
                         </page>
                     </notebook>

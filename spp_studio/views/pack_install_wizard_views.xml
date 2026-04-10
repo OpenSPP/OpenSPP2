@@ -19,6 +19,15 @@
                     <field name="pack_description" readonly="1" />
                 </group>
 
+                <!-- Vocabulary Changes -->
+                <field name="has_vocabulary_items" invisible="1" />
+                <group
+                    invisible="not has_vocabulary_items or result_message"
+                    string="Vocabulary Changes"
+                >
+                    <field name="vocabulary_summary" nolabel="1" readonly="1" />
+                </group>
+
                 <!-- Items to Install -->
                 <separator
                     string="Items to Install"
