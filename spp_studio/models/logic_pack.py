@@ -83,8 +83,22 @@ class LogicPack(models.Model):
     )
     installed_date = fields.Datetime(string="Installed Date", readonly=True)
 
+    # Vocabulary provisioning
+    vocabulary_ids = fields.One2many(
+        "spp.studio.pack.vocabulary",
+        "pack_id",
+        string="Vocabularies",
+    )
+    concept_ids = fields.One2many(
+        "spp.studio.pack.concept",
+        "pack_id",
+        string="Concept Groups",
+    )
+
     # Computed
     item_count = fields.Integer(compute="_compute_item_count")
+    vocabulary_count = fields.Integer(compute="_compute_vocabulary_count")
+    concept_count = fields.Integer(compute="_compute_concept_count")
     missing_variable_count = fields.Integer(compute="_compute_missing_variables")
 
     @api.constrains("code")
@@ -105,6 +119,16 @@ class LogicPack(models.Model):
     def _compute_item_count(self):
         for pack in self:
             pack.item_count = len(pack.item_ids)
+
+    @api.depends("vocabulary_ids")
+    def _compute_vocabulary_count(self):
+        for pack in self:
+            pack.vocabulary_count = len(pack.vocabulary_ids)
+
+    @api.depends("concept_ids")
+    def _compute_concept_count(self):
+        for pack in self:
+            pack.concept_count = len(pack.concept_ids)
 
     @api.depends("required_variable_ids")
     def _compute_missing_variables(self):
@@ -143,6 +167,15 @@ class LogicPack(models.Model):
         # Clear installed references
         for item in self.item_ids:
             item.installed_logic_id = False
+
+        # Clear vocabulary code tracking (keep installed_vocabulary_id for re-install idempotency)
+        for vocab_item in self.vocabulary_ids:
+            for code_item in vocab_item.code_ids:
+                code_item.installed_code_id = False
+
+        # Clear concept group tracking
+        for concept in self.concept_ids:
+            concept.installed_group_id = False
 
         return True
 

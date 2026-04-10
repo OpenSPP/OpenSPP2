@@ -10,6 +10,7 @@ from . import studio_field
 from . import logic
 from . import logic_approval
 from . import logic_pack
+from . import logic_pack_vocabulary
 from . import logic_test
 from . import logic_test_persona
 from . import logic_test_runner
