@@ -452,7 +452,10 @@
                                 <list>
                                     <field name="sequence" widget="handle" />
                                     <field name="name" />
-                                    <field name="vocabulary_id" string="Existing Vocabulary" />
+                                    <field
+                                        name="vocabulary_id"
+                                        string="Existing Vocabulary"
+                                    />
                                     <field
                                         name="new_vocabulary_name"
                                         string="New Vocabulary"

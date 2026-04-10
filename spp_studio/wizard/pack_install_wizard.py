@@ -136,13 +136,10 @@ class PackInstallWizard(models.TransientModel):
             for vocab_item in wizard.pack_id.vocabulary_ids:
                 code_count = len(vocab_item.code_ids)
                 if vocab_item.vocabulary_id:
-                    lines.append(
-                        _("Add %d code(s) to '%s'") % (code_count, vocab_item.vocabulary_id.name)
-                    )
+                    lines.append(_("Add %d code(s) to '%s'") % (code_count, vocab_item.vocabulary_id.name))
                 else:
                     lines.append(
-                        _("Create vocabulary '%s' with %d code(s)")
-                        % (vocab_item.new_vocabulary_name, code_count)
+                        _("Create vocabulary '%s' with %d code(s)") % (vocab_item.new_vocabulary_name, code_count)
                     )
 
             for concept in wizard.pack_id.concept_ids:
@@ -174,9 +171,7 @@ class PackInstallWizard(models.TransientModel):
             else:
                 # Create-new mode: find or create the vocabulary
                 namespace_uri = vocab_item.new_vocabulary_namespace
-                existing_vocab = Vocabulary.search(
-                    [("namespace_uri", "=", namespace_uri)], limit=1
-                )
+                existing_vocab = Vocabulary.search([("namespace_uri", "=", namespace_uri)], limit=1)
                 if existing_vocab:
                     vocab_item.installed_vocabulary_id = existing_vocab.id
                 else:
@@ -194,13 +189,9 @@ class PackInstallWizard(models.TransientModel):
             # Install each code
             for code_item in vocab_item.code_ids:
                 if code_item.is_local:
-                    code_rec = VocabCode.get_or_create_local(
-                        namespace_uri, code_item.code, display=code_item.display
-                    )
+                    code_rec = VocabCode.get_or_create_local(namespace_uri, code_item.code, display=code_item.display)
                 else:
-                    code_rec = VocabCode.get_or_create(
-                        namespace_uri, code_item.code, display=code_item.display
-                    )
+                    code_rec = VocabCode.get_or_create(namespace_uri, code_item.code, display=code_item.display)
 
                 # Set extra fields only on freshly created codes
                 # (codes returned by get_or_create that already existed keep their values)

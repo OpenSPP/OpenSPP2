@@ -307,9 +307,7 @@ class TestPackVocabularyInstallation(TransactionCase):
                 ci["pack_id"] = pack.id
                 concept = self.PackConcept.create(ci)
                 for uri in code_refs:
-                    self.PackConceptCode.create(
-                        {"concept_id": concept.id, "uri": uri}
-                    )
+                    self.PackConceptCode.create({"concept_id": concept.id, "uri": uri})
 
         if logic_items:
             PackItem = self.env["spp.studio.pack.item"]
@@ -344,12 +342,8 @@ class TestPackVocabularyInstallation(TransactionCase):
         wizard = self._install_pack(pack)
 
         # Verify codes were created
-        code1 = self.VocabCode.search(
-            [("namespace_uri", "=", "urn:test:install-vocab"), ("code", "=", "add_test_1")]
-        )
-        code2 = self.VocabCode.search(
-            [("namespace_uri", "=", "urn:test:install-vocab"), ("code", "=", "add_test_2")]
-        )
+        code1 = self.VocabCode.search([("namespace_uri", "=", "urn:test:install-vocab"), ("code", "=", "add_test_1")])
+        code2 = self.VocabCode.search([("namespace_uri", "=", "urn:test:install-vocab"), ("code", "=", "add_test_2")])
         self.assertTrue(code1)
         self.assertTrue(code2)
         self.assertEqual(code1.display, "Added Code 1")
@@ -385,17 +379,13 @@ class TestPackVocabularyInstallation(TransactionCase):
         wizard = self._install_pack(pack)
 
         # Verify vocabulary was created
-        new_vocab = self.Vocabulary.search(
-            [("namespace_uri", "=", "urn:test:crop-types-install")]
-        )
+        new_vocab = self.Vocabulary.search([("namespace_uri", "=", "urn:test:crop-types-install")])
         self.assertTrue(new_vocab)
         self.assertEqual(new_vocab.name, "Crop Types")
         self.assertEqual(new_vocab.domain, "agriculture")
 
         # Verify codes
-        codes = self.VocabCode.search(
-            [("namespace_uri", "=", "urn:test:crop-types-install")]
-        )
+        codes = self.VocabCode.search([("namespace_uri", "=", "urn:test:crop-types-install")])
         self.assertEqual(len(codes), 2)
 
         # Verify tracking
@@ -427,9 +417,7 @@ class TestPackVocabularyInstallation(TransactionCase):
         self._install_pack(pack)
 
         # Verify code was created as local
-        code = self.VocabCode.search(
-            [("namespace_uri", "=", "urn:test:install-system"), ("code", "=", "local_ext_1")]
-        )
+        code = self.VocabCode.search([("namespace_uri", "=", "urn:test:install-system"), ("code", "=", "local_ext_1")])
         self.assertTrue(code)
         self.assertTrue(code.is_local)
 
