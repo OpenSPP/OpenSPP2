@@ -132,29 +132,55 @@ class SppProgram(models.Model):
                 )
 
     def _post_enrollment_hook(self, partner):
-        """Calculate score after enrollment if configured."""
+        """Calculate score after enrollment and record it on membership."""
         super()._post_enrollment_hook(partner)
 
-        if self.is_auto_score_on_enrollment and self.scoring_model_id:
+        if not self.scoring_model_id:
+            return
+
+        score_result = None
+
+        if self.is_auto_score_on_enrollment:
             engine = self.env["spp.scoring.engine"]
             try:
-                engine.calculate_score(
+                score_result = engine.calculate_score(
                     partner,
                     self.scoring_model_id,
                     mode="automatic",
                 )
             except (ValidationError, UserError) as e:
-                # Expected errors from scoring validation - log and continue
                 _logger.warning(
                     "Score calculation failed for registrant_id=%s: %s",
                     partner.id,
                     str(e),
                 )
             except Exception:
-                # Unexpected errors - log type only to avoid PII exposure
                 _logger.exception(
                     "Unexpected error calculating score for registrant_id=%s",
                     partner.id,
+                )
+
+        # If no auto-score, use existing latest score
+        if not score_result:
+            Result = self.env["spp.scoring.result"]
+            score_result = Result.get_latest_score(partner, self.scoring_model_id)
+
+        # Record enrollment score on membership
+        if score_result:
+            membership = self.env["spp.program.membership"].search(
+                [
+                    ("partner_id", "=", partner.id),
+                    ("program_id", "=", self.id),
+                    ("state", "=", "enrolled"),
+                ],
+                limit=1,
+            )
+            if membership:
+                membership.write(
+                    {
+                        "enrollment_score": score_result.score,
+                        "enrollment_classification": score_result.classification_code,
+                    }
                 )
 
 
