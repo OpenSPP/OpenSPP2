@@ -590,7 +590,9 @@ class SppScoringEngine(models.AbstractModel):
         """
         Result = self.env["spp.scoring.result"]
 
-        if max_age_days:
+        # max_age_days > 0: reuse cached score if fresh enough
+        # max_age_days = 0 or None: always recalculate
+        if max_age_days and max_age_days > 0:
             existing = Result.get_latest_score(registrant, scoring_model, max_age_days)
             if existing:
                 return existing

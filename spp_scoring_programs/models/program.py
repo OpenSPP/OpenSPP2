@@ -73,8 +73,11 @@ class SppProgram(models.Model):
             return {"eligible": True, "score": None, "classification": None}
 
         # Get or calculate score
+        # max_age_days=0 means "always recalculate" (no cache);
+        # max_age_days>0 means "reuse if fresher than N days";
+        # max_age_days not set means "always recalculate" (same as 0).
         engine = self.env["spp.scoring.engine"]
-        max_age = self.score_max_age_days if self.score_max_age_days > 0 else None
+        max_age = self.score_max_age_days or 0
 
         score_result = engine.get_or_calculate_score(
             registrant,
