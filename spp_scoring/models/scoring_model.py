@@ -205,7 +205,10 @@ class SppScoringModel(models.Model):
         for record in self:
             errors = record._validate_configuration()
             if errors:
-                raise ValidationError(_("Cannot activate model. Validation errors:\n%s") % "\n".join(errors))
+                raise ValidationError(
+                    _("Cannot activate model '%(name)s'. Validation errors:\n%(errors)s")
+                    % {"name": record.name, "errors": "\n".join(f"• {e}" for e in errors)}
+                )
             record.is_active = True
         return True
 
@@ -221,11 +224,11 @@ class SppScoringModel(models.Model):
 
         # Check indicators exist
         if not self.indicator_ids:
-            errors.append(_("At least one indicator is required."))
+            errors.append(_("No indicators defined. Add at least one indicator in the Indicators tab."))
 
         # Check thresholds exist
         if not self.threshold_ids:
-            errors.append(_("At least one threshold is required."))
+            errors.append(_("No thresholds defined. Add at least one threshold in the Thresholds tab."))
 
         # Check weights sum correctly (if expected)
         if self.expected_total_weight > 0:
