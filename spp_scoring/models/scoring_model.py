@@ -258,21 +258,37 @@ class SppScoringModel(models.Model):
         return errors
 
     def _validate_thresholds(self):
-        """Check that thresholds cover the expected score range without gaps."""
+        """Check that thresholds cover the expected score range without gaps or overlaps."""
         errors = []
         if not self.threshold_ids:
             return errors
 
         sorted_thresholds = self.threshold_ids.sorted(key=lambda t: t.min_score)
 
-        # Check for gaps between thresholds
+        # Check all consecutive threshold boundaries for gaps and overlaps
         for i, threshold in enumerate(sorted_thresholds[:-1]):
             next_threshold = sorted_thresholds[i + 1]
             gap = next_threshold.min_score - threshold.max_score
+
             if gap > 0.01:
                 errors.append(
-                    _("Gap detected between thresholds '%(current)s' and '%(next)s'.")
-                    % {"current": threshold.name, "next": next_threshold.name}
+                    _("Gap detected between thresholds '%(current)s' (max %(max)s) and '%(next)s' (min %(min)s).")
+                    % {
+                        "current": threshold.name,
+                        "max": threshold.max_score,
+                        "next": next_threshold.name,
+                        "min": next_threshold.min_score,
+                    }
+                )
+            elif gap < -0.01:
+                errors.append(
+                    _("Overlap detected between thresholds '%(current)s' (max %(max)s) and '%(next)s' (min %(min)s).")
+                    % {
+                        "current": threshold.name,
+                        "max": threshold.max_score,
+                        "next": next_threshold.name,
+                        "min": next_threshold.min_score,
+                    }
                 )
 
         return errors
