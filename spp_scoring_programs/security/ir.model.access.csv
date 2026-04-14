@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_program_scoring_viewer,spp.program scoring viewer,spp_programs.model_spp_program,spp_scoring.group_scoring_viewer,1,0,0,0
+access_spp_program_membership_scoring_viewer,spp.program.membership scoring viewer,spp_programs.model_spp_program_membership,spp_scoring.group_scoring_viewer,1,0,0,0

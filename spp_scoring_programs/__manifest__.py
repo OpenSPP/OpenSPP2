@@ -15,9 +15,7 @@
         "spp_programs",
     ],
     "data": [
-        # Note: No ACL entries needed - this module only extends existing models
-        # (spp.program, spp.program.membership, spp.scoring.model) which have
-        # their own ACLs defined in their respective modules.
+        "security/ir.model.access.csv",
         "views/scoring_model_views.xml",
         "views/program_views.xml",
     ],
