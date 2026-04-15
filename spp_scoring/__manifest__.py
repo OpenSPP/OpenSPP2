@@ -34,6 +34,7 @@
         "views/scoring_indicator_views.xml",
         "views/scoring_threshold_views.xml",
         "views/scoring_result_views.xml",
+        "views/res_partner_views.xml",
         # Wizards (must be before menus so actions are available)
         "wizard/batch_scoring_wizard_views.xml",
         # Menus (last, references actions from other files)

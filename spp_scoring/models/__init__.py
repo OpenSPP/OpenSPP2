@@ -8,3 +8,4 @@ from . import scoring_engine
 from . import scoring_batch_job
 from . import scoring_indicator_provider
 from . import scoring_data_integration
+from . import res_partner
