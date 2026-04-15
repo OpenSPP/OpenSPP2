@@ -110,22 +110,13 @@ class TestIndividualAPIEndpoints(ApiV2HttpTestCase):
 
     def test_read_individual_no_identifiers_returns_404(self):
         """GET individual without valid identifiers returns 404"""
-        # Create individual without registry IDs but with a known identifier
-        # to look it up. The partner exists but has no reg_ids, so
-        # to_api_schema returns None and the router returns 404.
-        no_id_partner = self.env["res.partner"].create(
-            {
-                "name": "No Identifier Person",
-                "is_registrant": True,
-                "is_group": False,
-            }
-        )
-        # Add a reg_id with a value but no id_type (invalid identifier)
-        self.env["spp.registry.id"].create(
-            {
-                "registrant_id": no_id_partner.id,
-                "value": "NO-TYPE-001",
-            }
+        # Create individual with a known identifier, then remove all reg_ids
+        # so to_api_schema returns None and the router returns 404.
+        no_id_partner = self.create_test_individual(
+            name="Will Lose IDs",
+            given_name="Will",
+            family_name="LoseIDs",
+            identifier_value="WILL-LOSE-001",
         )
 
         no_consent_client = self.create_api_client(
@@ -136,11 +127,13 @@ class TestIndividualAPIEndpoints(ApiV2HttpTestCase):
         )
         token = self.generate_jwt_token(no_consent_client)
 
-        url = f"{self.api_base_url}/urn:openspp:vocab:id-type%23test_national_id|NO-TYPE-001"
+        # Delete all registry IDs to simulate missing identifiers
+        no_id_partner.reg_ids.unlink()
+
+        url = f"{self.api_base_url}/urn:openspp:vocab:id-type%23test_national_id|WILL-LOSE-001"
         response = self.url_open(url, headers=self._get_headers(token=token))
 
-        # Partner exists but to_api_schema returns None (no valid identifiers)
-        # Router should return 404
+        # Partner's identifier was deleted, so lookup by identifier returns 404
         self.assertEqual(response.status_code, 404)
 
     def test_read_individual_invalid_format(self):

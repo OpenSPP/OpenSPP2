@@ -136,18 +136,9 @@ class TestGroupAPIEndpoints(ApiV2HttpTestCase):
 
     def test_read_group_no_identifiers_returns_404(self):
         """GET group without valid identifiers returns 404"""
-        no_id_group = self.env["res.partner"].create(
-            {
-                "name": "No Identifier Group",
-                "is_registrant": True,
-                "is_group": True,
-            }
-        )
-        self.env["spp.registry.id"].create(
-            {
-                "registrant_id": no_id_group.id,
-                "value": "NO-TYPE-GRP-001",
-            }
+        no_id_group = self.create_test_group(
+            name="Will Lose IDs Group",
+            identifier_value="WILL-LOSE-GRP-001",
         )
 
         no_consent_client = self.create_api_client(
@@ -158,9 +149,13 @@ class TestGroupAPIEndpoints(ApiV2HttpTestCase):
         )
         token = self.generate_jwt_token(no_consent_client)
 
-        url = f"{self.api_base_url}/urn:openspp:vocab:id-type%23test_national_id|NO-TYPE-GRP-001"
+        # Delete all registry IDs to simulate missing identifiers
+        no_id_group.reg_ids.unlink()
+
+        url = f"{self.api_base_url}/urn:openspp:vocab:id-type%23test_household_id|WILL-LOSE-GRP-001"
         response = self.url_open(url, headers=self._get_headers(token=token))
 
+        # Partner's identifier was deleted, so lookup by identifier returns 404
         self.assertEqual(response.status_code, 404)
 
     def test_read_group_invalid_format(self):
