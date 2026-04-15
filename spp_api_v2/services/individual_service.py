@@ -127,8 +127,14 @@ class IndividualService:
                 identifiers.append(identifier)
 
         if not identifiers:
-            # Must have at least one identifier per spec
-            raise ValidationError(f"Partner {partner.name} has no valid external identifiers")
+            _logger.warning(
+                "Skipping individual (id=%s): no valid external identifiers. "
+                "Created by uid=%s on %s.",
+                partner.id,
+                partner.create_uid.id if partner.create_uid else "unknown",
+                partner.create_date,
+            )
+            return None
 
         # Build name (REQUIRED)
         name = {
@@ -749,7 +755,8 @@ class IndividualService:
         for membership in memberships:
             try:
                 response = membership_to_response(membership)
-                results.append(response)
+                if response is not None:
+                    results.append(response)
             except Exception as e:
                 # Log error but continue processing other memberships
                 # Use group/individual names instead of database ID

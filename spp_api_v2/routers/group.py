@@ -203,6 +203,8 @@ async def search_groups(
 
     def consent_filter_function(group):
         group_data = group_service.to_api_schema(group, extensions=extension_list)
+        if group_data is None:
+            return None
         filtered_data = consent_service.filter_response(group.id, api_client, "group", group_data)
         consent_info = filtered_data.pop("_consent", None)
         if consent_info and consent_info.get("status") in (

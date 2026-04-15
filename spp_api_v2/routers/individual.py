@@ -218,6 +218,8 @@ async def search_individuals(
 
     def consent_filter_function(partner):
         data = individual_service.to_api_schema(partner, extensions=extension_list)
+        if data is None:
+            return None
         filtered_data = consent_service.filter_response(partner.id, api_client, "individual", data)
         consent_info = filtered_data.pop("_consent", None)
         if consent_info and consent_info.get("status") in (

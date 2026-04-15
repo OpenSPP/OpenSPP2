@@ -124,7 +124,14 @@ class GroupService:
                 identifiers.append(ident_dict)
 
         if not identifiers:
-            raise ValidationError(f"Group {group.name} has no valid external identifiers")
+            _logger.warning(
+                "Skipping group (id=%s): no valid external identifiers. "
+                "Created by uid=%s on %s.",
+                group.id,
+                group.create_uid.id if group.create_uid else "unknown",
+                group.create_date,
+            )
+            return None
 
         # Build Group resource
         group_data = {

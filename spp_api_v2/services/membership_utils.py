@@ -1,12 +1,13 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Shared membership utilities for API V2 services."""
 
+import logging
 from typing import Any
 
-from odoo.exceptions import ValidationError
+_logger = logging.getLogger(__name__)
 
 
-def membership_to_response(membership) -> dict[str, Any]:
+def membership_to_response(membership) -> dict[str, Any] | None:
     """
     Convert spp.group.membership record to MembershipResponse schema.
 
@@ -17,16 +18,19 @@ def membership_to_response(membership) -> dict[str, Any]:
         membership: spp.group.membership record
 
     Returns:
-        Dictionary matching MembershipResponse schema
-
-    Raises:
-        ValidationError: If group or individual lacks external identifiers
+        Dictionary matching MembershipResponse schema, or None if
+        group or individual lacks valid external identifiers.
     """
     # Build group reference
     group = membership.group
     group_id = group.reg_ids[0] if group.reg_ids else None
     if not group_id:
-        raise ValidationError(f"Group {group.name} has no valid external identifiers")
+        _logger.warning(
+            "Skipping membership (id=%s): group (id=%s) has no valid external identifiers.",
+            membership.id,
+            group.id,
+        )
+        return None
 
     group_ref = {
         "reference": f"Group/{group_id.namespace_uri}|{group_id.value}",
@@ -37,7 +41,12 @@ def membership_to_response(membership) -> dict[str, Any]:
     individual = membership.individual
     individual_id = individual.reg_ids[0] if individual.reg_ids else None
     if not individual_id:
-        raise ValidationError(f"Individual {individual.name} has no valid external identifiers")
+        _logger.warning(
+            "Skipping membership (id=%s): individual (id=%s) has no valid external identifiers.",
+            membership.id,
+            individual.id,
+        )
+        return None
 
     individual_ref = {
         "reference": f"Individual/{individual_id.namespace_uri}|{individual_id.value}",
