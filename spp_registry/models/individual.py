@@ -47,23 +47,28 @@ class SPPIndividual(models.Model):
     # Membership fields
     individual_membership_ids = fields.One2many("spp.group.membership", "individual", "Membership to Groups")
 
+    # Fields that trigger name recomputation
+    _name_fields = {"family_name", "given_name", "addl_name"}
+
+    @api.model
+    def _format_individual_name(self, family_name, given_name, addl_name):
+        """Compute display name from individual name parts.
+
+        Format: "FAMILY_NAME, GIVEN_NAME ADDL_NAME" (uppercase).
+        Used by onchange (UI), create, and write to ensure consistent naming.
+        """
+        name_vals = [
+            f"{family_name}," if family_name and (given_name or addl_name) else f"{family_name}" if family_name else "",
+            given_name,
+            addl_name,
+        ]
+        return " ".join(filter(None, name_vals)).upper()
+
     @api.onchange("is_group", "family_name", "given_name", "addl_name")
     def name_change(self):
-        vals = {}
         if not self.is_group:
-            name_vals = [
-                f"{self.family_name},"
-                if self.family_name and (self.given_name or self.addl_name)
-                else f"{self.family_name}"
-                if self.family_name
-                else "",
-                self.given_name,
-                self.addl_name,
-            ]
-
-            name = " ".join(filter(None, name_vals))
-            vals.update({"name": name.upper()})
-            self.update(vals)
+            name = self._format_individual_name(self.family_name, self.given_name, self.addl_name)
+            self.update({"name": name})
 
     @api.depends("birthdate")
     def _compute_calc_age(self):
@@ -129,8 +134,23 @@ class SPPIndividual(models.Model):
                     self.env.add_to_compute(field, groups)
 
     def write(self, vals):
-        """Override to invalidate group metrics when demographics change."""
+        """Override to recompute name and invalidate group metrics."""
+        # Recompute name if any name field changed (only for non-group individuals)
+        name_updates = {}
+        if self._name_fields & vals.keys() and not self.env.context.get("skip_name_format"):
+            for rec in self.filtered(lambda r: not r.is_group):
+                name_updates[rec.id] = self._format_individual_name(
+                    vals.get("family_name", rec.family_name),
+                    vals.get("given_name", rec.given_name),
+                    vals.get("addl_name", rec.addl_name),
+                )
+
         res = super().write(vals)
+
+        # Apply computed names after super to avoid interfering with the main write
+        if name_updates:
+            for rec_id, name in name_updates.items():
+                super(SPPIndividual, self.browse(rec_id).with_context(skip_name_format=True)).write({"name": name})
         self._recompute_parent_groups(self)
 
         # Fields that affect group-level metrics
@@ -177,6 +197,14 @@ class SPPIndividual(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        # Compute name from parts before create (injects into vals, no extra write)
+        for vals in vals_list:
+            if not vals.get("is_group") and self._name_fields & vals.keys():
+                vals["name"] = self._format_individual_name(
+                    vals.get("family_name", ""),
+                    vals.get("given_name", ""),
+                    vals.get("addl_name", ""),
+                )
         res = super().create(vals_list)
         self._recompute_parent_groups(res)
         return res
