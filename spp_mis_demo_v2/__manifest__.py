@@ -30,6 +30,8 @@
         "spp_api_v2_gis",
         # QR Credentials (Claim 169)
         "spp_claim_169",
+        # Banking (for bank account demo data)
+        "spp_banking",
         # Demo-specific extensions
     ],
     "external_dependencies": {"python": ["requests"]},

@@ -39,7 +39,7 @@
         <field name="code">training</field>
         <field
             name="description"
-        >Training sessions for beneficiaries including agricultural practices, financial literacy, and program orientation.</field>
+        >Training sessions for beneficiaries including financial literacy, life skills, and program orientation.</field>
         <field name="category">visit</field>
         <field name="target_type">both</field>
         <field name="source_type">internal</field>
@@ -52,7 +52,7 @@
         <field name="code">extension_visit</field>
         <field
             name="description"
-        >Field extension visits by agricultural officers to provide technical assistance and monitor progress.</field>
+        >Field extension visits by social welfare officers to provide technical assistance and monitor progress.</field>
         <field name="category">visit</field>
         <field name="target_type">both</field>
         <field name="source_type">internal</field>
@@ -222,18 +222,18 @@
     -->
 
     <!-- CEL Expression: Calculate visit quality score
-         Based on: completeness of data, farm conditions, recommendations made -->
+         Based on: completeness of data, household conditions, recommendations made -->
     <record id="mapping_extension_quality" model="spp.event.type.mapping">
         <field name="event_type_id" ref="event_type_extension_visit" />
         <field name="sequence">10</field>
         <field
             name="external_field"
-        >data_completeness,farm_condition_score,recommendations_count</field>
+        >data_completeness,household_condition_score,recommendations_count</field>
         <field name="internal_field">visit_quality_score</field>
         <field name="transform">expression</field>
         <field
             name="transform_expression"
-        >(int(data_completeness) * 0.4) + (int(farm_condition_score) * 0.4) + (int(recommendations_count) * 2.0)</field>
+        >(int(data_completeness) * 0.4) + (int(household_condition_score) * 0.4) + (int(recommendations_count) * 2.0)</field>
     </record>
 
     <!-- CEL Expression: Determine if follow-up visit needed
@@ -243,12 +243,12 @@
         <field name="sequence">20</field>
         <field
             name="external_field"
-        >farm_condition_score,issues_identified,recommendations_count</field>
+        >household_condition_score,issues_identified,recommendations_count</field>
         <field name="internal_field">needs_followup</field>
         <field name="transform">expression</field>
         <field
             name="transform_expression"
-        >int(farm_condition_score) &lt; 50 || int(issues_identified) > 3 || int(recommendations_count) > 5</field>
+        >int(household_condition_score) &lt; 50 || int(issues_identified) > 3 || int(recommendations_count) > 5</field>
     </record>
 
     <!--

@@ -460,13 +460,17 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
         # Based on demo_stories.py definitions
         cls.EXPECTED_HOUSEHOLD_MEMBERS = {
             # story_name: expected_member_count
-            "Carlos Morales": 5,  # head + spouse + 3 children
-            "Amina Osman": 4,  # head + 3 children
-            "Jose Reyes Sr": 8,  # head + spouse + 2 adults + 4 children
-            "Chen Wei": 7,  # head + spouse + 5 children
-            "Manuel Santos": 2,  # head + spouse
-            "James Nguyen": 4,  # head + 3 adults
-            "David Martinez": 3,  # head + spouse + 1 child
+            "Morales": 5,  # head + spouse + 3 children
+            "Santos": 5,  # head + spouse + 2 children + 1 adult
+            "Dela Cruz": 4,  # head + spouse + 2 children
+            "Gutierrez": 7,  # head + spouse + 5 children
+            "Castillo": 3,  # head + spouse + 1 child
+            "Aquino": 4,  # head + 3 children
+            "Reyes": 8,  # head + spouse + 2 adults + 4 children
+            "Bautista": 7,  # head + spouse + 5 children
+            "Pangilinan": 2,  # head + spouse
+            "Navarro": 4,  # head + 3 adults
+            "Martinez": 3,  # head + spouse + 1 child
         }
 
     def _run_generator_for_stories(self):
@@ -512,72 +516,71 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
                 f"Household '{story_name}' should have {expected_count} members, but has {member_count}",
             )
 
-    def test_chen_family_has_all_members(self):
-        """Test Chen family has head, spouse, and all 5 children."""
+    def test_bautista_family_has_all_members(self):
+        """Test Bautista family has head, spouse, and all 5 children."""
         self._run_generator_for_stories()
 
         group = self.env["res.partner"].search(
             [
-                ("name", "=", "Chen Wei"),
+                ("name", "=", "Bautista"),
                 ("is_group", "=", True),
             ],
             limit=1,
         )
-        self.assertTrue(group, "Chen Wei household not found")
+        self.assertTrue(group, "Eduardo Bautista household not found")
 
         memberships = self.env["spp.group.membership"].search([("group", "=", group.id)])
         member_names = memberships.mapped("individual.name")
 
         # Expected members - names stored as "FAMILY, GIVEN" uppercase
-        # e.g., "Chen Wei" becomes "WEI, CHEN"
-        expected_given_names = ["Wei", "Mei", "Ling", "Jun", "Xiao", "Yan", "Bo"]
+        expected_given_names = ["Eduardo", "Carmen", "Patricia", "Fernando", "Lucia", "Rosalie", "Antonio"]
 
-        self.assertEqual(len(memberships), 7, "Chen family should have 7 members")
+        self.assertEqual(len(memberships), 7, "Bautista family should have 7 members")
 
         # Check each expected member exists by given name
         for given_name in expected_given_names:
             found = any(given_name.upper() in name.upper() for name in member_names)
             self.assertTrue(
                 found,
-                f"Expected member with given name '{given_name}' not found in Chen family. "
+                f"Expected member with given name '{given_name}' not found in Bautista family. "
                 f"Actual members: {member_names}",
             )
 
-    def test_nguyen_family_has_all_adults(self):
-        """Test Nguyen extended family has head and all 3 adults."""
+    def test_navarro_family_has_all_adults(self):
+        """Test Navarro extended family has head and all 3 adults."""
         self._run_generator_for_stories()
 
         group = self.env["res.partner"].search(
             [
-                ("name", "=", "James Nguyen"),
+                ("name", "=", "Navarro"),
                 ("is_group", "=", True),
             ],
             limit=1,
         )
-        self.assertTrue(group, "James Nguyen household not found")
+        self.assertTrue(group, "Ricardo Navarro household not found")
 
         memberships = self.env["spp.group.membership"].search([("group", "=", group.id)])
         member_names = memberships.mapped("individual.name")
 
         # Expected members - names stored as "FAMILY, GIVEN" uppercase
-        expected_given_names = ["James", "Linda", "Michael", "Sarah"]
+        expected_given_names = ["Ricardo", "Lourdes", "Eduardo", "Cristina"]
 
-        self.assertEqual(len(memberships), 4, "Nguyen family should have 4 members")
+        self.assertEqual(len(memberships), 4, "Navarro family should have 4 members")
 
         for given_name in expected_given_names:
             found = any(given_name.upper() in name.upper() for name in member_names)
             self.assertTrue(
                 found,
-                f"Expected member with given name '{given_name}' not found in Nguyen family. "
+                f"Expected member with given name '{given_name}' not found in Navarro family. "
                 f"Actual members: {member_names}",
             )
 
     def test_existing_empty_group_gets_members_populated(self):
         """Test that existing empty household groups get their members created."""
-        # First, delete any existing Chen Wei group to simulate a fresh state
+        # First, delete any existing Bautista group to simulate a fresh state
         existing = self.env["res.partner"].search(
             [
-                ("name", "=", "Chen Wei"),
+                ("name", "=", "Bautista"),
                 ("is_registrant", "=", True),
                 ("is_group", "=", True),
             ]
@@ -587,10 +590,10 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
             self.env["spp.group.membership"].search([("group", "in", existing.ids)]).unlink()
             existing.unlink()
 
-        # Create an empty Chen Wei group (simulating partial creation bug)
+        # Create an empty Bautista group (simulating partial creation bug)
         empty_group = self.env["res.partner"].create(
             {
-                "name": "Chen Wei",
+                "name": "Bautista",
                 "is_registrant": True,
                 "is_group": True,
             }
@@ -605,7 +608,7 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
 
         # Now check members were created
         final_count = self.env["spp.group.membership"].search_count([("group", "=", empty_group.id)])
-        self.assertEqual(final_count, 7, "Chen Wei group should have 7 members after generator runs")
+        self.assertEqual(final_count, 7, "Bautista group should have 7 members after generator runs")
 
     def test_head_of_household_has_correct_membership_type(self):
         """Test that household heads have the 'head' membership type."""
@@ -618,7 +621,7 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
             self.skipTest("Head membership type not configured")
 
         # Check a few households
-        for story_name in ["Chen Wei", "James Nguyen", "Carlos Morales"]:
+        for story_name in ["Bautista", "Navarro", "Morales"]:
             group = self.env["res.partner"].search(
                 [
                     ("name", "=", story_name),
@@ -647,10 +650,10 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
         # Run generator first time
         self._run_generator_for_stories()
 
-        # Count members for Chen family
+        # Count members for Bautista family
         group = self.env["res.partner"].search(
             [
-                ("name", "=", "Chen Wei"),
+                ("name", "=", "Bautista"),
                 ("is_group", "=", True),
             ],
             limit=1,
@@ -669,36 +672,36 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
         """Test that created individual members have correct attributes."""
         self._run_generator_for_stories()
 
-        # Find Chen Mei (spouse of Chen Wei)
-        chen_mei = self.env["res.partner"].search(
+        # Find Carmen Bautista (spouse of Eduardo Bautista)
+        carmen = self.env["res.partner"].search(
             [
-                ("name", "ilike", "%chen%mei%"),
+                ("name", "ilike", "%carmen%bautista%"),
                 ("is_registrant", "=", True),
                 ("is_group", "=", False),
             ],
             limit=1,
         )
 
-        if not chen_mei:
+        if not carmen:
             # Try alternative name format
-            chen_mei = self.env["res.partner"].search(
+            carmen = self.env["res.partner"].search(
                 [
-                    ("name", "ilike", "%mei%chen%"),
+                    ("name", "ilike", "%bautista%carmen%"),
                     ("is_registrant", "=", True),
                     ("is_group", "=", False),
                 ],
                 limit=1,
             )
 
-        self.assertTrue(chen_mei, "Chen Mei individual should be created")
-        self.assertFalse(chen_mei.is_group, "Chen Mei should not be a group")
-        self.assertTrue(chen_mei.is_registrant, "Chen Mei should be a registrant")
+        self.assertTrue(carmen, "Carmen Bautista individual should be created")
+        self.assertFalse(carmen.is_group, "Carmen Bautista should not be a group")
+        self.assertTrue(carmen.is_registrant, "Carmen Bautista should be a registrant")
 
         # Check birthdate is set (age 44 in story)
-        if chen_mei.birthdate:
+        if carmen.birthdate:
             from datetime import date
 
-            age = (date.today() - chen_mei.birthdate).days // 365
+            age = (date.today() - carmen.birthdate).days // 365
             self.assertGreaterEqual(age, 40)
             self.assertLessEqual(age, 50)
 
@@ -706,8 +709,8 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
         """Test that _get_story_name returns correct names for all demo stories.
 
         This test ensures that story IDs are properly mapped to registrant names,
-        preventing duplicate registrants with incorrect names like "Chen Large Family"
-        instead of "Chen Wei".
+        preventing duplicate registrants with incorrect names derived from story IDs
+        instead of the actual story name.
         """
         from odoo.addons.spp_demo.models import demo_stories
 
@@ -733,3 +736,137 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
                 f"but got '{actual_name}'. This can cause duplicate registrants "
                 f"with incorrect names.",
             )
+
+    # ===================================================================
+    # Compliance manager tests
+    # ===================================================================
+
+    def test_compliance_managers_configured_after_generation(self):
+        """Test that compliance managers have CEL expressions after program creation."""
+        generator = self.env["spp.mis.demo.generator"].create(
+            {
+                "name": "Test Compliance",
+                "create_demo_programs": True,
+                "enroll_demo_stories": False,
+                "generate_volume": False,
+                "create_cycles": False,
+                "locale_origin": self.test_country.id,
+            }
+        )
+        generator.action_generate()
+
+        # Cash Transfer should have compliance CEL
+        cash_transfer = self.env["spp.program"].search([("name", "=", "Cash Transfer Program")], limit=1)
+        self.assertTrue(cash_transfer, "Cash Transfer Program not found")
+        self.assertTrue(cash_transfer.compliance_manager_ids, "No compliance manager on Cash Transfer")
+
+        for wrapper in cash_transfer.compliance_manager_ids:
+            concrete = wrapper.manager_ref_id
+            if hasattr(concrete, "compliance_cel_expression"):
+                self.assertEqual(
+                    concrete.compliance_cel_expression,
+                    "per_capita_income < poverty_line",
+                )
+                break
+        else:
+            self.fail("No concrete compliance manager found for Cash Transfer")
+
+    def test_conditional_child_grant_compliance_configured(self):
+        """Test that Conditional Child Grant has compliance CEL and program constant."""
+        generator = self.env["spp.mis.demo.generator"].create(
+            {
+                "name": "Test CCG Compliance",
+                "create_demo_programs": True,
+                "enroll_demo_stories": False,
+                "generate_volume": False,
+                "create_cycles": False,
+                "locale_origin": self.test_country.id,
+            }
+        )
+        generator.action_generate()
+
+        ccg = self.env["spp.program"].search([("name", "=", "Conditional Child Grant")], limit=1)
+        self.assertTrue(ccg, "Conditional Child Grant not found")
+
+        # Check compliance expression
+        for wrapper in ccg.compliance_manager_ids:
+            concrete = wrapper.manager_ref_id
+            if hasattr(concrete, "compliance_cel_expression"):
+                self.assertEqual(
+                    concrete.compliance_cel_expression,
+                    "per_capita_income < income_threshold",
+                )
+                break
+        else:
+            self.fail("No concrete compliance manager found for CCG")
+
+        # Check program constant override
+        param = self.env["spp.cel.program.parameter"].search([("program_id", "=", ccg.id)], limit=1)
+        self.assertTrue(param, "No program parameter found for CCG")
+        self.assertEqual(param.value, "2000")
+
+    def test_non_compliant_cycle_membership_created(self):
+        """Test that Santos has non_compliant cycle membership after generation."""
+        generator = self.env["spp.mis.demo.generator"].create(
+            {
+                "name": "Test Non-Compliant",
+                "create_demo_programs": True,
+                "enroll_demo_stories": True,
+                "create_story_payments": True,
+                "generate_volume": False,
+                "create_cycles": False,
+                "locale_origin": self.test_country.id,
+            }
+        )
+        generator.action_generate()
+
+        # Find Santos household
+        santos = self.env["res.partner"].search(
+            [("name", "=", "Santos"), ("is_group", "=", True), ("is_registrant", "=", True)],
+            limit=1,
+        )
+        if not santos:
+            # Story registrant may not have been created in test environment
+            return
+
+        # Check Cash Transfer cycle membership is non_compliant
+        cash_transfer = self.env["spp.program"].search([("name", "=", "Cash Transfer Program")], limit=1)
+        if not cash_transfer:
+            return
+
+        cycle = self.env["spp.cycle"].search([("program_id", "=", cash_transfer.id)], limit=1)
+        if not cycle:
+            return
+
+        cm = self.env["spp.cycle.membership"].search(
+            [("partner_id", "=", santos.id), ("cycle_id", "=", cycle.id)],
+            limit=1,
+        )
+        self.assertTrue(cm, "No cycle membership found for Santos in Cash Transfer")
+        self.assertEqual(cm.state, "non_compliant", "Santos should be non_compliant")
+
+    def test_programs_without_compliance_have_empty_expression(self):
+        """Programs without compliance_cel_expression should have empty compliance managers."""
+        generator = self.env["spp.mis.demo.generator"].create(
+            {
+                "name": "Test No Compliance",
+                "create_demo_programs": True,
+                "enroll_demo_stories": False,
+                "generate_volume": False,
+                "create_cycles": False,
+                "locale_origin": self.test_country.id,
+            }
+        )
+        generator.action_generate()
+
+        # Food Assistance should NOT have a compliance expression
+        food = self.env["spp.program"].search([("name", "=", "Food Assistance")], limit=1)
+        self.assertTrue(food, "Food Assistance not found")
+
+        for wrapper in food.compliance_manager_ids:
+            concrete = wrapper.manager_ref_id
+            if hasattr(concrete, "compliance_cel_expression"):
+                self.assertFalse(
+                    concrete.compliance_cel_expression,
+                    "Food Assistance should not have a compliance expression",
+                )

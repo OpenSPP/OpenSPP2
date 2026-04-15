@@ -27,13 +27,13 @@
         <field name="name">Maria Santos</field>
         <field
             name="description"
-        >SUCCESS STORY: 42-year-old rice farmer and mother of two from rural Laguna province. Started with 2.5 hectares and struggled with seasonal income. After 5 months in the Cash Transfer Program, she saved enough to buy better seeds and tools. Recently graduated from the program - demonstrating the pathway from poverty to self-sufficiency. Now mentors other farmers in her community.</field>
+        >SUCCESS STORY: 42-year-old mother of two from rural Laguna province. Struggled with seasonal income and lived below the poverty line. After 5 months in the Cash Transfer Program, she saved enough to improve her household livelihood. Recently graduated from the program - demonstrating the pathway from poverty to self-sufficiency. Now mentors other beneficiaries in her community.</field>
         <field name="category">eligible</field>
         <field name="is_global" eval="True" />
         <field name="sequence">10</field>
         <field
             name="values"
-        >{"name": "Maria Santos", "age": 42, "is_registrant": true, "is_group": false, "active": true, "farm_size_hectares": 2.5, "income": 8000, "occupation": "rice_farmer", "region": "rural"}</field>
+        >{"name": "Maria Santos", "age": 42, "is_registrant": true, "is_group": false, "active": true, "income": 8000, "region": "rural"}</field>
     </record>
 
     <!-- Rosa Garcia - Multi-Program Elderly Beneficiary -->
@@ -64,18 +64,18 @@
         >{"name": "Carlos Morales Household", "is_registrant": true, "is_group": true, "active": true, "hh_size": 5, "child_count": 3, "income": 4000, "head_occupation": "tricycle_driver", "spouse_occupation": "laundry_worker"}</field>
     </record>
 
-    <!-- Ibrahim Hassan - Emergency Relief Displaced Person -->
+    <!-- Ramon Gutierrez - Emergency Relief Displaced Person -->
     <record id="persona_ibrahim_hassan" model="spp.studio.test.persona">
-        <field name="name">Ibrahim Hassan</field>
+        <field name="name">Ramon Gutierrez</field>
         <field
             name="description"
-        >EMERGENCY RESPONSE: 50-year-old farmer displaced by recent flooding in his coastal village. Lost his home, crops, and livelihood. Currently staying in an evacuation center with vulnerability score of 85 (high). Receives Tier 2 emergency payments ($400) based on tiered vulnerability assessment - demonstrating crisis response targeting and ternary CEL expressions for benefit calculation.</field>
+        >EMERGENCY RESPONSE: 50-year-old person displaced by recent flooding in his coastal village. Lost his home and livelihood. Currently staying in an evacuation center with vulnerability score of 85 (high). Receives Tier 2 emergency payments ($400) based on tiered vulnerability assessment - demonstrating crisis response targeting and ternary CEL expressions for benefit calculation.</field>
         <field name="category">eligible</field>
         <field name="is_global" eval="True" />
         <field name="sequence">40</field>
         <field
             name="values"
-        >{"name": "Ibrahim Hassan", "age": 50, "is_registrant": true, "is_group": false, "active": true, "displacement_status": "displaced", "vulnerability_score": 85, "shelter_type": "evacuation_center", "previous_occupation": "farmer"}</field>
+        >{"name": "Ramon Gutierrez", "age": 50, "is_registrant": true, "is_group": false, "active": true, "displacement_status": "displaced", "vulnerability_score": 85, "shelter_type": "evacuation_center"}</field>
     </record>
 
     <!-- David &amp; Sofia Martinez Household - Disability Support -->
@@ -106,9 +106,9 @@
         >{"name": "Juan Dela Cruz", "age": 45, "is_registrant": true, "is_group": true, "active": true, "hh_size": 4, "income": 3500, "displacement_status": "displaced", "displacement_reason": "house_fire", "has_grm_ticket": true, "has_case": true}</field>
     </record>
 
-    <!-- Ahmed Said - Multiple Program Beneficiary with Active GRM -->
+    <!-- Roberto Castillo - Multiple Program Beneficiary with Active GRM -->
     <record id="persona_ahmed_said" model="spp.studio.test.persona">
-        <field name="name">Ahmed Said</field>
+        <field name="name">Roberto Castillo</field>
         <field
             name="description"
         >MULTI-TICKET GRM: 38-year-old construction worker and father of 4 enrolled in Cash Transfer Program. Has filed multiple GRM tickets over time - payment delay (resolved), bank account update (resolved), and general inquiry about next payment. Demonstrates how the system tracks beneficiary interaction history and ticket patterns.</field>
@@ -117,12 +117,12 @@
         <field name="sequence">58</field>
         <field
             name="values"
-        >{"name": "Ahmed Said", "age": 38, "is_registrant": true, "is_group": false, "active": true, "income": 5000, "occupation": "construction_worker", "child_count": 4, "grm_ticket_count": 3}</field>
+        >{"name": "Roberto Castillo", "age": 38, "is_registrant": true, "is_group": false, "active": true, "income": 5000, "occupation": "construction_worker", "child_count": 4, "grm_ticket_count": 3}</field>
     </record>
 
-    <!-- Fatima Al-Rahman - Information Seeker -->
+    <!-- Teresa Villanueva - Information Seeker -->
     <record id="persona_fatima_al_rahman" model="spp.studio.test.persona">
-        <field name="name">Fatima Al-Rahman</field>
+        <field name="name">Teresa Villanueva</field>
         <field
             name="description"
         >INFORMATION REQUEST: 32-year-old mother of 2 who filed a GRM ticket asking about program eligibility requirements. Her ticket was quickly resolved with information provided. Demonstrates the system's ability to handle inquiries efficiently. She is now being assessed for Universal Child Grant enrollment.</field>
@@ -131,16 +131,16 @@
         <field name="sequence">60</field>
         <field
             name="values"
-        >{"name": "Fatima Al-Rahman", "age": 32, "is_registrant": true, "is_group": false, "active": true, "income": 4500, "child_count": 2, "marital_status": "married", "assessment_status": "pending"}</field>
+        >{"name": "Teresa Villanueva", "age": 32, "is_registrant": true, "is_group": false, "active": true, "income": 4500, "child_count": 2, "marital_status": "married", "assessment_status": "pending"}</field>
     </record>
 
     <!-- ═══════════════════════════════════════════════════════════════════════
              INELIGIBLE PERSONAS - Rejection Demonstrations
              ═══════════════════════════════════════════════════════════════════════ -->
 
-    <!-- Mary Johnson - Age Rejection (Below Retirement Age) -->
+    <!-- Lorna Pascual - Age Rejection (Below Retirement Age) -->
     <record id="persona_mary_johnson" model="spp.studio.test.persona">
-        <field name="name">Mary Johnson</field>
+        <field name="name">Lorna Pascual</field>
         <field
             name="description"
         >REJECTION CASE - AGE: 55-year-old woman who applied for Elderly Social Pension. Although she has no formal pension and low income, she was REJECTED because she doesn't meet the age requirement (retirement_age = 65). Her application demonstrates how the system properly enforces age-based eligibility rules. She should reapply in 10 years when she turns 65.</field>
@@ -149,7 +149,7 @@
         <field name="sequence">100</field>
         <field
             name="values"
-        >{"name": "Mary Johnson", "age": 55, "is_registrant": true, "is_group": false, "active": true, "income": 3000, "has_formal_pension": false, "rejection_reason": "below_retirement_age"}</field>
+        >{"name": "Lorna Pascual", "age": 55, "is_registrant": true, "is_group": false, "active": true, "income": 3000, "has_formal_pension": false, "rejection_reason": "below_retirement_age"}</field>
     </record>
 
     <!-- Childless Household - No Child Benefit -->
