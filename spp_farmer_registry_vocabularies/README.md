@@ -48,7 +48,7 @@ with FAO standards:
 - Commercial
 - Both
 
-#### Holder Type (`urn:fao:wca:2020:holder-type`)
+#### Holder Type (`urn:openspp:vocab:holder-type`)
 
 - Individual
 - Joint

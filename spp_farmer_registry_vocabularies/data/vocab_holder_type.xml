@@ -2,7 +2,7 @@
 <odoo noupdate="1">
     <record id="vocab_holder_type" model="spp.vocabulary">
         <field name="name">Holder Type (FAO WCA 2020)</field>
-        <field name="namespace_uri">urn:fao:wca:2020:holder-type</field>
+        <field name="namespace_uri">urn:openspp:vocab:holder-type</field>
         <field name="version">2020</field>
         <field name="is_system">True</field>
         <field name="domain">agriculture</field>
