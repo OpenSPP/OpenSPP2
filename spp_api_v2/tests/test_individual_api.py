@@ -108,6 +108,41 @@ class TestIndividualAPIEndpoints(ApiV2HttpTestCase):
 
         self.assertEqual(response.status_code, 404)
 
+    def test_read_individual_no_identifiers_returns_404(self):
+        """GET individual without valid identifiers returns 404"""
+        # Create individual without registry IDs but with a known identifier
+        # to look it up. The partner exists but has no reg_ids, so
+        # to_api_schema returns None and the router returns 404.
+        no_id_partner = self.env["res.partner"].create(
+            {
+                "name": "No Identifier Person",
+                "is_registrant": True,
+                "is_group": False,
+            }
+        )
+        # Add a reg_id with a value but no id_type (invalid identifier)
+        self.env["spp.registry.id"].create(
+            {
+                "registrant_id": no_id_partner.id,
+                "value": "NO-TYPE-001",
+            }
+        )
+
+        no_consent_client = self.create_api_client(
+            name="No Consent Client For 404",
+            scopes=[{"resource": "individual", "action": "read"}],
+            require_consent=False,
+            legal_basis="public_interest",
+        )
+        token = self.generate_jwt_token(no_consent_client)
+
+        url = f"{self.api_base_url}/urn:openspp:vocab:id-type%23test_national_id|NO-TYPE-001"
+        response = self.url_open(url, headers=self._get_headers(token=token))
+
+        # Partner exists but to_api_schema returns None (no valid identifiers)
+        # Router should return 404
+        self.assertEqual(response.status_code, 404)
+
     def test_read_individual_invalid_format(self):
         """GET with invalid identifier format returns 400"""
         url = f"{self.api_base_url}/INVALID-FORMAT"

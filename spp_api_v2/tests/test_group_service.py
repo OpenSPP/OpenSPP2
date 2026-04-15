@@ -322,6 +322,36 @@ class TestGroupService(ApiV2TestCase):
         self.assertNotIn("member", data)
         self.assertNotIn("quantity", data)
 
+    def test_to_api_schema_member_without_identifiers_skipped(self):
+        """Members without valid identifiers are skipped from member list"""
+        # Create an individual without registry IDs
+        no_id_individual = self.env["res.partner"].create(
+            {
+                "name": "No ID Member",
+                "is_registrant": True,
+                "is_group": False,
+            }
+        )
+        group = self.create_test_group(identifier_value="HH-MEMBER-SKIP")
+
+        # Create membership directly (bypassing the API which would validate)
+        self.env["spp.group.membership"].create(
+            {
+                "group": group.id,
+                "individual": no_id_individual.id,
+            }
+        )
+
+        data = self.service.to_api_schema(group)
+
+        # Member without identifiers should be skipped
+        if "member" in data:
+            for member in data["member"]:
+                self.assertNotIn(
+                    "No ID Member",
+                    member.get("entity", {}).get("display", ""),
+                )
+
     def test_create_member_invalid_reference_ignored(self):
         """Invalid member references are logged and ignored"""
         schema = Group(

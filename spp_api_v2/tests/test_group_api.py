@@ -134,6 +134,35 @@ class TestGroupAPIEndpoints(ApiV2HttpTestCase):
 
         self.assertEqual(response.status_code, 404)
 
+    def test_read_group_no_identifiers_returns_404(self):
+        """GET group without valid identifiers returns 404"""
+        no_id_group = self.env["res.partner"].create(
+            {
+                "name": "No Identifier Group",
+                "is_registrant": True,
+                "is_group": True,
+            }
+        )
+        self.env["spp.registry.id"].create(
+            {
+                "registrant_id": no_id_group.id,
+                "value": "NO-TYPE-GRP-001",
+            }
+        )
+
+        no_consent_client = self.create_api_client(
+            name="No Consent Client For Group 404",
+            scopes=[{"resource": "group", "action": "read"}],
+            require_consent=False,
+            legal_basis="public_interest",
+        )
+        token = self.generate_jwt_token(no_consent_client)
+
+        url = f"{self.api_base_url}/urn:openspp:vocab:id-type%23test_national_id|NO-TYPE-GRP-001"
+        response = self.url_open(url, headers=self._get_headers(token=token))
+
+        self.assertEqual(response.status_code, 404)
+
     def test_read_group_invalid_format(self):
         """GET with invalid identifier format returns 400"""
         url = f"{self.api_base_url}/INVALID-FORMAT"
