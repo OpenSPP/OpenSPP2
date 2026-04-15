@@ -206,10 +206,16 @@ class SppScoringEngine(models.AbstractModel):
 
             result["field_value"] = field_value
 
-            # Handle missing values
-            if field_value is None:
+            # Handle missing or falsy values
+            # For required indicators, treat False/None/empty as missing
+            if field_value is None or (
+                indicator.is_required and field_value is not True and not field_value and field_value != 0
+            ):
                 if indicator.is_required:
-                    result["error"] = _("Required field '%s' is missing.") % indicator.field_path
+                    result["error"] = _("Required field '%(path)s' has no valid value (got: %(value)s).") % {
+                        "path": indicator.field_path,
+                        "value": repr(field_value),
+                    }
                     return result
                 field_value = indicator._convert_default_value()
 
