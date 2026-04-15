@@ -116,11 +116,13 @@ class SppScoringModel(models.Model):
         comodel_name="spp.scoring.indicator",
         inverse_name="model_id",
         string="Indicators",
+        copy=True,
     )
     threshold_ids = fields.One2many(
         comodel_name="spp.scoring.threshold",
         inverse_name="model_id",
         string="Thresholds",
+        copy=True,
     )
     result_ids = fields.One2many(
         comodel_name="spp.scoring.result",
