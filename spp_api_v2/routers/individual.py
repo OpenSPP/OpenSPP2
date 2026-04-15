@@ -98,6 +98,11 @@ async def read_individual(
     # Convert to API schema
     extension_list = extensions.split(",") if extensions else None
     data = service.to_api_schema(partner, extensions=extension_list)
+    if data is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Individual not found",
+        )
 
     # Apply consent filtering
     consent_service = ConsentService(env)

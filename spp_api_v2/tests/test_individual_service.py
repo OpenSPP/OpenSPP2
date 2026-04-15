@@ -3,8 +3,6 @@
 
 from datetime import date
 
-from odoo.exceptions import ValidationError
-
 from ..schemas.individual import Individual
 from ..schemas.patch import IndividualPatch
 from ..services.individual_service import IndividualService
@@ -189,8 +187,8 @@ class TestIndividualService(ApiV2TestCase):
             }
         )
 
-        with self.assertRaises(ValidationError):
-            self.service.to_api_schema(partner)
+        result = self.service.to_api_schema(partner)
+        self.assertIsNone(result)
 
     def test_from_api_schema_creates_vals(self):
         """from_api_schema converts API schema to Odoo vals"""

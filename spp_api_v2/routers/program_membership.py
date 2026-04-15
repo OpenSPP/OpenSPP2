@@ -72,6 +72,11 @@ async def read_program_membership(
 
     # Convert to API schema
     data = service.to_api_schema(membership)
+    if data is None:
+        raise HTTPException(
+            status_code=404,
+            detail="ProgramMembership not found",
+        )
 
     # Apply consent filtering for the beneficiary
     consent_service = ConsentService(env)
@@ -164,6 +169,8 @@ async def search_program_memberships(
     def consent_filter_function(membership):
         try:
             data = service.to_api_schema(membership)
+            if data is None:
+                return None
             filtered_data = consent_service.filter_response(
                 membership.partner_id.id, api_client, "program_membership", data
             )

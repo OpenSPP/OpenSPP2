@@ -125,8 +125,7 @@ class GroupService:
 
         if not identifiers:
             _logger.warning(
-                "Skipping group (id=%s): no valid external identifiers. "
-                "Created by uid=%s on %s.",
+                "Skipping group (id=%s): no valid external identifiers. Created by uid=%s on %s.",
                 group.id,
                 group.create_uid.id if group.create_uid else "unknown",
                 group.create_date,

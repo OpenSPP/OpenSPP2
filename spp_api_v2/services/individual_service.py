@@ -128,8 +128,7 @@ class IndividualService:
 
         if not identifiers:
             _logger.warning(
-                "Skipping individual (id=%s): no valid external identifiers. "
-                "Created by uid=%s on %s.",
+                "Skipping individual (id=%s): no valid external identifiers. Created by uid=%s on %s.",
                 partner.id,
                 partner.create_uid.id if partner.create_uid else "unknown",
                 partner.create_date,

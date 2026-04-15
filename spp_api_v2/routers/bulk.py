@@ -119,6 +119,8 @@ async def bulk_export(
 
         # Convert to API schema
         data = service.to_api_schema(record, extensions=extension_list)
+        if data is None:
+            continue
 
         # Apply consent filtering
         filtered_data = consent_service.filter_response(

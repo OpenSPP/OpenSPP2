@@ -179,8 +179,8 @@ class TestGroupService(ApiV2TestCase):
             }
         )
 
-        with self.assertRaises(ValidationError):
-            self.service.to_api_schema(group)
+        result = self.service.to_api_schema(group)
+        self.assertIsNone(result)
 
     def test_from_api_schema_creates_vals(self):
         """from_api_schema converts API schema to Odoo vals"""

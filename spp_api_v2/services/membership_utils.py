@@ -23,7 +23,7 @@ def membership_to_response(membership) -> dict[str, Any] | None:
     """
     # Build group reference
     group = membership.group
-    group_id = group.reg_ids[0] if group.reg_ids else None
+    group_id = next((r for r in group.reg_ids if r.namespace_uri and r.value), None)
     if not group_id:
         _logger.warning(
             "Skipping membership (id=%s): group (id=%s) has no valid external identifiers.",
@@ -39,7 +39,7 @@ def membership_to_response(membership) -> dict[str, Any] | None:
 
     # Build individual reference
     individual = membership.individual
-    individual_id = individual.reg_ids[0] if individual.reg_ids else None
+    individual_id = next((r for r in individual.reg_ids if r.namespace_uri and r.value), None)
     if not individual_id:
         _logger.warning(
             "Skipping membership (id=%s): individual (id=%s) has no valid external identifiers.",
