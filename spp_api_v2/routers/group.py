@@ -102,7 +102,7 @@ async def read_group(
     # Convert to API schema
     extension_list = extensions.split(",") if extensions else None
     data = service.to_api_schema(group, extensions=extension_list)
-    if data is None:
+    if data is None:  # pragma: no cover — safety net; identifier lookup above would 404 first
         raise HTTPException(
             status_code=404,
             detail="Group not found",

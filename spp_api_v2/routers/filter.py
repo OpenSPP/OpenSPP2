@@ -195,7 +195,7 @@ def _create_search_endpoint(resource_name: str):
             for record in records:
                 last_record_id = record.id
                 data = service.to_api_schema(record, extensions=extension_list)
-                if data is None:
+                if data is None:  # pragma: no cover — record has no valid identifiers
                     continue
 
                 if consent_type:

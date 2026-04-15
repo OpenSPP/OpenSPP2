@@ -72,7 +72,7 @@ async def read_program_membership(
 
     # Convert to API schema
     data = service.to_api_schema(membership)
-    if data is None:
+    if data is None:  # pragma: no cover — safety net; identifier lookup above would 404 first
         raise HTTPException(
             status_code=404,
             detail="ProgramMembership not found",

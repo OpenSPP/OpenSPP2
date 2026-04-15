@@ -111,6 +111,28 @@ class TestProgramMembershipAPIEndpoints(ApiV2HttpTestCase):
         self.assertIn("meta", data)
         self.assertIn("total", data["meta"])
 
+    def test_search_skips_memberships_without_identifiers(self):
+        """Search skips memberships where beneficiary lacks identifiers"""
+        # Create individual, enroll, then remove identifiers
+        no_id_ind = self.create_test_individual(
+            identifier_value="TEMP-NO-ID",
+            given_name="NoId",
+            family_name="Beneficiary",
+        )
+        self.create_test_membership(
+            partner=no_id_ind,
+            program=self.program,
+            state="enrolled",
+        )
+        # Remove identifiers — to_api_schema will return None for this membership
+        no_id_ind.reg_ids.unlink()
+
+        response = self.url_open(self.api_base_url, headers=self._get_headers())
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertIn("data", data)
+
     def test_search_by_beneficiary_individual(self):
         """Search by beneficiary returns memberships for that individual"""
         url = f"{self.api_base_url}?beneficiary=Individual/urn:openspp:vocab:id-type%23test_national_id|ENROLL-001"

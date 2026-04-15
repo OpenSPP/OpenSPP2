@@ -201,6 +201,28 @@ class TestGroupAPIEndpoints(ApiV2HttpTestCase):
         self.assertIn("total", data["meta"])
         self.assertIn("data", data)
 
+    def test_search_skips_groups_without_identifiers(self):
+        """Search skips groups without valid identifiers instead of crashing"""
+        no_id = self.env["res.partner"].create(
+            {
+                "name": "No Identifiers Group Search",
+                "is_registrant": True,
+                "is_group": True,
+            }
+        )
+        no_id.reg_ids.unlink()
+
+        response = self.url_open(self.api_base_url, headers=self._get_headers())
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertIn("data", data)
+        for resource in data.get("data", []):
+            self.assertNotEqual(
+                resource.get("name", ""),
+                "No Identifiers Group Search",
+            )
+
     def test_search_by_name(self):
         """Search with name parameter filters results"""
         url = f"{self.api_base_url}?name=Smith"

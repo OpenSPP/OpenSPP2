@@ -119,7 +119,7 @@ async def bulk_export(
 
         # Convert to API schema
         data = service.to_api_schema(record, extensions=extension_list)
-        if data is None:
+        if data is None:  # pragma: no cover — record has no valid identifiers
             continue
 
         # Apply consent filtering

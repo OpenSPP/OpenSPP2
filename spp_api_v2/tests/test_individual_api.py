@@ -182,6 +182,32 @@ class TestIndividualAPIEndpoints(ApiV2HttpTestCase):
         self.assertIn("links", data)
         self.assertIn("total", data["meta"])
 
+    def test_search_skips_individuals_without_identifiers(self):
+        """Search skips individuals without valid identifiers instead of crashing"""
+        # Create individual then remove all registry IDs
+        no_id = self.env["res.partner"].create(
+            {
+                "name": "No Identifiers Search",
+                "is_registrant": True,
+                "is_group": False,
+            }
+        )
+        # Ensure no reg_ids exist
+        no_id.reg_ids.unlink()
+
+        response = self.url_open(self.api_base_url, headers=self._get_headers())
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        # Should succeed — no-identifier record silently skipped
+        self.assertIn("data", data)
+        # Verify the no-identifier individual is not in results
+        for resource in data.get("data", []):
+            self.assertNotEqual(
+                resource.get("name", {}).get("given", ""),
+                "No Identifiers Search",
+            )
+
     def test_search_by_name(self):
         """Search with name parameter filters results"""
         url = f"{self.api_base_url}?name=Jane"

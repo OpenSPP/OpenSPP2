@@ -352,6 +352,37 @@ class TestGroupService(ApiV2TestCase):
                     member.get("entity", {}).get("display", ""),
                 )
 
+    def test_to_api_schema_member_with_empty_value_identifier_skipped(self):
+        """Members with reg_ids lacking value are skipped from member list"""
+        # Create individual with an identifier that has no value
+        ind_with_bad_id = self.create_test_individual(
+            name="Bad Value Member",
+            given_name="Bad",
+            family_name="Value",
+            identifier_value="TEMP-BAD-VAL",
+        )
+        # Clear the value on the registry ID to simulate invalid identifier
+        for reg_id in ind_with_bad_id.reg_ids:
+            reg_id.value = False
+
+        group = self.create_test_group(identifier_value="HH-MEMBER-BAD-VAL")
+        self.env["spp.group.membership"].create(
+            {
+                "group": group.id,
+                "individual": ind_with_bad_id.id,
+            }
+        )
+
+        data = self.service.to_api_schema(group)
+
+        # Member with empty-value identifier should be skipped
+        if "member" in data:
+            for member in data["member"]:
+                self.assertNotIn(
+                    "Bad Value Member",
+                    member.get("entity", {}).get("display", ""),
+                )
+
     def test_create_member_invalid_reference_ignored(self):
         """Invalid member references are logged and ignored"""
         schema = Group(
