@@ -127,13 +127,12 @@ class IndividualService:
                 identifiers.append(identifier)
 
         if not identifiers:
-            _logger.warning(
-                "Skipping individual (id=%s): no valid external identifiers. Created by uid=%s on %s.",
-                partner.id,
-                partner.create_uid.id if partner.create_uid else "unknown",
-                partner.create_date,
+            identifiers.append(
+                {
+                    "system": "urn:openspp:internal",
+                    "value": str(partner.id),
+                }
             )
-            return None
 
         # Build name (REQUIRED)
         name = {

@@ -124,13 +124,12 @@ class GroupService:
                 identifiers.append(ident_dict)
 
         if not identifiers:
-            _logger.warning(
-                "Skipping group (id=%s): no valid external identifiers. Created by uid=%s on %s.",
-                group.id,
-                group.create_uid.id if group.create_uid else "unknown",
-                group.create_date,
+            identifiers.append(
+                {
+                    "system": "urn:openspp:internal",
+                    "value": str(group.id),
+                }
             )
-            return None
 
         # Build Group resource
         group_data = {
