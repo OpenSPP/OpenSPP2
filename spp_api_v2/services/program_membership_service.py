@@ -266,9 +266,10 @@ class ProgramMembershipService:
         # Determine resource type
         resource_type = "Group" if partner.is_group else "Individual"
 
-        # Get primary identifier
+        # Get primary identifier — prefer non-system identifiers over system_id
         if partner.reg_ids:
-            primary_id = partner.reg_ids[0]
+            non_system = [r for r in partner.reg_ids if r.id_type_id and r.id_type_id.code != "system_id"]
+            primary_id = non_system[0] if non_system else partner.reg_ids[0]
             ref = f"{resource_type}/{primary_id.id_type_id.uri}|{primary_id.value}"
         else:
             # No identifier - this should not happen in a properly configured system

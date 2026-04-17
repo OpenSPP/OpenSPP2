@@ -23,13 +23,13 @@ def membership_to_response(membership) -> dict[str, Any] | None:
     """
     # Build group reference — prefer non-system identifiers over system_id
     group = membership.group
-    group_id = next(
-        (
-            r
-            for r in group.reg_ids
-            if r.id_type_id and r.id_type_id.uri and r.value and r.id_type_id.code != "system_id"
-        ),
-        next((r for r in group.reg_ids if r.id_type_id and r.id_type_id.uri and r.value), None),
+    non_system = [
+        r for r in group.reg_ids if r.id_type_id and r.id_type_id.uri and r.value and r.id_type_id.code != "system_id"
+    ]
+    group_id = (
+        non_system[0]
+        if non_system
+        else next((r for r in group.reg_ids if r.id_type_id and r.id_type_id.uri and r.value), None)
     )
     if not group_id:
         _logger.warning(
@@ -46,13 +46,15 @@ def membership_to_response(membership) -> dict[str, Any] | None:
 
     # Build individual reference — prefer non-system identifiers over system_id
     individual = membership.individual
-    individual_id = next(
-        (
-            r
-            for r in individual.reg_ids
-            if r.id_type_id and r.id_type_id.uri and r.value and r.id_type_id.code != "system_id"
-        ),
-        next((r for r in individual.reg_ids if r.id_type_id and r.id_type_id.uri and r.value), None),
+    non_system = [
+        r
+        for r in individual.reg_ids
+        if r.id_type_id and r.id_type_id.uri and r.value and r.id_type_id.code != "system_id"
+    ]
+    individual_id = (
+        non_system[0]
+        if non_system
+        else next((r for r in individual.reg_ids if r.id_type_id and r.id_type_id.uri and r.value), None)
     )
     if not individual_id:
         _logger.warning(

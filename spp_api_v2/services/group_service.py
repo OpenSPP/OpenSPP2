@@ -108,8 +108,9 @@ class GroupService:
         if not group:
             return {}
 
-        # Build identifier list
+        # Build identifier list — system_id sorted last so real IDs take precedence
         identifiers = []
+        system_id_entry = None
         for reg_id in group.reg_ids:
             # Use id_type_id.uri for full code URI (e.g., urn:openspp:vocab:id-type#household_id)
             # NOT namespace_uri which only returns vocabulary namespace
@@ -121,7 +122,12 @@ class GroupService:
                 # Only add period if it exists (not None)
                 if hasattr(reg_id, "period") and reg_id.period:
                     ident_dict["period"] = reg_id.period
-                identifiers.append(ident_dict)
+                if reg_id.id_type_id.code == "system_id":
+                    system_id_entry = ident_dict
+                else:
+                    identifiers.append(ident_dict)
+        if system_id_entry:
+            identifiers.append(system_id_entry)
 
         if not identifiers:
             _logger.warning(

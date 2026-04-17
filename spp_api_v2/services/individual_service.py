@@ -114,17 +114,24 @@ class IndividualService:
         if not partner:
             return {}
 
-        # Build identifier list (REQUIRED, at least one)
+        # Build identifier list (REQUIRED, at least one).
+        # Sort so system_id comes last — real identity documents take precedence.
         identifiers = []
+        system_id_entry = None
         for reg_id in partner.reg_ids:
             # Use id_type_id.uri for full code URI (e.g., urn:openspp:vocab:id-type#national_id)
             # NOT namespace_uri which only returns vocabulary namespace
             if reg_id.id_type_id and reg_id.id_type_id.uri and reg_id.value:
-                identifier = {
+                entry = {
                     "system": reg_id.id_type_id.uri,
                     "value": reg_id.value,
                 }
-                identifiers.append(identifier)
+                if reg_id.id_type_id.code == "system_id":
+                    system_id_entry = entry
+                else:
+                    identifiers.append(entry)
+        if system_id_entry:
+            identifiers.append(system_id_entry)
 
         if not identifiers:
             _logger.warning(
