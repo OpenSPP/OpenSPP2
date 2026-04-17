@@ -12,3 +12,4 @@ from . import fastapi_endpoint_registry
 from . import ir_http_patch
 from . import res_partner_mobile
 from . import res_partner_system_id
+from . import spp_registry_id_system
