@@ -43,6 +43,8 @@ class SPPRegistrant(models.Model):
     @api.depends("program_membership_ids")
     def _compute_program_membership_count(self):
         """Batch-efficient program membership count using read_group."""
+        if self.env.context.get("skip_registrant_statistics"):
+            return
         if not self:
             return
 
@@ -66,6 +68,8 @@ class SPPRegistrant(models.Model):
     @api.depends("entitlement_ids")
     def _compute_entitlements_count(self):
         """Batch-efficient entitlements count using _read_group."""
+        if self.env.context.get("skip_registrant_statistics"):
+            return
         if not self:
             return
 
@@ -89,6 +93,8 @@ class SPPRegistrant(models.Model):
     @api.depends("cycle_ids")
     def _compute_cycle_count(self):
         """Batch-efficient cycle membership count using _read_group."""
+        if self.env.context.get("skip_registrant_statistics"):
+            return
         if not self:
             return
 
@@ -112,6 +118,8 @@ class SPPRegistrant(models.Model):
     @api.depends("inkind_entitlement_ids")
     def _compute_inkind_entitlements_count(self):
         """Batch-efficient in-kind entitlements count using _read_group."""
+        if self.env.context.get("skip_registrant_statistics"):
+            return
         if not self:
             return
 

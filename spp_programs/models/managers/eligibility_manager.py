@@ -165,8 +165,7 @@ class DefaultEligibilityManager(models.Model):
 
     def mark_import_as_done(self):
         self.ensure_one()
-        self.program_id._compute_eligible_beneficiary_count()
-        self.program_id._compute_beneficiary_count()
+        self.program_id.refresh_beneficiary_counts()
 
         self.program_id.is_locked = False
         self.program_id.locked_reason = None

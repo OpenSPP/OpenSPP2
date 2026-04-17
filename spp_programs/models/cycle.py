@@ -275,6 +275,16 @@ class SPPCycle(models.Model):
             entitlements_count = self.env["spp.entitlement"].search_count([("cycle_id", "=", rec.id)])
             rec.entitlements_count = entitlements_count
 
+    def refresh_statistics(self):
+        """Refresh all cycle statistics after bulk operations.
+
+        Call this after raw SQL inserts that bypass ORM dependency tracking
+        (e.g. bulk_create_memberships with skip_duplicates=True).
+        """
+        self._compute_members_count()
+        self._compute_entitlements_count()
+        self._compute_total_entitlements_count()
+
     @api.depends("entitlement_ids", "inkind_entitlement_ids")
     def _compute_total_entitlements_count(self):
         if not self.ids:

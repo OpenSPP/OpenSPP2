@@ -1,3 +1,9 @@
+### 19.0.2.0.9
+
+- Add context flags (`skip_registrant_statistics`, `skip_program_statistics`) to suppress expensive computed field recomputation during bulk operations
+- Add `refresh_beneficiary_counts()` on program and `refresh_statistics()` on cycle for one-shot recomputation after bulk operations
+- Replace `bool(rec.program_membership_ids)` with SQL query in `_compute_has_members`
+
 ### 19.0.2.0.8
 
 - Replace OFFSET pagination with NTILE-based ID-range batching in all async job dispatchers

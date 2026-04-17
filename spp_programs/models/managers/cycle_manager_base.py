@@ -326,8 +326,8 @@ class BaseCycleManager(models.AbstractModel):
         cycle.locked_reason = None
         cycle.message_post(body=msg)
 
-        # Update Statistics
-        cycle._compute_members_count()
+        # Refresh statistics after bulk operations
+        cycle.refresh_statistics()
 
     def mark_prepare_entitlement_as_done(self, cycle, msg):
         """Complete the preparation of entitlements.
