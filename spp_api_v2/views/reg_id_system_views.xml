@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+   Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+   Make system_id registry entries readonly in the UI.
+-->
+<odoo>
+    <!-- Make system_id rows readonly in the list view -->
+    <record id="view_reg_id_tree_system_readonly" model="ir.ui.view">
+        <field name="name">spp.registry.id.tree.system.readonly</field>
+        <field name="model">spp.registry.id</field>
+        <field name="inherit_id" ref="spp_registry.view_reg_id_tree" />
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute
+                    name="decoration-muted"
+                >id_type_id.code == 'system_id'</attribute>
+            </xpath>
+            <xpath expr="//field[@name='value']" position="attributes">
+                <attribute name="readonly">id_type_id.code == 'system_id'</attribute>
+            </xpath>
+            <xpath expr="//field[@name='id_type_id']" position="attributes">
+                <attribute name="readonly">id_type_id.code == 'system_id'</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Make system_id readonly in the form view -->
+    <record id="view_reg_id_form_system_readonly" model="ir.ui.view">
+        <field name="name">spp.registry.id.form.system.readonly</field>
+        <field name="model">spp.registry.id</field>
+        <field name="inherit_id" ref="spp_registry.view_reg_id_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='value']" position="attributes">
+                <attribute name="readonly">id_type_id.code == 'system_id'</attribute>
+            </xpath>
+            <xpath expr="//field[@name='id_type_id']" position="attributes">
+                <attribute name="readonly">id_type_id.code == 'system_id'</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

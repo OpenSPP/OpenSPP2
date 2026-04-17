@@ -40,6 +40,7 @@
         "views/consent_views.xml",
         "views/api_outgoing_log_views.xml",
         "views/menu.xml",
+        "views/reg_id_system_views.xml",
     ],
     "assets": {},
     "demo": [],
