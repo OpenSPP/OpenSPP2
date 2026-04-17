@@ -290,9 +290,10 @@ class IndividualService:
 
     def _build_group_reference(self, group) -> dict:
         """Build Reference to a Group"""
-        # Get primary identifier for group
+        # Get primary identifier for group — prefer non-system_id identifiers
         if group.reg_ids:
-            primary_id = group.reg_ids[0]
+            non_system = [r for r in group.reg_ids if r.id_type_id and r.id_type_id.code != "system_id" and r.value]
+            primary_id = non_system[0] if non_system else group.reg_ids[0]
             ref = f"Group/{primary_id.namespace_uri}|{primary_id.value}"
         else:
             # No identifier - this should not happen in a properly configured system

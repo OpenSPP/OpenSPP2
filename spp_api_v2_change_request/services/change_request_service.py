@@ -101,15 +101,23 @@ class ChangeRequestService:
         return self.env["res.partner"]
 
     def get_primary_identifier(self, partner):
-        """Get primary external identifier for a partner."""
-        if partner.reg_ids:
-            reg_id = partner.reg_ids[0]
-            return {
-                "system": reg_id.namespace_uri or "",
-                "value": reg_id.value or "",
-                "display": partner.name,
-            }
-        return None
+        """Get primary external identifier for a partner.
+
+        Prefers non-system_id identifiers (system_id is an auto-assigned
+        fallback and should only be returned when no other identifier exists).
+        """
+        if not partner.reg_ids:
+            return None
+        # Prefer non-system_id identifiers
+        reg_id = next(
+            (r for r in partner.reg_ids if not r.id_type_id or r.id_type_id.code != "system_id"),
+            partner.reg_ids[0],
+        )
+        return {
+            "system": reg_id.namespace_uri or "",
+            "value": reg_id.value or "",
+            "display": partner.name,
+        }
 
     def to_api_schema(self, cr) -> dict[str, Any]:
         """

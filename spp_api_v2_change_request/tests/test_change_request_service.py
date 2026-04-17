@@ -267,11 +267,11 @@ class TestChangeRequestService(ChangeRequestTestCase):
         empty = self.env["spp.change.request"]
         self.assertEqual(service.to_api_schema(empty), {})
 
-    def test_to_api_schema_registrant_without_identifier(self):
-        """to_api_schema falls back to internal identifier when registrant has no reg_ids."""
+    def test_to_api_schema_registrant_without_explicit_identifier(self):
+        """to_api_schema uses auto-assigned system_id when registrant has no explicit reg_ids."""
         service = ChangeRequestService(self.env)
 
-        # Create registrant without external identifier
+        # Create registrant without explicit identifier (system_id auto-assigned)
         partner_no_id = self.partner_model.create(
             {
                 "name": "No ID Registrant",
@@ -287,8 +287,10 @@ class TestChangeRequestService(ChangeRequestTestCase):
         )
 
         data = service.to_api_schema(cr)
-        self.assertEqual(data["registrant"]["system"], "urn:openspp:internal")
-        self.assertTrue(data["registrant"]["value"].startswith("partner-"))
+        # Partner now auto-gets a system_id, so it uses that instead of internal fallback
+        self.assertEqual(data["registrant"]["system"], "urn:openspp:vocab:id-type")
+        # Value is a UUID from system_id auto-assignment
+        self.assertTrue(len(data["registrant"]["value"]) > 0)
 
     def test_to_api_schema_with_description_and_notes(self):
         """to_api_schema includes description and notes when set."""
@@ -596,8 +598,8 @@ class TestChangeRequestService(ChangeRequestTestCase):
         self.assertEqual(result["value"], "TEST-123")
         self.assertEqual(result["display"], self.registrant.name)
 
-    def test_get_primary_identifier_without_reg_ids(self):
-        """get_primary_identifier returns None for partner without reg_ids."""
+    def test_get_primary_identifier_without_explicit_reg_ids(self):
+        """get_primary_identifier returns auto-assigned system_id for partner without explicit reg_ids."""
         service = ChangeRequestService(self.env)
 
         partner_no_id = self.partner_model.create(
@@ -608,7 +610,10 @@ class TestChangeRequestService(ChangeRequestTestCase):
             }
         )
         result = service.get_primary_identifier(partner_no_id)
-        self.assertIsNone(result)
+        # Partner now auto-gets a system_id on creation
+        self.assertIsNotNone(result)
+        self.assertEqual(result["system"], "urn:openspp:vocab:id-type")
+        self.assertEqual(result["display"], "No ID Partner")
 
     # ──────────────────────────────────────────────────────────────────────
     # create with optional fields tests

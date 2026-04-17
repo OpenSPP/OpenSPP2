@@ -213,8 +213,9 @@ class GroupService:
         if not individual or not individual.reg_ids:
             return None
 
-        # Build reference to individual
-        primary_id = individual.reg_ids[0]
+        # Build reference to individual — prefer non-system_id identifiers
+        non_system = [r for r in individual.reg_ids if r.id_type_id and r.id_type_id.code != "system_id" and r.value]
+        primary_id = non_system[0] if non_system else individual.reg_ids[0]
         entity_ref = {
             "reference": f"Individual/{primary_id.namespace_uri}|{primary_id.value}",
             "display": individual.name,
@@ -1214,8 +1215,11 @@ class GroupService:
             if not individual or not individual.reg_ids:
                 continue
 
-            # Build individual reference
-            primary_id = individual.reg_ids[0]
+            # Build individual reference — prefer non-system_id identifiers
+            non_system = [
+                r for r in individual.reg_ids if r.id_type_id and r.id_type_id.code != "system_id" and r.value
+            ]
+            primary_id = non_system[0] if non_system else individual.reg_ids[0]
             member_ref = Reference(
                 reference=f"Individual/{primary_id.namespace_uri}|{primary_id.value}",
                 display=individual.name,

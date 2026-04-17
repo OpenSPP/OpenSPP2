@@ -352,8 +352,8 @@ class TestGroupService(ApiV2TestCase):
         displays = [m.get("entity", {}).get("display", "") for m in data["member"]]
         self.assertIn("No ID Member", displays)
 
-    def test_to_api_schema_member_with_empty_value_identifier_skipped(self):
-        """Members with reg_ids lacking value are skipped from member list"""
+    def test_to_api_schema_member_with_empty_value_identifier_still_has_system_id(self):
+        """Members with cleared non-system identifiers still appear via auto-assigned system_id"""
         # Create individual with an identifier that has no value
         ind_with_bad_id = self.create_test_individual(
             name="Bad Value Member",
@@ -361,9 +361,11 @@ class TestGroupService(ApiV2TestCase):
             family_name="Value",
             identifier_value="TEMP-BAD-VAL",
         )
-        # Clear the value on the registry ID to simulate invalid identifier
+        # Clear the value on non-system_id registry IDs to simulate invalid identifier
+        # (system_id entries are write-protected, so skip them)
         for reg_id in ind_with_bad_id.reg_ids:
-            reg_id.value = False
+            if not reg_id.id_type_id or reg_id.id_type_id.code != "system_id":
+                reg_id.value = False
 
         group = self.create_test_group(identifier_value="HH-MEMBER-BAD-VAL")
         self.env["spp.group.membership"].create(
@@ -375,13 +377,10 @@ class TestGroupService(ApiV2TestCase):
 
         data = self.service.to_api_schema(group)
 
-        # Member with empty-value identifier should be skipped
-        if "member" in data:
-            for member in data["member"]:
-                self.assertNotIn(
-                    "Bad Value Member",
-                    member.get("entity", {}).get("display", ""),
-                )
+        # Member should still appear because auto-assigned system_id provides a valid identifier
+        self.assertIn("member", data)
+        displays = [m.get("entity", {}).get("display", "") for m in data["member"]]
+        self.assertIn("Bad Value Member", displays)
 
     def test_create_member_invalid_reference_ignored(self):
         """Invalid member references are logged and ignored"""

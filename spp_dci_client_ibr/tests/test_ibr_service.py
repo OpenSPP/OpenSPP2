@@ -179,15 +179,15 @@ class TestIBRService(TransactionCase):
             service.check_duplication(None)
 
     @patch("odoo.addons.spp_dci_client_ibr.services.ibr_service.DCIClient")
-    def test_check_duplication_no_identifiers(self, mock_client_class):
-        """Test check_duplication raises error for partner without IDs."""
+    def test_check_duplication_no_identifiers_non_registrant(self, mock_client_class):
+        """Test check_duplication raises error for non-registrant partner without IDs."""
         from odoo.addons.spp_dci_client_ibr.services.ibr_service import IBRService
 
-        # Create partner without identifiers
+        # Create non-registrant partner (registrants auto-get system_id)
         partner_no_id = self.Partner.create(
             {
                 "name": "No ID Person",
-                "is_registrant": True,
+                "is_registrant": False,
             }
         )
 
@@ -198,6 +198,29 @@ class TestIBRService(TransactionCase):
             service.check_duplication(partner_no_id)
 
         self.assertIn("no identifiers configured", str(cm.exception))
+
+    @patch("odoo.addons.spp_dci_client_ibr.services.ibr_service.DCIClient")
+    def test_check_duplication_registrant_without_explicit_ids_uses_system_id(self, mock_client_class):
+        """Test check_duplication proceeds using auto-assigned system_id for registrant."""
+        from odoo.addons.spp_dci_client_ibr.services.ibr_service import IBRService
+
+        # Registrants now auto-get system_id, so duplication check should proceed
+        partner_system_only = self.Partner.create(
+            {
+                "name": "System ID Only Person",
+                "is_registrant": True,
+            }
+        )
+
+        mock_client = MagicMock()
+        mock_client.search_by_id.return_value = self._create_mock_search_response(has_matches=False)
+        mock_client_class.return_value = mock_client
+
+        service = IBRService(self.data_source, self.env)
+        result = service.check_duplication(partner_system_only)
+
+        # Should proceed without error using the system_id
+        self.assertFalse(result["is_duplicate"])
 
     @patch("odoo.addons.spp_dci_client_ibr.services.ibr_service.DCIClient")
     def test_search_beneficiary_success(self, mock_client_class):
