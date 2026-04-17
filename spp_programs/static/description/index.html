@@ -658,6 +658,15 @@ to define custom compliance criteria</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.7</h1>
+<ul class="simple">
+<li>Bulk membership creation using raw SQL INSERT ON CONFLICT DO NOTHING
+for program and cycle memberships</li>
+<li>Replace per-record ORM creates in <tt class="docutils literal">_import_registrants</tt> and
+<tt class="docutils literal">_add_beneficiaries</tt> with bulk SQL path</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.6</h1>
 <ul class="simple">
 <li>Remove unused entitlement_base_model.py (dead code, never imported)</li>
@@ -666,34 +675,34 @@ to define custom compliance criteria</li>
 payment, and fund tests (172 → 492 tests)</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.5</h1>
 <ul class="simple">
 <li>Batch create entitlements and payments instead of one-by-one ORM
 creates</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.0.4</h1>
 <ul class="simple">
 <li>Fetch fund balance once per approval batch instead of per entitlement</li>
 </ul>
 </div>
-<div class="section" id="section-4">
+<div class="section" id="section-5">
 <h1>19.0.2.0.3</h1>
 <ul class="simple">
 <li>Replace cycle computed fields (total_amount, entitlements_count,
 approval flags) with SQL aggregation queries</li>
 </ul>
 </div>
-<div class="section" id="section-5">
+<div class="section" id="section-6">
 <h1>19.0.2.0.2</h1>
 <ul class="simple">
 <li>Add composite indexes for frequent query patterns on entitlements and
 program memberships</li>
 </ul>
 </div>
-<div class="section" id="section-6">
+<div class="section" id="section-7">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>Replace Python-level uniqueness checks with SQL UNIQUE constraints for
@@ -702,7 +711,7 @@ program membership, cycle membership, and entitlement codes</li>
 constraint creation</li>
 </ul>
 </div>
-<div class="section" id="section-7">
+<div class="section" id="section-8">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
