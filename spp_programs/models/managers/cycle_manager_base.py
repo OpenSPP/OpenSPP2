@@ -835,25 +835,25 @@ class DefaultCycleManager(models.Model):
         """Add Beneficiaries
 
         :param cycle: Recordset of cycle
-        :param beneficiaries: Recordset of beneficiaries
+        :param beneficiaries: List of partner IDs
         :param state: String state to be set to beneficiary
         :param do_count: Boolean - set to False to not run compute functions
-        :return: Integer - count of not enrolled members
         """
-        new_beneficiaries = []
-        for r in beneficiaries:
-            new_beneficiaries.append(
-                [
-                    0,
-                    0,
-                    {
-                        "partner_id": r,
-                        "enrollment_date": fields.Date.today(),
-                        "state": state,
-                    },
-                ]
-            )
-        cycle.update({"cycle_membership_ids": new_beneficiaries})
+        today = fields.Date.today()
+        vals_list = [
+            {
+                "partner_id": partner_id,
+                "cycle_id": cycle.id,
+                "enrollment_date": today,
+                "state": state,
+            }
+            for partner_id in beneficiaries
+        ]
+        self.env["spp.cycle.membership"].bulk_create_memberships(vals_list, skip_duplicates=True)
+
+        # Raw SQL bypasses the ORM cache — invalidate so subsequent reads
+        # (e.g. cycle.cycle_membership_ids) reflect the new rows.
+        cycle.invalidate_recordset(["cycle_membership_ids"])
 
         if do_count:
             # Update Statistics

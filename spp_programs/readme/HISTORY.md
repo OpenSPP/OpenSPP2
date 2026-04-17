@@ -1,3 +1,8 @@
+### 19.0.2.0.7
+
+- Bulk membership creation using raw SQL INSERT ON CONFLICT DO NOTHING for program and cycle memberships
+- Replace per-record ORM creates in `_import_registrants` and `_add_beneficiaries` with bulk SQL path
+
 ### 19.0.2.0.6
 
 - Remove unused entitlement_base_model.py (dead code, never imported)

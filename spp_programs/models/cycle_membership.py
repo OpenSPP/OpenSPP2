@@ -1,6 +1,10 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
-from odoo import _, fields, models
+import logging
+
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
+
+_logger = logging.getLogger(__name__)
 
 
 class SPPCycleMembership(models.Model):
@@ -86,6 +90,73 @@ class SPPCycleMembership(models.Model):
                     "edit": False,
                 },
             }
+
+    @api.model
+    def bulk_create_memberships(self, vals_list, chunk_size=1000, skip_duplicates=False):
+        """Create cycle memberships in bulk with optional duplicate skipping.
+
+        :param vals_list: List of dicts with membership values
+        :param chunk_size: Number of records per batch (default 1000)
+        :param skip_duplicates: When True, use INSERT ... ON CONFLICT DO NOTHING
+            to silently skip duplicate (partner_id, cycle_id) pairs.
+            Returns the count of inserted rows.
+        :return: Recordset (skip_duplicates=False) or int count (skip_duplicates=True)
+        """
+        if not vals_list:
+            return 0 if skip_duplicates else self.env["spp.cycle.membership"]
+
+        if skip_duplicates:
+            return self._bulk_insert_on_conflict(vals_list, chunk_size)
+
+        return self.create(vals_list)
+
+    def _bulk_insert_on_conflict(self, vals_list, chunk_size=1000):
+        """Insert cycle memberships using raw SQL with ON CONFLICT DO NOTHING.
+
+        :param vals_list: List of dicts with at least partner_id, cycle_id, state
+        :param chunk_size: Number of records per SQL INSERT batch
+        :return: Total number of rows actually inserted
+        """
+        cr = self.env.cr
+        uid = self.env.uid
+        total_inserted = 0
+        today = fields.Date.today()
+
+        for i in range(0, len(vals_list), chunk_size):
+            batch = vals_list[i : i + chunk_size]
+            values = []
+            params = []
+            for v in batch:
+                values.append("(%s, %s, %s, %s, %s, %s, now(), now())")
+                params.extend(
+                    [
+                        v["partner_id"],
+                        v["cycle_id"],
+                        v.get("state", "draft"),
+                        v.get("enrollment_date", today),
+                        uid,
+                        uid,
+                    ]
+                )
+
+            sql = """
+                INSERT INTO spp_cycle_membership
+                    (partner_id, cycle_id, state, enrollment_date,
+                     create_uid, write_uid, create_date, write_date)
+                VALUES {}
+                ON CONFLICT (partner_id, cycle_id) DO NOTHING
+            """.format(  # noqa: S608  # nosec B608
+                ", ".join(values)
+            )
+            cr.execute(sql, params)
+            total_inserted += cr.rowcount
+
+        _logger.info(
+            "Bulk inserted %d cycle memberships (%d skipped as duplicates)",
+            total_inserted,
+            len(vals_list) - total_inserted,
+        )
+        return total_inserted
 
     def unlink(self):
         if not self:

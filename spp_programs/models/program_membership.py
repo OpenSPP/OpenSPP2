@@ -1,4 +1,5 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+import logging
 
 from lxml import etree
 
@@ -6,6 +7,8 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
 from . import constants
+
+_logger = logging.getLogger(__name__)
 
 
 class SPPProgramMembership(models.Model):
@@ -345,26 +348,26 @@ class SPPProgramMembership(models.Model):
             }
         )
 
-    @api.model_create_multi
-    def bulk_create_memberships(self, vals_list, chunk_size=1000):
+    @api.model
+    def bulk_create_memberships(self, vals_list, chunk_size=1000, skip_duplicates=False):
         """Create program memberships in bulk with optional chunking.
 
         This helper is intended for large enrollment jobs (e.g. CEL-driven
         bulk enrollment) where thousands of memberships need to be created
         in a single operation.
 
-        It preserves the normal create() semantics, including:
-        - standard ORM validations and constraints
-        - audit logging (via spp_audit rules)
-        - source tracking mixins
-
-        The only optimisation is to:
-        - accept already-prepared value dicts
-        - optionally split very large batches into smaller chunks to keep
-          memory use and per-transaction work bounded.
+        :param vals_list: List of dicts with membership values
+        :param chunk_size: Number of records per batch (default 1000)
+        :param skip_duplicates: When True, use INSERT ... ON CONFLICT DO NOTHING
+            to silently skip duplicate (partner_id, program_id) pairs instead of
+            raising IntegrityError. Returns the count of inserted rows.
+        :return: Recordset (skip_duplicates=False) or int count (skip_duplicates=True)
         """
         if not vals_list:
-            return self.env["spp.program.membership"]
+            return 0 if skip_duplicates else self.env["spp.program.membership"]
+
+        if skip_duplicates:
+            return self._bulk_insert_on_conflict(vals_list, chunk_size)
 
         if chunk_size and chunk_size > 0:
             all_memberships = self.env["spp.program.membership"]
@@ -386,3 +389,60 @@ class SPPProgramMembership(models.Model):
             SPPProgramMembership,
             self.sudo(),  # nosemgrep: odoo-sudo-without-context
         ).create(vals_list)
+
+    def _bulk_insert_on_conflict(self, vals_list, chunk_size=1000):
+        """Insert memberships using raw SQL with ON CONFLICT DO NOTHING.
+
+        Bypasses ORM for maximum throughput during bulk enrollment. Duplicates
+        (matching the UNIQUE constraint on partner_id, program_id) are silently
+        skipped.
+
+        :param vals_list: List of dicts with at least partner_id, program_id, state
+        :param chunk_size: Number of records per SQL INSERT batch
+        :return: Total number of rows actually inserted
+        """
+        cr = self.env.cr
+        uid = self.env.uid
+        total_inserted = 0
+
+        now = fields.Datetime.now()
+
+        for i in range(0, len(vals_list), chunk_size):
+            batch = vals_list[i : i + chunk_size]
+            values = []
+            params = []
+            for v in batch:
+                state = v.get("state", "draft")
+                enrollment_date = now if state == "enrolled" else None
+                values.append("(%s, %s, %s, %s, %s, %s, %s, now(), now())")
+                params.extend(
+                    [
+                        v["partner_id"],
+                        v["program_id"],
+                        state,
+                        enrollment_date,
+                        v.get("deduplication_status", "new"),
+                        uid,
+                        uid,
+                    ]
+                )
+
+            sql = """
+                INSERT INTO spp_program_membership
+                    (partner_id, program_id, state, enrollment_date,
+                     deduplication_status,
+                     create_uid, write_uid, create_date, write_date)
+                VALUES {}
+                ON CONFLICT (partner_id, program_id) DO NOTHING
+            """.format(  # noqa: S608  # nosec B608
+                ", ".join(values)
+            )
+            cr.execute(sql, params)
+            total_inserted += cr.rowcount
+
+        _logger.info(
+            "Bulk inserted %d program memberships (%d skipped as duplicates)",
+            total_inserted,
+            len(vals_list) - total_inserted,
+        )
+        return total_inserted
