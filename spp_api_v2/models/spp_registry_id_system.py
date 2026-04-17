@@ -1,24 +1,14 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
-"""Protect system_id registry entries from manual edits."""
+"""Hide system_id from the ID type dropdown in the UI."""
 
-from odoo import _, api, models
-from odoo.exceptions import UserError
+from odoo import models
 
 
 class SPPRegistryIdSystem(models.Model):
     _inherit = "spp.registry.id"
 
-    @api.ondelete(at_uninstall=False)
-    def _prevent_system_id_delete(self):
-        """Prevent deletion of system_id entries."""
+    def _compute_available_id_type_ids(self):  # pylint: disable=missing-return
+        """Exclude system_id from the dropdown — it is auto-assigned, not user-selectable."""
+        super()._compute_available_id_type_ids()
         for rec in self:
-            if rec.id_type_id and rec.id_type_id.code == "system_id":
-                raise UserError(_("System ID is auto-generated and cannot be deleted."))
-
-    def write(self, vals):
-        """Prevent editing value of system_id entries."""
-        if "value" in vals:
-            for rec in self:
-                if rec.id_type_id and rec.id_type_id.code == "system_id":
-                    raise UserError(_("System ID is auto-generated and cannot be modified."))
-        return super().write(vals)
+            rec.available_id_type_ids = rec.available_id_type_ids.filtered(lambda c: c.code != "system_id")

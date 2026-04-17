@@ -362,7 +362,7 @@ class TestGroupService(ApiV2TestCase):
             identifier_value="TEMP-BAD-VAL",
         )
         # Clear the value on non-system_id registry IDs to simulate invalid identifier
-        # (system_id entries are write-protected, so skip them)
+        # (keep system_id intact — it's the fallback identifier)
         for reg_id in ind_with_bad_id.reg_ids:
             if not reg_id.id_type_id or reg_id.id_type_id.code != "system_id":
                 reg_id.value = False

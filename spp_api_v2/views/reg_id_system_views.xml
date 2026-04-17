@@ -1,40 +1,31 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
    Part of OpenSPP. See LICENSE file for full copyright and licensing details.
-   Make system_id registry entries readonly in the UI.
+   Hide system_id entries from Identity Documents UI — they are internal
+   identifiers used only for API addressability.
 -->
 <odoo>
-    <!-- Make system_id rows readonly in the list view -->
-    <record id="view_reg_id_tree_system_readonly" model="ir.ui.view">
-        <field name="name">spp.registry.id.tree.system.readonly</field>
-        <field name="model">spp.registry.id</field>
-        <field name="inherit_id" ref="spp_registry.view_reg_id_tree" />
+    <!-- Hide system_id rows from both individual and group identity documents -->
+    <record id="view_res_partner_form_hide_system_id" model="ir.ui.view">
+        <field name="name">res.partner.form.hide.system.id</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
         <field name="arch" type="xml">
-            <xpath expr="//list" position="attributes">
+            <xpath
+                expr="//group[@name='ids_section']/field[@name='reg_ids']"
+                position="attributes"
+            >
                 <attribute
-                    name="decoration-muted"
-                >id_type_id.code == 'system_id'</attribute>
+                    name="domain"
+                >[('id_type_id.code', '!=', 'system_id')]</attribute>
             </xpath>
-            <xpath expr="//field[@name='value']" position="attributes">
-                <attribute name="readonly">id_type_id.code == 'system_id'</attribute>
-            </xpath>
-            <xpath expr="//field[@name='id_type_id']" position="attributes">
-                <attribute name="readonly">id_type_id.code == 'system_id'</attribute>
-            </xpath>
-        </field>
-    </record>
-
-    <!-- Make system_id readonly in the form view -->
-    <record id="view_reg_id_form_system_readonly" model="ir.ui.view">
-        <field name="name">spp.registry.id.form.system.readonly</field>
-        <field name="model">spp.registry.id</field>
-        <field name="inherit_id" ref="spp_registry.view_reg_id_form" />
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='value']" position="attributes">
-                <attribute name="readonly">id_type_id.code == 'system_id'</attribute>
-            </xpath>
-            <xpath expr="//field[@name='id_type_id']" position="attributes">
-                <attribute name="readonly">id_type_id.code == 'system_id'</attribute>
+            <xpath
+                expr="//group[@name='group_ids_section']/field[@name='reg_ids']"
+                position="attributes"
+            >
+                <attribute
+                    name="domain"
+                >[('id_type_id.code', '!=', 'system_id')]</attribute>
             </xpath>
         </field>
     </record>
