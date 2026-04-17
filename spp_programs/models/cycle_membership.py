@@ -15,6 +15,12 @@ class SPPCycleMembership(models.Model):
 
     partner_id = fields.Many2one("res.partner", "Registrant", help="A beneficiary", required=True, index=True)
     cycle_id = fields.Many2one("spp.cycle", "Cycle", help="A cycle", required=True, index=True)
+    program_id = fields.Many2one(
+        related="cycle_id.program_id",
+        string="Program",
+        store=True,
+        index=True,
+    )
     enrollment_date = fields.Date(default=lambda self: fields.Datetime.now())
 
     compliance_criteria = fields.Char(
