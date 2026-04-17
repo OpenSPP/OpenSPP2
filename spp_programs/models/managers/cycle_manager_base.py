@@ -838,7 +838,6 @@ class DefaultCycleManager(models.Model):
         :param beneficiaries: List of partner IDs
         :param state: String state to be set to beneficiary
         :param do_count: Boolean - set to False to not run compute functions
-        :return: Integer - count of inserted members
         """
         today = fields.Date.today()
         vals_list = [
