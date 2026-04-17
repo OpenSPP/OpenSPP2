@@ -161,7 +161,8 @@ class TestIndividualService(ApiV2TestCase):
         self.assertIn("groupMembership", data)
         membership = data["groupMembership"][0]
         self.assertIn("group", membership)
-        self.assertIn("HH-001", membership["group"]["reference"])
+        ref = membership["group"]["reference"]
+        self.assertTrue(ref.startswith("Group/"), f"Expected Group/ prefix, got: {ref}")
         self.assertEqual(membership["group"]["display"], "Test Household")
         self.assertIn("role", membership)
         self.assertEqual(membership["role"]["coding"][0]["code"], "head")

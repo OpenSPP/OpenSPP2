@@ -136,7 +136,9 @@ class TestGroupService(ApiV2TestCase):
 
         member = data["member"][0]
         self.assertIn("entity", member)
-        self.assertIn("IND-001", member["entity"]["reference"])
+        # Reference uses primary identifier (national_id preferred over system_id)
+        ref = member["entity"]["reference"]
+        self.assertTrue(ref.startswith("Individual/"), f"Expected Individual/ prefix, got: {ref}")
         self.assertEqual(member["entity"]["display"], individual.name)
         self.assertIn("role", member)
         self.assertEqual(member["role"]["coding"][0]["code"], "head")
