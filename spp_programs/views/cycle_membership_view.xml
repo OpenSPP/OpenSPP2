@@ -16,8 +16,10 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     title="Open registrant form"
                     class="btn-success"
                 />
-                <field name="partner_id" />
+                <field name="partner_id" optional="show" />
+                <field name="cycle_id.program_id" string="Program" optional="show" />
                 <field name="cycle_id" />
+                <field name="enrollment_date" optional="hide" />
                 <field
                     name="state"
                     decoration-primary="state=='draft'"
