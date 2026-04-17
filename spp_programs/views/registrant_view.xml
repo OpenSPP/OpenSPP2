@@ -47,13 +47,22 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     invisible="not is_registrant or cycle_membership_count == 0"
                     groups="spp_programs.group_programs_viewer"
                 >
-                    <div class="o_stat_info">
-                        <field name="cycle_membership_count" class="o_stat_value" />
-                        <span class="o_stat_text">Cycles</span>
-                    </div>
+                    <field
+                        name="cycle_membership_count"
+                        widget="statinfo"
+                        string="Cycles"
+                    />
+                </button>
+                <button
+                    name="action_view_cycle_memberships"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-exclamation-triangle"
+                    invisible="not is_registrant or non_compliant_cycle_count == 0"
+                    groups="spp_programs.group_programs_viewer"
+                >
                     <field
                         name="non_compliant_cycle_count"
-                        invisible="non_compliant_cycle_count == 0"
                         widget="statinfo"
                         string="Non-Compliant"
                         class="text-danger"
