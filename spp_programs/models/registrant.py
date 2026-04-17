@@ -213,7 +213,7 @@ class SPPRegistrant(models.Model):
                 ("partner_id", "=", self.id),
                 ("state", "=", "non_compliant"),
             ],
-            "context": {"default_partner_id": self.id},
+            "context": {"create": False},
         }
 
     def action_view_all_entitlements(self):
