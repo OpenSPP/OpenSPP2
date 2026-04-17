@@ -198,7 +198,7 @@ class SPPRegistrant(models.Model):
             "res_model": "spp.cycle.membership",
             "view_mode": "list,form",
             "domain": [("partner_id", "=", self.id)],
-            "context": {"default_partner_id": self.id},
+            "context": {"create": False},
         }
 
     def action_view_non_compliant_cycles(self):
