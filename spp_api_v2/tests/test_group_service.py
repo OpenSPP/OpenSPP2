@@ -168,9 +168,8 @@ class TestGroupService(ApiV2TestCase):
         self.assertIn("versionId", data["meta"])
         self.assertIn("lastUpdated", data["meta"])
 
-    def test_to_api_schema_missing_identifiers_raises(self):
-        """Group without identifiers raises ValidationError"""
-        # Create group without registry ID
+    def test_to_api_schema_auto_system_id(self):
+        """Group without explicit identifiers gets auto-assigned system_id"""
         group = self.env["res.partner"].create(
             {
                 "name": "No Identifier",
@@ -180,7 +179,9 @@ class TestGroupService(ApiV2TestCase):
         )
 
         result = self.service.to_api_schema(group)
-        self.assertIsNone(result)
+        self.assertIsNotNone(result)
+        self.assertTrue(len(result["identifier"]) > 0)
+        self.assertEqual(result["identifier"][0]["system"], "urn:openspp:vocab:id-type#system_id")
 
     def test_from_api_schema_creates_vals(self):
         """from_api_schema converts API schema to Odoo vals"""
@@ -322,9 +323,9 @@ class TestGroupService(ApiV2TestCase):
         self.assertNotIn("member", data)
         self.assertNotIn("quantity", data)
 
-    def test_to_api_schema_member_without_identifiers_skipped(self):
-        """Members without valid identifiers are skipped from member list"""
-        # Create an individual without registry IDs
+    def test_to_api_schema_member_without_explicit_identifiers_has_system_id(self):
+        """Members without explicit identifiers still appear via auto-assigned system_id"""
+        # Create an individual without explicit registry IDs — system_id auto-assigned
         no_id_individual = self.env["res.partner"].create(
             {
                 "name": "No ID Member",
@@ -334,7 +335,7 @@ class TestGroupService(ApiV2TestCase):
         )
         group = self.create_test_group(identifier_value="HH-MEMBER-SKIP")
 
-        # Create membership directly (bypassing the API which would validate)
+        # Create membership directly
         self.env["spp.group.membership"].create(
             {
                 "group": group.id,
@@ -344,13 +345,10 @@ class TestGroupService(ApiV2TestCase):
 
         data = self.service.to_api_schema(group)
 
-        # Member without identifiers should be skipped
-        if "member" in data:
-            for member in data["member"]:
-                self.assertNotIn(
-                    "No ID Member",
-                    member.get("entity", {}).get("display", ""),
-                )
+        # Member should be included via system_id
+        self.assertIn("member", data)
+        displays = [m.get("entity", {}).get("display", "") for m in data["member"]]
+        self.assertIn("No ID Member", displays)
 
     def test_to_api_schema_member_with_empty_value_identifier_skipped(self):
         """Members with reg_ids lacking value are skipped from member list"""

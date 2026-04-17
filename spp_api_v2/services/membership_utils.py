@@ -21,9 +21,16 @@ def membership_to_response(membership) -> dict[str, Any] | None:
         Dictionary matching MembershipResponse schema, or None if
         group or individual lacks valid external identifiers.
     """
-    # Build group reference
+    # Build group reference — prefer non-system identifiers over system_id
     group = membership.group
-    group_id = next((r for r in group.reg_ids if r.id_type_id and r.id_type_id.uri and r.value), None)
+    group_id = next(
+        (
+            r
+            for r in group.reg_ids
+            if r.id_type_id and r.id_type_id.uri and r.value and r.id_type_id.code != "system_id"
+        ),
+        next((r for r in group.reg_ids if r.id_type_id and r.id_type_id.uri and r.value), None),
+    )
     if not group_id:
         _logger.warning(
             "Skipping membership (id=%s): group (id=%s) has no valid identifiers.",
@@ -37,9 +44,16 @@ def membership_to_response(membership) -> dict[str, Any] | None:
         "display": group.name,
     }
 
-    # Build individual reference
+    # Build individual reference — prefer non-system identifiers over system_id
     individual = membership.individual
-    individual_id = next((r for r in individual.reg_ids if r.id_type_id and r.id_type_id.uri and r.value), None)
+    individual_id = next(
+        (
+            r
+            for r in individual.reg_ids
+            if r.id_type_id and r.id_type_id.uri and r.value and r.id_type_id.code != "system_id"
+        ),
+        next((r for r in individual.reg_ids if r.id_type_id and r.id_type_id.uri and r.value), None),
+    )
     if not individual_id:
         _logger.warning(
             "Skipping membership (id=%s): individual (id=%s) has no valid identifiers.",

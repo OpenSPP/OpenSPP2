@@ -176,9 +176,8 @@ class TestIndividualService(ApiV2TestCase):
         self.assertIn("versionId", data["meta"])
         self.assertIn("lastUpdated", data["meta"])
 
-    def test_to_api_schema_missing_identifiers_raises(self):
-        """Partner without identifiers raises ValidationError"""
-        # Create partner without registry ID
+    def test_to_api_schema_auto_system_id(self):
+        """Partner without explicit identifiers gets auto-assigned system_id"""
         partner = self.env["res.partner"].create(
             {
                 "name": "No Identifier",
@@ -188,7 +187,9 @@ class TestIndividualService(ApiV2TestCase):
         )
 
         result = self.service.to_api_schema(partner)
-        self.assertIsNone(result)
+        self.assertIsNotNone(result)
+        self.assertTrue(len(result["identifier"]) > 0)
+        self.assertEqual(result["identifier"][0]["system"], "urn:openspp:vocab:id-type#system_id")
 
     def test_from_api_schema_creates_vals(self):
         """from_api_schema converts API schema to Odoo vals"""
