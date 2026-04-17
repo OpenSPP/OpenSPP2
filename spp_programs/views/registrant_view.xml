@@ -54,7 +54,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     />
                 </button>
                 <button
-                    name="action_view_cycle_memberships"
+                    name="action_view_non_compliant_cycles"
                     type="object"
                     class="oe_stat_button"
                     icon="fa-exclamation-triangle"

@@ -201,6 +201,21 @@ class SPPRegistrant(models.Model):
             "context": {"default_partner_id": self.id},
         }
 
+    def action_view_non_compliant_cycles(self):
+        """Open non-compliant cycle memberships for this registrant."""
+        self.ensure_one()
+        return {
+            "name": _("Non-Compliant Cycles - %s") % self.name,
+            "type": "ir.actions.act_window",
+            "res_model": "spp.cycle.membership",
+            "view_mode": "list,form",
+            "domain": [
+                ("partner_id", "=", self.id),
+                ("state", "=", "non_compliant"),
+            ],
+            "context": {"default_partner_id": self.id},
+        }
+
     def action_view_all_entitlements(self):
         """Open all entitlements (cash + in-kind) for this registrant."""
         self.ensure_one()
