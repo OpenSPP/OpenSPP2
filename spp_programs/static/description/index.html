@@ -658,6 +658,19 @@ to define custom compliance criteria</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.10</h1>
+<ul class="simple">
+<li>Increase parallel-safe channel limits (cycle, eligibility_manager,
+program_manager) from 1 to 4</li>
+<li>Add serial <tt class="docutils literal">entitlement_approval</tt> channel (limit=1) for fund balance
+safety</li>
+<li>Add serial <tt class="docutils literal">statistics_refresh</tt> channel (limit=1) to prevent
+concurrent refresh storms</li>
+<li>Add <tt class="docutils literal">identity_key</tt> to async job dispatchers to prevent duplicate
+submission on double-click</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.9</h1>
 <ul class="simple">
 <li>Add context flags (<tt class="docutils literal">skip_registrant_statistics</tt>,
@@ -670,7 +683,7 @@ bulk operations</li>
 <tt class="docutils literal">_compute_has_members</tt></li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.8</h1>
 <ul class="simple">
 <li>Replace OFFSET pagination with NTILE-based ID-range batching in all
@@ -681,7 +694,7 @@ function</li>
 program and cycle</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.0.7</h1>
 <ul class="simple">
 <li>Bulk membership creation using raw SQL INSERT ON CONFLICT DO NOTHING
@@ -690,7 +703,7 @@ for program and cycle memberships</li>
 <tt class="docutils literal">_add_beneficiaries</tt> with bulk SQL path</li>
 </ul>
 </div>
-<div class="section" id="section-4">
+<div class="section" id="section-5">
 <h1>19.0.2.0.6</h1>
 <ul class="simple">
 <li>Remove unused entitlement_base_model.py (dead code, never imported)</li>
@@ -699,34 +712,34 @@ for program and cycle memberships</li>
 payment, and fund tests (172 → 492 tests)</li>
 </ul>
 </div>
-<div class="section" id="section-5">
+<div class="section" id="section-6">
 <h1>19.0.2.0.5</h1>
 <ul class="simple">
 <li>Batch create entitlements and payments instead of one-by-one ORM
 creates</li>
 </ul>
 </div>
-<div class="section" id="section-6">
+<div class="section" id="section-7">
 <h1>19.0.2.0.4</h1>
 <ul class="simple">
 <li>Fetch fund balance once per approval batch instead of per entitlement</li>
 </ul>
 </div>
-<div class="section" id="section-7">
+<div class="section" id="section-8">
 <h1>19.0.2.0.3</h1>
 <ul class="simple">
 <li>Replace cycle computed fields (total_amount, entitlements_count,
 approval flags) with SQL aggregation queries</li>
 </ul>
 </div>
-<div class="section" id="section-8">
+<div class="section" id="section-9">
 <h1>19.0.2.0.2</h1>
 <ul class="simple">
 <li>Add composite indexes for frequent query patterns on entitlements and
 program memberships</li>
 </ul>
 </div>
-<div class="section" id="section-9">
+<div class="section" id="section-10">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>Replace Python-level uniqueness checks with SQL UNIQUE constraints for
@@ -735,7 +748,7 @@ program membership, cycle membership, and entitlement codes</li>
 constraint creation</li>
 </ul>
 </div>
-<div class="section" id="section-10">
+<div class="section" id="section-11">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

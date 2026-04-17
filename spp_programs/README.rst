@@ -254,6 +254,18 @@ Dependencies
 Changelog
 =========
 
+19.0.2.0.10
+~~~~~~~~~~~
+
+- Increase parallel-safe channel limits (cycle, eligibility_manager,
+  program_manager) from 1 to 4
+- Add serial ``entitlement_approval`` channel (limit=1) for fund balance
+  safety
+- Add serial ``statistics_refresh`` channel (limit=1) to prevent
+  concurrent refresh storms
+- Add ``identity_key`` to async job dispatchers to prevent duplicate
+  submission on double-click
+
 19.0.2.0.9
 ~~~~~~~~~~
 
