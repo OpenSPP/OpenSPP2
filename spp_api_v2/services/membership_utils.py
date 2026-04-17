@@ -23,35 +23,31 @@ def membership_to_response(membership) -> dict[str, Any] | None:
     """
     # Build group reference
     group = membership.group
-    group_id = next((r for r in group.reg_ids if r.namespace_uri and r.value), None)
-    if not group_id:
-        _logger.warning(
-            "Skipping membership (id=%s): group (id=%s) has no valid external identifiers.",
-            membership.id,
-            group.id,
-        )
-        return None
-
-    group_ref = {
-        "reference": f"Group/{group_id.namespace_uri}|{group_id.value}",
-        "display": group.name,
-    }
+    group_id = next((r for r in group.reg_ids if r.id_type_id and r.id_type_id.uri and r.value), None)
+    if group_id:
+        group_ref = {
+            "reference": f"Group/{group_id.id_type_id.uri}|{group_id.value}",
+            "display": group.name,
+        }
+    else:
+        group_ref = {
+            "reference": f"Group/urn:openspp:internal|{group.id}",
+            "display": group.name,
+        }
 
     # Build individual reference
     individual = membership.individual
-    individual_id = next((r for r in individual.reg_ids if r.namespace_uri and r.value), None)
-    if not individual_id:
-        _logger.warning(
-            "Skipping membership (id=%s): individual (id=%s) has no valid external identifiers.",
-            membership.id,
-            individual.id,
-        )
-        return None
-
-    individual_ref = {
-        "reference": f"Individual/{individual_id.namespace_uri}|{individual_id.value}",
-        "display": individual.name,
-    }
+    individual_id = next((r for r in individual.reg_ids if r.id_type_id and r.id_type_id.uri and r.value), None)
+    if individual_id:
+        individual_ref = {
+            "reference": f"Individual/{individual_id.id_type_id.uri}|{individual_id.value}",
+            "display": individual.name,
+        }
+    else:
+        individual_ref = {
+            "reference": f"Individual/urn:openspp:internal|{individual.id}",
+            "display": individual.name,
+        }
 
     # Build response
     response = {
