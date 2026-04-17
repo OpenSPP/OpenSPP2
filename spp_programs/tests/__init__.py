@@ -33,3 +33,4 @@ from . import test_payment_and_accounting
 from . import test_managers
 from . import test_cycle_auto_approve_fund_check
 from . import test_bulk_membership
+from . import test_keyset_pagination

@@ -1,3 +1,9 @@
+### 19.0.2.0.8
+
+- Replace OFFSET pagination with NTILE-based ID-range batching in all async job dispatchers
+- Add `compute_id_ranges()` utility using PostgreSQL NTILE window function
+- Add `min_id`/`max_id` support to `get_beneficiaries()` on program and cycle
+
 ### 19.0.2.0.7
 
 - Bulk membership creation using raw SQL INSERT ON CONFLICT DO NOTHING for program and cycle memberships

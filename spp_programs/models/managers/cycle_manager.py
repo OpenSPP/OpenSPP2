@@ -23,17 +23,19 @@ class CustomDefaultCycleManager(models.Model):
         cycle._compute_total_entitlements_count()
         return
 
-    def _prepare_entitlements(self, cycle, offset=0, limit=None, do_count=False):
+    def _prepare_entitlements(self, cycle, offset=0, limit=None, min_id=None, max_id=None, do_count=False):
         """Prepare Entitlements
         Get the beneficiaries and generate their entitlements.
 
         :param cycle: The cycle
-        :param offset: Optional integer value for the ORM search offset
-        :param limit: Optional integer value for the ORM search limit
+        :param offset: Optional integer value for the ORM search offset (deprecated, use min_id/max_id)
+        :param limit: Optional integer value for the ORM search limit (deprecated, use min_id/max_id)
+        :param min_id: Minimum record ID for ID-range pagination (inclusive)
+        :param max_id: Maximum record ID for ID-range pagination (inclusive)
         :param do_count: Boolean - set to False to not run compute function
         :return:
         """
-        super()._prepare_entitlements(cycle, offset, limit, do_count)
+        super()._prepare_entitlements(cycle, offset, limit, min_id=min_id, max_id=max_id, do_count=do_count)
         if do_count:
             # Update Statistics
             cycle._compute_inkind_entitlements_count()

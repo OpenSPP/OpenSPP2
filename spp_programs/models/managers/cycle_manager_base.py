@@ -11,6 +11,7 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.addons.job_worker.delay import group
 
 from .. import constants
+from .pagination_utils import compute_id_ranges
 
 _logger = logging.getLogger(__name__)
 
@@ -515,21 +516,32 @@ class DefaultCycleManager(models.Model):
         cycle.message_post(body=_("Eligibility check of %s beneficiaries started.", beneficiaries_count))
         cycle.write({"is_locked": True, "locked_reason": "Eligibility check of beneficiaries"})
 
+        states = ("draft", "enrolled", "not_eligible")
+        id_ranges = compute_id_ranges(
+            self.env.cr,
+            "spp_cycle_membership",
+            "cycle_id = %s AND state IN %s",
+            (cycle.id, states),
+            self.MAX_ROW_JOB_QUEUE,
+        )
+
         jobs = []
-        for i in range(0, beneficiaries_count, self.MAX_ROW_JOB_QUEUE):
-            jobs.append(
-                self.delayable(channel="cycle")._check_eligibility(cycle, offset=i, limit=self.MAX_ROW_JOB_QUEUE)
-            )
+        for min_id, max_id in id_ranges:
+            jobs.append(self.delayable(channel="cycle")._check_eligibility(cycle, min_id=min_id, max_id=max_id))
         main_job = group(*jobs)
         main_job.on_done(self.delayable(channel="cycle").mark_check_eligibility_as_done(cycle))
         main_job.delay()
 
-    def _check_eligibility(self, cycle, beneficiaries=None, offset=0, limit=None, do_count=False):
+    def _check_eligibility(
+        self, cycle, beneficiaries=None, offset=0, limit=None, min_id=None, max_id=None, do_count=False
+    ):
         if beneficiaries is None:
             beneficiaries = cycle.get_beneficiaries(
                 ["draft", "enrolled", "not_eligible"],
                 offset=offset,
                 limit=limit,
+                min_id=min_id,
+                max_id=max_id,
                 order="id",
             )
 
@@ -585,26 +597,38 @@ class DefaultCycleManager(models.Model):
             }
         )
 
+        id_ranges = compute_id_ranges(
+            self.env.cr,
+            "spp_cycle_membership",
+            "cycle_id = %s AND state IN %s",
+            (cycle.id, ("enrolled",)),
+            self.MAX_ROW_JOB_QUEUE,
+        )
+
         jobs = []
-        for i in range(0, beneficiaries_count, self.MAX_ROW_JOB_QUEUE):
-            jobs.append(self.delayable(channel="cycle")._prepare_entitlements(cycle, i, self.MAX_ROW_JOB_QUEUE))
+        for min_id, max_id in id_ranges:
+            jobs.append(self.delayable(channel="cycle")._prepare_entitlements(cycle, min_id=min_id, max_id=max_id))
         main_job = group(*jobs)
         main_job.on_done(
             self.delayable(channel="cycle").mark_prepare_entitlement_as_done(cycle, _("Entitlement Ready."))
         )
         main_job.delay()
 
-    def _prepare_entitlements(self, cycle, offset=0, limit=None, do_count=False):
+    def _prepare_entitlements(self, cycle, offset=0, limit=None, min_id=None, max_id=None, do_count=False):
         """Prepare Entitlements
         Get the beneficiaries and generate their entitlements.
 
         :param cycle: The cycle
-        :param offset: Optional integer value for the ORM search offset
-        :param limit: Optional integer value for the ORM search limit
+        :param offset: Optional integer value for the ORM search offset (deprecated, use min_id/max_id)
+        :param limit: Optional integer value for the ORM search limit (deprecated, use min_id/max_id)
+        :param min_id: Minimum record ID for ID-range pagination (inclusive)
+        :param max_id: Maximum record ID for ID-range pagination (inclusive)
         :param do_count: Boolean - set to False to not run compute function
         :return:
         """
-        beneficiaries = cycle.get_beneficiaries(["enrolled"], offset=offset, limit=limit, order="id")
+        beneficiaries = cycle.get_beneficiaries(
+            ["enrolled"], offset=offset, limit=limit, min_id=min_id, max_id=max_id, order="id"
+        )
         ent_manager = self.program_id.get_manager(constants.MANAGER_ENTITLEMENT)
         if not ent_manager:
             raise UserError(_("No Entitlement Manager defined."))
