@@ -127,12 +127,11 @@ class IndividualService:
                 identifiers.append(identifier)
 
         if not identifiers:
-            identifiers.append(
-                {
-                    "system": "urn:openspp:internal",
-                    "value": str(partner.id),
-                }
+            _logger.warning(
+                "Individual (id=%s) has no identifiers — system_id may not have been assigned.",
+                partner.id,
             )
+            return None
 
         # Build name (REQUIRED)
         name = {

@@ -11,3 +11,4 @@ from . import consent_scope
 from . import fastapi_endpoint_registry
 from . import ir_http_patch
 from . import res_partner_mobile
+from . import res_partner_system_id

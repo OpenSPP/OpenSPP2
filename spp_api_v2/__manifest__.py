@@ -25,6 +25,7 @@
         "security/privileges.xml",
         "security/groups.xml",
         "security/ir.model.access.csv",
+        "data/system_id_type.xml",
         "data/config_data.xml",
         "data/fastapi_endpoint.xml",
         "data/api_path_data.xml",

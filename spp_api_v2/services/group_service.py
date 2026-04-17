@@ -124,12 +124,11 @@ class GroupService:
                 identifiers.append(ident_dict)
 
         if not identifiers:
-            identifiers.append(
-                {
-                    "system": "urn:openspp:internal",
-                    "value": str(group.id),
-                }
+            _logger.warning(
+                "Group (id=%s) has no identifiers — system_id may not have been assigned.",
+                group.id,
             )
+            return None
 
         # Build Group resource
         group_data = {

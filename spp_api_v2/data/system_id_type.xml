@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+   Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo noupdate="1">
+    <!-- System-generated identifier for API addressability.
+         Every registrant gets one automatically at creation time.
+         Unlike identity documents (national_id, passport), this is
+         not a real-world document — it's an internal stable UUID
+         that allows the API to address records that don't yet have
+         any identity documents assigned. -->
+    <record id="code_id_type_system_id" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_vocabulary.vocab_id_type" />
+        <field name="code">system_id</field>
+        <field name="display">System ID</field>
+        <field name="target_type">both</field>
+        <field
+            name="definition"
+        >Auto-generated unique identifier for API addressability. Not an identity document.</field>
+        <field name="sequence">0</field>
+    </record>
+</odoo>
