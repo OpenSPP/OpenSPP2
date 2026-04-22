@@ -115,13 +115,26 @@ class SppScoringEngine(models.AbstractModel):
         if calculation_method == "cel_formula":
             total_score = self._calculate_cel_total(scoring_model, registrant, inputs_snapshot)
 
+        # In strict mode, required-indicator failures must prevent score creation
+        # (not just mark the result incomplete) — otherwise an invalid score
+        # can still enroll a registrant.
+        if errors and is_strict_mode:
+            raise UserError(
+                _(
+                    "Cannot calculate score for '%(name)s' in strict mode. "
+                    "%(count)d required indicator(s) failed:\n- %(errors)s"
+                )
+                % {
+                    "name": registrant.display_name,
+                    "count": len(errors),
+                    "errors": "\n- ".join(errors),
+                }
+            )
+
         # Determine classification (thresholds already prefetched)
         classification = self._get_classification(total_score, scoring_model)
 
-        # Check for errors in strict mode
         is_complete = True
-        if errors and is_strict_mode:
-            is_complete = False
 
         # Create result record
         Result = self.env["spp.scoring.result"]

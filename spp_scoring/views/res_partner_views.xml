@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <!-- Add Scores smart button to registrant form -->
-    <record id="view_res_partner_form_scoring" model="ir.ui.view">
-        <field name="name">res.partner.form.scoring</field>
+    <!-- Add Scores smart button to the OpenSPP registrant form.
+         spp_registry.view_individuals_form replaces //sheet on res.partner,
+         so inheriting base.view_partner_form does not propagate to the
+         registry form used by Individuals and Groups. -->
+    <record id="view_registrant_form_scoring" model="ir.ui.view">
+        <field name="name">spp_registry.view_registrant_form.scoring</field>
         <field name="model">res.partner</field>
-        <field name="inherit_id" ref="base.view_partner_form" />
+        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
         <field name="arch" type="xml">
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button
@@ -12,7 +15,6 @@
                     type="object"
                     class="oe_stat_button"
                     icon="fa-bar-chart"
-                    invisible="not is_registrant"
                 >
                     <field
                         name="scoring_result_count"
