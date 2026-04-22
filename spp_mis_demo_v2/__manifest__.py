@@ -38,6 +38,7 @@
     "post_init_hook": "post_init_hook",
     "data": [
         "security/ir.model.access.csv",
+        "data/vocabulary_group_membership_type.xml",
         "data/demo_currencies.xml",
         "data/demo_constants.xml",
         "data/demo_personas.xml",
