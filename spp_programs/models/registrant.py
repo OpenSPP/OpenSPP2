@@ -17,6 +17,17 @@ class SPPRegistrant(models.Model):
     inkind_entitlement_ids = fields.One2many("spp.entitlement.inkind", "partner_id", "In-kind Entitlements")
 
     # Statistics
+    cycle_membership_count = fields.Integer(
+        string="# Cycles",
+        compute="_compute_cycle_membership_count",
+        store=True,
+    )
+    non_compliant_cycle_count = fields.Integer(
+        string="# Non-Compliant",
+        compute="_compute_cycle_membership_count",
+        store=True,
+    )
+
     program_membership_count = fields.Integer(
         string="# Program Memberships",
         compute="_compute_program_membership_count",
@@ -33,6 +44,40 @@ class SPPRegistrant(models.Model):
         string="Total Entitlements",
         compute="_compute_total_entitlements_count",
     )
+
+    @api.depends("cycle_ids", "cycle_ids.state")
+    def _compute_cycle_membership_count(self):
+        """Batch-efficient cycle membership and non-compliant counts."""
+        if not self:
+            return
+
+        registrants = self.filtered("is_registrant")
+        for partner in self - registrants:
+            partner.cycle_membership_count = 0
+            partner.non_compliant_cycle_count = 0
+
+        if not registrants:
+            return
+
+        # Total cycle memberships
+        total_data = self.env["spp.cycle.membership"]._read_group(
+            domain=[("partner_id", "in", registrants.ids)],
+            groupby=["partner_id"],
+            aggregates=["__count"],
+        )
+        total_counts = {partner.id: count for partner, count in total_data}
+
+        # Non-compliant count
+        nc_data = self.env["spp.cycle.membership"]._read_group(
+            domain=[("partner_id", "in", registrants.ids), ("state", "=", "non_compliant")],
+            groupby=["partner_id"],
+            aggregates=["__count"],
+        )
+        nc_counts = {partner.id: count for partner, count in nc_data}
+
+        for partner in registrants:
+            partner.cycle_membership_count = total_counts.get(partner.id, 0)
+            partner.non_compliant_cycle_count = nc_counts.get(partner.id, 0)
 
     @api.depends("entitlements_count", "inkind_entitlements_count")
     def _compute_total_entitlements_count(self):
@@ -150,6 +195,33 @@ class SPPRegistrant(models.Model):
             "view_mode": "list,form",
             "domain": [("partner_id", "=", self.id)],
             "context": {"default_partner_id": self.id},
+        }
+
+    def action_view_cycle_memberships(self):
+        """Open cycle memberships for this registrant."""
+        self.ensure_one()
+        return {
+            "name": _("Cycle Memberships - %s") % self.name,
+            "type": "ir.actions.act_window",
+            "res_model": "spp.cycle.membership",
+            "view_mode": "list,form",
+            "domain": [("partner_id", "=", self.id)],
+            "context": {"create": False},
+        }
+
+    def action_view_non_compliant_cycles(self):
+        """Open non-compliant cycle memberships for this registrant."""
+        self.ensure_one()
+        return {
+            "name": _("Non-Compliant Cycles - %s") % self.name,
+            "type": "ir.actions.act_window",
+            "res_model": "spp.cycle.membership",
+            "view_mode": "list,form",
+            "domain": [
+                ("partner_id", "=", self.id),
+                ("state", "=", "non_compliant"),
+            ],
+            "context": {"create": False},
         }
 
     def action_view_all_entitlements(self):

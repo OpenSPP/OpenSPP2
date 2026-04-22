@@ -87,6 +87,56 @@ class SPPProgramMembership(models.Model):
             else:
                 rec.duplicate_reason = False
 
+    latest_cycle_state = fields.Selection(
+        selection=[
+            ("draft", "Draft"),
+            ("enrolled", "Enrolled"),
+            ("paused", "Paused"),
+            ("exited", "Exited"),
+            ("not_eligible", "Not Eligible"),
+            ("non_compliant", "Non-Compliant"),
+        ],
+        string="Cycle Status",
+        compute="_compute_latest_cycle_state",
+        help="State of the most recent cycle membership for this registrant in this program",
+    )
+
+    def _compute_latest_cycle_state(self):
+        """Get the latest cycle membership state per registrant+program."""
+        if not self:
+            return
+
+        for rec in self:
+            rec.latest_cycle_state = False
+
+        # Batch query: find latest cycle membership for each program membership
+        CycleMembership = self.env["spp.cycle.membership"]
+        for rec in self:
+            cycle_mem = CycleMembership.search(
+                [
+                    ("partner_id", "=", rec.partner_id.id),
+                    ("cycle_id.program_id", "=", rec.program_id.id),
+                ],
+                order="id desc",
+                limit=1,
+            )
+            if cycle_mem:
+                rec.latest_cycle_state = cycle_mem.state
+
+    def action_view_cycle_memberships(self):
+        """Open cycle memberships for this registrant in this program."""
+        self.ensure_one()
+        return {
+            "name": _("%s — Cycles") % self.program_id.name,
+            "type": "ir.actions.act_window",
+            "res_model": "spp.cycle.membership",
+            "view_mode": "list,form",
+            "domain": [
+                ("partner_id", "=", self.partner_id.id),
+                ("cycle_id.program_id", "=", self.program_id.id),
+            ],
+        }
+
     # TODO: Implement exit reasons
     # exit_reason_id = fields.Many2one("Exit Reason") Default: Completed, Opt-Out, Other
 
