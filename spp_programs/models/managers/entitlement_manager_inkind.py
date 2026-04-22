@@ -216,7 +216,9 @@ class SPPInKindEntitlementManager(models.Model):
         jobs = []
         for i in range(0, entitlements_count, self.MAX_ROW_JOB_QUEUE):
             jobs.append(
-                self.delayable()._set_pending_validation_entitlements(cycle, offset=i, limit=self.MAX_ROW_JOB_QUEUE)
+                self.delayable(channel="entitlement_approval")._set_pending_validation_entitlements(
+                    cycle, offset=i, limit=self.MAX_ROW_JOB_QUEUE
+                )
             )
         main_job = group(*jobs)
         main_job.on_done(self.delayable().mark_job_as_done(cycle, _("Entitlements Set to Pending Validation.")))
@@ -315,7 +317,11 @@ class SPPInKindEntitlementManager(models.Model):
 
         jobs = []
         for i in range(0, entitlements_count, self.MAX_ROW_JOB_QUEUE):
-            jobs.append(self.delayable()._validate_entitlements(cycle, offset=i, limit=self.MAX_ROW_JOB_QUEUE))
+            jobs.append(
+                self.delayable(channel="entitlement_approval")._validate_entitlements(
+                    cycle, offset=i, limit=self.MAX_ROW_JOB_QUEUE
+                )
+            )
         main_job = group(*jobs)
         main_job.on_done(self.delayable().mark_job_as_done(cycle, _("Entitlements Validated and Approved.")))
         main_job.delay()

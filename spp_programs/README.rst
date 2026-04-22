@@ -254,6 +254,48 @@ Dependencies
 Changelog
 =========
 
+19.0.2.0.10
+~~~~~~~~~~~
+
+- Increase parallel-safe channel limits (cycle, eligibility_manager,
+  program_manager) from 1 to 4
+- Add serial ``entitlement_approval`` channel (limit=1) for fund balance
+  safety
+- Add serial ``statistics_refresh`` channel (limit=1) to prevent
+  concurrent refresh storms
+- Add ``identity_key`` to async job dispatchers to prevent duplicate
+  submission on double-click
+
+19.0.2.0.9
+~~~~~~~~~~
+
+- Add context flags (``skip_registrant_statistics``,
+  ``skip_program_statistics``) to suppress expensive computed field
+  recomputation during bulk operations
+- Add ``refresh_beneficiary_counts()`` on program and
+  ``refresh_statistics()`` on cycle for one-shot recomputation after
+  bulk operations
+- Replace ``bool(rec.program_membership_ids)`` with SQL query in
+  ``_compute_has_members``
+
+19.0.2.0.8
+~~~~~~~~~~
+
+- Replace OFFSET pagination with NTILE-based ID-range batching in all
+  async job dispatchers
+- Add ``compute_id_ranges()`` utility using PostgreSQL NTILE window
+  function
+- Add ``min_id``/``max_id`` support to ``get_beneficiaries()`` on
+  program and cycle
+
+19.0.2.0.7
+~~~~~~~~~~
+
+- Bulk membership creation using raw SQL INSERT ON CONFLICT DO NOTHING
+  for program and cycle memberships
+- Replace per-record ORM creates in ``_import_registrants`` and
+  ``_add_beneficiaries`` with bulk SQL path
+
 19.0.2.0.6
 ~~~~~~~~~~
 

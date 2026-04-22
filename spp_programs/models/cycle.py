@@ -275,6 +275,16 @@ class SPPCycle(models.Model):
             entitlements_count = self.env["spp.entitlement"].search_count([("cycle_id", "=", rec.id)])
             rec.entitlements_count = entitlements_count
 
+    def refresh_statistics(self):
+        """Refresh all cycle statistics after bulk operations.
+
+        Call this after raw SQL inserts that bypass ORM dependency tracking
+        (e.g. bulk_create_memberships with skip_duplicates=True).
+        """
+        self._compute_members_count()
+        self._compute_entitlements_count()
+        self._compute_total_entitlements_count()
+
     @api.depends("entitlement_ids", "inkind_entitlement_ids")
     def _compute_total_entitlements_count(self):
         if not self.ids:
@@ -614,7 +624,9 @@ class SPPCycle(models.Model):
         return domain
 
     @api.model
-    def get_beneficiaries(self, state, offset=0, limit=None, order=None, count=False, last_id=None):
+    def get_beneficiaries(
+        self, state, offset=0, limit=None, order=None, count=False, last_id=None, min_id=None, max_id=None
+    ):
         """
         Get beneficiaries by state with pagination support.
 
@@ -624,9 +636,12 @@ class SPPCycle(models.Model):
         :param order: Sort order
         :param count: If True, return count instead of records
         :param last_id: For cursor-based pagination - ID of last record from previous batch (more efficient)
+        :param min_id: For ID-range pagination - minimum record ID (inclusive)
+        :param max_id: For ID-range pagination - maximum record ID (inclusive)
         :return: Recordset or count
 
-        Note: For large datasets, use cursor-based pagination with last_id parameter instead of offset.
+        Note: For large datasets, prefer min_id/max_id (ID-range) or last_id (cursor)
+        pagination over offset-based pagination.
         """
         if isinstance(state, str):
             state = [state]
@@ -635,7 +650,12 @@ class SPPCycle(models.Model):
             if count:
                 return self.env["spp.cycle.membership"].search_count(domain, limit=limit)
 
-            # Use cursor-based pagination if last_id is provided (more efficient)
+            # ID-range pagination (best for parallel job dispatch)
+            if min_id is not None and max_id is not None:
+                domain = domain + [("id", ">=", min_id), ("id", "<=", max_id)]
+                return self.env["spp.cycle.membership"].search(domain, order=order or "id")
+
+            # Cursor-based pagination (good for sequential iteration)
             if last_id is not None:
                 domain = domain + [("id", ">", last_id)]
                 return self.env["spp.cycle.membership"].search(domain, limit=limit, order=order or "id")

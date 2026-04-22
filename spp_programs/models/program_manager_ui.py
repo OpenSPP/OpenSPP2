@@ -196,13 +196,23 @@ class ProgramManagerUI(models.Model):
                 manager = rec.eligibility_manager_ids[0].manager_ref_id
                 model_name = manager._name
                 type_info = MANAGER_TYPE_INFO.get(model_name, {})
-                rec.eligibility_manager_type = type_info.get("name", model_name)
+                # Show "CEL Expression" when mode is CEL, otherwise use model type
+                if hasattr(manager, "eligibility_mode") and manager.eligibility_mode == "cel":
+                    rec.eligibility_manager_type = "CEL Expression"
+                else:
+                    rec.eligibility_manager_type = type_info.get("name", model_name)
                 rec.eligibility_configured = True
                 # Build summary - prefer template name over other details
                 summary_parts = []
                 if hasattr(manager, "source_expression_id") and manager.source_expression_id:
                     # Show template name when available
                     summary_parts.append(manager.source_expression_id.name)
+                elif hasattr(manager, "cel_expression") and manager.cel_expression:
+                    # Show truncated CEL expression
+                    expr = manager.cel_expression
+                    if len(expr) > 50:
+                        expr = expr[:47] + "..."
+                    summary_parts.append(f"CEL: {expr}")
                 else:
                     # Fallback to other summary details
                     if hasattr(manager, "admin_area_ids") and manager.admin_area_ids:

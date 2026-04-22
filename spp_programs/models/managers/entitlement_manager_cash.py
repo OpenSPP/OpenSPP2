@@ -319,7 +319,11 @@ class SppCashEntitlementManager(models.Model):
         jobs = []
         for i in range(0, entitlements_count, self.MAX_ROW_JOB_QUEUE):
             # Needs to override
-            jobs.append(self.delayable()._validate_entitlements(cycle, entitlements[i : i + self.MAX_ROW_JOB_QUEUE]))
+            jobs.append(
+                self.delayable(channel="entitlement_approval")._validate_entitlements(
+                    cycle, entitlements[i : i + self.MAX_ROW_JOB_QUEUE]
+                )
+            )
         main_job = group(*jobs)
         main_job.on_done(self.delayable().mark_job_as_done(cycle, _("Entitlements Validated and Approved.")))
         main_job.delay()

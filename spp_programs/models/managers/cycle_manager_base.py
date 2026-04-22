@@ -11,6 +11,7 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.addons.job_worker.delay import group
 
 from .. import constants
+from .pagination_utils import compute_id_ranges
 
 _logger = logging.getLogger(__name__)
 
@@ -325,8 +326,8 @@ class BaseCycleManager(models.AbstractModel):
         cycle.locked_reason = None
         cycle.message_post(body=msg)
 
-        # Update Statistics
-        cycle._compute_members_count()
+        # Refresh statistics after bulk operations
+        cycle.refresh_statistics()
 
     def mark_prepare_entitlement_as_done(self, cycle, msg):
         """Complete the preparation of entitlements.
@@ -515,21 +516,37 @@ class DefaultCycleManager(models.Model):
         cycle.message_post(body=_("Eligibility check of %s beneficiaries started.", beneficiaries_count))
         cycle.write({"is_locked": True, "locked_reason": "Eligibility check of beneficiaries"})
 
+        states = ("draft", "enrolled", "not_eligible")
+        id_ranges = compute_id_ranges(
+            self.env.cr,
+            "spp_cycle_membership",
+            "cycle_id = %s AND state IN %s",
+            (cycle.id, states),
+            self.MAX_ROW_JOB_QUEUE,
+        )
+
         jobs = []
-        for i in range(0, beneficiaries_count, self.MAX_ROW_JOB_QUEUE):
+        for min_id, max_id in id_ranges:
             jobs.append(
-                self.delayable(channel="cycle")._check_eligibility(cycle, offset=i, limit=self.MAX_ROW_JOB_QUEUE)
+                self.delayable(
+                    channel="cycle",
+                    identity_key=f"check_elig_{cycle.id}_{min_id}",
+                )._check_eligibility(cycle, min_id=min_id, max_id=max_id)
             )
         main_job = group(*jobs)
-        main_job.on_done(self.delayable(channel="cycle").mark_check_eligibility_as_done(cycle))
+        main_job.on_done(self.delayable(channel="statistics_refresh").mark_check_eligibility_as_done(cycle))
         main_job.delay()
 
-    def _check_eligibility(self, cycle, beneficiaries=None, offset=0, limit=None, do_count=False):
+    def _check_eligibility(
+        self, cycle, beneficiaries=None, offset=0, limit=None, min_id=None, max_id=None, do_count=False
+    ):
         if beneficiaries is None:
             beneficiaries = cycle.get_beneficiaries(
                 ["draft", "enrolled", "not_eligible"],
                 offset=offset,
                 limit=limit,
+                min_id=min_id,
+                max_id=max_id,
                 order="id",
             )
 
@@ -585,26 +602,45 @@ class DefaultCycleManager(models.Model):
             }
         )
 
+        id_ranges = compute_id_ranges(
+            self.env.cr,
+            "spp_cycle_membership",
+            "cycle_id = %s AND state IN %s",
+            (cycle.id, ("enrolled",)),
+            self.MAX_ROW_JOB_QUEUE,
+        )
+
         jobs = []
-        for i in range(0, beneficiaries_count, self.MAX_ROW_JOB_QUEUE):
-            jobs.append(self.delayable(channel="cycle")._prepare_entitlements(cycle, i, self.MAX_ROW_JOB_QUEUE))
+        for min_id, max_id in id_ranges:
+            jobs.append(
+                self.delayable(
+                    channel="cycle",
+                    identity_key=f"prepare_ent_{cycle.id}_{min_id}",
+                )._prepare_entitlements(cycle, min_id=min_id, max_id=max_id)
+            )
         main_job = group(*jobs)
         main_job.on_done(
-            self.delayable(channel="cycle").mark_prepare_entitlement_as_done(cycle, _("Entitlement Ready."))
+            self.delayable(channel="statistics_refresh").mark_prepare_entitlement_as_done(
+                cycle, _("Entitlement Ready.")
+            )
         )
         main_job.delay()
 
-    def _prepare_entitlements(self, cycle, offset=0, limit=None, do_count=False):
+    def _prepare_entitlements(self, cycle, offset=0, limit=None, min_id=None, max_id=None, do_count=False):
         """Prepare Entitlements
         Get the beneficiaries and generate their entitlements.
 
         :param cycle: The cycle
-        :param offset: Optional integer value for the ORM search offset
-        :param limit: Optional integer value for the ORM search limit
+        :param offset: Optional integer value for the ORM search offset (deprecated, use min_id/max_id)
+        :param limit: Optional integer value for the ORM search limit (deprecated, use min_id/max_id)
+        :param min_id: Minimum record ID for ID-range pagination (inclusive)
+        :param max_id: Maximum record ID for ID-range pagination (inclusive)
         :param do_count: Boolean - set to False to not run compute function
         :return:
         """
-        beneficiaries = cycle.get_beneficiaries(["enrolled"], offset=offset, limit=limit, order="id")
+        beneficiaries = cycle.get_beneficiaries(
+            ["enrolled"], offset=offset, limit=limit, min_id=min_id, max_id=max_id, order="id"
+        )
         ent_manager = self.program_id.get_manager(constants.MANAGER_ENTITLEMENT)
         if not ent_manager:
             raise UserError(_("No Entitlement Manager defined."))
@@ -820,7 +856,10 @@ class DefaultCycleManager(models.Model):
         jobs = []
         for i in range(0, beneficiaries_count, self.MAX_ROW_JOB_QUEUE):
             jobs.append(
-                self.delayable(channel="cycle")._add_beneficiaries(
+                self.delayable(
+                    channel="cycle",
+                    identity_key=f"add_benef_{cycle.id}_{i}",
+                )._add_beneficiaries(
                     cycle,
                     beneficiaries[i : i + self.MAX_ROW_JOB_QUEUE],
                     state,
@@ -828,32 +867,34 @@ class DefaultCycleManager(models.Model):
             )
 
         main_job = group(*jobs)
-        main_job.on_done(self.delayable(channel="cycle").mark_import_as_done(cycle, _("Beneficiary import finished.")))
+        main_job.on_done(
+            self.delayable(channel="statistics_refresh").mark_import_as_done(cycle, _("Beneficiary import finished."))
+        )
         main_job.delay()
 
     def _add_beneficiaries(self, cycle, beneficiaries, state="draft", do_count=False):
         """Add Beneficiaries
 
         :param cycle: Recordset of cycle
-        :param beneficiaries: Recordset of beneficiaries
+        :param beneficiaries: List of partner IDs
         :param state: String state to be set to beneficiary
         :param do_count: Boolean - set to False to not run compute functions
-        :return: Integer - count of not enrolled members
         """
-        new_beneficiaries = []
-        for r in beneficiaries:
-            new_beneficiaries.append(
-                [
-                    0,
-                    0,
-                    {
-                        "partner_id": r,
-                        "enrollment_date": fields.Date.today(),
-                        "state": state,
-                    },
-                ]
-            )
-        cycle.update({"cycle_membership_ids": new_beneficiaries})
+        today = fields.Date.today()
+        vals_list = [
+            {
+                "partner_id": partner_id,
+                "cycle_id": cycle.id,
+                "enrollment_date": today,
+                "state": state,
+            }
+            for partner_id in beneficiaries
+        ]
+        self.env["spp.cycle.membership"].bulk_create_memberships(vals_list, skip_duplicates=True)
+
+        # Raw SQL bypasses the ORM cache — invalidate so subsequent reads
+        # (e.g. cycle.cycle_membership_ids) reflect the new rows.
+        cycle.invalidate_recordset(["cycle_membership_ids"])
 
         if do_count:
             # Update Statistics

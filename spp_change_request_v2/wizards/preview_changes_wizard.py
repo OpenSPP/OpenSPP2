@@ -3,6 +3,8 @@
 
 import json
 
+from markupsafe import escape as html_escape
+
 from odoo import api, fields, models
 
 
@@ -61,7 +63,7 @@ class CRPreviewChangesWizard(models.TransientModel):
             html_parts = ['<div class="o_preview_changes">']
 
             action = changes.pop("_action", "update")
-            html_parts.append(f'<p class="mb-3"><strong>Action:</strong> {action}</p>')
+            html_parts.append(f'<p class="mb-3"><strong>Action:</strong> {html_escape(str(action))}</p>')
 
             if changes:
                 html_parts.append('<table class="table table-sm table-striped">')
@@ -70,10 +72,10 @@ class CRPreviewChangesWizard(models.TransientModel):
 
                 for key, value in changes.items():
                     # Format the key
-                    display_key = key.replace("_", " ").title()
+                    display_key = html_escape(key.replace("_", " ").title())
                     # Format the value
                     if isinstance(value, list):
-                        display_value = "<br/>".join(str(v) for v in value)
+                        display_value = "<br/>".join(html_escape(str(v)) for v in value)
                     elif value is None:
                         display_value = '<span class="text-muted">Not set</span>'
                     elif isinstance(value, bool):
@@ -83,7 +85,7 @@ class CRPreviewChangesWizard(models.TransientModel):
                             else '<span class="badge text-bg-secondary">No</span>'
                         )
                     else:
-                        display_value = str(value)
+                        display_value = html_escape(str(value))
 
                     html_parts.append(f"<tr><td><strong>{display_key}</strong></td><td>{display_value}</td></tr>")
 

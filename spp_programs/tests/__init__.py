@@ -33,3 +33,7 @@ from . import test_payment_and_accounting
 from . import test_managers
 from . import test_cycle_auto_approve_fund_check
 from . import test_cycle_compliance_on_registrant
+from . import test_bulk_membership
+from . import test_keyset_pagination
+from . import test_canary_patterns
+from . import test_concurrency

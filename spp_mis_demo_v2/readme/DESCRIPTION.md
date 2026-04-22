@@ -1,14 +1,18 @@
-Demo data generator for SP-MIS programs. Creates 6 social protection programs with CEL eligibility expressions, enrolls 8 demo personas with payment histories, and optionally generates volume data for testing. Activates registry variables from `spp_studio` and installs Logic Packs for eligibility rules.
+Demo data generator for SP-MIS programs. Creates 7 social protection programs with CEL eligibility expressions, enrolls 8 demo personas with payment histories, and optionally generates ~730 deterministic households from seeded blueprints (`seed=42`) for reproducible volume data. Activates registry variables from `spp_studio` and installs Logic Packs for eligibility rules.
 
 ### Key Capabilities
 
-- Generate 6 programs (Child Grant, Elderly Pension, Emergency Relief, Cash Transfer, Disability Support, Food Assistance) with CEL expressions
+- Generate 7 programs (Universal Child Grant, Conditional Child Grant, Elderly Pension, Emergency Relief, Cash Transfer, Disability Support, Food Assistance) with CEL expressions
 - Enroll 8 demo personas with predefined stories and payment histories covering all demo scenarios
+- Generate ~730 deterministic households with ~2555 members from 28 blueprints via `SeededVolumeGenerator` with `random.Random(seed=42)` — same seed always produces identical output
 - Install Logic Packs from `spp_studio` for eligibility rules (child_benefit, social_pension, vulnerability_assessment, cash_transfer_basic, disability_assistance)
 - Activate registry variables (age, child_count, hh_total_income, dependency_ratio, etc.) via post_init_hook
-- Generate volume data with configurable random enrollments for dashboard testing
+- 4 demo modes (Sales, Training, Testing, Complete) with automatic field defaults
+- Multi-locale support for name generation (fil_PH, si_LK, fr_TG)
+- Geographic data loading for Philippines, Sri Lanka, and Togo
 - Create change requests at various workflow stages (draft, pending, approved, rejected)
-- Cross-module integration: automatically creates GRM tickets and case records when those modules are installed
+- Cross-module integration: automatically creates GRM tickets, case records, and Claim 169 QR credentials when those modules are installed
+- Fairness analysis demo data and PRISM API client creation
 
 ### Key Models
 
@@ -25,17 +29,11 @@ After installing:
 2. The wizard opens with options for demo mode (Sales, Training, Testing, Complete)
 3. Click "Load Demo Data" to generate
 
-For automatic generation on install:
-
-```bash
-ODOO_INIT_MODULES=spp_mis_demo_v2 docker compose --profile ui up -d
-```
-
 For programmatic generation:
 
 ```python
-generator = env['spp.mis.demo.wizard'].create({'name': 'Demo'})
-generator.action_generate_demo_data()
+wizard = env['spp.mis.demo.wizard'].create({})
+wizard.action_generate_demo_data()
 ```
 
 ### Demo Programs
@@ -43,11 +41,23 @@ generator.action_generate_demo_data()
 All programs use CEL expressions with activated registry variables:
 
 - **Universal Child Grant**: `r.is_group == true and child_count > 0` (member aggregation)
+- **Conditional Child Grant**: First 1,000 days targeting for young children
 - **Elderly Social Pension**: `r.is_group == false and age >= retirement_age` (age computation)
 - **Emergency Relief Fund**: `dependency_ratio >= 1.5 or (is_female_headed and elderly_count > 0)` (compound conditions)
 - **Cash Transfer Program**: `hh_total_income < poverty_line and hh_size >= 2` (income-based targeting)
 - **Disability Support Grant**: `r.is_group == true and has_disabled_member` (member existence check)
 - **Food Assistance**: `r.is_registrant == true and r.active == true` (simple field comparison)
+
+### Seeded Volume Generation
+
+The `SeededVolumeGenerator` uses `random.Random(seed=42)` for all structural choices:
+
+- Ages, incomes, genders, and names from locale-specific pools
+- Birthdates, registration dates, GPS coordinates
+- Household structure from 28 deterministic blueprints across 5 categories (young families, middle-age, elderly, working-age, extended/vulnerable)
+- Membership realism applied post-generation (83% enrolled, 10% exited, 5% paused, 2% not eligible)
+
+Running the generator twice with the same seed produces identical output.
 
 ### UI Location
 

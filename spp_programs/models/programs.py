@@ -187,8 +187,23 @@ class SPPProgram(models.Model):
 
     @api.depends("program_membership_ids")
     def _compute_has_members(self):
+        if self.env.context.get("skip_program_statistics"):
+            return
+        if not self.ids:
+            for rec in self:
+                rec.has_members = False
+            return
+        self.env.cr.execute(
+            """
+            SELECT program_id FROM spp_program_membership
+            WHERE program_id IN %s
+            GROUP BY program_id
+            """,
+            (tuple(self.ids),),
+        )
+        programs_with_members = {row[0] for row in self.env.cr.fetchall()}
         for rec in self:
-            rec.has_members = bool(rec.program_membership_ids)
+            rec.has_members = rec.id in programs_with_members
 
     @api.depends("compliance_manager_ids", "compliance_manager_ids.manager_ref_id")
     def _compute_has_compliance_criteria(self):
@@ -273,6 +288,16 @@ class SPPProgram(models.Model):
             count = rec.count_beneficiaries(None)["value"]
             rec.update({"beneficiaries_count": count})
 
+    def refresh_beneficiary_counts(self):
+        """Refresh all beneficiary statistics after bulk operations.
+
+        Call this after raw SQL inserts that bypass ORM dependency tracking
+        (e.g. bulk_create_memberships with skip_duplicates=True).
+        """
+        self._compute_beneficiary_count()
+        self._compute_eligible_beneficiary_count()
+        self._compute_has_members()
+
     @api.depends("cycle_ids")
     def _compute_cycle_count(self):
         for rec in self:
@@ -314,7 +339,9 @@ class SPPProgram(models.Model):
             return [el.manager_ref_id for el in managers]
 
     @api.model
-    def get_beneficiaries(self, state=None, offset=0, limit=None, order=None, count=False, last_id=None):
+    def get_beneficiaries(
+        self, state=None, offset=0, limit=None, order=None, count=False, last_id=None, min_id=None, max_id=None
+    ):
         """
         Get program beneficiaries with pagination support.
 
@@ -324,9 +351,12 @@ class SPPProgram(models.Model):
         :param order: Sort order
         :param count: If True, return count instead of records
         :param last_id: For cursor-based pagination - ID of last record from previous batch (more efficient)
+        :param min_id: For ID-range pagination - minimum record ID (inclusive)
+        :param max_id: For ID-range pagination - maximum record ID (inclusive)
         :return: Recordset or count
 
-        Note: For large datasets, use cursor-based pagination with last_id parameter instead of offset.
+        Note: For large datasets, prefer min_id/max_id (ID-range) or last_id (cursor)
+        pagination over offset-based pagination.
         """
         self.ensure_one()
         if isinstance(state, str):
@@ -337,7 +367,12 @@ class SPPProgram(models.Model):
         if count:
             return self.env["spp.program.membership"].search_count(domain, limit=limit)
 
-        # Use cursor-based pagination if last_id is provided (more efficient)
+        # ID-range pagination (best for parallel job dispatch)
+        if min_id is not None and max_id is not None:
+            domain = domain + [("id", ">=", min_id), ("id", "<=", max_id)]
+            return self.env["spp.program.membership"].search(domain, order=order or "id")
+
+        # Cursor-based pagination (good for sequential iteration)
         if last_id is not None:
             domain = domain + [("id", ">", last_id)]
             return self.env["spp.program.membership"].search(domain, limit=limit, order=order or "id")

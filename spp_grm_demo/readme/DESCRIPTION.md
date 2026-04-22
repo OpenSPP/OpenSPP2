@@ -1,4 +1,4 @@
-Demo data generator for the Grievance Redress Mechanism. Creates both story-based tickets linked to specific personas (Juan Dela Cruz, Ibrahim Hassan, Fatima Al-Rahman) and volume tickets using scenario templates. Simulates realistic ticket workflows including resolution paths, escalations, and timeline distribution.
+Demo data generator for the Grievance Redress Mechanism. Creates both story-based tickets linked to specific personas (Juan Dela Cruz, Ibrahim Hassan, Fatima Al-Rahman, Ahmed Said, David Martinez, Maria Santos, Rosa Garcia, Carlos Morales) and volume tickets using scenario templates. Simulates realistic ticket workflows including resolution paths, escalations, and timeline distribution. Uses Faker for locale-aware random data (non-deterministic — each run produces different volume tickets).
 
 ### Key Capabilities
 
@@ -50,4 +50,4 @@ Story personas align with `spp_mis_demo_v2` and `spp_case_demo` for cross-module
 
 ### Dependencies
 
-`spp_demo`, `spp_grm`, `spp_security`
+`spp_demo`, `spp_grm`, `spp_grm_registry`, `spp_grm_programs`, `spp_security`, `faker` (Python)
