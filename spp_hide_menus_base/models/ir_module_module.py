@@ -79,6 +79,10 @@ class IrModuleModule(models.Model):
                         hidden_menu.hide_menu()
                     elif hidden_menus.state == "show":
                         hidden_menus.hide_menu()
+                    elif hidden_menus.state == "hide":
+                        # Module upgrade may have reset group_ids via XML
+                        # (noupdate="0"). Re-apply hiding if stale.
+                        hidden_menus._reapply_hide()
 
     def next(self):
         # Call your menu hiding logic first

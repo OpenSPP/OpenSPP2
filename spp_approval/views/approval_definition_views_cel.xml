@@ -15,7 +15,7 @@
                             <field
                                 name="cel_condition"
                                 widget="ace"
-                                options="{'mode': 'text'}"
+                                options="{'mode': 'python'}"
                                 invisible="not use_cel_condition"
                                 placeholder="record.amount > 10000"
                             />
@@ -42,7 +42,7 @@
                             <field
                                 name="cel_reviewer_expression"
                                 widget="ace"
-                                options="{'mode': 'text'}"
+                                options="{'mode': 'python'}"
                                 invisible="not use_cel_reviewer"
                                 placeholder="record.manager_id.user_id.id"
                             />
