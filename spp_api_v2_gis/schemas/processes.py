@@ -232,7 +232,7 @@ class ExecuteRequest(BaseModel):
         },
     )
 
-    inputs: SpatialStatisticsInputs | ProximityStatisticsInputs | dict = Field(
+    inputs: dict = Field(
         ...,
         description="Process input values. Structure depends on the process being executed.",
     )
