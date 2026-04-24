@@ -12,6 +12,7 @@ from . import test_api_consent_matching
 from . import test_audit_log_performance
 from . import test_batch_api
 from . import test_bulk_api
+from . import test_bundle_openapi
 from . import test_bundle_service
 from . import test_consent
 from . import test_consent_history
