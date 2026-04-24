@@ -109,6 +109,7 @@
         "wizard/create_program_wizard_compliance_views.xml",
         "wizard/create_program_wizard_cel_views.xml",
         "wizard/enrollment_wizard_views.xml",
+        "wizard/exit_membership_wizard.xml",
         "wizard/prepare_entitlement_confirm_wizard.xml",
     ],
     "assets": {

@@ -20,6 +20,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 <field name="program_id" />
                 <field name="enrollment_date" />
                 <field name="exit_date" />
+                <field name="exit_reason" />
                 <field name="delivery_mechanism_value" column_invisible="1" />
                 <field
                     name="state"
@@ -166,6 +167,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             <field name="registration_date" readonly="1" />
                             <field name="enrollment_date" readonly="1" />
                             <field name="exit_date" />
+                            <field name="exit_reason" />
                             <field
                                 name="delivery_mechanism_value"
                                 colspan="4"
@@ -351,6 +353,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                                     <field name="program_id" />
                                     <field name="enrollment_date" />
                                     <field name="exit_date" />
+                                    <field name="exit_reason" />
                                     <field
                                         name="delivery_mechanism_value"
                                         column_invisible="1"
