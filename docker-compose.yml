@@ -278,6 +278,7 @@ services:
       REACT_APP_OPENSPP_API_URL: /api/v2/spp
       REACT_APP_OPENSPP_CLIENT_ID: ${OPENSPP_CLIENT_ID:-prism}
       REACT_APP_OPENSPP_CLIENT_SECRET: ${OPENSPP_CLIENT_SECRET:-prism-secret}
+      VITE_PROXY_TARGET: http://openspp:8069
     networks:
       - openspp
 
