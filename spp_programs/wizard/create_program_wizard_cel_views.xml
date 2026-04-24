@@ -188,127 +188,127 @@ CEL Support Views for Create Program Wizard
                 />
             </xpath>
 
-            <!-- Add Compliance tab (only shown if enabled in Step 1) -->
-            <xpath expr="//page[@name='cycle']" position="after">
-                <page
-                    string="Compliance"
-                    name="compliance_cel"
-                    invisible="not enable_compliance_cel"
-                >
-                    <group>
-                        <group colspan="4" name="compliance_criteria_section">
-                            <!-- Hidden fields for widget context -->
-                            <field name="eligibility_cel_profile" invisible="1" />
-                            <field name="compliance_is_locked" invisible="1" />
-
-                            <!-- Primary UX: Compliance Criteria Dropdown -->
-                            <group colspan="4" col="4">
-                                <field
-                                    name="compliance_criteria_id"
-                                    string="Compliance Criteria"
-                                    colspan="3"
-                                    options="{'no_create': True, 'no_create_edit': True}"
-                                    placeholder="Select ongoing compliance criteria"
-                                />
-                                <!-- Lock indicator badge -->
-                                <div
-                                    colspan="1"
-                                    invisible="not compliance_is_locked"
-                                    class="text-warning"
-                                >
-                                    <i class="fa fa-lock" title="Locked" />
-                                    <span class="ms-1">Locked</span>
-                                </div>
-                            </group>
-
-                            <!-- Preview count when criteria selected -->
-                            <div
-                                class="alert alert-info mb-2"
-                                role="status"
-                                colspan="4"
-                                invisible="not compliance_criteria_id or not compliance_cel_is_valid"
-                            >
-                                <i class="fa fa-check-circle me-1" title="Success" />
-                                <strong>
-                                <field
-                                    name="compliance_cel_preview_count"
-                                    class="oe_inline"
-                                />
-                            </strong>
-                                beneficiaries currently comply.
-                            </div>
-
-                            <!-- Lock warning message -->
-                            <div
-                                class="alert alert-warning mb-2"
-                                role="alert"
-                                colspan="4"
-                                invisible="not compliance_is_locked"
-                            >
-                                <i class="fa fa-lock me-1" title="Locked" />
-                                This compliance criteria is <strong
-                            >locked</strong> and cannot be modified.
-                            </div>
-
-                            <!-- Collapsible Advanced Section (hidden when locked) -->
-                            <div
-                                class="o_horizontal_separator mt-3"
-                                colspan="4"
-                                invisible="compliance_is_locked"
-                            >
-                                <a
-                                    class="o_horizontal_separator_label text-muted small"
-                                    data-bs-toggle="collapse"
-                                    href="#compliance_advanced_section"
-                                    role="button"
-                                    aria-expanded="false"
-                                    aria-controls="compliance_advanced_section"
-                                >
-                                    <i
-                                    class="fa fa-caret-right me-1"
-                                    title="Expand"
-                                /> Advanced
-                                </a>
-                            </div>
-                            <div
-                                class="collapse"
-                                id="compliance_advanced_section"
-                                colspan="4"
-                                invisible="compliance_is_locked"
-                            >
+            <!-- Add Compliance accordion item (always visible in Step 2) -->
+            <xpath expr="//div[@name='cycle']" position="after">
+                <div class="accordion-item" name="compliance_cel">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed fw-semibold fs-6" type="button"
+                                style="background-color: #e9ecef !important"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#accordionCompliance"
+                                aria-expanded="false">
+                            Add Compliance criteria?
+                            <span class="text-muted small ms-2">(optional)</span>
+                        </button>
+                    </h2>
+                    <div id="accordionCompliance" class="accordion-collapse collapse"
+                         data-bs-parent="#wizardStep2Accordion">
+                        <div class="accordion-body">
+                            <group>
                                 <group colspan="4">
-                                    <!-- CEL Expression Editor -->
                                     <field
-                                        name="compliance_cel_expression"
-                                        colspan="4"
-                                        widget="cel_expression"
-                                        options="{'profile_field': 'eligibility_cel_profile'}"
-                                        placeholder="e.g.: r.last_health_checkup_date > today() - duration('90d')"
-                                        nolabel="1"
+                                        name="enable_compliance_cel"
+                                        widget="boolean_toggle"
+                                        string="Enable ongoing compliance"
                                     />
-
-                                    <!-- Validation feedback -->
-                                    <div
-                                        class="alert alert-danger mb-0"
-                                        role="alert"
-                                        colspan="4"
-                                        invisible="compliance_cel_is_valid or not compliance_cel_expression"
-                                    >
-                                        <i
-                                            class="fa fa-exclamation-triangle me-1"
-                                            title="Warning"
-                                        />
-                                        <field
-                                            name="compliance_cel_error"
-                                            nolabel="1"
-                                            class="oe_inline"
-                                        />
+                                    <div class="text-muted small mt-n3 mb-3" colspan="2">
+                                        Check beneficiaries against compliance criteria each cycle.
                                     </div>
                                 </group>
-                            </div>
-                        </group>
-                    </group>
-                </page>
+                            </group>
+                            <group invisible="not enable_compliance_cel">
+                                <group colspan="4" name="compliance_criteria_section">
+                                    <!-- Hidden fields for widget context -->
+                                    <field name="eligibility_cel_profile" invisible="1" />
+                                    <field name="compliance_is_locked" invisible="1" />
+
+                                    <!-- Primary UX: Compliance Criteria Dropdown -->
+                                    <group colspan="4" col="4">
+                                        <field
+                                            name="compliance_criteria_id"
+                                            string="Compliance Criteria"
+                                            colspan="3"
+                                            options="{'no_create': True, 'no_create_edit': True}"
+                                            placeholder="Select ongoing compliance criteria"
+                                        />
+                                        <div
+                                            colspan="1"
+                                            invisible="not compliance_is_locked"
+                                            class="text-warning"
+                                        >
+                                            <i class="fa fa-lock" title="Locked" />
+                                            <span class="ms-1">Locked</span>
+                                        </div>
+                                    </group>
+
+                                    <div
+                                        class="alert alert-info mb-2"
+                                        role="status"
+                                        colspan="4"
+                                        invisible="not compliance_criteria_id or not compliance_cel_is_valid"
+                                    >
+                                        <i class="fa fa-check-circle me-1" title="Success" />
+                                        <strong><field name="compliance_cel_preview_count" class="oe_inline" /></strong>
+                                        beneficiaries currently comply.
+                                    </div>
+
+                                    <div
+                                        class="alert alert-warning mb-2"
+                                        role="alert"
+                                        colspan="4"
+                                        invisible="not compliance_is_locked"
+                                    >
+                                        <i class="fa fa-lock me-1" title="Locked" />
+                                        This compliance criteria is <strong>locked</strong> and cannot be modified.
+                                    </div>
+
+                                    <div
+                                        class="o_horizontal_separator mt-3"
+                                        colspan="4"
+                                        invisible="compliance_is_locked"
+                                    >
+                                        <a
+                                            class="o_horizontal_separator_label text-muted small"
+                                            data-bs-toggle="collapse"
+                                            href="#compliance_advanced_section"
+                                            role="button"
+                                            aria-expanded="false"
+                                            aria-controls="compliance_advanced_section"
+                                        >
+                                            <i class="fa fa-caret-right me-1" title="Expand" /> Advanced
+                                        </a>
+                                    </div>
+                                    <div
+                                        class="collapse"
+                                        id="compliance_advanced_section"
+                                        colspan="4"
+                                        invisible="compliance_is_locked"
+                                    >
+                                        <group colspan="4">
+                                            <field
+                                                name="compliance_cel_expression"
+                                                colspan="4"
+                                                widget="cel_expression"
+                                                options="{'profile_field': 'eligibility_cel_profile'}"
+                                                placeholder="e.g.: r.last_health_checkup_date > today() - duration('90d')"
+                                                nolabel="1"
+                                            />
+                                            <div
+                                                class="alert alert-danger mb-0"
+                                                role="alert"
+                                                colspan="4"
+                                                invisible="compliance_cel_is_valid or not compliance_cel_expression"
+                                            >
+                                                <i class="fa fa-exclamation-triangle me-1" title="Warning" />
+                                                <field name="compliance_cel_error" nolabel="1" class="oe_inline" />
+                                            </div>
+                                        </group>
+                                    </div>
+                                </group>
+                            </group>
+                        </div>
+                    </div>
+                </div>
             </xpath>
         </field>
     </record>

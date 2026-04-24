@@ -297,6 +297,19 @@ class SPPCreateNewProgramWiz(models.TransientModel):
         default=lambda self: self._get_default_entitlement_approval_definition(),
     )
 
+    step2_ready = fields.Boolean(compute="_compute_step2_ready")
+
+    @api.depends("entitlement_type", "entitlement_cash_item_ids", "entitlement_item_ids")
+    def _compute_step2_ready(self):
+        """True when the entitlement section has at least one configured item."""
+        for rec in self:
+            if rec.entitlement_type == "cash":
+                rec.step2_ready = bool(rec.entitlement_cash_item_ids)
+            elif rec.entitlement_type == "inkind":
+                rec.step2_ready = bool(rec.entitlement_item_ids)
+            else:
+                rec.step2_ready = True
+
     def _get_default_cycle_approval_definition(self):
         return self.env.ref("spp_programs.approval_definition_cycle")
 
@@ -500,7 +513,7 @@ class SPPCreateNewProgramWiz(models.TransientModel):
 
     def _reopen_self(self):
         return {
-            "name": "Set Program Settings",
+            "name": "Create Program",
             "type": "ir.actions.act_window",
             "res_model": self._name,
             "res_id": self.id,

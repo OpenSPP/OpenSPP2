@@ -13,215 +13,287 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="model">spp.program.create.wizard</field>
         <field name="arch" type="xml">
             <form string="Create a New Program">
-                <header>
-                    <field
-                        name="state"
-                        widget="statusbar"
-                        statusbar_visible="step1,step2"
-                    />
-                </header>
+                <header />
                 <sheet>
                     <!-- ======================================== -->
                     <!-- STEP 1: Program Basics (no tabs)         -->
                     <!-- ======================================== -->
                     <div invisible="state != 'step1'" name="step1_content">
+                        <div class="mb-4">
+                            <div class="text-muted mb-1"><strong class="text-uppercase">Step 1 of 2</strong></div>
+                            <h4 class="mt-1 mb-2"><strong>Tell us about the program</strong></h4>
+                        </div>
+
+                        <!-- Note: <div colspan="1"> wrapper is used instead of <label string="..."/>
+                             because Odoo label string= is plain text and cannot embed a styled
+                             red asterisk span. The div takes the label column; the field takes
+                             the value column via colspan="1". -->
                         <group>
                             <group>
+                                <div colspan="1" class="d-flex align-items-baseline gap-1">
+                                    <label for="name" string="Program Name" class="o_form_label fs-5 mb-0"/>
+                                    <span class="text-danger fw-bold fs-5">*</span>
+                                </div>
                                 <field
                                     name="name"
                                     placeholder="e.g., Emergency Cash Transfer 2025"
-                                    string="Program Name"
+                                    nolabel="1"
+                                    required="1"
+                                    colspan="1"
                                 />
+                                <div class="text-muted small mt-n3 mb-3" colspan="2">
+                                    Appears on beneficiary receipts and program reports.
+                                </div>
+                                <div colspan="1" class="d-flex align-items-baseline gap-1">
+                                    <label for="entitlement_type" string="Benefit Type" class="o_form_label fs-5 mb-0"/>
+                                    <span class="text-danger fw-bold fs-5">*</span>
+                                </div>
                                 <field
                                     name="entitlement_type"
                                     widget="radio"
                                     options="{'horizontal': true}"
-                                    string="Benefit Type"
+                                    nolabel="1"
+                                    required="1"
+                                    colspan="1"
                                 />
+                                <div class="text-muted small mt-n3 mb-3" colspan="2">
+                                    Cash pays money. In-kind distributes goods or vouchers.
+                                </div>
                             </group>
                             <group>
+                                <div colspan="1" class="d-flex align-items-baseline gap-1">
+                                    <label for="target_type" string="Beneficiaries" class="o_form_label fs-5 mb-0"/>
+                                    <span class="text-danger fw-bold fs-5">*</span>
+                                </div>
                                 <field
                                     name="target_type"
                                     widget="radio"
                                     options="{'horizontal': true}"
-                                    string="Beneficiaries"
-                                    help="Individual: Each person enrolled separately. Group: Households/groups enrolled together."
+                                    nolabel="1"
+                                    required="1"
+                                    colspan="1"
                                 />
+                                <div class="text-muted small mt-n3 mb-3" colspan="2">
+                                    Decide if your entitlements should be assigned to a group or to an individual.
+                                </div>
+                                <div colspan="1" class="d-flex align-items-baseline gap-1" invisible="entitlement_type != 'cash'">
+                                    <label for="currency_id" string="Currency" class="o_form_label fs-5 mb-0"/>
+                                    <span class="text-danger fw-bold fs-5">*</span>
+                                </div>
                                 <field
                                     name="currency_id"
                                     options="{'no_open':True,'no_create':True}"
-                                    string="Currency"
+                                    nolabel="1"
+                                    invisible="entitlement_type != 'cash'"
+                                    required="entitlement_type == 'cash'"
+                                    colspan="1"
                                 />
+                                <div class="text-muted small mt-n3 mb-3" colspan="2" invisible="entitlement_type != 'cash'">
+                                    Use the local currency for all cash entitlement amounts.
+                                </div>
                             </group>
                         </group>
-                        <group name="benefit_type_section">
+
+                        <group name="benefit_type_section" />
+
+                        <div class="o_horizontal_separator mt-2">Options</div>
+                        <group name="quick_options_section">
                             <group>
                                 <field
                                     name="import_beneficiaries"
                                     widget="radio"
-                                    string="Import beneficiaries now?"
+                                    string="Enroll automatically after creation? (optional)"
                                 />
+                                <div class="text-muted small mt-n3 mb-3" colspan="2">
+                                    No is selected by default. You can enroll later from the program page.
+                                </div>
                             </group>
+                            <!-- compliance_toggle_placeholder kept for XPath compatibility -->
+                            <group name="compliance_toggle_placeholder" invisible="1" />
                             <group>
                                 <field
                                     name="id_type_id"
                                     options="{'no_open':true,'no_create':true,'no_create_edit':true}"
-                                    string="Redemption ID"
-                                    help="ID type used to identify beneficiaries when they collect their benefits"
+                                    string="Redemption ID (optional)"
                                 />
+                                <div class="text-muted small mt-n3 mb-3" colspan="2">
+                                    ID used to identify beneficiaries when collecting benefits.
+                                </div>
                             </group>
-                        </group>
-                        <group name="quick_options_section">
-                            <group>
-                                <field
-                                    name="auto_approve_entitlements"
-                                    widget="boolean_toggle"
-                                    string="Auto-approve entitlements"
-                                />
-                            </group>
-                            <!-- Placeholder for compliance toggle added via CEL views -->
-                            <group name="compliance_toggle_placeholder" />
                         </group>
                     </div>
 
                     <!-- ======================================== -->
-                    <!-- STEP 2: Configuration Tabs               -->
+                    <!-- STEP 2: Accordion                        -->
                     <!-- ======================================== -->
-                    <notebook invisible="state != 'step2'">
-                        <!-- ======================================== -->
-                        <!-- STEP 2: Who Qualifies (Eligibility)      -->
-                        <!-- ======================================== -->
-                        <page string="Who Qualifies?" name="eligibility">
-                            <group colspan="4" col="4">
-                                <!-- Placeholder for eligibility type selection - extended by spp_programs SPP view -->
-                                <group
-                                    name="eligibility_type_selection"
-                                    colspan="4"
-                                    col="4"
-                                >
-                                    <!-- Extended by create_program_wizard_form_view_spp -->
-                                </group>
-                            </group>
-                        </page>
+                    <div invisible="state != 'step2'" class="mb-3">
+                        <div class="text-muted mb-1"><strong class="text-uppercase">Step 2 of 2</strong></div>
+                        <h4 class="mt-1 mb-2"><strong>Define eligibility and benefits</strong></h4>
+                    </div>
+                    <div class="accordion" id="wizardStep2Accordion" invisible="state != 'step2'">
 
-                        <!-- ======================================== -->
-                        <!-- STEP 2: What They Receive (Entitlement)  -->
-                        <!-- ======================================== -->
-                        <page string="Entitlements" name="entitlement">
-                            <!-- Cash/In-Kind specific content added via extension views -->
+                        <!-- WHO QUALIFIES -->
+                        <!-- Note: inline style used because Bootstrap bg-opacity utilities
+                             do not override the accordion-button's own background-color rule. -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button fw-semibold fs-6" type="button"
+                                        style="background-color: #e9ecef !important"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#accordionEligibility"
+                                        aria-expanded="true">
+                                    Who qualifies for this program?
+                                    <span class="text-danger fw-bold fs-5 ms-1">*</span>
+                                </button>
+                            </h2>
+                            <div id="accordionEligibility" class="accordion-collapse collapse show"
+                                 data-bs-parent="#wizardStep2Accordion">
+                                <div class="accordion-body">
+                                    <group colspan="4" col="4">
+                                        <group name="eligibility_type_selection" colspan="4" col="4">
+                                            <!-- Extended by create_program_wizard_form_view_spp -->
+                                        </group>
+                                    </group>
+                                </div>
+                            </div>
+                        </div>
 
-                            <!-- Approval Settings (compact) -->
-                            <group name="approval_settings">
-                                <field
-                                    name="entitlement_validation_group_id"
-                                    options="{'no_open':True,'no_create':True}"
-                                    invisible="1"
-                                />
-                                <field
-                                    name="entitlement_approval_definition_id"
-                                    options="{'no_open':True,'no_create':True}"
-                                    string="Approval Workflow"
-                                    help="Who must approve entitlements before they can be paid"
-                                    domain="[('model_id.model', '=', 'spp.entitlement.inkind' if entitlement_type == 'inkind' else 'spp.entitlement')]"
-                                />
-                            </group>
-                        </page>
-
-                        <!-- ======================================== -->
-                        <!-- STEP 2: Program Schedule (Cycle)         -->
-                        <!-- ======================================== -->
-                        <page string="Schedule" name="cycle">
-                            <group>
-                                <group>
-                                    <field
-                                        name="rrule_type"
-                                        widget="radio"
-                                        options="{'horizontal': true}"
-                                        string="Frequency"
-                                    />
-                                    <field
-                                        name="cycle_duration"
-                                        string="Duration"
-                                        help="How many days/weeks/months each cycle lasts"
-                                    />
-                                </group>
-                                <group>
-                                    <field
-                                        name="is_one_time_distribution"
-                                        widget="boolean_toggle"
-                                        string="One-time only"
-                                    />
-                                    <field
-                                        name="cycle_approval_definition_id"
-                                        options="{'no_open':True,'no_create':True}"
-                                        string="Cycle Approval"
-                                        help="Who must approve each distribution cycle"
-                                    />
-                                    <field
-                                        name="approver_group_id"
-                                        options="{'no_open':True,'no_create':True}"
-                                        invisible="1"
-                                    />
-                                </group>
-                            </group>
-
-                            <!-- Weekly options (compact) -->
-                            <group
-                                invisible="rrule_type != 'weekly' or is_one_time_distribution"
-                            >
-                                <group>
-                                    <field name="mon" />
-                                    <field name="tue" />
-                                    <field name="wed" />
-                                    <field name="thu" />
-                                </group>
-                                <group>
-                                    <field name="fri" />
-                                    <field name="sat" />
-                                    <field name="sun" />
-                                </group>
-                            </group>
-
-                            <!-- Monthly options (compact) -->
-                            <group
-                                invisible="rrule_type != 'monthly' or is_one_time_distribution"
-                            >
-                                <group>
-                                    <field
-                                        name="month_by"
-                                        widget="radio"
-                                        options="{'horizontal': true}"
-                                    />
-                                </group>
-                                <group invisible="month_by != 'date'">
-                                    <field name="day" string="Day (1-31)" />
-                                    <div
-                                        class="text-info small"
-                                        colspan="2"
-                                        invisible="not day_warning"
-                                    >
-                                        <i
-                                            class="fa fa-info-circle me-1"
-                                            title="Info"
+                        <!-- WHAT WILL THEY RECEIVE -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed fw-semibold fs-6" type="button"
+                                        style="background-color: #e9ecef !important"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#accordionEntitlements"
+                                        aria-expanded="false">
+                                    What will they receive?
+                                    <span class="text-danger fw-bold fs-5 ms-1">*</span>
+                                </button>
+                            </h2>
+                            <div id="accordionEntitlements" class="accordion-collapse collapse"
+                                 data-bs-parent="#wizardStep2Accordion">
+                                <div class="accordion-body">
+                                    <!-- Cash/In-Kind specific content added via extension views -->
+                                    <group name="approval_settings">
+                                        <field
+                                            name="auto_approve_entitlements"
+                                            widget="boolean_toggle"
+                                            string="Auto-approve entitlements (optional)"
+                                            help="Use only for small, low-risk programs. Entitlements go directly to payment without manual review."
                                         />
                                         <field
-                                            name="day_warning"
-                                            nolabel="1"
-                                            class="d-inline"
+                                            name="entitlement_validation_group_id"
+                                            options="{'no_open':True,'no_create':True}"
+                                            invisible="1"
                                         />
-                                    </div>
-                                </group>
-                                <group invisible="month_by != 'day'">
-                                    <field name="byday" string="Which" />
-                                    <field name="weekday" />
-                                </group>
-                            </group>
-                        </page>
-                    </notebook>
+                                        <field
+                                            name="entitlement_approval_definition_id"
+                                            options="{'no_open':True,'no_create':True}"
+                                            string="Approval Workflow"
+                                            help="Who must approve entitlements before they can be paid"
+                                            domain="[('model_id.model', '=', 'spp.entitlement.inkind' if entitlement_type == 'inkind' else 'spp.entitlement')]"
+                                        />
+                                    </group>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- HOW OFTEN ARE BENEFITS DISTRIBUTED -->
+                        <div class="accordion-item" name="cycle">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed fw-semibold fs-6" type="button"
+                                        style="background-color: #e9ecef !important"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#accordionSchedule"
+                                        aria-expanded="false">
+                                    How often are benefits distributed?
+                                    <span class="text-danger fw-bold fs-5 ms-1">*</span>
+                                </button>
+                            </h2>
+                            <div id="accordionSchedule" class="accordion-collapse collapse"
+                                 data-bs-parent="#wizardStep2Accordion">
+                                <div class="accordion-body">
+                                    <group>
+                                        <group>
+                                            <field
+                                                name="rrule_type"
+                                                widget="radio"
+                                                options="{'horizontal': true}"
+                                                string="Frequency"
+                                            />
+                                            <field
+                                                name="cycle_duration"
+                                                string="Duration"
+                                                help="How many days/weeks/months each cycle lasts"
+                                            />
+                                        </group>
+                                        <group>
+                                            <field
+                                                name="is_one_time_distribution"
+                                                widget="boolean_toggle"
+                                                string="One-time only"
+                                            />
+                                            <field
+                                                name="cycle_approval_definition_id"
+                                                options="{'no_open':True,'no_create':True}"
+                                                string="Cycle Approval"
+                                                help="Who must approve each distribution cycle"
+                                            />
+                                            <field
+                                                name="approver_group_id"
+                                                options="{'no_open':True,'no_create':True}"
+                                                invisible="1"
+                                            />
+                                        </group>
+                                    </group>
+                                    <group invisible="rrule_type != 'weekly' or is_one_time_distribution">
+                                        <group>
+                                            <field name="mon" />
+                                            <field name="tue" />
+                                            <field name="wed" />
+                                            <field name="thu" />
+                                        </group>
+                                        <group>
+                                            <field name="fri" />
+                                            <field name="sat" />
+                                            <field name="sun" />
+                                        </group>
+                                    </group>
+                                    <group invisible="rrule_type != 'monthly' or is_one_time_distribution">
+                                        <group>
+                                            <field
+                                                name="month_by"
+                                                widget="radio"
+                                                options="{'horizontal': true}"
+                                            />
+                                        </group>
+                                        <group invisible="month_by != 'date'">
+                                            <field name="day" string="Day (1-31)" />
+                                            <div
+                                                class="text-info small"
+                                                colspan="2"
+                                                invisible="not day_warning"
+                                            >
+                                                <i class="fa fa-info-circle me-1" title="Info" />
+                                                <field name="day_warning" nolabel="1" class="d-inline" />
+                                            </div>
+                                        </group>
+                                        <group invisible="month_by != 'day'">
+                                            <field name="byday" string="Which" />
+                                            <field name="weekday" />
+                                        </group>
+                                    </group>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Compliance accordion item added here by CEL views -->
+
+                    </div>
                 </sheet>
                 <footer>
                     <button
-                        string="Next: Configure Program"
+                        string="Next: Rules"
                         name="next_step"
                         type="object"
                         class="btn-primary"
@@ -236,12 +308,23 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         invisible="state != 'step2'"
                         icon="fa-arrow-left"
                     />
+                    <!-- Disabled placeholder: Odoo 17 form buttons do not support a dynamic
+                         disabled expression, so two buttons are used — one inert placeholder
+                         shown when step2_ready is False, one real button shown when True. -->
+                    <button
+                        string="Create Program"
+                        class="btn-primary"
+                        invisible="state != 'step2' or step2_ready"
+                        title="Complete required sections to continue"
+                        disabled="1"
+                        icon="fa-check"
+                    />
                     <button
                         string="Create Program"
                         name="create_program"
                         type="object"
                         class="btn-primary"
-                        invisible="state != 'step2'"
+                        invisible="state != 'step2' or not step2_ready"
                         icon="fa-check"
                     />
                     <button string="Cancel" class="btn-secondary" special="cancel" />
