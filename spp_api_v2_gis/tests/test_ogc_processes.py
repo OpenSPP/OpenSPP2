@@ -884,6 +884,31 @@ class TestOGCProcessesHTTP(ApiV2HttpTestCase):
         link_rels = [link["rel"] for link in data["links"]]
         self.assertIn("http://www.opengis.net/def/rel/ogc/1.0/processes", link_rels)
 
+    # === OpenAPI schema ===
+
+    def test_execute_request_inputs_documented_as_oneof(self):
+        """ExecuteRequest.inputs should document oneOf of typed inputs in OpenAPI.
+
+        Regression guard for the loss of typed input documentation in commit
+        46c2c364 ("revert ExecuteRequest.inputs to dict type").
+        """
+        response = self.url_open(f"{API_BASE}/openapi.json")
+        self.assertEqual(response.status_code, 200, response.text)
+        schema = response.json()
+
+        components = schema["components"]["schemas"]
+        self.assertIn("ExecuteRequest", components)
+        inputs_schema = components["ExecuteRequest"]["properties"]["inputs"]
+        self.assertIn("oneOf", inputs_schema, "ExecuteRequest.inputs must declare oneOf")
+
+        refs = [item.get("$ref") for item in inputs_schema["oneOf"]]
+        self.assertIn("#/components/schemas/SpatialStatisticsInputs", refs)
+        self.assertIn("#/components/schemas/ProximityStatisticsInputs", refs)
+
+        # Both referenced models must actually be present.
+        self.assertIn("SpatialStatisticsInputs", components)
+        self.assertIn("ProximityStatisticsInputs", components)
+
 
 class TestProcessGroupByInput(TransactionCase):
     """Unit tests for group_by input and breakdown response in OGC processes."""

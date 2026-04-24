@@ -7,6 +7,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from odoo.addons.spp_api_v2.utils.openapi_polymorphic import polymorphic_body
+
 from .geojson import GeoJSONGeometry
 from .ogc import OGCLink
 
@@ -144,8 +146,7 @@ class SpatialStatisticsInputs(BaseModel):
     geometry: GeoJSONGeometry | list[BatchGeometryItem] = Field(
         ...,
         description=(
-            "Query geometry as a single GeoJSON object or a list of "
-            "{id, value} objects for batch processing."
+            "Query geometry as a single GeoJSON object or a list of {id, value} objects for batch processing."
         ),
     )
     filters: dict | None = Field(
@@ -163,8 +164,7 @@ class SpatialStatisticsInputs(BaseModel):
     population_filter: dict | None = Field(
         default=None,
         description=(
-            "Filter registrants by program membership or CEL expression. "
-            "Example: {'program': 'HCP', 'mode': 'and'}"
+            "Filter registrants by program membership or CEL expression. Example: {'program': 'HCP', 'mode': 'and'}"
         ),
     )
 
@@ -232,8 +232,9 @@ class ExecuteRequest(BaseModel):
         },
     )
 
-    inputs: dict = Field(
-        ...,
+    inputs: dict = polymorphic_body(
+        SpatialStatisticsInputs,
+        ProximityStatisticsInputs,
         description="Process input values. Structure depends on the process being executed.",
     )
     outputs: dict | None = Field(default=None, description="Requested output values")
@@ -334,8 +335,7 @@ class SingleStatisticsResult(BaseModel):
     statistics: dict = Field(
         ...,
         description=(
-            "Computed statistics by indicator name. Each value is an object "
-            "with 'value' and 'suppressed' boolean."
+            "Computed statistics by indicator name. Each value is an object with 'value' and 'suppressed' boolean."
         ),
     )
     breakdown: dict | None = Field(
@@ -467,7 +467,9 @@ class ProximityResult(BaseModel):
     relation: str = Field(..., description="Spatial relation used (within, beyond)")
     statistics: dict = Field(
         ...,
-        description="Computed statistics by indicator. Map of indicator name to object with 'value' and 'suppressed' flag.",
+        description=(
+            "Computed statistics by indicator. Map of indicator name to object with 'value' and 'suppressed' flag."
+        ),
     )
     breakdown: dict | None = Field(default=None, description="Demographic breakdown by dimension")
     access_level: str | None = Field(default=None, description="Data access level applied")
@@ -484,4 +486,3 @@ BatchResultItem.model_rebuild()
 BatchSummary.model_rebuild()
 BatchStatisticsResult.model_rebuild()
 ProximityResult.model_rebuild()
-
