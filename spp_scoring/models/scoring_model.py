@@ -271,6 +271,8 @@ class SppScoringModel(models.Model):
         sorted_thresholds = self.threshold_ids.sorted(key=lambda t: t.min_score)
 
         # Check all consecutive threshold boundaries for gaps and overlaps.
+        # matches_score uses inclusive bounds on both ends, so shared
+        # boundaries (e.g. 0–20 / 20–40) overlap at the shared value.
         # Round to 2 decimal places to avoid IEEE-754 false positives
         # (e.g., 20.00 - 19.99 computing to 0.010000000000000009).
         for i, threshold in enumerate(sorted_thresholds[:-1]):
@@ -287,7 +289,7 @@ class SppScoringModel(models.Model):
                         "min": next_threshold.min_score,
                     }
                 )
-            elif gap < 0:
+            elif gap <= 0:
                 errors.append(
                     _("Overlap detected between thresholds '%(current)s' (max %(max)s) and '%(next)s' (min %(min)s).")
                     % {
