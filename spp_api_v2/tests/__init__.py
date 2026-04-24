@@ -27,6 +27,7 @@ from . import test_individual_service
 from . import test_jwt_secret_validation
 from . import test_metadata
 from . import test_oauth
+from . import test_openapi_polymorphic
 from . import test_organization_type_security
 from . import test_pagination
 from . import test_patch_api
