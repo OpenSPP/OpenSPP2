@@ -84,7 +84,7 @@ class SPPEntitlement(models.Model):
 
     is_cash_entitlement = fields.Boolean("Cash Entitlement", default=False)
     currency_id = fields.Many2one("res.currency", readonly=True, related="journal_id.currency_id")
-    initial_amount = fields.Monetary(required=True, currency_field="currency_id")
+    initial_amount = fields.Monetary(string="Amount", required=True, currency_field="currency_id")
     transfer_fee = fields.Monetary(currency_field="currency_id", default=0.0)
     balance = fields.Monetary(compute="_compute_balance")  # in company currency
     # TODO: implement transactions against this entitlement
