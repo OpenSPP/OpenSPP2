@@ -87,6 +87,15 @@ class DefaultProgramManager(models.Model):
     _inherit = ["spp.base.program.manager", "spp.manager.source.mixin"]
     _description = "Default Program Manager"
 
+    @api.depends("name")
+    def _compute_display_name(self):
+        """Smart default label when the manager still has the 'Default' auto-name."""
+        for rec in self:
+            if rec.name and rec.name != "Default":
+                rec.display_name = rec.name
+            else:
+                rec.display_name = _("Default Program Manager")
+
     number_of_cycles = fields.Integer(default=1)
     copy_last_cycle_on_new_cycle = fields.Boolean(string="Copy previous cycle", default=True)
 

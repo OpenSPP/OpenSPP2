@@ -373,6 +373,15 @@ class DefaultCycleManager(models.Model):
     ]
     _description = "Default Cycle Manager"
 
+    @api.depends("name")
+    def _compute_display_name(self):
+        """Smart default label when the manager still has the 'Default' auto-name."""
+        for rec in self:
+            if rec.name and rec.name != "Default":
+                rec.display_name = rec.name
+            else:
+                rec.display_name = _("Default Cycle Schedule")
+
     cycle_duration = fields.Integer(default=1, required=True, string="Recurrence")
     approver_group_id = fields.Many2one(
         comodel_name="res.groups",

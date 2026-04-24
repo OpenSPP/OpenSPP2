@@ -301,6 +301,15 @@ class DefaultCashEntitlementManager(models.Model):
     # Set to True so that the UI will display the payment management components
     IS_CASH_ENTITLEMENT = True
 
+    @api.depends("name")
+    def _compute_display_name(self):
+        """Smart default label when the manager still has the 'Default' auto-name."""
+        for rec in self:
+            if rec.name and rec.name != "Default":
+                rec.display_name = rec.name
+            else:
+                rec.display_name = _("Basic Cash")
+
     amount_per_cycle = fields.Monetary(
         currency_field="currency_id",
         aggregator="sum",

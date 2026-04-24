@@ -32,6 +32,15 @@ class SPPInKindEntitlementManager(models.Model):
     # Set to False so that the UI will not display the payment management components
     IS_CASH_ENTITLEMENT = False
 
+    @api.depends("name")
+    def _compute_display_name(self):
+        """Smart default label when the manager still has the 'Default' auto-name."""
+        for rec in self:
+            if rec.name and rec.name != "Default":
+                rec.display_name = rec.name
+            else:
+                rec.display_name = _("In-kind Entitlement")
+
     @api.model
     def _default_warehouse_id(self):
         return self.env["stock.warehouse"].search([("company_id", "=", self.env.company.id)], limit=1)
