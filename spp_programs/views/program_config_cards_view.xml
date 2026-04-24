@@ -469,6 +469,23 @@ Replaces the technical manager configuration with intuitive sections.
                             <div class="mb-2 text-muted small" colspan="2">
                                 Send SMS or other notifications to beneficiaries.
                             </div>
+                            <field name="has_outgoing_mail_server" invisible="1" />
+                            <field
+                                name="send_email_notifications"
+                                string="Email notifications"
+                                readonly="not has_outgoing_mail_server or state == 'ended' or not can_edit_configuration"
+                            />
+                            <div
+                                class="text-muted small"
+                                colspan="2"
+                                invisible="has_outgoing_mail_server"
+                            >
+                                <i class="fa fa-info-circle me-1" />
+                                No outgoing mail server is configured. Ask your administrator to set one up under
+                                <b
+                            >Settings → Technical → Email → Outgoing Mail Servers</b> before enabling email
+                                notifications.
+                            </div>
                             <field
                                 name="notification_manager_summary"
                                 string="Channel"
