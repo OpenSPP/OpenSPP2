@@ -21,33 +21,6 @@ class ResUsersCustomSPP(models.Model):
         for user in self:
             user.role_ids_stored = user.role_line_ids.filtered(lambda r: r.is_enabled).mapped("role_id")
 
-    @api.model
-    def _default_role_lines(self):
-        """Build default role lines from a template user when available.
-
-        ``base.default_user`` disappeared in Odoo 19.0, so we gracefully fall
-        back to the first user that already has role lines defined. This keeps
-        the feature working while remaining backward compatible when the XMLID
-        is present.
-        """
-
-        default_user = self.env.ref("base.default_user", raise_if_not_found=False)
-        if not default_user:
-            default_user = self.env["res.users"].search([("role_line_ids", "!=", False)], limit=1)
-
-        default_values = []
-        if default_user:
-            for role_line in default_user.with_context(active_test=False).role_line_ids:
-                default_values.append(
-                    {
-                        "role_id": role_line.role_id.id,
-                        "date_from": role_line.date_from,
-                        "date_to": role_line.date_to,
-                        "is_enabled": role_line.is_enabled,
-                    }
-                )
-        return default_values
-
     def set_groups_from_roles(self, force=False):
         """Override the original method to exclude some groups in removing."""
         DO_NOT_REMOVE_GROUPS = [

@@ -27,8 +27,8 @@ class TestUserRole(TransactionCase):
                 "name": "Test User",
                 "login": "test_user",
                 "role_line_ids": [
-                    (0, 0, {"role_id": cls.role_user.id}),
-                    (0, 0, {"role_id": cls.role_no_one.id}),
+                    Command.create({"role_id": cls.role_user.id}),
+                    Command.create({"role_id": cls.role_no_one.id}),
                 ],
             }
         )
@@ -44,19 +44,26 @@ class TestUserRole(TransactionCase):
         self.assertIn(self.env.ref("base.group_user").id, self.user.group_ids.ids)
         self.assertIn(self.env.ref("base.group_no_one").id, self.user.group_ids.ids)
 
-    def test_default_role_lines(self):
+    def test_default_role_lines_uses_is_default(self):
+        """Default role lines come from roles with is_default=True, not from arbitrary users."""
+        # Neither role is marked as default, so no defaults should be returned
         default_values = self.env["res.users"]._default_role_lines()
+        default_role_ids = [v["role_id"] for v in default_values]
+        self.assertNotIn(self.role_user.id, default_role_ids)
+        self.assertNotIn(self.role_no_one.id, default_role_ids)
 
-        self.assertTrue(bool(default_values))
-        self.assertEqual(len(default_values), 2)
-        self.assertEqual(default_values[0]["role_id"], self.role_user.id)
-        self.assertEqual(default_values[1]["role_id"], self.role_no_one.id)
-        self.assertTrue(default_values[0]["is_enabled"])
-        self.assertTrue(default_values[1]["is_enabled"])
-        self.assertFalse(default_values[0]["date_from"])
-        self.assertFalse(default_values[1]["date_from"])
-        self.assertFalse(default_values[0]["date_to"])
-        self.assertFalse(default_values[1]["date_to"])
+        # Mark one role as default
+        self.role_user.is_default = True
+        default_values = self.env["res.users"]._default_role_lines()
+        default_role_ids = [v["role_id"] for v in default_values]
+        self.assertIn(self.role_user.id, default_role_ids)
+        self.assertNotIn(self.role_no_one.id, default_role_ids)
+
+        # New user without explicit role_line_ids gets the default role
+        new_user = self.env["res.users"].create({"name": "New User", "login": "new_test_user"})
+        new_user_role_ids = new_user.role_line_ids.mapped("role_id").ids
+        self.assertIn(self.role_user.id, new_user_role_ids)
+        self.assertNotIn(self.role_no_one.id, new_user_role_ids)
 
     @unittest.skip("center_area_ids computation not available in Odoo 19 build")
     def test_compute_center_area_ids(self):
