@@ -188,11 +188,20 @@ class DefaultProgramManager(models.Model):
         if isinstance(states, str):
             states = [states]
 
+        # Mirror get_beneficiaries: when states is None/empty, no state filter is
+        # applied (i.e. all states). Otherwise restrict to the given states.
+        if states:
+            where_clause = "program_id = %s AND state IN %s"
+            params = (program.id, tuple(states))
+        else:
+            where_clause = "program_id = %s"
+            params = (program.id,)
+
         id_ranges = compute_id_ranges(
             self.env.cr,
             "spp_program_membership",
-            "program_id = %s AND state IN %s",
-            (program.id, tuple(states)),
+            where_clause,
+            params,
             self.MAX_ROW_JOB_QUEUE,
         )
 
