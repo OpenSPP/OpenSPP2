@@ -1,3 +1,8 @@
+### 19.0.2.0.11
+
+- Fix `TypeError: 'NoneType' object is not iterable` when clicking **Enroll Eligible** on programs with at least 200 beneficiaries (async dispatch path)
+- Mirror `get_beneficiaries` semantics in `_enroll_eligible_registrants_async`: when `state` is `None`, omit the state filter instead of crashing on `tuple(None)`
+
 ### 19.0.2.0.10
 
 - Increase parallel-safe channel limits (cycle, eligibility_manager, program_manager) from 1 to 4
