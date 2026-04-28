@@ -4,7 +4,7 @@
     "name": "OpenSPP MIS Demo V2",
     "summary": "Demo Generator V2 for SP-MIS programs with fixed stories and volume generation",
     "category": "OpenSPP",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.0.1",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -32,6 +32,10 @@
         "spp_claim_169",
         # Banking (for bank account demo data)
         "spp_banking",
+        # Disability tracking (Disability Support Grant program references
+        # res.partner.has_disability and the has_disabled_member /
+        # disabled_count CEL variables — see #929 round 2).
+        "spp_disability_registry",
         # Demo-specific extensions
     ],
     "external_dependencies": {"python": ["requests"]},

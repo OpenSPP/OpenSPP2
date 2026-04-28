@@ -674,6 +674,23 @@ class CelTranslator(models.AbstractModel):
 
     def _cmp_to_leaf(self, model: str, cmp: P.Compare, cfg: dict[str, Any], ctx: dict[str, Any]):  # noqa: C901
         opmap = {"EQ": "=", "NE": "!=", "GT": ">", "GE": ">=", "LT": "<", "LE": "<="}
+        # Aggregate variables (`spp.cel.variable` with `source_type='aggregate'`):
+        # rewrite a bare ident like `hh_total_income` into the equivalent
+        # `members.sum(m, m.income, filter)` method-call AST so the existing
+        # aggregate handler below consumes it. See OP#929 — without this branch
+        # the fallback at the bottom emits a non-existent res.partner field
+        # triple and the ORM rejects the domain.
+        if isinstance(cmp.left, P.Ident):
+            agg_var = self._resolve_aggregate_variable(cmp.left.name)
+            if agg_var:
+                synthesized = self._synthesize_aggregate_call(agg_var)
+                if synthesized is not None:
+                    return self._cmp_to_leaf(
+                        model,
+                        P.Compare(op=cmp.op, left=synthesized, right=cmp.right),
+                        cfg,
+                        ctx,
+                    )
         # Rewrite age_years(field) <op> N into date comparisons
         if isinstance(cmp.left, P.Call) and isinstance(cmp.left.func, P.Ident) and cmp.left.func.name == "age_years":
             fld, mdl = self._resolve_field(model, cmp.left.args[0], cfg, ctx)
@@ -1006,6 +1023,66 @@ class CelTranslator(models.AbstractModel):
         right = self._eval_literal(cmp.right, ctx)
         dom = self._smart_op_domain(left_field, opmap[cmp.op], right, left_model or model)
         return LeafDomain(left_model or model, dom), f"{left_field} {opmap[cmp.op]} {right}"
+
+    def _resolve_aggregate_variable(self, accessor: str):
+        """Look up a CEL variable by accessor and return it when it's an aggregate.
+
+        Returns the `spp.cel.variable` recordset (singleton) only when the
+        variable exists, is active, and has `source_type == "aggregate"`.
+        Returns None otherwise — callers fall through to standard field
+        resolution.
+        """
+        if "spp.cel.variable" not in self.env:
+            return None
+        var = self.env["spp.cel.variable"].search(
+            [
+                ("cel_accessor", "=", accessor),
+                ("active", "=", True),
+                ("source_type", "=", "aggregate"),
+            ],
+            limit=1,
+        )
+        return var or None
+
+    def _synthesize_aggregate_call(self, var):
+        """Build a method-call AST equivalent to the variable's aggregate.
+
+        Returns a `P.Call` node matching the syntax handled by the
+        method-style aggregate branch below (e.g. `members.sum(m, m.income,
+        filter)`), or None when the aggregate type is not supported in
+        comparison context (e.g. `exists`, which is used as a bare
+        predicate).
+        """
+        target = var.aggregate_target or "members"
+        agg_type = var.aggregate_type
+        filter_text = var.aggregate_filter or "true"
+        try:
+            filter_ast = P.parse(filter_text)
+        except Exception as exc:
+            raise CELValidationError(f"Invalid aggregate_filter on variable '{var.cel_accessor}': {exc}") from exc
+        var_node = P.Ident("m")
+        if agg_type == "count":
+            return P.Call(
+                func=P.Attr(obj=P.Ident(target), name="count"),
+                args=[var_node, filter_ast],
+            )
+        if agg_type in ("sum", "avg", "min", "max"):
+            field_name = var.aggregate_field
+            if not field_name:
+                raise CELValidationError(
+                    f"Aggregate variable '{var.cel_accessor}' of type '{agg_type}' has no aggregate_field set."
+                )
+            if field_name.startswith("m."):
+                field_name = field_name[2:]
+            return P.Call(
+                func=P.Attr(obj=P.Ident(target), name=agg_type),
+                args=[
+                    var_node,
+                    P.Attr(obj=var_node, name=field_name),
+                    filter_ast,
+                ],
+            )
+        return None
 
     def _eval_literal(self, node: Any, ctx: dict[str, Any] | None = None):  # noqa: C901
         cache = None

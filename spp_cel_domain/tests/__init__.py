@@ -26,3 +26,6 @@ from . import test_data_value
 from . import test_data_provider
 from . import test_multi_company
 from . import test_cel_relational_predicate
+
+# OP#929: aggregate variables in comparisons
+from . import test_cel_aggregate_variable

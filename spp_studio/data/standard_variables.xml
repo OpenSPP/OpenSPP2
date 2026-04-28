@@ -144,7 +144,7 @@
         <field name="category_id" ref="variable_category_household" />
         <field name="value_type">boolean</field>
         <field name="source_type">computed</field>
-        <field name="cel_expression">members.exists(m.is_person_with_disability)</field>
+        <field name="cel_expression">members.exists(m.has_disability)</field>
         <field name="cel_accessor">has_disabled_member</field>
         <field name="applies_to">group</field>
         <field name="is_system">True</field>
@@ -730,7 +730,7 @@
         <field name="value_type">boolean</field>
         <field name="source_type">field</field>
         <field name="source_model">res.partner</field>
-        <field name="source_field">is_person_with_disability</field>
+        <field name="source_field">has_disability</field>
         <field name="cel_accessor">has_disability</field>
         <field name="applies_to">individual</field>
         <field name="placement_zone_code">individual_profile_demographics</field>

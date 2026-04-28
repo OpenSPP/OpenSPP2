@@ -129,14 +129,14 @@
              Only define demo-specific aggregates here.
              ═══════════════════════════════════════════════════════════════════════ -->
 
-    <!-- Disabled member count: Members with is_person_with_disability flag -->
+    <!-- Disabled member count: Members with disability flag -->
     <record id="var_disabled_count" model="spp.cel.variable">
         <field name="name">disabled_count</field>
         <field name="cel_accessor">disabled_count</field>
         <field name="source_type">aggregate</field>
         <field name="value_type">number</field>
         <field name="aggregate_type">count</field>
-        <field name="aggregate_filter">m.is_person_with_disability</field>
+        <field name="aggregate_filter">m.has_disability</field>
         <field name="category_id" ref="var_category_demo" />
         <field name="cache_strategy">ttl</field>
         <field name="cache_ttl_seconds">86400</field>
