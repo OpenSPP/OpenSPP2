@@ -460,6 +460,15 @@ Replaces the technical manager configuration with intuitive sections.
                                 >
                                     <i class="fa fa-check me-1" />Configured
                                 </span>
+                                <!-- Zero-state: offer Add when payment isn't set up.
+                                     Mirrors the Compliance pattern (#952). -->
+                                <button
+                                    name="action_add_payment_manager"
+                                    type="object"
+                                    class="btn btn-sm btn-primary"
+                                    invisible="payment_manager_count != 0 or not can_edit_configuration"
+                                    icon="fa-plus"
+                                >Add</button>
                                 <button
                                     name="action_configure_payment"
                                     type="object"
@@ -478,6 +487,15 @@ Replaces the technical manager configuration with intuitive sections.
                         </div>
                         <div class="card-body py-3">
                             <field name="payment_manager_count" invisible="1" />
+                            <!-- Zero-state informational block -->
+                            <div
+                                class="text-muted py-3"
+                                invisible="payment_manager_count != 0"
+                            >
+                                <i class="fa fa-info-circle me-2" />
+                                No payment processing configured. Click <b
+                            >Add</b> above to define how payments are made.
+                            </div>
                             <group invisible="not payment_configured">
                                 <group>
                                     <field
@@ -498,14 +516,14 @@ Replaces the technical manager configuration with intuitive sections.
                                     placeholder="No payment processing configured yet — click Edit above."
                                 />
                             </group>
-                            <!-- Multi-manager list (0 or 2+ managers) -->
+                            <!-- Multi-manager list (2+ managers only — zero-state handled above) -->
                             <separator
                                 string="Payment Method"
-                                invisible="payment_manager_count == 1"
+                                invisible="payment_manager_count &lt;= 1"
                             />
                             <field
                                 name="payment_manager_ids"
-                                invisible="payment_manager_count == 1"
+                                invisible="payment_manager_count &lt;= 1"
                                 readonly="state == 'ended' or not can_edit_configuration"
                                 context="{'default_program_id': id}"
                                 nolabel="1"

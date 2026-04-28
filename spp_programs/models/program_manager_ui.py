@@ -632,6 +632,50 @@ class ProgramManagerUI(models.Model):
         )
         return wrapper.open_manager_form(title=_("Compliance Criteria"))
 
+    def action_add_payment_manager(self):
+        """Create a default payment manager and open it in a popup.
+
+        Mirrors action_add_compliance_manager: wrapper + concrete are
+        pre-created (committing to the DB before the dialog opens) so the
+        banner reflects the new manager as soon as the program form reloads
+        after the button click — regardless of whether Save inside the
+        dialog ends up being a no-op. See #952.
+        """
+        self.ensure_one()
+        if not self.can_edit_configuration:
+            return False
+        if self.payment_manager_ids:
+            return self.action_configure_payment()
+        # Seed the default batch tag so the create_batch constraint is
+        # satisfied at save time.
+        BatchTag = self.env["spp.payment.batch.tag"].sudo()  # nosemgrep: odoo-sudo-without-context
+        batch_tag_name = f"Default {self.name}"
+        batch_tag = BatchTag.search(
+            [("name", "=", batch_tag_name), ("order", "=", 1), ("max_batch_size", "=", 500)],
+            limit=1,
+        )
+        if not batch_tag:
+            batch_tag = BatchTag.create({"name": batch_tag_name, "order": 1, "domain": [], "max_batch_size": 500})
+        # default_get on spp.program.payment.manager.default supplies the
+        # name "Default Payment" — see #941 round 2 / item 3.
+        concrete = self.env["spp.program.payment.manager.default"].create(
+            {
+                "program_id": self.id,
+                "batch_tag_ids": [(4, batch_tag.id)],
+            }
+        )
+        wrapper = self.env["spp.program.payment.manager"].create(
+            {
+                "program_id": self.id,
+                "manager_ref_id": f"spp.program.payment.manager.default,{concrete.id}",
+            }
+        )
+        # payment_manager_ids is Many2many (unlike compliance_manager_ids
+        # which is One2many) — setting program_id on the wrapper does NOT
+        # add it to the program's m2m relation. Link it explicitly.
+        self.write({"payment_manager_ids": [(4, wrapper.id)]})
+        return wrapper.open_manager_form(title=_("Payment Processing"))
+
     def _open_manager_setup_wizard(self, manager_type):
         """Open wizard to set up a new manager of the specified type."""
         return {
