@@ -52,6 +52,47 @@ class SPPGroup(models.Model):
         "Group Members",
     )
 
+    # True when the group-membership-type vocabulary has at least one code.
+    # Used by views to hide the "Group Role" column entirely when the
+    # vocabulary is empty (otherwise the column shows blank tag cells with
+    # nothing pickable).
+    has_group_membership_type_codes = fields.Boolean(
+        compute="_compute_has_group_membership_type_codes",
+    )
+
+    # True when the group-type vocabulary has at least one code. Used to
+    # hide the Group Type form field when there's nothing to pick.
+    has_group_type_codes = fields.Boolean(
+        compute="_compute_has_group_type_codes",
+    )
+
+    def _compute_has_group_membership_type_codes(self):
+        # sudo() so non-admin readers can still resolve the column-visibility
+        # flag; we only return a boolean, no vocabulary content leaks.
+        has_codes = bool(
+            self.env["spp.vocabulary.code"]  # nosemgrep: odoo-sudo-without-context
+            .sudo()
+            .search_count(
+                [("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:group-membership-type")],
+                limit=1,
+            )
+        )
+        for rec in self:
+            rec.has_group_membership_type_codes = has_codes
+
+    def _compute_has_group_type_codes(self):
+        # sudo(): same rationale as above — we only expose a boolean.
+        has_codes = bool(
+            self.env["spp.vocabulary.code"]  # nosemgrep: odoo-sudo-without-context
+            .sudo()
+            .search_count(
+                [("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:group-type")],
+                limit=1,
+            )
+        )
+        for rec in self:
+            rec.has_group_type_codes = has_codes
+
     def write(self, values):
         res = super().write(values)
         self._validate_unique_membership_types()

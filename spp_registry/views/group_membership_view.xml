@@ -9,6 +9,7 @@
         <field name="priority">1</field>
         <field name="arch" type="xml">
             <list>
+                <field name="has_group_membership_type_codes" column_invisible="1" />
                 <field name="group" />
                 <field name="individual" />
                 <field
@@ -16,6 +17,7 @@
                     string="Group Role"
                     widget="many2many_tags"
                     options="{'no_create_edit':True,'no_open':True}"
+                    column_invisible="not has_group_membership_type_codes"
                 />
                 <field name="start_date" />
                 <field name="ended_date" />

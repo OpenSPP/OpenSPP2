@@ -583,10 +583,15 @@
                                                 help="Name of the group (e.g., Household, Family)"
                                             />
                                             <field
+                                                name="has_group_type_codes"
+                                                invisible="1"
+                                            />
+                                            <field
                                                 name="group_type_id"
                                                 string="Group Type"
                                                 options="{'no_open':True, 'no_create_edit':True,'no_create':True}"
                                                 readonly="disabled"
+                                                invisible="not has_group_type_codes"
                                                 help="Type of group classification"
                                             />
                                         </group>
