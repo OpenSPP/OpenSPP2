@@ -784,19 +784,23 @@ class SPPMISDemoGenerator(models.TransientModel):
         return registrant
 
     def _get_demographic_enricher(self):
-        """Get or create the demographic enricher for story registrants.
+        """Build a fresh demographic enricher for the current generation run.
 
-        Uses a class-level cache since Odoo model instances don't support
-        arbitrary attribute assignment.
+        No caching: an enricher's internal `_bank_ids` / vocab / country
+        caches are populated against the current cursor at construction
+        time. A class-level cache survives TransactionCase savepoint
+        rollbacks between tests, so by the time a later test re-uses the
+        cached enricher its `_bank_ids` reference `res.bank` rows that
+        no longer exist — the next `res.partner.bank` insert then raises
+        a `res_partner_bank_bank_id_fkey` violation. `_ensure_banks` and
+        `_cache_vocab_ids` are idempotent (search-then-create), so
+        re-instantiating costs only a handful of SELECTs.
         """
-        cache_key = "_demo_enricher_cache"
-        if not hasattr(type(self), cache_key) or getattr(type(self), cache_key) is None:
-            from .demographic_enricher import DemographicEnricher
+        from .demographic_enricher import DemographicEnricher
 
-            locale = self.env.context.get("demo_locale", "fil_PH")
-            rng = random.Random(99)  # Separate seed from volume generation
-            setattr(type(self), cache_key, DemographicEnricher(self.env, locale, rng))
-        return getattr(type(self), cache_key)
+        locale = self.env.context.get("demo_locale", "fil_PH")
+        rng = random.Random(99)  # Separate seed from volume generation
+        return DemographicEnricher(self.env, locale, rng)
 
     def _enrich_all_story_registrants(self, stories):
         """Enrich all story registrants with demographic data if not already set.
