@@ -53,11 +53,20 @@
                         string="Incident Impacts"
                         invisible="hazard_impact_count == 0"
                     >
+                        <div
+                            invisible="hazard_impact_count != 0"
+                            class="text-muted small"
+                            colspan="2"
+                        >
+                            No hazard impacts recorded yet.
+                        </div>
                         <field
                             name="hazard_impact_ids"
                             nolabel="1"
                             readonly="1"
                             colspan="2"
+                            widget="x2many_no_padding"
+                            invisible="hazard_impact_count == 0"
                         >
                             <list>
                                 <field name="incident_id" />

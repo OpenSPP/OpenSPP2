@@ -64,6 +64,7 @@
             "spp_registry/static/src/css/registry.css",
             "spp_registry/static/src/css/registry_form.css",
             "spp_registry/static/src/js/form_text_overflow.js",
+            "spp_registry/static/src/js/x2many_no_padding_field.js",
         ],
     },
     "oca_data_manual": [

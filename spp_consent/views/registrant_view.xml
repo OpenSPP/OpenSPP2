@@ -17,13 +17,24 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
             <!-- Add consent field to verification section -->
             <xpath expr="//group[@name='verification_section']" position="inside">
-                <field name="consent_ids" nolabel="1" readonly="1">
+                <separator string="Consents" colspan="2" />
+                <field
+                    name="consent_ids"
+                    nolabel="1"
+                    readonly="1"
+                    widget="x2many_no_padding"
+                    invisible="not consent_ids"
+                    colspan="2"
+                >
                     <list>
                         <field name="name" />
                         <field name="signatory_id" column_invisible="1" />
                         <field name="expiry" />
                     </list>
                 </field>
+                <div class="text-muted small" invisible="consent_ids" colspan="2">
+                    No consents recorded yet. Click "Record Consent" above to add one.
+                </div>
             </xpath>
 
             <xpath expr="//div[@name='button_box']" position="inside">
@@ -59,13 +70,24 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
             <!-- Add consent field to verification section -->
             <xpath expr="//group[@name='group_verification_section']" position="inside">
-                <field name="consent_ids" nolabel="1" readonly="1">
+                <separator string="Consents" colspan="2" />
+                <field
+                    name="consent_ids"
+                    nolabel="1"
+                    readonly="1"
+                    widget="x2many_no_padding"
+                    invisible="not consent_ids"
+                    colspan="2"
+                >
                     <list>
                         <field name="name" />
                         <field name="signatory_id" />
                         <field name="expiry" />
                     </list>
                 </field>
+                <div class="text-muted small" invisible="consent_ids" colspan="2">
+                    No consents recorded yet. Click "Record Consent" above to add one.
+                </div>
             </xpath>
 
             <xpath expr="//div[@name='button_box']" position="inside">
