@@ -27,7 +27,7 @@ class SPPGroupMembership(models.Model):
     )
     membership_type_ids = fields.Many2many(
         "spp.vocabulary.code",
-        string="Membership Types",
+        string="Group Role",
         domain="[('namespace_uri', '=', 'urn:openspp:vocab:group-membership-type')]",
     )
     start_date = fields.Datetime(default=lambda self: fields.Datetime.now())

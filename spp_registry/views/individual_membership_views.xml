@@ -32,7 +32,7 @@
                         />
                         <field
                             name="membership_type_ids"
-                            string="Membership Types"
+                            string="Group Role"
                             widget="many2many_tags"
                             options="{'no_open':True, 'no_create_edit':True}"
                         />

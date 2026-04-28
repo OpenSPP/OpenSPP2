@@ -13,7 +13,7 @@
                 <field name="individual" />
                 <field
                     name="membership_type_ids"
-                    string="Membership Types"
+                    string="Group Role"
                     widget="many2many_tags"
                     options="{'no_create_edit':True,'no_open':True}"
                 />
@@ -52,10 +52,7 @@
                             />
                         </h1>
                         <div class="o_row">
-                            <label
-                                for="membership_type_ids"
-                                string="Membership Types:"
-                            />
+                            <label for="membership_type_ids" string="Group Role:" />
                             <field
                                 name="membership_type_ids"
                                 widget="many2many_tags"
