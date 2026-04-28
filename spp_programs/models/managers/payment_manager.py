@@ -84,14 +84,13 @@ class DefaultFilePaymentManager(models.Model):
     MAX_PAYMENTS_FOR_SYNC_PREPARE = 200
     MAX_BATCHES_FOR_SYNC_SEND = 50
 
-    @api.depends("name")
-    def _compute_display_name(self):
-        """Smart default label when the manager still has the 'Default' auto-name."""
-        for rec in self:
-            if rec.name and rec.name != "Default":
-                rec.display_name = rec.name
-            else:
-                rec.display_name = _("Default Payment")
+    @api.model
+    def default_get(self, fields_list):
+        """Default the manager name to its method-specific label."""
+        res = super().default_get(fields_list)
+        if "name" in fields_list:
+            res.setdefault("name", _("Default Payment"))
+        return res
 
     currency_id = fields.Many2one("res.currency", related="program_id.journal_id.currency_id", readonly=True)
 

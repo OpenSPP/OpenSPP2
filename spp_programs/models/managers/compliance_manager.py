@@ -97,16 +97,13 @@ class DefaultComplianceManager(models.Model):
     _inherit = ["spp.compliance.manager.base", "spp.manager.source.mixin"]
     _description = "Default Compliance Manager"
 
-    @api.depends("name", "compliance_cel_mode")
-    def _compute_display_name(self):
-        """Smart default label when the manager still has the 'Default' auto-name."""
-        for rec in self:
-            if rec.name and rec.name != "Default":
-                rec.display_name = rec.name
-            elif rec.compliance_cel_mode == "cel":
-                rec.display_name = _("CEL Compliance Criteria")
-            else:
-                rec.display_name = rec.name or _("Compliance Criteria")
+    @api.model
+    def default_get(self, fields_list):
+        """Default the manager name to its method-specific label."""
+        res = super().default_get(fields_list)
+        if "name" in fields_list:
+            res.setdefault("name", _("CEL Compliance Criteria"))
+        return res
 
     # Mode selection
     compliance_cel_mode = fields.Selection(

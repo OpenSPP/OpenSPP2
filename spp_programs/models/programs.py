@@ -289,12 +289,14 @@ class SPPProgram(models.Model):
         ret_vals = {}
         for mgr_fld in self.MANAGER_MODELS:
             for mgr_obj in self.MANAGER_MODELS[mgr_fld]:
-                # Add a new record to default manager models
+                # Add a new record to default manager models. The concrete
+                # model's default_get() supplies a method-specific name (e.g.
+                # "CEL Eligibility Criteria") so we don't pass the placeholder
+                # "Default" anymore — see #941 round 2.
                 def_mgr_obj = self.MANAGER_MODELS[mgr_fld][mgr_obj]
                 _logger.debug("DEBUG: %s", def_mgr_obj)
                 def_mgr = self.env[def_mgr_obj].create(
                     {
-                        "name": "Default",
                         "program_id": program_id,
                     }
                 )

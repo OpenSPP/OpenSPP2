@@ -39,14 +39,13 @@ class SppCashEntitlementManager(models.Model):
     # Set to True so that the UI will display the payment management components
     IS_CASH_ENTITLEMENT = True
 
-    @api.depends("name")
-    def _compute_display_name(self):
-        """Smart default label when the manager still has the 'Default' auto-name."""
-        for rec in self:
-            if rec.name and rec.name != "Default":
-                rec.display_name = rec.name
-            else:
-                rec.display_name = _("Cash Entitlement")
+    @api.model
+    def default_get(self, fields_list):
+        """Default the manager name to its method-specific label."""
+        res = super().default_get(fields_list)
+        if "name" in fields_list:
+            res.setdefault("name", _("Cash Entitlement"))
+        return res
 
     # Cash Entitlement Manager
     is_evaluate_one_item = fields.Boolean(default=False)

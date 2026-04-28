@@ -85,28 +85,28 @@ MANAGER_TYPE_INFO = {
     },
     # Cycle Managers
     "spp.cycle.manager.default": {
-        "name": "Default",
+        "name": "Default Cycle Schedule",
         "icon": "fa-calendar",
         "description": "Standard cycle management with recurrence options",
         "category": "cycle",
     },
     # Program Managers
     "spp.program.manager.default": {
-        "name": "Default",
+        "name": "Default Program Manager",
         "icon": "fa-cogs",
         "description": "Standard program management",
         "category": "program",
     },
     # Payment Managers
     "spp.program.payment.manager.default": {
-        "name": "Default",
+        "name": "Default Payment",
         "icon": "fa-credit-card",
         "description": "Standard payment processing",
         "category": "payment",
     },
     # Deduplication Managers
     "spp.deduplication.manager.default": {
-        "name": "Default",
+        "name": "Default Deduplication",
         "icon": "fa-copy",
         "description": "Basic deduplication checks",
         "category": "deduplication",
@@ -621,7 +621,9 @@ class ProgramManagerUI(models.Model):
         if self.compliance_manager_ids:
             # Already exists — just open the first one.
             return self.action_configure_compliance()
-        concrete = self.env["spp.compliance.manager.default"].create({"name": "Default", "program_id": self.id})
+        # default_get on spp.compliance.manager.default supplies the
+        # name "CEL Compliance Criteria" — see #941 round 2 / item 3.
+        concrete = self.env["spp.compliance.manager.default"].create({"program_id": self.id})
         wrapper = self.env["spp.compliance.manager"].create(
             {
                 "program_id": self.id,
