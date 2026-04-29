@@ -11,9 +11,15 @@
                 <field name="domain" optional="show" />
                 <field name="version" optional="hide" />
                 <field name="code_count" string="Codes" />
-                <field name="is_system" widget="boolean_toggle" />
+                <!-- Read-only in the list: system status is set by the
+                     module's data files, not user-toggleable; and
+                     archiving a vocabulary should go through the form
+                     (where it's already gated to non-system vocabs).
+                     Conditional readonly per row would be ideal here but
+                     is not in scope for this round — see OP#954. -->
+                <field name="is_system" widget="boolean_toggle" readonly="1" />
                 <field name="is_hierarchical" optional="hide" />
-                <field name="active" widget="boolean_toggle" />
+                <field name="active" widget="boolean_toggle" readonly="1" />
             </list>
         </field>
     </record>
