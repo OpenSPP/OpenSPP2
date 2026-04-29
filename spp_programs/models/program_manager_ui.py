@@ -608,73 +608,72 @@ class ProgramManagerUI(models.Model):
         return False
 
     def action_add_compliance_manager(self):
-        """Create a compliance manager and open it in a popup.
+        """Open the default compliance manager form in create mode.
 
-        Compliance is optional, so the zero-state on the program form shows
-        an "Add" button instead of the generic manager list. This action
-        creates the wrapper + concrete default record and opens its form so
-        the user can immediately edit the CEL expression.
+        The program form's compliance banner shows a `+ Add` zero-state
+        button when no compliance manager is configured. We open the
+        concrete model (`spp.compliance.manager.default`) in create mode
+        with `default_program_id` and `_spp_wrapper_model` in context.
+        Saving the dialog runs the source-mixin's `create()` override,
+        which auto-creates the wrapper (see source_mixin.py). Dismissing
+        the dialog with `X` leaves nothing in the DB — that's the whole
+        point of #953.
         """
         self.ensure_one()
         if not self.can_edit_configuration:
             return False
         if self.compliance_manager_ids:
-            # Already exists — just open the first one.
             return self.action_configure_compliance()
-        # default_get on spp.compliance.manager.default supplies the
-        # name "CEL Compliance Criteria" — see #941 round 2 / item 3.
-        concrete = self.env["spp.compliance.manager.default"].create({"program_id": self.id})
-        wrapper = self.env["spp.compliance.manager"].create(
-            {
-                "program_id": self.id,
-                "manager_ref_id": f"spp.compliance.manager.default,{concrete.id}",
-            }
-        )
-        return wrapper.open_manager_form(title=_("Compliance Criteria"))
+        Concrete = self.env["spp.compliance.manager.default"]
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Compliance Criteria"),
+            "res_model": Concrete._name,
+            "view_mode": "form",
+            "views": [(Concrete.get_manager_view_id(), "form")],
+            "target": "new",
+            "context": {
+                "default_program_id": self.id,
+                # The mixin's create() will create the wrapper and rely
+                # on its `program_id` inverse to populate the program's
+                # One2many `compliance_manager_ids` automatically — no
+                # m2m write needed.
+                "_spp_wrapper_model": "spp.compliance.manager",
+            },
+        }
 
     def action_add_payment_manager(self):
-        """Create a default payment manager and open it in a popup.
+        """Open the default payment manager form in create mode.
 
-        Mirrors action_add_compliance_manager: wrapper + concrete are
-        pre-created (committing to the DB before the dialog opens) so the
-        banner reflects the new manager as soon as the program form reloads
-        after the button click — regardless of whether Save inside the
-        dialog ends up being a no-op. See #952.
+        Mirrors `action_add_compliance_manager`. The concrete model's
+        `create()` override auto-creates the default batch tag if the
+        form was saved with `create_batch=True` and no tag selected —
+        so we don't have to pre-create it here (which would orphan the
+        tag if the user dismisses the dialog). The source-mixin's
+        `create()` override creates the wrapper, then writes it into
+        the program's `payment_manager_ids` Many2many because that
+        field doesn't auto-resolve via the wrapper's `program_id`
+        inverse. See #953.
         """
         self.ensure_one()
         if not self.can_edit_configuration:
             return False
         if self.payment_manager_ids:
             return self.action_configure_payment()
-        # Seed the default batch tag so the create_batch constraint is
-        # satisfied at save time.
-        BatchTag = self.env["spp.payment.batch.tag"].sudo()  # nosemgrep: odoo-sudo-without-context
-        batch_tag_name = f"Default {self.name}"
-        batch_tag = BatchTag.search(
-            [("name", "=", batch_tag_name), ("order", "=", 1), ("max_batch_size", "=", 500)],
-            limit=1,
-        )
-        if not batch_tag:
-            batch_tag = BatchTag.create({"name": batch_tag_name, "order": 1, "domain": [], "max_batch_size": 500})
-        # default_get on spp.program.payment.manager.default supplies the
-        # name "Default Payment" — see #941 round 2 / item 3.
-        concrete = self.env["spp.program.payment.manager.default"].create(
-            {
-                "program_id": self.id,
-                "batch_tag_ids": [(4, batch_tag.id)],
-            }
-        )
-        wrapper = self.env["spp.program.payment.manager"].create(
-            {
-                "program_id": self.id,
-                "manager_ref_id": f"spp.program.payment.manager.default,{concrete.id}",
-            }
-        )
-        # payment_manager_ids is Many2many (unlike compliance_manager_ids
-        # which is One2many) — setting program_id on the wrapper does NOT
-        # add it to the program's m2m relation. Link it explicitly.
-        self.write({"payment_manager_ids": [(4, wrapper.id)]})
-        return wrapper.open_manager_form(title=_("Payment Processing"))
+        Concrete = self.env["spp.program.payment.manager.default"]
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Payment Processing"),
+            "res_model": Concrete._name,
+            "view_mode": "form",
+            "views": [(Concrete.get_manager_view_id(), "form")],
+            "target": "new",
+            "context": {
+                "default_program_id": self.id,
+                "_spp_wrapper_model": "spp.program.payment.manager",
+                "_spp_program_m2m_field": "payment_manager_ids",
+            },
+        }
 
     def _open_manager_setup_wizard(self, manager_type):
         """Open wizard to set up a new manager of the specified type."""
