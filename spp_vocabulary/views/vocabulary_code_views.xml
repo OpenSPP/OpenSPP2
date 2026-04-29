@@ -55,16 +55,28 @@
                         bg_color="text-bg-warning"
                         invisible="not deprecated"
                     />
+                    <!-- Hidden: needed by the readonly expressions on identifying
+                         fields below. System vocabularies lock their codes from
+                         edits unless the code is a deployment-local override
+                         (`is_local=True`). See OP#954 — and the matching Python
+                         guard in models/vocabulary_code.py:279. -->
+                    <field name="is_local" invisible="1" />
                     <div class="oe_title">
                         <h1>
                             <field
                                 name="display"
                                 placeholder="Display Name"
                                 required="1"
+                                readonly="vocabulary_id.is_system and not is_local"
                             />
                         </h1>
                         <h2>
-                            <field name="code" placeholder="Code" required="1" />
+                            <field
+                                name="code"
+                                placeholder="Code"
+                                required="1"
+                                readonly="vocabulary_id.is_system and not is_local"
+                            />
                         </h2>
                     </div>
 
@@ -76,6 +88,7 @@
                                         name="vocabulary_id"
                                         required="1"
                                         domain="[('is_system', '=', False)]"
+                                        readonly="vocabulary_id.is_system and not is_local"
                                     />
                                     <field name="namespace_uri" readonly="1" />
                                     <field
@@ -83,7 +96,10 @@
                                         help="Drag rows in list view to reorder"
                                     />
                                     <field name="active" />
-                                    <field name="target_type" />
+                                    <field
+                                        name="target_type"
+                                        readonly="vocabulary_id.is_system and not is_local"
+                                    />
                                 </group>
                                 <group
                                     name="hierarchy"
@@ -93,6 +109,7 @@
                                     <field
                                         name="parent_id"
                                         domain="[('vocabulary_id', '=', vocabulary_id)]"
+                                        readonly="vocabulary_id.is_system and not is_local"
                                     />
                                     <field name="level" readonly="1" />
                                 </group>
@@ -103,6 +120,7 @@
                                     nolabel="1"
                                     colspan="2"
                                     placeholder="Formal definition of what this code means..."
+                                    readonly="vocabulary_id.is_system and not is_local"
                                 />
                             </group>
                             <group name="lifecycle_section" string="Lifecycle">
