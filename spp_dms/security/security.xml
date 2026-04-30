@@ -64,7 +64,6 @@
 
     <record id="group_dms_user" model="res.groups">
         <field name="name">User (Deprecated)</field>
-        <field name="privilege_id" ref="privilege_dms" />
         <field
             name="comment"
         >DEPRECATED: Legacy group maintained for backwards compatibility. Use group_dms_officer instead.</field>
