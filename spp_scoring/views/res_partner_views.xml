@@ -25,4 +25,31 @@
             </xpath>
         </field>
     </record>
+
+    <!-- Action → Score Registrant (cog / Actions dropdown).
+
+         The Scores smart button only opens existing results; this server
+         action exposes the actual "trigger scoring" entry-point in the
+         form's Actions dropdown and on the registry list view's bulk
+         Actions menu. Calls the existing `action_score_registrant`
+         method which opens the batch scoring wizard pre-filled for
+         the selected registrant(s). See OP#837. -->
+    <record id="action_score_registrant_server" model="ir.actions.server">
+        <field name="name">Score Registrant</field>
+        <field name="model_id" ref="base.model_res_partner" />
+        <field name="binding_model_id" ref="base.model_res_partner" />
+        <field name="binding_view_types">form,list</field>
+        <field
+            name="group_ids"
+            eval="[(6, 0, [
+            ref('spp_scoring.group_scoring_officer'),
+            ref('spp_scoring.group_scoring_manager'),
+            ref('spp_scoring.group_scoring_config_admin'),
+        ])]"
+        />
+        <field name="state">code</field>
+        <field
+            name="code"
+        >action = records.action_score_registrant() if records else None</field>
+    </record>
 </odoo>

@@ -37,16 +37,25 @@ class ResPartner(models.Model):
         }
 
     def action_score_registrant(self):
-        """Open the batch scoring wizard pre-filled for this registrant."""
-        self.ensure_one()
+        """Open the batch scoring wizard pre-filled for the selected registrant(s).
+
+        Works for both single-record (form view) and multi-record
+        (list-view bulk selection) calls. The wizard's `registrant_ids`
+        m2m takes precedence over `registrant_domain` (see
+        wizard/batch_scoring_wizard.py:70), so we only need to seed the
+        m2m. The redundant `default_domain` keeps the wizard form's
+        "Domain" field readable when a user opens it on one record.
+        """
+        if not self:
+            return False
+        ctx = {"default_registrant_ids": self.ids}
+        if len(self) == 1:
+            ctx["default_registrant_domain"] = f"[('id', '=', {self.id})]"
         return {
             "name": "Score Registrant",
             "type": "ir.actions.act_window",
             "res_model": "spp.batch.scoring.wizard",
             "view_mode": "form",
             "target": "new",
-            "context": {
-                "default_registrant_ids": self.ids,
-                "default_domain": f"[('id', '=', {self.id})]",
-            },
+            "context": ctx,
         }
