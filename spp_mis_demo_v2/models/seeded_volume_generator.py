@@ -72,7 +72,7 @@ class SeededVolumeGenerator:
 
         # Caches
         self._gender_cache = {}
-        self._head_type_id = None
+        self._membership_type_cache = {}
         self._group_type_id = None
 
     # =========================================================================
@@ -177,7 +177,13 @@ class SeededVolumeGenerator:
         # Phase 4: Create memberships and link to groups
         _logger.info("Phase 4/%d: Creating %d memberships...", 4, len(individuals))
         membership_vals_list = []
-        head_type_id = self._get_head_type_id()
+        role_to_type_code = {
+            "head": "head",
+            "spouse": "spouse",
+            "child": "child",
+            "adult": "other",
+            "elderly": "other",
+        }
 
         current_group = None
         has_head_for_current_group = False
@@ -196,8 +202,17 @@ class SeededVolumeGenerator:
                 "start_date": group_record.registration_date,
             }
 
-            if member_spec["role"] == "head" and not has_head_for_current_group and head_type_id:
-                mval["membership_type_ids"] = [(4, head_type_id)]
+            role = member_spec["role"]
+            if role == "head" and has_head_for_current_group:
+                type_code = "other"
+            else:
+                type_code = role_to_type_code.get(role, "other")
+
+            type_id = self._get_membership_type_id(type_code)
+            if type_id:
+                mval["membership_type_ids"] = [(4, type_id)]
+
+            if role == "head" and not has_head_for_current_group:
                 has_head_for_current_group = True
                 # Update group name to head's family name
                 group_record.name = individual.family_name or individual.name
@@ -483,12 +498,12 @@ class SeededVolumeGenerator:
             self._gender_cache[gender] = code.id if code else False
         return self._gender_cache[gender]
 
-    def _get_head_type_id(self):
-        """Get the 'head' membership type ID, with caching."""
-        if self._head_type_id is None:
-            head_type = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", "head")
-            self._head_type_id = head_type.id if head_type else False
-        return self._head_type_id
+    def _get_membership_type_id(self, code):
+        """Get a group-membership-type vocabulary code ID, with caching."""
+        if code not in self._membership_type_cache:
+            rec = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", code)
+            self._membership_type_cache[code] = rec.id if rec else False
+        return self._membership_type_cache[code]
 
     def _get_group_type_id(self):
         """Get a default group type ID, with caching."""
