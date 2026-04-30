@@ -234,9 +234,33 @@ class DefaultProgramManager(models.Model):
                 )
                 hook_failed |= member
 
+        # Re-check already-enrolled members against the current
+        # eligibility rules. "Verify Eligibility" implies a fresh check;
+        # an enrolled registrant whose data became invalid (e.g. a
+        # required indicator now resolves to a sentinel string) must be
+        # demoted, not silently kept enrolled. We work from `member_before`
+        # (pre-eligibility-manager-filter) so an enrolled member that the
+        # default manager would silently skip is still re-checked here.
+        # See OP#838.
+        already_enrolled = member_before.filtered(lambda m: m.state == "enrolled")
+        re_verify_failed = self.env["spp.program.membership"]
+        for member in already_enrolled:
+            try:
+                program._pre_enrollment_hook(member.partner_id)
+            except (ValidationError, UserError) as e:
+                _logger.info(
+                    "Re-verify rejected enrolled registrant %s: %s",
+                    member.partner_id.id,
+                    str(e),
+                )
+                re_verify_failed |= member
+
         enrollable = not_enrolled - hook_failed
         if hook_failed:
             hook_failed.write({"state": "not_eligible"})
+
+        if re_verify_failed:
+            re_verify_failed.write({"state": "not_eligible"})
 
         enrollable.write(
             {

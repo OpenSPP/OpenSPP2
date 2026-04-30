@@ -2,6 +2,7 @@ from . import scoring_model
 from . import scoring_indicator
 from . import scoring_value_mapping
 from . import scoring_threshold
+from . import scoring_invalid_value
 from . import scoring_result
 from . import scoring_result_detail
 from . import scoring_engine

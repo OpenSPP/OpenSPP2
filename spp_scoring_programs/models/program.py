@@ -92,6 +92,17 @@ class SppProgram(models.Model):
             "reason": None,
         }
 
+        # Incomplete result (strict-mode required-indicator failure) ⇒
+        # the registrant's current data does not satisfy the model's
+        # required indicators. Reject explicitly so the caller surfaces
+        # the underlying failure instead of an opaque score-out-of-range
+        # error. See OP#838.
+        if not score_result.is_complete:
+            result["reason"] = _("Score incomplete — required data missing: %s") % (
+                score_result.error_messages or _("see scoring result for details")
+            )
+            return result
+
         # Check classification-based eligibility
         if self.eligibility_classifications:
             allowed_classifications = [c.strip() for c in self.eligibility_classifications.split(",")]

@@ -93,6 +93,16 @@ class SppScoringIndicator(models.Model):
         default=0.0,
         help="Score to use when value is missing or not mapped",
     )
+    invalid_value_ids = fields.Many2many(
+        comodel_name="spp.scoring.invalid.value",
+        string="Invalid Values",
+        help=(
+            "Pick from the curated library of strings that should be "
+            "treated as missing for this indicator (e.g. 'No Birthdate!'). "
+            "Manage the library under Scoring → Configuration → "
+            "Invalid Values."
+        ),
+    )
 
     # Value mappings
     value_mapping_ids = fields.One2many(

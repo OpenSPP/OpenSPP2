@@ -71,6 +71,12 @@ class SppScoringEngine(models.AbstractModel):
         # Get sorted indicators (prefetched)
         indicators = scoring_model.indicator_ids.sorted(key=lambda i: i.sequence)
 
+        # Track required-indicator failures separately. In strict mode
+        # these mark the whole result as incomplete (audit row only — no
+        # score is published downstream); other indicator errors are
+        # recorded in error_messages but don't block the score.
+        required_failures = []
+
         # Process each indicator
         for indicator in indicators:
             result = self._calculate_indicator(indicator, registrant)
@@ -79,6 +85,7 @@ class SppScoringEngine(models.AbstractModel):
             if result.get("error"):
                 errors.append(result["error"])
                 if is_strict_mode and indicator.is_required:
+                    required_failures.append(indicator)
                     continue
 
             total_score += result.get("weighted_score", 0.0)
@@ -115,26 +122,20 @@ class SppScoringEngine(models.AbstractModel):
         if calculation_method == "cel_formula":
             total_score = self._calculate_cel_total(scoring_model, registrant, inputs_snapshot)
 
-        # In strict mode, required-indicator failures must prevent score creation
-        # (not just mark the result incomplete) — otherwise an invalid score
-        # can still enroll a registrant.
-        if errors and is_strict_mode:
-            raise UserError(
-                _(
-                    "Cannot calculate score for '%(name)s' in strict mode. "
-                    "%(count)d required indicator(s) failed:\n- %(errors)s"
-                )
-                % {
-                    "name": registrant.display_name,
-                    "count": len(errors),
-                    "errors": "\n- ".join(errors),
-                }
-            )
-
-        # Determine classification (thresholds already prefetched)
-        classification = self._get_classification(total_score, scoring_model)
-
-        is_complete = True
+        # Strict mode + at least one required-indicator failure → the
+        # result is persisted as an audit row but flagged incomplete.
+        # Score is zeroed and classification cleared so a downstream
+        # consumer that forgets to gate on `is_complete` still gets
+        # nothing meaningful. The cache layer in
+        # scoring_data_integration._store_score_in_cache and the
+        # cached-lookup path in scoring_result.get_latest_score both
+        # filter on is_complete=True. See OP#838.
+        is_complete = not (is_strict_mode and required_failures)
+        if not is_complete:
+            total_score = 0.0
+            classification = {"code": False, "label": False, "color": False}
+        else:
+            classification = self._get_classification(total_score, scoring_model)
 
         # Create result record
         Result = self.env["spp.scoring.result"]
@@ -177,8 +178,9 @@ class SppScoringEngine(models.AbstractModel):
         This ensures indicators, value mappings, and thresholds are loaded
         in a minimal number of queries before processing.
         """
-        # Prefetch indicators with their value mappings
+        # Prefetch indicators with their value mappings + invalid values
         scoring_model.indicator_ids.mapped("value_mapping_ids")
+        scoring_model.indicator_ids.mapped("invalid_value_ids")
 
         # Prefetch thresholds
         list(scoring_model.threshold_ids)
@@ -219,11 +221,20 @@ class SppScoringEngine(models.AbstractModel):
 
             result["field_value"] = field_value
 
-            # Handle missing or falsy values
-            # For required indicators, treat False/None/empty as missing
-            if field_value is None or (
-                indicator.is_required and field_value is not True and not field_value and field_value != 0
-            ):
+            # Handle missing or falsy values.
+            # For required indicators we treat None, boolean False, and
+            # empty containers/strings as "missing" — but numeric 0 / 0.0
+            # stays a valid value (a real score). The previous
+            # `field_value != 0` short-circuited on boolean False (since
+            # `False == 0` in Python), letting empty Date/Char fields
+            # bypass strict mode entirely. See OP#838.
+            #
+            # Each indicator can pick a subset of the curated Invalid
+            # Values library (spp.scoring.invalid.value) — only active
+            # rows count. Matching strings are treated as missing for
+            # both required and non-required indicators.
+            invalid_values = set(indicator.invalid_value_ids.filtered("active").mapped("name"))
+            if self._is_missing_value(field_value, indicator.is_required, invalid_values):
                 if indicator.is_required:
                     result["error"] = _("Required field '%(path)s' has no valid value (got: %(value)s).") % {
                         "path": indicator.field_path,
@@ -262,6 +273,37 @@ class SppScoringEngine(models.AbstractModel):
             result["error"] = str(e)
 
         return result
+
+    @staticmethod
+    def _is_missing_value(field_value, is_required, invalid_patterns=None):
+        """Decide whether a field value should be treated as 'missing'.
+
+        Non-required indicators only treat ``None`` as missing — anything
+        else (including 0, "", False) flows through to the indicator's
+        own calculation, which decides what to do with it.
+
+        Required indicators additionally treat boolean ``False`` and
+        empty strings/containers as missing. Numeric 0 (int or float),
+        and the literal ``True``, stay valid.
+
+        ``invalid_patterns`` is the global set of curated invalid-value
+        strings (from ``spp.scoring.invalid.value``). Matching strings
+        are treated as missing for both required and non-required
+        indicators.
+        """
+        if field_value is None:
+            return True
+        # Configured invalid-value strings always count as missing.
+        if invalid_patterns and isinstance(field_value, str) and field_value.strip() in invalid_patterns:
+            return True
+        if not is_required:
+            return False
+        # Booleans subclass int in Python, so check this branch first.
+        if isinstance(field_value, bool):
+            return not field_value
+        if isinstance(field_value, (int, float)):
+            return False
+        return not field_value
 
     def _evaluate_indicator_formula(self, indicator, registrant):
         """Evaluate a CEL formula for an indicator."""
@@ -420,6 +462,21 @@ class SppScoringEngine(models.AbstractModel):
                     scoring_model,
                     mode="batch",
                 )
+                # Strict-mode required-indicator failures persist an
+                # incomplete audit row instead of raising. Count those as
+                # batch failures so the wizard summary shows the real
+                # picture and fail_fast still works.
+                if not result.is_complete:
+                    errors.append(
+                        {
+                            "registrant_id": registrant.id,
+                            "registrant_name": registrant.name,
+                            "error": result.error_messages or _("Scoring incomplete"),
+                        }
+                    )
+                    if options.get("fail_fast"):
+                        raise UserError(result.error_messages or _("Scoring incomplete"))
+                    continue
                 results.append(result)
 
             except Exception as e:

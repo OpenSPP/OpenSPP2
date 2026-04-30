@@ -1,7 +1,7 @@
 {
     "name": "OpenSPP Scoring",
     "category": "OpenSPP/Targeting",
-    "version": "19.0.2.0.1",
+    "version": "19.0.2.0.3",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -33,6 +33,7 @@
         "views/scoring_model_views.xml",
         "views/scoring_indicator_views.xml",
         "views/scoring_threshold_views.xml",
+        "views/scoring_invalid_value_views.xml",
         "views/scoring_result_views.xml",
         "views/res_partner_views.xml",
         # Wizards (must be before menus so actions are available)
