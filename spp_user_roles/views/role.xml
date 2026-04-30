@@ -20,9 +20,16 @@
             <xpath expr="//field[@name='name']" position="after">
                 <field name="role_type" />
             </xpath>
-            <xpath expr="//field[@name='implied_ids']" position="attributes">
-                <attribute name="domain">[('role_id', '=', False)]</attribute>
-                <attribute name="widget">many2many</attribute>
+            <xpath expr="//field[@name='implied_ids']" position="replace">
+                <field
+                    name="implied_ids"
+                    nolabel="1"
+                    domain="[('role_id', '=', False)]"
+                >
+                    <list create="0">
+                        <field name="full_name" string="Group" />
+                    </list>
+                </field>
             </xpath>
             <xpath
                 expr="//field[@name='line_ids']/list/field[@name='user_id']"
