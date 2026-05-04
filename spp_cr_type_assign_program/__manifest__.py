@@ -14,6 +14,8 @@
     ],
     "data": [
         "security/ir.model.access.csv",
+        "views/detail_assign_program_views.xml",
+        "data/cr_types.xml",
     ],
     "installable": True,
     "application": False,
