@@ -4,7 +4,7 @@
     "name": "OpenSPP MIS Demo V2",
     "summary": "Demo Generator V2 for SP-MIS programs with fixed stories and volume generation",
     "category": "OpenSPP",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.0.1",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -38,6 +38,7 @@
     "post_init_hook": "post_init_hook",
     "data": [
         "security/ir.model.access.csv",
+        "data/vocabulary_group_membership_type.xml",
         "data/demo_currencies.xml",
         "data/demo_constants.xml",
         "data/demo_personas.xml",
