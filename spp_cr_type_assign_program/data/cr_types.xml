@@ -23,4 +23,17 @@
             name="locked_reason"
         >This type requires custom Python logic to create program memberships. Cannot be edited via Studio.</field>
     </record>
+
+    <record id="cr_conflict_rule_assign_program_duplicate" model="spp.cr.conflict.rule">
+        <field name="name">Duplicate program assignment</field>
+        <field name="cr_type_id" ref="cr_type_assign_program" />
+        <field name="scope">custom</field>
+        <field name="check_same_type_only" eval="True" />
+        <field name="action">block</field>
+        <field name="conflict_states">all_active</field>
+        <field name="sequence">10</field>
+        <field
+            name="conflict_message"
+        >Another change request is already assigning this registrant to the same program. Cancel or wait for it to be applied first.</field>
+    </record>
 </odoo>

@@ -168,6 +168,32 @@ class TestAssignProgram(CRTestCase):
 
         self.assertIn("already", str(cm.exception).lower())
 
+    # ------------------------------------------------------------------
+    # Conflict detection (F2, F3)
+    # ------------------------------------------------------------------
+
+    def test_f2_two_crs_for_same_registrant_program_block_second(self):
+        cr1, _d1 = self._make_cr(self.test_individual, self.indiv_program_active)
+        cr2, _d2 = self._make_cr(self.test_individual, self.indiv_program_active)
+
+        cr2._run_conflict_checks()
+
+        self.assertEqual(cr2.conflict_status, "blocked")
+        self.assertIn(cr1, cr2.conflicting_cr_ids)
+
+    def test_f3_two_crs_for_same_registrant_different_programs_allowed(self):
+        # Two distinct active individual programs targeting the same registrant
+        # must both be able to proceed.
+        other_indiv_program = self.Program.create({"name": "Other Individual Program", "target_type": "individual"})
+
+        _cr1, _d1 = self._make_cr(self.test_individual, self.indiv_program_active)
+        cr2, _d2 = self._make_cr(self.test_individual, other_indiv_program)
+
+        cr2._run_conflict_checks()
+
+        self.assertEqual(cr2.conflict_status, "none")
+        self.assertFalse(cr2.conflicting_cr_ids)
+
     def test_a9_preview_returns_expected_shape(self):
         cr, _detail = self._make_cr(self.test_individual, self.indiv_program_active)
 
