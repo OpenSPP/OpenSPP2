@@ -2,6 +2,7 @@
 
 # from . import disable_edit_mixin
 from . import job_relate_mixin
+from . import refreshable_mixin
 from . import constants
 from . import entitlement
 from . import entitlement_cash

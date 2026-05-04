@@ -14,6 +14,7 @@ class SPPProgram(models.Model):
         "mail.thread",
         "mail.activity.mixin",
         "spp.job.relate.mixin",
+        "spp.refreshable.mixin",
         # "disable.edit.mixin",
     ]
     _name = "spp.program"
@@ -717,12 +718,6 @@ class SPPProgram(models.Model):
                     "type": "ir.actions.act_window_close",
                 },
             },
-        }
-
-    def refresh_page(self):
-        return {
-            "type": "ir.actions.client",
-            "tag": "reload",
         }
 
     def _get_related_job_domain(self):

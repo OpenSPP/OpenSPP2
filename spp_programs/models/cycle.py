@@ -20,6 +20,7 @@ class SPPCycle(models.Model):
         "mail.activity.mixin",
         "spp.approval.mixin",
         "spp.job.relate.mixin",
+        "spp.refreshable.mixin",
         # "disable.edit.mixin",
     ]
     _name = "spp.cycle"
@@ -1055,12 +1056,6 @@ class SPPCycle(models.Model):
             "domain": [("entitlement_id", "in", self.entitlement_ids.ids)],
         }
         return action
-
-    def refresh_page(self):
-        return {
-            "type": "ir.actions.client",
-            "tag": "reload",
-        }
 
     def _get_related_job_domain(self):
         jobs = self.env["queue.job"].search([("model_name", "like", self._name)])
