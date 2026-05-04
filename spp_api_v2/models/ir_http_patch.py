@@ -34,6 +34,36 @@ _FASTAPI_SYNC_ADVISORY_LOCK_KEY = int.from_bytes(
 )
 
 
+def _try_acquire_fastapi_sync_lock(cr):
+    """Try to acquire the cross-worker FastAPI endpoint sync advisory lock.
+
+    Returns True if this transaction got the lock, False otherwise (either
+    because another backend holds it, or because the lock SQL itself failed —
+    e.g. exhausted shared-lock memory, permissions). The lock is transaction-
+    scoped (released automatically at COMMIT/ROLLBACK), so callers do not need
+    to release it explicitly.
+
+    Failing closed (returning False) is the safe default: callers will skip
+    the sync, and the next routing_map call will retry. Logging at WARNING so
+    a persistently broken lock primitive is visible — silently degrading to
+    every-worker-races behaviour would mask the regression this patch fixes.
+    """
+    try:
+        cr.execute(
+            "SELECT pg_try_advisory_xact_lock(%s)",
+            (_FASTAPI_SYNC_ADVISORY_LOCK_KEY,),
+        )
+        (got_lock,) = cr.fetchone()
+        return got_lock
+    except Exception as e:
+        _logger.warning(
+            "FastAPI endpoint sync advisory-lock acquire failed (%s); "
+            "treating as 'lock held elsewhere' and skipping sync this round.",
+            e,
+        )
+        return False
+
+
 class IrHttp(models.AbstractModel):
     """Patch ir.http to fix routing_map cache bug"""
 
@@ -95,14 +125,20 @@ class IrHttp(models.AbstractModel):
                     # registry reload (e.g. -u all) every worker's routing_map()
                     # races to update the same fastapi_endpoint rows; without
                     # this lock all but one fail with SerializationFailure.
-                    # Transaction-scoped — released automatically at COMMIT/ROLLBACK.
-                    cr.execute(
-                        "SELECT pg_try_advisory_xact_lock(%s)",
-                        (_FASTAPI_SYNC_ADVISORY_LOCK_KEY,),
-                    )
-                    (got_lock,) = cr.fetchone()
-                    if not got_lock:
-                        _logger.debug(
+                    if not _try_acquire_fastapi_sync_lock(cr):
+                        # Skipping is safe: the worker that DID get the lock will
+                        # bump endpoint_route_version when it commits action_sync_registry().
+                        # That version is part of our routing-map cache key (line ~89),
+                        # and we re-read it per call, so any degraded routing map this
+                        # worker caches now is keyed at the old version and is naturally
+                        # invalidated on the next call after the winner commits. Bad
+                        # window is bounded by winner-commit latency (seconds at most).
+                        #
+                        # INFO (not DEBUG) so it's visible at default log level —
+                        # otherwise diagnosing transient missing routes after a
+                        # cold start has nothing to go on. Fires at most once
+                        # per registry reload per worker, so not noisy.
+                        _logger.info(
                             "FastAPI endpoint sync skipped for %s — another worker is syncing",
                             registry.db_name,
                         )
@@ -132,12 +168,17 @@ class IrHttp(models.AbstractModel):
 
                         if unsynced_endpoints:
                             unsynced_endpoints.action_sync_registry()
-                            cr.commit()
                             _logger.info(
                                 "Synced %d FastAPI endpoints for database %s",
                                 len(unsynced_endpoints),
                                 registry.db_name,
                             )
+                            # cr.commit() ends the transaction and RELEASES the
+                            # advisory lock acquired above. Do not add any sync
+                            # work below this line — it would run unlocked and
+                            # re-introduce the SerializationFailure race this
+                            # patch exists to prevent.
+                            cr.commit()
         except Exception as e:
             # If endpoint model doesn't exist or sync fails, continue anyway
             _logger.debug("Could not sync FastAPI endpoints: %s", e)
