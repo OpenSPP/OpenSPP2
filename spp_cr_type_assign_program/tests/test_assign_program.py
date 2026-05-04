@@ -169,6 +169,23 @@ class TestAssignProgram(CRTestCase):
         self.assertIn("already", str(cm.exception).lower())
 
     # ------------------------------------------------------------------
+    # Full CR lifecycle (F1)
+    # ------------------------------------------------------------------
+
+    def test_f1_full_cr_lifecycle_creates_membership(self):
+        cr, detail = self._make_cr(self.test_individual, self.indiv_program_active)
+
+        cr.approval_state = "approved"
+        cr.action_apply()
+
+        self.assertTrue(cr.is_applied)
+        self.assertTrue(detail.created_membership_id)
+        membership = detail.created_membership_id
+        self.assertEqual(membership.partner_id, self.test_individual)
+        self.assertEqual(membership.program_id, self.indiv_program_active)
+        self.assertEqual(membership.state, "draft")
+
+    # ------------------------------------------------------------------
     # Conflict detection (F2, F3)
     # ------------------------------------------------------------------
 
