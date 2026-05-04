@@ -16,8 +16,8 @@ openpyxl
 parse-accept-language
 pyclamd
 pydantic
-pyjwt
-pyjwt>=2.4.0
+pyjwt>=2.12.1
+pyjwt>=2.12.1>=2.4.0
 pyproj
 python-dateutil
 python-magic
