@@ -1,7 +1,10 @@
 import logging
 
+import psycopg2
+
 from odoo import _, models
 from odoo.exceptions import UserError
+from odoo.tools import mute_logger
 
 _logger = logging.getLogger(__name__)
 
@@ -74,7 +77,26 @@ class SPPCRApplyAssignProgram(models.AbstractModel):
         registrant = change_request.registrant_id
         program = detail.program_id
 
-        membership = self.env["spp.program.membership"].create({"partner_id": registrant.id, "program_id": program.id})
+        # `validate()` checks the (registrant, program) pair is unique, but a
+        # concurrent transaction can insert the same pair between that read
+        # and the create below. The DB unique constraint on
+        # spp.program.membership(partner_id, program_id) catches the race;
+        # wrap the create in a savepoint so the parent transaction stays
+        # usable, and translate the psycopg2 error into the same friendly
+        # UserError the validate() path produces.
+        try:
+            with self.env.cr.savepoint(), mute_logger("odoo.sql_db"):
+                membership = self.env["spp.program.membership"].create(
+                    {"partner_id": registrant.id, "program_id": program.id}
+                )
+        except psycopg2.errors.UniqueViolation as exc:
+            raise UserError(
+                _("%(registrant)s is already in program %(program)s.")
+                % {
+                    "registrant": registrant.display_name,
+                    "program": program.display_name,
+                }
+            ) from exc
         detail.write({"created_membership_id": membership.id})
 
         _logger.info(

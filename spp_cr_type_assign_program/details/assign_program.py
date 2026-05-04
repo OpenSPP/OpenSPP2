@@ -44,6 +44,10 @@ class SPPCRDetailAssignProgram(models.Model):
         Program = self.env["spp.program"]
         # target_type only has two distinct values; cache the search per
         # value so a recordset of N details runs at most 2 queries.
+        # Note: the result can become stale if a program transitions
+        # active <-> ended while a CR form is open. Acceptable: the apply
+        # strategy revalidates `state == 'active'` at apply time, so
+        # staleness is a UI-only concern.
         cache = {}
         for rec in self:
             tt = rec.registrant_target_type

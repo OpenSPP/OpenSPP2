@@ -1,5 +1,9 @@
 """Tests for spp_cr_type_assign_program."""
 
+from unittest.mock import patch
+
+import psycopg2
+
 from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests import tagged
@@ -198,6 +202,27 @@ class TestAssignProgram(CRTestCase):
         self.assertEqual(cr2.conflict_status, "blocked")
         self.assertIn(cr1, cr2.conflicting_cr_ids)
 
+    def test_f4_conflict_hook_passes_through_non_our_rules(self):
+        """If _check_custom_conflicts is invoked with a rule that isn't
+        ours, the hook must return the input candidates unchanged so other
+        modules' custom conflict logic isn't accidentally suppressed.
+        """
+        cr1, _d1 = self._make_cr(self.test_individual, self.indiv_program_active)
+        cr2, _d2 = self._make_cr(self.test_individual, self.indiv_program_active)
+
+        other_rule = self.env["spp.cr.conflict.rule"].create(
+            {
+                "name": "Unrelated rule",
+                "cr_type_id": self.cr_type.id,
+                "scope": "custom",
+                "action": "warn",
+            }
+        )
+
+        result = cr2._check_custom_conflicts(cr1, other_rule)
+
+        self.assertEqual(result, cr1)
+
     def test_f3_two_crs_for_same_registrant_different_programs_allowed(self):
         # Two distinct active individual programs targeting the same registrant
         # must both be able to proceed.
@@ -210,6 +235,26 @@ class TestAssignProgram(CRTestCase):
 
         self.assertEqual(cr2.conflict_status, "none")
         self.assertFalse(cr2.conflicting_cr_ids)
+
+    def test_a10_apply_translates_unique_violation_to_user_error(self):
+        """Race-path: a concurrent transaction inserts the same
+        (registrant, program) pair between our validate() and create().
+        The DB UNIQUE constraint fires; the strategy must translate it
+        into the same friendly UserError the validate() path produces,
+        not let the raw psycopg2 error surface.
+        """
+        cr, _detail = self._make_cr(self.test_individual, self.indiv_program_active)
+
+        membership_cls = type(self.ProgramMembership)
+
+        def boom(self_, *args, **kwargs):
+            raise psycopg2.errors.UniqueViolation("simulated race")
+
+        with patch.object(membership_cls, "create", boom):
+            with self.assertRaises(UserError) as cm:
+                self._strategy().apply(cr)
+
+        self.assertIn("already", str(cm.exception).lower())
 
     def test_a9_preview_returns_expected_shape(self):
         cr, _detail = self._make_cr(self.test_individual, self.indiv_program_active)
