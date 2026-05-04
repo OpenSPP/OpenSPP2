@@ -1,0 +1,11 @@
+// See OP#920 + spp_base_common/static/src/xml/pager_hide_single.xml.
+// The control-panel right-side toolbar (refresh button, embedded
+// actions, view switcher) had no vertical alignment of its own — it
+// relied on the pager's h-100 nav to anchor the row's height.
+// Once the pager is hidden, those siblings collapse to top-aligned.
+// Set align-items: center explicitly so they stay vertically centred
+// whether the pager is visible or not.
+.o_control_panel_navigation {
+    align-items: center;
+}
+
