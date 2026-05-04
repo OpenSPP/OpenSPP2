@@ -29,7 +29,7 @@ class ResUsersRoleCustomSPP(models.Model):
 
         new_records = super().create(vals_list)
 
-        for record, group_vals in zip(new_records, groups_vals_list):
+        for record, group_vals in zip(new_records, groups_vals_list, strict=True):
             if group_vals:
                 record.group_id.write(group_vals)
 
