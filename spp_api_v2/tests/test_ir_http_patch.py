@@ -166,6 +166,143 @@ class TestRoutingMapSyncBranches(TransactionCase):
         # this is the safety guarantee the skip-path comment documents.
         self.assertIsNotNone(routing_map)
 
+    def test_sync_branch_invokes_action_sync_when_unsynced_present(self):
+        """Cover the success-path body: when got_lock=True and the search
+        returns unsynced endpoints, routing_map calls action_sync_registry,
+        emits the 'Synced N FastAPI endpoints' INFO log, and commits.
+
+        We mock odoo.api.Environment to return a controlled env because the
+        real search-from-fresh-cursor inside routing_map does not see the
+        test transaction's writes (Odoo TestCursor / Environment isolation).
+        """
+        # Truthy unsynced recordset that records the action_sync_registry call.
+        # Magic methods on MagicMock must be configured via `.return_value`
+        # because Python's bool() / len() look these up on the *type*, not the
+        # instance — assigning a lambda directly to .__bool__ silently no-ops.
+        fake_unsynced = MagicMock(name="unsynced_recordset")
+        fake_unsynced.__bool__.return_value = True
+        fake_unsynced.__len__.return_value = 1
+
+        # Falsy synced recordset so the orphan-detection branch is skipped —
+        # we exercise that path in a separate test below.
+        fake_synced_empty = MagicMock(name="synced_empty_recordset")
+        fake_synced_empty.__bool__.return_value = False
+        fake_synced_empty.__len__.return_value = 0
+
+        def fake_search(domain, *args, **kwargs):
+            for clause in domain:
+                if clause == ("registry_sync", "=", False):
+                    return fake_unsynced
+                if clause == ("registry_sync", "=", True):
+                    return fake_synced_empty
+            return fake_synced_empty
+
+        fake_model = MagicMock(name="fastapi_endpoint_model")
+        fake_model.search = MagicMock(side_effect=fake_search)
+
+        fake_env = MagicMock(name="env")
+        fake_env.__getitem__ = MagicMock(return_value=fake_model)
+        fake_env.__contains__ = MagicMock(return_value=False)
+
+        # Capture at DEBUG so any silent exception swallowed by the patch's
+        # outer `except Exception: _logger.debug(...)` becomes visible in the
+        # diagnostic on assertion failure.
+        with (
+            patch.object(ir_http_patch, "_try_acquire_fastapi_sync_lock", return_value=True),
+            patch("odoo.api.Environment", return_value=fake_env),
+            self.assertLogs(LOGGER_NAME, level="DEBUG") as captured,
+        ):
+            routing_map = self.env["ir.http"].routing_map(key=self._routing_map_unique_key())
+
+        synced_logs = [m for m in captured.output if "Synced" in m and "FastAPI endpoints" in m]
+        self.assertTrue(
+            synced_logs,
+            f"Expected 'Synced N FastAPI endpoints' INFO log; got: {captured.output}",
+        )
+        fake_unsynced.action_sync_registry.assert_called_once()
+        self.assertIsNotNone(routing_map)
+
+    def test_sync_branch_resyncs_orphan_endpoint_with_no_route(self):
+        """Cover the orphan-route detection loop (lines 155-167): when a
+        synced endpoint has no corresponding endpoint.route record, the
+        patch must flip its registry_sync=False, fold it into unsynced,
+        and call action_sync_registry on the resulting set."""
+        # An orphan synced endpoint: registry_sync=True but no route.
+        fake_orphan = MagicMock(name="orphan_endpoint")
+        fake_orphan.id = 9999
+        fake_orphan.name = "test-orphan"
+
+        # synced recordset is iterable and truthy (one orphan inside).
+        # Magic methods on MagicMock must be set via `.return_value` (or the
+        # `side_effect` API) — direct lambda assignment is silently ignored
+        # because bool() / iter() look up __bool__ / __iter__ on the type.
+        fake_synced = MagicMock(name="synced_recordset")
+        fake_synced.__bool__.return_value = True
+        fake_synced.__iter__.return_value = iter([fake_orphan])
+
+        # unsynced search returns an empty falsy recordset that supports |=.
+        # After |= fake_orphan, it should become truthy and trigger sync.
+        accumulated_unsynced = MagicMock(name="accumulated_unsynced")
+        accumulated_unsynced.__bool__.return_value = True
+        accumulated_unsynced.__len__.return_value = 1
+
+        fake_unsynced_initial = MagicMock(name="unsynced_initial")
+        fake_unsynced_initial.__bool__.return_value = False
+        fake_unsynced_initial.__ior__ = MagicMock(return_value=accumulated_unsynced)
+
+        # endpoint.route model — search_count returns 0 to trigger the
+        # 'orphan' branch (no route exists for this endpoint).
+        fake_route_model = MagicMock(name="endpoint_route_model")
+        fake_route_model.search_count = MagicMock(return_value=0)
+
+        fake_endpoint_model = MagicMock(name="fastapi_endpoint_model")
+
+        def fake_search(domain, *args, **kwargs):
+            for clause in domain:
+                if clause == ("registry_sync", "=", False):
+                    return fake_unsynced_initial
+                if clause == ("registry_sync", "=", True):
+                    return fake_synced
+            return fake_synced
+
+        fake_endpoint_model.search = MagicMock(side_effect=fake_search)
+
+        def fake_getitem(key):
+            if key == "fastapi.endpoint":
+                return fake_endpoint_model
+            if key == "endpoint.route":
+                return fake_route_model
+            return MagicMock()
+
+        fake_env = MagicMock(name="env")
+        fake_env.__getitem__ = MagicMock(side_effect=fake_getitem)
+        # "endpoint.route" must be reported as in env so the orphan loop runs.
+        fake_env.__contains__ = MagicMock(return_value=True)
+
+        with (
+            patch.object(ir_http_patch, "_try_acquire_fastapi_sync_lock", return_value=True),
+            patch("odoo.api.Environment", return_value=fake_env),
+            self.assertLogs(LOGGER_NAME, level="WARNING") as captured,
+        ):
+            self.env["ir.http"].routing_map(key=self._routing_map_unique_key())
+
+        # The orphan was flipped back to unsynced.
+        self.assertFalse(
+            fake_orphan.registry_sync,
+            "orphan synced endpoint without route must have registry_sync set to False",
+        )
+        # And the loop accumulated it into unsynced via |= (line 167).
+        fake_unsynced_initial.__ior__.assert_called_once_with(fake_orphan)
+        # Sync was triggered on the accumulated recordset.
+        accumulated_unsynced.action_sync_registry.assert_called_once()
+        # The 'claims to be synced but has no routes' WARNING log must fire
+        # (line 160) — proves the orphan detection was hit.
+        orphan_warnings = [m for m in captured.output if "claims to be synced but has no routes" in m]
+        self.assertTrue(
+            orphan_warnings,
+            f"Expected orphan WARNING log; got: {captured.output}",
+        )
+
     def test_sync_branch_when_helper_returns_true(self):
         """got_lock=True → routing_map enters the else branch (Environment,
         unsynced search, synced-orphan-detection scan, optional sync) without
