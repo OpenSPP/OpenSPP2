@@ -42,13 +42,19 @@ class SPPCRDetailAssignProgram(models.Model):
     @api.depends("registrant_target_type")
     def _compute_allowed_program_ids(self):
         Program = self.env["spp.program"]
+        # target_type only has two distinct values; cache the search per
+        # value so a recordset of N details runs at most 2 queries.
+        cache = {}
         for rec in self:
-            if not rec.registrant_target_type:
+            tt = rec.registrant_target_type
+            if not tt:
                 rec.allowed_program_ids = False
                 continue
-            rec.allowed_program_ids = Program.search(
-                [
-                    ("state", "=", "active"),
-                    ("target_type", "=", rec.registrant_target_type),
-                ]
-            )
+            if tt not in cache:
+                cache[tt] = Program.search(
+                    [
+                        ("state", "=", "active"),
+                        ("target_type", "=", tt),
+                    ]
+                )
+            rec.allowed_program_ids = cache[tt]

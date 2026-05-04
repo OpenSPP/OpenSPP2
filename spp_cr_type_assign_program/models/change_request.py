@@ -24,10 +24,24 @@ class SPPChangeRequest(models.Model):
         if not my_detail or not my_detail.program_id:
             return self.env["spp.change.request"]
 
-        my_program = my_detail.program_id
-        matching = self.env["spp.change.request"]
-        for candidate in candidates:
-            cand_detail = candidate.get_detail()
-            if cand_detail and cand_detail.program_id == my_program:
-                matching |= candidate
-        return matching
+        # `check_same_type_only=True` on our rule guarantees all candidates
+        # share our detail model, but defend against edge cases where a
+        # candidate has no detail yet.
+        detail_model = my_detail._name
+        candidate_detail_ids = [
+            c.detail_res_id for c in candidates if c.detail_res_model == detail_model and c.detail_res_id
+        ]
+        if not candidate_detail_ids:
+            return self.env["spp.change.request"]
+
+        matching_detail_ids = set(
+            self.env[detail_model]
+            .search(
+                [
+                    ("id", "in", candidate_detail_ids),
+                    ("program_id", "=", my_detail.program_id.id),
+                ]
+            )
+            .ids
+        )
+        return candidates.filtered(lambda c: c.detail_res_id in matching_detail_ids)
