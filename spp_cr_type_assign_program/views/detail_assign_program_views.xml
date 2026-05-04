@@ -52,14 +52,34 @@
                             readonly="1"
                             options="{'no_open': True}"
                         />
+                        <field
+                            name="registrant_target_type"
+                            string="Beneficiary type"
+                            readonly="1"
+                        />
                         <field name="change_request_id" invisible="1" />
-                        <field name="registrant_target_type" invisible="1" />
                         <field name="allowed_program_ids" invisible="1" />
                     </group>
                     <div class="alert alert-info" role="alert">
-                        This change request will enroll the registrant above in
-                        the selected program. The initial membership state is
-                        <strong>Draft</strong>.
+                        The beneficiary of this assignment is the registrant
+                        shown above — enrolled directly as a household
+                        (Group) or as an individual based on the
+                        <strong>Beneficiary type</strong>. The initial
+                        membership state will be <strong>Draft</strong>.
+                        To enroll a household member instead, open that
+                        member's record and start a change request from
+                        there.
+                    </div>
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        aria-live="polite"
+                        invisible="allowed_program_ids or approval_state not in ('draft', 'revision')"
+                    >
+                        No active programs match this beneficiary's type.
+                        Ask a Program Manager to activate a program with
+                        matching target type, then return to this change
+                        request.
                     </div>
 
                     <group string="Program">
@@ -70,7 +90,10 @@
                         />
                     </group>
 
-                    <group string="Result" invisible="not created_membership_id">
+                    <group
+                        string="Created Membership"
+                        invisible="not created_membership_id"
+                    >
                         <field name="created_membership_id" readonly="1" />
                     </group>
                 </sheet>

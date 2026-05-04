@@ -13,7 +13,11 @@ class SPPCRDetailAssignProgram(models.Model):
         string="Program",
         tracking=True,
         domain="[('id', 'in', allowed_program_ids)]",
-        help="Program the registrant will be enrolled in.",
+        help=(
+            "Active programs whose target type matches this beneficiary. "
+            "On apply, a Draft membership is created — a Program Manager "
+            "activates it from there."
+        ),
     )
     allowed_program_ids = fields.Many2many(
         "spp.program",

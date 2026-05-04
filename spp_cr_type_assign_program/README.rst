@@ -44,6 +44,11 @@ a member of the household" step.
 
 Standalone individuals (registrants not in any household) are supported.
 
+To enroll a specific member of a household (not the household itself),
+open that member's individual record and start a change request from
+there — the CR's registrant is the member, and the form filters programs
+to those targeting individuals.
+
 Models defined by this module
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
