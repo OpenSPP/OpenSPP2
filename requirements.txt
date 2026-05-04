@@ -1,7 +1,7 @@
 # generated from manifests external_dependencies
 Pillow
 Pillow>=9.0.1
-a2wsgi>=1.10.6
+a2wsgi>=1.10.10
 claim169
 cryptography
 faker
