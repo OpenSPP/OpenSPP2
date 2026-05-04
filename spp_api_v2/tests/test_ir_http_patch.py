@@ -147,9 +147,7 @@ class TestRoutingMapSyncBranches(TransactionCase):
         # Capture at DEBUG up-front so we get visibility into all routing_map
         # logs (including the broad-except 'Could not sync' message at DEBUG)
         # — assertLogs only fails if no log at the requested level fires.
-        with patch.object(
-            ir_http_patch, "_try_acquire_fastapi_sync_lock", return_value=False
-        ) as mocked_helper:
+        with patch.object(ir_http_patch, "_try_acquire_fastapi_sync_lock", return_value=False) as mocked_helper:
             with self.assertLogs(LOGGER_NAME, level="DEBUG") as captured:
                 routing_map = self.env["ir.http"].routing_map(key=self._routing_map_unique_key())
 
@@ -157,7 +155,8 @@ class TestRoutingMapSyncBranches(TransactionCase):
         # marked called and the rest of the test cannot diagnose anything.
         self.assertTrue(
             mocked_helper.called,
-            f"Patched _try_acquire_fastapi_sync_lock was never called — patch did not take effect. Logs: {captured.output}",
+            "Patched _try_acquire_fastapi_sync_lock was never called — "
+            f"patch did not take effect. Logs: {captured.output}",
         )
         self.assertTrue(
             any("sync skipped" in m for m in captured.output),
