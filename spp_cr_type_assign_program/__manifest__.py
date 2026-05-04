@@ -12,7 +12,9 @@
         "spp_change_request_v2",
         "spp_programs",
     ],
-    "data": [],
+    "data": [
+        "security/ir.model.access.csv",
+    ],
     "installable": True,
     "application": False,
     "auto_install": False,
