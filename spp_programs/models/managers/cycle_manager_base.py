@@ -378,6 +378,7 @@ class BaseCycleManager(models.AbstractModel):
         :param cycle: A recordset of cycle
         :return:
         """
+        self.ensure_one()
         cycle.write({"is_locked": False, "locked_reason": False})
         try:
             cycle.message_post(body=_("Eligibility check finished."))
@@ -389,6 +390,7 @@ class BaseCycleManager(models.AbstractModel):
 
     def mark_check_eligibility_as_failed(self, cycle):
         """Run via on_error() when async eligibility check fails."""
+        self.ensure_one()
         cycle.write({"is_locked": False, "locked_reason": False})
         try:
             cycle.message_post(body=_("Eligibility check failed."))

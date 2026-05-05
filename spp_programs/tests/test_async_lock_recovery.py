@@ -17,21 +17,32 @@ These tests exercise the recovery surface:
 
 import uuid
 
+from odoo import fields
 from odoo.tests import TransactionCase
 
 from odoo.addons.spp_programs.models import constants
 
 
 def _new_program(env):
-    return env["spp.program"].create({"name": f"Async Lock Recovery {uuid.uuid4().hex[:8]}"})
+    """Create a program with default managers (entitlement / cycle / payment / program)
+    auto-attached so tests can call get_manager(...).
+    """
+    return (
+        env["spp.program"]
+        .with_context(create_default_managers=True)
+        .create({"name": f"Async Lock Recovery {uuid.uuid4().hex[:8]}"})
+    )
 
 
 def _new_cycle(env, program):
+    today = fields.Date.today()
     return env["spp.cycle"].create(
         {
             "name": f"Async Lock Cycle {uuid.uuid4().hex[:8]}",
             "program_id": program.id,
             "sequence": 1,
+            "start_date": today,
+            "end_date": fields.Date.add(today, days=30),
         }
     )
 
