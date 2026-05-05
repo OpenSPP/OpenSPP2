@@ -98,6 +98,23 @@ class TestAssignProgram(CRTestCase):
         self.assertNotIn(self.group_program_active, allowed)
         self.assertNotIn(self.indiv_program_inactive, allowed)
 
+    def test_d5_allowed_programs_excludes_already_enrolled(self):
+        """Programs the registrant is already in must be filtered out so
+        duplicates surface at form-fill time, not after a wasted approval
+        cycle."""
+        self.ProgramMembership.create(
+            {
+                "partner_id": self.test_individual.id,
+                "program_id": self.indiv_program_active.id,
+            }
+        )
+        other_program = self.Program.create({"name": "Other Active Individual Program", "target_type": "individual"})
+
+        _cr, detail = self._make_cr(self.test_individual)
+
+        self.assertNotIn(self.indiv_program_active, detail.allowed_program_ids)
+        self.assertIn(other_program, detail.allowed_program_ids)
+
     # ------------------------------------------------------------------
     # Apply strategy
     # ------------------------------------------------------------------

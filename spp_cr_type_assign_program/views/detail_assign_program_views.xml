@@ -76,10 +76,11 @@
                         aria-live="polite"
                         invisible="allowed_program_ids or approval_state not in ('draft', 'revision')"
                     >
-                        No active programs match this beneficiary's type.
-                        Ask a Program Manager to activate a program with
-                        matching target type, then return to this change
-                        request.
+                        No eligible programs found. Either no active
+                        programs match this beneficiary's type, or the
+                        registrant is already enrolled in all of them.
+                        Ask a Program Manager to activate a new program,
+                        or pick a different registrant.
                     </div>
 
                     <group string="Program">

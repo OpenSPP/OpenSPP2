@@ -43,11 +43,17 @@ class SPPCRDetailAssignProgram(models.Model):
                 continue
             rec.registrant_target_type = "group" if rec.registrant_id.is_group else "individual"
 
-    @api.depends("registrant_target_type")
+    @api.depends(
+        "registrant_target_type",
+        "registrant_id.program_membership_ids.program_id",
+    )
     def _compute_allowed_program_ids(self):
         Program = self.env["spp.program"]
-        # target_type only has two distinct values; cache the search per
-        # value so a recordset of N details runs at most 2 queries.
+        # target_type only has two distinct values; cache the per-type
+        # active-program search so a recordset of N details runs at most
+        # 2 queries against spp.program. The per-registrant exclusion of
+        # already-enrolled programs is then applied in Python via set
+        # subtraction.
         # Note: the result can become stale if a program transitions
         # active <-> ended while a CR form is open. Acceptable: the apply
         # strategy revalidates `state == 'active'` at apply time, so
@@ -65,4 +71,5 @@ class SPPCRDetailAssignProgram(models.Model):
                         ("target_type", "=", tt),
                     ]
                 )
-            rec.allowed_program_ids = cache[tt]
+            already_in = rec.registrant_id.program_membership_ids.program_id
+            rec.allowed_program_ids = cache[tt] - already_in
