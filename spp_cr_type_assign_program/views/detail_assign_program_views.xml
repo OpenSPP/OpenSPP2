@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="spp_cr_detail_assign_program_form" model="ir.ui.view">
+        <field name="name">spp.cr.detail.assign_program.form</field>
+        <field name="model">spp.cr.detail.assign_program</field>
+        <field name="arch" type="xml">
+            <form
+                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+            >
+                <header>
+                    <field name="is_cr_manager" invisible="1" />
+                    <button
+                        name="action_next_documents"
+                        string="Next: Upload Documents"
+                        type="object"
+                        class="btn-primary"
+                        icon="fa-arrow-right"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_skip_to_review"
+                        string="Review &amp; Submit"
+                        type="object"
+                        class="btn-success"
+                        icon="fa-check-circle"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_save_and_go_to_list"
+                        string="Save as Draft"
+                        type="object"
+                        class="btn-outline-secondary"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <field
+                        name="stage"
+                        widget="statusbar"
+                        statusbar_visible="details,documents,review"
+                    />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Assign to Program</h1>
+                    </div>
+
+                    <group string="Beneficiary">
+                        <field
+                            name="registrant_id"
+                            readonly="1"
+                            options="{'no_open': True}"
+                        />
+                        <field
+                            name="registrant_target_type"
+                            string="Beneficiary type"
+                            readonly="1"
+                        />
+                        <field name="change_request_id" invisible="1" />
+                        <field name="allowed_program_ids" invisible="1" />
+                    </group>
+                    <div class="alert alert-info" role="alert">
+                        The beneficiary of this assignment is the registrant
+                        shown above — enrolled directly as a household
+                        (Group) or as an individual based on the
+                        <strong>Beneficiary type</strong>. The initial
+                        membership state will be <strong>Draft</strong>.
+                    </div>
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        aria-live="polite"
+                        invisible="allowed_program_ids or approval_state not in ('draft', 'revision')"
+                    >
+                        No eligible programs found. Either no active
+                        programs match this beneficiary's type, or the
+                        registrant is already enrolled in all of them.
+                        Ask a Program Manager to activate a new program,
+                        or pick a different registrant.
+                    </div>
+
+                    <group string="Program">
+                        <field
+                            name="program_id"
+                            options="{'no_create': True, 'no_open': True}"
+                            readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                        />
+                    </group>
+
+                    <group
+                        string="Created Membership"
+                        invisible="not created_membership_id"
+                    >
+                        <field name="created_membership_id" readonly="1" />
+                    </group>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+</odoo>
