@@ -73,13 +73,26 @@ class BaseProgramManager(models.AbstractModel):
         :return:
         """
         self.ensure_one()
-        self.program_id.is_locked = False
-        self.program_id.locked_reason = None
-        self.program_id.message_post(body=_("Eligibility check finished."))
+        program = self.program_id
+        program.write({"is_locked": False, "locked_reason": False})
+        try:
+            program.message_post(body=_("Eligibility check finished."))
+        except Exception:
+            _logger.exception("Failed to post completion chatter on program %s", program.id)
 
         # Compute Statistics
-        self.program_id._compute_eligible_beneficiary_count()
-        self.program_id._compute_beneficiary_count()
+        program._compute_eligible_beneficiary_count()
+        program._compute_beneficiary_count()
+
+    def mark_enroll_eligible_as_failed(self):
+        """Run via on_error() when async eligibility enrollment fails."""
+        self.ensure_one()
+        program = self.program_id
+        program.write({"is_locked": False, "locked_reason": False})
+        try:
+            program.message_post(body=_("Eligibility check failed."))
+        except Exception:
+            _logger.exception("Failed to post failure chatter on program %s", program.id)
 
 
 class DefaultProgramManager(models.Model):
@@ -215,6 +228,7 @@ class DefaultProgramManager(models.Model):
             )
         main_job = group(*jobs)
         main_job.on_done(self.delayable(channel="statistics_refresh").mark_enroll_eligible_as_done())
+        main_job.on_error(self.delayable(channel="statistics_refresh").mark_enroll_eligible_as_failed())
         main_job.delay()
 
     def _enroll_eligible_registrants(self, states, offset=0, limit=None, min_id=None, max_id=None, do_count=False):
