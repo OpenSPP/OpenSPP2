@@ -68,9 +68,25 @@ class SPPImportMatch(models.Model):
             domain = list()
             for field in combination.field_ids:
                 if field.is_conditional:
-                    if imported_row[field.name] != field.imported_value:
+                    # Conditional rows are pure *gates* — they decide whether
+                    # the rule applies to this CSV row. The CSV column that
+                    # carries the gate value is `condition_field_id` when
+                    # set; otherwise we fall back to `field_id` for
+                    # backwards compatibility with rules created before
+                    # OP#991. Crucially, a conditional row is **not** added
+                    # to the DB search domain — the gate column may be a
+                    # CSV-only metadata field (e.g. `data_source`) that
+                    # doesn't exist on the registrant model.
+                    gate_field_name = (
+                        field.condition_field_id.name
+                        if field.condition_field_id
+                        else field.field_id.name
+                    )
+                    if imported_row.get(gate_field_name) != field.imported_value:
                         combination_valid = False
                         break
+                    continue
+
                 if field.field_id.name in converted_row:
                     row_value = converted_row[field.field_id.name]
                     # Skip matching on empty values to avoid false matches
@@ -141,7 +157,29 @@ class SPPImportMatchFields(models.Model):
     match_id = fields.Many2one("spp.import.match", string="Match", ondelete="cascade")
     model_id = fields.Many2one(related="match_id.model_id")
     is_conditional = fields.Boolean()
-    imported_value = fields.Char(help="This will be used as a condition to disregard this field if matched")
+    condition_field_id = fields.Many2one(
+        "ir.model.fields",
+        string="Condition Field",
+        ondelete="cascade",
+        domain="[('model_id', '=', model_id)]",
+        help=(
+            "When `Is Conditional` is set, the rule only fires for CSV rows "
+            "whose value in this field equals `Condition Value`. The "
+            "condition field is used purely as a gate — it is **not** added "
+            "to the database search domain, so it can safely be a CSV-only "
+            "metadata column (e.g. `data_source`) that doesn't have data on "
+            "the registrant. Leave empty to fall back to the legacy "
+            "behaviour where `Field` is used as both the gate and the "
+            "search predicate."
+        ),
+    )
+    imported_value = fields.Char(
+        string="Condition Value",
+        help=(
+            "Expected value of the condition field. The rule only applies "
+            "when the imported row's `Condition Field` matches this value."
+        ),
+    )
 
     def _compute_name(self):
         for rec in self:

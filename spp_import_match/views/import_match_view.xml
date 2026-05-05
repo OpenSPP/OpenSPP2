@@ -53,9 +53,18 @@
                                         <field name="match_id" column_invisible="1" />
                                         <field name="model_id" column_invisible="1" />
                                         <field name="is_conditional" />
-                                        <!-- Odoo 19: Converted attrs to individual attributes -->
+                                        <!-- Condition Field is a separate gate column from
+                                             the match field; only populated when the rule
+                                             is conditional. See OP#991. -->
+                                        <field
+                                            name="condition_field_id"
+                                            string="Condition Field"
+                                            readonly="is_conditional == False"
+                                            options="{'no_create': True}"
+                                        />
                                         <field
                                             name="imported_value"
+                                            string="Condition Value"
                                             readonly="is_conditional == False"
                                         />
                                     </list>
