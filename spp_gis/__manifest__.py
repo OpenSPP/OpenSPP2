@@ -4,7 +4,7 @@
 {
     "name": "OpenSPP GIS",
     "category": "OpenSPP/Core",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.0.1",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -25,6 +25,7 @@
         "views/data_layer_view.xml",
         "views/color_scheme_views.xml",
         "views/area.xml",
+        "views/menu.xml",
     ],
     "assets": {
         "web.assets_backend": [

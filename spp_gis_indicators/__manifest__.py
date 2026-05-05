@@ -3,7 +3,7 @@
 {
     "name": "OpenSPP GIS Indicators",
     "summary": "Choropleth visualization for area-level indicators",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.0.1",
     "category": "OpenSPP/GIS",
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
+<!--
+    Root "GIS Configuration" menu used to live here, but installing
+    spp_gis alone left every Raster/Data Layer action orphaned because
+    the root was unreachable. The root is now declared in spp_gis
+    (which owns those actions) — see spp_gis/views/menu.xml. This
+    module's submenus reference it via `spp_gis.menu_gis_config_root`.
+    See OP#988.
+-->
 <odoo>
-    <!-- GIS Configuration parent menu under Settings -->
-    <menuitem
-        id="menu_gis_config_root"
-        name="GIS Configuration"
-        parent="base.menu_administration"
-        sequence="780"
-        groups="base.group_system"
-    />
 </odoo>

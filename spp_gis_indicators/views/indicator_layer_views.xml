@@ -155,12 +155,12 @@
         </field>
     </record>
 
-    <!-- Menu Item -->
+    <!-- Menu Item — parent menu lives in spp_gis (see OP#988). -->
     <menuitem
         id="menu_gis_indicator_layer"
         name="Indicator Layers"
-        parent="menu_gis_config_root"
+        parent="spp_gis.menu_gis_config_root"
         action="action_gis_indicator_layer"
-        sequence="10"
+        sequence="40"
     />
 </odoo>

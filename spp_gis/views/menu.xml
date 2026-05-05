@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    GIS Configuration menu — owned by spp_gis because the underlying
+    Raster Layer / Data Layer / Color Scheme actions and models live
+    here. Previously this root menu was declared in spp_gis_indicators,
+    which meant installing spp_gis alone left every Raster/Data Layer
+    action orphaned (no menu pointed at them) and the configuration
+    section under Settings was empty. spp_gis_indicators now reuses
+    the root via `spp_gis.menu_gis_config_root`. See OP#988.
+-->
+<odoo>
+    <menuitem
+        id="menu_gis_config_root"
+        name="GIS Configuration"
+        parent="base.menu_administration"
+        sequence="780"
+        groups="base.group_system"
+    />
+
+    <menuitem
+        id="menu_gis_raster_layer"
+        name="Raster Layers"
+        parent="menu_gis_config_root"
+        action="action_spp_gis_raster_layer"
+        sequence="10"
+    />
+
+    <menuitem
+        id="menu_gis_data_layer"
+        name="Data Layers"
+        parent="menu_gis_config_root"
+        action="action_data_layer_view"
+        sequence="20"
+    />
+
+    <menuitem
+        id="menu_gis_color_scheme"
+        name="Color Schemes"
+        parent="menu_gis_config_root"
+        action="action_gis_color_scheme"
+        sequence="30"
+    />
+</odoo>
