@@ -3,7 +3,7 @@
     "name": "OpenSPP Farmer Registry Demo",
     "summary": "Demo generator for Farmer Registry with fixed stories and volume generation",
     "category": "OpenSPP",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.0.1",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -30,6 +30,7 @@
     "data": [
         "security/ir.model.access.csv",
         "data/demo_users.xml",
+        "data/approval_definitions.xml",
         "data/approval_links.xml",
         "data/demo_personas.xml",
         "data/demo_programs.xml",

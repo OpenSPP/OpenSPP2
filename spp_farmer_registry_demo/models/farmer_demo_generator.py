@@ -1271,7 +1271,148 @@ class SPPFarmerDemoGenerator(models.TransientModel):
                 cycle_manager.interval,
             )
 
+        # Configure the eligibility manager's CEL expression so the engine
+        # uses the program's actual rule when admins re-evaluate eligibility.
+        # Without this the manager has no CEL set, so re-evaluation re-classifies
+        # seeded enrollments as Not Eligible even when the blueprint flags
+        # said they qualify. Mirrors the MIS fix from commit aa6da89d.
+        self._configure_eligibility_manager(program, program_def)
+
+        # Same wiring for compliance — programs that ship a
+        # `compliance_cel_expression` (Input Subsidy, Equipment Grant) need
+        # their compliance manager's CEL set so disbursements actually flow
+        # through the compliance workflow. See OP#915.
+        self._configure_compliance_manager(program, program_def)
+
+        # Wire approval definitions onto the cycle + entitlement managers so
+        # cycles and entitlements created on this program enter the demo's
+        # approval workflow. Without this the managers' `approval_definition_id`
+        # stays empty and the records auto-approve, which hides the workflow
+        # from anyone exercising the demo. See OP#915.
+        self._configure_program_approvals(program)
+
         return program
+
+    def _configure_eligibility_manager(self, program, program_def):
+        """Configure the eligibility manager with the program's CEL expression.
+
+        Eligibility uses ``program.eligibility_manager_ids`` (m2m of wrappers);
+        each wrapper points to the concrete manager via ``manager_ref_id``.
+        We write ``eligibility_mode='cel'`` + ``cel_expression`` on the first
+        wrapper that supports CEL (existing definitions on subsequent wrappers
+        are left alone). Mirrors ``MisDemoGenerator._configure_eligibility_manager``.
+        """
+        try:
+            cel_expression = program_def.get("cel_expression")
+            if not cel_expression:
+                return
+
+            for wrapper in program.eligibility_manager_ids:
+                concrete = wrapper.manager_ref_id
+                if not concrete:
+                    continue
+
+                if "cel_expression" not in concrete._fields:
+                    _logger.info(
+                        "CEL expression not supported on eligibility manager (program_id=%s)",
+                        program.id,
+                    )
+                    continue
+
+                concrete.write(
+                    {
+                        "eligibility_mode": "cel",
+                        "cel_expression": cel_expression,
+                    }
+                )
+                _logger.info(
+                    "Configured CEL eligibility for program (program_id=%s): %s",
+                    program.id,
+                    cel_expression,
+                )
+                break
+
+        except Exception as e:
+            _logger.warning(
+                "Could not configure eligibility manager (program_id=%s): %s",
+                program.id,
+                e,
+            )
+
+    def _configure_compliance_manager(self, program, program_def):
+        """Configure the compliance manager with the program's compliance CEL.
+
+        Programs that ship a ``compliance_cel_expression`` get the rule
+        written to their compliance manager. Programs that don't are
+        skipped (they exit the loop without writing anything).
+        """
+        try:
+            cel_expression = program_def.get("compliance_cel_expression")
+            if not cel_expression:
+                return
+
+            for wrapper in program.compliance_manager_ids:
+                concrete = wrapper.manager_ref_id
+                if hasattr(concrete, "compliance_cel_expression"):
+                    concrete.write(
+                        {
+                            "compliance_cel_expression": cel_expression,
+                        }
+                    )
+                    _logger.info(
+                        "Configured compliance CEL for program (program_id=%s): %s",
+                        program.id,
+                        cel_expression,
+                    )
+                    break
+
+        except Exception as e:
+            _logger.warning(
+                "Could not configure compliance manager (program_id=%s): %s",
+                program.id,
+                e,
+            )
+
+    def _configure_program_approvals(self, program):
+        """Set approval definitions on the program's cycle + entitlement
+        managers, mirroring what an admin would do under
+        Programs → Configuration → Managers in the UI.
+
+        The XML records live in `data/approval_definitions.xml`. We resolve
+        them by xmlid and only write when the manager exists and lacks an
+        existing definition (so a re-run of the wizard against an already
+        configured program doesn't clobber a custom definition).
+        """
+        cycle_def = self.env.ref(
+            "spp_farmer_registry_demo.approval_definition_farmer_cycle_manager",
+            raise_if_not_found=False,
+        )
+        entitlement_def = self.env.ref(
+            "spp_farmer_registry_demo.approval_definition_farmer_entitlement_manager",
+            raise_if_not_found=False,
+        )
+
+        cycle_manager = program.get_manager(program.MANAGER_CYCLE)
+        if cycle_manager and cycle_def and not cycle_manager.approval_definition_id:
+            cycle_manager.approval_definition_id = cycle_def
+            _logger.info(
+                "Cycle approval set on program (program_id=%s, definition=%s)",
+                program.id,
+                cycle_def.name,
+            )
+
+        entitlement_manager = program.get_manager(program.MANAGER_ENTITLEMENT)
+        if (
+            entitlement_manager
+            and entitlement_def
+            and not entitlement_manager.approval_definition_id
+        ):
+            entitlement_manager.approval_definition_id = entitlement_def
+            _logger.info(
+                "Entitlement approval set on program (program_id=%s, definition=%s)",
+                program.id,
+                entitlement_def.name,
+            )
 
     # ──────────────────────────────────────────────────────────────────────
     # Enrollments (Draft-first state machine)

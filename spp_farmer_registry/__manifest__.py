@@ -3,7 +3,7 @@
     "name": "OpenSPP Farmer Registry",
     "summary": "Farmer Registry with vocabulary-based fields, CEL variables, and Logic Studio integration",
     "category": "OpenSPP",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.0.2",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",

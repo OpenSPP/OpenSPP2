@@ -29,6 +29,12 @@ DEMO_PROGRAMS = [
         "cycle_duration": 1,
         "rrule_type": "monthly",
         "cel_expression": "r.is_group == true and is_smallholder and has_productive_land",
+        # Compliance: a beneficiary must still operate productive land at the
+        # start of each cycle. Lets a farm fall non-compliant mid-program if
+        # they stop farming productively (admin marks the farm inactive, all
+        # productive segments drop to 0, etc.) — re-evaluation moves them out
+        # of the next cycle without a manual de-enrollment.
+        "compliance_cel_expression": "has_productive_land == true and farm_size_hectares > 0",
         "logic_pack": "farmer_input_subsidy",
         "use_logic_studio": True,
         "logic_name": "Smallholder Eligibility",
@@ -43,6 +49,7 @@ DEMO_PROGRAMS = [
             "Per-hectare benefit scaling",
             "Smallholder targeting",
             "CEL: is_smallholder and has_productive_land",
+            "Compliance: ongoing productive-land check",
             "Logic Pack: farmer_input_subsidy",
         ],
     },
@@ -58,6 +65,11 @@ DEMO_PROGRAMS = [
         "cycle_duration": 1,
         "rrule_type": "monthly",
         "cel_expression": "r.is_group == true and is_smallholder and experience_years >= 2",
+        # Compliance: the equipment grant is targeted at smallholders with
+        # productive land. If the recipient grows past the smallholder
+        # threshold or abandons productive land, they should stop receiving
+        # disbursements. Re-evaluated per cycle.
+        "compliance_cel_expression": "is_smallholder == true and has_productive_land == true",
         "logic_pack": "farmer_equipment_grant",
         "use_logic_studio": True,
         "logic_name": "Experienced Farmer Eligibility",
@@ -67,6 +79,7 @@ DEMO_PROGRAMS = [
             "Experience-based eligibility",
             "Fixed grant amount",
             "Multi-criteria targeting",
+            "Compliance: must remain smallholder with productive land",
             "Logic Pack: farmer_equipment_grant",
         ],
     },
