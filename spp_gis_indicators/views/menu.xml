@@ -7,5 +7,5 @@
     module's submenus reference it via `spp_gis.menu_gis_config_root`.
     See OP#988.
 -->
-<odoo>
-</odoo>
+<odoo />
+
