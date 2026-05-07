@@ -92,4 +92,36 @@
         <field name="name">Irrigation background</field>
         <field name="view_id" ref="view_spp_irrigation_asset_gis" />
     </record>
+
+    <!-- Surface irrigation assets on the farm group form so users can see
+         what's serving the farm without having to filter the standalone list. -->
+    <record id="view_res_partner_group_irrigation_form" model="ir.ui.view">
+        <field name="name">res.partner.group.irrigation.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//notebook[@name='group_detail']" position="inside">
+                <page string="Irrigation" name="irrigation">
+                    <field name="irrigation_asset_ids">
+                        <list editable="bottom">
+                            <field name="name" />
+                            <field
+                                name="asset_type_id"
+                                options="{'no_create': True}"
+                            />
+                            <field name="total_capacity" />
+                            <field
+                                name="irrigation_source_ids"
+                                widget="many2many_tags"
+                            />
+                            <field
+                                name="irrigation_destination_ids"
+                                widget="many2many_tags"
+                            />
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
 </odoo>

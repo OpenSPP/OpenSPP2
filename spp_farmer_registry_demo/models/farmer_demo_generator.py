@@ -368,6 +368,18 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             stats["farms_created"] = len(story_farms)
             results.append(_("Created %d demo story farms") % len(story_farms))
 
+            # Step 2.1: Seed irrigation network for FM4 (Scenario 10)
+            irrigation_count = self._create_irrigation_demo_assets(story_farms)
+            if irrigation_count:
+                stats["irrigation_assets_created"] = irrigation_count
+                results.append(_("Created %d irrigation assets") % irrigation_count)
+
+            # Step 2.2: Seed farm assets on FM1 / FM8 (vocabulary/asset coverage)
+            asset_count = self._create_story_farm_assets(story_farms)
+            if asset_count:
+                stats["farm_assets_created"] = asset_count
+                results.append(_("Created %d farm assets") % asset_count)
+
         # Step 2.5: Create cooperatives (group-of-groups)
         if self.create_cooperatives and story_farms:
             cooperatives = self._create_cooperatives(story_farms)
@@ -550,12 +562,31 @@ class SPPFarmerDemoGenerator(models.TransientModel):
     # ──────────────────────────────────────────────────────────────────────
 
     def _create_active_season(self):
-        """Create an active agricultural season."""
+        """Create an active agricultural season alongside a closed prior season.
+
+        The prior-year season is created first in `closed` state so the demo
+        surfaces all three points of the `spp.farm.season` state machine
+        (`draft → active → closed`). The active current-year season is the
+        one used for activity/CR seeding.
+        """
         Season = self.env["spp.farm.season"]
 
         today = fields.Date.today()
         start_date = today.replace(month=1, day=1)
         end_date = today.replace(month=12, day=31)
+
+        # Closed prior-year season — surfaces the `closed` state in the demo.
+        prior_year = today.year - 1
+        prior_name = f"Growing Season {prior_year}"
+        if not Season.search([("name", "=", prior_name)], limit=1):
+            Season.sudo().create(  # nosemgrep
+                {
+                    "name": prior_name,
+                    "date_start": fields.Date.from_string(f"{prior_year}-01-01"),
+                    "date_end": fields.Date.from_string(f"{prior_year}-12-31"),
+                    "state": "closed",
+                }
+            )
 
         existing = Season.search([("state", "=", "active")], limit=1)
         if existing:
@@ -1104,6 +1135,130 @@ class SPPFarmerDemoGenerator(models.TransientModel):
         }
         return json.dumps(polygon)
 
+    def _create_irrigation_demo_assets(self, story_farms):
+        """Seed an irrigation network anchored on FM4 (Mangudadatu Farm).
+
+        Scenario 10 narrative: FM4's 1 ha of idle/fallow land is the
+        downstream consequence of reduced reservoir capacity, not random
+        non-cultivation. Two assets are created and linked into a
+        source → destination network so the GIS view shows real edges:
+
+        - "Cotabato Irrigation Reservoir" (type=reservoir) — degraded,
+          5 000 m³ effective capacity (design ~15 000 m³, silted)
+        - "Cotabato Main Canal Branch" (type=canal) — fed by the
+          reservoir, carries the reduced flow to FM4's parcel
+
+        Returns the number of irrigation assets created.
+        """
+        Irrigation = self.env.get("spp.irrigation.asset")
+        if Irrigation is None:
+            return 0
+
+        fm4 = story_farms.get("amir_mangudadatu")
+        if not fm4:
+            return 0
+
+        if Irrigation.search_count([("farm_id", "=", fm4.id)]):
+            # Idempotent — don't double-seed on re-run.
+            return 0
+
+        reservoir_type = self._get_vocab_code("urn:openspp:vocab:irrigation-asset-type", "reservoir")
+        canal_type = self._get_vocab_code("urn:openspp:vocab:irrigation-asset-type", "canal")
+
+        # Reservoir slightly upstream of FM4 (a few hundred metres N-W).
+        reservoir_lng = 124.2440
+        reservoir_lat = 7.2110
+        reservoir_polygon = self._generate_farm_polygon(reservoir_lng, reservoir_lat, 0.5)
+        reservoir_point = json.dumps({"type": "Point", "coordinates": [reservoir_lng, reservoir_lat]})
+
+        reservoir = Irrigation.sudo().create(  # nosemgrep
+            {
+                "name": "Cotabato Irrigation Reservoir",
+                "farm_id": fm4.id,
+                "asset_type_id": reservoir_type,
+                "total_capacity": 5000.0,  # m³, reduced from ~15 000 m³ design due to silting
+                "coordinates": reservoir_point,
+                "geo_polygon": reservoir_polygon,
+            }
+        )
+
+        # Canal between reservoir and FM4 — sourced by the reservoir.
+        canal_lng = 124.2475
+        canal_lat = 7.2080
+        canal_point = json.dumps({"type": "Point", "coordinates": [canal_lng, canal_lat]})
+
+        canal = Irrigation.sudo().create(  # nosemgrep
+            {
+                "name": "Cotabato Main Canal Branch",
+                "farm_id": fm4.id,
+                "asset_type_id": canal_type,
+                "total_capacity": 300.0,  # m³ flow capacity, reduced
+                "coordinates": canal_point,
+                "irrigation_source_ids": [(4, reservoir.id)],
+            }
+        )
+        # Mirror the relation: the reservoir's destination is the canal.
+        reservoir.write({"irrigation_destination_ids": [(4, canal.id)]})
+
+        return 2
+
+    def _create_story_farm_assets(self, story_farms):
+        """Seed `spp.farm.asset` records on FM1 and FM8.
+
+        Surfaces the farm-asset model in the demo so Scenario 8's CR
+        lifecycle can include a `manage_farm_asset` request and the
+        farm tables in USE_CASES.md have real records to point to.
+
+        - FM1 (Maria Santos / Santos Farm) → 1 hand tractor (machinery)
+        - FM8 (Danilo Villanueva / Villanueva Farm) → 1 water pump (machinery)
+
+        Returns the number of farm-asset records created.
+        """
+        Asset = self.env.get("spp.farm.asset")
+        MachineryType = self.env.get("spp.machinery.type")
+        if Asset is None or MachineryType is None:
+            return 0
+
+        def _machinery_type(name):
+            existing = MachineryType.search([("name", "=", name)], limit=1)
+            if existing:
+                return existing
+            return MachineryType.sudo().create({"name": name})  # nosemgrep
+
+        seeded = 0
+
+        fm1 = story_farms.get("maria_santos")
+        if fm1 and not Asset.search_count([("machinery_farm_id", "=", fm1.id)]):
+            land = self.env["spp.land.record"].search([("land_farm_id", "=", fm1.id)], limit=1)
+            tractor_type = _machinery_type("Hand Tractor")
+            Asset.sudo().create(  # nosemgrep
+                {
+                    "machinery_farm_id": fm1.id,
+                    "machinery_type_id": tractor_type.id,
+                    "land_id": land.id if land else False,
+                    "quantity": 1,
+                    "machine_working_status": "operational",
+                }
+            )
+            seeded += 1
+
+        fm8 = story_farms.get("danilo_villanueva")
+        if fm8 and not Asset.search_count([("machinery_farm_id", "=", fm8.id)]):
+            land = self.env["spp.land.record"].search([("land_farm_id", "=", fm8.id)], limit=1)
+            pump_type = _machinery_type("Water Pump")
+            Asset.sudo().create(  # nosemgrep
+                {
+                    "machinery_farm_id": fm8.id,
+                    "machinery_type_id": pump_type.id,
+                    "land_id": land.id if land else False,
+                    "quantity": 1,
+                    "machine_working_status": "operational",
+                }
+            )
+            seeded += 1
+
+        return seeded
+
     def _ensure_land_use_vocabularies(self):
         """Ensure land use vocabulary codes exist for GIS demo data.
 
@@ -1402,11 +1557,7 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             )
 
         entitlement_manager = program.get_manager(program.MANAGER_ENTITLEMENT)
-        if (
-            entitlement_manager
-            and entitlement_def
-            and not entitlement_manager.approval_definition_id
-        ):
+        if entitlement_manager and entitlement_def and not entitlement_manager.approval_definition_id:
             entitlement_manager.approval_definition_id = entitlement_def
             _logger.info(
                 "Entitlement approval set on program (program_id=%s, definition=%s)",
@@ -2063,8 +2214,25 @@ class SPPFarmerDemoGenerator(models.TransientModel):
                 "farm_size_under_livestock": 1.5,
             },
         },
-        # NOTE: Demo CRs for manage_land_parcel and manage_farm_asset are
-        # disabled until those CR types are enabled in cr_types.xml.
+        # Danilo Villanueva — Register a new water pump on FM8 (pending)
+        # Demonstrates the manage_farm_asset CR type alongside the
+        # update_farm_details / manage_farm_activity CRs already in this dict.
+        "danilo_villanueva_add_asset": {
+            "type_code": "manage_farm_asset",
+            "days_back": 7,
+            "state": "pending",
+            "description": "Register additional water pump for irrigation expansion",
+            "registrant_name": "Villanueva Farm",
+            "proposed_changes": {
+                "operation": "add",
+                "asset_category": "machinery",
+                "machinery_type_name": "Water Pump",
+                "machine_working_status": "operational",
+                "quantity": 1,
+            },
+        },
+        # NOTE: Demo CRs for manage_land_parcel are disabled until that CR
+        # type is enabled in cr_types.xml.
     }
 
     def _create_story_change_requests(self, story_farms, stats):
