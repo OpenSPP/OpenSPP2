@@ -4,7 +4,7 @@
     "name": "OpenSPP Programs",
     "summary": "Manage programs, cycles, beneficiary enrollment, entitlements (cash and in-kind), payments, and fund tracking for social protection.",
     "category": "OpenSPP/Core",
-    "version": "19.0.2.0.11",
+    "version": "19.0.2.1.0",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",

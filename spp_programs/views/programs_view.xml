@@ -181,6 +181,15 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     icon="fa-refresh"
                     string="Refresh"
                 />
+                    <button
+                    name="action_force_unlock"
+                    type="object"
+                    class="btn btn-sm btn-danger ms-2"
+                    icon="fa-unlock"
+                    string="Force Unlock"
+                    confirm="Force-clear the lock? Use only when the async operation has actually stopped and the lock is stuck."
+                    groups="base.group_system"
+                />
                 </div>
 
                 <sheet>
