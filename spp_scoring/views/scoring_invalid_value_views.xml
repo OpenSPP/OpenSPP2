@@ -7,6 +7,7 @@
         <field name="arch" type="xml">
             <list string="Invalid Values" editable="bottom">
                 <field name="name" />
+                <field name="match_type" />
                 <field name="description" />
                 <field name="active" widget="boolean_toggle" />
             </list>
@@ -27,7 +28,11 @@
                         invisible="active"
                     />
                     <group>
-                        <field name="name" placeholder="e.g., No Birthdate!" />
+                        <field
+                            name="name"
+                            placeholder="e.g., No Birthdate!  or  ^N/A.*$"
+                        />
+                        <field name="match_type" widget="radio" />
                         <field name="description" />
                         <field name="active" widget="boolean_toggle" />
                     </group>
@@ -44,6 +49,16 @@
             <search string="Search Invalid Values">
                 <field name="name" />
                 <field name="description" />
+                <filter
+                    name="exact"
+                    string="Exact"
+                    domain="[('match_type', '=', 'exact')]"
+                />
+                <filter
+                    name="regex"
+                    string="Regex"
+                    domain="[('match_type', '=', 'regex')]"
+                />
                 <filter
                     name="archived"
                     string="Archived"
@@ -63,9 +78,15 @@
                 Add a curated invalid value
             </p>
             <p>
-                These string values (e.g. <em>No Birthdate!</em>,
-                <em>Unknown</em>, <em>N/A</em>) are treated as
-                <strong>missing</strong> by every scoring indicator.
+                These values are treated as <strong>missing</strong> by every
+                scoring indicator that picks them. Use <strong>Exact</strong>
+                for literal strings (e.g. <em>No Birthdate!</em>,
+                <em>Unknown</em>, <em>N/A</em>) or <strong>Regex</strong> to
+                catch a whole range of sentinel values with one pattern (e.g.
+                <em>^N/A.*$</em> covers <em>N/A</em>, <em>N/A!</em>,
+                <em>N/A — missing</em>).
+            </p>
+            <p>
                 Untick <em>Active</em> to retire an entry without losing it.
             </p>
         </field>

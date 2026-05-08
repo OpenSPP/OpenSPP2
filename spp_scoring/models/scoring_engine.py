@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from datetime import date
 
 from odoo import _, api, fields, models
@@ -231,10 +232,27 @@ class SppScoringEngine(models.AbstractModel):
             #
             # Each indicator can pick a subset of the curated Invalid
             # Values library (spp.scoring.invalid.value) — only active
-            # rows count. Matching strings are treated as missing for
-            # both required and non-required indicators.
-            invalid_values = set(indicator.invalid_value_ids.filtered("active").mapped("name"))
-            if self._is_missing_value(field_value, indicator.is_required, invalid_values):
+            # rows count. Each entry is either an Exact string match or
+            # a Regex pattern (re.fullmatch). Matching values are treated
+            # as missing for both required and non-required indicators.
+            active_invalid = indicator.invalid_value_ids.filtered("active")
+            invalid_exact = {r.name for r in active_invalid if r.match_type == "exact"}
+            invalid_regex = []
+            for rec in active_invalid:
+                if rec.match_type != "regex":
+                    continue
+                try:
+                    invalid_regex.append(re.compile(rec.name))
+                except re.error:
+                    # The model has @api.constrains protecting against this,
+                    # but if a bad pattern slips in (e.g. via SQL load or
+                    # a migration) we skip it and keep scoring running.
+                    _logger.warning(
+                        "Skipping invalid regex sentinel %r on indicator %s — pattern does not compile.",
+                        rec.name,
+                        indicator.code,
+                    )
+            if self._is_missing_value(field_value, indicator.is_required, invalid_exact, invalid_regex):
                 if indicator.is_required:
                     result["error"] = _("Required field '%(path)s' has no valid value (got: %(value)s).") % {
                         "path": indicator.field_path,
@@ -275,7 +293,7 @@ class SppScoringEngine(models.AbstractModel):
         return result
 
     @staticmethod
-    def _is_missing_value(field_value, is_required, invalid_patterns=None):
+    def _is_missing_value(field_value, is_required, invalid_exact=None, invalid_regex=None):
         """Decide whether a field value should be treated as 'missing'.
 
         Non-required indicators only treat ``None`` as missing — anything
@@ -286,16 +304,34 @@ class SppScoringEngine(models.AbstractModel):
         empty strings/containers as missing. Numeric 0 (int or float),
         and the literal ``True``, stay valid.
 
-        ``invalid_patterns`` is the global set of curated invalid-value
-        strings (from ``spp.scoring.invalid.value``). Matching strings
-        are treated as missing for both required and non-required
-        indicators.
+        ``invalid_exact`` is a set of curated literal strings (from
+        ``spp.scoring.invalid.value`` with ``match_type='exact'``) that
+        always count as missing. ``invalid_regex`` is a list of
+        pre-compiled regex patterns (entries with ``match_type='regex'``);
+        a match via ``re.fullmatch`` also counts as missing. Both apply
+        to required and non-required indicators alike — they're a global
+        sentinel filter, not a strict-mode flag.
         """
         if field_value is None:
             return True
-        # Configured invalid-value strings always count as missing.
-        if invalid_patterns and isinstance(field_value, str) and field_value.strip() in invalid_patterns:
-            return True
+        # Configured invalid-value sentinels always count as missing.
+        # Exact match only applies to str values (catches sentinel strings
+        # like "No Birthdate!"). Regex match coerces non-bool, non-None
+        # values to str so numeric ranges work too — e.g. an indicator
+        # reading `age` (int) can match an entry like ``^([1-9]|10)$`` to
+        # flag suspicious-low ages as missing. Bools are excluded from
+        # the regex path to keep the required-indicator False handling
+        # below from being short-circuited.
+        if isinstance(field_value, str):
+            stripped = field_value.strip()
+            if invalid_exact and stripped in invalid_exact:
+                return True
+            if invalid_regex and any(p.fullmatch(stripped) for p in invalid_regex):
+                return True
+        elif invalid_regex and not isinstance(field_value, bool):
+            candidate = str(field_value)
+            if any(p.fullmatch(candidate) for p in invalid_regex):
+                return True
         if not is_required:
             return False
         # Booleans subclass int in Python, so check this branch first.

@@ -86,12 +86,29 @@ class SppScoringIndicator(models.Model):
     )
     default_value = fields.Char(
         string="Default Value",
-        help="Fallback value if field is null (stored as string, converted as needed)",
+        help=(
+            "Substituted in place of the registrant's value when the field "
+            "is missing or matches an Invalid Value entry. Stored as text "
+            "and coerced to the indicator's expected field type (int, "
+            "float, bool, date) before scoring; the substituted value then "
+            "flows through the normal value-mapping pipeline.\n\n"
+            "Leave blank to skip substitution and fall through to "
+            "**Default Score** instead.\n\n"
+            "Not used when the indicator is **Required** — Strict Mode "
+            "fails the registrant in that case rather than silently "
+            "substituting a fallback."
+        ),
     )
     default_score = fields.Float(
         string="Default Score",
         default=0.0,
-        help="Score to use when value is missing or not mapped",
+        help=(
+            "Score assigned directly when the registrant's value is "
+            "missing or unmapped, *and* either no **Default Value** is "
+            "set or the substituted Default Value still doesn't match "
+            "any value-mapping. Acts as the indicator's neutral / "
+            "fallback score for incomplete data."
+        ),
     )
     invalid_value_ids = fields.Many2many(
         comodel_name="spp.scoring.invalid.value",
