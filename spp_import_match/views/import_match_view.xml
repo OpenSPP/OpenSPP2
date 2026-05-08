@@ -52,20 +52,26 @@
                                         />
                                         <field name="match_id" column_invisible="1" />
                                         <field name="model_id" column_invisible="1" />
-                                        <field name="is_conditional" />
-                                        <!-- Condition Field is a separate gate column from
-                                             the match field; only populated when the rule
-                                             is conditional. See OP#991. -->
+                                        <!-- Conditional gate columns hidden for now —
+                                             the schema (is_conditional / condition_field_id /
+                                             imported_value) and the matching-engine wiring
+                                             stay in place, but no current import flow needs
+                                             the gate, so the columns are kept out of the UI
+                                             until a use case lands. See OP#991. -->
+                                        <field
+                                            name="is_conditional"
+                                            column_invisible="1"
+                                        />
                                         <field
                                             name="condition_field_id"
                                             string="Condition Field"
-                                            readonly="is_conditional == False"
+                                            column_invisible="1"
                                             options="{'no_create': True}"
                                         />
                                         <field
                                             name="imported_value"
                                             string="Condition Value"
-                                            readonly="is_conditional == False"
+                                            column_invisible="1"
                                         />
                                     </list>
                                 </field>
