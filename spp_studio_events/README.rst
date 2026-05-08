@@ -50,30 +50,30 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Model                            | Description                      |
-+==================================+==================================+
-| ``spp.studio.event.type``        | Custom event type definition     |
-|                                  | with draft/active lifecycle      |
-+----------------------------------+----------------------------------+
-| ``spp.studio.event.field``       | Field definition with type,      |
-|                                  | validation, and visibility       |
-+----------------------------------+----------------------------------+
-| ``spp.studio.event.field.group`` | Groups fields into tabs in the   |
-|                                  | data entry wizard                |
-+----------------------------------+----------------------------------+
-| ``s                              | Reusable template containing     |
-| pp.studio.event.field.template`` | field definitions                |
-+----------------------------------+----------------------------------+
-| ``spp.st                         | Field definition within a        |
-| udio.event.field.template.line`` | template                         |
-+----------------------------------+----------------------------------+
-| ``spp.studio.event.type.wizard`` | 3-step wizard for creating event |
-|                                  | types                            |
-+----------------------------------+----------------------------------+
-| ``spp.event.data.entry.wizard``  | Generated wizard for entering    |
-|                                  | event data                       |
-+----------------------------------+----------------------------------+
++------------------------------------------+----------------------------------+
+| Model                                    | Description                      |
++==========================================+==================================+
+| ``spp.studio.event.type``                | Custom event type definition     |
+|                                          | with draft/active lifecycle      |
++------------------------------------------+----------------------------------+
+| ``spp.studio.event.field``               | Field definition with type,      |
+|                                          | validation, and visibility       |
++------------------------------------------+----------------------------------+
+| ``spp.studio.event.field.group``         | Groups fields into tabs in the   |
+|                                          | data entry wizard                |
++------------------------------------------+----------------------------------+
+| ``spp.studio.event.field.template``      | Reusable template containing     |
+|                                          | field definitions                |
++------------------------------------------+----------------------------------+
+| ``spp.studio.event.field.template.line`` | Field definition within a        |
+|                                          | template                         |
++------------------------------------------+----------------------------------+
+| ``spp.studio.event.type.wizard``         | 3-step wizard for creating event |
+|                                          | types                            |
++------------------------------------------+----------------------------------+
+| ``spp.event.data.entry.wizard``          | Generated wizard for entering    |
+|                                          | event data                       |
++------------------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -99,20 +99,18 @@ UI Location
 Security
 ~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Group                            | Access                           |
-+==================================+==================================+
-| ``                               | Read event types and templates   |
-| spp_studio.group_studio_viewer`` |                                  |
-+----------------------------------+----------------------------------+
-| ``spp_stud                       | Read/Write/Create on event       |
-| io.group_studio_editor_officer`` | types, fields, and templates (no |
-|                                  | delete on event                  |
-|                                  | types/fields/templates)          |
-+----------------------------------+----------------------------------+
-| ``s                              | Full CRUD                        |
-| pp_studio.group_studio_manager`` |                                  |
-+----------------------------------+----------------------------------+
++--------------------------------------------+----------------------------------+
+| Group                                      | Access                           |
++============================================+==================================+
+| ``spp_studio.group_studio_viewer``         | Read event types and templates   |
++--------------------------------------------+----------------------------------+
+| ``spp_studio.group_studio_editor_officer`` | Read/Write/Create on event       |
+|                                            | types, fields, and templates (no |
+|                                            | delete on event                  |
+|                                            | types/fields/templates)          |
++--------------------------------------------+----------------------------------+
+| ``spp_studio.group_studio_manager``        | Full CRUD                        |
++--------------------------------------------+----------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~
