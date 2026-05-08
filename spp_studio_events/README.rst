@@ -50,30 +50,30 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+------------------------------------------+----------------------------------+
-| Model                                    | Description                      |
-+==========================================+==================================+
-| ``spp.studio.event.type``                | Custom event type definition     |
-|                                          | with draft/active lifecycle      |
-+------------------------------------------+----------------------------------+
-| ``spp.studio.event.field``               | Field definition with type,      |
-|                                          | validation, and visibility       |
-+------------------------------------------+----------------------------------+
-| ``spp.studio.event.field.group``         | Groups fields into tabs in the   |
-|                                          | data entry wizard                |
-+------------------------------------------+----------------------------------+
-| ``spp.studio.event.field.template``      | Reusable template containing     |
-|                                          | field definitions                |
-+------------------------------------------+----------------------------------+
-| ``spp.studio.event.field.template.line`` | Field definition within a        |
-|                                          | template                         |
-+------------------------------------------+----------------------------------+
-| ``spp.studio.event.type.wizard``         | 3-step wizard for creating event |
-|                                          | types                            |
-+------------------------------------------+----------------------------------+
-| ``spp.event.data.entry.wizard``          | Generated wizard for entering    |
-|                                          | event data                       |
-+------------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Model                            | Description                      |
++==================================+==================================+
+| ``spp.studio.event.type``        | Custom event type definition     |
+|                                  | with draft/active lifecycle      |
++----------------------------------+----------------------------------+
+| ``spp.studio.event.field``       | Field definition with type,      |
+|                                  | validation, and visibility       |
++----------------------------------+----------------------------------+
+| ``spp.studio.event.field.group`` | Groups fields into tabs in the   |
+|                                  | data entry wizard                |
++----------------------------------+----------------------------------+
+| ``s                              | Reusable template containing     |
+| pp.studio.event.field.template`` | field definitions                |
++----------------------------------+----------------------------------+
+| ``spp.st                         | Field definition within a        |
+| udio.event.field.template.line`` | template                         |
++----------------------------------+----------------------------------+
+| ``spp.studio.event.type.wizard`` | 3-step wizard for creating event |
+|                                  | types                            |
++----------------------------------+----------------------------------+
+| ``spp.event.data.entry.wizard``  | Generated wizard for entering    |
+|                                  | event data                       |
++----------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -99,18 +99,20 @@ UI Location
 Security
 ~~~~~~~~
 
-+--------------------------------------------+----------------------------------+
-| Group                                      | Access                           |
-+============================================+==================================+
-| ``spp_studio.group_studio_viewer``         | Read event types and templates   |
-+--------------------------------------------+----------------------------------+
-| ``spp_studio.group_studio_editor_officer`` | Read/Write/Create on event       |
-|                                            | types, fields, and templates (no |
-|                                            | delete on event                  |
-|                                            | types/fields/templates)          |
-+--------------------------------------------+----------------------------------+
-| ``spp_studio.group_studio_manager``        | Full CRUD                        |
-+--------------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Group                            | Access                           |
++==================================+==================================+
+| ``                               | Read event types and templates   |
+| spp_studio.group_studio_viewer`` |                                  |
++----------------------------------+----------------------------------+
+| ``spp_stud                       | Read/Write/Create on event       |
+| io.group_studio_editor_officer`` | types, fields, and templates (no |
+|                                  | delete on event                  |
+|                                  | types/fields/templates)          |
++----------------------------------+----------------------------------+
+| ``s                              | Full CRUD                        |
+| pp_studio.group_studio_manager`` |                                  |
++----------------------------------+----------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~
@@ -136,6 +138,25 @@ Dependencies
 
 Changelog
 =========
+
+19.0.2.0.2
+~~~~~~~~~~
+
+- fix(views): the basic Create Event wizard's step 1 is now
+  self-explanatory for Studio-backed event types. The misleading raw
+  JSON field is hidden; an info banner announces the next stage; the
+  "Create Event" button is renamed "Next" so users know there's a second
+  step where the structured fields appear. Non-Studio event types keep
+  the original step-1 UI unchanged. Backed by a new computed
+  ``is_studio_event_type`` boolean on ``spp.create.event.wizard``.
+
+19.0.2.0.1
+~~~~~~~~~~
+
+- fix(views): clicking the **Events** smart button on a Studio Event
+  Type form no longer crashes with ``View types not defined tree``.
+  ``action_view_events`` returned ``view_mode="tree,form"``, but Odoo 19
+  renamed ``tree`` to ``list``; switched to ``view_mode="list,form"``.
 
 19.0.2.0.0
 ~~~~~~~~~~

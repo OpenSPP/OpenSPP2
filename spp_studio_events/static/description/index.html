@@ -399,8 +399,8 @@ type</li>
 <h1>Key Models</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="55%" />
-<col width="45%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -420,11 +420,13 @@ validation, and visibility</td>
 <td>Groups fields into tabs in the
 data entry wizard</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.studio.event.field.template</tt></td>
+<tr><td><tt class="docutils literal">s
+pp.studio.event.field.template</tt></td>
 <td>Reusable template containing
 field definitions</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.studio.event.field.template.line</tt></td>
+<tr><td><tt class="docutils literal">spp.st
+udio.event.field.template.line</tt></td>
 <td>Field definition within a
 template</td>
 </tr>
@@ -465,8 +467,8 @@ launched from event type form or registrant profile</li>
 <h1>Security</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="56%" />
-<col width="44%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -474,16 +476,19 @@ launched from event type form or registrant profile</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><tt class="docutils literal">spp_studio.group_studio_viewer</tt></td>
+<tr><td>``
+spp_studio.group_studio_viewer``</td>
 <td>Read event types and templates</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_studio.group_studio_editor_officer</tt></td>
+<tr><td><tt class="docutils literal">spp_stud
+io.group_studio_editor_officer</tt></td>
 <td>Read/Write/Create on event
 types, fields, and templates (no
 delete on event
 types/fields/templates)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_studio.group_studio_manager</tt></td>
+<tr><td><tt class="docutils literal">s
+pp_studio.group_studio_manager</tt></td>
 <td>Full CRUD</td>
 </tr>
 </tbody>
@@ -516,6 +521,27 @@ data processing</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.2</h1>
+<ul class="simple">
+<li>fix(views): the basic Create Event wizard’s step 1 is now
+self-explanatory for Studio-backed event types. The misleading raw
+JSON field is hidden; an info banner announces the next stage; the
+“Create Event” button is renamed “Next” so users know there’s a second
+step where the structured fields appear. Non-Studio event types keep
+the original step-1 UI unchanged. Backed by a new computed
+<tt class="docutils literal">is_studio_event_type</tt> boolean on <tt class="docutils literal">spp.create.event.wizard</tt>.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
+<h1>19.0.2.0.1</h1>
+<ul class="simple">
+<li>fix(views): clicking the <strong>Events</strong> smart button on a Studio Event
+Type form no longer crashes with <tt class="docutils literal">View types not defined tree</tt>.
+<tt class="docutils literal">action_view_events</tt> returned <tt class="docutils literal"><span class="pre">view_mode=&quot;tree,form&quot;</span></tt>, but Odoo 19
+renamed <tt class="docutils literal">tree</tt> to <tt class="docutils literal">list</tt>; switched to <tt class="docutils literal"><span class="pre">view_mode=&quot;list,form&quot;</span></tt>.</li>
+</ul>
+</div>
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

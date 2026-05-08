@@ -1,7 +1,7 @@
 # pylint: disable-next=pointless-statement
 {
     "name": "OpenSPP Studio - Events",
-    "version": "19.0.2.0.1",
+    "version": "19.0.2.0.2",
     "category": "OpenSPP/Configuration",
     "summary": "No-code event type designer for data collection",
     "author": "OpenSPP.org",
@@ -22,6 +22,7 @@
         # Wizards
         "wizard/event_type_wizard_views.xml",
         "wizard/event_data_entry_wizard_views.xml",
+        "wizard/create_event_wizard_views.xml",
         # Data
         "data/event_field_templates.xml",
     ],
