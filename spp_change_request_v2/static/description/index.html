@@ -1339,26 +1339,38 @@ registrant</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.4</h1>
+<ul class="simple">
+<li>fix(security): align CR Requestor / CR Local Validator / CR HQ
+Validator roles with the OP#951 menu audit — replace the
+<tt class="docutils literal">spp_registry.group_registry_read</tt> (Tier-3, no menu) link with
+<tt class="docutils literal">spp_registry.group_registry_viewer</tt> so these roles see the Registry
+menu; add <tt class="docutils literal">spp_hazard.group_hazard_viewer</tt> so they retain Hazard
+visibility once the menu root is gated. Adds <tt class="docutils literal">spp_hazard</tt> to module
+dependencies.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.3</h1>
 <ul class="simple">
 <li>fix: add HTML escaping to all computed Html fields with
 <tt class="docutils literal">sanitize=False</tt> to prevent stored XSS (#50)</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.2</h1>
 <ul class="simple">
 <li>fix: fix batch approval wizard line deletion (#130)</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix: skip field types before getattr and isolate detail prefetch
 (#129)</li>
 </ul>
 </div>
-<div class="section" id="section-4">
+<div class="section" id="section-5">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

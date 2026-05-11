@@ -405,8 +405,8 @@ compliance logic</li>
 <h1>Key Models</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="57%" />
+<col width="43%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -454,13 +454,11 @@ batches</td>
 <td>Wrapper for eligibility manager
 implementations</td>
 </tr>
-<tr><td>``
-spp.program.membership.manager``</td>
+<tr><td><tt class="docutils literal">spp.program.membership.manager</tt></td>
 <td>Base eligibility manager
 (abstract)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.prog
-ram.membership.manager.default</tt></td>
+<tr><td><tt class="docutils literal">spp.program.membership.manager.default</tt></td>
 <td>Default eligibility
 implementation</td>
 </tr>
@@ -468,8 +466,7 @@ implementation</td>
 <td>Wrapper for deduplication
 manager implementations</td>
 </tr>
-<tr><td><tt class="docutils literal">sp
-p.program.notification.manager</tt></td>
+<tr><td><tt class="docutils literal">spp.program.notification.manager</tt></td>
 <td>Notification manager for
 beneficiary communications</td>
 </tr>
@@ -489,23 +486,19 @@ implementations</td>
 <td>Default cycle manager
 implementation</td>
 </tr>
-<tr><td><tt class="docutils literal">s
-pp.program.entitlement.manager</tt></td>
+<tr><td><tt class="docutils literal">spp.program.entitlement.manager</tt></td>
 <td>Wrapper for entitlement manager
 implementations</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.progr
-am.entitlement.manager.default</tt></td>
+<tr><td><tt class="docutils literal">spp.program.entitlement.manager.default</tt></td>
 <td>Default entitlement manager
 implementation</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.pr
-ogram.entitlement.manager.cash</tt></td>
+<tr><td><tt class="docutils literal">spp.program.entitlement.manager.cash</tt></td>
 <td>Cash entitlement manager with
 amount calculation</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.prog
-ram.entitlement.manager.inkind</tt></td>
+<tr><td><tt class="docutils literal">spp.program.entitlement.manager.inkind</tt></td>
 <td>In-kind entitlement manager with
 product configuration</td>
 </tr>
@@ -513,8 +506,7 @@ product configuration</td>
 <td>Wrapper for payment manager
 implementations</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.p
-rogram.payment.manager.default</tt></td>
+<tr><td><tt class="docutils literal">spp.program.payment.manager.default</tt></td>
 <td>Default payment manager
 implementation</td>
 </tr>
@@ -522,8 +514,7 @@ implementation</td>
 <td>Wrapper for compliance manager
 implementations</td>
 </tr>
-<tr><td>``
-spp.compliance.manager.default``</td>
+<tr><td><tt class="docutils literal">spp.compliance.manager.default</tt></td>
 <td>Default compliance manager with
 CEL support</td>
 </tr>
@@ -534,8 +525,7 @@ utilization</td>
 <tr><td><tt class="docutils literal">spp.program.fund.report.view</tt></td>
 <td>Fund balance reporting view</td>
 </tr>
-<tr><td><tt class="docutils literal">sp
-p.program.membership.duplicate</tt></td>
+<tr><td><tt class="docutils literal">spp.program.membership.duplicate</tt></td>
 <td>Tracks duplicate membership
 records</td>
 </tr>
@@ -590,8 +580,8 @@ form (no standalone menu)</li>
 <h1>Security</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="59%" />
+<col width="41%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -599,35 +589,29 @@ form (no standalone menu)</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><tt class="docutils literal">spp_
-programs.group_programs_viewer</tt></td>
+<tr><td><tt class="docutils literal">spp_programs.group_programs_viewer</tt></td>
 <td>Read-only on all program data</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_p
-rograms.group_programs_officer</tt></td>
+<tr><td><tt class="docutils literal">spp_programs.group_programs_officer</tt></td>
 <td>Read/write/create on all models
 (no delete)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_p
-rograms.group_programs_manager</tt></td>
+<tr><td><tt class="docutils literal">spp_programs.group_programs_manager</tt></td>
 <td>Full CRUD on cycles and
 memberships, RWC on programs (no
 program delete)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_pro
-grams.group_programs_validator</tt></td>
+<tr><td><tt class="docutils literal">spp_programs.group_programs_validator</tt></td>
 <td>Read/write/create on
 entitlements and cycles (finance
 validation role)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_programs
-.group_programs_cycle_approver</tt></td>
+<tr><td><tt class="docutils literal">spp_programs.group_programs_cycle_approver</tt></td>
 <td>Read/write/create on
 entitlements and cycles
 (approval role)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_pr
-ograms.group_programs_rejector</tt></td>
+<tr><td><tt class="docutils literal">spp_programs.group_programs_rejector</tt></td>
 <td>Read/write/create on
 entitlements (rejection role)</td>
 </tr>
@@ -674,6 +658,18 @@ to define custom compliance criteria</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.1</h1>
+<ul class="simple">
+<li>fix(security): align Program Viewer / Validator / Cycle Approver roles
+with the OP#951 menu audit — Program Viewer additionally gets
+<tt class="docutils literal">group_registry_viewer</tt> + <tt class="docutils literal">group_approval_viewer</tt> (read-only
+Registry + Approvals access); all three program roles get
+<tt class="docutils literal">group_hazard_viewer</tt> + <tt class="docutils literal">group_gis_report_user</tt> so they retain
+Hazard / GIS Reports visibility once those menu roots are gated. Adds
+<tt class="docutils literal">spp_hazard</tt> and <tt class="docutils literal">spp_gis_report</tt> to module dependencies.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.11</h1>
 <ul class="simple">
 <li>Fix <tt class="docutils literal">TypeError: 'NoneType' object is not iterable</tt> when clicking
@@ -684,7 +680,7 @@ dispatch path)</li>
 omit the state filter instead of crashing on <tt class="docutils literal">tuple(None)</tt></li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.10</h1>
 <ul class="simple">
 <li>Increase parallel-safe channel limits (cycle, eligibility_manager,
@@ -697,7 +693,7 @@ concurrent refresh storms</li>
 submission on double-click</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.0.9</h1>
 <ul class="simple">
 <li>Add context flags (<tt class="docutils literal">skip_registrant_statistics</tt>,
@@ -710,7 +706,7 @@ bulk operations</li>
 <tt class="docutils literal">_compute_has_members</tt></li>
 </ul>
 </div>
-<div class="section" id="section-4">
+<div class="section" id="section-5">
 <h1>19.0.2.0.8</h1>
 <ul class="simple">
 <li>Replace OFFSET pagination with NTILE-based ID-range batching in all
@@ -721,7 +717,7 @@ function</li>
 program and cycle</li>
 </ul>
 </div>
-<div class="section" id="section-5">
+<div class="section" id="section-6">
 <h1>19.0.2.0.7</h1>
 <ul class="simple">
 <li>Bulk membership creation using raw SQL INSERT ON CONFLICT DO NOTHING
@@ -730,7 +726,7 @@ for program and cycle memberships</li>
 <tt class="docutils literal">_add_beneficiaries</tt> with bulk SQL path</li>
 </ul>
 </div>
-<div class="section" id="section-6">
+<div class="section" id="section-7">
 <h1>19.0.2.0.6</h1>
 <ul class="simple">
 <li>Remove unused entitlement_base_model.py (dead code, never imported)</li>
@@ -739,34 +735,34 @@ for program and cycle memberships</li>
 payment, and fund tests (172 → 492 tests)</li>
 </ul>
 </div>
-<div class="section" id="section-7">
+<div class="section" id="section-8">
 <h1>19.0.2.0.5</h1>
 <ul class="simple">
 <li>Batch create entitlements and payments instead of one-by-one ORM
 creates</li>
 </ul>
 </div>
-<div class="section" id="section-8">
+<div class="section" id="section-9">
 <h1>19.0.2.0.4</h1>
 <ul class="simple">
 <li>Fetch fund balance once per approval batch instead of per entitlement</li>
 </ul>
 </div>
-<div class="section" id="section-9">
+<div class="section" id="section-10">
 <h1>19.0.2.0.3</h1>
 <ul class="simple">
 <li>Replace cycle computed fields (total_amount, entitlements_count,
 approval flags) with SQL aggregation queries</li>
 </ul>
 </div>
-<div class="section" id="section-10">
+<div class="section" id="section-11">
 <h1>19.0.2.0.2</h1>
 <ul class="simple">
 <li>Add composite indexes for frequent query patterns on entitlements and
 program memberships</li>
 </ul>
 </div>
-<div class="section" id="section-11">
+<div class="section" id="section-12">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>Replace Python-level uniqueness checks with SQL UNIQUE constraints for
@@ -775,7 +771,7 @@ program membership, cycle membership, and entitlement codes</li>
 constraint creation</li>
 </ul>
 </div>
-<div class="section" id="section-12">
+<div class="section" id="section-13">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
