@@ -23,11 +23,11 @@
     ],
     "data": [
         "data/vocabularies.xml",
-        "data/user_roles.xml",
         "security/privileges.xml",
         "security/security_group.xml",
         "security/ir.model.access.csv",
         "security/record_rules.xml",
+        "data/user_roles.xml",
         "views/main_view.xml",
         "views/group_views.xml",
         "views/service_points_view.xml",
