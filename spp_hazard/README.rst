@@ -1195,6 +1195,12 @@ Changelog
   OP#951 menu audit identifies as needing read-only Hazard menu access.
   Other affected roles defined outside this module (program/CR/farm
   roles) are wired in their own modules.
+- fix(views): gate the "Hazard and Emergency" top-level menu
+  (``hazard_main_menu_root``) on ``group_hazard_viewer``. Previously the
+  root menu had no ``groups=`` attribute and was visible to every
+  logged-in user; the OP#951 audit requires several roles to NOT see it
+  (Global Finance, Global Support, Global Support Manager, Local
+  Support).
 
 19.0.2.0.0
 ~~~~~~~~~~

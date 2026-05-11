@@ -667,6 +667,13 @@ Registry + Approvals access); all three program roles get
 <tt class="docutils literal">group_hazard_viewer</tt> + <tt class="docutils literal">group_gis_report_user</tt> so they retain
 Hazard / GIS Reports visibility once those menu roots are gated. Adds
 <tt class="docutils literal">spp_hazard</tt> and <tt class="docutils literal">spp_gis_report</tt> to module dependencies.</li>
+<li>fix(security): hide the Registry top-level menu for Global Program
+Cycle Approver per the OP#951 audit. Swap Tier-2
+<tt class="docutils literal">spp_registry.group_registry_viewer</tt> (which gates the Registry menu)
+for Tier-3 <tt class="docutils literal">spp_registry.group_registry_write</tt> (ACL-only, no menu).
+<tt class="docutils literal">group_registry_write</tt> transitively implies <tt class="docutils literal">group_registry_read</tt>,
+so the role keeps read+write access to registrant data via Programs
+cross-references — only the dedicated top-level menu disappears.</li>
 </ul>
 </div>
 <div class="section" id="section-2">

@@ -2462,6 +2462,12 @@ the text label</td>
 OP#951 menu audit identifies as needing read-only Hazard menu access.
 Other affected roles defined outside this module (program/CR/farm
 roles) are wired in their own modules.</li>
+<li>fix(views): gate the “Hazard and Emergency” top-level menu
+(<tt class="docutils literal">hazard_main_menu_root</tt>) on <tt class="docutils literal">group_hazard_viewer</tt>. Previously the
+root menu had no <tt class="docutils literal">groups=</tt> attribute and was visible to every
+logged-in user; the OP#951 audit requires several roles to NOT see it
+(Global Finance, Global Support, Global Support Manager, Local
+Support).</li>
 </ul>
 </div>
 <div class="section" id="section-2">

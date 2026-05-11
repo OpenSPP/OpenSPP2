@@ -537,6 +537,12 @@ incident selection</li>
 Global Program Manager role so the OP#951 menu audit expectation
 (Program Manager sees GIS Reports) is preserved once the GIS Reports
 menu root is gated.</li>
+<li>fix(views): gate the “GIS Reports” top-level menu
+(<tt class="docutils literal">menu_gis_report_root</tt>) on <tt class="docutils literal">group_gis_report_user</tt>. Previously
+visible to every logged-in user; the OP#951 audit requires several
+roles to NOT see it (Registry Viewer, Global Finance, Global Support,
+Global Support Manager, Local Support, Global Registrar, Local
+Registrar, CR roles).</li>
 </ul>
 </div>
 <div class="section" id="section-2">

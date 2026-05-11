@@ -264,6 +264,13 @@ Changelog
   ``group_hazard_viewer`` + ``group_gis_report_user`` so they retain
   Hazard / GIS Reports visibility once those menu roots are gated. Adds
   ``spp_hazard`` and ``spp_gis_report`` to module dependencies.
+- fix(security): hide the Registry top-level menu for Global Program
+  Cycle Approver per the OP#951 audit. Swap Tier-2
+  ``spp_registry.group_registry_viewer`` (which gates the Registry menu)
+  for Tier-3 ``spp_registry.group_registry_write`` (ACL-only, no menu).
+  ``group_registry_write`` transitively implies ``group_registry_read``,
+  so the role keeps read+write access to registrant data via Programs
+  cross-references — only the dedicated top-level menu disappears.
 
 19.0.2.0.11
 ~~~~~~~~~~~

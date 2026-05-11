@@ -55,33 +55,33 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+--------------------------------+------------------------------------+
-| Model                          | Description                        |
-+================================+====================================+
-| ``spp.grm.ticket``             | Main complaint/grievance with SLA  |
-|                                | tracking and decision fields       |
-+--------------------------------+------------------------------------+
-| ``spp.grm.ticket.stage``       | Workflow stage with access control |
-|                                | and closure configuration          |
-+--------------------------------+------------------------------------+
-| ``spp.grm.ticket.category``    | Primary classification with        |
-|                                | hierarchical structure             |
-+--------------------------------+------------------------------------+
-| ``spp.grm.ticket.subcategory`` | Second-level classification under  |
-|                                | category                           |
-+--------------------------------+------------------------------------+
-| ``spp.grm.team``               | Team of handlers with manager and  |
-|                                | geographic areas                   |
-+--------------------------------+------------------------------------+
-| ``spp.grm.sla.rule``           | Conditional SLA rules with         |
-|                                | escalation targets                 |
-+--------------------------------+------------------------------------+
-| ``spp.grm.ticket.tag``         | Tags for flexible ticket           |
-|                                | classification                     |
-+--------------------------------+------------------------------------+
-| ``spp.grm.ticket.channel``     | Communication channel (email,      |
-|                                | phone, walk-in, portal, etc.)      |
-+--------------------------------+------------------------------------+
++--------------------------------+-------------------------------------+
+| Model                          | Description                         |
++================================+=====================================+
+| ``spp.grm.ticket``             | Main complaint/grievance with SLA   |
+|                                | tracking and decision fields        |
++--------------------------------+-------------------------------------+
+| ``spp.grm.ticket.stage``       | Workflow stage with access control  |
+|                                | and closure configuration           |
++--------------------------------+-------------------------------------+
+| ``spp.grm.ticket.category``    | Primary classification with         |
+|                                | hierarchical structure              |
++--------------------------------+-------------------------------------+
+| ``spp.grm.ticket.subcategory`` | Second-level classification under   |
+|                                | category                            |
++--------------------------------+-------------------------------------+
+| ``spp.grm.team``               | Team of handlers with manager and   |
+|                                | geographic areas                    |
++--------------------------------+-------------------------------------+
+| ``spp.grm.sla.rule``           | Conditional SLA rules with          |
+|                                | escalation targets                  |
++--------------------------------+-------------------------------------+
+| ``spp.grm.ticket.tag``         | Tags for flexible ticket            |
+|                                | classification                      |
++--------------------------------+-------------------------------------+
+| ``spp.grm.ticket.channel``     | Communication channel (email,       |
+|                                | phone, walk-in, portal, etc.)       |
++--------------------------------+-------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -152,6 +152,17 @@ Dependencies
 
 Changelog
 =========
+
+19.0.2.0.1
+~~~~~~~~~~
+
+- fix(views): gate the "Helpdesk" top-level menu
+  (``spp_grm_ticket_main_menu``) on ``group_grm_viewer``. Previously the
+  root menu had no ``groups=`` attribute and was visible to every
+  logged-in user; the OP#951 menu audit requires several roles to NOT
+  see it (Registry Viewer, Global Finance, Global Program Manager,
+  Program Viewer/Validator/Cycle Approver, Global Registrar, CR roles,
+  Farm User/Manager).
 
 19.0.2.0.0
 ~~~~~~~~~~
