@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+
+Role extensions: grant `group_area_viewer` (read-only) to spp_user_roles support
+roles whose audited menu visibility should include "Area" (OP#951).
+
+System Admin sees the menu via `spp_security.group_spp_admin` → `group_area_manager`.
+-->
+<odoo noupdate="1">
+    <record id="spp_user_roles.global_role_support" model="res.users.role">
+        <field name="implied_ids" eval="[Command.link(ref('group_area_viewer'))]" />
+    </record>
+    <record id="spp_user_roles.global_role_support_manager" model="res.users.role">
+        <field name="implied_ids" eval="[Command.link(ref('group_area_viewer'))]" />
+    </record>
+    <record id="spp_user_roles.local_role_support" model="res.users.role">
+        <field name="implied_ids" eval="[Command.link(ref('group_area_viewer'))]" />
+    </record>
+</odoo>

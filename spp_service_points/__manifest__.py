@@ -4,7 +4,7 @@
 {
     "name": "OpenSPP Service Points Management",
     "category": "OpenSPP",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.0.1",
     "sequence": "1",
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -23,6 +23,7 @@
     ],
     "data": [
         "data/vocabularies.xml",
+        "data/user_roles.xml",
         "security/privileges.xml",
         "security/security_group.xml",
         "security/ir.model.access.csv",

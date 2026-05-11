@@ -12,6 +12,10 @@
             eval="[
                 Command.link(ref('base.group_user')),
                 Command.link(ref('group_programs_viewer')),
+                Command.link(ref('spp_registry.group_registry_viewer')),
+                Command.link(ref('spp_approval.group_approval_viewer')),
+                Command.link(ref('spp_hazard.group_hazard_viewer')),
+                Command.link(ref('spp_gis_report.group_gis_report_user')),
             ]"
         />
     </record>
@@ -68,6 +72,8 @@
                 Command.link(ref('spp_registry.group_registry_viewer')),
                 Command.link(ref('spp_registry.group_registry_write')),
                 Command.link(ref('spp_approval.group_approval_approver')),
+                Command.link(ref('spp_hazard.group_hazard_viewer')),
+                Command.link(ref('spp_gis_report.group_gis_report_user')),
             ]"
         />
     </record>
@@ -87,6 +93,8 @@
                 Command.link(ref('spp_registry.group_registry_viewer')),
                 Command.link(ref('spp_registry.group_registry_write')),
                 Command.link(ref('spp_approval.group_approval_approver')),
+                Command.link(ref('spp_hazard.group_hazard_viewer')),
+                Command.link(ref('spp_gis_report.group_gis_report_user')),
             ]"
         />
     </record>
