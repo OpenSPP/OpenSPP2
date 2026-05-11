@@ -503,6 +503,21 @@ role synchronization</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.1</h1>
+<ul class="simple">
+<li>fix(role): allow assigning groups to a brand-new role in a single
+save. Clicking <strong>Add a line</strong> in the role form’s Groups tab used to
+trigger inline creation of a blank <tt class="docutils literal">res.groups</tt> row, which raised a
+required-field validation error and aborted the save. The
+<tt class="docutils literal">implied_ids</tt> field’s inner list now uses <tt class="docutils literal"><span class="pre">create=&quot;0&quot;</span></tt> so the
+button opens an “Add” picker against existing groups, and
+<tt class="docutils literal">res.users.role.create()</tt> extracts <tt class="docutils literal">implied_ids</tt> before
+<tt class="docutils literal"><span class="pre">super().create()</span></tt> and writes them to the role’s <tt class="docutils literal">group_id</tt>
+afterwards — mirroring the existing <tt class="docutils literal">write()</tt> workaround in
+<tt class="docutils literal">base_user_role</tt> for the same <tt class="docutils literal">_inherits</tt> cache-clearing bug.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
