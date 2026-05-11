@@ -79,6 +79,17 @@
     </record>
 
     <!-- Program Cycle Approver -->
+    <!--
+        Registry: per OP#951 menu audit, Cycle Approver should NOT see the
+        Registry top-level menu, but must still be able to read/write
+        registrant data via Programs cross-references (e.g. opening a
+        partner form from a cycle membership line).
+
+        Solution: use Tier-3 `group_registry_write` (ACL only, no menu)
+        instead of Tier-2 `group_registry_viewer` (gates the menu).
+        `group_registry_write` transitively implies `group_registry_read`,
+        so read access is preserved.
+    -->
     <record id="global_role_program_cycle_approver" model="res.users.role">
         <field name="name">Global Program Cycle Approver</field>
         <field name="role_type">global</field>
@@ -90,7 +101,6 @@
                 Command.link(ref('base.group_user')),
                 Command.link(ref('spp_programs.group_programs_cycle_approver')),
                 Command.link(ref('spp_programs.group_programs_viewer')),
-                Command.link(ref('spp_registry.group_registry_viewer')),
                 Command.link(ref('spp_registry.group_registry_write')),
                 Command.link(ref('spp_approval.group_approval_approver')),
                 Command.link(ref('spp_hazard.group_hazard_viewer')),
