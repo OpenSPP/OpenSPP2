@@ -645,6 +645,52 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
                 len(head_membership), 1, f"Household '{story_name}' should have exactly one head of household"
             )
 
+    def test_non_head_members_have_membership_types(self):
+        """Spouse, child, and other adult members each get the matching membership type."""
+        self._run_generator_for_stories()
+
+        VocabCode = self.env["spp.vocabulary.code"]
+        ns = "urn:openspp:vocab:group-membership-type"
+        types = {code: VocabCode.get_code(ns, code) for code in ("head", "spouse", "child", "other")}
+
+        if not all(types.values()):
+            self.skipTest("Group-membership-type vocabulary codes not configured")
+
+        for story_name in ["Bautista", "Navarro", "Morales"]:
+            group = self.env["res.partner"].search([("name", "=", story_name), ("is_group", "=", True)], limit=1)
+            if not group:
+                continue
+
+            memberships = self.env["spp.group.membership"].search([("group", "=", group.id)])
+            self.assertTrue(memberships, f"{story_name} should have memberships")
+
+            # Every membership should carry exactly one type from our set
+            for m in memberships:
+                assigned = m.membership_type_ids & (types["head"] | types["spouse"] | types["child"] | types["other"])
+                self.assertEqual(
+                    len(assigned),
+                    1,
+                    f"Membership for {m.individual.name} in '{story_name}' should have exactly one "
+                    f"group-membership-type code, got {m.membership_type_ids.mapped('code')}",
+                )
+
+            # At most one spouse per household
+            spouse_memberships = memberships.filtered(lambda x: types["spouse"] in x.membership_type_ids)
+            self.assertLessEqual(len(spouse_memberships), 1, f"{story_name} should have at most one spouse")
+
+            # 'child' members are younger than the household head
+            head_membership = memberships.filtered(lambda x: types["head"] in x.membership_type_ids)
+            if head_membership and head_membership.individual.birthdate:
+                head_birthdate = head_membership.individual.birthdate
+                for m in memberships.filtered(lambda x: types["child"] in x.membership_type_ids):
+                    if m.individual.birthdate:
+                        self.assertGreater(
+                            m.individual.birthdate,
+                            head_birthdate,
+                            f"Member {m.individual.name} tagged as 'child' in '{story_name}' "
+                            f"should be younger than the head",
+                        )
+
     def test_idempotent_member_creation(self):
         """Test that running generator twice doesn't duplicate members."""
         # Run generator first time

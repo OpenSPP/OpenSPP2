@@ -14,6 +14,7 @@ class SPPProgram(models.Model):
         "mail.thread",
         "mail.activity.mixin",
         "spp.job.relate.mixin",
+        "spp.refreshable.mixin",
         # "disable.edit.mixin",
     ]
     _name = "spp.program"
@@ -719,16 +720,29 @@ class SPPProgram(models.Model):
             },
         }
 
-    def refresh_page(self):
-        return {
-            "type": "ir.actions.client",
-            "tag": "reload",
-        }
-
     def _get_related_job_domain(self):
         jobs = self.env["queue.job"].search([("model_name", "like", self._name)])
         related_jobs = jobs.filtered(lambda r: self in r.records.program_id)
         return [("id", "in", related_jobs.ids)]
+
+    def action_force_unlock(self):
+        """Manager-only escape hatch: clear a stuck "Operation in progress" lock.
+
+        Use when an async pipeline died without firing its on_done/on_error
+        callback. Posts an audit line to chatter for traceability.
+        """
+        for rec in self:
+            if not rec.is_locked:
+                continue
+            previous_reason = rec.locked_reason
+            rec.write({"is_locked": False, "locked_reason": False})
+            rec.message_post(
+                body=_(
+                    "Lock manually cleared by %(user)s. Previous reason: %(reason)s",
+                    user=self.env.user.display_name,
+                    reason=previous_reason or _("(none)"),
+                )
+            )
 
     @api.constrains(
         "entitlement_manager_ids",

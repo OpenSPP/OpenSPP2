@@ -804,14 +804,16 @@ class TestSPPProgram(TransactionCase):
         self.assertTrue(program.program_manager_ids)
 
     # ------------------------------------------------------------------
-    # Refresh page action
+    # Refresh record action (soft reload — see OP#950)
     # ------------------------------------------------------------------
 
-    def test_refresh_page_returns_reload_action(self):
-        """refresh_page() returns a reload client action."""
-        result = self.program.refresh_page()
-        self.assertEqual(result["type"], "ir.actions.client")
-        self.assertEqual(result["tag"], "reload")
+    def test_action_refresh_record_returns_none(self):
+        """`action_refresh_record` returns None so Odoo's view-button hook
+        falls through to `model.load()`, refreshing the record in place
+        without changing the route or closing the dialog (vs. the old
+        `refresh_page` which returned `tag="reload"` and triggered a full
+        browser reload that destroyed breadcrumbs)."""
+        self.assertIsNone(self.program.action_refresh_record())
 
     # ------------------------------------------------------------------
     # open_eligible_beneficiaries_form / open_cycles_form / open_program_form
