@@ -175,6 +175,8 @@ class TestExternalRS256StaticPEM(OAuthBridgeTestCase):
         with self.assertRaises(HTTPException) as ctx:
             get_authenticated_client_rs256(creds, self.env)
         self.assertEqual(ctx.exception.status_code, 401)
+        # Detail must come from the verifying jwt.decode(), not the iss-routing decode.
+        self.assertIn("expired", ctx.exception.detail.lower())
 
     # -------------------------------------------------------------- client_claim mapping
     def test_client_claim_default_uses_client_id(self):
@@ -315,6 +317,7 @@ class TestExternalRS256JWKS(OAuthBridgeTestCase):
         with self.assertRaises(HTTPException) as ctx:
             get_authenticated_client_rs256(creds, self.env)
         self.assertEqual(ctx.exception.status_code, 401)
+        self.assertIn("expired", ctx.exception.detail.lower())
 
     def test_jwks_token_wrong_audience_rejected(self):
         from ..middleware.auth_rs256 import get_authenticated_client_rs256

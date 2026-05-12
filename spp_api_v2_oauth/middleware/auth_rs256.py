@@ -136,11 +136,25 @@ def _validate_rs256_token_with_issuer(env: Environment, token: str):
       - iss matches an active spp.oauth.issuer -> external path, key per record
       - iss missing or not matched              -> 401
     """
-    # SECURITY: We read the iss claim BEFORE signature verification only to
-    # decide which key to verify with. The full signature/aud/iss/exp validation
-    # still happens in jwt.decode() below.
+    # SECURITY: We read the iss claim BEFORE signature verification solely to
+    # decide which key to verify with. ALL claim checks (signature, exp, nbf,
+    # iat, aud, iss) are disabled here and are run authoritatively by the
+    # verifying jwt.decode() inside _validate_internal_rs256 /
+    # _validate_external_rs256 below. Disabling them here also keeps this routing
+    # step from producing misleading errors (e.g. an expired token would bubble
+    # up as a generic "Authentication failed" instead of "Token expired").
     try:
-        unverified = jwt.decode(token, options={"verify_signature": False})
+        unverified = jwt.decode(
+            token,
+            options={
+                "verify_signature": False,
+                "verify_exp": False,
+                "verify_nbf": False,
+                "verify_iat": False,
+                "verify_aud": False,
+                "verify_iss": False,
+            },
+        )
     except jwt.exceptions.DecodeError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
