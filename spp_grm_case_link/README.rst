@@ -47,18 +47,18 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-------------------------------+-------------------------------------+
-| Model                         | Description                         |
-+===============================+=====================================+
-| ``spp.grm.escalate.wizard``   | Transient wizard to configure and   |
-|                               | execute escalation                  |
-+-------------------------------+-------------------------------------+
-| ``spp.grm.ticket`` (extended) | Adds ``case_id`` field and          |
-|                               | escalation/view case actions        |
-+-------------------------------+-------------------------------------+
-| ``spp.case`` (extended)       | Adds ``source_grm_ticket_id``,      |
-|                               | ``grm_ticket_ids``, and count       |
-+-------------------------------+-------------------------------------+
++-------------------------------+--------------------------------------+
+| Model                         | Description                          |
++===============================+======================================+
+| ``spp.grm.escalate.wizard``   | Transient wizard to configure and    |
+|                               | execute escalation                   |
++-------------------------------+--------------------------------------+
+| ``spp.grm.ticket`` (extended) | Adds ``case_id`` field and           |
+|                               | escalation/view case actions         |
++-------------------------------+--------------------------------------+
+| ``spp.case`` (extended)       | Adds ``source_grm_ticket_id``,       |
+|                               | ``grm_ticket_ids``, and count        |
++-------------------------------+--------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~

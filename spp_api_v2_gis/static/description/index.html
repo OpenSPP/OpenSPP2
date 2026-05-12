@@ -401,9 +401,9 @@ bbox via ST_Intersects)</li>
 <p><strong>OGC API - Features (primary interface)</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="44%" />
-<col width="12%" />
-<col width="44%" />
+<col width="53%" />
+<col width="10%" />
+<col width="37%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Endpoint</th>
@@ -424,23 +424,19 @@ bbox via ST_Intersects)</li>
 <td>GET</td>
 <td>List feature collections</td>
 </tr>
-<tr><td>``
-/gis/ogc/collections/{id}``</td>
+<tr><td><tt class="docutils literal"><span class="pre">/gis/ogc/collections/{id}</span></tt></td>
 <td>GET</td>
 <td>Collection metadata</td>
 </tr>
-<tr><td><tt class="docutils literal">/gis/o
-<span class="pre">gc/collections/{id}/items</span></tt></td>
+<tr><td><tt class="docutils literal"><span class="pre">/gis/ogc/collections/{id}/items</span></tt></td>
 <td>GET</td>
 <td>Feature items (GeoJSON)</td>
 </tr>
-<tr><td><tt class="docutils literal">/gis/ogc/col
-<span class="pre">lections/{id}/items/{fid}</span></tt></td>
+<tr><td><tt class="docutils literal"><span class="pre">/gis/ogc/collections/{id}/items/{fid}</span></tt></td>
 <td>GET</td>
 <td>Single feature</td>
 </tr>
-<tr><td><tt class="docutils literal">/gis
-<span class="pre">/ogc/collections/{id}/qml</span></tt></td>
+<tr><td><tt class="docutils literal"><span class="pre">/gis/ogc/collections/{id}/qml</span></tt></td>
 <td>GET</td>
 <td>QGIS style file (extension)</td>
 </tr>
@@ -484,9 +480,9 @@ bbox via ST_Intersects)</li>
 <p><strong>OAuth Scopes</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="27%" />
+<col width="26%" />
 <col width="21%" />
-<col width="52%" />
+<col width="53%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Scope</th>
@@ -502,9 +498,8 @@ statistics, export data</td>
 </tr>
 <tr><td><tt class="docutils literal">gis:geofence</tt></td>
 <td>Read + Write</td>
-<td>Create and archive geofences
-(also requires <tt class="docutils literal">gis:read</tt> for
-listing)</td>
+<td>Create and archive geofences (also
+requires <tt class="docutils literal">gis:read</tt> for listing)</td>
 </tr>
 </tbody>
 </table>
