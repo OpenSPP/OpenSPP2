@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- List view -->
+    <record id="view_spp_oauth_issuer_tree" model="ir.ui.view">
+        <field name="name">spp.oauth.issuer.tree</field>
+        <field name="model">spp.oauth.issuer</field>
+        <field name="arch" type="xml">
+            <list string="Trusted OAuth Issuers">
+                <field name="name" />
+                <field name="issuer" />
+                <field name="audience" />
+                <field name="key_source" />
+                <field name="algorithms" />
+                <field name="client_claim" />
+                <field name="active" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="view_spp_oauth_issuer_form" model="ir.ui.view">
+        <field name="name">spp.oauth.issuer.form</field>
+        <field name="model">spp.oauth.issuer</field>
+        <field name="arch" type="xml">
+            <form string="Trusted OAuth Issuer">
+                <sheet>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
+                    <group>
+                        <group string="Identity">
+                            <field name="name" />
+                            <field name="issuer" />
+                            <field name="audience" />
+                            <field name="active" invisible="1" />
+                        </group>
+                        <group string="Signing Key">
+                            <field name="key_source" />
+                            <field
+                                name="jwks_uri"
+                                invisible="key_source != 'jwks_uri'"
+                                required="key_source == 'jwks_uri'"
+                            />
+                            <field
+                                name="public_key"
+                                widget="text"
+                                invisible="key_source != 'public_key'"
+                                required="key_source == 'public_key'"
+                            />
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Token Validation">
+                            <field name="algorithms" />
+                            <field name="client_claim" />
+                        </group>
+                        <group string="JWKS Fetch" invisible="key_source != 'jwks_uri'">
+                            <field name="jwks_cache_ttl_seconds" />
+                            <field name="http_timeout_seconds" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_spp_oauth_issuer" model="ir.actions.act_window">
+        <field name="name">Trusted OAuth Issuers</field>
+        <field name="res_model">spp.oauth.issuer</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Register an external OAuth issuer
+            </p>
+            <p>
+                Each record represents an external Identity Provider (e.g., a Keycloak realm)
+                whose RS256-signed JWTs the API will accept. The bridge looks up records by
+                the token's `iss` claim and uses the configured JWKS URI or static public key
+                to verify the signature.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu under API V2 (provided by spp_api_v2) -->
+    <menuitem
+        id="menu_spp_oauth_issuer"
+        name="Trusted OAuth Issuers"
+        parent="spp_api_v2.menu_api_v2_root"
+        action="action_spp_oauth_issuer"
+        sequence="70"
+        groups="base.group_system"
+    />
+</odoo>

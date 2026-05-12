@@ -522,6 +522,94 @@ endpoint continue to work. The bridge accepts both RS256 and HS256
 tokens simultaneously, routing based on the <tt class="docutils literal">alg</tt> field in the JWT
 header.</p>
 </div>
+<div class="section" id="accepting-tokens-from-an-external-identity-provider">
+<h1>Accepting Tokens from an External Identity Provider</h1>
+<p>OpenSPP can be configured to accept RS256 tokens issued by an external
+IdP (e.g., a Keycloak realm) so deployments can integrate with an
+existing organizational identity provider. The bridge dispatches by the
+JWT <tt class="docutils literal">iss</tt> claim: each <tt class="docutils literal">iss</tt> value points to one <strong>Trusted OAuth
+Issuer</strong> record, which provides the verification key (JWKS URI or static
+PEM) and the claim that resolves the calling API client.</p>
+<ol class="arabic">
+<li><p class="first"><strong>Create a Trusted OAuth Issuer record</strong> under <strong>API V2 &gt; Trusted
+OAuth Issuers</strong> (admin-only). Required fields:</p>
+<ul class="simple">
+<li><strong>Issuer</strong> — exact value the IdP puts in <tt class="docutils literal">iss</tt> (e.g.
+<tt class="docutils literal"><span class="pre">https://keycloak.example.com/realms/openspp</span></tt>).</li>
+<li><strong>Audience</strong> — the value the IdP puts in <tt class="docutils literal">aud</tt> for tokens
+targeted at OpenSPP.</li>
+<li><strong>Key Source</strong> — either <em>JWKS URI</em> (preferred; supports key
+rotation) or <em>Static Public Key (PEM)</em>.</li>
+<li><strong>JWKS URI</strong> — must be <tt class="docutils literal"><span class="pre">https://</span></tt> (plain <tt class="docutils literal"><span class="pre">http://</span></tt> is rejected
+except for <tt class="docutils literal">localhost</tt> / <tt class="docutils literal">127.0.0.1</tt> dev IdPs).</li>
+<li><strong>Client Claim</strong> — the JWT claim whose value must equal the
+existing <tt class="docutils literal">spp.api.client.client_id</tt>. Defaults to <tt class="docutils literal">client_id</tt>;
+for Keycloak service accounts, <tt class="docutils literal">azp</tt> or <tt class="docutils literal">sub</tt> is typical.</li>
+</ul>
+</li>
+<li><p class="first"><strong>Match the Client Claim value to an existing API Client.</strong> Set
+<tt class="docutils literal">spp.api.client.client_id</tt> to the value the IdP emits in the
+configured claim. The bridge looks the client up by that exact value.</p>
+</li>
+<li><p class="first"><strong>Request a token from the external IdP</strong>, then call OpenSPP with it:</p>
+<pre class="code bash literal-block">
+curl<span class="w"> </span>https://your-instance/api/v2/spp/Individual/urn:test%23ID-001<span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer &lt;token from external IdP&gt;&quot;</span>
+</pre>
+</li>
+</ol>
+<p>The bridge:</p>
+<ul class="simple">
+<li>Reads <tt class="docutils literal">iss</tt> from the unverified payload.</li>
+<li>If <tt class="docutils literal">iss</tt> matches the internal openspp-api-v2 issuer, uses the
+spp_oauth key (existing behavior).</li>
+<li>Otherwise looks up the matching active <tt class="docutils literal">spp.oauth.issuer</tt> record and
+verifies with its JWKS or static PEM.</li>
+<li>Reads the configured <tt class="docutils literal">client_claim</tt> from the verified payload and
+resolves the <tt class="docutils literal">spp.api.client</tt>.</li>
+</ul>
+</div>
+<div class="section" id="example-external-idp-keycloak-realm">
+<h1>Example External IdP: Keycloak Realm</h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Field</th>
+<th class="head">Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>Name</td>
+<td><tt class="docutils literal">Org Keycloak</tt></td>
+</tr>
+<tr><td>Issuer</td>
+<td><tt class="docutils literal"><span class="pre">https://keycloak.example.org/realms/openspp</span></tt></td>
+</tr>
+<tr><td>Audience</td>
+<td><tt class="docutils literal"><span class="pre">openspp-api</span></tt> (configure an audience mapper in Keycloak to emit this value)</td>
+</tr>
+<tr><td>Key Source</td>
+<td><tt class="docutils literal">JWKS URI</tt></td>
+</tr>
+<tr><td>JWKS URI</td>
+<td><tt class="docutils literal"><span class="pre">https://keycloak.example.org/realms/openspp/protocol/openid-connect/certs</span></tt></td>
+</tr>
+<tr><td>Algorithms</td>
+<td><tt class="docutils literal">RS256</tt></td>
+</tr>
+<tr><td>Client Claim</td>
+<td><tt class="docutils literal">azp</tt> (Keycloak’s “authorized party” — the client_id of the service
+account)</td>
+</tr>
+</tbody>
+</table>
+<p>JWKS responses are cached in process memory for
+<tt class="docutils literal">JWKS Cache TTL Seconds</tt> (default 3600). Editing or archiving the
+record drops the cached client; the next request rebuilds it.</p>
+</div>
 <div class="section" id="verify-token-algorithm">
 <h1>Verify Token Algorithm</h1>
 <p>To confirm which algorithm a token uses, decode the JWT header (without
@@ -569,6 +657,16 @@ credentials”</td>
 <td>401</td>
 <td>“Unsupported token
 algorithm: {alg}”</td>
+</tr>
+<tr><td>Missing <tt class="docutils literal">iss</tt> claim</td>
+<td>401</td>
+<td>“Invalid token: missing
+iss claim”</td>
+</tr>
+<tr><td>Unknown / inactive
+external issuer</td>
+<td>401</td>
+<td>“Untrusted issuer”</td>
 </tr>
 <tr><td>Rate limit exceeded</td>
 <td>429</td>

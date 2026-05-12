@@ -2,13 +2,21 @@
 """RS256-aware authentication middleware for API V2.
 
 Replaces get_authenticated_client via FastAPI dependency override.
-Routes to RS256 or HS256 verification based on the JWT header's `alg` field.
+Routes verification based on the JWT header `alg` and (for RS256) the `iss`
+claim:
+
+  alg == HS256   -> delegated to spp_api_v2 (unchanged)
+  alg == RS256   -> iss == JWT_ISSUER             -> spp_oauth public key
+                 -> iss matches spp.oauth.issuer  -> static PEM or JWKS for that record
+                 -> otherwise                      -> 401
+  other          -> 401
 """
 
 import logging
 from typing import Annotated
 
 import jwt
+from jwt.exceptions import PyJWKClientError
 
 from odoo.api import Environment
 
@@ -20,6 +28,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from ..constants import JWT_AUDIENCE, JWT_ISSUER
+from ..tools.jwks_cache import get_jwks_client
 
 _logger = logging.getLogger(__name__)
 
@@ -35,10 +44,8 @@ def get_authenticated_client_rs256(
 
     This function replaces spp_api_v2's get_authenticated_client via
     FastAPI dependency_overrides. It reads the JWT header's `alg` field
-    to route to the correct verification path.
-
-    RS256 tokens are verified using the RSA public key from spp_oauth.
-    HS256 tokens are delegated to the original spp_api_v2 verification.
+    to route to the correct verification path; for RS256 it additionally
+    routes by the `iss` claim to support multiple trusted issuers.
     """
     if not credentials:
         raise HTTPException(
@@ -50,7 +57,6 @@ def get_authenticated_client_rs256(
     token = credentials.credentials
 
     try:
-        # Read the algorithm from the JWT header (unverified) to route verification
         try:
             header = jwt.get_unverified_header(token)
         except jwt.exceptions.DecodeError as e:
@@ -62,21 +68,23 @@ def get_authenticated_client_rs256(
         alg = header.get("alg", "")
 
         if alg == "RS256":
-            payload = _validate_rs256_token(env, token)
+            payload, issuer_rec = _validate_rs256_token_with_issuer(env, token)
         elif alg == "HS256":
             payload = _validate_jwt_token(env, token)
+            issuer_rec = None
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=f"Unsupported token algorithm: {alg}",
             )
 
-        # Look up API client by client_id from payload
-        client_id = payload.get("client_id")
+        # Determine which claim holds the API client identifier.
+        claim_name = issuer_rec.client_claim if issuer_rec else "client_id"
+        client_id = payload.get(claim_name)
         if not client_id:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token: missing client_id",
+                detail=f"Invalid token: missing {claim_name}",
             )
 
         api_client = (
@@ -110,12 +118,63 @@ def get_authenticated_client_rs256(
 
 
 def _validate_rs256_token(env: Environment, token: str) -> dict:
-    """Validate an RS256-signed JWT token.
+    """Backwards-compatible wrapper that returns just the payload.
 
-    Uses the RSA public key from spp_oauth and validates audience, issuer,
-    and expiration claims to match the same security requirements as the
-    HS256 path in spp_api_v2.
+    Retained for existing callers/tests; new code should prefer
+    _validate_rs256_token_with_issuer, which also returns the matched
+    spp.oauth.issuer record (or None for the internal path).
     """
+    payload, _ = _validate_rs256_token_with_issuer(env, token)
+    return payload
+
+
+def _validate_rs256_token_with_issuer(env: Environment, token: str):
+    """Validate an RS256-signed JWT and return (payload, issuer_record_or_None).
+
+    Routing by `iss`:
+      - iss == JWT_ISSUER ("openspp-api-v2")  -> internal path, key from spp_oauth
+      - iss matches an active spp.oauth.issuer -> external path, key per record
+      - iss missing or not matched              -> 401
+    """
+    # SECURITY: We read the iss claim BEFORE signature verification only to
+    # decide which key to verify with. The full signature/aud/iss/exp validation
+    # still happens in jwt.decode() below.
+    try:
+        unverified = jwt.decode(token, options={"verify_signature": False})
+    except jwt.exceptions.DecodeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+        ) from e
+
+    iss = unverified.get("iss")
+
+    if iss == JWT_ISSUER:
+        return _validate_internal_rs256(env, token), None
+
+    if not iss:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token: missing iss claim",
+        )
+
+    issuer_rec = (
+        env["spp.oauth.issuer"]  # nosemgrep: odoo-sudo-without-context
+        .sudo()
+        .search([("issuer", "=", iss), ("active", "=", True)], limit=1)
+    )
+    if not issuer_rec:
+        _logger.warning("RS256 token from unknown issuer: %s", iss)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Untrusted issuer",
+        )
+
+    return _validate_external_rs256(issuer_rec, token), issuer_rec
+
+
+def _validate_internal_rs256(env: Environment, token: str) -> dict:
+    """Verify a token signed by the internal openspp-api-v2 issuer."""
     try:
         public_key = get_public_key(env)
     except OpenSPPOAuthJWTException as e:
@@ -126,24 +185,60 @@ def _validate_rs256_token(env: Environment, token: str) -> dict:
         ) from e
 
     try:
-        payload = jwt.decode(
+        return jwt.decode(
             token,
             public_key,
             algorithms=["RS256"],
             audience=JWT_AUDIENCE,
             issuer=JWT_ISSUER,
         )
-        return payload
-
     except jwt.ExpiredSignatureError as e:
         _logger.warning("Expired RS256 JWT credential")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token expired",
         ) from e
-
     except jwt.InvalidTokenError as e:
         _logger.warning("RS256 JWT verification failed: %s", e)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+        ) from e
+
+
+def _validate_external_rs256(issuer_rec, token: str) -> dict:
+    """Verify a token signed by an externally-trusted issuer record."""
+    algorithms = issuer_rec.get_allowed_algorithms()
+
+    try:
+        if issuer_rec.key_source == "jwks_uri":
+            try:
+                signing_key = get_jwks_client(issuer_rec).get_signing_key_from_jwt(token)
+            except PyJWKClientError as e:
+                _logger.warning("JWKS key resolution failed for issuer %s: %s", issuer_rec.issuer, e)
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid token",
+                ) from e
+            key = signing_key.key
+        else:
+            key = issuer_rec.public_key
+
+        return jwt.decode(
+            token,
+            key,
+            algorithms=algorithms,
+            audience=issuer_rec.audience,
+            issuer=issuer_rec.issuer,
+        )
+    except jwt.ExpiredSignatureError as e:
+        _logger.warning("Expired RS256 JWT from issuer %s", issuer_rec.issuer)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token expired",
+        ) from e
+    except jwt.InvalidTokenError as e:
+        _logger.warning("RS256 JWT verification failed for issuer %s: %s", issuer_rec.issuer, e)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token",
