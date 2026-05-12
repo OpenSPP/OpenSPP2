@@ -701,6 +701,26 @@ fails)</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.0</h1>
+<ul class="simple">
+<li>refactor: rename config parameters <tt class="docutils literal">spp_oauth.oauth_priv_key</tt> →
+<tt class="docutils literal">spp_oauth.oauth_private_key</tt> and <tt class="docutils literal">spp_oauth.oauth_pub_key</tt> →
+<tt class="docutils literal">spp_oauth.oauth_public_key</tt>, and the model class <tt class="docutils literal">RegistryConfig</tt>
+→ <tt class="docutils literal">OAuthConfig</tt>, per naming conventions. Update any deployment that
+reads these parameters directly.</li>
+<li>fix: empty the placeholder default values for the OAuth key config
+parameters so <tt class="docutils literal">get_private_key()</tt> / <tt class="docutils literal">get_public_key()</tt> raise a
+clear <tt class="docutils literal">OpenSPPOAuthJWTException</tt> when keys are not configured,
+instead of failing later with a cryptic PyJWT error on the placeholder
+strings.</li>
+<li>feat: export <tt class="docutils literal">get_private_key</tt> and <tt class="docutils literal">get_public_key</tt> from
+<tt class="docutils literal">spp_oauth.tools</tt> for use by downstream modules.</li>
+<li>security: restrict the OAuth Settings ACL to <tt class="docutils literal">base.group_system</tt>.</li>
+<li>chore: remove ERROR logging from <tt class="docutils literal">OpenSPPOAuthJWTException</tt>’s
+constructor (callers decide whether to log).</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
