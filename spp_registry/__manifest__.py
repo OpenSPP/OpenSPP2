@@ -3,7 +3,7 @@
 {
     "name": "OpenSPP Registry",
     "category": "OpenSPP/Core",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.1.0",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -72,4 +72,5 @@
     "application": True,
     "installable": True,
     "auto_install": False,
+    "maintainers": ["jeremi", "gonzalesedwin1123"],
 }

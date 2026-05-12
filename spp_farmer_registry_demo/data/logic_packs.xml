@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- ═══════════════════════════════════════════════════════════════════════
+             FARMER PROGRAM LOGIC PACKS
+
+             Pre-built logic packages for farm subsidy programs.
+             Each pack includes eligibility criteria and benefit calculations.
+             ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+             PACK 1: INPUT SUBSIDY PROGRAM
+             For smallholder farmers with productive land
+             ═══════════════════════════════════════════════════════════════════════ -->
+    <record id="pack_input_subsidy" model="spp.studio.pack">
+        <field name="name">Input Subsidy Program</field>
+        <field name="code">farmer_input_subsidy</field>
+        <field name="description">Seed and fertilizer subsidy for smallholder farmers.
+Eligibility: Farms ≤5 hectares with productive land.
+Benefit: Base amount plus per-hectare top-up.</field>
+        <field name="category">food_security</field>
+        <field name="version">1.0</field>
+        <field name="author">OpenSPP</field>
+        <field name="state">available</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="pack_input_subsidy_eligibility" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_input_subsidy" />
+        <field name="name">Smallholder Eligibility</field>
+        <field name="sequence">10</field>
+        <field name="context_type">group</field>
+        <field name="expression_type">filter</field>
+        <field
+            name="description"
+        >Eligible if farm is smallholder (≤5 hectares) AND has productive land under crops, livestock, or aquaculture.</field>
+        <field name="logic_data">{
+    "cel_expression": "is_smallholder &amp;&amp; has_productive_land",
+    "output_type": "boolean",
+    "variables_used": ["is_smallholder", "has_productive_land"]
+}</field>
+    </record>
+
+    <record id="pack_input_subsidy_benefit" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_input_subsidy" />
+        <field name="name">Input Subsidy Calculation</field>
+        <field name="sequence">20</field>
+        <field name="context_type">group</field>
+        <field name="expression_type">formula</field>
+        <field
+            name="description"
+        >Base subsidy amount plus per-hectare top-up based on farm size.
+Formula: input_subsidy_base + (farm_size_hectares * per_hectare_subsidy)</field>
+        <field name="logic_data">{
+    "cel_expression": "input_subsidy_base + (farm_size_hectares * per_hectare_subsidy)",
+    "output_type": "number",
+    "variables_used": ["input_subsidy_base", "farm_size_hectares", "per_hectare_subsidy"]
+}</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+             PACK 2: EQUIPMENT GRANT PROGRAM
+             For experienced smallholder farmers
+             ═══════════════════════════════════════════════════════════════════════ -->
+    <record id="pack_equipment_grant" model="spp.studio.pack">
+        <field name="name">Equipment Grant Program</field>
+        <field name="code">farmer_equipment_grant</field>
+        <field
+            name="description"
+        >Farm equipment grants for experienced smallholder farmers.
+Eligibility: Smallholder farms with 2+ years experience.
+Benefit: Fixed equipment grant amount.</field>
+        <field name="category">food_security</field>
+        <field name="version">1.0</field>
+        <field name="author">OpenSPP</field>
+        <field name="state">available</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="pack_equipment_grant_eligibility" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_equipment_grant" />
+        <field name="name">Experienced Farmer Eligibility</field>
+        <field name="sequence">10</field>
+        <field name="context_type">group</field>
+        <field name="expression_type">filter</field>
+        <field
+            name="description"
+        >Eligible if smallholder with at least 2 years farming experience.</field>
+        <field name="logic_data">{
+    "cel_expression": "is_smallholder &amp;&amp; experience_years >= 2",
+    "output_type": "boolean",
+    "variables_used": ["is_smallholder", "experience_years"]
+}</field>
+    </record>
+
+    <record id="pack_equipment_grant_benefit" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_equipment_grant" />
+        <field name="name">Equipment Grant Amount</field>
+        <field name="sequence">20</field>
+        <field name="context_type">group</field>
+        <field name="expression_type">formula</field>
+        <field
+            name="description"
+        >Fixed equipment grant amount for qualifying farmers.</field>
+        <field name="logic_data">{
+    "cel_expression": "equipment_grant_amount",
+    "output_type": "number",
+    "variables_used": ["equipment_grant_amount"]
+}</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+             PACK 3: LIVESTOCK SUPPORT PROGRAM
+             For farmers with livestock activities
+             ═══════════════════════════════════════════════════════════════════════ -->
+    <record id="pack_livestock_support" model="spp.studio.pack">
+        <field name="name">Livestock Support Program</field>
+        <field name="code">farmer_livestock_support</field>
+        <field name="description">Support program for livestock farmers.
+Eligibility: Farms with livestock activities.
+Benefit: Base amount plus per-head bonus.</field>
+        <field name="category">food_security</field>
+        <field name="version">1.0</field>
+        <field name="author">OpenSPP</field>
+        <field name="state">available</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="pack_livestock_support_eligibility" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_livestock_support" />
+        <field name="name">Livestock Farmer Eligibility</field>
+        <field name="sequence">10</field>
+        <field name="context_type">group</field>
+        <field name="expression_type">filter</field>
+        <field
+            name="description"
+        >Eligible if farm has at least one livestock activity.</field>
+        <field name="logic_data">{
+    "cel_expression": "livestock_count > 0",
+    "output_type": "boolean",
+    "variables_used": ["livestock_count"]
+}</field>
+    </record>
+
+    <record id="pack_livestock_support_benefit" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_livestock_support" />
+        <field name="name">Livestock Support Calculation</field>
+        <field name="sequence">20</field>
+        <field name="context_type">group</field>
+        <field name="expression_type">formula</field>
+        <field name="description">Base support amount plus per-head livestock bonus.
+Formula: livestock_base + (livestock_count * per_head_amount)</field>
+        <field name="logic_data">{
+    "cel_expression": "livestock_base + (livestock_count * per_head_amount)",
+    "output_type": "number",
+    "variables_used": ["livestock_base", "livestock_count", "per_head_amount"]
+}</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+             PACK 4: CLIMATE RESILIENCE PROGRAM
+             For smallholders with idle/fallow land (climate-affected)
+             ═══════════════════════════════════════════════════════════════════════ -->
+    <record id="pack_climate_resilience" model="spp.studio.pack">
+        <field name="name">Climate Resilience Program</field>
+        <field name="code">farmer_climate_resilience</field>
+        <field name="description">Climate adaptation support for affected smallholders.
+Eligibility: Smallholder farms with idle/fallow land.
+Benefit: Fixed climate adaptation amount.</field>
+        <field name="category">emergency</field>
+        <field name="version">1.0</field>
+        <field name="author">OpenSPP</field>
+        <field name="state">available</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <record id="pack_climate_resilience_eligibility" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_climate_resilience" />
+        <field name="name">Climate Vulnerability Eligibility</field>
+        <field name="sequence">10</field>
+        <field name="context_type">group</field>
+        <field name="expression_type">filter</field>
+        <field
+            name="description"
+        >Eligible if smallholder with idle/fallow land indicating climate impact.</field>
+        <field name="logic_data">{
+    "cel_expression": "is_smallholder &amp;&amp; farm_size_idle > 0",
+    "output_type": "boolean",
+    "variables_used": ["is_smallholder", "farm_size_idle"]
+}</field>
+    </record>
+
+    <record id="pack_climate_resilience_benefit" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_climate_resilience" />
+        <field name="name">Climate Adaptation Amount</field>
+        <field name="sequence">20</field>
+        <field name="context_type">group</field>
+        <field name="expression_type">formula</field>
+        <field name="description">Fixed climate adaptation support amount.</field>
+        <field name="logic_data">{
+    "cel_expression": "climate_adaptation_amount",
+    "output_type": "number",
+    "variables_used": ["climate_adaptation_amount"]
+}</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+             PACK 5: AQUACULTURE SUPPORT PROGRAM
+             For farmers with aquaculture activities
+             ═══════════════════════════════════════════════════════════════════════ -->
+    <record id="pack_aquaculture_support" model="spp.studio.pack">
+        <field name="name">Aquaculture Support Program</field>
+        <field name="code">farmer_aquaculture_support</field>
+        <field name="description">Support program for aquaculture farmers.
+Eligibility: Farms with aquaculture activities.
+Benefit: Fixed aquaculture support amount.</field>
+        <field name="category">food_security</field>
+        <field name="version">1.0</field>
+        <field name="author">OpenSPP</field>
+        <field name="state">available</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <record id="pack_aquaculture_support_eligibility" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_aquaculture_support" />
+        <field name="name">Aquaculture Farmer Eligibility</field>
+        <field name="sequence">10</field>
+        <field name="context_type">group</field>
+        <field name="expression_type">filter</field>
+        <field name="description">Eligible if farm has aquaculture activities.</field>
+        <field name="logic_data">{
+    "cel_expression": "aquaculture_count > 0",
+    "output_type": "boolean",
+    "variables_used": ["aquaculture_count"]
+}</field>
+    </record>
+
+    <record id="pack_aquaculture_support_benefit" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_aquaculture_support" />
+        <field name="name">Aquaculture Support Amount</field>
+        <field name="sequence">20</field>
+        <field name="context_type">group</field>
+        <field name="expression_type">formula</field>
+        <field name="description">Fixed aquaculture support amount.</field>
+        <field name="logic_data">{
+    "cel_expression": "aquaculture_support_amount",
+    "output_type": "number",
+    "variables_used": ["aquaculture_support_amount"]
+}</field>
+    </record>
+</odoo>

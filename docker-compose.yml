@@ -168,6 +168,46 @@ services:
     networks:
       - openspp
 
+  # Job Worker - background service for processing async queue jobs
+  # Runs alongside openspp/openspp-dev to execute delayed imports, etc.
+  # The runner auto-discovers databases every 5 minutes, so after installing
+  # new modules, jobs will be picked up within 5 minutes (or restart to force).
+  jobworker:
+    image: openspp-dev
+    profiles:
+      - dev
+      - ui
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_USER: odoo
+      DB_PASSWORD: odoo
+      DB_NAME: ${ODOO_DB_NAME:-openspp}
+      DB_FILTER: "^${ODOO_DB_NAME:-openspp}$$"
+      LIST_DB: "False"
+      ODOO_ADMIN_PASSWD: admin
+      ODOO_WORKERS: "0"
+      ODOO_CRON_THREADS: "0"
+      LOG_LEVEL: info
+      PROXY_MODE: "False"
+      QUEUE_JOB_CONCURRENCY: "2"
+    volumes:
+      - .:/mnt/extra-addons/openspp:ro,z
+      - odoo_data:/var/lib/odoo
+    entrypoint: ["/entrypoint.sh"]
+    command:
+      [
+        "python",
+        "/mnt/extra-addons/odoo-job-worker/job_worker_runner.py",
+        "-c",
+        "/etc/odoo/odoo.conf",
+      ]
+    networks:
+      - openspp
+
   # Unit Test Runner - one-off container for running module tests
   # Usage: docker compose run --rm test <module_name> [options]
   # Note: Uses same image as odoo/odoo-dev - build any of them to update

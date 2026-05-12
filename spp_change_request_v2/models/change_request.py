@@ -380,11 +380,11 @@ class SPPChangeRequest(models.Model):
     @api.depends("name", "request_type_id", "registrant_id")
     def _compute_stage_banner_html(self):
         for rec in self:
-            cr_ref = rec.name or ""
-            cr_type = rec.request_type_id.name if rec.request_type_id else ""
+            cr_ref = html_escape(rec.name or "")
+            cr_type = html_escape(rec.request_type_id.name) if rec.request_type_id else ""
             html = f'<span class="fw-bold">{cr_ref}</span><span class="text-muted mx-2">|</span><span>{cr_type}</span>'
             if rec.registrant_id:
-                registrant = rec.registrant_id.name or ""
+                registrant = html_escape(rec.registrant_id.name or "")
                 html += (
                     f'<span class="text-muted mx-2">|</span>'
                     f'<i class="fa fa-user me-1 text-muted"></i>'
@@ -422,14 +422,11 @@ class SPPChangeRequest(models.Model):
             uploaded_types = rec.document_ids.mapped("document_type_id").filtered(lambda c: c)
             items = []
             for doc_type in required:
+                escaped_name = html_escape(doc_type.display_name)
                 if doc_type in uploaded_types:
-                    items.append(
-                        f'<li class="text-success"><i class="fa fa-check-circle me-1"></i>{doc_type.display_name}</li>'
-                    )
+                    items.append(f'<li class="text-success"><i class="fa fa-check-circle me-1"></i>{escaped_name}</li>')
                 else:
-                    items.append(
-                        f'<li class="text-danger"><i class="fa fa-times-circle me-1"></i>{doc_type.display_name}</li>'
-                    )
+                    items.append(f'<li class="text-danger"><i class="fa fa-times-circle me-1"></i>{escaped_name}</li>')
 
             rec.required_documents_html = (
                 '<div class="mb-3">'
@@ -508,8 +505,8 @@ class SPPChangeRequest(models.Model):
             html.append("<tbody>")
 
             for doc in rec.document_ids:
-                doc_name = doc.name or ""
-                doc_type = doc.document_type_id.display_name if doc.document_type_id else ""
+                doc_name = html_escape(doc.name or "")
+                doc_type = html_escape(doc.document_type_id.display_name) if doc.document_type_id else ""
                 uploaded = doc.create_date.strftime("%Y-%m-%d") if doc.create_date else ""
                 html.append(
                     f"<tr>"
@@ -541,19 +538,20 @@ class SPPChangeRequest(models.Model):
                 html_parts.append('<i class="fa fa-users fa-lg text-primary me-2"></i>')
             else:
                 html_parts.append('<i class="fa fa-user fa-lg text-primary me-2"></i>')
-            html_parts.append(f"<strong>{reg.name}</strong>")
+            html_parts.append(f"<strong>{html_escape(reg.name or '')}</strong>")
             html_parts.append("</div>")
 
             # ID badge
             if hasattr(reg, "spp_id") and reg.spp_id:
-                html_parts.append(f'<div class="mb-2"><span class="badge bg-secondary">ID: {reg.spp_id}</span></div>')
+                escaped_id = html_escape(reg.spp_id)
+                html_parts.append(f'<div class="mb-2"><span class="badge bg-secondary">ID: {escaped_id}</span></div>')
 
             # Address
             address_parts = []
             if reg.street:
-                address_parts.append(reg.street)
+                address_parts.append(html_escape(reg.street))
             if reg.city:
-                address_parts.append(reg.city)
+                address_parts.append(html_escape(reg.city))
             if address_parts:
                 html_parts.append(
                     f'<div class="text-muted small mb-2">'
@@ -713,10 +711,15 @@ class SPPChangeRequest(models.Model):
     # ══════════════════════════════════════════════════════════════════════════
 
     def get_detail(self):
-        """Get the detail record for this CR."""
+        """Get the detail record for this CR.
+
+        Uses with_prefetch() to isolate from _ensure_detail's sudo()
+        prefetch set — without this, non-stored computed fields can
+        trigger record-rule checks against the wrong user.
+        """
         self.ensure_one()
         if self.detail_res_model and self.detail_res_id:
-            return self.env[self.detail_res_model].browse(self.detail_res_id)
+            return self.env[self.detail_res_model].browse(self.detail_res_id).with_prefetch()
         return None
 
     def _ensure_detail(self):
@@ -1068,7 +1071,7 @@ class SPPChangeRequest(models.Model):
         action_label = action_labels.get(action, action.replace("_", " ").title())
         html_parts.append(
             f'<div class="mb-3 d-flex align-items-center">'
-            f'<span class="badge bg-primary me-2">{action_label}</span>'
+            f'<span class="badge bg-primary me-2">{html_escape(action_label)}</span>'
             f"</div>"
         )
 
@@ -1080,7 +1083,7 @@ class SPPChangeRequest(models.Model):
             for key, value in changes.items():
                 if key.startswith("_"):
                     continue
-                display_key = key.replace("_", " ").title()
+                display_key = html_escape(key.replace("_", " ").title())
 
                 # Handle dict with old/new structure
                 if isinstance(value, dict) and "new" in value:
@@ -1090,16 +1093,16 @@ class SPPChangeRequest(models.Model):
                     if old_val is None or old_val is False or old_val == "":
                         old_display = '<span class="text-muted">—</span>'
                     else:
-                        old_display = str(old_val)
+                        old_display = html_escape(str(old_val))
                     # Format new value
                     if new_val is None or new_val is False or new_val == "":
                         new_display = '<span class="text-muted">—</span>'
                     else:
-                        new_display = f"<strong>{new_val}</strong>"
+                        new_display = f"<strong>{html_escape(str(new_val))}</strong>"
                     display_value = f"{old_display} → {new_display}"
                 elif isinstance(value, list):
                     if value:
-                        display_value = "<br/>".join(str(v) for v in value)
+                        display_value = "<br/>".join(html_escape(str(v)) for v in value)
                     else:
                         display_value = '<span class="text-muted">Not set</span>'
                 elif value is None or value is False or value == "":
@@ -1109,7 +1112,7 @@ class SPPChangeRequest(models.Model):
                     # Only True reaches here (False caught above)
                     display_value = '<span class="badge text-bg-success">Yes</span>'
                 else:
-                    display_value = str(value)
+                    display_value = html_escape(str(value))
 
                 html_parts.append(f"<tr><td><strong>{display_key}</strong></td><td>{display_value}</td></tr>")
 
@@ -1162,7 +1165,7 @@ class SPPChangeRequest(models.Model):
         """Render a three-column comparison table for field-mapping CR types."""
         html = []
         if header:
-            html.append(f"<h4>{header}</h4>")
+            html.append(f"<h4>{html_escape(header)}</h4>")
         html.append('<table class="table table-sm table-bordered mb-0" style="width:100%">')
         html.append(
             "<thead><tr>"
@@ -1177,7 +1180,7 @@ class SPPChangeRequest(models.Model):
             if key.startswith("_"):
                 continue
             # Use key as-is if it contains spaces (human-readable), otherwise convert
-            display_key = key if " " in key else key.replace("_", " ").title()
+            display_key = html_escape(key if " " in key else key.replace("_", " ").title())
 
             if isinstance(value, dict) and "old" in value:
                 old_val = value.get("old")
@@ -1215,7 +1218,7 @@ class SPPChangeRequest(models.Model):
         html = []
 
         if header:
-            html.append(f"<h4>{header}</h4>")
+            html.append(f"<h4>{html_escape(header)}</h4>")
 
         if not changes:
             html.append('<p class="text-muted mb-0"><i class="fa fa-info-circle me-2"></i>No details to display.</p>')
@@ -1228,7 +1231,7 @@ class SPPChangeRequest(models.Model):
         for key, value in changes.items():
             if key.startswith("_"):
                 continue
-            display_key = key if " " in key else key.replace("_", " ").title()
+            display_key = html_escape(key if " " in key else key.replace("_", " ").title())
             display_value = self._format_review_value(value)
             html.append(f'<tr><td class="bg-light"><strong>{display_key}</strong></td><td>{display_value}</td></tr>')
 

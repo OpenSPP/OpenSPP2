@@ -37,7 +37,7 @@
                 </button>
             </xpath>
             <!-- Add ribbon for emergency programs -->
-            <xpath expr="//sheet" position="before">
+            <xpath expr="//div[@name='button_box']" position="before">
                 <widget
                     name="web_ribbon"
                     title="Emergency Response"

@@ -172,7 +172,8 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         <field
                             name="supported_id_document_type_ids"
                             widget="many2many_tags"
-                            options="{'no_open':True,'no_quick_create':True,'no_create_edit':True}"
+                            domain="[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:id-type')]"
+                            options="{'no_open':True,'no_quick_create':True,'no_create_edit':True,'no_create':True}"
                             colspan="4"
                         />
                     </group>

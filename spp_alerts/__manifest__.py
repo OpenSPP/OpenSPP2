@@ -32,7 +32,6 @@
         "views/alert_rule_views.xml",
         "views/menus.xml",
     ],
-    "assets": {},
     "application": False,
     "installable": True,
     "auto_install": False,

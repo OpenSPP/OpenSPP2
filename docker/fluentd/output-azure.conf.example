@@ -1,0 +1,42 @@
+# Output: Azure Blob Storage
+#
+# Ships logs to Azure Storage append blobs. Buffers locally and flushes
+# every 2 minutes.
+#
+# To use:
+#   1. Copy this file to output-azure.conf
+#   2. Update fluent.conf to: @include output-azure.conf
+#   3. Set the environment variables below in your .env.production
+#
+# Required environment variables:
+#   AZURE_STORAGE_ACCOUNT    — Azure storage account name
+#   AZURE_STORAGE_ACCESS_KEY — Azure storage access key
+#   AZURE_CONTAINER          — Azure blob container name
+
+<match docker.**>
+  @type azure-storage-append-blob
+
+  azure_storage_account "#{ENV['AZURE_STORAGE_ACCOUNT']}"
+  azure_storage_access_key "#{ENV['AZURE_STORAGE_ACCESS_KEY']}"
+  azure_container "#{ENV['AZURE_CONTAINER']}"
+  auto_create_container true
+
+  path "openspp-logs/${tag}/"
+  azure_object_key_format %{path}%{time_slice}_%{index}.log
+
+  <format>
+    @type json
+  </format>
+
+  <buffer tag,time>
+    @type file
+    path /fluentd/buffer
+    timekey 120
+    timekey_wait 60
+    timekey_use_utc true
+    chunk_limit_size 10m
+    flush_at_shutdown true
+    retry_max_interval 30s
+    retry_forever true
+  </buffer>
+</match>

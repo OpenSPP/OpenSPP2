@@ -1,7 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 import logging
 
-from odoo import Command, _, api, fields, models
+from odoo import _, api, fields, models
 
 from odoo.addons.job_worker.delay import group
 
@@ -155,18 +155,18 @@ class DefaultEligibilityManager(models.Model):
         jobs = []
         for i in range(0, len(new_beneficiaries), 10000):
             jobs.append(
-                self.delayable(channel="eligibility_manager")._import_registrants(
-                    new_beneficiaries[i : i + 10000], state
-                )
+                self.delayable(
+                    channel="eligibility_manager",
+                    identity_key=f"import_reg_{program.id}_{i}",
+                )._import_registrants(new_beneficiaries[i : i + 10000], state)
             )
         main_job = group(*jobs)
-        main_job.on_done(self.delayable(channel="eligibility_manager").mark_import_as_done())
+        main_job.on_done(self.delayable(channel="statistics_refresh").mark_import_as_done())
         main_job.delay()
 
     def mark_import_as_done(self):
         self.ensure_one()
-        self.program_id._compute_eligible_beneficiary_count()
-        self.program_id._compute_beneficiary_count()
+        self.program_id.refresh_beneficiary_counts()
 
         self.program_id.is_locked = False
         self.program_id.locked_reason = None
@@ -174,11 +174,13 @@ class DefaultEligibilityManager(models.Model):
 
     def _import_registrants(self, new_beneficiaries, state="draft", do_count=False):
         _logger.info("Importing %s beneficiaries", len(new_beneficiaries))
-        _logger.info("updated")
-        beneficiaries_val = []
-        for beneficiary in new_beneficiaries:
-            beneficiaries_val.append(Command.create({"partner_id": beneficiary.id, "state": state}))
-        self.program_id.update({"program_membership_ids": beneficiaries_val})
+        vals_list = [{"partner_id": b.id, "program_id": self.program_id.id, "state": state} for b in new_beneficiaries]
+        count = self.env["spp.program.membership"].bulk_create_memberships(vals_list, skip_duplicates=True)
+        _logger.info("Imported %d new memberships (%d duplicates skipped)", count, len(vals_list) - count)
+
+        # Raw SQL bypasses the ORM cache — invalidate so subsequent reads
+        # (e.g. program.program_membership_ids) reflect the new rows.
+        self.program_id.invalidate_recordset(["program_membership_ids"])
 
         if do_count:
             # Compute Statistics

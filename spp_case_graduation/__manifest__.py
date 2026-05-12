@@ -4,7 +4,7 @@
 {
     "name": "OpenSPP Case Management: Graduation Integration",
     "summary": "Link graduation assessments to cases for exit management",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "license": "LGPL-3",
     "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],

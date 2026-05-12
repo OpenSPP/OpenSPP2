@@ -32,7 +32,6 @@ DEMO_CONSTANTS = {
     "poverty_line": 5000,  # Monthly income threshold
     "retirement_age": 65,  # Minimum age for elderly pension
     "child_age_limit": 18,  # Maximum age to be considered a child
-    "max_farm_size_subsidy": 10,  # Max hectares for input subsidy
     "vulnerability_threshold": 70,  # Min score for emergency eligibility
     # Benefit amounts - Child support
     "base_child_grant": 50,  # Per-child amount

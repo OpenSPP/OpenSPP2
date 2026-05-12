@@ -1,18 +1,35 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!-- Record Rules -->
-    <!-- Session User: Can view all sessions, edit own facilitated sessions -->
-    <record id="rule_session_user_facilitated" model="ir.rule">
-        <field name="name">Session User: Own Facilitated Sessions</field>
+
+    <!-- Multi-company global rules -->
+    <record id="rule_session_company" model="ir.rule">
+        <field name="name">Session: Multi-Company</field>
         <field name="model_id" ref="model_spp_session" />
-        <field name="domain_force">[('facilitator_id', '=', user.id)]</field>
-        <field name="groups" eval="[Command.link(ref('group_session_user'))]" />
-        <field name="perm_read" eval="False" />
+        <field
+            name="domain_force"
+        >['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
         <field name="perm_write" eval="True" />
-        <field name="perm_create" eval="False" />
-        <field name="perm_unlink" eval="False" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
     </record>
 
+    <record id="rule_session_type_company" model="ir.rule">
+        <field name="name">Session Type: Multi-Company</field>
+        <field name="model_id" ref="model_spp_session_type" />
+        <field
+            name="domain_force"
+        >['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <!-- Session User: Can read all sessions in their company, write only sessions they facilitate or co-facilitate -->
     <record id="rule_session_user_read_all" model="ir.rule">
         <field name="name">Session User: Read All Sessions</field>
         <field name="model_id" ref="model_spp_session" />
@@ -24,10 +41,61 @@
         <field name="perm_unlink" eval="False" />
     </record>
 
-    <!-- Session Manager: Full access -->
+    <record id="rule_session_user_facilitated" model="ir.rule">
+        <field name="name">Session User: Own Facilitated Sessions</field>
+        <field name="model_id" ref="model_spp_session" />
+        <field
+            name="domain_force"
+        >['|', ('facilitator_id', '=', user.id), ('co_facilitator_ids', 'in', user.id)]</field>
+        <field name="groups" eval="[Command.link(ref('group_session_user'))]" />
+        <field name="perm_read" eval="False" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="False" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <!-- Session Manager: Full access to all sessions -->
     <record id="rule_session_manager_full" model="ir.rule">
         <field name="name">Session Manager: Full Access</field>
         <field name="model_id" ref="model_spp_session" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_session_manager'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <!-- Session Attendance rules -->
+    <!-- Users can read all attendance records, but write/create only for sessions they facilitate or co-facilitate -->
+    <record id="rule_session_attendance_user_read_all" model="ir.rule">
+        <field name="name">Session Attendance User: Read All</field>
+        <field name="model_id" ref="model_spp_session_attendance" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_session_user'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="False" />
+        <field name="perm_create" eval="False" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_session_attendance_user_facilitated" model="ir.rule">
+        <field name="name">Session Attendance User: Own Facilitated Sessions</field>
+        <field name="model_id" ref="model_spp_session_attendance" />
+        <field
+            name="domain_force"
+        >['|', ('session_id.facilitator_id', '=', user.id), ('session_id.co_facilitator_ids', 'in', user.id)]</field>
+        <field name="groups" eval="[Command.link(ref('group_session_user'))]" />
+        <field name="perm_read" eval="False" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <!-- Session Manager: Full access to all attendance records -->
+    <record id="rule_session_attendance_manager_full" model="ir.rule">
+        <field name="name">Session Attendance Manager: Full Access</field>
+        <field name="model_id" ref="model_spp_session_attendance" />
         <field name="domain_force">[(1, '=', 1)]</field>
         <field name="groups" eval="[Command.link(ref('group_session_manager'))]" />
         <field name="perm_read" eval="True" />

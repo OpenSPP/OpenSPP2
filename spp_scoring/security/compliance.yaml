@@ -1,0 +1,294 @@
+# OpenSPP Access Management Compliance Specification
+# Module: spp_scoring
+# Version: 1.0
+#
+# This file declares the expected access control configuration for this module.
+# Run: python -m scripts.compliance.checker spp_scoring
+# Generate tests: python -m scripts.compliance.test_generator spp_scoring
+
+module: spp_scoring
+domain: scoring
+version: "1.0"
+
+# =============================================================================
+# GROUP DEFINITIONS
+# Following ADR-004 Three-Tier Architecture
+# =============================================================================
+
+groups:
+  # --- Tier 3: Technical base groups ---
+  - id: group_scoring_read
+    tier: 3
+    comment: "Technical group for read access to scoring models and results."
+
+  - id: group_scoring_write
+    tier: 3
+    implied_ids: [group_scoring_read]
+    comment: "Technical group for write access to scoring results."
+
+  - id: group_scoring_create
+    tier: 3
+    implied_ids: [group_scoring_read]
+    comment: "Technical group for creating scoring results."
+
+  - id: group_scoring_config_admin
+    tier: 3
+    privilege_id: privilege_scoring_config_admin
+    implied_ids: [group_scoring_read]
+    comment:
+      "Technical group for configuring scoring models, indicators, and thresholds."
+
+  # --- Tier 2: User-facing groups ---
+  - id: group_scoring_viewer
+    tier: 2
+    privilege_id: privilege_scoring_viewer
+    implied_ids: [group_scoring_read]
+    comment: "Can view scoring models and results. Cannot modify data or run scoring."
+
+  - id: group_scoring_officer
+    tier: 2
+    privilege_id: privilege_scoring_officer
+    implied_ids: [group_scoring_viewer, group_scoring_write, group_scoring_create]
+    comment:
+      "Can run scoring calculations and view results. Cannot configure scoring models."
+
+  - id: group_scoring_manager
+    tier: 2
+    privilege_id: privilege_scoring_manager
+    implied_ids: [group_scoring_officer, group_scoring_config_admin]
+    comment:
+      "Full scoring management including model configuration, activation, and deletion."
+
+# Admin linkage - manager group links to spp_security.group_spp_admin
+admin_link_group: group_scoring_manager
+
+# =============================================================================
+# MODEL ACCESS (ir.model.access.csv)
+# Standard pattern: viewer=read, officer=read+write+create, manager=full CRUD
+# =============================================================================
+
+model_access:
+  # Core scoring model - configuration
+  - model: spp.scoring.model
+    viewer: [read]
+    officer: [read]
+    manager: [read, write, create, unlink]
+
+  # Scoring indicators - configuration
+  - model: spp.scoring.indicator
+    viewer: [read]
+    officer: [read]
+    manager: [read, write, create, unlink]
+
+  # Value mapping for categorical indicators - configuration
+  - model: spp.scoring.value_mapping
+    viewer: [read]
+    officer: [read]
+    manager: [read, write, create, unlink]
+
+  # Classification thresholds - configuration
+  - model: spp.scoring.threshold
+    viewer: [read]
+    officer: [read]
+    manager: [read, write, create, unlink]
+
+  # Scoring results - operational data
+  - model: spp.scoring.result
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  # Scoring result details (indicator breakdowns) - operational data
+  - model: spp.scoring.result.detail
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  # Batch scoring wizard - transient model for bulk operations
+  - model: spp.batch.scoring.wizard
+    viewer: []
+    officer: [read, write, create, unlink]
+    manager: [read, write, create, unlink]
+
+  # Batch scoring job tracking - operational data
+  - model: spp.scoring.batch.job
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+# =============================================================================
+# RECORD RULES (ir.rule)
+# Data visibility rules based on group membership
+# =============================================================================
+
+record_rules:
+  # --- Scoring Model Rules ---
+  # All scoring users can read all scoring models
+  - id: rule_scoring_model_read_all
+    model: spp.scoring.model
+    groups: [group_scoring_viewer]
+    domain_description: "All scoring users can read all scoring models"
+    perm_read: true
+    perm_write: false
+    perm_create: false
+    perm_unlink: false
+
+  # Managers can do everything with scoring models
+  - id: rule_scoring_model_manager
+    model: spp.scoring.model
+    groups: [group_scoring_manager]
+    domain_description: "Managers have full access to scoring models"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: true
+
+  # --- Scoring Result Rules ---
+  # All scoring users can read all results
+  - id: rule_scoring_result_read_all
+    model: spp.scoring.result
+    groups: [group_scoring_viewer]
+    domain_description: "All scoring users can read all scoring results"
+    perm_read: true
+    perm_write: false
+    perm_create: false
+    perm_unlink: false
+
+  # Officers can create/write scoring results
+  - id: rule_scoring_result_officer
+    model: spp.scoring.result
+    groups: [group_scoring_officer]
+    domain_description: "Officers can create and modify scoring results"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: false
+
+  # Managers can delete results
+  - id: rule_scoring_result_manager
+    model: spp.scoring.result
+    groups: [group_scoring_manager]
+    domain_description:
+      "Managers have full access to scoring results including deletion"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: true
+
+# =============================================================================
+# MENU VISIBILITY
+# Which groups can see which menus
+# =============================================================================
+
+menus:
+  # Main Scoring menu
+  - id: menu_spp_scoring_root
+    name: "Scoring"
+    groups: [group_scoring_viewer]
+
+  # Scoring Models submenu
+  - id: menu_spp_scoring_model
+    name: "Scoring Models"
+    parent: menu_spp_scoring_root
+    groups: [group_scoring_viewer]
+
+  # Scoring Results submenu
+  - id: menu_spp_scoring_result
+    name: "Scoring Results"
+    parent: menu_spp_scoring_root
+    groups: [group_scoring_viewer]
+
+  # Batch Scoring - officers and above
+  - id: menu_spp_batch_scoring
+    name: "Batch Scoring"
+    parent: menu_spp_scoring_root
+    groups: [group_scoring_officer]
+
+  # Configuration menu - managers only
+  - id: menu_spp_scoring_config
+    name: "Configuration"
+    parent: menu_spp_scoring_root
+    groups: [group_scoring_manager]
+
+  # Configuration: Indicators
+  - id: menu_spp_scoring_indicator
+    name: "Indicators"
+    parent: menu_spp_scoring_config
+    groups: [group_scoring_manager]
+
+  # Configuration: Thresholds
+  - id: menu_spp_scoring_threshold
+    name: "Thresholds"
+    parent: menu_spp_scoring_config
+    groups: [group_scoring_manager]
+
+# =============================================================================
+# FIELD RESTRICTIONS
+# Fields with group-based visibility in views
+# =============================================================================
+
+field_restrictions: []
+
+# =============================================================================
+# ACTION RESTRICTIONS
+# Actions that are restricted to specific groups
+# =============================================================================
+
+actions:
+  - id: action_spp_scoring_model
+    name: "Scoring Models"
+    groups: [group_scoring_viewer]
+
+  - id: action_spp_scoring_result
+    name: "Scoring Results"
+    groups: [group_scoring_viewer]
+
+  - id: action_spp_batch_scoring_wizard
+    name: "Batch Scoring Wizard"
+    groups: [group_scoring_officer]
+
+  - id: action_spp_scoring_indicator
+    name: "Scoring Indicators"
+    groups: [group_scoring_manager]
+
+  - id: action_spp_scoring_threshold
+    name: "Scoring Thresholds"
+    groups: [group_scoring_manager]
+# =============================================================================
+# NOTES
+# =============================================================================
+
+# Module Purpose:
+# Configurable scoring and assessment framework for beneficiary targeting including
+# Proxy Means Test (PMT), Social Welfare Development Index (SWDI), vulnerability
+# scoring, and custom eligibility formulas.
+#
+# Role Hierarchy:
+# - Viewer: Read-only access to scoring models and results
+# - Officer: Can run scoring calculations and create results
+# - Manager: Full access including model configuration and deletion
+#
+# Security Architecture:
+# - Configuration Models (models, indicators, thresholds, mappings):
+#   - Viewer/Officer: Read-only
+#   - Manager: Full CRUD
+#
+# - Operational Models (results, result details, batch jobs):
+#   - Viewer: Read-only
+#   - Officer: Read, write, create (no delete)
+#   - Manager: Full CRUD
+#
+# - Wizards (batch scoring):
+#   - Officer+: Full access for transient operations
+#
+# Integration Points:
+# - spp_registry: Scoring applied to registrants (res.partner)
+# - spp_cel_domain: CEL formulas for complex scoring calculations
+# - job_worker: Async batch scoring operations
+#
+# Record Rules Pattern:
+# - All models use global rules [(1, '=', 1)] - no data segmentation
+# - Access control is purely role-based via model access CSV
+# - Viewer: Read-only via record rules
+# - Officer: Read/write/create via record rules
+# - Manager: Full CRUD via record rules

@@ -1,4 +1,5 @@
-from odoo import fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 
 
 class GraduationCriteria(models.Model):
@@ -34,3 +35,11 @@ class GraduationCriteria(models.Model):
     )
 
     active = fields.Boolean(default=True)
+
+    @api.constrains("weight")
+    def _check_weight_positive(self):
+        for criteria in self:
+            if criteria.weight <= 0:
+                raise ValidationError(
+                    _("Weight must be greater than zero for criteria '%(name)s'.", name=criteria.name)
+                )

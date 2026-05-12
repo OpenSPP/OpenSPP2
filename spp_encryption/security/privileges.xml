@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Encryption Domain Privilege -->
+    <!-- Single consolidated privilege for all encryption access levels -->
+
+    <record id="privilege_encryption" model="res.groups.privilege">
+        <field name="name">Encryption</field>
+        <field name="category_id" ref="spp_security.category_spp_identity" />
+        <field
+            name="description"
+        >Access to encryption and cryptographic management</field>
+    </record>
+
+    <!-- Crypto Viewer: Can view encryption configuration for security audits -->
+    <record id="privilege_crypto_viewer" model="res.groups.privilege">
+        <field name="name">Crypto Viewer</field>
+        <field name="category_id" ref="spp_security.category_spp_identity" />
+        <field name="sequence">10</field>
+    </record>
+
+    <!-- Crypto Officer: Can configure encryption providers and algorithms -->
+    <record id="privilege_crypto_officer" model="res.groups.privilege">
+        <field name="name">Crypto Officer</field>
+        <field name="category_id" ref="spp_security.category_spp_identity" />
+        <field name="sequence">20</field>
+    </record>
+
+    <!-- Crypto Manager: Full cryptographic administration including key lifecycle -->
+    <record id="privilege_crypto_manager" model="res.groups.privilege">
+        <field name="name">Crypto Manager</field>
+        <field name="category_id" ref="spp_security.category_spp_identity" />
+        <field name="sequence">30</field>
+    </record>
+
+    <!-- Crypto Administration: Legacy privilege. Maps to Crypto Manager. -->
+    <record id="privilege_crypto_admin" model="res.groups.privilege">
+        <field name="name">Crypto Administration</field>
+        <field name="category_id" ref="spp_security.category_spp_identity" />
+        <field name="sequence">10</field>
+    </record>
+</odoo>

@@ -4,10 +4,11 @@
     "summary": "Search the registry using CEL expressions",
     "version": "19.0.2.0.0",
     "license": "LGPL-3",
-    "development_status": "Beta",
+    "development_status": "Production/Stable",
+    "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],
     "author": "OpenSPP.org, OpenSPP Community",
     "website": "https://github.com/OpenSPP/OpenSPP2",
-    "category": "OpenSPP/Core",
+    "category": "OpenSPP",
     "depends": [
         "spp_registry",
         "spp_cel_domain",
@@ -25,6 +26,6 @@
         ],
     },
     "installable": True,
-    "auto_install": True,
+    "auto_install": False,
     "application": False,
 }

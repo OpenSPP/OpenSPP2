@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_vocabulary_code_form_hierarchy" model="ir.ui.view">
+        <field name="name">spp.vocabulary.code.form.hierarchy</field>
+        <field name="model">spp.vocabulary.code</field>
+        <field name="inherit_id" ref="spp_vocabulary.view_vocabulary_code_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='target_type']" position="after">
+                <field
+                    name="allow_all_member_type"
+                    invisible="namespace_uri != 'urn:openspp:vocab:group-type'"
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>

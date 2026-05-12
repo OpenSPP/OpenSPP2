@@ -30,12 +30,12 @@ class TestClaim169Demo(TransactionCase):
         # Create test country for locale
         cls.test_country = cls.env.ref("base.us")
 
-        # Create a demo story registrant
+        # Create a demo story registrant (group named by family name)
         cls.demo_registrant = cls.env["res.partner"].create(
             {
-                "name": "Maria Santos",
+                "name": "Santos",
                 "is_registrant": True,
-                "is_group": False,
+                "is_group": True,
             }
         )
 

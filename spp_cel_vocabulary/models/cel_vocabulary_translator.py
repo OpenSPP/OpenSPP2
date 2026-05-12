@@ -90,7 +90,7 @@ class CelVocabularyTranslator(models.AbstractModel):
             tuple: (plan, explain) for the in_group check
 
         Example:
-            in_group(r.gender, "feminine_gender")
+            in_group(r.gender_id, "feminine_gender")
             → ["|",
                 ("gender_id.uri", "in", ["urn:iso:std:iso:5218#2", ...]),
                 ("gender_id.reference_uri", "in", ["urn:iso:std:iso:5218#2", ...])
@@ -102,7 +102,11 @@ class CelVocabularyTranslator(models.AbstractModel):
             field_name, field_model = self._resolve_field(model, field_node, cfg, ctx)
             field_name = self._normalize_field_name(field_model or model, field_name)
         except Exception as e:
-            _logger.warning("[CEL Vocabulary] Failed to resolve field in in_group(): %s", e)
+            _logger.warning(
+                "[CEL Vocabulary] Failed to resolve field in in_group(): %s. "
+                "Check that the field name matches the Odoo model field (e.g., gender_id, not gender).",
+                e,
+            )
             return (
                 LeafDomain(model, [("id", "=", 0)]),
                 "in_group() [FIELD RESOLUTION ERROR]",
@@ -129,7 +133,10 @@ class CelVocabularyTranslator(models.AbstractModel):
         group = self.env["spp.vocabulary.concept.group"].search([("name", "=", group_name)], limit=1)
 
         if not group:
-            _logger.warning("[CEL Vocabulary] Concept group '%s' not found, returning empty domain", group_name)
+            _logger.warning(
+                "[CEL Vocabulary] Concept group '%s' not found. Check Settings > Vocabularies > Concept Groups.",
+                group_name,
+            )
             # Return domain that matches nothing
             return (
                 LeafDomain(field_model or model, [("id", "=", 0)]),
@@ -140,7 +147,11 @@ class CelVocabularyTranslator(models.AbstractModel):
         uri_list = group.get_code_uris()
 
         if not uri_list:
-            _logger.warning("[CEL Vocabulary] Concept group '%s' has no codes", group_name)
+            _logger.warning(
+                "[CEL Vocabulary] Concept group '%s' has no codes. "
+                "Add codes via Settings > Vocabularies > Concept Groups.",
+                group_name,
+            )
             return (
                 LeafDomain(field_model or model, [("id", "=", 0)]),
                 f"in_group({field_name}, '{group_name}') [EMPTY GROUP]",
@@ -197,7 +208,12 @@ class CelVocabularyTranslator(models.AbstractModel):
             field_name, field_model = self._resolve_field(model, field_node, cfg, ctx)
             field_name = self._normalize_field_name(field_model or model, field_name)
         except Exception as e:
-            _logger.warning("[CEL Vocabulary] Failed to resolve field in %s(): %s", func_name, e)
+            _logger.warning(
+                "[CEL Vocabulary] Failed to resolve field in %s(): %s. "
+                "Check that the field name matches the Odoo model field (e.g., gender_id, not gender).",
+                func_name,
+                e,
+            )
             return (
                 LeafDomain(model, [("id", "=", 0)]),
                 f"{func_name}() [FIELD RESOLUTION ERROR]",
@@ -208,7 +224,8 @@ class CelVocabularyTranslator(models.AbstractModel):
 
         if not group:
             _logger.warning(
-                "[CEL Vocabulary] Concept group '%s' not found for %s(), returning empty domain",
+                "[CEL Vocabulary] Concept group '%s' not found for %s(). "
+                "Check Settings > Vocabularies > Concept Groups.",
                 group_name,
                 func_name,
             )
@@ -221,7 +238,12 @@ class CelVocabularyTranslator(models.AbstractModel):
         uri_list = group.get_code_uris()
 
         if not uri_list:
-            _logger.warning("[CEL Vocabulary] Concept group '%s' has no codes for %s()", group_name, func_name)
+            _logger.warning(
+                "[CEL Vocabulary] Concept group '%s' has no codes for %s(). "
+                "Add codes via Settings > Vocabularies > Concept Groups.",
+                group_name,
+                func_name,
+            )
             return (
                 LeafDomain(field_model or model, [("id", "=", 0)]),
                 f"{func_name}({field_name}) [GROUP EMPTY]",
@@ -251,7 +273,7 @@ class CelVocabularyTranslator(models.AbstractModel):
             tuple: (plan, explain) for the code_eq check
 
         Example:
-            code_eq(r.gender, "female")
+            code_eq(r.gender_id, "female")
             → ["|",
                 ("gender_id.uri", "=", "urn:iso:std:iso:5218#2"),
                 ("gender_id.reference_uri", "=", "urn:iso:std:iso:5218#2")
@@ -263,7 +285,11 @@ class CelVocabularyTranslator(models.AbstractModel):
             field_name, field_model = self._resolve_field(model, field_node, cfg, ctx)
             field_name = self._normalize_field_name(field_model or model, field_name)
         except Exception as e:
-            _logger.warning("[CEL Vocabulary] Failed to resolve field in code_eq(): %s", e)
+            _logger.warning(
+                "[CEL Vocabulary] Failed to resolve field in code_eq(): %s. "
+                "Check that the field name matches the Odoo model field (e.g., gender_id, not gender).",
+                e,
+            )
             return (
                 LeafDomain(model, [("id", "=", 0)]),
                 "code_eq() [FIELD RESOLUTION ERROR]",
@@ -289,7 +315,8 @@ class CelVocabularyTranslator(models.AbstractModel):
 
         if not target_code:
             _logger.warning(
-                "[CEL Vocabulary] Could not resolve code identifier '%s', returning empty domain",
+                "[CEL Vocabulary] Could not resolve code identifier '%s'. "
+                "Verify the vocabulary code exists (check by URI, code value, or display name).",
                 identifier,
             )
             return (
@@ -329,7 +356,7 @@ class CelVocabularyTranslator(models.AbstractModel):
             tuple: (plan, explain) for the comparison
 
         Example:
-            r.gender == code("female")
+            r.gender_id == code("female")
             → ["|",
                 ("gender_id.uri", "=", "urn:iso:std:iso:5218#2"),
                 ("gender_id.reference_uri", "=", "urn:iso:std:iso:5218#2")
@@ -359,7 +386,11 @@ class CelVocabularyTranslator(models.AbstractModel):
             field_name, field_model = self._resolve_field(model, field_node, cfg, ctx)
             field_name = self._normalize_field_name(field_model or model, field_name)
         except Exception as e:
-            _logger.warning("[CEL Vocabulary] Failed to resolve field in code comparison: %s", e)
+            _logger.warning(
+                "[CEL Vocabulary] Failed to resolve field in code comparison: %s. "
+                "Check that the field name matches the Odoo model field (e.g., gender_id, not gender).",
+                e,
+            )
             return (
                 LeafDomain(model, [("id", "=", 0)]),
                 "code() comparison [FIELD RESOLUTION ERROR]",
@@ -386,7 +417,11 @@ class CelVocabularyTranslator(models.AbstractModel):
             target_code = self.env["spp.vocabulary.code"].resolve_alias(identifier)
 
         if not target_code:
-            _logger.warning("[CEL Vocabulary] Could not resolve code '%s'", identifier)
+            _logger.warning(
+                "[CEL Vocabulary] Could not resolve code '%s'. "
+                "Verify the vocabulary code exists (check by URI, code value, or display name).",
+                identifier,
+            )
             return (
                 LeafDomain(field_model or model, [("id", "=", 0)]),
                 f"{field_name} {op} code('{identifier}') [NOT FOUND]",

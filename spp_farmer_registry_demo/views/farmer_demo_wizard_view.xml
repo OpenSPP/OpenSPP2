@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         FARMER DEMO GENERATOR WIZARD
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Form View -->
+    <record id="view_farmer_demo_generator_form" model="ir.ui.view">
+        <field name="name">spp.farmer.demo.generator.form</field>
+        <field name="model">spp.farmer.demo.generator</field>
+        <field name="arch" type="xml">
+            <form string="Load Farmer Registry Demo Data">
+                <sheet>
+                    <field name="demo_already_loaded" invisible="1" />
+
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="not demo_already_loaded"
+                    >
+                        <p>
+                            <strong>Demo data has already been loaded.</strong>
+                        </p>
+                        <p
+                        >Running this again may create duplicate records. If you need a fresh dataset, reset the database first.</p>
+                    </div>
+
+                    <div
+                        class="alert alert-info"
+                        role="alert"
+                        invisible="demo_already_loaded"
+                    >
+                        <p>
+                            <strong
+                            >This will load comprehensive Farmer Registry demo data:</strong>
+                        </p>
+                        <ul>
+                            <li
+                            >8 farmer personas (Philippine context) with complete farm profiles and GIS coordinates</li>
+                            <li>2 cooperatives (group-of-groups) with member farms</li>
+                            <li
+                            >5 agricultural subsidy programs (Input Subsidy, Equipment Grant, Livestock Support, Climate Resilience, Aquaculture Support)</li>
+                            <li>Story enrollments with payment history</li>
+                            <li>Active agricultural season with farm activities</li>
+                            <li>Program cycles with entitlements and payments</li>
+                            <li>Logic Packs for eligibility rules</li>
+                            <li
+                            >Change requests at various approval stages (draft, pending, approved, applied, rejected, revision)</li>
+                        </ul>
+                    </div>
+
+                    <field name="generate_volume" invisible="1" />
+                    <field name="create_active_season" invisible="1" />
+                    <field name="create_demo_farms" invisible="1" />
+                    <field name="create_cooperatives" invisible="1" />
+                    <field name="create_demo_programs" invisible="1" />
+                    <field name="enroll_demo_stories" invisible="1" />
+                    <field name="create_cycles" invisible="1" />
+                    <field name="create_change_requests" invisible="1" />
+                </sheet>
+                <footer>
+                    <button
+                        name="action_generate_demo"
+                        string="Load Demo Data"
+                        type="object"
+                        class="btn-primary"
+                        invisible="demo_already_loaded"
+                    />
+                    <button string="Close" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_farmer_demo_generator" model="ir.actions.act_window">
+        <field name="name">Load Farmer Demo</field>
+        <field name="res_model">spp.farmer.demo.generator</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="view_farmer_demo_generator_form" />
+    </record>
+
+    <!-- Parent menu for Demo Data (under Settings) -->
+    <menuitem
+        id="menu_demo_data_root"
+        name="Demo Data"
+        parent="base.menu_administration"
+        sequence="100"
+        groups="base.group_system"
+    />
+
+    <!-- Menu Item (under Settings > Demo Data) -->
+    <menuitem
+        id="menu_farmer_demo_wizard"
+        name="Load Farmer Demo"
+        parent="menu_demo_data_root"
+        action="action_farmer_demo_generator"
+        sequence="20"
+    />
+</odoo>

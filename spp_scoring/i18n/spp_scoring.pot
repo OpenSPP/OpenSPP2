@@ -1,0 +1,1887 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_scoring
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/wizard/batch_scoring_wizard.py:0
+msgid "  ... and %d more errors"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_model.py:0
+msgid "%s (copy)"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_result_form
+msgid "<span>View Registrant</span>"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__message_needaction
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__message_needaction
+msgid "Action Needed"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_form
+msgid "Activate"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__is_active
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_search
+msgid "Active"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__activity_ids
+msgid "Activities"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__activity_state
+msgid "Activity State"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__activity_type_icon
+msgid "Activity Type Icon"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_threshold_form
+msgid "Advanced"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result__error_messages
+msgid "Any errors or warnings from calculation"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_model.py:0
+msgid "At least one indicator is required."
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_model.py:0
+msgid "At least one threshold is required."
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__message_attachment_count
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__message_attachment_count
+msgid "Attachment Count"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__variable_id
+msgid "Auto-created variable that exposes this score in CEL expressions"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_result__calculation_mode__automatic
+msgid "Automatic"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__auto_create_variable
+msgid "Automatically create a CEL variable for this scoring model"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_indicator_form
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_form
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_threshold_form
+msgid "Basic Information"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_result__calculation_mode__batch
+msgid "Batch"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_batch_job.py:0
+msgid "Batch %s - %s"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_batch_job.py:0
+msgid "Batch Results"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.actions.act_window,name:spp_scoring.action_spp_batch_scoring_wizard
+#: model:ir.ui.menu,name:spp_scoring.menu_spp_batch_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_batch_scoring_wizard_form
+msgid "Batch Scoring"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model,name:spp_scoring.model_spp_scoring_batch_job
+msgid "Batch Scoring Job"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/wizard/batch_scoring_wizard.py:0
+msgid "Batch Scoring Results"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model,name:spp_scoring.model_spp_batch_scoring_wizard
+msgid "Batch Scoring Wizard"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/wizard/batch_scoring_wizard.py:0
+msgid "Batch scoring completed."
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_engine.py:0
+msgid "Batch scoring started. %d registrants will be processed in %d chunks."
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_result__classification_color__blue
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_threshold__display_color__blue
+msgid "Blue"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__breakdown_json
+msgid "Breakdown JSON"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_form
+msgid "CEL Configuration"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator__cel_expression
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__cel_expression
+msgid "CEL Expression"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_indicator__calculation_type__formula
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_model__calculation_method__cel_formula
+msgid "CEL Formula"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__cel_profile
+msgid "CEL Profile"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_threshold__cel_rule
+msgid "CEL Rule"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_indicator_form
+msgid "CEL expression for calculating this indicator"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_indicator__cel_expression
+msgid "CEL expression for formula calculation"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__cel_expression
+msgid "CEL expression for formula-based calculation"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_model.py:0
+msgid "CEL expression is required for CEL formula calculation method."
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_indicator.py:0
+msgid "CEL expression is required for formula calculation type."
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__cel_profile
+msgid "CEL profile to use for expression evaluation"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__cache_scores
+msgid "Cache Scores"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__calculated_by_id
+msgid "Calculated By"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result__score
+msgid "Calculated total score"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_indicator_form
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_form
+msgid "Calculation"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__calculation_date
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_result_search
+msgid "Calculation Date"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__calculation_method
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_search
+msgid "Calculation Method"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__calculation_mode
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_result_search
+msgid "Calculation Mode"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator__calculation_type
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_indicator_search
+msgid "Calculation Type"
+msgstr ""
+
+#. module: spp_scoring
+#: model:res.groups,comment:spp_scoring.group_scoring_officer
+msgid ""
+"Can run scoring calculations and view results. Cannot configure scoring "
+"models."
+msgstr ""
+
+#. module: spp_scoring
+#: model:res.groups,comment:spp_scoring.group_scoring_viewer
+msgid ""
+"Can view scoring models and results. Cannot modify data or run scoring."
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_model.py:0
+msgid ""
+"Cannot activate model. Validation errors:\n"
+"%s"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__category
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_search
+msgid "Category"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__classification_label
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_result_search
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_threshold_form
+msgid "Classification"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__classification_code
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_threshold__classification_code
+msgid "Classification Code"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__classification_color
+msgid "Classification Color"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_threshold__classification_label
+msgid "Classification Label"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_threshold.py:0
+msgid "Classification code must be unique within a model!"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_batch_scoring_wizard_form
+msgid "Close"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator__code
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__code
+msgid "Code"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_threshold_search
+msgid "Color"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_threshold__display_color
+msgid "Color for visual representation"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__is_complete
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_result_search
+msgid "Complete"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_batch_scoring_wizard__state__done
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_batch_job__state__done
+msgid "Completed"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_batch_job__completed_date
+msgid "Completed Date"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_batch_scoring_wizard__state__draft
+#: model:ir.ui.menu,name:spp_scoring.menu_spp_scoring_config
+msgid "Configuration"
+msgstr ""
+
+#. module: spp_scoring
+#: model:res.groups.privilege,name:spp_scoring.privilege_scoring_config_admin
+msgid "Configure (Admin)"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__auto_create_variable
+msgid "Create Score Variable"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.actions.act_window,help:spp_scoring.action_spp_scoring_indicator
+msgid "Create your first Scoring Indicator"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.actions.act_window,help:spp_scoring.action_spp_scoring_model
+msgid "Create your first Scoring Model"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.actions.act_window,help:spp_scoring.action_spp_scoring_threshold
+msgid "Create your first Scoring Threshold"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_batch_job__created_by_id
+msgid "Created By"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_batch_scoring_wizard__create_uid
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_batch_job__create_uid
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator__create_uid
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__create_uid
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__create_uid
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result_detail__create_uid
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_threshold__create_uid
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_value_mapping__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_batch_scoring_wizard__create_date
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_batch_job__create_date
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator__create_date
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__create_date
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__create_date
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result_detail__create_date
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_threshold__create_date
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_value_mapping__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_model__category__custom
+msgid "Custom"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_model__calculation_method__custom
+msgid "Custom Plugin"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__end_date
+msgid "Date after which this model is no longer valid"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__effective_date
+msgid "Date from which this model becomes valid"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_form
+msgid "Deactivate"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_indicator_form
+msgid "Default Handling"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator__default_score
+msgid "Default Score"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator__default_value
+msgid "Default Value"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.actions.act_window,help:spp_scoring.action_spp_scoring_model
+msgid ""
+"Define scoring models for poverty targeting, vulnerability assessment,\n"
+"                or custom eligibility criteria."
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_indicator__calculation_type__derived
+msgid "Derived/Computed"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator__description
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__description
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_value_mapping__description
+msgid "Description"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_form
+msgid "Description of this scoring model..."
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_indicator_form
+msgid "Description of what this indicator measures..."
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__description
+msgid "Detailed description of this scoring model"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_indicator__calculation_type__direct
+msgid "Direct Value"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_threshold__display_color
+msgid "Display Color"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_batch_scoring_wizard__display_name
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_cel_variable__display_name
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_batch_job__display_name
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_engine__display_name
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator__display_name
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator_bridge__display_name
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__display_name
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__display_name
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result_detail__display_name
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_threshold__display_name
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_value_mapping__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_indicator__sequence
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result_detail__sequence
+msgid "Display and calculation order"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__sequence
+msgid "Display order"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_batch_scoring_wizard__registrant_domain
+msgid "Domain filter for selecting registrants"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/wizard/batch_scoring_wizard.py:0
+msgid "Domain must be a list"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_indicator__field_path
+msgid "Dot notation path to field (e.g., 'household.roof_material')"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__effective_date
+msgid "Effective Date"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_model.py:0
+msgid "Effective date must be before end date."
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_search
+msgid "Eligibility"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_model__category__eligibility
+msgid "Eligibility Scoring"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__end_date
+msgid "End Date"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__error_messages
+msgid "Error Messages"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result_detail__notes
+msgid "Error message or other notes"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_batch_scoring_wizard__error_count
+msgid "Errors"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/wizard/batch_scoring_wizard.py:0
+msgid "Errors:"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_value_mapping__input_value
+msgid "Exact value to match (for mapped type)"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__expected_total_weight
+msgid "Expected Total Weight"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__expected_total_weight
+msgid "Expected sum of all indicator weights (for validation)"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_indicator__description
+msgid "Explanation of what this indicator measures"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_model__calculation_method__external
+msgid "External Service"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_batch_job__failed_count
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_batch_job__state__failed
+msgid "Failed"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/wizard/batch_scoring_wizard.py:0
+msgid "Failed: %d"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_indicator__default_value
+msgid ""
+"Fallback value if field is null (stored as string, converted as needed)"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result__is_complete
+msgid "False if calculation had errors or missing data"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_indicator_form
+msgid "Field Configuration"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator__field_path
+msgid "Field Path"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result_detail__field_value
+msgid "Field Value"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_indicator.py:0
+msgid "Field path is required for %s calculation type."
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__message_follower_ids
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__message_follower_ids
+msgid "Followers"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__message_partner_ids
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__message_partner_ids
+msgid "Followers (Partners)"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_cel_variable__scoring_model_id
+msgid "For scoring type: the scoring model that computes this variable"
+msgstr ""
+
+#. module: spp_scoring
+#: model:res.groups,comment:spp_scoring.group_scoring_manager
+msgid ""
+"Full scoring management including model configuration, activation, and "
+"deletion."
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_model.py:0
+msgid "Gap detected between thresholds '%(current)s' and '%(next)s'."
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_result__classification_color__gray
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_threshold__display_color__gray
+msgid "Gray"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_result__classification_color__green
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_threshold__display_color__green
+msgid "Green"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result_detail__has_error
+msgid "Has Error"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__has_message
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__has_message
+msgid "Has Message"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_indicator__calculation_type
+msgid "How the indicator score is calculated from the field value"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__calculation_method
+msgid "How the total score is calculated from indicators"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result__classification_label
+msgid "Human-readable classification"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_indicator__name
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result_detail__indicator_name
+msgid "Human-readable indicator name"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_threshold__classification_label
+msgid "Human-readable label (e.g., 'Extremely Poor')"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__name
+msgid "Human-readable name (e.g., '2024 PMT Model - Urban')"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_threshold__name
+msgid "Human-readable threshold name"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_batch_scoring_wizard__id
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_cel_variable__id
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_batch_job__id
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_engine__id
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator__id
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator_bridge__id
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__id
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__id
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result_detail__id
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_threshold__id
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_value_mapping__id
+msgid "ID"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__activity_exception_icon
+msgid "Icon"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__message_needaction
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__message_has_error
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__message_has_sms_error
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result__message_has_error
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__is_strict_mode
+msgid "If enabled, scoring fails when required indicators are missing"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_indicator__is_required
+msgid "If enabled, scoring fails when this field is missing"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_search
+msgid "Inactive"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_result_search
+msgid "Incomplete"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result_detail__indicator_id
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_value_mapping__indicator_id
+msgid "Indicator"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_indicator.py:0
+msgid "Indicator '%(name)s': Duplicate input values in mappings."
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_indicator.py:0
+msgid "Indicator '%(name)s': Invalid CEL expression - %(error)s"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_indicator.py:0
+msgid "Indicator '%(name)s': Invalid field path '%(path)s'."
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_indicator.py:0
+msgid "Indicator '%(name)s': Overlapping ranges detected."
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result_detail__indicator_code
+msgid "Indicator Code"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__indicator_count
+msgid "Indicator Count"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result_detail__indicator_name
+msgid "Indicator Name"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result_detail__indicator_score
+msgid "Indicator Score"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_model.py:0
+msgid "Indicator weights sum to %(actual)s, expected %(expected)s."
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__indicator_ids
+#: model:ir.ui.menu,name:spp_scoring.menu_spp_scoring_indicator
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_form
+msgid "Indicators"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.actions.act_window,help:spp_scoring.action_spp_scoring_indicator
+msgid ""
+"Indicators define individual components of a scoring model,\n"
+"                mapping registrant data to scores."
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_value_mapping__input_value
+msgid "Input Value"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_value_mapping.py:0
+msgid "Input value is required for mapped indicator type."
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__inputs_snapshot
+msgid "Inputs Snapshot"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_model.py:0
+msgid "Invalid CEL expression: %s"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/wizard/batch_scoring_wizard.py:0
+msgid "Invalid registrant domain filter: %s"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__message_is_follower
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__message_is_follower
+msgid "Is Follower"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result__inputs_snapshot
+msgid "JSON blob of field values at calculation time"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result__breakdown_json
+msgid "JSON structure showing per-indicator contributions"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_batch_scoring_wizard__write_uid
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_batch_job__write_uid
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator__write_uid
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__write_uid
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__write_uid
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result_detail__write_uid
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_threshold__write_uid
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_value_mapping__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_batch_scoring_wizard__write_date
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_batch_job__write_date
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator__write_date
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__write_date
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__write_date
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result_detail__write_date
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_threshold__write_date
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_value_mapping__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_batch_scoring_wizard__registrant_ids
+msgid "Leave empty to use domain filter"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model,name:spp_scoring.model_spp_cel_variable
+msgid "Logic Variable"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_model__calculation_method__lookup_table
+msgid "Lookup Table"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result__classification_code
+msgid "Machine-readable classification"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_threshold__classification_code
+msgid "Machine-readable code (e.g., 'EXTREME_POOR')"
+msgstr ""
+
+#. module: spp_scoring
+#: model:res.groups,name:spp_scoring.group_scoring_manager
+#: model:res.groups.privilege,name:spp_scoring.privilege_scoring_manager
+msgid "Manager"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_result__calculation_mode__manual
+msgid "Manual"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_batch_scoring_wizard__max_records
+msgid "Maximum Records"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator__max_score
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_threshold__max_score
+msgid "Maximum Score"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_indicator__max_score
+msgid "Maximum allowed score for this indicator"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_batch_scoring_wizard__max_records
+msgid "Maximum number of registrants to process (0 for no limit)"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_threshold__max_score
+msgid "Maximum score (inclusive) for this classification"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_value_mapping__range_max
+msgid "Maximum value (inclusive) for range mapping"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__message_has_error
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__message_has_error
+msgid "Message Delivery error"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__message_ids
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__message_ids
+msgid "Messages"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_result_form
+msgid "Metadata"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator__min_score
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_threshold__min_score
+msgid "Minimum Score"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_indicator__min_score
+msgid "Minimum allowed score for this indicator"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_threshold__min_score
+msgid "Minimum score (inclusive) for this classification"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_threshold.py:0
+msgid "Minimum score must be less than or equal to maximum score."
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_value_mapping__range_min
+msgid "Minimum value (inclusive) for range mapping"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__model_code
+msgid "Model Code"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_form
+msgid "Model Name"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__model_version
+msgid "Model Version"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_indicator__source_model
+msgid "Model to read the field from"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_indicator__weight
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result_detail__weight
+msgid "Multiplier applied to the indicator score"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator__name
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__name
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_threshold__name
+msgid "Name"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__activity_summary
+msgid "Next Activity Summary"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__activity_type_id
+msgid "Next Activity Type"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/wizard/batch_scoring_wizard.py:0
+msgid "No registrants found matching the criteria."
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.actions.act_window,help:spp_scoring.action_spp_scoring_result
+msgid "No scoring results yet"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result_detail__notes
+msgid "Notes"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__message_needaction_counter
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__message_needaction_counter
+msgid "Number of Actions"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__message_has_error_counter
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__message_has_error_counter
+msgid "Number of errors"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__message_needaction_counter
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__message_has_error_counter
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: spp_scoring
+#: model:res.groups,name:spp_scoring.group_scoring_officer
+#: model:res.groups.privilege,name:spp_scoring.privilege_scoring_officer
+msgid "Officer"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__is_active
+msgid "Only active models can be used for scoring"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_threshold__cel_rule
+msgid "Optional CEL expression for complex threshold logic"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_threshold_form
+msgid "Optional CEL rule for complex threshold logic"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_value_mapping__description
+msgid "Optional description of this mapping"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_result__classification_color__orange
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_threshold__display_color__orange
+msgid "Orange"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_value_mapping__output_score
+msgid "Output Score"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_batch_job__state__pending
+msgid "Pending"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_search
+msgid "Poverty"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_model__category__poverty
+msgid "Poverty Assessment"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_batch_job__state__processing
+msgid "Processing"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_result__classification_color__purple
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_threshold__display_color__purple
+msgid "Purple"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__category
+msgid "Purpose classification for this scoring model"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_indicator__calculation_type__range
+msgid "Range Mapping"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_value_mapping__range_max
+msgid "Range Maximum"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_value_mapping__range_min
+msgid "Range Minimum"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_value_mapping.py:0
+msgid "Range min and max are required for range indicator type."
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_value_mapping.py:0
+msgid "Range minimum must be less than or equal to maximum."
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_result_form
+msgid "Raw Data"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_result_form
+msgid "Recalculate"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_batch_scoring_wizard__result_count
+msgid "Records Processed"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_result__classification_color__red
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_threshold__display_color__red
+msgid "Red"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__registrant_id
+msgid "Registrant"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_batch_scoring_wizard__registrant_domain
+msgid "Registrant Filter"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__registrant_name
+msgid "Registrant Name"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_batch_scoring_wizard_form
+msgid "Registrant Selection"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_engine.py:0
+msgid "Registrant is required."
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator__is_required
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_indicator_search
+msgid "Required"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_engine.py:0
+msgid "Required field '%s' is missing."
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__activity_user_id
+msgid "Responsible User"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__result_count
+msgid "Result Count"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_batch_scoring_wizard__result_summary
+msgid "Result Summary"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_batch_scoring_wizard_form
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_form
+msgid "Results"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_batch_scoring_wizard_form
+msgid "Run Batch Scoring"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__message_has_sms_error
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__score
+msgid "Score"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__detail_ids
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_result_form
+msgid "Score Breakdown"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_result_detail_form
+msgid "Score Detail"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_result_form
+msgid "Score Information"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_threshold_form
+msgid "Score Range"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__variable_id
+msgid "Score Variable"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result_detail__indicator_score
+msgid "Score before weight is applied"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_value_mapping__output_score
+msgid "Score to assign when this mapping matches"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_indicator__default_score
+msgid "Score to use when value is missing or not mapped"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_data_integration.py:0
+msgid "Score variable has been created."
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_result_form
+msgid "Score:"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.ui.menu,name:spp_scoring.menu_spp_scoring_root
+msgid "Scoring"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model,name:spp_scoring.model_spp_scoring_engine
+msgid "Scoring Calculation Engine"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_batch_scoring_wizard_form
+msgid "Scoring Configuration"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model,name:spp_scoring.model_spp_scoring_indicator
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_indicator_form
+msgid "Scoring Indicator"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.actions.act_window,name:spp_scoring.action_spp_scoring_indicator
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_indicator_list
+msgid "Scoring Indicators"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model,name:spp_scoring.model_spp_scoring_model
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_batch_scoring_wizard__model_id
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_cel_variable__scoring_model_id
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_batch_job__model_id
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator__model_id
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__model_id
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_threshold__model_id
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_indicator_search
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_form
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_result_search
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_threshold_search
+msgid "Scoring Model"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.actions.act_window,name:spp_scoring.action_spp_scoring_model
+#: model:ir.ui.menu,name:spp_scoring.menu_spp_scoring_model
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_list
+msgid "Scoring Models"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model,name:spp_scoring.model_spp_scoring_result
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result_detail__result_id
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_result_form
+msgid "Scoring Result"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model,name:spp_scoring.model_spp_scoring_result_detail
+msgid "Scoring Result Detail"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_model.py:0
+#: model:ir.actions.act_window,name:spp_scoring.action_spp_scoring_result
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__result_ids
+#: model:ir.ui.menu,name:spp_scoring.menu_spp_scoring_result
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_result_list
+msgid "Scoring Results"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model,name:spp_scoring.model_spp_scoring_threshold
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_threshold_form
+msgid "Scoring Threshold"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.actions.act_window,name:spp_scoring.action_spp_scoring_threshold
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_threshold_list
+msgid "Scoring Thresholds"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model,name:spp_scoring.model_spp_scoring_value_mapping
+msgid "Scoring Value Mapping"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_engine.py:0
+msgid "Scoring model '%s' is not active on %s."
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_engine.py:0
+msgid "Scoring model is required."
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.actions.act_window,help:spp_scoring.action_spp_scoring_result
+msgid ""
+"Scoring results are created when you run scoring calculations\n"
+"                on registrants using a scoring model."
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model,name:spp_scoring.model_spp_scoring_indicator_bridge
+msgid "Scoring to Indicators Bridge"
+msgstr ""
+
+#. module: spp_scoring
+#: model:res.groups,name:spp_scoring.group_scoring_config_admin
+msgid "Scoring: Configure"
+msgstr ""
+
+#. module: spp_scoring
+#: model:res.groups,name:spp_scoring.group_scoring_create
+msgid "Scoring: Create"
+msgstr ""
+
+#. module: spp_scoring
+#: model:res.groups,name:spp_scoring.group_scoring_read
+msgid "Scoring: Read"
+msgstr ""
+
+#. module: spp_scoring
+#: model:res.groups,name:spp_scoring.group_scoring_write
+msgid "Scoring: Write"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_indicator_search
+msgid "Search Indicators"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_search
+msgid "Search Scoring Models"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_result_search
+msgid "Search Scoring Results"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_threshold_search
+msgid "Search Thresholds"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator__sequence
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__sequence
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result_detail__sequence
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_threshold__sequence
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_value_mapping__sequence
+msgid "Sequence"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator__source_model
+msgid "Source Model"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_batch_scoring_wizard__registrant_ids
+msgid "Specific Registrants"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_batch_scoring_wizard__state
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_batch_job__state
+msgid "State"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_search
+msgid "Status"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_batch_scoring_wizard__is_fail_fast
+msgid "Stop on Error"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_batch_scoring_wizard__is_fail_fast
+msgid "Stop processing if an error occurs"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__cache_scores
+msgid "Store scoring results in the unified data cache for CEL access"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__is_strict_mode
+msgid "Strict Mode"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_batch_job__successful_count
+msgid "Successful"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/wizard/batch_scoring_wizard.py:0
+msgid "Successful: %d"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__total_weight
+msgid "Sum of all indicator weights"
+msgstr ""
+
+#. module: spp_scoring
+#: model:res.groups,comment:spp_scoring.group_scoring_config_admin
+msgid ""
+"Technical group for configuring scoring models, indicators, and thresholds."
+msgstr ""
+
+#. module: spp_scoring
+#: model:res.groups,comment:spp_scoring.group_scoring_create
+msgid "Technical group for creating scoring results."
+msgstr ""
+
+#. module: spp_scoring
+#: model:res.groups,comment:spp_scoring.group_scoring_read
+msgid "Technical group for read access to scoring models and results."
+msgstr ""
+
+#. module: spp_scoring
+#: model:res.groups,comment:spp_scoring.group_scoring_write
+msgid "Technical group for write access to scoring results."
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_model.py:0
+msgid "The code '%(code)s' is already in use by another scoring model."
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_indicator.py:0
+msgid "The indicator code '%(code)s' is already in use within this model."
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result_detail__field_value
+msgid "The raw value read from the registrant"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_result_search
+msgid "This Month"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_result_search
+msgid "This Week"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_result_form
+msgid "This will create a new scoring result. Continue?"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__threshold_ids
+#: model:ir.ui.menu,name:spp_scoring.menu_spp_scoring_threshold
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_form
+msgid "Thresholds"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.actions.act_window,help:spp_scoring.action_spp_scoring_threshold
+msgid ""
+"Thresholds map score ranges to classifications like\n"
+"                \"Extremely Poor\", \"Poor\", \"Near Poor\", etc."
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_result_search
+msgid "Today"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_batch_job__total_count
+msgid "Total Registrants"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__total_weight
+msgid "Total Weight"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/wizard/batch_scoring_wizard.py:0
+msgid "Total: %d"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_model__category__triage
+msgid "Triage/Prioritization"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_engine.py:0
+msgid "Unclassified"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__code
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result__model_code
+msgid "Unique identifier (e.g., 'PMT_2024_URBAN')"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_indicator__code
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result_detail__indicator_code
+msgid "Unique identifier within the model"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result__calculated_by_id
+msgid "User who triggered the calculation, or system for batch"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_form
+msgid "Validity Period"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_indicator__calculation_type__mapped
+msgid "Value Mapping"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator__value_mapping_ids
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_indicator_form
+msgid "Value Mappings"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_data_integration.py:0
+msgid "Variable Created"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__version
+msgid "Version"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__version
+msgid "Version number (e.g., '1.0', '2.1')"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result__model_version
+msgid "Version of the scoring model used"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_batch_scoring_wizard_form
+msgid "View Results"
+msgstr ""
+
+#. module: spp_scoring
+#: model:res.groups,name:spp_scoring.group_scoring_viewer
+#: model:res.groups.privilege,name:spp_scoring.privilege_scoring_viewer
+msgid "Viewer"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_search
+msgid "Vulnerability"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_model__category__vulnerability
+msgid "Vulnerability Assessment"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_model__website_message_ids
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result__website_message_ids
+msgid "Website Messages"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_model__website_message_ids
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result__website_message_ids
+msgid "Website communication history"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_indicator__weight
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result_detail__weight
+msgid "Weight"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,field_description:spp_scoring.field_spp_scoring_result_detail__weighted_score
+msgid "Weighted Score"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_model__calculation_method__weighted_sum
+msgid "Weighted Sum"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_result__classification_color__yellow
+#: model:ir.model.fields.selection,name:spp_scoring.selection__spp_scoring_threshold__display_color__yellow
+msgid "Yellow"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_indicator_form
+msgid "e.g., household.roof_material"
+msgstr ""
+
+#. module: spp_scoring
+#: model_terms:ir.ui.view,arch_db:spp_scoring.view_spp_scoring_model_form
+msgid "e.g., indicators.roof * 0.5 + indicators.assets * 0.3"
+msgstr ""
+
+#. module: spp_scoring
+#: model:ir.model.fields,help:spp_scoring.field_spp_scoring_result_detail__weighted_score
+msgid "indicator_score * weight"
+msgstr ""
+
+#. module: spp_scoring
+#. odoo-python
+#: code:addons/spp_scoring/models/scoring_batch_job.py:0
+#: code:addons/spp_scoring/models/scoring_model.py:0
+#: code:addons/spp_scoring/wizard/batch_scoring_wizard.py:0
+msgid "model_id"
+msgstr ""

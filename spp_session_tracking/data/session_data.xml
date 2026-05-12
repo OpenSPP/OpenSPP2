@@ -9,7 +9,7 @@
         >General training and capacity building sessions for beneficiaries</field>
         <field name="frequency">monthly</field>
         <field name="duration_hours">3.0</field>
-        <field name="required_attendance_pct">80.0</field>
+        <field name="required_attendance_percentage">80.0</field>
         <field name="track_topics">True</field>
     </record>
 
@@ -21,7 +21,7 @@
         >Regular support group meetings for community members</field>
         <field name="frequency">biweekly</field>
         <field name="duration_hours">2.0</field>
-        <field name="required_attendance_pct">75.0</field>
+        <field name="required_attendance_percentage">75.0</field>
         <field name="track_topics">False</field>
     </record>
 
@@ -33,7 +33,7 @@
         >Family Development Sessions for conditional cash transfer programs</field>
         <field name="frequency">monthly</field>
         <field name="duration_hours">2.5</field>
-        <field name="required_attendance_pct">85.0</field>
+        <field name="required_attendance_percentage">85.0</field>
         <field name="track_topics">True</field>
     </record>
 
@@ -43,7 +43,7 @@
         <field name="description">Specialized workshops on various topics</field>
         <field name="frequency">one_time</field>
         <field name="duration_hours">4.0</field>
-        <field name="required_attendance_pct">90.0</field>
+        <field name="required_attendance_percentage">90.0</field>
         <field name="track_topics">True</field>
     </record>
 

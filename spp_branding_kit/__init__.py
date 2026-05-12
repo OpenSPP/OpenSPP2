@@ -72,11 +72,11 @@ def uninstall_hook(env):
     """
     _logger.info("OpenSPP Branding Kit: Running uninstall cleanup...")
 
-    # Remove all openspp.* configuration parameters
+    # Remove all spp.* configuration parameters created by this module
     try:
         # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         IrConfigParam = env["ir.config_parameter"].sudo()
-        params = IrConfigParam.search([("key", "=like", "openspp.%")])
+        params = IrConfigParam.search([("key", "=like", "spp.%")])
         if params:
             param_count = len(params)
             params.unlink()

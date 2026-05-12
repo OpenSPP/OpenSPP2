@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="1">
+    <!-- Disability ID Type -->
+    <record id="id_type_disability" model="spp.id.type">
+        <field name="name">Disability ID</field>
+        <field name="namespace_uri">urn:openspp:id-type:disability</field>
+    </record>
+</odoo>

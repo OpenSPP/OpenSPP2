@@ -20,6 +20,7 @@ class SPPCycle(models.Model):
         "mail.activity.mixin",
         "spp.approval.mixin",
         "spp.job.relate.mixin",
+        "spp.refreshable.mixin",
         # "disable.edit.mixin",
     ]
     _name = "spp.cycle"
@@ -238,8 +239,22 @@ class SPPCycle(models.Model):
 
     @api.depends("entitlement_ids")
     def _compute_total_amount(self):
+        if not self.ids:
+            for rec in self:
+                rec.total_amount = 0
+            return
+        self.env.cr.execute(
+            """
+            SELECT cycle_id, COALESCE(SUM(initial_amount), 0)
+            FROM spp_entitlement
+            WHERE cycle_id IN %s
+            GROUP BY cycle_id
+            """,
+            (tuple(self.ids),),
+        )
+        totals = dict(self.env.cr.fetchall())
         for rec in self:
-            rec.total_amount = sum(entitlement.initial_amount for entitlement in rec.entitlement_ids)
+            rec.total_amount = totals.get(rec.id, 0)
 
     @api.depends("total_amount", "currency_id")
     def _compute_total_amount_in_words(self):
@@ -261,10 +276,45 @@ class SPPCycle(models.Model):
             entitlements_count = self.env["spp.entitlement"].search_count([("cycle_id", "=", rec.id)])
             rec.entitlements_count = entitlements_count
 
+    def refresh_statistics(self):
+        """Refresh all cycle statistics after bulk operations.
+
+        Call this after raw SQL inserts that bypass ORM dependency tracking
+        (e.g. bulk_create_memberships with skip_duplicates=True).
+        """
+        self._compute_members_count()
+        self._compute_entitlements_count()
+        self._compute_total_entitlements_count()
+
     @api.depends("entitlement_ids", "inkind_entitlement_ids")
     def _compute_total_entitlements_count(self):
+        if not self.ids:
+            for rec in self:
+                rec.total_entitlements_count = 0
+            return
+        cycle_ids = tuple(self.ids)
+        self.env.cr.execute(
+            """
+            SELECT cycle_id, COUNT(*)
+            FROM spp_entitlement
+            WHERE cycle_id IN %s
+            GROUP BY cycle_id
+            """,
+            (cycle_ids,),
+        )
+        cash_counts = dict(self.env.cr.fetchall())
+        self.env.cr.execute(
+            """
+            SELECT cycle_id, COUNT(*)
+            FROM spp_entitlement_inkind
+            WHERE cycle_id IN %s
+            GROUP BY cycle_id
+            """,
+            (cycle_ids,),
+        )
+        inkind_counts = dict(self.env.cr.fetchall())
         for rec in self:
-            rec.total_entitlements_count = len(rec.entitlement_ids) + len(rec.inkind_entitlement_ids)
+            rec.total_entitlements_count = cash_counts.get(rec.id, 0) + inkind_counts.get(rec.id, 0)
 
     def _compute_payments_count(self):
         for rec in self:
@@ -274,11 +324,24 @@ class SPPCycle(models.Model):
     @api.depends("entitlement_ids.state", "inkind_entitlement_ids.state")
     def _compute_show_approve_entitlement(self):
         """Show the 'Validate Entitlements' button when there are entitlements pending validation."""
+        if not self.ids:
+            for rec in self:
+                rec.show_approve_entitlements_button = False
+            return
+        cycle_ids = tuple(self.ids)
+        self.env.cr.execute(
+            """
+            SELECT DISTINCT cycle_id FROM spp_entitlement
+            WHERE cycle_id IN %s AND state = 'pending_validation'
+            UNION
+            SELECT DISTINCT cycle_id FROM spp_entitlement_inkind
+            WHERE cycle_id IN %s AND state = 'pending_validation'
+            """,
+            (cycle_ids, cycle_ids),
+        )
+        pending_cycle_ids = {row[0] for row in self.env.cr.fetchall()}
         for rec in self:
-            # Show button if there are any cash or in-kind entitlements in pending_validation state
-            cash_pending = any(ent.state == "pending_validation" for ent in rec.entitlement_ids)
-            inkind_pending = any(ent.state == "pending_validation" for ent in rec.inkind_entitlement_ids)
-            rec.show_approve_entitlements_button = cash_pending or inkind_pending
+            rec.show_approve_entitlements_button = rec.id in pending_cycle_ids
 
     @api.depends("program_id", "entitlement_ids.state", "inkind_entitlement_ids.state")
     def _compute_can_approve_entitlements(self):
@@ -377,20 +440,40 @@ class SPPCycle(models.Model):
     @api.depends("entitlement_ids.state", "inkind_entitlement_ids.state")
     def _compute_all_entitlements_approved(self):
         """Check if all entitlements have been approved."""
-        for rec in self:
-            has_entitlements = rec.entitlement_ids or rec.inkind_entitlement_ids
-            if not has_entitlements:
+        if not self.ids:
+            for rec in self:
                 rec.all_entitlements_approved = False
-                continue
-            all_cash_approved = (
-                all(ent.state == "approved" for ent in rec.entitlement_ids) if rec.entitlement_ids else True
-            )
-            all_inkind_approved = (
-                all(ent.state == "approved" for ent in rec.inkind_entitlement_ids)
-                if rec.inkind_entitlement_ids
-                else True
-            )
-            rec.all_entitlements_approved = all_cash_approved and all_inkind_approved
+            return
+        cycle_ids = tuple(self.ids)
+        # Find cycles that have at least one entitlement (cash or inkind)
+        self.env.cr.execute(
+            """
+            SELECT DISTINCT cycle_id FROM spp_entitlement
+            WHERE cycle_id IN %s
+            UNION
+            SELECT DISTINCT cycle_id FROM spp_entitlement_inkind
+            WHERE cycle_id IN %s
+            """,
+            (cycle_ids, cycle_ids),
+        )
+        cycles_with_entitlements = {row[0] for row in self.env.cr.fetchall()}
+        # Find cycles that have any non-approved entitlement
+        self.env.cr.execute(
+            """
+            SELECT DISTINCT cycle_id FROM spp_entitlement
+            WHERE cycle_id IN %s AND state != 'approved'
+            UNION
+            SELECT DISTINCT cycle_id FROM spp_entitlement_inkind
+            WHERE cycle_id IN %s AND state != 'approved'
+            """,
+            (cycle_ids, cycle_ids),
+        )
+        cycles_with_unapproved = {row[0] for row in self.env.cr.fetchall()}
+        for rec in self:
+            if rec.id not in cycles_with_entitlements:
+                rec.all_entitlements_approved = False
+            else:
+                rec.all_entitlements_approved = rec.id not in cycles_with_unapproved
 
     @api.depends("program_id")
     def _compute_entitlement_type(self):
@@ -542,7 +625,9 @@ class SPPCycle(models.Model):
         return domain
 
     @api.model
-    def get_beneficiaries(self, state, offset=0, limit=None, order=None, count=False, last_id=None):
+    def get_beneficiaries(
+        self, state, offset=0, limit=None, order=None, count=False, last_id=None, min_id=None, max_id=None
+    ):
         """
         Get beneficiaries by state with pagination support.
 
@@ -552,9 +637,12 @@ class SPPCycle(models.Model):
         :param order: Sort order
         :param count: If True, return count instead of records
         :param last_id: For cursor-based pagination - ID of last record from previous batch (more efficient)
+        :param min_id: For ID-range pagination - minimum record ID (inclusive)
+        :param max_id: For ID-range pagination - maximum record ID (inclusive)
         :return: Recordset or count
 
-        Note: For large datasets, use cursor-based pagination with last_id parameter instead of offset.
+        Note: For large datasets, prefer min_id/max_id (ID-range) or last_id (cursor)
+        pagination over offset-based pagination.
         """
         if isinstance(state, str):
             state = [state]
@@ -563,7 +651,12 @@ class SPPCycle(models.Model):
             if count:
                 return self.env["spp.cycle.membership"].search_count(domain, limit=limit)
 
-            # Use cursor-based pagination if last_id is provided (more efficient)
+            # ID-range pagination (best for parallel job dispatch)
+            if min_id is not None and max_id is not None:
+                domain = domain + [("id", ">=", min_id), ("id", "<=", max_id)]
+                return self.env["spp.cycle.membership"].search(domain, order=order or "id")
+
+            # Cursor-based pagination (good for sequential iteration)
             if last_id is not None:
                 domain = domain + [("id", ">", last_id)]
                 return self.env["spp.cycle.membership"].search(domain, limit=limit, order=order or "id")
@@ -964,16 +1057,31 @@ class SPPCycle(models.Model):
         }
         return action
 
-    def refresh_page(self):
-        return {
-            "type": "ir.actions.client",
-            "tag": "reload",
-        }
-
     def _get_related_job_domain(self):
         jobs = self.env["queue.job"].search([("model_name", "like", self._name)])
         related_jobs = jobs.filtered(lambda r: self in r.args[0])
         return [("id", "in", related_jobs.ids)]
+
+    def action_force_unlock(self):
+        """Manager-only escape hatch: clear a stuck "Operation in progress" lock.
+
+        Use when an async pipeline (entitlement processing, payment prep, etc.)
+        died without firing its on_done/on_error callback — for example after
+        a hard server restart or before this fix was deployed. Posts an audit
+        line to chatter so admins can see who unstuck the cycle.
+        """
+        for rec in self:
+            if not rec.is_locked:
+                continue
+            previous_reason = rec.locked_reason
+            rec.write({"is_locked": False, "locked_reason": False})
+            rec.message_post(
+                body=_(
+                    "Lock manually cleared by %(user)s. Previous reason: %(reason)s",
+                    user=self.env.user.display_name,
+                    reason=previous_reason or _("(none)"),
+                )
+            )
 
     def unlink(self):
         # Admin also not able to delete the cycle bcz of beneficiaries mapped

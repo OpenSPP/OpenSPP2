@@ -85,35 +85,76 @@ class TestInitHooks(TransactionCase):
         if theme_menu.active:
             self.skipTest("Theme Store menu was not disabled - this is a minor feature")
 
-    # Note: removed some unstable tests in minimal CI envs
+    def test_post_init_hook_updates_company_branding(self):
+        """Test that post_init_hook updates company report header/footer/website"""
+        from .. import post_init_hook
 
-    def test_uninstall_hook_removes_parameters(self):
-        """Test that uninstall_hook removes all openspp.* parameters"""
+        company = self.Company.search([], limit=1)
+        # Clear company fields to verify they get set
+        company.write({"report_header": False, "report_footer": False})
+
+        post_init_hook(self.env)
+
+        # Re-read from database to see the hook's changes
+        company = self.Company.browse(company.id)
+        # report_header is an HTML field, so the value is wrapped in markup
+        self.assertIn("OpenSPP Platform", str(company.report_header))
+        self.assertIn("OpenSPP", str(company.report_footer))
+        self.assertEqual(company.website, "https://openspp.org")
+
+    def test_post_init_hook_brand_promotion_not_found(self):
+        """Test that post_init_hook handles missing brand promotion view gracefully"""
+        from .. import post_init_hook
+
+        with patch.object(self.env, "ref", return_value=None):
+            # Should not raise — just skip disabling
+            post_init_hook(self.env)
+
+    def test_post_init_hook_handles_branding_exception(self):
+        """Test that post_init_hook handles exceptions in branding setup"""
+        from .. import post_init_hook
+
+        with patch.object(self.env, "ref", side_effect=Exception("ref error")):
+            # Should not raise — exception is caught and logged
+            post_init_hook(self.env)
+
+    def test_uninstall_hook_no_params_to_remove(self):
+        """Test that uninstall_hook handles case when no spp.* params exist"""
         from .. import uninstall_hook
 
-        # Create test parameters
-        self.IrConfigParam.set_param("openspp.system.name", "Test System")
-        self.IrConfigParam.set_param("openspp.telemetry.enabled", "True")
+        # Remove all spp.* params first
+        self.IrConfigParam.search([("key", "=like", "spp.%")]).unlink()
+
+        # Should not raise
+        uninstall_hook(self.env)
+
+    def test_uninstall_hook_removes_parameters(self):
+        """Test that uninstall_hook removes all spp.* parameters"""
+        from .. import uninstall_hook
+
+        # Create test parameters matching the spp.* prefix used by the module
+        self.IrConfigParam.set_param("spp.test.system.name", "Test System")
+        self.IrConfigParam.set_param("spp.test.telemetry.enabled", "True")
         self.IrConfigParam.set_param("other.parameter", "Should remain")
 
         # Run the uninstall hook
         uninstall_hook(self.env)
 
-        # Check that openspp.* parameters were removed
+        # Check that spp.* parameters were removed
         self.assertFalse(
-            self.IrConfigParam.get_param("openspp.system.name"),
-            "openspp.system.name should be removed",
+            self.IrConfigParam.get_param("spp.test.system.name"),
+            "spp.test.system.name should be removed",
         )
         self.assertFalse(
-            self.IrConfigParam.get_param("openspp.telemetry.enabled"),
-            "telemetry param removed",
+            self.IrConfigParam.get_param("spp.test.telemetry.enabled"),
+            "spp.test.telemetry.enabled should be removed",
         )
 
         # Check that other parameters remain
         self.assertEqual(
             self.IrConfigParam.get_param("other.parameter"),
             "Should remain",
-            "Non-openspp parameters should not be removed",
+            "Non-spp parameters should not be removed",
         )
 
     def test_uninstall_hook_handles_exceptions(self):

@@ -125,6 +125,7 @@ class TestBlueprintReproducibility(TransactionCase):
         """Each blueprint's eligibility flags reference valid program IDs."""
         valid_program_ids = {
             "universal_child_grant",
+            "conditional_child_grant",
             "elderly_social_pension",
             "emergency_relief_fund",
             "cash_transfer_program",

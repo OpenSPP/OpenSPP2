@@ -71,9 +71,20 @@ class BasePaymentManager(models.AbstractModel):
         :return:
         """
         self.ensure_one()
-        cycle.is_locked = False
-        cycle.locked_reason = None
-        cycle.message_post(body=msg)
+        cycle.write({"is_locked": False, "locked_reason": False})
+        try:
+            cycle.message_post(body=msg)
+        except Exception:
+            _logger.exception("Failed to post completion chatter on cycle %s", cycle.id)
+
+    def mark_job_as_failed(self, cycle, msg):
+        """Run via on_error() when the async payment pipeline fails."""
+        self.ensure_one()
+        cycle.write({"is_locked": False, "locked_reason": False})
+        try:
+            cycle.message_post(body=msg)
+        except Exception:
+            _logger.exception("Failed to post failure chatter on cycle %s", cycle.id)
 
 
 class DefaultFilePaymentManager(models.Model):
@@ -211,8 +222,19 @@ class DefaultFilePaymentManager(models.Model):
             entitlements -= tag_entitlements
             max_batch_size = batch_tag.max_batch_size
 
-            for i, entitlement_id in enumerate(tag_entitlements):
-                payment = self.env["spp.payment"].create(
+            if not tag_entitlements:
+                continue
+
+            # Prefetch bank_ids to avoid N+1 queries
+            tag_entitlements.mapped("partner_id.bank_ids.acc_number")
+
+            # Build all payment vals in one pass
+            payment_vals_list = []
+            for entitlement_id in tag_entitlements:
+                account_number = None
+                if entitlement_id.partner_id.bank_ids:
+                    account_number = entitlement_id.partner_id.bank_ids[0].acc_number
+                payment_vals_list.append(
                     {
                         "name": str(uuid4()),
                         "entitlement_id": entitlement_id.id,
@@ -220,33 +242,35 @@ class DefaultFilePaymentManager(models.Model):
                         "amount_issued": entitlement_id.initial_amount,
                         "payment_fee": entitlement_id.transfer_fee,
                         "state": "issued",
+                        "account_number": account_number,
                     }
                 )
-                if payment.partner_id.bank_ids:
-                    payment.account_number = payment.partner_id.bank_ids[0].acc_number
-                else:
-                    payment.account_number = None
 
-                if not payments:
-                    payments = payment
-                else:
-                    payments += payment
-                if create_batch:
-                    if i % max_batch_size == 0:
-                        curr_batch = self.env["spp.payment.batch"].create(
-                            {
-                                "name": str(uuid4()),
-                                "cycle_id": cycle.id,
-                                "stats_datetime": fields.Datetime.now(),
-                                "tag_id": batch_tag.id,
-                            }
-                        )
-                        if not batches:
-                            batches = curr_batch
-                        else:
-                            batches += curr_batch
-                    curr_batch.payment_ids = [(4, payment.id)]
-                    payment.batch_id = curr_batch
+            # Batch create all payments for this tag
+            tag_payments = self.env["spp.payment"].create(payment_vals_list)
+
+            if not payments:
+                payments = tag_payments
+            else:
+                payments += tag_payments
+
+            if create_batch:
+                # Assign payments to batches in chunks of max_batch_size
+                for i in range(0, len(tag_payments), max_batch_size):
+                    batch_payments = tag_payments[i : i + max_batch_size]
+                    curr_batch = self.env["spp.payment.batch"].create(
+                        {
+                            "name": str(uuid4()),
+                            "cycle_id": cycle.id,
+                            "stats_datetime": fields.Datetime.now(),
+                            "tag_id": batch_tag.id,
+                        }
+                    )
+                    batch_payments.write({"batch_id": curr_batch.id})
+                    if not batches:
+                        batches = curr_batch
+                    else:
+                        batches += curr_batch
         return payments, batches
 
     def _prepare_payments_async(self, cycle, entitlements, entitlements_count):
@@ -265,6 +289,7 @@ class DefaultFilePaymentManager(models.Model):
         ]
         main_job = group(*jobs)
         main_job.on_done(self.delayable().mark_job_as_done(cycle, _("Prepared payments.")))
+        main_job.on_error(self.delayable().mark_job_as_failed(cycle, _("Preparing payments failed.")))
         main_job.delay()
 
     def send_payments(self, batches):
@@ -379,6 +404,7 @@ class DefaultFilePaymentManager(models.Model):
         ]
         main_job = group(*jobs)
         main_job.on_done(self.delayable().mark_job_as_done(cycle, _("Send payments completed.")))
+        main_job.on_error(self.delayable().mark_job_as_failed(cycle, _("Sending payments failed.")))
         main_job.delay()
 
     @api.model

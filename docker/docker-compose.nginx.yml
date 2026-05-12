@@ -1,0 +1,590 @@
+# OpenSPP Production Docker Compose — Nginx + Certbot
+#
+# Small-scale deployment for 10k-100k beneficiaries on a single VPS.
+#
+# Architecture:
+#   Nginx (reverse proxy + SSL) -> Odoo (workers) -> PostgreSQL
+#                                -> Queue Worker (background jobs)
+#   Certbot (certificate issuance and renewal)
+#
+# Usage:
+#   # Copy and configure environment
+#   cp docker/.env.production.example docker/.env.production
+#   # Edit docker/.env.production with your settings
+#
+#   # Start services with HTTPS (production)
+#   docker compose -f docker/docker-compose.nginx.yml --profile https up -d
+#   # Or set COMPOSE_PROFILES=https in .env.production, then just:
+#   docker compose -f docker/docker-compose.nginx.yml up -d
+#
+#   # Start with HTTP only (dev / isolated on-premises)
+#   docker compose -f docker/docker-compose.nginx.yml --profile http up -d
+#
+#   # View logs
+#   docker compose -f docker/docker-compose.nginx.yml logs -f
+#
+#   # Stop services
+#   docker compose -f docker/docker-compose.nginx.yml down
+#
+# Profiles:
+#   --profile https    Nginx with SSL + Certbot (production). Set
+#                      COMPOSE_PROFILES=https in .env to make this the default.
+#   --profile http     Nginx HTTP only (no SSL, no Certbot).
+#                      Use for dev or on-premises isolated networks.
+#   --profile clamav   ClamAV antivirus scanning (adds ~1GB RAM).
+#                      Install spp_attachment_av_scan module in Odoo to use.
+#
+#   Profiles can be combined: --profile https --profile clamav
+#   Or in .env: COMPOSE_PROFILES=https,clamav
+#
+# Fluentd Logging:
+#   Fluentd collects logs from the json-file log volumes and ships them to
+#   a configurable backend (local/NFS, S3, GCS, Azure, MinIO).
+#   This approach is runtime-agnostic (Docker, Podman, Kubernetes) and keeps
+#   `docker compose logs` working. Logs are never lost if Fluentd goes down.
+#
+#   To switch output backend:
+#   1. Edit docker/fluentd/fluent.conf to @include the output backend you need
+#      (see docker/fluentd/output-*.conf.example for available backends)
+#   2. For cloud backends (S3, GCS, Azure, MinIO), build the custom image:
+#      Uncomment `build:` in the fluentd service and comment out `image:`
+#
+# External Database (RDS/Cloud SQL):
+#   Set DATABASE_URL in .env.production and remove/comment the db service.
+#
+# Sizing Guide (adjust in .env.production):
+#   10k beneficiaries:  ODOO_WORKERS=2, 4GB RAM total
+#   50k beneficiaries:  ODOO_WORKERS=4, 8GB RAM total
+#   100k beneficiaries: ODOO_WORKERS=6, 16GB RAM total
+
+# Default log rotation for all services: 5MB per file, 3 files (15MB total).
+# Small enough to grep quickly, large enough to avoid excessive rotation I/O.
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "5m"
+    max-file: "3"
+
+# Shared Nginx configuration (used by both https and http profiles)
+x-nginx-common: &nginx-common
+  image: nginx:stable-alpine
+  depends_on:
+    odoo:
+      condition: service_healthy
+  environment:
+    DOMAIN: ${DOMAIN:?DOMAIN is required}
+  networks:
+    - openspp-prod
+  restart: always
+  read_only: true
+  tmpfs:
+    - /tmp:size=10M
+    - /var/cache/nginx:size=50M
+    - /run:size=5M
+    - /etc/nginx/conf.d:size=1M # envsubst writes generated config here at startup
+  logging: *default-logging
+  cap_drop:
+    - ALL
+  cap_add:
+    - NET_BIND_SERVICE # Bind to ports 80/443
+    - CHOWN # Set file ownership (master process)
+    - SETGID # Switch to nginx group (worker processes)
+    - SETUID # Switch to nginx user (worker processes)
+  security_opt:
+    - no-new-privileges:true
+  deploy:
+    resources:
+      limits:
+        cpus: "${NGINX_CPU_LIMIT:-1}"
+        memory: ${NGINX_MEMORY_LIMIT:-256M}
+      reservations:
+        memory: ${NGINX_MEMORY_RESERVATION:-64M}
+
+services:
+  # ==========================================================================
+  # Nginx HTTPS - Reverse proxy with SSL termination (--profile https)
+  # ==========================================================================
+  nginx:
+    <<: *nginx-common
+    profiles:
+      - https
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/odoo.conf.template:/etc/nginx/templates/odoo.conf.template:ro,z
+      - certbot_webroot:/var/www/certbot:ro,z
+      - certbot_certs:/etc/letsencrypt:ro,z
+      - nginx_logs:/var/log/nginx:rw,z
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -sf http://localhost:80/.well-known/acme-challenge/ || curl -sf -k
+          https://localhost:443/web/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ==========================================================================
+  # Nginx HTTP - Reverse proxy without SSL (--profile http)
+  # ==========================================================================
+  # Use for local development or on-premises isolated networks.
+  nginx-http:
+    <<: *nginx-common
+    profiles:
+      - http
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/odoo-http-only.conf.template:/etc/nginx/templates/odoo.conf.template:ro,z
+      - nginx_logs:/var/log/nginx:rw,z
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:80/web/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ==========================================================================
+  # Certbot - SSL certificate management (Let's Encrypt)
+  # ==========================================================================
+  # Obtain initial certificate (run once):
+  #   docker compose -f docker/docker-compose.nginx.yml run --rm certbot \
+  #     certonly --webroot -w /var/www/certbot \
+  #     --email ${ACME_EMAIL} -d ${DOMAIN} --agree-tos --non-interactive
+  #
+  # Renew certificates (schedule via system cron every 3 months):
+  #   docker compose -f docker/docker-compose.nginx.yml run --rm certbot renew
+  #   docker compose -f docker/docker-compose.nginx.yml exec nginx nginx -s reload
+  certbot:
+    image: certbot/certbot
+    profiles:
+      - https
+    volumes:
+      - certbot_webroot:/var/www/certbot:rw,z
+      - certbot_certs:/etc/letsencrypt:rw,z
+      - certbot_lib:/var/lib/letsencrypt:rw,z
+    networks:
+      - openspp-prod
+    read_only: true
+    tmpfs:
+      - /tmp:size=10M
+    logging: *default-logging
+    # Security: drop all unnecessary capabilities
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN # Own certificate files
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
+        reservations:
+          memory: 32M
+
+  # ==========================================================================
+  # PostgreSQL - Database (optional, can use external RDS)
+  # ==========================================================================
+  # Comment out this service if using DATABASE_URL with external database
+  db:
+    image: postgis/postgis:18-3.6-alpine
+    environment:
+      # NOTE: POSTGRES_USER is created as a superuser by the image.
+      # Option A (strict): set DB_ADMIN_USER to an admin role, set DB_USER to a non-superuser,
+      # and create DB_USER via init scripts (/docker-entrypoint-initdb.d).
+      # Option B (flexible): keep DB_ADMIN_USER=odoo and DB_USER=odoo (default).
+      POSTGRES_USER: ${DB_ADMIN_USER:-odoo}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      POSTGRES_DB: ${DB_NAME:-openspp}
+      # Performance tuning for production
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql:rw,z
+      # Option A (strict): init scripts to create non-superuser Odoo role
+      # - ./initdb:/docker-entrypoint-initdb.d:ro,z
+    networks:
+      - openspp-prod
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=256M
+      - /run:size=5M
+    logging: *default-logging
+    # Security: PostgreSQL needs minimal capabilities
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE # Entrypoint needs to access /var/lib/postgresql data dirs
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-odoo} -d ${DB_NAME:-openspp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # Resource limits - adjust based on VPS size
+    deploy:
+      resources:
+        limits:
+          cpus: "${DB_CPU_LIMIT:-2}"
+          memory: ${DB_MEMORY_LIMIT:-4G}
+        reservations:
+          memory: ${DB_MEMORY_RESERVATION:-2G}
+
+  # ==========================================================================
+  # Odoo - Main web application
+  # ==========================================================================
+  odoo:
+    image: ${OPENSPP_IMAGE:-ghcr.io/openspp/openspp:latest}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Database - use DATABASE_URL for external DB, or individual vars for local
+      DATABASE_URL: ${DATABASE_URL:-}
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-5432}
+      # Option A (strict): DB_USER must be a non-superuser created via init script.
+      DB_USER: ${DB_USER:-odoo}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      DB_NAME: ${DB_NAME:-openspp}
+      DB_SSLMODE: ${DB_SSLMODE:-prefer}
+      DB_FILTER: "^${DB_NAME:-openspp}$$"
+      LIST_DB: "False"
+
+      # Admin credentials
+      ODOO_ADMIN_PASSWD: ${ODOO_ADMIN_PASSWD:?ODOO_ADMIN_PASSWD is required}
+
+      # Workers - adjust based on CPU cores (rule: (CPU cores * 2) + 1; ~1 worker per 6 concurrent users)
+      ODOO_WORKERS: ${ODOO_WORKERS:-2}
+      ODOO_CRON_THREADS: "1"
+
+      # Memory limits per worker (in bytes)
+      # Soft limit: worker recycled after this
+      # Hard limit: worker killed if exceeds
+      ODOO_MEMORY_SOFT: ${ODOO_MEMORY_SOFT:-2147483648}
+      ODOO_MEMORY_HARD: ${ODOO_MEMORY_HARD:-2684354560}
+
+      # Request timeouts (seconds)
+      ODOO_TIME_CPU: ${ODOO_TIME_CPU:-600}
+      ODOO_TIME_REAL: ${ODOO_TIME_REAL:-1200}
+
+      # Proxy mode (required behind Nginx)
+      PROXY_MODE: "True"
+
+      # Modules to initialize on first boot
+      ODOO_INIT_MODULES: ${ODOO_INIT_MODULES:-spp_base}
+
+      # Logging
+      LOG_LEVEL: ${LOG_LEVEL:-warn}
+
+      # Email (optional)
+      SMTP_SERVER: ${SMTP_SERVER:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SSL: ${SMTP_SSL:-True}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      EMAIL_FROM: ${EMAIL_FROM:-}
+    volumes:
+      - odoo_data:/var/lib/odoo:rw,z
+      - odoo_addons:/mnt/extra-addons:rw,z
+    networks:
+      - openspp-prod
+    restart: unless-stopped
+    # NOTE: read_only is not used here because the entrypoint generates
+    # /etc/odoo/odoo.conf from the template at startup. The other security
+    # controls (cap_drop, no-new-privileges) still apply.
+    tmpfs:
+      - /tmp:size=256M
+      - /run:size=5M
+    logging: *default-logging
+    # Security: Odoo needs network access and file operations
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8069/web/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 120s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "${ODOO_CPU_LIMIT:-2}"
+          memory: ${ODOO_MEMORY_LIMIT:-4G}
+        reservations:
+          memory: ${ODOO_MEMORY_RESERVATION:-2G}
+
+  # ==========================================================================
+  # Queue Worker - Background job processing (job_worker)
+  # ==========================================================================
+  queue-worker:
+    image: ${OPENSPP_IMAGE:-ghcr.io/openspp/openspp:latest}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+      odoo:
+        condition: service_healthy
+    environment:
+      # Same database config as odoo
+      DATABASE_URL: ${DATABASE_URL:-}
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USER: ${DB_USER:-odoo}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      DB_NAME: ${DB_NAME:-openspp}
+      DB_SSLMODE: ${DB_SSLMODE:-prefer}
+      ODOO_ADMIN_PASSWD: ${ODOO_ADMIN_PASSWD:?ODOO_ADMIN_PASSWD is required}
+
+      # Logging
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    # Run job_worker standalone runner process
+    command:
+      [
+        "python",
+        "/mnt/extra-addons/odoo-job-worker/job_worker_runner.py",
+        "-c",
+        "/etc/odoo/odoo.conf",
+      ]
+    volumes:
+      - odoo_data:/var/lib/odoo:rw,z
+      - odoo_addons:/mnt/extra-addons:rw,z
+    networks:
+      - openspp-prod
+    restart: unless-stopped
+    # NOTE: read_only not used — same reason as odoo service (entrypoint writes config)
+    tmpfs:
+      - /tmp:size=256M
+      - /run:size=5M
+    logging: *default-logging
+    # Security: same as Odoo
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "${QUEUE_CPU_LIMIT:-1}"
+          memory: ${QUEUE_MEMORY_LIMIT:-2G}
+        reservations:
+          memory: ${QUEUE_MEMORY_RESERVATION:-1G}
+
+  # ==========================================================================
+  # Backup - Automated PostgreSQL/PostGIS backups
+  # ==========================================================================
+  # Uses official PostGIS image for full compatibility with spatial data.
+  # Backups run daily at 2am by default (configurable via BACKUP_SCHEDULE).
+  # Retention: 7 daily, 4 weekly, 6 monthly backups.
+  backup:
+    image: postgis/postgis:18-3.6-alpine
+    entrypoint: ["/backup-entrypoint.sh"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # PostgreSQL connection (standard PG* variables)
+      PGHOST: ${DB_HOST:-db}
+      PGPORT: ${DB_PORT:-5432}
+      PGDATABASE: ${DB_NAME:-openspp}
+      PGUSER: ${DB_USER:-odoo}
+      PGPASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      # Backup schedule (cron format, default: daily at 2am)
+      BACKUP_SCHEDULE: ${BACKUP_SCHEDULE:-0 2 * * *}
+      # Retention policy
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-7}
+      BACKUP_KEEP_WEEKS: ${BACKUP_KEEP_WEEKS:-4}
+      BACKUP_KEEP_MONTHS: ${BACKUP_KEEP_MONTHS:-6}
+    volumes:
+      - ./backup.sh:/backup.sh:ro,z
+      - ./backup-entrypoint.sh:/backup-entrypoint.sh:ro,z
+      - backup_data:/backups:rw,z
+    networks:
+      - openspp-prod
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=256M
+      - /run:size=5M
+      - /etc/crontabs:size=1M # backup-entrypoint.sh writes cron schedule here
+      - /etc/profile.d:size=1M # backup-entrypoint.sh writes pg_env.sh here
+      - /var/log:size=10M # backup log file
+    logging: *default-logging
+    # Security: backup needs file write and process management for cron
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE # Same PostGIS image as db; entrypoint needs this
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          memory: 128M
+
+  # ==========================================================================
+  # ClamAV - Antivirus scanning (--profile clamav)
+  # ==========================================================================
+  # Resource usage: ~500MB-1GB RAM for virus definitions
+  # Install spp_attachment_av_scan module in Odoo to use this service
+  clamav:
+    image: clamav/clamav:stable
+    profiles:
+      - clamav
+    environment:
+      # Disable milter (not needed for file scanning)
+      CLAMAV_NO_MILTERD: "true"
+    volumes:
+      - clamav_data:/var/lib/clamav:rw,z
+    networks:
+      - openspp-prod
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=256M
+      - /run/clamav:uid=100,gid=101,size=5M # ClamAV entrypoint expects /run/clamav writable by clamav user
+    logging: *default-logging
+    # Security: ClamAV needs minimal capabilities
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - FOWNER # Set ownership on /run/clamav at startup
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/clamdcheck.sh"]
+      interval: 60s
+      timeout: 10s
+      start_period: 120s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: ${CLAMAV_MEMORY_LIMIT:-1536M}
+        reservations:
+          memory: ${CLAMAV_MEMORY_RESERVATION:-512M}
+
+  # ==========================================================================
+  # Fluentd - Centralized log collection
+  # ==========================================================================
+  # Collects container logs and ships them to a configurable backend:
+  #   - Local filesystem / NFS (default)
+  #   - AWS S3
+  #   - Google Cloud Storage
+  #   - Azure Blob Storage
+  #   - MinIO (S3-compatible, on-premises)
+  #
+  # To switch backends, edit docker/fluentd/fluent.conf and change the
+  # @include line to point to the desired output config file.
+  # See docker/fluentd/output-*.conf.example for available backends.
+  #
+  # For cloud backends (S3, GCS, Azure, MinIO), build the custom image
+  # with the required plugins:
+  #   docker compose -f docker/docker-compose.nginx.yml build fluentd
+  # Then uncomment the `build:` block below and comment out `image:`.
+  fluentd:
+    image: fluent/fluentd:v1.19-2
+    # Uncomment to build with cloud storage plugins (S3, GCS, Azure, MinIO):
+    # build:
+    #   context: ./fluentd
+    #   dockerfile: Dockerfile
+    # Run as root: Fluentd needs to read Docker container logs (/var/lib/docker/containers)
+    # which are owned by root, and write .pos files to the buffer volume.
+    user: "0:0"
+    volumes:
+      # Fluentd configuration (mount like Kubernetes configmaps)
+      - ./fluentd/fluent.conf:/fluentd/etc/fluent.conf:ro,z
+      - ./fluentd/input.conf:/fluentd/etc/input.conf:ro,z
+      - ./fluentd/output-file.conf:/fluentd/etc/output-file.conf:ro,z
+      # Docker container JSON logs (tailed by Fluentd)
+      - /var/lib/docker/containers:/var/log/docker/containers:ro,z
+      # Nginx access/error logs
+      - nginx_logs:/var/log/nginx:ro,z
+      # Fluentd output: bind-mount to a host path (local disk, NFS share, etc.)
+      # Set FLUENTD_LOG_PATH in .env.production. Only needed for local/file output,
+      # not for cloud backends (S3, GCS, Azure, MinIO).
+      - ${FLUENTD_LOG_PATH:-./fluentd/log}:/fluentd/log:rw,z
+      - fluentd_buffer:/fluentd/buffer:rw,z
+    networks:
+      - openspp-prod
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=64M
+    logging: *default-logging
+    # Security: Fluentd needs minimal capabilities
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "pidof ruby || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          memory: 64M
+
+volumes:
+  certbot_webroot:
+  certbot_certs:
+  certbot_lib:
+  nginx_logs:
+  postgres_data:
+  odoo_data:
+  odoo_addons:
+  backup_data:
+  clamav_data:
+  fluentd_buffer:
+
+networks:
+  openspp-prod:
+    driver: bridge

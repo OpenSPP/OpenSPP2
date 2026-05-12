@@ -26,8 +26,30 @@ class SPPEntitlement(models.Model):
     _order = "partner_id asc,id desc"
     _check_company_auto = True
 
+    _unique_code = models.Constraint(
+        "UNIQUE(code)",
+        "Entitlement code must be unique.",
+    )
+
     # Cached model ID for performance (class-level cache)
     _entitlement_model_id_cache = None
+
+    def init(self):
+        super().init()
+        self.env.cr.execute(
+            """
+            CREATE INDEX IF NOT EXISTS
+                spp_entitlement_cycle_id_partner_id_idx
+            ON spp_entitlement (cycle_id, partner_id)
+            """
+        )
+        self.env.cr.execute(
+            """
+            CREATE INDEX IF NOT EXISTS
+                spp_entitlement_cycle_id_state_idx
+            ON spp_entitlement (cycle_id, state)
+            """
+        )
 
     @api.model
     def _generate_code(self):
@@ -138,20 +160,6 @@ class SPPEntitlement(models.Model):
     payment_ids = fields.One2many("spp.payment", "entitlement_id", string="Payments")
     payment_status = fields.Selection([("paid", "Paid"), ("notpaid", "Not Paid")], compute="_compute_payment_status")
     payment_date = fields.Date(compute="_compute_payment_status")
-
-    @api.constrains("code")
-    def _check_unique_code(self):
-        for record in self:
-            if record.code:
-                existing = self.search(
-                    [
-                        ("code", "=", record.code),
-                        ("id", "!=", record.id),
-                    ],
-                    limit=1,
-                )
-                if existing:
-                    raise ValidationError(_("The entitlement code must be unique."))
 
     @api.constrains("valid_from", "valid_until")
     def _check_valid_dates(self):

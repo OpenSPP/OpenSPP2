@@ -18,12 +18,12 @@
         - elderly
         - persons_with_disability
 
-        To add codes to a concept group, use the UI or data files like:
+        To add codes to a concept group, use the UI or Python code:
 
-        <record id="group_feminine_gender_codes" model="spp.vocabulary.concept.group">
-            <field name="id" ref="spp_cel_vocabulary.group_feminine_gender"/>
-            <field name="code_ids" eval="[(4, ref('your_module.your_female_code'))]"/>
-        </record>
+        group = env['spp.vocabulary.concept.group'].search(
+            [('name', '=', 'feminine_gender')], limit=1
+        )
+        group.write({'code_ids': [Command.link(your_female_code.id)]})
 
         ADR-016 Phase 3: CEL Integration
     -->

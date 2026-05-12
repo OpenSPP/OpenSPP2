@@ -68,7 +68,7 @@ services:
       - traefik_logs:/var/log/traefik
     networks:
       - openspp-prod
-    restart: unless-stopped
+    restart: always
     # Traefik should start first and stay healthy
     healthcheck:
       test: ["CMD", "traefik", "healthcheck"]
@@ -98,7 +98,7 @@ services:
       # - ./initdb:/docker-entrypoint-initdb.d:ro
     networks:
       - openspp-prod
-    restart: unless-stopped
+    restart: always
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-odoo} -d ${DB_NAME:-openspp}"]
       interval: 10s
@@ -174,7 +174,7 @@ services:
       - odoo_addons:/mnt/extra-addons
     networks:
       - openspp-prod
-    restart: unless-stopped
+    restart: always
     labels:
       # Traefik configuration
       - "traefik.enable=true"
@@ -278,13 +278,25 @@ services:
       # Logging
       LOG_LEVEL: ${LOG_LEVEL:-info}
     # Run job_worker standalone runner process
-    command: ["python", "-m", "odoo.addons.job_worker.cli"]
+    command:
+      [
+        "python",
+        "/mnt/extra-addons/odoo-job-worker/job_worker_runner.py",
+        "-c",
+        "/etc/odoo/odoo.conf",
+      ]
     volumes:
       - odoo_data:/var/lib/odoo
       - odoo_addons:/mnt/extra-addons
     networks:
       - openspp-prod
-    restart: unless-stopped
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'odoo.addons.job_worker.cli' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
     deploy:
       resources:
         limits:
@@ -323,7 +335,7 @@ services:
       - backup_data:/backups
     networks:
       - openspp-prod
-    restart: unless-stopped
+    restart: always
 
   # ==========================================================================
   # ClamAV - Antivirus scanning (optional, enable with --profile clamav)
@@ -346,7 +358,7 @@ services:
       - clamav_data:/var/lib/clamav
     networks:
       - openspp-prod
-    restart: unless-stopped
+    restart: always
     healthcheck:
       test: ["CMD", "/usr/local/bin/clamdcheck.sh"]
       interval: 60s

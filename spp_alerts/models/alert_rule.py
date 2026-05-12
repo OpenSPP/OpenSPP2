@@ -35,6 +35,7 @@ class AlertRule(models.Model):
 
     _name = "spp.alert.rule"
     _description = "Alert Rule"
+    _inherit = ["mail.thread"]
     _order = "sequence, name"
 
     name = fields.Char(
@@ -55,6 +56,14 @@ class AlertRule(models.Model):
         "ir.model",
         string="Model to Monitor",
         help="Odoo model this rule monitors",
+        tracking=True,
+    )
+
+    model_name = fields.Char(
+        related="model_id.model",
+        string="Model Name",
+        readonly=True,
+        help="Technical model name, used by the domain filter widget",
     )
 
     priority = fields.Selection(
@@ -68,12 +77,14 @@ class AlertRule(models.Model):
         default="medium",
         required=True,
         help="Default priority for alerts created by this rule",
+        tracking=True,
     )
 
     active = fields.Boolean(
         string="Active",
         default=True,
         help="Inactive rules will not create alerts",
+        tracking=True,
     )
 
     sequence = fields.Integer(
@@ -92,6 +103,7 @@ class AlertRule(models.Model):
         help="Determines evaluation logic:\n"
         "- Threshold: Compare a numeric field against threshold_value\n"
         "- Date: Check if a date field is within days_before of today",
+        tracking=True,
     )
 
     domain_filter = fields.Text(
@@ -132,12 +144,14 @@ class AlertRule(models.Model):
     threshold_value = fields.Float(
         string="Threshold Value",
         help="Threshold value for comparison (e.g., minimum stock level, maximum days)",
+        tracking=True,
     )
 
     days_before = fields.Integer(
         string="Days Before",
         default=0,
         help="Days before expiry/deadline to trigger alert (0 = at deadline)",
+        tracking=True,
     )
 
     description = fields.Text(
@@ -152,6 +166,35 @@ class AlertRule(models.Model):
         default=lambda self: self.env.company,
         help="Company this rule applies to (empty = all companies)",
     )
+
+    alert_count = fields.Integer(
+        string="Alert Count",
+        compute="_compute_alert_count",
+        help="Number of alerts created by this rule",
+    )
+
+    def _compute_alert_count(self):
+        """Compute the number of alerts associated with each rule."""
+        alert_data = self.env["spp.alert"].read_group(
+            [("rule_id", "in", self.ids)],
+            ["rule_id"],
+            ["rule_id"],
+        )
+        count_map = {d["rule_id"][0]: d["rule_id_count"] for d in alert_data}
+        for rule in self:
+            rule.alert_count = count_map.get(rule.id, 0)
+
+    def action_view_alerts(self):
+        """Open list view of alerts created by this rule."""
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Alerts"),
+            "res_model": "spp.alert",
+            "view_mode": "list,form",
+            "domain": [("rule_id", "=", self.id)],
+            "context": {"default_rule_id": self.id},
+        }
 
     # -------------------------------------------------------------------------
     # Constraints
@@ -170,6 +213,32 @@ class AlertRule(models.Model):
             if rule.rule_type == "date" and not rule.date_field_id:
                 raise ValidationError(_("A date field is required for date rules."))
 
+    def _domain_eval_context(self):
+        """Return the safe_eval context used when parsing domain filter expressions."""
+        return {
+            "datetime": safe_eval.datetime,
+            "dateutil": safe_eval.dateutil,
+            "time": safe_eval.time,
+            "uid": self.env.uid,
+        }
+
+    @api.constrains("domain_filter")
+    def _check_domain_filter(self):
+        """Validate that domain_filter is a parseable Odoo domain expression."""
+        for rule in self:
+            if not rule.domain_filter or rule.domain_filter.strip() == "[]":
+                continue
+            try:
+                result = safe_eval.safe_eval(  # nosemgrep: odoo-unsafe-safe-eval
+                    rule.domain_filter, self._domain_eval_context()
+                )
+                if not isinstance(result, list):
+                    raise ValidationError(_("Domain filter must be a list, got %s.", type(result).__name__))
+            except ValidationError:
+                raise
+            except Exception as e:
+                raise ValidationError(_("Invalid domain filter: %s", e)) from e
+
     # -------------------------------------------------------------------------
     # Actions
     # -------------------------------------------------------------------------
@@ -182,14 +251,21 @@ class AlertRule(models.Model):
         if not self.model_id:
             raise UserError(_("Cannot evaluate rule '%s': no model to monitor is configured.", self.name))
 
-        count = self._evaluate_rule()
+        try:
+            count = self._evaluate_rule()
+        except Exception as e:
+            raise UserError(_("Error evaluating rule '%(rule)s': %(error)s", rule=self.name, error=e)) from e
 
         return {
             "type": "ir.actions.client",
             "tag": "display_notification",
             "params": {
                 "title": _("Rule Evaluated"),
-                "message": _("%d alert(s) created by rule '%s'.", count, self.name),
+                "message": _(
+                    "%(count)d alert(s) created by rule '%(rule)s'.",
+                    count=count,
+                    rule=self.name,
+                ),
                 "type": "success" if count > 0 else "info",
                 "sticky": False,
             },
@@ -215,21 +291,16 @@ class AlertRule(models.Model):
         try:
             Model = self.env[model_name]
         except KeyError:
-            _logger.warning("Alert rule '%s': model '%s' not found, skipping.", self.id, model_name)
+            _logger.warning("Alert rule '%s' (ID: %d): model '%s' not found, skipping.", self.name, self.id, model_name)
             return 0
 
         # Parse domain filter
         try:
-            eval_context = {
-                "datetime": safe_eval.datetime,
-                "dateutil": safe_eval.dateutil,
-                "time": safe_eval.time,
-                "uid": self.env.uid,
-                "user": self.env.user,
-            }
-            domain = safe_eval.safe_eval(self.domain_filter or "[]", eval_context)  # nosemgrep: odoo-unsafe-safe-eval
+            domain = safe_eval.safe_eval(  # nosemgrep: odoo-unsafe-safe-eval
+                self.domain_filter or "[]", self._domain_eval_context()
+            )
         except Exception as e:
-            _logger.error("Alert rule '%s': invalid domain filter: %s", self.id, e)
+            _logger.error("Alert rule '%s' (ID: %d): invalid domain filter: %s", self.name, self.id, e)
             return 0
 
         records = Model.search(domain)
@@ -238,7 +309,7 @@ class AlertRule(models.Model):
 
         if self.rule_type == "threshold":
             return self._evaluate_threshold(records, model_name)
-        elif self.rule_type == "date":
+        if self.rule_type == "date":
             return self._evaluate_date(records, model_name)
 
         return 0
@@ -260,6 +331,8 @@ class AlertRule(models.Model):
         existing = self._get_existing_alert_keys(model_name, records.ids)
 
         alerts_to_create = []
+        # Performance note: iterates records in Python. For very large recordsets (10k+),
+        # consider batch-reading field values via mapped() or read().
         for record in records:
             if record.id in existing:
                 continue
@@ -291,6 +364,8 @@ class AlertRule(models.Model):
         existing = self._get_existing_alert_keys(model_name, records.ids)
 
         alerts_to_create = []
+        # Performance note: iterates records in Python. For very large recordsets (10k+),
+        # consider batch-reading field values via mapped() or read().
         for record in records:
             if record.id in existing:
                 continue
@@ -360,7 +435,6 @@ class AlertRule(models.Model):
             "description": self.description or "",
             "res_model": model_name,
             "res_id": record.id,
-            "threshold_value": self.threshold_value,
         }
 
         if self.company_id:
@@ -368,6 +442,7 @@ class AlertRule(models.Model):
 
         if current_value is not None:
             vals["current_value"] = current_value
+            vals["threshold_value"] = self.threshold_value
 
         if days_until is not None:
             vals["days_until"] = days_until
@@ -378,6 +453,9 @@ class AlertRule(models.Model):
     # Cron
     # -------------------------------------------------------------------------
 
+    # Cron runs as superuser (OdooBot). Rule evaluation searches monitored models with
+    # full access, bypassing record rules. This is intentional — only managers can create
+    # rules, so the monitored scope is admin-controlled.
     @api.model
     def _cron_evaluate_rules(self):
         """Scheduled action to evaluate all active, configured rules."""

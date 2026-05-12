@@ -1,18 +1,48 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <!-- Graduation Pathway Tree View -->
+    <!-- Graduation Pathway Search View -->
+    <record id="view_graduation_pathway_search" model="ir.ui.view">
+        <field name="name">spp.graduation.pathway.search</field>
+        <field name="model">spp.graduation.pathway</field>
+        <field name="arch" type="xml">
+            <search string="Graduation Pathways">
+                <field name="name" />
+                <field name="code" />
+                <separator />
+                <filter
+                    string="Positive Exit"
+                    name="positive_exit"
+                    domain="[('is_positive_exit', '=', True)]"
+                />
+                <filter
+                    string="Negative Exit"
+                    name="negative_exit"
+                    domain="[('is_positive_exit', '=', False)]"
+                />
+                <separator />
+                <filter
+                    string="Archived"
+                    name="archived"
+                    domain="[('active', '=', False)]"
+                />
+            </search>
+        </field>
+    </record>
+
+    <!-- Graduation Pathway List View -->
     <record id="view_graduation_pathway_tree" model="ir.ui.view">
-        <field name="name">spp.graduation.pathway.tree</field>
+        <field name="name">spp.graduation.pathway.list</field>
         <field name="model">spp.graduation.pathway</field>
         <field name="arch" type="xml">
             <list string="Graduation Pathways">
                 <field name="sequence" widget="handle" />
                 <field name="name" />
-                <field name="code" />
+                <field name="code" optional="show" />
                 <field name="is_positive_exit" />
-                <field name="is_requires_assessment" />
-                <field name="is_requires_approval" />
-                <field name="post_graduation_monitoring_months" />
+                <field name="criteria_count" string="Criteria" />
+                <field name="is_assessment_required" optional="show" />
+                <field name="is_approval_required" optional="show" />
+                <field name="post_graduation_monitoring_months" optional="show" />
                 <field name="active" widget="boolean_toggle" />
             </list>
         </field>
@@ -32,17 +62,27 @@
                         bg_color="text-bg-danger"
                         invisible="active"
                     />
-                    <group>
-                        <group>
-                            <field name="name" />
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Pathway name..." />
+                        </h1>
+                    </div>
+                    <group col="2">
+                        <group name="main_info">
                             <field name="code" />
                             <field name="sequence" />
                             <field name="active" invisible="1" />
                         </group>
-                        <group>
-                            <field name="is_positive_exit" />
-                            <field name="is_requires_assessment" />
-                            <field name="is_requires_approval" />
+                        <group name="settings">
+                            <field name="is_positive_exit" widget="boolean_toggle" />
+                            <field
+                                name="is_assessment_required"
+                                widget="boolean_toggle"
+                            />
+                            <field
+                                name="is_approval_required"
+                                widget="boolean_toggle"
+                            />
                             <field name="post_graduation_monitoring_months" />
                             <field
                                 name="company_id"
@@ -50,7 +90,7 @@
                             />
                         </group>
                     </group>
-                    <group string="Description" col="2">
+                    <group name="description_section" string="Description" col="2">
                         <field
                             name="description"
                             nolabel="1"
@@ -64,10 +104,11 @@
                                 <list editable="bottom">
                                     <field name="sequence" widget="handle" />
                                     <field name="name" />
-                                    <field name="code" />
+                                    <field name="code" optional="show" />
                                     <field name="assessment_method" />
                                     <field name="weight" />
                                     <field name="is_required" />
+                                    <field name="description" optional="hide" />
                                     <field name="active" widget="boolean_toggle" />
                                 </list>
                             </field>

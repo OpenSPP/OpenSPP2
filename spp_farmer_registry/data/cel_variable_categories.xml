@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- ═══════════════════════════════════════════════════════════════════
+             FARMER REGISTRY VARIABLE CATEGORIES
+             ═══════════════════════════════════════════════════════════════════ -->
+
+    <record id="variable_category_farm" model="spp.cel.variable.category">
+        <field name="name">Farm Attributes</field>
+        <field name="code">farm</field>
+        <field name="icon">fa-leaf</field>
+        <field name="color">#27ae60</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <record id="variable_category_farm_activity" model="spp.cel.variable.category">
+        <field name="name">Farm Activities</field>
+        <field name="code">farm_activity</field>
+        <field name="icon">fa-tractor</field>
+        <field name="color">#8e44ad</field>
+        <field name="sequence">51</field>
+    </record>
+
+    <record id="variable_category_farm_constants" model="spp.cel.variable.category">
+        <field name="name">Farm Constants</field>
+        <field name="code">farm_constants</field>
+        <field name="icon">fa-sliders</field>
+        <field name="color">#95a5a6</field>
+        <field name="sequence">91</field>
+    </record>
+</odoo>

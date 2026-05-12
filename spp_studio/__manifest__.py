@@ -80,4 +80,5 @@
     "application": True,
     "auto_install": False,
     "sequence": 1,
+    "maintainers": ["jeremi", "gonzalesedwin1123"],
 }

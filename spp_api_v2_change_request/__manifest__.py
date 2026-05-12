@@ -1,12 +1,12 @@
 {  # pylint: disable=pointless-statement
     "name": "OpenSPP API V2 - Change Request",
     "category": "OpenSPP/Integration",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.0.1",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Beta",
+    "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "reichie020212", "emjay0921"],
     "depends": [
         "spp_api_v2",

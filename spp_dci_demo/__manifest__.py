@@ -1,9 +1,10 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 {
     "name": "OpenSPP DCI Demo",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "category": "OpenSPP",
     "license": "LGPL-3",
+    "development_status": "Alpha",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "author": "OpenSPP.org",
     "depends": [
@@ -26,4 +27,5 @@
     "application": False,
     "auto_install": False,
     "summary": "DCI Demo: Birth Verification for Child Benefit Enrollment",
+    "maintainers": ["jeremi", "gonzalesedwin1123"],
 }

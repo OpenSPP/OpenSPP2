@@ -47,6 +47,7 @@
         action="action_hazard_category"
         parent="menu_hazard_configuration"
         sequence="10"
+        groups="group_hazard_manager"
     />
 
     <menuitem
@@ -55,5 +56,6 @@
         action="action_hazard_impact_type"
         parent="menu_hazard_configuration"
         sequence="20"
+        groups="group_hazard_manager"
     />
 </odoo>

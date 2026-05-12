@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- Default Odoo Storage Backend -->
+    <record id="storage_backend_odoo_default" model="spp.storage.backend">
+        <field name="name">Odoo Default Storage</field>
+        <field name="backend_type">odoo</field>
+        <field name="is_default" eval="True" />
+        <field name="is_active" eval="True" />
+        <field name="sequence">1</field>
+    </record>
+</odoo>

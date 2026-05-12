@@ -46,16 +46,33 @@ class SeededVolumeGenerator:
         if provider:
             self._male_names = list(provider.first_names_male)
             self._female_names = list(provider.first_names_female)
-            self._last_names = list(provider.last_names)
+            all_last_names = list(provider.last_names)
         else:
             # Fallback: generic English names
             self._male_names = ["John", "James", "Robert", "Michael", "David", "William"]
             self._female_names = ["Mary", "Patricia", "Jennifer", "Linda", "Elizabeth", "Susan"]
-            self._last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia"]
+            all_last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia"]
+
+        # Extract family names from reserved story names to avoid collisions.
+        # Use suffix matching so compound names like "Delos Santos" are also
+        # filtered when "Santos" is a reserved story family name.
+        reserved_family_names = set()
+        for name in self.reserved_names:
+            parts = name.split()
+            if len(parts) >= 2:
+                reserved_family_names.add(parts[-1])
+        self._last_names = [
+            n for n in all_last_names if not any(n == fam or n.endswith(" " + fam) for fam in reserved_family_names)
+        ]
+
+        # Shuffle and prepare as a pool for unique group name assignment.
+        # Each group pops a name so no two groups share a family name.
+        self._group_name_pool = list(self._last_names)
+        self.rng.shuffle(self._group_name_pool)
 
         # Caches
         self._gender_cache = {}
-        self._head_type_id = None
+        self._membership_type_cache = {}
         self._group_type_id = None
 
     # =========================================================================
@@ -109,7 +126,7 @@ class SeededVolumeGenerator:
                     gvals["gps_coordinates"] = gps
 
                 group_vals_list.append(gvals)
-                member_specs.append((bp, i))
+                member_specs.append((bp, i, group_name))
 
         # Phase 2: Batch-create groups
         _logger.info("Phase 2/%d: Creating %d groups in batches...", 4, len(group_vals_list))
@@ -120,12 +137,12 @@ class SeededVolumeGenerator:
         all_individual_vals = []
         individual_to_group = []  # (group_record, member_spec_from_blueprint)
 
-        for group_idx, (bp, _instance_idx) in enumerate(member_specs):
+        for group_idx, (bp, _instance_idx, group_family_name) in enumerate(member_specs):
             group_record = groups[group_idx]
             for member_spec in bp["members"]:
                 gender = self._resolve_gender(member_spec.get("gender", "any"))
                 age = self.rng.randint(*member_spec["age_range"])
-                given_name, family_name = self._generate_member_name(gender)
+                given_name, family_name = self._generate_member_name(gender, family_name=group_family_name)
 
                 # Compute name in standard format
                 name_parts = [
@@ -160,7 +177,13 @@ class SeededVolumeGenerator:
         # Phase 4: Create memberships and link to groups
         _logger.info("Phase 4/%d: Creating %d memberships...", 4, len(individuals))
         membership_vals_list = []
-        head_type_id = self._get_head_type_id()
+        role_to_type_code = {
+            "head": "head",
+            "spouse": "spouse",
+            "child": "child",
+            "adult": "other",
+            "elderly": "other",
+        }
 
         current_group = None
         has_head_for_current_group = False
@@ -179,8 +202,17 @@ class SeededVolumeGenerator:
                 "start_date": group_record.registration_date,
             }
 
-            if member_spec["role"] == "head" and not has_head_for_current_group and head_type_id:
-                mval["membership_type_ids"] = [(4, head_type_id)]
+            role = member_spec["role"]
+            if role == "head" and has_head_for_current_group:
+                type_code = "other"
+            else:
+                type_code = role_to_type_code.get(role, "other")
+
+            type_id = self._get_membership_type_id(type_code)
+            if type_id:
+                mval["membership_type_ids"] = [(4, type_id)]
+
+            if role == "head" and not has_head_for_current_group:
                 has_head_for_current_group = True
                 # Update group name to head's family name
                 group_record.name = individual.family_name or individual.name
@@ -188,6 +220,39 @@ class SeededVolumeGenerator:
             membership_vals_list.append(mval)
 
         self._batch_create("spp.group.membership", membership_vals_list)
+
+        # Phase 5+6: Enrich with demographic data (address, email, phone, IDs, bank)
+        try:
+            from .demographic_enricher import DemographicEnricher
+
+            enricher = DemographicEnricher(self.env, self.locale, self.rng)
+
+            # Phase 5: Enrich groups
+            _logger.info("Phase 5/6: Enriching %d groups with demographic data...", len(groups))
+            group_meta = [{"record": g, "name": g.name} for g in groups]
+            enricher.batch_enrich_groups(group_meta)
+
+            # Phase 6: Enrich individuals
+            _logger.info("Phase 6/6: Enriching %d individuals with demographic data...", len(individuals))
+            ind_meta = []
+            for ind_idx, individual in enumerate(individuals):
+                _group_record, member_spec = individual_to_group[ind_idx]
+                age = None
+                if individual.birthdate:
+                    age = (fields.Date.today() - individual.birthdate).days // 365
+                ind_meta.append(
+                    {
+                        "record": individual,
+                        "age": age,
+                        "gender": member_spec.get("gender", ""),
+                        "role": member_spec.get("role", ""),
+                        "given_name": individual.given_name or "",
+                        "family_name": individual.family_name or "",
+                    }
+                )
+            enricher.batch_enrich_individuals(ind_meta)
+        except Exception as e:
+            _logger.warning("Demographic enrichment failed (non-critical): %s", e)
 
         # Build result list
         group_households = {}
@@ -360,14 +425,22 @@ class SeededVolumeGenerator:
     # =========================================================================
 
     def _batch_create(self, model_name, vals_list):
-        """Create records in batches for performance."""
+        """Create records in batches for performance.
+
+        Disables mail.thread logging and tracking for faster bulk creation.
+        """
         if not vals_list:
             return self.env[model_name]
 
-        all_records = self.env[model_name]
+        model = self.env[model_name].with_context(
+            mail_create_nolog=True,
+            tracking_disable=True,
+            no_reset_password=True,
+        )
+        all_records = model
         for i in range(0, len(vals_list), BATCH_SIZE):
             batch = vals_list[i : i + BATCH_SIZE]
-            records = self.env[model_name].create(batch)
+            records = model.create(batch)
             all_records |= records
             if len(vals_list) > BATCH_SIZE:
                 _logger.info(
@@ -380,19 +453,29 @@ class SeededVolumeGenerator:
         return all_records
 
     def _generate_group_name(self):
-        """Generate a household name from seeded RNG."""
-        family_name = self.rng.choice(self._last_names)
-        return f"{family_name} Household"
+        """Generate a household family name from seeded pool.
 
-    def _generate_member_name(self, gender):
-        """Generate a (given_name, family_name) tuple, avoiding reserved names."""
+        Pops from a pre-shuffled pool for unique names as long as possible.
+        When exhausted, falls back to random choice (some duplicates expected
+        for locales with smaller name pools).
+        """
+        if self._group_name_pool:
+            return self._group_name_pool.pop()
+        return self.rng.choice(self._last_names)
+
+    def _generate_member_name(self, gender, family_name=None):
+        """Generate a (given_name, family_name) tuple, avoiding reserved names.
+
+        If family_name is provided, all members share that surname (realistic
+        household naming). Otherwise picks a random family name.
+        """
         max_attempts = 20
         for _ in range(max_attempts):
             if gender == "male":
                 given = self.rng.choice(self._male_names)
             else:
                 given = self.rng.choice(self._female_names)
-            family = self.rng.choice(self._last_names)
+            family = family_name or self.rng.choice(self._last_names)
             full_name = f"{given} {family}"
             if full_name not in self.reserved_names:
                 return given, family
@@ -415,12 +498,12 @@ class SeededVolumeGenerator:
             self._gender_cache[gender] = code.id if code else False
         return self._gender_cache[gender]
 
-    def _get_head_type_id(self):
-        """Get the 'head' membership type ID, with caching."""
-        if self._head_type_id is None:
-            head_type = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", "head")
-            self._head_type_id = head_type.id if head_type else False
-        return self._head_type_id
+    def _get_membership_type_id(self, code):
+        """Get a group-membership-type vocabulary code ID, with caching."""
+        if code not in self._membership_type_cache:
+            rec = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", code)
+            self._membership_type_cache[code] = rec.id if rec else False
+        return self._membership_type_cache[code]
 
     def _get_group_type_id(self):
         """Get a default group type ID, with caching."""

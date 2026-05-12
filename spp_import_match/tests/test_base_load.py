@@ -33,11 +33,25 @@ class TestBaseLoad(TransactionCase):
             self.env["spp.import.match.fields"].create(data)
         return match
 
-    def test_load_no_usable_rules(self):
-        """When no usable rules exist, load() passes through to super()."""
+    def test_load_no_context_passes_through(self):
+        """When import_match_ids not in context, load() passes through to default Odoo import."""
         result = self.env["res.partner"].load(
             ["name", "email"],
-            [["NoRuleTest99xyz", "norule@test.com"]],
+            [["NoCtxTest99xyz", "noctx@test.com"]],
+        )
+        self.assertFalse(result["messages"])
+        partner = self.env["res.partner"].search([("name", "=", "NoCtxTest99xyz")])
+        self.assertEqual(len(partner), 1)
+
+    def test_load_no_usable_rules(self):
+        """When import_match_ids in context but no usable rules, load() passes through."""
+        result = (
+            self.env["res.partner"]
+            .with_context(import_match_ids=[])
+            .load(
+                ["name", "email"],
+                [["NoRuleTest99xyz", "norule@test.com"]],
+            )
         )
         self.assertFalse(result["messages"])
         partner = self.env["res.partner"].search([("name", "=", "NoRuleTest99xyz")])
@@ -46,10 +60,14 @@ class TestBaseLoad(TransactionCase):
     def test_load_match_overwrite_true(self):
         """Match found + overwrite=True -> record updated."""
         partner = self.env["res.partner"].create({"name": "OverwriteTrue99xyz", "email": "old@test.com"})
-        self._create_match_rule([{"field_id": self.name_field.id}], overwrite=True)
-        result = self.env["res.partner"].load(
-            ["name", "email"],
-            [["OverwriteTrue99xyz", "new@test.com"]],
+        match = self._create_match_rule([{"field_id": self.name_field.id}], overwrite=True)
+        result = (
+            self.env["res.partner"]
+            .with_context(import_match_ids=[match.id])
+            .load(
+                ["name", "email"],
+                [["OverwriteTrue99xyz", "new@test.com"]],
+            )
         )
         self.assertFalse(result["messages"])
         partner.invalidate_recordset()
@@ -58,20 +76,28 @@ class TestBaseLoad(TransactionCase):
     def test_load_match_overwrite_false(self):
         """Match found + overwrite=False -> record skipped."""
         partner = self.env["res.partner"].create({"name": "OverwriteFalse99xyz", "email": "original@test.com"})
-        self._create_match_rule([{"field_id": self.name_field.id}], overwrite=False)
-        self.env["res.partner"].load(
-            ["name", "email"],
-            [["OverwriteFalse99xyz", "changed@test.com"]],
+        match = self._create_match_rule([{"field_id": self.name_field.id}], overwrite=False)
+        (
+            self.env["res.partner"]
+            .with_context(import_match_ids=[match.id])
+            .load(
+                ["name", "email"],
+                [["OverwriteFalse99xyz", "changed@test.com"]],
+            )
         )
         partner.invalidate_recordset()
         self.assertEqual(partner.email, "original@test.com")
 
     def test_load_no_match_creates_record(self):
         """No match found -> new record created."""
-        self._create_match_rule([{"field_id": self.name_field.id}])
-        result = self.env["res.partner"].load(
-            ["name", "email"],
-            [["BrandNewPartner99xyz", "brandnew@test.com"]],
+        match = self._create_match_rule([{"field_id": self.name_field.id}])
+        result = (
+            self.env["res.partner"]
+            .with_context(import_match_ids=[match.id])
+            .load(
+                ["name", "email"],
+                [["BrandNewPartner99xyz", "brandnew@test.com"]],
+            )
         )
         self.assertFalse(result["messages"])
         partner = self.env["res.partner"].search([("name", "=", "BrandNewPartner99xyz")])
@@ -81,13 +107,17 @@ class TestBaseLoad(TransactionCase):
     def test_load_multiple_records_mixed(self):
         """Mix of matched and new records in one import."""
         self.env["res.partner"].create({"name": "ExistingMixed99xyz", "email": "existing@test.com"})
-        self._create_match_rule([{"field_id": self.name_field.id}], overwrite=True)
-        result = self.env["res.partner"].load(
-            ["name", "email"],
-            [
-                ["ExistingMixed99xyz", "updated@test.com"],
-                ["NewMixed99xyz", "newmixed@test.com"],
-            ],
+        match = self._create_match_rule([{"field_id": self.name_field.id}], overwrite=True)
+        result = (
+            self.env["res.partner"]
+            .with_context(import_match_ids=[match.id])
+            .load(
+                ["name", "email"],
+                [
+                    ["ExistingMixed99xyz", "updated@test.com"],
+                    ["NewMixed99xyz", "newmixed@test.com"],
+                ],
+            )
         )
         self.assertFalse(result["messages"])
         existing = self.env["res.partner"].search([("name", "=", "ExistingMixed99xyz")])
@@ -117,11 +147,15 @@ class TestBaseLoad(TransactionCase):
 
     def test_load_appends_id_field(self):
         """Auto-appends 'id' when not in fields list."""
-        self._create_match_rule([{"field_id": self.name_field.id}])
+        match = self._create_match_rule([{"field_id": self.name_field.id}])
         fields = ["name", "email"]
-        self.env["res.partner"].load(
-            fields,
-            [["AppendIdTest99xyz", "appendid@test.com"]],
+        (
+            self.env["res.partner"]
+            .with_context(import_match_ids=[match.id])
+            .load(
+                fields,
+                [["AppendIdTest99xyz", "appendid@test.com"]],
+            )
         )
         self.assertIn("id", fields)
 

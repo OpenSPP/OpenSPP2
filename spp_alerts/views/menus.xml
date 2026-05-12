@@ -8,7 +8,7 @@
         name="Alerts"
         parent="base.menu_custom"
         sequence="100"
-        groups="group_alerts_viewer"
+        groups="spp_alerts.group_alerts_viewer"
     />
 
     <!-- Alerts Submenu -->
@@ -18,7 +18,7 @@
         parent="menu_spp_alerts_root"
         action="action_spp_alert"
         sequence="10"
-        groups="group_alerts_viewer"
+        groups="spp_alerts.group_alerts_viewer"
     />
 
     <!-- Alert Rules Submenu -->
@@ -28,6 +28,6 @@
         parent="menu_spp_alerts_root"
         action="action_spp_alert_rule"
         sequence="20"
-        groups="group_alerts_manager"
+        groups="spp_alerts.group_alerts_manager"
     />
 </odoo>

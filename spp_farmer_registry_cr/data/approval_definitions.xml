@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    Farmer Registry CR - Approval Definitions
+
+    Defines approval workflows for farmer-specific change requests.
+    Linking to specific CR types is done in spp_farmer_registry_demo.
+-->
+<odoo noupdate="1">
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- APPROVAL DEFINITION -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!--
+    Local to HQ Validator: 2-Tier Approval Workflow
+
+    1. Local Validator reviews the request first (48h SLA)
+    2. HQ Validator provides final approval (72h SLA)
+    -->
+    <record id="approval_def_farmer_cr_local_to_hq" model="spp.approval.definition">
+        <field name="name">Farmer CR - Local to HQ Validator (2-Tier)</field>
+        <field name="model_id" search="[('model', '=', 'spp.change.request')]" />
+        <field name="use_multitier" eval="True" />
+        <field name="notify_on_submit" eval="True" />
+        <field name="notify_on_approve" eval="True" />
+        <field name="notify_on_reject" eval="True" />
+        <field
+            name="tier_ids"
+            eval="[
+            Command.create({
+                'sequence': 10,
+                'name': 'Local Validator Review',
+                'approval_type': 'group',
+                'approval_group_id': ref('spp_change_request_v2.group_cr_validator'),
+                'sla_hours': 48,
+                'notify_on_pending': True,
+            }),
+            Command.create({
+                'sequence': 20,
+                'name': 'HQ Validator Approval',
+                'approval_type': 'group',
+                'approval_group_id': ref('spp_change_request_v2.group_cr_validator_hq'),
+                'sla_hours': 72,
+                'notify_on_pending': True,
+            }),
+        ]"
+        />
+    </record>
+</odoo>

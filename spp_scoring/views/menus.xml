@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Main Scoring Menu -->
+    <menuitem
+        id="menu_spp_scoring_root"
+        name="Scoring"
+        web_icon="spp_base_common,static/description/icon-Dashboards-White-line.png"
+        sequence="25"
+        groups="group_scoring_viewer"
+    />
+
+    <!-- Scoring Models -->
+    <menuitem
+        id="menu_spp_scoring_model"
+        name="Scoring Models"
+        parent="menu_spp_scoring_root"
+        action="action_spp_scoring_model"
+        sequence="10"
+        groups="group_scoring_viewer"
+    />
+
+    <!-- Scoring Results -->
+    <menuitem
+        id="menu_spp_scoring_result"
+        name="Scoring Results"
+        parent="menu_spp_scoring_root"
+        action="action_spp_scoring_result"
+        sequence="20"
+        groups="group_scoring_viewer"
+    />
+
+    <!-- Batch Scoring -->
+    <menuitem
+        id="menu_spp_batch_scoring"
+        name="Batch Scoring"
+        parent="menu_spp_scoring_root"
+        action="action_spp_batch_scoring_wizard"
+        sequence="30"
+        groups="group_scoring_officer"
+    />
+
+    <!-- Configuration Menu -->
+    <menuitem
+        id="menu_spp_scoring_config"
+        name="Configuration"
+        parent="menu_spp_scoring_root"
+        sequence="100"
+        groups="group_scoring_manager"
+    />
+
+    <!-- Configuration: Indicators -->
+    <menuitem
+        id="menu_spp_scoring_indicator"
+        name="Indicators"
+        parent="menu_spp_scoring_config"
+        action="action_spp_scoring_indicator"
+        sequence="10"
+        groups="group_scoring_manager"
+    />
+
+    <!-- Configuration: Thresholds -->
+    <menuitem
+        id="menu_spp_scoring_threshold"
+        name="Thresholds"
+        parent="menu_spp_scoring_config"
+        action="action_spp_scoring_threshold"
+        sequence="20"
+        groups="group_scoring_manager"
+    />
+</odoo>

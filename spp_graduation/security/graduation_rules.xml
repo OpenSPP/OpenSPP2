@@ -19,58 +19,6 @@
         <field name="global">True</field>
     </record>
 
-    <!-- Pathway Rules -->
-    <record id="rule_spp_graduation_pathway_user" model="ir.rule">
-        <field name="name">Graduation Pathway: User - All</field>
-        <field name="model_id" ref="model_spp_graduation_pathway" />
-        <field name="domain_force">[(1, '=', 1)]</field>
-        <field name="groups" eval="[Command.link(ref('group_spp_graduation_user'))]" />
-        <field name="perm_read" eval="True" />
-        <field name="perm_write" eval="False" />
-        <field name="perm_create" eval="False" />
-        <field name="perm_unlink" eval="False" />
-    </record>
-
-    <record id="rule_spp_graduation_pathway_manager" model="ir.rule">
-        <field name="name">Graduation Pathway: Manager - All</field>
-        <field name="model_id" ref="model_spp_graduation_pathway" />
-        <field name="domain_force">[(1, '=', 1)]</field>
-        <field
-            name="groups"
-            eval="[Command.link(ref('group_spp_graduation_manager'))]"
-        />
-        <field name="perm_read" eval="True" />
-        <field name="perm_write" eval="True" />
-        <field name="perm_create" eval="True" />
-        <field name="perm_unlink" eval="True" />
-    </record>
-
-    <!-- Criteria Rules -->
-    <record id="rule_spp_graduation_criteria_user" model="ir.rule">
-        <field name="name">Graduation Criteria: User - All</field>
-        <field name="model_id" ref="model_spp_graduation_criteria" />
-        <field name="domain_force">[(1, '=', 1)]</field>
-        <field name="groups" eval="[Command.link(ref('group_spp_graduation_user'))]" />
-        <field name="perm_read" eval="True" />
-        <field name="perm_write" eval="False" />
-        <field name="perm_create" eval="False" />
-        <field name="perm_unlink" eval="False" />
-    </record>
-
-    <record id="rule_spp_graduation_criteria_manager" model="ir.rule">
-        <field name="name">Graduation Criteria: Manager - All</field>
-        <field name="model_id" ref="model_spp_graduation_criteria" />
-        <field name="domain_force">[(1, '=', 1)]</field>
-        <field
-            name="groups"
-            eval="[Command.link(ref('group_spp_graduation_manager'))]"
-        />
-        <field name="perm_read" eval="True" />
-        <field name="perm_write" eval="True" />
-        <field name="perm_create" eval="True" />
-        <field name="perm_unlink" eval="True" />
-    </record>
-
     <!-- Assessment Rules -->
     <record id="rule_spp_graduation_assessment_user" model="ir.rule">
         <field name="name">Graduation Assessment: User - Own</field>

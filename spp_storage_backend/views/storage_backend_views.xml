@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Storage Backend Form View -->
+    <record id="view_storage_backend_form" model="ir.ui.view">
+        <field name="name">spp.storage.backend.form</field>
+        <field name="model">spp.storage.backend</field>
+        <field name="arch" type="xml">
+            <form string="Storage Backend">
+                <header>
+                    <button
+                        name="action_test_connection"
+                        string="Test Connection"
+                        type="object"
+                        class="oe_highlight"
+                        groups="spp_storage_backend.group_storage_admin"
+                    />
+                </header>
+                <sheet>
+                    <widget
+                        name="web_ribbon"
+                        title="Default"
+                        bg_color="text-bg-success"
+                        invisible="not is_default"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Inactive"
+                        bg_color="text-bg-danger"
+                        invisible="is_active"
+                    />
+                    <div class="oe_button_box" name="button_box" />
+                    <group>
+                        <group>
+                            <field
+                                name="name"
+                                placeholder="e.g., Production S3 Storage"
+                            />
+                            <field name="backend_type" widget="radio" />
+                        </group>
+                        <group>
+                            <field name="is_default" />
+                            <field name="is_active" />
+                            <field name="sequence" />
+                        </group>
+                    </group>
+
+                    <!-- S3 Configuration -->
+                    <group string="S3 Configuration" invisible="backend_type != 's3'">
+                        <group>
+                            <field name="s3_bucket" required="backend_type == 's3'" />
+                            <field
+                                name="s3_endpoint_url"
+                                placeholder="https://s3.amazonaws.com"
+                            />
+                            <field name="s3_region" />
+                        </group>
+                        <group>
+                            <field
+                                name="s3_access_key"
+                                required="backend_type == 's3'"
+                                password="True"
+                            />
+                            <field
+                                name="s3_secret_key"
+                                required="backend_type == 's3'"
+                                password="True"
+                            />
+                            <field name="s3_use_ssl" />
+                        </group>
+                    </group>
+
+                    <!-- Azure Configuration -->
+                    <group
+                        string="Azure Configuration"
+                        invisible="backend_type != 'azure'"
+                    >
+                        <field
+                            name="azure_connection_string"
+                            required="backend_type == 'azure'"
+                            password="True"
+                            placeholder="DefaultEndpointsProtocol=https;AccountName=..."
+                        />
+                        <field
+                            name="azure_container"
+                            required="backend_type == 'azure'"
+                            placeholder="documents"
+                        />
+                    </group>
+
+                    <!-- Filesystem Configuration -->
+                    <group
+                        string="Filesystem Configuration"
+                        invisible="backend_type != 'filesystem'"
+                    >
+                        <field
+                            name="filesystem_path"
+                            required="backend_type == 'filesystem'"
+                            placeholder="/var/lib/openspp/storage"
+                        />
+                    </group>
+
+                    <!-- Odoo Backend Info -->
+                    <group string="Configuration" invisible="backend_type != 'odoo'">
+                        <div colspan="2">
+                            <p class="text-muted">
+                                This backend uses Odoo's default filestore mechanism.
+                                Files are stored in the filestore directory or database depending on your Odoo configuration.
+                                No additional configuration is required.
+                            </p>
+                        </div>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Storage Backend Tree View -->
+    <record id="view_storage_backend_tree" model="ir.ui.view">
+        <field name="name">spp.storage.backend.tree</field>
+        <field name="model">spp.storage.backend</field>
+        <field name="arch" type="xml">
+            <list string="Storage Backends">
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="backend_type" />
+                <field name="is_default" widget="boolean_toggle" />
+                <field name="is_active" widget="boolean_toggle" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Storage Backend Search View -->
+    <record id="view_storage_backend_search" model="ir.ui.view">
+        <field name="name">spp.storage.backend.search</field>
+        <field name="model">spp.storage.backend</field>
+        <field name="arch" type="xml">
+            <search string="Storage Backends">
+                <field name="name" />
+                <field name="backend_type" />
+                <separator />
+                <filter
+                    string="Default"
+                    name="filter_default"
+                    domain="[('is_default', '=', True)]"
+                />
+                <filter
+                    string="Active"
+                    name="filter_active"
+                    domain="[('is_active', '=', True)]"
+                />
+                <filter
+                    string="Inactive"
+                    name="filter_inactive"
+                    domain="[('is_active', '=', False)]"
+                />
+            </search>
+        </field>
+    </record>
+
+    <!-- Storage Backend Action -->
+    <record id="action_storage_backend" model="ir.actions.act_window">
+        <field name="name">Storage Backends</field>
+        <field name="res_model">spp.storage.backend</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first storage backend
+            </p>
+            <p>
+                Configure storage backends to manage where OpenSPP stores files.
+                You can use Odoo's default storage, Amazon S3, Azure Blob Storage,
+                or external filesystem locations.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem
+        id="menu_storage_backend"
+        name="Storage Backends"
+        parent="base.menu_administration"
+        action="action_storage_backend"
+        sequence="100"
+        groups="spp_storage_backend.group_storage_admin"
+    />
+</odoo>

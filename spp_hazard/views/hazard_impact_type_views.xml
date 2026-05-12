@@ -11,7 +11,7 @@
                 <field name="code" />
                 <field name="category" widget="badge" />
                 <field name="impact_count" string="Usage" />
-                <field name="active" />
+                <field name="active" optional="hide" />
             </list>
         </field>
     </record>
@@ -39,21 +39,17 @@
                         <group name="main_info">
                             <field name="code" placeholder="e.g., DISPLACEMENT" />
                             <field name="category" />
-                            <field name="sequence" />
                             <field name="active" />
                         </group>
                         <group name="stats">
                             <field name="impact_count" />
                         </group>
                     </group>
-                    <notebook>
-                        <page string="Description" name="description">
-                            <field
-                                name="description"
-                                placeholder="Describe what this impact type means..."
-                            />
-                        </page>
-                    </notebook>
+                    <field
+                        name="description"
+                        placeholder="Describe what this impact type means..."
+                    />
+                    <group name="extension_section" invisible="1" />
                 </sheet>
             </form>
         </field>
@@ -67,6 +63,7 @@
             <search>
                 <field name="name" />
                 <field name="code" />
+                <separator />
                 <filter
                     name="active"
                     string="Active"
@@ -99,7 +96,7 @@
                     domain="[('category', '=', 'social')]"
                 />
                 <separator />
-                <group>
+                <group name="groupby">
                     <filter
                         name="grp_category"
                         string="Category"

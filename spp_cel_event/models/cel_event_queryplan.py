@@ -10,7 +10,6 @@ Query Plan Nodes:
     EventValueCompare: Compare a field value from a registrant's event
     EventExists: Check if a matching event exists
     EventsAggregate: Aggregate values across multiple events
-    EventsCollection: Collection operations (exists, count, all, any)
     EventFieldRef: Reference to an event field (intermediate representation)
 
 Example:
@@ -190,76 +189,6 @@ class EventsAggregate:
     # Comparison
     op: str = ">="
     rhs: Any = 0
-
-
-@dataclass
-class EventsCollection:
-    """Collection operation over events (exists, count, all, any with predicate).
-
-    This node represents a collection operation that applies a predicate to
-    multiple events. The predicate is evaluated for each event, and the
-    operation determines how to combine the results.
-
-    Attributes:
-        event_type: Event type code to iterate over
-        operation: Collection operation ('exists', 'count', 'all', 'any')
-        var_name: Loop variable name used in predicate
-        predicate: CEL predicate AST node (evaluated per event)
-        after: Filter events with collection_date >= this date
-        before: Filter events with collection_date <= this date
-        within_days: Filter events within last N days from today
-        within_months: Filter events within last N months from today
-        period: Named period filter (e.g., '2024', '2024-Q1')
-        states: Filter events by state
-        op: For 'count' operation, comparison operator
-        rhs: For 'count' operation, value to compare count against
-
-    Example:
-        # events('survey', period='2024').any(e, e.income < 500)
-        EventsCollection(
-            event_type='survey',
-            operation='any',
-            var_name='e',
-            predicate=<AST node for: e.income < 500>,
-            period='2024'
-        )
-
-        # events('assessment').all(e, e.passed == true)
-        EventsCollection(
-            event_type='assessment',
-            operation='all',
-            var_name='e',
-            predicate=<AST node for: e.passed == true>
-        )
-
-        # events('visit', within_days=365).count(e, e.verified == true) >= 4
-        EventsCollection(
-            event_type='visit',
-            operation='count',
-            var_name='e',
-            predicate=<AST node for: e.verified == true>,
-            within_days=365,
-            op='>=',
-            rhs=4
-        )
-    """
-
-    event_type: str
-    operation: str
-    var_name: str
-    predicate: Any
-
-    # Pre-filters (applied before predicate evaluation)
-    after: date | None = None
-    before: date | None = None
-    within_days: int | None = None
-    within_months: int | None = None
-    period: str | None = None
-    states: list[str] | None = None
-
-    # For count comparison
-    op: str | None = None
-    rhs: int | None = None
 
 
 @dataclass
