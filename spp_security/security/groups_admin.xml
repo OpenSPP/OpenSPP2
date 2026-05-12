@@ -40,16 +40,6 @@ Used for field agents and limited-access users.</field>
     </record>
 
     <!--
-        Note: the "Apps" top-level menu (base.menu_management) is gated on
-        base.group_system at install / upgrade time by the post_init_hook
-        (see hooks.py:_gate_apps_menu). A hook is used instead of an
-        `<record id="base.menu_management" ...>` override because the XML
-        override is unreliable for cross-module Many2many writes (it can
-        be wiped on subsequent base-module upgrades). The hook idempotently
-        re-applies the gating on every install/upgrade of spp_security.
-    -->
-
-    <!--
         How domain modules extend this:
         ===============================
         Each domain module adds its manager group to group_spp_admin.
