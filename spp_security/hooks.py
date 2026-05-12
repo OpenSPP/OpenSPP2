@@ -31,6 +31,7 @@ def post_init_hook(env_or_cr, registry=None):
         env = env_or_cr
 
     _setup_admin_group_inheritance(env)
+    _gate_apps_menu(env)
 
 
 def _setup_admin_group_inheritance(env):
@@ -63,3 +64,33 @@ def _setup_admin_group_inheritance(env):
 
     except Exception as e:
         _logger.warning("Failed to set up admin group inheritance: %s", str(e))
+
+
+def _gate_apps_menu(env):
+    """
+    Restrict the "Apps" top-level menu (base.menu_management) to base.group_system.
+
+    Out of the box this menuitem has no `groups` attribute, so every logged-in
+    user sees it. Per the OP#951 role/menu audit only System Admin should see
+    Apps; everyone else should not. base.group_system is the only group System
+    Admin pulls in transitively (via spp_user_roles.global_role_admin), so a
+    single Many2many write here enforces the audit for every role.
+
+    Idempotent — re-applies on every install/upgrade of spp_security. Uses a
+    hook rather than a `<record id="base.menu_management">` XML override
+    because cross-module Many2many writes via data XML can be wiped on
+    subsequent base-module upgrades.
+    """
+    try:
+        apps_menu = env.ref("base.menu_management", raise_if_not_found=False)
+        system_admin = env.ref("base.group_system", raise_if_not_found=False)
+        if not apps_menu or not system_admin:
+            _logger.warning("Could not gate Apps menu: base.menu_management or base.group_system not found")
+            return
+        if apps_menu.group_ids == system_admin:
+            _logger.debug("Apps menu gating already configured")
+            return
+        apps_menu.write({"group_ids": [(6, 0, [system_admin.id])]})
+        _logger.info("Gated Apps menu (base.menu_management) on base.group_system")
+    except Exception as e:
+        _logger.warning("Failed to gate Apps menu: %s", str(e))

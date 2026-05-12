@@ -40,17 +40,14 @@ Used for field agents and limited-access users.</field>
     </record>
 
     <!--
-        Gate the "Apps" top-level menu on base.group_system. Out of the box
-        the Apps root menuitem has no `groups` attribute, so every logged-in
-        user can see (but not click into) it. Per the OP#951 role/menu audit
-        only System Admin should see Apps; everyone else gets `Apps no`.
-        Restricting the menu to base.group_system enforces the audit without
-        touching individual roles (System Admin is the only role that pulls
-        in base.group_system).
+        Note: the "Apps" top-level menu (base.menu_management) is gated on
+        base.group_system at install / upgrade time by the post_init_hook
+        (see hooks.py:_gate_apps_menu). A hook is used instead of an
+        `<record id="base.menu_management" ...>` override because the XML
+        override is unreliable for cross-module Many2many writes (it can
+        be wiped on subsequent base-module upgrades). The hook idempotently
+        re-applies the gating on every install/upgrade of spp_security.
     -->
-    <record id="base.menu_management" model="ir.ui.menu">
-        <field name="group_ids" eval="[Command.set([ref('base.group_system')])]" />
-    </record>
 
     <!--
         How domain modules extend this:
