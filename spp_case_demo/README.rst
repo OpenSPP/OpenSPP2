@@ -54,15 +54,15 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-----------------------------+----------------------------------------+
-| Model                       | Description                            |
-+=============================+========================================+
-| ``spp.case.demo.generator`` | Core logic for configuring and         |
-|                             | generating demo data                   |
-+-----------------------------+----------------------------------------+
-| ``spp.case.demo.wizard``    | Wizard interface for demo data         |
-|                             | generation (inherits generator)        |
-+-----------------------------+----------------------------------------+
++-----------------------------+---------------------------------------+
+| Model                       | Description                           |
++=============================+=======================================+
+| ``spp.case.demo.generator`` | Core logic for configuring and        |
+|                             | generating demo data                  |
++-----------------------------+---------------------------------------+
+| ``spp.case.demo.wizard``    | Wizard interface for demo data        |
+|                             | generation (inherits generator)       |
++-----------------------------+---------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~

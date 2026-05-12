@@ -46,27 +46,27 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+----------------------------------+-----------------------------------+
-| Model                            | Description                       |
-+==================================+===================================+
-| ``spp.demo.data.generator``      | Main generator with configuration |
-|                                  | and batch controls                |
-+----------------------------------+-----------------------------------+
-| ``spp.demo.data.generation.log`` | Logs failed generation attempts   |
-|                                  | with diagnostics                  |
-+----------------------------------+-----------------------------------+
-| ``spp.demo.data.id.types``       | ID type configuration for         |
-|                                  | individual/group generation       |
-+----------------------------------+-----------------------------------+
-| ``spp.demo.data.bank.types``     | Bank type configuration for       |
-|                                  | account generation                |
-+----------------------------------+-----------------------------------+
-| ``spp.apps.wizard``              | Wizard for installing missing     |
-|                                  | demo modules                      |
-+----------------------------------+-----------------------------------+
-| ``spp.missing.module``           | Transient model for tracking      |
-|                                  | missing modules                   |
-+----------------------------------+-----------------------------------+
++----------------------------------+----------------------------------+
+| Model                            | Description                      |
++==================================+==================================+
+| ``spp.demo.data.generator``      | Main generator with              |
+|                                  | configuration and batch controls |
++----------------------------------+----------------------------------+
+| ``spp.demo.data.generation.log`` | Logs failed generation attempts  |
+|                                  | with diagnostics                 |
++----------------------------------+----------------------------------+
+| ``spp.demo.data.id.types``       | ID type configuration for        |
+|                                  | individual/group generation      |
++----------------------------------+----------------------------------+
+| ``spp.demo.data.bank.types``     | Bank type configuration for      |
+|                                  | account generation               |
++----------------------------------+----------------------------------+
+| ``spp.apps.wizard``              | Wizard for installing missing    |
+|                                  | demo modules                     |
++----------------------------------+----------------------------------+
+| ``spp.missing.module``           | Transient model for tracking     |
+|                                  | missing modules                  |
++----------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -99,19 +99,20 @@ UI Location
 Security
 ~~~~~~~~
 
-+----------------------------------------+----------------------------------+
-| Group                                  | Access                           |
-+========================================+==================================+
-| ``base.group_system``                  | Full CRUD on all models          |
-+----------------------------------------+----------------------------------+
-| ``spp_registry.group_registry_read``   | Read access to all models        |
-+----------------------------------------+----------------------------------+
-| ``spp_registry.group_registry_write``  | Read/Write on generator and logs |
-|                                        | (delete ID/Bank types)           |
-+----------------------------------------+----------------------------------+
-| ``spp_registry.group_registry_create`` | Read/Create access (delete       |
-|                                        | ID/Bank types)                   |
-+----------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Group                            | Access                           |
++==================================+==================================+
+| ``base.group_system``            | Full CRUD on all models          |
++----------------------------------+----------------------------------+
+| ``sp                             | Read access to all models        |
+| p_registry.group_registry_read`` |                                  |
++----------------------------------+----------------------------------+
+| ``spp                            | Read/Write on generator and logs |
+| _registry.group_registry_write`` | (delete ID/Bank types)           |
++----------------------------------+----------------------------------+
+| ``spp_                           | Read/Create access (delete       |
+| registry.group_registry_create`` | ID/Bank types)                   |
++----------------------------------+----------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~

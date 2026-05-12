@@ -53,21 +53,21 @@ Key Models
 
 This module does not introduce new models. It extends existing models:
 
-+-------------------------+--------------------------------------------+
-| Model                   | Extension Purpose                          |
-+=========================+============================================+
-| ``res.users``           | Custom email signature, removes Odoo       |
-|                         | account URL                                |
-+-------------------------+--------------------------------------------+
-| ``res.config.settings`` | Adds branding and telemetry configuration  |
-|                         | fields                                     |
-+-------------------------+--------------------------------------------+
-| ``ir.http``             | Injects OpenSPP branding into web client   |
-|                         | session info                               |
-+-------------------------+--------------------------------------------+
-| ``ir.module.module``    | Provides utility to count paid/proprietary |
-|                         | apps                                       |
-+-------------------------+--------------------------------------------+
++-------------------------+-------------------------------------------+
+| Model                   | Extension Purpose                         |
++=========================+===========================================+
+| ``res.users``           | Custom email signature, removes Odoo      |
+|                         | account URL                               |
++-------------------------+-------------------------------------------+
+| ``res.config.settings`` | Adds branding and telemetry configuration |
+|                         | fields                                    |
++-------------------------+-------------------------------------------+
+| ``ir.http``             | Injects OpenSPP branding into web client  |
+|                         | session info                              |
++-------------------------+-------------------------------------------+
+| ``ir.module.module``    | Provides utility to count                 |
+|                         | paid/proprietary apps                     |
++-------------------------+-------------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
