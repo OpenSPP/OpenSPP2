@@ -4,7 +4,7 @@
     "name": "OpenSPP Security",
     "summary": "Central security definitions for OpenSPP modules",
     "category": "OpenSPP/Core",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.0.1",
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
