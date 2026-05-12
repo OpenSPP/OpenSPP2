@@ -15,7 +15,8 @@
         >[('namespace_uri', '=', 'urn:openspp:vocab:registrant-tags')]</field>
         <field
             name="context"
-        >{'default_vocabulary_id': ref('spp_registry.vocab_registrant_tags')}</field>
+            eval="{'default_vocabulary_id': ref('spp_registry.vocab_registrant_tags')}"
+        />
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Add a Registrant Tag!

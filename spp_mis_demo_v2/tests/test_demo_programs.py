@@ -428,28 +428,34 @@ class TestDemoPrograms(TransactionCase):
         Each story persona should be enrolled in programs that match their:
         - Demographics (age, household composition)
         - Circumstances (income, disability status, vulnerability)
-        - Story narrative (farmer, elderly, displaced, etc.)
+        - Story narrative (elderly, displaced, disability, etc.)
         """
         from odoo.addons.spp_mis_demo_v2.models import demo_programs
 
         # Expected story-to-program mappings based on V3 spec
         expected_mappings = {
-            # Maria Santos - Farmer success story with graduation from Cash Transfer
-            "maria_santos": ["Cash Transfer Program"],
+            # Maria Santos - Cash Transfer (graduated) + Universal Child Grant + Food Assistance (individual)
+            "maria_santos": ["Cash Transfer Program", "Universal Child Grant", "Food Assistance"],
             # Juan Dela Cruz - Cash Transfer recipient with GRM issue
             "juan_dela_cruz": ["Cash Transfer Program"],
             # Rosa Garcia - Elderly + Food Assistance
             "rosa_garcia": ["Elderly Social Pension", "Food Assistance"],
             # Carlos/Elena Morales - Household with 3 children
             "carlos_elena_morales": ["Universal Child Grant"],
-            # Ibrahim Hassan - Displaced/Vulnerable
-            "ibrahim_hassan": ["Emergency Relief Fund"],
-            # Fatima Al-Rahman - Food Assistance recipient
+            # Ramon Gutierrez - Emergency Relief (household) + Food Assistance (individual)
+            "ibrahim_hassan": ["Emergency Relief Fund", "Food Assistance"],
+            # Teresa Villanueva - Food Assistance recipient
             "fatima_al_rahman": ["Food Assistance"],
             # David/Sofia Martinez - Household with disabled member
-            "david_martinez": ["Disability Support Grant"],
-            # Ahmed Said - Background Cash Transfer
+            "david_sofia_martinez": ["Disability Support Grant"],
+            # Roberto Castillo - Background Cash Transfer
             "ahmed_said": ["Cash Transfer Program"],
+            # Manuel Pangilinan - Elderly Social Pension (individual)
+            "manuel_gloria_elderly": ["Elderly Social Pension"],
+            # Pedro Reyes - Food Assistance
+            "pedro_reyes": ["Food Assistance"],
+            # Ana Mendoza - Food Assistance
+            "ana_mendoza": ["Food Assistance"],
         }
 
         for story_id, expected_programs in expected_mappings.items():
@@ -544,14 +550,14 @@ class TestDemoPrograms(TransactionCase):
         """
         from odoo.addons.spp_mis_demo_v2.models import demo_programs
 
-        programs = demo_programs.get_programs_for_story("david_martinez")
+        programs = demo_programs.get_programs_for_story("david_sofia_martinez")
         program_names = [p["name"] for p in programs]
         self.assertIn("Disability Support Grant", program_names)
 
     def test_emergency_story_eligibility(self):
-        """Test Ibrahim Hassan meets emergency eligibility criteria.
+        """Test Ramon Gutierrez meets emergency eligibility criteria.
 
-        Ibrahim should be eligible because:
+        Ramon Gutierrez should be eligible because:
         - dependency_ratio >= 1.5 (using computed variable)
         - OR is_female_headed and elderly_count > 0
         """
@@ -561,10 +567,100 @@ class TestDemoPrograms(TransactionCase):
         program_names = [p["name"] for p in programs]
         self.assertIn("Emergency Relief Fund", program_names)
 
+    # ===================================================================
+    # Compliance criteria tests
+    # ===================================================================
+
+    def test_cash_transfer_has_compliance_expression(self):
+        """Cash Transfer Program must define a compliance CEL expression."""
+        from odoo.addons.spp_mis_demo_v2.models import demo_programs
+
+        for prog in demo_programs.get_all_demo_programs():
+            if prog["id"] == "cash_transfer_program":
+                self.assertIn("compliance_cel_expression", prog)
+                self.assertEqual(
+                    prog["compliance_cel_expression"],
+                    "per_capita_income < poverty_line",
+                )
+                return
+        self.fail("Cash Transfer Program not found")
+
+    def test_conditional_child_grant_has_compliance_expression(self):
+        """Conditional Child Grant must define a compliance CEL expression."""
+        from odoo.addons.spp_mis_demo_v2.models import demo_programs
+
+        for prog in demo_programs.get_all_demo_programs():
+            if prog["id"] == "conditional_child_grant":
+                self.assertIn("compliance_cel_expression", prog)
+                self.assertEqual(
+                    prog["compliance_cel_expression"],
+                    "per_capita_income < income_threshold",
+                )
+                return
+        self.fail("Conditional Child Grant not found")
+
+    def test_conditional_child_grant_has_program_constants(self):
+        """Conditional Child Grant must override income_threshold to 2000."""
+        from odoo.addons.spp_mis_demo_v2.models import demo_programs
+
+        for prog in demo_programs.get_all_demo_programs():
+            if prog["id"] == "conditional_child_grant":
+                self.assertIn("program_constants", prog)
+                self.assertEqual(prog["program_constants"]["income_threshold"], "2000")
+                return
+        self.fail("Conditional Child Grant not found")
+
+    def test_programs_without_compliance_have_no_expression(self):
+        """Programs without compliance should not define compliance_cel_expression."""
+        from odoo.addons.spp_mis_demo_v2.models import demo_programs
+
+        programs_with_compliance = {"cash_transfer_program", "conditional_child_grant"}
+        for prog in demo_programs.get_all_demo_programs():
+            if prog["id"] not in programs_with_compliance:
+                expr = prog.get("compliance_cel_expression")
+                self.assertFalse(
+                    expr,
+                    f"Program '{prog['name']}' should not have compliance_cel_expression",
+                )
+
+    def test_santos_has_non_compliant_cycle(self):
+        """Santos enrollment must define non_compliant_cycle for compliance failure."""
+        from odoo.addons.spp_mis_demo_v2.models import demo_programs
+
+        enrollments = demo_programs.get_story_enrollments("maria_santos")
+        cash_transfer = [e for e in enrollments if e["program"] == "Cash Transfer Program"]
+        self.assertEqual(len(cash_transfer), 1)
+        self.assertIn("non_compliant_cycle", cash_transfer[0])
+        self.assertIn("days_back", cash_transfer[0]["non_compliant_cycle"])
+
+    def test_santos_has_graduated_days_back(self):
+        """Santos Cash Transfer must have graduated_days_back (exited after compliance failure)."""
+        from odoo.addons.spp_mis_demo_v2.models import demo_programs
+
+        enrollments = demo_programs.get_story_enrollments("maria_santos")
+        cash_transfer = [e for e in enrollments if e["program"] == "Cash Transfer Program"]
+        self.assertEqual(len(cash_transfer), 1)
+        self.assertIn("graduated_days_back", cash_transfer[0])
+
+    def test_santos_enrolled_in_universal_child_grant(self):
+        """Santos must also be enrolled in Universal Child Grant (partial exit story)."""
+        from odoo.addons.spp_mis_demo_v2.models import demo_programs
+
+        enrollments = demo_programs.get_story_enrollments("maria_santos")
+        programs = [e["program"] for e in enrollments]
+        self.assertIn("Universal Child Grant", programs)
+
+    def test_only_two_programs_have_compliance(self):
+        """Exactly 2 programs should have compliance CEL expressions."""
+        from odoo.addons.spp_mis_demo_v2.models import demo_programs
+
+        with_compliance = [p for p in demo_programs.get_all_demo_programs() if p.get("compliance_cel_expression")]
+        self.assertEqual(len(with_compliance), 2)
+
     def test_rejected_story_documented(self):
         """Test that rejected application story is properly documented.
 
-        Mary Johnson should be rejected for age requirement not met.
+        Lorna Pascual should be rejected for age requirement not met.
         """
         from odoo.addons.spp_mis_demo_v2.models import demo_programs
 

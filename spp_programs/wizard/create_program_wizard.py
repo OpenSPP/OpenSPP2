@@ -271,7 +271,11 @@ class SPPCreateNewProgramWiz(models.TransientModel):
         default="default_eligibility",
     )
 
-    id_type_id = fields.Many2one("spp.id.type", "ID Type to store in entitlements")
+    id_type_id = fields.Many2one(
+        "spp.vocabulary.code",
+        "ID Type for Entitlement Collection",
+        domain="[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:id-type')]",
+    )
     view_id = fields.Many2one(
         "ir.ui.view",
         "Program UI Template",

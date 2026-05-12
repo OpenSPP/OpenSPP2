@@ -2,7 +2,7 @@
 {
     "name": "OpenSPP Registry Search Portal",
     "category": "OpenSPP/Registry",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.1.0",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -16,6 +16,8 @@
         "security/groups.xml",
         "security/ir.model.access.csv",
         "security/rules.xml",
+        "data/config_parameters.xml",
+        "views/res_config_settings_views.xml",
         "views/registry_search_actions.xml",
         "views/menu_views.xml",
     ],

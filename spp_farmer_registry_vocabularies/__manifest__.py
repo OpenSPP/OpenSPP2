@@ -17,6 +17,7 @@
     "external_dependencies": {},
     "data": [
         "security/ir.model.access.csv",
+        "data/vocab_group_type_farm.xml",
         "data/vocab_farm_type.xml",
         "data/vocab_land_tenure.xml",
         "data/vocab_land_use.xml",
