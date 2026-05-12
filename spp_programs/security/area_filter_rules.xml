@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+
+Area-based row-level filtering for program / cycle memberships (OP#989).
+
+QA round 1 surfaced gaps in the original Python `_prepare_domain` override:
+counts (`search_count`, `read_group`), Many2one dropdowns (`name_search`),
+related-field traversal, and `spp.cycle.membership` (untouched) all bypassed
+the area filter. An ir.rule fixes all of those at once because it applies to
+every ORM read path automatically.
+
+Mirrors the conditional domain pattern from `spp_area/security/rules.xml`
+so users without `center_area_ids` (global roles) are unaffected.
+-->
+<odoo noupdate="1">
+    <record id="rule_spp_program_membership_area_filter" model="ir.rule">
+        <field
+            name="name"
+        >Program Membership: visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_program_membership" />
+        <field
+            name="domain_force"
+        >[('partner_id.area_id', 'child_of', user.center_area_ids.ids)] if getattr(user, 'center_area_ids', False) else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_spp_cycle_membership_area_filter" model="ir.rule">
+        <field
+            name="name"
+        >Cycle Membership: visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_cycle_membership" />
+        <field
+            name="domain_force"
+        >[('partner_id.area_id', 'child_of', user.center_area_ids.ids)] if getattr(user, 'center_area_ids', False) else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+</odoo>
