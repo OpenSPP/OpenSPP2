@@ -13,6 +13,7 @@
         "mail",
         "spp_base_common",
         "spp_registry",
+        "spp_area",
         "spp_security",
         "spp_approval",
         "spp_event_data",

@@ -21,7 +21,7 @@ so users without `center_area_ids` (global roles) are unaffected.
         <field name="model_id" ref="model_spp_program_membership" />
         <field
             name="domain_force"
-        >[('partner_id.area_id', 'child_of', user.center_area_ids.ids)] if getattr(user, 'center_area_ids', False) else []</field>
+        >[('partner_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
         <field name="global" eval="True" />
         <field name="perm_read" eval="True" />
         <field name="perm_write" eval="True" />
@@ -36,7 +36,7 @@ so users without `center_area_ids` (global roles) are unaffected.
         <field name="model_id" ref="model_spp_cycle_membership" />
         <field
             name="domain_force"
-        >[('partner_id.area_id', 'child_of', user.center_area_ids.ids)] if getattr(user, 'center_area_ids', False) else []</field>
+        >[('partner_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
         <field name="global" eval="True" />
         <field name="perm_read" eval="True" />
         <field name="perm_write" eval="True" />
