@@ -130,9 +130,7 @@ class TestImportMatchModel(TransactionCase):
         provide the actual search predicate. Here `name` is the gate and
         `email` is the search predicate.
         """
-        partner = self.env["res.partner"].create(
-            {"name": "ConditionalMatchTest", "email": "conditional@example.com"}
-        )
+        partner = self.env["res.partner"].create({"name": "ConditionalMatchTest", "email": "conditional@example.com"})
         match = self._create_match_rule(
             [
                 {

@@ -77,11 +77,7 @@ class SPPImportMatch(models.Model):
                     # to the DB search domain — the gate column may be a
                     # CSV-only metadata field (e.g. `data_source`) that
                     # doesn't exist on the registrant model.
-                    gate_field_name = (
-                        field.condition_field_id.name
-                        if field.condition_field_id
-                        else field.field_id.name
-                    )
+                    gate_field_name = field.condition_field_id.name if field.condition_field_id else field.field_id.name
                     if imported_row.get(gate_field_name) != field.imported_value:
                         combination_valid = False
                         break
