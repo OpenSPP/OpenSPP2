@@ -14,9 +14,7 @@ class TestResPartnerScoring(TransactionCase):
         cls.ScoringModel = cls.env["spp.scoring.model"]
         cls.ScoringResult = cls.env["spp.scoring.result"]
 
-        cls.registrant = cls.Partner.create(
-            {"name": "Test Score Registrant", "is_registrant": True, "is_group": False}
-        )
+        cls.registrant = cls.Partner.create({"name": "Test Score Registrant", "is_registrant": True, "is_group": False})
         cls.other_registrant = cls.Partner.create(
             {"name": "Second Score Registrant", "is_registrant": True, "is_group": False}
         )

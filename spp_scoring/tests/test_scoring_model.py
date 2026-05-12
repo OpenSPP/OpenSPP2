@@ -216,9 +216,7 @@ class TestScoringModel(TransactionCase):
     # ─── threshold gap / overlap detection (#835 r3) ──────────────────
 
     def _model_with_one_indicator(self, code):
-        model = self.ScoringModel.create(
-            {"name": code, "code": code, "expected_total_weight": 1.0}
-        )
+        model = self.ScoringModel.create({"name": code, "code": code, "expected_total_weight": 1.0})
         self.ScoringIndicator.create(
             {
                 "model_id": model.id,

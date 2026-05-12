@@ -23,9 +23,7 @@ class TestScoringInvalidValue(TransactionCase):
     # ─── exact-match entries ─────────────────────────────────────────
 
     def test_create_exact_entry(self):
-        rec = self.InvalidValue.create(
-            {"name": "N/A", "match_type": "exact", "description": "Common sentinel"}
-        )
+        rec = self.InvalidValue.create({"name": "N/A", "match_type": "exact", "description": "Common sentinel"})
         self.assertEqual(rec.name, "N/A")
         self.assertEqual(rec.match_type, "exact")
         self.assertEqual(rec.description, "Common sentinel")
@@ -71,6 +69,4 @@ class TestScoringInvalidValue(TransactionCase):
         rec.active = False
         self.assertFalse(rec.active)
         # Still searchable with active_test=False
-        self.assertIn(
-            rec, self.InvalidValue.with_context(active_test=False).search([("id", "=", rec.id)])
-        )
+        self.assertIn(rec, self.InvalidValue.with_context(active_test=False).search([("id", "=", rec.id)]))
