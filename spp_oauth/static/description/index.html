@@ -525,11 +525,22 @@ Settings UI and the JWT utility functions.</p>
 <ul class="simple">
 <li><tt class="docutils literal">spp_oauth</tt> module installed</li>
 <li>Admin or Settings-group access to the Odoo instance</li>
-<li>An RSA key pair (4096-bit recommended) generated externally:</li>
+<li>A signing keypair generated externally. RSA-2048 is the default
+recommendation — NIST-approved through 2030 and ~5× faster on
+sign/verify than RSA-4096. Use RSA-3072 or RSA-4096 only if your
+compliance policy requires it.</li>
 </ul>
 <pre class="code bash literal-block">
-openssl<span class="w"> </span>genpkey<span class="w"> </span>-algorithm<span class="w"> </span>RSA<span class="w"> </span>-pkeyopt<span class="w"> </span>rsa_keygen_bits:4096<span class="w"> </span>-out<span class="w"> </span>private.pem<span class="w">
+openssl<span class="w"> </span>genpkey<span class="w"> </span>-algorithm<span class="w"> </span>RSA<span class="w"> </span>-pkeyopt<span class="w"> </span>rsa_keygen_bits:2048<span class="w"> </span>-out<span class="w"> </span>private.pem<span class="w">
 </span>openssl<span class="w"> </span>rsa<span class="w"> </span>-in<span class="w"> </span>private.pem<span class="w"> </span>-pubout<span class="w"> </span>-out<span class="w"> </span>public.pem
+</pre>
+<p>For new deployments, EC keys (P-256 → <tt class="docutils literal">ES256</tt>) are even faster and
+produce shorter tokens. Consuming modules that surface algorithm choice
+(e.g. the <tt class="docutils literal">spp_api_v2_oauth</tt> Trusted-Issuer model) accept
+<tt class="docutils literal">ES256/ES384/ES512</tt> directly.</p>
+<pre class="code bash literal-block">
+openssl<span class="w"> </span>ecparam<span class="w"> </span>-name<span class="w"> </span>prime256v1<span class="w"> </span>-genkey<span class="w"> </span>-noout<span class="w"> </span>-out<span class="w"> </span>private.pem<span class="w">
+</span>openssl<span class="w"> </span>ec<span class="w"> </span>-in<span class="w"> </span>private.pem<span class="w"> </span>-pubout<span class="w"> </span>-out<span class="w"> </span>public.pem
 </pre>
 </div>
 <div class="section" id="ui-tests">
@@ -544,7 +555,7 @@ openssl<span class="w"> </span>genpkey<span class="w"> </span>-algorithm<span cl
 <ul class="simple">
 <li>The app block is visible with the module icon and title “SPP OAuth
 Settings”</li>
-<li>Inside is a block titled <strong>OAuth Settings (4096 bits RSA keys)</strong></li>
+<li>Inside is a block titled <strong>OAuth Settings (RSA or EC keys)</strong></li>
 <li>Two settings are displayed: <strong>Private Key</strong> and <strong>Public Key</strong></li>
 <li>Both fields are masked (password input type) — values appear as dots</li>
 </ul>
@@ -718,6 +729,9 @@ strings.</li>
 <li>security: restrict the OAuth Settings ACL to <tt class="docutils literal">base.group_system</tt>.</li>
 <li>chore: remove ERROR logging from <tt class="docutils literal">OpenSPPOAuthJWTException</tt>’s
 constructor (callers decide whether to log).</li>
+<li>docs: recommend RSA-2048 (not 4096) for new keypairs and mention
+ES256/EC keys as a faster alternative; drop the “4096 bits” qualifier
+from the OAuth Settings block title.</li>
 </ul>
 </div>
 <div class="section" id="section-2">

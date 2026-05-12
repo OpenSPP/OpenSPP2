@@ -5,6 +5,7 @@
 - feat: export `get_private_key` and `get_public_key` from `spp_oauth.tools` for use by downstream modules.
 - security: restrict the OAuth Settings ACL to `base.group_system`.
 - chore: remove ERROR logging from `OpenSPPOAuthJWTException`'s constructor (callers decide whether to log).
+- docs: recommend RSA-2048 (not 4096) for new keypairs and mention ES256/EC keys as a faster alternative; drop the "4096 bits" qualifier from the OAuth Settings block title.
 
 ### 19.0.2.0.0
 

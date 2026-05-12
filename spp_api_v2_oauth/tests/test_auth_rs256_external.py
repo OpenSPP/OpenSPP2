@@ -60,6 +60,11 @@ class TestExternalRS256StaticPEM(OAuthBridgeTestCase):
                 "public_key": cls.ext_public_pem,
             }
         )
+        # External-issuer tokens only resolve to clients linked to that issuer.
+        cls.ext_api_client = cls._make_api_client(
+            "OAuth Bridge External-PEM Client",
+            oauth_issuer_id=cls.issuer_rec.id,
+        )
 
     def _make_external_token(self, payload_overrides=None, private_pem=None):
         now = datetime.now(tz=UTC)
@@ -69,7 +74,7 @@ class TestExternalRS256StaticPEM(OAuthBridgeTestCase):
             "exp": now + timedelta(hours=1),
             "iat": now,
             "sub": "external-subject-uuid",
-            "client_id": self.api_client.client_id,
+            "client_id": self.ext_api_client.client_id,
         }
         if payload_overrides:
             payload.update(payload_overrides)
@@ -84,7 +89,7 @@ class TestExternalRS256StaticPEM(OAuthBridgeTestCase):
         creds = self.make_credentials(token)
 
         client = get_authenticated_client_rs256(creds, self.env)
-        self.assertEqual(client.client_id, self.api_client.client_id)
+        self.assertEqual(client.client_id, self.ext_api_client.client_id)
 
     def test_external_pem_token_tampered_rejected(self):
         from ..middleware.auth_rs256 import get_authenticated_client_rs256
@@ -132,7 +137,7 @@ class TestExternalRS256StaticPEM(OAuthBridgeTestCase):
             "aud": EXT_AUDIENCE,
             "exp": now + timedelta(hours=1),
             "iat": now,
-            "client_id": self.api_client.client_id,
+            "client_id": self.ext_api_client.client_id,
         }
         token = jwt.encode(payload, self.ext_private_pem, algorithm="RS256")
         creds = self.make_credentials(token)
@@ -187,7 +192,7 @@ class TestExternalRS256StaticPEM(OAuthBridgeTestCase):
         creds = self.make_credentials(token)
 
         client = get_authenticated_client_rs256(creds, self.env)
-        self.assertEqual(client.client_id, self.api_client.client_id)
+        self.assertEqual(client.client_id, self.ext_api_client.client_id)
 
     def test_client_claim_custom_used_for_lookup(self):
         """If client_claim is set to 'azp', the bridge reads `azp` for lookup."""
@@ -196,17 +201,17 @@ class TestExternalRS256StaticPEM(OAuthBridgeTestCase):
         self.issuer_rec.client_claim = "azp"
         self.addCleanup(setattr, self.issuer_rec, "client_claim", "client_id")
 
-        # Put the api_client value in `azp` and something else in `client_id`
+        # Put the linked-client value in `azp` and something else in `client_id`
         token = self._make_external_token(
             payload_overrides={
-                "azp": self.api_client.client_id,
+                "azp": self.ext_api_client.client_id,
                 "client_id": "not-the-right-value",
             }
         )
         creds = self.make_credentials(token)
 
         client = get_authenticated_client_rs256(creds, self.env)
-        self.assertEqual(client.client_id, self.api_client.client_id)
+        self.assertEqual(client.client_id, self.ext_api_client.client_id)
 
     def test_client_claim_missing_value_rejected(self):
         """If the configured claim is absent from the token payload, reject."""
@@ -227,11 +232,85 @@ class TestExternalRS256StaticPEM(OAuthBridgeTestCase):
         """Adding an external issuer must not break the internal RS256 path."""
         from ..middleware.auth_rs256 import get_authenticated_client_rs256
 
-        token = self.generate_rs256_token()  # uses internal JWT_ISSUER
+        token = self.generate_rs256_token()  # uses internal JWT_ISSUER + internal api_client
         creds = self.make_credentials(token)
 
         client = get_authenticated_client_rs256(creds, self.env)
         self.assertEqual(client.client_id, self.api_client.client_id)
+
+    # -------------------------------------------------------------- namespace isolation
+    def test_external_token_cannot_resolve_internal_client(self):
+        """An external-issuer token whose client_claim matches an internal
+        client's client_id (oauth_issuer_id IS NULL) must be rejected."""
+        from ..middleware.auth_rs256 import get_authenticated_client_rs256
+
+        # Token from the external issuer, but claiming the *internal* client's id.
+        token = self._make_external_token(payload_overrides={"client_id": self.api_client.client_id})
+        creds = self.make_credentials(token)
+
+        with self.assertRaises(HTTPException) as ctx:
+            get_authenticated_client_rs256(creds, self.env)
+        self.assertEqual(ctx.exception.status_code, 401)
+        self.assertIn("client not found", ctx.exception.detail.lower())
+
+    def test_external_token_cannot_resolve_other_issuers_client(self):
+        """A token from issuer A cannot resolve to a client linked to issuer B."""
+        from ..middleware.auth_rs256 import get_authenticated_client_rs256
+
+        # Set up a second external issuer record with a separate keypair, and a
+        # client linked to that second issuer.
+        other_private_pem, other_public_pem, _ = _generate_rsa_keypair()
+        other_issuer = self.env["spp.oauth.issuer"].create(
+            {
+                "name": "Second External IdP",
+                "issuer": "https://idp.example.com/realms/other",
+                "audience": EXT_AUDIENCE,
+                "key_source": "public_key",
+                "public_key": other_public_pem,
+            }
+        )
+        other_client = self._make_api_client(
+            "OAuth Bridge Other-Issuer Client",
+            oauth_issuer_id=other_issuer.id,
+        )
+
+        # Token signed by issuer A (cls.issuer_rec), but client_id claims the
+        # client that belongs to issuer B.
+        token = self._make_external_token(payload_overrides={"client_id": other_client.client_id})
+        creds = self.make_credentials(token)
+
+        with self.assertRaises(HTTPException) as ctx:
+            get_authenticated_client_rs256(creds, self.env)
+        self.assertEqual(ctx.exception.status_code, 401)
+
+    # -------------------------------------------------------------- clock-skew leeway
+    def test_token_within_leeway_window_accepted(self):
+        """A token expired by less than JWT_CLOCK_SKEW_LEEWAY_SECONDS is accepted."""
+        from ..constants import JWT_CLOCK_SKEW_LEEWAY_SECONDS
+        from ..middleware.auth_rs256 import get_authenticated_client_rs256
+
+        # exp 10s in the past — well inside the 30s leeway.
+        slightly_expired = datetime.now(tz=UTC) - timedelta(seconds=JWT_CLOCK_SKEW_LEEWAY_SECONDS // 3)
+        token = self._make_external_token(payload_overrides={"exp": slightly_expired})
+        creds = self.make_credentials(token)
+
+        client = get_authenticated_client_rs256(creds, self.env)
+        self.assertEqual(client.client_id, self.ext_api_client.client_id)
+
+    def test_token_outside_leeway_window_rejected(self):
+        """A token expired by more than JWT_CLOCK_SKEW_LEEWAY_SECONDS is rejected."""
+        from ..constants import JWT_CLOCK_SKEW_LEEWAY_SECONDS
+        from ..middleware.auth_rs256 import get_authenticated_client_rs256
+
+        # exp 2× leeway in the past — outside tolerance.
+        well_expired = datetime.now(tz=UTC) - timedelta(seconds=JWT_CLOCK_SKEW_LEEWAY_SECONDS * 2)
+        token = self._make_external_token(payload_overrides={"exp": well_expired})
+        creds = self.make_credentials(token)
+
+        with self.assertRaises(HTTPException) as ctx:
+            get_authenticated_client_rs256(creds, self.env)
+        self.assertEqual(ctx.exception.status_code, 401)
+        self.assertIn("expired", ctx.exception.detail.lower())
 
 
 @tagged("post_install", "-at_install")
@@ -257,6 +336,11 @@ class TestExternalRS256JWKS(OAuthBridgeTestCase):
                 "key_source": "jwks_uri",
                 "jwks_uri": cls.JWKS_URI,
             }
+        )
+        # External-issuer tokens only resolve to clients linked to that issuer.
+        cls.ext_api_client = cls._make_api_client(
+            "OAuth Bridge External-JWKS Client",
+            oauth_issuer_id=cls.issuer_rec.id,
         )
 
     def setUp(self):
@@ -287,7 +371,7 @@ class TestExternalRS256JWKS(OAuthBridgeTestCase):
             "exp": now + timedelta(hours=1),
             "iat": now,
             "sub": "external-subject-uuid",
-            "client_id": self.api_client.client_id,
+            "client_id": self.ext_api_client.client_id,
         }
         if payload_overrides:
             payload.update(payload_overrides)
@@ -304,7 +388,7 @@ class TestExternalRS256JWKS(OAuthBridgeTestCase):
         creds = self.make_credentials(token)
 
         client = get_authenticated_client_rs256(creds, self.env)
-        self.assertEqual(client.client_id, self.api_client.client_id)
+        self.assertEqual(client.client_id, self.ext_api_client.client_id)
         self.mock_get_signing_key.assert_called_once()
 
     def test_jwks_token_expired_rejected(self):

@@ -27,7 +27,7 @@ from odoo.addons.spp_oauth.tools import OpenSPPOAuthJWTException, get_public_key
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from ..constants import JWT_AUDIENCE, JWT_ISSUER
+from ..constants import JWT_AUDIENCE, JWT_CLOCK_SKEW_LEEWAY_SECONDS, JWT_ISSUER
 from ..tools.jwks_cache import get_jwks_client
 
 _logger = logging.getLogger(__name__)
@@ -87,16 +87,25 @@ def get_authenticated_client_rs256(
                 detail=f"Invalid token: missing {claim_name}",
             )
 
+        # SECURITY: Scope the client lookup by the resolved issuer record.
+        # Internal-path tokens (HS256 + internal RS256) only match clients with no
+        # oauth_issuer_id. External-issuer tokens only match clients explicitly
+        # linked to that issuer record. Without this, an external IdP that emits
+        # a claim value colliding with an internal client_id would authenticate
+        # as the internal client.
+        domain = [
+            ("client_id", "=", client_id),
+            ("active", "=", True),
+        ]
+        if issuer_rec:
+            domain.append(("oauth_issuer_id", "=", issuer_rec.id))
+        else:
+            domain.append(("oauth_issuer_id", "=", False))
+
         api_client = (
             env["spp.api.client"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
-            .search(
-                [
-                    ("client_id", "=", client_id),
-                    ("active", "=", True),
-                ],
-                limit=1,
-            )
+            .search(domain, limit=1)
         )
 
         if not api_client:
@@ -115,17 +124,6 @@ def get_authenticated_client_rs256(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication failed",
         ) from e
-
-
-def _validate_rs256_token(env: Environment, token: str) -> dict:
-    """Backwards-compatible wrapper that returns just the payload.
-
-    Retained for existing callers/tests; new code should prefer
-    _validate_rs256_token_with_issuer, which also returns the matched
-    spp.oauth.issuer record (or None for the internal path).
-    """
-    payload, _ = _validate_rs256_token_with_issuer(env, token)
-    return payload
 
 
 def _validate_rs256_token_with_issuer(env: Environment, token: str):
@@ -205,6 +203,7 @@ def _validate_internal_rs256(env: Environment, token: str) -> dict:
             algorithms=["RS256"],
             audience=JWT_AUDIENCE,
             issuer=JWT_ISSUER,
+            leeway=JWT_CLOCK_SKEW_LEEWAY_SECONDS,
         )
     except jwt.ExpiredSignatureError as e:
         _logger.warning("Expired RS256 JWT credential")
@@ -244,6 +243,7 @@ def _validate_external_rs256(issuer_rec, token: str) -> dict:
             algorithms=algorithms,
             audience=issuer_rec.audience,
             issuer=issuer_rec.issuer,
+            leeway=JWT_CLOCK_SKEW_LEEWAY_SECONDS,
         )
     except jwt.ExpiredSignatureError as e:
         _logger.warning("Expired RS256 JWT from issuer %s", issuer_rec.issuer)

@@ -12,7 +12,7 @@
                     name="spp_oauth_config_settings"
                     logo="/spp_oauth/static/description/icon.png"
                 >
-                    <block title="OAuth Settings (4096 bits RSA keys)">
+                    <block title="OAuth Settings (RSA or EC keys)">
                         <setting string="Private Key">
                             <field name="oauth_private_key" password="true" />
                         </setting>

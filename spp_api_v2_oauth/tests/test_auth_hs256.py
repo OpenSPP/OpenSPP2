@@ -119,3 +119,44 @@ class TestHS256Regression(OAuthBridgeTestCase):
             overrides,
             "get_authenticated_client should NOT be overridden for non-api_v2 endpoints",
         )
+
+    def test_hs256_cannot_resolve_issuer_linked_client(self):
+        """An HS256 (internal) token cannot authenticate as a client linked
+        to an external Trusted OAuth Issuer."""
+        # Build an external issuer record and link a client to it.
+        from cryptography.hazmat.primitives import serialization
+        from cryptography.hazmat.primitives.asymmetric import rsa
+
+        from ..middleware.auth_rs256 import get_authenticated_client_rs256
+
+        key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        public_pem = (
+            key.public_key()
+            .public_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PublicFormat.SubjectPublicKeyInfo,
+            )
+            .decode("utf-8")
+        )
+        issuer_rec = self.env["spp.oauth.issuer"].create(
+            {
+                "name": "HS256 Regression Issuer",
+                "issuer": "https://idp.example.com/realms/hs256-reg",
+                "audience": "openspp-ext",
+                "key_source": "public_key",
+                "public_key": public_pem,
+            }
+        )
+        linked_client = self._make_api_client(
+            "HS256 Regression Linked Client",
+            oauth_issuer_id=issuer_rec.id,
+        )
+
+        # An HS256 token (internal) that claims the linked client's id must be
+        # rejected — the linked client is reachable only via its issuer.
+        token = self.generate_hs256_token(payload_overrides={"client_id": linked_client.client_id})
+        creds = self.make_credentials(token)
+
+        with self.assertRaises(HTTPException) as ctx:
+            get_authenticated_client_rs256(creds, self.env)
+        self.assertEqual(ctx.exception.status_code, 401)

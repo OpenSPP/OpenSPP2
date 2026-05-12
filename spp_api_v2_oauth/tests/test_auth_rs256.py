@@ -20,38 +20,39 @@ class TestRS256Authentication(OAuthBridgeTestCase):
 
     def test_rs256_valid_token(self):
         """RS256 token with valid signature and correct claims is accepted."""
-        from ..middleware.auth_rs256 import _validate_rs256_token
+        from ..middleware.auth_rs256 import _validate_rs256_token_with_issuer
 
         token = self.generate_rs256_token()
-        payload = _validate_rs256_token(self.env, token)
+        payload, issuer_rec = _validate_rs256_token_with_issuer(self.env, token)
 
         self.assertEqual(payload["client_id"], self.api_client.client_id)
         self.assertEqual(payload["iss"], JWT_ISSUER)
         self.assertEqual(payload["aud"], JWT_AUDIENCE)
+        self.assertFalse(issuer_rec, "internal path should return no issuer record")
 
     def test_rs256_wrong_audience(self):
         """RS256 token with wrong audience is rejected."""
-        from ..middleware.auth_rs256 import _validate_rs256_token
+        from ..middleware.auth_rs256 import _validate_rs256_token_with_issuer
 
         token = self.generate_rs256_token(payload_overrides={"aud": "wrong-audience"})
 
         with self.assertRaises(HTTPException) as ctx:
-            _validate_rs256_token(self.env, token)
+            _validate_rs256_token_with_issuer(self.env, token)
         self.assertEqual(ctx.exception.status_code, 401)
 
     def test_rs256_wrong_issuer(self):
         """RS256 token with wrong issuer is rejected."""
-        from ..middleware.auth_rs256 import _validate_rs256_token
+        from ..middleware.auth_rs256 import _validate_rs256_token_with_issuer
 
         token = self.generate_rs256_token(payload_overrides={"iss": "wrong-issuer"})
 
         with self.assertRaises(HTTPException) as ctx:
-            _validate_rs256_token(self.env, token)
+            _validate_rs256_token_with_issuer(self.env, token)
         self.assertEqual(ctx.exception.status_code, 401)
 
     def test_rs256_expired_token(self):
         """RS256 token that has expired is rejected."""
-        from ..middleware.auth_rs256 import _validate_rs256_token
+        from ..middleware.auth_rs256 import _validate_rs256_token_with_issuer
 
         expired_time = datetime.now(tz=UTC) - timedelta(hours=1)
         token = self.generate_rs256_token(
@@ -62,13 +63,13 @@ class TestRS256Authentication(OAuthBridgeTestCase):
         )
 
         with self.assertRaises(HTTPException) as ctx:
-            _validate_rs256_token(self.env, token)
+            _validate_rs256_token_with_issuer(self.env, token)
         self.assertEqual(ctx.exception.status_code, 401)
         self.assertIn("expired", ctx.exception.detail.lower())
 
     def test_rs256_wrong_key(self):
         """RS256 token signed with a different private key is rejected."""
-        from ..middleware.auth_rs256 import _validate_rs256_token
+        from ..middleware.auth_rs256 import _validate_rs256_token_with_issuer
 
         # Generate a different RSA key pair
         other_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
@@ -81,12 +82,12 @@ class TestRS256Authentication(OAuthBridgeTestCase):
         token = self.generate_rs256_token(private_key=other_pem)
 
         with self.assertRaises(HTTPException) as ctx:
-            _validate_rs256_token(self.env, token)
+            _validate_rs256_token_with_issuer(self.env, token)
         self.assertEqual(ctx.exception.status_code, 401)
 
     def test_rs256_keys_not_configured(self):
         """RS256 token is rejected (not 500) when RSA keys are not configured."""
-        from ..middleware.auth_rs256 import _validate_rs256_token
+        from ..middleware.auth_rs256 import _validate_rs256_token_with_issuer
 
         # Clear RSA public key
         self.env["ir.config_parameter"].sudo().set_param("spp_oauth.oauth_public_key", False)
@@ -94,7 +95,7 @@ class TestRS256Authentication(OAuthBridgeTestCase):
         token = self.generate_rs256_token()
 
         with self.assertRaises(HTTPException) as ctx:
-            _validate_rs256_token(self.env, token)
+            _validate_rs256_token_with_issuer(self.env, token)
         self.assertEqual(ctx.exception.status_code, 401)
         self.assertIn("not available", ctx.exception.detail.lower())
 
@@ -182,6 +183,45 @@ class TestRS256Authentication(OAuthBridgeTestCase):
 
         token = self.generate_rs256_token(
             payload_overrides={"client_id": "non-existent-client-id", "sub": "non-existent-client-id"}
+        )
+        creds = self.make_credentials(token)
+
+        with self.assertRaises(HTTPException) as ctx:
+            get_authenticated_client_rs256(creds, self.env)
+        self.assertEqual(ctx.exception.status_code, 401)
+        self.assertIn("not found", ctx.exception.detail.lower())
+
+    def test_internal_rs256_cannot_resolve_issuer_linked_client(self):
+        """An internal RS256 token cannot authenticate as a client linked
+        to an external Trusted OAuth Issuer."""
+        from ..middleware.auth_rs256 import get_authenticated_client_rs256
+
+        key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        public_pem = (
+            key.public_key()
+            .public_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PublicFormat.SubjectPublicKeyInfo,
+            )
+            .decode("utf-8")
+        )
+        issuer_rec = self.env["spp.oauth.issuer"].create(
+            {
+                "name": "RS256 Regression Issuer",
+                "issuer": "https://idp.example.com/realms/rs256-reg",
+                "audience": "openspp-ext",
+                "key_source": "public_key",
+                "public_key": public_pem,
+            }
+        )
+        linked_client = self._make_api_client(
+            "RS256 Regression Linked Client",
+            oauth_issuer_id=issuer_rec.id,
+        )
+
+        # Internal-issuer RS256 token claiming the linked client's id must be rejected.
+        token = self.generate_rs256_token(
+            payload_overrides={"client_id": linked_client.client_id, "sub": linked_client.client_id}
         )
         creds = self.make_credentials(token)
 

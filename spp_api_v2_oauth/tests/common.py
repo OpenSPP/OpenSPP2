@@ -52,22 +52,10 @@ class OAuthBridgeTestCase(TransactionCase):
         # Store HS256 secret for spp_api_v2
         cls.env["ir.config_parameter"].sudo().set_param("spp_api_v2.jwt_secret", HS256_TEST_SECRET)
 
-        # Create test API client
-        partner = cls.env["res.partner"].create({"name": "OAuth Bridge Test Org"})
-        org_type = cls.env["spp.consent.org.type"].search([("code", "=", "government")], limit=1)
-        if not org_type:
-            org_type = cls.env.ref("spp_consent.org_type_government", raise_if_not_found=False)
-
-        client_vals = {
-            "name": "OAuth Bridge Test Client",
-            "partner_id": partner.id,
-            "is_require_consent": False,
-            "legal_basis": "consent",
-        }
-        if org_type:
-            client_vals["organization_type_id"] = org_type.id
-
-        cls.api_client = cls.env["spp.api.client"].create(client_vals)
+        # Shared "internal" API client: no oauth_issuer_id, reachable via HS256
+        # and internal RS256 tokens. External-issuer test classes create their
+        # own issuer-linked clients via _make_api_client().
+        cls.api_client = cls._make_api_client("OAuth Bridge Test Client")
 
         # Create test scopes
         cls.env["spp.api.client.scope"].create(
@@ -77,6 +65,32 @@ class OAuthBridgeTestCase(TransactionCase):
                 "action": "read",
             }
         )
+
+    @classmethod
+    def _make_api_client(cls, name, oauth_issuer_id=None):
+        """Create an spp.api.client, optionally linked to a Trusted OAuth Issuer.
+
+        :param name: Display name and partner name.
+        :param oauth_issuer_id: integer id of an spp.oauth.issuer record, or None
+            for an "internal" client (HS256 + internal RS256 only).
+        """
+        partner = cls.env["res.partner"].create({"name": f"{name} Org"})
+        org_type = cls.env["spp.consent.org.type"].search([("code", "=", "government")], limit=1)
+        if not org_type:
+            org_type = cls.env.ref("spp_consent.org_type_government", raise_if_not_found=False)
+
+        vals = {
+            "name": name,
+            "partner_id": partner.id,
+            "is_require_consent": False,
+            "legal_basis": "consent",
+        }
+        if org_type:
+            vals["organization_type_id"] = org_type.id
+        if oauth_issuer_id:
+            vals["oauth_issuer_id"] = oauth_issuer_id
+
+        return cls.env["spp.api.client"].create(vals)
 
     def _build_jwt_payload(self, overrides=None):
         """Build a standard JWT payload for testing."""

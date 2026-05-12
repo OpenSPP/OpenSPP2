@@ -4,11 +4,24 @@
 - RSA key pair generated and configured in SPP OAuth Settings
 - An API client created in `spp_api_v2` with appropriate scopes
 
-### Generate RSA Keys
+### Generate a Signing Keypair
+
+RSA-2048 is the default recommendation — NIST-approved through 2030 and roughly
+5× faster on sign/verify than RSA-4096. Choose RSA-3072 or RSA-4096 only if your
+organization's compliance policy requires it.
 
 ```bash
-openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:4096 -out private.pem
+openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out private.pem
 openssl rsa -in private.pem -pubout -out public.pem
+```
+
+For new deployments, EC keys (e.g. P-256 → `ES256`) are even faster and produce
+shorter tokens. The Trusted-Issuer **Algorithms** field already accepts
+`ES256/ES384/ES512`; generate an EC keypair with:
+
+```bash
+openssl ecparam -name prime256v1 -genkey -noout -out private.pem
+openssl ec -in private.pem -pubout -out public.pem
 ```
 
 Configure the keys in **Settings > General Settings > SPP OAuth Settings**.
@@ -60,7 +73,11 @@ OpenSPP can be configured to accept RS256 tokens issued by an external IdP (e.g.
    - **JWKS URI** — must be `https://` (plain `http://` is rejected except for `localhost` / `127.0.0.1` dev IdPs).
    - **Client Claim** — the JWT claim whose value must equal the existing `spp.api.client.client_id`. Defaults to `client_id`; for Keycloak service accounts, `azp` or `sub` is typical.
 
-2. **Match the Client Claim value to an existing API Client.** Set `spp.api.client.client_id` to the value the IdP emits in the configured claim. The bridge looks the client up by that exact value.
+2. **Match the Client Claim value to an existing API Client, AND link the client to the issuer record.** On the `spp.api.client` record:
+   - Set `client_id` to the value the IdP emits in the configured `client_claim`.
+   - Set **Trusted OAuth Issuer** to the issuer record you created in step 1.
+
+   Clients with **Trusted OAuth Issuer** left empty are reachable only by internal HS256/RS256 tokens (issued by OpenSPP's own `/oauth/token` and `/oauth/token/rs256` endpoints). A token from an external IdP will *not* authenticate as such a client even if the `client_id` happens to collide — preventing namespace-collision attacks against internal clients.
 
 3. **Request a token from the external IdP**, then call OpenSPP with it:
 
@@ -71,9 +88,10 @@ OpenSPP can be configured to accept RS256 tokens issued by an external IdP (e.g.
 
 The bridge:
 - Reads `iss` from the unverified payload.
-- If `iss` matches the internal openspp-api-v2 issuer, uses the spp_oauth key (existing behavior).
+- If `iss` matches the internal openspp-api-v2 issuer, uses the spp_oauth key (existing behavior) and looks up an API client with no **Trusted OAuth Issuer** set.
 - Otherwise looks up the matching active `spp.oauth.issuer` record and verifies with its JWKS or static PEM.
-- Reads the configured `client_claim` from the verified payload and resolves the `spp.api.client`.
+- Reads the configured `client_claim` from the verified payload and resolves an `spp.api.client` whose **Trusted OAuth Issuer** equals the matched issuer record.
+- Allows up to 30 seconds of clock skew on token `exp`/`nbf`/`iat` checks to absorb normal NTP drift.
 
 ### Example External IdP: Keycloak Realm
 

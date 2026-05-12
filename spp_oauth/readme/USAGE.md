@@ -4,11 +4,23 @@ This module provides RSA-based JWT signing and verification utilities. It does n
 
 - `spp_oauth` module installed
 - Admin or Settings-group access to the Odoo instance
-- An RSA key pair (4096-bit recommended) generated externally:
+- A signing keypair generated externally. RSA-2048 is the default
+  recommendation — NIST-approved through 2030 and ~5× faster on sign/verify
+  than RSA-4096. Use RSA-3072 or RSA-4096 only if your compliance policy
+  requires it.
 
 ```bash
-openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:4096 -out private.pem
+openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out private.pem
 openssl rsa -in private.pem -pubout -out public.pem
+```
+
+For new deployments, EC keys (P-256 → `ES256`) are even faster and produce
+shorter tokens. Consuming modules that surface algorithm choice (e.g. the
+`spp_api_v2_oauth` Trusted-Issuer model) accept `ES256/ES384/ES512` directly.
+
+```bash
+openssl ecparam -name prime256v1 -genkey -noout -out private.pem
+openssl ec -in private.pem -pubout -out public.pem
 ```
 
 ### UI Tests
@@ -22,7 +34,7 @@ openssl rsa -in private.pem -pubout -out public.pem
 **Expected**:
 
 - The app block is visible with the module icon and title "SPP OAuth Settings"
-- Inside is a block titled **OAuth Settings (4096 bits RSA keys)**
+- Inside is a block titled **OAuth Settings (RSA or EC keys)**
 - Two settings are displayed: **Private Key** and **Public Key**
 - Both fields are masked (password input type) — values appear as dots
 

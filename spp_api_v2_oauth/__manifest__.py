@@ -5,7 +5,7 @@
     "category": "OpenSPP/Integration",
     "version": "19.0.2.0.0",
     "author": "OpenSPP.org",
-    "development_status": "Beta",
+    "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123"],
     "external_dependencies": {"python": ["pyjwt>=2.4.0", "cryptography"]},
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -17,6 +17,7 @@
     "data": [
         "security/ir.model.access.csv",
         "views/oauth_issuer_views.xml",
+        "views/api_client_views.xml",
     ],
     "application": False,
     "auto_install": ["spp_api_v2", "spp_oauth"],

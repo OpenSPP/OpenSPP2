@@ -369,7 +369,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:fcf958693834e280f3eddcb2b6e8050b5c48b1cf04ca7f64638746fb22ed8af8
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Beta" src="https://img.shields.io/badge/maturity-Beta-yellow.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_api_v2_oauth"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Production/Stable" src="https://img.shields.io/badge/maturity-Production%2FStable-green.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_api_v2_oauth"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Bridge module that enables RS256 (asymmetric RSA) JWT authentication for
 the OpenSPP API V2. Automatically installed when both <tt class="docutils literal">spp_api_v2</tt> and
 <tt class="docutils literal">spp_oauth</tt> are present.</p>
@@ -476,11 +476,21 @@ auto-installs)</li>
 <li>An API client created in <tt class="docutils literal">spp_api_v2</tt> with appropriate scopes</li>
 </ul>
 </div>
-<div class="section" id="generate-rsa-keys">
-<h1>Generate RSA Keys</h1>
+<div class="section" id="generate-a-signing-keypair">
+<h1>Generate a Signing Keypair</h1>
+<p>RSA-2048 is the default recommendation — NIST-approved through 2030 and
+roughly 5× faster on sign/verify than RSA-4096. Choose RSA-3072 or
+RSA-4096 only if your organization’s compliance policy requires it.</p>
 <pre class="code bash literal-block">
-openssl<span class="w"> </span>genpkey<span class="w"> </span>-algorithm<span class="w"> </span>RSA<span class="w"> </span>-pkeyopt<span class="w"> </span>rsa_keygen_bits:4096<span class="w"> </span>-out<span class="w"> </span>private.pem<span class="w">
+openssl<span class="w"> </span>genpkey<span class="w"> </span>-algorithm<span class="w"> </span>RSA<span class="w"> </span>-pkeyopt<span class="w"> </span>rsa_keygen_bits:2048<span class="w"> </span>-out<span class="w"> </span>private.pem<span class="w">
 </span>openssl<span class="w"> </span>rsa<span class="w"> </span>-in<span class="w"> </span>private.pem<span class="w"> </span>-pubout<span class="w"> </span>-out<span class="w"> </span>public.pem
+</pre>
+<p>For new deployments, EC keys (e.g. P-256 → <tt class="docutils literal">ES256</tt>) are even faster
+and produce shorter tokens. The Trusted-Issuer <strong>Algorithms</strong> field
+already accepts <tt class="docutils literal">ES256/ES384/ES512</tt>; generate an EC keypair with:</p>
+<pre class="code bash literal-block">
+openssl<span class="w"> </span>ecparam<span class="w"> </span>-name<span class="w"> </span>prime256v1<span class="w"> </span>-genkey<span class="w"> </span>-noout<span class="w"> </span>-out<span class="w"> </span>private.pem<span class="w">
+</span>openssl<span class="w"> </span>ec<span class="w"> </span>-in<span class="w"> </span>private.pem<span class="w"> </span>-pubout<span class="w"> </span>-out<span class="w"> </span>public.pem
 </pre>
 <p>Configure the keys in <strong>Settings &gt; General Settings &gt; SPP OAuth
 Settings</strong>.</p>
@@ -547,9 +557,20 @@ existing <tt class="docutils literal">spp.api.client.client_id</tt>. Defaults to
 for Keycloak service accounts, <tt class="docutils literal">azp</tt> or <tt class="docutils literal">sub</tt> is typical.</li>
 </ul>
 </li>
-<li><p class="first"><strong>Match the Client Claim value to an existing API Client.</strong> Set
-<tt class="docutils literal">spp.api.client.client_id</tt> to the value the IdP emits in the
-configured claim. The bridge looks the client up by that exact value.</p>
+<li><p class="first"><strong>Match the Client Claim value to an existing API Client, AND link
+the client to the issuer record.</strong> On the <tt class="docutils literal">spp.api.client</tt> record:</p>
+<ul class="simple">
+<li>Set <tt class="docutils literal">client_id</tt> to the value the IdP emits in the configured
+<tt class="docutils literal">client_claim</tt>.</li>
+<li>Set <strong>Trusted OAuth Issuer</strong> to the issuer record you created in
+step 1.</li>
+</ul>
+<p>Clients with <strong>Trusted OAuth Issuer</strong> left empty are reachable only
+by internal HS256/RS256 tokens (issued by OpenSPP’s own
+<tt class="docutils literal">/oauth/token</tt> and <tt class="docutils literal">/oauth/token/rs256</tt> endpoints). A token from
+an external IdP will <em>not</em> authenticate as such a client even if the
+<tt class="docutils literal">client_id</tt> happens to collide — preventing namespace-collision
+attacks against internal clients.</p>
 </li>
 <li><p class="first"><strong>Request a token from the external IdP</strong>, then call OpenSPP with it:</p>
 <pre class="code bash literal-block">
@@ -562,11 +583,15 @@ curl<span class="w"> </span>https://your-instance/api/v2/spp/Individual/urn:test
 <ul class="simple">
 <li>Reads <tt class="docutils literal">iss</tt> from the unverified payload.</li>
 <li>If <tt class="docutils literal">iss</tt> matches the internal openspp-api-v2 issuer, uses the
-spp_oauth key (existing behavior).</li>
+spp_oauth key (existing behavior) and looks up an API client with no
+<strong>Trusted OAuth Issuer</strong> set.</li>
 <li>Otherwise looks up the matching active <tt class="docutils literal">spp.oauth.issuer</tt> record and
 verifies with its JWKS or static PEM.</li>
 <li>Reads the configured <tt class="docutils literal">client_claim</tt> from the verified payload and
-resolves the <tt class="docutils literal">spp.api.client</tt>.</li>
+resolves an <tt class="docutils literal">spp.api.client</tt> whose <strong>Trusted OAuth Issuer</strong> equals
+the matched issuer record.</li>
+<li>Allows up to 30 seconds of clock skew on token <tt class="docutils literal">exp</tt>/<tt class="docutils literal">nbf</tt>/<tt class="docutils literal">iat</tt>
+checks to absorb normal NTP drift.</li>
 </ul>
 </div>
 <div class="section" id="example-external-idp-keycloak-realm">
@@ -674,6 +699,43 @@ external issuer</td>
 </tr>
 </tbody>
 </table>
+<div class="section" id="changelog">
+<h2>Changelog</h2>
+<div class="section" id="section-1">
+<h3>19.0.2.0.0</h3>
+<p>Initial Production/Stable release.</p>
+<ul class="simple">
+<li>Auto-installing bridge between <tt class="docutils literal">spp_api_v2</tt> and <tt class="docutils literal">spp_oauth</tt> that
+adds RS256 JWT authentication to API V2 alongside the existing HS256
+path. Tokens are routed by the JWT header <tt class="docutils literal">alg</tt>; RS256 tokens are
+further dispatched by <tt class="docutils literal">iss</tt> so OpenSPP can accept tokens from
+external Identity Providers (e.g. Keycloak) registered as
+<tt class="docutils literal">spp.oauth.issuer</tt> records.</li>
+<li>New endpoint <tt class="docutils literal">POST /oauth/token/rs256</tt> for internally-issued RS256
+tokens (mirrors <tt class="docutils literal">/oauth/token</tt> for HS256: same client-credentials
+flow, rate limiting, and payload shape).</li>
+<li>New admin model <tt class="docutils literal">spp.oauth.issuer</tt> (Settings → API V2 → Trusted
+OAuth Issuers) for registering external IdPs by <tt class="docutils literal">iss</tt> value, with
+JWKS-URI or static-PEM key sources, configurable client claim,
+algorithm whitelist, and process-local JWKS caching.</li>
+<li><tt class="docutils literal">spp.api.client.oauth_issuer_id</tt> links an API client to a Trusted
+OAuth Issuer. Internal HS256 / internal RS256 tokens only resolve to
+clients with no issuer link; external-issuer tokens only resolve to
+clients linked to the matching issuer record. Prevents external IdPs
+from authenticating as internal clients via colliding claim values.</li>
+<li>30-second clock-skew leeway on RS256 verification (<tt class="docutils literal">exp</tt> / <tt class="docutils literal">nbf</tt> /
+<tt class="docutils literal">iat</tt>) to absorb normal NTP drift between OpenSPP and external IdPs.</li>
+<li>Algorithm allowlist enforced at both the issuer-record level
+(constraints reject HMAC algorithms and <tt class="docutils literal">none</tt> at write time) and
+the JWT verification level (explicit <tt class="docutils literal">algorithms=</tt> argument on every
+<tt class="docutils literal">jwt.decode</tt>).</li>
+<li>JWKS URIs are constrained to <tt class="docutils literal"><span class="pre">https://</span></tt> (loopback <tt class="docutils literal"><span class="pre">http://</span></tt>
+allowed for dev IdPs); static PEMs are validated with
+<tt class="docutils literal">cryptography.load_pem_public_key</tt> at write time so private-key
+paste mistakes are caught immediately.</li>
+</ul>
+</div>
+</div>
 <div class="section" id="bug-tracker">
 <h2>Bug Tracker</h2>
 <p>Bugs are tracked on <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/issues">GitHub Issues</a>.

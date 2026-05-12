@@ -10,9 +10,9 @@ OpenSPP API V2: OAuth RS256 Bridge
    !! source digest: sha256:fcf958693834e280f3eddcb2b6e8050b5c48b1cf04ca7f64638746fb22ed8af8
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Beta
+    :alt: Production/Stable
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
@@ -103,13 +103,26 @@ Prerequisites
 - RSA key pair generated and configured in SPP OAuth Settings
 - An API client created in ``spp_api_v2`` with appropriate scopes
 
-Generate RSA Keys
-~~~~~~~~~~~~~~~~~
+Generate a Signing Keypair
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+RSA-2048 is the default recommendation — NIST-approved through 2030 and
+roughly 5× faster on sign/verify than RSA-4096. Choose RSA-3072 or
+RSA-4096 only if your organization's compliance policy requires it.
 
 .. code:: bash
 
-   openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:4096 -out private.pem
+   openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out private.pem
    openssl rsa -in private.pem -pubout -out public.pem
+
+For new deployments, EC keys (e.g. P-256 → ``ES256``) are even faster
+and produce shorter tokens. The Trusted-Issuer **Algorithms** field
+already accepts ``ES256/ES384/ES512``; generate an EC keypair with:
+
+.. code:: bash
+
+   openssl ecparam -name prime256v1 -genkey -noout -out private.pem
+   openssl ec -in private.pem -pubout -out public.pem
 
 Configure the keys in **Settings > General Settings > SPP OAuth
 Settings**.
@@ -182,9 +195,20 @@ PEM) and the claim that resolves the calling API client.
      existing ``spp.api.client.client_id``. Defaults to ``client_id``;
      for Keycloak service accounts, ``azp`` or ``sub`` is typical.
 
-2. **Match the Client Claim value to an existing API Client.** Set
-   ``spp.api.client.client_id`` to the value the IdP emits in the
-   configured claim. The bridge looks the client up by that exact value.
+2. **Match the Client Claim value to an existing API Client, AND link
+   the client to the issuer record.** On the ``spp.api.client`` record:
+
+   - Set ``client_id`` to the value the IdP emits in the configured
+     ``client_claim``.
+   - Set **Trusted OAuth Issuer** to the issuer record you created in
+     step 1.
+
+   Clients with **Trusted OAuth Issuer** left empty are reachable only
+   by internal HS256/RS256 tokens (issued by OpenSPP's own
+   ``/oauth/token`` and ``/oauth/token/rs256`` endpoints). A token from
+   an external IdP will *not* authenticate as such a client even if the
+   ``client_id`` happens to collide — preventing namespace-collision
+   attacks against internal clients.
 
 3. **Request a token from the external IdP**, then call OpenSPP with it:
 
@@ -197,11 +221,15 @@ The bridge:
 
 - Reads ``iss`` from the unverified payload.
 - If ``iss`` matches the internal openspp-api-v2 issuer, uses the
-  spp_oauth key (existing behavior).
+  spp_oauth key (existing behavior) and looks up an API client with no
+  **Trusted OAuth Issuer** set.
 - Otherwise looks up the matching active ``spp.oauth.issuer`` record and
   verifies with its JWKS or static PEM.
 - Reads the configured ``client_claim`` from the verified payload and
-  resolves the ``spp.api.client``.
+  resolves an ``spp.api.client`` whose **Trusted OAuth Issuer** equals
+  the matched issuer record.
+- Allows up to 30 seconds of clock skew on token ``exp``/``nbf``/``iat``
+  checks to absorb normal NTP drift.
 
 Example External IdP: Keycloak Realm
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -268,6 +296,43 @@ Error Responses
 +---------------------------+-------------+---------------------------+
 | Rate limit exceeded       | 429         | "Rate limit exceeded"     |
 +---------------------------+-------------+---------------------------+
+
+Changelog
+=========
+
+19.0.2.0.0
+----------
+
+Initial Production/Stable release.
+
+- Auto-installing bridge between ``spp_api_v2`` and ``spp_oauth`` that
+  adds RS256 JWT authentication to API V2 alongside the existing HS256
+  path. Tokens are routed by the JWT header ``alg``; RS256 tokens are
+  further dispatched by ``iss`` so OpenSPP can accept tokens from
+  external Identity Providers (e.g. Keycloak) registered as
+  ``spp.oauth.issuer`` records.
+- New endpoint ``POST /oauth/token/rs256`` for internally-issued RS256
+  tokens (mirrors ``/oauth/token`` for HS256: same client-credentials
+  flow, rate limiting, and payload shape).
+- New admin model ``spp.oauth.issuer`` (Settings → API V2 → Trusted
+  OAuth Issuers) for registering external IdPs by ``iss`` value, with
+  JWKS-URI or static-PEM key sources, configurable client claim,
+  algorithm whitelist, and process-local JWKS caching.
+- ``spp.api.client.oauth_issuer_id`` links an API client to a Trusted
+  OAuth Issuer. Internal HS256 / internal RS256 tokens only resolve to
+  clients with no issuer link; external-issuer tokens only resolve to
+  clients linked to the matching issuer record. Prevents external IdPs
+  from authenticating as internal clients via colliding claim values.
+- 30-second clock-skew leeway on RS256 verification (``exp`` / ``nbf`` /
+  ``iat``) to absorb normal NTP drift between OpenSPP and external IdPs.
+- Algorithm allowlist enforced at both the issuer-record level
+  (constraints reject HMAC algorithms and ``none`` at write time) and
+  the JWT verification level (explicit ``algorithms=`` argument on every
+  ``jwt.decode``).
+- JWKS URIs are constrained to ``https://`` (loopback ``http://``
+  allowed for dev IdPs); static PEMs are validated with
+  ``cryptography.load_pem_public_key`` at write time so private-key
+  paste mistakes are caught immediately.
 
 Bug Tracker
 ===========

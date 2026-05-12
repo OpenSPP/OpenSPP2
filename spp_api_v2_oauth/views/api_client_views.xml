@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!--
+        Extend the spp.api.client form (provided by spp_api_v2) so admins can
+        link a client to a Trusted OAuth Issuer. When set, only RS256 tokens
+        from that issuer authenticate as this client; when empty, only
+        internal HS256/RS256 tokens do.
+    -->
+    <record id="view_api_client_form_inherit_oauth" model="ir.ui.view">
+        <field name="name">spp.api.client.form.inherit.oauth</field>
+        <field name="model">spp.api.client</field>
+        <field name="inherit_id" ref="spp_api_v2.view_api_client_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='client_secret']" position="after">
+                <field
+                    name="oauth_issuer_id"
+                    invisible="auth_type != 'oauth2'"
+                    options="{'no_create': True}"
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>
