@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="view_cel_variable_form_dci" model="ir.ui.view">
+        <field name="name">spp.cel.variable.form.dci</field>
+        <field name="model">spp.cel.variable</field>
+        <field name="inherit_id" ref="spp_studio.view_logic_variable_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='external_provider_id']" position="after">
+                <field
+                    name="dci_attribute_path"
+                    invisible="source_type != 'external' or not external_provider_id"
+                    placeholder="e.g., has_disability, severity.code"
+                    help="Dotted path into the DCI response payload."
+                />
+                <field
+                    name="external_failure_policy"
+                    invisible="source_type != 'external' or not external_provider_id"
+                    help="Behaviour when the external fetch fails for a subject."
+                />
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

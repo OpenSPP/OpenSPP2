@@ -12,10 +12,13 @@
     "depends": [
         "spp_cel_domain",
         "spp_dci_client",
+        "spp_studio",
     ],
     "external_dependencies": {"python": []},
     "data": [
         "security/ir.model.access.csv",
+        "views/data_provider_views.xml",
+        "views/cel_variable_views.xml",
     ],
     "installable": True,
     "application": False,

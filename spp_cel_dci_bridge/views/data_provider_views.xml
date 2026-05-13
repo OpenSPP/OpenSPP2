@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="view_data_provider_form_dci" model="ir.ui.view">
+        <field name="name">spp.data.provider.form.dci</field>
+        <field name="model">spp.data.provider</field>
+        <field name="inherit_id" ref="spp_cel_domain.view_data_provider_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='auth_type']" position="after">
+                <field name="dci_data_source_id" />
+                <field name="is_dci_backed" invisible="1" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_data_provider_tree_dci" model="ir.ui.view">
+        <field name="name">spp.data.provider.tree.dci</field>
+        <field name="model">spp.data.provider</field>
+        <field name="inherit_id" ref="spp_cel_domain.view_data_provider_tree" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='code']" position="after">
+                <field name="is_dci_backed" optional="show" />
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
