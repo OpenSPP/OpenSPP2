@@ -31,7 +31,6 @@ class CELVariable(models.Model):
             ("fail", "Propagate exception"),
         ],
         default="null",
-        string="External Failure Policy",
         help=(
             "Behaviour when the external DCI fetch fails for a subject:\n"
             "- null: cache value as null; CEL evaluates against null.\n"
