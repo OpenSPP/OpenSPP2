@@ -5,6 +5,16 @@ from odoo.exceptions import ValidationError
 class CELVariable(models.Model):
     _inherit = "spp.cel.variable"
 
+    # Related field so views can gate visibility/required on the provider's
+    # is_dci_backed flag without writing a chained dotted-path expression
+    # (which Odoo's view validator rejects).
+    external_provider_is_dci_backed = fields.Boolean(
+        related="external_provider_id.is_dci_backed",
+        string="External Provider is DCI-Backed",
+        store=False,
+        readonly=True,
+    )
+
     dci_attribute_path = fields.Char(
         string="DCI Attribute Path",
         help=(
