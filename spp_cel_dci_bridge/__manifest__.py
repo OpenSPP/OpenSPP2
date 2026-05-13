@@ -20,6 +20,7 @@
         "security/ir.model.access.csv",
         "views/data_provider_views.xml",
         "views/cel_variable_views.xml",
+        "views/dci_fetch_audit_views.xml",
     ],
     "installable": True,
     "application": False,

@@ -1,1 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_dci_fetch_audit_admin,access.spp.dci.fetch.audit.admin,model_spp_dci_fetch_audit,spp_security.group_spp_admin,1,1,1,1
+access_spp_dci_fetch_audit_user,access.spp.dci.fetch.audit.user,model_spp_dci_fetch_audit,base.group_user,1,0,0,0

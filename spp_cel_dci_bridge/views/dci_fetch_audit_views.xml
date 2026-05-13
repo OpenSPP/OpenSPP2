@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="view_dci_fetch_audit_list" model="ir.ui.view">
+        <field name="name">spp.dci.fetch.audit.list</field>
+        <field name="model">spp.dci.fetch.audit</field>
+        <field name="arch" type="xml">
+            <list string="DCI Fetch Audit" create="0" edit="0">
+                <field name="create_date" />
+                <field name="variable_name" />
+                <field name="registry_type" />
+                <field name="provider_code" />
+                <field name="data_source_code" optional="hide" />
+                <field name="subject_id" />
+                <field name="result" widget="badge" decoration-success="result == 'ok'" decoration-warning="result == 'not_found'" decoration-danger="result == 'error'" />
+                <field name="elapsed_ms" />
+                <field name="user_id" optional="hide" />
+                <field name="error_message" optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_dci_fetch_audit_search" model="ir.ui.view">
+        <field name="name">spp.dci.fetch.audit.search</field>
+        <field name="model">spp.dci.fetch.audit</field>
+        <field name="arch" type="xml">
+            <search string="DCI Fetch Audit">
+                <field name="variable_name" />
+                <field name="provider_code" />
+                <field name="subject_id" />
+                <filter name="result_ok" string="OK" domain="[('result', '=', 'ok')]" />
+                <filter name="result_not_found" string="Not Found" domain="[('result', '=', 'not_found')]" />
+                <filter name="result_error" string="Error" domain="[('result', '=', 'error')]" />
+                <filter name="group_variable" string="Variable" context="{'group_by': 'variable_name'}" />
+                <filter name="group_result" string="Result" context="{'group_by': 'result'}" />
+                <filter name="group_provider" string="Provider" context="{'group_by': 'provider_code'}" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_dci_fetch_audit" model="ir.actions.act_window">
+        <field name="name">DCI Fetch Audit</field>
+        <field name="res_model">spp.dci.fetch.audit</field>
+        <field name="view_mode">list</field>
+        <field name="search_view_id" ref="view_dci_fetch_audit_search" />
+    </record>
+
+</odoo>

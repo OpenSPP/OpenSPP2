@@ -1,4 +1,5 @@
 import logging
+import time
 
 from odoo import _, api, models
 from odoo.exceptions import UserError
@@ -94,6 +95,8 @@ class DCIDispatcher(models.AbstractModel):
         `variable.dci_attribute_path` extracted from the DR response payload.
         Subjects with no DR record, no matching identifier, or no value at
         the configured path are omitted from the returned dict.
+
+        Records one spp.dci.fetch.audit row per subject regardless of outcome.
         """
         try:
             from odoo.addons.spp_dci_client_dr.services.dr_service import (
@@ -114,9 +117,14 @@ class DCIDispatcher(models.AbstractModel):
 
         result = {}
         for partner in partners:
+            started = time.monotonic()
             try:
                 payload = service.get_disability_status(partner)
             except Exception as e:
+                self._record_audit(
+                    variable, source, partner.id, "error",
+                    started, error_message=str(e),
+                )
                 _logger.warning(
                     "DR fetch failed for partner %d (var=%s): %s",
                     partner.id,
@@ -125,11 +133,55 @@ class DCIDispatcher(models.AbstractModel):
                 )
                 continue
 
+            if payload is None:
+                self._record_audit(
+                    variable, source, partner.id, "not_found", started,
+                )
+                continue
+
             value = self._extract_by_path(payload, path)
-            if value is not None:
-                result[partner.id] = value
+            if value is None:
+                self._record_audit(
+                    variable, source, partner.id, "not_found", started,
+                )
+                continue
+
+            result[partner.id] = value
+            self._record_audit(
+                variable, source, partner.id, "ok", started,
+            )
 
         return result
+
+    # ------------------------------------------------------------------
+    # Audit logging
+    # ------------------------------------------------------------------
+
+    def _record_audit(
+        self, variable, source, subject_id, result, started_at, error_message=None
+    ):
+        """Write one spp.dci.fetch.audit row.
+
+        Always uses sudo so background workers without per-user write rights
+        can record. Audit reading is restricted via ACL.
+        """
+        try:
+            elapsed_ms = int((time.monotonic() - started_at) * 1000)
+            self.env["spp.dci.fetch.audit"].sudo().create(
+                {
+                    "provider_code": variable.external_provider_id.code,
+                    "data_source_code": source.code,
+                    "registry_type": source.registry_type,
+                    "variable_name": variable.name,
+                    "subject_model": "res.partner",
+                    "subject_id": subject_id,
+                    "result": result,
+                    "error_message": error_message,
+                    "elapsed_ms": elapsed_ms,
+                }
+            )
+        except Exception as e:  # never let audit failures break the fetch
+            _logger.error("Failed to write DCI fetch audit row: %s", e)
 
     def _handler_crvs(self, variable, source, subject_ids, period_key):
         """Skeleton; filled in by step 9."""
