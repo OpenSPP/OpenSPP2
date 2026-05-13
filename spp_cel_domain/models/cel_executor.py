@@ -1248,6 +1248,9 @@ class CelExecutor(models.AbstractModel):
         return provider, return_type
 
     def _metric_cmp_supported(self, op: str, rhs: Any, return_type: str) -> bool:
+        # Check bool BEFORE int|float because bool is a subclass of int.
+        if isinstance(rhs, bool):
+            return op in {"==", "!="}
         if isinstance(rhs, int | float):
             return op in {"==", "!=", ">", ">=", "<", "<="}
         if isinstance(rhs, str):
@@ -1368,6 +1371,25 @@ class CelExecutor(models.AbstractModel):
             period_key,
             *clause_args,
         )
+        # Check bool BEFORE int|float because bool is a subclass of int.
+        # Boolean values must be cast to ::boolean, not ::numeric — comparing
+        # numeric to boolean fails in postgres ("operator does not exist").
+        if isinstance(rhs, bool):
+            bool_ops = {"==": "=", "!=": "!="}
+            return SQL(
+                "(%s)",
+                SQL(
+                    base_sql
+                    + "AND (CASE "
+                    + "WHEN jsonb_typeof(fv.value_json) = 'object' THEN (fv.value_json -> 'value')::boolean "
+                    + "WHEN jsonb_typeof(fv.value_json) = 'boolean' THEN (fv.value_json)::boolean "
+                    + "END) "
+                    + bool_ops[op]
+                    + " %s",
+                    *base_args,
+                    rhs,
+                ),
+            )
         if isinstance(rhs, int | float):
             # Handle both scalar numbers and {"value": number} objects
             # COALESCE extracts from object first, then tries scalar cast
