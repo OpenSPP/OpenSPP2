@@ -63,9 +63,7 @@ class BridgeTestBase(TransactionCase):
         cls.VocabularyCode = cls.env["spp.vocabulary.code"]
 
         vocab_model = cls.env["spp.vocabulary"]
-        id_type_vocab = vocab_model.search(
-            [("namespace_uri", "=", "urn:openspp:vocab:id-type")], limit=1
-        )
+        id_type_vocab = vocab_model.search([("namespace_uri", "=", "urn:openspp:vocab:id-type")], limit=1)
         if not id_type_vocab:
             id_type_vocab = vocab_model.create(
                 {

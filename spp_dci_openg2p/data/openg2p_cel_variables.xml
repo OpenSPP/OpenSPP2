@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo noupdate="1">
-
     <!--
         Override the semantic `has_disability` CEL variable so it sources
         from OpenG2P over DCI instead of from a local res.partner field.
@@ -35,5 +34,4 @@
         <field name="cache_ttl_seconds">300</field>
         <field name="external_failure_policy">null</field>
     </record>
-
 </odoo>

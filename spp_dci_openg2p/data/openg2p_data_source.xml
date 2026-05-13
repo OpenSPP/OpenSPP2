@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo noupdate="1">
-
     <!--
         OpenG2P DCI data source.
 
@@ -32,7 +31,8 @@
         <field name="timeout">30</field>
         <field name="active" eval="True" />
         <field name="state">draft</field>
-        <field name="notes">OpenG2P preset. Configure auth credentials before use.</field>
+        <field
+            name="notes"
+        >OpenG2P preset. Configure auth credentials before use.</field>
     </record>
-
 </odoo>

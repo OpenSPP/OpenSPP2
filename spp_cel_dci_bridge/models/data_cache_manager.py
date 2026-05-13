@@ -26,12 +26,8 @@ class DataCacheManager(models.AbstractModel):
             and variable.external_provider_id
             and variable.external_provider_id.is_dci_backed
         ):
-            return self._compute_dci_values(
-                variable, subject_ids, period_key, program_id
-            )
-        return super()._compute_variable_values(
-            variable, subject_ids, period_key, program_id
-        )
+            return self._compute_dci_values(variable, subject_ids, period_key, program_id)
+        return super()._compute_variable_values(variable, subject_ids, period_key, program_id)
 
     def _compute_dci_values(self, variable, subject_ids, period_key, program_id):
         """Fetch DCI-backed values, then apply the variable's failure policy.
@@ -47,9 +43,7 @@ class DataCacheManager(models.AbstractModel):
         policy = variable.external_failure_policy or "null"
 
         try:
-            values = dispatcher.fetch_values_for_variable(
-                variable, subject_ids, period_key
-            )
+            values = dispatcher.fetch_values_for_variable(variable, subject_ids, period_key)
         except Exception as e:
             _logger.error(
                 "DCI fetch failed for variable %s (policy=%s): %s",
@@ -71,9 +65,7 @@ class DataCacheManager(models.AbstractModel):
         if policy == "last_known":
             missing = set(subject_ids) - set(values.keys())
             if missing:
-                values = self._augment_with_last_known(
-                    variable, values, missing
-                )
+                values = self._augment_with_last_known(variable, values, missing)
 
         # Fill any still-missing subjects with explicit None. The cache writer
         # records {"value": null}; CEL boolean comparisons against null
@@ -112,8 +104,7 @@ class DataCacheManager(models.AbstractModel):
                 filled[row.subject_id] = payload["value"]
                 seen.add(row.subject_id)
                 _logger.warning(
-                    "Variable %s: using last-known value for subject %d "
-                    "(recorded_at=%s) due to fetch failure",
+                    "Variable %s: using last-known value for subject %d (recorded_at=%s) due to fetch failure",
                     variable.name,
                     row.subject_id,
                     row.recorded_at,

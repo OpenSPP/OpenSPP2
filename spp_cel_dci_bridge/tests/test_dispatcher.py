@@ -49,9 +49,7 @@ class TestDispatcherRouting(TransactionCase):
         self.assertEqual(self.dispatcher.fetch_values_for_variable(var, [], "current"), {})
 
     def test_non_dci_provider_returns_empty(self):
-        provider = self.Provider.create(
-            {"name": "Plain", "code": "plain_p"}
-        )
+        provider = self.Provider.create({"name": "Plain", "code": "plain_p"})
         var = self.Variable.create(
             {
                 "name": "var_plain",
@@ -61,16 +59,12 @@ class TestDispatcherRouting(TransactionCase):
                 "external_provider_id": provider.id,
             }
         )
-        self.assertEqual(
-            self.dispatcher.fetch_values_for_variable(var, [1], "current"), {}
-        )
+        self.assertEqual(self.dispatcher.fetch_values_for_variable(var, [1], "current"), {})
 
     def test_inactive_source_returns_empty(self):
         var, source, _ = self._make_variable("DR", "inactive")
         source.active = False
-        self.assertEqual(
-            self.dispatcher.fetch_values_for_variable(var, [1], "current"), {}
-        )
+        self.assertEqual(self.dispatcher.fetch_values_for_variable(var, [1], "current"), {})
 
     def test_unknown_registry_type_raises(self):
         var, source, _ = self._make_variable("DR", "unknown")

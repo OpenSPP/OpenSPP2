@@ -93,8 +93,7 @@ class DCIDispatcher(models.AbstractModel):
         if not handler_name:
             raise UserError(
                 _(
-                    "No DCI handler for registry_type=%(reg)s on variable "
-                    "%(var)s",
+                    "No DCI handler for registry_type=%(reg)s on variable %(var)s",
                     reg=source.registry_type,
                     var=variable.name,
                 )
@@ -147,8 +146,12 @@ class DCIDispatcher(models.AbstractModel):
                 payload = service.get_disability_status(partner)
             except Exception as e:
                 self._record_audit(
-                    variable, source, partner.id, "error",
-                    started, error_message=str(e),
+                    variable,
+                    source,
+                    partner.id,
+                    "error",
+                    started,
+                    error_message=str(e),
                 )
                 _logger.warning(
                     "DR fetch failed for partner %d (var=%s): %s",
@@ -160,20 +163,32 @@ class DCIDispatcher(models.AbstractModel):
 
             if payload is None:
                 self._record_audit(
-                    variable, source, partner.id, "not_found", started,
+                    variable,
+                    source,
+                    partner.id,
+                    "not_found",
+                    started,
                 )
                 continue
 
             value = self._extract_by_path(payload, path)
             if value is None:
                 self._record_audit(
-                    variable, source, partner.id, "not_found", started,
+                    variable,
+                    source,
+                    partner.id,
+                    "not_found",
+                    started,
                 )
                 continue
 
             result[partner.id] = value
             self._record_audit(
-                variable, source, partner.id, "ok", started,
+                variable,
+                source,
+                partner.id,
+                "ok",
+                started,
             )
 
         return result
@@ -182,9 +197,7 @@ class DCIDispatcher(models.AbstractModel):
     # Audit logging
     # ------------------------------------------------------------------
 
-    def _record_audit(
-        self, variable, source, subject_id, result, started_at, error_message=None
-    ):
+    def _record_audit(self, variable, source, subject_id, result, started_at, error_message=None):
         """Write one spp.dci.fetch.audit row.
 
         Always uses sudo so background workers without per-user write rights
@@ -192,7 +205,10 @@ class DCIDispatcher(models.AbstractModel):
         """
         try:
             elapsed_ms = int((time.monotonic() - started_at) * 1000)
-            self.env["spp.dci.fetch.audit"].sudo().create(
+            # sudo() is intentional: background workers (precompute job) may
+            # not have spp_admin rights but every fetch must produce an audit
+            # row for compliance. Reading the audit log is still ACL-gated.
+            self.env["spp.dci.fetch.audit"].sudo().create(  # nosemgrep: odoo-sudo-without-context
                 {
                     "provider_code": variable.external_provider_id.code,
                     "data_source_code": source.code,
@@ -222,8 +238,7 @@ class DCIDispatcher(models.AbstractModel):
             )
         except ImportError:
             _logger.warning(
-                "spp_dci_client_crvs is not installed; cannot fetch variable "
-                "%s.",
+                "spp_dci_client_crvs is not installed; cannot fetch variable %s.",
                 variable.name,
             )
             return {}
@@ -239,7 +254,11 @@ class DCIDispatcher(models.AbstractModel):
             identifier = self._first_identifier(partner)
             if identifier is None:
                 self._record_audit(
-                    variable, source, partner.id, "not_found", started,
+                    variable,
+                    source,
+                    partner.id,
+                    "not_found",
+                    started,
                     error_message="no identifier",
                 )
                 continue
@@ -249,31 +268,49 @@ class DCIDispatcher(models.AbstractModel):
                 payload = service.verify_birth(id_type, id_value)
             except Exception as e:
                 self._record_audit(
-                    variable, source, partner.id, "error",
-                    started, error_message=str(e),
+                    variable,
+                    source,
+                    partner.id,
+                    "error",
+                    started,
+                    error_message=str(e),
                 )
                 _logger.warning(
                     "CRVS fetch failed for partner %d (var=%s): %s",
-                    partner.id, variable.name, e,
+                    partner.id,
+                    variable.name,
+                    e,
                 )
                 continue
 
             if payload is None:
                 self._record_audit(
-                    variable, source, partner.id, "not_found", started,
+                    variable,
+                    source,
+                    partner.id,
+                    "not_found",
+                    started,
                 )
                 continue
 
             value = self._extract_by_path(payload, path)
             if value is None:
                 self._record_audit(
-                    variable, source, partner.id, "not_found", started,
+                    variable,
+                    source,
+                    partner.id,
+                    "not_found",
+                    started,
                 )
                 continue
 
             result[partner.id] = value
             self._record_audit(
-                variable, source, partner.id, "ok", started,
+                variable,
+                source,
+                partner.id,
+                "ok",
+                started,
             )
 
         return result
@@ -291,8 +328,7 @@ class DCIDispatcher(models.AbstractModel):
             )
         except ImportError:
             _logger.warning(
-                "spp_dci_client_ibr is not installed; cannot fetch variable "
-                "%s.",
+                "spp_dci_client_ibr is not installed; cannot fetch variable %s.",
                 variable.name,
             )
             return {}
@@ -310,31 +346,49 @@ class DCIDispatcher(models.AbstractModel):
                 payload = service.check_duplication(partner)
             except Exception as e:
                 self._record_audit(
-                    variable, source, partner.id, "error",
-                    started, error_message=str(e),
+                    variable,
+                    source,
+                    partner.id,
+                    "error",
+                    started,
+                    error_message=str(e),
                 )
                 _logger.warning(
                     "IBR fetch failed for partner %d (var=%s): %s",
-                    partner.id, variable.name, e,
+                    partner.id,
+                    variable.name,
+                    e,
                 )
                 continue
 
             if payload is None:
                 self._record_audit(
-                    variable, source, partner.id, "not_found", started,
+                    variable,
+                    source,
+                    partner.id,
+                    "not_found",
+                    started,
                 )
                 continue
 
             value = self._extract_by_path(payload, path)
             if value is None:
                 self._record_audit(
-                    variable, source, partner.id, "not_found", started,
+                    variable,
+                    source,
+                    partner.id,
+                    "not_found",
+                    started,
                 )
                 continue
 
             result[partner.id] = value
             self._record_audit(
-                variable, source, partner.id, "ok", started,
+                variable,
+                source,
+                partner.id,
+                "ok",
+                started,
             )
 
         return result

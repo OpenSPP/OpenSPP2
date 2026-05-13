@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-
     <record id="view_data_provider_form_dci" model="ir.ui.view">
         <field name="name">spp.data.provider.form.dci</field>
         <field name="model">spp.data.provider</field>
@@ -23,5 +22,4 @@
             </xpath>
         </field>
     </record>
-
 </odoo>

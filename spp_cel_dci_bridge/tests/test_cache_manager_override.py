@@ -28,9 +28,7 @@ class TestCacheManagerOverride(BridgeTestBase):
     def test_non_dci_external_falls_back_to_super(self):
         """A bare 'external' variable without a DCI provider goes through
         the parent implementation, which returns {} and logs a warning."""
-        plain_provider = self.Provider.create(
-            {"name": "Plain", "code": "plain_super"}
-        )
+        plain_provider = self.Provider.create({"name": "Plain", "code": "plain_super"})
         var = self.Variable.create(
             {
                 "name": "var_no_dci",
@@ -44,9 +42,7 @@ class TestCacheManagerOverride(BridgeTestBase):
         )
 
         cache_mgr = self.env["spp.data.cache.manager"]
-        result = cache_mgr._compute_variable_values(
-            var, [self.partner_a.id], "current", program_id=None
-        )
+        result = cache_mgr._compute_variable_values(var, [self.partner_a.id], "current", program_id=None)
 
         # Parent returns {} for external source_type without our override
         self.assertEqual(result, {})
@@ -67,9 +63,7 @@ class TestCacheManagerOverride(BridgeTestBase):
         )
 
         cache_mgr = self.env["spp.data.cache.manager"]
-        result = cache_mgr._compute_variable_values(
-            field_var, [self.partner_a.id], "current", program_id=None
-        )
+        result = cache_mgr._compute_variable_values(field_var, [self.partner_a.id], "current", program_id=None)
 
         # Parent _compute_field_values reads the name field
         self.assertEqual(result, {self.partner_a.id: self.partner_a.name})
@@ -115,9 +109,7 @@ class TestCacheManagerOverride(BridgeTestBase):
 
         cache_mgr = self.env["spp.data.cache.manager"]
         # Should not raise
-        result = cache_mgr._compute_variable_values(
-            self.variable, [self.partner_a.id], "current", program_id=None
-        )
+        result = cache_mgr._compute_variable_values(self.variable, [self.partner_a.id], "current", program_id=None)
 
         # Per-subject error is swallowed by the handler; cache manager fills
         # the missing subject with explicit None.

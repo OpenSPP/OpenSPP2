@@ -33,9 +33,7 @@ class CELVariable(models.Model):
         ),
     )
 
-    @api.constrains(
-        "source_type", "external_provider_id", "dci_attribute_path"
-    )
+    @api.constrains("source_type", "external_provider_id", "dci_attribute_path")
     def _check_dci_attribute_path(self):
         for rec in self:
             if (
@@ -44,9 +42,4 @@ class CELVariable(models.Model):
                 and rec.external_provider_id.is_dci_backed
                 and not rec.dci_attribute_path
             ):
-                raise ValidationError(
-                    _(
-                        "DCI-backed external variables must define a DCI "
-                        "Attribute Path."
-                    )
-                )
+                raise ValidationError(_("DCI-backed external variables must define a DCI Attribute Path."))

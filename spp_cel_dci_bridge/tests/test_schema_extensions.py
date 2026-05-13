@@ -25,9 +25,7 @@ class TestSchemaExtensions(TransactionCase):
         )
 
     def test_provider_dci_data_source_field_exists(self):
-        provider = self.Provider.create(
-            {"name": "Plain Provider", "code": "plain_provider"}
-        )
+        provider = self.Provider.create({"name": "Plain Provider", "code": "plain_provider"})
         self.assertFalse(provider.dci_data_source_id)
         self.assertFalse(provider.is_dci_backed)
 
@@ -87,9 +85,7 @@ class TestSchemaExtensions(TransactionCase):
         self.assertEqual(var.external_failure_policy, "null")
 
     def test_variable_attribute_path_not_required_for_non_dci_provider(self):
-        provider = self.Provider.create(
-            {"name": "REST Provider", "code": "rest_provider"}
-        )
+        provider = self.Provider.create({"name": "REST Provider", "code": "rest_provider"})
         var = self.Variable.create(
             {
                 "name": "var_rest",

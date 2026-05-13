@@ -46,9 +46,7 @@ class TestFailurePolicy(BridgeTestBase):
         # null policy: errored subject gets an explicit None entry so the
         # cache stays complete; CEL evaluates against null and the subject
         # fails the `== true` filter.
-        self.assertEqual(
-            result, {self.partner_a.id: True, self.partner_b.id: None}
-        )
+        self.assertEqual(result, {self.partner_a.id: True, self.partner_b.id: None})
 
     @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
     def test_null_policy_returns_null_on_wholesale_failure(self, mock_client_class):

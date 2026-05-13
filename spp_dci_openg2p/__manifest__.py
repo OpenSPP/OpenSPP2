@@ -1,10 +1,7 @@
 # pylint: disable=pointless-statement
 {
     "name": "OpenSPP DCI - OpenG2P Preset",
-    "summary": (
-        "Pre-configured DCI data source, provider, and CEL variables "
-        "for OpenG2P deployments"
-    ),
+    "summary": ("Pre-configured DCI data source, provider, and CEL variables for OpenG2P deployments"),
     "version": "19.0.1.0.0",
     "category": "OpenSPP/Integration",
     "author": "OpenSPP.org",
