@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="1">
+
+    <!--
+        Override the semantic `has_disability` CEL variable so it sources
+        from OpenG2P over DCI instead of from a local res.partner field.
+
+        spp_studio ships var_has_disability with source_type='field' reading
+        res.partner.is_person_with_disability. Installing this preset
+        replaces that source with the DCI provider — declaratively stating
+        "OpenG2P is the authority for disability status in this deployment."
+
+        The variable NAME and cel_accessor stay 'has_disability' (semantic,
+        vendor-neutral, per ADR-023 §1a). Existing CEL rules that reference
+        `has_disability == true` continue to work — they now evaluate
+        against the cached DCI value instead of the local field.
+
+        The xml id is intentionally spp_studio.var_has_disability so Odoo
+        treats this as an in-place update of the existing record.
+
+        cache_ttl_seconds=300 (5 min) is tuned for the SPDCI demo so the
+        DCI round-trip is visible. Production deployments may raise this.
+
+        external_failure_policy=null: if OpenG2P is unreachable, the subject
+        evaluates against null (fails `has_disability == true`).
+        Compliance-critical rules can override to 'fail' on the variable.
+    -->
+    <record id="spp_studio.var_has_disability" model="spp.cel.variable">
+        <field name="source_type">external</field>
+        <field name="source_model">res.partner</field>
+        <field name="source_field" />
+        <field name="external_provider_id" ref="openg2p_dr_provider" />
+        <field name="dci_attribute_path">has_disability</field>
+        <field name="cache_strategy">ttl</field>
+        <field name="cache_ttl_seconds">300</field>
+        <field name="external_failure_policy">null</field>
+    </record>
+
+</odoo>

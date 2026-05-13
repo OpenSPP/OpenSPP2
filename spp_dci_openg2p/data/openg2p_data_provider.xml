@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="1">
+
+    <!--
+        OpenG2P CEL data provider — links the CEL framework to the DCI source.
+
+        default_ttl_seconds is the provider-level fallback for variables that
+        don't override it. The has_disability variable below sets its own TTL
+        of 300s for the demo; production deployments may raise this.
+    -->
+    <record id="openg2p_dr_provider" model="spp.data.provider">
+        <field name="name">OpenG2P Disability Registry</field>
+        <field name="code">openg2p_dr</field>
+        <field name="active" eval="True" />
+        <field name="dci_data_source_id" ref="openg2p_dr_source" />
+        <field name="default_ttl_seconds">86400</field>
+    </record>
+
+</odoo>

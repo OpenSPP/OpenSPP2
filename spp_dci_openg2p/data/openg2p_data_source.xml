@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="1">
+
+    <!--
+        OpenG2P DCI data source.
+
+        OAuth2 credentials are intentionally NOT seeded here (security).
+        Administrators must populate oauth2_client_id, oauth2_client_secret,
+        and oauth2_token_url after install, via the data source form.
+
+        registry_type uses the SPDCI URI value; the bridge dispatcher
+        normalizes both URI and short forms ("DR") to the canonical handler.
+
+        base_url is a placeholder pointing at the SPDCI demo. Replace with
+        the actual OpenG2P deployment URL.
+    -->
+    <record id="openg2p_dr_source" model="spp.dci.data.source">
+        <field name="name">OpenG2P Disability Registry</field>
+        <field name="code">openg2p_dr</field>
+        <field name="registry_type">DR</field>
+        <field name="base_url">https://openg2p.example.org/api/v1</field>
+        <!--
+            auth_type starts as 'none' so the install succeeds without
+            secrets in source control. Administrators must:
+              1. Open the data source form
+              2. Set auth_type to oauth2 (or whatever OpenG2P requires)
+              3. Populate oauth2_token_url, oauth2_client_id, oauth2_client_secret
+              4. Click "Test Connection"
+        -->
+        <field name="auth_type">none</field>
+        <field name="verify_ssl" eval="True" />
+        <field name="timeout">30</field>
+        <field name="active" eval="True" />
+        <field name="state">draft</field>
+        <field name="notes">OpenG2P preset. Configure auth credentials before use.</field>
+    </record>
+
+</odoo>
