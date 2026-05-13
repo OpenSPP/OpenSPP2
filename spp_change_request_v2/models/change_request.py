@@ -1018,6 +1018,7 @@ class SPPChangeRequest(models.Model):
         action = "resubmitted" if old_state == "revision" else "submitted"
         self._create_audit_event("submitted", old_state, "pending")
         self._create_log(action)
+        self.stage = "review"
 
     def _on_request_revision(self, notes):
         super()._on_request_revision(notes)
