@@ -69,4 +69,28 @@
         <field name="view_mode">list</field>
         <field name="search_view_id" ref="view_dci_fetch_audit_search" />
     </record>
+
+    <!--
+        Two menu entries because two operator personas need this log:
+        - DCI ops investigating connectivity / message volume
+        - CEL ops investigating why a variable's cache holds what it holds
+        Both gated to spp admin because audit data is sensitive.
+    -->
+    <menuitem
+        id="menu_dci_fetch_audit_dci_logs"
+        name="DCI Fetch Audit"
+        parent="spp_dci_client.menu_spp_dci_activity"
+        action="action_dci_fetch_audit"
+        sequence="20"
+        groups="spp_security.group_spp_admin"
+    />
+
+    <menuitem
+        id="menu_dci_fetch_audit_cel_data"
+        name="DCI Fetch Audit"
+        parent="spp_cel_domain.menu_data_management"
+        action="action_dci_fetch_audit"
+        sequence="30"
+        groups="spp_security.group_spp_admin"
+    />
 </odoo>
