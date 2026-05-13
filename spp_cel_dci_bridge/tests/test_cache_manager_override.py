@@ -104,9 +104,11 @@ class TestCacheManagerOverride(BridgeTestBase):
         self.assertEqual(rows.value_json, {"value": True})
 
     @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
-    def test_dispatcher_exception_yields_empty_not_raise(self, mock_client_class):
+    def test_dispatcher_exception_yields_null_not_raise(self, mock_client_class):
         """An unhandled exception inside the dispatcher must not crash the
-        cache manager — it returns {} and logs the error."""
+        cache manager. Under the default null policy, the queried subject
+        appears in the result with an explicit None value so the cache is
+        complete and CEL evaluation can fall through to false."""
         mock_client = MagicMock()
         mock_client.search_by_id.side_effect = RuntimeError("boom")
         mock_client_class.return_value = mock_client
@@ -117,5 +119,6 @@ class TestCacheManagerOverride(BridgeTestBase):
             self.variable, [self.partner_a.id], "current", program_id=None
         )
 
-        # Per-subject error is swallowed by the handler; nothing is returned.
-        self.assertEqual(result, {})
+        # Per-subject error is swallowed by the handler; cache manager fills
+        # the missing subject with explicit None.
+        self.assertEqual(result, {self.partner_a.id: None})

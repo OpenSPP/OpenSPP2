@@ -34,7 +34,15 @@ class DataCacheManager(models.AbstractModel):
         )
 
     def _compute_dci_values(self, variable, subject_ids, period_key, program_id):
-        """Fetch DCI-backed values, then apply the variable's failure policy."""
+        """Fetch DCI-backed values, then apply the variable's failure policy.
+
+        Every queried subject ends up in the returned dict — either with the
+        fetched value, the last-known cached value (last_known policy), or
+        explicit None (null policy). This ensures the resulting cache covers
+        the entire cohort, so the CEL executor's metric SQL fast path sees a
+        'fresh' cache state and uses SQL instead of falling back to Python
+        evaluation (which requires spp.indicator).
+        """
         dispatcher = self.env["spp.cel.dci.dispatcher"]
         policy = variable.external_failure_policy or "null"
 
@@ -66,6 +74,14 @@ class DataCacheManager(models.AbstractModel):
                 values = self._augment_with_last_known(
                     variable, values, missing
                 )
+
+        # Fill any still-missing subjects with explicit None. The cache writer
+        # records {"value": null}; CEL boolean comparisons against null
+        # evaluate to null (postgres) which fails WHERE clauses — i.e., the
+        # subject does not match `has_disability == true`, which is the right
+        # semantic for "we asked the registry and got nothing back."
+        for sid in subject_ids:
+            values.setdefault(sid, None)
 
         return values
 

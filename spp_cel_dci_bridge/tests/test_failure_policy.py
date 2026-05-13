@@ -43,11 +43,15 @@ class TestFailurePolicy(BridgeTestBase):
             program_id=None,
         )
 
-        # null policy: errored subject has no entry (CEL sees null/false)
-        self.assertEqual(result, {self.partner_a.id: True})
+        # null policy: errored subject gets an explicit None entry so the
+        # cache stays complete; CEL evaluates against null and the subject
+        # fails the `== true` filter.
+        self.assertEqual(
+            result, {self.partner_a.id: True, self.partner_b.id: None}
+        )
 
     @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
-    def test_null_policy_returns_empty_on_wholesale_failure(self, mock_client_class):
+    def test_null_policy_returns_null_on_wholesale_failure(self, mock_client_class):
         # Simulate the dispatcher itself raising (e.g., bad config caught late)
         with patch.object(
             self.env["spp.cel.dci.dispatcher"].__class__,
@@ -63,7 +67,8 @@ class TestFailurePolicy(BridgeTestBase):
                 program_id=None,
             )
 
-        self.assertEqual(result, {})
+        # Wholesale failure under null policy: subject filled with None
+        self.assertEqual(result, {self.partner_a.id: None})
 
     # -------------------------------------------------------------- fail
 
@@ -139,7 +144,7 @@ class TestFailurePolicy(BridgeTestBase):
         self.assertEqual(result, {self.partner_a.id: True})
 
     @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
-    def test_last_known_policy_no_prior_value_yields_empty(self, mock_client_class):
+    def test_last_known_policy_no_prior_value_yields_null(self, mock_client_class):
         with patch.object(
             self.env["spp.cel.dci.dispatcher"].__class__,
             "fetch_values_for_variable",
@@ -154,8 +159,8 @@ class TestFailurePolicy(BridgeTestBase):
                 program_id=None,
             )
 
-        # No prior cached value, so result remains empty
-        self.assertEqual(result, {})
+        # No prior cached value; subject filled with None to keep cache complete
+        self.assertEqual(result, {self.partner_a.id: None})
 
     @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
     def test_last_known_skips_null_prior_values(self, mock_client_class):
@@ -187,8 +192,9 @@ class TestFailurePolicy(BridgeTestBase):
                 program_id=None,
             )
 
-        # Null prior values are not surfaced as "last known"
-        self.assertEqual(result, {})
+        # Null prior values are not surfaced as "last known"; subject still
+        # gets a None entry from the fill-missing step
+        self.assertEqual(result, {self.partner_a.id: None})
 
     @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
     def test_last_known_fills_only_missing_subjects(self, mock_client_class):
