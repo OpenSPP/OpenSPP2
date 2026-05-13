@@ -1,6 +1,8 @@
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase, tagged
 
+from odoo.addons.spp_cel_dci_bridge.exceptions import DCIConfigurationError
+
 
 @tagged("post_install", "-at_install")
 class TestDispatcherRouting(TransactionCase):
@@ -66,16 +68,35 @@ class TestDispatcherRouting(TransactionCase):
         source.active = False
         self.assertEqual(self.dispatcher.fetch_values_for_variable(var, [1], "current"), {})
 
-    def test_unknown_registry_type_raises(self):
+    def test_unknown_registry_type_raises_configuration_error(self):
         var, source, _ = self._make_variable("DR", "unknown")
-        # Bypass the registry_type constraint by writing raw
+        # Bypass the registry_type constraint by writing raw. Selection is
+        # validated at write time, not at the DB level.
         self.env.cr.execute(
             "UPDATE spp_dci_data_source SET registry_type = 'XX' WHERE id = %s",
             (source.id,),
         )
         source.invalidate_recordset()
-        with self.assertRaises(UserError):
+        with self.assertRaises(DCIConfigurationError):
             self.dispatcher.fetch_values_for_variable(var, [1], "current")
+
+    def test_sr_handler_raises_configuration_error(self):
+        """Social Registry handler is a v1 stub — must surface, not silently
+        return empty (which would cause silent eligibility failure)."""
+        var, _, _ = self._make_variable("ns:org:RegistryType:Social", "sr_stub")
+        with self.assertRaises(DCIConfigurationError):
+            self.dispatcher.fetch_values_for_variable(var, [1], "current")
+
+    def test_fr_handler_raises_configuration_error(self):
+        """Functional Registry handler is a v1 stub — must surface."""
+        var, _, _ = self._make_variable("ns:org:RegistryType:FR", "fr_stub")
+        with self.assertRaises(DCIConfigurationError):
+            self.dispatcher.fetch_values_for_variable(var, [1], "current")
+
+    def test_dci_configuration_error_is_user_error(self):
+        """DCIConfigurationError must inherit UserError so existing
+        catch-blocks expecting UserError continue to handle it."""
+        self.assertTrue(issubclass(DCIConfigurationError, UserError))
 
     def test_dr_handler_returns_empty_skeleton(self):
         var, _, _ = self._make_variable("DR", "dr_skel")

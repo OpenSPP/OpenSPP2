@@ -3,6 +3,8 @@ from unittest.mock import MagicMock, patch
 from odoo.exceptions import UserError
 from odoo.tests.common import tagged
 
+from odoo.addons.spp_cel_dci_bridge.exceptions import DCIConfigurationError
+
 from .common import BridgeTestBase, make_dr_search_response
 
 
@@ -236,3 +238,54 @@ class TestFailurePolicy(BridgeTestBase):
             result,
             {self.partner_a.id: True, self.partner_b.id: False},
         )
+
+    # ----------------------------- DCIConfigurationError bypasses policy
+
+    def _force_configuration_error(self):
+        """Patch the dispatcher to raise DCIConfigurationError."""
+        return patch.object(
+            self.env["spp.cel.dci.dispatcher"].__class__,
+            "fetch_values_for_variable",
+            side_effect=DCIConfigurationError("Stub handler called"),
+        )
+
+    def test_configuration_error_propagates_under_null_policy(self):
+        """Configuration errors (missing module, stub handler) must surface
+        immediately even with null policy. Silently filling None when the
+        integration is broken would be a compliance hazard."""
+        self.variable.external_failure_policy = "null"
+        cache_mgr = self.env["spp.data.cache.manager"]
+        with self._force_configuration_error():
+            with self.assertRaises(DCIConfigurationError):
+                cache_mgr._compute_dci_values(
+                    self.variable,
+                    [self.partner_a.id],
+                    "current",
+                    program_id=None,
+                )
+
+    def test_configuration_error_propagates_under_last_known_policy(self):
+        """last_known is for transient runtime failures, not config errors."""
+        self.variable.external_failure_policy = "last_known"
+        cache_mgr = self.env["spp.data.cache.manager"]
+        with self._force_configuration_error():
+            with self.assertRaises(DCIConfigurationError):
+                cache_mgr._compute_dci_values(
+                    self.variable,
+                    [self.partner_a.id],
+                    "current",
+                    program_id=None,
+                )
+
+    def test_configuration_error_propagates_under_fail_policy(self):
+        """fail policy already raises; configuration errors must too."""
+        self.variable.external_failure_policy = "fail"
+        cache_mgr = self.env["spp.data.cache.manager"]
+        with self._force_configuration_error():
+            with self.assertRaises(DCIConfigurationError):
+                cache_mgr._compute_dci_values(
+                    self.variable,
+                    [self.partner_a.id],
+                    "current",
+                    program_id=None,
+                )

@@ -2,7 +2,8 @@ import logging
 import time
 
 from odoo import _, api, models
-from odoo.exceptions import UserError
+
+from ..exceptions import DCIConfigurationError
 
 _logger = logging.getLogger(__name__)
 
@@ -91,7 +92,7 @@ class DCIDispatcher(models.AbstractModel):
         canonical = self._REGISTRY_TYPE_ALIASES.get(source.registry_type)
         handler_name = self._HANDLERS.get(canonical) if canonical else None
         if not handler_name:
-            raise UserError(
+            raise DCIConfigurationError(
                 _(
                     "No DCI handler for registry_type=%(reg)s on variable %(var)s",
                     reg=source.registry_type,
@@ -126,13 +127,15 @@ class DCIDispatcher(models.AbstractModel):
             from odoo.addons.spp_dci_client_dr.services.dr_service import (
                 DRService,
             )
-        except ImportError:
-            _logger.warning(
-                "spp_dci_client_dr is not installed; cannot fetch variable "
-                "%s. Install spp_dci_client_dr or remove the variable.",
-                variable.name,
-            )
-            return {}
+        except ImportError as e:
+            raise DCIConfigurationError(
+                _(
+                    "spp_dci_client_dr is not installed; cannot fetch "
+                    "variable %(var)s. Install spp_dci_client_dr or "
+                    "reconfigure the variable to use a different registry.",
+                    var=variable.name,
+                )
+            ) from e
 
         service = DRService(self.env, data_source_code=source.code)
         Partner = self.env["res.partner"]
@@ -244,12 +247,15 @@ class DCIDispatcher(models.AbstractModel):
             from odoo.addons.spp_dci_client_crvs.services.crvs_service import (
                 CRVSService,
             )
-        except ImportError:
-            _logger.warning(
-                "spp_dci_client_crvs is not installed; cannot fetch variable %s.",
-                variable.name,
-            )
-            return {}
+        except ImportError as e:
+            raise DCIConfigurationError(
+                _(
+                    "spp_dci_client_crvs is not installed; cannot fetch "
+                    "variable %(var)s. Install spp_dci_client_crvs or "
+                    "reconfigure the variable to use a different registry.",
+                    var=variable.name,
+                )
+            ) from e
 
         service = CRVSService(self.env, data_source_code=source.code)
         Partner = self.env["res.partner"]
@@ -334,12 +340,15 @@ class DCIDispatcher(models.AbstractModel):
             from odoo.addons.spp_dci_client_ibr.services.ibr_service import (
                 IBRService,
             )
-        except ImportError:
-            _logger.warning(
-                "spp_dci_client_ibr is not installed; cannot fetch variable %s.",
-                variable.name,
-            )
-            return {}
+        except ImportError as e:
+            raise DCIConfigurationError(
+                _(
+                    "spp_dci_client_ibr is not installed; cannot fetch "
+                    "variable %(var)s. Install spp_dci_client_ibr or "
+                    "reconfigure the variable to use a different registry.",
+                    var=variable.name,
+                )
+            ) from e
 
         # IBRService takes (data_source, env) — different from DR/CRVS
         service = IBRService(source, self.env)
@@ -414,19 +423,24 @@ class DCIDispatcher(models.AbstractModel):
 
     def _handler_sr(self, variable, source, subject_ids, period_key):
         """Social Registry handler; not implemented in v1."""
-        _logger.info(
-            "SR handler not implemented; returning empty for variable %s",
-            variable.name,
+        raise DCIConfigurationError(
+            _(
+                "Social Registry handler is not implemented in v1. Variable "
+                "%(var)s cannot be evaluated. Track this in ADR-023 v2 work.",
+                var=variable.name,
+            )
         )
-        return {}
 
     def _handler_fr(self, variable, source, subject_ids, period_key):
         """Functional Registry handler; not implemented in v1."""
-        _logger.info(
-            "FR handler not implemented; returning empty for variable %s",
-            variable.name,
+        raise DCIConfigurationError(
+            _(
+                "Functional Registry handler is not implemented in v1. "
+                "Variable %(var)s cannot be evaluated. Track this in "
+                "ADR-023 v2 work.",
+                var=variable.name,
+            )
         )
-        return {}
 
     # ------------------------------------------------------------------
     # Helpers shared by handlers

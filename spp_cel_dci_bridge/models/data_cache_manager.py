@@ -3,6 +3,8 @@ import logging
 from odoo import _, models
 from odoo.exceptions import UserError
 
+from ..exceptions import DCIConfigurationError
+
 _logger = logging.getLogger(__name__)
 
 
@@ -44,6 +46,12 @@ class DataCacheManager(models.AbstractModel):
 
         try:
             values = dispatcher.fetch_values_for_variable(variable, subject_ids, period_key)
+        except DCIConfigurationError:
+            # Configuration errors (missing client module, unimplemented
+            # handler) always propagate, regardless of policy. Silently
+            # treating these as "no one is eligible" would be a compliance
+            # hazard — operators must see the broken setup immediately.
+            raise
         except Exception as e:
             _logger.error(
                 "DCI fetch failed for variable %s (policy=%s): %s",
