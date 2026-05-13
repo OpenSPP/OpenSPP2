@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-
     <record id="view_data_provider_form_dci" model="ir.ui.view">
         <field name="name">spp.data.provider.form.dci</field>
         <field name="model">spp.data.provider</field>
         <field name="inherit_id" ref="spp_cel_domain.view_data_provider_form" />
         <field name="arch" type="xml">
-
             <!--
                 Add a dedicated "DCI Integration" notebook page so DCI
                 routing is clearly separate from the generic REST/API
@@ -24,7 +22,11 @@
                         />
                         <field name="is_dci_backed" invisible="1" />
                     </group>
-                    <div class="alert alert-info" role="alert" invisible="not is_dci_backed">
+                    <div
+                        class="alert alert-info"
+                        role="alert"
+                        invisible="not is_dci_backed"
+                    >
                         <strong>DCI-backed provider.</strong>
                         Variable values for this provider are fetched via
                         the DCI protocol using the linked Data Source. The
@@ -47,7 +49,6 @@
             <xpath expr="//field[@name='auth_type']" position="attributes">
                 <attribute name="readonly">is_dci_backed</attribute>
             </xpath>
-
         </field>
     </record>
 
@@ -61,5 +62,4 @@
             </xpath>
         </field>
     </record>
-
 </odoo>

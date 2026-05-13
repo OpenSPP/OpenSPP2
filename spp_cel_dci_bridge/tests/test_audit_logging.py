@@ -90,9 +90,7 @@ class TestAuditLogging(BridgeTestBase):
         mock_client.search_by_id.return_value = make_dr_search_response(True)
         mock_client_class.return_value = mock_client
 
-        self.env["spp.cel.dci.dispatcher"].fetch_values_for_variable(
-            self.variable, [self.partner_a.id], "current"
-        )
+        self.env["spp.cel.dci.dispatcher"].fetch_values_for_variable(self.variable, [self.partner_a.id], "current")
 
         row = self._audits_for_variable()
         self.assertEqual(len(row), 1)

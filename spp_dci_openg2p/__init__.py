@@ -23,16 +23,14 @@ def post_init_hook(env):
     variable = env.ref("spp_studio.var_has_disability", raise_if_not_found=False)
     if not variable:
         _logger.warning(
-            "spp_studio.var_has_disability not found during post_init_hook; "
-            "skipping DCI binding re-assert."
+            "spp_studio.var_has_disability not found during post_init_hook; skipping DCI binding re-assert."
         )
         return
 
     provider = env.ref("spp_dci_openg2p.openg2p_dr_provider", raise_if_not_found=False)
     if not provider:
         _logger.error(
-            "spp_dci_openg2p.openg2p_dr_provider not found; cannot re-assert "
-            "DCI binding on has_disability variable."
+            "spp_dci_openg2p.openg2p_dr_provider not found; cannot re-assert DCI binding on has_disability variable."
         )
         return
 
@@ -54,12 +52,9 @@ def post_init_hook(env):
     if drift:
         variable.write(expected)
         _logger.info(
-            "Re-asserted DCI binding on spp_studio.var_has_disability: "
-            "%d field(s) restored (%s)",
+            "Re-asserted DCI binding on spp_studio.var_has_disability: %d field(s) restored (%s)",
             len(drift),
             ", ".join(drift.keys()),
         )
     else:
-        _logger.debug(
-            "spp_studio.var_has_disability DCI binding already correct; no changes."
-        )
+        _logger.debug("spp_studio.var_has_disability DCI binding already correct; no changes.")

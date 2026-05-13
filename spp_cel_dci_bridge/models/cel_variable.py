@@ -10,7 +10,6 @@ class CELVariable(models.Model):
     # (which Odoo's view validator rejects).
     external_provider_is_dci_backed = fields.Boolean(
         related="external_provider_id.is_dci_backed",
-        string="External Provider is DCI-Backed",
         store=False,
         readonly=True,
     )
