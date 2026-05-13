@@ -1,14 +1,53 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
+
     <record id="view_data_provider_form_dci" model="ir.ui.view">
         <field name="name">spp.data.provider.form.dci</field>
         <field name="model">spp.data.provider</field>
         <field name="inherit_id" ref="spp_cel_domain.view_data_provider_form" />
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='auth_type']" position="after">
-                <field name="dci_data_source_id" />
-                <field name="is_dci_backed" invisible="1" />
+
+            <!--
+                Add a dedicated "DCI Integration" notebook page so DCI
+                routing is clearly separate from the generic REST/API
+                connection settings on the same form. Placed first in the
+                notebook (before "Authentication") because it's a routing
+                concern that affects how everything else is interpreted.
+            -->
+            <xpath expr="//page[@name='auth']" position="before">
+                <page string="DCI Integration" name="dci_integration">
+                    <group name="dci_section" string="Linked DCI Data Source">
+                        <field
+                            name="dci_data_source_id"
+                            options="{'no_create': True, 'no_quick_create': True}"
+                            help="When set, this provider fetches values via the DCI protocol. The selected source's registry type determines which handler processes the call."
+                        />
+                        <field name="is_dci_backed" invisible="1" />
+                    </group>
+                    <div class="alert alert-info" role="alert" invisible="not is_dci_backed">
+                        <strong>DCI-backed provider.</strong>
+                        Variable values for this provider are fetched via
+                        the DCI protocol using the linked Data Source. The
+                        <em>Base URL</em>, <em>Authentication</em>, and
+                        OAuth credentials below are <strong>ignored at
+                        runtime</strong> when DCI routing is active —
+                        configure those on the DCI Data Source instead.
+                    </div>
+                </page>
             </xpath>
+
+            <!--
+                Make the now-redundant connection fields read-only when
+                DCI routing is active. Prevents operators from editing
+                fields that have no effect on actual DCI traffic.
+            -->
+            <xpath expr="//field[@name='base_url']" position="attributes">
+                <attribute name="readonly">is_dci_backed</attribute>
+            </xpath>
+            <xpath expr="//field[@name='auth_type']" position="attributes">
+                <attribute name="readonly">is_dci_backed</attribute>
+            </xpath>
+
         </field>
     </record>
 
@@ -22,4 +61,5 @@
             </xpath>
         </field>
     </record>
+
 </odoo>
