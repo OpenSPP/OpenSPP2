@@ -109,6 +109,54 @@ class TestFailurePolicy(BridgeTestBase):
     # --------------------------------------------------------- last_known
 
     @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
+    def test_last_known_picks_most_recent_of_many_history_rows(self, mock_client_class):
+        """When several historical rows exist for the same subject,
+        last_known must return the most recent one. Locks in the
+        DISTINCT ON (subject_id) ORDER BY recorded_at DESC semantic.
+        """
+        DataValue = self.env["spp.data.value"]
+        # Three rows for partner_a with different recorded_at — newest is False.
+        # Use period_key to write three distinct rows (unique by name+model+id+period).
+        from datetime import datetime, timedelta
+
+        now = datetime(2026, 5, 1, 12, 0, 0)
+        for offset_days, value, period in [
+            (-30, True, "2026-04"),   # oldest
+            (-15, True, "2026-04b"),  # middle
+            (-1, False, "current"),   # newest -> wins
+        ]:
+            DataValue.create(
+                {
+                    "variable_name": self.variable.name,
+                    "subject_model": "res.partner",
+                    "subject_id": self.partner_a.id,
+                    "period_key": period,
+                    "value_json": {"value": value},
+                    "value_type": "boolean",
+                    "source_type": "external",
+                    "provider": self.provider.code,
+                    "recorded_at": now + timedelta(days=offset_days),
+                }
+            )
+
+        with patch.object(
+            self.env["spp.cel.dci.dispatcher"].__class__,
+            "fetch_values_for_variable",
+            side_effect=RuntimeError("dispatcher broke"),
+        ):
+            self.variable.external_failure_policy = "last_known"
+            cache_mgr = self.env["spp.data.cache.manager"]
+            result = cache_mgr._compute_dci_values(
+                self.variable,
+                [self.partner_a.id],
+                "current",
+                program_id=None,
+            )
+
+        # Newest row (offset_days=-1) wins, value=False
+        self.assertEqual(result, {self.partner_a.id: False})
+
+    @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
     def test_last_known_policy_uses_prior_cached_value(self, mock_client_class):
         # Pre-seed a known value in spp.data.value
         DataValue = self.env["spp.data.value"]

@@ -91,30 +91,57 @@ class DataCacheManager(models.AbstractModel):
         Ignores expiry — the whole point of 'last_known' policy is to surface
         stale-but-known answers when the live source is unavailable. Logs a
         warning per subject so operators can see what's degraded.
+
+        Uses DISTINCT ON to pick the latest non-null row per subject in a
+        single query. The ORM-search-then-filter approach would fetch every
+        historical row for the missing subjects and Python-filter to the
+        latest — fine at demo scale, but O(history × cohort) and degrades
+        sharply for deployments with daily TTL refresh over months.
+
+        Filters out JSON null (`{"value": null}`) at the SQL layer so we
+        don't surface "we previously fetched nothing" as a last-known value.
         """
-        DataValue = self.env["spp.data.value"]
-        rows = DataValue.search(
-            [
-                ("variable_name", "=", variable.name),
-                ("subject_id", "in", list(missing_subject_ids)),
-                ("subject_model", "=", "res.partner"),
-            ],
-            order="recorded_at desc",
+        if not missing_subject_ids:
+            return values
+
+        missing_list = list(missing_subject_ids)
+        self.env.cr.execute(
+            """
+            SELECT DISTINCT ON (subject_id)
+                subject_id,
+                value_json,
+                recorded_at
+            FROM spp_data_value
+            WHERE variable_name = %s
+              AND subject_id = ANY(%s)
+              AND subject_model = %s
+              AND company_id = %s
+              AND (value_json -> 'value') IS NOT NULL
+              AND (value_json -> 'value') != 'null'::jsonb
+            ORDER BY subject_id, recorded_at DESC, id DESC
+            """,
+            (
+                variable.name,
+                missing_list,
+                "res.partner",
+                self.env.company.id,
+            ),
         )
 
         filled = dict(values)
-        seen = set()
-        for row in rows:
-            if row.subject_id in seen:
+        for subject_id, value_json, recorded_at in self.env.cr.fetchall():
+            payload = value_json
+            if not isinstance(payload, dict):
                 continue
-            payload = row.value_json
-            if isinstance(payload, dict) and payload.get("value") is not None:
-                filled[row.subject_id] = payload["value"]
-                seen.add(row.subject_id)
-                _logger.warning(
-                    "Variable %s: using last-known value for subject %d (recorded_at=%s) due to fetch failure",
-                    variable.name,
-                    row.subject_id,
-                    row.recorded_at,
-                )
+            inner = payload.get("value")
+            if inner is None:
+                continue  # belt-and-suspenders; SQL filter should have excluded these
+            filled[subject_id] = inner
+            _logger.warning(
+                "Variable %s: using last-known value for subject %d "
+                "(recorded_at=%s) due to fetch failure",
+                variable.name,
+                subject_id,
+                recorded_at,
+            )
         return filled
