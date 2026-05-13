@@ -200,16 +200,24 @@ class DCIDispatcher(models.AbstractModel):
     def _record_audit(self, variable, source, subject_id, result, started_at, error_message=None):
         """Write one spp.dci.fetch.audit row.
 
-        Always uses sudo so background workers without per-user write rights
-        can record. Audit reading is restricted via ACL.
+        Captures the acting user id BEFORE escalating to sudo so the audit
+        preserves operator attribution. Without this, the user_id field's
+        `default=lambda self: self.env.user` resolves against the sudoed env
+        and every row records as user_root — defeating the compliance
+        purpose. Audit writes go through sudo because background workers
+        (precompute job, cycle pre-fetch) may not hold spp_admin rights,
+        but every fetch must produce a row. Reading the audit is still
+        ACL-gated.
         """
         try:
             elapsed_ms = int((time.monotonic() - started_at) * 1000)
-            # sudo() is intentional: background workers (precompute job) may
-            # not have spp_admin rights but every fetch must produce an audit
-            # row for compliance. Reading the audit log is still ACL-gated.
+            acting_user_id = self.env.uid
+            # sudo() is intentional: background workers may not have write
+            # rights on the audit model, but every fetch must produce a row.
+            # acting_user_id captured above preserves operator attribution.
             self.env["spp.dci.fetch.audit"].sudo().create(  # nosemgrep: odoo-sudo-without-context
                 {
+                    "user_id": acting_user_id,
                     "provider_code": variable.external_provider_id.code,
                     "data_source_code": source.code,
                     "registry_type": source.registry_type,

@@ -84,12 +84,32 @@ class TestAuditLogging(BridgeTestBase):
         self.assertTrue(all(r.result == "ok" for r in rows))
 
     @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
-    def test_audit_records_user_id(self, mock_client_class):
+    def test_audit_records_acting_user_not_root(self, mock_client_class):
+        """Regression: audit must record the operator who triggered the
+        fetch, not user_root. The user_id field default resolves to
+        self.env.user, which gets overridden by sudo() to user_root unless
+        we capture acting_user_id before escalating privileges.
+        """
         mock_client = MagicMock()
         mock_client.search_by_id.return_value = make_dr_search_response(True)
         mock_client_class.return_value = mock_client
 
-        self.env["spp.cel.dci.dispatcher"].fetch_values_for_variable(self.variable, [self.partner_a.id], "current")
+        # Create a non-admin internal user to act as the operator
+        officer = self.env["res.users"].create(
+            {
+                "name": "DCI Officer",
+                "login": "dci_officer_test",
+                "group_ids": [(6, 0, [self.env.ref("base.group_user").id])],
+            }
+        )
+
+        # Drive the dispatcher as that user
+        self.env["spp.cel.dci.dispatcher"].with_user(officer).fetch_values_for_variable(
+            self.variable, [self.partner_a.id], "current"
+        )
 
         rows = self._audits_for_variable()
-        self.assertEqual(rows.user_id, self.env.user)
+        self.assertEqual(len(rows), 1)
+        # The audit row must record the officer, not user_root
+        self.assertEqual(rows.user_id, officer)
+        self.assertNotEqual(rows.user_id, self.env.ref("base.user_root"))
