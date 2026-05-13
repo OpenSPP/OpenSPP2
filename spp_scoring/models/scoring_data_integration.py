@@ -151,8 +151,13 @@ class ScoringEngineDataIntegration(models.AbstractModel):
         # Call original method
         result = super().calculate_score(registrant, scoring_model, mode)
 
-        # Store in unified cache if enabled
-        if scoring_model.cache_scores:
+        # Only cache *complete* results — strict-mode required-indicator
+        # failures persist an audit row with is_complete=False and a
+        # zeroed score; publishing that to spp.data.value would let CEL
+        # consumers (e.g. `r.demo_hva_2025_score >= 0.6`) read 0 and
+        # treat the registrant as scored-low rather than not-scored.
+        # See OP#838.
+        if scoring_model.cache_scores and result.is_complete:
             self._store_score_in_cache(result, registrant, scoring_model)
 
         return result
