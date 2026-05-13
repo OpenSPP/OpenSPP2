@@ -1,6 +1,7 @@
 import logging
 
-from odoo import models
+from odoo import _, models
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -33,23 +34,72 @@ class DataCacheManager(models.AbstractModel):
         )
 
     def _compute_dci_values(self, variable, subject_ids, period_key, program_id):
-        """Fetch DCI-backed external values via the dispatcher.
-
-        v1: failure policy is implicitly 'null' — exceptions and missing
-        subjects produce no entry in the result dict; the cache manager
-        records the absence. Step 6 will add explicit policy handling
-        for 'last_known' and 'fail'.
-        """
+        """Fetch DCI-backed values, then apply the variable's failure policy."""
         dispatcher = self.env["spp.cel.dci.dispatcher"]
+        policy = variable.external_failure_policy or "null"
+
         try:
-            return dispatcher.fetch_values_for_variable(
+            values = dispatcher.fetch_values_for_variable(
                 variable, subject_ids, period_key
             )
         except Exception as e:
             _logger.error(
-                "DCI fetch failed for variable %s: %s",
+                "DCI fetch failed for variable %s (policy=%s): %s",
                 variable.name,
+                policy,
                 e,
                 exc_info=True,
             )
-            return {}
+            if policy == "fail":
+                raise UserError(
+                    _(
+                        "DCI fetch failed for variable '%(var)s': %(err)s",
+                        var=variable.name,
+                        err=e,
+                    )
+                ) from e
+            values = {}
+
+        if policy == "last_known":
+            missing = set(subject_ids) - set(values.keys())
+            if missing:
+                values = self._augment_with_last_known(
+                    variable, values, missing
+                )
+
+        return values
+
+    def _augment_with_last_known(self, variable, values, missing_subject_ids):
+        """Fill missing subjects from the most recent cached non-null value.
+
+        Ignores expiry — the whole point of 'last_known' policy is to surface
+        stale-but-known answers when the live source is unavailable. Logs a
+        warning per subject so operators can see what's degraded.
+        """
+        DataValue = self.env["spp.data.value"]
+        rows = DataValue.search(
+            [
+                ("variable_name", "=", variable.name),
+                ("subject_id", "in", list(missing_subject_ids)),
+                ("subject_model", "=", "res.partner"),
+            ],
+            order="recorded_at desc",
+        )
+
+        filled = dict(values)
+        seen = set()
+        for row in rows:
+            if row.subject_id in seen:
+                continue
+            payload = row.value_json
+            if isinstance(payload, dict) and payload.get("value") is not None:
+                filled[row.subject_id] = payload["value"]
+                seen.add(row.subject_id)
+                _logger.warning(
+                    "Variable %s: using last-known value for subject %d "
+                    "(recorded_at=%s) due to fetch failure",
+                    variable.name,
+                    row.subject_id,
+                    row.recorded_at,
+                )
+        return filled
