@@ -89,6 +89,18 @@ class TestEndToEndEligibility(BridgeTestBase):
         # Exactly one matching partner (partner_a)
         self.assertEqual(compiled["count"], 1)
 
+        # Inverse comparison exercises the cel_executor boolean `!=` branch,
+        # which is symmetric with `==` but a separate SQL emission path.
+        compiled_neg = service.compile_expression(
+            f"{self.variable.cel_accessor} != true",
+            profile="registry_individuals",
+            base_domain=[("id", "in", [self.partner_a.id, self.partner_b.id])],
+            limit=0,
+        )
+        self.assertTrue(compiled_neg["valid"], compiled_neg.get("error"))
+        # partner_b's cached value is False → matches `!= true`
+        self.assertEqual(compiled_neg["count"], 1)
+
         # Phase 4: verify audit rows reflect the two fetches
         Audit = self.env["spp.dci.fetch.audit"]
         audits = Audit.search([("variable_name", "=", self.variable.name)])

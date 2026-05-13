@@ -119,6 +119,32 @@ class TestAuditLogging(BridgeTestBase):
         self.assertEqual(row.subject_id, missing_id)
 
     @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
+    def test_audit_write_failure_does_not_break_fetch(self, mock_client_class):
+        """If the audit write itself raises (model gone, db full, etc.),
+        the fetch must still complete and return values. The compliance
+        cost of losing a row is real but lower than the operational cost
+        of having every fetch fail because audit infrastructure is broken.
+        """
+        mock_client = MagicMock()
+        mock_client.search_by_id.return_value = make_dr_search_response(True)
+        mock_client_class.return_value = mock_client
+
+        dispatcher = self.env["spp.cel.dci.dispatcher"]
+
+        # Patch the audit create to raise — fetch should still succeed.
+        from unittest.mock import patch as _patch
+
+        with _patch.object(
+            type(self.Audit),
+            "create",
+            side_effect=RuntimeError("audit write broken"),
+        ):
+            result = dispatcher.fetch_values_for_variable(self.variable, [self.partner_a.id], "current")
+
+        # Fetch returned the value despite audit failure
+        self.assertEqual(result, {self.partner_a.id: True})
+
+    @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
     def test_audit_records_acting_user_not_root(self, mock_client_class):
         """Regression: audit must record the operator who triggered the
         fetch, not user_root. The user_id field default resolves to

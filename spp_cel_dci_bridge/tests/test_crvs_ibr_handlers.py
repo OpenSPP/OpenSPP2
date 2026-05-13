@@ -90,6 +90,55 @@ class TestCRVSHandler(BridgeTestBase):
 
         self.assertEqual(result, {})
 
+    @patch("odoo.addons.spp_dci_client_crvs.services.crvs_service.DCIClient")
+    def test_crvs_handler_swallows_per_subject_error(self, mock_client_class):
+        """Per-subject service exception must not fail the batch — logs +
+        records an audit row with result='error' and continues."""
+        mock_client = MagicMock()
+        mock_client.search_by_id.side_effect = RuntimeError("crvs boom")
+        mock_client_class.return_value = mock_client
+
+        result = self.env["spp.cel.dci.dispatcher"].fetch_values_for_variable(
+            self.variable, [self.partner_a.id], "current"
+        )
+
+        self.assertEqual(result, {})
+        audits = self.env["spp.dci.fetch.audit"].search([("variable_name", "=", self.variable.name)])
+        self.assertEqual(len(audits), 1)
+        self.assertEqual(audits.result, "error")
+        self.assertIn("crvs boom", audits.error_message)
+
+    @patch("odoo.addons.spp_dci_client_crvs.services.crvs_service.DCIClient")
+    def test_crvs_handler_records_not_found_on_empty_response(self, mock_client_class):
+        mock_client = MagicMock()
+        mock_client.search_by_id.return_value = {"message": {"search_response": []}}
+        mock_client_class.return_value = mock_client
+
+        result = self.env["spp.cel.dci.dispatcher"].fetch_values_for_variable(
+            self.variable, [self.partner_a.id], "current"
+        )
+
+        self.assertEqual(result, {})
+        audits = self.env["spp.dci.fetch.audit"].search([("variable_name", "=", self.variable.name)])
+        self.assertEqual(audits.result, "not_found")
+
+    @patch("odoo.addons.spp_dci_client_crvs.services.crvs_service.DCIClient")
+    def test_crvs_handler_records_not_found_when_attribute_path_missing(self, mock_client_class):
+        """Successful response but the configured dci_attribute_path doesn't
+        resolve to anything — record not_found, not error."""
+        self.variable.dci_attribute_path = "nonexistent.path"
+        mock_client = MagicMock()
+        mock_client.search_by_id.return_value = make_crvs_birth_response()
+        mock_client_class.return_value = mock_client
+
+        result = self.env["spp.cel.dci.dispatcher"].fetch_values_for_variable(
+            self.variable, [self.partner_a.id], "current"
+        )
+
+        self.assertEqual(result, {})
+        audits = self.env["spp.dci.fetch.audit"].search([("variable_name", "=", self.variable.name)])
+        self.assertEqual(audits.result, "not_found")
+
 
 @tagged("post_install", "-at_install")
 class TestIBRHandler(BridgeTestBase):
@@ -116,3 +165,39 @@ class TestIBRHandler(BridgeTestBase):
 
         # check_duplication finds 2 matched programs → is_duplicate=True
         self.assertEqual(result, {self.partner_a.id: True})
+
+    def test_ibr_handler_swallows_per_subject_error(self):
+        """If check_duplication itself raises (rare — the service swallows
+        per-identifier failures internally), the dispatcher must record
+        an error audit row and continue.
+        """
+        from unittest.mock import patch as _patch
+
+        with _patch(
+            "odoo.addons.spp_dci_client_ibr.services.ibr_service.IBRService.check_duplication",
+            side_effect=RuntimeError("ibr boom"),
+        ):
+            result = self.env["spp.cel.dci.dispatcher"].fetch_values_for_variable(
+                self.variable, [self.partner_a.id], "current"
+            )
+
+        self.assertEqual(result, {})
+        audits = self.env["spp.dci.fetch.audit"].search([("variable_name", "=", self.variable.name)])
+        self.assertEqual(len(audits), 1)
+        self.assertEqual(audits.result, "error")
+        self.assertIn("ibr boom", audits.error_message)
+
+    @patch("odoo.addons.spp_dci_client_ibr.services.ibr_service.DCIClient")
+    def test_ibr_handler_records_not_found_when_attribute_path_missing(self, mock_client_class):
+        self.variable.dci_attribute_path = "nonexistent_key"
+        mock_client = MagicMock()
+        mock_client.search_by_id.return_value = make_ibr_search_response()
+        mock_client_class.return_value = mock_client
+
+        result = self.env["spp.cel.dci.dispatcher"].fetch_values_for_variable(
+            self.variable, [self.partner_a.id], "current"
+        )
+
+        self.assertEqual(result, {})
+        audits = self.env["spp.dci.fetch.audit"].search([("variable_name", "=", self.variable.name)])
+        self.assertEqual(audits.result, "not_found")

@@ -87,6 +87,36 @@ class TestOpenG2PPresetInstall(TransactionCase):
         self.assertEqual(variable.cache_strategy, "ttl")
         self.assertEqual(variable.cache_ttl_seconds, 300)
 
+    def test_post_init_hook_handles_missing_variable_gracefully(self):
+        """If spp_studio.var_has_disability is missing (e.g., spp_studio
+        was uninstalled but the preset is still loaded), the hook must
+        log a warning and return — not raise — so partial uninstall
+        scenarios don't break the database initialization."""
+        from unittest.mock import patch
+
+        with patch("odoo.api.Environment.ref") as mock_ref:
+            # First call (variable lookup) returns None
+            mock_ref.return_value = self.env["spp.cel.variable"].browse()
+            # Should not raise
+            post_init_hook(self.env)
+
+    def test_post_init_hook_handles_missing_provider_gracefully(self):
+        """If the OpenG2P provider record was deleted post-install, the
+        hook must log an error and return — not raise. Variable stays in
+        whatever state it's in."""
+        from unittest.mock import patch as _patch
+
+        original_ref = self.env.ref
+
+        def selective_ref(xmlid, *args, **kwargs):
+            if xmlid == "spp_dci_openg2p.openg2p_dr_provider":
+                return self.env["spp.data.provider"].browse()  # empty
+            return original_ref(xmlid, *args, **kwargs)
+
+        with _patch.object(type(self.env), "ref", side_effect=selective_ref):
+            # Should not raise
+            post_init_hook(self.env)
+
     def test_post_init_hook_is_idempotent(self):
         """Running the hook when the binding is already correct must not
         write or log noise. Verify no validation errors and the variable
