@@ -116,14 +116,16 @@ class TestStageNavigation(TestChangeRequestBase):
                 cr.action_open_stage_form()
 
     def test_action_open_stage_form_pending(self):
-        """Pending CR opens main form (not stage form)."""
+        """Pending CR opens the Review & Submit stage form so post-submit
+        states share the breadcrumb-based UI with draft / revision."""
         cr = self._create_cr()
         cr.approval_state = "pending"
         result = cr.action_open_stage_form()
         self.assertEqual(result["type"], "ir.actions.act_window")
         self.assertEqual(result["res_model"], "spp.change.request")
         self.assertEqual(result["res_id"], cr.id)
-        self.assertEqual(result["views"], [[False, "form"]])
+        review_view = self.env.ref("spp_change_request_v2.spp_change_request_review_form")
+        self.assertEqual(result["views"], [[review_view.id, "form"]])
 
     def test_action_start_over_creates_new_cr(self):
         """action_start_over() creates a new CR with same type and registrant."""
