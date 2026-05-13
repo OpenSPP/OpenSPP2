@@ -10,7 +10,8 @@
                 <field name="registry_type" />
                 <field name="provider_code" />
                 <field name="data_source_code" optional="hide" />
-                <field name="subject_id" />
+                <field name="subject_ref" />
+                <field name="subject_id" optional="hide" />
                 <field
                     name="result"
                     widget="badge"

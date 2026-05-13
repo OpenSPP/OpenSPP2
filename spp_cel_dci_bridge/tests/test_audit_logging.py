@@ -84,6 +84,43 @@ class TestAuditLogging(BridgeTestBase):
         self.assertTrue(all(r.result == "ok" for r in rows))
 
     @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
+    def test_subject_ref_resolves_to_current_partner(self, mock_client_class):
+        """Reference field gives auditors click-through to the partner."""
+        mock_client = MagicMock()
+        mock_client.search_by_id.return_value = make_dr_search_response(True)
+        mock_client_class.return_value = mock_client
+
+        self.env["spp.cel.dci.dispatcher"].fetch_values_for_variable(
+            self.variable, [self.partner_a.id], "current"
+        )
+
+        row = self._audits_for_variable()
+        self.assertEqual(len(row), 1)
+        self.assertEqual(row.subject_ref, self.partner_a)
+
+    def test_subject_ref_falsy_when_partner_missing(self):
+        """Reference is False when subject_id points to a deleted partner;
+        the immutable subject_id snapshot is preserved in the audit log."""
+        missing_id = 99999999
+        # Make sure the id really doesn't exist
+        self.assertFalse(self.env["res.partner"].browse(missing_id).exists())
+
+        row = self.Audit.create(
+            {
+                "provider_code": "bridge_dr_provider",
+                "data_source_code": "bridge_dr_source",
+                "registry_type": "DR",
+                "variable_name": self.variable.name,
+                "subject_model": "res.partner",
+                "subject_id": missing_id,
+                "result": "ok",
+            }
+        )
+        self.assertFalse(row.subject_ref)
+        # Snapshot subject_id survives even when the partner no longer resolves
+        self.assertEqual(row.subject_id, missing_id)
+
+    @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
     def test_audit_records_acting_user_not_root(self, mock_client_class):
         """Regression: audit must record the operator who triggered the
         fetch, not user_root. The user_id field default resolves to
