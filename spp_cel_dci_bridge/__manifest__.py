@@ -13,6 +13,8 @@
         "spp_cel_domain",
         "spp_dci_client",
         "spp_dci_client_dr",
+        "spp_dci_client_crvs",
+        "spp_dci_client_ibr",
         "spp_studio",
     ],
     "external_dependencies": {"python": []},

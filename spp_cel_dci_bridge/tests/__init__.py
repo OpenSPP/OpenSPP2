@@ -5,3 +5,4 @@ from . import test_cache_manager_override
 from . import test_failure_policy
 from . import test_audit_logging
 from . import test_end_to_end
+from . import test_crvs_ibr_handlers
