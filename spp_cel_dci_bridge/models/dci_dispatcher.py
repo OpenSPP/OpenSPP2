@@ -88,8 +88,48 @@ class DCIDispatcher(models.AbstractModel):
     # ------------------------------------------------------------------
 
     def _handler_dr(self, variable, source, subject_ids, period_key):
-        """Skeleton; filled in by step 4."""
-        return {}
+        """Call the Disability Registry DCI service for each subject.
+
+        Returns {subject_id: value} where value is the attribute named by
+        `variable.dci_attribute_path` extracted from the DR response payload.
+        Subjects with no DR record, no matching identifier, or no value at
+        the configured path are omitted from the returned dict.
+        """
+        try:
+            from odoo.addons.spp_dci_client_dr.services.dr_service import (
+                DRService,
+            )
+        except ImportError:
+            _logger.warning(
+                "spp_dci_client_dr is not installed; cannot fetch variable "
+                "%s. Install spp_dci_client_dr or remove the variable.",
+                variable.name,
+            )
+            return {}
+
+        service = DRService(self.env, data_source_code=source.code)
+        Partner = self.env["res.partner"]
+        partners = Partner.browse(subject_ids).exists()
+        path = variable.dci_attribute_path
+
+        result = {}
+        for partner in partners:
+            try:
+                payload = service.get_disability_status(partner)
+            except Exception as e:
+                _logger.warning(
+                    "DR fetch failed for partner %d (var=%s): %s",
+                    partner.id,
+                    variable.name,
+                    e,
+                )
+                continue
+
+            value = self._extract_by_path(payload, path)
+            if value is not None:
+                result[partner.id] = value
+
+        return result
 
     def _handler_crvs(self, variable, source, subject_ids, period_key):
         """Skeleton; filled in by step 9."""

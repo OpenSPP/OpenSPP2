@@ -12,6 +12,7 @@
     "depends": [
         "spp_cel_domain",
         "spp_dci_client",
+        "spp_dci_client_dr",
         "spp_studio",
     ],
     "external_dependencies": {"python": []},
