@@ -1,5 +1,7 @@
 from odoo.tests.common import TransactionCase, tagged
 
+from odoo.addons.spp_dci_openg2p import post_init_hook
+
 
 @tagged("post_install", "-at_install")
 class TestOpenG2PPresetInstall(TransactionCase):
@@ -48,3 +50,58 @@ class TestOpenG2PPresetInstall(TransactionCase):
         for forbidden in ("openg2p", "g2p", "vendor"):
             self.assertNotIn(forbidden, variable.cel_accessor.lower())
             self.assertNotIn(forbidden, variable.name.lower())
+
+    def test_post_init_hook_re_asserts_after_studio_reset(self):
+        """Simulate `-u spp_studio` resetting var_has_disability back to its
+        original source_type='field' state, then run our hook. The hook
+        must restore the DCI binding. Without this protection, an unrelated
+        upgrade silently breaks the demo deployment."""
+        variable = self.env.ref("spp_studio.var_has_disability")
+        provider = self.env.ref("spp_dci_openg2p.openg2p_dr_provider")
+
+        # Simulate spp_studio re-applying its standard_variables.xml
+        variable.write(
+            {
+                "source_type": "field",
+                "source_model": "res.partner",
+                "source_field": "is_person_with_disability",
+                "external_provider_id": False,
+                "dci_attribute_path": False,
+                "cache_strategy": "none",
+                "external_failure_policy": "null",
+            }
+        )
+        # Confirm the reset took effect
+        self.assertEqual(variable.source_type, "field")
+        self.assertFalse(variable.external_provider_id)
+
+        # Run the hook
+        post_init_hook(self.env)
+
+        # Verify the DCI binding was re-asserted
+        variable.invalidate_recordset()
+        self.assertEqual(variable.source_type, "external")
+        self.assertFalse(variable.source_field)
+        self.assertEqual(variable.external_provider_id, provider)
+        self.assertEqual(variable.dci_attribute_path, "has_disability")
+        self.assertEqual(variable.cache_strategy, "ttl")
+        self.assertEqual(variable.cache_ttl_seconds, 300)
+
+    def test_post_init_hook_is_idempotent(self):
+        """Running the hook when the binding is already correct must not
+        write or log noise. Verify no validation errors and the variable
+        state is unchanged."""
+        variable = self.env.ref("spp_studio.var_has_disability")
+        before = {
+            "source_type": variable.source_type,
+            "external_provider_id": variable.external_provider_id.id,
+            "dci_attribute_path": variable.dci_attribute_path,
+        }
+        post_init_hook(self.env)
+        variable.invalidate_recordset()
+        after = {
+            "source_type": variable.source_type,
+            "external_provider_id": variable.external_provider_id.id,
+            "dci_attribute_path": variable.dci_attribute_path,
+        }
+        self.assertEqual(before, after)
