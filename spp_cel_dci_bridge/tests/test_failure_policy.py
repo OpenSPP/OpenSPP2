@@ -121,9 +121,9 @@ class TestFailurePolicy(BridgeTestBase):
 
         now = datetime(2026, 5, 1, 12, 0, 0)
         for offset_days, value, period in [
-            (-30, True, "2026-04"),   # oldest
+            (-30, True, "2026-04"),  # oldest
             (-15, True, "2026-04b"),  # middle
-            (-1, False, "current"),   # newest -> wins
+            (-1, False, "current"),  # newest -> wins
         ]:
             DataValue.create(
                 {

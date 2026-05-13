@@ -138,8 +138,7 @@ class DataCacheManager(models.AbstractModel):
                 continue  # belt-and-suspenders; SQL filter should have excluded these
             filled[subject_id] = inner
             _logger.warning(
-                "Variable %s: using last-known value for subject %d "
-                "(recorded_at=%s) due to fetch failure",
+                "Variable %s: using last-known value for subject %d (recorded_at=%s) due to fetch failure",
                 variable.name,
                 subject_id,
                 recorded_at,

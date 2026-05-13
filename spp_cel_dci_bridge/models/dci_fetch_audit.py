@@ -47,7 +47,11 @@ class DCIFetchAudit(models.Model):
         selection=[("res.partner", "Registrant")],
         string="Subject",
         compute="_compute_subject_ref",
-        help="Click-through to the currently registered partner. Empty if the partner has been deleted since the fetch — the immutable subject_id below preserves the historical reference.",
+        help=(
+            "Click-through to the currently registered partner. Empty if "
+            "the partner has been deleted since the fetch — the immutable "
+            "subject_id below preserves the historical reference."
+        ),
     )
 
     @api.depends("subject_model", "subject_id")
