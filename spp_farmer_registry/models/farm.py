@@ -149,6 +149,27 @@ class Farm(models.Model):
     )
 
     # ═══════════════════════════════════════════════════════════════════════
+    # MEMBERSHIP COMPLETENESS (#939)
+    # ═══════════════════════════════════════════════════════════════════════
+    # Farm-registry users need to surface farms that aren't usable yet because
+    # nobody is associated with them, or because no member is flagged as the
+    # head of household. Stored so the search filters and list-row decoration
+    # can use them without triggering N+1 reads.
+
+    member_count = fields.Integer(
+        string="# Members",
+        compute="_compute_member_membership_state",
+        store=True,
+        help="Number of non-ended members linked to this farm/group.",
+    )
+    has_head_member = fields.Boolean(
+        string="Has Head Member",
+        compute="_compute_member_membership_state",
+        store=True,
+        help="True when at least one non-ended member carries the 'head' membership type.",
+    )
+
+    # ═══════════════════════════════════════════════════════════════════════
     # COMPUTED METHODS
     # ═══════════════════════════════════════════════════════════════════════
 
@@ -195,6 +216,21 @@ class Farm(models.Model):
         """Sum all livestock activity quantities."""
         for record in self:
             record.total_livestock_heads = sum(act.quantity or 0 for act in record.farm_livestock_act_ids)
+
+    @api.depends(
+        "group_membership_ids",
+        "group_membership_ids.is_ended",
+        "group_membership_ids.membership_type_ids",
+    )
+    def _compute_member_membership_state(self):
+        """Compute member_count and has_head_member from non-ended memberships."""
+        head_code = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", "head")
+        for record in self:
+            active_members = record.group_membership_ids.filtered(lambda m: not m.is_ended)
+            record.member_count = len(active_members)
+            record.has_head_member = bool(
+                head_code and active_members.filtered(lambda m: head_code in m.membership_type_ids)
+            )
 
     # ═══════════════════════════════════════════════════════════════════════
     # HELPER METHODS

@@ -1187,6 +1187,13 @@ encounter unexpected behavior, please report it as a new issue.
 Changelog
 =========
 
+19.0.2.0.1
+~~~~~~~~~~
+
+- fix(views): apply ``spp_registry.x2many_no_padding`` widget to the
+  hazard impacts list on registrant forms, and hide the table when empty
+  (showing a muted info line instead) (#943).
+
 19.0.2.0.0
 ~~~~~~~~~~
 

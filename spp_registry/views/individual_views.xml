@@ -335,6 +335,7 @@
                                     context="{'reg_form':True}"
                                     nolabel="1"
                                     colspan="2"
+                                    widget="x2many_no_padding"
                                 >
                                     <list
                                         decoration-danger="disabled"
@@ -378,6 +379,7 @@
                                     readonly="disabled"
                                     nolabel="1"
                                     colspan="2"
+                                    widget="x2many_no_padding"
                                 >
                                     <list editable="bottom">
                                         <field
@@ -418,6 +420,7 @@
                                         readonly="disabled"
                                         nolabel="1"
                                         colspan="2"
+                                        widget="x2many_no_padding"
                                     >
                                         <list
                                             editable="bottom"
@@ -464,6 +467,7 @@
                                         readonly="disabled"
                                         nolabel="1"
                                         colspan="2"
+                                        widget="x2many_no_padding"
                                     >
                                         <list
                                             editable="bottom"
@@ -651,6 +655,7 @@
                                     context="{'reg_form':True}"
                                     nolabel="1"
                                     colspan="2"
+                                    widget="x2many_no_padding"
                                 >
                                     <list
                                         decoration-danger="disabled"
@@ -694,6 +699,7 @@
                                     readonly="disabled"
                                     nolabel="1"
                                     colspan="2"
+                                    widget="x2many_no_padding"
                                 >
                                     <list editable="bottom">
                                         <field
@@ -727,6 +733,7 @@
                                         readonly="disabled"
                                         nolabel="1"
                                         colspan="2"
+                                        widget="x2many_no_padding"
                                     >
                                         <list
                                             editable="bottom"
@@ -772,6 +779,7 @@
                                         readonly="disabled"
                                         nolabel="1"
                                         colspan="2"
+                                        widget="x2many_no_padding"
                                     >
                                         <list
                                             editable="bottom"

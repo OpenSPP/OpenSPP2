@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Add Scores smart button to the OpenSPP registrant form.
+         spp_registry.view_individuals_form replaces //sheet on res.partner,
+         so inheriting base.view_partner_form does not propagate to the
+         registry form used by Individuals and Groups. -->
+    <record id="view_registrant_form_scoring" model="ir.ui.view">
+        <field name="name">spp_registry.view_registrant_form.scoring</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_view_scoring_results"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-bar-chart"
+                >
+                    <field
+                        name="scoring_result_count"
+                        widget="statinfo"
+                        string="Scores"
+                    />
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Action → Score Registrant (cog / Actions dropdown).
+
+         The Scores smart button only opens existing results; this server
+         action exposes the actual "trigger scoring" entry-point in the
+         form's Actions dropdown and on the registry list view's bulk
+         Actions menu. Calls the existing `action_score_registrant`
+         method which opens the batch scoring wizard pre-filled for
+         the selected registrant(s). See OP#837. -->
+    <record id="action_score_registrant_server" model="ir.actions.server">
+        <field name="name">Score Registrant</field>
+        <field name="model_id" ref="base.model_res_partner" />
+        <field name="binding_model_id" ref="base.model_res_partner" />
+        <field name="binding_view_types">form,list</field>
+        <field
+            name="group_ids"
+            eval="[(6, 0, [
+            ref('spp_scoring.group_scoring_officer'),
+            ref('spp_scoring.group_scoring_manager'),
+            ref('spp_scoring.group_scoring_config_admin'),
+        ])]"
+        />
+        <field name="state">code</field>
+        <field
+            name="code"
+        >action = records.action_score_registrant() if records else None</field>
+    </record>
+</odoo>

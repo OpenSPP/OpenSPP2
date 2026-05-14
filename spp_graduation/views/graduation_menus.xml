@@ -33,6 +33,16 @@
         sequence="20"
     />
 
+    <!-- Graduation Criteria — direct child of root, visible to user role+ -->
+    <menuitem
+        id="menu_graduation_criteria"
+        name="Graduation Criteria"
+        parent="menu_graduation_root"
+        action="action_graduation_criteria"
+        sequence="20"
+        groups="group_spp_graduation_user"
+    />
+
     <!-- Configuration Menu -->
     <menuitem
         id="menu_graduation_configuration"

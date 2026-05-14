@@ -54,7 +54,7 @@ class TestScoringIndicatorProvider(TransactionCase):
                 "model_id": cls.scoring_model.id,
                 "name": "Low",
                 "min_score": 0,
-                "max_score": 50,
+                "max_score": 49.99,
                 "classification_code": "LOW",
                 "classification_label": "Low Score",
             }

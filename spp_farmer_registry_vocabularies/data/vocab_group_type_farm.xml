@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- Adds 'farm' as a group type, completing the household/family/farm
+         set referenced in spp_vocabulary's Group Type description. Scoped to
+         this module so core stays minimal for non-agricultural deployments. -->
+    <record id="code_group_type_farm" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_vocabulary.vocab_group_type" />
+        <field name="code">farm</field>
+        <field name="display">Farm</field>
+        <field
+            name="definition"
+        >An agricultural holding managed as a single economic unit (crops, livestock, aquaculture).</field>
+        <field name="sequence">3</field>
+    </record>
+</odoo>
