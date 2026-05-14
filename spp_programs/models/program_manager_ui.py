@@ -7,6 +7,7 @@ It adds computed summary fields and action methods to simplify the configuration
 """
 
 from odoo import _, api, fields, models
+from odoo.tools.misc import format_amount
 
 
 def _format_recurrence(duration, rrule_type):
@@ -487,11 +488,7 @@ class ProgramManagerUI(models.Model):
             multiplier_field = getattr(item, "multiplier_field", False)
             condition = getattr(item, "condition", "") or ""
             currency = getattr(item, "currency_id", False)
-            currency_sym = (currency.symbol or currency.name) if currency else ""
-            precision = currency.decimal_places if currency else 2
-            amount_with_sym = (
-                f"{currency_sym} {amount:.{precision}f}".strip() if currency_sym else f"{amount:.{precision}f}"
-            )
+            amount_with_sym = format_amount(self.env, amount, currency) if currency else f"{amount:,.2f}"
             if amount_expr:
                 line = _("Amount per beneficiary: %s") % amount_expr
             elif multiplier_field:
@@ -517,27 +514,22 @@ class ProgramManagerUI(models.Model):
         fee_pct = getattr(concrete, "transfer_fee_pct", 0) or 0
         fee_amount = getattr(concrete, "transfer_fee_amount", 0) or 0
         currency = getattr(concrete, "currency_id", False)
-        currency_sym = (currency.symbol or currency.name) if currency else ""
-        precision = currency.decimal_places if currency else 2
 
         def _fmt(amt):
-            return f"{amt:.{precision}f}"
+            return format_amount(self.env, amt, currency) if currency else f"{amt:,.2f}"
 
         lines = []
         if per_cycle:
-            lines.append(_("Amount per cycle: %(sym)s %(amt)s") % {"sym": currency_sym, "amt": _fmt(per_cycle)})
+            lines.append(_("Amount per cycle: %s") % _fmt(per_cycle))
         if per_person:
-            line = _("Amount per person in group: %(sym)s %(amt)s") % {
-                "sym": currency_sym,
-                "amt": _fmt(per_person),
-            }
+            line = _("Amount per person in group: %s") % _fmt(per_person)
             if max_people:
                 line += _(" (up to %s people)") % max_people
             lines.append(line)
         if fee_pct:
             lines.append(_("Transfer fee: %s%% of amount") % fee_pct)
         elif fee_amount:
-            lines.append(_("Transfer fee: %(sym)s %(amt)s flat") % {"sym": currency_sym, "amt": _fmt(fee_amount)})
+            lines.append(_("Transfer fee: %s flat") % _fmt(fee_amount))
         if not lines:
             return _("No amount configured yet — click Edit above to set how much each beneficiary receives per cycle.")
         return "\n".join(lines)

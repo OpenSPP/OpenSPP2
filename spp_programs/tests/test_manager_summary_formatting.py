@@ -88,3 +88,26 @@ class TestManagerSummaryFormatting(TransactionCase):
         currency = self.program.journal_id.currency_id
         sym = currency.symbol or currency.name
         self.assertIn(sym, summary)
+
+    def test_items_summary_includes_thousands_separator(self):
+        """Round-3 QA: large amounts must group thousands (1,000,000.00 not 1000000.00)."""
+        cash = self.env["spp.program.entitlement.manager.cash"].create(
+            {
+                "name": "Cash Large Amount [TEST]",
+                "program_id": self.program.id,
+                "approval_definition_id": self.approval_def.id,
+            }
+        )
+        self.env["spp.program.entitlement.manager.cash.item"].create(
+            {
+                "entitlement_id": cash.id,
+                "amount": 1_000_000.0,
+            }
+        )
+        self._wrap_manager(cash)
+
+        summary = self.program.entitlement_manager_detail or ""
+        # Should include a comma in the grouped amount for en_US locale.
+        self.assertIn("1,000,000", summary, f"summary missing thousands separator: {summary!r}")
+        # And of course still no bare "1000000" without a separator.
+        self.assertNotRegex(summary, r"\b1000000\b")
