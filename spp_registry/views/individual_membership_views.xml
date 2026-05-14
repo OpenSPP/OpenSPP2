@@ -14,7 +14,12 @@
             </xpath>
             <xpath expr="//div[@name='membership_section']" position="inside">
                 <separator string="Group Membership" />
-                <field name="individual_membership_ids" readonly="disabled" nolabel="1">
+                <field
+                    name="individual_membership_ids"
+                    readonly="disabled"
+                    nolabel="1"
+                    widget="x2many_no_padding"
+                >
                     <list editable="top">
                         <button
                             name="open_group_form"

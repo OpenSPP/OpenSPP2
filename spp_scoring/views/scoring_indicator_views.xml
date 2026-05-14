@@ -41,6 +41,11 @@
                             <field name="is_required" />
                             <field name="default_value" />
                             <field name="default_score" />
+                            <field
+                                name="invalid_value_ids"
+                                widget="many2many_tags"
+                                options="{'no_create': True}"
+                            />
                         </group>
                     </group>
 

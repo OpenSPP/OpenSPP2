@@ -33,8 +33,8 @@ class SPPRegistrant(models.Model):
     disabled_by = fields.Many2one("res.users")
 
     reg_ids = fields.One2many("spp.registry.id", "partner_id", "Registrant IDs")
-    is_registrant = fields.Boolean("Registrant")
-    is_group = fields.Boolean("Group")
+    is_registrant = fields.Boolean("Registrant", index=True)
+    is_group = fields.Boolean("Group", index=True)
 
     name = fields.Char(index=True)
 
@@ -44,7 +44,7 @@ class SPPRegistrant(models.Model):
     phone_number_ids = fields.One2many("spp.phone.number", "partner_id", "Phone Numbers")
 
     company_id = fields.Many2one("res.company", required=True, default=lambda self: self.env.company)
-    registration_date = fields.Date(default=lambda self: fields.Date.today())
+    registration_date = fields.Date(default=lambda self: fields.Date.today(), index=True)
     tags_ids = fields.Many2many(
         "spp.vocabulary.code",
         relation="res_partner_registrant_tag_rel",
@@ -78,6 +78,20 @@ class SPPRegistrant(models.Model):
         string="Relationships Count",
         compute="_compute_relationships_count",
     )
+
+    def init(self):
+        """Create trigram indexes for ILIKE search performance.
+
+        Standard B-tree indexes cannot help with ILIKE '%term%' (leading wildcard).
+        Trigram GIN indexes allow PostgreSQL to use indexes for substring matching.
+        """
+        self.env.cr.execute("""
+            CREATE EXTENSION IF NOT EXISTS pg_trgm;
+            CREATE INDEX IF NOT EXISTS res_partner_name_trgm_idx
+                ON res_partner USING gin (name gin_trgm_ops);
+            CREATE INDEX IF NOT EXISTS res_partner_email_trgm_idx
+                ON res_partner USING gin (email gin_trgm_ops);
+        """)
 
     @api.onchange("phone_number_ids")
     def phone_number_ids_change(self):

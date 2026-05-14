@@ -252,8 +252,172 @@ class TestScoringEngine(TransactionCase):
             strict_model,
         )
 
-        # Should have 1 result but marked as incomplete
+        # Strict mode + required indicator missing → an audit row is
+        # persisted with is_complete=False, score=0, and the failures
+        # listed in error_messages. The wizard counts it as failed.
         self.assertEqual(result["summary"]["total"], 1)
+        self.assertEqual(result["summary"]["successful"], 0)
+        self.assertEqual(result["summary"]["failed"], 1)
+        audit = self.env["spp.scoring.result"].search(
+            [("registrant_id", "=", self.registrant.id), ("model_id", "=", strict_model.id)]
+        )
+        self.assertEqual(len(audit), 1)
+        self.assertFalse(audit.is_complete)
+        self.assertEqual(audit.score, 0.0)
+        self.assertTrue(audit.error_messages)
+
+    def test_strict_mode_blocks_falsy_required_value(self):
+        """Strict mode treats boolean False / empty string from a required
+        field as missing — the previous check used ``field_value != 0``
+        which silently passed boolean False (since False == 0 in Python),
+        letting an empty Date field bypass strict validation. See OP#838."""
+        strict_model = self.ScoringModel.create(
+            {
+                "name": "Strict Model — Falsy",
+                "code": "STRICT_FALSY",
+                "is_active": True,
+                "is_strict_mode": True,
+            }
+        )
+        # An unset Char field (here `website`) returns False from the
+        # Odoo ORM — the same shape QA hit with an unset Date.
+        self.ScoringIndicator.create(
+            {
+                "model_id": strict_model.id,
+                "name": "Empty Char Field",
+                "code": "EMPTY_CHAR",
+                "field_path": "website",
+                "calculation_type": "direct",
+                "is_required": True,
+            }
+        )
+        self.ScoringThreshold.create(
+            {
+                "model_id": strict_model.id,
+                "name": "All",
+                "min_score": 0,
+                "max_score": 1000,
+                "classification_code": "ALL",
+                "classification_label": "All",
+            }
+        )
+
+        result = self.ScoringEngine.batch_score(self.registrant, strict_model)
+
+        # Falsy value on a required indicator must be treated as missing
+        # → strict mode persists an incomplete audit row → batch counts
+        # it as a failure.
+        self.assertEqual(result["summary"]["successful"], 0)
+        self.assertEqual(result["summary"]["failed"], 1)
+        audit = self.env["spp.scoring.result"].search(
+            [("registrant_id", "=", self.registrant.id), ("model_id", "=", strict_model.id)]
+        )
+        self.assertEqual(len(audit), 1)
+        self.assertFalse(audit.is_complete)
+
+    def test_is_missing_value_logic(self):
+        """Unit tests for the missing-value classifier. Covers OP#838 cases
+        — numeric 0 stays valid even on required, but boolean False does
+        not, and configured invalid-value strings count as missing on
+        both required and non-required."""
+        is_missing = self.ScoringEngine._is_missing_value
+
+        # None is always missing
+        self.assertTrue(is_missing(None, False))
+        self.assertTrue(is_missing(None, True))
+
+        # Required + falsy → missing
+        self.assertTrue(is_missing(False, True))
+        self.assertTrue(is_missing("", True))
+        self.assertTrue(is_missing([], True))
+
+        # Required + numeric 0 → valid (real score, not missing)
+        self.assertFalse(is_missing(0, True))
+        self.assertFalse(is_missing(0.0, True))
+
+        # Non-required → only None is missing; everything else flows through
+        self.assertFalse(is_missing(False, False))
+        self.assertFalse(is_missing("", False))
+        self.assertFalse(is_missing(0, False))
+
+        # Invalid-value patterns match both required and non-required
+        patterns = {"No Birthdate!", "Unknown"}
+        self.assertTrue(is_missing("No Birthdate!", True, patterns))
+        self.assertTrue(is_missing("No Birthdate!", False, patterns))
+        self.assertTrue(is_missing("  Unknown  ", True, patterns))
+        # Non-matching string still passes when not required
+        self.assertFalse(is_missing("present", False, patterns))
+
+    def test_strict_mode_blocks_curated_invalid_value(self):
+        """A required indicator linked to one or more rows in the
+        ``spp.scoring.invalid.value`` library treats matching field
+        reads as missing (e.g. `age` returning 'No Birthdate!' when
+        `birthdate` is unset). Archiving the linked row turns the
+        check off without losing the entry. See OP#838."""
+        sentinel_model = self.ScoringModel.create(
+            {
+                "name": "Strict Model — Invalid Values",
+                "code": "STRICT_INVALID",
+                "is_active": True,
+                "is_strict_mode": True,
+            }
+        )
+        # Configure the registrant's display_name as a curated invalid
+        # value and link it to the indicator — the engine should treat
+        # the live read as missing.
+        invalid = self.env["spp.scoring.invalid.value"].create(
+            {
+                "name": self.registrant.name,
+                "description": "Test sentinel",
+            }
+        )
+        self.ScoringIndicator.create(
+            {
+                "model_id": sentinel_model.id,
+                "name": "Display Name",
+                "code": "INVALID_PATTERN",
+                "field_path": "display_name",
+                "calculation_type": "direct",
+                "is_required": True,
+                "invalid_value_ids": [(6, 0, [invalid.id])],
+            }
+        )
+        self.ScoringThreshold.create(
+            {
+                "model_id": sentinel_model.id,
+                "name": "All",
+                "min_score": 0,
+                "max_score": 1000,
+                "classification_code": "ALL",
+                "classification_label": "All",
+            }
+        )
+
+        result = self.ScoringEngine.batch_score(self.registrant, sentinel_model)
+        self.assertEqual(result["summary"]["successful"], 0)
+        self.assertEqual(result["summary"]["failed"], 1)
+        audit = self.env["spp.scoring.result"].search(
+            [("registrant_id", "=", self.registrant.id), ("model_id", "=", sentinel_model.id)]
+        )
+        self.assertEqual(len(audit), 1)
+        self.assertFalse(audit.is_complete)
+        self.assertEqual(audit.score, 0.0)
+
+        # `get_latest_score` returns the latest *attempt* — the
+        # incomplete row is the registrant's current state, and
+        # callers (eligibility, membership compute) gate on
+        # ``is_complete`` themselves rather than silently falling back
+        # to a stale complete row.
+        latest = self.env["spp.scoring.result"].get_latest_score(self.registrant, sentinel_model)
+        self.assertEqual(latest, audit)
+        self.assertFalse(latest.is_complete)
+
+        # Archive the invalid-value row → the same field value should
+        # now flow through and produce a real complete score.
+        invalid.active = False
+        result_after = self.ScoringEngine.batch_score(self.registrant, sentinel_model)
+        self.assertEqual(result_after["summary"]["successful"], 1)
+        self.assertEqual(result_after["summary"]["failed"], 0)
 
     def test_get_or_calculate_score_caches(self):
         """Test get_or_calculate_score returns cached score."""

@@ -1,3 +1,7 @@
+### 19.0.2.1.1
+
+- fix(views): apply `spp_registry.x2many_no_padding` widget to the Programs and Entitlements lists on registrant forms and to Program Membership inline lines — removes the four empty placeholder rows Odoo 19 inserts on inline list-in-form views (#943).
+
 ### 19.0.2.0.11
 
 - Fix `TypeError: 'NoneType' object is not iterable` when clicking **Enroll Eligible** on programs with at least 200 beneficiaries (async dispatch path)

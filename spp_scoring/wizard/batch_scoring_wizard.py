@@ -1,7 +1,7 @@
 import ast
 import logging
 
-from odoo import _, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
@@ -40,6 +40,15 @@ class BatchScoringWizard(models.TransientModel):
         default=1000,
         help="Maximum number of registrants to process (0 for no limit)",
     )
+    registrant_count = fields.Integer(
+        string="# Selected",
+        compute="_compute_registrant_count",
+    )
+
+    @api.depends("registrant_ids")
+    def _compute_registrant_count(self):
+        for wizard in self:
+            wizard.registrant_count = len(wizard.registrant_ids)
 
     # Results
     state = fields.Selection(

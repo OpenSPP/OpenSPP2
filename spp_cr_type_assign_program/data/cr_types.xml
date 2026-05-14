@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="1">
+    <record id="cr_type_assign_program" model="spp.change.request.type">
+        <field name="name">Assign to Program</field>
+        <field name="code">assign_program</field>
+        <field
+            name="description"
+        >Assign a registrant (individual or household) to a program. The registrant becomes the program beneficiary.</field>
+        <field name="target_type">both</field>
+        <field name="is_requires_registrant" eval="True" />
+        <field name="detail_model">spp.cr.detail.assign_program</field>
+        <field name="detail_form_view_id" ref="spp_cr_detail_assign_program_form" />
+        <field name="apply_strategy">custom</field>
+        <field name="apply_model">spp.cr.apply.assign_program</field>
+        <field name="icon">fa-hand-holding-heart</field>
+        <field name="sequence">120</field>
+        <field name="is_studio_editable" eval="False" />
+        <field name="is_studio_cloneable" eval="False" />
+        <field name="is_system_type" eval="True" />
+        <field name="source_module">spp_cr_type_assign_program</field>
+        <field name="enable_conflict_detection" eval="True" />
+        <field
+            name="locked_reason"
+        >This type requires custom Python logic to create program memberships. Cannot be edited via Studio.</field>
+    </record>
+
+    <record id="cr_conflict_rule_assign_program_duplicate" model="spp.cr.conflict.rule">
+        <field name="name">Duplicate program assignment</field>
+        <field name="cr_type_id" ref="cr_type_assign_program" />
+        <field name="scope">custom</field>
+        <field name="check_same_type_only" eval="True" />
+        <field name="action">block</field>
+        <field name="conflict_states">all_active</field>
+        <field name="sequence">10</field>
+        <field
+            name="conflict_message"
+        >Another change request is already assigning this registrant to the same program. Cancel or wait for it to be applied first.</field>
+    </record>
+</odoo>

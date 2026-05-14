@@ -66,10 +66,10 @@
         <field name="inherit_id" ref="spp_programs.view_program_membership_tree" />
         <field name="arch" type="xml">
             <xpath expr="//list" position="inside">
-                <field name="enrollment_score" optional="hide" />
-                <field name="enrollment_classification" optional="hide" />
-                <field name="latest_score" optional="hide" />
-                <field name="latest_classification" optional="hide" />
+                <field name="enrollment_score" optional="show" />
+                <field name="enrollment_classification" optional="show" />
+                <field name="latest_score" optional="show" />
+                <field name="latest_classification" optional="show" />
             </xpath>
         </field>
     </record>

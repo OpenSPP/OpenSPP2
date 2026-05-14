@@ -2,7 +2,7 @@
 {
     "name": "OpenSPP Scoring Programs Bridge",
     "category": "OpenSPP/Targeting",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.0.1",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -15,9 +15,7 @@
         "spp_programs",
     ],
     "data": [
-        # Note: No ACL entries needed - this module only extends existing models
-        # (spp.program, spp.program.membership, spp.scoring.model) which have
-        # their own ACLs defined in their respective modules.
+        "security/ir.model.access.csv",
         "views/scoring_model_views.xml",
         "views/program_views.xml",
     ],

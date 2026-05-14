@@ -465,6 +465,33 @@ class TestCycleWorkflow(TransactionCase):
         self.assertTrue(cycle.is_locked)
         self.assertEqual(cycle.locked_reason, "Background import in progress")
 
+    def test_action_force_unlock_clears_lock_and_audits(self):
+        """action_force_unlock clears the lock and records who did it in chatter."""
+        cycle = self._make_cycle(name="Force Unlock Cycle [CYCLE TEST]")
+        cycle.write({"is_locked": True, "locked_reason": "Import running"})
+        message_count_before = len(cycle.message_ids)
+
+        cycle.action_force_unlock()
+
+        self.assertFalse(cycle.is_locked)
+        self.assertFalse(cycle.locked_reason)
+        # An audit message was posted
+        self.assertGreater(len(cycle.message_ids), message_count_before)
+        latest = cycle.message_ids[0]
+        self.assertIn("manually cleared", latest.body)
+        self.assertIn("Import running", latest.body)
+
+    def test_action_force_unlock_noop_when_not_locked(self):
+        """action_force_unlock is a no-op when the cycle is not locked."""
+        cycle = self._make_cycle(name="Already Unlocked Cycle [CYCLE TEST]")
+        message_count_before = len(cycle.message_ids)
+
+        cycle.action_force_unlock()
+
+        self.assertFalse(cycle.is_locked)
+        # No audit message — nothing to unlock
+        self.assertEqual(len(cycle.message_ids), message_count_before)
+
     # ------------------------------------------------------------------
     # get_entitlements
     # ------------------------------------------------------------------

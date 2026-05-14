@@ -22,3 +22,6 @@ access_spp_batch_scoring_wizard_manager,spp.batch.scoring.wizard manager,model_s
 access_spp_scoring_batch_job_viewer,spp.scoring.batch.job viewer,model_spp_scoring_batch_job,group_scoring_viewer,1,0,0,0
 access_spp_scoring_batch_job_officer,spp.scoring.batch.job officer,model_spp_scoring_batch_job,group_scoring_officer,1,1,1,0
 access_spp_scoring_batch_job_manager,spp.scoring.batch.job manager,model_spp_scoring_batch_job,group_scoring_manager,1,1,1,1
+access_spp_scoring_invalid_value_viewer,spp.scoring.invalid.value viewer,model_spp_scoring_invalid_value,group_scoring_viewer,1,0,0,0
+access_spp_scoring_invalid_value_manager,spp.scoring.invalid.value manager,model_spp_scoring_invalid_value,group_scoring_manager,1,1,1,1
+access_spp_scoring_invalid_value_config_admin,spp.scoring.invalid.value config admin,model_spp_scoring_invalid_value,group_scoring_config_admin,1,1,1,1

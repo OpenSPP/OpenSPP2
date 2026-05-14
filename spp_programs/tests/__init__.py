@@ -37,3 +37,4 @@ from . import test_bulk_membership
 from . import test_keyset_pagination
 from . import test_canary_patterns
 from . import test_concurrency
+from . import test_async_lock_recovery

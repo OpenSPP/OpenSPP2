@@ -520,6 +520,22 @@ custom validation rules</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.4</h1>
+<ul class="simple">
+<li>feat(invalid-values): each <tt class="docutils literal">spp.scoring.invalid.value</tt> entry now
+carries a <tt class="docutils literal">match_type</tt> selection (<tt class="docutils literal">exact</tt> / <tt class="docutils literal">regex</tt>). Regex
+entries let you catch a <em>range</em> of sentinel values with one pattern
+(e.g. <tt class="docutils literal"><span class="pre">^N/A.*$</span></tt> covers <tt class="docutils literal">N/A</tt>, <tt class="docutils literal">N/A!</tt>, <tt class="docutils literal">N/A — missing</tt>) instead
+of enumerating every variation. Engine matches via <tt class="docutils literal">re.fullmatch</tt>;
+bad patterns fail at <tt class="docutils literal">&#64;api.constrains</tt> time, never at scoring time.</li>
+<li>chore(tooltips): rewrite the <tt class="docutils literal">Default Value</tt> and <tt class="docutils literal">Default Score</tt>
+field help on <tt class="docutils literal">spp.scoring.indicator</tt> so the relationship between
+<strong>Required</strong>, <strong>Default Value</strong>, <strong>Default Value → coerced →
+mapping</strong>, and <strong>Default Score</strong> is explicit instead of
+one-liner-vague.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

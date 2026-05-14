@@ -12,7 +12,13 @@
                 <attribute name="invisible">0</attribute>
             </xpath>
             <xpath expr="//group[@name='financial_section']" position="inside">
-                <field name="bank_ids" readonly="disabled" nolabel="1" colspan="2">
+                <field
+                    name="bank_ids"
+                    readonly="disabled"
+                    nolabel="1"
+                    colspan="2"
+                    widget="x2many_no_padding"
+                >
                     <list editable="top">
                         <field name="bank_id" options="{'no_quick_create':True}" />
                         <field name="acc_number" />
