@@ -1,13 +1,14 @@
 ### After installing this module
 
-The preset auto-creates a DCI data source, CEL provider, and CEL variable wired against the OpenG2P playground at `partner-registry.play.openg2p.org`. The playground does not require authentication for the demo — the bridge can call it out of the box.
+The preset auto-creates a DCI data source, CEL provider, and CEL variables wired against the OpenG2P playground. The playground does not require authentication for the demo — the bridge can call it out of the box.
 
 1. Navigate to **Custom > DCI > Configuration > Data Sources**.
-2. Open the `openg2p_dr` data source (the xml id is kept for upgrade-path stability; the record now represents an OpenG2P **Social Registry**, see ADR-024).
-3. Verify (or adjust) **Base URL** — defaults to `https://partner-registry.play.openg2p.org`.
-4. The **Search Endpoint** is set to `/dci/registry/sync/search` (OpenG2P uses the `/dci` prefix).
+2. Open the `openg2p_dr` data source (the xml id is kept for upgrade-path stability; the record now represents an OpenG2P **Social Registry**, see ADR-024). Rename **Code** to `openg2p_sr` if you want runtime UI/audit consistency with the new SR role.
+3. **Base URL** — the data XML ships `https://partner-registry.play.openg2p.org` as a historical default, but the current OpenG2P SR playground (verified 2026-05-15) is **`https://partner-nsr.play.openg2p.org`**. Change the Base URL manually. The `noupdate=1` on the data XML means module upgrades cannot rewrite an existing value — operators must edit this through the form.
+4. The **Search Endpoint** is `/dci/registry/sync/search` (OpenG2P uses the `/dci` prefix).
 5. **Sender ID** / **Receiver ID** — placeholder values are pre-populated. Replace with what the OpenG2P operator expects from your deployment.
-6. Click **Test Connection**. State should flip to `Active`.
+6. **Vendor Adapter** — set to `OpenG2P`. The selection is defined empty by `spp_cel_dci_bridge`; this preset extends it via `selection_add`. The bridge dispatcher routes SR sources marked with this vendor to `OpenG2PSocialService` instead of any default SR handler.
+7. Click **Test Connection**. State should flip to `Active`.
 
 For real OpenG2P deployments (not the playground), change `auth_type` to `oauth2` and populate `oauth2_token_url`, `oauth2_client_id`, `oauth2_client_secret`. Attach a DCI Signing Key under **Custom > DCI > Configuration > Signing Keys** if the deployment requires signed messages.
 

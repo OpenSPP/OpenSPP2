@@ -19,12 +19,26 @@ The service looks up partners by `spp.registry.id.value == search_text`. Match t
 
 ### Disability fields
 
-The service reads three fields from `res.partner`:
+The service reads from the `spp_disability_registry` data model on `res.partner`. Each `res.partner` is the registrant; the disability data is computed from its current approved `spp.disability.assessment`:
 
-| Local field                  | Wire-format key in `reg_records[0]` |
-| ---------------------------- | ----------------------------------- |
-| `is_person_with_disability`  | `has_disability`                    |
-| `disability_certified`       | `disability_certified`              |
-| `disability_percentage`      | `disability_percentage`             |
+| Local field                       | Wire-format key in `reg_records[0]`  |
+| --------------------------------- | ------------------------------------ |
+| `has_disability` (Boolean)        | `has_disability`                     |
+| `disability_severity_id.code`     | `disability_severity_code`           |
+| `disability_review_category`      | `disability_review_category`         |
+| `disability_next_review`          | `disability_next_review` (ISO date)  |
 
-Missing fields are returned as `False` / `None` rather than raising — modules that define these fields are not strict dependencies of this server module.
+Missing fields are returned as `False` / `None` rather than raising — `spp_disability_registry` is a soft dependency. Without it, responses carry `has_disability=False` and the other keys default to `None`, which is still SPDCI-valid.
+
+### Authentication and ACLs
+
+The DCI FastAPI endpoint runs as `base.public_user`, which has no Registry access by default. The service uses `sudo()` when reading `spp.registry.id` and `res.partner`. The actual authentication boundary is upstream — DCI signature + bearer-token verification in the middleware. Once the sender_id is accepted by those checks, the service trusts the request.
+
+For demo deployments where you want to bypass both signature and bearer-token verification, set these system parameters on the DR's database (Settings → Technical → Parameters → System Parameters):
+
+| Key | Value | Effect |
+|---|---|---|
+| `dci.allow_unsigned_requests` | `true` | Skips DCI signature verification |
+| `dci.bypass_bearer_auth` | `true` | Skips Authorization-header check |
+
+Both flags trigger a one-time CRITICAL warning in the DR log on the first request after restart. **Production deployments must leave both at `false`** and register sender public keys via the DCI Sender Registry instead.

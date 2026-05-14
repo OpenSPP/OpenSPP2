@@ -373,8 +373,9 @@ ul.auto-toc {
 <p>Permanent OpenG2P preset for the CEL &lt;-&gt; DCI bridge. Ships
 pre-configured <tt class="docutils literal">spp.dci.data.source</tt>, <tt class="docutils literal">spp.data.provider</tt>, and
 <tt class="docutils literal">spp.cel.variable</tt> records so a deployment targeting an OpenG2P-backed
-DCI Disability Registry gets the wiring out of the box. Config-only in
-v1 — zero Python code.</p>
+DCI Social Registry gets the wiring out of the box. Config plus a small
+vendor adapter that absorbs OpenG2P’s request-shape quirks (see
+ADR-024).</p>
 <div class="section" id="what-this-module-ships">
 <h1>What this module ships</h1>
 <table border="1" class="docutils">
@@ -388,62 +389,78 @@ v1 — zero Python code.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><tt class="docutils literal">spp.dci.data.source</tt>
-‘openg2p_dr’</td>
-<td>DCI data source: base URL,
-sender ID, registry_type=DR</td>
+<tr><td><tt class="docutils literal">spp.dci.data.source</tt> ‘openg2p_dr’</td>
+<td>DCI data source: base URL, sender
+ID, registry_type=SR</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.data.provider</tt>
-‘openg2p_dr’</td>
+<tr><td><tt class="docutils literal">spp.data.provider</tt> ‘openg2p_dr’</td>
 <td>CEL-side provider linked to the
 DCI source</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_studio.var_has_disability</tt>
-(override)</td>
-<td>The semantic <tt class="docutils literal">has_disability</tt>
-CEL accessor, repointed at the
-DCI provider</td>
+<tr><td><tt class="docutils literal">spp.cel.variable</tt> ‘var_is_poor’</td>
+<td>Semantic <tt class="docutils literal">is_poor</tt> CEL accessor,
+bound to the OpenG2P SR provider</td>
+</tr>
+<tr><td><tt class="docutils literal">spp.cel.variable</tt>
+‘var_has_dependent_under_school_age’</td>
+<td>Semantic
+<tt class="docutils literal">has_dependent_under_school_age</tt>
+CEL accessor, bound to OpenG2P</td>
+</tr>
+<tr><td><tt class="docutils literal">OpenG2PDCIClient</tt></td>
+<td>DCIClient subclass for OpenG2P’s
+expression query shape, namespaced
+URI type, hard-coded Individual
+reg_type, and required
+consent/authorize blocks</td>
+</tr>
+<tr><td><tt class="docutils literal">OpenG2PSocialService</tt></td>
+<td>SR-shaped lookup: partner
+identifier → OpenG2P record at
+<tt class="docutils literal">data.reg_records[0]</tt></td>
 </tr>
 </tbody>
 </table>
-<p>The CEL accessor name stays vendor-neutral (<tt class="docutils literal">has_disability</tt>, per
-ADR-023 §1a). The OpenG2P-ness lives only in the data source and
-provider records. Repointing at a different DCI Disability Registry is a
-configuration change on the data source, never a CEL change.</p>
+<p>Note: this preset does NOT override <tt class="docutils literal">spp_studio.var_has_disability</tt>.
+Disability data lives in a separate OpenSPP-DR instance over its own DCI
+link; the DR-side preset (<tt class="docutils literal">spp_dci_openspp_dr</tt>) is responsible for
+that binding (see ADR-024 for the federated topology).</p>
+<p>The CEL accessor names stay vendor-neutral (per ADR-023 §1a). The
+OpenG2P-ness lives only in the data source, provider, and adapter —
+never in the CEL surface. Repointing at a different SR is a
+configuration change on the data source, not a CEL change.</p>
 </div>
 <div class="section" id="what-this-module-does-not-ship">
 <h1>What this module does NOT ship</h1>
 <ul class="simple">
 <li>OAuth2 credentials (admins configure these post-install via the data
 source form — no secrets in source control)</li>
-<li>A demo program (operators create their own programs using the
-<tt class="docutils literal">has_disability</tt> CEL accessor)</li>
-<li>Python code (any OpenG2P-specific behavioural quirk that emerges in
-the future would be added here as adapter code; v1 stays pure config)</li>
+<li>A demo program (operators create their own programs using the relevant
+CEL accessors)</li>
+<li>Disability data lookups — disability lives in a separate OpenSPP-DR
+instance over its own DCI link (see ADR-024)</li>
 </ul>
 </div>
 <div class="section" id="architectural-shape">
 <h1>Architectural shape</h1>
-<p><tt class="docutils literal">spp_dci_openg2p</tt> is a vendor preset on top of the registry-type DCI
-client (<tt class="docutils literal">spp_dci_client_dr</tt>), not a DCI client itself:</p>
+<p><tt class="docutils literal">spp_dci_openg2p</tt> is a vendor preset on top of the bridge, not a DCI
+client itself:</p>
 <pre class="literal-block">
 spp_dci_openg2p        (vendor preset — this module)
     depends on
 spp_cel_dci_bridge     (registry-agnostic CEL &lt;-&gt; DCI infrastructure)
     depends on
-spp_dci_client_dr      (DCI client for the Disability Registry type)
-    depends on
 spp_dci_client         (base DCI client)
 </pre>
-<p>Other DCI Disability Registries (e.g., a national DR) would ship as
-separate sibling preset modules (<tt class="docutils literal">spp_dci_&lt;vendor&gt;</tt>), reusing
-<tt class="docutils literal">spp_cel_dci_bridge</tt> and <tt class="docutils literal">spp_dci_client_dr</tt>.</p>
+<p>Other Social Registries would ship as separate sibling preset modules
+(<tt class="docutils literal">spp_dci_&lt;vendor&gt;</tt>), reusing <tt class="docutils literal">spp_cel_dci_bridge</tt>.</p>
 </div>
 <div class="section" id="see-also">
 <h1>See Also</h1>
 <ul class="simple">
 <li>ADR-023 — overall design, why the bridge exists, registry-type vs
 vendor-preset module distinction</li>
+<li>ADR-024 — federated demo topology and OpenG2P’s SR role</li>
 <li><tt class="docutils literal">spp_cel_dci_bridge</tt> — the bridge infrastructure this preset
 configures</li>
 </ul>
@@ -465,19 +482,32 @@ Only for development or testing purpose, do not use in production.</p>
 <div class="section" id="after-installing-this-module">
 <h1>After installing this module</h1>
 <p>The preset auto-creates a DCI data source, CEL provider, and CEL
-variable wired against the OpenG2P playground at
-<tt class="docutils literal"><span class="pre">partner-registry.play.openg2p.org</span></tt>. The playground does not require
-authentication for the demo — the bridge can call it out of the box.</p>
+variables wired against the OpenG2P playground. The playground does not
+require authentication for the demo — the bridge can call it out of the
+box.</p>
 <ol class="arabic simple">
 <li>Navigate to <strong>Custom &gt; DCI &gt; Configuration &gt; Data Sources</strong>.</li>
-<li>Open the <tt class="docutils literal">openg2p_dr</tt> data source.</li>
-<li>Verify (or adjust) <strong>Base URL</strong> — defaults to
-<tt class="docutils literal"><span class="pre">https://partner-registry.play.openg2p.org</span></tt>.</li>
-<li>The <strong>Search Endpoint</strong> is set to <tt class="docutils literal">/dci/registry/sync/search</tt>
-(OpenG2P uses the <tt class="docutils literal">/dci</tt> prefix).</li>
+<li>Open the <tt class="docutils literal">openg2p_dr</tt> data source (the xml id is kept for
+upgrade-path stability; the record now represents an OpenG2P <strong>Social
+Registry</strong>, see ADR-024). Rename <strong>Code</strong> to <tt class="docutils literal">openg2p_sr</tt> if you
+want runtime UI/audit consistency with the new SR role.</li>
+<li><strong>Base URL</strong> — the data XML ships
+<tt class="docutils literal"><span class="pre">https://partner-registry.play.openg2p.org</span></tt> as a historical
+default, but the current OpenG2P SR playground (verified 2026-05-15)
+is <strong>``https://partner-nsr.play.openg2p.org``</strong>. Change the Base URL
+manually. The <tt class="docutils literal">noupdate=1</tt> on the data XML means module upgrades
+cannot rewrite an existing value — operators must edit this through
+the form.</li>
+<li>The <strong>Search Endpoint</strong> is <tt class="docutils literal">/dci/registry/sync/search</tt> (OpenG2P
+uses the <tt class="docutils literal">/dci</tt> prefix).</li>
 <li><strong>Sender ID</strong> / <strong>Receiver ID</strong> — placeholder values are
 pre-populated. Replace with what the OpenG2P operator expects from
 your deployment.</li>
+<li><strong>Vendor Adapter</strong> — set to <tt class="docutils literal">OpenG2P</tt>. The selection is defined
+empty by <tt class="docutils literal">spp_cel_dci_bridge</tt>; this preset extends it via
+<tt class="docutils literal">selection_add</tt>. The bridge dispatcher routes SR sources marked
+with this vendor to <tt class="docutils literal">OpenG2PSocialService</tt> instead of any default
+SR handler.</li>
 <li>Click <strong>Test Connection</strong>. State should flip to <tt class="docutils literal">Active</tt>.</li>
 </ol>
 <p>For real OpenG2P deployments (not the playground), change <tt class="docutils literal">auth_type</tt>
@@ -486,105 +516,140 @@ to <tt class="docutils literal">oauth2</tt> and populate <tt class="docutils lit
 &gt; Configuration &gt; Signing Keys</strong> if the deployment requires signed
 messages.</p>
 </div>
-<div class="section" id="fr-as-dr-pretense-demo-only">
-<h1>FR-as-DR pretense (demo-only)</h1>
-<p>The OpenG2P playground exposes a <strong>Farmer Registry</strong> (FR), not a
-Disability Registry (DR). Per the SPDCI schema:</p>
-<pre class="literal-block">
-reg_type:        ns:org:RegistryType:Social
-reg_record_type: spdci-extensions-dci:Farmer
-</pre>
-<p>Until OpenG2P publishes a real DR endpoint, this preset treats FR as a
-DR stand-in:</p>
+<div class="section" id="openg2p-plays-the-social-registry-role">
+<h1>OpenG2P plays the Social Registry role</h1>
+<p>OpenG2P serves Social Registry data over DCI (poverty status, household
+composition, related attributes). It is not the source of disability
+data — that lives in a separate OpenSPP-DR instance (see ADR-024 for the
+federated demo topology).</p>
+<p>This preset configures <tt class="docutils literal"><span class="pre">registry_type='SR'</span></tt> so the CEL bridge routes
+through <tt class="docutils literal">_handler_sr</tt>, and <tt class="docutils literal"><span class="pre">vendor='openg2p'</span></tt> so the preset’s
+dispatcher override selects <tt class="docutils literal">OpenG2PSocialService</tt>. The service issues
+an OpenG2P-canonical request:</p>
 <ul class="simple">
-<li>The data source is configured with <tt class="docutils literal"><span class="pre">registry_type='DR'</span></tt> so the
-bridge dispatcher routes to the standard <tt class="docutils literal">_handler_dr</tt>.</li>
-<li><tt class="docutils literal"><span class="pre">vendor='openg2p'</span></tt> on the data source triggers the preset’s
-dispatcher override, which uses <tt class="docutils literal">OpenG2PFRService</tt> instead of
-upstream <tt class="docutils literal">DRService</tt>.</li>
-<li><tt class="docutils literal">OpenG2PFRService</tt> queries OpenG2P’s Farmer Registry. <strong>Presence of
-any farmer record for a partner → ``has_disability=True``</strong>. Absence
-(or <tt class="docutils literal"><span class="pre">REG-ERR-001</span> REGISTER_NOT_FOUND</tt>) → null → fails the eligibility
-filter.</li>
-<li>The CEL surface stays exactly <tt class="docutils literal">has_disability == true</tt>. Only this
-service’s interpretation is the pretense.</li>
+<li><tt class="docutils literal">query_type</tt>: <tt class="docutils literal">expression</tt></li>
+<li><tt class="docutils literal">query.type</tt>: <tt class="docutils literal">ns:org:QueryType:expression</tt></li>
+<li><tt class="docutils literal">query.value</tt>:
+<tt class="docutils literal">{&quot;expression&quot;: {&quot;query&quot;: {&quot;search_text&quot;: <span class="pre">{&quot;$eq&quot;:</span> <span class="pre">&lt;partner_id&gt;}}}}</span></tt></li>
+<li><tt class="docutils literal">reg_type</tt> / <tt class="docutils literal">reg_record_type</tt>: both literal <tt class="docutils literal">&quot;Individual&quot;</tt></li>
+<li><tt class="docutils literal">consent</tt> and <tt class="docutils literal">authorize</tt> blocks attached to every search criteria
+(purpose code <tt class="docutils literal">ELIGIBILITY_CHECK</tt>)</li>
 </ul>
-<p>Audience-facing this looks like a real DR lookup. Operationally it tests
-the full DCI round-trip with OpenG2P’s actual playground.</p>
+<p>The bridge dispatcher applies each CEL variable’s <tt class="docutils literal">dci_attribute_path</tt>
+to the raw OpenG2P record at <tt class="docutils literal">data.reg_records[0]</tt>. No vendor-specific
+synthesis happens in the service layer — variables extract whatever
+attribute they need by path.</p>
 </div>
 <div class="section" id="demo-data-which-identifiers-exist-in-the-openg2p-playground">
 <h1>Demo data: which identifiers exist in the OpenG2P playground?</h1>
-<p>Ask the OpenG2P team for sample identifiers that exist in their Farmer
-Registry. Configure your test partners with those identifiers (under
-their <strong>External Identifiers</strong> / <tt class="docutils literal">reg_ids</tt>), and the dispatcher’s
-<tt class="docutils literal">OpenG2PFRService._get_partner_identifier</tt> priority order will pick
-them up:</p>
+<p>Ask the OpenG2P team for sample <tt class="docutils literal">search_text</tt> values that exist in
+their Social Registry. Configure your test partners with those
+identifiers (under their <strong>External Identifiers</strong> / <tt class="docutils literal">reg_ids</tt>), and
+the dispatcher’s <tt class="docutils literal">OpenG2PSocialService._get_partner_search_text</tt>
+priority order will pick them up:</p>
 <pre class="literal-block">
 UIN &gt; DRN &gt; NATIONAL_ID &gt; NID &gt; (first available)
 </pre>
 <p>Partners with no matching identifier are recorded in
-<tt class="docutils literal">spp.dci.fetch.audit</tt> as <tt class="docutils literal"><span class="pre">result='not_found'</span></tt> and excluded from
-<tt class="docutils literal">has_disability == true</tt> matches.</p>
+<tt class="docutils literal">spp.dci.fetch.audit</tt> as <tt class="docutils literal"><span class="pre">result='not_found'</span></tt> and excluded from CEL
+evaluation.</p>
 </div>
-<div class="section" id="migration-plan-when-openg2p-publishes-a-real-disability-registry">
-<h1>Migration plan — when OpenG2P publishes a real Disability Registry</h1>
-<p>The migration is purely configuration; no code or data changes:</p>
+<div class="section" id="when-openg2p-s-request-shape-converges-on-standard-dci">
+<h1>When OpenG2P’s request shape converges on standard DCI</h1>
+<p>The vendor-specific path is opt-in. If OpenG2P’s published API ever
+drops the namespaced URI query type, the nested <tt class="docutils literal">search_text</tt> shape,
+or the mandatory consent/authorize blocks and aligns with the upstream
+DCI defaults, clear the <tt class="docutils literal">vendor</tt> field on the data source. The
+dispatcher’s override falls through to the bridge’s default
+<tt class="docutils literal">_handler_sr</tt> (currently a not-implemented stub; the bridge will gain
+a standard SR client when one ships).</p>
+</div>
+<div class="section" id="cel-variables-and-field-mapping">
+<h1>CEL variables and field mapping</h1>
+<p>The OpenG2P SR record at <tt class="docutils literal">data.reg_records[0]</tt> exposes the following
+top-level fields (verified against <tt class="docutils literal"><span class="pre">partner-nsr.play.openg2p.org</span></tt> on
+2026-05-15):</p>
+<pre class="literal-block">
+member_identifier, demographic_info, related_person, self_id_disability,
+is_disabled, disability_info, marital_status, employment_status, occupation,
+income_level, language_code, education_level, additional_attributes,
+registration_date, last_updated
+</pre>
+<p>OpenG2P does not surface a top-level boolean <tt class="docutils literal">is_poor</tt> — the closest
+signal is <tt class="docutils literal">income_level</tt>, a categorical string (<tt class="docutils literal">&quot;low&quot;</tt> /
+<tt class="docutils literal">&quot;medium&quot;</tt> / <tt class="docutils literal">&quot;high&quot;</tt>). The preset binds the semantic CEL variable
+<tt class="docutils literal">is_poor</tt> to read <tt class="docutils literal">income_level</tt> and surfaces it to CEL rules as a
+string. Eligibility rules then express the poverty threshold via
+comparison:</p>
+<pre class="literal-block">
+is_poor == &quot;low&quot;
+</pre>
+<p>(or whichever tier your policy treats as poor — <tt class="docutils literal">&quot;medium&quot;</tt>, an <tt class="docutils literal">in</tt>
+list, etc.). The variable name is intentionally kept as <tt class="docutils literal">is_poor</tt> so
+CEL rules read semantically; the underlying field is <tt class="docutils literal">income_level</tt>.</p>
+</div>
+<div class="section" id="deferred-features">
+<h1>Deferred features</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="34%" />
-<col width="66%" />
+<col width="44%" />
+<col width="27%" />
+<col width="29%" />
 </colgroup>
 <thead valign="bottom">
-<tr><th class="head">Step</th>
-<th class="head">What to change</th>
+<tr><th class="head">Variable</th>
+<th class="head">Reason</th>
+<th class="head">Path to revive</th>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><ol class="first last arabic simple">
-<li>Point at the new URL</li>
-</ol>
-</td>
-<td>Edit <tt class="docutils literal">base_url</tt> on <tt class="docutils literal">openg2p_dr</tt> data source (UI)</td>
-</tr>
-<tr><td>2. Switch from FR pretense to
-real DR</td>
-<td>Clear the <tt class="docutils literal">vendor</tt> field on the data source (set blank). The
-dispatcher’s override falls through to the standard
-<tt class="docutils literal">_handler_dr</tt> → upstream <tt class="docutils literal">DRService</tt>.</td>
-</tr>
-<tr><td>3. Verify OpenG2P’s DR conforms
-to standard DCI shapes</td>
-<td>Run a search; if you get
-<tt class="docutils literal">rjct.search_criteria.invalid: query.value.id_type is required</tt>
-or response unwrap fails, OpenG2P’s DR has the same
-query/response quirks as their FR. Keep <tt class="docutils literal"><span class="pre">vendor='openg2p'</span></tt> set
-and extend <tt class="docutils literal">OpenG2PFRService</tt> to query the DR
-<tt class="docutils literal">reg_record_type</tt>. Track this in ADR-023 v2 work.</td>
-</tr>
-<tr><td>4. The CEL accessor stays
-<tt class="docutils literal">has_disability</tt></td>
-<td>No CEL rule changes. Cached values will become real
-<tt class="docutils literal">has_disability</tt> booleans from the DR record.</td>
+<tr><td><tt class="docutils literal">has_dependent_under_school_age</tt></td>
+<td>OpenG2P’s
+<tt class="docutils literal">reg_records[0]</tt>
+is per-individual
+and does not embed
+household
+composition or
+dependent birth
+dates. No top-level
+field maps cleanly.</td>
+<td>(a) Ask the OpenG2P
+team to add a
+top-level boolean; or
+(b) issue a secondary
+household-search call
+against OpenG2P
+(different endpoint)
+and aggregate the
+results. The CEL
+variable record is
+kept in inactive state
+— flip it active + set
+<tt class="docutils literal">dci_attribute_path</tt>
+to the new field name
+once the data is
+available.</td>
 </tr>
 </tbody>
 </table>
-<p>In words: clear one field on the data source, and OpenSPP starts reading
-real disability data from OpenG2P with no other edits anywhere.</p>
+<p>The inactive variable stays registered in <tt class="docutils literal">spp.cel.variable</tt> so any
+CEL rules that still reference it gracefully evaluate to null (and fail
+the comparison) instead of crashing the resolver.</p>
 </div>
 <div class="section" id="cache-ttl">
 <h1>Cache TTL</h1>
-<p>The preset ships with <tt class="docutils literal">cache_ttl_seconds = 300</tt> (5 minutes) on the
-<tt class="docutils literal">has_disability</tt> variable so the DCI round-trip is visible during
-demos. For production, raise to 86400 (24h) or higher via the
-<tt class="docutils literal">spp_studio.var_has_disability</tt> form.</p>
+<p>The preset ships with <tt class="docutils literal">cache_ttl_seconds = 300</tt> (5 minutes) on every
+SR variable so the DCI round-trip is visible during demos. For
+production, raise to 86400 (24h) or higher on each variable form
+(<strong>Custom &gt; CEL &gt; Variables</strong>).</p>
 </div>
-<div class="section" id="switching-to-a-different-dci-disability-registry-vendor">
-<h1>Switching to a different DCI Disability Registry vendor</h1>
-<p>If you target a non-OpenG2P registry, the preset is the wrong starting
-point — clone it as <tt class="docutils literal">spp_dci_&lt;vendor&gt;</tt> and adjust:</p>
+<div class="section" id="switching-to-a-different-sr-vendor">
+<h1>Switching to a different SR vendor</h1>
+<p>If you target a non-OpenG2P Social Registry, the preset is the wrong
+starting point — clone it as <tt class="docutils literal">spp_dci_&lt;vendor&gt;</tt> and adjust:</p>
 <ul class="simple">
 <li>The data source’s <tt class="docutils literal">base_url</tt> and <tt class="docutils literal">vendor</tt> field</li>
-<li>The service class (mirror <tt class="docutils literal">OpenG2PFRService</tt> for that vendor’s
+<li>The service class (mirror <tt class="docutils literal">OpenG2PSocialService</tt> for that vendor’s
 quirks)</li>
 <li>The dispatcher override’s branch</li>
 </ul>

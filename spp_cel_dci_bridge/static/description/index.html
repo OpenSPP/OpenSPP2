@@ -1,0 +1,695 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils: https://docutils.sourceforge.io/" />
+<title>OpenSPP CEL &lt;-&gt; DCI Bridge</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 9511 2024-01-13 09:50:07Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+Despite the name, some widely supported CSS2 features are used.
+
+See https://docutils.sourceforge.io/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+.subscript {
+  vertical-align: sub;
+  font-size: smaller }
+
+.superscript {
+  vertical-align: super;
+  font-size: smaller }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+object[type="image/svg+xml"], object[type="application/x-shockwave-flash"] {
+  overflow: hidden;
+}
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title, .code .error {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left, object.align-left, table.align-left {
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right, object.align-right, table.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+img.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+table.align-center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: inherit }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+.align-top    {
+  vertical-align: top }
+
+.align-middle {
+  vertical-align: middle }
+
+.align-bottom {
+  vertical-align: bottom }
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block, pre.math, pre.code {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+pre.code .ln { color: gray; } /* line numbers */
+pre.code, code { background-color: #eeeeee }
+pre.code .comment, code .comment { color: #5C6576 }
+pre.code .keyword, code .keyword { color: #3B0D06; font-weight: bold }
+pre.code .literal.string, code .literal.string { color: #0C5404 }
+pre.code .name.builtin, code .name.builtin { color: #352B84 }
+pre.code .deleted, code .deleted { background-color: #DEB0A1}
+pre.code .inserted, code .inserted { background-color: #A3D289}
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic, pre.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+/* "booktabs" style (no vertical lines) */
+table.docutils.booktabs {
+  border: 0px;
+  border-top: 2px solid;
+  border-bottom: 2px solid;
+  border-collapse: collapse;
+}
+table.docutils.booktabs * {
+  border: 0px;
+}
+table.docutils.booktabs th {
+  border-bottom: thin solid;
+  text-align: left;
+}
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="openspp-cel-dci-bridge">
+<h1 class="title">OpenSPP CEL &lt;-&gt; DCI Bridge</h1>
+
+<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! This file is generated by oca-gen-addon-readme !!
+!! changes will be overwritten.                   !!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! source digest: sha256:55a0a619c513154a0395240a39e1b92a09fc61db48aff0882e448e15ad111d4b
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Alpha" src="https://img.shields.io/badge/maturity-Alpha-red.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_cel_dci_bridge"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p>Bridges OpenSPP’s CEL expression engine to external DCI registries. CEL
+eligibility rules of the form <tt class="docutils literal">has_disability == true</tt> automatically
+fetch values from a configured DCI registry (Disability Registry, CRVS,
+IBR), cache them in <tt class="docutils literal">spp.data.value</tt>, and resolve as standard SQL
+filters during program enrollment. No CEL grammar changes; the
+integration sits behind one cache-manager override.</p>
+<div class="section" id="key-capabilities">
+<h1>Key Capabilities</h1>
+<ul class="simple">
+<li>Override <tt class="docutils literal">spp.data.cache.manager._compute_variable_values</tt> to route
+<tt class="docutils literal"><span class="pre">source_type='external'</span></tt> CEL variables linked to a DCI data source
+through the DCI client family instead of returning empty</li>
+<li>Dispatch by <tt class="docutils literal">registry_type</tt> to the appropriate DCI service
+(<tt class="docutils literal">DRService</tt>, <tt class="docutils literal">CRVSService</tt>, <tt class="docutils literal">IBRService</tt>) with runtime
+ImportError guards so the bridge installs cleanly when some clients
+are absent</li>
+<li>Normalize the three inconsistent registry_type conventions used by
+existing DCI clients (<tt class="docutils literal">&quot;DR&quot;</tt>, <tt class="docutils literal">&quot;ns:org:RegistryType:Civil&quot;</tt>,
+<tt class="docutils literal">&quot;ibr&quot;</tt>) to a single canonical key for routing</li>
+<li>Apply per-variable <tt class="docutils literal">external_failure_policy</tt>: <tt class="docutils literal">null</tt> (default;
+cache as null), <tt class="docutils literal">last_known</tt> (surface most recent non-null cached
+value), <tt class="docutils literal">fail</tt> (propagate as UserError)</li>
+<li>Fill missing subjects with explicit None so the cache stays complete
+across the cohort — letting the CEL executor use the metric SQL fast
+path instead of falling back to Python evaluation</li>
+<li>Record one <tt class="docutils literal">spp.dci.fetch.audit</tt> row per subject per fetch
+(provider, source, registry, variable, outcome, elapsed_ms,
+error_message) for compliance</li>
+</ul>
+</div>
+<div class="section" id="key-models">
+<h1>Key Models</h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="41%" />
+<col width="59%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Model</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><tt class="docutils literal">spp.cel.dci.dispatcher</tt></td>
+<td>AbstractModel routing fetch requests to
+per-registry-type handlers</td>
+</tr>
+<tr><td><tt class="docutils literal">spp.dci.fetch.audit</tt></td>
+<td>One row per subject per DCI fetch
+attempt for compliance audit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="schema-extensions">
+<h1>Schema Extensions</h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="33%" />
+<col width="39%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Model</th>
+<th class="head">Field</th>
+<th class="head">Purpose</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><tt class="docutils literal">spp.data.provider</tt></td>
+<td><tt class="docutils literal">dci_data_source_id</tt></td>
+<td>Links the CEL provider to a DCI
+data source</td>
+</tr>
+<tr><td><tt class="docutils literal">spp.data.provider</tt></td>
+<td><tt class="docutils literal">is_dci_backed</tt>
+(computed)</td>
+<td>True when the provider routes
+through DCI</td>
+</tr>
+<tr><td><tt class="docutils literal">spp.cel.variable</tt></td>
+<td><tt class="docutils literal">dci_attribute_path</tt></td>
+<td>Dotted path into the DCI
+response (e.g.,
+<tt class="docutils literal">has_disability</tt>,
+<tt class="docutils literal">functional_scores.cognition</tt>)</td>
+</tr>
+<tr><td><tt class="docutils literal">spp.cel.variable</tt></td>
+<td><tt class="docutils literal">external_failure_policy</tt></td>
+<td>Behaviour on fetch failure: null
+/ last_known / fail</td>
+</tr>
+<tr><td><tt class="docutils literal">spp.dci.data.source</tt></td>
+<td><tt class="docutils literal">vendor</tt> (Selection)</td>
+<td>Vendor-adapter discriminator.
+The selection starts empty;
+vendor presets
+(<tt class="docutils literal">spp_dci_openg2p</tt>,
+<tt class="docutils literal">spp_dci_openspp_dr</tt>) extend
+it via <tt class="docutils literal">selection_add</tt>. The
+dispatcher consults this field
+to route registry-type handlers
+to vendor-specific services.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="views">
+<h1>Views</h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="52%" />
+<col width="48%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">File</th>
+<th class="head">Purpose</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><tt class="docutils literal">views/dci_data_source_views.xml</tt></td>
+<td>Surfaces the <tt class="docutils literal">vendor</tt> field on
+the upstream
+<tt class="docutils literal">spp.dci.data.source</tt> form
+(after Authentication Type) and
+list (after Registry Type) so
+operators can set the adapter
+without developer mode.</td>
+</tr>
+<tr><td><tt class="docutils literal">views/data_provider_views.xml</tt></td>
+<td>Provider list/form additions for
+the DCI link.</td>
+</tr>
+<tr><td><tt class="docutils literal">views/cel_variable_views.xml</tt></td>
+<td>CEL-variable additions for
+<tt class="docutils literal">dci_attribute_path</tt> and
+<tt class="docutils literal">external_failure_policy</tt>.</td>
+</tr>
+<tr><td><tt class="docutils literal">views/dci_fetch_audit_views.xml</tt></td>
+<td>List/form for
+<tt class="docutils literal">spp.dci.fetch.audit</tt>
+(read-only, ACL-gated).</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="architecture">
+<h1>Architecture</h1>
+<pre class="literal-block">
+CEL: has_disability == true
+        |
+        v (resolver)
+    metric('has_disability', me) == true
+        |
+        v (translator -&gt; executor SQL fast path)
+    id IN (SELECT subject_id FROM spp_data_value WHERE ...)
+        |
+        v (populated by precompute, before eligibility runs)
+    cache_mgr.precompute_cached_variables(...)
+        |
+        v (overridden in this module)
+    _compute_variable_values(var, subjects)
+        |
+        v (when var is DCI-backed)
+    spp.cel.dci.dispatcher.fetch_values_for_variable(var, subjects)
+        |
+        v (registry_type='DR')
+    DRService.get_disability_status(partner)
+        |
+        v (writes back)
+    spp.data.value rows + spp.dci.fetch.audit rows
+</pre>
+<p>The cycle pre-fetch hook
+(<tt class="docutils literal">cycle_manager_base._precompute_cycle_cached_variables</tt>) is already
+wired in <tt class="docutils literal">spp_programs</tt> — installing the bridge plus a vendor preset
+(e.g., <tt class="docutils literal">spp_dci_openg2p</tt>) wires the whole flow without further code.</p>
+</div>
+<div class="section" id="see-also">
+<h1>See Also</h1>
+<ul class="simple">
+<li><tt class="docutils literal">spp_dci_openg2p</tt> — permanent OpenG2P vendor preset that ships
+pre-configured data source, provider, and CEL variable wiring</li>
+<li>ADR-023 — decision rationale, alternatives considered, failure modes,
+future async work</li>
+</ul>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">This is an alpha version, the data model and design can change at any time without warning.
+Only for development or testing purpose, do not use in production.</p>
+</div>
+<p><strong>Table of contents</strong></p>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#usage" id="toc-entry-1">Usage</a></li>
+</ul>
+</div>
+<div class="section" id="usage">
+<h2><a class="toc-backref" href="#toc-entry-1">Usage</a></h2>
+</div>
+</div>
+<div class="section" id="writing-cel-rules-against-dci-backed-variables">
+<h1>Writing CEL rules against DCI-backed variables</h1>
+<p>CEL accessors are <strong>vendor-neutral</strong>. The eligibility rule reads the
+semantic concept; the vendor identity lives in configuration records.</p>
+<pre class="literal-block">
+has_disability == true &amp;&amp; age_years(r.birthdate) &gt;= 18
+</pre>
+<p>The bridge does not change CEL syntax. To switch from one DCI registry
+to another (OpenG2P → national DR, mock → production), change the data
+source configuration; CEL rules are not edited.</p>
+</div>
+<div class="section" id="configuring-a-dci-backed-variable-manually">
+<h1>Configuring a DCI-backed variable manually</h1>
+<ol class="arabic simple">
+<li>Create a <tt class="docutils literal">spp.dci.data.source</tt> record with <tt class="docutils literal">auth_type</tt>,
+<tt class="docutils literal">base_url</tt>, <tt class="docutils literal">registry_type</tt>, and OAuth2 credentials.</li>
+<li>Optional: set the <strong>Vendor Adapter</strong> field (defined here as a
+Selection field with an empty selection; vendor presets extend it via
+<tt class="docutils literal">selection_add</tt>). Set when a vendor preset registered its adapter —
+e.g., <tt class="docutils literal">openg2p</tt>, <tt class="docutils literal">openspp</tt> — so the bridge dispatcher routes
+through the vendor-specific service. Leave blank for sources that
+speak vanilla SPDCI.</li>
+<li>Create a <tt class="docutils literal">spp.data.provider</tt> and set <tt class="docutils literal">dci_data_source_id</tt> to the
+source above.</li>
+<li>Create or repurpose a <tt class="docutils literal">spp.cel.variable</tt>:<ul>
+<li><tt class="docutils literal">source_type = 'external'</tt></li>
+<li><tt class="docutils literal">external_provider_id</tt> = the provider</li>
+<li><tt class="docutils literal">dci_attribute_path</tt> = the dotted path into the DCI response
+payload (e.g., <tt class="docutils literal">has_disability</tt>, <tt class="docutils literal">severity.code</tt>,
+<tt class="docutils literal">functional_scores.cognition</tt>)</li>
+<li><tt class="docutils literal">cache_strategy = 'ttl'</tt> (or <tt class="docutils literal">'manual'</tt>)</li>
+<li><tt class="docutils literal">cache_ttl_seconds</tt> = TTL in seconds (300 for demo, 86400 for
+production)</li>
+<li><tt class="docutils literal">external_failure_policy</tt> = null / last_known / fail</li>
+</ul>
+</li>
+</ol>
+<p>For typical OpenG2P deployments install <tt class="docutils literal">spp_dci_openg2p</tt>; for an
+OpenSPP-DR instance install <tt class="docutils literal">spp_dci_openspp_dr</tt> — each ships a
+permanent preset.</p>
+</div>
+<div class="section" id="pre-warm-behaviour">
+<h1>Pre-warm behaviour</h1>
+<p>When <tt class="docutils literal">Enroll Eligible</tt> / <tt class="docutils literal">Import Eligible</tt> runs at the program
+level, the bridge eagerly pre-warms <strong>every active DCI-backed CEL
+variable</strong> for the cohort, regardless of which variables the program’s
+specific CEL rule references. This is by design — the executor’s SQL
+fast path needs a fresh cache for any <tt class="docutils literal">metric()</tt> accessor the rule
+could reference, and parsing the rule up front to extract referenced
+names was traded off for simplicity. Side effect: a program that only
+checks <tt class="docutils literal">has_disability</tt> still produces audit rows for <tt class="docutils literal">is_poor</tt> and
+any other active SR variables in the cohort.</p>
+<p>To exclude a variable from the pre-warm, set <tt class="docutils literal"><span class="pre">state='inactive'</span></tt> and
+<tt class="docutils literal">active=False</tt> on the <tt class="docutils literal">spp.cel.variable</tt> record. The pre-warm filter
+applies <tt class="docutils literal">(&quot;active&quot;, <span class="pre">&quot;=&quot;,</span> True)</tt>, so inactive variables are skipped —
+useful for deferred-feature placeholders. Such variables are also
+unavailable to CEL rules (compound rules referencing them evaluate the
+comparison against null, which fails the filter).</p>
+</div>
+<div class="section" id="failure-policies">
+<h1>Failure policies</h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Policy</th>
+<th class="head">Behaviour</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><tt class="docutils literal">null</tt></td>
+<td>Default. Errored subjects cache as null; CEL
+evaluates against null.</td>
+</tr>
+<tr><td><tt class="docutils literal">last_known</tt></td>
+<td>Surface most recent non-null cached value,
+regardless of expiry.</td>
+</tr>
+<tr><td><tt class="docutils literal">fail</tt></td>
+<td>Propagate the exception as UserError. Eligibility
+check aborts.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="audit">
+<h1>Audit</h1>
+<p>Every DCI fetch records one row in <tt class="docutils literal">spp.dci.fetch.audit</tt>:</p>
+<ul class="simple">
+<li>Navigate to the menu surfaced via <tt class="docutils literal">view_dci_fetch_audit_list</tt></li>
+<li>Filter by variable, provider, result (ok / not_found / error)</li>
+<li>Read access for all internal users; write access for spp admin only</li>
+</ul>
+<div class="section" id="bug-tracker">
+<h2>Bug Tracker</h2>
+<p>Bugs are tracked on <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/issues">GitHub Issues</a>.
+In case of trouble, please check there if your issue has already been reported.
+If you spotted it first, help us to smash it by providing a detailed and welcomed
+<a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/issues/new?body=module:%20spp_cel_dci_bridge%0Aversion:%2019.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**">feedback</a>.</p>
+<p>Do not contact contributors directly about support or help with technical issues.</p>
+</div>
+<div class="section" id="credits">
+<h2>Credits</h2>
+<div class="section" id="authors">
+<h3>Authors</h3>
+<ul class="simple">
+<li>OpenSPP.org</li>
+</ul>
+</div>
+<div class="section" id="maintainers">
+<h3>Maintainers</h3>
+<p>Current maintainers:</p>
+<p><a class="reference external image-reference" href="https://github.com/jeremi"><img alt="jeremi" src="https://github.com/jeremi.png?size=40px" /></a> <a class="reference external image-reference" href="https://github.com/gonzalesedwin1123"><img alt="gonzalesedwin1123" src="https://github.com/gonzalesedwin1123.png?size=40px" /></a></p>
+<p>This module is part of the <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_cel_dci_bridge">OpenSPP/OpenSPP2</a> project on GitHub.</p>
+<p>You are welcome to contribute.</p>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

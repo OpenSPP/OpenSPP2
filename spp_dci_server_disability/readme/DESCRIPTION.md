@@ -17,14 +17,22 @@ Each successful response item carries `reg_records[0]` as:
 ```json
 {
   "has_disability": true,
-  "disability_certified": false,
-  "disability_percentage": 50.0,
+  "disability_severity_code": "moderate",
+  "disability_review_category": "annual",
+  "disability_next_review": "2027-01-15",
   "partner_name": "Maria Santos",
   "partner_uid": 12345
 }
 ```
 
-The CEL-bridge SP side reads `has_disability` (not the local field name `is_person_with_disability`) — the mapping happens here.
+All fields come from the `spp_disability_registry` data model on `res.partner`:
+
+- `has_disability` — Boolean, related from the current approved `spp.disability.assessment.has_disability`.
+- `disability_severity_code` — projected from `disability_severity_id.code` (a vocabulary code).
+- `disability_review_category` — Selection (review cadence) from the current assessment.
+- `disability_next_review` — Date ISO string from the current assessment.
+
+Each is read defensively via `getattr` with a default, so the module remains installable in deployments that don't have `spp_disability_registry` (responses would just carry mostly-empty records, still SPDCI-valid).
 
 ### What this module does NOT ship
 

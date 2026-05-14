@@ -27,6 +27,23 @@ The preset auto-creates a DCI data source, CEL provider, and `has_disability` va
 
 For real deployments, change `auth_type` to `oauth2` and populate `oauth2_token_url`, `oauth2_client_id`, `oauth2_client_secret`. Attach a DCI Signing Key under **Custom > DCI > Configuration > Signing Keys** if the deployment requires signed messages.
 
+### Required dev-mode flags on the DR for the demo
+
+The DR's signature + bearer-token middleware blocks unsigned/unauthenticated requests by default. For the demo (where the SP sends unsigned envelopes with no bearer token), set TWO system parameters on the DR's `openspp_dr` database — both are required, either alone is insufficient:
+
+```bash
+docker compose -f docker-compose.dr.yml exec openspp-dr odoo shell -d openspp_dr --no-http
+>>> env['ir.config_parameter'].sudo().set_param('dci.allow_unsigned_requests', 'true')
+>>> env['ir.config_parameter'].sudo().set_param('dci.bypass_bearer_auth', 'true')
+>>> env.cr.commit()
+```
+
+Then restart the DR (`docker compose -f docker-compose.dr.yml restart openspp-dr`). On the first request, the DR log emits a one-time `CRITICAL: SECURITY WARNING: DCI signature verification is DISABLED!` line — that confirms the bypass is active. **Production deployments must leave both at `false`** and register the SP's public key via the DR's DCI Sender Registry.
+
+### UIN vocabulary code
+
+This preset does NOT seed the UIN code on the system `urn:openspp:vocab:id-type` vocabulary. The collision against `spp_dci_openg2p` (which also seeds UIN) forced its removal — see the `spp_dci_openspp_dr` Phase fix commit. On a fresh SP database, install `spp_dci_openg2p` first (it owns the UIN seed), or seed UIN manually before installing this preset. The tests use `get_or_create_local` to be resilient either way.
+
 ### Demo data: how to make partners look up the right DR record
 
 The dispatcher's `OpenSPPDRService._get_partner_identifier` priority order picks the SP-side partner's first matching reg_id type:

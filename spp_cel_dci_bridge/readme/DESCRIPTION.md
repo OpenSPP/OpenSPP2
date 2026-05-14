@@ -18,12 +18,22 @@ Bridges OpenSPP's CEL expression engine to external DCI registries. CEL eligibil
 
 ### Schema Extensions
 
-| Model              | Field                       | Purpose                                                  |
-| ------------------ | --------------------------- | -------------------------------------------------------- |
-| `spp.data.provider`| `dci_data_source_id`        | Links the CEL provider to a DCI data source              |
-| `spp.data.provider`| `is_dci_backed` (computed)  | True when the provider routes through DCI                |
-| `spp.cel.variable` | `dci_attribute_path`        | Dotted path into the DCI response (e.g., `has_disability`, `functional_scores.cognition`) |
-| `spp.cel.variable` | `external_failure_policy`   | Behaviour on fetch failure: null / last_known / fail     |
+| Model                | Field                       | Purpose                                                  |
+| -------------------- | --------------------------- | -------------------------------------------------------- |
+| `spp.data.provider`  | `dci_data_source_id`        | Links the CEL provider to a DCI data source              |
+| `spp.data.provider`  | `is_dci_backed` (computed)  | True when the provider routes through DCI                |
+| `spp.cel.variable`   | `dci_attribute_path`        | Dotted path into the DCI response (e.g., `has_disability`, `functional_scores.cognition`) |
+| `spp.cel.variable`   | `external_failure_policy`   | Behaviour on fetch failure: null / last_known / fail     |
+| `spp.dci.data.source`| `vendor` (Selection)        | Vendor-adapter discriminator. The selection starts empty; vendor presets (`spp_dci_openg2p`, `spp_dci_openspp_dr`) extend it via `selection_add`. The dispatcher consults this field to route registry-type handlers to vendor-specific services. |
+
+### Views
+
+| File                                | Purpose                                                                                       |
+| ----------------------------------- | --------------------------------------------------------------------------------------------- |
+| `views/dci_data_source_views.xml`   | Surfaces the `vendor` field on the upstream `spp.dci.data.source` form (after Authentication Type) and list (after Registry Type) so operators can set the adapter without developer mode. |
+| `views/data_provider_views.xml`     | Provider list/form additions for the DCI link.                                                |
+| `views/cel_variable_views.xml`      | CEL-variable additions for `dci_attribute_path` and `external_failure_policy`.                |
+| `views/dci_fetch_audit_views.xml`   | List/form for `spp.dci.fetch.audit` (read-only, ACL-gated).                                   |
 
 ### Architecture
 
