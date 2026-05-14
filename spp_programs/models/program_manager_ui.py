@@ -486,16 +486,22 @@ class ProgramManagerUI(models.Model):
             amount = getattr(item, "amount", 0) or 0
             multiplier_field = getattr(item, "multiplier_field", False)
             condition = getattr(item, "condition", "") or ""
+            currency = getattr(item, "currency_id", False)
+            currency_sym = (currency.symbol or currency.name) if currency else ""
+            precision = currency.decimal_places if currency else 2
+            amount_with_sym = (
+                f"{currency_sym} {amount:.{precision}f}".strip() if currency_sym else f"{amount:.{precision}f}"
+            )
             if amount_expr:
                 line = _("Amount per beneficiary: %s") % amount_expr
             elif multiplier_field:
                 mult_label = multiplier_field.field_description or multiplier_field.name
                 line = _("Amount per beneficiary: %(amount)s × %(mult)s") % {
-                    "amount": amount,
+                    "amount": amount_with_sym,
                     "mult": mult_label,
                 }
             else:
-                line = _("Amount per beneficiary: %s per cycle") % amount
+                line = _("Amount per beneficiary: %(amount)s per cycle") % {"amount": amount_with_sym}
             if condition and condition.strip() not in ("[]", ""):
                 line += _(" — only if %s") % condition
             lines.append(line)
@@ -510,16 +516,20 @@ class ProgramManagerUI(models.Model):
         max_people = getattr(concrete, "max_individual_in_group", 0) or 0
         fee_pct = getattr(concrete, "transfer_fee_pct", 0) or 0
         fee_amount = getattr(concrete, "transfer_fee_amount", 0) or 0
-        currency_sym = ""
-        if getattr(concrete, "currency_id", False):
-            currency_sym = concrete.currency_id.symbol or concrete.currency_id.name or ""
+        currency = getattr(concrete, "currency_id", False)
+        currency_sym = (currency.symbol or currency.name) if currency else ""
+        precision = currency.decimal_places if currency else 2
+
+        def _fmt(amt):
+            return f"{amt:.{precision}f}"
+
         lines = []
         if per_cycle:
-            lines.append(_("Amount per cycle: %(sym)s %(amt)s") % {"sym": currency_sym, "amt": per_cycle})
+            lines.append(_("Amount per cycle: %(sym)s %(amt)s") % {"sym": currency_sym, "amt": _fmt(per_cycle)})
         if per_person:
             line = _("Amount per person in group: %(sym)s %(amt)s") % {
                 "sym": currency_sym,
-                "amt": per_person,
+                "amt": _fmt(per_person),
             }
             if max_people:
                 line += _(" (up to %s people)") % max_people
@@ -527,7 +537,7 @@ class ProgramManagerUI(models.Model):
         if fee_pct:
             lines.append(_("Transfer fee: %s%% of amount") % fee_pct)
         elif fee_amount:
-            lines.append(_("Transfer fee: %(sym)s %(amt)s flat") % {"sym": currency_sym, "amt": fee_amount})
+            lines.append(_("Transfer fee: %(sym)s %(amt)s flat") % {"sym": currency_sym, "amt": _fmt(fee_amount)})
         if not lines:
             return _("No amount configured yet — click Edit above to set how much each beneficiary receives per cycle.")
         return "\n".join(lines)
