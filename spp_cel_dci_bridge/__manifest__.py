@@ -15,6 +15,7 @@
         "spp_dci_client_dr",
         "spp_dci_client_crvs",
         "spp_dci_client_ibr",
+        "spp_programs",
         "spp_studio",
     ],
     "external_dependencies": {"python": []},
