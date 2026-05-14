@@ -39,7 +39,9 @@
                     <div class="card-body">
                         <div class="row g-3">
                             <!-- Main Search Input -->
-                            <div class="col-md-8">
+                            <div
+                                t-att-class="'col-md-' + (state.searchMode === 'targeted' ? '6' : '8')"
+                            >
                                 <label
                                     for="registrySearchInput"
                                     class="visually-hidden"
@@ -55,8 +57,8 @@
                                         type="text"
                                         id="registrySearchInput"
                                         class="form-control"
-                                        placeholder="Search by name, ID number, phone number, or email..."
-                                        aria-label="Search registrants by name, ID number, phone number, or email"
+                                        t-att-placeholder="searchPlaceholder"
+                                        t-att-aria-label="searchPlaceholder"
                                         aria-describedby="searchHelpText"
                                         t-att-value="state.searchTerm"
                                         t-on-input="onSearchInput"
@@ -92,8 +94,44 @@
                                 </small>
                             </div>
 
+                            <!-- Search Field Selector (targeted mode) -->
+                            <div
+                                class="col-md-2"
+                                t-if="state.searchMode === 'targeted'"
+                            >
+                                <label
+                                    for="registryFieldFilter"
+                                    class="visually-hidden"
+                                >Search field</label>
+                                <select
+                                    id="registryFieldFilter"
+                                    class="form-select form-select-lg"
+                                    aria-label="Select search field"
+                                    t-on-change="onSearchFieldChange"
+                                >
+                                    <option
+                                        value="name"
+                                        t-att-selected="state.searchField === 'name'"
+                                    >Name</option>
+                                    <option
+                                        value="id_number"
+                                        t-att-selected="state.searchField === 'id_number'"
+                                    >ID Number</option>
+                                    <option
+                                        value="phone"
+                                        t-att-selected="state.searchField === 'phone'"
+                                    >Phone</option>
+                                    <option
+                                        value="email"
+                                        t-att-selected="state.searchField === 'email'"
+                                    >Email</option>
+                                </select>
+                            </div>
+
                             <!-- Search Type Filter -->
-                            <div class="col-md-4">
+                            <div
+                                t-att-class="'col-md-' + (state.searchMode === 'targeted' ? '2' : '4')"
+                            >
                                 <label
                                     for="registryTypeFilter"
                                     class="visually-hidden"
@@ -375,7 +413,7 @@
                         />
                         <h4 class="text-muted">Search for Registrants</h4>
                         <p class="text-muted">
-                            Enter a name, ID number, phone number, or email address to find registrants.
+                            Enter your search criteria to find registrants.
                         </p>
                     </div>
                 </t>

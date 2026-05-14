@@ -804,6 +804,28 @@ the name of the first matched record)</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.2</h1>
+<ul class="simple">
+<li>chore(views): hide the conditional-gate columns (<tt class="docutils literal">Is Conditional</tt>,
+<tt class="docutils literal">Condition Field</tt>, <tt class="docutils literal">Condition Value</tt>) from the match-rule fields
+list — the schema and matching-engine wiring stay in place, but no
+current import flow uses the gate, so the columns are kept out of the
+UI until a real use case lands.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
+<h1>19.0.2.0.1</h1>
+<ul class="simple">
+<li>fix(matching): add a <tt class="docutils literal">condition_field_id</tt> Many2one column to
+<tt class="docutils literal">spp.import.match.fields</tt> and rewrite the matching loop so
+conditional rows act as pure gates — never added to the DB search
+domain. Renames the IMPORTED VALUE column heading to <strong>Condition
+Value</strong>. Fixes the case where a CSV-only metadata column (e.g.
+<tt class="docutils literal">data_source</tt>) was being injected into the search domain and causing
+zero matches.</li>
+</ul>
+</div>
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

@@ -35,8 +35,19 @@
                             <field name="grm_registrant_open_count" />
                         </group>
                     </group>
+                    <div
+                        invisible="grm_registrant_ticket_count != 0"
+                        class="text-muted small"
+                    >
+                        No GRM tickets for this registrant yet.
+                    </div>
                     <!-- Odoo 19: list/form replaces tree/form -->
-                    <field name="grm_registrant_ticket_ids" mode="list">
+                    <field
+                        name="grm_registrant_ticket_ids"
+                        mode="list"
+                        widget="x2many_no_padding"
+                        invisible="grm_registrant_ticket_count == 0"
+                    >
                         <list create="0" delete="0">
                             <field name="name" />
                             <field name="category_id" />
@@ -83,8 +94,19 @@
                     <group>
                         <field name="grm_household_ticket_count" />
                     </group>
+                    <div
+                        invisible="grm_household_ticket_count != 0"
+                        class="text-muted small"
+                    >
+                        No GRM tickets for this household yet.
+                    </div>
                     <!-- Odoo 19: list/form replaces tree/form -->
-                    <field name="grm_household_ticket_ids" mode="list">
+                    <field
+                        name="grm_household_ticket_ids"
+                        mode="list"
+                        widget="x2many_no_padding"
+                        invisible="grm_household_ticket_count == 0"
+                    >
                         <list create="0" delete="0">
                             <field name="name" />
                             <field name="registrant_id" />

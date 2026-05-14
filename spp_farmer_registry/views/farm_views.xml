@@ -61,6 +61,7 @@
                     <field
                         name="farm_crop_act_ids"
                         context="{'default_activity_type': 'crop'}"
+                        widget="x2many_no_padding"
                     >
                         <list editable="bottom">
                             <field name="activity_type" column_invisible="1" />
@@ -88,6 +89,7 @@
                     <field
                         name="farm_livestock_act_ids"
                         context="{'default_activity_type': 'livestock'}"
+                        widget="x2many_no_padding"
                     >
                         <list editable="bottom">
                             <field name="activity_type" column_invisible="1" />
@@ -113,6 +115,7 @@
                     <field
                         name="farm_aquaculture_act_ids"
                         context="{'default_activity_type': 'aquaculture'}"
+                        widget="x2many_no_padding"
                     >
                         <list editable="bottom">
                             <field name="activity_type" column_invisible="1" />
@@ -131,7 +134,7 @@
                 </page>
 
                 <page string="Land Parcels" name="land_parcels">
-                    <field name="farm_land_rec_ids">
+                    <field name="farm_land_rec_ids" widget="x2many_no_padding">
                         <list>
                             <field name="land_name" />
                             <field name="land_acreage" />
@@ -142,7 +145,7 @@
 
                 <page string="Farm Assets" name="farm_assets">
                     <separator string="Assets" />
-                    <field name="farm_asset_ids" nolabel="1">
+                    <field name="farm_asset_ids" nolabel="1" widget="x2many_no_padding">
                         <list editable="bottom">
                             <field name="asset_type_id" />
                             <field name="technology_used" />
@@ -150,7 +153,11 @@
                         </list>
                     </field>
                     <separator string="Machinery" />
-                    <field name="farm_machinery_ids" nolabel="1">
+                    <field
+                        name="farm_machinery_ids"
+                        nolabel="1"
+                        widget="x2many_no_padding"
+                    >
                         <list editable="bottom">
                             <field name="machinery_type_id" />
                             <field name="machine_working_status" />
@@ -160,7 +167,7 @@
                 </page>
 
                 <page string="Extension Services" name="extension_services">
-                    <field name="farm_extension_ids">
+                    <field name="farm_extension_ids" widget="x2many_no_padding">
                         <list>
                             <field name="service_type" />
                             <field name="provider" />

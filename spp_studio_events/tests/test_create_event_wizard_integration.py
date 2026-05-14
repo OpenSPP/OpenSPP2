@@ -156,6 +156,26 @@ class TestCreateEventWizardStudioIntegration(TransactionCase):
         field_name = f"x_evt_{test_field.technical_name}"
         self.assertIn(field_name, studio_wizard._fields)
 
+    def test_is_studio_event_type_flag(self):
+        """Test the is_studio_event_type computed field that drives step-1 UX."""
+        # Studio-backed event type → flag is True
+        wizard = self.env["spp.create.event.wizard"].create(
+            {
+                "partner_id": self.registrant.id,
+                "event_type_id": self.event_type.id,
+                "collection_date": date.today(),
+            }
+        )
+        self.assertTrue(wizard.is_studio_event_type)
+
+        # Switching to a non-Studio event type → flag flips to False
+        wizard.event_type_id = self.regular_event_type
+        self.assertFalse(wizard.is_studio_event_type)
+
+        # Clearing the event type → flag is False
+        wizard.event_type_id = False
+        self.assertFalse(wizard.is_studio_event_type)
+
     def test_inactive_studio_type_does_not_redirect(self):
         """Test that inactive Studio types don't trigger redirect."""
         # Deactivate the Studio event type

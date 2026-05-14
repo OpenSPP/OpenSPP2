@@ -168,10 +168,18 @@
                                 <i class="fa fa-plus me-1" /> New Assessment
                             </button>
                         </div>
+                        <div
+                            invisible="disability_assessment_count != 0"
+                            class="text-muted small"
+                        >
+                            No disability assessments yet.
+                        </div>
                         <field
                             name="disability_assessment_ids"
                             readonly="1"
                             nolabel="1"
+                            widget="x2many_no_padding"
+                            invisible="disability_assessment_count == 0"
                         >
                             <list
                                 limit="10"
@@ -210,7 +218,11 @@
                                 Unmet Device Need
                             </span>
                         </div>
-                        <field name="assistive_device_ids" nolabel="1">
+                        <field
+                            name="assistive_device_ids"
+                            nolabel="1"
+                            widget="x2many_no_padding"
+                        >
                             <list editable="bottom">
                                 <field
                                     name="device_type_id"

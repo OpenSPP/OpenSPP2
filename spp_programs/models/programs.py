@@ -725,6 +725,25 @@ class SPPProgram(models.Model):
         related_jobs = jobs.filtered(lambda r: self in r.records.program_id)
         return [("id", "in", related_jobs.ids)]
 
+    def action_force_unlock(self):
+        """Manager-only escape hatch: clear a stuck "Operation in progress" lock.
+
+        Use when an async pipeline died without firing its on_done/on_error
+        callback. Posts an audit line to chatter for traceability.
+        """
+        for rec in self:
+            if not rec.is_locked:
+                continue
+            previous_reason = rec.locked_reason
+            rec.write({"is_locked": False, "locked_reason": False})
+            rec.message_post(
+                body=_(
+                    "Lock manually cleared by %(user)s. Previous reason: %(reason)s",
+                    user=self.env.user.display_name,
+                    reason=previous_reason or _("(none)"),
+                )
+            )
+
     @api.constrains(
         "entitlement_manager_ids",
         "program_manager_ids",

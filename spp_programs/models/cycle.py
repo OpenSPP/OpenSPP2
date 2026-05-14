@@ -1062,6 +1062,27 @@ class SPPCycle(models.Model):
         related_jobs = jobs.filtered(lambda r: self in r.args[0])
         return [("id", "in", related_jobs.ids)]
 
+    def action_force_unlock(self):
+        """Manager-only escape hatch: clear a stuck "Operation in progress" lock.
+
+        Use when an async pipeline (entitlement processing, payment prep, etc.)
+        died without firing its on_done/on_error callback — for example after
+        a hard server restart or before this fix was deployed. Posts an audit
+        line to chatter so admins can see who unstuck the cycle.
+        """
+        for rec in self:
+            if not rec.is_locked:
+                continue
+            previous_reason = rec.locked_reason
+            rec.write({"is_locked": False, "locked_reason": False})
+            rec.message_post(
+                body=_(
+                    "Lock manually cleared by %(user)s. Previous reason: %(reason)s",
+                    user=self.env.user.display_name,
+                    reason=previous_reason or _("(none)"),
+                )
+            )
+
     def unlink(self):
         # Admin also not able to delete the cycle bcz of beneficiaries mapped
         # So this function common for who are all having delete access.
