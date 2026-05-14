@@ -1,0 +1,102 @@
+# OpenSPP-DR docker-compose overlay
+#
+# Adds a second OpenSPP container that plays the Disability Registry
+# role in the federated demo topology (ADR-024). The SP-side container
+# (defined in docker-compose.yml under the `openspp` service) speaks
+# DCI to this container at http://openspp-dr:8069 — the service name
+# doubles as the in-network hostname.
+#
+# Both containers share the same PostgreSQL container but use different
+# databases (`openspp` for SP, `openspp_dr` for DR) so neither sees the
+# other's data.
+#
+# Usage:
+#
+#   # Launch SP + DR together
+#   docker compose \
+#     -f docker-compose.yml \
+#     -f docker-compose.dr.yml \
+#     --profile ui --profile dr up -d
+#
+#   # Access:
+#   #   SP UI: http://localhost:8069 (admin/admin)
+#   #   DR UI: http://localhost:8070 (admin/admin)
+#   #   SP -> DR (in-network): http://openspp-dr:8069
+#
+#   # Stop everything
+#   docker compose \
+#     -f docker-compose.yml \
+#     -f docker-compose.dr.yml \
+#     --profile ui --profile dr down
+#
+#   # Clean restart (drops DR database too)
+#   docker compose \
+#     -f docker-compose.yml \
+#     -f docker-compose.dr.yml \
+#     --profile ui --profile dr down -v
+#
+# Module wiring:
+#
+#   - SP container should install `spp_dci_openspp_dr` + `spp_dci_openg2p`
+#     (set ODOO_INIT_MODULES env var, see CONFIGURE.md in each preset)
+#   - DR container ships `spp_dci_server_disability` via ODOO_INIT_MODULES
+#     below — operators can override.
+
+services:
+  openspp-dr:
+    image: openspp-dev
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: dev
+    profiles:
+      - dr
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Distinct database so SP and DR don't share registry data.
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_USER: odoo
+      DB_PASSWORD: odoo
+      DB_NAME: ${ODOO_DR_DB_NAME:-openspp_dr}
+      DB_FILTER: "^${ODOO_DR_DB_NAME:-openspp_dr}$$"
+      LIST_DB: "False"
+
+      ODOO_ADMIN_PASSWD: admin
+
+      ODOO_WORKERS: "0"
+      ODOO_CRON_THREADS: "0"
+
+      # Default to the server-side DR module + a registry foundation
+      # (spp_registry seeds the partner / reg_id stack that
+      # DisabilitySearchService queries against). Operators can
+      # override to install a richer module set for demo data.
+      ODOO_INIT_MODULES: "${ODOO_DR_INIT_MODULES:-spp_dci_server_disability}"
+      ODOO_UPDATE_MODULES: "${ODOO_DR_UPDATE_MODULES:-}"
+
+      LOG_LEVEL: info
+      PROXY_MODE: "False"
+    ports:
+      # Different host port so both SP (8069) and DR (8070) are
+      # reachable from the host. The in-network port stays 8069 —
+      # SP-side OpenSPPDRService talks to http://openspp-dr:8069.
+      - "8070:8069"
+    volumes:
+      - .:/mnt/extra-addons/openspp:ro,z
+      - odoo_dr_data:/var/lib/odoo
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8069/web/health"]
+      interval: 10s
+      timeout: 10s
+      start_period: 90s
+      retries: 10
+    networks:
+      - openspp
+
+volumes:
+  # Separate filestore so the DR's attachments don't collide with the
+  # SP's. Inherits the existing top-level `volumes` declaration in
+  # docker-compose.yml (postgres_data, odoo_data, e2e_snapshots).
+  odoo_dr_data:
