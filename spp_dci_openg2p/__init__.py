@@ -13,6 +13,7 @@ _EXPECTED_BINDING_FIELDS = (
     "source_field",
     "external_provider_id",
     "dci_attribute_path",
+    "value_type",
     "cache_strategy",
     "cache_ttl_seconds",
     "external_failure_policy",
@@ -21,16 +22,37 @@ _EXPECTED_BINDING_FIELDS = (
 )
 
 
-# (xml_id, dci_attribute_path) tuples for every CEL variable this preset binds
-# to the OpenG2P SR provider. Add a row here when introducing a new
-# SR-sourced variable; the rest of the hook handles drift correction
-# uniformly.
+# Per-variable bindings re-asserted on every install/upgrade. Each entry
+# carries everything that varies between variables:
+#
+#   xml_id          - ir.model.data reference identifying the record
+#   attribute_path  - dotted path applied to OpenG2P's reg_records[0]
+#   value_type      - CEL value type; controls cache JSON typing and CEL
+#                     SQL fast-path projection
+#   state           - 'active' (live) or 'inactive' (skipped by precompute
+#                     and resolver — used as a deferred-feature placeholder)
+#
+# ADD a row when introducing a new SR-sourced variable; the rest of the
+# hook handles drift correction uniformly.
 _PRESET_VARIABLES = (
-    ("spp_dci_openg2p.var_is_poor", "is_poor"),
-    (
-        "spp_dci_openg2p.var_has_dependent_under_school_age",
-        "has_dependent_under_school_age",
-    ),
+    {
+        "xml_id": "spp_dci_openg2p.var_is_poor",
+        "attribute_path": "income_level",
+        "value_type": "string",
+        "state": "active",
+    },
+    # has_dependent_under_school_age is parked inactive — OpenG2P's
+    # per-individual record does not embed household composition or
+    # dependent birth dates, so the variable cannot be resolved without
+    # a second OpenG2P endpoint call or schema extension. Kept here so
+    # the data XML and the hook stay in sync; revive when OpenG2P
+    # exposes the data. See CONFIGURE.md "Deferred features".
+    {
+        "xml_id": "spp_dci_openg2p.var_has_dependent_under_school_age",
+        "attribute_path": "has_dependent_under_school_age",
+        "value_type": "boolean",
+        "state": "inactive",
+    },
 )
 
 
@@ -80,7 +102,8 @@ def post_init_hook(env):
         )
         return
 
-    for xml_id, attribute_path in _PRESET_VARIABLES:
+    for binding in _PRESET_VARIABLES:
+        xml_id = binding["xml_id"]
         variable = env.ref(xml_id, raise_if_not_found=False)
         if not variable:
             _logger.warning(
@@ -91,23 +114,27 @@ def post_init_hook(env):
             )
             continue
 
+        is_active = binding["state"] == "active"
         expected = {
             "source_type": "external",
             "source_field": False,
             "external_provider_id": provider.id,
-            "dci_attribute_path": attribute_path,
+            "dci_attribute_path": binding["attribute_path"],
+            "value_type": binding["value_type"],
             "cache_strategy": "ttl",
             "cache_ttl_seconds": 300,
             "external_failure_policy": "null",
-            # State + active control whether the variable participates
+            # state + active control whether the variable participates
             # in the resolver / precompute pipeline:
-            #   - state='active' is the workflow status (Draft / Active
-            #     / Inactive) used by spp_studio's lifecycle and CEL
-            #     symbol visibility
-            #   - active=True is the standard Odoo archived/unarchived
-            #     flag used by precompute_cached_variables' search domain
-            "state": "active",
-            "active": True,
+            #   - state='active' is the workflow status used by spp_studio's
+            #     lifecycle and CEL symbol visibility
+            #   - active=True is the Odoo archived/unarchived flag used by
+            #     precompute_cached_variables' search domain
+            # An "inactive" preset variable (e.g., a deferred-feature
+            # placeholder) is kept registered but excluded from both
+            # paths so the dispatcher never tries to fetch it.
+            "state": binding["state"],
+            "active": is_active,
         }
 
         drift = {}

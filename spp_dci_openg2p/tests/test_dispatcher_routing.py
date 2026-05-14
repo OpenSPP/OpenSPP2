@@ -88,10 +88,15 @@ class TestDispatcherRoutesOpenG2P(TransactionCase):
     @patch("odoo.addons.spp_dci_openg2p.services.openg2p_social_service.OpenG2PDCIClient")
     def test_openg2p_handler_extracts_attribute_path_from_reg_record(self, mock_client_class):
         """Partner with a matching OpenG2P record returns the value at
-        ``dci_attribute_path`` from the raw reg_record (no synthesis)."""
+        ``dci_attribute_path`` from the raw reg_record (no synthesis).
+
+        The is_poor variable's path is `income_level`, so the dispatcher
+        extracts the raw string ("low" / "medium" / "high") — CEL rules
+        decide which tier counts as poor via `is_poor == "low"`.
+        """
         mock_client = MagicMock()
         mock_client.search.side_effect = make_sr_response_for_search_text(
-            {"IND-NSR-0001": [{"is_poor": True}]}
+            {"IND-NSR-0001": [{"income_level": "low", "is_disabled": False}]}
         )
         mock_client_class.return_value = mock_client
 
@@ -99,7 +104,7 @@ class TestDispatcherRoutesOpenG2P(TransactionCase):
             self.variable, [self.partner_in_sr.id], "current"
         )
 
-        self.assertEqual(result, {self.partner_in_sr.id: True})
+        self.assertEqual(result, {self.partner_in_sr.id: "low"})
 
     @patch("odoo.addons.spp_dci_openg2p.services.openg2p_social_service.OpenG2PDCIClient")
     def test_openg2p_handler_records_not_found_for_unknown_partner(self, mock_client_class):

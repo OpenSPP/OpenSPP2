@@ -17,7 +17,7 @@
         raise this.
 
         external_failure_policy=null: if OpenG2P is unreachable, the
-        subject evaluates against null (does not match `is_poor == true`).
+        subject evaluates against null (does not match the CEL filter).
         Compliance-critical rules can override to 'fail' on the variable.
 
         State + active are set explicitly so the variable goes from DRAFT
@@ -31,23 +31,51 @@
 
         NOTE: spp_studio.var_has_disability is intentionally NOT overridden
         here. Disability data lives in a separate OpenSPP-DR instance over
-        its own DCI link (ADR-024); the DR-side preset (spp_dci_openspp_dr,
-        Phase 6) binds has_disability to the DR provider.
+        its own DCI link (ADR-024); the DR-side preset (spp_dci_openspp_dr)
+        binds has_disability to the DR provider.
+
+        FIELD MAPPING — OpenG2P SR record shape:
+
+        The OpenG2P SR `reg_records[0]` exposes (verified against the
+        partner-nsr.play.openg2p.org playground on 2026-05-15):
+
+          - member_identifier[]         — JSON-LD identifier list
+          - demographic_info            — name, sex, birth_date, contact
+          - is_disabled                 — Boolean, self-reported
+          - self_id_disability          — Integer flag
+          - marital_status              — String selection
+          - employment_status           — String selection
+          - occupation                  — String
+          - income_level                — String: "low" / "medium" / "high"
+          - additional_attributes[]     — household_id, displacement_status, etc.
+
+        No field named `is_poor` exists; `income_level == "low"` is the
+        closest available signal. This preset binds `is_poor` to
+        `income_level` (as a string) and the program's CEL rule uses
+        `is_poor == "low"`.
+
+        No field captures `has_dependent_under_school_age` — OpenG2P's
+        per-individual record does not embed household composition with
+        dependent birth dates. Reviving this variable would require a
+        secondary OpenG2P endpoint call (household-search) or an OpenG2P
+        schema extension. The record stays here in inactive state as a
+        deferred-feature placeholder; see DESCRIPTION.md "Deferred
+        features".
     -->
     <record id="var_is_poor" model="spp.cel.variable">
         <field name="name">is_poor</field>
-        <field name="label">Is Poor (OpenG2P SR)</field>
+        <field name="label">Is Poor (OpenG2P SR income_level)</field>
         <field
             name="description"
-        >Whether the registrant is classified as poor in the Social Registry. Sourced from OpenG2P over DCI; see ADR-024 for the federated topology.</field>
+        >Poverty proxy sourced from OpenG2P SR's `income_level` field. CEL rules match `is_poor == "low"` (or other income tiers). The variable surfaces the raw `income_level` string, not a boolean — the eligibility rule decides which level counts as poor. See ADR-024 for the federated topology and CONFIGURE.md for the field-mapping rationale.</field>
         <field name="category_id" ref="spp_studio.variable_category_economic" />
-        <field name="value_type">boolean</field>
+        <field name="value_type">string</field>
         <field name="source_type">external</field>
         <field name="source_model">res.partner</field>
         <field name="cel_accessor">is_poor</field>
         <field name="applies_to">individual</field>
         <field name="external_provider_id" ref="openg2p_dr_provider" />
-        <field name="dci_attribute_path">is_poor</field>
+        <field name="dci_attribute_path">income_level</field>
         <field name="cache_strategy">ttl</field>
         <field name="cache_ttl_seconds">300</field>
         <field name="external_failure_policy">null</field>
@@ -60,10 +88,12 @@
         model="spp.cel.variable"
     >
         <field name="name">has_dependent_under_school_age</field>
-        <field name="label">Has Dependent Under School Age (OpenG2P SR)</field>
+        <field
+            name="label"
+        >Has Dependent Under School Age (DEFERRED — OpenG2P does not expose)</field>
         <field
             name="description"
-        >Whether the registrant has at least one dependent below school-entry age. Sourced from OpenG2P over DCI; see ADR-024 for the federated topology.</field>
+        >Deferred: OpenG2P's SR `reg_records[0]` does not include household composition or dependent birth dates, so this variable cannot be sourced today. Kept as an inactive placeholder for the demo rule's eventual revival. See CONFIGURE.md "Deferred features" for the path forward.</field>
         <field
             name="category_id"
             ref="spp_studio.variable_category_demographics"
@@ -78,8 +108,8 @@
         <field name="cache_strategy">ttl</field>
         <field name="cache_ttl_seconds">300</field>
         <field name="external_failure_policy">null</field>
-        <field name="state">active</field>
-        <field name="active" eval="True" />
+        <field name="state">inactive</field>
+        <field name="active" eval="False" />
         <field name="is_system">True</field>
     </record>
 </odoo>

@@ -39,6 +39,33 @@ Partners with no matching identifier are recorded in `spp.dci.fetch.audit` as `r
 
 The vendor-specific path is opt-in. If OpenG2P's published API ever drops the namespaced URI query type, the nested `search_text` shape, or the mandatory consent/authorize blocks and aligns with the upstream DCI defaults, clear the `vendor` field on the data source. The dispatcher's override falls through to the bridge's default `_handler_sr` (currently a not-implemented stub; the bridge will gain a standard SR client when one ships).
 
+### CEL variables and field mapping
+
+The OpenG2P SR record at `data.reg_records[0]` exposes the following top-level fields (verified against `partner-nsr.play.openg2p.org` on 2026-05-15):
+
+```
+member_identifier, demographic_info, related_person, self_id_disability,
+is_disabled, disability_info, marital_status, employment_status, occupation,
+income_level, language_code, education_level, additional_attributes,
+registration_date, last_updated
+```
+
+OpenG2P does not surface a top-level boolean `is_poor` — the closest signal is `income_level`, a categorical string (`"low"` / `"medium"` / `"high"`). The preset binds the semantic CEL variable `is_poor` to read `income_level` and surfaces it to CEL rules as a string. Eligibility rules then express the poverty threshold via comparison:
+
+```
+is_poor == "low"
+```
+
+(or whichever tier your policy treats as poor — `"medium"`, an `in` list, etc.). The variable name is intentionally kept as `is_poor` so CEL rules read semantically; the underlying field is `income_level`.
+
+### Deferred features
+
+| Variable | Reason | Path to revive |
+|---|---|---|
+| `has_dependent_under_school_age` | OpenG2P's `reg_records[0]` is per-individual and does not embed household composition or dependent birth dates. No top-level field maps cleanly. | (a) Ask the OpenG2P team to add a top-level boolean; or (b) issue a secondary household-search call against OpenG2P (different endpoint) and aggregate the results. The CEL variable record is kept in inactive state — flip it active + set `dci_attribute_path` to the new field name once the data is available. |
+
+The inactive variable stays registered in `spp.cel.variable` so any CEL rules that still reference it gracefully evaluate to null (and fail the comparison) instead of crashing the resolver.
+
 ### Cache TTL
 
 The preset ships with `cache_ttl_seconds = 300` (5 minutes) on every SR variable so the DCI round-trip is visible during demos. For production, raise to 86400 (24h) or higher on each variable form (**Custom > CEL > Variables**).

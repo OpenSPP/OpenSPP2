@@ -75,16 +75,23 @@ class TestOpenG2PPresetInstall(TransactionCase):
         self.assertEqual(variable.name, "is_poor")
         self.assertEqual(variable.cel_accessor, "is_poor")
         self.assertEqual(variable.source_type, "external")
-        self.assertEqual(variable.value_type, "boolean")
+        # OpenG2P SR exposes `income_level` as a string ("low" / "medium" /
+        # "high"); the preset binds is_poor to that raw value rather than
+        # synthesizing a boolean. CEL rules match `is_poor == "low"`.
+        self.assertEqual(variable.value_type, "string")
         self.assertEqual(variable.external_provider_id, provider)
-        self.assertEqual(variable.dci_attribute_path, "is_poor")
+        self.assertEqual(variable.dci_attribute_path, "income_level")
         self.assertEqual(variable.cache_strategy, "ttl")
         self.assertEqual(variable.cache_ttl_seconds, 300)
         self.assertEqual(variable.external_failure_policy, "null")
         self.assertEqual(variable.state, "active")
         self.assertTrue(variable.active)
 
-    def test_var_has_dependent_under_school_age_bound_to_dci_provider(self):
+    def test_var_has_dependent_under_school_age_parked_inactive(self):
+        """Deferred: OpenG2P's reg_records[0] doesn't expose household
+        composition / dependent birth dates. The variable record stays
+        registered (so revival is a config-only change) but is parked
+        inactive so the dispatcher's pre-warm skips it."""
         variable = self.env.ref("spp_dci_openg2p.var_has_dependent_under_school_age")
         provider = self.env.ref("spp_dci_openg2p.openg2p_dr_provider")
         self.assertEqual(variable.name, "has_dependent_under_school_age")
@@ -96,8 +103,8 @@ class TestOpenG2PPresetInstall(TransactionCase):
             variable.dci_attribute_path,
             "has_dependent_under_school_age",
         )
-        self.assertEqual(variable.state, "active")
-        self.assertTrue(variable.active)
+        self.assertEqual(variable.state, "inactive")
+        self.assertFalse(variable.active)
 
     def test_cel_accessors_are_semantic_not_vendor_named(self):
         """ADR-023 §1a: CEL accessors must be vendor-neutral. OpenG2P-ness
@@ -163,24 +170,29 @@ class TestOpenG2PPresetInstall(TransactionCase):
         variable.invalidate_recordset()
         self.assertEqual(variable.source_type, "external")
         self.assertEqual(variable.external_provider_id, provider)
-        self.assertEqual(variable.dci_attribute_path, "is_poor")
+        self.assertEqual(variable.dci_attribute_path, "income_level")
+        self.assertEqual(variable.value_type, "string")
         self.assertEqual(variable.cache_strategy, "ttl")
         self.assertEqual(variable.cache_ttl_seconds, 300)
         self.assertEqual(variable.state, "active")
         self.assertTrue(variable.active)
 
-    def test_post_init_hook_re_asserts_all_preset_variables(self):
-        """Both preset variables (is_poor AND has_dependent_under_school_age)
-        must be re-asserted by a single hook run. Resetting one and not the
-        other still produces a healthy state after the hook runs."""
+    def test_post_init_hook_parks_deferred_variable_inactive(self):
+        """has_dependent_under_school_age is a deferred-feature placeholder.
+        Even if someone activates it manually (e.g., via the UI), the next
+        hook run must drag it back to state='inactive' / active=False so
+        the dispatcher's pre-warm skips it. This prevents accidental DCI
+        round-trips for a field OpenG2P does not expose."""
         var_dep = self.env.ref(
             "spp_dci_openg2p.var_has_dependent_under_school_age"
         )
+        # Simulate someone activating it
         var_dep.write(
             {
                 "external_provider_id": False,
                 "dci_attribute_path": False,
-                "state": "draft",
+                "state": "active",
+                "active": True,
             }
         )
 
@@ -192,7 +204,9 @@ class TestOpenG2PPresetInstall(TransactionCase):
         self.assertEqual(
             var_dep.dci_attribute_path, "has_dependent_under_school_age"
         )
-        self.assertEqual(var_dep.state, "active")
+        # Hook re-parks it inactive
+        self.assertEqual(var_dep.state, "inactive")
+        self.assertFalse(var_dep.active)
 
     def test_post_init_hook_handles_missing_variable_gracefully(self):
         """If a preset variable is missing (e.g., data load failed), the
