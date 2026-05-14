@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="1">
+    <!--
+        DR-side ID type vocabulary codes.
+
+        Seeds the UIN vocabulary code on the urn:openspp:vocab:id-type
+        vocabulary so DR-side partners can be tagged with UIN reg_ids.
+        DisabilitySearchService looks up partners by spp.registry.id.value
+        regardless of id_type, but operators still need a usable ID type
+        on the registrant form — this seeds the most common one.
+
+        spp_vocabulary's system-vocab constraint forbids runtime creation
+        of codes; the only legitimate path is module data load. Seeding
+        here means the DR-side OpenSPP can install standalone and accept
+        UIN-tagged registrants without depending on any SP-side preset.
+
+        We use a different xml id (id_type_uin_dr) from spp_dci_openg2p's
+        (spp_dci_openg2p.id_type_uin) so the two modules can be installed
+        in the same database for development without colliding on the
+        ir.model.data uniqueness constraint. Both records refer to the
+        same vocabulary code (UIN) — the second module's create attempt
+        will hit the duplicate-code constraint, which spp_vocabulary
+        suppresses on data load via the get_or_create pattern (if it
+        doesn't, we'll handle it in code at install time).
+    -->
+    <record id="id_type_uin_dr" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_vocabulary.vocab_id_type" />
+        <field name="code">UIN</field>
+        <field name="display">UIN (Universal Identification Number)</field>
+        <field name="target_type">individual</field>
+        <field
+            name="definition"
+        >Universal Identification Number — used to tag DR-side registrants for SPDCI lookups. Mirrors the convention on the SP-side preset.</field>
+        <field name="sequence">20</field>
+    </record>
+</odoo>
