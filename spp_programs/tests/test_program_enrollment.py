@@ -299,10 +299,10 @@ class TestProgramModel(TransactionCase):
         result = self.program.open_program_form()
         self.assertEqual(result["res_id"], self.program.id)
 
-    def test_refresh_page(self):
-        """refresh_page returns reload action."""
-        result = self.program.refresh_page()
-        self.assertEqual(result["tag"], "reload")
+    def test_action_refresh_record(self):
+        """action_refresh_record returns None so the framework triggers a
+        soft model.load() (preserving breadcrumbs and dialog context)."""
+        self.assertIsNone(self.program.action_refresh_record())
 
     def test_end_program(self):
         """end_program changes state to ended."""

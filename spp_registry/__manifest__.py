@@ -3,7 +3,7 @@
 {
     "name": "OpenSPP Registry",
     "category": "OpenSPP/Core",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.1.1",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -64,6 +64,7 @@
             "spp_registry/static/src/css/registry.css",
             "spp_registry/static/src/css/registry_form.css",
             "spp_registry/static/src/js/form_text_overflow.js",
+            "spp_registry/static/src/js/x2many_no_padding_field.js",
         ],
     },
     "oca_data_manual": [

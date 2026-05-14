@@ -116,11 +116,13 @@ class SppScoringModel(models.Model):
         comodel_name="spp.scoring.indicator",
         inverse_name="model_id",
         string="Indicators",
+        copy=True,
     )
     threshold_ids = fields.One2many(
         comodel_name="spp.scoring.threshold",
         inverse_name="model_id",
         string="Thresholds",
+        copy=True,
     )
     result_ids = fields.One2many(
         comodel_name="spp.scoring.result",
@@ -205,7 +207,10 @@ class SppScoringModel(models.Model):
         for record in self:
             errors = record._validate_configuration()
             if errors:
-                raise ValidationError(_("Cannot activate model. Validation errors:\n%s") % "\n".join(errors))
+                raise ValidationError(
+                    _("Cannot activate model '%(name)s'. Validation errors:\n%(errors)s")
+                    % {"name": record.name, "errors": "\n".join(f"• {e}" for e in errors)}
+                )
             record.is_active = True
         return True
 
@@ -221,11 +226,11 @@ class SppScoringModel(models.Model):
 
         # Check indicators exist
         if not self.indicator_ids:
-            errors.append(_("At least one indicator is required."))
+            errors.append(_("No indicators defined. Add at least one indicator in the Indicators tab."))
 
         # Check thresholds exist
         if not self.threshold_ids:
-            errors.append(_("At least one threshold is required."))
+            errors.append(_("No thresholds defined. Add at least one threshold in the Thresholds tab."))
 
         # Check weights sum correctly (if expected)
         if self.expected_total_weight > 0:
@@ -258,21 +263,41 @@ class SppScoringModel(models.Model):
         return errors
 
     def _validate_thresholds(self):
-        """Check that thresholds cover the expected score range without gaps."""
+        """Check that thresholds cover the expected score range without gaps or overlaps."""
         errors = []
         if not self.threshold_ids:
             return errors
 
         sorted_thresholds = self.threshold_ids.sorted(key=lambda t: t.min_score)
 
-        # Check for gaps between thresholds
+        # Check all consecutive threshold boundaries for gaps and overlaps.
+        # matches_score uses inclusive bounds on both ends, so shared
+        # boundaries (e.g. 0–20 / 20–40) overlap at the shared value.
+        # Round to 2 decimal places to avoid IEEE-754 false positives
+        # (e.g., 20.00 - 19.99 computing to 0.010000000000000009).
         for i, threshold in enumerate(sorted_thresholds[:-1]):
             next_threshold = sorted_thresholds[i + 1]
-            gap = next_threshold.min_score - threshold.max_score
+            gap = round(next_threshold.min_score - threshold.max_score, 2)
+
             if gap > 0.01:
                 errors.append(
-                    _("Gap detected between thresholds '%(current)s' and '%(next)s'.")
-                    % {"current": threshold.name, "next": next_threshold.name}
+                    _("Gap detected between thresholds '%(current)s' (max %(max)s) and '%(next)s' (min %(min)s).")
+                    % {
+                        "current": threshold.name,
+                        "max": threshold.max_score,
+                        "next": next_threshold.name,
+                        "min": next_threshold.min_score,
+                    }
+                )
+            elif gap <= 0:
+                errors.append(
+                    _("Overlap detected between thresholds '%(current)s' (max %(max)s) and '%(next)s' (min %(min)s).")
+                    % {
+                        "current": threshold.name,
+                        "max": threshold.max_score,
+                        "next": next_threshold.name,
+                        "min": next_threshold.min_score,
+                    }
                 )
 
         return errors

@@ -151,6 +151,7 @@ def main():
     # Build dependency graph
     reverse_deps = build_reverse_dependency_graph(project_root, all_modules)
 
+    changed_modules: set[str] = set()
     if args.all:
         # List all modules with tests (no limit for --all)
         modules_to_test = {m for m in all_modules if has_tests(project_root / m)}
@@ -184,10 +185,17 @@ def main():
 
     # Apply max limit if set
     if args.max_modules > 0 and len(sorted_modules) > args.max_modules:
-        # Prioritize critical modules
-        critical_first = [m for m in sorted_modules if m in CRITICAL_MODULES]
-        others = [m for m in sorted_modules if m not in CRITICAL_MODULES]
-        sorted_modules = (critical_first + others)[: args.max_modules]
+        # Priority order when the matrix is over-subscribed:
+        #   1. Critical modules (always tested).
+        #   2. Directly-changed modules (a patch must run its own tests so
+        #      codecov/patch reflects the new coverage — without this, the
+        #      changed module can fall off the alpha tail and codecov
+        #      carryforward leaves the old figures in place).
+        #   3. Transitively-impacted modules, alphabetical.
+        critical = [m for m in sorted_modules if m in CRITICAL_MODULES]
+        directly_changed = [m for m in sorted_modules if m in changed_modules and m not in CRITICAL_MODULES]
+        others = [m for m in sorted_modules if m not in CRITICAL_MODULES and m not in changed_modules]
+        sorted_modules = (critical + directly_changed + others)[: args.max_modules]
         print(
             f"Warning: Limited to {args.max_modules} modules",
             file=sys.stderr,

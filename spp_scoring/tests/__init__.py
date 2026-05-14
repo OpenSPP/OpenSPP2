@@ -6,3 +6,5 @@ from . import test_batch_scoring_wizard
 from . import test_edge_cases
 from . import test_data_integrity
 from . import test_scoring_indicator_provider
+from . import test_scoring_invalid_value
+from . import test_res_partner

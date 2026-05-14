@@ -19,8 +19,6 @@ import {registry} from "@web/core/registry";
 import {useService} from "@web/core/utils/hooks";
 import {_t} from "@web/core/l10n/translation";
 
-const SEARCH_RESULT_LIMIT = 50;
-
 export class RegistrySearchPortal extends Component {
     static template = "spp_registry_search.SearchPortal";
     static props = {
@@ -35,7 +33,7 @@ export class RegistrySearchPortal extends Component {
 
         this.state = useState({
             searchTerm: "",
-            searchType: "all", // All, individuals, groups
+            searchType: "all",
             isSearching: false,
             hasSearched: false,
             results: [],
@@ -45,21 +43,23 @@ export class RegistrySearchPortal extends Component {
             showAdvanced: false,
             canCreate: false,
             canEdit: false,
+            searchMode: "unified",
+            searchField: "name",
             advancedFilters: {
                 registrationDateFrom: "",
                 registrationDateTo: "",
             },
         });
 
-        // Minimum characters before search triggers
+        // Defaults — overridden by config on load
         this.minSearchChars = 3;
+        this.resultLimit = 50;
         this.searchDebounceMs = 300;
         this._searchTimeout = null;
 
         onWillStart(async () => {
-            // Check permissions via Python methods
             try {
-                const [canCreate, canEdit] = await Promise.all([
+                const [canCreate, canEdit, recentlyViewed, config] = await Promise.all([
                     this.orm.call("res.partner", "check_access_rights", [
                         "create",
                         false,
@@ -69,29 +69,30 @@ export class RegistrySearchPortal extends Component {
                         "check_registrant_edit_permission",
                         []
                     ),
+                    this.orm.call(
+                        "spp.registry.view.history",
+                        "get_recent_registrants",
+                        [10]
+                    ),
+                    this.orm.call("res.partner", "get_search_config", []),
                 ]);
                 this.state.canCreate = canCreate;
                 this.state.canEdit = canEdit;
+                this.state.recentlyViewed = recentlyViewed || [];
+
+                // Apply config
+                if (config) {
+                    this.state.searchMode = config.search_mode || "unified";
+                    this.state.searchField = config.target_field || "name";
+                    this.resultLimit = config.result_limit || 50;
+                    this.minSearchChars = config.min_chars || 3;
+                }
             } catch {
                 this.state.canCreate = false;
                 this.state.canEdit = false;
+                this.state.recentlyViewed = [];
             }
-
-            await this.loadRecentlyViewed();
         });
-    }
-
-    async loadRecentlyViewed() {
-        try {
-            this.state.recentlyViewed = await this.orm.call(
-                "spp.registry.view.history",
-                "get_recent_registrants",
-                [10]
-            );
-        } catch {
-            // Silently fail - recently viewed is not critical
-            this.state.recentlyViewed = [];
-        }
     }
 
     onSearchInput(ev) {
@@ -144,27 +145,27 @@ export class RegistrySearchPortal extends Component {
         this.state.hasSearched = true;
 
         try {
-            // Build domain
-            const domain = this._buildSearchDomain();
-
-            // Search registrants
-            const fields = [
-                "id",
-                "name",
-                "is_group",
-                "phone",
-                "email",
-                "registration_date",
-                "disabled",
-            ];
-            const results = await this.orm.searchRead("res.partner", domain, fields, {
-                limit: SEARCH_RESULT_LIMIT,
-            });
+            const results = await this.orm.call(
+                "res.partner",
+                "search_registrants",
+                [],
+                {
+                    search_term: this.state.searchTerm,
+                    search_type: this.state.searchType,
+                    search_field:
+                        this.state.searchMode === "targeted"
+                            ? this.state.searchField
+                            : null,
+                    advanced_filters: this.state.showAdvanced
+                        ? this.state.advancedFilters
+                        : null,
+                    limit: this.resultLimit,
+                }
+            );
 
             this.state.results = results;
             this.state.totalCount = results.length;
-            // Indicate if there may be more results beyond the limit
-            this.state.hasMoreResults = results.length >= SEARCH_RESULT_LIMIT;
+            this.state.hasMoreResults = results.length >= this.resultLimit;
         } catch {
             this.notification.add(_t("Search failed. Please try again."), {
                 type: "danger",
@@ -174,49 +175,24 @@ export class RegistrySearchPortal extends Component {
         }
     }
 
-    _buildSearchDomain() {
-        const searchTerm = this.state.searchTerm;
-
-        // Base domain: must be a registrant and match search term
-        // Using OR for main search terms, AND for advanced filters
-        // Note: ID numbers use exact match (=), other fields use partial match (ilike)
-        const domain = [
-            ["is_registrant", "=", true],
-            "|",
-            "|",
-            "|",
-            ["name", "ilike", searchTerm],
-            ["reg_ids.value", "=", searchTerm], // Exact match for ID numbers
-            ["phone_number_ids.phone_no", "ilike", searchTerm],
-            ["email", "ilike", searchTerm],
-        ];
-
-        // Filter by type (AND)
-        if (this.state.searchType === "individuals") {
-            domain.push(["is_group", "=", false]);
-        } else if (this.state.searchType === "groups") {
-            domain.push(["is_group", "=", true]);
+    onSearchFieldChange(ev) {
+        this.state.searchField = ev.target.value;
+        if (this.state.hasSearched) {
+            this.performSearch();
         }
+    }
 
-        // Advanced filters (AND logic - all conditions must be met)
-        if (this.state.showAdvanced) {
-            if (this.state.advancedFilters.registrationDateFrom) {
-                domain.push([
-                    "registration_date",
-                    ">=",
-                    this.state.advancedFilters.registrationDateFrom,
-                ]);
-            }
-            if (this.state.advancedFilters.registrationDateTo) {
-                domain.push([
-                    "registration_date",
-                    "<=",
-                    this.state.advancedFilters.registrationDateTo,
-                ]);
-            }
+    get searchPlaceholder() {
+        if (this.state.searchMode === "targeted") {
+            const labels = {
+                name: _t("Search by name..."),
+                id_number: _t("Search by ID number..."),
+                phone: _t("Search by phone number..."),
+                email: _t("Search by email..."),
+            };
+            return labels[this.state.searchField] || _t("Search...");
         }
-
-        return domain;
+        return _t("Search by name, ID number, phone number, or email...");
     }
 
     clearSearch() {
