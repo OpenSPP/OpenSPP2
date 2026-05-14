@@ -154,17 +154,31 @@
                             </field>
 
                             <!-- SYSTEM vocabulary: codes are loaded via XML
-                                 by modules / data files. Users can't add or
-                                 delete rows here, and identifying columns
+                                 by modules / data files. The embedded list
+                                 disables inline create/delete because that
+                                 path can't pre-set is_local=True; use the
+                                 explicit "Add Manual Code" button below
+                                 instead. Identifying columns
                                  (code/display/definition/parent_id) are
-                                 readonly. Operational toggles (sequence,
-                                 deprecated, active) stay editable so admins
+                                 readonly for system codes; manual codes
+                                 (`is_local=True`) keep them editable inline.
+                                 Operational toggles (sequence, deprecated,
+                                 active) stay editable for all rows so admins
                                  can still archive, deprecate, or reorder a
-                                 system code. Local codes (`is_local=True`)
-                                 keep their pre-existing edit behaviour. See
-                                 OP#954 — matches the allowed_fields set in
-                                 the Python guard at
+                                 system code. Deletion goes through the code
+                                 form (backend blocks system-code deletion,
+                                 allows manual). See OP#954 — matches the
+                                 allowed_fields set in the Python guard at
                                  models/vocabulary_code.py:279. -->
+                            <div invisible="not is_system">
+                                <button
+                                    name="action_add_manual_code"
+                                    string="Add Manual Code"
+                                    type="object"
+                                    icon="fa-plus"
+                                    class="btn-primary mb-2"
+                                />
+                            </div>
                             <field
                                 name="code_ids"
                                 nolabel="1"
@@ -178,6 +192,12 @@
                                 >
                                     <field name="is_local" column_invisible="1" />
                                     <field name="sequence" widget="handle" />
+                                    <field
+                                        name="code_source"
+                                        widget="badge"
+                                        decoration-success="code_source == 'manual'"
+                                        decoration-info="code_source == 'system'"
+                                    />
                                     <field
                                         name="code"
                                         readonly="parent.is_system and not is_local"

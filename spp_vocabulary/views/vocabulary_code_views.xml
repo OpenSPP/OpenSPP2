@@ -14,6 +14,12 @@
                 <field name="sequence" widget="handle" />
                 <field name="code" />
                 <field name="display" />
+                <field
+                    name="code_source"
+                    widget="badge"
+                    decoration-success="code_source == 'manual'"
+                    decoration-info="code_source == 'system'"
+                />
                 <field name="target_type" />
                 <field
                     name="vocabulary_id"
@@ -78,16 +84,27 @@
                                 readonly="vocabulary_id.is_system and not is_local"
                             />
                         </h2>
+                        <field
+                            name="code_source"
+                            widget="badge"
+                            decoration-success="code_source == 'manual'"
+                            decoration-info="code_source == 'system'"
+                            readonly="1"
+                        />
                     </div>
 
                     <notebook>
                         <page string="Details" name="details">
                             <group name="details_section">
                                 <group name="basic" string="Basic Information">
+                                    <!-- No is_system domain: manual codes
+                                         (is_local=True) are valid on SYSTEM
+                                         vocabularies too. Backend enforces
+                                         that bare system codes still cannot
+                                         be created in system vocabs. -->
                                     <field
                                         name="vocabulary_id"
                                         required="1"
-                                        domain="[('is_system', '=', False)]"
                                         readonly="vocabulary_id.is_system and not is_local"
                                     />
                                     <field name="namespace_uri" readonly="1" />
@@ -225,11 +242,27 @@
                     name="filter_archived"
                     domain="[('active', '=', False)]"
                 />
+                <separator />
+                <filter
+                    string="System Codes"
+                    name="filter_system_codes"
+                    domain="[('code_source', '=', 'system')]"
+                />
+                <filter
+                    string="Manual Codes"
+                    name="filter_manual_codes"
+                    domain="[('code_source', '=', 'manual')]"
+                />
                 <group>
                     <filter
                         string="Vocabulary"
                         name="group_vocabulary"
                         context="{'group_by': 'vocabulary_id'}"
+                    />
+                    <filter
+                        string="Source"
+                        name="group_source"
+                        context="{'group_by': 'code_source'}"
                     />
                     <filter
                         string="Parent"
