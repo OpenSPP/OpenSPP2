@@ -7,7 +7,6 @@ It adds computed summary fields and action methods to simplify the configuration
 """
 
 from odoo import _, api, fields, models
-from odoo.tools.misc import format_amount
 
 
 def _format_recurrence(duration, rrule_type):
@@ -479,6 +478,22 @@ class ProgramManagerUI(models.Model):
             % target_label
         )
 
+    @staticmethod
+    def _format_money(amount, currency):
+        """Render a Float amount with thousands grouping + 2-decimal precision,
+        prefixed by the currency symbol on the left. We don't use
+        odoo.tools.misc.format_amount here because it honours the currency's
+        `position` field — which puts the symbol after the amount for some
+        currency records — and the program overview should always show the
+        symbol on the left for consistency.
+        """
+        precision = currency.decimal_places if currency else 2
+        formatted = f"{amount:,.{precision}f}"
+        if not currency:
+            return formatted
+        symbol = currency.symbol or currency.name or ""
+        return f"{symbol} {formatted}".strip()
+
     def _manager_detail_entitlement_items(self, concrete):
         """Render each entitlement_item line readably."""
         lines = []
@@ -488,7 +503,7 @@ class ProgramManagerUI(models.Model):
             multiplier_field = getattr(item, "multiplier_field", False)
             condition = getattr(item, "condition", "") or ""
             currency = getattr(item, "currency_id", False)
-            amount_with_sym = format_amount(self.env, amount, currency) if currency else f"{amount:,.2f}"
+            amount_with_sym = self._format_money(amount, currency)
             if amount_expr:
                 line = _("Amount per beneficiary: %s") % amount_expr
             elif multiplier_field:
@@ -516,7 +531,7 @@ class ProgramManagerUI(models.Model):
         currency = getattr(concrete, "currency_id", False)
 
         def _fmt(amt):
-            return format_amount(self.env, amt, currency) if currency else f"{amt:,.2f}"
+            return self._format_money(amt, currency)
 
         lines = []
         if per_cycle:

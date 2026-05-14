@@ -111,3 +111,33 @@ class TestManagerSummaryFormatting(TransactionCase):
         self.assertIn("1,000,000", summary, f"summary missing thousands separator: {summary!r}")
         # And of course still no bare "1000000" without a separator.
         self.assertNotRegex(summary, r"\b1000000\b")
+
+    def test_items_summary_symbol_appears_left_of_amount(self):
+        """QA round-4: currency symbol must render on the LEFT of the amount."""
+        cash = self.env["spp.program.entitlement.manager.cash"].create(
+            {
+                "name": "Cash Symbol Position [TEST]",
+                "program_id": self.program.id,
+                "approval_definition_id": self.approval_def.id,
+            }
+        )
+        self.env["spp.program.entitlement.manager.cash.item"].create(
+            {
+                "entitlement_id": cash.id,
+                "amount": 500.0,
+            }
+        )
+        # Force currency.position to 'after' to ensure our render still puts
+        # the symbol on the left regardless of the currency record setting.
+        self.program.journal_id.currency_id.position = "after"
+        self._wrap_manager(cash)
+
+        summary = self.program.entitlement_manager_detail or ""
+        currency = self.program.journal_id.currency_id
+        sym = currency.symbol or currency.name
+        # The symbol must appear before the amount substring in the summary.
+        idx_sym = summary.find(sym)
+        idx_amt = summary.find("500.00")
+        self.assertNotEqual(idx_sym, -1, f"symbol missing from summary: {summary!r}")
+        self.assertNotEqual(idx_amt, -1, f"amount missing from summary: {summary!r}")
+        self.assertLess(idx_sym, idx_amt, f"symbol should be LEFT of amount, got: {summary!r}")
