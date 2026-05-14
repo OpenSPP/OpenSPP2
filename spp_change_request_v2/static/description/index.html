@@ -1339,26 +1339,41 @@ registrant</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.4</h1>
+<ul class="simple">
+<li>fix(views): route post-submit CRs (pending / approved / applied /
+rejected) through the stage review form when opened from the list,
+matching the Edit Details → Upload Documents → Review &amp; Submit
+breadcrumb workflow used for fresh CRs (#920 round-2). Demo-generated
+CRs in “Applied” state previously landed on the legacy main form view
+from the list — now they open in <tt class="docutils literal">spp_change_request_review_form</tt>
+like manually-created CRs. Adds the missing
+<tt class="docutils literal">_action_open_review_form</tt> / <tt class="docutils literal">_action_open_documents_form</tt> helpers
+and wires <tt class="docutils literal"><span class="pre">action=&quot;action_open_stage_form&quot;</span> <span class="pre">type=&quot;object&quot;</span></tt> on the CR
+list so row-click goes through the stage router.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.3</h1>
 <ul class="simple">
 <li>fix: add HTML escaping to all computed Html fields with
 <tt class="docutils literal">sanitize=False</tt> to prevent stored XSS (#50)</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.2</h1>
 <ul class="simple">
 <li>fix: fix batch approval wizard line deletion (#130)</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix: skip field types before getattr and isolate detail prefetch
 (#129)</li>
 </ul>
 </div>
-<div class="section" id="section-4">
+<div class="section" id="section-5">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

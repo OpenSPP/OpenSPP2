@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!--
     Hide the form-view "1/1" pager when there's only one record to navigate.
 
@@ -14,9 +14,11 @@
     See OP#920.
 -->
 <templates xml:space="preserve">
-    <t t-name="spp_base_common.PagerHideSingle"
-       t-inherit="web.Pager"
-       t-inherit-mode="extension">
+    <t
+        t-name="spp_base_common.PagerHideSingle"
+        t-inherit="web.Pager"
+        t-inherit-mode="extension"
+    >
         <xpath expr="//nav[hasclass('o_pager')]" position="attributes">
             <attribute name="t-if">props.total &gt; 1 or props.updateTotal</attribute>
         </xpath>
