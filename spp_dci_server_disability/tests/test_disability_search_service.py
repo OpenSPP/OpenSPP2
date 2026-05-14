@@ -95,10 +95,19 @@ class TestDisabilitySearchService(TransactionCase):
                 "value": "UIN-DR-1",
             }
         )
-        # Stamp the disability flag if the field exists on res.partner;
-        # otherwise the service's defensive read returns False.
-        if "is_person_with_disability" in cls.env["res.partner"]._fields:
-            cls.partner_pwd.is_person_with_disability = True
+        # Stamp the disability flag if the field exists on res.partner.
+        # spp_disability_registry exposes it as a computed-stored Boolean
+        # derived from the current approved assessment; in test isolation
+        # (no assessment record), the field exists but is False. We bypass
+        # the related/computed write protection via SQL to set it for the
+        # test partner — simpler than constructing a full assessment.
+        partner_fields = cls.env["res.partner"]._fields
+        if "has_disability" in partner_fields:
+            cls.env.cr.execute(
+                "UPDATE res_partner SET has_disability = true WHERE id = %s",
+                (cls.partner_pwd.id,),
+            )
+            cls.partner_pwd.invalidate_recordset(["has_disability"])
 
         cls.partner_no_disability = cls.env["res.partner"].create(
             {
@@ -201,8 +210,8 @@ class TestDisabilitySearchService(TransactionCase):
         self.assertIsNone(item.data)
 
     def test_partner_without_disability_field_returns_false(self):
-        """If is_person_with_disability is not set / not present, the wire
-        format key has_disability is reported as False — the SP side then
+        """If has_disability is not set / not present, the wire format
+        key has_disability is reported as False — the SP side then
         evaluates the variable as False rather than failing."""
         service = DisabilitySearchService(self.env)
         request = _make_request(
@@ -227,9 +236,12 @@ class TestDisabilitySearchService(TransactionCase):
         self.assertEqual(item.data.reg_type, DR_REG_TYPE)
         self.assertEqual(item.data.reg_record_type, DR_REG_RECORD_TYPE)
 
-    def test_reg_record_uses_wire_format_keys_not_local_field_names(self):
-        """SP side reads `has_disability` (not `is_person_with_disability`)
-        — this test locks the wire-format mapping in place."""
+    def test_reg_record_carries_wire_format_keys(self):
+        """The reg_record is shaped for SP-side ``dci_attribute_path``
+        lookups. Lock the contract: must contain ``has_disability`` and
+        optional disability metadata, must NOT include the local field
+        name ``is_person_with_disability`` (which never existed on the
+        model — old DRService legacy)."""
         service = DisabilitySearchService(self.env)
         request = _make_request(
             QueryType.EXPRESSION.value, _expression_query("UIN-DR-1")
@@ -237,6 +249,9 @@ class TestDisabilitySearchService(TransactionCase):
         response = service.execute_search(request)
         record = response.search_response[0].data.reg_records[0]
         self.assertIn("has_disability", record)
+        self.assertIn("disability_severity_code", record)
+        self.assertIn("disability_review_category", record)
+        self.assertIn("disability_next_review", record)
         self.assertNotIn("is_person_with_disability", record)
 
     # ------------------------------------------------------------------

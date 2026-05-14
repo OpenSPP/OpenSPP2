@@ -225,24 +225,32 @@ class DisabilitySearchService:
     def _build_reg_record(partner) -> dict:
         """Produce the wire-format reg_record dict from a res.partner.
 
-        The CEL-bridge SP side reads ``has_disability`` (not the local
-        field name ``is_person_with_disability``). Mapping happens here.
+        Fields read from ``spp_disability_registry`` (the DR-side data
+        model on ``res.partner``):
 
-        Disability-related fields are read defensively — modules that
-        define them are not strict dependencies of this server module,
-        so the fields may be missing on the partner record. Missing
-        fields are reported as ``False`` / ``None`` rather than raising.
+          - ``has_disability``         — Boolean, related from the latest
+            approved assessment's ``has_disability`` field.
+          - ``disability_severity_id`` — Many2one to ``spp.vocabulary.code``
+            (severity vocab); we project its ``code`` attribute.
+          - ``disability_review_category`` — Selection on the current
+            assessment (e.g., review cadence).
+          - ``disability_next_review``    — Date, next review.
+
+        All reads use ``getattr`` with a default so the module remains
+        installable without ``spp_disability_registry`` (the deployment
+        would just return mostly-empty records — still SPDCI-valid).
         """
+        severity = getattr(partner, "disability_severity_id", None)
+        next_review = getattr(partner, "disability_next_review", None)
         return {
-            "has_disability": bool(
-                getattr(partner, "is_person_with_disability", False)
+            "has_disability": bool(getattr(partner, "has_disability", False)),
+            "disability_severity_code": severity.code if severity else None,
+            "disability_review_category": getattr(
+                partner, "disability_review_category", None
             ),
-            "disability_certified": bool(
-                getattr(partner, "disability_certified", False)
-            ),
-            "disability_percentage": getattr(
-                partner, "disability_percentage", None
-            ),
+            "disability_next_review": next_review.isoformat()
+            if next_review
+            else None,
             "partner_name": partner.name,
             "partner_uid": partner.id,
         }
