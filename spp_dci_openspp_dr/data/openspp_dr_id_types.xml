@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="1">
+    <!--
+        SP-side UIN vocabulary code.
+
+        Mirrors the seed in spp_dci_server_disability/data/dr_id_types.xml
+        so SP-side partners can be tagged with UIN reg_ids and queried
+        against the DR. The xml id is unique to this preset
+        (id_type_uin_sp) so it can coexist with other UIN-seeding presets
+        in the same database — at install time only one of the
+        UIN-seeders wins (spp.vocabulary.code has a UNIQUE(vocabulary_id,
+        code) constraint), but each preset's ir.model.data entry remains
+        intact.
+
+        In the federated demo topology (ADR-024), this preset is
+        installed on the SP instance only; the DR instance ships the
+        same UIN code via spp_dci_server_disability. The two instances
+        do not share a database, so the constraint never fires.
+    -->
+    <record id="id_type_uin_sp" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_vocabulary.vocab_id_type" />
+        <field name="code">UIN</field>
+        <field name="display">UIN (Universal Identification Number)</field>
+        <field name="target_type">individual</field>
+        <field
+            name="definition"
+        >Universal Identification Number — used to tag SP-side registrants for DCI lookups against the OpenSPP-DR.</field>
+        <field name="sequence">20</field>
+    </record>
+</odoo>

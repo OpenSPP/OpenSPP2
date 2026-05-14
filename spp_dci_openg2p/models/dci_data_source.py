@@ -2,33 +2,17 @@ from odoo import fields, models
 
 
 class DCIDataSource(models.Model):
-    """Add a vendor discriminator so the bridge can route to vendor-specific
-    DCI clients when a deployment's source has known quirks.
+    """Register the OpenG2P vendor adapter on the shared vendor selection.
 
-    The DCI spec leaves several request/response shapes ambiguous (notably
-    the `idtype-value` query and the `data.reg_records[]` wrapper). Vendors
-    have picked different interpretations. Rather than fork the upstream
-    DCIClient, we mark sources with a `vendor` and let the dispatcher pick
-    the right adapter.
-
-    Selection values:
-        - openg2p: OpenG2P Partner Registry / Farmer Registry shape. Query
-          uses nested {id_type, id_value} payload; response wraps records
-          in data.reg_records[].
+    The ``vendor`` field is defined by ``spp_cel_dci_bridge``; this
+    preset only adds its own selection value. Once set on a data source,
+    the bridge dispatcher delegates to the OpenG2P-specific service for
+    that source's registry-type handler.
     """
 
     _inherit = "spp.dci.data.source"
 
     vendor = fields.Selection(
-        selection=[
-            ("openg2p", "OpenG2P"),
-        ],
-        string="Vendor Adapter",
-        help=(
-            "Optional vendor identifier. When set, the bridge dispatcher "
-            "routes to a vendor-specific DCI client adapter instead of the "
-            "generic registry-type service. Use only when a registry has "
-            "known protocol-shape quirks that the standard client cannot "
-            "absorb via configuration alone."
-        ),
+        selection_add=[("openg2p", "OpenG2P")],
+        ondelete={"openg2p": "set null"},
     )

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="1">
+    <!--
+        OpenSPP-DR DCI data source.
+
+        Defaults target a sibling OpenSPP instance running
+        spp_dci_server_disability and exposing the canonical DCI
+        endpoint at /dci/disability/registry/sync/search.
+
+        registry_type='DR' so the bridge dispatcher routes through
+        _handler_dr.
+
+        vendor='openspp' triggers the preset's dispatcher override which
+        delegates to OpenSPPDRService. The override exists because the
+        upstream spp_dci_client_dr.DRService doesn't unwrap the SPDCI
+        data.reg_records[0] path correctly — it reads disability fields
+        from `data` directly. Until that gets fixed upstream, this
+        adapter takes ownership of the response unwrap.
+
+        For real deployments, override base_url, auth credentials, and
+        signing keys via the data source form. The defaults are tuned
+        for the docker-compose demo where the DR runs on its own
+        container at openspp-dr:8069.
+    -->
+    <record id="openspp_dr_source" model="spp.dci.data.source">
+        <field name="name">OpenSPP Disability Registry</field>
+        <field name="code">openspp_dr</field>
+        <field name="registry_type">DR</field>
+        <field name="vendor">openspp</field>
+        <field name="base_url">http://openspp-dr:8069</field>
+        <field name="search_endpoint">/dci/disability/registry/sync/search</field>
+        <field name="auth_type">none</field>
+        <field name="our_sender_id">openspp-sp.demo</field>
+        <field name="receiver_id">openspp-dr.demo</field>
+        <field name="verify_ssl" eval="False" />
+        <field name="timeout">30</field>
+        <field name="active" eval="True" />
+        <field name="state">draft</field>
+        <field
+            name="notes"
+        >OpenSPP-DR demo preset. Routed through the bridge's _handler_dr by registry_type=DR; the vendor-specific OpenSPPDRService is selected by vendor=openspp. See ADR-024 for the federated topology.</field>
+    </record>
+</odoo>
