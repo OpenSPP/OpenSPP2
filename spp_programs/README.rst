@@ -254,7 +254,7 @@ Dependencies
 Changelog
 =========
 
-19.0.2.1.1
+19.0.2.1.2
 ~~~~~~~~~~
 
 - fix(security): align Program Viewer / Validator / Cycle Approver roles
@@ -271,6 +271,14 @@ Changelog
   ``group_registry_write`` transitively implies ``group_registry_read``,
   so the role keeps read+write access to registrant data via Programs
   cross-references — only the dedicated top-level menu disappears.
+
+19.0.2.1.1
+~~~~~~~~~~
+
+- fix(views): apply ``spp_registry.x2many_no_padding`` widget to the
+  Programs and Entitlements lists on registrant forms and to Program
+  Membership inline lines — removes the four empty placeholder rows Odoo
+  19 inserts on inline list-in-form views (#943).
 
 19.0.2.0.11
 ~~~~~~~~~~~

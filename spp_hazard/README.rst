@@ -1187,7 +1187,7 @@ encounter unexpected behavior, please report it as a new issue.
 Changelog
 =========
 
-19.0.2.0.1
+19.0.2.0.2
 ~~~~~~~~~~
 
 - fix(security): grant ``group_hazard_viewer`` to spp_user_roles roles
@@ -1201,6 +1201,13 @@ Changelog
   logged-in user; the OP#951 audit requires several roles to NOT see it
   (Global Finance, Global Support, Global Support Manager, Local
   Support).
+
+19.0.2.0.1
+~~~~~~~~~~
+
+- fix(views): apply ``spp_registry.x2many_no_padding`` widget to the
+  hazard impacts list on registrant forms, and hide the table when empty
+  (showing a muted info line instead) (#943).
 
 19.0.2.0.0
 ~~~~~~~~~~
