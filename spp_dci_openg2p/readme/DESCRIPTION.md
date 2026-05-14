@@ -2,13 +2,16 @@ Permanent OpenG2P preset for the CEL <-> DCI bridge. Ships pre-configured `spp.d
 
 ### What this module ships
 
-| Record                                  | Purpose                                                                  |
-| --------------------------------------- | ------------------------------------------------------------------------ |
-| `spp.dci.data.source` 'openg2p_dr'      | DCI data source: base URL, sender ID, registry_type=SR                   |
-| `spp.data.provider` 'openg2p_dr'        | CEL-side provider linked to the DCI source                               |
-| `spp_studio.var_has_disability` (override) | The semantic `has_disability` CEL accessor, repointed at the DCI provider |
-| `OpenG2PDCIClient`                      | DCIClient subclass for OpenG2P's expression query shape, namespaced URI type, hard-coded Individual reg_type, and required consent/authorize blocks |
-| `OpenG2PSocialService`                  | SR-shaped lookup: partner identifier → OpenG2P record at `data.reg_records[0]` |
+| Record                                                | Purpose                                                                  |
+| ----------------------------------------------------- | ------------------------------------------------------------------------ |
+| `spp.dci.data.source` 'openg2p_dr'                    | DCI data source: base URL, sender ID, registry_type=SR                   |
+| `spp.data.provider` 'openg2p_dr'                      | CEL-side provider linked to the DCI source                               |
+| `spp.cel.variable` 'var_is_poor'                      | Semantic `is_poor` CEL accessor, bound to the OpenG2P SR provider        |
+| `spp.cel.variable` 'var_has_dependent_under_school_age' | Semantic `has_dependent_under_school_age` CEL accessor, bound to OpenG2P |
+| `OpenG2PDCIClient`                                    | DCIClient subclass for OpenG2P's expression query shape, namespaced URI type, hard-coded Individual reg_type, and required consent/authorize blocks |
+| `OpenG2PSocialService`                                | SR-shaped lookup: partner identifier → OpenG2P record at `data.reg_records[0]` |
+
+Note: this preset does NOT override `spp_studio.var_has_disability`. Disability data lives in a separate OpenSPP-DR instance over its own DCI link; the DR-side preset (`spp_dci_openspp_dr`) is responsible for that binding (see ADR-024 for the federated topology).
 
 The CEL accessor names stay vendor-neutral (per ADR-023 §1a). The OpenG2P-ness lives only in the data source, provider, and adapter — never in the CEL surface. Repointing at a different SR is a configuration change on the data source, not a CEL change.
 

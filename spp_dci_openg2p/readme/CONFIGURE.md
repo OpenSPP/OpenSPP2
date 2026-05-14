@@ -41,7 +41,7 @@ The vendor-specific path is opt-in. If OpenG2P's published API ever drops the na
 
 ### Cache TTL
 
-The preset ships with `cache_ttl_seconds = 300` (5 minutes) on the `has_disability` variable so the DCI round-trip is visible during demos. For production, raise to 86400 (24h) or higher via the `spp_studio.var_has_disability` form.
+The preset ships with `cache_ttl_seconds = 300` (5 minutes) on every SR variable so the DCI round-trip is visible during demos. For production, raise to 86400 (24h) or higher on each variable form (**Custom > CEL > Variables**).
 
 ### Switching to a different SR vendor
 

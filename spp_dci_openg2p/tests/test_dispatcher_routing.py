@@ -76,9 +76,10 @@ class TestDispatcherRoutesOpenG2P(TransactionCase):
         )
 
         # The OpenG2P preset auto-creates this data source + provider +
-        # variable. Confirm by reading via ref.
+        # SR variables. Routing tests use var_is_poor (canonical SR
+        # variable on this preset).
         cls.data_source = cls.env.ref("spp_dci_openg2p.openg2p_dr_source")
-        cls.variable = cls.env.ref("spp_studio.var_has_disability")
+        cls.variable = cls.env.ref("spp_dci_openg2p.var_is_poor")
 
     def test_data_source_has_vendor_openg2p_and_registry_type_sr(self):
         self.assertEqual(self.data_source.vendor, "openg2p")
@@ -90,7 +91,7 @@ class TestDispatcherRoutesOpenG2P(TransactionCase):
         ``dci_attribute_path`` from the raw reg_record (no synthesis)."""
         mock_client = MagicMock()
         mock_client.search.side_effect = make_sr_response_for_search_text(
-            {"IND-NSR-0001": [{"has_disability": True}]}
+            {"IND-NSR-0001": [{"is_poor": True}]}
         )
         mock_client_class.return_value = mock_client
 
@@ -114,7 +115,7 @@ class TestDispatcherRoutesOpenG2P(TransactionCase):
 
         self.assertEqual(result, {})
         audits = self.env["spp.dci.fetch.audit"].search(
-            [("variable_name", "=", "has_disability"), ("subject_id", "=", self.partner_not_in_sr.id)]
+            [("variable_name", "=", "is_poor"), ("subject_id", "=", self.partner_not_in_sr.id)]
         )
         self.assertEqual(audits.result, "not_found")
 

@@ -1,48 +1,85 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo noupdate="1">
     <!--
-        Override the semantic `has_disability` CEL variable so it sources
-        from OpenG2P over DCI instead of from a local res.partner field.
+        OpenG2P Social Registry CEL variables.
 
-        spp_studio ships var_has_disability with source_type='field' reading
-        res.partner.is_person_with_disability. Installing this preset
-        replaces that source with the DCI provider — declaratively stating
-        "OpenG2P is the authority for disability status in this deployment."
+        Each variable below is bound to the OpenG2P SR provider so the CEL
+        framework treats it as DCI-sourced. The bridge dispatcher routes
+        through _handler_sr -> OpenG2PSocialService and extracts the value
+        at `dci_attribute_path` from OpenG2P's `data.reg_records[0]`.
 
-        The variable NAME and cel_accessor stay 'has_disability' (semantic,
-        vendor-neutral, per ADR-023 §1a). Existing CEL rules that reference
-        `has_disability == true` continue to work — they now evaluate
-        against the cached DCI value instead of the local field.
-
-        The xml id is intentionally spp_studio.var_has_disability so Odoo
-        treats this as an in-place update of the existing record.
-
-        State + active are set explicitly so the variable goes from DRAFT
-        (spp_studio default) straight to ACTIVE on install — required for
-        the variable to participate in the CEL resolver and cache pre-warm.
+        The variable NAMES and cel_accessors are semantic and vendor-neutral
+        (per ADR-023 §1a). The OpenG2P-ness lives only in the data-source
+        and provider records.
 
         cache_ttl_seconds=300 (5 min) is tuned for the SPDCI demo so the
         DCI round-trip is visible to viewers. Production deployments may
         raise this.
 
-        external_failure_policy=null: if OpenG2P is unreachable, the subject
-        evaluates against null (does not match `has_disability == true`).
+        external_failure_policy=null: if OpenG2P is unreachable, the
+        subject evaluates against null (does not match `is_poor == true`).
         Compliance-critical rules can override to 'fail' on the variable.
+
+        State + active are set explicitly so the variable goes from DRAFT
+        (the workflow default for new spp.cel.variable records) straight
+        to ACTIVE on install — required for the variable to participate
+        in the CEL resolver and cache pre-warm.
 
         post_init_hook (spp_dci_openg2p/__init__.py) re-asserts these
         fields on every install/upgrade so drift from manual edits or
         cross-module data loads gets corrected automatically.
+
+        NOTE: spp_studio.var_has_disability is intentionally NOT overridden
+        here. Disability data lives in a separate OpenSPP-DR instance over
+        its own DCI link (ADR-024); the DR-side preset (spp_dci_openspp_dr,
+        Phase 6) binds has_disability to the DR provider.
     -->
-    <record id="spp_studio.var_has_disability" model="spp.cel.variable">
+    <record id="var_is_poor" model="spp.cel.variable">
+        <field name="name">is_poor</field>
+        <field name="label">Is Poor (OpenG2P SR)</field>
+        <field
+            name="description"
+        >Whether the registrant is classified as poor in the Social Registry. Sourced from OpenG2P over DCI; see ADR-024 for the federated topology.</field>
+        <field name="category_id" ref="spp_studio.variable_category_economic" />
+        <field name="value_type">boolean</field>
         <field name="source_type">external</field>
         <field name="source_model">res.partner</field>
-        <field name="source_field" />
+        <field name="cel_accessor">is_poor</field>
+        <field name="applies_to">individual</field>
         <field name="external_provider_id" ref="openg2p_dr_provider" />
-        <field name="dci_attribute_path">has_disability</field>
+        <field name="dci_attribute_path">is_poor</field>
         <field name="cache_strategy">ttl</field>
         <field name="cache_ttl_seconds">300</field>
         <field name="external_failure_policy">null</field>
         <field name="state">active</field>
         <field name="active" eval="True" />
+        <field name="is_system">True</field>
+    </record>
+    <record
+        id="var_has_dependent_under_school_age"
+        model="spp.cel.variable"
+    >
+        <field name="name">has_dependent_under_school_age</field>
+        <field name="label">Has Dependent Under School Age (OpenG2P SR)</field>
+        <field
+            name="description"
+        >Whether the registrant has at least one dependent below school-entry age. Sourced from OpenG2P over DCI; see ADR-024 for the federated topology.</field>
+        <field
+            name="category_id"
+            ref="spp_studio.variable_category_demographics"
+        />
+        <field name="value_type">boolean</field>
+        <field name="source_type">external</field>
+        <field name="source_model">res.partner</field>
+        <field name="cel_accessor">has_dependent_under_school_age</field>
+        <field name="applies_to">individual</field>
+        <field name="external_provider_id" ref="openg2p_dr_provider" />
+        <field name="dci_attribute_path">has_dependent_under_school_age</field>
+        <field name="cache_strategy">ttl</field>
+        <field name="cache_ttl_seconds">300</field>
+        <field name="external_failure_policy">null</field>
+        <field name="state">active</field>
+        <field name="active" eval="True" />
+        <field name="is_system">True</field>
     </record>
 </odoo>
