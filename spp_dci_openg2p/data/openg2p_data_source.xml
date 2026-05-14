@@ -3,36 +3,46 @@
     <!--
         OpenG2P DCI data source.
 
-        OAuth2 credentials are intentionally NOT seeded here (security).
-        Administrators must populate oauth2_client_id, oauth2_client_secret,
-        and oauth2_token_url after install, via the data source form.
+        Defaults target the SPDCI playground at partner-registry.play.openg2p.org.
+        Replace base_url and OAuth credentials with the actual OpenG2P deployment
+        before running against real data.
 
-        registry_type uses the SPDCI URI value; the bridge dispatcher
-        normalizes both URI and short forms ("DR") to the canonical handler.
+        registry_type='DR' so the bridge dispatcher routes through _handler_dr.
+        vendor='openg2p' so the preset's dispatcher override picks the
+        OpenG2P-specific service (handles idtype-value query shape and
+        data.reg_records[] response wrapper). When OpenG2P's real DR endpoint
+        becomes available and conforms to the standard DCI shape, clear the
+        vendor field to fall back to the upstream DRService.
 
-        base_url is a placeholder pointing at the SPDCI demo. Replace with
-        the actual OpenG2P deployment URL.
+        FR-AS-DR PRETENSE: until OpenG2P's Disability Registry endpoint is
+        published, this preset uses the Farmer Registry as a DR stand-in.
+        See services/openg2p_fr_service.py for the migration plan.
     -->
     <record id="openg2p_dr_source" model="spp.dci.data.source">
         <field name="name">OpenG2P Disability Registry</field>
         <field name="code">openg2p_dr</field>
         <field name="registry_type">DR</field>
-        <field name="base_url">https://openg2p.example.org/api/v1</field>
+        <field name="vendor">openg2p</field>
+        <field name="base_url">https://partner-registry.play.openg2p.org</field>
+        <field name="search_endpoint">/dci/registry/sync/search</field>
         <!--
-            auth_type starts as 'none' so the install succeeds without
-            secrets in source control. Administrators must:
+            auth_type='none' for the playground (signature accepted as any
+            non-empty string, no OAuth enforcement). For real deployments:
               1. Open the data source form
               2. Set auth_type to oauth2 (or whatever OpenG2P requires)
               3. Populate oauth2_token_url, oauth2_client_id, oauth2_client_secret
-              4. Click "Test Connection"
+              4. Optionally attach a Signing Key under DCI > Configuration
+              5. Click "Test Connection"
         -->
         <field name="auth_type">none</field>
+        <field name="our_sender_id">openspp.test</field>
+        <field name="receiver_id">openg2p.test</field>
         <field name="verify_ssl" eval="True" />
         <field name="timeout">30</field>
         <field name="active" eval="True" />
         <field name="state">draft</field>
         <field
             name="notes"
-        >OpenG2P preset. Configure auth credentials before use.</field>
+        >OpenG2P playground preset. Uses the Farmer Registry endpoint as a DR stand-in until OpenG2P publishes a real Disability Registry. See spp_dci_openg2p/readme/CONFIGURE.md for the migration plan.</field>
     </record>
 </odoo>

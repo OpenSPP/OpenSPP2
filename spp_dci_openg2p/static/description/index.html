@@ -464,49 +464,130 @@ Only for development or testing purpose, do not use in production.</p>
 </div>
 <div class="section" id="after-installing-this-module">
 <h1>After installing this module</h1>
+<p>The preset auto-creates a DCI data source, CEL provider, and CEL
+variable wired against the OpenG2P playground at
+<tt class="docutils literal"><span class="pre">partner-registry.play.openg2p.org</span></tt>. The playground does not require
+authentication for the demo — the bridge can call it out of the box.</p>
 <ol class="arabic simple">
-<li>Navigate to <strong>Settings &gt; Technical &gt; DCI &gt; Data Sources</strong> (path may
-vary by spp_security group).</li>
+<li>Navigate to <strong>Custom &gt; DCI &gt; Configuration &gt; Data Sources</strong>.</li>
 <li>Open the <tt class="docutils literal">openg2p_dr</tt> data source.</li>
-<li>Replace the placeholder <tt class="docutils literal">base_url</tt>
-(<tt class="docutils literal"><span class="pre">https://openg2p.example.org/api/v1</span></tt>) with your OpenG2P deployment
-URL.</li>
-<li>Change <tt class="docutils literal">auth_type</tt> from <tt class="docutils literal">none</tt> to whatever OpenG2P requires
-(typically <tt class="docutils literal">oauth2</tt>).</li>
-<li>Populate <tt class="docutils literal">oauth2_token_url</tt>, <tt class="docutils literal">oauth2_client_id</tt>,
-<tt class="docutils literal">oauth2_client_secret</tt>.</li>
-<li>Verify <tt class="docutils literal">our_sender_id</tt> matches what your OpenG2P instance expects
-to see from OpenSPP.</li>
-<li>Click <strong>Test Connection</strong> to verify reachability.</li>
+<li>Verify (or adjust) <strong>Base URL</strong> — defaults to
+<tt class="docutils literal"><span class="pre">https://partner-registry.play.openg2p.org</span></tt>.</li>
+<li>The <strong>Search Endpoint</strong> is set to <tt class="docutils literal">/dci/registry/sync/search</tt>
+(OpenG2P uses the <tt class="docutils literal">/dci</tt> prefix).</li>
+<li><strong>Sender ID</strong> / <strong>Receiver ID</strong> — placeholder values are
+pre-populated. Replace with what the OpenG2P operator expects from
+your deployment.</li>
+<li>Click <strong>Test Connection</strong>. State should flip to <tt class="docutils literal">Active</tt>.</li>
 </ol>
+<p>For real OpenG2P deployments (not the playground), change <tt class="docutils literal">auth_type</tt>
+to <tt class="docutils literal">oauth2</tt> and populate <tt class="docutils literal">oauth2_token_url</tt>, <tt class="docutils literal">oauth2_client_id</tt>,
+<tt class="docutils literal">oauth2_client_secret</tt>. Attach a DCI Signing Key under <strong>Custom &gt; DCI
+&gt; Configuration &gt; Signing Keys</strong> if the deployment requires signed
+messages.</p>
+</div>
+<div class="section" id="fr-as-dr-pretense-demo-only">
+<h1>FR-as-DR pretense (demo-only)</h1>
+<p>The OpenG2P playground exposes a <strong>Farmer Registry</strong> (FR), not a
+Disability Registry (DR). Per the SPDCI schema:</p>
+<pre class="literal-block">
+reg_type:        ns:org:RegistryType:Social
+reg_record_type: spdci-extensions-dci:Farmer
+</pre>
+<p>Until OpenG2P publishes a real DR endpoint, this preset treats FR as a
+DR stand-in:</p>
+<ul class="simple">
+<li>The data source is configured with <tt class="docutils literal"><span class="pre">registry_type='DR'</span></tt> so the
+bridge dispatcher routes to the standard <tt class="docutils literal">_handler_dr</tt>.</li>
+<li><tt class="docutils literal"><span class="pre">vendor='openg2p'</span></tt> on the data source triggers the preset’s
+dispatcher override, which uses <tt class="docutils literal">OpenG2PFRService</tt> instead of
+upstream <tt class="docutils literal">DRService</tt>.</li>
+<li><tt class="docutils literal">OpenG2PFRService</tt> queries OpenG2P’s Farmer Registry. <strong>Presence of
+any farmer record for a partner → ``has_disability=True``</strong>. Absence
+(or <tt class="docutils literal"><span class="pre">REG-ERR-001</span> REGISTER_NOT_FOUND</tt>) → null → fails the eligibility
+filter.</li>
+<li>The CEL surface stays exactly <tt class="docutils literal">has_disability == true</tt>. Only this
+service’s interpretation is the pretense.</li>
+</ul>
+<p>Audience-facing this looks like a real DR lookup. Operationally it tests
+the full DCI round-trip with OpenG2P’s actual playground.</p>
+</div>
+<div class="section" id="demo-data-which-identifiers-exist-in-the-openg2p-playground">
+<h1>Demo data: which identifiers exist in the OpenG2P playground?</h1>
+<p>Ask the OpenG2P team for sample identifiers that exist in their Farmer
+Registry. Configure your test partners with those identifiers (under
+their <strong>External Identifiers</strong> / <tt class="docutils literal">reg_ids</tt>), and the dispatcher’s
+<tt class="docutils literal">OpenG2PFRService._get_partner_identifier</tt> priority order will pick
+them up:</p>
+<pre class="literal-block">
+UIN &gt; DRN &gt; NATIONAL_ID &gt; NID &gt; (first available)
+</pre>
+<p>Partners with no matching identifier are recorded in
+<tt class="docutils literal">spp.dci.fetch.audit</tt> as <tt class="docutils literal"><span class="pre">result='not_found'</span></tt> and excluded from
+<tt class="docutils literal">has_disability == true</tt> matches.</p>
+</div>
+<div class="section" id="migration-plan-when-openg2p-publishes-a-real-disability-registry">
+<h1>Migration plan — when OpenG2P publishes a real Disability Registry</h1>
+<p>The migration is purely configuration; no code or data changes:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">What to change</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><ol class="first last arabic simple">
+<li>Point at the new URL</li>
+</ol>
+</td>
+<td>Edit <tt class="docutils literal">base_url</tt> on <tt class="docutils literal">openg2p_dr</tt> data source (UI)</td>
+</tr>
+<tr><td>2. Switch from FR pretense to
+real DR</td>
+<td>Clear the <tt class="docutils literal">vendor</tt> field on the data source (set blank). The
+dispatcher’s override falls through to the standard
+<tt class="docutils literal">_handler_dr</tt> → upstream <tt class="docutils literal">DRService</tt>.</td>
+</tr>
+<tr><td>3. Verify OpenG2P’s DR conforms
+to standard DCI shapes</td>
+<td>Run a search; if you get
+<tt class="docutils literal">rjct.search_criteria.invalid: query.value.id_type is required</tt>
+or response unwrap fails, OpenG2P’s DR has the same
+query/response quirks as their FR. Keep <tt class="docutils literal"><span class="pre">vendor='openg2p'</span></tt> set
+and extend <tt class="docutils literal">OpenG2PFRService</tt> to query the DR
+<tt class="docutils literal">reg_record_type</tt>. Track this in ADR-023 v2 work.</td>
+</tr>
+<tr><td>4. The CEL accessor stays
+<tt class="docutils literal">has_disability</tt></td>
+<td>No CEL rule changes. Cached values will become real
+<tt class="docutils literal">has_disability</tt> booleans from the DR record.</td>
+</tr>
+</tbody>
+</table>
+<p>In words: clear one field on the data source, and OpenSPP starts reading
+real disability data from OpenG2P with no other edits anywhere.</p>
 </div>
 <div class="section" id="cache-ttl">
 <h1>Cache TTL</h1>
 <p>The preset ships with <tt class="docutils literal">cache_ttl_seconds = 300</tt> (5 minutes) on the
 <tt class="docutils literal">has_disability</tt> variable so the DCI round-trip is visible during
-demos. For production:</p>
+demos. For production, raise to 86400 (24h) or higher via the
+<tt class="docutils literal">spp_studio.var_has_disability</tt> form.</p>
+</div>
+<div class="section" id="switching-to-a-different-dci-disability-registry-vendor">
+<h1>Switching to a different DCI Disability Registry vendor</h1>
+<p>If you target a non-OpenG2P registry, the preset is the wrong starting
+point — clone it as <tt class="docutils literal">spp_dci_&lt;vendor&gt;</tt> and adjust:</p>
 <ul class="simple">
-<li>Open the <tt class="docutils literal">spp_studio.var_has_disability</tt> CEL variable</li>
-<li>Raise <tt class="docutils literal">cache_ttl_seconds</tt> to 86400 (24h) or higher, balancing data
-freshness against DCI request volume</li>
+<li>The data source’s <tt class="docutils literal">base_url</tt> and <tt class="docutils literal">vendor</tt> field</li>
+<li>The service class (mirror <tt class="docutils literal">OpenG2PFRService</tt> for that vendor’s
+quirks)</li>
+<li>The dispatcher override’s branch</li>
 </ul>
-</div>
-<div class="section" id="identity-mapping">
-<h1>Identity mapping</h1>
-<p>The bridge resolves the partner’s identifier from <tt class="docutils literal">partner.reg_ids</tt>
-using the first matching id_type. Ensure every registrant in scope
-carries an identifier the OpenG2P deployment can resolve (UIN, national
-ID, etc.). Subjects without a resolvable identifier are recorded in
-<tt class="docutils literal">spp.dci.fetch.audit</tt> as <tt class="docutils literal"><span class="pre">result='not_found'</span></tt> and are excluded from
-<tt class="docutils literal">has_disability == true</tt> matches under the default null failure
-policy.</p>
-</div>
-<div class="section" id="switching-to-a-different-dci-disability-registry">
-<h1>Switching to a different DCI Disability Registry</h1>
-<p>This preset can be uninstalled and replaced with a different vendor
-preset (or hand-configured records) without changing any CEL rule. The
-semantic <tt class="docutils literal">has_disability</tt> accessor stays the same; the data source
-behind it changes.</p>
 <div class="section" id="bug-tracker">
 <h2>Bug Tracker</h2>
 <p>Bugs are tracked on <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/issues">GitHub Issues</a>.
