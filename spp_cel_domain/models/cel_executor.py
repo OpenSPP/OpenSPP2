@@ -1164,6 +1164,23 @@ class CelExecutor(models.AbstractModel):
             return []
 
         svc = self.env["spp.indicator"]
+        # Legacy spp.indicator may be present as a model but with the
+        # evaluate / enqueue methods removed (mid-migration to
+        # spp.data.cache.manager per ADR-017). Without this guard, an
+        # incomplete cache crashes with `AttributeError: 'spp.indicator'
+        # object has no attribute 'evaluate'`. Treat the missing method
+        # the same as a missing model: warn and return empty, so the
+        # caller can continue (preview shows 0 matching instead of an
+        # error).
+        if not hasattr(svc, "evaluate"):
+            self._logger.warning(
+                "[CEL Metrics] spp.indicator.evaluate is unavailable; cache "
+                "for metric=%s is %s. Returning empty result. Warm the cache "
+                "via cache_mgr.precompute_cached_variables() before evaluation.",
+                p.metric,
+                status.get("status"),
+            )
+            return []
         default_mode = "refresh" if (base_count < async_threshold) else "fallback"
         if default_mode == "fallback" and status.get("status") != "fresh" and not preview_cache_only_mode:
             # large + not fresh → enqueue refresh and report queued
