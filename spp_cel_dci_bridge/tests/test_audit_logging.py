@@ -132,9 +132,7 @@ class TestAuditLogging(BridgeTestBase):
         dispatcher = self.env["spp.cel.dci.dispatcher"]
 
         # Patch the audit create to raise — fetch should still succeed.
-        from unittest.mock import patch as _patch
-
-        with _patch.object(
+        with patch.object(
             type(self.Audit),
             "create",
             side_effect=RuntimeError("audit write broken"),

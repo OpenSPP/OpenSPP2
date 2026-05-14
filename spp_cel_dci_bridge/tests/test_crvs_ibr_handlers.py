@@ -171,9 +171,7 @@ class TestIBRHandler(BridgeTestBase):
         per-identifier failures internally), the dispatcher must record
         an error audit row and continue.
         """
-        from unittest.mock import patch as _patch
-
-        with _patch(
+        with patch(
             "odoo.addons.spp_dci_client_ibr.services.ibr_service.IBRService.check_duplication",
             side_effect=RuntimeError("ibr boom"),
         ):

@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from odoo.tests.common import TransactionCase, tagged
 
 from odoo.addons.spp_dci_openg2p import post_init_hook
@@ -92,8 +94,6 @@ class TestOpenG2PPresetInstall(TransactionCase):
         was uninstalled but the preset is still loaded), the hook must
         log a warning and return — not raise — so partial uninstall
         scenarios don't break the database initialization."""
-        from unittest.mock import patch
-
         with patch("odoo.api.Environment.ref") as mock_ref:
             # First call (variable lookup) returns None
             mock_ref.return_value = self.env["spp.cel.variable"].browse()
@@ -104,8 +104,6 @@ class TestOpenG2PPresetInstall(TransactionCase):
         """If the OpenG2P provider record was deleted post-install, the
         hook must log an error and return — not raise. Variable stays in
         whatever state it's in."""
-        from unittest.mock import patch as _patch
-
         original_ref = self.env.ref
 
         def selective_ref(xmlid, *args, **kwargs):
@@ -113,7 +111,7 @@ class TestOpenG2PPresetInstall(TransactionCase):
                 return self.env["spp.data.provider"].browse()  # empty
             return original_ref(xmlid, *args, **kwargs)
 
-        with _patch.object(type(self.env), "ref", side_effect=selective_ref):
+        with patch.object(type(self.env), "ref", side_effect=selective_ref):
             # Should not raise
             post_init_hook(self.env)
 
