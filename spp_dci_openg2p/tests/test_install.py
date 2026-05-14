@@ -9,6 +9,31 @@ from odoo.addons.spp_dci_openg2p import post_init_hook
 class TestOpenG2PPresetInstall(TransactionCase):
     """Smoke test: the three preset records exist after install and are linked correctly."""
 
+    def test_uin_id_type_vocab_code_present(self):
+        """The preset ships a `UIN` vocabulary code on the urn:openspp:vocab:id-type
+        vocabulary so operators can pick it as `ID Type` on the registrant's
+        Identity tab. The code value (UIN, uppercase) matches the SPDCI wire
+        convention and the first entry in OpenG2PFRService.IDENTIFIER_PRIORITY.
+        """
+        code = self.env.ref("spp_dci_openg2p.id_type_uin")
+        self.assertEqual(code.code, "UIN")
+        self.assertEqual(code.target_type, "individual")
+        self.assertEqual(
+            code.vocabulary_id,
+            self.env.ref("spp_vocabulary.vocab_id_type"),
+        )
+
+    def test_uin_code_matches_service_priority_first(self):
+        """Regression: the vocab code must equal the first entry in the
+        service's IDENTIFIER_PRIORITY tuple, otherwise the dispatcher would
+        not pick up a partner's UIN reg_id when querying OpenG2P."""
+        from odoo.addons.spp_dci_openg2p.services.openg2p_fr_service import (
+            IDENTIFIER_PRIORITY,
+        )
+
+        code = self.env.ref("spp_dci_openg2p.id_type_uin")
+        self.assertEqual(IDENTIFIER_PRIORITY[0], code.code)
+
     def test_data_source_present(self):
         source = self.env.ref("spp_dci_openg2p.openg2p_dr_source")
         self.assertEqual(source.code, "openg2p_dr")

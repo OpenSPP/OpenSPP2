@@ -12,9 +12,11 @@
     "depends": [
         "spp_cel_dci_bridge",
         "spp_dci_client_dr",
+        "spp_vocabulary",
     ],
     "external_dependencies": {"python": []},
     "data": [
+        "data/openg2p_id_types.xml",
         "data/openg2p_data_source.xml",
         "data/openg2p_data_provider.xml",
         "data/openg2p_cel_variables.xml",

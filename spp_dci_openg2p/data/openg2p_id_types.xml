@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="1">
+    <!--
+        OpenG2P-related ID type vocabulary codes.
+
+        spp_registry's reg_ids.id_type_id is a spp.vocabulary.code on the
+        `urn:openspp:vocab:id-type` vocabulary (defined in spp_vocabulary's
+        vocabulary_id_type.xml). The codes there use lowercase (`national_id`,
+        `passport`), but the DCI/SPDCI convention is UPPERCASE for the wire
+        `id_type` field (UIN, BRN, DRN, NATIONAL_ID). OpenG2PFRService sends
+        the vocab code verbatim to OpenG2P, so the vocab code must match what
+        OpenG2P expects to see in the search request.
+
+        We only seed UIN here — the most common identifier across DCI
+        deployments. If OpenG2P returns records under a different id_type
+        (DRN, NATIONAL_ID, NID), add codes here following the same pattern.
+        OpenG2PFRService's IDENTIFIER_PRIORITY = ("UIN", "DRN", "NATIONAL_ID",
+        "NID") picks them up in that order.
+    -->
+    <record id="id_type_uin" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_vocabulary.vocab_id_type" />
+        <field name="code">UIN</field>
+        <field name="display">UIN (Universal Identification Number)</field>
+        <field name="target_type">individual</field>
+        <field
+            name="definition"
+        >Universal Identification Number — the canonical SPDCI identifier sent to OpenG2P's DCI search endpoint as the `id_type` field.</field>
+        <field name="sequence">20</field>
+    </record>
+</odoo>

@@ -46,24 +46,10 @@ class TestDispatcherRoutesOpenG2P(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        # Partner setup with UIN identifier (priority order picks UIN first)
-        vocab = cls.env["spp.vocabulary"].search([("namespace_uri", "=", "urn:openspp:vocab:id-type")], limit=1)
-        if not vocab:
-            vocab = cls.env["spp.vocabulary"].create(
-                {
-                    "name": "ID Type (dispatcher test)",
-                    "namespace_uri": "urn:openspp:vocab:id-type",
-                }
-            )
-        cls.id_type_uin = cls.env["spp.vocabulary.code"].create(
-            {
-                "vocabulary_id": vocab.id,
-                "code": "UIN",
-                "display": "UIN (dispatcher test)",
-                "target_type": "individual",
-                "is_local": True,
-            }
-        )
+        # Reuse the UIN vocab code seeded by the preset itself (data/openg2p_id_types.xml).
+        # Creating a fresh `UIN` here would hit the spp.vocabulary.code uniqueness
+        # constraint ("Code 'UIN' already exists in vocabulary 'ID Type'").
+        cls.id_type_uin = cls.env.ref("spp_dci_openg2p.id_type_uin")
         cls.partner_in_fr = cls.env["res.partner"].create(
             {"name": "FR Partner", "is_registrant": True, "is_group": False}
         )

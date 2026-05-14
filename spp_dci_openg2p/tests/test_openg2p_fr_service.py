@@ -92,21 +92,10 @@ class TestOpenG2PFRService(TransactionCase):
             }
         )
 
-        # ID type vocabulary code for UIN
-        vocab = cls.env["spp.vocabulary"].search([("namespace_uri", "=", "urn:openspp:vocab:id-type")], limit=1)
-        if not vocab:
-            vocab = cls.env["spp.vocabulary"].create(
-                {"name": "ID Type (FR test)", "namespace_uri": "urn:openspp:vocab:id-type"}
-            )
-        cls.id_type_uin = cls.env["spp.vocabulary.code"].create(
-            {
-                "vocabulary_id": vocab.id,
-                "code": "UIN",
-                "display": "UIN (FR test)",
-                "target_type": "individual",
-                "is_local": True,
-            }
-        )
+        # Reuse the UIN vocab code seeded by the preset (data/openg2p_id_types.xml).
+        # Creating a fresh `UIN` here would hit the vocabulary code uniqueness
+        # constraint.
+        cls.id_type_uin = cls.env.ref("spp_dci_openg2p.id_type_uin")
 
         cls.partner_known = cls.env["res.partner"].create(
             {"name": "Known Farmer", "is_registrant": True, "is_group": False}
