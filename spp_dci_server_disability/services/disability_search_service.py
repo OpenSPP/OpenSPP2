@@ -209,13 +209,32 @@ class DisabilitySearchService:
         we deterministically pick the lowest partner.id so repeat queries
         are stable. The disability data we return is a function of the
         single matched partner.
+
+        sudo() is intentional. The DCI FastAPI endpoint is configured to
+        run as base.public_user (per spp_dci_server's
+        fastapi_endpoint_data.xml), and the public user has no read
+        access on spp.registry.id / res.partner. The actual
+        authentication boundary is upstream — DCI signature + bearer
+        token verification in the middleware. Once the sender_id is
+        accepted, the service trusts the request and queries the data
+        model on its behalf. This mirrors the pattern in
+        spp_dci_server/routers/search.py where signing-key reads use
+        sudo() for the same reason.
         """
-        reg_id = self.env["spp.registry.id"].search(
-            [("value", "=", identifier_value)],
-            order="partner_id asc",
-            limit=1,
+        reg_id = (
+            self.env["spp.registry.id"]
+            .sudo()  # nosemgrep: odoo-sudo-without-context
+            .search(
+                [("value", "=", identifier_value)],
+                order="partner_id asc",
+                limit=1,
+            )
         )
-        return reg_id.partner_id if reg_id else self.env["res.partner"].browse()
+        return (
+            reg_id.partner_id.sudo()  # nosemgrep: odoo-sudo-without-context
+            if reg_id
+            else self.env["res.partner"].sudo().browse()  # nosemgrep: odoo-sudo-without-context
+        )
 
     # ------------------------------------------------------------------
     # Reg-record construction
