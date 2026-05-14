@@ -8,6 +8,8 @@ from odoo.addons.spp_dci_openspp_dr.services.openspp_dr_service import (
     OpenSPPDRService,
 )
 
+from .common import get_or_create_uin_code
+
 
 def make_dr_response(reg_records):
     return {
@@ -67,7 +69,7 @@ class TestOpenSPPDRService(TransactionCase):
             }
         )
 
-        cls.id_type_uin = cls.env.ref("spp_dci_openspp_dr.id_type_uin_sp")
+        cls.id_type_uin = get_or_create_uin_code(cls.env)
         cls.partner_known = cls.env["res.partner"].create(
             {"name": "Known DR Registrant", "is_registrant": True, "is_group": False}
         )

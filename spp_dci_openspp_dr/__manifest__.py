@@ -19,7 +19,6 @@
     "external_dependencies": {"python": []},
     "data": [
         "security/ir.model.access.csv",
-        "data/openspp_dr_id_types.xml",
         "data/openspp_dr_data_source.xml",
         "data/openspp_dr_data_provider.xml",
         "data/openspp_dr_cel_variable.xml",

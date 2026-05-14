@@ -9,18 +9,15 @@ from odoo.addons.spp_dci_openspp_dr import post_init_hook
 class TestOpenSPPDRPresetInstall(TransactionCase):
     """Smoke test: the preset records exist after install and are linked correctly."""
 
-    def test_uin_id_type_vocab_code_present(self):
-        code = self.env.ref("spp_dci_openspp_dr.id_type_uin_sp")
-        self.assertEqual(code.code, "UIN")
-        self.assertEqual(code.target_type, "individual")
-
-    def test_uin_code_matches_service_priority_first(self):
+    def test_service_priority_first_is_uin(self):
+        """The SP-side service walks the partner's reg_ids by
+        IDENTIFIER_PRIORITY; UIN must be the first entry so the canonical
+        SPDCI identifier wins over national-registry-specific codes."""
         from odoo.addons.spp_dci_openspp_dr.services.openspp_dr_service import (
             IDENTIFIER_PRIORITY,
         )
 
-        code = self.env.ref("spp_dci_openspp_dr.id_type_uin_sp")
-        self.assertEqual(IDENTIFIER_PRIORITY[0], code.code)
+        self.assertEqual(IDENTIFIER_PRIORITY[0], "UIN")
 
     def test_data_source_present(self):
         source = self.env.ref("spp_dci_openspp_dr.openspp_dr_source")

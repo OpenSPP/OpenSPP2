@@ -7,6 +7,8 @@ from unittest.mock import MagicMock, patch
 
 from odoo.tests.common import TransactionCase, tagged
 
+from .common import get_or_create_uin_code
+
 
 def make_dr_response_for_uin(uin_to_records):
     """Stateful search_by_id mock: response depends on the identifier_value."""
@@ -42,7 +44,7 @@ class TestDispatcherRoutesOpenSPPDR(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.id_type_uin = cls.env.ref("spp_dci_openspp_dr.id_type_uin_sp")
+        cls.id_type_uin = get_or_create_uin_code(cls.env)
         cls.partner_pwd = cls.env["res.partner"].create(
             {"name": "DR Partner", "is_registrant": True, "is_group": False}
         )
