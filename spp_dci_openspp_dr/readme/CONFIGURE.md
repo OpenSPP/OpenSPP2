@@ -1,3 +1,20 @@
+### Launching the DR container
+
+The DR runs as a separate OpenSPP container alongside the SP. From the
+repo root:
+
+```bash
+./spp start                                      # SP via the project's CLI
+docker compose -f docker-compose.dr.yml up -d    # DR standalone
+```
+
+The DR joins the SP project's existing Docker network (`openspp2_openspp`
+by default) so the SP can reach it at `http://openspp-dr:8069` over the
+in-network DNS name. The host can browse the DR UI at
+`http://localhost:8070` (admin/admin). If your SP project is named
+something other than `openspp2`, set `OPENSPP_NETWORK=<project>_openspp`
+before launching.
+
 ### After installing this module
 
 The preset auto-creates a DCI data source, CEL provider, and `has_disability` variable binding wired against `http://openspp-dr:8069/dci/disability/registry/sync/search` (the docker-compose default for the demo).
