@@ -66,6 +66,10 @@ class TestOpenG2PPresetInstall(TransactionCase):
         # Local field source is cleared so the resolver does not also
         # try to expand to r.is_person_with_disability.
         self.assertFalse(variable.source_field)
+        # Variable must be activated so it participates in the resolver
+        # and the cache pre-warm.
+        self.assertEqual(variable.state, "active")
+        self.assertTrue(variable.active)
 
     def test_cel_accessor_is_semantic_not_vendor_named(self):
         """ADR-023 §1a: CEL accessors must be vendor-neutral.
@@ -86,7 +90,8 @@ class TestOpenG2PPresetInstall(TransactionCase):
         variable = self.env.ref("spp_studio.var_has_disability")
         provider = self.env.ref("spp_dci_openg2p.openg2p_dr_provider")
 
-        # Simulate spp_studio re-applying its standard_variables.xml
+        # Simulate spp_studio re-applying its standard_variables.xml: the
+        # variable ships as Draft, source_type=field, no provider.
         variable.write(
             {
                 "source_type": "field",
@@ -96,22 +101,28 @@ class TestOpenG2PPresetInstall(TransactionCase):
                 "dci_attribute_path": False,
                 "cache_strategy": "none",
                 "external_failure_policy": "null",
+                "state": "draft",
             }
         )
         # Confirm the reset took effect
         self.assertEqual(variable.source_type, "field")
         self.assertFalse(variable.external_provider_id)
+        self.assertEqual(variable.state, "draft")
 
         # Run the hook
         post_init_hook(self.env)
 
-        # Verify the DCI binding was re-asserted
+        # Verify the DCI binding was re-asserted AND the variable was
+        # activated. Without activation it's invisible to the resolver
+        # and skipped by precompute.
         variable.invalidate_recordset()
         self.assertEqual(variable.source_type, "external")
         self.assertFalse(variable.source_field)
         self.assertEqual(variable.external_provider_id, provider)
         self.assertEqual(variable.dci_attribute_path, "has_disability")
         self.assertEqual(variable.cache_strategy, "ttl")
+        self.assertEqual(variable.state, "active")
+        self.assertTrue(variable.active)
         self.assertEqual(variable.cache_ttl_seconds, 300)
 
     def test_post_init_hook_handles_missing_variable_gracefully(self):

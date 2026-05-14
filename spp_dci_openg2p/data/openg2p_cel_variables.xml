@@ -17,12 +17,21 @@
         The xml id is intentionally spp_studio.var_has_disability so Odoo
         treats this as an in-place update of the existing record.
 
+        State + active are set explicitly so the variable goes from DRAFT
+        (spp_studio default) straight to ACTIVE on install — required for
+        the variable to participate in the CEL resolver and cache pre-warm.
+
         cache_ttl_seconds=300 (5 min) is tuned for the SPDCI demo so the
-        DCI round-trip is visible. Production deployments may raise this.
+        DCI round-trip is visible to viewers. Production deployments may
+        raise this.
 
         external_failure_policy=null: if OpenG2P is unreachable, the subject
-        evaluates against null (fails `has_disability == true`).
+        evaluates against null (does not match `has_disability == true`).
         Compliance-critical rules can override to 'fail' on the variable.
+
+        post_init_hook (spp_dci_openg2p/__init__.py) re-asserts these
+        fields on every install/upgrade so drift from manual edits or
+        cross-module data loads gets corrected automatically.
     -->
     <record id="spp_studio.var_has_disability" model="spp.cel.variable">
         <field name="source_type">external</field>
@@ -33,5 +42,7 @@
         <field name="cache_strategy">ttl</field>
         <field name="cache_ttl_seconds">300</field>
         <field name="external_failure_policy">null</field>
+        <field name="state">active</field>
+        <field name="active" eval="True" />
     </record>
 </odoo>
