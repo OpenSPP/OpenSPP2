@@ -7,21 +7,23 @@
         Replace base_url and OAuth credentials with the actual OpenG2P deployment
         before running against real data.
 
-        registry_type='DR' so the bridge dispatcher routes through _handler_dr.
+        registry_type='SR' so the bridge dispatcher routes through _handler_sr.
         vendor='openg2p' so the preset's dispatcher override picks the
-        OpenG2P-specific service (handles idtype-value query shape and
-        data.reg_records[] response wrapper). When OpenG2P's real DR endpoint
-        becomes available and conforms to the standard DCI shape, clear the
-        vendor field to fall back to the upstream DRService.
+        OpenG2P-specific service (expression query shape with namespaced
+        URI query type, consent + authorize blocks, data.reg_records[]
+        response wrapper). When OpenG2P's request shape converges on the
+        upstream DCI defaults, clear the vendor field to fall back to a
+        future standard SR handler.
 
-        FR-AS-DR PRETENSE: until OpenG2P's Disability Registry endpoint is
-        published, this preset uses the Farmer Registry as a DR stand-in.
-        See services/openg2p_fr_service.py for the migration plan.
+        Disability data lives in a separate OpenSPP-DR instance, not in
+        OpenG2P — see ADR-024. This source is OpenG2P's Social Registry
+        only; the preset's role here is to feed SR-shaped attributes
+        (e.g., is_poor, has_dependent_under_school_age) into CEL.
     -->
     <record id="openg2p_dr_source" model="spp.dci.data.source">
-        <field name="name">OpenG2P Disability Registry</field>
+        <field name="name">OpenG2P Social Registry</field>
         <field name="code">openg2p_dr</field>
-        <field name="registry_type">DR</field>
+        <field name="registry_type">SR</field>
         <field name="vendor">openg2p</field>
         <field name="base_url">https://partner-registry.play.openg2p.org</field>
         <field name="search_endpoint">/dci/registry/sync/search</field>
@@ -43,6 +45,6 @@
         <field name="state">draft</field>
         <field
             name="notes"
-        >OpenG2P playground preset. Uses the Farmer Registry endpoint as a DR stand-in until OpenG2P publishes a real Disability Registry. See spp_dci_openg2p/readme/CONFIGURE.md for the migration plan.</field>
+        >OpenG2P playground preset (Social Registry role). Routed through the bridge's _handler_sr by registry_type=SR; the vendor-specific service (services/openg2p_social_service.py) is selected by vendor=openg2p. See ADR-024 for the federated demo topology.</field>
     </record>
 </odoo>

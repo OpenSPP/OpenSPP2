@@ -13,7 +13,7 @@ class TestOpenG2PPresetInstall(TransactionCase):
         """The preset ships a `UIN` vocabulary code on the urn:openspp:vocab:id-type
         vocabulary so operators can pick it as `ID Type` on the registrant's
         Identity tab. The code value (UIN, uppercase) matches the SPDCI wire
-        convention and the first entry in OpenG2PFRService.IDENTIFIER_PRIORITY.
+        convention and the first entry in OpenG2PSocialService.IDENTIFIER_PRIORITY.
         """
         code = self.env.ref("spp_dci_openg2p.id_type_uin")
         self.assertEqual(code.code, "UIN")
@@ -27,7 +27,7 @@ class TestOpenG2PPresetInstall(TransactionCase):
         """Regression: the vocab code must equal the first entry in the
         service's IDENTIFIER_PRIORITY tuple, otherwise the dispatcher would
         not pick up a partner's UIN reg_id when querying OpenG2P."""
-        from odoo.addons.spp_dci_openg2p.services.openg2p_fr_service import (
+        from odoo.addons.spp_dci_openg2p.services.openg2p_social_service import (
             IDENTIFIER_PRIORITY,
         )
 
@@ -37,7 +37,10 @@ class TestOpenG2PPresetInstall(TransactionCase):
     def test_data_source_present(self):
         source = self.env.ref("spp_dci_openg2p.openg2p_dr_source")
         self.assertEqual(source.code, "openg2p_dr")
-        self.assertEqual(source.registry_type, "DR")
+        # OpenG2P plays the Social Registry role in the federated topology
+        # (ADR-024). Disability data lives on a separate OpenSPP-DR instance.
+        self.assertEqual(source.registry_type, "SR")
+        self.assertEqual(source.vendor, "openg2p")
         self.assertEqual(source.auth_type, "none")
         self.assertTrue(source.active)
 

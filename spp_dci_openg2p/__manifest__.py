@@ -11,7 +11,6 @@
     "maintainers": ["jeremi", "gonzalesedwin1123"],
     "depends": [
         "spp_cel_dci_bridge",
-        "spp_dci_client_dr",
         "spp_vocabulary",
     ],
     "external_dependencies": {"python": []},
