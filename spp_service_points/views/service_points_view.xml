@@ -51,6 +51,7 @@
                         string="Enable Service Point"
                         class="btn-success"
                         invisible="not is_disabled or not id"
+                        groups="spp_service_points.group_service_points_officer,spp_service_points.group_service_points_manager"
                         confirm="Enable this service point? It will become active again."
                     />
                     <button
@@ -59,6 +60,7 @@
                         string="Disable Service Point"
                         class="btn-warning"
                         invisible="is_disabled or not id"
+                        groups="spp_service_points.group_service_points_officer,spp_service_points.group_service_points_manager"
                         confirm="Disable this service point? You will need to provide a reason."
                     />
                 </header>

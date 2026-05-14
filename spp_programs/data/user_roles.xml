@@ -47,12 +47,18 @@
     </record>
 
     <!-- Finance -->
+    <!--
+        Per OP#951 round-2: Finance role needs read on the full Programs menu
+        (programs / cycles / entitlements) on top of validator rights for
+        payment batches. group_programs_viewer is Tier-2 (gates the menu).
+    -->
     <record id="spp_user_roles.global_role_finance" model="res.users.role">
         <field
             name="implied_ids"
             eval="
             [
                 Command.link(ref('spp_programs.group_programs_validator')),
+                Command.link(ref('spp_programs.group_programs_viewer')),
             ]"
         />
     </record>
