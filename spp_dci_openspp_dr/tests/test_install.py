@@ -24,7 +24,7 @@ class TestOpenSPPDRPresetInstall(TransactionCase):
         self.assertEqual(source.code, "openspp_dr")
         self.assertEqual(source.registry_type, "DR")
         self.assertEqual(source.vendor, "openspp")
-        self.assertEqual(source.search_endpoint, "/dci/disability/registry/sync/search")
+        self.assertEqual(source.search_endpoint, "/dci_api/v1/disability/registry/sync/search")
         self.assertTrue(source.active)
 
     def test_provider_links_to_data_source(self):

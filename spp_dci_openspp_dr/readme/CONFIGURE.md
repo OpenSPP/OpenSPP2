@@ -17,7 +17,7 @@ before launching.
 
 ### After installing this module
 
-The preset auto-creates a DCI data source, CEL provider, and `has_disability` variable binding wired against `http://openspp-dr:8069/dci/disability/registry/sync/search` (the docker-compose default for the demo).
+The preset auto-creates a DCI data source, CEL provider, and `has_disability` variable binding wired against `http://openspp-dr:8069/dci_api/v1/disability/registry/sync/search` (the docker-compose default for the demo).
 
 1. Navigate to **Custom > DCI > Configuration > Data Sources**.
 2. Open the `openspp_dr` data source.

@@ -62,7 +62,7 @@ class TestOpenSPPDRService(TransactionCase):
                 "registry_type": "DR",
                 "vendor": "openspp",
                 "base_url": "http://openspp-dr.test:8069",
-                "search_endpoint": "/dci/disability/registry/sync/search",
+                "search_endpoint": "/dci_api/v1/disability/registry/sync/search",
                 "auth_type": "none",
                 "our_sender_id": "openspp-sp.test",
                 "receiver_id": "openspp-dr.test",

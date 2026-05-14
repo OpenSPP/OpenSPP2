@@ -5,7 +5,10 @@
 
         Defaults target a sibling OpenSPP instance running
         spp_dci_server_disability and exposing the canonical DCI
-        endpoint at /dci/disability/registry/sync/search.
+        endpoint at /dci_api/v1/disability/registry/sync/search (the
+        `fastapi.endpoint` record in spp_dci_server is registered with
+        root_path=/dci_api/v1; our disability router adds the
+        /disability/registry prefix and the POST /sync/search handler).
 
         registry_type='DR' so the bridge dispatcher routes through
         _handler_dr.
@@ -28,7 +31,7 @@
         <field name="registry_type">DR</field>
         <field name="vendor">openspp</field>
         <field name="base_url">http://openspp-dr:8069</field>
-        <field name="search_endpoint">/dci/disability/registry/sync/search</field>
+        <field name="search_endpoint">/dci_api/v1/disability/registry/sync/search</field>
         <field name="auth_type">none</field>
         <field name="our_sender_id">openspp-sp.demo</field>
         <field name="receiver_id">openspp-dr.demo</field>

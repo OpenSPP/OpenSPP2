@@ -1,7 +1,7 @@
 """OpenSPP-DR Disability Registry client service.
 
 Queries the sibling OpenSPP-DR instance over DCI (``spp_dci_server_disability``
-endpoint at ``/dci/disability/registry/sync/search``) and returns the raw
+endpoint at ``/dci_api/v1/disability/registry/sync/search``) and returns the raw
 ``data.reg_records[0]`` dict. The bridge dispatcher applies the variable's
 ``dci_attribute_path`` to that dict — so the CEL variable
 ``has_disability`` extracts the wire-format ``has_disability`` field

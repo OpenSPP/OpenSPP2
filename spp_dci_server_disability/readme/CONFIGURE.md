@@ -1,10 +1,10 @@
 ### After installing this module
 
-The endpoint is live at `https://<base_url>/dci/disability/registry/sync/search` (the `/dci` prefix comes from the FastAPI endpoint configuration on `spp_dci_server`).
+The endpoint is live at `https://<base_url>/dci_api/v1/disability/registry/sync/search` (the `/dci` prefix comes from the FastAPI endpoint configuration on `spp_dci_server`).
 
 1. Verify the DCI FastAPI endpoint is active: **Custom > Technical > FastAPI > Endpoints**, ensure the row with `app=dci_api` is enabled.
 2. Optionally seed test partners with disability data and a known reg_id value so SP-side queries return matches.
-3. Confirm the stub is gone: a `POST` to `/dci/disability/registry/sync/search` should now return HTTP 200 with a real SearchResponse (not 501).
+3. Confirm the stub is gone: a `POST` to `/dci_api/v1/disability/registry/sync/search` should now return HTTP 200 with a real SearchResponse (not 501).
 
 ### Signing keys
 

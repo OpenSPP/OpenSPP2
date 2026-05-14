@@ -1,4 +1,4 @@
-Server-side DCI Disability Registry implementation. Replaces the 501 stub at `/disability/registry/sync/search` in `spp_dci_server` with a real handler backed by `DisabilitySearchService`, so SP-side OpenSPP instances (or any DCI-compliant client) can query disability data from this OpenSPP-DR instance.
+Server-side DCI Disability Registry implementation. Replaces the 501 stub at `/dci_api/v1/disability/registry/sync/search` in `spp_dci_server` with a real handler backed by `DisabilitySearchService`, so SP-side OpenSPP instances (or any DCI-compliant client) can query disability data from this OpenSPP-DR instance.
 
 This module turns an OpenSPP deployment into a DCI-compliant Disability Registry. Install it on the registry instance only — not on SP instances that act as DCI clients.
 
@@ -6,7 +6,7 @@ This module turns an OpenSPP deployment into a DCI-compliant Disability Registry
 
 | Component                                          | Purpose                                                                                                |
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `routers/disability_router.py`                     | Real `/disability/registry/sync/search` handler; signs and returns a DCI envelope                       |
+| `routers/disability_router.py`                     | Real `/dci_api/v1/disability/registry/sync/search` handler; signs and returns a DCI envelope                       |
 | `services/disability_search_service.py`            | Parse SearchRequest → look up partner by reg_id → produce SearchResponse with disability fields         |
 | `models/fastapi_endpoint_dr.py`                    | Inherits `fastapi.endpoint` to swap the parent's stub router for our real router on the DCI app        |
 
