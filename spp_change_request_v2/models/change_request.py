@@ -1652,38 +1652,3 @@ class SPPChangeRequest(models.Model):
                 },
             },
         }
-
-    # ─── Area-based filtering (OP#989) ──────────────────────────────────
-    # Mirrors the `_prepare_domain` pattern from
-    # spp_area/models/registrant.py so a user with a local role (i.e.
-    # `center_area_ids` set on res.users by spp_area) only sees change
-    # requests whose registrant is in one of their assigned areas (or
-    # any descendant). Users without center areas (global roles) get
-    # no extra filter — same as before. Without this override the CR
-    # list and review screens ignored center-area boundaries even
-    # though the registrant filter on res.partner respected them.
-
-    @api.model
-    def _prepare_domain(self, domain):
-        domain = domain or []
-        user = self.env.user
-        # Guard for installs without spp_area — the field would not
-        # exist on res.users in that case. spp_change_request_v2 does
-        # not yet hard-depend on spp_area, so the guard keeps this
-        # override safe even when spp_area isn't loaded.
-        center_area_ids = getattr(user, "center_area_ids", None)
-        if center_area_ids:
-            domain = list(domain) + [
-                ("registrant_id.area_id", "child_of", center_area_ids.ids),
-            ]
-        return domain
-
-    @api.model
-    def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None):
-        domain = self._prepare_domain(domain)
-        return super().search_read(domain, fields, offset, limit, order)
-
-    @api.model
-    def web_search_read(self, domain, specification, offset=0, limit=None, order=None, count_limit=None):
-        domain = self._prepare_domain(domain)
-        return super().web_search_read(domain, specification, offset, limit, order, count_limit)
