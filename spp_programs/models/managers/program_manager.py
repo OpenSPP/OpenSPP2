@@ -3,7 +3,7 @@ import logging
 from datetime import datetime, timedelta
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 from odoo.addons.job_worker.delay import group
 
@@ -259,12 +259,59 @@ class DefaultProgramManager(models.Model):
         _logger.debug("members filtered: %s", members)
         not_enrolled = members.filtered(lambda m: m.state not in ("enrolled", "duplicated", "exited"))
         _logger.debug("not_enrolled: %s", not_enrolled)
-        not_enrolled.write(
+
+        # Run pre-enrollment hooks (e.g., scoring eligibility checks).
+        # Members that fail the hook are moved to not_eligible.
+        hook_failed = self.env["spp.program.membership"]
+        for member in not_enrolled:
+            try:
+                program._pre_enrollment_hook(member.partner_id)
+            except (ValidationError, UserError) as e:
+                _logger.info(
+                    "Pre-enrollment hook rejected registrant %s: %s",
+                    member.partner_id.id,
+                    str(e),
+                )
+                hook_failed |= member
+
+        # Re-check already-enrolled members against the current
+        # eligibility rules. "Verify Eligibility" implies a fresh check;
+        # an enrolled registrant whose data became invalid (e.g. a
+        # required indicator now resolves to a sentinel string) must be
+        # demoted, not silently kept enrolled. We work from `member_before`
+        # (pre-eligibility-manager-filter) so an enrolled member that the
+        # default manager would silently skip is still re-checked here.
+        # See OP#838.
+        already_enrolled = member_before.filtered(lambda m: m.state == "enrolled")
+        re_verify_failed = self.env["spp.program.membership"]
+        for member in already_enrolled:
+            try:
+                program._pre_enrollment_hook(member.partner_id)
+            except (ValidationError, UserError) as e:
+                _logger.info(
+                    "Re-verify rejected enrolled registrant %s: %s",
+                    member.partner_id.id,
+                    str(e),
+                )
+                re_verify_failed |= member
+
+        enrollable = not_enrolled - hook_failed
+        if hook_failed:
+            hook_failed.write({"state": "not_eligible"})
+
+        if re_verify_failed:
+            re_verify_failed.write({"state": "not_eligible"})
+
+        enrollable.write(
             {
                 "state": "enrolled",
                 "enrollment_date": fields.Datetime.now(),
             }
         )
+
+        # Run post-enrollment hooks (e.g., auto-score on enrollment)
+        for member in enrollable:
+            program._post_enrollment_hook(member.partner_id)
         # dis-enroll the one not eligible anymore:
         enrolled_members_ids = members.ids
         members_to_remove = member_before.filtered(
@@ -282,4 +329,4 @@ class DefaultProgramManager(models.Model):
             program._compute_eligible_beneficiary_count()
             program._compute_beneficiary_count()
 
-        return len(not_enrolled)
+        return len(enrollable)

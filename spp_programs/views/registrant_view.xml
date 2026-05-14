@@ -91,6 +91,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     nolabel="1"
                     readonly="1"
                     invisible="program_membership_count == 0"
+                    widget="x2many_no_padding"
                 >
                     <list
                         decoration-info="state == 'draft'"
@@ -162,6 +163,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     nolabel="1"
                     readonly="1"
                     invisible="entitlements_count == 0"
+                    widget="x2many_no_padding"
                 >
                     <list
                         decoration-muted="state in ('cancelled', 'expired')"
@@ -189,6 +191,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     nolabel="1"
                     readonly="1"
                     invisible="inkind_entitlements_count == 0"
+                    widget="x2many_no_padding"
                 >
                     <list decoration-muted="state in ('cancelled', 'expired')">
                         <field name="cycle_id" />
@@ -230,6 +233,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     nolabel="1"
                     readonly="1"
                     invisible="program_membership_count == 0"
+                    widget="x2many_no_padding"
                 >
                     <list
                         decoration-info="state == 'draft'"
@@ -304,6 +308,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     nolabel="1"
                     readonly="1"
                     invisible="entitlements_count == 0"
+                    widget="x2many_no_padding"
                 >
                     <list
                         decoration-muted="state in ('cancelled', 'expired')"
@@ -331,6 +336,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     nolabel="1"
                     readonly="1"
                     invisible="inkind_entitlements_count == 0"
+                    widget="x2many_no_padding"
                 >
                     <list decoration-muted="state in ('cancelled', 'expired')">
                         <field name="cycle_id" />

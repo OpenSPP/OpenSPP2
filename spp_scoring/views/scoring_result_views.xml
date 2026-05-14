@@ -5,7 +5,7 @@
         <field name="name">spp.scoring.result.form</field>
         <field name="model">spp.scoring.result</field>
         <field name="arch" type="xml">
-            <form string="Scoring Result" create="false">
+            <form string="Scoring Result" create="false" edit="false">
                 <header>
                     <button
                         name="action_recalculate"
@@ -109,6 +109,8 @@
             <list
                 string="Scoring Results"
                 create="false"
+                edit="false"
+                delete="false"
                 decoration-danger="not is_complete"
                 decoration-success="is_complete"
             >
@@ -210,7 +212,7 @@
         <field name="name">spp.scoring.result.detail.form</field>
         <field name="model">spp.scoring.result.detail</field>
         <field name="arch" type="xml">
-            <form string="Score Detail">
+            <form string="Score Detail" create="false" edit="false">
                 <group>
                     <field name="indicator_id" />
                     <field name="field_value" />

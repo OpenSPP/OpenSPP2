@@ -229,7 +229,14 @@ class SppScoringResult(models.Model):
 
     @api.model
     def get_latest_score(self, registrant, model, max_age_days=None):
-        """Get the most recent score for a registrant/model combination."""
+        """Get the most recent score for a registrant/model — including
+        incomplete rows. The latest attempt reflects the registrant's
+        current scoreability: if their data became invalid after a
+        previously successful score, the most recent (incomplete) row
+        is the truth, not the stale complete one. Callers that need to
+        gate behaviour on success must check ``result.is_complete``.
+        See OP#838.
+        """
         domain = [
             ("registrant_id", "=", registrant.id),
             ("model_id", "=", model.id),

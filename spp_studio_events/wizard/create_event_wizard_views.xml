@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!--
+        Inherit the basic Create Event wizard form to make step 1 of the
+        Studio flow self-explanatory:
+
+        - Hide the raw JSON `event_data` field for Studio event types
+          (it's misleading since the structured fields render in the
+          next stage, not this one).
+        - Insert an info banner that announces the next stage.
+        - Replace the "Create Event" button with a "Next" button when the
+          selected event type is Studio-backed; non-Studio types keep
+          "Create Event" because for them this *is* the only stage.
+
+        See OP#992.
+    -->
+    <record id="view_spp_create_event_wizard_form_studio" model="ir.ui.view">
+        <field name="name">spp.create.event.wizard.form.studio</field>
+        <field name="model">spp.create.event.wizard</field>
+        <field
+            name="inherit_id"
+            ref="spp_event_data.view_spp_create_event_wizard_form"
+        />
+        <field name="arch" type="xml">
+            <!-- Make the Studio flag readable from the view's evaluation
+                 context so the conditional attributes below work. -->
+            <xpath expr="//field[@name='partner_id']" position="before">
+                <field name="is_studio_event_type" invisible="1" />
+            </xpath>
+
+            <!-- Info banner at the top of the sheet — full-width, only
+                 visible for Studio-backed event types. Placed before the
+                 first group so it renders as a banner above the form
+                 fields rather than as a column-neighbor of the (now
+                 hidden) JSON group. -->
+            <xpath expr="//sheet/group[1]" position="before">
+                <div
+                    class="alert alert-info"
+                    role="alert"
+                    invisible="not is_studio_event_type"
+                >
+                    This event type uses <strong>structured fields</strong>.
+                    Click <strong>Next</strong> to enter them — you'll be
+                    moved to the second stage where each defined field
+                    appears as its own input.
+                </div>
+            </xpath>
+
+            <!-- Hide the raw JSON group when the event type is Studio-backed. -->
+            <xpath expr="//field[@name='event_data']/.." position="attributes">
+                <attribute
+                    name="invisible"
+                >not event_type_id or is_studio_event_type</attribute>
+            </xpath>
+
+            <!-- Hide the original "Create Event" button when Studio. -->
+            <xpath expr="//footer/button[@name='create_event']" position="attributes">
+                <attribute
+                    name="invisible"
+                >not event_type_id or is_studio_event_type</attribute>
+            </xpath>
+
+            <!-- Add a "Next" button (same backing method) for Studio types. -->
+            <xpath expr="//footer/button[@name='create_event']" position="after">
+                <button
+                    name="create_event"
+                    string="Next"
+                    type="object"
+                    class="oe_highlight"
+                    invisible="not is_studio_event_type"
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>

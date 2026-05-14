@@ -2,7 +2,7 @@
 
 import logging
 
-from odoo import _, models
+from odoo import _, api, fields, models
 
 _logger = logging.getLogger(__name__)
 
@@ -11,6 +11,22 @@ class SPPCreateEventWizardStudioExtension(models.TransientModel):
     """Extend generic event wizard to detect and redirect to Studio wizard."""
 
     _inherit = "spp.create.event.wizard"
+
+    is_studio_event_type = fields.Boolean(
+        compute="_compute_is_studio_event_type",
+        help=(
+            "True when the selected event type was created via Studio and "
+            "renders structured fields in the next stage. Drives the basic "
+            "wizard's UX: hides the misleading raw JSON input, shows an "
+            "info banner, and renames the submit button to 'Next' so users "
+            "know there's a second step coming."
+        ),
+    )
+
+    @api.depends("event_type_id")
+    def _compute_is_studio_event_type(self):
+        for rec in self:
+            rec.is_studio_event_type = bool(rec.event_type_id and rec.event_type_id._get_active_studio_event_type())
 
     def create_event(self):
         """Override to redirect to Studio wizard if applicable.

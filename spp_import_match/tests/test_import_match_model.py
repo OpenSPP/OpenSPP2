@@ -120,21 +120,31 @@ class TestImportMatchModel(TransactionCase):
         self.assertFalse(result.id)
 
     def test_match_find_conditional_match(self):
-        """Test _match_find uses rule when conditional value matches."""
-        partner = self.env["res.partner"].create({"name": "ConditionalMatchTest"})
+        """Test _match_find applies the rule when the conditional gate passes.
+
+        Under OP#991 semantics, an `is_conditional=True` row is a pure gate —
+        it decides whether the rule applies to this CSV row but is never
+        added to the DB search domain (the gate column may be a CSV-only
+        metadata field that doesn't exist on the registrant model). The
+        combination must include at least one non-conditional row to
+        provide the actual search predicate. Here `name` is the gate and
+        `email` is the search predicate.
+        """
+        partner = self.env["res.partner"].create({"name": "ConditionalMatchTest", "email": "conditional@example.com"})
         match = self._create_match_rule(
             [
                 {
                     "field_id": self.name_field.id,
                     "is_conditional": True,
                     "imported_value": "ConditionalMatchTest",
-                }
+                },
+                {"field_id": self.email_field.id},
             ]
         )
         result = match._match_find(
             self.env["res.partner"],
-            {"name": "ConditionalMatchTest"},
-            {"name": "ConditionalMatchTest", "id": None},
+            {"email": "conditional@example.com"},
+            {"name": "ConditionalMatchTest", "email": "conditional@example.com", "id": None},
         )
         self.assertEqual(result, partner)
 
