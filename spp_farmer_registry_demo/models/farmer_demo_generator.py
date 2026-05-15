@@ -591,47 +591,61 @@ class SPPFarmerDemoGenerator(models.TransientModel):
     # Service Points
     # ──────────────────────────────────────────────────────────────────────
 
-    # Service points linked per farm type. Cash + Extension are universal
-    # (everyone draws their entitlement at the bank and consults the
-    # extension office); crop/livestock/aquaculture each add their own.
-    _FARM_TYPE_SERVICE_POINTS = {
+    # Universal service points: every farm collects entitlements at a
+    # bank and consults the extension office, so these are always linked.
+    _UNIVERSAL_SERVICE_POINTS = ["Rural Bank Branch", "Agricultural Extension Office"]
+
+    # Specialised pool per farm type. Each farm picks a deterministic
+    # subset (anchored to its name hash) so different farms of the same
+    # type don't look like identical clones in QA's review.
+    _FARM_TYPE_SPECIALISED_POINTS = {
         "crop": [
             "Agri Co-op Office",
             "Input Supply Depot",
             "Mechanization Equipment Rental Hub",
-            "Rural Bank Branch",
-            "Agricultural Extension Office",
         ],
         "livestock": [
             "Provincial Veterinary Clinic",
             "Input Supply Depot",
-            "Rural Bank Branch",
-            "Agricultural Extension Office",
         ],
         "mixed": [
             "Agri Co-op Office",
             "Input Supply Depot",
             "Provincial Veterinary Clinic",
             "Mechanization Equipment Rental Hub",
-            "Rural Bank Branch",
-            "Agricultural Extension Office",
         ],
         "aquaculture": [
             "Input Supply Depot",
-            "Rural Bank Branch",
-            "Agricultural Extension Office",
         ],
     }
 
-    def _resolve_farm_service_points(self, farm_type):
-        """Return service point IDs to link onto a farm with the given type.
+    def _resolve_farm_service_points(self, farm_type, farm_name=None):
+        """Return service point IDs to link onto a farm.
 
-        Looks up service points by name (created by _create_service_points
-        earlier in generate_all). Returns an empty list if no matching
-        service points exist yet (graceful — happens if a downstream caller
-        invokes this method before the seed step ran).
+        Bank + Extension are always included (universal touchpoints).
+        From the type's specialised pool, pick a deterministic subset of
+        1..N items based on `zlib.crc32(farm_name)` so farms of the same
+        type get DIFFERENT but stable assignments — addresses the QA
+        observation that 'all groups have the same amount of service
+        points'. With no farm_name (legacy callers), include the full
+        specialised pool.
         """
-        names = self._FARM_TYPE_SERVICE_POINTS.get(farm_type, ["Rural Bank Branch", "Agricultural Extension Office"])
+        specialised_pool = self._FARM_TYPE_SPECIALISED_POINTS.get(farm_type, [])
+        if farm_name and specialised_pool:
+            import zlib
+
+            digest = zlib.crc32(farm_name.encode("utf-8"))
+            pool = sorted(specialised_pool)
+            n_pick = (digest % len(pool)) + 1  # 1..len(pool)
+            picked = []
+            for i in range(n_pick):
+                idx = (digest >> (i * 5)) % len(pool)
+                if pool[idx] not in picked:
+                    picked.append(pool[idx])
+        else:
+            picked = list(specialised_pool)
+
+        names = self._UNIVERSAL_SERVICE_POINTS + picked
         records = self.env["spp.service.point"].sudo().search([("name", "in", names)])  # nosemgrep
         return records.ids
 
@@ -810,9 +824,9 @@ class SPPFarmerDemoGenerator(models.TransientModel):
 
             # OP#915 round-3: link the farm group to realistic service
             # points based on its primary farm type. Cash + Extension are
-            # universal; crop / livestock / mixed / aquaculture each add
-            # their specialised hubs.
-            sp_ids = self._resolve_farm_service_points(story_data["farm_type"])
+            # universal; specialised hubs vary per farm name so different
+            # farms of the same type don't show identical Service Points.
+            sp_ids = self._resolve_farm_service_points(story_data["farm_type"], farm_name=story_data["farm_name"])
             if sp_ids:
                 farm.write({"service_point_ids": [Command.set(sp_ids)]})
 

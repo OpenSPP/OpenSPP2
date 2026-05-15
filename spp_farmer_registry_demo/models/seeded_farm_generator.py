@@ -301,35 +301,29 @@ DEMO_BANKS = [
 ]
 
 # OP#915 round-3 followup: link each volume farm to the service points
-# that match its primary farm type. Names match the records created by
-# FarmerDemoGenerator._create_service_points. Cash + Extension are
-# universal; crop/livestock/aquaculture each add their specialised hubs.
-_FARM_TYPE_SERVICE_POINTS = {
+# that match its primary farm type. Cash + Extension are universal
+# (always linked); each farm picks a deterministic subset from its
+# type's specialised pool based on the farm name hash so different
+# farms of the same type aren't identical clones.
+_UNIVERSAL_SERVICE_POINTS = ["Rural Bank Branch", "Agricultural Extension Office"]
+_FARM_TYPE_SPECIALISED_POINTS = {
     "crop": [
         "Agri Co-op Office",
         "Input Supply Depot",
         "Mechanization Equipment Rental Hub",
-        "Rural Bank Branch",
-        "Agricultural Extension Office",
     ],
     "livestock": [
         "Provincial Veterinary Clinic",
         "Input Supply Depot",
-        "Rural Bank Branch",
-        "Agricultural Extension Office",
     ],
     "mixed": [
         "Agri Co-op Office",
         "Input Supply Depot",
         "Provincial Veterinary Clinic",
         "Mechanization Equipment Rental Hub",
-        "Rural Bank Branch",
-        "Agricultural Extension Office",
     ],
     "aquaculture": [
         "Input Supply Depot",
-        "Rural Bank Branch",
-        "Agricultural Extension Office",
     ],
 }
 
@@ -775,15 +769,27 @@ class SeededFarmGenerator:
             self._batch_create("spp.registry.id", id_vals)
 
         # ---- Phase: service point linkage ----
-        # Resolve the 6 demo service points by name once, then write
-        # service_point_ids on every farm group based on its blueprint's
-        # farm_type. Falls back to {Bank + Extension} for unknown types.
+        # Bank + Extension are universal (always linked). From the type's
+        # specialised pool, each farm picks a deterministic subset of size
+        # 1..N anchored to its name hash — addresses the QA observation
+        # that all groups had the same Service Points count. The subset is
+        # stable across reruns because the hash is deterministic.
         sp_records = self.env["spp.service.point"].sudo().search([])  # nosemgrep
         sp_by_name = {sp.name: sp.id for sp in sp_records}
         if sp_by_name:
-            default_names = ["Rural Bank Branch", "Agricultural Extension Office"]
             for group, (bp, _i, _s, _g, _gphone, _gb, _ga) in zip(groups, member_specs, strict=False):
-                names = _FARM_TYPE_SERVICE_POINTS.get(bp.get("farm_type"), default_names)
+                pool = sorted(_FARM_TYPE_SPECIALISED_POINTS.get(bp.get("farm_type"), []))
+                if pool:
+                    digest = zlib.crc32((group.name or "").encode("utf-8"))
+                    n_pick = (digest % len(pool)) + 1
+                    picked = []
+                    for i in range(n_pick):
+                        idx = (digest >> (i * 5)) % len(pool)
+                        if pool[idx] not in picked:
+                            picked.append(pool[idx])
+                else:
+                    picked = []
+                names = _UNIVERSAL_SERVICE_POINTS + picked
                 ids = [sp_by_name[n] for n in names if n in sp_by_name]
                 if ids:
                     group.write({"service_point_ids": [Command.set(ids)]})
