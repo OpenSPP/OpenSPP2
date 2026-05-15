@@ -232,9 +232,8 @@ class DisabilitySearchService:
         )
         if reg_id:
             return reg_id.partner_id.sudo()  # nosemgrep: odoo-sudo-without-context,odoo-sudo-on-sensitive-models
-        return (
-            self.env["res.partner"].sudo().browse()
-        )  # nosemgrep: odoo-sudo-without-context,odoo-sudo-on-sensitive-models
+        Partner = self.env["res.partner"].sudo()  # nosemgrep: odoo-sudo-without-context,odoo-sudo-on-sensitive-models
+        return Partner.browse()
 
     # ------------------------------------------------------------------
     # Reg-record construction
