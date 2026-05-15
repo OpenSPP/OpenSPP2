@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    Group form tweaks requested in OP#915 round-3 QA review.
+    All overrides live inside spp_farmer_registry_demo so the upstream
+    modules aren't touched. They apply globally to any group form once the
+    demo module is installed — acceptable because the demo install is the
+    only context that pulls this module in.
+-->
+<odoo>
+    <!-- ════════════════════════════════════════════════════════════════
+         Group form: hide Relationships section + Tags section, move
+         History page right of Source Tracking, add a Location group with
+         the GPS field on the Profile tab.
+         ════════════════════════════════════════════════════════════════ -->
+    <record id="view_res_partner_form_op915_polish" model="ir.ui.view">
+        <field name="name">spp_registry.view_groups_form.op915_polish</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
+        <field name="priority">200</field>
+        <field name="arch" type="xml">
+            <!-- C9: hide Relationships block under Group Identity tab -->
+            <xpath
+                expr="//page[@name='group_identity']//group[@name='group_relationships_section']"
+                position="attributes"
+            >
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- C13: hide Tags section under Group Profile tab -->
+            <xpath
+                expr="//page[@name='group_profile']//group[@name='group_tags_section']"
+                position="attributes"
+            >
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- C12: add a Location group on the Profile tab that surfaces
+                 the GPS field for an at-a-glance map placeholder. The
+                 actual map widget on partner_latitude is provided by
+                 spp_registrant_gis; here we just expose the field. -->
+            <xpath expr="//page[@name='group_profile']" position="inside">
+                <group string="Location" name="group_location_section">
+                    <field name="partner_latitude" string="Latitude" readonly="0" />
+                    <field name="partner_longitude" string="Longitude" readonly="0" />
+                </group>
+            </xpath>
+
+            <!-- C11: move History tab to the rightmost position so it
+                 sits beside Source Tracking (which is injected near
+                 the end of the notebook by spp_source_tracking). The
+                 nested form below is Odoo's idiom for `position="move"`:
+                 the outer xpath anchors at the target sibling, and the
+                 inner xpath identifies the page being moved. We anchor
+                 on `source_tracking_group` so History lands after it. -->
+            <xpath expr="//page[@name='source_tracking_group']" position="after">
+                <xpath expr="//page[@name='group_history']" position="move" />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         C14: hide the Event Data smart button on both Group and
+         Individual forms (added by spp_event_data via two separate view
+         inherits). The button is a button[@name='open_create_event_wizard']
+         inside div[@name='button_box']; setting invisible='1' on it is
+         enough since the view IDs are stable.
+         ════════════════════════════════════════════════════════════════ -->
+    <record id="view_res_partner_form_hide_event_btn_group" model="ir.ui.view">
+        <field name="name">spp_event_data.view_groups_event_data_form.hide_btn</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_event_data.view_groups_event_data_form" />
+        <field name="priority">200</field>
+        <field name="arch" type="xml">
+            <xpath
+                expr="//button[@name='open_create_event_wizard']"
+                position="attributes"
+            >
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_res_partner_form_hide_event_btn_individual" model="ir.ui.view">
+        <field
+            name="name"
+        >spp_event_data.view_individual_event_data_form.hide_btn</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_event_data.view_individual_event_data_form" />
+        <field name="priority">200</field>
+        <field name="arch" type="xml">
+            <xpath
+                expr="//button[@name='open_create_event_wizard']"
+                position="attributes"
+            >
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         OP#915 round-3 item: drop the Extension Services tab on the farm
+         group form unless additional context is provided (currently the
+         tab exists but is empty for demo data).
+         ════════════════════════════════════════════════════════════════ -->
+    <record id="view_res_partner_form_hide_extension_services" model="ir.ui.view">
+        <field
+            name="name"
+        >spp_farmer_registry.view_res_partner_group_farm_form.hide_ext</field>
+        <field name="model">res.partner</field>
+        <field
+            name="inherit_id"
+            ref="spp_farmer_registry.view_res_partner_group_farm_form"
+        />
+        <field name="priority">200</field>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='extension_services']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -121,11 +121,13 @@ STORY_FARMS = {
         "under_crops": 2.0,
         "experience": 10,
         "is_female": True,
-        # Cabanatuan, Nueva Ecija — Central Luzon rice plains
-        "longitude": 120.9690,
-        "latitude": 15.4880,
+        # ~4 km NW of Cabanatuan into rice paddies (was 120.9690, 15.4880)
+        "longitude": 120.9320,
+        "latitude": 15.5260,
         "land_use": "cultivation",
         "area_code": "PH-NUE",
+        "phone": "+63 917 555 0101",
+        "bank": "Land Bank of the Philippines",
     },
     "juan_dela_cruz": {
         "farm_name": "Dela Cruz Farm",
@@ -137,11 +139,13 @@ STORY_FARMS = {
         "under_livestock": 1.0,
         "experience": 15,
         "is_female": False,
-        # San Pablo, Laguna — inland mixed farming
-        "longitude": 121.3275,
-        "latitude": 14.0708,
+        # ~5 km E of San Pablo into inland mixed farmland (was 121.3275, 14.0708)
+        "longitude": 121.3800,
+        "latitude": 14.0490,
         "land_use": "mixed",
         "area_code": "PH-LAG",
+        "phone": "+63 918 555 0102",
+        "bank": "Development Bank of the Philippines",
     },
     "rosa_garcia": {
         "farm_name": "Garcia Farm",
@@ -152,11 +156,13 @@ STORY_FARMS = {
         "under_livestock": 1.0,
         "experience": 5,
         "is_female": True,
-        # Lipa, Batangas — inland plateau livestock area
-        "longitude": 121.1645,
-        "latitude": 13.9421,
+        # ~4 km S of Lipa into pasture land (was 121.1645, 13.9421)
+        "longitude": 121.2080,
+        "latitude": 13.9050,
         "land_use": "pasture",
         "area_code": "PH-BTG",
+        "phone": "+63 919 555 0103",
+        "bank": "BPI",
     },
     "amir_mangudadatu": {
         "farm_name": "Mangudadatu Farm",
@@ -168,11 +174,13 @@ STORY_FARMS = {
         "idle": 1.0,
         "experience": 20,
         "is_female": False,
-        # Near Cotabato City, Maguindanao — inland BARMM
-        "longitude": 124.2498,
-        "latitude": 7.2064,
+        # ~5 km SW of Cotabato City into farmland (was 124.2498, 7.2064)
+        "longitude": 124.2050,
+        "latitude": 7.1750,
         "land_use": "cultivation",
         "area_code": "PH-MAG",
+        "phone": "+63 920 555 0104",
+        "bank": "Land Bank of the Philippines",
     },
     "sofia_martinez": {
         "farm_name": "Martinez Farm",
@@ -183,11 +191,13 @@ STORY_FARMS = {
         "under_crops": 2.0,
         "experience": 5,
         "is_female": True,
-        # La Trinidad, Benguet — mountain valley highlands
-        "longitude": 120.5893,
-        "latitude": 16.4573,
+        # ~4 km NE of La Trinidad into highland terraces (was 120.5893, 16.4573)
+        "longitude": 120.6260,
+        "latitude": 16.4920,
         "land_use": "cultivation",
         "area_code": "PH-BEN",
+        "phone": "+63 921 555 0105",
+        "bank": "Rural Bank of Benguet",
     },
     "ramon_dela_cruz": {
         "farm_name": "Dela Cruz Fishpond",
@@ -198,11 +208,13 @@ STORY_FARMS = {
         "under_aquaculture": 0.5,
         "experience": 7,
         "is_female": False,
-        # Dagupan, Pangasinan — inland fishpond area
-        "longitude": 120.3408,
-        "latitude": 16.0433,
+        # ~5 km W of Dagupan into inland fishpond cluster (was 120.3408, 16.0433)
+        "longitude": 120.2960,
+        "latitude": 16.0670,
         "land_use": "aquaculture",
         "area_code": "PH-PAN",
+        "phone": "+63 922 555 0106",
+        "bank": "BDO",
     },
     "sittie_pangandaman": {
         "farm_name": "Pangandaman Farm",
@@ -213,11 +225,13 @@ STORY_FARMS = {
         "under_crops": 1.5,
         "experience": 12,
         "is_female": True,
-        # Near Marawi, Lanao del Sur — inland BARMM
-        "longitude": 124.2830,
-        "latitude": 8.0003,
+        # ~4 km NW of Marawi into upland farmland (was 124.2830, 8.0003)
+        "longitude": 124.2420,
+        "latitude": 8.0350,
         "land_use": "cultivation",
         "area_code": "PH-LAS",
+        "phone": "+63 923 555 0107",
+        "bank": "Land Bank of the Philippines",
     },
     "danilo_villanueva": {
         "farm_name": "Villanueva Farm",
@@ -229,11 +243,13 @@ STORY_FARMS = {
         "under_livestock": 2.0,
         "experience": 25,
         "is_female": False,
-        # Malaybalay, Bukidnon — inland highland plateau
-        "longitude": 125.1286,
-        "latitude": 8.1585,
+        # ~5 km E of Malaybalay into highland plateau farms (was 125.1286, 8.1585)
+        "longitude": 125.1750,
+        "latitude": 8.1320,
         "land_use": "mixed",
         "area_code": "PH-BUK",
+        "phone": "+63 924 555 0108",
+        "bank": "Rural Bank of Bukidnon",
     },
 }
 
@@ -355,6 +371,12 @@ class SPPFarmerDemoGenerator(models.TransientModel):
         if area_map:
             stats["areas_created"] = len(area_map)
             results.append(_("Created %d administrative areas") % len(area_map))
+
+        # Step 0.5: Create demo service points (Agri Co-op, Input Supply, Bank)
+        service_points = self._create_service_points(area_map)
+        if service_points:
+            stats["service_points_created"] = len(service_points)
+            results.append(_("Created %d service points") % len(service_points))
 
         # Step 1: Create active season
         if self.create_active_season:
@@ -558,6 +580,60 @@ class SPPFarmerDemoGenerator(models.TransientModel):
         return area_map
 
     # ──────────────────────────────────────────────────────────────────────
+    # Service Points
+    # ──────────────────────────────────────────────────────────────────────
+
+    def _create_service_points(self, area_map):
+        """Seed a small set of service points for the farmer demo.
+
+        Three entries are created — an agricultural cooperative office, an
+        input supply depot, and a rural bank branch — each anchored to one
+        of the demo areas when available. The records show up under
+        Registry → Service Points and link to res.partner so they can be
+        referenced from farm groups in later scenarios. Idempotent: if a
+        service point with the same name already exists we skip creation.
+        """
+        ServicePoint = self.env["spp.service.point"].sudo()  # nosemgrep
+        Area = self.env["spp.area"].sudo()  # nosemgrep
+        defs = [
+            {
+                "name": "Agri Co-op Office",
+                "area_code": "PH-NUE",
+                "phone_no": "+63 44 555 0201",
+                "shop_address": "Provincial Agricultural Office, Cabanatuan",
+            },
+            {
+                "name": "Input Supply Depot",
+                "area_code": "PH-BUK",
+                "phone_no": "+63 88 555 0202",
+                "shop_address": "Highway Junction Warehouse, Malaybalay",
+            },
+            {
+                "name": "Rural Bank Branch",
+                "area_code": "PH-MAG",
+                "phone_no": "+63 64 555 0203",
+                "shop_address": "Market Plaza, Cotabato City",
+            },
+        ]
+        created = []
+        for spec in defs:
+            existing = ServicePoint.search([("name", "=", spec["name"])], limit=1)
+            if existing:
+                created.append(existing)
+                continue
+            area = Area.search([("code", "=", spec["area_code"])], limit=1) if spec.get("area_code") else None
+            vals = {
+                "name": spec["name"],
+                "phone_no": spec["phone_no"],
+                "shop_address": spec["shop_address"],
+                "is_contract_active": True,
+            }
+            if area:
+                vals["area_id"] = area.id
+            created.append(ServicePoint.create(vals))
+        return created
+
+    # ──────────────────────────────────────────────────────────────────────
     # Season
     # ──────────────────────────────────────────────────────────────────────
 
@@ -635,6 +711,8 @@ class SPPFarmerDemoGenerator(models.TransientModel):
                 farm_size_idle=story_data.get("idle", 0.0),
                 experience_years=story_data.get("experience", 0),
                 is_female=story_data.get("is_female", False),
+                phone=story_data.get("phone"),
+                bank_name=story_data.get("bank"),
             )
             story_farms[story_id] = farm
 
@@ -677,6 +755,8 @@ class SPPFarmerDemoGenerator(models.TransientModel):
         farm_size_idle=0.0,
         experience_years=0,
         is_female=False,
+        phone=None,
+        bank_name=None,
     ):
         """Create a farm with the given attributes."""
         Partner = self.env["res.partner"].sudo()  # nosemgrep
@@ -696,6 +776,8 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             "farm_size_idle": farm_size_idle,
             "experience_years": experience_years,
         }
+        if phone:
+            farm_vals["phone"] = phone
         farm = Partner.create(farm_vals)
 
         # Create the farmer (individual) as head of household
@@ -710,6 +792,8 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             "is_group": False,
             "gender_id": gender_id,
         }
+        if phone:
+            individual_vals["phone"] = phone
         individual = Partner.create(individual_vals)
 
         head_type = self._get_vocab_code("urn:openspp:vocab:group-membership-type", "head")
@@ -721,7 +805,34 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             membership_vals["membership_type_ids"] = [Command.link(head_type)]
         self.env["spp.group.membership"].sudo().create(membership_vals)  # nosemgrep
 
+        if bank_name:
+            self._attach_bank_account(individual, bank_name, name)
+            self._attach_bank_account(farm, bank_name, name)
+
         return farm
+
+    def _attach_bank_account(self, partner, bank_name, salt):
+        """Create a res.partner.bank record on `partner` using `bank_name`.
+
+        The account number is generated deterministically from
+        (bank_name, salt, partner.name) so the same demo seed produces the
+        same numbers across resets. Bank entities (`res.bank`) are looked
+        up by name and created if missing — keeps the demo install
+        idempotent in installs where the bank already exists.
+        """
+        Bank = self.env["res.bank"].sudo()  # nosemgrep
+        bank = Bank.search([("name", "=", bank_name)], limit=1)
+        if not bank:
+            bank = Bank.create({"name": bank_name})
+        seed = f"{bank_name}|{salt}|{partner.name}"
+        digits = "".join(c for c in str(abs(hash(seed))) if c.isdigit())[:12].rjust(12, "0")
+        self.env["res.partner.bank"].sudo().create(  # nosemgrep
+            {
+                "acc_number": digits,
+                "partner_id": partner.id,
+                "bank_id": bank.id,
+            }
+        )
 
     def _create_story_activities(self, farms, season):
         """Create agricultural activities for story farms."""

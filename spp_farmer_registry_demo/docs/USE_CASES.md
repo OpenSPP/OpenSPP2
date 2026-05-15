@@ -1,5 +1,30 @@
 # Farmer Registry Demo — Use cases
 
+> **Locale note:** The reference data shipped with this demo is coded against `ph_PH`
+> (Philippine names, currency, area codes, bank list, place names). The structure of the
+> use cases — stories, scenarios, roles, geographic dimension — is locale-agnostic and
+> can be re-keyed to any country profile by swapping the persona names in
+> `farmer_blueprints.py`, the area codes / GPS in the `STORY_FARMS` table, and the bank
+> list referenced in the demo generator. Place names in the prose below ("Cabanatuan",
+> "Cotabato City", etc.) are illustrative; the underlying steps apply to any equivalent
+> regional centre / rural area pair.
+
+## Demo users
+
+The demo install seeds the following user accounts. All passwords are `demo` unless
+noted otherwise. Use these to exercise role-gated views, approval flows, and the CR
+validator chain.
+
+| Login                | Password | Role(s)                         | Used in scenarios                              |
+| -------------------- | -------- | ------------------------------- | ---------------------------------------------- |
+| `admin`              | `admin`  | System Administrator (built-in) | Any — full access                              |
+| `demo_manager`       | `demo`   | Farm Manager + CR Requestor     | Program lifecycle, CR submission, dashboards   |
+| `demo_officer`       | `demo`   | Farm User + CR Requestor        | Farm data entry, CR submission                 |
+| `demo_supervisor`    | `demo`   | Farm Manager                    | Program manager view, approvals                |
+| `demo_viewer`        | `demo`   | Farm User                       | Read-only walkthroughs                         |
+| `cr_local_validator` | `demo`   | CR Local Validator (Tier-1)     | Local CR approval / revision-request scenarios |
+| `cr_hq_validator`    | `demo`   | CR HQ Validator (Tier-2)        | HQ-tier CR approval scenarios                  |
+
 ## Farm stories
 
 Each farm is named by its family name and identified by an FM-code (FM1–FM8). Programs

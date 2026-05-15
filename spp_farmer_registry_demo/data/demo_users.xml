@@ -80,9 +80,9 @@
         model="res.users"
         context="{'no_reset_password': True}"
     >
-        <field name="name">Demo CR Local Validator</field>
-        <field name="login">demo_cr_local_validator</field>
-        <field name="email">demo_cr_local_validator@demo.spp</field>
+        <field name="name">CR Local Validator</field>
+        <field name="login">cr_local_validator</field>
+        <field name="email">cr_local_validator@example.com</field>
         <field name="password">demo</field>
         <field
             name="role_line_ids"
@@ -101,9 +101,9 @@
         model="res.users"
         context="{'no_reset_password': True}"
     >
-        <field name="name">Demo CR HQ Validator</field>
-        <field name="login">demo_cr_hq_validator</field>
-        <field name="email">demo_cr_hq_validator@demo.spp</field>
+        <field name="name">CR HQ Validator</field>
+        <field name="login">cr_hq_validator</field>
+        <field name="email">cr_hq_validator@example.com</field>
         <field name="password">demo</field>
         <field
             name="role_line_ids"
