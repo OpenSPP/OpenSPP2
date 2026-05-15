@@ -1,24 +1,62 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!--
-    Group form tweaks requested in OP#915 round-3 QA review.
+    Group + Individual form tweaks requested in OP#915 round-3 QA review.
     All overrides live inside spp_farmer_registry_demo so the upstream
-    modules aren't touched. They apply globally to any group form once the
-    demo module is installed — acceptable because the demo install is the
-    only context that pulls this module in.
+    modules aren't touched. They apply globally to any registrant form
+    once the demo module is installed — acceptable because the demo
+    install is the only context that pulls this module in.
 -->
 <odoo>
     <!-- ════════════════════════════════════════════════════════════════
-         Group form: hide Relationships section + Tags section, move
-         History page right of Source Tracking, add a Location group with
-         the GPS field on the Profile tab.
+         Individual + Group form: hide Relationships (separator + helper
+         div + group), hide Tags section, move History page right of
+         Source Tracking. The Location / GIS group is repositioned to the
+         end of the Profile tab by a separate inherit on the
+         spp_registrant_gis views below.
          ════════════════════════════════════════════════════════════════ -->
     <record id="view_res_partner_form_op915_polish" model="ir.ui.view">
-        <field name="name">spp_registry.view_groups_form.op915_polish</field>
+        <field name="name">spp_registry.view_individuals_form.op915_polish</field>
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="spp_registry.view_individuals_form" />
         <field name="priority">200</field>
         <field name="arch" type="xml">
-            <!-- C9: hide Relationships block under Group Identity tab -->
+            <!-- C9 individual: hide Relationships separator, helper div,
+                 and the relationships_section group on the Identity tab.
+                 Odoo 19 forbids [@string='...'] selectors in view
+                 inheritance — use preceding-sibling relative to the
+                 named group to reach the separator. -->
+            <xpath
+                expr="//page[@name='identity']//group[@name='relationships_section']/preceding-sibling::separator[1]"
+                position="attributes"
+            >
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath
+                expr="//page[@name='identity']//group[@name='relationships_section']/preceding-sibling::div[1]"
+                position="attributes"
+            >
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath
+                expr="//page[@name='identity']//group[@name='relationships_section']"
+                position="attributes"
+            >
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- C9 group: same pattern on the Group Identity tab. -->
+            <xpath
+                expr="//page[@name='group_identity']//group[@name='group_relationships_section']/preceding-sibling::separator[1]"
+                position="attributes"
+            >
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath
+                expr="//page[@name='group_identity']//group[@name='group_relationships_section']/preceding-sibling::div[1]"
+                position="attributes"
+            >
+                <attribute name="invisible">1</attribute>
+            </xpath>
             <xpath
                 expr="//page[@name='group_identity']//group[@name='group_relationships_section']"
                 position="attributes"
@@ -26,7 +64,27 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
 
-            <!-- C13: hide Tags section under Group Profile tab -->
+            <!-- C13 individual: hide Tags separator + tags_section group. -->
+            <xpath
+                expr="//page[@name='profile']//group[@name='tags_section']/preceding-sibling::separator[1]"
+                position="attributes"
+            >
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath
+                expr="//page[@name='profile']//group[@name='tags_section']"
+                position="attributes"
+            >
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- C13 group: hide Tags separator + group_tags_section. -->
+            <xpath
+                expr="//page[@name='group_profile']//group[@name='group_tags_section']/preceding-sibling::separator[1]"
+                position="attributes"
+            >
+                <attribute name="invisible">1</attribute>
+            </xpath>
             <xpath
                 expr="//page[@name='group_profile']//group[@name='group_tags_section']"
                 position="attributes"
@@ -34,24 +92,9 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
 
-            <!-- C12: add a Location group on the Profile tab that surfaces
-                 the GPS field for an at-a-glance map placeholder. The
-                 actual map widget on partner_latitude is provided by
-                 spp_registrant_gis; here we just expose the field. -->
-            <xpath expr="//page[@name='group_profile']" position="inside">
-                <group string="Location" name="group_location_section">
-                    <field name="partner_latitude" string="Latitude" readonly="0" />
-                    <field name="partner_longitude" string="Longitude" readonly="0" />
-                </group>
-            </xpath>
-
-            <!-- C11: move History tab to the rightmost position so it
-                 sits beside Source Tracking (which is injected near
-                 the end of the notebook by spp_source_tracking). The
-                 nested form below is Odoo's idiom for `position="move"`:
-                 the outer xpath anchors at the target sibling, and the
-                 inner xpath identifies the page being moved. We anchor
-                 on `source_tracking_group` so History lands after it. -->
+            <!-- C11: move History tab right of Source Tracking. The nested
+                 xpath is Odoo's idiom for `position="move"`: outer anchors
+                 the target sibling, inner identifies the page to move. -->
             <xpath expr="//page[@name='source_tracking_group']" position="after">
                 <xpath expr="//page[@name='group_history']" position="move" />
             </xpath>
@@ -59,11 +102,60 @@
     </record>
 
     <!-- ════════════════════════════════════════════════════════════════
+         C12: relocate the GIS / Location group provided by
+         spp_registrant_gis so it sits at the END of each Profile tab
+         (after financial section), rather than sandwiched between
+         phone numbers and finance. Adds the dep on spp_registrant_gis
+         in the manifest so it's guaranteed loaded before us.
+         ════════════════════════════════════════════════════════════════ -->
+    <record id="view_individuals_form_gis_move" model="ir.ui.view">
+        <field name="name">spp_registrant_gis.view_individuals_form_gis.move</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registrant_gis.view_individuals_form_gis" />
+        <field name="priority">300</field>
+        <field name="arch" type="xml">
+            <xpath
+                expr="//page[@name='profile']//group[@name='financial_section']"
+                position="after"
+            >
+                <xpath
+                    expr="//page[@name='profile']//group[@name='gis_section']/preceding-sibling::separator[1]"
+                    position="move"
+                />
+                <xpath
+                    expr="//page[@name='profile']//group[@name='gis_section']"
+                    position="move"
+                />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_groups_form_gis_move" model="ir.ui.view">
+        <field name="name">spp_registrant_gis.view_groups_form_gis.move</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registrant_gis.view_groups_form_gis" />
+        <field name="priority">300</field>
+        <field name="arch" type="xml">
+            <xpath
+                expr="//page[@name='group_profile']//group[@name='group_financial_section']"
+                position="after"
+            >
+                <xpath
+                    expr="//page[@name='group_profile']//group[@name='group_gis_section']/preceding-sibling::separator[1]"
+                    position="move"
+                />
+                <xpath
+                    expr="//page[@name='group_profile']//group[@name='group_gis_section']"
+                    position="move"
+                />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════
          C14: hide the Event Data smart button on both Group and
          Individual forms (added by spp_event_data via two separate view
-         inherits). The button is a button[@name='open_create_event_wizard']
-         inside div[@name='button_box']; setting invisible='1' on it is
-         enough since the view IDs are stable.
+         inherits).
          ════════════════════════════════════════════════════════════════ -->
     <record id="view_res_partner_form_hide_event_btn_group" model="ir.ui.view">
         <field name="name">spp_event_data.view_groups_event_data_form.hide_btn</field>

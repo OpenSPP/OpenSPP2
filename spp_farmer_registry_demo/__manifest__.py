@@ -29,6 +29,9 @@
         "spp_gis",
         "spp_land_record",
         "spp_irrigation",
+        # Registrant GIS — adds the Location/coordinates group on the Profile
+        # tab; our view inherits move it to the end of the tab.
+        "spp_registrant_gis",
         # FAO vocabularies — surface AGROVOC species selection in scenarios
         "spp_farmer_registry_vocabularies",
     ],
