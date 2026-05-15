@@ -54,7 +54,7 @@ class ResPartnerGRM(models.Model):
             "type": "ir.actions.act_window",
             "name": "GRM Tickets (Registrant)",
             "res_model": "spp.grm.ticket",
-            "view_mode": "tree,form,kanban",
+            "view_mode": "list,form,kanban",
             "domain": [("registrant_id", "=", self.id)],
             "context": {"default_registrant_id": self.id},
         }
@@ -66,7 +66,7 @@ class ResPartnerGRM(models.Model):
             "type": "ir.actions.act_window",
             "name": "GRM Tickets (Household)",
             "res_model": "spp.grm.ticket",
-            "view_mode": "tree,form,kanban",
+            "view_mode": "list,form,kanban",
             "domain": [("household_id", "=", self.id)],
             "context": {"default_household_id": self.id},
         }

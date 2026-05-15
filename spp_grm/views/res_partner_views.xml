@@ -22,28 +22,6 @@
         </field>
     </record>
 
-    <!-- Group Registrant form -->
-    <record id="view_groups_form_inherit_spp_grm" model="ir.ui.view">
-        <field name="name">view_groups_form_inherit_spp_grm</field>
-        <field name="model">res.partner</field>
-        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
-        <field name="arch" type="xml">
-            <xpath expr="//div[@name='button_box']" position="inside">
-                <button
-                    context="{'search_default_open': True, 'default_partner_id': id}"
-                    name="action_view_grm_tickets"
-                    type="object"
-                    class="oe_stat_button"
-                    icon="fa-life-ring"
-                >
-                    <field invisible="True" name="grm_ticket_active_count" />
-                    <field invisible="True" name="grm_ticket_count" />
-                    <field name="grm_ticket_count_string" widget="statinfo" />
-                </button>
-            </xpath>
-        </field>
-    </record>
-
     <!-- Default partner form -->
     <record id="view_partner_form" model="ir.ui.view">
         <field name="name">view_partner_form</field>
