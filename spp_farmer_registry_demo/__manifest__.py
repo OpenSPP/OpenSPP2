@@ -45,6 +45,7 @@
         "data/demo_programs.xml",
         "data/logic_packs.xml",
         "data/disable_group_types.xml",
+        "data/service_types.xml",
         "views/farmer_demo_wizard_view.xml",
         "views/group_form_overrides.xml",
     ],

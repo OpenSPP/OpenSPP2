@@ -592,35 +592,72 @@ class SPPFarmerDemoGenerator(models.TransientModel):
     # ──────────────────────────────────────────────────────────────────────
 
     def _create_service_points(self, area_map):
-        """Seed a small set of service points for the farmer demo.
+        """Seed service points covering the realistic farmer touchpoints.
 
-        Three entries are created — an agricultural cooperative office, an
-        input supply depot, and a rural bank branch — each anchored to one
-        of the demo areas when available. The records show up under
-        Registry → Service Points and link to res.partner so they can be
-        referenced from farm groups in later scenarios. Idempotent: if a
-        service point with the same name already exists we skip creation.
+        Six entries are created — coop office, input supply, cash
+        disbursement, veterinary, extension office, and an equipment-
+        rental hub — each anchored to one of the demo areas when
+        available and tagged with one or more Service Types from the
+        spp_service_points vocabulary (seeded by data/service_types.xml).
+        Idempotent: if a service point with the same name already exists
+        the existing record is kept and returned.
         """
         ServicePoint = self.env["spp.service.point"].sudo()  # nosemgrep
         Area = self.env["spp.area"].sudo()  # nosemgrep
+
+        def _types(*xmlid_suffixes):
+            ids = []
+            for suffix in xmlid_suffixes:
+                ref = self.env.ref(
+                    f"spp_farmer_registry_demo.service_type_{suffix}",
+                    raise_if_not_found=False,
+                )
+                if ref:
+                    ids.append(ref.id)
+            return [Command.set(ids)] if ids else []
+
         defs = [
             {
                 "name": "Agri Co-op Office",
                 "area_code": "PH-NUE",
                 "phone_no": "+63 44 555 0201",
                 "shop_address": "Provincial Agricultural Office, Cabanatuan",
+                "service_types": _types("crop_collection", "extension"),
             },
             {
                 "name": "Input Supply Depot",
                 "area_code": "PH-BUK",
                 "phone_no": "+63 88 555 0202",
                 "shop_address": "Highway Junction Warehouse, Malaybalay",
+                "service_types": _types("input_supply"),
             },
             {
                 "name": "Rural Bank Branch",
                 "area_code": "PH-MAG",
                 "phone_no": "+63 64 555 0203",
                 "shop_address": "Market Plaza, Cotabato City",
+                "service_types": _types("cash_disbursement"),
+            },
+            {
+                "name": "Provincial Veterinary Clinic",
+                "area_code": "PH-BTG",
+                "phone_no": "+63 43 555 0204",
+                "shop_address": "Capitol Road, Lipa City",
+                "service_types": _types("veterinary"),
+            },
+            {
+                "name": "Agricultural Extension Office",
+                "area_code": "PH-LAG",
+                "phone_no": "+63 49 555 0205",
+                "shop_address": "DA-RFO Building, San Pablo",
+                "service_types": _types("extension"),
+            },
+            {
+                "name": "Mechanization Equipment Rental Hub",
+                "area_code": "PH-NUE",
+                "phone_no": "+63 44 555 0206",
+                "shop_address": "Cabanatuan Mechanization Pool",
+                "service_types": _types("equipment_rental"),
             },
         ]
         created = []
@@ -638,6 +675,8 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             }
             if area:
                 vals["area_id"] = area.id
+            if spec.get("service_types"):
+                vals["service_type_ids"] = spec["service_types"]
             created.append(ServicePoint.create(vals))
         return created
 
