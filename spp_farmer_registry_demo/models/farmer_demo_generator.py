@@ -793,7 +793,11 @@ class SPPFarmerDemoGenerator(models.TransientModel):
         farm = Partner.create(farm_vals)
 
         # Create the farmer (individual) as head of household
-        gender_id = self._get_vocab_code("urn:openspp:vocab:gender", "female" if is_female else "male")
+        # Gender lives in ISO 5218 vocabulary, codes are numeric ('1' = Male,
+        # '2' = Female). The res.partner.gender_id Many2one is domain-locked
+        # to namespace urn:iso:std:iso:5218 — wrong namespace lookup returns
+        # False silently and the field stays empty.
+        gender_id = self._get_vocab_code("urn:iso:std:iso:5218", "2" if is_female else "1")
 
         name_parts = farmer_name.split(" ", 1)
         individual_vals = {
@@ -862,7 +866,6 @@ class SPPFarmerDemoGenerator(models.TransientModel):
         UNIQUE(partner_id, id_type_id) constraint is honoured.
         """
         RegId = self.env["spp.registry.id"].sudo()  # nosemgrep
-        VocabCode = self.env["spp.vocabulary.code"].sudo()  # nosemgrep
 
         def _code(xmlid):
             ref = self.env.ref(xmlid, raise_if_not_found=False)

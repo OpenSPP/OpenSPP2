@@ -620,16 +620,14 @@ class SeededFarmGenerator:
         end = self.rng.randint(0, 9999)
         return f"+63 9{prefix} {mid} {end:04d}"
 
-    def _create_contact_records(self, groups, individuals, member_specs, member_contact):
+    def _create_contact_records(self, groups, individuals, member_specs, member_contact):  # noqa: C901
         """Batch-create spp.phone.number rows + res.partner.bank accounts.
 
         - Every farm group gets 1 phone row + 1 bank account.
         - Every individual gets 1 phone row.
         - Only head individuals get a bank account (shared bank with their farm).
         """
-        PhoneNumber = self.env["spp.phone.number"].sudo()  # nosemgrep
         Bank = self.env["res.bank"].sudo()  # nosemgrep
-        PartnerBank = self.env["res.partner.bank"].sudo()  # nosemgrep
 
         # Resolve / create bank entities once (small fixed list).
         bank_id_by_name = {}
@@ -641,7 +639,7 @@ class SeededFarmGenerator:
 
         # ---- Phase: phone numbers ----
         phone_vals = []
-        for group, (bp, _i, _s, _g, gphone, _gb, _ga) in zip(groups, member_specs, strict=False):
+        for group, (_bp, _i, _s, _g, gphone, _gb, _ga) in zip(groups, member_specs, strict=False):
             if gphone:
                 phone_vals.append({"partner_id": group.id, "phone_no": gphone})
 
@@ -655,7 +653,7 @@ class SeededFarmGenerator:
         # ---- Phase: bank accounts ----
         bank_vals = []
         # One bank account per farm group.
-        for group, (bp, _i, _s, _g, _gphone, gbank, gacc) in zip(groups, member_specs, strict=False):
+        for group, (_bp, _i, _s, _g, _gphone, gbank, gacc) in zip(groups, member_specs, strict=False):
             if gbank and gacc:
                 bank_vals.append(
                     {
@@ -996,9 +994,14 @@ class SeededFarmGenerator:
         return species_id
 
     def _get_gender_id(self, gender):
-        """Look up gender vocabulary code ID."""
-        namespace = "urn:openspp:vocab:gender"
-        return self._get_vocab_code(namespace, gender)
+        """Look up gender vocabulary code ID.
+
+        The res.partner.gender_id Many2one is domain-locked to ISO 5218
+        (`urn:iso:std:iso:5218`), which uses numeric codes ('1'=Male,
+        '2'=Female). Map the human-readable label to the numeric code.
+        """
+        iso_code = {"male": "1", "female": "2"}.get(gender, "0")
+        return self._get_vocab_code("urn:iso:std:iso:5218", iso_code)
 
     def _get_head_type_id(self):
         """Get the 'head' membership type ID, with caching."""
