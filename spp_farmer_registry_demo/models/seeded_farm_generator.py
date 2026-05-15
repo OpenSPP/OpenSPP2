@@ -272,21 +272,34 @@ SPECIES_MAP = {
     "tilapia": ("urn:fao:asfis:2024", "TIL"),
 }
 
-# Philippine agricultural bounds (inland)
-_PH_ZONES = {
-    "rural": {
-        "lat_min": 7.0,
-        "lat_max": 16.5,
-        "lng_min": 120.3,
-        "lng_max": 125.5,
-    },
-    "peri_urban": {
-        "lat_min": 13.5,
-        "lat_max": 15.5,
-        "lng_min": 120.5,
-        "lng_max": 121.5,
-    },
+# Farmland anchors for the 8 demo areas — visually-verified spots in
+# open agricultural land (rice paddies, pasture, fishponds, pineapple
+# plantations) matched to each story persona's farm. Seeded volume farms
+# are anchored to these points + jitter so every pin lands in real
+# farmland instead of a city centroid's residential belt. Coordinates
+# are (lng, lat) in GeoJSON order.
+_AREA_CENTERS = {
+    "PH-NUE": (121.054903, 15.672087),  # Llanera, Nueva Ecija - rice paddies
+    "PH-LAG": (121.455690, 14.284290),  # E. Laguna (Magdalena/Pagsanjan) - mixed crops
+    "PH-BTG": (121.219381, 13.893127),  # Padre Garcia, Batangas - cattle pasture
+    "PH-MAG": (124.280635, 7.241492),  # Sultan Kudarat / DOS - Pulangi plain cropland
+    "PH-BEN": (120.688108, 16.590347),  # Atok, Benguet - vegetable terraces
+    "PH-PAN": (120.152127, 16.024353),  # Labrador / Sual - fishpond grid
+    "PH-LAS": (124.144513, 7.874498),  # Balindong / Bacolod-Kalawi - SW Lake Lanao
+    "PH-BUK": (125.174848, 8.115242),  # Malaybalay outskirts - plateau farms
 }
+
+# Which area codes a given blueprint zone can land in. peri_urban is
+# biased to lowland Luzon (closer to Manila); rural can go anywhere.
+_AREAS_BY_ZONE = {
+    "rural": ["PH-NUE", "PH-LAG", "PH-BTG", "PH-MAG", "PH-BEN", "PH-PAN", "PH-LAS", "PH-BUK"],
+    "peri_urban": ["PH-NUE", "PH-LAG", "PH-BTG", "PH-PAN"],
+}
+
+# Max GPS jitter in degrees (~0.10° ≈ ~10-11 km) — wide enough to spread
+# volume farms across surrounding farmland, tight enough that pins stay
+# in the same kind of terrain as the verified anchor point.
+_GPS_JITTER = 0.10
 
 
 # OP#915 round-3: realistic bank names for seeded volume farms. Rotates
@@ -395,12 +408,19 @@ class SeededFarmGenerator:
 
         member_specs = []  # (blueprint, instance_index)
 
+        # Pre-resolve demo area records by code so we can pick an area AND
+        # anchor GPS to that area's centroid in the same loop. Doing the
+        # area assignment inline (instead of in a separate pass after
+        # create) guarantees the pin always sits within the assigned area.
+        demo_areas = self.env["spp.area"].search([("code", "like", "PH-%")])
+        area_id_by_code = {a.code: a.id for a in demo_areas}
+
         for bp in blueprints:
             for i in range(bp["count"]):
                 farm_name = self._generate_farm_name()
                 size = round(self.rng.uniform(*bp["size_range"]), 1)
                 experience = self.rng.randint(*bp["experience_range"])
-                gps = self._generate_gps_for_zone(bp["zone"])
+                area_id, gps = self._pick_area_and_gps(bp["zone"], area_id_by_code)
 
                 # Compute land breakdown from size
                 idle_pct = bp.get("idle_pct", 0.0)
@@ -459,6 +479,8 @@ class SeededFarmGenerator:
                 }
                 if gps:
                     gvals["coordinates"] = json.dumps({"type": "Point", "coordinates": [gps[0], gps[1]]})
+                if area_id:
+                    gvals["area_id"] = area_id
 
                 # OP#915 round-3: realistic phone + bank for every farm group.
                 # Phone goes onto the bare partner.phone char AND will be
@@ -472,15 +494,10 @@ class SeededFarmGenerator:
                 member_specs.append((bp, i, size, gps, group_phone, group_bank_name, group_acc_no))
 
         # Phase 2: Batch-create farm groups (farm details auto-created via _inherits)
+        # Area is already set in vals (Phase 1) so the GPS pin sits inside
+        # the assigned area — no separate area-assignment pass needed.
         _logger.info("Phase 2/5: Creating %d farm groups in batches...", len(group_vals_list))
         groups = self._batch_create("res.partner", group_vals_list)
-
-        # Assign areas
-        demo_areas = self.env["spp.area"].search([("code", "like", "PH-%")], order="id")
-        if demo_areas:
-            for group in groups:
-                area = demo_areas[self.rng.randint(0, len(demo_areas) - 1)]
-                group.write({"area_id": area.id})
 
         # Phase 3: Prepare individual (farmer) member values
         _logger.info("Phase 3/5: Preparing individual members...")
@@ -832,16 +849,21 @@ class SeededFarmGenerator:
     # Internal: GPS generation
     # =========================================================================
 
-    def _generate_gps_for_zone(self, zone):
-        """Generate GPS coordinates based on zone type.
+    def _pick_area_and_gps(self, zone, area_id_by_code):
+        """Pick a demo area for this farm and generate GPS within it.
 
         Returns:
-            tuple(lng, lat) or None
+            tuple(area_id or None, (lng, lat) or None)
         """
-        bounds = _PH_ZONES.get(zone, _PH_ZONES["rural"])
-        lat = round(self.rng.uniform(bounds["lat_min"], bounds["lat_max"]), 6)
-        lng = round(self.rng.uniform(bounds["lng_min"], bounds["lng_max"]), 6)
-        return (lng, lat)
+        candidates = _AREAS_BY_ZONE.get(zone, _AREAS_BY_ZONE["rural"])
+        eligible = [c for c in candidates if c in area_id_by_code]
+        if not eligible:
+            return None, None
+        code = eligible[self.rng.randint(0, len(eligible) - 1)]
+        center_lng, center_lat = _AREA_CENTERS[code]
+        lng = round(center_lng + self.rng.uniform(-_GPS_JITTER, _GPS_JITTER), 6)
+        lat = round(center_lat + self.rng.uniform(-_GPS_JITTER, _GPS_JITTER), 6)
+        return area_id_by_code[code], (lng, lat)
 
     # =========================================================================
     # Internal: Activities

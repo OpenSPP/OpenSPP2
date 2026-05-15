@@ -122,9 +122,9 @@ STORY_FARMS = {
         "experience": 10,
         "age": 35,
         "is_female": True,
-        # ~4 km NW of Cabanatuan into rice paddies (was 120.9690, 15.4880)
-        "longitude": 120.9320,
-        "latitude": 15.5260,
+        # Llanera, Nueva Ecija — open rice paddies, verified on satellite
+        "longitude": 121.054903,
+        "latitude": 15.672087,
         "land_use": "cultivation",
         "area_code": "PH-NUE",
         "phone": "+63 917 555 0101",
@@ -141,9 +141,9 @@ STORY_FARMS = {
         "experience": 15,
         "age": 42,
         "is_female": False,
-        # ~5 km E of San Pablo into inland mixed farmland (was 121.3275, 14.0708)
-        "longitude": 121.3800,
-        "latitude": 14.0490,
+        # East Laguna (Magdalena/Pagsanjan area) — mixed rice + coconut, verified on satellite
+        "longitude": 121.455690,
+        "latitude": 14.284290,
         "land_use": "mixed",
         "area_code": "PH-LAG",
         "phone": "+63 918 555 0102",
@@ -159,9 +159,9 @@ STORY_FARMS = {
         "experience": 5,
         "age": 28,
         "is_female": True,
-        # ~4 km S of Lipa into pasture land (was 121.1645, 13.9421)
-        "longitude": 121.2080,
-        "latitude": 13.9050,
+        # Padre Garcia, Batangas — cattle/pasture country, verified on satellite
+        "longitude": 121.219381,
+        "latitude": 13.893127,
         "land_use": "pasture",
         "area_code": "PH-BTG",
         "phone": "+63 919 555 0103",
@@ -178,9 +178,9 @@ STORY_FARMS = {
         "experience": 20,
         "age": 50,
         "is_female": False,
-        # ~5 km SW of Cotabato City into farmland (was 124.2498, 7.2064)
-        "longitude": 124.2050,
-        "latitude": 7.1750,
+        # Sultan Kudarat / DOS area, Maguindanao — Pulangi plain cropland, verified on satellite
+        "longitude": 124.280635,
+        "latitude": 7.241492,
         "land_use": "cultivation",
         "area_code": "PH-MAG",
         "phone": "+63 920 555 0104",
@@ -196,9 +196,9 @@ STORY_FARMS = {
         "experience": 5,
         "age": 30,
         "is_female": True,
-        # ~4 km NE of La Trinidad into highland terraces (was 120.5893, 16.4573)
-        "longitude": 120.6260,
-        "latitude": 16.4920,
+        # Atok, Benguet — highland vegetable terraces along Halsema, verified on satellite
+        "longitude": 120.688108,
+        "latitude": 16.590347,
         "land_use": "cultivation",
         "area_code": "PH-BEN",
         "phone": "+63 921 555 0105",
@@ -214,9 +214,9 @@ STORY_FARMS = {
         "experience": 7,
         "age": 32,
         "is_female": False,
-        # ~5 km W of Dagupan into inland fishpond cluster (was 120.3408, 16.0433)
-        "longitude": 120.2960,
-        "latitude": 16.0670,
+        # Labrador / Sual, Pangasinan — inland fishpond grid, verified on satellite
+        "longitude": 120.152127,
+        "latitude": 16.024353,
         "land_use": "aquaculture",
         "area_code": "PH-PAN",
         "phone": "+63 922 555 0106",
@@ -232,9 +232,9 @@ STORY_FARMS = {
         "experience": 12,
         "age": 38,
         "is_female": True,
-        # ~4 km NW of Marawi into upland farmland (was 124.2830, 8.0003)
-        "longitude": 124.2420,
-        "latitude": 8.0350,
+        # Balindong / Bacolod-Kalawi, Lanao del Sur — SW Lake Lanao terraced farms, verified on satellite
+        "longitude": 124.144513,
+        "latitude": 7.874498,
         "land_use": "cultivation",
         "area_code": "PH-LAS",
         "phone": "+63 923 555 0107",
@@ -251,9 +251,9 @@ STORY_FARMS = {
         "experience": 25,
         "age": 55,
         "is_female": False,
-        # ~5 km E of Malaybalay into highland plateau farms (was 125.1286, 8.1585)
-        "longitude": 125.1750,
-        "latitude": 8.1320,
+        # Malaybalay outskirts (S/E), Bukidnon — highland plateau corn/pasture, verified on satellite
+        "longitude": 125.174848,
+        "latitude": 8.115242,
         "land_use": "mixed",
         "area_code": "PH-BUK",
         "phone": "+63 924 555 0108",
