@@ -776,8 +776,6 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             "farm_size_idle": farm_size_idle,
             "experience_years": experience_years,
         }
-        if phone:
-            farm_vals["phone"] = phone
         farm = Partner.create(farm_vals)
 
         # Create the farmer (individual) as head of household
@@ -792,8 +790,6 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             "is_group": False,
             "gender_id": gender_id,
         }
-        if phone:
-            individual_vals["phone"] = phone
         individual = Partner.create(individual_vals)
 
         head_type = self._get_vocab_code("urn:openspp:vocab:group-membership-type", "head")
@@ -805,11 +801,34 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             membership_vals["membership_type_ids"] = [Command.link(head_type)]
         self.env["spp.group.membership"].sudo().create(membership_vals)  # nosemgrep
 
+        # OP#915 round-3: phone numbers must live on the spp.phone.number
+        # one2many (`phone_number_ids`), not on the bare res.partner.phone
+        # char. The onchange in spp_registry.models.registrant syncs the
+        # first non-disabled spp.phone.number into partner.phone for
+        # legacy widgets.
+        if phone:
+            self._attach_phone_number(individual, phone)
+            self._attach_phone_number(farm, phone)
+
         if bank_name:
             self._attach_bank_account(individual, bank_name, name)
             self._attach_bank_account(farm, bank_name, name)
 
         return farm
+
+    def _attach_phone_number(self, partner, phone_no):
+        """Create an spp.phone.number record on `partner`.
+
+        Uses the dedicated model rather than the bare res.partner.phone char
+        so the registrant's Phone Numbers tab is populated and the
+        date_collected / disabled lifecycle works as designed.
+        """
+        self.env["spp.phone.number"].sudo().create(  # nosemgrep
+            {
+                "partner_id": partner.id,
+                "phone_no": phone_no,
+            }
+        )
 
     def _attach_bank_account(self, partner, bank_name, salt):
         """Create a res.partner.bank record on `partner` using `bank_name`.
