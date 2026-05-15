@@ -776,6 +776,8 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             "farm_size_idle": farm_size_idle,
             "experience_years": experience_years,
         }
+        if phone:
+            farm_vals["phone"] = phone
         farm = Partner.create(farm_vals)
 
         # Create the farmer (individual) as head of household
@@ -790,6 +792,8 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             "is_group": False,
             "gender_id": gender_id,
         }
+        if phone:
+            individual_vals["phone"] = phone
         individual = Partner.create(individual_vals)
 
         head_type = self._get_vocab_code("urn:openspp:vocab:group-membership-type", "head")
@@ -801,11 +805,11 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             membership_vals["membership_type_ids"] = [Command.link(head_type)]
         self.env["spp.group.membership"].sudo().create(membership_vals)  # nosemgrep
 
-        # OP#915 round-3: phone numbers must live on the spp.phone.number
-        # one2many (`phone_number_ids`), not on the bare res.partner.phone
-        # char. The onchange in spp_registry.models.registrant syncs the
-        # first non-disabled spp.phone.number into partner.phone for
-        # legacy widgets.
+        # OP#915 round-3: keep phone two-way — partner.phone is written in
+        # vals above so legacy header widgets stay populated, and the
+        # spp.phone.number row is created here so the registrant form's
+        # Phone Numbers tab is populated too. The onchange that would
+        # otherwise sync them only fires in the UI, not from create().
         if phone:
             self._attach_phone_number(individual, phone)
             self._attach_phone_number(farm, phone)
@@ -819,9 +823,9 @@ class SPPFarmerDemoGenerator(models.TransientModel):
     def _attach_phone_number(self, partner, phone_no):
         """Create an spp.phone.number record on `partner`.
 
-        Uses the dedicated model rather than the bare res.partner.phone char
-        so the registrant's Phone Numbers tab is populated and the
-        date_collected / disabled lifecycle works as designed.
+        Caller is expected to ALSO set partner.phone (the bare char) so
+        legacy header widgets see the value — the onchange that would
+        normally sync from phone_number_ids only fires in the form UI.
         """
         self.env["spp.phone.number"].sudo().create(  # nosemgrep
             {

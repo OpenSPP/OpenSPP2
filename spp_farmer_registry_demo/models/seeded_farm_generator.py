@@ -289,6 +289,18 @@ _PH_ZONES = {
 }
 
 
+# OP#915 round-3: realistic bank names for seeded volume farms. Rotates
+# deterministically via rng so the same seed produces the same assignment
+# every run. Banks covering PH agricultural lending in practice.
+DEMO_BANKS = [
+    "Land Bank of the Philippines",
+    "Development Bank of the Philippines",
+    "BDO Unibank",
+    "Bank of the Philippine Islands",
+    "Metropolitan Bank and Trust Company",
+]
+
+
 class SeededFarmGenerator:
     """Deterministic farm/member generator using seeded RNG.
 
@@ -421,8 +433,16 @@ class SeededFarmGenerator:
                 if gps:
                     gvals["coordinates"] = json.dumps({"type": "Point", "coordinates": [gps[0], gps[1]]})
 
+                # OP#915 round-3: realistic phone + bank for every farm group.
+                # Phone goes onto the bare partner.phone char AND will be
+                # mirrored to a spp.phone.number row after creation.
+                group_phone = self._generate_phone()
+                group_bank_name = DEMO_BANKS[self.rng.randint(0, len(DEMO_BANKS) - 1)]
+                group_acc_no = f"{self.rng.randint(0, 10**12 - 1):012d}"
+                gvals["phone"] = group_phone
+
                 group_vals_list.append(gvals)
-                member_specs.append((bp, i, size, gps))
+                member_specs.append((bp, i, size, gps, group_phone, group_bank_name, group_acc_no))
 
         # Phase 2: Batch-create farm groups (farm details auto-created via _inherits)
         _logger.info("Phase 2/5: Creating %d farm groups in batches...", len(group_vals_list))
@@ -439,8 +459,13 @@ class SeededFarmGenerator:
         _logger.info("Phase 3/5: Preparing individual members...")
         all_individual_vals = []
         individual_to_group = []
+        # OP#915 round-3: parallel list of per-member contact info
+        # (phone + head bank account number). Always draw both even for
+        # non-head members so the rng sequence is deterministic regardless
+        # of role distribution.
+        member_contact = []
 
-        for group_idx, (bp, _instance_idx, _size, _gps) in enumerate(member_specs):
+        for group_idx, (bp, _instance_idx, _size, _gps, _gphone, _gbank, _gacc) in enumerate(member_specs):
             group_record = groups[group_idx]
             for member_spec in bp["members"]:
                 gender = self._resolve_gender(member_spec.get("gender", "any"))
@@ -450,6 +475,12 @@ class SeededFarmGenerator:
 
                 gender_id = self._get_gender_id(gender)
 
+                # New rng draws AFTER existing ones — keeps prior sequence
+                # untouched. acc_no only used when role == head; drawn
+                # unconditionally to keep rng state consistent.
+                member_phone = self._generate_phone()
+                member_acc_no = f"{self.rng.randint(0, 10**12 - 1):012d}"
+
                 ival = {
                     "name": f"{given_name} {family_name}",
                     "given_name": given_name,
@@ -457,10 +488,19 @@ class SeededFarmGenerator:
                     "is_registrant": True,
                     "is_group": False,
                     "gender_id": gender_id,
+                    "phone": member_phone,
                 }
 
                 all_individual_vals.append(ival)
                 individual_to_group.append((group_record, member_spec))
+                member_contact.append(
+                    {
+                        "phone": member_phone,
+                        "acc_no": member_acc_no,
+                        "is_head": member_spec["role"] == "head",
+                        "group_idx": group_idx,
+                    }
+                )
 
         # Phase 4: Batch-create individuals + memberships
         _logger.info("Phase 4/5: Creating %d individuals in batches...", len(all_individual_vals))
@@ -481,10 +521,16 @@ class SeededFarmGenerator:
 
         self._batch_create("spp.group.membership", membership_vals)
 
+        # Phase 4.5: Batch-create spp.phone.number rows + res.partner.bank
+        # accounts. partner.phone was already set in vals (Phase 1 + 3) so
+        # legacy header widgets show the number; this phase fills the
+        # registrant's Phone Numbers tab and Bank Accounts smart button.
+        self._create_contact_records(groups, individuals, member_specs, member_contact)
+
         # Build result list
         results = []
         ind_offset = 0
-        for group_idx, (bp, _instance_idx, size, gps) in enumerate(member_specs):
+        for group_idx, (bp, _instance_idx, size, gps, _gphone, _gbank, _gacc) in enumerate(member_specs):
             group_record = groups[group_idx]
             member_count = len(bp["members"])
             farm_members = list(individuals[ind_offset : ind_offset + member_count])
@@ -554,6 +600,79 @@ class SeededFarmGenerator:
         # Backdate enrollment dates and add state variety via SQL
         self.env.flush_all()
         self._apply_membership_realism(memberships, enrollment_dates)
+
+    # =========================================================================
+    # Internal: Contact info (phone + bank) creation
+    # =========================================================================
+
+    def _generate_phone(self):
+        """Deterministic +63 9XX XXX XXXX phone number using rng (3 draws)."""
+        prefix = self.rng.randint(10, 99)
+        mid = self.rng.randint(100, 999)
+        end = self.rng.randint(0, 9999)
+        return f"+63 9{prefix} {mid} {end:04d}"
+
+    def _create_contact_records(self, groups, individuals, member_specs, member_contact):
+        """Batch-create spp.phone.number rows + res.partner.bank accounts.
+
+        - Every farm group gets 1 phone row + 1 bank account.
+        - Every individual gets 1 phone row.
+        - Only head individuals get a bank account (shared bank with their farm).
+        """
+        PhoneNumber = self.env["spp.phone.number"].sudo()  # nosemgrep
+        Bank = self.env["res.bank"].sudo()  # nosemgrep
+        PartnerBank = self.env["res.partner.bank"].sudo()  # nosemgrep
+
+        # Resolve / create bank entities once (small fixed list).
+        bank_id_by_name = {}
+        for bank_name in DEMO_BANKS:
+            bank = Bank.search([("name", "=", bank_name)], limit=1)
+            if not bank:
+                bank = Bank.create({"name": bank_name})
+            bank_id_by_name[bank_name] = bank.id
+
+        # ---- Phase: phone numbers ----
+        phone_vals = []
+        for group, (bp, _i, _s, _g, gphone, _gb, _ga) in zip(groups, member_specs, strict=False):
+            if gphone:
+                phone_vals.append({"partner_id": group.id, "phone_no": gphone})
+
+        for individual, contact in zip(individuals, member_contact, strict=False):
+            if contact["phone"]:
+                phone_vals.append({"partner_id": individual.id, "phone_no": contact["phone"]})
+
+        if phone_vals:
+            self._batch_create("spp.phone.number", phone_vals)
+
+        # ---- Phase: bank accounts ----
+        bank_vals = []
+        # One bank account per farm group.
+        for group, (bp, _i, _s, _g, _gphone, gbank, gacc) in zip(groups, member_specs, strict=False):
+            if gbank and gacc:
+                bank_vals.append(
+                    {
+                        "partner_id": group.id,
+                        "acc_number": gacc,
+                        "bank_id": bank_id_by_name[gbank],
+                    }
+                )
+
+        # One bank account per head individual, sharing the farm's bank.
+        for individual, contact in zip(individuals, member_contact, strict=False):
+            if not contact["is_head"]:
+                continue
+            gbank = member_specs[contact["group_idx"]][5]
+            if gbank and contact.get("acc_no"):
+                bank_vals.append(
+                    {
+                        "partner_id": individual.id,
+                        "acc_number": contact["acc_no"],
+                        "bank_id": bank_id_by_name[gbank],
+                    }
+                )
+
+        if bank_vals:
+            self._batch_create("res.partner.bank", bank_vals)
 
     # =========================================================================
     # Internal: Farm name generation
