@@ -71,6 +71,7 @@
 # ============================================================================
 
 import logging
+
 from odoo import fields
 
 _logger = logging.getLogger("setup_spdci_demo")
@@ -87,29 +88,28 @@ DEMO_PROGRAM_ID = 1
 # create an approved disability assessment on the DR side — this is
 # what makes res.partner.has_disability compute to True.
 DEMO_PERSONAS = [
-    ("IND-NSR-0001", "Alex",   "Rivera",  True),   # poor + disabled  -> ENROLLED
-    ("IND-NSR-0002", "Priya",  "Rivera",  False),  # poor only
-    ("IND-NSR-0003", "Noah",   "Rivera",  False),  # neither
-    ("IND-NSR-0004", "Morgan", "Cole",    True),   # poor + disabled  -> ENROLLED
-    ("IND-NSR-0005", "Leah",   "Cole",    False),  # poor only
-    ("IND-NSR-0006", "Nia",    "Cole",    True),   # disabled only (no income)
-    ("IND-NSR-0007", "Kim",    "Lee",     True),   # disabled only (medium income)
-    ("IND-NSR-0008", "Jun",    "Lee",     False),  # neither (medium income, no disability)
-    ("IND-NSR-0009", "Rin",    "Lee",     True),   # disabled only (no income)
-    ("IND-NSR-0010", "Taylor", "Brooks",  True),   # poor + disabled  -> ENROLLED
-    ("IND-NSR-0011", "Iris",   "Brooks",  False),  # neither
-    ("IND-NSR-0012", "Reyn",   "Brooks",  False),  # neither
-    ("IND-NSR-0013", "Sam",    "Hayes",   True),   # poor + disabled  -> ENROLLED
-    ("IND-NSR-0014", "Dev",    "Hayes",   False),  # poor only
-    ("IND-NSR-0015", "Asha",   "Hayes",   True),   # disabled only (no income)
+    ("IND-NSR-0001", "Alex", "Rivera", True),  # poor + disabled  -> ENROLLED
+    ("IND-NSR-0002", "Priya", "Rivera", False),  # poor only
+    ("IND-NSR-0003", "Noah", "Rivera", False),  # neither
+    ("IND-NSR-0004", "Morgan", "Cole", True),  # poor + disabled  -> ENROLLED
+    ("IND-NSR-0005", "Leah", "Cole", False),  # poor only
+    ("IND-NSR-0006", "Nia", "Cole", True),  # disabled only (no income)
+    ("IND-NSR-0007", "Kim", "Lee", True),  # disabled only (medium income)
+    ("IND-NSR-0008", "Jun", "Lee", False),  # neither (medium income, no disability)
+    ("IND-NSR-0009", "Rin", "Lee", True),  # disabled only (no income)
+    ("IND-NSR-0010", "Taylor", "Brooks", True),  # poor + disabled  -> ENROLLED
+    ("IND-NSR-0011", "Iris", "Brooks", False),  # neither
+    ("IND-NSR-0012", "Reyn", "Brooks", False),  # neither
+    ("IND-NSR-0013", "Sam", "Hayes", True),  # poor + disabled  -> ENROLLED
+    ("IND-NSR-0014", "Dev", "Hayes", False),  # poor only
+    ("IND-NSR-0015", "Asha", "Hayes", True),  # disabled only (no income)
 ]
 
 # Detect side: DR-side has spp.disability.assessment installed
 on_dr_side = "spp.disability.assessment" in env
 side_label = "DR" if on_dr_side else "SP"
 _logger.warning(
-    "=== DEMO SEED: setting up %d federated-demo partners on the %s side. "
-    "DO NOT use this in production. ===",
+    "=== DEMO SEED: setting up %d federated-demo partners on the %s side. DO NOT use this in production. ===",
     len(DEMO_PERSONAS),
     side_label,
 )
@@ -122,7 +122,8 @@ if not vocab_id_type:
 
 Code = env["spp.vocabulary.code"]
 uin_code = Code.with_context(active_test=False).search(
-    [("vocabulary_id", "=", vocab_id_type.id), ("code", "=", "UIN")], limit=1,
+    [("vocabulary_id", "=", vocab_id_type.id), ("code", "=", "UIN")],
+    limit=1,
 )
 if not uin_code:
     uin_code = Code.get_or_create_local(
@@ -161,11 +162,13 @@ for uin, given, surname, has_dr_assessment in DEMO_PERSONAS:
             print(f"  ↻  {uin} partner.id={partner.id}  already named {partner.name!r}")
     else:
         partner = Partner.create(persona_values)
-        RegId.create({
-            "partner_id": partner.id,
-            "id_type_id": uin_code.id,
-            "value": uin,
-        })
+        RegId.create(
+            {
+                "partner_id": partner.id,
+                "id_type_id": uin_code.id,
+                "value": uin,
+            }
+        )
         print(f"  ✓  Created {given} {surname} (UIN={uin}, partner.id={partner.id})")
     demo_partners |= partner
 
@@ -174,26 +177,31 @@ for uin, given, surname, has_dr_assessment in DEMO_PERSONAS:
     if on_dr_side and has_dr_assessment:
         Assessment = env["spp.disability.assessment"]
         existing_asmt = Assessment.search(
-            [("registrant_id", "=", partner.id), ("approval_state", "=", "approved")], limit=1,
+            [("registrant_id", "=", partner.id), ("approval_state", "=", "approved")],
+            limit=1,
         )
         if existing_asmt:
             print(f"     - approved assessment already exists (id={existing_asmt.id})")
         else:
-            asmt = Assessment.create({
-                "registrant_id": partner.id,
-                "assessment_date": fields.Date.today(),
-                # Force has_disability=True by setting one WG domain to severe.
-                # _compute_disability_indicator sets has_disability when any
-                # WG_* field is 'a_lot' or 'cannot'.
-                "wg_walking": "a_lot",
-                "review_category": "mip",  # 3-year review cadence
-            })
+            asmt = Assessment.create(
+                {
+                    "registrant_id": partner.id,
+                    "assessment_date": fields.Date.today(),
+                    # Force has_disability=True by setting one WG domain to severe.
+                    # _compute_disability_indicator sets has_disability when any
+                    # WG_* field is 'a_lot' or 'cannot'.
+                    "wg_walking": "a_lot",
+                    "review_category": "mip",  # 3-year review cadence
+                }
+            )
             # Bypass the approval workflow — direct write for demo seed only.
             asmt.write({"approval_state": "approved"})
             # Touch the related partner so has_disability propagates immediately.
             partner.invalidate_recordset(["current_disability_assessment_id", "has_disability"])
-            print(f"     ✓ Created approved assessment (id={asmt.id}, "
-                  f"partner.has_disability now {partner.has_disability})")
+            print(
+                f"     ✓ Created approved assessment (id={asmt.id}, "
+                f"partner.has_disability now {partner.has_disability})"
+            )
 
 # SP-side only: add every demo partner as a draft membership of the
 # program with record ID = 1, so Edwin can demo Enroll Eligible directly
@@ -212,20 +220,25 @@ if not on_dr_side:
         already = 0
         for partner in demo_partners:
             existing_mem = Membership.search(
-                [("partner_id", "=", partner.id), ("program_id", "=", program.id)], limit=1,
+                [("partner_id", "=", partner.id), ("program_id", "=", program.id)],
+                limit=1,
             )
             if existing_mem:
                 already += 1
                 continue
-            Membership.create({
-                "partner_id": partner.id,
-                "program_id": program.id,
-                "state": "draft",
-            })
+            Membership.create(
+                {
+                    "partner_id": partner.id,
+                    "program_id": program.id,
+                    "state": "draft",
+                }
+            )
             added += 1
-        print(f"\n  ✓  Program '{program.name}' (id={program.id}): "
-              f"{added} new memberships added, {already} already members "
-              f"({len(demo_partners)} demo partners total).")
+        print(
+            f"\n  ✓  Program '{program.name}' (id={program.id}): "
+            f"{added} new memberships added, {already} already members "
+            f"({len(demo_partners)} demo partners total)."
+        )
 
 env.cr.commit()
 
@@ -241,8 +254,11 @@ for uin, given, surname, has_dr_assessment in DEMO_PERSONAS:
     print(f"  {uin}  partner.id={p.id:<5}  {p.name:<22}  {hd}")
 
 print("\n=== Done. ===")
-print("Next: run this same script against the OTHER side." if on_dr_side else
-      "Next: run this same script against the DR (openspp_dr database).")
+print(
+    "Next: run this same script against the OTHER side."
+    if on_dr_side
+    else "Next: run this same script against the DR (openspp_dr database)."
+)
 print("\nCLEANUP after the demo:")
 print("  Delete the 4 partners via UI, or:")
 print("  >>> uin_code = env.ref('spp_vocabulary.vocab_id_type')")

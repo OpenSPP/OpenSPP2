@@ -133,9 +133,7 @@ class TestOpenSPPDRService(TransactionCase):
 
     def test_uses_uin_as_identifier_type_first(self):
         mock_client = MagicMock()
-        mock_client.search_by_id.return_value = make_dr_response(
-            [{"has_disability": False}]
-        )
+        mock_client.search_by_id.return_value = make_dr_response([{"has_disability": False}])
         service = self._make_service(self.env, self.data_source, mock_client)
 
         service.get_partner_record(self.partner_known)

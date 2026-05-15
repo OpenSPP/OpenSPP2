@@ -77,9 +77,7 @@ class TestDispatcherRoutesOpenSPPDR(TransactionCase):
     def test_openspp_dr_handler_extracts_has_disability(self, mock_client_class):
         """Partner with a matching DR record returns has_disability=True."""
         mock_client = MagicMock()
-        mock_client.search_by_id.side_effect = make_dr_response_for_uin(
-            {"UIN-DR-1": [{"has_disability": True}]}
-        )
+        mock_client.search_by_id.side_effect = make_dr_response_for_uin({"UIN-DR-1": [{"has_disability": True}]})
         mock_client_class.return_value = mock_client
 
         result = self.env["spp.cel.dci.dispatcher"].fetch_values_for_variable(
@@ -116,13 +114,9 @@ class TestDispatcherRoutesOpenSPPDR(TransactionCase):
 
         # Patch upstream DCIClient used by DRService so we can verify it
         # was called (and our adapter was not).
-        with patch(
-            "odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient"
-        ) as mock_upstream_class:
+        with patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient") as mock_upstream_class:
             mock_upstream_client = MagicMock()
-            mock_upstream_client.search_by_id.return_value = {
-                "message": {"search_response": []}
-            }
+            mock_upstream_client.search_by_id.return_value = {"message": {"search_response": []}}
             mock_upstream_class.return_value = mock_upstream_client
 
             self.env["spp.cel.dci.dispatcher"].fetch_values_for_variable(

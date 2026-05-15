@@ -19,8 +19,9 @@ Why this exists rather than reusing upstream ``DRService``:
 
 import logging
 
-from odoo.addons.spp_dci_client.services import DCIClient
 from odoo.exceptions import UserError, ValidationError
+
+from odoo.addons.spp_dci_client.services import DCIClient
 
 _logger = logging.getLogger(__name__)
 
@@ -63,7 +64,7 @@ class OpenSPPDRService:
                 them as audit ``result=error`` rows.
         """
         if not partner:
-            raise ValidationError("Partner is required")
+            raise ValidationError(self.env._("Partner is required"))
 
         identifier = self._get_partner_identifier(partner)
         if not identifier:
@@ -91,7 +92,7 @@ class OpenSPPDRService:
             )
         except Exception as e:
             _logger.error("OpenSPP-DR fetch failed: %s", e, exc_info=True)
-            raise UserError(f"Failed to query OpenSPP-DR: {e}") from e
+            raise UserError(self.env._("Failed to query OpenSPP-DR: %s", e)) from e
 
         return self._extract_first_record(response)
 

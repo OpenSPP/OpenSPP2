@@ -39,9 +39,7 @@ RegId = env["spp.registry.id"]
 reg_ids = RegId.search([("value", "in", DEMO_UINS)])
 partner_ids = sorted(set(reg_ids.mapped("partner_id.id")))
 if not partner_ids:
-    raise RuntimeError(
-        "No demo partners found. Run scripts/demo/setup_spdci_demo.py first."
-    )
+    raise RuntimeError("No demo partners found. Run scripts/demo/setup_spdci_demo.py first.")
 
 print(f"  Demo partners: {len(partner_ids)} (ids={partner_ids})")
 
@@ -51,17 +49,14 @@ program = env["spp.program"].browse(DEMO_PROGRAM_ID).exists()
 if not program:
     raise RuntimeError(f"spp.program id={DEMO_PROGRAM_ID} not found")
 
-mems = Membership.search(
-    [("program_id", "=", program.id), ("partner_id", "in", partner_ids)]
-)
+mems = Membership.search([("program_id", "=", program.id), ("partner_id", "in", partner_ids)])
 before_states = {m.id: m.state for m in mems}
 mems.write({"state": "draft", "exit_date": False})
 
 print(f"\n  Program: {program.name!r} (id={program.id})")
 print(f"  Memberships reset: {len(mems)}")
 for m in mems.sorted("partner_id"):
-    print(f"    partner.id={m.partner_id.id:<4}  {m.partner_id.name:<32}  "
-          f"{before_states[m.id]!r} -> 'draft'")
+    print(f"    partner.id={m.partner_id.id:<4}  {m.partner_id.name:<32}  {before_states[m.id]!r} -> 'draft'")
 
 # ---- 2. Wipe the DCI value cache for the demo partners ---------------------
 if WIPE_DCI_CACHE:
@@ -70,8 +65,7 @@ if WIPE_DCI_CACHE:
         [
             ("subject_model", "=", "res.partner"),
             ("subject_id", "in", partner_ids),
-            ("variable_name", "in", ["has_disability", "is_poor",
-                                     "has_dependent_under_school_age"]),
+            ("variable_name", "in", ["has_disability", "is_poor", "has_dependent_under_school_age"]),
         ]
     )
     n_cache = len(cache_rows)
@@ -84,6 +78,6 @@ else:
 env.cr.commit()
 
 print("\n=== Done. Click Enroll Eligible on the program to re-evaluate. ===")
-print("Expected outcome with rule `has_disability == true && is_poor == \"low\"`:")
+print('Expected outcome with rule `has_disability == true && is_poor == "low"`:')
 print("  4 ENROLLED  : Alex Rivera (0001), Morgan Cole (0004), Taylor Brooks (0010), Sam Hayes (0013)")
 print("  11 not eligible")

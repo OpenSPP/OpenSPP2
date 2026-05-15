@@ -1,8 +1,7 @@
 """DCI Disability Registry search service.
 
 Looks up local res.partner records by the incoming ``search_text`` and
-returns disability data (``has_disability``, ``disability_certified``,
-``disability_percentage``) in a DCI SearchResponse envelope.
+returns disability data in a DCI SearchResponse envelope.
 
 The service is intentionally narrow — it owns:
 
@@ -10,10 +9,10 @@ The service is intentionally narrow — it owns:
     types (``idtype-value``, ``expression``).
   - Partner lookup: searches ``spp.registry.id.value`` against the
     extracted search_text. The first matching partner wins.
-  - Disability extraction: reads ``is_person_with_disability``,
-    ``disability_certified``, and ``disability_percentage`` from the
-    partner and returns them under the wire-format key
-    ``has_disability`` (plus the others verbatim).
+  - Disability extraction: reads the partner's ``has_disability``
+    Boolean (computed by ``spp_disability_registry`` from the latest
+    approved ``spp.disability.assessment``), plus the assessment's
+    severity code, review category, and next-review date.
   - Response construction: builds ``SearchResponseItem`` records with
     ``status='succ'`` for matches and ``status='rjct'`` /
     ``status_reason_code='REG-ERR-001'`` for unknown identifiers.
@@ -115,8 +114,7 @@ class DisabilitySearchService:
                 status="rjct",
                 status_reason_code=REGISTER_NOT_FOUND_CODE,
                 status_reason_message=(
-                    f"{REGISTER_NOT_FOUND_MESSAGE}: "
-                    f"No registrant found for identifier '{search_text}'"
+                    f"{REGISTER_NOT_FOUND_MESSAGE}: No registrant found for identifier '{search_text}'"
                 ),
                 locale=req_item.locale,
             )
@@ -187,9 +185,7 @@ class DisabilitySearchService:
                         eq = search_text.get("$eq")
                         if eq:
                             return str(eq)
-                        raise ValueError(
-                            "expression query missing 'search_text.$eq'"
-                        )
+                        raise ValueError("expression query missing 'search_text.$eq'")
                     if isinstance(search_text, str):
                         return search_text
             return None
@@ -221,20 +217,24 @@ class DisabilitySearchService:
         spp_dci_server/routers/search.py where signing-key reads use
         sudo() for the same reason.
         """
-        reg_id = (
-            self.env["spp.registry.id"]
-            .sudo()  # nosemgrep: odoo-sudo-without-context
-            .search(
-                [("value", "=", identifier_value)],
-                order="partner_id asc",
-                limit=1,
-            )
+        # Authorization context: the DCI envelope's sender_id was verified
+        # upstream by spp_dci_server's signature middleware (or explicitly
+        # bypassed in dev mode via dci.bypass_bearer_auth). Once the sender
+        # is accepted, this service trusts the request. res.partner /
+        # spp.registry.id are read-only here (search + browse + field reads
+        # via _build_reg_record); no write/unlink/create surface is exposed
+        # to the public user the FastAPI endpoint runs as.
+        regid_model = self.env["spp.registry.id"].sudo()  # nosemgrep: odoo-sudo-without-context
+        reg_id = regid_model.search(
+            [("value", "=", identifier_value)],
+            order="partner_id asc",
+            limit=1,
         )
+        if reg_id:
+            return reg_id.partner_id.sudo()  # nosemgrep: odoo-sudo-without-context,odoo-sudo-on-sensitive-models
         return (
-            reg_id.partner_id.sudo()  # nosemgrep: odoo-sudo-without-context
-            if reg_id
-            else self.env["res.partner"].sudo().browse()  # nosemgrep: odoo-sudo-without-context
-        )
+            self.env["res.partner"].sudo().browse()
+        )  # nosemgrep: odoo-sudo-without-context,odoo-sudo-on-sensitive-models
 
     # ------------------------------------------------------------------
     # Reg-record construction
@@ -264,12 +264,8 @@ class DisabilitySearchService:
         return {
             "has_disability": bool(getattr(partner, "has_disability", False)),
             "disability_severity_code": severity.code if severity else None,
-            "disability_review_category": getattr(
-                partner, "disability_review_category", None
-            ),
-            "disability_next_review": next_review.isoformat()
-            if next_review
-            else None,
+            "disability_review_category": getattr(partner, "disability_review_category", None),
+            "disability_next_review": next_review.isoformat() if next_review else None,
             "partner_name": partner.name,
             "partner_uid": partner.id,
         }

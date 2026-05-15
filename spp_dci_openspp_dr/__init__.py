@@ -105,13 +105,9 @@ def post_init_hook(env):
         # and state in the same write so that path doesn't apply.
         variable.write(expected)
         _logger.info(
-            "Re-asserted DCI binding on spp_studio.var_has_disability: "
-            "%d field(s) restored (%s)",
+            "Re-asserted DCI binding on spp_studio.var_has_disability: %d field(s) restored (%s)",
             len(drift),
             ", ".join(drift.keys()),
         )
     else:
-        _logger.info(
-            "spp_studio.var_has_disability DCI binding already correct; "
-            "no changes."
-        )
+        _logger.info("spp_studio.var_has_disability DCI binding already correct; no changes.")

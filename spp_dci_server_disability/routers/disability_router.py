@@ -159,9 +159,7 @@ async def disability_sync_search(
         else:
             _logger.warning("No active signing key — DR response will be unsigned")
     except Exception as e:
-        _logger.warning(
-            "Failed to sign DR response: %s — continuing unsigned", str(e)
-        )
+        _logger.warning("Failed to sign DR response: %s — continuing unsigned", str(e))
         response_signature = ""
 
     return DCIEnvelope(

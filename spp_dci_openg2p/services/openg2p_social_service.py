@@ -29,8 +29,9 @@ Response unwrap:
 
 import logging
 
-from odoo.addons.spp_dci.schemas import QueryType
 from odoo.exceptions import UserError, ValidationError
+
+from odoo.addons.spp_dci.schemas import QueryType
 
 from .openg2p_dci_client import OpenG2PDCIClient
 
@@ -81,7 +82,7 @@ class OpenG2PSocialService:
                 them as audit ``result=error`` rows.
         """
         if not partner:
-            raise ValidationError("Partner is required")
+            raise ValidationError(self.env._("Partner is required"))
 
         search_text = self._get_partner_search_text(partner)
         if not search_text:
@@ -111,7 +112,7 @@ class OpenG2PSocialService:
             )
         except Exception as e:
             _logger.error("OpenG2P SR fetch failed: %s", e, exc_info=True)
-            raise UserError(f"Failed to query OpenG2P: {e}") from e
+            raise UserError(self.env._("Failed to query OpenG2P: %s", e)) from e
 
         return self._extract_first_record(response)
 

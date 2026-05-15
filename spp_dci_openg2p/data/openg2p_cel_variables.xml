@@ -83,10 +83,7 @@
         <field name="active" eval="True" />
         <field name="is_system">True</field>
     </record>
-    <record
-        id="var_has_dependent_under_school_age"
-        model="spp.cel.variable"
-    >
+    <record id="var_has_dependent_under_school_age" model="spp.cel.variable">
         <field name="name">has_dependent_under_school_age</field>
         <field
             name="label"
@@ -94,10 +91,7 @@
         <field
             name="description"
         >Deferred: OpenG2P's SR `reg_records[0]` does not include household composition or dependent birth dates, so this variable cannot be sourced today. Kept as an inactive placeholder for the demo rule's eventual revival. See CONFIGURE.md "Deferred features" for the path forward.</field>
-        <field
-            name="category_id"
-            ref="spp_studio.variable_category_demographics"
-        />
+        <field name="category_id" ref="spp_studio.variable_category_demographics" />
         <field name="value_type">boolean</field>
         <field name="source_type">external</field>
         <field name="source_model">res.partner</field>

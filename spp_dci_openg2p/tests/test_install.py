@@ -4,7 +4,6 @@ from odoo.tests.common import TransactionCase, tagged
 
 from odoo.addons.spp_dci_openg2p import post_init_hook
 
-
 _PRESET_VARIABLE_XMLIDS = (
     "spp_dci_openg2p.var_is_poor",
     "spp_dci_openg2p.var_has_dependent_under_school_age",
@@ -183,9 +182,7 @@ class TestOpenG2PPresetInstall(TransactionCase):
         hook run must drag it back to state='inactive' / active=False so
         the dispatcher's pre-warm skips it. This prevents accidental DCI
         round-trips for a field OpenG2P does not expose."""
-        var_dep = self.env.ref(
-            "spp_dci_openg2p.var_has_dependent_under_school_age"
-        )
+        var_dep = self.env.ref("spp_dci_openg2p.var_has_dependent_under_school_age")
         # Simulate someone activating it
         var_dep.write(
             {
@@ -201,9 +198,7 @@ class TestOpenG2PPresetInstall(TransactionCase):
         var_dep.invalidate_recordset()
         provider = self.env.ref("spp_dci_openg2p.openg2p_dr_provider")
         self.assertEqual(var_dep.external_provider_id, provider)
-        self.assertEqual(
-            var_dep.dci_attribute_path, "has_dependent_under_school_age"
-        )
+        self.assertEqual(var_dep.dci_attribute_path, "has_dependent_under_school_age")
         # Hook re-parks it inactive
         self.assertEqual(var_dep.state, "inactive")
         self.assertFalse(var_dep.active)

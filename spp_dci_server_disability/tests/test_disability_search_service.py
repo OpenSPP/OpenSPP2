@@ -130,9 +130,7 @@ class TestDisabilitySearchService(TransactionCase):
 
     def test_extracts_search_text_from_expression_query(self):
         service = DisabilitySearchService(self.env)
-        request = _make_request(
-            QueryType.EXPRESSION.value, _expression_query("UIN-DR-1")
-        )
+        request = _make_request(QueryType.EXPRESSION.value, _expression_query("UIN-DR-1"))
         response = service.execute_search(request)
         item = response.search_response[0]
         self.assertEqual(item.status, "succ")
@@ -141,9 +139,7 @@ class TestDisabilitySearchService(TransactionCase):
 
     def test_extracts_search_text_from_idtype_value_query(self):
         service = DisabilitySearchService(self.env)
-        request = _make_request(
-            QueryType.IDTYPE_VALUE.value, _idtype_value_query("UIN", "UIN-DR-1")
-        )
+        request = _make_request(QueryType.IDTYPE_VALUE.value, _idtype_value_query("UIN", "UIN-DR-1"))
         response = service.execute_search(request)
         item = response.search_response[0]
         self.assertEqual(item.status, "succ")
@@ -200,9 +196,7 @@ class TestDisabilitySearchService(TransactionCase):
 
     def test_unknown_identifier_returns_register_not_found(self):
         service = DisabilitySearchService(self.env)
-        request = _make_request(
-            QueryType.EXPRESSION.value, _expression_query("UIN-UNKNOWN")
-        )
+        request = _make_request(QueryType.EXPRESSION.value, _expression_query("UIN-UNKNOWN"))
         response = service.execute_search(request)
         item = response.search_response[0]
         self.assertEqual(item.status, "rjct")
@@ -214,9 +208,7 @@ class TestDisabilitySearchService(TransactionCase):
         key has_disability is reported as False — the SP side then
         evaluates the variable as False rather than failing."""
         service = DisabilitySearchService(self.env)
-        request = _make_request(
-            QueryType.EXPRESSION.value, _expression_query("UIN-DR-2")
-        )
+        request = _make_request(QueryType.EXPRESSION.value, _expression_query("UIN-DR-2"))
         response = service.execute_search(request)
         item = response.search_response[0]
         self.assertEqual(item.status, "succ")
@@ -228,9 +220,7 @@ class TestDisabilitySearchService(TransactionCase):
 
     def test_response_envelope_carries_dr_reg_type_constants(self):
         service = DisabilitySearchService(self.env)
-        request = _make_request(
-            QueryType.EXPRESSION.value, _expression_query("UIN-DR-1")
-        )
+        request = _make_request(QueryType.EXPRESSION.value, _expression_query("UIN-DR-1"))
         response = service.execute_search(request)
         item = response.search_response[0]
         self.assertEqual(item.data.reg_type, DR_REG_TYPE)
@@ -243,9 +233,7 @@ class TestDisabilitySearchService(TransactionCase):
         name ``is_person_with_disability`` (which never existed on the
         model — old DRService legacy)."""
         service = DisabilitySearchService(self.env)
-        request = _make_request(
-            QueryType.EXPRESSION.value, _expression_query("UIN-DR-1")
-        )
+        request = _make_request(QueryType.EXPRESSION.value, _expression_query("UIN-DR-1"))
         response = service.execute_search(request)
         record = response.search_response[0].data.reg_records[0]
         self.assertIn("has_disability", record)
@@ -296,9 +284,7 @@ class TestDisabilitySearchService(TransactionCase):
 
     def test_correlation_id_is_set_on_response(self):
         service = DisabilitySearchService(self.env)
-        request = _make_request(
-            QueryType.EXPRESSION.value, _expression_query("UIN-DR-1")
-        )
+        request = _make_request(QueryType.EXPRESSION.value, _expression_query("UIN-DR-1"))
         response = service.execute_search(request)
         self.assertTrue(response.correlation_id)
         self.assertEqual(response.transaction_id, "txn-1")

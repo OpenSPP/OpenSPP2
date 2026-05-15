@@ -12,10 +12,7 @@
     <record id="view_spp_dci_data_source_form_inherit_vendor" model="ir.ui.view">
         <field name="name">spp.dci.data.source.form.inherit.vendor</field>
         <field name="model">spp.dci.data.source</field>
-        <field
-            name="inherit_id"
-            ref="spp_dci_client.view_spp_dci_data_source_form"
-        />
+        <field name="inherit_id" ref="spp_dci_client.view_spp_dci_data_source_form" />
         <field name="arch" type="xml">
             <xpath expr="//field[@name='auth_type']" position="after">
                 <field name="vendor" />
@@ -26,10 +23,7 @@
     <record id="view_spp_dci_data_source_tree_inherit_vendor" model="ir.ui.view">
         <field name="name">spp.dci.data.source.tree.inherit.vendor</field>
         <field name="model">spp.dci.data.source</field>
-        <field
-            name="inherit_id"
-            ref="spp_dci_client.view_spp_dci_data_source_tree"
-        />
+        <field name="inherit_id" ref="spp_dci_client.view_spp_dci_data_source_tree" />
         <field name="arch" type="xml">
             <xpath expr="//field[@name='registry_type']" position="after">
                 <field name="vendor" optional="show" />

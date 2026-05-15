@@ -31,7 +31,9 @@
         <field name="registry_type">DR</field>
         <field name="vendor">openspp</field>
         <field name="base_url">http://openspp-dr:8069</field>
-        <field name="search_endpoint">/dci_api/v1/disability/registry/sync/search</field>
+        <field
+            name="search_endpoint"
+        >/dci_api/v1/disability/registry/sync/search</field>
         <field name="auth_type">none</field>
         <field name="our_sender_id">openspp-sp.demo</field>
         <field name="receiver_id">openspp-dr.demo</field>
