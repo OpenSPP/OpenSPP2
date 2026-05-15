@@ -9,12 +9,12 @@
 #
 # RUN ON SP:
 #   docker compose exec openspp-dev odoo shell -d openspp --no-http \
-#     < scripts/demo/setup_federated_demo.py
+#     < scripts/demo/setup_spdci_demo.py
 #
 # RUN ON DR:
 #   docker compose -f docker-compose.dr.yml exec openspp-dr \
 #     odoo shell -d openspp_dr --no-http \
-#     < scripts/demo/setup_federated_demo.py
+#     < scripts/demo/setup_spdci_demo.py
 #
 # WHAT THIS IS NOT:
 #   - Not a module. Production installs of any spp_* module create zero
