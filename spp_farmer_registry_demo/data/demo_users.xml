@@ -12,12 +12,19 @@
              ROLE OVERRIDES FOR SPP_DEMO USERS
              ═══════════════════════════════════════════════════════════════════════ -->
 
-    <!-- Demo Manager - Farm Manager, CR Requestor -->
+    <!-- Manager - Farm Manager, CR Requestor.
+         Renames the upstream spp_demo.demo_manager record + adds farmer
+         roles. Per OP#915 QA — no "Demo" prefix on user display name or
+         login. xmlid reference is preserved so existing code that does
+         env.ref("spp_demo.demo_manager") keeps working. -->
     <record
         id="spp_demo.demo_manager"
         model="res.users"
         context="{'no_reset_password': True}"
     >
+        <field name="name">Manager</field>
+        <field name="login">manager</field>
+        <field name="email">manager@example.com</field>
         <field
             name="role_line_ids"
             eval="[
@@ -27,12 +34,15 @@
         />
     </record>
 
-    <!-- Demo Officer - Farm User, CR Requestor -->
+    <!-- Officer - Farm User, CR Requestor -->
     <record
         id="spp_demo.demo_officer"
         model="res.users"
         context="{'no_reset_password': True}"
     >
+        <field name="name">Officer</field>
+        <field name="login">officer</field>
+        <field name="email">officer@example.com</field>
         <field
             name="role_line_ids"
             eval="[
@@ -42,12 +52,15 @@
         />
     </record>
 
-    <!-- Demo Supervisor - Farm Manager -->
+    <!-- Supervisor - Farm Manager -->
     <record
         id="spp_demo.demo_supervisor"
         model="res.users"
         context="{'no_reset_password': True}"
     >
+        <field name="name">Supervisor</field>
+        <field name="login">supervisor</field>
+        <field name="email">supervisor@example.com</field>
         <field
             name="role_line_ids"
             eval="[
@@ -56,12 +69,15 @@
         />
     </record>
 
-    <!-- Demo Viewer - Farm User -->
+    <!-- Viewer - Farm User -->
     <record
         id="spp_demo.demo_viewer"
         model="res.users"
         context="{'no_reset_password': True}"
     >
+        <field name="name">Viewer</field>
+        <field name="login">viewer</field>
+        <field name="email">viewer@example.com</field>
         <field
             name="role_line_ids"
             eval="[

@@ -18,10 +18,10 @@ validator chain.
 | Login                | Password | Role(s)                         | Used in scenarios                              |
 | -------------------- | -------- | ------------------------------- | ---------------------------------------------- |
 | `admin`              | `admin`  | System Administrator (built-in) | Any — full access                              |
-| `demo_manager`       | `demo`   | Farm Manager + CR Requestor     | Program lifecycle, CR submission, dashboards   |
-| `demo_officer`       | `demo`   | Farm User + CR Requestor        | Farm data entry, CR submission                 |
-| `demo_supervisor`    | `demo`   | Farm Manager                    | Program manager view, approvals                |
-| `demo_viewer`        | `demo`   | Farm User                       | Read-only walkthroughs                         |
+| `manager`            | `demo`   | Farm Manager + CR Requestor     | Program lifecycle, CR submission, dashboards   |
+| `officer`            | `demo`   | Farm User + CR Requestor        | Farm data entry, CR submission                 |
+| `supervisor`         | `demo`   | Farm Manager                    | Program manager view, approvals                |
+| `viewer`             | `demo`   | Farm User                       | Read-only walkthroughs                         |
 | `cr_local_validator` | `demo`   | CR Local Validator (Tier-1)     | Local CR approval / revision-request scenarios |
 | `cr_hq_validator`    | `demo`   | CR HQ Validator (Tier-2)        | HQ-tier CR approval scenarios                  |
 
