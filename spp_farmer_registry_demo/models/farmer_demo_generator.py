@@ -591,6 +591,50 @@ class SPPFarmerDemoGenerator(models.TransientModel):
     # Service Points
     # ──────────────────────────────────────────────────────────────────────
 
+    # Service points linked per farm type. Cash + Extension are universal
+    # (everyone draws their entitlement at the bank and consults the
+    # extension office); crop/livestock/aquaculture each add their own.
+    _FARM_TYPE_SERVICE_POINTS = {
+        "crop": [
+            "Agri Co-op Office",
+            "Input Supply Depot",
+            "Mechanization Equipment Rental Hub",
+            "Rural Bank Branch",
+            "Agricultural Extension Office",
+        ],
+        "livestock": [
+            "Provincial Veterinary Clinic",
+            "Input Supply Depot",
+            "Rural Bank Branch",
+            "Agricultural Extension Office",
+        ],
+        "mixed": [
+            "Agri Co-op Office",
+            "Input Supply Depot",
+            "Provincial Veterinary Clinic",
+            "Mechanization Equipment Rental Hub",
+            "Rural Bank Branch",
+            "Agricultural Extension Office",
+        ],
+        "aquaculture": [
+            "Input Supply Depot",
+            "Rural Bank Branch",
+            "Agricultural Extension Office",
+        ],
+    }
+
+    def _resolve_farm_service_points(self, farm_type):
+        """Return service point IDs to link onto a farm with the given type.
+
+        Looks up service points by name (created by _create_service_points
+        earlier in generate_all). Returns an empty list if no matching
+        service points exist yet (graceful — happens if a downstream caller
+        invokes this method before the seed step ran).
+        """
+        names = self._FARM_TYPE_SERVICE_POINTS.get(farm_type, ["Rural Bank Branch", "Agricultural Extension Office"])
+        records = self.env["spp.service.point"].sudo().search([("name", "in", names)])  # nosemgrep
+        return records.ids
+
     def _create_service_points(self, area_map):
         """Seed service points covering the realistic farmer touchpoints.
 
@@ -763,6 +807,14 @@ class SPPFarmerDemoGenerator(models.TransientModel):
                 age=story_data.get("age"),
             )
             story_farms[story_id] = farm
+
+            # OP#915 round-3: link the farm group to realistic service
+            # points based on its primary farm type. Cash + Extension are
+            # universal; crop / livestock / mixed / aquaculture each add
+            # their specialised hubs.
+            sp_ids = self._resolve_farm_service_points(story_data["farm_type"])
+            if sp_ids:
+                farm.write({"service_point_ids": [Command.set(sp_ids)]})
 
             # Create GIS data (GPS coordinates + land record with polygon)
             if story_data.get("longitude") and story_data.get("latitude"):

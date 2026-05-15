@@ -300,6 +300,39 @@ DEMO_BANKS = [
     "Metropolitan Bank and Trust Company",
 ]
 
+# OP#915 round-3 followup: link each volume farm to the service points
+# that match its primary farm type. Names match the records created by
+# FarmerDemoGenerator._create_service_points. Cash + Extension are
+# universal; crop/livestock/aquaculture each add their specialised hubs.
+_FARM_TYPE_SERVICE_POINTS = {
+    "crop": [
+        "Agri Co-op Office",
+        "Input Supply Depot",
+        "Mechanization Equipment Rental Hub",
+        "Rural Bank Branch",
+        "Agricultural Extension Office",
+    ],
+    "livestock": [
+        "Provincial Veterinary Clinic",
+        "Input Supply Depot",
+        "Rural Bank Branch",
+        "Agricultural Extension Office",
+    ],
+    "mixed": [
+        "Agri Co-op Office",
+        "Input Supply Depot",
+        "Provincial Veterinary Clinic",
+        "Mechanization Equipment Rental Hub",
+        "Rural Bank Branch",
+        "Agricultural Extension Office",
+    ],
+    "aquaculture": [
+        "Input Supply Depot",
+        "Rural Bank Branch",
+        "Agricultural Extension Office",
+    ],
+}
+
 
 class SeededFarmGenerator:
     """Deterministic farm/member generator using seeded RNG.
@@ -740,6 +773,20 @@ class SeededFarmGenerator:
 
         if id_vals:
             self._batch_create("spp.registry.id", id_vals)
+
+        # ---- Phase: service point linkage ----
+        # Resolve the 6 demo service points by name once, then write
+        # service_point_ids on every farm group based on its blueprint's
+        # farm_type. Falls back to {Bank + Extension} for unknown types.
+        sp_records = self.env["spp.service.point"].sudo().search([])  # nosemgrep
+        sp_by_name = {sp.name: sp.id for sp in sp_records}
+        if sp_by_name:
+            default_names = ["Rural Bank Branch", "Agricultural Extension Office"]
+            for group, (bp, _i, _s, _g, _gphone, _gb, _ga) in zip(groups, member_specs, strict=False):
+                names = _FARM_TYPE_SERVICE_POINTS.get(bp.get("farm_type"), default_names)
+                ids = [sp_by_name[n] for n in names if n in sp_by_name]
+                if ids:
+                    group.write({"service_point_ids": [Command.set(ids)]})
 
     # =========================================================================
     # Internal: Farm name generation
