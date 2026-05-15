@@ -425,15 +425,30 @@ class CelExecutor(models.AbstractModel):
                 )
                 exec_self = self.with_context(cel_mode="preview", cel_request_id=request_id)
                 ids = exec_self._execute_plan(model, plan, metrics_info)
-                # If a fast-path domain override was provided in metrics_info, use it instead of materializing ids
-                override_domain: list[Any] | None = None
+                # If fast-path domain overrides were provided in metrics_info,
+                # AND them together. Each is an ('id', 'in', <SQL subquery>)
+                # clause from _exec_metric's SQL fast path. With a single
+                # MetricCompare, there is one override and it acts as the
+                # whole filter. With a compound expression like
+                # `metric('a', me) == X and metric('b', me) == Y` there are
+                # multiple overrides, and the executor must AND them on the
+                # final domain — otherwise only the first metric clause
+                # filters the cohort and the AND is silently dropped.
+                #
+                # KNOWN LIMITATION: this branch assumes the metric clauses
+                # are AND-composed. For an OR of metric clauses (uncommon
+                # in eligibility rules) the SQL fast path's per-clause
+                # subqueries cannot be UNION'd through Odoo domain syntax;
+                # ids materialization in _exec_metric would be required.
+                override_domains_list: list[list[Any]] = []
                 for mi in metrics_info:
                     od = mi.get("override_domain") if isinstance(mi, dict) else None
                     if od:
-                        override_domain = od
-                        break
-                if override_domain:
-                    final_domain = self._and_domains(base_domain, override_domain)
+                        override_domains_list.append(od)
+                if override_domains_list:
+                    final_domain = list(base_domain)
+                    for od in override_domains_list:
+                        final_domain = self._and_domains(final_domain, od)
                 else:
                     final_domain = self._and_domains(base_domain, [("id", "in", ids)])
         # Determine execution path for logging and response
