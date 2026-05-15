@@ -29,7 +29,15 @@
 #     OpenG2P SR seed in the IND-NSR-0001..IND-NSR-0015 range. Names
 #     mirror OpenG2P's actual seed names so the federation story stays
 #     honest (an SP-side audit row tagged "Alex Rivera" matches what
-#     OpenG2P would return on probe).
+#     OpenG2P would return on probe). If a partner with a given UIN
+#     already exists, it is RENAMED to match the persona rather than
+#     skipped — this keeps the script reusable when prior partners are
+#     already attached to programs and can't be deleted.
+#   - SP side, additionally: every demo partner is added as a draft
+#     membership of program record id=DEMO_PROGRAM_ID (default 1) so
+#     Enroll Eligible can be demonstrated directly. Override the constant
+#     at the top of the script before running if your program record's
+#     id differs.
 #   - DR side: same 15 partners PLUS approved disability assessments
 #     for 8 of them, distributed so the eligibility matrix exercises
 #     all four poor×disabled quadrants.
@@ -66,6 +74,12 @@ import logging
 from odoo import fields
 
 _logger = logging.getLogger("setup_spdci_demo")
+
+# On the SP side, the script also adds every demo partner as a draft
+# membership of this program so Edwin can demo Enroll Eligible directly
+# without walking through the change-request flow. Override before
+# running if your program record's id differs.
+DEMO_PROGRAM_ID = 1
 
 # Each tuple: (UIN, given_name, surname, has_dr_assessment)
 # Names match OpenG2P SR seed records (probed 2026-05-15 against
@@ -121,27 +135,39 @@ if not uin_code:
 Partner = env["res.partner"]
 RegId = env["spp.registry.id"]
 
+demo_partners = env["res.partner"].browse()
+
 for uin, given, surname, has_dr_assessment in DEMO_PERSONAS:
-    # Idempotent: skip if a partner already has this UIN
+    # If a partner already has this UIN, RENAME to match the persona
+    # rather than skip. This makes the script reusable when a DB already
+    # has IND-NSR-XXXX partners enrolled in programs (we can't delete
+    # them without orphaning memberships, but we can rebrand them).
     existing = RegId.search([("value", "=", uin), ("id_type_id", "=", uin_code.id)], limit=1)
+    persona_values = {
+        "name": f"{given} {surname}",
+        "given_name": given,
+        "family_name": surname,
+        "is_registrant": True,
+        "is_group": False,
+        "birthdate": "1990-01-01",
+    }
     if existing:
         partner = existing.partner_id
-        print(f"  ↻  {uin} already exists on this side as partner.id={partner.id} ({partner.name})")
+        before = partner.name
+        partner.write(persona_values)
+        if before != partner.name:
+            print(f"  ↻  {uin} partner.id={partner.id}  renamed: {before!r} -> {partner.name!r}")
+        else:
+            print(f"  ↻  {uin} partner.id={partner.id}  already named {partner.name!r}")
     else:
-        partner = Partner.create({
-            "name": f"{given} {surname}",
-            "given_name": given,
-            "family_name": surname,
-            "is_registrant": True,
-            "is_group": False,
-            "birthdate": "1990-01-01",
-        })
+        partner = Partner.create(persona_values)
         RegId.create({
             "partner_id": partner.id,
             "id_type_id": uin_code.id,
             "value": uin,
         })
         print(f"  ✓  Created {given} {surname} (UIN={uin}, partner.id={partner.id})")
+    demo_partners |= partner
 
     # DR-side only: ensure an approved disability assessment exists
     # for the personas flagged has_dr_assessment.
@@ -168,6 +194,38 @@ for uin, given, surname, has_dr_assessment in DEMO_PERSONAS:
             partner.invalidate_recordset(["current_disability_assessment_id", "has_disability"])
             print(f"     ✓ Created approved assessment (id={asmt.id}, "
                   f"partner.has_disability now {partner.has_disability})")
+
+# SP-side only: add every demo partner as a draft membership of the
+# program with record ID = 1, so Edwin can demo Enroll Eligible directly
+# without first walking through the change-request flow to add members
+# (his colleague demos that part on a separate instance).
+# Memberships start in state='draft'; eligibility evaluation flips them
+# to 'enrolled' or 'not_eligible' based on the CEL rule.
+if not on_dr_side:
+    program = env["spp.program"].browse(DEMO_PROGRAM_ID).exists()
+    if not program:
+        print("\n  ⚠  spp.program id=1 not found on SP — skipping bulk-enroll step.")
+        print("     Create the program first (or change DEMO_PROGRAM_ID at the top of the script).")
+    else:
+        Membership = env["spp.program.membership"]
+        added = 0
+        already = 0
+        for partner in demo_partners:
+            existing_mem = Membership.search(
+                [("partner_id", "=", partner.id), ("program_id", "=", program.id)], limit=1,
+            )
+            if existing_mem:
+                already += 1
+                continue
+            Membership.create({
+                "partner_id": partner.id,
+                "program_id": program.id,
+                "state": "draft",
+            })
+            added += 1
+        print(f"\n  ✓  Program '{program.name}' (id={program.id}): "
+              f"{added} new memberships added, {already} already members "
+              f"({len(demo_partners)} demo partners total).")
 
 env.cr.commit()
 
