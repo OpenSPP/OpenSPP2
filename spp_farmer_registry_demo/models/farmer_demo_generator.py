@@ -818,7 +818,77 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             self._attach_bank_account(individual, bank_name, name)
             self._attach_bank_account(farm, bank_name, name)
 
+        # OP#915 round-3: seed registry IDs (national_id + tax_id on groups,
+        # national_id + passport + birth_certificate on heads). Values are
+        # deterministically derived from the partner name hash so reruns
+        # produce identical IDs.
+        self._attach_registry_ids(farm, is_group=True, salt=name)
+        self._attach_registry_ids(individual, is_group=False, salt=farmer_name)
+
         return farm
+
+    def _attach_registry_ids(self, partner, is_group, salt):
+        """Create spp.registry.id records on `partner`.
+
+        Groups receive national_id + tax_id; individuals receive
+        national_id + passport + birth_certificate. Each id value is
+        derived deterministically from `salt` + a per-type offset so the
+        same demo run produces identical IDs every time, and the
+        UNIQUE(partner_id, id_type_id) constraint is honoured.
+        """
+        RegId = self.env["spp.registry.id"].sudo()  # nosemgrep
+        VocabCode = self.env["spp.vocabulary.code"].sudo()  # nosemgrep
+
+        def _code(xmlid):
+            ref = self.env.ref(xmlid, raise_if_not_found=False)
+            return ref.id if ref else False
+
+        if is_group:
+            id_types = [
+                ("spp_vocabulary.code_id_type_national_id", "national_id"),
+                ("spp_vocabulary.code_id_type_tax_id", "tax_id"),
+            ]
+        else:
+            id_types = [
+                ("spp_vocabulary.code_id_type_national_id", "national_id"),
+                ("spp_vocabulary.code_id_type_passport", "passport"),
+                ("spp_vocabulary.code_id_type_birth_certificate", "birth_certificate"),
+            ]
+
+        for xmlid, kind in id_types:
+            type_id = _code(xmlid)
+            if not type_id:
+                continue
+            value = self._build_id_value(kind, salt)
+            RegId.create(
+                {
+                    "partner_id": partner.id,
+                    "id_type_id": type_id,
+                    "value": value,
+                    "status": "valid",
+                    "verification_method": "self_declared",
+                }
+            )
+
+    def _build_id_value(self, kind, salt):
+        """Deterministic ID value derived from `salt` (partner name).
+
+        Uses zlib.crc32 (Python-stable across runs, unlike hash()).
+        """
+        import zlib
+
+        digest = zlib.crc32((kind + "|" + salt).encode("utf-8"))
+        if kind == "national_id":
+            # PH PhilSys-style: 4-7-1 digits
+            return f"{digest % 10000:04d}-{(digest // 10000) % 10000000:07d}-{digest % 10}"
+        if kind == "passport":
+            return f"P{digest % 10000000:07d}"
+        if kind == "tax_id":
+            # 9 digits
+            return f"{digest % 1000000000:09d}"
+        if kind == "birth_certificate":
+            return f"BC-{digest % 10000000:07d}"
+        return f"{digest:010d}"
 
     def _attach_phone_number(self, partner, phone_no):
         """Create an spp.phone.number record on `partner`.

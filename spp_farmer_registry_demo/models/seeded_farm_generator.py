@@ -674,6 +674,67 @@ class SeededFarmGenerator:
         if bank_vals:
             self._batch_create("res.partner.bank", bank_vals)
 
+        # ---- Phase: registry IDs ----
+        # Group: national_id + tax_id
+        # Head individual: national_id + birth_certificate
+        # Non-head individual: national_id
+        # Values are derived from the partner name via zlib.crc32 so they
+        # are stable across runs without depending on Python's randomised
+        # hash().
+        import zlib
+
+        def _make_value(kind, salt):
+            d = zlib.crc32((kind + "|" + salt).encode("utf-8"))
+            if kind == "national_id":
+                return f"{d % 10000:04d}-{(d // 10000) % 10000000:07d}-{d % 10}"
+            if kind == "passport":
+                return f"P{d % 10000000:07d}"
+            if kind == "tax_id":
+                return f"{d % 1000000000:09d}"
+            if kind == "birth_certificate":
+                return f"BC-{d % 10000000:07d}"
+            return f"{d:010d}"
+
+        # Resolve id-type vocabulary codes once.
+        id_type_ids = {}
+        for code in ("national_id", "tax_id", "passport", "birth_certificate"):
+            ref = self.env.ref(f"spp_vocabulary.code_id_type_{code}", raise_if_not_found=False)
+            if ref:
+                id_type_ids[code] = ref.id
+
+        id_vals = []
+        for group in groups:
+            for kind in ("national_id", "tax_id"):
+                if kind in id_type_ids:
+                    id_vals.append(
+                        {
+                            "partner_id": group.id,
+                            "id_type_id": id_type_ids[kind],
+                            "value": _make_value(kind, group.name or f"G{group.id}"),
+                            "status": "valid",
+                            "verification_method": "self_declared",
+                        }
+                    )
+
+        for individual, contact in zip(individuals, member_contact, strict=False):
+            kinds = ["national_id"]
+            if contact["is_head"] and "birth_certificate" in id_type_ids:
+                kinds.append("birth_certificate")
+            for kind in kinds:
+                if kind in id_type_ids:
+                    id_vals.append(
+                        {
+                            "partner_id": individual.id,
+                            "id_type_id": id_type_ids[kind],
+                            "value": _make_value(kind, individual.name or f"I{individual.id}"),
+                            "status": "valid",
+                            "verification_method": "self_declared",
+                        }
+                    )
+
+        if id_vals:
+            self._batch_create("spp.registry.id", id_vals)
+
     # =========================================================================
     # Internal: Farm name generation
     # =========================================================================
