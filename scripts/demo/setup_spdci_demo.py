@@ -25,39 +25,69 @@
 #     cleanly, first delete the partners (see CLEANUP at the bottom).
 #
 # WHAT IT CREATES:
-#   - SP side: 4 res.partner records with UIN reg_ids matching OpenG2P
-#     SR seeds (IND-NSR-0001, 0002, 0003, 0007).
-#   - DR side: same 4 partners (same UINs) PLUS approved disability
-#     assessments for two of them so their res.partner.has_disability
-#     computes to True.
+#   - SP side: 15 res.partner records with UIN reg_ids matching every
+#     OpenG2P SR seed in the IND-NSR-0001..IND-NSR-0015 range. Names
+#     mirror OpenG2P's actual seed names so the federation story stays
+#     honest (an SP-side audit row tagged "Alex Rivera" matches what
+#     OpenG2P would return on probe).
+#   - DR side: same 15 partners PLUS approved disability assessments
+#     for 8 of them, distributed so the eligibility matrix exercises
+#     all four poor×disabled quadrants.
 #
-# DEMO MATRIX (after running on both sides):
+# DEMO MATRIX (with CEL rule `has_disability == true && is_poor == "low"`):
 #
-#   | Persona            | UIN          | SR income_level | DR assessment | Expected verdict |
-#   |--------------------|--------------|-----------------|---------------|------------------|
-#   | Maria Widow        | IND-NSR-0001 | low             | approved      | ENROLLED         |
-#   | Kim Lee            | IND-NSR-0007 | medium          | approved      | not eligible     |
-#   | Priya Rivera       | IND-NSR-0002 | low             | none          | not eligible     |
-#   | Noah Rivera        | IND-NSR-0003 | (empty)         | none          | not eligible     |
+#   | UIN          | Persona       | OpenG2P income | DR assessment | Verdict        |
+#   |--------------|---------------|----------------|---------------|----------------|
+#   | IND-NSR-0001 | Alex Rivera   | low            | approved      | ENROLLED       |
+#   | IND-NSR-0002 | Priya Rivera  | low            | none          | not eligible*  |
+#   | IND-NSR-0003 | Noah Rivera   | (empty)        | none          | not eligible   |
+#   | IND-NSR-0004 | Morgan Cole   | low            | approved      | ENROLLED       |
+#   | IND-NSR-0005 | Leah Cole     | low            | none          | not eligible*  |
+#   | IND-NSR-0006 | Nia Cole      | (empty)        | approved      | not eligible** |
+#   | IND-NSR-0007 | Kim Lee       | medium         | approved      | not eligible** |
+#   | IND-NSR-0008 | Jun Lee       | medium         | none          | not eligible   |
+#   | IND-NSR-0009 | Rin Lee       | (empty)        | approved      | not eligible** |
+#   | IND-NSR-0010 | Taylor Brooks | low            | approved      | ENROLLED       |
+#   | IND-NSR-0011 | Iris Brooks   | (empty)        | none          | not eligible   |
+#   | IND-NSR-0012 | Reyn Brooks   | (empty)        | none          | not eligible   |
+#   | IND-NSR-0013 | Sam Hayes     | low            | approved      | ENROLLED       |
+#   | IND-NSR-0014 | Dev Hayes     | low            | none          | not eligible*  |
+#   | IND-NSR-0015 | Asha Hayes    | (empty)        | approved      | not eligible** |
 #
-#   With CEL rule `has_disability == true && is_poor == "low"`:
-#   - Only Maria passes (both registries return the right value)
-#   - Kim fails is_poor (medium != low)
-#   - Priya fails has_disability (no approved DR assessment)
-#   - Noah fails both
+#   *  = poor but not disabled (DR says no) — exercises has_disability filter
+#   ** = disabled but not poor (SR says no/medium) — exercises is_poor filter
+#
+#   Enrolled count: 4 / 15. Every quadrant of the (poor × disabled) matrix
+#   is represented, so the demo can visibly show that BOTH registries must
+#   agree before a registrant qualifies.
 # ============================================================================
 
 import logging
 from odoo import fields
 
-_logger = logging.getLogger("setup_federated_demo")
+_logger = logging.getLogger("setup_spdci_demo")
 
-# (UIN, given_name, surname, has_dr_assessment)
+# Each tuple: (UIN, given_name, surname, has_dr_assessment)
+# Names match OpenG2P SR seed records (probed 2026-05-15 against
+# partner-nsr.play.openg2p.org). has_dr_assessment toggles whether we
+# create an approved disability assessment on the DR side — this is
+# what makes res.partner.has_disability compute to True.
 DEMO_PERSONAS = [
-    ("IND-NSR-0001", "Maria",  "Widow",   True),   # eligible
-    ("IND-NSR-0007", "Kim",    "Lee",     True),   # not poor (medium)
-    ("IND-NSR-0002", "Priya",  "Rivera",  False),  # poor but not disabled
+    ("IND-NSR-0001", "Alex",   "Rivera",  True),   # poor + disabled  -> ENROLLED
+    ("IND-NSR-0002", "Priya",  "Rivera",  False),  # poor only
     ("IND-NSR-0003", "Noah",   "Rivera",  False),  # neither
+    ("IND-NSR-0004", "Morgan", "Cole",    True),   # poor + disabled  -> ENROLLED
+    ("IND-NSR-0005", "Leah",   "Cole",    False),  # poor only
+    ("IND-NSR-0006", "Nia",    "Cole",    True),   # disabled only (no income)
+    ("IND-NSR-0007", "Kim",    "Lee",     True),   # disabled only (medium income)
+    ("IND-NSR-0008", "Jun",    "Lee",     False),  # neither (medium income, no disability)
+    ("IND-NSR-0009", "Rin",    "Lee",     True),   # disabled only (no income)
+    ("IND-NSR-0010", "Taylor", "Brooks",  True),   # poor + disabled  -> ENROLLED
+    ("IND-NSR-0011", "Iris",   "Brooks",  False),  # neither
+    ("IND-NSR-0012", "Reyn",   "Brooks",  False),  # neither
+    ("IND-NSR-0013", "Sam",    "Hayes",   True),   # poor + disabled  -> ENROLLED
+    ("IND-NSR-0014", "Dev",    "Hayes",   False),  # poor only
+    ("IND-NSR-0015", "Asha",   "Hayes",   True),   # disabled only (no income)
 ]
 
 # Detect side: DR-side has spp.disability.assessment installed
@@ -159,7 +189,7 @@ print("\nCLEANUP after the demo:")
 print("  Delete the 4 partners via UI, or:")
 print("  >>> uin_code = env.ref('spp_vocabulary.vocab_id_type')")
 print("  >>> RegId = env['spp.registry.id']")
-print("  >>> uins = ['IND-NSR-0001', 'IND-NSR-0007', 'IND-NSR-0002', 'IND-NSR-0003']")
+print("  >>> uins = [f'IND-NSR-{n:04d}' for n in range(1, 16)]")
 print("  >>> partners = RegId.search([('value', 'in', uins)]).mapped('partner_id')")
 print("  >>> partners.unlink()")
 print("  >>> env.cr.commit()")
