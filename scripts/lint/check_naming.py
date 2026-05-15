@@ -243,16 +243,34 @@ class NamingChecker:
         return violations
 
     def _check_imports(self, file_path: str, tree: ast.AST) -> list[Violation]:
-        """Check for deprecated g2p imports."""
+        """Check for deprecated g2p imports.
+
+        The deprecated prefix is `g2p_` / `g2p.` at a token boundary —
+        i.e., a top-level `g2p_*` package, or a `.g2p_*` segment inside
+        a dotted module path. The plain substring check (`"g2p_" in
+        module_name`) produces false positives against unrelated
+        namespaces that happen to embed the letters — `openg2p_*` is
+        the OpenG2P platform's distinct namespace and should NOT flag.
+        Anchor the match to a path-segment boundary so only true
+        g2p_/g2p. tokens are caught.
+        """
         violations = []
         severity = self.config.get_severity("naming.g2p_import", Severity.ERROR)
+
+        def is_deprecated_g2p(module_name: str) -> bool:
+            return (
+                module_name.startswith("g2p_")
+                or module_name.startswith("g2p.")
+                or ".g2p_" in module_name
+                or ".g2p." in module_name
+            )
 
         for node in ast.walk(tree):
             if isinstance(node, (ast.Import, ast.ImportFrom)):
                 line = node.lineno
 
                 if isinstance(node, ast.ImportFrom) and node.module:
-                    if node.module.startswith("g2p") or "g2p_" in node.module:
+                    if is_deprecated_g2p(node.module):
                         new_module = node.module.replace("g2p_", "spp_").replace("g2p.", "spp.")
                         violations.append(
                             Violation(
@@ -268,7 +286,7 @@ class NamingChecker:
 
                 elif isinstance(node, ast.Import):
                     for alias in node.names:
-                        if alias.name.startswith("g2p") or "g2p_" in alias.name:
+                        if is_deprecated_g2p(alias.name):
                             new_name = alias.name.replace("g2p_", "spp_").replace("g2p.", "spp.")
                             violations.append(
                                 Violation(

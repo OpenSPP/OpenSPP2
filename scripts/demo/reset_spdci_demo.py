@@ -22,6 +22,12 @@
 #     < scripts/demo/reset_spdci_demo.py
 #
 # (DR side has no memberships and no DCI cache — nothing to reset there.)
+#
+# Linter directives:
+#   - `env` is injected by Odoo shell — ruff can't resolve it statically.
+#   - `print()` is the right channel for an interactive shell script.
+# ruff: noqa: F821
+# pylint: disable=print-used
 # ============================================================================
 
 import logging

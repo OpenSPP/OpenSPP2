@@ -69,6 +69,18 @@
 #   is represented, so the demo can visibly show that BOTH registries must
 #   agree before a registrant qualifies.
 # ============================================================================
+# Linter directives:
+#   - `env` is injected at runtime by Odoo shell — ruff cannot resolve it
+#     statically. F821 is suppressed at file scope.
+#   - `print()` is the right output channel for an interactive shell
+#     script: the operator running it sees the table on stdout. pylint's
+#     W8116 print-used rule is module-targeted and over-reaches here.
+#   - B007 unused-loop-var: the summary loop intentionally unpacks the
+#     full DEMO_PERSONAS row even though only `uin` is used inside the
+#     loop body — keeps the unpack in sync with the data structure.
+# ruff: noqa: F821, B007
+# pylint: disable=print-used
+# ============================================================================
 
 import logging
 
