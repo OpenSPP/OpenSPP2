@@ -469,8 +469,15 @@ class SeededFarmGenerator:
             group_record = groups[group_idx]
             for member_spec in bp["members"]:
                 gender = self._resolve_gender(member_spec.get("gender", "any"))
-                # Consume RNG state for age to keep deterministic sequence
-                self.rng.randint(*member_spec["age_range"])
+                # Draw age and turn it into a deterministic birthdate.
+                # Month/day are derived from the same rng so the date is
+                # stable but varied across members.
+                age = self.rng.randint(*member_spec["age_range"])
+                birth_month = self.rng.randint(1, 12)
+                birth_day = self.rng.randint(1, 28)
+                today = datetime.date.today()
+                birthdate = datetime.date(today.year - age, birth_month, birth_day)
+
                 given_name, family_name = self._generate_member_name(gender)
 
                 gender_id = self._get_gender_id(gender)
@@ -488,6 +495,7 @@ class SeededFarmGenerator:
                     "is_registrant": True,
                     "is_group": False,
                     "gender_id": gender_id,
+                    "birthdate": birthdate,
                     "phone": member_phone,
                 }
 

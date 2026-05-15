@@ -120,6 +120,7 @@ STORY_FARMS = {
         "total_size": 2.0,
         "under_crops": 2.0,
         "experience": 10,
+        "age": 35,
         "is_female": True,
         # ~4 km NW of Cabanatuan into rice paddies (was 120.9690, 15.4880)
         "longitude": 120.9320,
@@ -138,6 +139,7 @@ STORY_FARMS = {
         "under_crops": 2.0,
         "under_livestock": 1.0,
         "experience": 15,
+        "age": 42,
         "is_female": False,
         # ~5 km E of San Pablo into inland mixed farmland (was 121.3275, 14.0708)
         "longitude": 121.3800,
@@ -155,6 +157,7 @@ STORY_FARMS = {
         "total_size": 1.0,
         "under_livestock": 1.0,
         "experience": 5,
+        "age": 28,
         "is_female": True,
         # ~4 km S of Lipa into pasture land (was 121.1645, 13.9421)
         "longitude": 121.2080,
@@ -173,6 +176,7 @@ STORY_FARMS = {
         "under_crops": 3.0,
         "idle": 1.0,
         "experience": 20,
+        "age": 50,
         "is_female": False,
         # ~5 km SW of Cotabato City into farmland (was 124.2498, 7.2064)
         "longitude": 124.2050,
@@ -190,6 +194,7 @@ STORY_FARMS = {
         "total_size": 2.0,
         "under_crops": 2.0,
         "experience": 5,
+        "age": 30,
         "is_female": True,
         # ~4 km NE of La Trinidad into highland terraces (was 120.5893, 16.4573)
         "longitude": 120.6260,
@@ -207,6 +212,7 @@ STORY_FARMS = {
         "total_size": 0.5,
         "under_aquaculture": 0.5,
         "experience": 7,
+        "age": 32,
         "is_female": False,
         # ~5 km W of Dagupan into inland fishpond cluster (was 120.3408, 16.0433)
         "longitude": 120.2960,
@@ -224,6 +230,7 @@ STORY_FARMS = {
         "total_size": 1.5,
         "under_crops": 1.5,
         "experience": 12,
+        "age": 38,
         "is_female": True,
         # ~4 km NW of Marawi into upland farmland (was 124.2830, 8.0003)
         "longitude": 124.2420,
@@ -242,6 +249,7 @@ STORY_FARMS = {
         "under_crops": 3.0,
         "under_livestock": 2.0,
         "experience": 25,
+        "age": 55,
         "is_female": False,
         # ~5 km E of Malaybalay into highland plateau farms (was 125.1286, 8.1585)
         "longitude": 125.1750,
@@ -713,6 +721,7 @@ class SPPFarmerDemoGenerator(models.TransientModel):
                 is_female=story_data.get("is_female", False),
                 phone=story_data.get("phone"),
                 bank_name=story_data.get("bank"),
+                age=story_data.get("age"),
             )
             story_farms[story_id] = farm
 
@@ -757,8 +766,11 @@ class SPPFarmerDemoGenerator(models.TransientModel):
         is_female=False,
         phone=None,
         bank_name=None,
+        age=None,
     ):
         """Create a farm with the given attributes."""
+        import datetime
+
         Partner = self.env["res.partner"].sudo()  # nosemgrep
 
         farm_vals = {
@@ -792,6 +804,19 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             "is_group": False,
             "gender_id": gender_id,
         }
+        # OP#915 QA round-4: derive birthdate from age so the head's
+        # Demographics section is filled in. Picks a deterministic
+        # birth month/day based on the farmer name hash so reruns
+        # produce identical dates.
+        if age:
+            import zlib
+
+            digest = zlib.crc32(farmer_name.encode("utf-8"))
+            today = datetime.date.today()
+            birth_year = today.year - age
+            birth_month = (digest % 12) + 1
+            birth_day = ((digest // 12) % 28) + 1
+            individual_vals["birthdate"] = datetime.date(birth_year, birth_month, birth_day)
         if phone:
             individual_vals["phone"] = phone
         individual = Partner.create(individual_vals)
