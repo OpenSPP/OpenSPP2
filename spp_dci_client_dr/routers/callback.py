@@ -15,7 +15,7 @@ from odoo.addons.spp_dci.schemas import DCIEnvelope
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from ..middleware.signature import verify_dr_signature
-from ..services.dr_parsing import extract_disability_data
+from ..services.dr_parsing import extract_disability_data, unwrap_search_data
 
 _logger = logging.getLogger(__name__)
 
@@ -151,8 +151,7 @@ def _process_dr_search_result(env: Environment, result: dict, source_registry: s
             )
             return
 
-        data = result.get("data", {})
-        reg_records = data.get("reg_records", [])
+        reg_records = unwrap_search_data(result.get("data"))
 
         for record in reg_records:
             # Extract identifiers to find matching partner

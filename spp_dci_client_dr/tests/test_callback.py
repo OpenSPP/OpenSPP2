@@ -166,6 +166,26 @@ class TestDRCallbackProcessing(TransactionCase):
         self.assertEqual(len(status), 0)
         mock_find.assert_not_called()
 
+    def test_malformed_envelope_warns_and_does_not_crash(self):
+        """`data` of an unexpected type is rejected by unwrap_search_data with a WARN
+        rather than crashing the callback or silently processing garbage."""
+        from odoo.addons.spp_dci_client_dr.routers.callback import _process_dr_search_result
+
+        result = {
+            "status": "succ",
+            "data": "not-an-envelope",
+        }
+
+        with (
+            patch(
+                "odoo.addons.spp_dci_client_dr.routers.callback._find_partner_by_identifier",
+            ) as mock_find,
+            self.assertLogs("odoo.addons.spp_dci_client_dr.services.dr_parsing", level="WARNING"),
+        ):
+            _process_dr_search_result(self.env, result, "test-source-registry")
+
+        mock_find.assert_not_called()
+
     def test_update_overwrites_existing_record(self):
         """Calling _process_dr_search_result twice updates the existing record."""
         from odoo.addons.spp_dci_client_dr.routers.callback import _process_dr_search_result
