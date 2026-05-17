@@ -6,6 +6,7 @@ import logging
 from datetime import UTC, datetime
 from typing import Annotated
 
+from odoo import fields
 from odoo.api import Environment
 
 from odoo.addons.fastapi.dependencies import odoo_env
@@ -14,6 +15,7 @@ from odoo.addons.spp_dci.schemas import DCIEnvelope
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from ..middleware.signature import verify_dr_signature
+from ..services.dr_parsing import extract_disability_data
 
 _logger = logging.getLogger(__name__)
 
@@ -245,11 +247,8 @@ def _update_disability_status(
     # Use sudo() for API access - authentication is handled by signature verification
     DisabilityStatus = env["spp.dci.disability.status"].sudo()  # nosemgrep: odoo-sudo-without-context
 
-    # Extract disability data from record
-    has_disability = record.get("has_disability", False) or record.get("is_pwd", False)
-    disability_types = record.get("disability_types", [])
-    functional_scores = record.get("functional_scores", {})
-    assessment_date = record.get("assessment_date")
+    # Extract disability data using spec-aware parsing
+    extracted = extract_disability_data(record)
 
     # Find existing status
     existing = DisabilityStatus.search(
@@ -259,16 +258,14 @@ def _update_disability_status(
 
     vals = {
         "partner_id": partner.id,
-        "has_disability": has_disability,
-        "disability_types": json.dumps(disability_types) if isinstance(disability_types, list) else disability_types,
-        "functional_scores": json.dumps(functional_scores)
-        if isinstance(functional_scores, dict)
-        else functional_scores,
-        "assessment_date": assessment_date,
+        "has_disability": extracted["has_disability"],
+        "disability_types": json.dumps(extracted["disability_types"]),
+        "functional_scores": json.dumps(extracted["functional_scores"]),
+        "assessment_date": extracted["assessment_date"],
         "source_registry": source_registry,
         "raw_data": json.dumps(record),
         "state": "synced",
-        "last_sync_date": datetime.now(UTC),
+        "last_sync_date": fields.Datetime.now(),
         "synced_by": env.user.id,
     }
 
