@@ -537,6 +537,18 @@ imports</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.1</h1>
+<ul class="simple">
+<li>fix(security): add a global <tt class="docutils literal">ir.rule</tt> on <tt class="docutils literal">res.partner</tt> that
+filters registrants by <tt class="docutils literal">area_id</tt> for users with <tt class="docutils literal">center_area_ids</tt>
+set (OP#989). Replaces the limited <tt class="docutils literal">search_read</tt> /
+<tt class="docutils literal">web_search_read</tt> override in <tt class="docutils literal">models/registrant.py</tt> which missed
+<tt class="docutils literal">name_search</tt> (Many2one dropdowns), <tt class="docutils literal">search_count</tt>,
+<tt class="docutils literal">read_group</tt>, and related-field traversal. The rule’s conditional
+domain is a no-op for users without center areas (global roles).</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
