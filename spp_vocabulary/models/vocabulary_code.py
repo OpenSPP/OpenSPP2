@@ -90,6 +90,24 @@ class VocabularyCode(models.Model):
         default=False,
         help="Indicates if this is a local/country-specific code",
     )
+    code_source = fields.Selection(
+        [("system", "System"), ("manual", "Manual")],
+        string="Source",
+        compute="_compute_code_source",
+        store=True,
+        index=True,
+        help=(
+            "Where this code came from. 'System' = shipped by a module's data "
+            "files (immutable identifying fields). 'Manual' = added by an "
+            "admin via the UI (fully editable). Derived from is_local."
+        ),
+    )
+
+    @api.depends("is_local")
+    def _compute_code_source(self):
+        for rec in self:
+            rec.code_source = "manual" if rec.is_local else "system"
+
     reference_uri = fields.Char(
         string="Reference URI",
         help="For local codes: URI of the standard code this maps to",
