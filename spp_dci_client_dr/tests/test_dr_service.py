@@ -1,7 +1,6 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Tests for DRService."""
 
-import json
 from unittest.mock import MagicMock, patch
 
 from odoo.exceptions import UserError, ValidationError
@@ -85,40 +84,32 @@ class TestDRService(TransactionCase):
 
     def _create_mock_response(
         self,
-        has_disability=True,
-        disability_types=None,
-        functional_scores=None,
-        assessment_date="2024-11-15",
+        disability_status="Approved",
+        impairment_types=None,
+        last_updated="2024-11-15",
+        source_registry="National DR",
     ):
-        """Helper to create mock DR search response."""
-        if disability_types is None:
-            disability_types = ["Vision", "Mobility"]
-        if functional_scores is None:
-            functional_scores = {
-                "Vision": 3,
-                "Hearing": 1,
-                "Mobility": 4,
-                "Cognition": 1,
-                "SelfCare": 2,
-                "Communication": 1,
-            }
-
+        """Build a DCI v1.0.0 spec-envelope mock response."""
+        if impairment_types is None:
+            impairment_types = ["Vision", "Mobility"]
+        record = {
+            "disability_status": disability_status,
+            "disability_details": [{"impairment_type": t} for t in impairment_types],
+            "last_updated": last_updated,
+            "source_registry": source_registry,
+        }
         return {
             "message": {
                 "search_response": [
                     {
                         "reference_id": "ref-001",
                         "status": "succ",
-                        "data": [
-                            {
-                                "has_disability": has_disability,
-                                "is_pwd": has_disability,
-                                "disability_types": disability_types,
-                                "functional_scores": functional_scores,
-                                "assessment_date": assessment_date,
-                                "source_registry": "National DR",
-                            }
-                        ],
+                        "data": {
+                            "version": "1.0.0",
+                            "reg_type": "DR",
+                            "reg_record_type": "PERSON",
+                            "reg_records": [record],
+                        },
                     }
                 ]
             }
@@ -147,10 +138,9 @@ class TestDRService(TransactionCase):
 
     @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
     def test_get_disability_status_success(self, mock_client_class):
-        """Test successful disability status retrieval."""
+        """Test successful disability status retrieval with spec envelope."""
         from odoo.addons.spp_dci_client_dr.services.dr_service import DRService
 
-        # Setup mock
         mock_client = MagicMock()
         mock_client.search_by_id.return_value = self._create_mock_response()
         mock_client_class.return_value = mock_client
@@ -162,8 +152,7 @@ class TestDRService(TransactionCase):
         self.assertTrue(result["has_disability"])
         self.assertIn("Vision", result["disability_types"])
         self.assertIn("Mobility", result["disability_types"])
-        self.assertEqual(result["functional_scores"]["Vision"], 3)
-        self.assertEqual(result["functional_scores"]["Mobility"], 4)
+        self.assertEqual(result["functional_scores"], {})
 
     @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
     def test_get_disability_status_no_partner(self, mock_client_class):
@@ -201,7 +190,6 @@ class TestDRService(TransactionCase):
         """Test get_disability_status returns None when no DR record found."""
         from odoo.addons.spp_dci_client_dr.services.dr_service import DRService
 
-        # Mock empty response
         mock_client = MagicMock()
         mock_client.search_by_id.return_value = {"message": {"search_response": []}}
         mock_client_class.return_value = mock_client
@@ -216,7 +204,6 @@ class TestDRService(TransactionCase):
         """Test get_disability_status handles API errors."""
         from odoo.addons.spp_dci_client_dr.services.dr_service import DRService
 
-        # Mock API error
         mock_client = MagicMock()
         mock_client.search_by_id.side_effect = Exception("API connection failed")
         mock_client_class.return_value = mock_client
@@ -230,10 +217,9 @@ class TestDRService(TransactionCase):
 
     @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
     def test_get_functional_assessment_success(self, mock_client_class):
-        """Test successful functional assessment retrieval."""
+        """Test functional assessment returns empty dict (no numeric scores in spec)."""
         from odoo.addons.spp_dci_client_dr.services.dr_service import DRService
 
-        # Setup mock
         mock_client = MagicMock()
         mock_client.search_by_id.return_value = self._create_mock_response()
         mock_client_class.return_value = mock_client
@@ -242,9 +228,7 @@ class TestDRService(TransactionCase):
         result = service.get_functional_assessment("UIN", "UIN-TEST-12345")
 
         self.assertIsNotNone(result)
-        self.assertEqual(result["Vision"], 3)
-        self.assertEqual(result["Mobility"], 4)
-        self.assertEqual(result["Hearing"], 1)
+        self.assertEqual(result, {})
 
     @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
     def test_get_functional_assessment_missing_params(self, mock_client_class):
@@ -305,7 +289,7 @@ class TestDRService(TransactionCase):
         )
 
         mock_client = MagicMock()
-        mock_client.search_by_id.return_value = self._create_mock_response(has_disability=True)
+        mock_client.search_by_id.return_value = self._create_mock_response(disability_status="Approved")
         mock_client_class.return_value = mock_client
 
         service = DRService(self.env, data_source_code="dr_test")
@@ -329,7 +313,7 @@ class TestDRService(TransactionCase):
         )
 
         mock_client = MagicMock()
-        mock_client.search_by_id.return_value = self._create_mock_response(has_disability=True)
+        mock_client.search_by_id.return_value = self._create_mock_response(disability_status="Approved")
         mock_client_class.return_value = mock_client
 
         service = DRService(self.env, data_source_code="dr_test")
@@ -360,7 +344,7 @@ class TestDRService(TransactionCase):
         )
 
         mock_client = MagicMock()
-        mock_client.search_by_id.return_value = self._create_mock_response()
+        mock_client.search_by_id.return_value = self._create_mock_response(disability_status="Approved")
         mock_client_class.return_value = mock_client
 
         service = DRService(self.env, data_source_code="dr_test")
@@ -389,9 +373,7 @@ class TestDRService(TransactionCase):
         )
 
         mock_client = MagicMock()
-        mock_client.search_by_id.return_value = self._create_mock_response(
-            has_disability=True  # New value
-        )
+        mock_client.search_by_id.return_value = self._create_mock_response(disability_status="Approved")
         mock_client_class.return_value = mock_client
 
         service = DRService(self.env, data_source_code="dr_test")
@@ -439,76 +421,6 @@ class TestDRService(TransactionCase):
         self.assertFalse(status.has_disability)
         self.assertEqual(status.state, "synced")
 
-    def test_extract_disability_data_is_pwd_field(self):
-        """Test _extract_disability_data handles is_pwd field."""
-        from odoo.addons.spp_dci_client_dr.services.dr_service import DRService
-
-        # Test with is_pwd field instead of has_disability
-        record_data = {
-            "is_pwd": True,
-            "disability_types": ["Hearing"],
-        }
-
-        with patch.object(DRService, "__init__", lambda x, y, z: None):
-            service = DRService.__new__(DRService)
-            result = service._extract_disability_data(record_data)
-
-        self.assertTrue(result["has_disability"])
-
-    def test_extract_disability_data_string_types(self):
-        """Test _extract_disability_data handles comma-separated types."""
-        from odoo.addons.spp_dci_client_dr.services.dr_service import DRService
-
-        record_data = {
-            "has_disability": True,
-            "disability_types": "Vision, Hearing, Mobility",
-        }
-
-        with patch.object(DRService, "__init__", lambda x, y, z: None):
-            service = DRService.__new__(DRService)
-            result = service._extract_disability_data(record_data)
-
-        self.assertEqual(len(result["disability_types"]), 3)
-        self.assertIn("Vision", result["disability_types"])
-        self.assertIn("Hearing", result["disability_types"])
-        self.assertIn("Mobility", result["disability_types"])
-
-    def test_extract_functional_scores_domain_fields(self):
-        """Test _extract_functional_scores handles various field formats."""
-        from odoo.addons.spp_dci_client_dr.services.dr_service import DRService
-
-        # Test with individual domain fields
-        record_data = {
-            "functional_vision": 3,
-            "hearing_score": 1,
-            "mobility": 4,
-            "Cognition": 2,
-        }
-
-        with patch.object(DRService, "__init__", lambda x, y, z: None):
-            service = DRService.__new__(DRService)
-            result = service._extract_functional_scores(record_data)
-
-        self.assertEqual(result.get("Vision"), 3)
-        self.assertEqual(result.get("Hearing"), 1)
-        self.assertEqual(result.get("Mobility"), 4)
-        self.assertEqual(result.get("Cognition"), 2)
-
-    def test_extract_functional_scores_json_string(self):
-        """Test _extract_functional_scores handles JSON string."""
-        from odoo.addons.spp_dci_client_dr.services.dr_service import DRService
-
-        record_data = {
-            "functional_scores": json.dumps({"Vision": 3, "Hearing": 1}),
-        }
-
-        with patch.object(DRService, "__init__", lambda x, y, z: None):
-            service = DRService.__new__(DRService)
-            result = service._extract_functional_scores(record_data)
-
-        self.assertEqual(result["Vision"], 3)
-        self.assertEqual(result["Hearing"], 1)
-
     def test_get_partner_identifier_priority(self):
         """Test _get_partner_identifier follows priority order."""
         from odoo.addons.spp_dci_client_dr.services.dr_service import DRService
@@ -547,3 +459,242 @@ class TestDRService(TransactionCase):
         # Should return UIN_DR_TEST (higher priority vocabulary code)
         self.assertEqual(result[0], "UIN_DR_TEST")
         self.assertEqual(result[1], "UIN-456")
+
+    # --- additional spec-form coverage ---
+
+    @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
+    def test_get_disability_status_spec_rejected(self, mock_client_class):
+        """Test get_disability_status with rejected status returns has_disability=False."""
+        from odoo.addons.spp_dci_client_dr.services.dr_service import DRService
+
+        mock_client = MagicMock()
+        mock_client.search_by_id.return_value = self._create_mock_response(disability_status="Rejected")
+        mock_client_class.return_value = mock_client
+
+        service = DRService(self.env, data_source_code="dr_test")
+        result = service.get_disability_status(self.partner)
+
+        self.assertIsNotNone(result)
+        self.assertFalse(result["has_disability"])
+
+    @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
+    def test_get_disability_status_spec_unknown_status_warns(self, mock_client_class):
+        """Test get_disability_status with unknown status emits WARNING and returns True (has impairments)."""
+        from odoo.addons.spp_dci_client_dr.services.dr_service import DRService
+
+        mock_client = MagicMock()
+        mock_client.search_by_id.return_value = self._create_mock_response(disability_status="Pending")
+        mock_client_class.return_value = mock_client
+
+        service = DRService(self.env, data_source_code="dr_test")
+        with self.assertLogs("odoo.addons.spp_dci_client_dr.services.dr_parsing", level="WARNING") as cm:
+            result = service.get_disability_status(self.partner)
+
+        self.assertIsNotNone(result)
+        self.assertTrue(result["has_disability"])
+        self.assertTrue(any("Pending" in line for line in cm.output))
+
+    @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
+    def test_get_disability_status_extracts_impairment_types(self, mock_client_class):
+        """Test that impairment_type values are extracted into disability_types."""
+        from odoo.addons.spp_dci_client_dr.services.dr_service import DRService
+
+        mock_client = MagicMock()
+        mock_client.search_by_id.return_value = self._create_mock_response(
+            impairment_types=["Physical and movement related functions"]
+        )
+        mock_client_class.return_value = mock_client
+
+        service = DRService(self.env, data_source_code="dr_test")
+        result = service.get_disability_status(self.partner)
+
+        self.assertIsNotNone(result)
+        self.assertIn("Physical and movement related functions", result["disability_types"])
+
+    @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
+    def test_sync_disability_data_creates_record_rejected(self, mock_client_class):
+        """Test sync with rejected status creates record with has_disability=False."""
+        from odoo.addons.spp_dci_client_dr.services.dr_service import DRService
+
+        rejected_partner = self.Partner.create(
+            {
+                "name": "Rejected Person",
+                "is_registrant": True,
+            }
+        )
+        self.IdRecord.create(
+            {
+                "partner_id": rejected_partner.id,
+                "id_type_id": self.id_type_uin.id,
+                "value": "UIN-REJECTED-123",
+            }
+        )
+
+        mock_client = MagicMock()
+        mock_client.search_by_id.return_value = self._create_mock_response(disability_status="Rejected")
+        mock_client_class.return_value = mock_client
+
+        service = DRService(self.env, data_source_code="dr_test")
+        result = service.sync_disability_data(rejected_partner)
+
+        self.assertTrue(result)
+
+        status = self.DisabilityStatus.search([("partner_id", "=", rejected_partner.id)])
+        self.assertEqual(len(status), 1)
+        self.assertFalse(status.has_disability)
+        self.assertEqual(status.state, "synced")
+
+    @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
+    def test_get_functional_assessment_spec_envelope(self, mock_client_class):
+        """Test get_functional_assessment with spec envelope returns empty scores without raising."""
+        from odoo.addons.spp_dci_client_dr.services.dr_service import DRService
+
+        mock_client = MagicMock()
+        mock_client.search_by_id.return_value = self._create_mock_response(disability_status="Approved")
+        mock_client_class.return_value = mock_client
+
+        service = DRService(self.env, data_source_code="dr_test")
+        result = service.get_functional_assessment("UIN", "UIN-TEST-12345")
+
+        # Spec has no numeric scores: must return empty dict, not raise
+        self.assertIsNotNone(result)
+        self.assertEqual(result, {})
+
+    @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
+    def test_get_disability_status_empty_data(self, mock_client_class):
+        """Test get_disability_status returns None when data is empty envelope."""
+        from odoo.addons.spp_dci_client_dr.services.dr_service import DRService
+
+        mock_client = MagicMock()
+        mock_client.search_by_id.return_value = {
+            "message": {
+                "search_response": [
+                    {
+                        "reference_id": "ref-001",
+                        "status": "succ",
+                        "data": {
+                            "version": "1.0.0",
+                            "reg_record_type": "PERSON",
+                            "reg_records": [],
+                        },
+                    }
+                ]
+            }
+        }
+        mock_client_class.return_value = mock_client
+
+        service = DRService(self.env, data_source_code="dr_test")
+        result = service.get_disability_status(self.partner)
+
+        self.assertIsNone(result)
+
+    @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
+    def test_get_disability_status_missing_data_key(self, mock_client_class):
+        """Test get_disability_status returns None when data key is absent."""
+        from odoo.addons.spp_dci_client_dr.services.dr_service import DRService
+
+        mock_client = MagicMock()
+        mock_client.search_by_id.return_value = {
+            "message": {
+                "search_response": [
+                    {
+                        "reference_id": "ref-001",
+                        "status": "succ",
+                    }
+                ]
+            }
+        }
+        mock_client_class.return_value = mock_client
+
+        service = DRService(self.env, data_source_code="dr_test")
+        result = service.get_disability_status(self.partner)
+
+        self.assertIsNone(result)
+
+    def test_extract_disability_data_delegates_to_module(self):
+        """Test _extract_disability_data thin-delegates to dr_parsing module function."""
+        from odoo.addons.spp_dci_client_dr.services.dr_parsing import extract_disability_data
+        from odoo.addons.spp_dci_client_dr.services.dr_service import DRService
+
+        record = {
+            "disability_status": "Approved",
+            "disability_details": [{"impairment_type": "Vision"}],
+        }
+
+        with patch.object(DRService, "__init__", lambda x, y, z: None):
+            service = DRService.__new__(DRService)
+
+        service_result = service._extract_disability_data(record)
+        module_result = extract_disability_data(record)
+
+        self.assertEqual(service_result, module_result)
+
+    def test_extract_functional_scores_delegates_to_module(self):
+        """Test _extract_functional_scores thin-delegates to dr_parsing module function."""
+        from odoo.addons.spp_dci_client_dr.services.dr_parsing import extract_functional_scores
+        from odoo.addons.spp_dci_client_dr.services.dr_service import DRService
+
+        record = {
+            "disability_status": "Approved",
+            "disability_details": [{"impairment_type": "Vision"}],
+        }
+
+        with patch.object(DRService, "__init__", lambda x, y, z: None):
+            service = DRService.__new__(DRService)
+
+        self.assertEqual(service._extract_functional_scores(record), extract_functional_scores(record))
+        self.assertEqual(service._extract_functional_scores(record), {})
+
+    @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
+    def test_get_disability_status_spec_envelope_approved(self, mock_client_class):
+        """Test get_disability_status with DCI v1.0.0 spec envelope, approved status."""
+        from odoo.addons.spp_dci_client_dr.services.dr_service import DRService
+
+        mock_client = MagicMock()
+        mock_client.search_by_id.return_value = self._create_mock_response(
+            disability_status="Approved",
+            impairment_types=["Physical and movement related functions"],
+        )
+        mock_client_class.return_value = mock_client
+
+        service = DRService(self.env, data_source_code="dr_test")
+        result = service.get_disability_status(self.partner)
+
+        self.assertIsNotNone(result)
+        self.assertTrue(result["has_disability"])
+
+    @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
+    def test_get_disability_status_spec_envelope_rejected(self, mock_client_class):
+        """Test get_disability_status with DCI v1.0.0 spec envelope, rejected status."""
+        from odoo.addons.spp_dci_client_dr.services.dr_service import DRService
+
+        mock_client = MagicMock()
+        mock_client.search_by_id.return_value = self._create_mock_response(
+            disability_status="Rejected",
+            impairment_types=["Physical"],
+        )
+        mock_client_class.return_value = mock_client
+
+        service = DRService(self.env, data_source_code="dr_test")
+        result = service.get_disability_status(self.partner)
+
+        self.assertIsNotNone(result)
+        self.assertFalse(result["has_disability"])
+
+    @patch("odoo.addons.spp_dci_client_dr.services.dr_service.DCIClient")
+    def test_get_disability_status_spec_envelope_impairments(self, mock_client_class):
+        """Test that impairment_type values are extracted into disability_types."""
+        from odoo.addons.spp_dci_client_dr.services.dr_service import DRService
+
+        mock_client = MagicMock()
+        mock_client.search_by_id.return_value = self._create_mock_response(
+            disability_status="Approved",
+            impairment_types=["Physical and movement related functions"],
+        )
+        mock_client_class.return_value = mock_client
+
+        service = DRService(self.env, data_source_code="dr_test")
+        result = service.get_disability_status(self.partner)
+
+        self.assertIsNotNone(result)
+        self.assertIn("Physical and movement related functions", result["disability_types"])
