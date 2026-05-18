@@ -254,6 +254,19 @@ Dependencies
 Changelog
 =========
 
+19.0.2.1.2
+~~~~~~~~~~
+
+- fix(security): add global ``ir.rule`` records on
+  ``spp.program.membership`` and ``spp.cycle.membership`` that filter by
+  ``partner_id.area_id`` against the user's ``center_area_ids`` (OP#989
+  round-2). The earlier Python ``_prepare_domain`` override on program
+  memberships only caught ``search_read`` / ``web_search_read`` and
+  missed counts (``search_count``, ``read_group``), dropdowns
+  (``name_search``), and related-field traversal — and cycle memberships
+  had no filter at all. Both rules use a conditional domain that's a
+  no-op for users with no center areas (global roles).
+
 19.0.2.1.1
 ~~~~~~~~~~
 

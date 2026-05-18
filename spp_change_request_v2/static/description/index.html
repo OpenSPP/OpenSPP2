@@ -1339,7 +1339,7 @@ registrant</li>
 </div>
 </div>
 <div class="section" id="section-1">
-<h1>19.0.2.0.4</h1>
+<h1>19.0.2.0.6</h1>
 <ul class="simple">
 <li>fix(views): route post-submit CRs (pending / approved / applied /
 rejected) through the stage review form when opened from the list,
@@ -1351,6 +1351,19 @@ like manually-created CRs. Adds the missing
 <tt class="docutils literal">_action_open_review_form</tt> / <tt class="docutils literal">_action_open_documents_form</tt> helpers
 and wires <tt class="docutils literal"><span class="pre">action=&quot;action_open_stage_form&quot;</span> <span class="pre">type=&quot;object&quot;</span></tt> on the CR
 list so row-click goes through the stage router.</li>
+</ul>
+</div>
+<div class="section" id="section-1-5">
+<h1>19.0.2.0.5</h1>
+<ul class="simple">
+<li>fix(security): add a global <tt class="docutils literal">ir.rule</tt> on <tt class="docutils literal">spp.change.request</tt> that
+filters by <tt class="docutils literal">registrant_id.area_id</tt> against the user’s
+<tt class="docutils literal">center_area_ids</tt> (OP#989 round-2). The earlier <tt class="docutils literal">_prepare_domain</tt>
+override only caught <tt class="docutils literal">search_read</tt> / <tt class="docutils literal">web_search_read</tt> and missed
+the registrant Many2one picker (which uses <tt class="docutils literal">name_search</tt> →
+<tt class="docutils literal">_search</tt>), so users could still select out-of-area registrants. The
+conditional domain is a no-op for users with no center areas (global
+roles).</li>
 </ul>
 </div>
 <div class="section" id="section-2">
