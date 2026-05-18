@@ -23,7 +23,7 @@
     <record id="openg2p_dr_source" model="spp.dci.data.source">
         <field name="name">Social Registry</field>
         <field name="code">openg2p_dr</field>
-        <field name="registry_type">SR</field>
+        <field name="registry_type">ns:org:RegistryType:Social</field>
         <field name="vendor">openg2p</field>
         <field name="base_url">https://partner-registry.play.openg2p.org</field>
         <field name="search_endpoint">/dci/registry/sync/search</field>

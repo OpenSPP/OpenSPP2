@@ -60,7 +60,7 @@ class SppDciSrImportWizard(models.TransientModel):
         "spp.dci.data.source",
         string="Source Registry",
         required=True,
-        domain="[('registry_type', '=', 'SR'), ('vendor', '=', 'openg2p'), ('active', '=', True)]",
+        domain="[('registry_type', '=', 'ns:org:RegistryType:Social'), ('vendor', '=', 'openg2p'), ('active', '=', True)]",
         default=lambda self: self._default_data_source(),
         help="DCI data source to query. Restricted to active Social Registry "
         "(SR) sources configured with the vendor-specific request semantics "
@@ -136,7 +136,7 @@ class SppDciSrImportWizard(models.TransientModel):
         """
         return self.env["spp.dci.data.source"].search(
             [
-                ("registry_type", "=", "SR"),
+                ("registry_type", "=", "ns:org:RegistryType:Social"),
                 ("vendor", "=", "openg2p"),
                 ("active", "=", True),
             ],
