@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!--
+        Multi-step form for the SR-import wizard. The same form renders
+        all three steps (configure → preview → done); fields visibility
+        is gated on the `state` field via the `invisible` attribute so
+        the operator sees only the relevant pane at each step.
+    -->
+    <record id="view_spp_dci_sr_import_wizard_form" model="ir.ui.view">
+        <field name="name">spp.dci.sr.import.wizard.form</field>
+        <field name="model">spp.dci.sr.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import Registrants from SR">
+                <field name="state" invisible="1" />
+                <!-- =========================================== -->
+                <!-- Step 1: Configure                            -->
+                <!-- =========================================== -->
+                <group invisible="state != 'configure'">
+                    <group string="Source">
+                        <field name="data_source_id" options="{'no_create': True}" />
+                    </group>
+                    <group string="Discovery">
+                        <field name="discovery_mode" widget="radio" />
+                    </group>
+                    <group string="Range Sweep" invisible="discovery_mode != 'range'">
+                        <field name="range_prefix" />
+                        <field name="range_start" />
+                        <field name="range_end" />
+                        <field name="range_pad" />
+                    </group>
+                    <group
+                        string="Identifier List"
+                        invisible="discovery_mode != 'list'"
+                    >
+                        <field
+                            name="identifier_list_raw"
+                            nolabel="1"
+                            placeholder="One identifier per line.&#10;# Lines starting with hash are ignored.&#10;IND-NSR-0001&#10;IND-NSR-0007"
+                            widget="text"
+                        />
+                    </group>
+                    <group string="After Import">
+                        <field
+                            name="auto_enroll_program_id"
+                            options="{'no_create': True}"
+                        />
+                    </group>
+                </group>
+                <!-- =========================================== -->
+                <!-- Step 2: Preview                              -->
+                <!-- =========================================== -->
+                <group invisible="state != 'preview'">
+                    <field name="preview_summary" readonly="1" nolabel="1" />
+                </group>
+                <field
+                    name="preview_line_ids"
+                    invisible="state != 'preview'"
+                    nolabel="1"
+                >
+                    <list editable="bottom" create="false" delete="false">
+                        <field name="selected" />
+                        <field name="uin" readonly="1" />
+                        <field name="status" readonly="1" />
+                        <field name="given_name" readonly="1" />
+                        <field name="surname" readonly="1" />
+                        <field name="sex" readonly="1" />
+                        <field name="birth_date" readonly="1" />
+                        <field name="already_exists" readonly="1" />
+                        <field
+                            name="existing_partner_id"
+                            readonly="1"
+                            optional="hide"
+                        />
+                        <field name="error_message" readonly="1" optional="hide" />
+                    </list>
+                </field>
+                <!-- =========================================== -->
+                <!-- Step 3: Done                                 -->
+                <!-- =========================================== -->
+                <group invisible="state != 'done'">
+                    <field name="preview_summary" readonly="1" nolabel="1" />
+                </group>
+                <footer>
+                    <button
+                        name="action_preview"
+                        string="Preview"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'configure'"
+                    />
+                    <button
+                        name="action_back_to_configure"
+                        string="Back"
+                        type="object"
+                        invisible="state != 'preview'"
+                    />
+                    <button
+                        name="action_import"
+                        string="Import Selected"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'preview'"
+                    />
+                    <button string="Close" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_spp_dci_sr_import_wizard" model="ir.actions.act_window">
+        <field name="name">Import from External Registry (DCI)</field>
+        <field name="res_model">spp.dci.sr.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!--
+        Slot the wizard under Registry → as a top-level action item.
+        Sits beside the existing Registrants list so operators discover
+        it naturally when they're working with registrant data.
+    -->
+    <menuitem
+        id="menu_spp_dci_sr_import_wizard"
+        name="Import from External Registry"
+        parent="spp_registry.spp_main_menu_root"
+        action="action_spp_dci_sr_import_wizard"
+        sequence="90"
+    />
+</odoo>

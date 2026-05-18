@@ -12,13 +12,16 @@
     "depends": [
         "spp_cel_dci_bridge",
         "spp_vocabulary",
+        "spp_registry",
     ],
     "external_dependencies": {"python": []},
     "data": [
+        "security/ir.model.access.csv",
         "data/openg2p_id_types.xml",
         "data/openg2p_data_source.xml",
         "data/openg2p_data_provider.xml",
         "data/openg2p_cel_variables.xml",
+        "views/sr_import_wizard_views.xml",
     ],
     "installable": True,
     "application": False,
