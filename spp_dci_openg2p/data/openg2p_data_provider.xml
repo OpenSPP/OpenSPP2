@@ -8,7 +8,7 @@
         of 300s for the demo; production deployments may raise this.
     -->
     <record id="openg2p_dr_provider" model="spp.data.provider">
-        <field name="name">OpenG2P Disability Registry</field>
+        <field name="name">Social Registry</field>
         <field name="code">openg2p_dr</field>
         <field name="active" eval="True" />
         <field name="dci_data_source_id" ref="openg2p_dr_source" />

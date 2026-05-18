@@ -64,10 +64,10 @@
     -->
     <record id="var_is_poor" model="spp.cel.variable">
         <field name="name">is_poor</field>
-        <field name="label">Is Poor (OpenG2P SR income_level)</field>
+        <field name="label">Is Poor (Social Registry income_level)</field>
         <field
             name="description"
-        >Poverty proxy sourced from OpenG2P SR's `income_level` field. CEL rules match `is_poor == "low"` (or other income tiers). The variable surfaces the raw `income_level` string, not a boolean — the eligibility rule decides which level counts as poor. See ADR-024 for the federated topology and CONFIGURE.md for the field-mapping rationale.</field>
+        >Poverty proxy sourced from the Social Registry's `income_level` field. CEL rules match `is_poor == "low"` (or other income tiers). The variable surfaces the raw `income_level` string, not a boolean — the eligibility rule decides which level counts as poor. See ADR-024 for the federated topology and CONFIGURE.md for the field-mapping rationale.</field>
         <field name="category_id" ref="spp_studio.variable_category_economic" />
         <field name="value_type">string</field>
         <field name="source_type">external</field>
@@ -87,10 +87,10 @@
         <field name="name">has_dependent_under_school_age</field>
         <field
             name="label"
-        >Has Dependent Under School Age (DEFERRED — OpenG2P does not expose)</field>
+        >Has Dependent Under School Age (DEFERRED — Social Registry does not expose)</field>
         <field
             name="description"
-        >Deferred: OpenG2P's SR `reg_records[0]` does not include household composition or dependent birth dates, so this variable cannot be sourced today. Kept as an inactive placeholder for the demo rule's eventual revival. See CONFIGURE.md "Deferred features" for the path forward.</field>
+        >Deferred: the Social Registry's `reg_records[0]` does not include household composition or dependent birth dates, so this variable cannot be sourced today. Kept as an inactive placeholder for the demo rule's eventual revival. See CONFIGURE.md "Deferred features" for the path forward.</field>
         <field name="category_id" ref="spp_studio.variable_category_demographics" />
         <field name="value_type">boolean</field>
         <field name="source_type">external</field>

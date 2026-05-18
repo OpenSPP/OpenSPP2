@@ -25,7 +25,7 @@
         <field name="target_type">individual</field>
         <field
             name="definition"
-        >Universal Identification Number — the canonical SPDCI identifier sent to OpenG2P's DCI search endpoint as the `id_type` field.</field>
+        >Universal Identification Number — the canonical SPDCI identifier sent to the Social Registry's DCI search endpoint as the `id_type` field.</field>
         <field name="sequence">20</field>
     </record>
 </odoo>

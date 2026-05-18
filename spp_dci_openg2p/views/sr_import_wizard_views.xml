@@ -10,7 +10,7 @@
         <field name="name">spp.dci.sr.import.wizard.form</field>
         <field name="model">spp.dci.sr.import.wizard</field>
         <field name="arch" type="xml">
-            <form string="Import Registrants from SR">
+            <form string="Import Registrants from Social Registry">
                 <field name="state" invisible="1" />
                 <!-- =========================================== -->
                 <!-- Step 1: Configure                            -->

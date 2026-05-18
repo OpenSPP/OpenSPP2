@@ -21,7 +21,7 @@
         (e.g., is_poor, has_dependent_under_school_age) into CEL.
     -->
     <record id="openg2p_dr_source" model="spp.dci.data.source">
-        <field name="name">OpenG2P Social Registry</field>
+        <field name="name">Social Registry</field>
         <field name="code">openg2p_dr</field>
         <field name="registry_type">SR</field>
         <field name="vendor">openg2p</field>
@@ -45,6 +45,6 @@
         <field name="state">draft</field>
         <field
             name="notes"
-        >OpenG2P playground preset (Social Registry role). Routed through the bridge's _handler_sr by registry_type=SR; the vendor-specific service (services/openg2p_social_service.py) is selected by vendor=openg2p. See ADR-024 for the federated demo topology.</field>
+        >Social Registry DCI source preset. Routed through the bridge's _handler_sr by registry_type=SR; the vendor-specific service (services/openg2p_social_service.py) is selected by vendor=openg2p. See ADR-024 for the federated demo topology.</field>
     </record>
 </odoo>

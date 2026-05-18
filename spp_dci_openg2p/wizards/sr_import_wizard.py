@@ -62,8 +62,9 @@ class SppDciSrImportWizard(models.TransientModel):
         required=True,
         domain="[('registry_type', '=', 'SR'), ('vendor', '=', 'openg2p'), ('active', '=', True)]",
         default=lambda self: self._default_data_source(),
-        help="DCI data source to query. Restricted to vendor=openg2p SR "
-        "sources — this wizard uses OpenG2P-specific request semantics.",
+        help="DCI data source to query. Restricted to active Social Registry "
+        "(SR) sources configured with the vendor-specific request semantics "
+        "used by this wizard.",
     )
 
     discovery_mode = fields.Selection(
