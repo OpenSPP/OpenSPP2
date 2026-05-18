@@ -1,16 +1,16 @@
-uin,given_name,surname,sex,birth_date,marital_status,employment_status,occupation,income_level,education_level,openg2p_is_disabled,openg2p_self_id_disability,household_id,relationship_to_head,citizenship_category,displacement_status,demo_dr_has_disability,demo_expected_verdict
-IND-NSR-0001,Alex,Rivera,male,1984-04-10,married,self employed,wage labourer,low,,False,0,HH-NSR-0001,self,citizen,host_community,true,ENROLLED
-IND-NSR-0002,Priya,Rivera,female,1986-06-22,married,self employed,petty trader,low,,False,0,HH-NSR-0001,spouse,citizen,host_community,false,not eligible
-IND-NSR-0003,Noah,Rivera,male,2017-01-15,single,student,student,,,False,0,HH-NSR-0001,child,citizen,host_community,false,not eligible
-IND-NSR-0004,Morgan,Cole,female,1968-09-02,widowed,unemployed,small-plot farmer,low,,True,1,HH-NSR-0002,self,citizen,host_community,true,ENROLLED
-IND-NSR-0005,Leah,Cole,female,1998-02-10,single,employed,shop assistant,low,,False,0,HH-NSR-0002,child,citizen,host_community,false,not eligible
-IND-NSR-0006,Nia,Cole,female,2019-11-01,single,student,student,,,False,0,HH-NSR-0002,other_relative,citizen,host_community,true,not eligible
-IND-NSR-0007,Kim,Lee,male,1981-07-18,married,employed,clerk,medium,,False,0,HH-NSR-0003,self,citizen,host_community,true,not eligible
-IND-NSR-0008,Jun,Lee,female,1982-12-04,married,self employed,tailor,medium,,False,0,HH-NSR-0003,spouse,citizen,host_community,false,not eligible
-IND-NSR-0009,Rin,Lee,female,1953-05-30,widowed,retired,retired,,,True,1,HH-NSR-0003,parent,citizen,host_community,true,not eligible
-IND-NSR-0010,Taylor,Brooks,others,1990-03-25,single,unemployed,none,low,,True,1,HH-NSR-0004,self,refugee,idp,true,ENROLLED
-IND-NSR-0011,Iris,Brooks,female,1957-11-12,widowed,retired,retired,,,False,0,HH-NSR-0004,parent,refugee,idp,false,not eligible
-IND-NSR-0012,Reyn,Brooks,male,2015-08-19,single,student,student,,,False,0,HH-NSR-0004,sibling,refugee,idp,false,not eligible
-IND-NSR-0013,Sam,Hayes,female,1987-01-05,married,self employed,livestock keeper,low,,False,0,HH-NSR-0005,self,citizen,host_community,true,ENROLLED
-IND-NSR-0014,Dev,Hayes,male,1984-07-20,married,self employed,livestock keeper,low,,False,0,HH-NSR-0005,spouse,citizen,host_community,false,not eligible
-IND-NSR-0015,Asha,Hayes,female,2011-06-14,single,student,student,,,False,0,HH-NSR-0005,child,citizen,host_community,true,not eligible
+uin,given_name,surname,sex,birth_date,marital_status,employment_status,occupation
+IND-NSR-0001,Alex,Rivera,male,1984-04-10,married,self employed,wage labourer
+IND-NSR-0002,Priya,Rivera,female,1986-06-22,married,self employed,petty trader
+IND-NSR-0003,Noah,Rivera,male,2017-01-15,single,student,student
+IND-NSR-0004,Morgan,Cole,female,1968-09-02,widowed,unemployed,small-plot farmer
+IND-NSR-0005,Leah,Cole,female,1998-02-10,single,employed,shop assistant
+IND-NSR-0006,Nia,Cole,female,2019-11-01,single,student,student
+IND-NSR-0007,Kim,Lee,male,1981-07-18,married,employed,clerk
+IND-NSR-0008,Jun,Lee,female,1982-12-04,married,self employed,tailor
+IND-NSR-0009,Rin,Lee,female,1953-05-30,widowed,retired,retired
+IND-NSR-0010,Taylor,Brooks,others,1990-03-25,single,unemployed,none
+IND-NSR-0011,Iris,Brooks,female,1957-11-12,widowed,retired,retired
+IND-NSR-0012,Reyn,Brooks,male,2015-08-19,single,student,student
+IND-NSR-0013,Sam,Hayes,female,1987-01-05,married,self employed,livestock keeper
+IND-NSR-0014,Dev,Hayes,male,1984-07-20,married,self employed,livestock keeper
+IND-NSR-0015,Asha,Hayes,female,2011-06-14,single,student,student
