@@ -49,8 +49,8 @@
                         invisible="state != 'announced'"
                     />
                     <button
-                        name="action_inspect"
-                        string="Mark Inspected"
+                        name="action_open_inspection_wizard"
+                        string="Inspect Items"
                         type="object"
                         class="btn-primary"
                         invisible="state != 'received'"
@@ -181,8 +181,8 @@
                                         optional="hide"
                                         options="{'no_create': True}"
                                     />
-                                    <field name="lot_number" optional="hide" />
-                                    <field name="expiry_date" optional="hide" />
+                                    <field name="lot_number" optional="show" />
+                                    <field name="expiry_date" optional="show" />
                                 </list>
                             </field>
                         </page>
@@ -455,8 +455,8 @@
                 <field name="unit_value" />
                 <field name="value" />
                 <field name="condition_id" optional="show" />
-                <field name="lot_number" optional="hide" />
-                <field name="expiry_date" optional="hide" />
+                <field name="lot_number" optional="show" />
+                <field name="expiry_date" optional="show" />
             </list>
         </field>
     </record>

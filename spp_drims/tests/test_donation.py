@@ -668,3 +668,178 @@ class TestDrimsDonation(DrimsTestCommon):
         # Should fail
         with self.assertRaises(UserError):
             donation.action_cancel()
+
+    # ---------- OP#961: lot/serial assignment on action_stock ----------
+
+    def _make_tracked_product(self, tracking, name="Tracked Item"):
+        return self.env["product.product"].create(
+            {
+                "name": name,
+                "type": "consu",
+                "is_storable": True,
+                "tracking": tracking,
+                "standard_price": 50.0,
+            }
+        )
+
+    def _make_donation(self, line_vals):
+        return self.env["spp.drims.donation"].create(
+            {
+                "incident_id": self.incident.id,
+                "warehouse_id": self.warehouse.id,
+                "donor_name": "Test Donor",
+                "line_ids": [(0, 0, vals) for vals in line_vals],
+            }
+        )
+
+    def test_action_stock_creates_lot_for_lot_tracked_product(self):
+        """Lot-tracked product validates and a stock.lot is created from lot_number."""
+        product = self._make_tracked_product("lot", "Rice 25kg (lot)")
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": product.id,
+                    "quantity_pledged": 10,
+                    "uom_id": product.uom_id.id,
+                    "lot_number": "LOT-RICE-001",
+                }
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        donation.action_stock()
+        self.assertEqual(donation.state, "stocked")
+        lot = self.env["stock.lot"].search(
+            [("name", "=", "LOT-RICE-001"), ("product_id", "=", product.id)],
+            limit=1,
+        )
+        self.assertTrue(lot, "expected a stock.lot named LOT-RICE-001 to be created")
+
+    def test_action_stock_sets_expiry_when_provided(self):
+        """expiry_date on the donation line propagates to stock.lot.expiration_date."""
+        if "expiration_date" not in self.env["stock.lot"]._fields:
+            self.skipTest("product_expiry module not installed")
+        product = self._make_tracked_product("lot", "Vaccine (lot)")
+        expiry = date.today() + timedelta(days=180)
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": product.id,
+                    "quantity_pledged": 5,
+                    "uom_id": product.uom_id.id,
+                    "lot_number": "LOT-VAC-2026",
+                    "expiry_date": expiry,
+                }
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        donation.action_stock()
+        lot = self.env["stock.lot"].search(
+            [("name", "=", "LOT-VAC-2026"), ("product_id", "=", product.id)],
+            limit=1,
+        )
+        self.assertTrue(lot)
+        # expiration_date may be Date or Datetime depending on product_expiry version
+        stored = lot.expiration_date
+        if hasattr(stored, "date"):
+            stored = stored.date()
+        self.assertEqual(stored, expiry)
+
+    def test_action_stock_reuses_existing_lot(self):
+        """A stock.lot with the same name + product is reused, not duplicated."""
+        product = self._make_tracked_product("lot", "Rice 25kg (existing lot)")
+        existing = self.env["stock.lot"].create(
+            {
+                "name": "LOT-RICE-EXISTING",
+                "product_id": product.id,
+                "company_id": self.env.company.id,
+            }
+        )
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": product.id,
+                    "quantity_pledged": 3,
+                    "uom_id": product.uom_id.id,
+                    "lot_number": "LOT-RICE-EXISTING",
+                }
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        donation.action_stock()
+        lots = self.env["stock.lot"].search([("name", "=", "LOT-RICE-EXISTING"), ("product_id", "=", product.id)])
+        self.assertEqual(len(lots), 1)
+        self.assertEqual(lots, existing)
+
+    def test_action_stock_serial_qty_one_succeeds(self):
+        """Serial-tracked product with quantity 1 and lot_number validates."""
+        product = self._make_tracked_product("serial", "Generator (serial)")
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": product.id,
+                    "quantity_pledged": 1,
+                    "uom_id": product.uom_id.id,
+                    "lot_number": "SN-GEN-001",
+                }
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        donation.action_stock()
+        self.assertEqual(donation.state, "stocked")
+
+    def test_action_stock_serial_qty_gt_one_raises(self):
+        """Serial product with quantity > 1 raises UserError (one serial per unit)."""
+        product = self._make_tracked_product("serial", "Generator multi")
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": product.id,
+                    "quantity_pledged": 3,
+                    "uom_id": product.uom_id.id,
+                    "lot_number": "SN-GEN-002",
+                }
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        with self.assertRaises(UserError):
+            donation.action_stock()
+
+    def test_action_stock_missing_lot_number_raises(self):
+        """Tracked product without lot_number raises a friendly UserError."""
+        product = self._make_tracked_product("lot", "Rice missing lot")
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": product.id,
+                    "quantity_pledged": 2,
+                    "uom_id": product.uom_id.id,
+                    # lot_number intentionally omitted
+                }
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        with self.assertRaises(UserError):
+            donation.action_stock()
+
+    def test_action_stock_untracked_product_unaffected(self):
+        """Untracked products continue to validate without any lot handling."""
+        # self.product has tracking='none' by default
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 25,
+                    "uom_id": self.product.uom_id.id,
+                }
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        donation.action_stock()
+        self.assertEqual(donation.state, "stocked")

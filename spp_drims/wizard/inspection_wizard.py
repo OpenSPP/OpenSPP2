@@ -56,7 +56,14 @@ class InspectionWizard(models.TransientModel):
 
     @api.depends("line_ids.is_inspected", "line_ids.quantity", "line_ids.quantity_expected")
     def _compute_is_valid(self):
-        """Check if all items are inspected and quantities match."""
+        """Check if all items are inspected and quantities match.
+
+        OP#964: the expected-equals-total check only applies when the
+        user has split a product into multiple inspection lines. A single
+        line per product is treated as the user reporting the final
+        received quantity (which may differ from the pre-inspection
+        ``quantity_received`` hint), so we don't block them on equality.
+        """
         for wizard in self:
             if not wizard.line_ids:
                 wizard.is_valid = False
@@ -68,7 +75,7 @@ class InspectionWizard(models.TransientModel):
                 wizard.is_valid = False
                 continue
 
-            # Check quantities match per product
+            # Check split totals match per product (only when actually split)
             products = {}
             for line in wizard.line_ids:
                 product_id = line.product_id.id
@@ -76,11 +83,14 @@ class InspectionWizard(models.TransientModel):
                     products[product_id] = {
                         "expected": line.quantity_expected,
                         "total": 0.0,
+                        "count": 0,
                     }
                 products[product_id]["total"] += line.quantity
+                products[product_id]["count"] += 1
 
-            quantities_match = all(abs(data["expected"] - data["total"]) < 0.001 for data in products.values())
-            wizard.is_valid = quantities_match
+            wizard.is_valid = all(
+                data["count"] <= 1 or abs(data["expected"] - data["total"]) < 0.001 for data in products.values()
+            )
 
     def action_accept_all(self):
         """Accept all items as New/Accept - one click for simple cases."""
@@ -153,19 +163,26 @@ class InspectionWizard(models.TransientModel):
             products[product_id]["total"] += line.quantity
             products[product_id]["lines"].append(line)
 
+        # OP#964: only enforce equality when the user has split a product
+        # into multiple lines. A single line is treated as the user
+        # reporting the final received quantity, and ``quantity_received``
+        # on the donation line will be overwritten to match below.
         for _product_id, data in products.items():
+            if len(data["lines"]) <= 1:
+                continue
             diff = abs(data["expected"] - data["total"])
             if diff > 0.001:
                 raise UserError(
                     _(
-                        "Product %(product)s: Total inspected (%(total)s) must equal "
-                        "expected (%(expected)s). Difference: %(diff)s"
+                        "Product %(product)s: split quantities total %(total)s but "
+                        "received quantity is %(expected)s. Splits must sum to the "
+                        "received quantity. Adjust splits or change the Received "
+                        "quantity on the donation line first."
                     )
                     % {
                         "product": data["name"],
                         "total": data["total"],
                         "expected": data["expected"],
-                        "diff": diff,
                     }
                 )
 

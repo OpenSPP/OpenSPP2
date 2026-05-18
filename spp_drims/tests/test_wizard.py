@@ -355,28 +355,83 @@ class TestInspectionWizard(DrimsTestCommon):
             wizard.action_confirm_inspection()
         self.assertIn("inspect all items", str(cm.exception))
 
-    def test_inspection_wizard_validation_quantity_mismatch(self):
-        """Test validation fails if quantities don't match."""
+    def test_inspection_wizard_single_line_quantity_overrides_received(self):
+        """OP#964: a single inspection line is treated as the user reporting
+        the final received quantity. Confirming with a different quantity
+        than the wizard's expected hint should succeed and update
+        ``quantity_received`` on the donation line accordingly.
+        """
         if not self.condition_new or not self.disposition_accept:
             self.skipTest("Required vocabulary codes not found")
 
         donation = self._create_received_donation(quantity=1000)
         wizard = self._open_inspection_wizard(donation)
 
-        # Manually change quantity to create mismatch
-        wizard.line_ids[0].write(
+        wizard.line_ids[0].write({"quantity": 800})
+
+        self.assertTrue(wizard.is_valid, "single-line wizard should always be valid")
+        wizard.action_confirm_inspection()
+        self.assertEqual(donation.state, "inspected")
+        self.assertEqual(donation.line_ids[0].quantity_received, 800)
+
+    def test_inspection_wizard_split_mismatch_still_raises(self):
+        """OP#964: when the user splits a product across multiple lines,
+        the totals must still sum to the expected quantity — that
+        safety net is preserved.
+        """
+        if not self.condition_new or not self.condition_damaged:
+            self.skipTest("Required vocabulary codes not found")
+        if not self.disposition_accept or not self.disposition_return:
+            self.skipTest("Required vocabulary codes not found")
+
+        donation = self._create_received_donation(quantity=1000)
+        original_line = donation.line_ids[0]
+        wizard = self._open_inspection_wizard(donation)
+
+        # Two lines that sum to 950 ≠ 1000 received → should raise
+        wizard.line_ids[0].write({"quantity": 800})
+        self.env["spp.drims.inspection.wizard.line"].create(
             {
-                "quantity": 800,  # Less than expected 1000
+                "wizard_id": wizard.id,
+                "donation_line_id": original_line.id,
+                "product_id": self.product.id,
+                "uom_id": self.product.uom_id.id,
+                "quantity_expected": 1000,
+                "quantity": 150,  # 800 + 150 = 950 ≠ 1000
+                "condition_id": self.condition_damaged.id,
+                "disposition_id": self.disposition_return.id,
+                "is_inspected": True,
             }
         )
 
-        # is_valid should be False
         self.assertFalse(wizard.is_valid)
-
-        # Should fail confirmation
         with self.assertRaises(UserError) as cm:
             wizard.action_confirm_inspection()
-        self.assertIn("must equal", str(cm.exception))
+        self.assertIn("Splits must sum", str(cm.exception))
+
+    def test_inspection_wizard_quantity_received_zero_uses_pledged(self):
+        """OP#964: when a donation line has quantity_received = 0 (e.g., it
+        was added after action_mark_received ran, or pledged was 0), the
+        wizard should fall back to quantity_pledged so the user can
+        still finalize inspection. Reproduces the bug from the original
+        screenshot.
+        """
+        if not self.condition_new or not self.disposition_accept:
+            self.skipTest("Required vocabulary codes not found")
+
+        donation = self._create_received_donation(quantity=500)
+        # Simulate the bug: line added with pledged=500 but received=0
+        # (because action_mark_received already ran for the original lines).
+        donation.line_ids[0].quantity_received = 0
+
+        wizard = self._open_inspection_wizard(donation)
+        # Wizard line should pick up pledged (500), not received (0)
+        self.assertEqual(wizard.line_ids[0].quantity_expected, 500)
+        self.assertTrue(wizard.is_valid)
+
+        wizard.action_confirm_inspection()
+        self.assertEqual(donation.state, "inspected")
+        self.assertEqual(donation.line_ids[0].quantity_received, 500)
 
     def test_inspection_wizard_only_received_donations(self):
         """Test that only received donations can be inspected."""

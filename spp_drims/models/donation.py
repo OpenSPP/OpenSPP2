@@ -404,17 +404,24 @@ class DrimsDonation(models.Model):
             }
         )
 
-        # Create all line records with default values (New/Accept)
+        # Create all line records with default values (New/Accept).
+        # OP#964: fall back to quantity_pledged when quantity_received is 0
+        # so wizard lines never open with an expected of 0 — that happens
+        # when a donation line is added after the donation was marked
+        # received (so action_mark_received didn't copy pledged → received
+        # for it), and would otherwise force the user into a quantity
+        # mismatch they cannot resolve.
         line_vals = []
         for donation_line in self.line_ids:
+            expected_qty = donation_line.quantity_received or donation_line.quantity_pledged
             line_vals.append(
                 {
                     "wizard_id": wizard.id,
                     "donation_line_id": donation_line.id,
                     "product_id": donation_line.product_id.id,
                     "uom_id": donation_line.uom_id.id,
-                    "quantity_expected": donation_line.quantity_received,
-                    "quantity": donation_line.quantity_received,
+                    "quantity_expected": expected_qty,
+                    "quantity": expected_qty,
                     "condition_id": condition_new.id if condition_new else False,
                     "disposition_id": disposition_accept.id if disposition_accept else False,
                     "is_inspected": True,  # Default to inspected (New/Accept)
@@ -440,10 +447,18 @@ class DrimsDonation(models.Model):
         This action:
         1. Transitions the donation from 'inspected' to 'stocked' state
         2. Validates all pending stock pickings (assigns and confirms moves)
-        3. Items become available in warehouse inventory
+        3. For lot/serial-tracked products, creates stock.lot records from
+           the donation line's ``lot_number`` (+ ``expiry_date`` if the
+           ``product_expiry`` module is installed) and attaches them to
+           the picking's move lines so ``button_validate()`` succeeds
+        4. Items become available in warehouse inventory
 
         Raises:
             UserError: If donation is not in 'inspected' state.
+            UserError: If a tracked product line has no ``lot_number`` set.
+            UserError: If a serial-tracked product line has quantity > 1
+                (each serial must be unique; the donation line must be
+                split so quantity == 1).
         """
         stocked_state = self.env["spp.vocabulary.code"].search(
             [
@@ -452,6 +467,8 @@ class DrimsDonation(models.Model):
             ],
             limit=1,
         )
+        Lot = self.env["stock.lot"]
+        has_expiration = "expiration_date" in Lot._fields
         for rec in self:
             if rec.state != DONATION_STATE_INSPECTED:
                 raise UserError(_("Only inspected donations can be marked as stocked."))
@@ -459,9 +476,72 @@ class DrimsDonation(models.Model):
             # Validate the picking to complete the receipt
             for picking in rec.picking_ids.filtered(lambda p: p.state not in ("done", "cancel")):
                 picking.action_assign()
+                rec._assign_lots_to_picking(picking, Lot, has_expiration)
                 for move in picking.move_ids:
                     move.quantity = move.product_uom_qty
                 picking.button_validate()
+
+    def _assign_lots_to_picking(self, picking, Lot, has_expiration):
+        """Create + attach stock.lot for tracked-product moves on the picking.
+
+        For each move whose product is tracked by lot or serial, the
+        corresponding donation line (via ``drims_donation_line_id``)
+        carries the lot number and (optionally) the expiry date. This
+        method finds or creates the ``stock.lot`` and attaches it to the
+        move's move lines so the picking validates without Odoo's
+        "lot/serial required" UserError.
+        """
+        self.ensure_one()
+        for move in picking.move_ids:
+            tracking = move.product_id.tracking
+            if tracking == "none":
+                continue
+            line = move.drims_donation_line_id
+            if not line or not line.lot_number:
+                raise UserError(
+                    _(
+                        "Product %(product)s on donation %(donation)s requires a "
+                        "lot/serial number. Please fill the Lot/Batch field on "
+                        "the donation line before stocking."
+                    )
+                    % {
+                        "product": move.product_id.display_name,
+                        "donation": self.reference,
+                    }
+                )
+            if tracking == "serial" and move.product_uom_qty > 1:
+                raise UserError(
+                    _(
+                        "Product %(product)s is serial-tracked but the donation "
+                        "line provides one serial number for %(qty)s units. Each "
+                        "serial must be unique — split the donation line into "
+                        "%(qty)s separate lines (quantity 1 each)."
+                    )
+                    % {
+                        "product": move.product_id.display_name,
+                        "qty": int(move.product_uom_qty),
+                    }
+                )
+            lot = Lot.search(
+                [
+                    ("name", "=", line.lot_number),
+                    ("product_id", "=", move.product_id.id),
+                    ("company_id", "=", picking.company_id.id),
+                ],
+                limit=1,
+            )
+            if not lot:
+                lot_vals = {
+                    "name": line.lot_number,
+                    "product_id": move.product_id.id,
+                    "company_id": picking.company_id.id,
+                }
+                if has_expiration and line.expiry_date:
+                    lot_vals["expiration_date"] = line.expiry_date
+                lot = Lot.create(lot_vals)
+            for ml in move.move_line_ids:
+                if not ml.lot_id:
+                    ml.lot_id = lot.id
 
     def _change_state_and_cancel_pickings(self, new_state_code):
         """Helper to transition state and cancel pending pickings.
