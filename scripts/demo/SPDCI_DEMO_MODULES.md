@@ -1,13 +1,19 @@
-# SPDCI Demo — Modules & Reset Procedure
+# SPDCI Demo — Modules & SP Reset Procedure
 
-Reference sheet for resetting both OpenSPP instances (SP + DR) from scratch and
-reinstalling the modules required for the federated CEL ↔ DCI eligibility demo
-(ADR-024).
+Reference sheet for resetting the **SP** instance only (DR stays up) and reinstalling
+the modules required for the federated CEL ↔ DCI eligibility demo (ADR-024).
 
 The SP container plays the Social Protection platform that runs CEL eligibility rules;
 the DR container plays the standalone Disability Registry that answers `has_disability`
 lookups over DCI. They share the same `db` Postgres container but use different
 databases (`openspp` vs. `openspp_dr`).
+
+This doc covers the **SP-only reset** flow: the DR's `openspp_dr` database, its 8 seeded
+disability assessments, and its DCI-server config are preserved across the reset, so
+only the SP needs to be re-installed and re-pointed at the still-running DR. For
+first-time setup of both sides (or a full both-instances rebuild), follow the expanded
+recipe in `docker-compose.dr.yml`'s header comment and run the seed script on both
+sides.
 
 ---
 
@@ -61,31 +67,34 @@ DR container:
 
 ---
 
-## Full reset procedure
+## SP-only reset procedure
 
-### 1. Stop and wipe both instances
+Resets the SP database (`openspp`) from scratch. **The DR stays up untouched** — its
+`openspp_dr` database and the 8 seeded disability assessments are preserved, so the SP's
+`has_disability` lookups will keep working against the still-live DR once the SP
+re-installs and re-points at it.
+
+### 1. Stop the SP (keep DR running)
 
 ```bash
-# Stop the DR first (depends on SP's shared network)
-docker compose -f docker-compose.dr.yml down -v
-
-# Stop SP + jobworker + db (the -v wipes the SP filestore volume)
 ./spp stop
-docker compose down -v
+docker compose down -v   # removes SP filestore volume
 ```
 
-### 2. Drop the DR database
-
-`docker compose down -v` removes the SP filestore volume but the `db` Postgres container
-is shared and only the `openspp` database is re-created by the SP boot. The DR's
-`openspp_dr` database lives in the same Postgres and needs an explicit drop:
+Verify the DR is still up — it shares the network but has its own container and DB:
 
 ```bash
-./spp start                                   # brings up db + SP
-docker compose exec db dropdb -U odoo --if-exists openspp_dr
+docker compose -f docker-compose.dr.yml ps     # openspp-dr should be Up (healthy)
 ```
 
-### 3. Re-init the SP
+If you wiped the SP network (rare), the DR will have lost its external-network link and
+you'll need to restart it:
+
+```bash
+docker compose -f docker-compose.dr.yml up -d
+```
+
+### 2. Re-init the SP
 
 ```bash
 # Set the SP's init modules and start. The two presets pull every
@@ -100,28 +109,14 @@ Watch the boot log; it will exit cleanly when install finishes:
 docker compose logs -f openspp-dev | grep -E "Modules loaded|ERROR|init "
 ```
 
-### 4. Re-init the DR
-
-```bash
-# DR uses a separate compose. Its default init module is exactly what
-# we need; override only if you want to add demo registrants alongside
-# the server endpoint.
-docker compose -f docker-compose.dr.yml up -d
-```
-
-Default init is `spp_dci_server_disability` (see `docker-compose.dr.yml` line 80).
-Override with `ODOO_DR_INIT_MODULES=...` only if you need additional modules — for the
-federated demo, the default is enough because the demo-setup script seeds the partners +
-disability assessments after boot.
-
 ---
 
-## Post-install wiring
+## Post-install wiring (SP side only)
 
-After both containers are up, the SP needs a couple of records the data XML does not
-seed automatically (because the SP doesn't know your DR's URL or your demo CEL rule):
+After the SP is back up, it needs a couple of records the data XML does not seed
+automatically (because the SP doesn't know your DR's URL):
 
-### 4a. Point the SP's DR data source at the running DR
+### 2a. Point the SP's DR data source at the running DR
 
 The `spp_dci_openspp_dr` preset creates an `spp.dci.data.source` record with a
 placeholder URL. Set it to the in-network DR hostname:
@@ -138,44 +133,23 @@ print(f"DR source -> {src.base_url}")
 PY
 ```
 
-### 4b. Seed demo registrants on both sides
+### 2b. Seed SP-side registrants
 
-Edit the persona list in `scripts/demo/setup_spdci_demo.py` if needed, then run it
-inside each container. The script is idempotent (re-runs update existing partners by
-UIN).
+Two options — pick one.
+
+**Option A: seed script (matches prior demo runs)**
 
 ```bash
-# SP side: enrolls 15 IND-NSR-XXXX partners into program id=1 as draft.
+# Enrolls 15 IND-NSR-XXXX partners into program id=1 as draft.
 docker compose exec openspp-dev odoo shell -d openspp --no-http \
     < scripts/demo/setup_spdci_demo.py
-
-# DR side: creates approved disability assessments for 8 of those UINs.
-docker compose -f docker-compose.dr.yml exec openspp-dr \
-    odoo shell -d openspp_dr --no-http \
-    < scripts/demo/setup_spdci_demo.py
 ```
 
-The same file detects which side it's running on by inspecting installed modules — no
-flag needed.
+The script is idempotent (re-runs update existing partners by UIN). It also detects when
+run on the DR and seeds the disability assessments instead — but **don't run it on the
+DR this time**; the DR already has its 8 assessments from the previous run.
 
-### 4c. (Optional) Allow unsigned DCI requests for the demo
-
-The DR enforces DCI envelope signature + bearer auth by default. For the demo, relax
-both via the system parameters:
-
-```bash
-docker compose -f docker-compose.dr.yml exec openspp-dr \
-    odoo shell -d openspp_dr --no-http <<'PY'
-P = env["ir.config_parameter"].sudo()
-P.set_param("dci.allow_unsigned_requests", "true")
-P.set_param("dci.bypass_bearer_auth", "true")
-env.cr.commit()
-PY
-```
-
-Production: register the SP's public key in the DR's DCI Sender Registry instead.
-
-### 4d. Operator-driven SR import (alternative to the seed script)
+**Option B: SR-import wizard (operator-driven, recommended for the demo presentation)**
 
 After the SP is up, an operator can populate registrants via the wizard under **Registry
 → Import from External Registry**:
@@ -186,8 +160,18 @@ After the SP is up, an operator can populate registrants via the wizard under **
   step.
 - Preview → Import Selected.
 
-This produces the same SP-side state as `setup_spdci_demo.py`, minus the DR-side
-assessments (DR seeding still needs the script).
+This produces the same SP-side state as the seed script.
+
+### 2c. DR config — NO ACTION NEEDED
+
+The DR's previous setup is preserved:
+
+- `dci.allow_unsigned_requests=true` system parameter (set in a prior run)
+- `dci.bypass_bearer_auth=true` system parameter (set in a prior run)
+- 8 approved disability assessments seeded against `IND-NSR-0001`/`0003`/`0005`/…
+
+Skip the optional bypass and DR seeding steps from earlier docs — they remain in effect
+across SP wipes because the DR database is untouched.
 
 ---
 
