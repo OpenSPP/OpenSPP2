@@ -24,11 +24,42 @@ $dr-navbar-bg-hover: #1b5e20;
     background-color: $dr-navbar-bg !important;
 }
 
+// theme_openspp_muk paints each section link's background blue with a
+// descendant selector (no `>`), so the direct-child rules above miss it.
+// Override here so menu entries (e.g. "Disability", "Browse All (Audit)")
+// pick up the green background.
+.o_main_navbar .o_menu_sections .o_nav_entry,
+.o_main_navbar .o_menu_sections .dropdown-toggle {
+    background-color: $dr-navbar-bg !important;
+}
+
 // Apps sidebar (MUK theme).
+//
+// muk_web_appsbar sets the base background on .mk_apps_sidebar_panel and
+// the hover/active background on the menu items. We override both so the
+// sidebar tracks the navbar's green palette.
+.mk_apps_sidebar_panel {
+    background-color: $dr-navbar-bg !important;
+}
+
 .mk_apps_sidebar_panel .mk_apps_sidebar .mk_apps_sidebar_menu > li > a:hover {
     background-color: $dr-navbar-bg-hover !important;
 }
 
 .mk_apps_sidebar_panel .mk_apps_sidebar .mk_apps_sidebar_menu > li.active > a {
     background-color: $dr-navbar-bg-hover !important;
+}
+
+// Primary buttons. spp_base_common paints these blue (#3264c8); we
+// flip them green so action buttons read as DR-side at a glance.
+.btn-primary {
+    background-color: $dr-navbar-bg !important;
+    border-color: $dr-navbar-bg !important;
+    color: #ffffff !important;
+}
+
+.btn-primary:hover {
+    background-color: $dr-navbar-bg-hover !important;
+    border-color: $dr-navbar-bg-hover !important;
+    color: #ffffff !important;
 }
