@@ -1,6 +1,6 @@
 {
     "name": "OpenSPP Change Request V2",
-    "version": "19.0.2.0.6",
+    "version": "19.0.2.0.7",
     "sequence": 50,
     "category": "OpenSPP",
     "summary": "Configuration-driven change request system with UX improvements, conflict detection and duplicate prevention",
@@ -17,6 +17,7 @@
         "spp_security",
         "spp_approval",
         "spp_event_data",
+        "spp_hazard",
         "spp_dms",
         "spp_vocabulary",
     ],

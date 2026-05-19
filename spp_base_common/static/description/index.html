@@ -495,6 +495,22 @@ additional modules</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.1</h1>
+<ul class="simple">
+<li>fix(security): add <tt class="docutils literal"><span class="pre">groups=&quot;base.group_system&quot;</span></tt> to the existing
+<tt class="docutils literal">&lt;menuitem <span class="pre">id=&quot;base.menu_management&quot;</span> /&gt;</tt> override in
+<tt class="docutils literal">views/main_view.xml</tt>. Out of the box the Apps top-level menu has no
+group restriction and is visible to every logged-in user, violating
+the OP#951 audit’s <tt class="docutils literal">Apps: no</tt> rows. The override here is the single
+authoritative declaration for this menu’s attributes in the OpenSPP
+install (sequence, custom OpenSPP icon, and now group_ids); doing the
+gating anywhere upstream (e.g. a <tt class="docutils literal">post_init_hook</tt> in
+<tt class="docutils literal">spp_security</tt>) is unreliable because this <tt class="docutils literal">&lt;menuitem&gt;</tt> reload
+re-writes the record without a <tt class="docutils literal">groups</tt> attribute and resets
+<tt class="docutils literal">group_ids</tt> to empty.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

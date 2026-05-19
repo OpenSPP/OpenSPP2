@@ -532,6 +532,17 @@ and overriding discovery methods</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.1</h1>
+<ul class="simple">
+<li>fix(security): drop the Program Manager → <tt class="docutils literal">group_studio_viewer</tt>
+extension per the OP#951 menu audit (Program Manager should NOT see
+the Studio top-level menu). Removes <tt class="docutils literal">data/user_roles.xml</tt> from the
+module entirely; System Admin retains Studio visibility via
+<tt class="docutils literal">spp_security.group_spp_admin</tt> → <tt class="docutils literal">group_studio_manager</tt> (wired in
+<tt class="docutils literal">spp_studio/security/groups.xml</tt>).</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

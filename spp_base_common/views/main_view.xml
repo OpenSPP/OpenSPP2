@@ -7,10 +7,22 @@
         sequence="-1"
     />
 
+    <!--
+        Gate the Apps top-level menu on base.group_system per the OP#951
+        role/menu audit (only System Admin should see Apps). spp_base_common
+        already overrides this menuitem to set the OpenSPP web_icon; adding
+        the groups attribute here is reliable because this <menuitem> runs
+        AFTER any upstream module's post_init_hook on fresh install AND on
+        every subsequent module upgrade. Doing the same gating from a
+        post_init_hook in an upstream module (e.g. spp_security) does not
+        survive because a later `<menuitem>` reload re-writes the record
+        without a `groups` attribute, resetting group_ids to empty.
+    -->
     <menuitem
         id="base.menu_management"
         name="Apps"
         web_icon="spp_base_common,static/description/OpenSPP-Icons-App.png"
+        groups="base.group_system"
     />
     <menuitem
         id="base.menu_administration"

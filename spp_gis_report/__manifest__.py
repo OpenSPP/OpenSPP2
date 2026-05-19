@@ -1,6 +1,6 @@
 {
     "name": "OpenSPP GIS Reports",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.0.1",
     "category": "OpenSPP",
     "summary": "Geographic visualization and reporting for social protection data",
     "author": "OpenSPP.org, OpenSPP",
@@ -26,6 +26,7 @@
         "security/ir.model.access.csv",
         # Data
         "data/gis_report_category_data.xml",
+        "data/user_roles.xml",
         "data/templates/coverage_templates.xml",
         "data/templates/disaster_templates.xml",
         "data/templates/demographic_templates.xml",

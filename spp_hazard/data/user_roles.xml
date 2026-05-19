@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+
+Role extensions: grant `group_hazard_viewer` to spp_user_roles roles whose
+audited menu visibility should include "Hazard and Emergency" (OP#951).
+
+Roles that should NOT see Hazard per the audit (Global Finance, Global Support,
+Global Support Manager, Local Support) are intentionally omitted.
+
+System Admin sees the menu via `spp_security.group_spp_admin` → `group_hazard_manager`
+(wired in `spp_hazard/security/groups.xml`), so no extension is needed for that role.
+
+Roles defined in spp_programs / spp_change_request_v2 / spp_farmer_registry have
+their hazard-viewer extensions in those modules' own user_roles.xml (this module
+does not depend on them).
+-->
+<odoo noupdate="1">
+    <record id="spp_user_roles.global_role_registry_viewer" model="res.users.role">
+        <field name="implied_ids" eval="[Command.link(ref('group_hazard_viewer'))]" />
+    </record>
+    <record id="spp_user_roles.global_role_program_manager" model="res.users.role">
+        <field name="implied_ids" eval="[Command.link(ref('group_hazard_viewer'))]" />
+    </record>
+    <record id="spp_user_roles.global_role_registrar" model="res.users.role">
+        <field name="implied_ids" eval="[Command.link(ref('group_hazard_viewer'))]" />
+    </record>
+    <record id="spp_user_roles.local_role_registrar" model="res.users.role">
+        <field name="implied_ids" eval="[Command.link(ref('group_hazard_viewer'))]" />
+    </record>
+</odoo>
