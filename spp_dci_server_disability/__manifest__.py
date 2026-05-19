@@ -15,12 +15,20 @@
         "spp_dci_server",
         "spp_registry",
         "spp_vocabulary",
+        # Loaded so the green-theme overrides in static/src/scss/dr_theme.scss
+        # apply after spp_base_common/navbar.scss in the assets_backend bundle.
+        "spp_base_common",
     ],
     "external_dependencies": {"python": []},
     "data": [
         "security/ir.model.access.csv",
         "data/dr_id_types.xml",
     ],
+    "assets": {
+        "web.assets_backend": [
+            "spp_dci_server_disability/static/src/scss/dr_theme.scss",
+        ],
+    },
     "installable": True,
     "application": False,
     "auto_install": False,

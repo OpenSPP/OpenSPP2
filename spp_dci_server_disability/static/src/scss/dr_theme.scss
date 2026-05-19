@@ -1,0 +1,34 @@
+// Disability Registry visual theme override.
+//
+// This file recolors the top navbar and the apps sidebar to a green
+// palette so operators running both an SP and a DR side-by-side can
+// tell the two instances apart at a glance. The SP keeps the default
+// OpenSPP blue from spp_base_common; this module overrides those rules
+// because spp_dci_server_disability depends on spp_base_common, so the
+// asset bundle loads this file after the blue defaults.
+//
+// Colors: Material Design green-800 (navbar) and green-900 (hover/active).
+// Both pass WCAG AA contrast against white text.
+
+$dr-navbar-bg: #2e7d32;
+$dr-navbar-bg-hover: #1b5e20;
+
+// Top navbar background.
+.o_main_navbar {
+    border-bottom: none !important;
+    background-color: $dr-navbar-bg !important;
+}
+
+.o_main_navbar > .o_menu_sections > .dropdown-item,
+.o_main_navbar > .o_menu_sections > .o-dropdown > .dropdown-toggle {
+    background-color: $dr-navbar-bg !important;
+}
+
+// Apps sidebar (MUK theme).
+.mk_apps_sidebar_panel .mk_apps_sidebar .mk_apps_sidebar_menu > li > a:hover {
+    background-color: $dr-navbar-bg-hover !important;
+}
+
+.mk_apps_sidebar_panel .mk_apps_sidebar .mk_apps_sidebar_menu > li.active > a {
+    background-color: $dr-navbar-bg-hover !important;
+}
