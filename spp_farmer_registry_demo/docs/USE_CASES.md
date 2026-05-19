@@ -383,11 +383,22 @@ Walk through enrolling a previously unregistered smallholder.
 5. Add a crop activity for the new farm. The species picker is backed by the FAO ICC 1.1
    vocabulary — pick `0116` Rice, paddy (matching FM1) or `0115` Maize, white (matching
    FM4). For aquaculture, the picker uses FAO ASFIS — pick `TIL` Tilapia (matching FM6).
-6. Open **Programs → Programs → Input Subsidy** and click the **Verify Eligibility**
-   button on the program form
-7. The new farm is moved from `not_eligible` (or absent) to `enrolled` because the CEL
-   now matches
-8. Show the resulting cycle and the first scheduled payment
+6. From the new farm's form, click the **Enroll in Program** action button → in the
+   wizard, pick **Input Subsidy** and confirm. This creates a `spp.program.membership`
+   record for the farm, initially in a pending state pending eligibility evaluation.
+7. Open **Programs → Programs → Input Subsidy** and click the **Verify Eligibility**
+   button on the program form. This re-evaluates the CEL for every membership currently
+   in `enrolled` / `not_eligible` state — including the new one we just added.
+8. The new farm flips from its pending state to `enrolled` because the CEL
+   (`is_smallholder and has_productive_land`) now matches the facts we set in steps 3–5.
+9. Open the program's **Cycles** tab → the new farm appears in the next cycle with the
+   first scheduled payment.
+
+> **Why two steps and not one?** `Verify Eligibility` operates only on registrants
+> already linked to the program via a `spp.program.membership` row. It will not scan the
+> global registrant table for new matches — that path is **Enroll Eligible**, which
+> requires the program to already have beneficiaries to consider. The clean workflow for
+> a single new farm is therefore _enroll into program → verify eligibility_.
 
 **Key messages:**
 
