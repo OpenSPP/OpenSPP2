@@ -6,4 +6,5 @@ from . import test_relationship_vocabulary
 from . import test_deployment_profile
 from . import test_access_rights
 from . import test_system_vocabulary_protection
+from . import test_manual_codes
 from . import test_e2e_workflow
