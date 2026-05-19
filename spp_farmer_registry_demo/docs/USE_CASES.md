@@ -413,11 +413,13 @@ Walk through enrolling a previously unregistered smallholder.
 
 Show how a single farm fans out into two programs.
 
-1. Open the FM2 farm record (**Registry → Browse All (Audit) → All Groups → FM2**) → see
-   two memberships (Input Subsidy + Livestock Support)
-2. Open **Programs → Programs → Input Subsidy → Cycles** tab → see FM2 in cycle 4
-3. Open **Programs → Programs → Livestock Support → Cycles** tab → see FM2 in cycle 3
-   with a different payment amount
+1. Open the FM2 farm record (**Registry → Browse All (Audit) → All Groups → FM2**) →
+   scroll to the **Program Enrollments** section to see two memberships (Input Subsidy
+   - Livestock Support)
+2. Open **Programs → Programs → Input Subsidy** → click the **Cycles** smart button in
+   the button box → see FM2 in cycle 4
+3. Open **Programs → Programs → Livestock Support** → click the **Cycles** smart button
+   → see FM2 in cycle 3 with a different payment amount
 4. Show that the two payment streams are independent (separate batches, separate
    journals)
 
@@ -433,10 +435,13 @@ Show how a single farm fans out into two programs.
 Use FM1 to demonstrate that a smallholder who keeps their productive land remains
 compliant; contrast with a hypothetical farm that abandons its productive land.
 
-1. Open **Programs → Programs → Input Subsidy** → Configuration tab → **Compliance
-   Manager** section → show CEL `has_productive_land == true and farm_size_hectares > 0`
-2. Open FM1 (**Registry → Browse All (Audit) → All Groups → FM1**) → **Cycle
-   Memberships** tab → state `enrolled` for cycles 1–3, then `graduated`
+1. Open **Programs → Programs → Input Subsidy** → **Configuration** tab → scroll to the
+   **Compliance Method** section (cards layout) or the **Compliance Manager** separator
+   block → open the linked manager record to show the CEL
+   `has_productive_land == true and farm_size_hectares > 0`
+2. Open FM1 (**Registry → Browse All (Audit) → All Groups → FM1**) → in the **Program
+   Enrollments** section, click the Input Subsidy row → cycle membership history shows
+   `enrolled` for cycles 1–3, then `graduated`
 3. Open a hypothetical FM-NULL with `farm_size_under_crops = 0` post-cycle → state
    `non_compliant` for that cycle, no entitlement generated
 
@@ -454,11 +459,15 @@ Demonstrate that the system handles non-crop farming.
 
 1. Open the FM6 farm (**Registry → Browse All (Audit) → All Groups → FM6**) → Activities
    tab → 0.5 ha tilapia fishpond
-2. Open **Programs → Programs → Aquaculture Support** → Eligibility tab → CEL
+2. Open **Programs → Programs → Aquaculture Support** → **Configuration** tab → scroll
+   to the **Eligibility Method / Eligibility Manager** block → CEL
    `aquaculture_count > 0`
-3. Open the program's **Cycles** tab → FM6 in cycle 4 with payment ₱250
-4. From the program form, click **Verify Eligibility** with FM1 (rice) as the test
-   registrant — no change (FM1 is not eligible because `aquaculture_count == 0`)
+3. Back on the program form, click the **Cycles** smart button → FM6 in cycle 4 with
+   payment ₱250
+4. From FM1 (rice), use **Enroll in Program → Aquaculture Support**. The resulting
+   `spp.program.membership` row goes to `not_eligible`, not `enrolled`, because the CEL
+   evaluates `aquaculture_count == 0` for FM1. (`Verify Eligibility` on the program form
+   re-evaluates the same membership and keeps it `not_eligible`.)
 
 **Key messages:**
 
@@ -472,11 +481,13 @@ Demonstrate that the system handles non-crop farming.
 
 Show how `farm_size_idle` becomes a positive signal for climate-vulnerable households.
 
-1. Open **Programs → Programs → Climate Resilience** → Eligibility tab → CEL
+1. Open **Programs → Programs → Climate Resilience** → **Configuration** tab → scroll to
+   the **Eligibility Method / Eligibility Manager** block → CEL
    `is_smallholder and farm_size_idle > 0`
 2. Open FM4 (**Registry → Browse All (Audit) → All Groups → FM4**) → 3 ha rice + 1 ha
    idle = 4 ha total → matches CEL
-3. Show the cycle and 2 paid payments (₱200 each)
+3. Back on the program form, click the **Cycles** smart button → 2 paid payments (₱200
+   each)
 4. Contrast with EC1 (50 ha, idle) → fails `is_smallholder` even though
    `farm_size_idle > 0`
 
@@ -530,7 +541,8 @@ Demonstrate the group-of-groups data model.
 ### Scenario 8: Change request lifecycle
 
 Walk through the 10 demo CRs to show every CR state. Open them from **Change Requests →
-All Requests** (or from each farm's **Change Requests** smart button on the form).
+All Requests**, then use the search filter to narrow by registrant (e.g. type the farm's
+name in the search bar) to see per-farm CRs.
 
 1. Approved: FM1 `update_farm_details` — farm expanded after acquisition
 2. Applied: FM2 `update_farm_details` — added livestock area, applied automatically
@@ -559,7 +571,8 @@ All Requests** (or from each farm's **Change Requests** smart button on the form
 Demonstrate that demo programs route cycles and entitlements through the approval
 workflow (a feature MIS demo lacks).
 
-1. Open **Programs → Programs → Input Subsidy** → **Cycles** tab → click "New Cycle"
+1. Open **Programs → Programs → Input Subsidy** → click the **New Cycle** button in the
+   header
 2. The cycle enters state `to_approve` (not `draft`) because its cycle manager has
    `approval_definition_id` set
 3. Show the approval review record — assigned to `group_programs_manager`, SLA 3 days
@@ -581,12 +594,13 @@ Anchor the GIS, land-record, and irrigation modules in a single coherent flow. T
 narrative hook: FM4's 1 ha of idle/fallow land is the **downstream consequence of
 reduced reservoir capacity**, not random non-cultivation.
 
-> **Note:** `spp_gis`, `spp_land_record`, and `spp_irrigation` are accessed primarily
-> through the registrant form (Profile → Location section + smart buttons) and through
-> developer mode for raw records. They don't ship dedicated top-level menus, so this
-> scenario uses form-level entry points rather than menu paths. To inspect the GIS
-> Configuration / Color Scales / Indicator Layers menus, install `spp_gis_indicators` —
-> those ship menus under **Settings → GIS Configuration**.
+> **Note:** `spp_gis`, `spp_land_record`, and `spp_irrigation` don't ship top-level
+> menus. Land records live on the farm form (the **Land Parcels** smart button + **Land
+> Parcels** notebook tab); irrigation assets live on the **Irrigation** notebook tab.
+> The GIS map widget is rendered in the **Profile → Location** group via
+> `spp_registrant_gis`. To get the broader GIS configuration menus (Color Scales,
+> Indicator Layers), install `spp_gis_indicators` — those ship menus under **Settings →
+> GIS Configuration**.
 
 1. Open FM4 — Mangudadatu Farm (**Registry → Browse All (Audit) → All Groups → FM4
    Mangudadatu Farm**) → **Profile** tab → **Location** section. The GIS map widget
@@ -594,13 +608,13 @@ reduced reservoir capacity**, not random non-cultivation.
    which 1 ha is the idle/fallow strip. (Map tiles require a tile-provider API key — see
    the wizard prerequisite note. Without the key, the latitude/longitude fields still
    display the correct values.)
-2. From the FM4 form, the **Land Records** smart button (or **Developer mode → Settings
-   → Technical → Database Structure → Models → `spp.land.record`**, filter by
-   `land_farm_id = FM4`) opens the parcel records. The single record shows the parcel
-   polygon and exports as GeoJSON via the action menu (`spp.land.record.get_geojson()`).
-3. From the FM4 form, the **Irrigation Assets** smart button (or **Developer mode →
-   Settings → Technical → Database Structure → Models → `spp.irrigation.asset`**, filter
-   by `farm_id = FM4`) lists two assets linked into a network:
+2. On the FM4 form, click the **Land Parcels** smart button (icon `fa-map`, label "Land
+   Parcels") in the button row — or open the **Land Parcels** tab in the notebook for
+   the inline list. The single record shows the parcel polygon and exports as GeoJSON
+   via the action menu (`spp.land.record.get_geojson()`).
+3. On the FM4 form, open the **Irrigation** tab in the notebook (added by
+   `spp_irrigation` as an inline editable list of `irrigation_asset_ids`). Two assets
+   are linked into a network:
    - **Cotabato Irrigation Reservoir** (type=reservoir) — effective capacity 5 000 m³;
      design ≈ 15 000 m³ (silted, hence the reduced flow)
    - **Cotabato Main Canal Branch** (type=canal) — fed by the reservoir, 300 m³ flow
