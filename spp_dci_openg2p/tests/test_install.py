@@ -52,7 +52,7 @@ class TestOpenG2PPresetInstall(TransactionCase):
         self.assertEqual(source.code, "openg2p_dr")
         # OpenG2P plays the Social Registry role in the federated topology
         # (ADR-024). Disability data lives on a separate OpenSPP-DR instance.
-        self.assertEqual(source.registry_type, "SR")
+        self.assertEqual(source.registry_type, "ns:org:RegistryType:Social")
         self.assertEqual(source.vendor, "openg2p")
         self.assertEqual(source.auth_type, "none")
         self.assertTrue(source.active)

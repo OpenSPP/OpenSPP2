@@ -83,7 +83,8 @@ class TestDispatcherRoutesOpenG2P(TransactionCase):
 
     def test_data_source_has_vendor_openg2p_and_registry_type_sr(self):
         self.assertEqual(self.data_source.vendor, "openg2p")
-        self.assertEqual(self.data_source.registry_type, "SR")
+        # registry_type is the canonical SPDCI URI, not the short alias.
+        self.assertEqual(self.data_source.registry_type, "ns:org:RegistryType:Social")
 
     @patch("odoo.addons.spp_dci_openg2p.services.openg2p_social_service.OpenG2PDCIClient")
     def test_openg2p_handler_extracts_attribute_path_from_reg_record(self, mock_client_class):
