@@ -15,6 +15,11 @@
         "spp_dci_server",
         "spp_registry",
         "spp_vocabulary",
+        # The register service creates spp.disability.assessment records
+        # when the SR self-reports disability. That model is defined in
+        # spp_disability_registry, which is the actual data store the
+        # DR's DCI server reads from (has_disability, severity, etc.).
+        "spp_disability_registry",
         # Loaded so the green-theme overrides in static/src/scss/dr_theme.scss
         # apply after spp_base_common/navbar.scss in the assets_backend bundle.
         "spp_base_common",

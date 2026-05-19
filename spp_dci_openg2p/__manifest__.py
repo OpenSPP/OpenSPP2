@@ -13,6 +13,11 @@
         "spp_cel_dci_bridge",
         "spp_vocabulary",
         "spp_registry",
+        # The SR-import wizard's mirror-to-DR feature calls the
+        # OpenSPP-DR via the DCI register-individual endpoint, using
+        # OpenSPPDRService and the spp_dci_openspp_dr data source preset
+        # (the source is what supplies vendor='openspp').
+        "spp_dci_openspp_dr",
     ],
     "external_dependencies": {"python": []},
     "data": [

@@ -258,6 +258,290 @@ class TestSrImportWizard(TransactionCase):
         self.assertEqual(len(mems), 1)
         self.assertEqual(mems.state, "draft")
 
+    # ------------------------------------------------------------------
+    # Mirror-to-DR (DCI register-individual envelope)
+    # ------------------------------------------------------------------
+
+    def _stub_dr_response(self, items):
+        """Shape a DCI register-individual response envelope."""
+        return {
+            "header": {"status": "succ"},
+            "message": {
+                "transaction_id": "txn-1",
+                "correlation_id": "corr-1",
+                "register_response": items,
+            },
+        }
+
+    def _patched_dr_service(self, response):
+        """Context manager that monkey-patches OpenSPPDRService.register_individuals."""
+        from odoo.addons.spp_dci_openspp_dr.services import openspp_dr_service
+
+        service_class = openspp_dr_service.OpenSPPDRService
+        return patch.object(
+            service_class,
+            "register_individuals",
+            return_value=response,
+            autospec=True,
+        )
+
+    @patch("odoo.addons.spp_dci_openg2p.services.openg2p_social_service.OpenG2PDCIClient")
+    def test_import_mirrors_partner_to_dr_when_enabled(self, mock_client_class):
+        # SR returns one persona; mirror_to_dr=True; mocked DR DCI client
+        # confirms the SP issued a register-individual envelope.
+        mock_sr = MagicMock()
+        mock_sr.search.side_effect = lambda **k: _sr_response([_payload("Alex", "Rivera")])
+        mock_client_class.return_value = mock_sr
+
+        dr_response = self._stub_dr_response(
+            [
+                {
+                    "reference_id": "r1",
+                    "uin": "IND-NSR-0001",
+                    "status": "succ",
+                    "operation": "created",
+                    "local_partner_id": 999,
+                    "timestamp": "2026-05-19T00:00:00Z",
+                }
+            ]
+        )
+
+        # Seed a DR data source on the SP so the wizard's domain finds one.
+        dr_source = self.env["spp.dci.data.source"].create(
+            {
+                "name": "DR Test",
+                "code": "openspp_dr_test",
+                "registry_type": "ns:org:RegistryType:DR",
+                "vendor": "openspp",
+                "base_url": "http://openspp-dr-test:8069",
+                "auth_type": "none",
+                "our_sender_id": "openspp-sp.test",
+                "active": True,
+                "state": "active",
+            }
+        )
+
+        wiz = self._wizard(
+            range_start=1,
+            range_end=1,
+            mirror_to_dr=True,
+            dr_data_source_id=dr_source.id,
+        )
+        wiz.action_preview()
+
+        with self._patched_dr_service(dr_response) as mock_register:
+            wiz.action_import()
+
+        self.assertEqual(wiz.state, "done")
+        # Summary surfaces the DR-side per-item operation tally.
+        self.assertIn("DR:", wiz.preview_summary)
+        self.assertIn("1 created", wiz.preview_summary)
+
+        # The DCI call carried the SP-side identity for IND-NSR-0001.
+        self.assertEqual(mock_register.call_count, 1)
+        # autospec=True: signature is (self, items, refresh_existing=...)
+        args, kwargs = mock_register.call_args
+        dr_items = args[1] if len(args) > 1 else kwargs["items"]
+        self.assertEqual(len(dr_items), 1)
+        self.assertEqual(dr_items[0]["uin"], "IND-NSR-0001")
+        self.assertEqual(dr_items[0]["given_name"], "Alex")
+        self.assertEqual(dr_items[0]["family_name"], "Rivera")
+
+    @patch("odoo.addons.spp_dci_openg2p.services.openg2p_social_service.OpenG2PDCIClient")
+    def test_import_mirror_passes_refresh_flag_through(self, mock_client_class):
+        # When refresh_existing is on, the DCI envelope must carry
+        # refresh_existing=True so the DR's register service overwrites
+        # rather than skipping pre-existing UINs.
+        existing = self.env["res.partner"].create({"name": "Alex", "is_registrant": True, "is_group": False})
+        self.env["spp.registry.id"].create(
+            {"partner_id": existing.id, "id_type_id": self.uin_type.id, "value": "IND-NSR-0001"}
+        )
+
+        mock_sr = MagicMock()
+        mock_sr.search.side_effect = lambda **k: _sr_response([_payload("Alex", "Rivera")])
+        mock_client_class.return_value = mock_sr
+
+        dr_response = self._stub_dr_response(
+            [
+                {
+                    "reference_id": "r1",
+                    "uin": "IND-NSR-0001",
+                    "status": "succ",
+                    "operation": "updated",
+                    "local_partner_id": 888,
+                    "timestamp": "2026-05-19T00:00:00Z",
+                }
+            ]
+        )
+
+        dr_source = self.env["spp.dci.data.source"].create(
+            {
+                "name": "DR Test",
+                "code": "openspp_dr_test_refresh",
+                "registry_type": "ns:org:RegistryType:DR",
+                "vendor": "openspp",
+                "base_url": "http://openspp-dr-test:8069",
+                "auth_type": "none",
+                "our_sender_id": "openspp-sp.test",
+                "active": True,
+                "state": "active",
+            }
+        )
+
+        wiz = self._wizard(
+            range_start=1,
+            range_end=1,
+            mirror_to_dr=True,
+            refresh_existing=True,
+            dr_data_source_id=dr_source.id,
+        )
+        wiz.action_preview()
+
+        with self._patched_dr_service(dr_response) as mock_register:
+            wiz.action_import()
+
+        args, kwargs = mock_register.call_args
+        # autospec keeps self as args[0]. refresh_existing is keyword.
+        self.assertTrue(kwargs.get("refresh_existing"))
+        self.assertIn("1 updated", wiz.preview_summary)
+
+    # ------------------------------------------------------------------
+    # Refresh-existing
+    # ------------------------------------------------------------------
+
+    @patch("odoo.addons.spp_dci_openg2p.services.openg2p_social_service.OpenG2PDCIClient")
+    def test_refresh_existing_updates_sp_partner_name(self, mock_client_class):
+        # Seed an SP-side partner whose SR data has since changed: SP has
+        # "Alex Rivera"; the SR now says "Alexander Rivera".
+        existing = self.env["res.partner"].create(
+            {
+                "name": "Alex Rivera",
+                "given_name": "Alex",
+                "family_name": "Rivera",
+                "is_registrant": True,
+                "is_group": False,
+            }
+        )
+        self.env["spp.registry.id"].create(
+            {
+                "partner_id": existing.id,
+                "id_type_id": self.uin_type.id,
+                "value": "IND-NSR-0001",
+            }
+        )
+
+        mock_client = MagicMock()
+        mock_client.search.side_effect = lambda **k: _sr_response([_payload("Alexander", "Rivera")])
+        mock_client_class.return_value = mock_client
+
+        wiz = self._wizard(range_start=1, range_end=1, refresh_existing=True)
+        wiz.action_preview()
+
+        # In refresh mode, the already-exists row is pre-selected.
+        line = wiz.preview_line_ids
+        self.assertTrue(line.already_exists)
+        self.assertTrue(line.selected)
+        self.assertEqual(line.given_name, "Alexander")
+
+        wiz.action_import()
+
+        # Same partner, refreshed identity. spp_registry recomputes the
+        # canonical "FAMILY, GIVEN" form from given_name/family_name.
+        existing.invalidate_recordset()
+        self.assertEqual(existing.given_name, "Alexander")
+        self.assertEqual(existing.family_name, "Rivera")
+        self.assertEqual(existing.name, "RIVERA, ALEXANDER")
+        self.assertIn("0 created, 1 updated", wiz.preview_summary)
+
+        # No new partner created — same id as before.
+        regs = self.env["spp.registry.id"].search([("value", "=", "IND-NSR-0001")])
+        self.assertEqual(regs.partner_id, existing)
+
+    @patch("odoo.addons.spp_dci_openg2p.services.openg2p_social_service.OpenG2PDCIClient")
+    def test_refresh_off_still_skips_existing_when_selected(self, mock_client_class):
+        # Same setup as the refresh test, but refresh_existing stays False
+        # and the operator manually re-selects the already-exists row.
+        # Expectation: the existing partner is NOT updated.
+        existing = self.env["res.partner"].create(
+            {
+                "name": "Alex Rivera",
+                "given_name": "Alex",
+                "family_name": "Rivera",
+                "is_registrant": True,
+                "is_group": False,
+            }
+        )
+        self.env["spp.registry.id"].create(
+            {
+                "partner_id": existing.id,
+                "id_type_id": self.uin_type.id,
+                "value": "IND-NSR-0001",
+            }
+        )
+
+        mock_client = MagicMock()
+        mock_client.search.side_effect = lambda **k: _sr_response([_payload("Alexander", "Rivera")])
+        mock_client_class.return_value = mock_client
+
+        wiz = self._wizard(range_start=1, range_end=1, refresh_existing=False)
+        wiz.action_preview()
+
+        # Force-select the already-exists row.
+        for line in wiz.preview_line_ids:
+            line.selected = True
+
+        wiz.action_import()
+
+        existing.invalidate_recordset()
+        # Identity unchanged — insert-only contract held.
+        self.assertEqual(existing.given_name, "Alex")
+        self.assertIn("0 created, 0 updated", wiz.preview_summary)
+
+    @patch("odoo.addons.spp_dci_openg2p.services.openg2p_social_service.OpenG2PDCIClient")
+    def test_import_mirror_failure_does_not_block_sp_import(self, mock_client_class):
+        mock_sr = MagicMock()
+        mock_sr.search.side_effect = lambda **k: _sr_response([_payload("Alex", "Rivera")])
+        mock_client_class.return_value = mock_sr
+
+        dr_source = self.env["spp.dci.data.source"].create(
+            {
+                "name": "DR Test",
+                "code": "openspp_dr_test_failure",
+                "registry_type": "ns:org:RegistryType:DR",
+                "vendor": "openspp",
+                "base_url": "http://openspp-dr-test:8069",
+                "auth_type": "none",
+                "our_sender_id": "openspp-sp.test",
+                "active": True,
+                "state": "active",
+            }
+        )
+
+        wiz = self._wizard(
+            range_start=1,
+            range_end=1,
+            mirror_to_dr=True,
+            dr_data_source_id=dr_source.id,
+        )
+        wiz.action_preview()
+
+        # Make the DCI register call blow up — SP partner must still land.
+        from odoo.addons.spp_dci_openspp_dr.services import openspp_dr_service
+
+        with patch.object(
+            openspp_dr_service.OpenSPPDRService,
+            "register_individuals",
+            side_effect=RuntimeError("DR unreachable"),
+        ):
+            wiz.action_import()
+
+        self.assertEqual(wiz.state, "done")
+        # SP-side partner created despite the DR-side failure
+        regs = self.env["spp.registry.id"].search([("value", "=", "IND-NSR-0001")])
+        self.assertEqual(len(regs), 1)
+        # Summary reports the mirror error
+        self.assertIn("DR mirror error", wiz.preview_summary)
+
     def test_back_to_configure_clears_preview(self):
         wiz = self._wizard()
         # Skip the live preview — fabricate one line manually

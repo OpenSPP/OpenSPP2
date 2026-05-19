@@ -36,6 +36,8 @@ from odoo.addons.spp_dci_server.middleware.signature import (
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from ..schemas import RegisterRequest
+from ..services.disability_register_service import DisabilityRegisterService
 from ..services.disability_search_service import DisabilitySearchService
 
 _logger = logging.getLogger(__name__)
@@ -166,4 +168,107 @@ async def disability_sync_search(
         signature=response_signature,
         header=callback_header,
         message=search_response.model_dump(mode="json", exclude_none=True),
+    )
+
+
+@disability_search_router.post(
+    "/sync/register",
+    response_model=DCIEnvelope,
+    response_model_exclude_none=True,
+    response_model_exclude_unset=True,
+)
+async def disability_sync_register(
+    request_envelope: DCIEnvelope,
+    env: Annotated[Environment, Depends(odoo_env)],
+    _bearer_token: Annotated[str, Depends(verify_bearer_token)],
+    verified_sender_id: Annotated[str, Depends(verify_dci_signature)],
+):
+    """Synchronous register endpoint — create or update partners by UIN.
+
+    Companion to /sync/search. Whereas search is read-only, register
+    accepts a list of individuals (keyed by UIN) and creates or refreshes
+    the matching res.partner rows on the DR. Idempotent: a UIN already
+    on the DR returns operation='skipped' (or 'updated' when the request
+    carries refresh_existing=true) without raising.
+
+    The whole transaction is wrapped in the same signature + bearer
+    middleware as /sync/search, so an SP authorized to read the DR is
+    automatically authorized to write to it — the same trust boundary,
+    no second credential surface.
+    """
+    envelope = request_envelope
+
+    try:
+        register_request = RegisterRequest.model_validate(envelope.message)
+    except Exception as e:
+        _logger.error("Invalid RegisterRequest message: %s", str(e))
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid register request message: {str(e)}",
+        ) from e
+
+    _logger.info(
+        "DR register request received — transaction_id: %s, sender: %s, items: %d, refresh: %s",
+        register_request.transaction_id,
+        envelope.header.sender_id,
+        len(register_request.register_request),
+        register_request.refresh_existing,
+    )
+
+    register_service = DisabilityRegisterService(env)
+    register_response = register_service.execute_register(register_request)
+
+    response_items = register_response.register_response
+    total_count = len(response_items)
+    completed_count = sum(1 for item in response_items if item.status == "succ")
+    rejected_count = sum(1 for item in response_items if item.status == "rjct")
+
+    if completed_count == total_count:
+        overall_status = "succ"
+        status_reason_code = None
+        status_reason_message = None
+    elif rejected_count == total_count:
+        overall_status = "rjct"
+        status_reason_code = MsgHeaderStatusReasonCode.ERRORS_TOO_MANY.value
+        status_reason_message = "All DR register requests failed"
+    else:
+        overall_status = "part"
+        status_reason_code = None
+        status_reason_message = f"{completed_count}/{total_count} DR register requests completed"
+
+    our_sender_id = get_sender_id(env)
+
+    callback_header = DCICallbackHeader(
+        version=envelope.header.version,
+        message_id=str(uuid.uuid4()),
+        message_ts=datetime.now(UTC),
+        action=f"on-{envelope.header.action}",
+        sender_id=our_sender_id,
+        receiver_id=envelope.header.sender_id,
+        total_count=total_count,
+        status=overall_status,
+        status_reason_code=status_reason_code,
+        status_reason_message=status_reason_message,
+        completed_count=completed_count,
+    )
+
+    response_signature = ""
+    try:
+        signing_key_model = env["spp.dci.signing.key"].sudo()  # nosemgrep: odoo-sudo-without-context
+        active_key = signing_key_model.get_active_key()
+        if active_key:
+            signer = active_key.get_signer()
+            header_dict = callback_header.model_dump(mode="json", exclude_none=True)
+            message_dict = register_response.model_dump(mode="json", exclude_none=True)
+            response_signature = signer.sign(header_dict, message_dict)
+        else:
+            _logger.warning("No active signing key — DR register response will be unsigned")
+    except Exception as e:
+        _logger.warning("Failed to sign DR register response: %s — continuing unsigned", str(e))
+        response_signature = ""
+
+    return DCIEnvelope(
+        signature=response_signature,
+        header=callback_header,
+        message=register_response.model_dump(mode="json", exclude_none=True),
     )

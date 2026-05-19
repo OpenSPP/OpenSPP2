@@ -1,11 +1,15 @@
 """OpenSPP-DR Disability Registry client service.
 
-Queries the sibling OpenSPP-DR instance over DCI (``spp_dci_server_disability``
-endpoint at ``/dci_api/v1/disability/registry/sync/search``) and returns the raw
-``data.reg_records[0]`` dict. The bridge dispatcher applies the variable's
-``dci_attribute_path`` to that dict — so the CEL variable
-``has_disability`` extracts the wire-format ``has_disability`` field
-without this service needing to know which.
+Talks to the sibling OpenSPP-DR over DCI. Two paths today:
+
+* ``get_partner_record`` — read-side, used by the bridge dispatcher to
+  resolve CEL variables like ``has_disability``. Calls the DR's
+  ``/sync/search`` endpoint and returns the first
+  ``data.reg_records[0]`` dict.
+* ``register_individuals`` — write-side, used by the SR-import wizard
+  to mirror SP-side registrants into the DR. Calls the DR's
+  ``/sync/register`` endpoint with a list of UIN-keyed individuals and
+  returns per-item status (created/updated/skipped/rjct).
 
 Why this exists rather than reusing upstream ``DRService``:
 
@@ -18,6 +22,7 @@ Why this exists rather than reusing upstream ``DRService``:
 """
 
 import logging
+import uuid
 
 from odoo.exceptions import UserError, ValidationError
 
@@ -29,6 +34,10 @@ _logger = logging.getLogger(__name__)
 # upstream DRService's priority so swapping between SR and DR sources
 # doesn't change which identifier gets sent first.
 IDENTIFIER_PRIORITY = ("UIN", "DRN", "NATIONAL_ID", "NID")
+
+# DR-side register endpoint. Companion to /sync/search; defined in
+# spp_dci_server_disability/routers/disability_router.py.
+REGISTER_ENDPOINT = "/dci_api/v1/disability/registry/sync/register"
 
 
 class OpenSPPDRService:
@@ -113,6 +122,70 @@ class OpenSPPDRService:
             if first_id.value and first_id.id_type_id:
                 return (first_id.id_type_id.code, first_id.value)
         return None
+
+    # ------------------------------------------------------------------
+    # Register (write-side)
+    # ------------------------------------------------------------------
+
+    def register_individuals(self, items: list[dict], refresh_existing: bool = False) -> dict:
+        """Send a register-individual envelope to the DR.
+
+        ``items`` is a list of dicts with keys ``uin`` and any of
+        ``name``, ``given_name``, ``family_name``, ``sex``, ``birth_date``.
+        Returns the raw response envelope dict — caller inspects
+        ``message.register_response`` for per-item status (succ / rjct)
+        and operation (created / updated / skipped).
+
+        Raises UserError on transport-level failures (HTTP error, malformed
+        envelope from DR). Per-item failures DO NOT raise — they surface
+        as ``status='rjct'`` rows in the response list, mirroring the
+        contract of the search side.
+        """
+        if not items:
+            raise ValidationError(self.env._("No items to register on the DR"))
+
+        register_items = []
+        for it in items:
+            # Pydantic's `str | None` and `date | None` schema fields accept
+            # None or the typed value — NOT Odoo's `False`-for-empty-Char
+            # convention. Coerce empty/falsy values to None before they
+            # leave the SP so the DR's envelope validation accepts them.
+            bd = it.get("birth_date")
+            if bd and hasattr(bd, "isoformat"):
+                bd_wire = bd.isoformat()
+            elif bd:
+                bd_wire = str(bd)
+            else:
+                bd_wire = None
+            register_items.append(
+                {
+                    "reference_id": str(uuid.uuid4()),
+                    "uin": it["uin"],
+                    "name": it.get("name") or None,
+                    "given_name": it.get("given_name") or None,
+                    "family_name": it.get("family_name") or None,
+                    "sex": it.get("sex") or None,
+                    "birth_date": bd_wire,
+                    "is_disabled": bool(it.get("is_disabled")),
+                }
+            )
+
+        message = {
+            "transaction_id": str(uuid.uuid4()),
+            "register_request": register_items,
+            "refresh_existing": bool(refresh_existing),
+        }
+        envelope = self.client._build_envelope(action="register-individual", message=message)
+        _logger.info(
+            "DR register: sending %d item(s), refresh=%s",
+            len(register_items),
+            refresh_existing,
+        )
+        try:
+            return self.client._make_request(REGISTER_ENDPOINT, envelope)
+        except Exception as e:
+            _logger.error("DR register call failed: %s", e, exc_info=True)
+            raise UserError(self.env._("Failed to register on DR: %s", e)) from e
 
     @staticmethod
     def _extract_first_record(response):
