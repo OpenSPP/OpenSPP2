@@ -240,10 +240,7 @@
                             <field
                                 name="priority_id"
                                 readonly="approval_state not in ('draft', 'revision')"
-                                widget="badge"
-                                decoration-danger="priority_id.code == 'critical'"
-                                decoration-warning="priority_id.code == 'high'"
-                                decoration-info="priority_id.code == 'medium'"
+                                options="{'no_create': True}"
                             />
                             <field
                                 name="is_life_threatening"
