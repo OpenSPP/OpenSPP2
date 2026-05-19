@@ -38,6 +38,8 @@
             "spp_base_common/static/src/xml/custom_list_create_template.xml",
             "spp_base_common/static/src/js/filterable_radio_field.js",
             "spp_base_common/static/src/xml/filterable_radio_field.xml",
+            "spp_base_common/static/src/xml/pager_hide_single.xml",
+            "spp_base_common/static/src/scss/pager_hide_single.scss",
         ],
         "web._assets_primary_variables": [
             "spp_base_common/static/src/scss/colors.scss",
