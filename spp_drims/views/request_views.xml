@@ -107,13 +107,12 @@
                         groups="spp_drims.group_drims_approver"
                     />
                     <button
-                        name="action_reject"
+                        name="action_open_reject_wizard"
                         string="Reject"
                         type="object"
                         class="btn-outline-danger"
                         invisible="approval_state != 'pending'"
                         groups="spp_drims.group_drims_approver"
-                        confirm="Reject this request? This action cannot be undone."
                     />
 
                     <!-- Revision Actions -->
@@ -197,6 +196,16 @@
                         bg_color="text-bg-danger"
                         invisible="not is_life_threatening"
                     />
+
+                    <!-- Rejection reason banner (OP#966) -->
+                    <div
+                        class="alert alert-danger"
+                        role="alert"
+                        invisible="approval_state != 'rejected'"
+                    >
+                        <strong>Rejection reason:</strong>
+                        <field name="rejection_reason" readonly="1" nolabel="1" />
+                    </div>
 
                     <!-- Title -->
                     <div class="oe_title">

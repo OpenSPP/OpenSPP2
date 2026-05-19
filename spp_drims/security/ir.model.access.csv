@@ -75,6 +75,8 @@ access_spp_drims_bulk_approve_wizard_approver,DRIMS Bulk Approve Wizard Approver
 access_spp_drims_bulk_reject_wizard_approver,DRIMS Bulk Reject Wizard Approver,model_spp_drims_bulk_reject_wizard,group_drims_approver,1,1,1,1
 access_spp_drims_bulk_approve_wizard_manager,DRIMS Bulk Approve Wizard Manager,model_spp_drims_bulk_approve_wizard,group_drims_manager,1,1,1,1
 access_spp_drims_bulk_reject_wizard_manager,DRIMS Bulk Reject Wizard Manager,model_spp_drims_bulk_reject_wizard,group_drims_manager,1,1,1,1
+access_spp_drims_request_reject_wizard_approver,DRIMS Request Reject Wizard Approver,model_spp_drims_request_reject_wizard,group_drims_approver,1,1,1,1
+access_spp_drims_request_reject_wizard_manager,DRIMS Request Reject Wizard Manager,model_spp_drims_request_reject_wizard,group_drims_manager,1,1,1,1
 access_spp_drims_alert_sysadmin,DRIMS Alert System Admin,model_spp_drims_alert,base.group_system,1,1,1,1
 access_spp_drims_alert_admin,DRIMS Alert Admin,model_spp_drims_alert,spp_security.group_spp_admin,1,1,1,1
 access_spp_drims_alert_manager,DRIMS Alert Manager,model_spp_drims_alert,group_drims_manager,1,1,1,1

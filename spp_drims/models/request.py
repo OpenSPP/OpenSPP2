@@ -443,6 +443,27 @@ class DrimsRequest(models.Model):
             rec._on_reject()
         return True
 
+    def action_open_reject_wizard(self):
+        """Open the reject wizard to collect a required rejection reason (OP#966).
+
+        The Reject button on the form previously called ``action_reject``
+        directly and the user had no way to enter a reason, so the audit
+        trail lost the rationale. This action opens a small wizard that
+        collects a required reason text and then invokes ``action_reject``
+        with it.
+        """
+        self.ensure_one()
+        if self.approval_state not in ("pending", "submitted"):
+            raise UserError(_("Only pending requests can be rejected."))
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Reject Request"),
+            "res_model": "spp.drims.request.reject.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {"default_request_id": self.id},
+        }
+
     def action_request_revision(self, notes=None):
         """Request changes from the requester."""
         revision_state = self.env["spp.vocabulary.code"].search(

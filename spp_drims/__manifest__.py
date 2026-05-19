@@ -51,6 +51,7 @@
         "views/menu_structure.xml",
         # Wizards (before views, as views may reference wizard actions)
         "wizard/bulk_approve_wizard.xml",
+        "wizard/request_reject_wizard_views.xml",
         "wizard/report_4w_wizard_views.xml",
         "wizard/stock_adjustment_wizard_views.xml",
         "wizard/inter_warehouse_transfer_wizard_views.xml",

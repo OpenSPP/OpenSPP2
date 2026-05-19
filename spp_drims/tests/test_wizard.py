@@ -133,6 +133,70 @@ class TestDrimsWizard(DrimsTestCommon):
         self.assertEqual(action["target"], "new")
         self.assertIn("default_request_ids", action["context"])
 
+    # ---------- OP#966: single-record reject wizard ----------
+
+    def test_action_open_reject_wizard_returns_act_window(self):
+        """OP#966: action_open_reject_wizard returns the wizard action."""
+        request = self._create_pending_request()
+        action = request.action_open_reject_wizard()
+        self.assertEqual(action["type"], "ir.actions.act_window")
+        self.assertEqual(action["res_model"], "spp.drims.request.reject.wizard")
+        self.assertEqual(action["target"], "new")
+        self.assertEqual(action["context"]["default_request_id"], request.id)
+
+    def test_action_open_reject_wizard_only_pending(self):
+        """OP#966: opening the wizard on a non-pending request raises."""
+        request = self.env["spp.drims.request"].create(
+            {
+                "incident_id": self.incident.id,
+                "destination_area_id": self.area.id,
+                "date_needed": self.future_date,
+                "line_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "product_id": self.product.id,
+                            "quantity_requested": 10,
+                            "uom_id": self.product.uom_id.id,
+                        },
+                    )
+                ],
+            }
+        )
+        # Still in draft, never submitted
+        with self.assertRaises(UserError):
+            request.action_open_reject_wizard()
+
+    def test_request_reject_wizard_writes_reason_and_rejects(self):
+        """OP#966: the wizard writes rejection_reason and rejects the request."""
+        request = self._create_pending_request()
+        wizard = self.env["spp.drims.request.reject.wizard"].create(
+            {
+                "request_id": request.id,
+                "reason": "Out of scope for this funding cycle",
+            }
+        )
+        wizard.action_reject()
+        self.assertEqual(request.approval_state, "rejected")
+        self.assertEqual(
+            request.rejection_reason, "Out of scope for this funding cycle"
+        )
+
+    def test_request_reject_wizard_blank_reason_raises(self):
+        """OP#966: whitespace-only reason raises UserError."""
+        request = self._create_pending_request()
+        wizard = self.env["spp.drims.request.reject.wizard"].create(
+            {
+                "request_id": request.id,
+                "reason": "   ",
+            }
+        )
+        with self.assertRaises(UserError):
+            wizard.action_reject()
+        # Request stays pending
+        self.assertEqual(request.approval_state, "pending")
+
 
 @tagged("post_install", "-at_install")
 class TestInspectionWizard(DrimsTestCommon):

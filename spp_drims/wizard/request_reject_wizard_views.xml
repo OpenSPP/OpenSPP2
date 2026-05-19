@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- DRIMS Request Reject Wizard Form (OP#966) -->
+    <record id="view_drims_request_reject_wizard_form" model="ir.ui.view">
+        <field name="name">spp.drims.request.reject.wizard.form</field>
+        <field name="model">spp.drims.request.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject Request">
+                <sheet>
+                    <div class="alert alert-warning" role="alert">
+                        You are rejecting request <field
+                        name="request_id"
+                        readonly="1"
+                        class="oe_inline"
+                    />. Please provide a reason — it will be saved on the
+                        request for the audit trail.
+                    </div>
+                    <group>
+                        <field
+                            name="reason"
+                            nolabel="1"
+                            colspan="2"
+                            placeholder="Why is this request being rejected?"
+                        />
+                    </group>
+                </sheet>
+                <footer>
+                    <button
+                        name="action_reject"
+                        string="Reject Request"
+                        type="object"
+                        class="btn-danger"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
