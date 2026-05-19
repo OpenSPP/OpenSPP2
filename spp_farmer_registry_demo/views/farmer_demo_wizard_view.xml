@@ -49,6 +49,49 @@
                         </ul>
                     </div>
 
+                    <!--
+                        OP#915 round-4 follow-up: QA couldn't verify the
+                        farmland GPS pins because the map widget needs a
+                        MapTiler API key set in the
+                        `spp_gis.map_tiler_api_key` system parameter
+                        (consumed by spp_gis/controllers/main.py). The
+                        parameter ships with the placeholder value
+                        `YOUR_MAPTILER_API_KEY_HERE` and must be replaced
+                        with a real key for tiles to render.
+                    -->
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="demo_already_loaded"
+                    >
+                        <p>
+                            <strong
+                            >Map widget prerequisite (for GPS verification):</strong>
+                        </p>
+                        <p>The GIS map widget on the registrant Location section
+                            needs a MapTiler API key to render tiles. The key is
+                            not pre-seeded for security reasons. To see farm pins
+                            on a real map:</p>
+                        <ol>
+                            <li>Get a free API key from <a
+                                href="https://www.maptiler.com/"
+                                target="_blank"
+                            >maptiler.com</a>.</li>
+                            <li>Open <strong
+                            >Settings → Technical → Parameters → System Parameters</strong>.</li>
+                            <li>Find the parameter
+                                <code>spp_gis.map_tiler_api_key</code> (seeded
+                                with the placeholder value
+                                <code>YOUR_MAPTILER_API_KEY_HERE</code>) and
+                                replace its value with your MapTiler key.</li>
+                            <li
+                            >Refresh the registrant form — map tiles should render.</li>
+                        </ol>
+                        <p>Without the key, the map shows blank tiles, but the
+                            <strong>latitude / longitude values</strong> on the
+                            form are still populated and verifiable directly.</p>
+                    </div>
+
                     <field name="generate_volume" invisible="1" />
                     <field name="create_active_season" invisible="1" />
                     <field name="create_demo_farms" invisible="1" />

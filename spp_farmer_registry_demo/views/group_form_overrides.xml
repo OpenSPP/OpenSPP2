@@ -92,11 +92,18 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
 
-            <!-- C11: move History tab right of Source Tracking. The nested
-                 xpath is Odoo's idiom for `position="move"`: outer anchors
-                 the target sibling, inner identifies the page to move. -->
+            <!-- C11: move History tab right of Source Tracking. The
+                 individual and group forms use different page names
+                 (`history` / `source_tracking` vs `group_history` /
+                 `source_tracking_group`) so we need both moves. The
+                 nested xpath is Odoo's idiom for `position="move"`:
+                 outer anchors the target sibling, inner identifies the
+                 page to move. -->
             <xpath expr="//page[@name='source_tracking_group']" position="after">
                 <xpath expr="//page[@name='group_history']" position="move" />
+            </xpath>
+            <xpath expr="//page[@name='source_tracking']" position="after">
+                <xpath expr="//page[@name='history']" position="move" />
             </xpath>
         </field>
     </record>
@@ -154,34 +161,29 @@
 
     <!-- ════════════════════════════════════════════════════════════════
          C14: hide the Event Data smart button on both Group and
-         Individual forms (added by spp_event_data via two separate view
-         inherits).
+         Individual forms. spp_event_data adds TWO buttons with the same
+         `name="open_create_event_wizard"` to the same button_box (one
+         visible per `is_group` value), so a plain
+         `//button[@name='open_create_event_wizard']` xpath only matches
+         the first occurrence and leaves the other visible. Distinguish
+         the two via their original `invisible` expressions: the group
+         button's expression contains "not is_group", the individual
+         button's does not.
          ════════════════════════════════════════════════════════════════ -->
-    <record id="view_res_partner_form_hide_event_btn_group" model="ir.ui.view">
-        <field name="name">spp_event_data.view_groups_event_data_form.hide_btn</field>
+    <record id="view_res_partner_form_hide_event_btn" model="ir.ui.view">
+        <field name="name">spp_registry.view_individuals_form.hide_event_btn</field>
         <field name="model">res.partner</field>
-        <field name="inherit_id" ref="spp_event_data.view_groups_event_data_form" />
-        <field name="priority">200</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
+        <field name="priority">300</field>
         <field name="arch" type="xml">
             <xpath
-                expr="//button[@name='open_create_event_wizard']"
+                expr="//button[@name='open_create_event_wizard'][contains(@invisible, 'not is_group')]"
                 position="attributes"
             >
                 <attribute name="invisible">1</attribute>
             </xpath>
-        </field>
-    </record>
-
-    <record id="view_res_partner_form_hide_event_btn_individual" model="ir.ui.view">
-        <field
-            name="name"
-        >spp_event_data.view_individual_event_data_form.hide_btn</field>
-        <field name="model">res.partner</field>
-        <field name="inherit_id" ref="spp_event_data.view_individual_event_data_form" />
-        <field name="priority">200</field>
-        <field name="arch" type="xml">
             <xpath
-                expr="//button[@name='open_create_event_wizard']"
+                expr="//button[@name='open_create_event_wizard'][not(contains(@invisible, 'not is_group'))]"
                 position="attributes"
             >
                 <attribute name="invisible">1</attribute>

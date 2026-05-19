@@ -368,21 +368,23 @@ del Sur).
 
 Walk through enrolling a previously unregistered smallholder.
 
-1. Open Registry → Vocabularies → Manage Vocabularies and confirm the FAO-aligned
+1. Open **Settings → Vocabularies → Manage Vocabularies** and confirm the FAO-aligned
    vocabularies are loaded — `urn:fao:icc:1.1` (crops), `urn:fao:livestock:2020`
    (livestock), `urn:fao:asfis:2024` (aquaculture). These back the species pickers used
    in step 5 below.
-2. Open Settings → Farmer Registry → Seasons. The list shows three points of the
+2. Open **Registry → Configuration → Seasons**. The list shows three points of the
    `spp.farm.season` state machine: a `closed` prior-year season, an `active`
    current-year season, and (optionally) a `draft` future season the user can transition
    by hand. Activities can only be entered against an active season.
-3. Open Registry → Groups → New, set `is_group=true` and `is_farm=true`
+3. Open **Registry → Browse All (Audit) → All Groups → New**, set `is_group=true` and
+   `is_farm=true`
 4. Add the head member and key fields (farm_total_size, farm_size_under_crops,
    experience_years)
 5. Add a crop activity for the new farm. The species picker is backed by the FAO ICC 1.1
    vocabulary — pick `0116` Rice, paddy (matching FM1) or `0115` Maize, white (matching
    FM4). For aquaculture, the picker uses FAO ASFIS — pick `TIL` Tilapia (matching FM6).
-6. Open Programs → Input Subsidy → Verify Eligibility
+6. Open **Programs → Programs → Input Subsidy** and click the **Verify Eligibility**
+   button on the program form
 7. The new farm is moved from `not_eligible` (or absent) to `enrolled` because the CEL
    now matches
 8. Show the resulting cycle and the first scheduled payment
@@ -400,9 +402,11 @@ Walk through enrolling a previously unregistered smallholder.
 
 Show how a single farm fans out into two programs.
 
-1. Open FM2 farm → see two memberships (Input Subsidy + Livestock Support)
-2. Open Input Subsidy → Cycles → see FM2 in cycle 4
-3. Open Livestock Support → Cycles → see FM2 in cycle 3 with a different payment amount
+1. Open the FM2 farm record (**Registry → Browse All (Audit) → All Groups → FM2**) → see
+   two memberships (Input Subsidy + Livestock Support)
+2. Open **Programs → Programs → Input Subsidy → Cycles** tab → see FM2 in cycle 4
+3. Open **Programs → Programs → Livestock Support → Cycles** tab → see FM2 in cycle 3
+   with a different payment amount
 4. Show that the two payment streams are independent (separate batches, separate
    journals)
 
@@ -418,10 +422,10 @@ Show how a single farm fans out into two programs.
 Use FM1 to demonstrate that a smallholder who keeps their productive land remains
 compliant; contrast with a hypothetical farm that abandons its productive land.
 
-1. Open Input Subsidy → compliance manager → show CEL
-   `has_productive_land == true and farm_size_hectares > 0`
-2. Open FM1 → cycle membership history → state `enrolled` for cycles 1–3, then
-   `graduated`
+1. Open **Programs → Programs → Input Subsidy** → Configuration tab → **Compliance
+   Manager** section → show CEL `has_productive_land == true and farm_size_hectares > 0`
+2. Open FM1 (**Registry → Browse All (Audit) → All Groups → FM1**) → **Cycle
+   Memberships** tab → state `enrolled` for cycles 1–3, then `graduated`
 3. Open a hypothetical FM-NULL with `farm_size_under_crops = 0` post-cycle → state
    `non_compliant` for that cycle, no entitlement generated
 
@@ -437,11 +441,13 @@ compliant; contrast with a hypothetical farm that abandons its productive land.
 
 Demonstrate that the system handles non-crop farming.
 
-1. Open FM6 farm → activities → 0.5 ha tilapia fishpond
-2. Open Aquaculture Support program → CEL `aquaculture_count > 0`
-3. Open the program's cycle → FM6 in cycle 4 with payment ₱250
-4. Verify Eligibility on FM1 (rice) — no change (FM1 is not eligible because
-   `aquaculture_count == 0`)
+1. Open the FM6 farm (**Registry → Browse All (Audit) → All Groups → FM6**) → Activities
+   tab → 0.5 ha tilapia fishpond
+2. Open **Programs → Programs → Aquaculture Support** → Eligibility tab → CEL
+   `aquaculture_count > 0`
+3. Open the program's **Cycles** tab → FM6 in cycle 4 with payment ₱250
+4. From the program form, click **Verify Eligibility** with FM1 (rice) as the test
+   registrant — no change (FM1 is not eligible because `aquaculture_count == 0`)
 
 **Key messages:**
 
@@ -455,8 +461,10 @@ Demonstrate that the system handles non-crop farming.
 
 Show how `farm_size_idle` becomes a positive signal for climate-vulnerable households.
 
-1. Open Climate Resilience program → CEL `is_smallholder and farm_size_idle > 0`
-2. Open FM4 → 3 ha rice + 1 ha idle = 4 ha total → matches CEL
+1. Open **Programs → Programs → Climate Resilience** → Eligibility tab → CEL
+   `is_smallholder and farm_size_idle > 0`
+2. Open FM4 (**Registry → Browse All (Audit) → All Groups → FM4**) → 3 ha rice + 1 ha
+   idle = 4 ha total → matches CEL
 3. Show the cycle and 2 paid payments (₱200 each)
 4. Contrast with EC1 (50 ha, idle) → fails `is_smallholder` even though
    `farm_size_idle > 0`
@@ -492,11 +500,13 @@ Show that the engine correctly excludes farms that look eligible at a glance.
 
 Demonstrate the group-of-groups data model.
 
-1. Open COOP1 (Nueva Ecija Rice Cooperative) → see member farms FM1 + FM5
+1. Open COOP1 — Nueva Ecija Rice Cooperative (**Registry → Browse All (Audit) → All
+   Groups → COOP1**) → see member farms FM1 + FM5
 2. Show aggregated metrics — combined 4.0 ha, 2 member farms
 3. Open FM1 → see cooperative membership (FM1 belongs to COOP1)
-4. Run Verify Eligibility on Input Subsidy — eligibility is computed per member farm;
-   the cooperative itself is not a program target
+4. From **Programs → Programs → Input Subsidy**, run **Verify Eligibility** —
+   eligibility is computed per member farm; the cooperative itself is not a program
+   target
 
 **Key messages:**
 
@@ -508,7 +518,8 @@ Demonstrate the group-of-groups data model.
 
 ### Scenario 8: Change request lifecycle
 
-Walk through the 10 demo CRs to show every CR state.
+Walk through the 10 demo CRs to show every CR state. Open them from **Change Requests →
+All Requests** (or from each farm's **Change Requests** smart button on the form).
 
 1. Approved: FM1 `update_farm_details` — farm expanded after acquisition
 2. Applied: FM2 `update_farm_details` — added livestock area, applied automatically
@@ -537,7 +548,7 @@ Walk through the 10 demo CRs to show every CR state.
 Demonstrate that demo programs route cycles and entitlements through the approval
 workflow (a feature MIS demo lacks).
 
-1. Open Input Subsidy → Cycles → click "New Cycle"
+1. Open **Programs → Programs → Input Subsidy** → **Cycles** tab → click "New Cycle"
 2. The cycle enters state `to_approve` (not `draft`) because its cycle manager has
    `approval_definition_id` set
 3. Show the approval review record — assigned to `group_programs_manager`, SLA 3 days
@@ -559,28 +570,39 @@ Anchor the GIS, land-record, and irrigation modules in a single coherent flow. T
 narrative hook: FM4's 1 ha of idle/fallow land is the **downstream consequence of
 reduced reservoir capacity**, not random non-cultivation.
 
-1. Open Settings → GIS Configuration → Data Layers and confirm the farmer-registry
-   layers are present (Raster + Data Layers reachable, see OP#988 for the menu fix).
-2. Open Registry → Groups → FM4 (Mangudadatu Farm). On the GIS view, the farm's land
-   parcel polygon is plotted at Cotabato City — ≈ 4 ha total area, of which 1 ha is the
-   idle/fallow strip.
-3. Open Land Records → filter by `land_farm_id = FM4`. The single record shows the
-   parcel polygon and exports as GeoJSON via the action menu
-   (`spp.land.record.get_geojson()`).
-4. Open Irrigation → Assets → filter by `farm_id = FM4`. Two assets are linked into a
-   network:
+> **Note:** `spp_gis`, `spp_land_record`, and `spp_irrigation` are accessed primarily
+> through the registrant form (Profile → Location section + smart buttons) and through
+> developer mode for raw records. They don't ship dedicated top-level menus, so this
+> scenario uses form-level entry points rather than menu paths. To inspect the GIS
+> Configuration / Color Scales / Indicator Layers menus, install `spp_gis_indicators` —
+> those ship menus under **Settings → GIS Configuration**.
+
+1. Open FM4 — Mangudadatu Farm (**Registry → Browse All (Audit) → All Groups → FM4
+   Mangudadatu Farm**) → **Profile** tab → **Location** section. The GIS map widget
+   shows the farm's land-parcel polygon plotted at Cotabato City — ≈ 4 ha total area, of
+   which 1 ha is the idle/fallow strip. (Map tiles require a tile-provider API key — see
+   the wizard prerequisite note. Without the key, the latitude/longitude fields still
+   display the correct values.)
+2. From the FM4 form, the **Land Records** smart button (or **Developer mode → Settings
+   → Technical → Database Structure → Models → `spp.land.record`**, filter by
+   `land_farm_id = FM4`) opens the parcel records. The single record shows the parcel
+   polygon and exports as GeoJSON via the action menu (`spp.land.record.get_geojson()`).
+3. From the FM4 form, the **Irrigation Assets** smart button (or **Developer mode →
+   Settings → Technical → Database Structure → Models → `spp.irrigation.asset`**, filter
+   by `farm_id = FM4`) lists two assets linked into a network:
    - **Cotabato Irrigation Reservoir** (type=reservoir) — effective capacity 5 000 m³;
      design ≈ 15 000 m³ (silted, hence the reduced flow)
    - **Cotabato Main Canal Branch** (type=canal) — fed by the reservoir, 300 m³ flow
      capacity
-5. Click the reservoir → see `irrigation_destination_ids` lists the canal. Open the
-   canal → `irrigation_source_ids` lists the reservoir. The source-to-destination
+4. Open the reservoir record → see `irrigation_destination_ids` lists the canal. Open
+   the canal → `irrigation_source_ids` lists the reservoir. The source-to-destination
    network is the same model used to map nation-scale infrastructure.
-6. Back on the map view, apply the spatial layer filter `farm_size_idle > 0` — FM4
-   lights up alongside other idle-land farms (mostly the seeded volume blueprints
+5. Returning to the registrant list with the search filter `farm_size_idle > 0` (under
+   **Registry → Browse All (Audit) → All Groups**, apply the filter), FM4 appears
+   alongside other idle-land farms (mostly the seeded volume blueprints
    `Drought-affected (idle land)` and `Flood-affected female farmer`). This is how a
    ministry planner would target a climate intervention region.
-7. Close the loop with Scenario 5 — Climate Resilience already enrolls FM4 because of
+6. Close the loop with Scenario 5 — Climate Resilience already enrolls FM4 because of
    `farm_size_idle > 0`, but **Scenario 10 explains why the idle hectare exists**. The
    two scenarios together make the case that targeting and infrastructure analysis
    belong in the same registry.
