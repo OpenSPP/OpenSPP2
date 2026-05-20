@@ -77,6 +77,36 @@
                 />
             </xpath>
 
+            <!--
+                OP#970: hide the standard Print + Return buttons when this is
+                a DRIMS picking. The dispatch already exposes Print Waybill
+                (above) and Create Return (above) which route through the
+                DRIMS-specific report + return wizard; the standard ones
+                produce duplicates that confuse users.
+
+                The action-button names like `%(action_report_delivery)d` get
+                resolved to numeric IDs at view-parse time, so xpath can't
+                match by name. We discriminate by `data-hotkey` + the
+                button's existing `invisible` expression instead.
+            -->
+            <xpath
+                expr="//header/button[@name='do_print_picking']"
+                position="attributes"
+            >
+                <attribute
+                    name="invisible"
+                >state != 'assigned' or drims_type_id</attribute>
+            </xpath>
+            <xpath
+                expr="//header/button[@data-hotkey='o' and contains(@invisible, 'done')]"
+                position="attributes"
+            >
+                <attribute name="invisible">state != 'done' or drims_type_id</attribute>
+            </xpath>
+            <xpath expr="//header/button[@data-hotkey='k']" position="attributes">
+                <attribute name="invisible">state != 'done' or drims_type_id</attribute>
+            </xpath>
+
             <!-- Add DRIMS tab -->
             <xpath expr="//notebook" position="inside">
                 <page string="DRIMS" name="drims" invisible="drims_type_id == False">
