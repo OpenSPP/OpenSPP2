@@ -84,10 +84,13 @@
                 DRIMS-specific report + return wizard; the standard ones
                 produce duplicates that confuse users.
 
-                The action-button names like `%(action_report_delivery)d` get
-                resolved to numeric IDs at view-parse time, so xpath can't
-                match by name. We discriminate by `data-hotkey` + the
-                button's existing `invisible` expression instead.
+                The action-button names for the standard Print + Return
+                buttons use the percent-paren xmlid-resolution sigil and
+                get rewritten to numeric IDs at view-parse time, so xpath
+                cannot match them by name. We discriminate by `data-hotkey`
+                + the button's existing `invisible` expression instead.
+                (Avoid writing the literal sigil here — Odoo's parser
+                runs the regex over comments too and tries to resolve.)
             -->
             <xpath
                 expr="//header/button[@name='do_print_picking']"
