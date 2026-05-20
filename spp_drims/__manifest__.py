@@ -17,6 +17,7 @@
         "mail",
         "stock",
         "spp_alerts",
+        "spp_base_common",
         "spp_security",
         "spp_vocabulary",
         "spp_area",
@@ -80,7 +81,11 @@
         # Menus with actions (loaded last, after all views define their actions)
         "views/menus.xml",
     ],
-    "assets": {},
+    "assets": {
+        "web.assets_backend": [
+            "spp_drims/static/src/js/hide_dispatch_form_create.js",
+        ],
+    },
     "application": True,
     "installable": True,
     "auto_install": False,

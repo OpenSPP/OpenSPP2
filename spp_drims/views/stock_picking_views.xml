@@ -111,8 +111,20 @@
                                 options="{'no_create': True}"
                                 required="drims_type == 'request_dispatch'"
                             />
+                            <!--
+                                OP#967 round-3: use spp_base_common's
+                                integer_positive_required widget so the
+                                field reports as empty when value is 0
+                                (standard IntegerField considers any int
+                                "set", which suppresses the required
+                                asterisk + pink-highlight on 0). The
+                                model-side button_validate check still
+                                rejects beneficiary_count <= 0 — the
+                                widget just provides the visual cue.
+                            -->
                             <field
                                 name="beneficiary_count"
+                                widget="integer_positive_required"
                                 required="drims_type == 'request_dispatch'"
                             />
                             <field
