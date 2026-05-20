@@ -176,3 +176,23 @@ class Vocabulary(models.Model):
             "domain": [("vocabulary_id", "=", self.id)],
             "context": {"default_vocabulary_id": self.id},
         }
+
+    def action_add_manual_code(self):
+        """Open the code form pre-flagged as a Manual (local) code.
+
+        Manual codes (`is_local=True`) are admin-added overlays on top of a
+        SYSTEM vocabulary. They are fully editable and deletable, unlike the
+        module-shipped system codes which the backend locks. See OP#954.
+        """
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Add Manual Code: %s") % self.name,
+            "res_model": "spp.vocabulary.code",
+            "view_mode": "form",
+            "target": "current",
+            "context": {
+                "default_vocabulary_id": self.id,
+                "default_is_local": True,
+            },
+        }

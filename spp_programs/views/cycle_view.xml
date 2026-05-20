@@ -134,7 +134,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         string="Copy Beneficiaries"
                         icon="fa-copy"
                         invisible="state != 'draft'"
-                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_officer,spp_programs.group_programs_validator"
+                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_officer"
                     />
                     <button
                         name="action_prepare_entitlement"
@@ -142,7 +142,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         string="Prepare Entitlements"
                         icon="fa-list"
                         invisible="state not in ('draft', 'to_approve') or total_entitlements_count > 0"
-                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_officer,spp_programs.group_programs_validator"
+                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_officer"
                     />
                     <button
                         name="action_submit_for_approval"
@@ -218,7 +218,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         string="End Cycle"
                         icon="fa-stop"
                         invisible="state not in ('approved', 'distributed')"
-                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator"
+                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager"
                     />
                     <button
                         name="mark_cancelled"
@@ -226,7 +226,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         string="Cancel"
                         icon="fa-times"
                         invisible="state in ('ended', 'cancelled')"
-                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator"
+                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager"
                     />
                     <field
                         name="state"

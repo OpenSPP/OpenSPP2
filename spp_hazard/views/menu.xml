@@ -6,6 +6,7 @@
         name="Hazard and Emergency"
         web_icon="spp_hazard,static/description/OpenSPP-Web-Menu_Hazard__Emergency_Icon.png"
         sequence="45"
+        groups="spp_hazard.group_hazard_viewer"
     />
 
     <!-- Incidents Submenu -->

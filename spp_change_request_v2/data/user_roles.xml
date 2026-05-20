@@ -18,7 +18,8 @@ User roles for Change Request module.
             eval="[
                 Command.link(ref('base.group_user')),
                 Command.link(ref('group_cr_manager')),
-                Command.link(ref('spp_registry.group_registry_read')),
+                Command.link(ref('spp_registry.group_registry_viewer')),
+                Command.link(ref('spp_hazard.group_hazard_viewer')),
             ]"
         />
     </record>
@@ -34,7 +35,8 @@ User roles for Change Request module.
             eval="[
                 Command.link(ref('base.group_user')),
                 Command.link(ref('group_cr_validator')),
-                Command.link(ref('spp_registry.group_registry_read')),
+                Command.link(ref('spp_registry.group_registry_viewer')),
+                Command.link(ref('spp_hazard.group_hazard_viewer')),
             ]"
         />
     </record>
@@ -50,7 +52,8 @@ User roles for Change Request module.
             eval="[
                 Command.link(ref('base.group_user')),
                 Command.link(ref('group_cr_validator_hq')),
-                Command.link(ref('spp_registry.group_registry_read')),
+                Command.link(ref('spp_registry.group_registry_viewer')),
+                Command.link(ref('spp_hazard.group_hazard_viewer')),
             ]"
         />
     </record>

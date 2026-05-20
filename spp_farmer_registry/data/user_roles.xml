@@ -17,6 +17,8 @@
                 Command.link(ref('base.group_user')),
                 Command.link(ref('group_spp_farm_user')),
                 Command.link(ref('spp_registry.group_registry_officer')),
+                Command.link(ref('spp_hazard.group_hazard_viewer')),
+                Command.link(ref('spp_gis_report.group_gis_report_user')),
             ]"
         />
     </record>
@@ -35,6 +37,8 @@
                 Command.link(ref('group_spp_farm_manager')),
                 Command.link(ref('spp_irrigation.group_irrigation_manager')),
                 Command.link(ref('spp_registry.group_registry_manager')),
+                Command.link(ref('spp_hazard.group_hazard_viewer')),
+                Command.link(ref('spp_gis_report.group_gis_report_user')),
             ]"
         />
     </record>
