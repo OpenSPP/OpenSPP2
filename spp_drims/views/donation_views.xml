@@ -152,10 +152,28 @@
                                         string="Pledged"
                                         readonly="parent.state != 'announced'"
                                     />
+                                    <!--
+                                        OP#962: `quantity_received` is editable
+                                        only in the `received` state — never
+                                        during `announced`. Allowing edits at
+                                        announce-time let pre-entered values
+                                        silently flow through
+                                        `action_mark_received()` (which only
+                                        auto-copies pledged→received for lines
+                                        where quantity_received == 0), driving
+                                        the stock picking with values the user
+                                        hadn't necessarily confirmed.
+
+                                        Note: edits in the `received` state
+                                        after the picking exists still don't
+                                        update the picking — that picking-sync
+                                        question is out of scope here and
+                                        should be tracked separately.
+                                    -->
                                     <field
                                         name="quantity_received"
                                         string="Received"
-                                        readonly="parent.state not in ('announced', 'received')"
+                                        readonly="parent.state != 'received'"
                                     />
                                     <field
                                         name="receipt_variance"
