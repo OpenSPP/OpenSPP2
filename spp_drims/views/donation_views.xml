@@ -79,11 +79,14 @@
                         invisible="state in ('stocked', 'rejected', 'cancelled')"
                         confirm="Cancel this donation? Any pending transfers will be cancelled."
                     />
-                    <field
-                        name="state_id"
-                        widget="statusbar"
-                        options="{'clickable': '1'}"
-                    />
+                    <!--
+                        OP#960: render state as a read-only indicator.
+                        All transitions go through the header buttons
+                        (Mark Received / Inspect Items / Stock Items /
+                        Reject / Cancel) which run the proper validation;
+                        a clickable statusbar would let users bypass that.
+                    -->
+                    <field name="state_id" widget="statusbar" />
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
