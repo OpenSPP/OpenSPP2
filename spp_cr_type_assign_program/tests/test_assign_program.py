@@ -253,6 +253,29 @@ class TestAssignProgram(CRTestCase):
         self.assertEqual(cr2.conflict_status, "none")
         self.assertFalse(cr2.conflicting_cr_ids)
 
+    def test_f5_two_crs_for_different_registrants_same_program_allowed(self):
+        # Two different registrants assigning to the *same* program must both
+        # be able to proceed. The rule's intent is "same (registrant, program)
+        # pair" — different registrants are not in conflict even when the
+        # program matches.
+        other_individual = self.Partner.create(
+            {
+                "name": "Other Individual",
+                "given_name": "Other",
+                "family_name": "Individual",
+                "is_registrant": True,
+                "is_group": False,
+            }
+        )
+
+        _cr1, _d1 = self._make_cr(self.test_individual, self.indiv_program_active)
+        cr2, _d2 = self._make_cr(other_individual, self.indiv_program_active)
+
+        cr2._run_conflict_checks()
+
+        self.assertEqual(cr2.conflict_status, "none")
+        self.assertFalse(cr2.conflicting_cr_ids)
+
     def test_a10_apply_translates_unique_violation_to_user_error(self):
         """Race-path: a concurrent transaction inserts the same
         (registrant, program) pair between our validate() and create().

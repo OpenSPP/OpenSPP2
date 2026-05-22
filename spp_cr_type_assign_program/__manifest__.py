@@ -1,6 +1,6 @@
 {
     "name": "OpenSPP CR Type - Assign to Program",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "sequence": 53,
     "category": "OpenSPP",
     "summary": "Change request type for assigning a registrant to a program",
