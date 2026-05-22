@@ -226,10 +226,11 @@ class TestResPartnerGRMFields(TransactionCase):
         self.assertEqual(action["context"]["default_registrant_id"], self.registrant.id)
 
     def test_action_view_registrant_tickets_view_mode(self):
-        """action_view_grm_registrant_tickets exposes tree, form, and kanban views."""
+        """action_view_grm_registrant_tickets exposes list, form, and kanban views."""
         action = self.registrant.action_view_grm_registrant_tickets()
-        for mode in ("tree", "form", "kanban"):
+        for mode in ("list", "form", "kanban"):
             self.assertIn(mode, action["view_mode"])
+        self.assertNotIn("tree", action["view_mode"])
 
     # ------------------------------------------------------------------ #
     # action_view_grm_household_tickets                                   #
@@ -256,7 +257,8 @@ class TestResPartnerGRMFields(TransactionCase):
         self.assertEqual(action["context"]["default_household_id"], self.household.id)
 
     def test_action_view_household_tickets_view_mode(self):
-        """action_view_grm_household_tickets exposes tree, form, and kanban views."""
+        """action_view_grm_household_tickets exposes list, form, and kanban views."""
         action = self.household.action_view_grm_household_tickets()
-        for mode in ("tree", "form", "kanban"):
+        for mode in ("list", "form", "kanban"):
             self.assertIn(mode, action["view_mode"])
+        self.assertNotIn("tree", action["view_mode"])
