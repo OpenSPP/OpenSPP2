@@ -4,10 +4,11 @@ from odoo import models
 class SPPChangeRequest(models.Model):
     """Custom conflict-detection hook for the assign-program CR type.
 
-    The base conflict rule scoped to the same registrant flags every in-flight
-    `assign_program` CR for that registrant. We narrow the match to those
-    targeting the same `(registrant, program)` pair so two CRs assigning the
-    same registrant to *different* programs are allowed to proceed.
+    The rule uses `scope='custom'`, so the base domain does not pre-filter by
+    registrant. We narrow the candidate set to those targeting the same
+    `(registrant, program)` pair: two CRs assigning the same registrant to
+    *different* programs may proceed, and two CRs assigning *different*
+    registrants to the same program may also proceed.
     """
 
     _inherit = "spp.change.request"
@@ -44,4 +45,6 @@ class SPPChangeRequest(models.Model):
             )
             .ids
         )
-        return candidates.filtered(lambda c: c.detail_res_id in matching_detail_ids)
+        return candidates.filtered(
+            lambda c: c.detail_res_id in matching_detail_ids and c.registrant_id == self.registrant_id
+        )
