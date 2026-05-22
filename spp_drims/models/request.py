@@ -511,6 +511,13 @@ class DrimsRequest(models.Model):
         """Allocate stock to fulfill this request using FEFO.
 
         For UI, use action_open_allocation_wizard() to preview before allocating.
+
+        OP#1032: if the source warehouse has zero available stock for every
+        requested item, the FIFO loop is a no-op and the request would
+        silently advance to Ready for Dispatch with 0 allocated. Instead,
+        check the total allocated quantity after the run; if it's still 0
+        across all lines, raise so the state stays at Ready for Allocation
+        and the user is forced to pick a warehouse that actually has stock.
         """
         for rec in self:
             if rec.approval_state != "approved":
@@ -518,6 +525,15 @@ class DrimsRequest(models.Model):
             if not rec.source_warehouse_id:
                 raise UserError(_("Please select a source warehouse before allocation."))
             rec._allocate_stock_fifo()
+            total_allocated = sum(rec.line_ids.mapped("quantity_allocated"))
+            if total_allocated <= 0:
+                raise UserError(
+                    _(
+                        "No stock available in the selected warehouse. "
+                        "Please ensure the source warehouse has sufficient items "
+                        "before allocating."
+                    )
+                )
             # Update state to allocated
             allocated_state = self.env["spp.vocabulary.code"].search(
                 [

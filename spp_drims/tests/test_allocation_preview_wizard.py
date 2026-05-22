@@ -225,6 +225,29 @@ class TestDrimsAllocationPreviewWizard(DrimsTestCommon):
         self.assertEqual(line.shortfall, 100.0)
         self.assertEqual(line.allocation_status, "none")
 
+    def test_confirm_blocked_when_zero_stock(self):
+        """OP#1032: action_confirm_allocation refuses to advance the
+        request to allocated when the wizard's total quantity_to_allocate
+        is 0. Previously the wizard would silently confirm, set
+        quantity_allocated to 0 across all lines, and still advance the
+        request to Ready for Dispatch.
+        """
+        request = self._create_request_with_lines([(self.product, 100)])
+        initial_state = request.state
+
+        wizard = self.env["spp.drims.allocation.preview.wizard"].create(
+            {
+                "request_id": request.id,
+                "warehouse_id": self.warehouse.id,
+            }
+        )
+        wizard._populate_lines()
+        # No stock seeded — every line's quantity_to_allocate is 0.
+        with self.assertRaises(UserError):
+            wizard.action_confirm_allocation()
+        self.assertEqual(request.line_ids[0].quantity_allocated, 0)
+        self.assertEqual(request.state, initial_state)
+
     def test_partial_allocation(self):
         """Test partial allocation when stock is less than requested."""
         # Add partial stock

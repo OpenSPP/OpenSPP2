@@ -368,7 +368,11 @@ class TestDrimsRequest(DrimsTestCommon):
             request.action_allocate()
 
     def test_allocate_with_warehouse(self):
-        """Test allocation workflow with source warehouse (GAP-REQ-001/002)."""
+        """Test allocation workflow with source warehouse (GAP-REQ-001/002).
+
+        OP#1032: the warehouse must also have stock — without stock,
+        `action_allocate` now refuses to advance the request state.
+        """
         request = self.env["spp.drims.request"].create(
             {
                 "incident_id": self.incident.id,
@@ -390,9 +394,51 @@ class TestDrimsRequest(DrimsTestCommon):
         )
         request.action_submit()
         request.action_approve()
-        # Now allocation should work
+        # Seed stock so the allocation actually has something to grab.
+        self.env["stock.quant"].create(
+            {
+                "product_id": self.product.id,
+                "location_id": self.warehouse.lot_stock_id.id,
+                "quantity": 25.0,
+            }
+        )
         request.action_allocate()
         self.assertEqual(request.state, "allocated")
+        self.assertGreater(request.total_allocated, 0)
+
+    def test_allocate_blocked_when_warehouse_has_no_stock(self):
+        """OP#1032: action_allocate refuses to advance the request state
+        when the source warehouse has zero available stock for every
+        requested line. Previously the request silently advanced to
+        Ready for Dispatch with 0 allocated.
+        """
+        request = self.env["spp.drims.request"].create(
+            {
+                "incident_id": self.incident.id,
+                "destination_area_id": self.area.id,
+                "date_needed": self.future_date,
+                "source_warehouse_id": self.warehouse.id,
+                "line_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "product_id": self.product.id,
+                            "quantity_requested": 10,
+                            "uom_id": self.product.uom_id.id,
+                        },
+                    )
+                ],
+            }
+        )
+        request.action_submit()
+        request.action_approve()
+        # No stock seeded — allocation should raise and the state should
+        # stay at approved (Ready for Allocation).
+        with self.assertRaises(UserError):
+            request.action_allocate()
+        self.assertEqual(request.state, "approved")
+        self.assertEqual(request.total_allocated, 0)
 
     def test_create_dispatch_not_allocated(self):
         """Test that dispatch requires allocated state (GAP-REQ-003)."""

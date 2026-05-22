@@ -182,6 +182,20 @@ class DrimsAllocationPreviewWizard(models.TransientModel):
         if not self.line_ids:
             raise UserError(_("No items to allocate."))
 
+        # OP#1032: refuse to confirm an empty allocation. Without this guard
+        # a user could pick a warehouse with zero available stock, the
+        # wizard would show 0 across all lines, and confirming would still
+        # advance the request to Ready for Dispatch with 0 allocated.
+        total_to_allocate = sum(self.line_ids.mapped("quantity_to_allocate"))
+        if total_to_allocate <= 0:
+            raise UserError(
+                _(
+                    "No stock available in the selected warehouse. "
+                    "Please ensure the source warehouse has sufficient items "
+                    "before allocating."
+                )
+            )
+
         _logger.info(
             "Applying allocation for request %s from warehouse %s with %d lines",
             self.request_id.reference,
