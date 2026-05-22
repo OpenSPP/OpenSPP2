@@ -73,46 +73,77 @@
                 </button>
             </xpath>
 
-            <!-- Add DRIMS configuration tab -->
-            <xpath expr="//notebook" position="inside">
-                <page
-                    string="DRIMS Configuration"
-                    name="drims_config"
-                    invisible="not is_drims_warehouse"
-                >
-                    <group>
-                        <group
-                            string="Disaster Response Configuration"
-                            name="drims_settings"
-                        >
-                            <field name="is_drims_warehouse" />
+            <!--
+                OP#959 round-2: the standard `stock.view_warehouse` notebook
+                is gated by `groups="stock.group_adv_location,
+                stock.group_stock_multi_warehouses"` (advanced inventory
+                roles), so attaching the DRIMS Configuration page inside
+                that notebook hides it for admins that don't carry those
+                groups. Wrap it in our own un-gated notebook anchored
+                just before the standard one — page is always reachable
+                when is_drims_warehouse is on, regardless of inventory
+                role membership.
+            -->
+            <xpath expr="//sheet/notebook" position="before">
+                <notebook>
+                    <page
+                        string="DRIMS Configuration"
+                        name="drims_config"
+                        invisible="not is_drims_warehouse"
+                    >
+                        <!--
+                            Active Response at the top, full-width, so the
+                            incidents this warehouse is responding to are
+                            the first thing the user sees on the tab. The
+                            field carries colspan="2" so it spans both
+                            sub-columns of the group (default col=2);
+                            colspan on the group itself is a no-op here
+                            since the parent <page> has no column grid.
+                        -->
+                        <group string="Active Response" name="active_response">
                             <field
-                                name="drims_capacity"
+                                name="incident_ids"
+                                widget="many2many_tags"
+                                nolabel="1"
+                                colspan="2"
                                 invisible="not is_drims_warehouse"
                             />
-                            <field name="area_id" invisible="not is_drims_warehouse" />
                         </group>
-                        <group string="Emergency Contact" name="emergency_contact">
-                            <field
-                                name="emergency_contact"
-                                invisible="not is_drims_warehouse"
-                            />
-                            <field
-                                name="emergency_phone"
-                                invisible="not is_drims_warehouse"
-                            />
-                        </group>
-                    </group>
 
-                    <group string="Active Response" name="active_response">
-                        <field
-                            name="incident_ids"
-                            widget="many2many_tags"
-                            nolabel="1"
-                            invisible="not is_drims_warehouse"
-                        />
-                    </group>
-                </page>
+                        <group>
+                            <group
+                                string="Disaster Response Configuration"
+                                name="drims_settings"
+                            >
+                                <field name="is_drims_warehouse" />
+                                <field name="tier" invisible="not is_drims_warehouse" />
+                                <field
+                                    name="drims_capacity"
+                                    invisible="not is_drims_warehouse"
+                                />
+                                <field
+                                    name="area_id"
+                                    invisible="not is_drims_warehouse"
+                                />
+                                <field
+                                    name="gis_location"
+                                    widget="geo_point"
+                                    invisible="not is_drims_warehouse"
+                                />
+                            </group>
+                            <group string="Emergency Contact" name="emergency_contact">
+                                <field
+                                    name="emergency_contact"
+                                    invisible="not is_drims_warehouse"
+                                />
+                                <field
+                                    name="emergency_phone"
+                                    invisible="not is_drims_warehouse"
+                                />
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
             </xpath>
 
             <!-- Add DRIMS checkbox in general info -->
@@ -130,6 +161,8 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='name']" position="after">
                 <field name="is_drims_warehouse" optional="show" />
+                <!-- OP#959: surface tier on the list, optional by default -->
+                <field name="tier" optional="show" widget="badge" />
                 <field
                     name="drims_stock_health"
                     widget="badge"
@@ -155,11 +188,29 @@
                 <field name="name" />
                 <field name="code" />
                 <field name="area_id" />
+                <field name="tier" />
                 <separator />
                 <filter
                     string="DRIMS Warehouses"
                     name="drims_warehouses"
                     domain="[('is_drims_warehouse', '=', True)]"
+                />
+                <separator />
+                <!-- OP#959: tier filters for quick triage of central / regional / mobile -->
+                <filter
+                    string="Central"
+                    name="tier_central"
+                    domain="[('tier', '=', 'central')]"
+                />
+                <filter
+                    string="Regional"
+                    name="tier_regional"
+                    domain="[('tier', '=', 'regional')]"
+                />
+                <filter
+                    string="Mobile"
+                    name="tier_mobile"
+                    domain="[('tier', '=', 'mobile')]"
                 />
                 <separator />
                 <group>
@@ -168,9 +219,62 @@
                         name="group_area"
                         context="{'group_by': 'area_id'}"
                     />
+                    <filter
+                        string="Tier"
+                        name="group_tier"
+                        context="{'group_by': 'tier'}"
+                    />
                 </group>
             </search>
         </field>
+    </record>
+
+    <!--
+        OP#959: GIS view for stock.warehouse. The `geo_point` widget on
+        the form's gis_location field requires a `<gis>` view to exist
+        for the model — without one, opening a warehouse throws "No GIS
+        view defined for the model stock.warehouse".
+    -->
+    <record id="view_warehouse_gis_drims" model="ir.ui.view">
+        <field name="name">stock.warehouse.gis.drims</field>
+        <field name="model">stock.warehouse</field>
+        <field eval="16" name="priority" />
+        <field name="arch" type="xml">
+            <gis editable="1">
+                <field name="id" />
+                <field name="name" select="1" />
+                <field name="code" />
+                <field name="tier" />
+                <field name="is_drims_warehouse" />
+                <field name="gis_location" />
+            </gis>
+        </field>
+    </record>
+
+    <!--
+        Vector + raster layers for the warehouse GIS view. The data
+        layer renders each warehouse's gis_location point; the OSM
+        raster layer provides the base map (without it the GIS view
+        crashes with "No raster layer for view stock.warehouse.gis.drims").
+    -->
+    <record id="gis_data_layer_warehouse_location" model="spp.gis.data.layer">
+        <field
+            name="geo_field_id"
+            ref="spp_drims.field_stock_warehouse__gis_location"
+        />
+        <field name="name">Warehouse Location</field>
+        <field eval="1" name="sequence" />
+        <field name="view_id" ref="view_warehouse_gis_drims" />
+        <field name="geo_repr">basic</field>
+        <field name="active_on_startup" eval="True" />
+        <field name="layer_opacity">0.9</field>
+        <field name="begin_color">#1F78B4</field>
+    </record>
+
+    <record id="gis_raster_layer_warehouse_osm" model="spp.gis.raster.layer">
+        <field name="raster_type">osm</field>
+        <field name="name">Default</field>
+        <field name="view_id" ref="view_warehouse_gis_drims" />
     </record>
 
     <!-- DRIMS Warehouse Action -->
