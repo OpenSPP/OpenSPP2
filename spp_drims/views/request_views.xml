@@ -158,7 +158,7 @@
                         string="Allocate Stock"
                         type="object"
                         class="btn-primary"
-                        invisible="approval_state != 'approved' or state == 'allocated'"
+                        invisible="approval_state != 'approved' or state in ('dispatched', 'delivered', 'fulfilled')"
                         data-hotkey="l"
                     />
                     <button

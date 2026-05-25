@@ -616,22 +616,23 @@ class DrimsRequest(models.Model):
         return True
 
     def action_create_dispatch(self):
-        """Create a dispatch picking for this allocated request (GAP-REQ-003).
+        """Create a dispatch picking for the not-yet-dispatched balance of this
+        request (GAP-REQ-003, OP#1033 — partial dispatches).
 
-        This method:
-        1. Validates the request is allocated and has a source warehouse
-        2. Creates a stock.picking for outgoing delivery
-        3. Creates stock.move for each allocated line item
-        4. Confirms the picking
-        5. Updates request state to 'dispatched'
-        6. Opens the picking form
+        Each call creates a picking covering only the **remaining** allocated
+        quantity per line (``quantity_allocated - quantity_dispatched``). The
+        request state only advances to ``dispatched`` once every line has
+        ``quantity_dispatched >= quantity_requested`` — until then it stays at
+        ``allocated`` (Ready for Dispatch) so the button can be clicked again
+        when more stock is allocated.
 
         Returns:
             dict: Action to view the created picking.
 
         Raises:
-            UserError: If request is not allocated, no source warehouse, or
-                       no outgoing picking type found.
+            UserError: If request is not allocated, source warehouse missing,
+                       outgoing picking type missing, or nothing remains to
+                       dispatch on the current allocation.
         """
         self.ensure_one()
         if self.state != "allocated":
@@ -639,10 +640,15 @@ class DrimsRequest(models.Model):
         if not self.source_warehouse_id:
             raise UserError(_("Please select a source warehouse."))
 
-        # Check for allocated lines
-        allocated_lines = self.line_ids.filtered(lambda line: line.quantity_allocated > 0)
-        if not allocated_lines:
-            raise UserError(_("No items have been allocated for dispatch."))
+        # Lines that still have allocated stock not yet committed to a picking.
+        lines_to_dispatch = self.line_ids.filtered(lambda line: line.quantity_allocated - line.quantity_dispatched > 0)
+        if not lines_to_dispatch:
+            raise UserError(
+                _(
+                    "Nothing left to dispatch on this request. Allocate additional "
+                    "stock first before creating another dispatch."
+                )
+            )
 
         # Get picking type for outgoing deliveries
         picking_type = self.env["stock.picking.type"].search(
@@ -689,13 +695,15 @@ class DrimsRequest(models.Model):
         }
         picking = self.env["stock.picking"].create(picking_vals)
 
-        # Create moves for each allocated line
+        # Create moves for each line's not-yet-dispatched balance, and track
+        # the running total on the request line.
         Move = self.env["stock.move"]
-        for line in allocated_lines:
+        for line in lines_to_dispatch:
+            qty_remaining = line.quantity_allocated - line.quantity_dispatched
             Move.create(
                 {
                     "product_id": line.product_id.id,
-                    "product_uom_qty": line.quantity_allocated,
+                    "product_uom_qty": qty_remaining,
                     "product_uom": line.uom_id.id,
                     "picking_id": picking.id,
                     "location_id": picking.location_id.id,
@@ -703,24 +711,28 @@ class DrimsRequest(models.Model):
                     "drims_request_line_id": line.id,
                 }
             )
+            line.quantity_dispatched = line.quantity_dispatched + qty_remaining
 
         # Confirm the picking
         picking.action_confirm()
 
-        # Update request state to dispatched
-        dispatched_state = self.env["spp.vocabulary.code"].search(
-            [
-                (
-                    "vocabulary_id.namespace_uri",
-                    "=",
-                    "urn:openspp:vocab:drims:request-states",
-                ),
-                ("code", "=", "dispatched"),
-            ],
-            limit=1,
-        )
-        if dispatched_state:
-            self.state_id = dispatched_state
+        # Only advance to ``dispatched`` once every line is fully dispatched
+        # against its requested quantity. Otherwise the request stays at
+        # ``allocated`` so the user can allocate more and dispatch again.
+        if all(line.quantity_dispatched >= line.quantity_requested for line in self.line_ids):
+            dispatched_state = self.env["spp.vocabulary.code"].search(
+                [
+                    (
+                        "vocabulary_id.namespace_uri",
+                        "=",
+                        "urn:openspp:vocab:drims:request-states",
+                    ),
+                    ("code", "=", "dispatched"),
+                ],
+                limit=1,
+            )
+            if dispatched_state:
+                self.state_id = dispatched_state
 
         # Open the picking form
         return {
