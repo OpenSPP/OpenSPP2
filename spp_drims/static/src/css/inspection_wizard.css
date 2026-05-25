@@ -1,0 +1,11 @@
+/* Disabled-looking "All units" badge in the inspection wizard list */
+.o_drims_btn_disabled {
+    opacity: 0.38 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+}
+
+/* Indent split sub-rows so the parent/child relationship is obvious. */
+.o_drims_inspection_list .o_data_row.o_is_split td:first-child {
+    padding-left: 2rem;
+}

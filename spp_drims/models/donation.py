@@ -15,8 +15,6 @@ from .constants import (
     VOCAB_DONATION_STATES,
     VOCAB_DONOR_TYPES,
     VOCAB_DRIMS_TYPES,
-    VOCAB_ITEM_CONDITIONS,
-    VOCAB_ITEM_DISPOSITIONS,
     VOCAB_RESTRICTIONS,
 )
 
@@ -362,13 +360,10 @@ class DrimsDonation(models.Model):
     def action_open_inspection_wizard(self):
         """Open the inspection wizard with pre-created records.
 
-        This method creates the wizard and all line records BEFORE opening
-        the wizard form. This is the standard Odoo pattern for wizards with
-        interactive One2many fields - it ensures all records have database IDs
-        so that buttons on lines work properly.
-
-        All items default to 'New/Accept' status. Users can click 'Edit' on
-        any row to modify condition/disposition for exceptions.
+        Wizard and line records are created before the form opens so each row
+        has a real database id (needed for inline buttons like "+ Add split").
+        Lines are created with no condition / no action — the operator must
+        explicitly set both per row (OP#963).
 
         Returns:
             dict: Action to open the wizard form.
@@ -381,30 +376,12 @@ class DrimsDonation(models.Model):
         if self.state != DONATION_STATE_RECEIVED:
             raise UserError(_("Only received donations can be inspected."))
 
-        # Get default condition (new) and disposition (accept)
-        condition_new = self.env["spp.vocabulary.code"].search(
-            [
-                ("vocabulary_id.namespace_uri", "=", VOCAB_ITEM_CONDITIONS),
-                ("code", "=", "new"),
-            ],
-            limit=1,
-        )
-        disposition_accept = self.env["spp.vocabulary.code"].search(
-            [
-                ("vocabulary_id.namespace_uri", "=", VOCAB_ITEM_DISPOSITIONS),
-                ("code", "=", "accept"),
-            ],
-            limit=1,
-        )
-
-        # Create the wizard record first
         wizard = self.env["spp.drims.inspection.wizard"].create(
             {
                 "donation_id": self.id,
             }
         )
 
-        # Create all line records with default values (New/Accept).
         # OP#964: fall back to quantity_pledged when quantity_received is 0
         # so wizard lines never open with an expected of 0 — that happens
         # when a donation line is added after the donation was marked
@@ -422,9 +399,6 @@ class DrimsDonation(models.Model):
                     "uom_id": donation_line.uom_id.id,
                     "quantity_expected": expected_qty,
                     "quantity": expected_qty,
-                    "condition_id": condition_new.id if condition_new else False,
-                    "disposition_id": disposition_accept.id if disposition_accept else False,
-                    "is_inspected": True,  # Default to inspected (New/Accept)
                 }
             )
 

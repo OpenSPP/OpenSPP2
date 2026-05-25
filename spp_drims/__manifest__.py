@@ -84,6 +84,8 @@
     "assets": {
         "web.assets_backend": [
             "spp_drims/static/src/js/hide_dispatch_form_create.js",
+            "spp_drims/static/src/js/inspection_list_renderer.js",
+            "spp_drims/static/src/css/inspection_wizard.css",
         ],
     },
     "application": True,
