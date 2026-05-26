@@ -303,6 +303,56 @@ class TestDrimsAllocationPreviewWizard(DrimsTestCommon):
         self.assertEqual(line.shortfall, 0.0)
         self.assertFalse(wizard.has_shortfall)
 
+    def test_reallocation_subtracts_already_allocated(self):
+        """OP#1033 r2 regression: re-opening the allocation wizard after a
+        partial allocation should subtract the pending allocation from the
+        available qty — otherwise the operator can keep allocating until
+        ``quantity_allocated == quantity_requested`` while physical stock
+        has not moved.
+        """
+        # Warehouse has 1000 units; request is for 5000.
+        self.env["stock.quant"].create(
+            {
+                "product_id": self.stockable_product.id,
+                "location_id": self.warehouse.lot_stock_id.id,
+                "quantity": 1000.0,
+            }
+        )
+        request = self._create_request_with_lines([(self.stockable_product, 5000)])
+
+        # First allocation — uses up the 1000 physical units.
+        wizard_1 = self.env["spp.drims.allocation.preview.wizard"].create(
+            {
+                "request_id": request.id,
+                "warehouse_id": self.warehouse.id,
+            }
+        )
+        wizard_1._populate_lines()
+        self.assertEqual(wizard_1.line_ids[0].available_qty, 1000.0)
+        self.assertEqual(wizard_1.line_ids[0].quantity_to_allocate, 1000.0)
+        wizard_1.action_confirm_allocation()
+        self.assertEqual(request.line_ids[0].quantity_allocated, 1000.0)
+
+        # Re-open the wizard without any dispatch happening. The shortfall
+        # should remain 4000 and available should now report 0, NOT another
+        # 1000 (the physical stock is still in place but it's already
+        # committed to this request).
+        wizard_2 = self.env["spp.drims.allocation.preview.wizard"].create(
+            {
+                "request_id": request.id,
+                "warehouse_id": self.warehouse.id,
+            }
+        )
+        wizard_2._populate_lines()
+        self.assertEqual(wizard_2.line_ids[0].available_qty, 0.0)
+        self.assertEqual(wizard_2.line_ids[0].quantity_to_allocate, 0.0)
+        self.assertEqual(wizard_2.line_ids[0].shortfall, 4000.0)
+        # Confirming with nothing to allocate must raise.
+        with self.assertRaises(UserError):
+            wizard_2.action_confirm_allocation()
+        # request.quantity_allocated must NOT have been bumped up.
+        self.assertEqual(request.line_ids[0].quantity_allocated, 1000.0)
+
     def test_empty_allocation_error(self):
         """Test that confirming allocation with no items raises error."""
         request = self._create_request_with_lines([(self.stockable_product, 100)])
