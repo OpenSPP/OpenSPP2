@@ -49,6 +49,18 @@ class InspectionWizard(models.TransientModel):
         string="Inspection Notes",
         help="General notes about the inspection",
     )
+    # The QtySplitProgressField widget pushes both of these from the
+    # editable list whenever any row's qty / condition / disposition
+    # changes. They drive the Confirm-button gate in the view.
+    # See ``_syncWizardCanConfirm`` in the JS widget.
+    can_confirm = fields.Boolean(
+        string="Can Confirm",
+        default=True,
+    )
+    confirm_message = fields.Text(
+        string="Confirm Blocker",
+        help="Human-readable reason(s) why Confirm Inspection is currently disabled.",
+    )
 
     def action_confirm_inspection(self):
         """Confirm inspection and create/update donation lines."""

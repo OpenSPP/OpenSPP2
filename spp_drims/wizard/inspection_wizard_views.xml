@@ -16,13 +16,32 @@
                     </div>
 
                     <field name="donation_id" invisible="1" />
+                    <field name="can_confirm" invisible="1" />
+                    <field name="confirm_message" invisible="1" />
 
-                    <div class="alert alert-info" role="alert">
+                    <div
+                        class="alert alert-info"
+                        role="alert"
+                        invisible="not can_confirm"
+                    >
                         Set <strong>Condition</strong> and <strong
                     >Action</strong> on each row, then click <strong
                     >Confirm Inspection</strong>. Use <strong
                     >+ Add split</strong> when a single product needs to be split
                         across multiple conditions.
+                    </div>
+                    <!-- The qty widget pushes can_confirm + confirm_message
+                         onto the wizard whenever any row changes. This alert
+                         shows the stacked reason(s) why Confirm is gated. -->
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="can_confirm"
+                        style="white-space: pre-line;"
+                    >
+                        <strong>Confirm Inspection is unavailable:</strong>
+                        <br />
+                        <field name="confirm_message" readonly="1" nolabel="1" />
                     </div>
 
                     <!-- Items List (inline-editable) -->
@@ -147,7 +166,15 @@
                         string="Confirm Inspection"
                         type="object"
                         class="btn-primary"
+                        invisible="not can_confirm"
                         confirm="This will update the donation and mark it as inspected. Continue?"
+                    />
+                    <button
+                        string="Confirm Inspection"
+                        type="object"
+                        class="btn-secondary o_drims_btn_disabled"
+                        invisible="can_confirm"
+                        help="Resolve the items listed in the warning above before confirming."
                     />
                     <button string="Cancel" class="btn-secondary" special="cancel" />
                 </footer>

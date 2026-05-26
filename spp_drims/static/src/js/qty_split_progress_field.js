@@ -30,9 +30,114 @@ export class QtySplitProgressField extends FloatField {
         useEffect(
             () => {
                 this._syncParentQuantity();
+                this._syncWizardCanConfirm();
             },
-            () => [this.props.record.data.quantity]
+            () => [
+                this.props.record.data.quantity,
+                this.props.record.data.condition_id,
+                this.props.record.data.disposition_id,
+            ]
         );
+    }
+
+    _wizard() {
+        const record = this.props.record;
+        const candidates = [record._parentRecord, record.model && record.model.root];
+        for (const wizard of candidates) {
+            if (wizard && wizard.data && wizard.data.line_ids) {
+                return wizard;
+            }
+        }
+        return null;
+    }
+
+    async _syncWizardCanConfirm() {
+        // Three gating conditions:
+        //   C1: parents with splits must have their children sum to the
+        //       expected quantity.
+        //   C2: every non-parent line must have both Condition and Action
+        //       set.
+        //   C3: no split child may have qty 0.
+        // The messages stack — if multiple conditions fail, the operator
+        // sees the union.
+        const wizard = this._wizard();
+        if (!wizard) {
+            return;
+        }
+        const lines = (wizard.data.line_ids && wizard.data.line_ids.records) || [];
+        if (lines.length === 0) {
+            return;
+        }
+
+        const childIdsByParent = new Map();
+        for (const line of lines) {
+            const parentRef = line.data.parent_line_id;
+            if (!parentRef) {
+                continue;
+            }
+            const pid = this._extractM2oId(parentRef);
+            if (pid === null) {
+                continue;
+            }
+            if (!childIdsByParent.has(pid)) {
+                childIdsByParent.set(pid, []);
+            }
+            childIdsByParent.get(pid).push(line);
+        }
+
+        let c1Failed = false;
+        let c2Failed = false;
+        let c3Failed = false;
+
+        for (const line of lines) {
+            const isParentOfSplit = Boolean(line.data.has_splits);
+            const isSplitChild = Boolean(line.data.parent_line_id);
+
+            if (isParentOfSplit) {
+                const children = childIdsByParent.get(line.resId) || [];
+                const sum = children.reduce(
+                    (acc, child) => acc + (child.data.quantity || 0),
+                    0
+                );
+                const expected = line.data.quantity_expected || 0;
+                if (Math.abs(sum - expected) > 0.001) {
+                    c1Failed = true;
+                }
+            } else if (!line.data.condition_id || !line.data.disposition_id) {
+                c2Failed = true;
+            }
+
+            if (isSplitChild && !line.data.quantity) {
+                c3Failed = true;
+            }
+        }
+
+        const messages = [];
+        if (c1Failed) {
+            messages.push(
+                "Split totals must match the expected quantity for each product."
+            );
+        }
+        if (c2Failed) {
+            messages.push("Set Condition and Action for every item.");
+        }
+        if (c3Failed) {
+            messages.push(
+                "Fill all split quantities — a 0-qty split is still pending."
+            );
+        }
+
+        const canConfirm = messages.length === 0;
+        const newMessage = messages.join("\n");
+        const currentCanConfirm = Boolean(wizard.data.can_confirm);
+        const currentMessage = wizard.data.confirm_message || "";
+        if (currentCanConfirm === canConfirm && currentMessage === newMessage) {
+            return;
+        }
+        await wizard.update({
+            can_confirm: canConfirm,
+            confirm_message: newMessage,
+        });
     }
 
     _wizardLines() {
