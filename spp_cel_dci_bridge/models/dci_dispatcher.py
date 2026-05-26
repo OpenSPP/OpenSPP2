@@ -279,7 +279,19 @@ class DCIDispatcher(models.AbstractModel):
 
             id_type, id_value = identifier
             try:
-                payload = service.verify_birth(id_type, id_value)
+                # The dispatcher branches on the variable's dci_operation
+                # field. Most variables use verify_birth (default), which
+                # returns the raw OpenCRVS birth record so the variable's
+                # dci_attribute_path can pick a field. is_deceased / is_alive
+                # variables set dci_operation='check_death'; the bool result
+                # is wrapped into a one-key dict so _extract_by_path can read
+                # 'is_deceased' uniformly.
+                op = variable.dci_operation or "auto"
+                if op == "check_death":
+                    is_deceased = service.check_death(id_type, id_value)
+                    payload = {"is_deceased": is_deceased}
+                else:
+                    payload = service.verify_birth(id_type, id_value)
             except Exception as e:
                 self._record_audit(
                     variable,
@@ -290,9 +302,10 @@ class DCIDispatcher(models.AbstractModel):
                     error_message=str(e),
                 )
                 _logger.warning(
-                    "CRVS fetch failed for partner %d (var=%s): %s",
+                    "CRVS fetch failed for partner %d (var=%s, op=%s): %s",
                     partner.id,
                     variable.name,
+                    op,
                     e,
                 )
                 continue

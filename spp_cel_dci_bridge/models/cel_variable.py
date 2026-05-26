@@ -24,6 +24,27 @@ class CELVariable(models.Model):
         ),
     )
 
+    # Per-variable operation hint for registries that expose multiple
+    # endpoints. Today this only affects CRVS (which has separate search
+    # paths for birth and death events). Other registries dispatch by
+    # registry_type alone and ignore this field — keep 'auto' for them.
+    dci_operation = fields.Selection(
+        selection=[
+            ("auto", "Auto (registry default)"),
+            ("verify_birth", "CRVS: verify birth"),
+            ("check_death", "CRVS: check death"),
+        ],
+        default="auto",
+        string="DCI Operation",
+        help=(
+            "Which DCI operation the bridge should invoke when fetching this "
+            "variable. 'auto' uses the registry's default (verify_birth for "
+            "CRVS). 'check_death' calls CRVS's death-event endpoint instead — "
+            "the resulting payload is a single key 'is_deceased' (bool), so "
+            "set DCI Attribute Path = 'is_deceased' on the variable record."
+        ),
+    )
+
     external_failure_policy = fields.Selection(
         selection=[
             ("null", "Return null (default)"),

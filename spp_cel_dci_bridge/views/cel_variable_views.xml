@@ -26,6 +26,11 @@
                     invisible="source_type != 'external' or not external_provider_id or not external_provider_is_dci_backed"
                     help="Behaviour when the external DCI fetch fails for a subject."
                 />
+                <field
+                    name="dci_operation"
+                    invisible="source_type != 'external' or not external_provider_id or not external_provider_is_dci_backed"
+                    help="Which DCI operation the bridge invokes. Only meaningful for CRVS variables; leave 'auto' for other registries."
+                />
             </xpath>
         </field>
     </record>
