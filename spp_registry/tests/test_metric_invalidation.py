@@ -55,12 +55,8 @@ class MetricInvalidationCommon(RegistryCommon):
         super().setUpClass()
         # A second individual + a second group give us enough fixtures for
         # group-change scenarios in write().
-        cls.individual_c = cls.Partner.create(
-            {"name": "Carol", "is_registrant": True, "is_group": False}
-        )
-        cls.group_b = cls.Partner.create(
-            {"name": "Second Household", "is_registrant": True, "is_group": True}
-        )
+        cls.individual_c = cls.Partner.create({"name": "Carol", "is_registrant": True, "is_group": False})
+        cls.group_b = cls.Partner.create({"name": "Second Household", "is_registrant": True, "is_group": True})
 
 
 @tagged("post_install", "-at_install")
@@ -101,17 +97,13 @@ class TestMembershipInvalidatesGroup(MetricInvalidationCommon):
 
     def test_create_invalidates_group(self):
         with _patch_invalidate_funnel(self.env) as mock:
-            self.Membership.create(
-                {"group": self.group.id, "individual": self.individual_a.id}
-            )
+            self.Membership.create({"group": self.group.id, "individual": self.individual_a.id})
         self.assertTrue(mock.called, "invalidate_group_metrics was never called")
         recordset = mock.call_args.args[0]
         self.assertIn(self.group.id, recordset.ids)
 
     def test_write_invalidates_group(self):
-        membership = self.Membership.create(
-            {"group": self.group.id, "individual": self.individual_a.id}
-        )
+        membership = self.Membership.create({"group": self.group.id, "individual": self.individual_a.id})
         with _patch_invalidate_funnel(self.env) as mock:
             membership.write({"individual": self.individual_b.id})
         self.assertTrue(mock.called)
@@ -121,9 +113,7 @@ class TestMembershipInvalidatesGroup(MetricInvalidationCommon):
     def test_write_reassigning_group_invalidates_both(self):
         """When ``group`` is in vals, BOTH the original and new group must
         be invalidated."""
-        membership = self.Membership.create(
-            {"group": self.group.id, "individual": self.individual_a.id}
-        )
+        membership = self.Membership.create({"group": self.group.id, "individual": self.individual_a.id})
         with _patch_invalidate_funnel(self.env) as mock:
             membership.write({"group": self.group_b.id})
         self.assertTrue(mock.called)
@@ -140,9 +130,7 @@ class TestMembershipInvalidatesGroup(MetricInvalidationCommon):
         )
 
     def test_unlink_invalidates_group(self):
-        membership = self.Membership.create(
-            {"group": self.group.id, "individual": self.individual_a.id}
-        )
+        membership = self.Membership.create({"group": self.group.id, "individual": self.individual_a.id})
         with _patch_invalidate_funnel(self.env) as mock:
             membership.unlink()
         self.assertTrue(mock.called)
@@ -163,9 +151,7 @@ class TestIndividualDemographicChangesInvalidateGroups(MetricInvalidationCommon)
     def setUp(self):
         super().setUp()
         # Active membership: alice is in the test household.
-        self.Membership.create(
-            {"group": self.group.id, "individual": self.individual_a.id}
-        )
+        self.Membership.create({"group": self.group.id, "individual": self.individual_a.id})
 
     def test_birthdate_change_invalidates_parent_group(self):
         if "birthdate" not in self.individual_a:
@@ -177,18 +163,14 @@ class TestIndividualDemographicChangesInvalidateGroups(MetricInvalidationCommon)
         # model is registered. Without it, the early-return short-circuits
         # BEFORE the funnel call.
         if "spp.indicator.invalidation.buffer" not in self.env:
-            self.skipTest(
-                "spp_indicators not installed — chain short-circuits before funnel"
-            )
+            self.skipTest("spp_indicators not installed — chain short-circuits before funnel")
         self.assertTrue(mock.called)
         recordset = mock.call_args.args[0]
         self.assertIn(self.group.id, recordset.ids)
 
     def test_disabled_change_invalidates_parent_group(self):
         if "spp.indicator.invalidation.buffer" not in self.env:
-            self.skipTest(
-                "spp_indicators not installed — chain short-circuits before funnel"
-            )
+            self.skipTest("spp_indicators not installed — chain short-circuits before funnel")
         with _patch_invalidate_funnel(self.env) as mock:
             self.individual_a.write({"disabled": "2025-06-01 00:00:00"})
         self.assertTrue(mock.called)
@@ -207,9 +189,7 @@ class TestIndividualDemographicChangesInvalidateGroups(MetricInvalidationCommon)
     def test_individual_without_active_membership_does_not_invalidate(self):
         """An individual with no active membership has no parent groups."""
         if "spp.indicator.invalidation.buffer" not in self.env:
-            self.skipTest(
-                "spp_indicators not installed — chain short-circuits before funnel"
-            )
+            self.skipTest("spp_indicators not installed — chain short-circuits before funnel")
         # individual_c has no membership.
         with _patch_invalidate_funnel(self.env) as mock:
             self.individual_c.write({"disabled": "2025-06-01 00:00:00"})

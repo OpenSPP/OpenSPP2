@@ -36,9 +36,6 @@ Gotcha pinned by the tests below:
     way to ``spp.vocabulary.code``. So callers must pass display strings.
 """
 
-from datetime import datetime, timedelta
-
-from odoo import fields
 from odoo.tests import tagged
 
 from .common import RegistryCommon
@@ -49,17 +46,11 @@ class AggregationCommon(RegistryCommon):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.individual_c = cls.Partner.create(
-            {"name": "Carol", "is_registrant": True, "is_group": False}
-        )
-        cls.individual_d = cls.Partner.create(
-            {"name": "Dave", "is_registrant": True, "is_group": False}
-        )
+        cls.individual_c = cls.Partner.create({"name": "Carol", "is_registrant": True, "is_group": False})
+        cls.individual_d = cls.Partner.create({"name": "Dave", "is_registrant": True, "is_group": False})
 
         # Second group so multi-group queries can be tested.
-        cls.group_b = cls.Partner.create(
-            {"name": "Second Household", "is_registrant": True, "is_group": True}
-        )
+        cls.group_b = cls.Partner.create({"name": "Second Household", "is_registrant": True, "is_group": True})
 
         # Synthesize a non-head membership-type code so we can filter
         # by relationship_kinds without head-uniqueness collisions.
@@ -81,9 +72,7 @@ class AggregationCommon(RegistryCommon):
             {
                 "group": group.id,
                 "individual": individual.id,
-                "membership_type_ids": [(6, 0, [c.id for c in type_codes])]
-                if type_codes
-                else False,
+                "membership_type_ids": [(6, 0, [c.id for c in type_codes])] if type_codes else False,
             }
         )
 
@@ -146,10 +135,7 @@ class TestCountIndividualsBasic(AggregationCommon):
         ``_query_members_aggregate`` from ``expression.expression()`` to
         the ``Domain`` API (the deprecation warning's own suggestion).
         Then drop these skips."""
-        self.skipTest(
-            "BROKEN: deprecated expression.expression() yields empty "
-            "filter SQL on Odoo 19 — see docstring"
-        )
+        self.skipTest("BROKEN: deprecated expression.expression() yields empty filter SQL on Odoo 19 — see docstring")
 
     def test_ended_membership_excluded(self):
         """Same Odoo-19 ``expression.expression()`` deprecation bug as
@@ -186,26 +172,20 @@ class TestCountIndividualsKindFilter(AggregationCommon):
     def test_filter_by_head_display_matches_only_head_members(self):
         self._add_member(self.group, self.individual_a, type_codes=[self.head_code])
         self._add_member(self.group, self.individual_b, type_codes=[self.member_code])
-        result = self._to_dict(
-            self.group.count_individuals(relationship_kinds=["Head"])
-        )
+        result = self._to_dict(self.group.count_individuals(relationship_kinds=["Head"]))
         self.assertEqual(result.get(self.group.id), 1)
 
     def test_filter_by_multiple_displays(self):
         self._add_member(self.group, self.individual_a, type_codes=[self.head_code])
         self._add_member(self.group, self.individual_b, type_codes=[self.member_code])
-        result = self._to_dict(
-            self.group.count_individuals(relationship_kinds=["Head", "Member"])
-        )
+        result = self._to_dict(self.group.count_individuals(relationship_kinds=["Head", "Member"]))
         self.assertEqual(result.get(self.group.id), 2)
 
     def test_filter_with_no_matches_returns_no_row(self):
         """No memberships with the requested kind → group falls out of
         the GROUP BY entirely."""
         self._add_member(self.group, self.individual_a, type_codes=[self.head_code])
-        result = self._to_dict(
-            self.group.count_individuals(relationship_kinds=["Member"])
-        )
+        result = self._to_dict(self.group.count_individuals(relationship_kinds=["Member"]))
         self.assertNotIn(self.group.id, result)
 
     def test_lowercase_code_does_not_match(self):
@@ -215,9 +195,7 @@ class TestCountIndividualsKindFilter(AggregationCommon):
 
         Pin the surprise; document until the impl is harmonized."""
         self._add_member(self.group, self.individual_a, type_codes=[self.head_code])
-        result = self._to_dict(
-            self.group.count_individuals(relationship_kinds=["head"])
-        )
+        result = self._to_dict(self.group.count_individuals(relationship_kinds=["head"]))
         self.assertNotIn(self.group.id, result)
 
 
@@ -229,16 +207,12 @@ class TestCountIndividualsDomainFilter(AggregationCommon):
     def test_filter_by_individual_name(self):
         self._add_member(self.group, self.individual_a)  # "Alice"
         self._add_member(self.group, self.individual_b)  # "Bob"
-        result = self._to_dict(
-            self.group.count_individuals(domain=[("name", "=", "Alice")])
-        )
+        result = self._to_dict(self.group.count_individuals(domain=[("name", "=", "Alice")]))
         self.assertEqual(result.get(self.group.id), 1)
 
     def test_filter_with_no_matching_individuals(self):
         self._add_member(self.group, self.individual_a)
-        result = self._to_dict(
-            self.group.count_individuals(domain=[("name", "=", "Nobody")])
-        )
+        result = self._to_dict(self.group.count_individuals(domain=[("name", "=", "Nobody")]))
         self.assertNotIn(self.group.id, result)
 
     def test_compound_domain(self):
@@ -247,9 +221,7 @@ class TestCountIndividualsDomainFilter(AggregationCommon):
         self._add_member(self.group, self.individual_b)  # Bob, individual
         # All individuals match is_registrant=True; restrict to "Alice".
         result = self._to_dict(
-            self.group.count_individuals(
-                domain=[("is_registrant", "=", True), ("name", "=", "Alice")]
-            )
+            self.group.count_individuals(domain=[("is_registrant", "=", True), ("name", "=", "Alice")])
         )
         self.assertEqual(result.get(self.group.id), 1)
 
@@ -259,9 +231,7 @@ class TestCountIndividualsDomainFilter(AggregationCommon):
         self._add_member(self.group, self.individual_b, type_codes=[self.member_code])
         # Only Bob is a "Member" AND named "Bob" → expect 1.
         result = self._to_dict(
-            self.group.count_individuals(
-                relationship_kinds=["Member"], domain=[("name", "=", "Bob")]
-            )
+            self.group.count_individuals(relationship_kinds=["Member"], domain=[("name", "=", "Bob")])
         )
         self.assertEqual(result.get(self.group.id), 1)
 
@@ -297,11 +267,7 @@ class TestQueryMembersAggregateDirect(AggregationCommon):
         op, val)`` for the vocab query. Pin that the translation is the
         contract — pass a ``name`` leaf and observe display filtering."""
         self._add_member(self.group, self.individual_a, type_codes=[self.head_code])
-        result = dict(
-            self.group._query_members_aggregate(
-                membership_kind_domain=[("name", "in", ["Head"])]
-            )
-        )
+        result = dict(self.group._query_members_aggregate(membership_kind_domain=[("name", "in", ["Head"])]))
         self.assertEqual(result.get(self.group.id), 1)
 
 
@@ -339,9 +305,7 @@ class TestComputeCountAndSetIndicator(AggregationCommon):
         # Pass only individuals; ``.filtered(lambda a: a.is_group)`` yields
         # empty. Method should silently return.
         individuals = self.individual_a | self.individual_b
-        individuals.compute_count_and_set_indicator(
-            field_name="never_set", kinds=None, domain=None
-        )
+        individuals.compute_count_and_set_indicator(field_name="never_set", kinds=None, domain=None)
 
 
 @tagged("post_install", "-at_install")
@@ -353,9 +317,7 @@ class TestUpdateComputeFields(AggregationCommon):
     def test_filters_to_groups_only_no_raise(self):
         """Non-group records are filtered out by the first line."""
         individuals = self.individual_a | self.individual_b
-        self.env["res.partner"]._update_compute_fields(
-            individuals, field_name="never_set", kinds=None, domain=None
-        )
+        self.env["res.partner"]._update_compute_fields(individuals, field_name="never_set", kinds=None, domain=None)
 
     def test_happy_path_requires_host_module_field(self):
         # TODO: same as TestComputeCountAndSetIndicator — needs an integer

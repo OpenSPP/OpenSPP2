@@ -246,9 +246,7 @@ class TestComputeRelationshipsCount(RegistryCommon):
         )
         # alice as destination. Use a third individual to keep the
         # source ≠ destination constraint happy.
-        carol = self.Partner.create(
-            {"name": "Carol", "is_registrant": True, "is_group": False}
-        )
+        carol = self.Partner.create({"name": "Carol", "is_registrant": True, "is_group": False})
         self.Relationship.create(
             {
                 "source": carol.id,

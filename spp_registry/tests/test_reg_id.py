@@ -155,9 +155,7 @@ class TestOnchangeIDValidation(RegIdCommon):
         # (``active``, ``deprecated``, ``sequence``). Create a fresh
         # ``is_local=True`` code in the same vocabulary that we own and
         # can mutate freely.
-        id_type_vocab = cls.env["spp.vocabulary"].search(
-            [("namespace_uri", "=", "urn:openspp:vocab:id-type")], limit=1
-        )
+        id_type_vocab = cls.env["spp.vocabulary"].search([("namespace_uri", "=", "urn:openspp:vocab:id-type")], limit=1)
         cls.id_type_test = cls.env["spp.vocabulary.code"].create(
             {
                 "vocabulary_id": id_type_vocab.id,

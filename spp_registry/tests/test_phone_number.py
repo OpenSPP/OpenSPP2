@@ -22,7 +22,7 @@ duplicate them here.
 from datetime import date, timedelta
 from unittest.mock import patch
 
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tests import Form, tagged
 
 from .common import RegistryCommon
@@ -99,9 +99,7 @@ class TestComputePhoneSanitized(PhoneCommon):
     def test_empty_phone_sanitized_is_empty(self):
         if not self.country_ph:
             self.skipTest("base.ph not present")
-        rec = self.PhoneNumber.create(
-            {"partner_id": self.individual_a.id, "phone_no": " "}
-        )
+        rec = self.PhoneNumber.create({"partner_id": self.individual_a.id, "phone_no": " "})
         # The compute sets phone_sanitized to "" when phone_no is falsy.
         # A whitespace-only string is truthy in Python, so this goes
         # through phone_format, which returns either the formatted
@@ -118,9 +116,7 @@ class TestComputePhoneSanitized(PhoneCommon):
         un-E164'd value when parsing fails. If you'd rather it be empty,
         the compute needs to filter the fallback explicitly.
         """
-        rec = self.PhoneNumber.create(
-            {"partner_id": self.individual_a.id, "phone_no": "abcxyz"}
-        )
+        rec = self.PhoneNumber.create({"partner_id": self.individual_a.id, "phone_no": "abcxyz"})
         self.assertEqual(rec.phone_sanitized, "abcxyz")
 
     def test_phone_validation_unavailable_returns_original(self):
@@ -140,16 +136,12 @@ class TestPhoneFormatFallbacks(PhoneCommon):
 
     def setUp(self):
         super().setUp()
-        self.rec = self.PhoneNumber.create(
-            {"partner_id": self.individual_a.id, "phone_no": "+639123456789"}
-        )
+        self.rec = self.PhoneNumber.create({"partner_id": self.individual_a.id, "phone_no": "+639123456789"})
 
     def test_country_param_used_when_provided(self):
         if not self.country_ph:
             self.skipTest("base.ph not present")
-        result = self.rec._phone_format(
-            number="09123456789", country=self.country_ph, force_format="E164"
-        )
+        result = self.rec._phone_format(number="09123456789", country=self.country_ph, force_format="E164")
         # E164 PH numbers prepend +63.
         self.assertTrue(
             result.startswith("+63"),
@@ -169,9 +161,7 @@ class TestPhoneFormatFallbacks(PhoneCommon):
         if not self.country_us:
             self.skipTest("base.us not present")
         self.env.company.country_id = self.country_us
-        result = self.rec._phone_format(
-            number="2125551234", force_format="E164"
-        )
+        result = self.rec._phone_format(number="2125551234", force_format="E164")
         # E164 US numbers prepend +1.
         self.assertTrue(
             result.startswith("+1"),
@@ -180,7 +170,7 @@ class TestPhoneFormatFallbacks(PhoneCommon):
 
     def test_raise_exception_propagates_invalid(self):
         """When ``raise_exception=True``, invalid input must raise."""
-        with self.assertRaises(Exception):
+        with self.assertRaises(UserError):
             self.rec._phone_format(
                 number="abcxyz",
                 country=self.country_ph if self.country_ph else None,
@@ -215,9 +205,7 @@ class TestPhoneFormatFallbacks(PhoneCommon):
             "odoo.addons.spp_registry.models.phone_number.phone_validation",
             None,
         ):
-            result = self.rec._phone_format(
-                number="09123456789", raise_exception=True
-            )
+            result = self.rec._phone_format(number="09123456789", raise_exception=True)
         self.assertIsNone(result)
 
 
@@ -227,9 +215,7 @@ class TestDisableEnablePhone(PhoneCommon):
 
     def setUp(self):
         super().setUp()
-        self.rec = self.PhoneNumber.create(
-            {"partner_id": self.individual_a.id, "phone_no": "+639123456789"}
-        )
+        self.rec = self.PhoneNumber.create({"partner_id": self.individual_a.id, "phone_no": "+639123456789"})
 
     def test_disable_sets_audit_fields(self):
         self.assertFalse(self.rec.disabled)
@@ -259,9 +245,7 @@ class TestDisableEnablePhone(PhoneCommon):
 
     def test_disable_iterates_over_recordset(self):
         """Multi-record disable should stamp every record."""
-        other = self.PhoneNumber.create(
-            {"partner_id": self.individual_b.id, "phone_no": "+639998887777"}
-        )
+        other = self.PhoneNumber.create({"partner_id": self.individual_b.id, "phone_no": "+639998887777"})
         (self.rec | other).disable_phone()
         self.assertTrue(self.rec.disabled)
         self.assertTrue(other.disabled)
@@ -282,21 +266,15 @@ class TestRegistrantPhoneSync(PhoneCommon):
     def test_single_phone_syncs(self):
         """Invoke the onchange directly — the default partner form
         doesn't expose ``phone`` so ``Form`` can't drive this."""
-        self.PhoneNumber.create(
-            {"partner_id": self.individual_a.id, "phone_no": "+639123456789"}
-        )
+        self.PhoneNumber.create({"partner_id": self.individual_a.id, "phone_no": "+639123456789"})
         # Refresh the o2m cache and fire the onchange.
         self.individual_a.invalidate_recordset(["phone_number_ids"])
         self.individual_a.phone_number_ids_change()
         self.assertEqual(self.individual_a.phone, "+639123456789")
 
     def test_multiple_phones_joined_with_comma(self):
-        self.PhoneNumber.create(
-            {"partner_id": self.individual_a.id, "phone_no": "+639123456789"}
-        )
-        self.PhoneNumber.create(
-            {"partner_id": self.individual_a.id, "phone_no": "+639998887777"}
-        )
+        self.PhoneNumber.create({"partner_id": self.individual_a.id, "phone_no": "+639123456789"})
+        self.PhoneNumber.create({"partner_id": self.individual_a.id, "phone_no": "+639998887777"})
         self.individual_a.invalidate_recordset(["phone_number_ids"])
         self.individual_a.phone_number_ids_change()
         self.assertIn("+639123456789", self.individual_a.phone)
@@ -306,12 +284,8 @@ class TestRegistrantPhoneSync(PhoneCommon):
     def test_disabled_phones_excluded_from_sync(self):
         """A phone with ``disabled`` set must NOT contribute to the
         registrant's flat ``phone`` field."""
-        live = self.PhoneNumber.create(
-            {"partner_id": self.individual_a.id, "phone_no": "+639123456789"}
-        )
-        dead = self.PhoneNumber.create(
-            {"partner_id": self.individual_a.id, "phone_no": "+639998887777"}
-        )
+        live = self.PhoneNumber.create({"partner_id": self.individual_a.id, "phone_no": "+639123456789"})
+        dead = self.PhoneNumber.create({"partner_id": self.individual_a.id, "phone_no": "+639998887777"})
         dead.disable_phone()
         self.individual_a.invalidate_recordset(["phone_number_ids"])
         self.individual_a.phone_number_ids_change()
@@ -320,9 +294,7 @@ class TestRegistrantPhoneSync(PhoneCommon):
 
     def test_removing_all_phones_clears_field(self):
         """When the o2m goes back to empty, ``phone`` becomes ''."""
-        phone = self.PhoneNumber.create(
-            {"partner_id": self.individual_a.id, "phone_no": "+639123456789"}
-        )
+        phone = self.PhoneNumber.create({"partner_id": self.individual_a.id, "phone_no": "+639123456789"})
         self.individual_a.invalidate_recordset(["phone_number_ids"])
         self.individual_a.phone_number_ids_change()
         self.assertEqual(self.individual_a.phone, "+639123456789")

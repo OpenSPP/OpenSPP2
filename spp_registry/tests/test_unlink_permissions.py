@@ -21,9 +21,7 @@ class TestRegistrantUnlinkPermissions(RegistryCommon):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.target = cls.Partner.create(
-            {"name": "Deletable Partner", "is_registrant": True, "is_group": False}
-        )
+        cls.target = cls.Partner.create({"name": "Deletable Partner", "is_registrant": True, "is_group": False})
 
     def _target_for(self, user):
         """Return ``self.target`` bound to ``user`` (must use with_user)."""
@@ -39,13 +37,9 @@ class TestRegistrantUnlinkPermissions(RegistryCommon):
 
     def test_legacy_registrar_alone_cannot_unlink(self):
         """``group_spp_registrar`` is kept for backward compat — same rule."""
-        if not self.env.ref(
-            "spp_registry.group_spp_registrar", raise_if_not_found=False
-        ):
+        if not self.env.ref("spp_registry.group_spp_registrar", raise_if_not_found=False):
             self.skipTest("legacy group_spp_registrar not present in this build")
-        registrar = self._make_user(
-            "legacy_registrar", ["spp_registry.group_spp_registrar"]
-        )
+        registrar = self._make_user("legacy_registrar", ["spp_registry.group_spp_registrar"])
         with self.assertRaises(AccessError):
             self._target_for(registrar).unlink()
 
@@ -57,9 +51,7 @@ class TestRegistrantUnlinkPermissions(RegistryCommon):
 
     def test_officer_plus_manager_can_unlink(self):
         """Officer+Manager combo passes the second clause of the guard."""
-        partner = self.Partner.create(
-            {"name": "Officer+Manager Target", "is_registrant": True}
-        )
+        partner = self.Partner.create({"name": "Officer+Manager Target", "is_registrant": True})
         user = self._make_user(
             "officer_plus_manager",
             [

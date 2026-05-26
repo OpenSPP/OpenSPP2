@@ -158,32 +158,24 @@ class TestIDTypeNamespaceURI(RegistryCommon):
         cls.IDType = cls.env["spp.id.type"]
 
     def test_valid_uri_accepted(self):
-        rec = self.IDType.create(
-            {"name": "PSA National ID", "namespace_uri": "urn:gov:ph:psa:national-id"}
-        )
+        rec = self.IDType.create({"name": "PSA National ID", "namespace_uri": "urn:gov:ph:psa:national-id"})
         self.assertEqual(rec.namespace_uri, "urn:gov:ph:psa:national-id")
 
     def test_create_lowercases_namespace(self):
         """create() override should normalise to lowercase + trim whitespace."""
-        rec = self.IDType.create(
-            {"name": "Mixed Case Type", "namespace_uri": "  URN:GOV:PH:Mixed  "}
-        )
+        rec = self.IDType.create({"name": "Mixed Case Type", "namespace_uri": "  URN:GOV:PH:Mixed  "})
         self.assertEqual(rec.namespace_uri, "urn:gov:ph:mixed")
 
     def test_write_lowercases_namespace(self):
         """write() override should normalise to lowercase + trim whitespace."""
-        rec = self.IDType.create(
-            {"name": "Writable Type", "namespace_uri": "urn:gov:ph:initial"}
-        )
+        rec = self.IDType.create({"name": "Writable Type", "namespace_uri": "urn:gov:ph:initial"})
         rec.write({"namespace_uri": "  URN:GOV:PH:UPDATED  "})
         self.assertEqual(rec.namespace_uri, "urn:gov:ph:updated")
 
     def test_invalid_scheme_rejected(self):
         """Non-``urn:`` URIs violate the ADR-007 pattern."""
         with self.assertRaises(ValidationError):
-            self.IDType.create(
-                {"name": "Bad Scheme", "namespace_uri": "http://example.org/id"}
-            )
+            self.IDType.create({"name": "Bad Scheme", "namespace_uri": "http://example.org/id"})
 
     def test_missing_type_component_rejected(self):
         """``urn:<namespace>`` without the trailing ``:<type>`` is rejected."""
@@ -193,9 +185,7 @@ class TestIDTypeNamespaceURI(RegistryCommon):
     def test_disallowed_characters_rejected(self):
         """The pattern only permits [a-z0-9._-] in each segment."""
         with self.assertRaises(ValidationError):
-            self.IDType.create(
-                {"name": "Spaces", "namespace_uri": "urn:gov:ph:national id"}
-            )
+            self.IDType.create({"name": "Spaces", "namespace_uri": "urn:gov:ph:national id"})
 
     def test_empty_namespace_is_allowed(self):
         """Empty / falsy namespace_uri short-circuits validation (see code)."""
@@ -204,9 +194,7 @@ class TestIDTypeNamespaceURI(RegistryCommon):
 
     def test_duplicate_namespace_uri_rejected(self):
         """The ``_unique_namespace_uri`` SQL constraint must fire."""
-        self.IDType.create(
-            {"name": "First", "namespace_uri": "urn:gov:ph:psa:national-id"}
-        )
+        self.IDType.create({"name": "First", "namespace_uri": "urn:gov:ph:psa:national-id"})
         # TODO: assert IntegrityError via with self.assertRaises + flush().
         # SQL constraints raise on flush, not on the ORM call, so the
         # idiomatic Odoo pattern is ``with mute_logger(...): self.env.flush_all()``.

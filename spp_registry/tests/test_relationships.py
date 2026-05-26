@@ -39,9 +39,7 @@ class RelationshipCommon(RegistryCommon):
         cls.Relationship = cls.env["spp.registry.relationship"]
 
         # A second group so we can exercise group-to-group relations.
-        cls.group_b = cls.Partner.create(
-            {"name": "Second Household", "is_registrant": True, "is_group": True}
-        )
+        cls.group_b = cls.Partner.create({"name": "Second Household", "is_registrant": True, "is_group": True})
 
         # Relationship vocabulary codes. These live in spp_vocabulary's
         # ``noupdate=1`` data, so they're stable across test runs.

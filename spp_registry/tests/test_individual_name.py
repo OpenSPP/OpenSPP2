@@ -132,9 +132,7 @@ class TestCreateAppliesFormattedName(RegistryCommon):
 
     def test_create_respects_explicit_name_when_no_parts(self):
         """No name parts in vals → ``name`` is NOT overwritten."""
-        rec = self.Partner.create(
-            {"is_registrant": True, "name": "Explicit Name"}
-        )
+        rec = self.Partner.create({"is_registrant": True, "name": "Explicit Name"})
         self.assertEqual(rec.name, "Explicit Name")
 
     def test_create_does_not_format_for_groups(self):
@@ -151,9 +149,7 @@ class TestCreateAppliesFormattedName(RegistryCommon):
         self.assertEqual(rec.name, "Test Household")
 
     def test_create_with_only_addl(self):
-        rec = self.Partner.create(
-            {"is_registrant": True, "addl_name": "Marie"}
-        )
+        rec = self.Partner.create({"is_registrant": True, "addl_name": "Marie"})
         self.assertEqual(rec.name, "MARIE")
 
 
@@ -199,9 +195,7 @@ class TestWriteAppliesFormattedName(RegistryCommon):
         super() without recursion. Anyone passing the context explicitly
         gets the same opt-out.
         """
-        self.rec.with_context(skip_name_format=True).write(
-            {"family_name": "Smith"}
-        )
+        self.rec.with_context(skip_name_format=True).write({"family_name": "Smith"})
         # family_name updated but name unchanged.
         self.assertEqual(self.rec.family_name, "Smith")
         self.assertEqual(self.rec.name, "DOE, JANE")

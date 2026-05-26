@@ -20,19 +20,11 @@ class RegistryCommon(TransactionCase):
         cls.Membership = cls.env["spp.group.membership"]
         cls.VocabCode = cls.env["spp.vocabulary.code"]
 
-        cls.head_code = cls.VocabCode.sudo().get_code(
-            "urn:openspp:vocab:group-membership-type", "head"
-        )
+        cls.head_code = cls.VocabCode.sudo().get_code("urn:openspp:vocab:group-membership-type", "head")
 
-        cls.group = cls.Partner.create(
-            {"name": "Test Household", "is_registrant": True, "is_group": True}
-        )
-        cls.individual_a = cls.Partner.create(
-            {"name": "Alice", "is_registrant": True, "is_group": False}
-        )
-        cls.individual_b = cls.Partner.create(
-            {"name": "Bob", "is_registrant": True, "is_group": False}
-        )
+        cls.group = cls.Partner.create({"name": "Test Household", "is_registrant": True, "is_group": True})
+        cls.individual_a = cls.Partner.create({"name": "Alice", "is_registrant": True, "is_group": False})
+        cls.individual_b = cls.Partner.create({"name": "Bob", "is_registrant": True, "is_group": False})
 
     @classmethod
     def _make_user(cls, login, group_xmlids):

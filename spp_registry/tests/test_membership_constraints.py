@@ -21,7 +21,7 @@ from datetime import datetime, timedelta
 
 from odoo import fields
 from odoo.exceptions import ValidationError
-from odoo.tests import Form, tagged
+from odoo.tests import tagged
 
 from .common import RegistryCommon
 
@@ -57,45 +57,27 @@ class TestCheckGroupMembers(MembershipCommon):
     """``_check_group_members`` — no duplicate individuals in a group."""
 
     def test_same_individual_twice_in_same_group_rejected(self):
-        self.Membership.create(
-            {"group": self.group.id, "individual": self.individual_a.id}
-        )
+        self.Membership.create({"group": self.group.id, "individual": self.individual_a.id})
         with self.assertRaises(ValidationError):
-            self.Membership.create(
-                {"group": self.group.id, "individual": self.individual_a.id}
-            )
+            self.Membership.create({"group": self.group.id, "individual": self.individual_a.id})
 
     def test_different_individuals_in_same_group_allowed(self):
-        self.Membership.create(
-            {"group": self.group.id, "individual": self.individual_a.id}
-        )
-        rec = self.Membership.create(
-            {"group": self.group.id, "individual": self.individual_b.id}
-        )
+        self.Membership.create({"group": self.group.id, "individual": self.individual_a.id})
+        rec = self.Membership.create({"group": self.group.id, "individual": self.individual_b.id})
         self.assertTrue(rec.id)
 
     def test_same_individual_in_different_groups_allowed(self):
         """Cross-group memberships for the same person are fine."""
-        other_group = self.Partner.create(
-            {"name": "Second Household", "is_registrant": True, "is_group": True}
-        )
-        self.Membership.create(
-            {"group": self.group.id, "individual": self.individual_a.id}
-        )
-        rec = self.Membership.create(
-            {"group": other_group.id, "individual": self.individual_a.id}
-        )
+        other_group = self.Partner.create({"name": "Second Household", "is_registrant": True, "is_group": True})
+        self.Membership.create({"group": self.group.id, "individual": self.individual_a.id})
+        rec = self.Membership.create({"group": other_group.id, "individual": self.individual_a.id})
         self.assertTrue(rec.id)
 
     def test_write_into_duplicate_individual_rejected(self):
         """Reassigning a membership to an already-present individual trips
         the constraint via the write path."""
-        self.Membership.create(
-            {"group": self.group.id, "individual": self.individual_a.id}
-        )
-        existing = self.Membership.create(
-            {"group": self.group.id, "individual": self.individual_b.id}
-        )
+        self.Membership.create({"group": self.group.id, "individual": self.individual_a.id})
+        existing = self.Membership.create({"group": self.group.id, "individual": self.individual_b.id})
         with self.assertRaises(ValidationError):
             existing.write({"individual": self.individual_a.id})
 
@@ -239,9 +221,7 @@ class TestComputeStatus(MembershipCommon):
     ``ended_date``."""
 
     def test_active_when_no_end_date(self):
-        rec = self.Membership.create(
-            {"group": self.group.id, "individual": self.individual_a.id}
-        )
+        rec = self.Membership.create({"group": self.group.id, "individual": self.individual_a.id})
         self.assertEqual(rec.status, "active")
 
     def test_active_when_end_date_in_future(self):
@@ -292,9 +272,7 @@ class TestComputeIsEnded(MembershipCommon):
     """``_compute_is_ended`` — boolean shadow of ``status``."""
 
     def test_false_when_no_end_date(self):
-        rec = self.Membership.create(
-            {"group": self.group.id, "individual": self.individual_a.id}
-        )
+        rec = self.Membership.create({"group": self.group.id, "individual": self.individual_a.id})
         self.assertFalse(rec.is_ended)
 
     def test_false_when_end_date_in_future(self):
@@ -363,9 +341,7 @@ class TestMembershipDisplayName(MembershipCommon):
     """``_compute_display_name`` — uses the group's name."""
 
     def test_display_name_is_group_name(self):
-        rec = self.Membership.create(
-            {"group": self.group.id, "individual": self.individual_a.id}
-        )
+        rec = self.Membership.create({"group": self.group.id, "individual": self.individual_a.id})
         self.assertEqual(rec.display_name, self.group.name)
 
     def test_display_name_falls_back_when_no_group(self):

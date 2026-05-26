@@ -54,9 +54,7 @@ class TestDisableRegistrantWizard(RegistryCommon):
         latest reason winning.
         """
         # First disable.
-        self.Wizard.create(
-            {"partner_id": self.individual_a.id, "disabled_reason": "first reason"}
-        ).disable_registrant()
+        self.Wizard.create({"partner_id": self.individual_a.id, "disabled_reason": "first reason"}).disable_registrant()
         first_ts = self.individual_a.disabled
         self.assertEqual(self.individual_a.disabled_reason, "first reason")
 
@@ -76,12 +74,8 @@ class TestDisableRegistrantWizard(RegistryCommon):
         TransientModel.create supports a list of vals (api.model_create_multi
         on the base TransientModel since Odoo 17).
         """
-        wiz_a = self.Wizard.create(
-            {"partner_id": self.individual_a.id, "disabled_reason": "a"}
-        )
-        wiz_b = self.Wizard.create(
-            {"partner_id": self.individual_b.id, "disabled_reason": "b"}
-        )
+        wiz_a = self.Wizard.create({"partner_id": self.individual_a.id, "disabled_reason": "a"})
+        wiz_b = self.Wizard.create({"partner_id": self.individual_b.id, "disabled_reason": "b"})
         (wiz_a | wiz_b).disable_registrant()
 
         self.assertTrue(self.individual_a.disabled)
