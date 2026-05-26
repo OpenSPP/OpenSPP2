@@ -12,17 +12,16 @@ class TestDemoPrograms(TransactionCase):
     - Elderly Social Pension: age + retirement_age variables
     - Emergency Relief Fund: dependency_ratio, is_female_headed, elderly_count
     - Cash Transfer Program: hh_total_income, poverty_line, hh_size
-    - Disability Support Grant: has_disabled_member variable
     - Food Assistance: Simple inline CEL (r.active)
     """
 
     def test_get_all_demo_programs(self):
-        """Test that all 7 demo programs are returned."""
+        """Test that all 6 demo programs are returned."""
         from odoo.addons.spp_mis_demo_v2.models import demo_programs
 
         programs = demo_programs.get_all_demo_programs()
         self.assertIsInstance(programs, list)
-        self.assertEqual(len(programs), 7, "Expected exactly 7 demo programs")
+        self.assertEqual(len(programs), 6, "Expected exactly 6 demo programs")
 
         # Check expected programs exist (V3 names)
         program_names = [p["name"] for p in programs]
@@ -31,7 +30,6 @@ class TestDemoPrograms(TransactionCase):
         self.assertIn("Elderly Social Pension", program_names)
         self.assertIn("Emergency Relief Fund", program_names)
         self.assertIn("Cash Transfer Program", program_names)
-        self.assertIn("Disability Support Grant", program_names)
         self.assertIn("Food Assistance", program_names)
 
     def test_get_demo_program_by_id(self):
@@ -170,7 +168,7 @@ class TestDemoPrograms(TransactionCase):
         The demo programs demonstrate these CEL patterns using activated variables:
         - Field access: r.field_name (e.g., r.is_group, r.active)
         - Variables: child_count, age, hh_size, hh_total_income
-        - Computed variables: dependency_ratio, is_female_headed, has_disabled_member
+        - Computed variables: dependency_ratio, is_female_headed
         - Constants: poverty_line, retirement_age
         - Boolean operators: and, or
         - Comparison: ==, >=, <, >
@@ -185,7 +183,6 @@ class TestDemoPrograms(TransactionCase):
             "hh_size": False,  # Aggregate variable
             "hh_total_income": False,  # Aggregate variable
             "dependency_ratio": False,  # Computed variable
-            "has_disabled_member": False,  # Computed variable
             "poverty_line": False,  # Constant
             "retirement_age": False,  # Constant
             " and ": False,  # Boolean AND
@@ -274,15 +271,6 @@ class TestDemoPrograms(TransactionCase):
         # Checks for households with children
         self.assertIn("> 0", program["cel_expression"])
 
-    def test_disability_grant_cel_uses_has_disabled_member(self):
-        """Test Disability Support Grant uses has_disabled_member variable."""
-        from odoo.addons.spp_mis_demo_v2.models import demo_programs
-
-        program = demo_programs.get_demo_program_by_name("Disability Support Grant")
-        self.assertIsNotNone(program)
-        # Uses has_disabled_member computed variable
-        self.assertIn("has_disabled_member", program["cel_expression"])
-
     def test_cash_transfer_cel_uses_income_variable(self):
         """Test Cash Transfer Program uses hh_total_income and poverty_line."""
         from odoo.addons.spp_mis_demo_v2.models import demo_programs
@@ -332,7 +320,6 @@ class TestDemoPrograms(TransactionCase):
             "Elderly Social Pension": "social_pension",
             "Emergency Relief Fund": "vulnerability_assessment",
             "Cash Transfer Program": "cash_transfer_basic",
-            "Disability Support Grant": "disability_assistance",
             "Food Assistance": None,  # No pack for simple CEL
         }
 
@@ -367,7 +354,6 @@ class TestDemoPrograms(TransactionCase):
         self.assertIsInstance(pack_codes, list)
         self.assertIn("child_benefit", pack_codes)
         self.assertIn("social_pension", pack_codes)
-        self.assertIn("disability_assistance", pack_codes)
 
     # ═══════════════════════════════════════════════════════════════════════
     # ENTITLEMENT FORMULA TESTS
@@ -381,7 +367,6 @@ class TestDemoPrograms(TransactionCase):
         formula_programs = [
             "Universal Child Grant",  # base_child_grant * child_count
             "Emergency Relief Fund",  # Tiered based on vulnerability
-            "Disability Support Grant",  # Base + per-member
         ]
 
         for program_name in formula_programs:
@@ -427,8 +412,8 @@ class TestDemoPrograms(TransactionCase):
 
         Each story persona should be enrolled in programs that match their:
         - Demographics (age, household composition)
-        - Circumstances (income, disability status, vulnerability)
-        - Story narrative (elderly, displaced, disability, etc.)
+        - Circumstances (income, vulnerability)
+        - Story narrative (elderly, displaced, etc.)
         """
         from odoo.addons.spp_mis_demo_v2.models import demo_programs
 
@@ -446,8 +431,6 @@ class TestDemoPrograms(TransactionCase):
             "ibrahim_hassan": ["Emergency Relief Fund", "Food Assistance"],
             # Teresa Villanueva - Food Assistance recipient
             "fatima_al_rahman": ["Food Assistance"],
-            # David/Sofia Martinez - Household with disabled member
-            "david_sofia_martinez": ["Disability Support Grant"],
             # Roberto Castillo - Background Cash Transfer
             "ahmed_said": ["Cash Transfer Program"],
             # Manuel Pangilinan - Elderly Social Pension (individual)
@@ -540,19 +523,6 @@ class TestDemoPrograms(TransactionCase):
         programs = demo_programs.get_programs_for_story("carlos_elena_morales")
         program_names = [p["name"] for p in programs]
         self.assertIn("Universal Child Grant", program_names)
-
-    def test_disability_story_eligibility(self):
-        """Test David/Sofia Martinez meets disability grant eligibility.
-
-        The Martinez family should be eligible because:
-        - is_group == true (household)
-        - has_disabled_member == true (using computed variable)
-        """
-        from odoo.addons.spp_mis_demo_v2.models import demo_programs
-
-        programs = demo_programs.get_programs_for_story("david_sofia_martinez")
-        program_names = [p["name"] for p in programs]
-        self.assertIn("Disability Support Grant", program_names)
 
     def test_emergency_story_eligibility(self):
         """Test Ramon Gutierrez meets emergency eligibility criteria.

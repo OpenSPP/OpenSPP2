@@ -10,21 +10,20 @@ Each program is designed to:
 2. Demonstrate different CEL expression patterns
 3. Link to existing Logic Packs from spp_studio
 
-Program Catalog (7 programs):
+Program Catalog (6 programs):
 1. Universal Child Grant - Member aggregation (child_benefit pack)
 2. Conditional Child Grant - First 1,000 days with compliance (child_benefit pack)
 3. Elderly Social Pension - Age + constants (social_pension pack)
 4. Emergency Relief Fund - Cached metrics (vulnerability_assessment pack)
 5. Cash Transfer Program - Poverty threshold (cash_transfer_basic pack)
-6. Disability Support Grant - Member existence (disability_assistance pack)
-7. Food Assistance - Basic active check (no pack, simple CEL)
+6. Food Assistance - Basic active check (no pack, simple CEL)
 
 CEL Expression Patterns Demonstrated:
 - Field comparison: r.active == true
 - Computed variables: age >= retirement_age
 - Aggregate variables: hh_total_income < poverty_line, child_count > 0
 - Compound conditions: dependency_ratio >= 1.5 or (is_female_headed and elderly_count > 0)
-- Arithmetic with variables: base_child_grant * child_count, disabled_count * disability_grant_per_member
+- Arithmetic with variables: base_child_grant * child_count
 - Compliance criteria: members.exists(m, age_years(m.birthdate) < 5)
 """
 
@@ -178,33 +177,6 @@ DEMO_PROGRAMS = [
             "Uses poverty_line constant",
             "Uses hh_total_income aggregate",
             "Logic Pack: cash_transfer_basic",
-        ],
-    },
-    {
-        "id": "disability_support_grant",
-        "name": "Disability Support Grant",
-        "description": "Support grant for households with disabled members. "
-        "Base amount plus per-disabled-member bonus.",
-        "target_type": "group",
-        "entitlement_amount": 175.0,  # Default: base + 1 member
-        # CEL formula: Base + per-member amount (using disabled_count variable)
-        "entitlement_formula": "disability_grant_base + (disabled_count * disability_grant_per_member)",
-        "cycle_duration": 30,
-        # CEL: Household with at least one disabled member (using activated variable)
-        # Pattern: Member existence check via variable
-        "cel_expression": "r.is_group == true and has_disabled_member",
-        # Link to Logic Pack
-        "logic_pack": "disability_assistance",
-        "use_logic_studio": True,
-        "logic_name": "Disability Assistance Eligibility",
-        "expression_type": "filter",
-        "stories": ["david_sofia_martinez"],
-        "demo_points": [
-            "Disability-focused program",
-            "Uses has_disabled_member variable",
-            "Per-member benefit calculation",
-            "Uses disabled_count aggregate variable",
-            "Logic Pack: disability_assistance",
         ],
     },
     {
@@ -382,18 +354,6 @@ STORY_ENROLLMENTS = {
             "enrolled_days_back": 70,
         }
     ],
-    # Story 9: David Martinez - Disability Support Grant
-    "david_sofia_martinez": [
-        {
-            "program": "Disability Support Grant",
-            "enrolled_days_back": 100,
-            "payments": [
-                {"amount": 175, "days_back": 90, "status": "paid"},  # base 100 + 75*1
-                {"amount": 175, "days_back": 60, "status": "paid"},
-                {"amount": 175, "days_back": 30, "status": "paid"},
-            ],
-        }
-    ],
     # Manuel Pangilinan - Elderly Social Pension (individual, age 75)
     "manuel_gloria_elderly": [
         {
@@ -437,7 +397,6 @@ DEMO_LOGIC_PACKS = [
     "social_pension",  # Elderly Social Pension
     "vulnerability_assessment",  # Emergency Relief Fund
     "cash_transfer_basic",  # Cash Transfer Program
-    "disability_assistance",  # Disability Support Grant
 ]
 
 

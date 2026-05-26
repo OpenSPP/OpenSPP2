@@ -65,7 +65,6 @@ class TestMISDemoGenerator(TransactionCase):
                         "Universal Child Grant",
                         "Elderly Social Pension",
                         "Cash Transfer Program",
-                        "Disability Support Grant",
                         "Emergency Relief Fund",
                         "Food Assistance",
                     ],
@@ -73,7 +72,7 @@ class TestMISDemoGenerator(TransactionCase):
             ]
         )
 
-        self.assertGreaterEqual(len(programs), 6)
+        self.assertGreaterEqual(len(programs), 5)
 
     def test_story_enrollment_without_registrants(self):
         """Test that enrollment gracefully handles missing registrants."""

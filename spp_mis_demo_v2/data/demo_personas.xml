@@ -78,20 +78,6 @@
         >{"name": "Ramon Gutierrez", "age": 50, "is_registrant": true, "is_group": false, "active": true, "displacement_status": "displaced", "vulnerability_score": 85, "shelter_type": "evacuation_center"}</field>
     </record>
 
-    <!-- David &amp; Sofia Martinez Household - Disability Support -->
-    <record id="persona_david_martinez" model="spp.studio.test.persona">
-        <field name="name">David &amp; Sofia Martinez Household</field>
-        <field
-            name="description"
-        >DISABILITY INCLUSION: Household of 3 - David (44) and Sofia (42) Martinez with their 12-year-old son Miguel who uses a wheelchair due to cerebral palsy. David works as a security guard while Sofia stays home to care for Miguel. They face extra costs for Miguel's medical needs and accessibility requirements. Receives Disability Support Grant (base $100 + $75 per disabled member) - demonstrating member-based benefit calculation.</field>
-        <field name="category">eligible</field>
-        <field name="is_global" eval="True" />
-        <field name="sequence">50</field>
-        <field
-            name="values"
-        >{"name": "David Martinez Household", "is_registrant": true, "is_group": true, "active": true, "hh_size": 3, "disabled_count": 1, "head_occupation": "security_guard", "disability_type": "physical"}</field>
-    </record>
-
     <!-- Juan Dela Cruz Household - Emergency Case with GRM Integration -->
     <record id="persona_juan_dela_cruz" model="spp.studio.test.persona">
         <field name="name">Juan Dela Cruz Household</field>

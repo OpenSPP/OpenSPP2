@@ -35,9 +35,6 @@ DEMO_CONSTANTS = {
     "vulnerability_threshold": 70,  # Min score for emergency eligibility
     # Benefit amounts - Child support
     "base_child_grant": 50,  # Per-child amount
-    # Benefit amounts - Disability
-    "disability_grant_base": 100,  # Base amount
-    "disability_grant_per_member": 75,  # Per disabled member
     # Benefit amounts - Emergency (tiered)
     "emergency_tier_1": 500,  # Score >= 90
     "emergency_tier_2": 400,  # Score >= 80
@@ -139,7 +136,6 @@ def ensure_demo_constants(env: Environment) -> None:
 # Logic Pack codes used by demo programs
 DEMO_LOGIC_PACKS = [
     "social_pension",  # Elderly Pension program
-    "disability_assistance",  # Disability Support Grant
     "child_benefit",  # Universal Child Grant
     "cash_transfer_basic",  # Cash Transfer Program
     "vulnerability_assessment",  # Emergency Relief Fund

@@ -4,7 +4,7 @@
 These tests verify:
 1. Standard variables from spp_studio are activated on module install
 2. Demo-specific variables are activated on module install
-3. Income and disability fields are populated by the generator
+3. Income fields are populated by the generator
 """
 
 from odoo.tests import TransactionCase, tagged
@@ -61,8 +61,6 @@ class TestRegistryVariableActivation(TransactionCase):
             "spp_studio.var_hh_total_income",
             "spp_studio.var_poverty_line",
             "spp_studio.var_hh_size",
-            # Used in Disability Support Grant
-            "spp_studio.var_has_disabled_member",
         ]
 
         for xml_id in key_variables:
@@ -119,7 +117,7 @@ class TestRegistryVariableActivation(TransactionCase):
 
 @tagged("post_install", "-at_install")
 class TestGeneratorFieldPopulation(TransactionCase):
-    """Test that the generator populates income and disability fields."""
+    """Test that the generator populates income fields."""
 
     @classmethod
     def setUpClass(cls):

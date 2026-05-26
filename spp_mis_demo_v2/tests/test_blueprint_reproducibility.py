@@ -129,7 +129,6 @@ class TestBlueprintReproducibility(TransactionCase):
             "elderly_social_pension",
             "emergency_relief_fund",
             "cash_transfer_program",
-            "disability_support_grant",
             "food_assistance",
         }
 

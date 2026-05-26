@@ -28,7 +28,6 @@ class TestDemoStatistics(TransactionCase):
             "elderly_60_plus",
             "female_members",
             "male_members",
-            "disabled_members",
             "enrolled_any_program",
         ]
 
@@ -102,7 +101,6 @@ class TestDemoStatistics(TransactionCase):
                 "female_members",
                 "male_members",
             ],
-            "vulnerability": ["disabled_members"],
             "programs": ["enrolled_any_program"],
         }
 

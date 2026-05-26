@@ -8,22 +8,20 @@ Standard Variables Activated (from spp_studio):
 - Demographics: age
 - Household composition: hh_size, child_count, elderly_count, working_age_count
 - Household characteristics: is_female_headed, is_elderly_headed,
-  has_disabled_member, has_pregnant_member, dependency_ratio
+  has_pregnant_member, dependency_ratio
 - Economic: per_capita_income, hh_total_income, hh_avg_income
 - Constants: poverty_line, retirement_age, child_age_limit, per_child_benefit,
   base_benefit
 
 Demo-Specific Variables Activated (from demo_constants.xml):
-- vulnerability_threshold, base_child_grant, disability_grant_base,
-  disability_grant_per_member, emergency_tier_1/2/3, elderly_pension_amount,
-  cash_transfer_amount, disabled_count
+- vulnerability_threshold, base_child_grant, emergency_tier_1/2/3,
+  elderly_pension_amount, cash_transfer_amount
 
 These variables support the demo programs:
 - Universal Child Grant: child_count, child_age_limit, per_child_benefit
 - Elderly Social Pension: age, retirement_age, elderly_pension_amount
 - Emergency Relief Fund: vulnerability_threshold, emergency_tier_*
 - Cash Transfer Program: hh_size, poverty_line, hh_total_income
-- Disability Support Grant: has_disabled_member, disabled_count
 """
 
 from __future__ import annotations
@@ -47,7 +45,6 @@ STANDARD_VARIABLES = [
     # Household characteristics (computed)
     "spp_studio.var_is_female_headed",
     "spp_studio.var_is_elderly_headed",
-    "spp_studio.var_has_disabled_member",
     "spp_studio.var_has_pregnant_member",
     "spp_studio.var_dependency_ratio",
     # Economic (computed/aggregate)
@@ -66,14 +63,11 @@ STANDARD_VARIABLES = [
 DEMO_VARIABLES = [
     "spp_mis_demo_v2.var_vulnerability_threshold",
     "spp_mis_demo_v2.var_base_child_grant",
-    "spp_mis_demo_v2.var_disability_grant_base",
-    "spp_mis_demo_v2.var_disability_grant_per_member",
     "spp_mis_demo_v2.var_emergency_tier_1",
     "spp_mis_demo_v2.var_emergency_tier_2",
     "spp_mis_demo_v2.var_emergency_tier_3",
     "spp_mis_demo_v2.var_elderly_pension_amount",
     "spp_mis_demo_v2.var_cash_transfer_amount",
-    "spp_mis_demo_v2.var_disabled_count",
 ]
 
 

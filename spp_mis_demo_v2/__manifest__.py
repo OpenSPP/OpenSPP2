@@ -32,10 +32,6 @@
         "spp_claim_169",
         # Banking (for bank account demo data)
         "spp_banking",
-        # Disability tracking (Disability Support Grant program references
-        # res.partner.has_disability and the has_disabled_member /
-        # disabled_count CEL variables — see #929 round 2).
-        "spp_disability_registry",
         # Demo-specific extensions
     ],
     "external_dependencies": {"python": ["requests"]},

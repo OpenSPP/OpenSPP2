@@ -11,10 +11,7 @@
 
     Demo-specific constants (defined here):
     - vulnerability_threshold (emergency program threshold)
-    - Benefit amounts (base_child_grant, disability_grant_*, emergency_tier_*)
-
-    Demo-specific aggregates (defined here):
-    - disabled_count (members with disability status)
+    - Benefit amounts (base_child_grant, emergency_tier_*)
 -->
 <odoo noupdate="1">
     <!-- ═══════════════════════════════════════════════════════════════════════
@@ -52,25 +49,6 @@
         <field name="source_type">constant</field>
         <field name="value_type">number</field>
         <field name="default_value">50</field>
-        <field name="category_id" ref="var_category_demo" />
-    </record>
-
-    <!-- Benefit Amounts - Disability -->
-    <record id="var_disability_grant_base" model="spp.cel.variable">
-        <field name="name">disability_grant_base</field>
-        <field name="cel_accessor">disability_grant_base</field>
-        <field name="source_type">constant</field>
-        <field name="value_type">number</field>
-        <field name="default_value">100</field>
-        <field name="category_id" ref="var_category_demo" />
-    </record>
-
-    <record id="var_disability_grant_per_member" model="spp.cel.variable">
-        <field name="name">disability_grant_per_member</field>
-        <field name="cel_accessor">disability_grant_per_member</field>
-        <field name="source_type">constant</field>
-        <field name="value_type">number</field>
-        <field name="default_value">75</field>
         <field name="category_id" ref="var_category_demo" />
     </record>
 
@@ -119,26 +97,5 @@
         <field name="value_type">number</field>
         <field name="default_value">150</field>
         <field name="category_id" ref="var_category_demo" />
-    </record>
-
-    <!-- ═══════════════════════════════════════════════════════════════════════
-             AGGREGATE VARIABLES - Demo-Specific
-
-             Note: Core aggregate variables (hh_size, child_count, elderly_count)
-             are already defined in spp_studio/data/standard_variables.xml.
-             Only define demo-specific aggregates here.
-             ═══════════════════════════════════════════════════════════════════════ -->
-
-    <!-- Disabled member count: Members with disability flag -->
-    <record id="var_disabled_count" model="spp.cel.variable">
-        <field name="name">disabled_count</field>
-        <field name="cel_accessor">disabled_count</field>
-        <field name="source_type">aggregate</field>
-        <field name="value_type">number</field>
-        <field name="aggregate_type">count</field>
-        <field name="aggregate_filter">m.has_disability</field>
-        <field name="category_id" ref="var_category_demo" />
-        <field name="cache_strategy">ttl</field>
-        <field name="cache_ttl_seconds">86400</field>
     </record>
 </odoo>

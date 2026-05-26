@@ -20,7 +20,6 @@ _CCG = "conditional_child_grant"
 _ESP = "elderly_social_pension"
 _ERF = "emergency_relief_fund"
 _CTP = "cash_transfer_program"
-_DSG = "disability_support_grant"
 _FA = "food_assistance"
 
 HOUSEHOLD_BLUEPRINTS = [
@@ -39,7 +38,7 @@ HOUSEHOLD_BLUEPRINTS = [
             {"role": "spouse", "gender": "female", "age_range": (23, 33)},
             {"role": "child", "gender": "any", "age_range": (1, 4)},
         ],
-        "eligibility": {_UCG: True, _CCG: True, _CTP: True, _ERF: False, _DSG: False},
+        "eligibility": {_UCG: True, _CCG: True, _CTP: True, _ERF: False},
     },
     {
         "id": "bp_02_young_couple_2children_rural_vlow",
@@ -54,7 +53,7 @@ HOUSEHOLD_BLUEPRINTS = [
             {"role": "child", "gender": "any", "age_range": (3, 7)},
             {"role": "child", "gender": "any", "age_range": (6, 10)},
         ],
-        "eligibility": {_UCG: True, _CTP: True, _ERF: True, _DSG: False},
+        "eligibility": {_UCG: True, _CTP: True, _ERF: True},
     },
     {
         "id": "bp_03_single_mother_2children_urban_low",
@@ -69,7 +68,7 @@ HOUSEHOLD_BLUEPRINTS = [
             {"role": "child", "gender": "any", "age_range": (2, 6)},
             {"role": "child", "gender": "any", "age_range": (5, 9)},
         ],
-        "eligibility": {_UCG: True, _CTP: True, _ERF: True, _DSG: False},
+        "eligibility": {_UCG: True, _CTP: True, _ERF: True},
     },
     {
         "id": "bp_04_young_couple_3children_rural_low",
@@ -85,7 +84,7 @@ HOUSEHOLD_BLUEPRINTS = [
             {"role": "child", "gender": "any", "age_range": (4, 8)},
             {"role": "child", "gender": "any", "age_range": (8, 12)},
         ],
-        "eligibility": {_UCG: True, _CCG: True, _CTP: True, _ERF: False, _DSG: False},
+        "eligibility": {_UCG: True, _CCG: True, _CTP: True, _ERF: False},
     },
     {
         "id": "bp_05_single_father_1child_periurban_mod",
@@ -98,7 +97,7 @@ HOUSEHOLD_BLUEPRINTS = [
             {"role": "head", "gender": "male", "age_range": (30, 45)},
             {"role": "child", "gender": "any", "age_range": (3, 8)},
         ],
-        "eligibility": {_UCG: True, _CTP: False, _ERF: False, _DSG: False},
+        "eligibility": {_UCG: True, _CTP: False, _ERF: False},
     },
     {
         "id": "bp_06_young_couple_newborn_rural_vlow",
@@ -113,7 +112,7 @@ HOUSEHOLD_BLUEPRINTS = [
             {"role": "child", "gender": "any", "age_range": (0, 1)},
             {"role": "child", "gender": "any", "age_range": (1, 3)},
         ],
-        "eligibility": {_UCG: True, _CCG: True, _CTP: True, _ERF: True, _DSG: False},
+        "eligibility": {_UCG: True, _CCG: True, _CTP: True, _ERF: True},
     },
     # =========================================================================
     # Middle-age Families (6 blueprints, ~150 households)
@@ -131,7 +130,7 @@ HOUSEHOLD_BLUEPRINTS = [
             {"role": "child", "gender": "any", "age_range": (13, 16)},
             {"role": "child", "gender": "any", "age_range": (15, 17)},
         ],
-        "eligibility": {_UCG: True, _CTP: False, _ERF: False, _DSG: False},
+        "eligibility": {_UCG: True, _CTP: False, _ERF: False},
     },
     {
         "id": "bp_08_couple_mixed_ages_rural_low",
@@ -147,7 +146,7 @@ HOUSEHOLD_BLUEPRINTS = [
             {"role": "child", "gender": "any", "age_range": (10, 14)},
             {"role": "child", "gender": "any", "age_range": (15, 17)},
         ],
-        "eligibility": {_UCG: True, _CTP: True, _ERF: False, _DSG: False},
+        "eligibility": {_UCG: True, _CTP: True, _ERF: False},
     },
     {
         "id": "bp_09_couple_adult_child_periurban_mod",
@@ -162,7 +161,7 @@ HOUSEHOLD_BLUEPRINTS = [
             {"role": "adult", "gender": "any", "age_range": (19, 23)},
             {"role": "child", "gender": "any", "age_range": (13, 17)},
         ],
-        "eligibility": {_UCG: True, _CTP: False, _ERF: False, _DSG: False},
+        "eligibility": {_UCG: True, _CTP: False, _ERF: False},
     },
     {
         "id": "bp_10_large_family_6members_rural_vlow",
@@ -179,38 +178,7 @@ HOUSEHOLD_BLUEPRINTS = [
             {"role": "child", "gender": "any", "age_range": (9, 13)},
             {"role": "child", "gender": "any", "age_range": (13, 17)},
         ],
-        "eligibility": {_UCG: True, _CTP: True, _ERF: True, _DSG: False},
-    },
-    {
-        "id": "bp_11_single_mother_disabled_child_urban_low",
-        "label": "Single mother, disabled child, urban, low income",
-        "count": 15,
-        "zone": "urban",
-        "income_bracket": "low",
-        "income_range": (6000, 12000),
-        "is_female_headed": True,
-        "has_disabled_member": True,
-        "members": [
-            {"role": "head", "gender": "female", "age_range": (30, 45)},
-            {"role": "child", "gender": "any", "age_range": (8, 14), "is_disabled": True},
-        ],
-        "eligibility": {_UCG: True, _CTP: True, _ERF: False, _DSG: True},
-    },
-    {
-        "id": "bp_12_couple_disabled_spouse_rural_low",
-        "label": "Couple, disabled spouse, 2 children, rural, low income",
-        "count": 15,
-        "zone": "rural",
-        "income_bracket": "low",
-        "income_range": (5000, 11000),
-        "has_disabled_member": True,
-        "members": [
-            {"role": "head", "gender": "male", "age_range": (35, 50)},
-            {"role": "spouse", "gender": "female", "age_range": (33, 48), "is_disabled": True},
-            {"role": "child", "gender": "any", "age_range": (6, 10)},
-            {"role": "child", "gender": "any", "age_range": (10, 14)},
-        ],
-        "eligibility": {_UCG: True, _CTP: True, _ERF: False, _DSG: True},
+        "eligibility": {_UCG: True, _CTP: True, _ERF: True},
     },
     # =========================================================================
     # Elderly Households (5 blueprints, ~110 households)
@@ -226,7 +194,7 @@ HOUSEHOLD_BLUEPRINTS = [
             {"role": "head", "gender": "male", "age_range": (65, 78)},
             {"role": "spouse", "gender": "female", "age_range": (63, 76)},
         ],
-        "eligibility": {_UCG: False, _ESP: True, _CTP: False, _ERF: False, _DSG: False},
+        "eligibility": {_UCG: False, _ESP: True, _CTP: False, _ERF: False},
     },
     {
         "id": "bp_14_elderly_single_rural_vlow",
@@ -238,7 +206,7 @@ HOUSEHOLD_BLUEPRINTS = [
         "members": [
             {"role": "head", "gender": "any", "age_range": (68, 82)},
         ],
-        "eligibility": {_UCG: False, _ESP: True, _CTP: False, _ERF: True, _DSG: False},
+        "eligibility": {_UCG: False, _ESP: True, _CTP: False, _ERF: True},
     },
     {
         "id": "bp_15_elderly_couple_grandchild_periurban_low",
@@ -252,20 +220,7 @@ HOUSEHOLD_BLUEPRINTS = [
             {"role": "spouse", "gender": "female", "age_range": (63, 73)},
             {"role": "child", "gender": "any", "age_range": (5, 12)},
         ],
-        "eligibility": {_UCG: True, _ESP: True, _CTP: False, _ERF: False, _DSG: False},
-    },
-    {
-        "id": "bp_16_elderly_disabled_urban_vlow",
-        "label": "Single elderly, disabled, urban, very low income",
-        "count": 15,
-        "zone": "urban",
-        "income_bracket": "very_low",
-        "income_range": (1000, 4000),
-        "has_disabled_member": True,
-        "members": [
-            {"role": "head", "gender": "any", "age_range": (72, 85), "is_disabled": True},
-        ],
-        "eligibility": {_UCG: False, _ESP: True, _CTP: False, _ERF: False, _DSG: True},
+        "eligibility": {_UCG: True, _ESP: True, _CTP: False, _ERF: False},
     },
     {
         "id": "bp_17_elderly_with_adult_child_rural_mod",
@@ -278,7 +233,7 @@ HOUSEHOLD_BLUEPRINTS = [
             {"role": "head", "gender": "any", "age_range": (66, 75)},
             {"role": "adult", "gender": "any", "age_range": (35, 48)},
         ],
-        "eligibility": {_UCG: False, _ESP: True, _CTP: False, _ERF: False, _DSG: False},
+        "eligibility": {_UCG: False, _ESP: True, _CTP: False, _ERF: False},
     },
     # =========================================================================
     # Working-age Households (6 blueprints, ~125 households)
@@ -294,7 +249,7 @@ HOUSEHOLD_BLUEPRINTS = [
             {"role": "head", "gender": "male", "age_range": (28, 45)},
             {"role": "spouse", "gender": "female", "age_range": (26, 43)},
         ],
-        "eligibility": {_UCG: False, _CTP: False, _ERF: False, _DSG: False},
+        "eligibility": {_UCG: False, _CTP: False, _ERF: False},
     },
     {
         "id": "bp_19_couple_no_children_rural_mod",
@@ -307,7 +262,7 @@ HOUSEHOLD_BLUEPRINTS = [
             {"role": "head", "gender": "male", "age_range": (30, 50)},
             {"role": "spouse", "gender": "female", "age_range": (28, 48)},
         ],
-        "eligibility": {_UCG: False, _CTP: False, _ERF: False, _DSG: False},
+        "eligibility": {_UCG: False, _CTP: False, _ERF: False},
     },
     {
         "id": "bp_20_single_adult_urban_above_mod",
@@ -319,7 +274,7 @@ HOUSEHOLD_BLUEPRINTS = [
         "members": [
             {"role": "head", "gender": "any", "age_range": (25, 50)},
         ],
-        "eligibility": {_UCG: False, _CTP: False, _ERF: False, _DSG: False},
+        "eligibility": {_UCG: False, _CTP: False, _ERF: False},
     },
     {
         "id": "bp_21_extended_family_rural_low",
@@ -335,24 +290,7 @@ HOUSEHOLD_BLUEPRINTS = [
             {"role": "child", "gender": "any", "age_range": (4, 9)},
             {"role": "child", "gender": "any", "age_range": (8, 13)},
         ],
-        "eligibility": {_UCG: True, _CTP: True, _ERF: False, _DSG: False},
-    },
-    {
-        "id": "bp_22_multi_gen_disabled_elder_rural_vlow",
-        "label": "Multi-gen with disabled elder, rural, very low income",
-        "count": 10,
-        "zone": "rural",
-        "income_bracket": "very_low",
-        "income_range": (2000, 6000),
-        "has_disabled_member": True,
-        "members": [
-            {"role": "head", "gender": "male", "age_range": (35, 50)},
-            {"role": "spouse", "gender": "female", "age_range": (33, 48)},
-            {"role": "elderly", "gender": "any", "age_range": (68, 80), "is_disabled": True},
-            {"role": "child", "gender": "any", "age_range": (3, 8)},
-            {"role": "child", "gender": "any", "age_range": (7, 14)},
-        ],
-        "eligibility": {_UCG: True, _CTP: True, _ERF: True, _DSG: True},
+        "eligibility": {_UCG: True, _CTP: True, _ERF: False},
     },
     {
         "id": "bp_23_couple_1child_periurban_low",
@@ -366,7 +304,7 @@ HOUSEHOLD_BLUEPRINTS = [
             {"role": "spouse", "gender": "female", "age_range": (28, 43)},
             {"role": "child", "gender": "any", "age_range": (8, 14)},
         ],
-        "eligibility": {_UCG: True, _CTP: True, _ERF: False, _DSG: False},
+        "eligibility": {_UCG: True, _CTP: True, _ERF: False},
     },
     # =========================================================================
     # Special Cases (5 blueprints, ~100 households)
@@ -385,7 +323,7 @@ HOUSEHOLD_BLUEPRINTS = [
             {"role": "child", "gender": "any", "age_range": (5, 10)},
             {"role": "child", "gender": "any", "age_range": (9, 15)},
         ],
-        "eligibility": {_UCG: True, _CTP: True, _ERF: True, _DSG: False},
+        "eligibility": {_UCG: True, _CTP: True, _ERF: True},
     },
     {
         "id": "bp_25_food_only_individual_urban_vlow",
@@ -397,7 +335,7 @@ HOUSEHOLD_BLUEPRINTS = [
         "members": [
             {"role": "head", "gender": "any", "age_range": (20, 55)},
         ],
-        "eligibility": {_UCG: False, _CTP: False, _ERF: False, _DSG: False},
+        "eligibility": {_UCG: False, _CTP: False, _ERF: False},
         "individual_food_assistance": True,
     },
     {
@@ -410,23 +348,8 @@ HOUSEHOLD_BLUEPRINTS = [
         "members": [
             {"role": "head", "gender": "any", "age_range": (22, 60)},
         ],
-        "eligibility": {_UCG: False, _CTP: False, _ERF: False, _DSG: False},
+        "eligibility": {_UCG: False, _CTP: False, _ERF: False},
         "individual_food_assistance": True,
-    },
-    {
-        "id": "bp_27_disability_household_3disabled_urban_low",
-        "label": "Family with 2 disabled members, 1 child, urban, low income",
-        "count": 10,
-        "zone": "urban",
-        "income_bracket": "low",
-        "income_range": (5000, 11000),
-        "has_disabled_member": True,
-        "members": [
-            {"role": "head", "gender": "male", "age_range": (35, 50), "is_disabled": True},
-            {"role": "spouse", "gender": "female", "age_range": (33, 48), "is_disabled": True},
-            {"role": "child", "gender": "any", "age_range": (6, 14)},
-        ],
-        "eligibility": {_UCG: True, _CTP: True, _ERF: False, _DSG: True},
     },
     {
         "id": "bp_28_multi_program_household_rural_vlow",
@@ -436,14 +359,13 @@ HOUSEHOLD_BLUEPRINTS = [
         "income_bracket": "very_low",
         "income_range": (1000, 5000),
         "is_female_headed": True,
-        "has_disabled_member": True,
         "members": [
             {"role": "head", "gender": "female", "age_range": (30, 45)},
             {"role": "child", "gender": "any", "age_range": (2, 6)},
-            {"role": "child", "gender": "any", "age_range": (5, 10), "is_disabled": True},
+            {"role": "child", "gender": "any", "age_range": (5, 10)},
             {"role": "elderly", "gender": "any", "age_range": (68, 80)},
         ],
-        "eligibility": {_UCG: True, _CCG: True, _ESP: True, _CTP: True, _ERF: True, _DSG: True},
+        "eligibility": {_UCG: True, _CCG: True, _ESP: True, _CTP: True, _ERF: True},
     },
 ]
 

@@ -1,11 +1,11 @@
-Demo data generator for SP-MIS programs. Creates 7 social protection programs with CEL eligibility expressions, enrolls 8 demo personas with payment histories, and optionally generates ~730 deterministic households from seeded blueprints (`seed=42`) for reproducible volume data. Activates registry variables from `spp_studio` and installs Logic Packs for eligibility rules.
+Demo data generator for SP-MIS programs. Creates 6 social protection programs with CEL eligibility expressions, enrolls 8 demo personas with payment histories, and optionally generates ~700 deterministic households from seeded blueprints (`seed=42`) for reproducible volume data. Activates registry variables from `spp_studio` and installs Logic Packs for eligibility rules.
 
 ### Key Capabilities
 
-- Generate 7 programs (Universal Child Grant, Conditional Child Grant, Elderly Pension, Emergency Relief, Cash Transfer, Disability Support, Food Assistance) with CEL expressions
+- Generate 6 programs (Universal Child Grant, Conditional Child Grant, Elderly Pension, Emergency Relief, Cash Transfer, Food Assistance) with CEL expressions
 - Enroll 8 demo personas with predefined stories and payment histories covering all demo scenarios
-- Generate ~730 deterministic households with ~2555 members from 28 blueprints via `SeededVolumeGenerator` with `random.Random(seed=42)` — same seed always produces identical output
-- Install Logic Packs from `spp_studio` for eligibility rules (child_benefit, social_pension, vulnerability_assessment, cash_transfer_basic, disability_assistance)
+- Generate ~700 deterministic households from seeded blueprints via `SeededVolumeGenerator` with `random.Random(seed=42)` — same seed always produces identical output
+- Install Logic Packs from `spp_studio` for eligibility rules (child_benefit, social_pension, vulnerability_assessment, cash_transfer_basic)
 - Activate registry variables (age, child_count, hh_total_income, dependency_ratio, etc.) via post_init_hook
 - 4 demo modes (Sales, Training, Testing, Complete) with automatic field defaults
 - Multi-locale support for name generation (fil_PH, si_LK, fr_TG)
@@ -45,7 +45,6 @@ All programs use CEL expressions with activated registry variables:
 - **Elderly Social Pension**: `r.is_group == false and age >= retirement_age` (age computation)
 - **Emergency Relief Fund**: `dependency_ratio >= 1.5 or (is_female_headed and elderly_count > 0)` (compound conditions)
 - **Cash Transfer Program**: `hh_total_income < poverty_line and hh_size >= 2` (income-based targeting)
-- **Disability Support Grant**: `r.is_group == true and has_disabled_member` (member existence check)
 - **Food Assistance**: `r.is_registrant == true and r.active == true` (simple field comparison)
 
 ### Seeded Volume Generation
