@@ -1,25 +1,33 @@
-# Social Registry — Income Level Snapshot
+# SR + CRVS — Federated Snapshot
 
-Live snapshot from OpenG2P's Social Registry playground
-(`partner-nsr.play.openg2p.org`), fetched via DCI search-sync against the
-15 demo identifiers `IND-NSR-0001` through `IND-NSR-0015`.
+Live snapshot of the 10 demo identifiers shared by the OpenG2P + OpenCRVS teams for the
+post-event recording. SR data fetched via DCI search-sync from OpenG2P's playground
+(`partner-nsr.play.openg2p.org`); CRVS death column fetched via DCI from OpenCRVS's
+playground (`dci-crvs-api.farajaland-integration.opencrvs.dev`).
 
-Captured on 2026-05-20.
+Captured on 2026-05-26.
 
-| #   | UIN            | Name             | income_level |
-| --- | -------------- | ---------------- | ------------ |
-| 1   | `IND-NSR-0001` | Tomasz Novak     | low          |
-| 2   | `IND-NSR-0002` | Sofia Petrovic   | low          |
-| 3   | `IND-NSR-0003` | Milan Novak      | low          |
-| 4   | `IND-NSR-0004` | Daniel Kauri     | low          |
-| 5   | `IND-NSR-0005` | Leila Haddar     | low          |
-| 6   | `IND-NSR-0006` | Niko Cole        | low          |
-| 7   | `IND-NSR-0007` | Malik Adeyemi    | medium       |
-| 8   | `IND-NSR-0008` | Priya Menon      | medium       |
-| 9   | `IND-NSR-0009` | Rin Lee          | high         |
-| 10  | `IND-NSR-0010` | Omar El-Hadi     | low          |
-| 11  | `IND-NSR-0011` | Aiko Tanabe      | high         |
-| 12  | `IND-NSR-0012` | Reyna Brooks     | low          |
-| 13  | `IND-NSR-0013` | Rafael Duarte    | low          |
-| 14  | `IND-NSR-0014` | Elna Voss        | low          |
-| 15  | `IND-NSR-0015` | Arlo Duarte      | low          |
+Note: OpenG2P moved its demo UINs from the synthetic `IND-NSR-XXXX` format to 10-digit
+numeric identifiers aligned with OpenCRVS, so the same UIN resolves to the same person
+across both registries. See the cross-registry matrix in `SPDCI_DEMO_BRIEFING.md` for
+the SR↔CRVS overlap.
+
+| #   | UIN          | Name           | income_level | In CRVS death? |
+| --- | ------------ | -------------- | ------------ | -------------- |
+| 1   | `8579520716` | Tomasz Novak   | low          | ✅ yes         |
+| 2   | `3253492082` | Sofia Petrovic | low          | —              |
+| 3   | `9475380352` | Daniel Kauri   | low          | ✅ yes         |
+| 4   | `9726938790` | Leila Haddar   | low          | —              |
+| 5   | `6985017629` | Malik Adeyemi  | medium       | —              |
+| 6   | `2140239450` | Priya Menon    | medium       | —              |
+| 7   | `2195415820` | Omar El-Hadi   | low          | —              |
+| 8   | `4364503413` | Aiko Tanabe    | high         | —              |
+| 9   | `3184198562` | Rafael Duarte  | low          | ✅ yes         |
+| 10  | `8794017267` | Elna Voss      | low          | —              |
+
+## Expected eligibility outcomes
+
+For a rule like `is_poor == "low" && is_deceased == false` (SR + CRVS, no DR), 4 of 10
+registrants enroll: Sofia Petrovic, Leila Haddar, Omar El-Hadi, Elna Voss. The other 6
+fail on at least one predicate (3 deceased per CRVS, 3 with income not equal to `"low"`
+per SR).
