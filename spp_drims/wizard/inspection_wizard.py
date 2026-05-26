@@ -176,6 +176,10 @@ class InspectionWizardLine(models.TransientModel):
 
     _name = "spp.drims.inspection.wizard.line"
     _description = "Inspection Wizard Line"
+    # Sort so each donation line's rows stay grouped together, with the
+    # parent row first (parent_line_id IS NULL) and its split children
+    # immediately below it (ordered by creation id).
+    _order = "donation_line_id, parent_line_id NULLS FIRST, id"
 
     wizard_id = fields.Many2one(
         "spp.drims.inspection.wizard",
@@ -231,22 +235,35 @@ class InspectionWizardLine(models.TransientModel):
     )
     is_split = fields.Boolean(
         string="Is Split Line",
-        compute="_compute_split_flags",
+        compute="_compute_is_split",
+        store=True,
     )
+    # ``has_splits`` is a plain Boolean (no compute) because Odoo 19's
+    # editable-One2many reactivity does not reliably propagate cross-record
+    # depends like ``wizard_id.line_ids.parent_line_id``. action_add_split /
+    # action_remove_split write to this field explicitly, which keeps the
+    # readonly + visibility logic in the view reactive without round-tripping
+    # through a slow compute.
     has_splits = fields.Boolean(
         string="Has Split Lines",
-        compute="_compute_split_flags",
+        default=False,
+    )
+    # Set by both ``action_add_split`` and the OWL widget's useEffect after
+    # the running split total catches up to (or exceeds) ``quantity_expected``.
+    # Drives the "+ Add split" button visibility on the parent row.
+    is_fully_split = fields.Boolean(
+        string="Is Fully Split",
+        default=False,
     )
     can_mark_all_units = fields.Boolean(
         string="Can Mark All Units",
         compute="_compute_can_mark_all_units",
     )
 
-    @api.depends("parent_line_id", "wizard_id.line_ids", "wizard_id.line_ids.parent_line_id")
-    def _compute_split_flags(self):
+    @api.depends("parent_line_id")
+    def _compute_is_split(self):
         for line in self:
             line.is_split = bool(line.parent_line_id)
-            line.has_splits = any(sibling.parent_line_id == line for sibling in line.wizard_id.line_ids)
 
     @api.depends("condition_id", "disposition_id")
     def _compute_can_mark_all_units(self):
@@ -261,13 +278,24 @@ class InspectionWizardLine(models.TransientModel):
 
     @api.onchange("quantity")
     def _onchange_quantity_update_parent(self):
-        """Keep the parent row qty in sync with the running sum of its children."""
+        """Keep the parent row qty in sync with the running sum of its children.
+
+        Also clamps the current child's quantity if the new value would push
+        the running total over the parent's ``quantity_expected``: the qty is
+        snapped to ``expected - sum(other_children)`` so the split totals
+        never exceed the donation line's received quantity.
+        """
         if not self.parent_line_id:
             return
         siblings = self.wizard_id.line_ids.filtered(
             lambda line: line.parent_line_id == self.parent_line_id and line != self
         )
-        total = sum(siblings.mapped("quantity")) + (self.quantity or 0.0)
+        others_sum = sum(siblings.mapped("quantity"))
+        expected = self.parent_line_id.quantity_expected
+        max_allowed = expected - others_sum
+        if self.quantity and self.quantity > max_allowed:
+            self.quantity = max(0.0, max_allowed)
+        total = others_sum + (self.quantity or 0.0)
         self.parent_line_id.quantity = total
 
     def action_all_units(self):
@@ -306,13 +334,14 @@ class InspectionWizardLine(models.TransientModel):
             raise UserError(_("No remaining quantity to split. Reduce one of the existing split quantities first."))
 
         # First split: reset the parent qty to 0 (it will be kept in sync as
-        # the running sum of children) and clear any Condition / Action the
-        # operator may have set before deciding to split — the parent row
-        # carries no decision; the children do.
+        # the running sum of children), mark the parent as split, and clear
+        # any Condition / Action the operator may have set before deciding
+        # to split — the parent row carries no decision; the children do.
         if not child_lines:
             root_line.quantity = 0
             root_line.condition_id = False
             root_line.disposition_id = False
+            root_line.has_splits = True
 
         self.env["spp.drims.inspection.wizard.line"].create(
             {
@@ -326,10 +355,17 @@ class InspectionWizardLine(models.TransientModel):
             }
         )
 
-        # Keep the parent row's stored qty in sync after creating the child.
-        # Without this the parent row keeps the value it had before the child
-        # was added (0 on the first split, or the previous running total).
-        self._refresh_parent_quantity(root_line)
+        # The new child takes the full remaining quantity, so by construction
+        # the running total after this split equals ``total_in_splits +
+        # remaining = quantity_expected``. Set it directly — going through
+        # ``_refresh_parent_quantity`` is unreliable here because Odoo's
+        # One2many inverse cache for ``wizard_id.line_ids`` does not always
+        # surface the just-created child immediately.
+        root_line.quantity = total_in_splits + remaining
+        # After an Add split the running total always equals ``quantity_expected``
+        # (the new child absorbs exactly the remaining capacity), so the
+        # parent is fully split until the operator edits a child down.
+        root_line.is_fully_split = True
 
         return {
             "type": "ir.actions.act_window",
@@ -350,8 +386,10 @@ class InspectionWizardLine(models.TransientModel):
 
         remaining_children = root_line.wizard_id.line_ids.filtered(lambda line: line.parent_line_id == root_line)
         if not remaining_children:
-            # Reset parent back to the full expected quantity.
+            # Reset parent back to the full expected quantity and clear the
+            # split flag so the row reverts to a normal (editable) row.
             root_line.quantity = root_line.quantity_expected
+            root_line.has_splits = False
         else:
             self._refresh_parent_quantity(root_line)
 

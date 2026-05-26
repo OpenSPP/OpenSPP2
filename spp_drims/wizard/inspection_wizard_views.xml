@@ -26,8 +26,8 @@
                     </div>
 
                     <!-- Items List (inline-editable) -->
-                    <group string="Items to Inspect">
-                        <field name="line_ids" nolabel="1">
+                    <group string="Items to Inspect" col="2">
+                        <field name="line_ids" nolabel="1" colspan="2">
                             <list
                                 create="false"
                                 delete="false"
@@ -54,19 +54,20 @@
                                 <field
                                     name="quantity"
                                     string="Qty"
+                                    widget="qty_split_progress"
                                     readonly="not is_split"
                                 />
                                 <field
                                     name="condition_id"
                                     string="Condition"
                                     options="{'no_create': True}"
-                                    invisible="has_splits"
+                                    readonly="has_splits"
                                 />
                                 <field
                                     name="disposition_id"
                                     string="Action"
                                     options="{'no_create': True}"
-                                    invisible="has_splits"
+                                    readonly="has_splits"
                                 />
                                 <field
                                     name="can_mark_all_units"
@@ -75,30 +76,40 @@
                                 <field name="is_inspected" column_invisible="True" />
                                 <field name="is_split" column_invisible="True" />
                                 <field name="has_splits" column_invisible="True" />
+                                <field name="is_fully_split" column_invisible="True" />
                                 <field name="parent_line_id" column_invisible="True" />
                                 <field
                                     name="donation_line_id"
                                     column_invisible="True"
                                 />
-                                <!-- "All units" — visual badge only.
-                                     Active when both Condition and Action are
-                                     set; greyed otherwise. Hidden on split
-                                     parent rows. -->
+                                <!-- "All units" — visual badge only. Active
+                                     when both Condition and Action are set;
+                                     greyed otherwise. Hidden on every row
+                                     that is part of a split (parent or
+                                     child) because the badge means "apply
+                                     this decision to the full quantity",
+                                     which doesn't apply once split. -->
                                 <button
                                     string="All units"
                                     type="object"
                                     name="action_all_units"
                                     class="btn btn-secondary btn-sm"
-                                    invisible="not can_mark_all_units or has_splits"
+                                    invisible="not can_mark_all_units or has_splits or is_split"
                                 />
                                 <button
                                     string="All units"
                                     type="object"
                                     name="action_all_units"
                                     class="btn btn-secondary btn-sm o_drims_btn_disabled"
-                                    invisible="can_mark_all_units or has_splits"
+                                    invisible="can_mark_all_units or has_splits or is_split"
                                 />
-                                <!-- "+ Add split" — hidden on split children. -->
+                                <!-- "+ Add split" — hidden on split children.
+                                     On fully-split parents, hiding is handled
+                                     by the o_split_parent_full row class
+                                     applied dynamically in the ListRenderer
+                                     patch (Odoo 19's invisible eval doesn't
+                                     reliably react to JS-driven parent.quantity
+                                     updates in editable-list mode). -->
                                 <button
                                     name="action_add_split"
                                     string="+ Add split"
@@ -120,10 +131,11 @@
                     </group>
 
                     <!-- Inspection Notes -->
-                    <group string="Inspection Notes">
+                    <group string="Inspection Notes" col="2">
                         <field
                             name="notes"
                             nolabel="1"
+                            colspan="2"
                             placeholder="General notes about this inspection (optional)..."
                         />
                     </group>

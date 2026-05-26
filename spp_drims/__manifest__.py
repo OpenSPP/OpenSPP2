@@ -85,6 +85,8 @@
         "web.assets_backend": [
             "spp_drims/static/src/js/hide_dispatch_form_create.js",
             "spp_drims/static/src/js/inspection_list_renderer.js",
+            "spp_drims/static/src/js/qty_split_progress_field.js",
+            "spp_drims/static/src/xml/qty_split_progress_field.xml",
             "spp_drims/static/src/css/inspection_wizard.css",
         ],
     },
