@@ -954,6 +954,50 @@ class TestDrimsDonation(DrimsTestCommon):
         self.assertIsNotNone(result)
         self.assertIn("200", result["params"]["message"])
 
+    def test_action_stock_mixed_dispositions_partial_receive_only_stocks_accept(self):
+        """OP#1030 regression: even when Odoo merges the receipt moves and
+        when received qty differs from pledged, only the accepted received
+        quantity should land in the warehouse.
+
+        Reproduces the bug screenshot scenario:
+        - Donation has 2 lines of the same product
+        - Line 1: pledged 500, received 200, Accept
+        - Line 2: pledged 300, received 300, Return to Donor
+        - Expected: only 200 (Accept line's received qty) reaches the warehouse.
+        """
+        disposition_accept = self._disposition("accept")
+        disposition_return = self._disposition("return")
+        if not (disposition_accept and disposition_return):
+            self.skipTest("required disposition codes missing")
+
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 500,
+                    "uom_id": self.product.uom_id.id,
+                },
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 300,
+                    "uom_id": self.product.uom_id.id,
+                },
+            ]
+        )
+        donation.action_mark_received()
+        # Simulate the OP#964 scenario: line 1's received is reduced after
+        # receipt (e.g. the actual delivery was short of the pledged amount).
+        donation.line_ids[0].quantity_received = 200
+        donation.action_inspect()
+        donation.line_ids[0].disposition_id = disposition_accept
+        donation.line_ids[1].disposition_id = disposition_return
+
+        result = donation.action_stock()
+        self.assertEqual(donation.state, "stocked")
+        self.assertEqual(self._qty_in_warehouse(self.product, self.warehouse), 200.0)
+        self.assertIsNotNone(result)
+        self.assertIn("300", result["params"]["message"])
+
     def test_action_stock_all_accept_unchanged(self):
         """OP#1030: regression — full-accept flow still stocks everything."""
         disposition_accept = self._disposition("accept")

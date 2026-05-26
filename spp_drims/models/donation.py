@@ -485,34 +485,78 @@ class DrimsDonation(models.Model):
         return None
 
     def _exclude_non_accept_moves(self, picking):
-        """Cancel moves whose donation line is not marked Accept (OP#1030).
+        """Reduce moves to only the accept portion of each product (OP#1030).
 
-        Returns a list of human-readable summary lines for each excluded move
-        so the caller can roll them into a single notification.
+        Per-move ``drims_donation_line_id`` is unreliable: when a donation
+        has multiple lines for the same product, Odoo's standard move-merge
+        logic can collapse them into a single move with one line reference,
+        losing the per-line disposition link. Instead, we sum
+        ``quantity_received`` of accept vs non-accept donation lines per
+        product, then walk the picking's moves for that product, keeping
+        them up to the per-product accept total and cancelling/reducing
+        the excess.
+
+        Works whether or not Odoo merged moves: with merge, one move per
+        product gets reduced; without merge, accept moves stay intact and
+        non-accept moves get cancelled.
+
+        Returns a list of human-readable summary lines for each excluded
+        donation line so the caller can roll them into a single
+        notification.
         """
         self.ensure_one()
-        excluded = []
-        for move in picking.move_ids:
-            line = move.drims_donation_line_id
-            if not line:
+        NON_ACCEPT = ("return", "dispose", "quarantine")
+
+        accept_qty_by_product = {}
+        non_accept_by_product = {}
+        for line in self.line_ids:
+            if line.quantity_received <= 0:
                 continue
             disposition_code = line.disposition_id.code or ""
-            if disposition_code in ("return", "dispose", "quarantine"):
-                excluded.append(
-                    _(
-                        "%(qty)s %(uom)s of %(product)s — disposition %(disposition)s "
-                        "(excluded from usable stock; handle via the appropriate "
-                        "return / disposal flow)."
-                    )
-                    % {
-                        "qty": move.product_uom_qty,
-                        "uom": move.product_uom.name,
-                        "product": move.product_id.display_name,
-                        "disposition": line.disposition_id.display,
-                    }
+            if disposition_code in NON_ACCEPT:
+                non_accept_by_product.setdefault(line.product_id.id, []).append(line)
+            else:
+                accept_qty_by_product[line.product_id.id] = (
+                    accept_qty_by_product.get(line.product_id.id, 0.0) + line.quantity_received
                 )
-                move._action_cancel()
+
+        if not non_accept_by_product:
+            return []
+
+        moves_by_product = {}
+        for move in picking.move_ids:
+            if move.state in ("done", "cancel"):
+                continue
+            moves_by_product.setdefault(move.product_id.id, []).append(move)
+
+        excluded = []
+        for product_id, non_accept_lines in non_accept_by_product.items():
+            for line in non_accept_lines:
+                excluded.append(self._format_excluded_line(line))
+
+            accept_qty = accept_qty_by_product.get(product_id, 0.0)
+            remaining_to_keep = accept_qty
+            for move in moves_by_product.get(product_id, []):
+                if remaining_to_keep <= 0:
+                    move._action_cancel()
+                elif move.product_uom_qty <= remaining_to_keep + 0.001:
+                    remaining_to_keep -= move.product_uom_qty
+                else:
+                    move.product_uom_qty = remaining_to_keep
+                    remaining_to_keep = 0.0
         return excluded
+
+    def _format_excluded_line(self, line):
+        return _(
+            "%(qty)s %(uom)s of %(product)s — disposition %(disposition)s "
+            "(excluded from usable stock; handle via the appropriate "
+            "return / disposal flow)."
+        ) % {
+            "qty": line.quantity_received,
+            "uom": line.uom_id.name,
+            "product": line.product_id.display_name,
+            "disposition": line.disposition_id.display,
+        }
 
     def _assign_lots_to_picking(self, picking, Lot, has_expiration):
         """Create + attach stock.lot for tracked-product moves on the picking.
