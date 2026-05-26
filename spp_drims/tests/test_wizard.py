@@ -464,7 +464,7 @@ class TestInspectionWizard(DrimsTestCommon):
 
     def test_add_split_creates_child_line(self):
         """OP#963: action_add_split creates a child with parent_line_id set
-        and resets the parent qty to mirror the children."""
+        and starts the child at qty=0 (the operator must fill it explicitly)."""
         donation = self._create_received_donation(quantity=1000)
         wizard = self._open_inspection_wizard(donation)
         parent = wizard.line_ids[0]
@@ -476,36 +476,47 @@ class TestInspectionWizard(DrimsTestCommon):
         self.assertEqual(len(children), 1)
         child = children[0]
         self.assertEqual(child.parent_line_id, parent)
-        # First child gets the full remaining (= expected on first split).
-        self.assertEqual(child.quantity, 1000)
-        # Parent qty mirrors the child running total.
-        self.assertEqual(parent.quantity, 1000)
+        # New split children are created with qty 0 — the operator fills
+        # the row themselves.
+        self.assertEqual(child.quantity, 0)
+        # Parent qty mirrors the child running total (also 0).
+        self.assertEqual(parent.quantity, 0)
         self.assertTrue(parent.has_splits)
+        # Parent is not yet "fully split" until the child is filled.
+        self.assertFalse(parent.is_fully_split)
 
-    def test_add_split_remaining_quantity(self):
-        """OP#963: subsequent splits get expected - already-allocated."""
+    def test_add_split_subsequent_splits_are_also_zero(self):
+        """OP#963: every new split starts at qty=0; the running parent total
+        stays at the existing children sum.
+        """
         donation = self._create_received_donation(quantity=1000)
         wizard = self._open_inspection_wizard(donation)
         parent = wizard.line_ids[0]
 
         parent.action_add_split()
         children = wizard.line_ids.filtered("is_split")
-        children[0].quantity = 700  # leaves 300 remaining
+        children[0].quantity = 700
 
         parent.action_add_split()
         children = wizard.line_ids.filtered("is_split")
         self.assertEqual(len(children), 2)
         new_child = children.sorted(key=lambda line: line.id)[-1]
-        self.assertEqual(new_child.quantity, 300)
+        # New child starts at 0; running parent total stays at 700.
+        self.assertEqual(new_child.quantity, 0)
 
     def test_add_split_blocks_when_nothing_remaining(self):
-        """OP#963: splitting again with no remaining qty raises."""
+        """OP#963: once children already cover the full expected qty,
+        further adds raise (defence-in-depth — the UI hides the button
+        whenever the running total matches expected).
+        """
         donation = self._create_received_donation(quantity=1000)
         wizard = self._open_inspection_wizard(donation)
         parent = wizard.line_ids[0]
 
         parent.action_add_split()
-        # The single child already covers the full expected qty.
+        children = wizard.line_ids.filtered("is_split")
+        # Manually fill the child so the running total reaches expected.
+        children[0].quantity = 1000
         with self.assertRaises(UserError) as cm:
             parent.action_add_split()
         self.assertIn("No remaining quantity to split", str(cm.exception))

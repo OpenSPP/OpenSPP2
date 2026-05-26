@@ -343,6 +343,11 @@ class InspectionWizardLine(models.TransientModel):
             root_line.disposition_id = False
             root_line.has_splits = True
 
+        # Create the new split with qty=0 so the operator has to enter the
+        # split amount explicitly. The "+ Add split" button is then hidden
+        # in the UI while any child still has qty=0, forcing the operator
+        # to fill the new row before opening another. This avoids the
+        # "I added a split but forgot to set its quantity" footgun.
         self.env["spp.drims.inspection.wizard.line"].create(
             {
                 "wizard_id": self.wizard_id.id,
@@ -350,22 +355,17 @@ class InspectionWizardLine(models.TransientModel):
                 "product_id": root_line.product_id.id,
                 "uom_id": root_line.uom_id.id,
                 "quantity_expected": root_line.quantity_expected,
-                "quantity": remaining,
+                "quantity": 0,
                 "parent_line_id": root_line.id,
             }
         )
 
-        # The new child takes the full remaining quantity, so by construction
-        # the running total after this split equals ``total_in_splits +
-        # remaining = quantity_expected``. Set it directly — going through
-        # ``_refresh_parent_quantity`` is unreliable here because Odoo's
-        # One2many inverse cache for ``wizard_id.line_ids`` does not always
-        # surface the just-created child immediately.
-        root_line.quantity = total_in_splits + remaining
-        # After an Add split the running total always equals ``quantity_expected``
-        # (the new child absorbs exactly the remaining capacity), so the
-        # parent is fully split until the operator edits a child down.
-        root_line.is_fully_split = True
+        # Running total is unchanged because the new child contributes 0;
+        # the parent still mirrors the sum of existing children.
+        root_line.quantity = total_in_splits
+        # The new child has qty 0, so by definition the parent is not yet
+        # fully split.
+        root_line.is_fully_split = False
 
         return {
             "type": "ir.actions.act_window",

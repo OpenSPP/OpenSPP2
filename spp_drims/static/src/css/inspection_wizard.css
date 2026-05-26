@@ -98,3 +98,9 @@
     button[name="action_add_split"] {
     display: none !important;
 }
+
+/* Hide "+ Add split" on parent rows that already have a 0-qty child
+   pending — the operator must fill the new split before opening another. */
+.o_drims_inspection_list tr.o_split_parent_has_zero button[name="action_add_split"] {
+    display: none !important;
+}

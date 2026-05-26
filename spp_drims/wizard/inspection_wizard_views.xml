@@ -60,13 +60,13 @@
                                 <field
                                     name="condition_id"
                                     string="Condition"
-                                    options="{'no_create': True}"
+                                    options="{'no_create': True, 'no_open': True}"
                                     readonly="has_splits"
                                 />
                                 <field
                                     name="disposition_id"
                                     string="Action"
-                                    options="{'no_create': True}"
+                                    options="{'no_create': True, 'no_open': True}"
                                     readonly="has_splits"
                                 />
                                 <field
