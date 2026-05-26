@@ -147,76 +147,98 @@ class TestCRVSService(CRVSClientCommon):
         with self.assertRaises(UserError):
             service.unsubscribe_events(subscription_codes=["sub-001"])
 
-    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
-    def test_verify_birth(self, mock_search):
-        """Test verify_birth method."""
-        mock_search.return_value = {
+    # ------------------------------------------------------------------
+    # verify_birth / check_death now route through search_by_id_opencrvs
+    # because OpenCRVS rejects the upstream idtype-value query shape.
+    # The response unwrap targets the standard SPDCI reg_records[] envelope.
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _opencrvs_response(
+        records, reg_type="ns:org:RegistryType:Civil", reg_record_type="spdci-extensions-dci:Person"
+    ):
+        """Shape that matches OpenCRVS's actual search response."""
+        return {
+            "header": {"status": "succ"},
             "message": {
                 "search_response": [
                     {
-                        "data": [
-                            {
-                                "name": "John Doe",
-                                "birth_date": "1990-01-15",
-                            }
-                        ]
+                        "reference_id": "r1",
+                        "status": "succ",
+                        "data": {
+                            "version": "1.0.0",
+                            "reg_type": reg_type,
+                            "reg_record_type": reg_record_type,
+                            "reg_records": records,
+                        },
                     }
                 ]
-            }
+            },
         }
+
+    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search_by_id_opencrvs")
+    def test_verify_birth_returns_raw_record(self, mock_search):
+        """verify_birth returns the raw OpenCRVS reg_record so the CEL bridge
+        dispatcher can navigate dci_attribute_path against the wire-format
+        shape directly (matches the OpenG2P-SR / OpenSPP-DR contract)."""
+        record = {
+            "@type": "CRVS_Person",
+            "name": {"given_name": "John", "surname": "Doe"},
+            "birth_date": "1990-01-15",
+            "identifier": [{"identifier_type": "BRN", "identifier_value": "BRN-999"}],
+        }
+        mock_search.return_value = self._opencrvs_response([record])
 
         service = self._get_service()
         result = service.verify_birth("UIN", "12345678")
 
-        # Should call search with correct parameters
+        # Called with the OpenCRVS-specific helper, event_type=birth.
         mock_search.assert_called_once()
-        call_kwargs = mock_search.call_args[1]
-        self.assertEqual(call_kwargs["query_type"], "idtype-value")
-        self.assertIn("12345678", call_kwargs["query_value"])
+        kw = mock_search.call_args.kwargs
+        self.assertEqual(kw["identifier_type"], "UIN")
+        self.assertEqual(kw["identifier_value"], "12345678")
+        self.assertEqual(kw["event_type"], "birth")
 
-        # Should return birth data
-        self.assertIsNotNone(result)
+        # Returns the raw record, NOT the legacy flat birth_data extraction.
+        # The dispatcher's _extract_by_path can read 'birth_date' directly,
+        # or nested paths like 'name.given_name'.
+        self.assertEqual(result["birth_date"], "1990-01-15")
+        self.assertEqual(result["name"]["given_name"], "John")
 
-    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
+    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search_by_id_opencrvs")
     def test_verify_birth_not_found(self, mock_search):
-        """Test verify_birth when no records found."""
-        mock_search.return_value = {"message": {"search_response": []}}
+        """Empty reg_records => not found => None."""
+        mock_search.return_value = self._opencrvs_response([])
 
         service = self._get_service()
         result = service.verify_birth("UIN", "nonexistent")
 
         self.assertIsNone(result)
 
-    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
-    def test_check_death(self, mock_search):
-        """Test check_death method."""
-        mock_search.return_value = {
-            "message": {
-                "search_response": [
-                    {
-                        "data": [
-                            {
-                                "death_date": "2024-06-15",
-                            }
-                        ]
-                    }
-                ]
-            }
+    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search_by_id_opencrvs")
+    def test_check_death_deceased(self, mock_search):
+        """A non-empty death-event reg_records => is_deceased=True."""
+        record = {
+            "@type": "CRVS_Person",
+            "name": {"given_name": "Jane", "surname": "Doe"},
+            "identifier": [{"identifier_type": "UIN", "identifier_value": "12345678"}],
         }
+        mock_search.return_value = self._opencrvs_response([record])
 
         service = self._get_service()
         result = service.check_death("UIN", "12345678")
 
-        # Should return True (deceased)
         self.assertTrue(result)
+        kw = mock_search.call_args.kwargs
+        self.assertEqual(kw["event_type"], "death")
+        self.assertEqual(kw["identifier_value"], "12345678")
 
-    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
+    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search_by_id_opencrvs")
     def test_check_death_alive(self, mock_search):
-        """Test check_death when no death record."""
-        mock_search.return_value = {"message": {"search_response": []}}
+        """No death event => alive => False."""
+        mock_search.return_value = self._opencrvs_response([])
 
         service = self._get_service()
         result = service.check_death("UIN", "12345678")
 
-        # Should return False (alive)
         self.assertFalse(result)

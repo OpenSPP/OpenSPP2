@@ -78,41 +78,28 @@ class CRVSService:
         )
 
         try:
-            # Search for birth record using DCI client
-            response = self.client.search_by_id(
+            # OpenCRVS rejects the upstream `idtype-value` query shape (HTTP 400
+            # "expected expression"); use the OpenCRVS-specific helper that
+            # builds the nested-expression envelope the server accepts.
+            response = self.client.search_by_id_opencrvs(
                 identifier_type=identifier_type,
                 identifier_value=identifier_value,
-                record_type="PERSON",
+                event_type="birth",
                 page=1,
                 page_size=1,
             )
 
-            # Parse response
-            if not response or "message" not in response:
-                _logger.error("Invalid CRVS search response: %s", response)
-                return None
-
-            message = response["message"]
-
-            # Check for search results
-            if "search_response" not in message or not message["search_response"]:
+            record_data = self._first_record(response)
+            if record_data is None:
                 _logger.info("No birth record found for %s:%s", identifier_type, identifier_value)
                 return None
 
-            # Extract first result
-            search_response = message["search_response"][0]
-            if "data" not in search_response or not search_response["data"]:
-                return None
-
-            record_data = (
-                search_response["data"][0] if isinstance(search_response["data"], list) else search_response["data"]
-            )
-
-            # Extract birth information
-            birth_data = self._extract_birth_data(record_data)
-
             _logger.info("Birth record verified for %s:%s", identifier_type, identifier_value)
-            return birth_data
+            # Return the raw record so the CEL bridge dispatcher can navigate
+            # variable.dci_attribute_path against the OpenCRVS shape directly.
+            # Callers that want the legacy flat shape can apply
+            # _extract_birth_data themselves.
+            return record_data
 
         except Exception as e:
             _logger.error("Failed to verify birth record: %s", str(e), exc_info=True)
@@ -142,39 +129,27 @@ class CRVSService:
         )
 
         try:
-            # Search for death record using DCI client
-            response = self.client.search(
-                query_type="idtype-value",
-                query_value=f"{identifier_type}:{identifier_value}",
-                record_type="PERSON",
+            # OpenCRVS rejects the upstream `idtype-value` shape — call the
+            # OpenCRVS-specific helper that builds the nested-expression
+            # envelope. event_type='death' targets the death-event collection.
+            response = self.client.search_by_id_opencrvs(
+                identifier_type=identifier_type,
+                identifier_value=identifier_value,
+                event_type="death",
                 page=1,
                 page_size=1,
-                registry_event_type="DEATH",
             )
 
-            # Parse response
-            if not response or "message" not in response:
-                _logger.error("Invalid CRVS death check response: %s", response)
-                return False
-
-            message = response["message"]
-
-            # Check for search results
-            if "search_response" not in message or not message["search_response"]:
+            is_deceased = self._first_record(response) is not None
+            if is_deceased:
+                _logger.info(
+                    "Death record found for %s:%s - person is deceased",
+                    identifier_type,
+                    identifier_value,
+                )
+            else:
                 _logger.info("No death record found for %s:%s", identifier_type, identifier_value)
-                return False
-
-            search_response = message["search_response"][0]
-            if "data" not in search_response or not search_response["data"]:
-                return False
-
-            # If we found death records, person is deceased
-            _logger.info(
-                "Death record found for %s:%s - person is deceased",
-                identifier_type,
-                identifier_value,
-            )
-            return True
+            return is_deceased
 
         except Exception as e:
             _logger.error("Failed to check death status: %s", str(e), exc_info=True)
@@ -363,6 +338,30 @@ class CRVSService:
         except Exception as e:
             _logger.error("Failed to process CRVS notification: %s", str(e), exc_info=True)
             raise ValidationError(_("Failed to process CRVS notification: %s") % str(e)) from e
+
+    @staticmethod
+    def _first_record(response):
+        """Unwrap an OpenCRVS DCI response to the first registry record.
+
+        SPDCI shape returned by search_by_id_opencrvs:
+
+            response.message.search_response[i].data.reg_records[j]
+
+        Returns the first non-empty record across all search_response items,
+        or None if no records are present (typical for HTTP 200 with an
+        empty reg_records array — what OpenCRVS returns for "not found").
+        """
+        if not isinstance(response, dict):
+            return None
+        message = response.get("message") or {}
+        for sr in message.get("search_response") or []:
+            data = sr.get("data") or {}
+            if not isinstance(data, dict):
+                continue
+            for rec in data.get("reg_records") or []:
+                if isinstance(rec, dict):
+                    return rec
+        return None
 
     def _extract_birth_data(self, record_data: dict) -> dict:
         """Extract birth information from DCI record data.
