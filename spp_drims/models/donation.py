@@ -420,12 +420,20 @@ class DrimsDonation(models.Model):
 
         This action:
         1. Transitions the donation from 'inspected' to 'stocked' state
-        2. Validates all pending stock pickings (assigns and confirms moves)
-        3. For lot/serial-tracked products, creates stock.lot records from
+        2. **Cancels moves for non-accept dispositions** (OP#1030) so units
+           marked ``return``, ``dispose``, or ``quarantine`` during inspection
+           never enter usable inventory. Those donation lines must be handled
+           through a separate return / disposal flow.
+        3. Validates the remaining moves on the pending pickings
+        4. For lot/serial-tracked products, creates stock.lot records from
            the donation line's ``lot_number`` (+ ``expiry_date`` if the
            ``product_expiry`` module is installed) and attaches them to
            the picking's move lines so ``button_validate()`` succeeds
-        4. Items become available in warehouse inventory
+        5. Items become available in warehouse inventory
+
+        Returns:
+            dict | None: a display_notification action summarising excluded
+            non-accept units, or ``None`` when everything was accepted.
 
         Raises:
             UserError: If donation is not in 'inspected' state.
@@ -443,17 +451,68 @@ class DrimsDonation(models.Model):
         )
         Lot = self.env["stock.lot"]
         has_expiration = "expiration_date" in Lot._fields
+        excluded_summary = []
         for rec in self:
             if rec.state != DONATION_STATE_INSPECTED:
                 raise UserError(_("Only inspected donations can be marked as stocked."))
             rec.state_id = stocked_state
             # Validate the picking to complete the receipt
             for picking in rec.picking_ids.filtered(lambda p: p.state not in ("done", "cancel")):
+                excluded_summary.extend(rec._exclude_non_accept_moves(picking))
+                # If every move was excluded, just cancel the picking — there
+                # is nothing left to validate.
+                remaining = picking.move_ids.filtered(lambda m: m.state != "cancel")
+                if not remaining:
+                    picking.action_cancel()
+                    continue
                 picking.action_assign()
                 rec._assign_lots_to_picking(picking, Lot, has_expiration)
-                for move in picking.move_ids:
+                for move in remaining:
                     move.quantity = move.product_uom_qty
                 picking.button_validate()
+
+        if excluded_summary:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("Damaged / non-accept units excluded"),
+                    "message": "\n".join(excluded_summary),
+                    "type": "warning",
+                    "sticky": True,
+                },
+            }
+        return None
+
+    def _exclude_non_accept_moves(self, picking):
+        """Cancel moves whose donation line is not marked Accept (OP#1030).
+
+        Returns a list of human-readable summary lines for each excluded move
+        so the caller can roll them into a single notification.
+        """
+        self.ensure_one()
+        excluded = []
+        for move in picking.move_ids:
+            line = move.drims_donation_line_id
+            if not line:
+                continue
+            disposition_code = line.disposition_id.code or ""
+            if disposition_code in ("return", "dispose", "quarantine"):
+                excluded.append(
+                    _(
+                        "%(qty)s %(uom)s of %(product)s — disposition %(disposition)s "
+                        "(excluded from usable stock; handle via the appropriate "
+                        "return / disposal flow)."
+                    )
+                    % {
+                        "qty": move.product_uom_qty,
+                        "uom": move.product_uom.name,
+                        "product": move.product_id.display_name,
+                        "disposition": line.disposition_id.display,
+                    }
+                )
+                move._action_cancel()
+        return excluded
 
     def _assign_lots_to_picking(self, picking, Lot, has_expiration):
         """Create + attach stock.lot for tracked-product moves on the picking.

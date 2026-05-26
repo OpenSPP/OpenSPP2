@@ -843,3 +843,136 @@ class TestDrimsDonation(DrimsTestCommon):
         donation.action_inspect()
         donation.action_stock()
         self.assertEqual(donation.state, "stocked")
+
+    # ---------- OP#1030: non-accept dispositions excluded from stocking ----------
+
+    def _disposition(self, code):
+        return self.env["spp.vocabulary.code"].search(
+            [
+                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:item-dispositions"),
+                ("code", "=", code),
+            ],
+            limit=1,
+        )
+
+    def _qty_in_warehouse(self, product, warehouse):
+        return sum(
+            self.env["stock.quant"]
+            .search(
+                [
+                    ("product_id", "=", product.id),
+                    ("location_id", "child_of", warehouse.lot_stock_id.id),
+                ]
+            )
+            .mapped("quantity")
+        )
+
+    def test_action_stock_excludes_return_disposition(self):
+        """OP#1030: lines with disposition=return are cancelled, not stocked."""
+        disposition_return = self._disposition("return")
+        if not disposition_return:
+            self.skipTest("return disposition vocab code missing")
+
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 200,
+                    "uom_id": self.product.uom_id.id,
+                }
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        donation.line_ids[0].disposition_id = disposition_return
+
+        result = donation.action_stock()
+        self.assertEqual(donation.state, "stocked")
+        # Nothing should land in the warehouse.
+        self.assertEqual(self._qty_in_warehouse(self.product, self.warehouse), 0.0)
+        # The picking should end up cancelled because every move was excluded.
+        for picking in donation.picking_ids:
+            self.assertEqual(picking.state, "cancel")
+        # A user-visible warning is returned.
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertEqual(result["tag"], "display_notification")
+        self.assertIn("excluded", result["params"]["message"].lower())
+
+    def test_action_stock_excludes_dispose_disposition(self):
+        """OP#1030: lines with disposition=dispose are cancelled too."""
+        disposition_dispose = self._disposition("dispose")
+        if not disposition_dispose:
+            self.skipTest("dispose disposition vocab code missing")
+
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 100,
+                    "uom_id": self.product.uom_id.id,
+                }
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        donation.line_ids[0].disposition_id = disposition_dispose
+
+        donation.action_stock()
+        self.assertEqual(self._qty_in_warehouse(self.product, self.warehouse), 0.0)
+
+    def test_action_stock_mixed_dispositions_only_accepted_stocks(self):
+        """OP#1030: in a mixed donation, only accepted lines reach the warehouse."""
+        disposition_accept = self._disposition("accept")
+        disposition_return = self._disposition("return")
+        if not (disposition_accept and disposition_return):
+            self.skipTest("required disposition codes missing")
+
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 800,
+                    "uom_id": self.product.uom_id.id,
+                },
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 200,
+                    "uom_id": self.product.uom_id.id,
+                },
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        donation.line_ids[0].disposition_id = disposition_accept
+        donation.line_ids[1].disposition_id = disposition_return
+
+        result = donation.action_stock()
+        self.assertEqual(donation.state, "stocked")
+        # Only the 800 accepted units land in the warehouse.
+        self.assertEqual(self._qty_in_warehouse(self.product, self.warehouse), 800.0)
+        # Warning lists the 200 excluded units.
+        self.assertIsNotNone(result)
+        self.assertIn("200", result["params"]["message"])
+
+    def test_action_stock_all_accept_unchanged(self):
+        """OP#1030: regression — full-accept flow still stocks everything."""
+        disposition_accept = self._disposition("accept")
+        if not disposition_accept:
+            self.skipTest("accept disposition vocab code missing")
+
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 500,
+                    "uom_id": self.product.uom_id.id,
+                }
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        donation.line_ids[0].disposition_id = disposition_accept
+
+        result = donation.action_stock()
+        self.assertIsNone(result, "no excluded units → no notification")
+        self.assertEqual(self._qty_in_warehouse(self.product, self.warehouse), 500.0)

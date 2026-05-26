@@ -67,29 +67,34 @@ class InspectionWizard(models.TransientModel):
                 % ", ".join(uninspected.mapped("product_id.display_name"))
             )
 
-        # Group lines per product for the equality safety net + downstream writes.
-        # Parent rows are skipped here because their qty mirrors their children's
-        # running total — including them would double-count.
-        products = {}
+        # Group by the original donation line. Two separate donation lines for
+        # the same product are independent (each has its own donation_line_id),
+        # so they must not be lumped together as if they were splits of each
+        # other. Splits of a single donation line share the same
+        # ``donation_line_id`` via ``action_add_split``.
+        # Parent rows are skipped here — their qty mirrors their children's
+        # running total and including them would double-count.
+        lines_by_donation = {}
         for line in self.line_ids:
             if line.has_splits:
                 continue
-            product_id = line.product_id.id
-            if product_id not in products:
-                products[product_id] = {
+            key = line.donation_line_id.id
+            if key not in lines_by_donation:
+                lines_by_donation[key] = {
                     "name": line.product_id.display_name,
                     "expected": line.quantity_expected,
                     "total": 0.0,
                     "lines": [],
                 }
-            products[product_id]["total"] += line.quantity
-            products[product_id]["lines"].append(line)
+            lines_by_donation[key]["total"] += line.quantity
+            lines_by_donation[key]["lines"].append(line)
 
-        # OP#964: only enforce equality when the user has split a product
-        # into multiple lines. A single line is treated as the user
-        # reporting the final received quantity, and ``quantity_received``
-        # on the donation line will be overwritten to match below.
-        for _product_id, data in products.items():
+        # OP#964: only enforce equality when the user has split a donation
+        # line into multiple wizard lines. A single line is treated as the
+        # user reporting the final received quantity, and
+        # ``quantity_received`` on the donation line will be overwritten to
+        # match below.
+        for data in lines_by_donation.values():
             if len(data["lines"]) <= 1:
                 continue
             diff = abs(data["expected"] - data["total"])
@@ -115,7 +120,7 @@ class InspectionWizard(models.TransientModel):
         )
 
         DonationLine = self.env["spp.drims.donation.line"]
-        for _product_id, data in products.items():
+        for data in lines_by_donation.values():
             lines = data["lines"]
 
             first_line = lines[0]
