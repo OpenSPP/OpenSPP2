@@ -83,3 +83,93 @@ class TestSppHideMenu(TransactionCase):
                 info["menu_xml_id"],
                 f"MENU_APP[{module_name!r}].menu_xml_id is empty",
             )
+
+    def test_hide_menus_processes_catalog(self):
+        """``ir.module.module.hide_menus()`` walks MENU_APP and creates a
+        ``spp.hide.menu`` record (state=hide) for every entry whose menu
+        xml_id resolves in the current DB.
+        """
+        IrModuleModule = self.env["ir.module.module"]
+        HideMenu = self.env["spp.hide.menu"]
+
+        # Figure out which catalog entries are actually resolvable here —
+        # most stock Odoo modules in MENU_APP (mail, contacts, ...) are
+        # present in any test DB, but a few (mass_mailing, survey, ...)
+        # may not be installed.
+        resolvable = []
+        for module_name, info in IrModuleModule.MENU_APP.items():
+            menu = self.env.ref(info["menu_xml_id"], raise_if_not_found=False)
+            module = IrModuleModule.search([("name", "=", module_name)], limit=1)
+            if menu and module:
+                resolvable.append((module_name, menu.id))
+
+        if not resolvable:
+            self.skipTest("No MENU_APP entries are resolvable in this test DB")
+
+        # Wipe any pre-existing spp.hide.menu so the test's assertions are
+        # clearly about hide_menus()'s effect, not the install hook.
+        HideMenu.search([]).unlink()
+
+        IrModuleModule.hide_menus()
+
+        for module_name, menu_id in resolvable:
+            record = HideMenu.search([("menu_id", "=", menu_id)], limit=1)
+            self.assertTrue(
+                record,
+                f"hide_menus() didn't create a spp.hide.menu for {module_name!r}",
+            )
+            self.assertEqual(
+                record.state,
+                "hide",
+                f"spp.hide.menu for {module_name!r} expected state=hide, got {record.state}",
+            )
+
+    def test_hide_menus_is_idempotent(self):
+        """Calling hide_menus() twice doesn't double-hide already-hidden menus.
+
+        After the first pass every resolvable entry is in state=hide. A
+        second pass must leave them in state=hide (the inner guard
+        ``elif hidden_menus.state == "show"`` skips them).
+        """
+        IrModuleModule = self.env["ir.module.module"]
+        HideMenu = self.env["spp.hide.menu"]
+
+        HideMenu.search([]).unlink()
+        IrModuleModule.hide_menus()
+        after_first = HideMenu.search([])
+        self.assertTrue(
+            after_first,
+            "hide_menus() didn't create any records — nothing to check idempotency against",
+        )
+
+        IrModuleModule.hide_menus()
+        after_second = HideMenu.search([])
+        # No duplicates created and every record stayed in state=hide.
+        self.assertEqual(set(after_first.ids), set(after_second.ids))
+        for record in after_second:
+            self.assertEqual(record.state, "hide")
+
+    def test_hide_menus_skips_unknown_modules(self):
+        """An ir.module.module record whose name isn't in MENU_APP must be
+        ignored by hide_menus() — no spp.hide.menu record is created for it.
+        """
+        IrModuleModule = self.env["ir.module.module"]
+        HideMenu = self.env["spp.hide.menu"]
+
+        # ``base`` is always installed and is NOT in MENU_APP.
+        self.assertNotIn("base", IrModuleModule.MENU_APP)
+
+        before = HideMenu.search([]).ids
+        IrModuleModule.hide_menus()
+        after = HideMenu.search([]).ids
+
+        # Whatever new records appeared, none should belong to the ``base`` menu.
+        new_ids = set(after) - set(before)
+        for record in HideMenu.browse(list(new_ids)):
+            self.assertNotEqual(
+                record.menu_id.id,
+                self.env.ref("base.menu_administration").id
+                if self.env.ref("base.menu_administration", raise_if_not_found=False)
+                else 0,
+                "hide_menus() shouldn't touch base.menu_administration",
+            )
