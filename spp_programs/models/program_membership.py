@@ -164,12 +164,26 @@ class SPPProgramMembership(models.Model):
 
     @api.depends("state")
     def _compute_enrolled_date(self):
-        # Prefetch state to avoid N+1 queries in loop (if not already loaded)
         self.mapped("state")
+
+        # The compute can re-fire after the field has already been persisted
+        # (re-write of `state`, ORM-level flushes, etc.). Reading `rec.enrollment_date`
+        # in-cache returns the "to_compute" sentinel (False) so we can't rely on it
+        # to detect a prior value — peek at the persisted row instead. Demo
+        # generators and migration scripts may have intentionally backdated this.
+        persisted = {}
+        existing_ids = [rec.id for rec in self if isinstance(rec.id, int)]
+        if existing_ids:
+            self.env.cr.execute(
+                "SELECT id, enrollment_date FROM spp_program_membership WHERE id IN %s",
+                (tuple(existing_ids),),
+            )
+            persisted = dict(self.env.cr.fetchall())
 
         for rec in self:
             if rec.state == "enrolled":
-                rec.enrollment_date = fields.Datetime.now()
+                prior = persisted.get(rec.id)
+                rec.enrollment_date = prior or fields.Datetime.now()
 
     @api.model
     def _get_view(self, view_id=None, view_type="form", **options):

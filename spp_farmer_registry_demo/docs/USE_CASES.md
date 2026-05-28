@@ -84,11 +84,14 @@ multi-CR sequencing on the same farm. Primary story for "multi-program coordinat
 
 1. Enrolled in Input Subsidy 100 days ago (mixed farm: 1.5 ha rice + 0.5 ha vegetables +
    50 chickens)
-2. Payment #1 — Input Subsidy ₱250 — paid 70 days ago
-3. Payment #2 — Input Subsidy ₱250 — paid 40 days ago
-4. Enrolled in Livestock Support 80 days ago (chickens = 50 heads)
-5. Payment #1 — Livestock Support ₱275 — paid 50 days ago
-6. Both enrollments still active
+2. Payment #1 — Input Subsidy ₱200 — paid 70 days ago
+3. Payment #2 — Input Subsidy ₱200 — paid 40 days ago
+4. Payment #3 — Input Subsidy ₱200 — paid in the current cycle
+5. Enrolled in Livestock Support 80 days ago (chickens = 50 heads)
+6. Payment #1 — Livestock Support ₱275 — paid 50 days ago
+7. Payment #2 — Livestock Support ₱275 — paid 20 days ago
+8. Payment #3 — Livestock Support ₱275 — paid in the current cycle
+9. Both enrollments still active
 
 **Existing change requests for the farm:**
 
@@ -189,7 +192,9 @@ eligibility for early-career smallholders.
 
 1. Enrolled in Input Subsidy 70 days ago (vegetables + maize, 2.0 ha)
 2. Payment #1 — ₱200 — paid 45 days ago
-3. Active enrollment
+3. Payment #2 — ₱200 — paid in the current cycle
+4. Payment #3 — ₱200 — paid in the current cycle
+5. Active enrollment
 
 **Existing change requests for the farm:**
 
@@ -244,11 +249,12 @@ both Input Subsidy and Equipment Grant (12 years' experience clears the
 **Farm journey:**
 
 1. Enrolled in Input Subsidy 130 days ago (rice + vegetables, 1.5 ha)
-2. Payment #1 — Input Subsidy ₱175 — paid 100 days ago
-3. Payment #2 — Input Subsidy ₱175 — paid 70 days ago
-4. Enrolled in Equipment Grant 60 days ago
-5. Payment #1 — Equipment Grant ₱500 — paid 30 days ago
-6. Both enrollments active
+2. Payment #1 — Input Subsidy ₱200 — paid 100 days ago
+3. Payment #2 — Input Subsidy ₱200 — paid 70 days ago
+4. Payment #3 — Input Subsidy ₱200 — paid in the current cycle
+5. Enrolled in Equipment Grant 60 days ago
+6. Payment #1 — Equipment Grant ₱500 — paid 30 days ago
+7. Both enrollments active
 
 **Existing change requests for the farm:**
 
@@ -276,9 +282,10 @@ still qualify when other criteria fit.
 
 1. Enrolled in Livestock Support 180 days ago (3.0 ha crops + 2.0 ha livestock; 15
    cattle + 30 goats)
-2. Payment #1 — ₱275 + per-head bonus — paid 150 days ago
+2. Payment #1 — ₱275 — paid 150 days ago
 3. Payment #2 — ₱275 — paid 120 days ago
-4. Active enrollment, sitting exactly at smallholder boundary
+4. Payment #3 — ₱275 — paid in the current cycle
+5. Active enrollment, sitting exactly at smallholder boundary
 
 **Existing change requests for the farm:**
 
@@ -810,17 +817,17 @@ experience 25 years. Sits exactly at the smallholder boundary.
 
 #### 1. Input Subsidy Program (Group)
 
-| Field             | Value                                                                                                                                     |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| Target            | Farm (Group)                                                                                                                              |
-| CEL (Eligibility) | `r.is_group == true and is_smallholder and has_productive_land`                                                                           |
-| CEL (Compliance)  | `has_productive_land == true and farm_size_hectares > 0`                                                                                  |
-| Constants         | `input_subsidy_base` = 100; `per_hectare_subsidy` = 50                                                                                    |
-| Entitlement       | base + (farm_size_hectares × per_hectare_subsidy) — e.g. 100 + (2.0 × 50) = ₱200                                                          |
-| Cycle             | 30 days                                                                                                                                   |
-| Logic Pack        | `farmer_input_subsidy`                                                                                                                    |
-| Approval          | Cycle: Program Manager (3-day SLA); Entitlement: Program Manager (3-day SLA)                                                              |
-| Compliance Note   | Re-checks productive land each cycle. A farm that abandons productive use becomes `non_compliant` for that cycle and gets no entitlement. |
+| Field             | Value                                                                                                                                                                                                            |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Target            | Farm (Group)                                                                                                                                                                                                     |
+| CEL (Eligibility) | `r.is_group == true and is_smallholder and has_productive_land`                                                                                                                                                  |
+| CEL (Compliance)  | `has_productive_land == true and farm_size_hectares > 0`                                                                                                                                                         |
+| Constants         | `input_subsidy_base` = 100; `per_hectare_subsidy` = 50                                                                                                                                                           |
+| Entitlement       | ₱200 fixed per cycle. (Formula `base + (farm_size_hectares × per_hectare_subsidy)` is the design intent; the demo cycles use the program's flat fallback amount until the CEL-driven entitlement formula lands.) |
+| Cycle             | 30 days                                                                                                                                                                                                          |
+| Logic Pack        | `farmer_input_subsidy`                                                                                                                                                                                           |
+| Approval          | Cycle: Program Manager (3-day SLA); Entitlement: Program Manager (3-day SLA)                                                                                                                                     |
+| Compliance Note   | Re-checks productive land each cycle. A farm that abandons productive use becomes `non_compliant` for that cycle and gets no entitlement.                                                                        |
 
 #### 2. Equipment Grant Program (Group)
 
@@ -838,15 +845,15 @@ experience 25 years. Sits exactly at the smallholder boundary.
 
 #### 3. Livestock Support Program (Group)
 
-| Field       | Value                                                                        |
-| ----------- | ---------------------------------------------------------------------------- |
-| Target      | Farm (Group)                                                                 |
-| CEL         | `r.is_group == true and livestock_count > 0`                                 |
-| Constants   | `livestock_base` = 75; `per_head_amount` = 10                                |
-| Entitlement | base + (livestock_count × per_head_amount) — e.g. 75 + (20 × 10) = ₱275      |
-| Cycle       | 30 days                                                                      |
-| Logic Pack  | `farmer_livestock_support`                                                   |
-| Approval    | Cycle: Program Manager (3-day SLA); Entitlement: Program Manager (3-day SLA) |
+| Field       | Value                                                                                                                                                                                                     |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Target      | Farm (Group)                                                                                                                                                                                              |
+| CEL         | `r.is_group == true and livestock_count > 0`                                                                                                                                                              |
+| Constants   | `livestock_base` = 75; `per_head_amount` = 10                                                                                                                                                             |
+| Entitlement | ₱275 fixed per cycle. (Formula `base + (livestock_count × per_head_amount)` is the design intent; the demo cycles use the program's flat fallback amount until the CEL-driven entitlement formula lands.) |
+| Cycle       | 30 days                                                                                                                                                                                                   |
+| Logic Pack  | `farmer_livestock_support`                                                                                                                                                                                |
+| Approval    | Cycle: Program Manager (3-day SLA); Entitlement: Program Manager (3-day SLA)                                                                                                                              |
 
 #### 4. Climate Resilience Program (Group)
 

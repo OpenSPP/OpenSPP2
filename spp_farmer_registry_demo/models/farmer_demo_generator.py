@@ -120,7 +120,8 @@ STORY_FARMS = {
         "total_size": 2.0,
         "under_crops": 2.0,
         "experience": 10,
-        "age": 35,
+        # USE_CASES FM1 demographics table documents "age 42".
+        "age": 42,
         "is_female": True,
         # Llanera, Nueva Ecija — open rice paddies, verified on satellite
         "longitude": 121.054903,
@@ -139,7 +140,8 @@ STORY_FARMS = {
         "under_crops": 2.0,
         "under_livestock": 1.0,
         "experience": 15,
-        "age": 42,
+        # USE_CASES FM2 demographics table documents "age 45".
+        "age": 45,
         "is_female": False,
         # East Laguna (Magdalena/Pagsanjan area) — mixed rice + coconut, verified on satellite
         "longitude": 121.455690,
@@ -155,9 +157,13 @@ STORY_FARMS = {
         "farm_type": "mixed",
         "tenure": "family",
         "total_size": 1.0,
-        "under_livestock": 1.0,
+        # USE_CASES says "mixed farm: 0.5 ha crops + 0.5 ha livestock + 20 goats"
+        # (FM3 — Senior livestock farmer, gender + age diversity).
+        "under_crops": 0.5,
+        "under_livestock": 0.5,
         "experience": 5,
-        "age": 28,
+        # FM3 story is explicitly a "senior" female farmer for age diversity.
+        "age": 67,
         "is_female": True,
         # Padre Garcia, Batangas — cattle/pasture country, verified on satellite
         "longitude": 121.219381,
@@ -194,7 +200,8 @@ STORY_FARMS = {
         "total_size": 2.0,
         "under_crops": 2.0,
         "experience": 5,
-        "age": 30,
+        # USE_CASES FM5 explicitly documents "age 42".
+        "age": 42,
         "is_female": True,
         # Atok, Benguet — highland vegetable terraces along Halsema, verified on satellite
         "longitude": 120.688108,
@@ -212,7 +219,8 @@ STORY_FARMS = {
         "total_size": 0.5,
         "under_aquaculture": 0.5,
         "experience": 7,
-        "age": 32,
+        # USE_CASES FM6 documents "age 35".
+        "age": 35,
         "is_female": False,
         # Labrador / Sual, Pangasinan — inland fishpond grid, verified on satellite
         "longitude": 120.152127,
@@ -230,7 +238,8 @@ STORY_FARMS = {
         "total_size": 1.5,
         "under_crops": 1.5,
         "experience": 12,
-        "age": 38,
+        # USE_CASES FM7 documents "age 32".
+        "age": 32,
         "is_female": True,
         # Balindong / Bacolod-Kalawi, Lanao del Sur — SW Lake Lanao terraced farms, verified on satellite
         "longitude": 124.144513,
@@ -249,7 +258,8 @@ STORY_FARMS = {
         "under_crops": 3.0,
         "under_livestock": 2.0,
         "experience": 25,
-        "age": 55,
+        # USE_CASES FM8 documents "age 38".
+        "age": 38,
         "is_female": False,
         # Malaybalay outskirts (S/E), Bukidnon — highland plateau corn/pasture, verified on satellite
         "longitude": 125.174848,
@@ -874,8 +884,6 @@ class SPPFarmerDemoGenerator(models.TransientModel):
         age=None,
     ):
         """Create a farm with the given attributes."""
-        import datetime
-
         Partner = self.env["res.partner"].sudo()  # nosemgrep
 
         farm_vals = {
@@ -922,9 +930,14 @@ class SPPFarmerDemoGenerator(models.TransientModel):
 
             digest = zlib.crc32(farmer_name.encode("utf-8"))
             today = datetime.date.today()
-            birth_year = today.year - age
             birth_month = (digest % 12) + 1
             birth_day = ((digest // 12) % 28) + 1
+            # If the deterministic birthday hasn't occurred yet this year,
+            # roll the birth year back one more so the head reads as exactly
+            # `age` today (matches the USE_CASES demographics tables).
+            birth_year = today.year - age
+            if (birth_month, birth_day) > (today.month, today.day):
+                birth_year -= 1
             individual_vals["birthdate"] = datetime.date(birth_year, birth_month, birth_day)
         if phone:
             individual_vals["phone"] = phone
@@ -2695,6 +2708,69 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             _logger.error("Failed to create CR: %s", e)
             return None
 
+    def _approver_users(self):
+        """Return the seeded approval validators in tier order.
+
+        The demo approval definition is two-tier (Local Validator -> HQ
+        Validator). Admin is in neither approver group, so ``action_approve``
+        called as admin raises *"You are not authorized…"* and the CR stays
+        ``pending``. Approving as each tier's validator drives the CR all
+        the way to ``approved``.
+        """
+        users = []
+        for xmlid in (
+            "spp_farmer_registry_demo.demo_user_cr_local_validator",
+            "spp_farmer_registry_demo.demo_user_cr_hq_validator",
+        ):
+            user = self.env.ref(xmlid, raise_if_not_found=False)
+            if user:
+                users.append(user)
+        return users
+
+    def _advance_cr_to_terminal(self, cr_record, action_name, reason=None):
+        """Call ``action_name`` repeatedly across all approver tiers until
+        the CR reaches a terminal state (approved/rejected/revision) or no
+        further progress can be made.
+
+        Multi-tier approvals only advance one tier per ``action_approve``
+        call. Trying every tier validator covers both the single-tier and
+        the two-tier definitions used in the demo.
+
+        ``action_reject`` and ``action_request_revision`` are wizards that
+        open a dialog — the actual transition lives in ``_do_reject`` /
+        ``_do_request_revision`` (which take a reason / notes string), so
+        we route to those when the caller asks for reject/revision.
+        """
+        terminal = {"approved", "rejected", "revision"}
+        method_map = {
+            "action_reject": ("_do_reject", reason or "Demo rejection"),
+            "action_request_revision": ("_do_request_revision", reason or "Demo revision notes"),
+        }
+        method_name, arg = method_map.get(action_name, (action_name, None))
+        validators = self._approver_users()
+        if not validators:
+            target = getattr(cr_record.sudo(), method_name)  # nosemgrep
+            target(arg) if arg is not None else target()  # nosemgrep
+            return
+
+        for validator in validators:
+            state = getattr(cr_record, "approval_state", None)
+            if state in terminal:
+                return
+            try:
+                scoped = cr_record.with_user(validator).sudo()  # nosemgrep
+                target = getattr(scoped, method_name)
+                target(arg) if arg is not None else target()  # nosemgrep
+            except Exception as exc:  # noqa: BLE001
+                _logger.debug(
+                    "CR %s: %s as %s did not advance (state=%s): %s",
+                    cr_record.id,
+                    method_name,
+                    validator.login,
+                    state,
+                    exc,
+                )
+
     def _set_cr_state(self, cr_record, target_state, apply=False, rejection_reason=None, revision_notes=None):
         """Transition CR to target state using approval workflow."""
         try:
@@ -2702,17 +2778,17 @@ class SPPFarmerDemoGenerator(models.TransientModel):
                 cr_record.sudo().action_submit_for_approval()  # nosemgrep
             elif target_state == "approved":
                 cr_record.sudo().action_submit_for_approval()  # nosemgrep
-                cr_record.sudo().action_approve()  # nosemgrep
+                self._advance_cr_to_terminal(cr_record, "action_approve")
             elif target_state == "rejected":
                 cr_record.sudo().action_submit_for_approval()  # nosemgrep
                 if hasattr(cr_record, "action_reject"):
-                    cr_record.sudo().action_reject()  # nosemgrep
+                    self._advance_cr_to_terminal(cr_record, "action_reject", reason=rejection_reason)
                 if rejection_reason and "rejection_reason" in cr_record._fields:
                     cr_record.sudo().write({"rejection_reason": rejection_reason})  # nosemgrep
             elif target_state == "revision":
                 cr_record.sudo().action_submit_for_approval()  # nosemgrep
                 if hasattr(cr_record, "action_request_revision"):
-                    cr_record.sudo().action_request_revision()  # nosemgrep
+                    self._advance_cr_to_terminal(cr_record, "action_request_revision", reason=revision_notes)
                 if revision_notes and "revision_notes" in cr_record._fields:
                     cr_record.sudo().write({"revision_notes": revision_notes})  # nosemgrep
 
