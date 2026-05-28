@@ -2194,20 +2194,65 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             cycle.state,
         )
 
+        cycle_manager = program.get_manager(program.MANAGER_CYCLE)
+
+        # Step 1b: Synchronously import beneficiaries if the cycle was created
+        # with the async path (volume run with >= MIN_ROW_JOB_QUEUE enrolled
+        # beneficiaries). The async path schedules queue jobs and locks the
+        # cycle — by the time we reach Step 2 the jobs haven't run, so the
+        # cycle has no ``cycle_membership_ids`` and ``prepare_entitlements``
+        # finds nothing to compute. Re-run the import synchronously.
+        if cycle.is_locked and cycle_manager and hasattr(cycle_manager, "_add_beneficiaries"):
+            try:
+                program_beneficiaries = program.get_beneficiaries("enrolled").mapped("partner_id.id")
+                cycle_manager._add_beneficiaries(cycle, program_beneficiaries, "enrolled", do_count=True)
+                cycle.write({"is_locked": False, "locked_reason": False})
+                _logger.info(
+                    "Synced beneficiary import for cycle (cycle_id=%s, count=%s)",
+                    cycle.id,
+                    len(program_beneficiaries),
+                )
+            except Exception:
+                _logger.exception("Sync beneficiary import failed (cycle_id=%s)", cycle.id)
+
         # Step 2: Prepare entitlements
+        # ``prepare_entitlement`` dispatches to ``_prepare_entitlements_async``
+        # via queue_job once the beneficiary count crosses ``MIN_ROW_JOB_QUEUE``,
+        # which is exactly what happens once volume generation is enabled. The
+        # async path locks the cycle, schedules jobs, and returns — the demo
+        # then races ahead while the jobs are still queued, so the entitlements
+        # for that cycle never get created. Call the synchronous private hook
+        # directly so the demo data is deterministic regardless of beneficiary
+        # count.
         try:
-            cycle.prepare_entitlement()
+            if cycle_manager and hasattr(cycle_manager, "_prepare_entitlements"):
+                cycle_manager._prepare_entitlements(cycle, do_count=True)
+            else:
+                cycle.prepare_entitlement()
             _logger.info("Prepared entitlements for cycle (cycle_id=%s)", cycle.id)
         except Exception:
             _logger.exception("Could not prepare entitlements for cycle (cycle_id=%s)", cycle.id)
 
         # Step 3: Submit for approval (draft -> to_approve)
+        # `prepare_entitlement` locks the cycle with reason "Importing beneficiaries"
+        # while the queue-job-driven beneficiary import runs. With volume enabled
+        # the lock can outlive the rest of this method, so the normal
+        # `action_submit_for_approval` raises `Cycle is locked`. Clear the lock
+        # and force the state forward for the demo so the rest of the flow can
+        # proceed without waiting for the async import.
         try:
             if cycle.state == "draft":
                 cycle.action_submit_for_approval()
                 _logger.info("Submitted cycle for approval (cycle_id=%s)", cycle.id)
-        except Exception:
-            _logger.exception("Could not submit cycle for approval (cycle_id=%s)", cycle.id)
+        except Exception as exc:
+            _logger.warning(
+                "Submit-for-approval failed (cycle_id=%s, locked=%s): %s — forcing draft -> to_approve",
+                cycle.id,
+                getattr(cycle, "locked_reason", None),
+                exc,
+            )
+            if cycle.state == "draft":
+                cycle.write({"state": "to_approve", "is_locked": False, "locked_reason": False})
 
         # Step 4: Approve cycle (to_approve -> approved)
         try:
@@ -2244,9 +2289,18 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             )
 
         # Step 5: Prepare payments from approved entitlements
+        # ``cycle.prepare_payment()`` also dispatches to an async queue path
+        # once the approved-entitlement count crosses MAX_PAYMENTS_FOR_SYNC_PREPARE,
+        # leaving payments queued instead of created. Same workaround as
+        # entitlements — call the sync hook directly so the demo is deterministic.
         try:
             if cycle.state == "approved":
-                cycle.prepare_payment()
+                payment_manager = program.get_manager(program.MANAGER_PAYMENT)
+                approved_entitlements = cycle.entitlement_ids.filtered(lambda e: e.state == "approved")
+                if payment_manager and approved_entitlements and hasattr(payment_manager, "_prepare_payments"):
+                    payment_manager._prepare_payments(cycle, approved_entitlements)
+                else:
+                    cycle.prepare_payment()
                 payment_count = self.env["spp.payment"].search_count([("cycle_id", "=", cycle.id)])
                 _logger.info(
                     "Prepared payments for cycle (cycle_id=%s, payments=%d)",
