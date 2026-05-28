@@ -480,6 +480,11 @@ class DrimsDonation(models.Model):
                     "message": "\n".join(excluded_summary),
                     "type": "warning",
                     "sticky": True,
+                    # Close the action chain so the underlying donation form
+                    # re-reads (state badge, picking smart button, etc.).
+                    # Without ``next``, display_notification returns without
+                    # refreshing the record.
+                    "next": {"type": "ir.actions.act_window_close"},
                 },
             }
         return None
