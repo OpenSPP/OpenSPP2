@@ -3,6 +3,7 @@
 
 from datetime import UTC, datetime
 
+from odoo import fields
 from odoo.tests import tagged
 
 from .common import DCIServerCommon
@@ -98,10 +99,10 @@ class TestDCINotificationLogReceipt(DCIServerCommon):
         self.assertTrue(log.notification_id)
         self.assertTrue(log.notification_id.startswith("NOTIF-"))
 
-        # Verify receipt fields exist and have defaults
+        # Odoo returns False (not None) for unset Datetime / Char fields.
         self.assertFalse(log.receipt_received)
-        self.assertIsNone(log.receipt_timestamp)
-        self.assertIsNone(log.receipt_transaction_id)
+        self.assertFalse(log.receipt_timestamp)
+        self.assertFalse(log.receipt_transaction_id)
 
     def test_notification_log_receipt_update(self):
         """Test updating notification log with receipt information."""
@@ -123,12 +124,13 @@ class TestDCINotificationLogReceipt(DCIServerCommon):
             }
         )
 
-        # Simulate receiving a receipt
-        receipt_time = datetime.now(UTC)
+        # Simulate receiving a receipt. Odoo Datetime fields reject
+        # tz-aware values, so use the framework helper which returns a
+        # naive UTC datetime.
         log.write(
             {
                 "receipt_received": True,
-                "receipt_timestamp": receipt_time,
+                "receipt_timestamp": fields.Datetime.now(),
                 "receipt_transaction_id": "txn-receipt-001",
                 "status": "received",
             }
@@ -318,7 +320,7 @@ class TestDCIReceiptRouter(DCIServerCommon):
         log.write(
             {
                 "receipt_received": True,
-                "receipt_timestamp": datetime.now(UTC),
+                "receipt_timestamp": fields.Datetime.now(),
                 "receipt_transaction_id": "txn-001",
                 "status": "received",
             }

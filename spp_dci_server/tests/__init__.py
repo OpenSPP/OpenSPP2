@@ -2,6 +2,8 @@
 
 from . import common
 from . import test_bearer_middleware
+from . import test_bulk_upload
+from . import test_receipt
 from . import test_sender_registry
 from . import test_signature_middleware
 from . import test_subscription
