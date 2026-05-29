@@ -91,6 +91,26 @@ class TestBearerTokenAuth(DCIServerCommon):
             self._call("Bearer gamma")
         self.assertEqual(ctx.exception.status_code, 401)
 
+    def test_token_comparison_is_constant_time(self):
+        """The compare loop must call hmac.compare_digest once per
+        configured candidate (no short-circuit on match). A short-circuit
+        would leak the accepted token via response-time side channels."""
+        import hmac as hmac_module
+        from unittest.mock import patch
+
+        self.ICP.set_param("dci.api_tokens", "alpha,beta,gamma")
+
+        with patch(
+            "odoo.addons.spp_dci_server.middleware.signature.hmac.compare_digest",
+            wraps=hmac_module.compare_digest,
+        ) as compare:
+            self.assertEqual(self._call("Bearer alpha"), "alpha")
+        self.assertEqual(
+            compare.call_count,
+            3,
+            "constant-time loop must compare against every configured token",
+        )
+
     # --- Bypass flag (regression) ---------------------------------------------
 
     def test_bypass_bearer_auth_returns_dev_bypass(self):

@@ -1,6 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """DCI API signature verification middleware and dependencies."""
 
+import hmac
 import logging
 import uuid
 from datetime import UTC, datetime
@@ -323,7 +324,15 @@ async def verify_bearer_token(
     accepted_tokens_str = env["ir.config_parameter"].sudo().get_param("dci.api_tokens", "")
     if accepted_tokens_str:
         accepted_tokens = [t.strip() for t in accepted_tokens_str.split(",") if t.strip()]
-        if token not in accepted_tokens:
+        # Constant-time comparison against every configured token. Using
+        # ``token in accepted_tokens`` would short-circuit on the first
+        # mismatch and leak token-prefix information through response
+        # latency.
+        matched = False
+        for candidate in accepted_tokens:
+            if hmac.compare_digest(token, candidate):
+                matched = True
+        if not matched:
             _logger.warning("DCI request has invalid Bearer token")
             raise DCIHTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -334,6 +343,7 @@ async def verify_bearer_token(
         _logger.debug("Bearer token validated against configured tokens")
         return token
 
+    # nosemgrep: odoo-timing-attack-password  # not a token compare; matches a config flag value
     tokens_required = _read_security_flag(env, "dci.api_tokens_required") == "true"
     if tokens_required:
         _logger.warning(
