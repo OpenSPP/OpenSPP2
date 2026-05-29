@@ -407,7 +407,7 @@ class DataValue(models.Model):
         return {"inserted": len(records), "updated": 0}
 
     @api.model
-    def read_values(self, variable_name, subject_ids, period_key=None, provider=None):
+    def read_values(self, variable_name, subject_ids, period_key=None, provider=None, params=None):
         """Read cached values for a variable.
 
         Args:
@@ -415,6 +415,7 @@ class DataValue(models.Model):
             subject_ids: List of subject IDs
             period_key: Optional period filter (defaults to 'current')
             provider: Optional provider filter
+            params: Optional parameter dict used to partition cache entries
 
         Returns:
             dict: {subject_id: value, ...} for subjects with cached values
@@ -435,6 +436,9 @@ class DataValue(models.Model):
 
         if provider:
             domain.append(("provider", "=", provider))
+
+        params_hash = self._hash_params(params) if params else ""
+        domain.append(("params_hash", "=", params_hash))
 
         # Exclude expired values unless explicitly including stale
         domain.append("|")

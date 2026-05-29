@@ -5,9 +5,10 @@ import logging
 from contextlib import nullcontext
 from datetime import UTC, datetime, timedelta
 
-from odoo import _, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
+from odoo.addons.spp_notary_client.services.audit_log import hmac_subject_hash
 from odoo.addons.spp_notary_client.services.client import NotaryClient
 from odoo.addons.spp_notary_client.services.exceptions import NotaryError, NotarySubjectIdMissing
 from odoo.addons.spp_notary_client.services.schemas import CatalogResponse
@@ -50,6 +51,7 @@ class DataProvider(models.Model):
         domain=[("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:id-type")],
         tracking=True,
     )
+    notary_sensitive_subject_id_type = fields.Boolean(compute="_compute_notary_sensitive_subject_id_type")
     notary_min_cache_ttl_seconds = fields.Integer(default=300, tracking=True)
     notary_default_ttl_seconds = fields.Integer(default=86400, tracking=True)
     notary_subject_log_secret = fields.Char(groups="spp_notary_evidence.group_notary_evidence_manager")
@@ -70,6 +72,16 @@ class DataProvider(models.Model):
     def _compute_notary_claim_count(self):
         for provider in self:
             provider.notary_claim_count = len(provider.notary_claim_ids)
+
+    @api.depends("notary_subject_id_type_id.code", "notary_subject_id_type_id.display", "notary_subject_id_type_id.uri")
+    def _compute_notary_sensitive_subject_id_type(self):
+        sensitive_markers = ("national", "national_id", "nid")
+        for provider in self:
+            id_type = provider.notary_subject_id_type_id
+            text = " ".join(str(value or "").lower() for value in (id_type.code, id_type.display, id_type.uri))
+            provider.notary_sensitive_subject_id_type = bool(
+                provider.provider_kind == "notary" and any(marker in text for marker in sensitive_markers)
+            )
 
     def _notary_client(self):
         self.ensure_one()
@@ -247,11 +259,23 @@ class DataProvider(models.Model):
         claim = variable.notary_claim_id
         if not claim:
             return {}
-        subject_records = self._notary_subjects(subject_ids)
+        purpose, purpose_layer = self._notary_purpose_with_layer(claim)
+        values_by_subject = {}
+        try:
+            subject_records = self._notary_subjects(subject_ids)
+        except NotaryError as error:
+            _logger.warning("Notary subject resolution failed for provider %s: %s", self.code, error)
+            return {
+                subject_id: value_data["value"]
+                for subject_id, value_data in self._values_for_notary_error(
+                    error,
+                    variable,
+                    subject_ids,
+                    period_key,
+                ).items()
+            }
         if not subject_records:
             return {}
-        purpose = self._notary_purpose(claim)
-        values_by_subject = {}
         with self._managed_notary_client() as client:
             for chunk in self._chunk_notary_subjects(subject_records):
                 try:
@@ -259,8 +283,10 @@ class DataProvider(models.Model):
                         subjects=[subject_ref for _subject_id, subject_ref in chunk],
                         claim_refs=[self._notary_claim_ref(claim)],
                         purpose=purpose,
+                        purpose_layer=purpose_layer,
                         disclosure=claim.default_disclosure,
                     )
+                    values_by_subject.update(self._values_from_batch_response(response, chunk, claim))
                 except NotaryError as error:
                     _logger.warning("Notary batch evaluation failed for provider %s: %s", self.code, error)
                     chunk_subject_ids = [subject_id for subject_id, _subject_ref in chunk]
@@ -273,7 +299,6 @@ class DataProvider(models.Model):
                         )
                     )
                     continue
-                values_by_subject.update(self._values_from_batch_response(response, chunk, claim))
         self._write_notary_values(variable, values_by_subject, period_key)
         return {subject_id: value_data["value"] for subject_id, value_data in values_by_subject.items()}
 
@@ -285,7 +310,7 @@ class DataProvider(models.Model):
         subject_ref = self._notary_subject_ref(subject_id)
         if not claim or not subject_ref:
             return None
-        purpose = self._notary_purpose(claim)
+        purpose, purpose_layer = self._notary_purpose_with_layer(claim)
         try:
             with self._managed_notary_client() as client:
                 response = client.evaluate(
@@ -293,6 +318,7 @@ class DataProvider(models.Model):
                     subject_id_type=subject_ref.get("id_type"),
                     claim_refs=[self._notary_claim_ref(claim)],
                     purpose=purpose,
+                    purpose_layer=purpose_layer,
                     disclosure=claim.default_disclosure,
                 )
         except NotaryError as error:
@@ -331,16 +357,19 @@ class DataProvider(models.Model):
         return {"id": reg_id.value, "id_type": self.notary_subject_id_type_id.uri}
 
     def _notary_purpose(self, claim):
+        return self._notary_purpose_with_layer(claim)[0]
+
+    def _notary_purpose_with_layer(self, claim):
         cfg = self.env.context.get("cel_cfg") or {}
-        purpose = (
-            cfg.get("notary_purpose")
-            or self.env.context.get("notary_purpose")
-            or claim.default_purpose_url
-            or self.notary_default_purpose_url
-        )
-        if not purpose:
-            raise UserError(_("Notary data-purpose is required before evaluating claim '%s'.") % claim.external_id)
-        return purpose
+        if cfg.get("notary_purpose"):
+            return cfg["notary_purpose"], "evaluation_context"
+        if self.env.context.get("notary_purpose"):
+            return self.env.context["notary_purpose"], "evaluation_context"
+        if claim.default_purpose_url:
+            return claim.default_purpose_url, "claim_default"
+        if self.notary_default_purpose_url:
+            return self.notary_default_purpose_url, "provider_default"
+        raise UserError(_("Notary data-purpose is required before evaluating claim '%s'.") % claim.external_id)
 
     def _notary_claim_ref(self, claim):
         if claim.pinned_version:
@@ -394,6 +423,7 @@ class DataProvider(models.Model):
                     "value_type": data_value_type_for_cel(variable.value_type),
                     "source_type": "external",
                     "provider": self.code,
+                    "params": self._notary_cache_params(variable),
                     "expires_at": self._effective_notary_expires_at(value_data.get("expires_at")),
                     "ttl_seconds": ttl,
                 }
@@ -412,6 +442,7 @@ class DataProvider(models.Model):
                 ("subject_id", "in", subject_ids),
                 ("period_key", "=", period_key or "current"),
                 ("provider", "=", self.code),
+                ("params_hash", "=", self.env["spp.data.value"]._hash_params(self._notary_cache_params(variable))),
                 ("expires_at", "!=", False),
                 ("expires_at", "<=", fields.Datetime.now()),
             ],
@@ -445,7 +476,11 @@ class DataProvider(models.Model):
 
         stale_values = self._read_stale_notary_values(variable, subject_ids, period_key)
         if stale_values:
+            if not self.notary_subject_log_secret:
+                raise UserError(_("Notary subject log secret is required before logging stale cache reads.")) from error
             self._log_stale_cache_read(variable, stale_values, period_key, error)
+        else:
+            raise error
         return stale_values
 
     def _log_stale_cache_read(self, variable, stale_values, period_key, error):
@@ -455,13 +490,17 @@ class DataProvider(models.Model):
         from odoo.addons.spp_api_v2.services.outgoing_api_log_service import OutgoingApiLogService
 
         claim = variable.notary_claim_id
+        stale_rows = self._stale_cache_audit_rows(stale_values)
         request_summary = {
             "purpose": "stale_cache_read",
             "purpose_layer": "cache_policy",
             "claim_ids": [claim.external_id] if claim else [],
+            "claim_id": claim.external_id if claim else None,
             "subject_count": len(stale_values),
             "cache_policy": "stale_cache_with_audit",
             "period_key": period_key or "current",
+            "evaluation_id": (getattr(error, "details", None) or {}).get("evaluation_id"),
+            "stale_values": stale_rows,
         }
         service = OutgoingApiLogService(
             self.env,
@@ -479,6 +518,33 @@ class DataProvider(models.Model):
             status="error",
             error_detail=str(getattr(error, "code", None) or error.__class__.__name__),
         )
+
+    def _stale_cache_audit_rows(self, stale_values):
+        rows = []
+        now = fields.Datetime.now()
+        for subject_id, value_data in stale_values.items():
+            expires_at = value_data.get("expires_at")
+            try:
+                subject_hash_source = self._notary_subject_ref(subject_id)["id"]
+            except NotarySubjectIdMissing:
+                subject_hash_source = subject_id
+            rows.append(
+                {
+                    "subject_hash": hmac_subject_hash(subject_hash_source, self.notary_subject_log_secret),
+                    "stale_age_seconds": int((now - expires_at).total_seconds()) if expires_at else None,
+                    "expires_at": fields.Datetime.to_string(expires_at) if expires_at else None,
+                }
+            )
+        return rows
+
+    def _notary_cache_params(self, variable):
+        claim = variable.notary_claim_id
+        return {"version": claim.pinned_version or ""} if claim else {}
+
+    def _external_value_cache_params(self, variable):
+        if self.provider_kind == "notary":
+            return self._notary_cache_params(variable)
+        return super()._external_value_cache_params(variable)
 
     def _effective_notary_expires_at(self, expires_at):
         if not expires_at:

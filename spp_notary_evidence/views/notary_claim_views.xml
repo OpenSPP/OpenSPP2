@@ -58,6 +58,11 @@
                         <group string="CEL Contract">
                             <field name="variable_name" readonly="1" />
                             <field name="variable_id" readonly="1" />
+                            <field
+                                name="effective_purpose_url"
+                                readonly="1"
+                                invisible="not variable_id"
+                            />
                         </group>
                     </group>
                     <notebook>

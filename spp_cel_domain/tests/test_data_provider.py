@@ -6,6 +6,7 @@ the Unified Variable System implementation.
 """
 
 import time
+from unittest.mock import patch
 
 from psycopg2 import IntegrityError
 
@@ -355,6 +356,23 @@ class TestDataProviderMethods(TransactionCase, CELTestDataMixin):
         self.assertEqual(result["type"], "ir.actions.client")
         self.assertEqual(result["tag"], "display_notification")
         self.assertEqual(result["params"]["type"], "warning")
+
+    def test_action_test_connection_api_key_uses_configured_header(self):
+        provider = self.DataProvider.create(
+            {
+                "name": "API Key Test",
+                "code": f"conn_api_key_{self._test_id}",
+                "base_url": "https://api.example.test",
+                "auth_type": "api_key",
+                "api_key": "secret-key",
+            }
+        )
+
+        with patch("requests.head") as mocked_head:
+            mocked_head.return_value.ok = True
+            provider.action_test_connection()
+
+        self.assertEqual(mocked_head.call_args.kwargs["headers"], {"x-api-key": "secret-key"})
 
 
 @tagged("post_install", "-at_install")

@@ -287,6 +287,10 @@ class DataProvider(models.Model):
         )
         return None
 
+    def _external_value_cache_params(self, variable):
+        """Return provider-specific parameters that partition external value cache rows."""
+        return {}
+
     # ═══════════════════════════════════════════════════════════════════════
     # ACTIONS
     # ═══════════════════════════════════════════════════════════════════════
@@ -328,7 +332,8 @@ class DataProvider(models.Model):
             # Build authentication headers based on auth_type
             headers = {}
             if self.auth_type == "api_key" and self.api_key:
-                headers["Authorization"] = f"Bearer {self.api_key}"
+                header_name = getattr(self, "api_key_header", None) or getattr(self, "notary_api_key_header", None)
+                headers[header_name or "x-api-key"] = self.api_key
 
             # Simple HEAD request to test connectivity
             response = requests.head(  # nosec B113 — explicit timeout via self.timeout_ms

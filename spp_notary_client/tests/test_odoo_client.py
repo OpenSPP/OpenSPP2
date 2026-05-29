@@ -176,6 +176,34 @@ class TestNotaryClientOdooRunner(TransactionCase):
             transport.requests[0].read().decode(),
         )
 
+    def test_evaluate_accepts_explicit_purpose_layer_for_audit(self):
+        log_wrapper = Mock()
+        client, _transport = _client(
+            {
+                "base_url": "https://notary.example/api",
+                "auth_type": "none",
+                "subject_log_secret": "audit-secret",
+            },
+            [
+                _json_response(
+                    payload={
+                        "evaluation_id": "eval-purpose-layer",
+                        "results": [{"claim_id": "claim-a", "value": True}],
+                    }
+                )
+            ],
+        )
+        client.log_wrapper = log_wrapper
+
+        client.evaluate(
+            subject_id="NATIONAL-ID-123",
+            claim_refs=["claim-a"],
+            purpose="https://openspp.example/purpose/claim",
+            purpose_layer="claim_default",
+        )
+
+        self.assertEqual(log_wrapper.log_call.call_args.kwargs["request_summary"]["purpose_layer"], "claim_default")
+
     def test_evaluate_sends_bearer_auth_payload_and_stable_idempotency_key_on_retry(self):
         client, transport = _client(
             {

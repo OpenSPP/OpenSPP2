@@ -3,7 +3,8 @@
 
 import re
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 CEL_VALUE_TYPES = {"number", "boolean", "string", "date", "money", "list"}
 DATA_VALUE_TYPES = {"number", "boolean", "string", "json"}
@@ -98,6 +99,11 @@ class NotaryClaim(models.Model):
         copy=False,
         tracking=True,
     )
+    effective_purpose_url = fields.Char(
+        string="Effective Purpose URL",
+        compute="_compute_effective_purpose_url",
+        help="Purpose URL used for Notary evaluation before evaluation-context overrides.",
+    )
     last_synced_at = fields.Datetime()
     company_id = fields.Many2one(
         comodel_name="res.company",
@@ -121,6 +127,11 @@ class NotaryClaim(models.Model):
             provider_name = claim.provider_id.code or claim.provider_id.name or ""
             claim.variable_name = self._build_variable_name(provider_name, claim.external_id or "")
 
+    @api.depends("default_purpose_url", "provider_id.notary_default_purpose_url")
+    def _compute_effective_purpose_url(self):
+        for claim in self:
+            claim.effective_purpose_url = claim.default_purpose_url or claim.provider_id.notary_default_purpose_url
+
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
@@ -128,6 +139,8 @@ class NotaryClaim(models.Model):
         return records
 
     def write(self, vals):
+        if {"external_id", "provider_id"} & set(vals):
+            self._check_active_expression_rename_safety()
         result = super().write(vals)
         if {"external_id", "provider_id", "value_type", "subject_type", "active", "state", "claim_version"} & set(vals):
             self._ensure_cel_variable()
@@ -195,6 +208,31 @@ class NotaryClaim(models.Model):
             "notary_claim_id": self.id,
             "notary_value_path": "value",
         }
+
+    def _check_active_expression_rename_safety(self):
+        Expression = self.env["spp.cel.expression"]
+        for claim in self:
+            if not claim.variable_id:
+                continue
+            expression = Expression.search(
+                [
+                    ("state", "=", "active"),
+                    ("variable_ids", "in", claim.variable_id.id),
+                ],
+                limit=1,
+            )
+            if expression:
+                raise UserError(
+                    _(
+                        "Cannot rename Notary claim '%(claim)s' because active CEL expression '%(expression)s' "
+                        "references accessor '%(accessor)s'."
+                    )
+                    % {
+                        "claim": claim.display_name,
+                        "expression": expression.display_name,
+                        "accessor": claim.variable_id.cel_accessor or claim.variable_name,
+                    }
+                )
 
 
 def normalize_notary_value_type(value_type):

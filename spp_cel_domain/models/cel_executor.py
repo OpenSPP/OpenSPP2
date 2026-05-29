@@ -1325,11 +1325,13 @@ class CelExecutor(models.AbstractModel):
             if not batch_ids:
                 continue
             total_requested += len(batch_ids)
+            cache_params = provider._external_value_cache_params(variable)
             cached = DataValue.read_values(
                 variable.name,
                 list(batch_ids),
                 period_key=period_key,
                 provider=provider.code,
+                params=cache_params,
             )
             miss_ids = []
             for subject_id in batch_ids:
@@ -1354,7 +1356,7 @@ class CelExecutor(models.AbstractModel):
                     "period_key": period_key,
                     "path": "external",
                     "provider": provider.code,
-                    "params_hash": "",
+                    "params_hash": DataValue._hash_params(cache_params) if cache_params else "",
                     "requested": total_requested,
                     "cache_hits": cache_hits,
                     "misses": misses,

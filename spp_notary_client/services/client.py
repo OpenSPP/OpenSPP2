@@ -176,6 +176,7 @@ class NotaryClient:
         subject_id_type: str | None = None,
         disclosure: str | None = None,
         purpose: str | None = None,
+        purpose_layer: str | None = None,
         response_format: str | None = None,
         idempotency_key: str | None = None,
     ) -> EvaluateResponse:
@@ -187,7 +188,7 @@ class NotaryClient:
             raise NotaryConfigurationError("At least one Notary claim is required")
 
         normalized_claims = self._normalize_claim_refs(claim_refs)
-        resolved_purpose, purpose_layer = self._resolve_purpose(active_config, purpose)
+        resolved_purpose, resolved_purpose_layer = self._resolve_purpose(active_config, purpose, purpose_layer)
         self._validate_audit_subject_hash(active_config, subject_id)
         request_model = EvaluateRequest(
             subject=Subject(id=subject_id, id_type=subject_id_type),
@@ -208,7 +209,7 @@ class NotaryClient:
             ENDPOINT_EVALUATE,
             json_body=request_payload,
             purpose=resolved_purpose,
-            purpose_layer=purpose_layer,
+            purpose_layer=resolved_purpose_layer,
             idempotency_key=idempotency_key,
             audit_subject_id=subject_id,
             audit_claim_refs=normalized_claims,
@@ -224,6 +225,7 @@ class NotaryClient:
         *,
         disclosure: str | None = None,
         purpose: str | None = None,
+        purpose_layer: str | None = None,
         response_format: str | None = None,
         idempotency_key: str | None = None,
     ) -> BatchEvaluateResponse:
@@ -236,7 +238,7 @@ class NotaryClient:
         if not normalized_claims:
             raise NotaryConfigurationError("At least one Notary claim is required")
 
-        resolved_purpose, purpose_layer = self._resolve_purpose(active_config, purpose)
+        resolved_purpose, resolved_purpose_layer = self._resolve_purpose(active_config, purpose, purpose_layer)
         request_model = BatchEvaluateRequest(
             subjects=normalized_subjects,
             claims=normalized_claims,
@@ -255,7 +257,7 @@ class NotaryClient:
             ENDPOINT_BATCH_EVALUATE,
             json_body=request_model.model_dump(mode="json", exclude_none=True),
             purpose=resolved_purpose,
-            purpose_layer=purpose_layer,
+            purpose_layer=resolved_purpose_layer,
             idempotency_key=idempotency_key,
             audit_claim_refs=normalized_claims,
             audit_subject_count=len(normalized_subjects),
@@ -304,9 +306,14 @@ class NotaryClient:
             raise NotaryConfigurationError("Notary configuration is required")
         return active_config
 
-    def _resolve_purpose(self, config: NotaryClientConfig, purpose: str | None) -> tuple[str, str]:
+    def _resolve_purpose(
+        self,
+        config: NotaryClientConfig,
+        purpose: str | None,
+        purpose_layer: str | None = None,
+    ) -> tuple[str, str]:
         if purpose:
-            return purpose, "evaluation_context"
+            return purpose, purpose_layer or "evaluation_context"
         if config.default_purpose_url:
             return config.default_purpose_url, "provider_default"
         raise NotaryPurposeMissing("Notary data-purpose is required")

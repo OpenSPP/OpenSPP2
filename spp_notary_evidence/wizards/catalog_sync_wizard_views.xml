@@ -16,7 +16,12 @@
                     invisible="not summary"
                 />
                 <field name="line_ids" readonly="1" invisible="not line_ids">
-                    <list create="0" delete="0">
+                    <list
+                        create="0"
+                        delete="0"
+                        default_group_by="action"
+                        decoration-danger="blocking"
+                    >
                         <field name="action" widget="badge" />
                         <field name="claim_id" />
                         <field name="title" />
