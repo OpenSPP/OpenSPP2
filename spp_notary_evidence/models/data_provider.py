@@ -2,6 +2,7 @@
 """Notary extensions for CEL data providers."""
 
 import logging
+from contextlib import nullcontext
 from datetime import UTC, datetime, timedelta
 
 from odoo import _, fields, models
@@ -92,15 +93,21 @@ class DataProvider(models.Model):
             env=self.env,
         )
 
+    def _managed_notary_client(self):
+        client = self._notary_client()
+        if isinstance(client, NotaryClient):
+            return client
+        return nullcontext(client)
+
     def _fetch_notary_catalog(self):
         self.ensure_one()
-        client = self._notary_client()
-        if hasattr(client, "discover_claims"):
-            return client.discover_claims()
-        if hasattr(client, "get_claim_catalog"):
-            return CatalogResponse.model_validate({"claims": client.get_claim_catalog()})
-        if hasattr(client, "fetch_claim_catalog"):
-            return CatalogResponse.model_validate({"claims": client.fetch_claim_catalog(self.notary_catalog_path)})
+        with self._managed_notary_client() as client:
+            if hasattr(client, "discover_claims"):
+                return client.discover_claims()
+            if hasattr(client, "get_claim_catalog"):
+                return CatalogResponse.model_validate({"claims": client.get_claim_catalog()})
+            if hasattr(client, "fetch_claim_catalog"):
+                return CatalogResponse.model_validate({"claims": client.fetch_claim_catalog(self.notary_catalog_path)})
         raise UserError(
             _("Notary client must expose discover_claims(), get_claim_catalog(), or fetch_claim_catalog().")
         )
@@ -244,29 +251,29 @@ class DataProvider(models.Model):
         if not subject_records:
             return {}
         purpose = self._notary_purpose(claim)
-        client = self._notary_client()
         values_by_subject = {}
-        for chunk in self._chunk_notary_subjects(subject_records):
-            try:
-                response = client.batch_evaluate(
-                    subjects=[subject_ref for _subject_id, subject_ref in chunk],
-                    claim_refs=[self._notary_claim_ref(claim)],
-                    purpose=purpose,
-                    disclosure=claim.default_disclosure,
-                )
-            except NotaryError as error:
-                _logger.warning("Notary batch evaluation failed for provider %s: %s", self.code, error)
-                chunk_subject_ids = [subject_id for subject_id, _subject_ref in chunk]
-                values_by_subject.update(
-                    self._values_for_notary_error(
-                        error,
-                        variable,
-                        chunk_subject_ids,
-                        period_key,
+        with self._managed_notary_client() as client:
+            for chunk in self._chunk_notary_subjects(subject_records):
+                try:
+                    response = client.batch_evaluate(
+                        subjects=[subject_ref for _subject_id, subject_ref in chunk],
+                        claim_refs=[self._notary_claim_ref(claim)],
+                        purpose=purpose,
+                        disclosure=claim.default_disclosure,
                     )
-                )
-                continue
-            values_by_subject.update(self._values_from_batch_response(response, chunk, claim))
+                except NotaryError as error:
+                    _logger.warning("Notary batch evaluation failed for provider %s: %s", self.code, error)
+                    chunk_subject_ids = [subject_id for subject_id, _subject_ref in chunk]
+                    values_by_subject.update(
+                        self._values_for_notary_error(
+                            error,
+                            variable,
+                            chunk_subject_ids,
+                            period_key,
+                        )
+                    )
+                    continue
+                values_by_subject.update(self._values_from_batch_response(response, chunk, claim))
         self._write_notary_values(variable, values_by_subject, period_key)
         return {subject_id: value_data["value"] for subject_id, value_data in values_by_subject.items()}
 
@@ -280,13 +287,14 @@ class DataProvider(models.Model):
             return None
         purpose = self._notary_purpose(claim)
         try:
-            response = self._notary_client().evaluate(
-                subject_id=subject_ref["id"],
-                subject_id_type=subject_ref.get("id_type"),
-                claim_refs=[self._notary_claim_ref(claim)],
-                purpose=purpose,
-                disclosure=claim.default_disclosure,
-            )
+            with self._managed_notary_client() as client:
+                response = client.evaluate(
+                    subject_id=subject_ref["id"],
+                    subject_id_type=subject_ref.get("id_type"),
+                    claim_refs=[self._notary_claim_ref(claim)],
+                    purpose=purpose,
+                    disclosure=claim.default_disclosure,
+                )
         except NotaryError as error:
             _logger.warning("Notary evaluation failed for provider %s: %s", self.code, error)
             fallback = self._values_for_notary_error(error, variable, [subject_id], period_key)
@@ -490,7 +498,11 @@ class DataProvider(models.Model):
             try:
                 return fields.Datetime.to_datetime(value)
             except ValueError:
-                parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+                try:
+                    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+                except ValueError:
+                    _logger.warning("Notary returned an unparseable expiration datetime")
+                    return None
                 if parsed.tzinfo:
                     parsed = parsed.astimezone(UTC).replace(tzinfo=None)
                 return parsed

@@ -623,6 +623,69 @@ class TestNotaryEvidence(TransactionCase):
         with self.assertRaises(NotarySubjectIdMissing):
             self.provider._notary_subject_ref(999999999)
 
+    def test_owned_notary_clients_are_closed_after_provider_calls(self):
+        class ManagedClient(NotaryClient):
+            def __init__(self, response):
+                self.response = response
+                self.closed = False
+
+            def close(self):
+                self.closed = True
+
+            def discover_claims(self):
+                return self.response
+
+            def batch_evaluate(self, **_kwargs):
+                return self.response
+
+            def evaluate(self, **_kwargs):
+                return self.response
+
+        claim = self._create_claim_with_variable("managed-client", value_type="boolean")
+        catalog_client = ManagedClient(CatalogResponse.model_validate({"claims": [{"id": "managed-catalog"}]}))
+        batch_client = ManagedClient(
+            SimpleNamespace(
+                items=[
+                    SimpleNamespace(
+                        input_index=0,
+                        status="succeeded",
+                        claim_results=[
+                            SimpleNamespace(
+                                claim_id="managed-client",
+                                value=True,
+                                satisfied=True,
+                                expires_at=None,
+                            )
+                        ],
+                        results=[],
+                    )
+                ]
+            )
+        )
+        evaluate_client = ManagedClient(
+            SimpleNamespace(
+                results=[
+                    SimpleNamespace(
+                        claim_id="managed-client",
+                        value=False,
+                        satisfied=False,
+                        expires_at=None,
+                    )
+                ]
+            )
+        )
+
+        with patch.object(type(self.provider), "_notary_client", return_value=catalog_client):
+            self.provider._fetch_notary_catalog()
+        with patch.object(type(self.provider), "_notary_client", return_value=batch_client):
+            self.provider._compute_external_values(claim.variable_id, [self.partner_a.id], "current")
+        with patch.object(type(self.provider), "_notary_client", return_value=evaluate_client):
+            self.provider._refresh_external_value(claim.variable_id, self.partner_a.id, "current")
+
+        self.assertTrue(catalog_client.closed)
+        self.assertTrue(batch_client.closed)
+        self.assertTrue(evaluate_client.closed)
+
     def test_null_policy_returns_none_without_cache_write(self):
         claim = self._create_claim_with_variable("null-policy-claim", value_type="string")
         self.provider.notary_unavailable_policy = "null"
@@ -749,6 +812,7 @@ class TestNotaryEvidence(TransactionCase):
         self.provider.notary_min_cache_ttl_seconds = 0
         upstream_expires_at = fields.Datetime.now() + timedelta(minutes=5)
         self.assertEqual(self.provider._effective_notary_expires_at(upstream_expires_at), upstream_expires_at)
+        self.assertIsNone(self.provider._parse_notary_datetime("not a datetime"))
         self.assertIsNone(self.provider._parse_notary_datetime(object()))
         self.assertFalse(
             self.env["spp.data.value"].search(
@@ -943,9 +1007,32 @@ class TestNotaryEvidence(TransactionCase):
         self.assertEqual(data_value_type_for_cel("date"), "string")
         self.assertEqual(data_value_type_for_cel("list"), "json")
 
+        claims = self.Claim.create(
+            [
+                {
+                    "provider_id": self.provider.id,
+                    "external_id": "helper-batch-a",
+                    "claim_version": "2026-01",
+                    "name": "helper-batch-a",
+                    "subject_type": "individual",
+                    "value_type": "boolean",
+                    "state": "active",
+                },
+                {
+                    "provider_id": self.provider.id,
+                    "external_id": "helper-batch-b",
+                    "claim_version": "2026-01",
+                    "name": "helper-batch-b",
+                    "subject_type": "individual",
+                    "value_type": "string",
+                    "state": "active",
+                },
+            ]
+        )
         claim = self._create_claim_with_variable("helper-variable", value_type="money")
         claim.write({"state": "deprecated", "active": False, "subject_type": "group"})
 
+        self.assertEqual(len(claims.mapped("variable_id")), 2)
         self.assertFalse(claim.variable_id.active)
         self.assertEqual(claim.variable_id.state, "inactive")
         self.assertEqual(claim.variable_id.applies_to, "group")

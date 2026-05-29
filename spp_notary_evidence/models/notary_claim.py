@@ -151,33 +151,50 @@ class NotaryClaim(models.Model):
 
     def _ensure_cel_variable(self):
         Variable = self.env["spp.cel.variable"]
-        for claim in self:
-            if not claim.variable_name:
-                continue
-            vals = {
-                "name": claim.variable_name,
-                "cel_accessor": claim.variable_name,
-                "source_type": "external",
-                "external_provider_id": claim.provider_id.id,
-                "value_type": claim.value_type,
-                "applies_to": claim.subject_type if claim.subject_type in ("individual", "group") else "both",
-                "state": "active" if claim.active and claim.state in ("active", "version_drift") else "inactive",
-                "active": bool(claim.active and claim.state in ("active", "version_drift")),
-                "cache_strategy": "ttl",
-                "cache_ttl_seconds": claim.provider_id.notary_default_ttl_seconds
-                or claim.provider_id.default_ttl_seconds,
-                "notary_claim_id": claim.id,
-                "notary_value_path": "value",
-            }
-            if claim.variable_id:
-                claim.variable_id.write(vals)
-            else:
-                variable = Variable.search([("name", "=", claim.variable_name)], limit=1)
-                if variable:
-                    variable.write(vals)
-                else:
-                    variable = Variable.create(vals)
+        claims = self.filtered("variable_name")
+        if not claims:
+            return
+
+        claims_with_variable = claims.filtered("variable_id")
+        for claim in claims_with_variable:
+            claim.variable_id.write(claim._cel_variable_values())
+
+        claims_without_variable = claims - claims_with_variable
+        existing_by_name = {
+            variable.name: variable
+            for variable in Variable.search([("name", "in", claims_without_variable.mapped("variable_name"))])
+        }
+        create_vals_list = []
+        create_claims = self.browse()
+        for claim in claims_without_variable:
+            vals = claim._cel_variable_values()
+            variable = existing_by_name.get(claim.variable_name)
+            if variable:
+                variable.write(vals)
                 claim.variable_id = variable.id
+            else:
+                create_vals_list.append(vals)
+                create_claims |= claim
+        if create_vals_list:
+            for claim, variable in zip(create_claims, Variable.create(create_vals_list), strict=False):
+                claim.variable_id = variable.id
+
+    def _cel_variable_values(self):
+        self.ensure_one()
+        return {
+            "name": self.variable_name,
+            "cel_accessor": self.variable_name,
+            "source_type": "external",
+            "external_provider_id": self.provider_id.id,
+            "value_type": self.value_type,
+            "applies_to": self.subject_type if self.subject_type in ("individual", "group") else "both",
+            "state": "active" if self.active and self.state in ("active", "version_drift") else "inactive",
+            "active": bool(self.active and self.state in ("active", "version_drift")),
+            "cache_strategy": "ttl",
+            "cache_ttl_seconds": self.provider_id.notary_default_ttl_seconds or self.provider_id.default_ttl_seconds,
+            "notary_claim_id": self.id,
+            "notary_value_path": "value",
+        }
 
 
 def normalize_notary_value_type(value_type):
