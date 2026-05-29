@@ -7,7 +7,11 @@
         <field name="arch" type="xml">
             <list string="SR Records">
                 <field name="partner_id" />
-                <field name="sr_name" optional="show" />
+                <field
+                    name="sr_name"
+                    optional="show"
+                    groups="spp_dci.group_dci_admin"
+                />
                 <field name="external_id" optional="hide" />
                 <field name="program_count" />
                 <field name="household_id" optional="show" />
@@ -73,7 +77,10 @@
                             <field name="partner_id" options="{'no_create': True}" />
                             <field name="external_id" />
                             <field name="identifier_type" />
-                            <field name="identifier_value" />
+                            <field
+                                name="identifier_value"
+                                groups="spp_dci.group_dci_admin"
+                            />
                         </group>
                         <group name="sync_info">
                             <field name="source_registry" />
@@ -84,7 +91,10 @@
                     <notebook>
                         <page string="SR Data" name="sr_data">
                             <group>
-                                <group name="demographics">
+                                <group
+                                    name="demographics"
+                                    groups="spp_dci.group_dci_admin"
+                                >
                                     <field name="sr_name" />
                                     <field name="sr_birth_date" />
                                     <field name="sr_gender" />
@@ -95,18 +105,35 @@
                                     <field name="is_head_of_household" />
                                 </group>
                             </group>
-                            <group string="Address">
+                            <group string="Address" groups="spp_dci.group_dci_admin">
                                 <field name="sr_address" nolabel="1" colspan="2" />
                             </group>
                         </page>
                         <page string="Program Enrollment" name="programs">
                             <field name="program_count" invisible="1" />
-                            <field name="enrolled_programs" widget="ace" options="{'mode': 'javascript'}" />
+                            <field
+                                name="enrolled_programs"
+                                widget="ace"
+                                options="{'mode': 'javascript'}"
+                                groups="spp_dci.group_dci_admin"
+                            />
                         </page>
-                        <page string="Raw Data" name="raw_data">
-                            <field name="raw_data" widget="ace" options="{'mode': 'javascript'}" />
+                        <page
+                            string="Raw Data"
+                            name="raw_data"
+                            groups="spp_dci.group_dci_admin"
+                        >
+                            <field
+                                name="raw_data"
+                                widget="ace"
+                                options="{'mode': 'javascript'}"
+                            />
                         </page>
-                        <page string="Error Details" name="error_details" invisible="not error_message">
+                        <page
+                            string="Error Details"
+                            name="error_details"
+                            invisible="not error_message"
+                        >
                             <field name="error_message" />
                         </page>
                     </notebook>
@@ -126,17 +153,49 @@
                 <field name="household_id" />
                 <field name="source_registry" />
                 <separator />
-                <filter string="Synced" name="filter_synced" domain="[('state', '=', 'synced')]" />
-                <filter string="Stale" name="filter_stale" domain="[('state', '=', 'stale')]" />
-                <filter string="Error" name="filter_error" domain="[('state', '=', 'error')]" />
+                <filter
+                    string="Synced"
+                    name="filter_synced"
+                    domain="[('state', '=', 'synced')]"
+                />
+                <filter
+                    string="Stale"
+                    name="filter_stale"
+                    domain="[('state', '=', 'stale')]"
+                />
+                <filter
+                    string="Error"
+                    name="filter_error"
+                    domain="[('state', '=', 'error')]"
+                />
                 <separator />
-                <filter string="Head of Household" name="filter_hoh" domain="[('is_head_of_household', '=', True)]" />
-                <filter string="Has Programs" name="filter_has_programs" domain="[('program_count', '>', 0)]" />
+                <filter
+                    string="Head of Household"
+                    name="filter_hoh"
+                    domain="[('is_head_of_household', '=', True)]"
+                />
+                <filter
+                    string="Has Programs"
+                    name="filter_has_programs"
+                    domain="[('program_count', '>', 0)]"
+                />
                 <separator />
-                <filter string="Archived" name="filter_archived" domain="[('active', '=', False)]" />
+                <filter
+                    string="Archived"
+                    name="filter_archived"
+                    domain="[('active', '=', False)]"
+                />
                 <separator />
-                <filter string="Status" name="group_state" context="{'group_by': 'state'}" />
-                <filter string="Source Registry" name="group_source" context="{'group_by': 'source_registry'}" />
+                <filter
+                    string="Status"
+                    name="group_state"
+                    context="{'group_by': 'state'}"
+                />
+                <filter
+                    string="Source Registry"
+                    name="group_source"
+                    context="{'group_by': 'source_registry'}"
+                />
                 <filter
                     string="Household"
                     name="group_household"

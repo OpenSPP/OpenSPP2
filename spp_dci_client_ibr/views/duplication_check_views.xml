@@ -12,7 +12,7 @@
             <list string="Duplication Checks">
                 <field name="partner_id" />
                 <field name="identifier_type" />
-                <field name="identifier_value" />
+                <field name="identifier_value" groups="spp_dci.group_dci_admin" />
                 <field name="check_date" />
                 <field
                     name="result"
@@ -64,7 +64,10 @@
                         <group name="registrant_info" string="Registrant Information">
                             <field name="partner_id" />
                             <field name="identifier_type" />
-                            <field name="identifier_value" />
+                            <field
+                                name="identifier_value"
+                                groups="spp_dci.group_dci_admin"
+                            />
                         </group>
                         <group name="check_info" string="Check Information">
                             <field name="check_date" />
@@ -73,7 +76,11 @@
                         </group>
                     </group>
                     <notebook>
-                        <page name="matched_programs" string="Matched Programs">
+                        <page
+                            name="matched_programs"
+                            string="Matched Programs"
+                            groups="spp_dci.group_dci_admin"
+                        >
                             <field
                                 name="matched_programs"
                                 widget="text"
@@ -81,7 +88,11 @@
                                 placeholder="List of programs where duplicates were found..."
                             />
                         </page>
-                        <page name="raw_response" string="Raw Response">
+                        <page
+                            name="raw_response"
+                            string="Raw Response"
+                            groups="spp_dci.group_dci_admin"
+                        >
                             <field
                                 name="raw_response"
                                 widget="ace"

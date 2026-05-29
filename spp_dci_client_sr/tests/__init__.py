@@ -3,3 +3,4 @@
 from . import test_sr_sender
 from . import test_sr_record
 from . import test_sr_service
+from . import test_view_pii_gating

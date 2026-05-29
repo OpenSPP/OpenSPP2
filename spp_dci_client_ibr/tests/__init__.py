@@ -2,3 +2,4 @@
 
 from . import test_ibr_service
 from . import test_duplication_check
+from . import test_view_pii_gating
