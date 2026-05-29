@@ -14,9 +14,11 @@ from . import test_receipt
 from . import test_receipt_router
 from . import test_search_router
 from . import test_sender_registry
+from . import test_server_key
 from . import test_signature_middleware
 from . import test_subscription
 from . import test_transaction
+from . import test_transaction_processing
 from . import test_url_validator
 from . import test_view_pii_gating
 from . import test_vocabulary_adapter
