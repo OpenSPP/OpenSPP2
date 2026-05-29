@@ -132,6 +132,11 @@ class TestNotaryEvidence(TransactionCase):
         self.assertEqual(claim.variable_id.notary_claim_id, claim)
 
     def test_fetch_notary_catalog_supports_legacy_client_shapes(self):
+        discover_client = SimpleNamespace(
+            discover_claims=lambda: CatalogResponse.model_validate(
+                {"claims": [{"id": "discover-claim", "title": "Discover Claim"}]}
+            )
+        )
         get_client = SimpleNamespace(
             get_claim_catalog=lambda: [
                 {
@@ -152,11 +157,14 @@ class TestNotaryEvidence(TransactionCase):
             ]
         )
 
+        with patch.object(type(self.provider), "_notary_client", return_value=discover_client):
+            discover_catalog = self.provider._fetch_notary_catalog()
         with patch.object(type(self.provider), "_notary_client", return_value=get_client):
             get_catalog = self.provider._fetch_notary_catalog()
         with patch.object(type(self.provider), "_notary_client", return_value=fetch_client):
             fetch_catalog = self.provider._fetch_notary_catalog()
 
+        self.assertEqual(discover_catalog.claims[0].id, "discover-claim")
         self.assertEqual(get_catalog.claims[0].id, "legacy-get")
         self.assertEqual(get_catalog.claims[0].title, "Legacy Get")
         self.assertEqual(get_catalog.claims[0].value_type, "bool")
@@ -571,6 +579,49 @@ class TestNotaryEvidence(TransactionCase):
             value = provider._refresh_external_value(claim.variable_id, self.partner_a.id, "current")
 
         self.assertIsNone(value)
+
+    def test_provider_helper_short_circuits_and_defaults(self):
+        claim = self._create_claim_with_variable("helper-defaults", value_type="boolean")
+        provider_purpose = self.provider.with_context(notary_purpose="https://openspp.example/purpose/context")
+        no_subject_type_provider = self.Provider.create(
+            {
+                "name": "No Subject Type Notary",
+                "code": f"no_subject_type_notary_{self._test_id}",
+                "provider_kind": "notary",
+                "base_url": "https://notary.example",
+                "auth_type": "none",
+                "notary_default_purpose_url": "https://openspp.example/purpose/default",
+            }
+        )
+        empty_variable = SimpleNamespace(notary_claim_id=False)
+        no_match_response = SimpleNamespace(
+            items=[
+                SimpleNamespace(
+                    input_index=0,
+                    status="succeeded",
+                    claim_results=[],
+                    results=[SimpleNamespace(claim_id="different-claim", value=True, satisfied=True, expires_at=None)],
+                )
+            ]
+        )
+
+        self.assertEqual(
+            self.provider._notary_default_disclosure(SimpleNamespace(disclosure="credential")),
+            "credential",
+        )
+        self.assertEqual(self.provider._notary_default_disclosure(SimpleNamespace(disclosure=[])), "predicate")
+        self.assertEqual(provider_purpose._notary_purpose(claim), "https://openspp.example/purpose/context")
+        self.assertEqual(self.provider._compute_external_values(empty_variable, [self.partner_a.id], "current"), {})
+        self.assertIsNone(self.provider._refresh_external_value(empty_variable, self.partner_a.id, "current"))
+        self.assertEqual(
+            self.provider._values_from_batch_response(no_match_response, [(self.partner_a.id, {})], claim),
+            {},
+        )
+        self.assertIsNone(self.provider._first_matching_result(None, claim.external_id))
+        with self.assertRaises(NotarySubjectIdMissing):
+            no_subject_type_provider._notary_subject_ref(self.partner_a.id)
+        with self.assertRaises(NotarySubjectIdMissing):
+            self.provider._notary_subject_ref(999999999)
 
     def test_null_policy_returns_none_without_cache_write(self):
         claim = self._create_claim_with_variable("null-policy-claim", value_type="string")
