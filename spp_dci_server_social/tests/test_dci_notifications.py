@@ -2,7 +2,7 @@
 """Tests for DCI notification triggers on res.partner changes."""
 
 import logging
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from odoo.tests import tagged
 
@@ -94,7 +94,15 @@ class TestDCINotifications(DCISocialServerCommon):
             mock_queue.assert_not_called()
 
     def test_unlink_triggers_delete_notification(self):
-        """Test that deleting a registrant schedules a delete notification."""
+        """Test that deleting a registrant schedules a delete notification.
+
+        Patching with a bare MagicMock breaks here: Odoo's _ondelete_methods
+        scans class attributes via hasattr(func, '_ondelete') and MagicMock
+        auto-creates a truthy child for any attribute access, so the mock
+        ends up registered as an ondelete callback and gets invoked with
+        the recordset during unlink. Using spec= restricts attribute
+        access to the original method's surface, so hasattr returns False.
+        """
         # Create individual *without* a reg_id - spp.registry.id has an
         # ON DELETE RESTRICT FK on res.partner, so the unlink would
         # otherwise raise a foreign-key violation that has nothing to do
@@ -108,12 +116,16 @@ class TestDCINotifications(DCISocialServerCommon):
         individual_id = individual.id
         self.env.cr.postcommit.clear()
 
-        with patch.object(self.Partner.__class__, "_queue_dci_notification_job") as mock_queue:
-            # Delete the individual
+        real_method = self.Partner.__class__._queue_dci_notification_job
+        mock_queue = MagicMock(spec=real_method)
+        with patch.object(
+            self.Partner.__class__,
+            "_queue_dci_notification_job",
+            mock_queue,
+        ):
             individual.unlink()
             self.env.cr.postcommit.run()
 
-            # Verify delete notification was scheduled
             mock_queue.assert_called_once()
             args = mock_queue.call_args[0]
             self.assertEqual(args[0], "delete")
