@@ -11,10 +11,15 @@ so compliance tests validate the production client implementation.
 import json
 import logging
 
-from odoo import http
+from odoo import http, tools
+from odoo.exceptions import UserError
 from odoo.http import request
 
 _logger = logging.getLogger(__name__)
+
+COMPLIANCE_ENABLED_PARAM = "dci.client_compliance.enabled"
+BEARER_TOKEN_PARAM = "dci.client_compliance.bearer_token"
+MOCK_URL_PARAM = "dci.client_compliance.mock_registry_url"
 
 
 class DCIClientTriggerController(http.Controller):
@@ -25,7 +30,46 @@ class DCIClientTriggerController(http.Controller):
 
     The controller uses the actual DCIClient implementation, ensuring
     that compliance tests validate the production code path.
+
+    Safety: every route is gated by ``_compliance_enabled``. The bearer
+    token used by the test data source has no fallback default; it must
+    be set via ``dci.client_compliance.bearer_token`` or the controller
+    refuses to create the data source.
     """
+
+    @staticmethod
+    def _compliance_enabled(env):
+        """Return True if the compliance trigger endpoints may serve traffic.
+
+        Endpoints are enabled when running under ``test_enable`` or when
+        the operator has explicitly set ``dci.client_compliance.enabled``
+        to ``'true'``. Default is disabled so an accidental install in
+        production does not expose unauthenticated trigger routes.
+        """
+        if tools.config.get("test_enable", False):
+            return True
+        param = env["ir.config_parameter"].sudo().get_param(COMPLIANCE_ENABLED_PARAM, "false").lower()
+        return param == "true"
+
+    @staticmethod
+    def _get_compliance_bearer_token(env):
+        """Return the configured compliance bearer token or raise."""
+        token = env["ir.config_parameter"].sudo().get_param(BEARER_TOKEN_PARAM, "")
+        if not token:
+            raise UserError(
+                f"DCI client compliance bearer token is not configured. "
+                f"Set the system parameter {BEARER_TOKEN_PARAM!r} before "
+                f"using the trigger endpoints."
+            )
+        return token
+
+    def _disabled_response(self):
+        """Response returned when compliance endpoints are disabled."""
+        return request.make_response(
+            json.dumps({"error": "Compliance trigger endpoints are disabled"}),
+            headers=[("Content-Type", "application/json")],
+            status=404,
+        )
 
     def _get_test_data_source(self):
         """Get the test data source configured for compliance testing.
@@ -64,16 +108,10 @@ class DCIClientTriggerController(http.Controller):
             Newly created spp.dci.data.source record
         """
         ICP = request.env["ir.config_parameter"].sudo()
-        mock_url = ICP.get_param(
-            "dci.client_compliance.mock_registry_url",
-            "http://mock_registry:3335",
-        )
+        mock_url = ICP.get_param(MOCK_URL_PARAM, "http://mock_registry:3335")
 
-        # Get the compliance test bearer token
-        bearer_token = ICP.get_param(
-            "dci.client_compliance.bearer_token",
-            "compliance-test-api-key-12345",
-        )
+        # Bearer token has no default - operators must configure one explicitly.
+        bearer_token = self._get_compliance_bearer_token(request.env)
 
         DataSource = request.env["spp.dci.data.source"].sudo()
         return DataSource.create(
@@ -144,6 +182,8 @@ class DCIClientTriggerController(http.Controller):
         Returns:
             JSON response from the DCI registry (or error details)
         """
+        if not self._compliance_enabled(request.env):
+            return self._disabled_response()
         try:
             body = json.loads(request.httprequest.data or "{}")
 
@@ -209,6 +249,8 @@ class DCIClientTriggerController(http.Controller):
         Returns:
             JSON response from the DCI registry (or error details)
         """
+        if not self._compliance_enabled(request.env):
+            return self._disabled_response()
         try:
             body = json.loads(request.httprequest.data or "{}")
 
@@ -255,6 +297,8 @@ class DCIClientTriggerController(http.Controller):
         Returns:
             JSON response from the DCI registry (or error details)
         """
+        if not self._compliance_enabled(request.env):
+            return self._disabled_response()
         try:
             body = json.loads(request.httprequest.data or "{}")
 
@@ -300,6 +344,8 @@ class DCIClientTriggerController(http.Controller):
         Returns:
             JSON response from the DCI registry (or error details)
         """
+        if not self._compliance_enabled(request.env):
+            return self._disabled_response()
         try:
             body = json.loads(request.httprequest.data or "{}")
 
@@ -342,6 +388,8 @@ class DCIClientTriggerController(http.Controller):
         Returns:
             JSON with status and data source info
         """
+        if not self._compliance_enabled(request.env):
+            return self._disabled_response()
         try:
             data_source = self._get_test_data_source()
             return self._json_response(

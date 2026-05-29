@@ -1,31 +1,30 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <!-- Configuration parameters for DCI client compliance testing -->
+    <!-- Configuration parameters for DCI client compliance testing.
 
-    <!-- Mock registry URL (can be overridden for different environments) -->
+         IMPORTANT: this module ships *without* a bearer token preset. The
+         trigger controller refuses to create the test data source until
+         dci.client_compliance.bearer_token is set, and refuses to serve
+         traffic until dci.client_compliance.enabled is "true". This is
+         intentional: an accidental install in production must not expose
+         unauthenticated trigger routes or leak a well-known shared secret.
+    -->
+
+    <!-- Mock registry URL (operators may override per environment) -->
     <record id="config_mock_registry_url" model="ir.config_parameter">
         <field name="key">dci.client_compliance.mock_registry_url</field>
         <field name="value">http://mock_registry:3335</field>
     </record>
 
-    <!-- Bearer token for compliance testing -->
-    <record id="config_bearer_token" model="ir.config_parameter">
-        <field name="key">dci.client_compliance.bearer_token</field>
-        <field name="value">compliance-test-api-key-12345</field>
+    <!-- Endpoint gate. Operators must set this to "true" before the
+         trigger controller will serve traffic. -->
+    <record id="config_compliance_enabled" model="ir.config_parameter">
+        <field name="key">dci.client_compliance.enabled</field>
+        <field name="value">false</field>
     </record>
 
-    <!-- Test data source pointing to mock registry -->
-    <record id="test_data_source" model="spp.dci.data.source" forcecreate="false">
-        <field name="name">DCI Compliance Test</field>
-        <field name="code">dci_compliance_test</field>
-        <field name="base_url">http://mock_registry:3335</field>
-        <field name="registry_type">social</field>
-        <field name="our_sender_id">spmis.compliance.test</field>
-        <field name="our_callback_uri">http://openspp.dci.local:8069/dci/callback</field>
-        <field name="is_compliance_test">True</field>
-        <field name="state">active</field>
-        <field name="auth_type">bearer</field>
-        <field name="bearer_token">compliance-test-api-key-12345</field>
-    </record>
-
+    <!-- Note: no spp.dci.data.source record is pre-created. The trigger
+         controller creates one on demand once dci.client_compliance.bearer_token
+         is configured, so the install does not ship a half-configured record
+         that depends on a missing secret. -->
 </odoo>
