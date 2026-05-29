@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_spp_dci_sr_sender_tree" model="ir.ui.view">
+        <field name="name">spp.dci.sr.sender.tree</field>
+        <field name="model">spp.dci.sr.sender</field>
+        <field name="arch" type="xml">
+            <list string="SR Senders">
+                <field name="name" />
+                <field name="sender_id" />
+                <field name="base_url" optional="show" />
+                <field name="algorithm" />
+                <field name="country_id" optional="show" />
+                <field name="active" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_spp_dci_sr_sender_form" model="ir.ui.view">
+        <field name="name">spp.dci.sr.sender.form</field>
+        <field name="model">spp.dci.sr.sender</field>
+        <field name="arch" type="xml">
+            <form string="SR Sender">
+                <header>
+                    <button
+                        name="action_test_connection"
+                        string="Test Connection"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="not base_url"
+                    />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="toggle_active"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-archive"
+                        >
+                            <field
+                                name="active"
+                                widget="boolean_button"
+                                options="{&quot;terminology&quot;: &quot;archive&quot;}"
+                            />
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Social Registry Name" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="identity">
+                            <field name="sender_id" />
+                            <field name="base_url" />
+                            <field name="country_id" />
+                        </group>
+                        <group name="security">
+                            <field name="algorithm" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Public Key" name="public_key">
+                            <field
+                                name="public_key"
+                                widget="ace"
+                                options="{'mode': 'text'}"
+                                placeholder="-----BEGIN PUBLIC KEY-----&#10;...&#10;-----END PUBLIC KEY-----"
+                            />
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="description" placeholder="Additional notes..." />
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_spp_dci_sr_sender_search" model="ir.ui.view">
+        <field name="name">spp.dci.sr.sender.search</field>
+        <field name="model">spp.dci.sr.sender</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="sender_id" />
+                <filter string="Active" name="active" domain="[('active', '=', True)]" />
+                <filter string="Archived" name="archived" domain="[('active', '=', False)]" />
+                <separator />
+                <filter string="Algorithm" name="group_algorithm" context="{'group_by': 'algorithm'}" />
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_spp_dci_sr_sender" model="ir.actions.act_window">
+        <field name="name">SR Sender Registry</field>
+        <field name="res_model">spp.dci.sr.sender</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a trusted Social Registry sender
+            </p>
+            <p>
+                Configure trusted SR systems that can send callback notifications.
+                Each sender must have a registered public key for signature verification.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu (add under DCI configuration) -->
+    <menuitem
+        id="menu_spp_dci_sr_sender"
+        name="SR Senders"
+        parent="spp_dci_client.menu_spp_dci_config"
+        action="action_spp_dci_sr_sender"
+        sequence="50"
+    />
+</odoo>

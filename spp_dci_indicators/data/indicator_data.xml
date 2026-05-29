@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Variable Category for DCI -->
+        <record id="variable_category_dci" model="spp.cel.variable.category">
+            <field name="name">DCI Integration</field>
+            <field name="code">dci</field>
+            <field name="icon">fa-exchange</field>
+        </record>
+
+        <!-- Disability Registry (DR) Variables -->
+
+        <record id="var_dci_dr_has_disability" model="spp.cel.variable">
+            <field name="name">dci.dr.has_disability</field>
+            <field name="label">DCI: Has Disability</field>
+            <field name="description">Person has disability status registered in Disability Registry (DR)</field>
+            <field name="category_id" ref="variable_category_dci"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">dr.has_disability</field>
+            <field name="applies_to">individual</field>
+            <field name="cache_strategy">ttl</field>
+            <field name="cache_ttl_seconds">86400</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_dci_dr_vision_severe" model="spp.cel.variable">
+            <field name="name">dci.dr.vision_severe</field>
+            <field name="label">DCI: Severe Vision Impairment</field>
+            <field name="description">Person has severe vision impairment (functional score 3 or 4)</field>
+            <field name="category_id" ref="variable_category_dci"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">dr.severity('Vision') >= 3</field>
+            <field name="applies_to">individual</field>
+            <field name="cache_strategy">ttl</field>
+            <field name="cache_ttl_seconds">86400</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_dci_dr_hearing_severe" model="spp.cel.variable">
+            <field name="name">dci.dr.hearing_severe</field>
+            <field name="label">DCI: Severe Hearing Impairment</field>
+            <field name="description">Person has severe hearing impairment (functional score 3 or 4)</field>
+            <field name="category_id" ref="variable_category_dci"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">dr.severity('Hearing') >= 3</field>
+            <field name="applies_to">individual</field>
+            <field name="cache_strategy">ttl</field>
+            <field name="cache_ttl_seconds">86400</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_dci_dr_mobility_severe" model="spp.cel.variable">
+            <field name="name">dci.dr.mobility_severe</field>
+            <field name="label">DCI: Severe Mobility Impairment</field>
+            <field name="description">Person has severe mobility impairment (functional score 3 or 4)</field>
+            <field name="category_id" ref="variable_category_dci"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">dr.severity('Mobility') >= 3</field>
+            <field name="applies_to">individual</field>
+            <field name="cache_strategy">ttl</field>
+            <field name="cache_ttl_seconds">86400</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_dci_dr_assessed" model="spp.cel.variable">
+            <field name="name">dci.dr.assessed</field>
+            <field name="label">DCI: Has Functional Assessment</field>
+            <field name="description">Person has completed functional assessment in DR</field>
+            <field name="category_id" ref="variable_category_dci"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">dr.assessed</field>
+            <field name="applies_to">individual</field>
+            <field name="cache_strategy">ttl</field>
+            <field name="cache_ttl_seconds">86400</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- Civil Registration and Vital Statistics (CRVS) Variables -->
+
+        <record id="var_dci_crvs_is_alive" model="spp.cel.variable">
+            <field name="name">dci.crvs.is_alive</field>
+            <field name="label">DCI: Is Alive</field>
+            <field name="description">Person is alive - no death event recorded in CRVS</field>
+            <field name="category_id" ref="variable_category_dci"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">crvs.is_alive</field>
+            <field name="applies_to">individual</field>
+            <field name="cache_strategy">ttl</field>
+            <field name="cache_ttl_seconds">86400</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_dci_crvs_birth_verified" model="spp.cel.variable">
+            <field name="name">dci.crvs.birth_verified</field>
+            <field name="label">DCI: Birth Verified</field>
+            <field name="description">Birth registration exists in Civil Registration system</field>
+            <field name="category_id" ref="variable_category_dci"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">crvs.birth_verified</field>
+            <field name="applies_to">individual</field>
+            <field name="cache_strategy">ttl</field>
+            <field name="cache_ttl_seconds">86400</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_dci_crvs_is_married" model="spp.cel.variable">
+            <field name="name">dci.crvs.is_married</field>
+            <field name="label">DCI: Is Married</field>
+            <field name="description">Person is currently married according to CRVS records</field>
+            <field name="category_id" ref="variable_category_dci"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">crvs.is_married</field>
+            <field name="applies_to">individual</field>
+            <field name="cache_strategy">ttl</field>
+            <field name="cache_ttl_seconds">86400</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- Integrated Beneficiary Registry (IBR) Variables -->
+
+        <record id="var_dci_ibr_has_duplicate" model="spp.cel.variable">
+            <field name="name">dci.ibr.has_duplicate</field>
+            <field name="label">DCI: Has Duplicate</field>
+            <field name="description">Duplication check found possible or confirmed matches in IBR</field>
+            <field name="category_id" ref="variable_category_dci"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">ibr.has_duplicate</field>
+            <field name="applies_to">individual</field>
+            <field name="cache_strategy">ttl</field>
+            <field name="cache_ttl_seconds">3600</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_dci_ibr_no_duplicate" model="spp.cel.variable">
+            <field name="name">dci.ibr.no_duplicate</field>
+            <field name="label">DCI: No Duplicate</field>
+            <field name="description">No duplicates found in other programs (IBR duplication check passed)</field>
+            <field name="category_id" ref="variable_category_dci"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">ibr.has_duplicate == false</field>
+            <field name="applies_to">individual</field>
+            <field name="cache_strategy">ttl</field>
+            <field name="cache_ttl_seconds">3600</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_dci_ibr_checked" model="spp.cel.variable">
+            <field name="name">dci.ibr.checked</field>
+            <field name="label">DCI: Duplication Checked</field>
+            <field name="description">Duplication check has been performed against IBR</field>
+            <field name="category_id" ref="variable_category_dci"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">ibr.checked</field>
+            <field name="applies_to">individual</field>
+            <field name="cache_strategy">ttl</field>
+            <field name="cache_ttl_seconds">3600</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- Social Registry (SR) Variables -->
+
+        <record id="var_dci_sr_is_registered" model="spp.cel.variable">
+            <field name="name">dci.sr.is_registered</field>
+            <field name="label">DCI: Is Registered in SR</field>
+            <field name="description">Person is registered in external Social Registry</field>
+            <field name="category_id" ref="variable_category_dci"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">sr.is_registered</field>
+            <field name="applies_to">individual</field>
+            <field name="cache_strategy">ttl</field>
+            <field name="cache_ttl_seconds">86400</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_dci_sr_program_count" model="spp.cel.variable">
+            <field name="name">dci.sr.program_count</field>
+            <field name="label">DCI: SR Program Count</field>
+            <field name="description">Number of programs person is enrolled in at external SR</field>
+            <field name="category_id" ref="variable_category_dci"/>
+            <field name="value_type">number</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">sr.program_count</field>
+            <field name="applies_to">individual</field>
+            <field name="cache_strategy">ttl</field>
+            <field name="cache_ttl_seconds">86400</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_dci_sr_has_programs" model="spp.cel.variable">
+            <field name="name">dci.sr.has_programs</field>
+            <field name="label">DCI: Has SR Program Enrollment</field>
+            <field name="description">Person is enrolled in at least one program in external SR</field>
+            <field name="category_id" ref="variable_category_dci"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">sr.program_count >= 1</field>
+            <field name="applies_to">individual</field>
+            <field name="cache_strategy">ttl</field>
+            <field name="cache_ttl_seconds">86400</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_dci_sr_household_size" model="spp.cel.variable">
+            <field name="name">dci.sr.household_size</field>
+            <field name="label">DCI: SR Household Size</field>
+            <field name="description">Household size from external Social Registry</field>
+            <field name="category_id" ref="variable_category_dci"/>
+            <field name="value_type">number</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">sr.household_size</field>
+            <field name="applies_to">individual</field>
+            <field name="cache_strategy">ttl</field>
+            <field name="cache_ttl_seconds">86400</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_dci_sr_is_hoh" model="spp.cel.variable">
+            <field name="name">dci.sr.is_head_of_household</field>
+            <field name="label">DCI: Is Head of Household (SR)</field>
+            <field name="description">Person is head of household according to external SR</field>
+            <field name="category_id" ref="variable_category_dci"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">sr.is_head_of_household</field>
+            <field name="applies_to">individual</field>
+            <field name="cache_strategy">ttl</field>
+            <field name="cache_ttl_seconds">86400</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_dci_sr_large_household" model="spp.cel.variable">
+            <field name="name">dci.sr.large_household</field>
+            <field name="label">DCI: Large Household (SR)</field>
+            <field name="description">Person belongs to household with more than 5 members</field>
+            <field name="category_id" ref="variable_category_dci"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">sr.household_size > 5</field>
+            <field name="applies_to">individual</field>
+            <field name="cache_strategy">ttl</field>
+            <field name="cache_ttl_seconds">86400</field>
+            <field name="is_system">True</field>
+        </record>
+
+    </data>
+</odoo>

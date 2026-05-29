@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!--
+            Test Identifier Type for DCI Compliance
+            References spp_dci.id_type_uin which defines urn:dci:id:uin
+            No need to create a duplicate - use the existing one from spp_dci module
+        -->
+    </data>
+</odoo>
