@@ -998,6 +998,67 @@ class TestDrimsDonation(DrimsTestCommon):
         self.assertIsNotNone(result)
         self.assertIn("300", result["params"]["message"])
 
+    def test_has_acceptable_items_all_non_accept(self):
+        """When every line is non-accept (return / dispose / quarantine) the
+        ``has_acceptable_items`` flag drops to False so the form hides the
+        Stock button and surfaces the "Nothing to Stock" info alert."""
+        disposition_return = self._disposition("return")
+        disposition_dispose = self._disposition("dispose")
+        if not (disposition_return and disposition_dispose):
+            self.skipTest("non-accept disposition vocab codes missing")
+
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 100,
+                    "uom_id": self.product.uom_id.id,
+                },
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 100,
+                    "uom_id": self.product.uom_id.id,
+                },
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        donation.line_ids[0].disposition_id = disposition_return
+        donation.line_ids[1].disposition_id = disposition_dispose
+
+        self.assertFalse(
+            donation.has_acceptable_items,
+            "every line is non-accept — Stock button should be hidden",
+        )
+
+    def test_has_acceptable_items_mixed(self):
+        """One accept line is enough to keep Stock available."""
+        disposition_accept = self._disposition("accept")
+        disposition_return = self._disposition("return")
+        if not (disposition_accept and disposition_return):
+            self.skipTest("required disposition codes missing")
+
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 100,
+                    "uom_id": self.product.uom_id.id,
+                },
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 50,
+                    "uom_id": self.product.uom_id.id,
+                },
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        donation.line_ids[0].disposition_id = disposition_accept
+        donation.line_ids[1].disposition_id = disposition_return
+
+        self.assertTrue(donation.has_acceptable_items)
+
     def test_action_stock_all_accept_unchanged(self):
         """OP#1030: regression — full-accept flow still stocks everything."""
         disposition_accept = self._disposition("accept")

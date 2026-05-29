@@ -20,6 +20,12 @@ from .constants import (
 
 _logger = logging.getLogger(__name__)
 
+# Donation-line disposition codes that should NOT be stocked. Moves for these
+# get cancelled by `_exclude_non_accept_moves`, and if every line lands in
+# this set the donation has nothing left to stock — only Reject makes sense.
+NON_ACCEPT_DISPOSITIONS = ("return", "dispose", "quarantine")
+
+
 # Valid state transitions: {from_state: [allowed_to_states]}
 DONATION_STATE_TRANSITIONS = {
     DONATION_STATE_ANNOUNCED: [DONATION_STATE_RECEIVED, DONATION_STATE_CANCELLED],
@@ -136,6 +142,9 @@ class DrimsDonation(models.Model):
         compute="_compute_totals",
         store=True,
     )
+    has_acceptable_items = fields.Boolean(
+        compute="_compute_has_acceptable_items",
+    )
 
     # Stock
     picking_ids = fields.One2many(
@@ -222,6 +231,19 @@ class DrimsDonation(models.Model):
         for rec in self:
             rec.total_value = sum(rec.line_ids.mapped("value"))
             rec.line_count = len(rec.line_ids)
+
+    @api.depends("line_ids.disposition_id", "line_ids.quantity_received")
+    def _compute_has_acceptable_items(self):
+        # A line counts as "acceptable" (i.e. something the warehouse would
+        # stock) when it has a received qty > 0 and its disposition isn't one
+        # of the non-accept dispositions cancelled by `_exclude_non_accept_moves`.
+        # Lines with no disposition yet are treated as acceptable so the
+        # Stock button stays available while inspection is still in progress.
+        for rec in self:
+            rec.has_acceptable_items = any(
+                line.quantity_received > 0 and (line.disposition_id.code or "") not in NON_ACCEPT_DISPOSITIONS
+                for line in rec.line_ids
+            )
 
     @api.depends("picking_ids")
     def _compute_picking_count(self):
@@ -510,7 +532,6 @@ class DrimsDonation(models.Model):
         notification.
         """
         self.ensure_one()
-        NON_ACCEPT = ("return", "dispose", "quarantine")
 
         accept_qty_by_product = {}
         non_accept_by_product = {}
@@ -518,7 +539,7 @@ class DrimsDonation(models.Model):
             if line.quantity_received <= 0:
                 continue
             disposition_code = line.disposition_id.code or ""
-            if disposition_code in NON_ACCEPT:
+            if disposition_code in NON_ACCEPT_DISPOSITIONS:
                 non_accept_by_product.setdefault(line.product_id.id, []).append(line)
             else:
                 accept_qty_by_product[line.product_id.id] = (

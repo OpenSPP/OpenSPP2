@@ -60,7 +60,7 @@
                         string="Stock Items"
                         type="object"
                         class="btn-success"
-                        invisible="state != 'inspected'"
+                        invisible="state != 'inspected' or not has_acceptable_items"
                         confirm="This will add items to warehouse inventory. Continue?"
                     />
                     <button
@@ -71,6 +71,7 @@
                         invisible="state != 'inspected'"
                         confirm="Reject this donation? Items will not be added to inventory."
                     />
+                    <field name="has_acceptable_items" invisible="1" />
                     <button
                         name="action_cancel"
                         string="Cancel"
@@ -89,6 +90,16 @@
                     <field name="state_id" widget="statusbar" />
                 </header>
                 <sheet>
+                    <div
+                        class="alert alert-info"
+                        role="alert"
+                        invisible="state != 'inspected' or has_acceptable_items"
+                    >
+                        <strong>Nothing to Stock.</strong>
+                        Every line on this donation was marked for return, disposal, or quarantine
+                        during inspection, so no items will enter inventory.
+                        Click <strong>Reject</strong> to close this donation.
+                    </div>
                     <div class="oe_button_box" name="button_box">
                         <button
                             name="action_view_pickings"
