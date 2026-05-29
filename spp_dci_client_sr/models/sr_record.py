@@ -3,7 +3,6 @@
 
 import json
 import logging
-from datetime import UTC, datetime
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
@@ -261,7 +260,7 @@ class SRRecord(models.Model):
         vals = {
             "state": "synced",
             "error_message": False,
-            "last_sync_date": datetime.now(UTC),
+            "last_sync_date": fields.Datetime.now(),
             "synced_by": self.env.user.id,
             "raw_data": json.dumps(data),
         }
