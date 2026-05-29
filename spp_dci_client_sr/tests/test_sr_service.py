@@ -23,6 +23,7 @@ class TestSRService(TransactionCase):
                 "name": "Test SR Data Source",
                 "code": "test_sr",
                 "base_url": "https://sr.example.org",
+                "our_sender_id": "openspp.test",
                 "auth_type": "none",  # Use no auth for testing
                 "registry_type": "sr",
                 "state": "active",
@@ -44,7 +45,7 @@ class TestSRService(TransactionCase):
 
         return SRService(self.env, "test_sr")
 
-    @patch("odoo.addons.spp_dci_client.services.dci_client.DCIClient.search")
+    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
     def test_search_person_sync(self, mock_search):
         """Test synchronous person search."""
         mock_search.return_value = {
@@ -66,7 +67,7 @@ class TestSRService(TransactionCase):
         self.assertIsNotNone(result)
         mock_search.assert_called_once()
 
-    @patch("odoo.addons.spp_dci_client.services.dci_client.DCIClient.search")
+    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
     def test_search_person_async(self, mock_search):
         """Test asynchronous person search."""
         txn_id = str(uuid.uuid4())
@@ -78,7 +79,7 @@ class TestSRService(TransactionCase):
         self.assertIsNotNone(result)
         self.assertEqual(result.get("transaction_id"), txn_id)
 
-    @patch("odoo.addons.spp_dci_client.services.dci_client.DCIClient.search")
+    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
     def test_search_household(self, mock_search):
         """Test household search."""
         mock_search.return_value = {
@@ -96,7 +97,7 @@ class TestSRService(TransactionCase):
         self.assertIsNotNone(result)
         mock_search.assert_called_once()
 
-    @patch("odoo.addons.spp_dci_client.services.dci_client.DCIClient.search")
+    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
     def test_get_program_enrollment(self, mock_search):
         """Test getting program enrollment data."""
         mock_search.return_value = {
@@ -116,7 +117,7 @@ class TestSRService(TransactionCase):
         self.assertIsNotNone(result)
         mock_search.assert_called_once()
 
-    @patch("odoo.addons.spp_dci_client.services.dci_client.DCIClient.subscribe")
+    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.subscribe")
     def test_subscribe_updates(self, mock_subscribe):
         """Test subscribing to SR updates."""
         mock_subscribe.return_value = {"subscription_id": "SUB_001"}
@@ -127,7 +128,7 @@ class TestSRService(TransactionCase):
         self.assertIsNotNone(result)
         mock_subscribe.assert_called_once()
 
-    @patch("odoo.addons.spp_dci_client.services.dci_client.DCIClient.search")
+    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
     def test_sync_person_to_local_new_record(self, mock_search):
         """Test syncing person data to local record - creates new record."""
         mock_search.return_value = {
@@ -156,7 +157,7 @@ class TestSRService(TransactionCase):
         sr_record = self.env["spp.dci.sr.record"].search([("partner_id", "=", self.test_partner.id)])
         self.assertTrue(sr_record)
 
-    @patch("odoo.addons.spp_dci_client.services.dci_client.DCIClient.search")
+    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
     def test_sync_person_to_local_update_record(self, mock_search):
         """Test syncing person data to local record - updates existing record."""
         # Create existing SR record
@@ -196,7 +197,7 @@ class TestSRService(TransactionCase):
         )
         self.assertEqual(sr_record.sr_name, "Updated Name")
 
-    @patch("odoo.addons.spp_dci_client.services.dci_client.DCIClient.search")
+    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
     def test_sync_person_no_results(self, mock_search):
         """Test syncing person when no results returned."""
         mock_search.return_value = {"data": {"reg_records": []}}
@@ -206,7 +207,7 @@ class TestSRService(TransactionCase):
 
         self.assertIsNone(result)
 
-    @patch("odoo.addons.spp_dci_client.services.dci_client.DCIClient.search")
+    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
     def test_search_person_error_handling(self, mock_search):
         """Test error handling in search."""
         mock_search.side_effect = Exception("API Error")
@@ -216,7 +217,7 @@ class TestSRService(TransactionCase):
 
         self.assertIsNone(result)
 
-    @patch("odoo.addons.spp_dci_client.services.dci_client.DCIClient.search")
+    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
     def test_check_connection(self, mock_search):
         """Test check_connection method."""
         mock_search.return_value = {"message": {"status": "ok"}}
