@@ -4,6 +4,7 @@ from . import common
 from . import test_async_router
 from . import test_bearer_middleware
 from . import test_bulk_upload
+from . import test_bulk_upload_router
 from . import test_callback_routers
 from . import test_jwks_router
 from . import test_receipt
