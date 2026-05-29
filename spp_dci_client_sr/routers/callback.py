@@ -258,7 +258,7 @@ def _find_partner_by_identifier(env: Environment, id_type: str, id_value: str):
     """
     # Search in spp.id records
     id_record = (
-        env["spp.id"]
+        env["spp.registry.id"]
         .sudo()
         .search(
             [
@@ -275,7 +275,7 @@ def _find_partner_by_identifier(env: Environment, id_type: str, id_value: str):
     # Also check with namespace URIs
     if not id_type.startswith("urn:"):
         id_record = (
-            env["spp.id"]
+            env["spp.registry.id"]
             .sudo()
             .search(
                 [

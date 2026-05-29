@@ -245,6 +245,40 @@ class TestSRService(TransactionCase):
         self.assertEqual(sr_record.sr_name, "Updated Name")
 
     @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
+    def test_sync_person_to_local_looks_up_partner_by_identifier(self, mock_search):
+        """Without an explicit partner_id, sync_person_to_local must look up
+        the local partner via spp.registry.id. Earlier code queried a
+        non-existent 'spp.id' model and silently fell through to the
+        UserError 'Could not find local partner' even when the identifier
+        existed.
+        """
+        # Match the National ID vocabulary code shipped with spp_vocabulary
+        # so id_type_id.code resolves the way the production query expects.
+        national_id_code = self.env.ref("spp_vocabulary.code_id_type_national_id")
+        self.env["spp.registry.id"].create(
+            {
+                "partner_id": self.test_partner.id,
+                "id_type_id": national_id_code.id,
+                "value": "LOOKUP-001",
+            }
+        )
+
+        mock_search.return_value = _sync_search_envelope(
+            reg_records=[
+                {
+                    "id": "EXT_LOOKUP",
+                    "name": "Lookup Person",
+                }
+            ]
+        )
+
+        service = self._get_sr_service()
+        # No partner_id - service must resolve it from the identifier.
+        result = service.sync_person_to_local(national_id_code.code, "LOOKUP-001")
+        self.assertTrue(result)
+        self.assertEqual(result.partner_id, self.test_partner)
+
+    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
     def test_sync_person_not_found_raises(self, mock_search):
         """When the registry returns no records, sync raises UserError per docstring."""
         mock_search.return_value = _sync_search_envelope(reg_records=[])

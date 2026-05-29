@@ -374,9 +374,11 @@ class SRService:
 
         # Find or create partner if not provided
         if not partner_id:
-            # Try to find by identifier
+            # Try to find by identifier. The model is spp.registry.id;
+            # earlier code referenced a non-existent 'spp.id', which
+            # raised KeyError on every lookup-by-identifier call.
             id_record = (
-                self.env["spp.id"]
+                self.env["spp.registry.id"]
                 .sudo()
                 .search(
                     [

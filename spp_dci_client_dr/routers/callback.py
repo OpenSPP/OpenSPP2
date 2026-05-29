@@ -196,7 +196,7 @@ def _find_partner_by_identifier(env: Environment, id_type: str, id_value: str):
     # Search in spp.id records
     # Use sudo() for API access - authentication is handled by signature verification
     id_record = (
-        env["spp.id"]  # nosemgrep: odoo-sudo-without-context
+        env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
         .sudo()
         .search(
             [
@@ -213,7 +213,7 @@ def _find_partner_by_identifier(env: Environment, id_type: str, id_value: str):
     # Also check with namespace URIs
     if not id_type.startswith("urn:"):
         id_record = (
-            env["spp.id"]  # nosemgrep: odoo-sudo-without-context
+            env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .search(
                 [
