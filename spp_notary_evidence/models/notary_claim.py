@@ -23,6 +23,7 @@ class NotaryClaim(models.Model):
     """Catalog row for a claim exposed by a Registry Notary provider."""
 
     _name = "spp.notary.claim"
+    _inherit = ["mail.thread", "mail.activity.mixin"]
     _description = "Notary Claim"
     _order = "provider_id, external_id"
 
@@ -40,9 +41,13 @@ class NotaryClaim(models.Model):
         index=True,
         help="Stable upstream identifier for this Notary claim.",
     )
-    claim_version = fields.Char(index=True)
-    pinned_version = fields.Boolean(default=True)
-    name = fields.Char(string="Name", required=True)
+    claim_version = fields.Char(index=True, tracking=True)
+    pinned_version = fields.Char(
+        string="Pinned Version",
+        tracking=True,
+        help="Optional Notary claim version to request. Leave empty to request the latest upstream version.",
+    )
+    name = fields.Char(string="Name", required=True, tracking=True)
     description = fields.Text()
     subject_type = fields.Selection(
         selection=[
@@ -65,17 +70,20 @@ class NotaryClaim(models.Model):
         default="string",
         required=True,
     )
-    default_disclosure = fields.Char(default="predicate")
-    default_purpose_url = fields.Char()
+    default_disclosure = fields.Char(default="predicate", tracking=True)
+    default_purpose_url = fields.Char(tracking=True)
     active = fields.Boolean(default=True)
     state = fields.Selection(
         selection=[
             ("active", "Active"),
             ("deprecated", "Deprecated"),
             ("unavailable", "Unavailable"),
+            ("version_drift", "Version Drift"),
+            ("needs_alias", "Needs Alias"),
         ],
         default="active",
         required=True,
+        tracking=True,
     )
     variable_name = fields.Char(
         compute="_compute_variable_name",
@@ -88,6 +96,7 @@ class NotaryClaim(models.Model):
         string="CEL Variable",
         ondelete="set null",
         copy=False,
+        tracking=True,
     )
     last_synced_at = fields.Datetime()
     company_id = fields.Many2one(
@@ -97,9 +106,9 @@ class NotaryClaim(models.Model):
         readonly=True,
     )
 
-    _unique_claim_provider_external_version = models.Constraint(
-        "UNIQUE(provider_id, external_id, claim_version)",
-        "Notary claim external ID/version must be unique per provider.",
+    _unique_claim_provider_external = models.Constraint(
+        "UNIQUE(provider_id, external_id)",
+        "Notary claim external ID must be unique per provider.",
     )
     _unique_claim_provider_variable = models.Constraint(
         "UNIQUE(provider_id, variable_name)",
@@ -152,8 +161,8 @@ class NotaryClaim(models.Model):
                 "external_provider_id": claim.provider_id.id,
                 "value_type": claim.value_type,
                 "applies_to": claim.subject_type if claim.subject_type in ("individual", "group") else "both",
-                "state": "active" if claim.active and claim.state == "active" else "inactive",
-                "active": bool(claim.active and claim.state == "active"),
+                "state": "active" if claim.active and claim.state in ("active", "version_drift") else "inactive",
+                "active": bool(claim.active and claim.state in ("active", "version_drift")),
                 "cache_strategy": "ttl",
                 "cache_ttl_seconds": claim.provider_id.notary_default_ttl_seconds
                 or claim.provider_id.default_ttl_seconds,

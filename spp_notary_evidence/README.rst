@@ -10,25 +10,26 @@ OpenSPP Notary Evidence
    !! source digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-Notary evidence catalog skeleton for OpenSPP CEL external data providers.
+Notary evidence integration for OpenSPP CEL external data providers.
 
-This first wave adds only provider configuration and claim catalog metadata:
+This module adds provider configuration, claim catalog metadata, and live CEL
+external-value execution through Registry Notary:
 
 * Extends ``spp.data.provider.provider_kind`` with ``notary``
 * Stores Notary claim catalog rows in ``spp.notary.claim``
-* Defines the stable claim-to-variable naming helper
-* Provides a mockable catalog sync interface
+* Provides a preview-and-confirm catalog sync wizard with accessor collision checks
+* Defines stable claim-to-variable naming and generated CEL external variables
+* Calls Notary evaluate and batch-evaluate endpoints for CEL external variables
+* Writes provider-scoped cache rows and supports raise, null, and stale-cache-with-audit policies
 * Adds menu entries, ACLs, and a sync wizard
-
-It does not execute Notary claims, create CEL variables automatically, or
-connect the CEL external-value hooks to a live Notary service yet.
 
 Configuration
 =============
 
-Create a CEL data provider with ``Provider Kind`` set to ``Notary``. Catalog
-sync uses the configured Notary client adapter from ``spp_notary_client`` or a
-test-provided mock client.
+Create a CEL data provider with ``Provider Kind`` set to ``Notary``. Configure
+the Notary base URL, authentication, data-purpose URL, subject ID type, cache
+policy, and audit hash secret. Catalog sync uses the configured Notary client
+adapter from ``spp_notary_client`` or a test-provided mock client.
 
 Security
 ========

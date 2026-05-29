@@ -12,7 +12,9 @@ from spp_notary_client.services.exceptions import (
     NotaryAuthError,
     NotaryClaimNotFound,
     NotaryConfigurationError,
+    NotaryPurposeMissing,
     NotaryRateLimited,
+    NotarySubjectIdMissing,
     NotarySubjectNotFound,
     NotaryTransportError,
 )
@@ -197,10 +199,46 @@ def test_evaluate_requires_purpose():
         [_json_response()],
     )
 
+    with pytest.raises(NotaryPurposeMissing):
+        client.evaluate(subject_id="NATIONAL-ID-123", claim_refs=["claim-a"])
+
+    assert transport.requests == []
+
+
+def test_evaluate_requires_subject_id():
+    """Subject-scoped calls fail before network IO without a subject ID."""
+    client, transport = _client(
+        {
+            "base_url": "https://notary.example",
+            "auth_type": "none",
+            "default_purpose_url": "https://openspp.example/default-purpose",
+        },
+        [_json_response()],
+    )
+
+    with pytest.raises(NotarySubjectIdMissing):
+        client.evaluate(subject_id="", claim_refs=["claim-a"])
+
+    assert transport.requests == []
+
+
+def test_evaluate_refuses_logged_subject_call_without_hash_secret():
+    """Odoo audit logging never falls back to an unkeyed subject hash."""
+    client, transport = _client(
+        {
+            "base_url": "https://notary.example",
+            "auth_type": "none",
+            "default_purpose_url": "https://openspp.example/default-purpose",
+        },
+        [_json_response()],
+    )
+    client.log_wrapper = Mock()
+
     with pytest.raises(NotaryConfigurationError):
         client.evaluate(subject_id="NATIONAL-ID-123", claim_refs=["claim-a"])
 
     assert transport.requests == []
+    client.log_wrapper.log_call.assert_not_called()
 
 
 def test_batch_evaluate_posts_subjects_and_claims():

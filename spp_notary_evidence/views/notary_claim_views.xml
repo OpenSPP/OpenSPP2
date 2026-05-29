@@ -8,8 +8,13 @@
                 <field name="name" />
                 <field name="provider_id" />
                 <field name="external_id" />
+                <field name="claim_version" optional="show" />
+                <field name="pinned_version" optional="show" />
                 <field name="variable_name" />
+                <field name="state" widget="badge" optional="show" />
                 <field name="value_type" widget="badge" />
+                <field name="default_disclosure" optional="show" />
+                <field name="last_synced_at" optional="show" />
                 <field name="active" widget="boolean_toggle" />
             </list>
         </field>
@@ -37,7 +42,14 @@
                         <group string="Catalog">
                             <field name="provider_id" />
                             <field name="external_id" />
+                            <field name="claim_version" readonly="1" />
+                            <field name="pinned_version" />
+                            <field name="state" />
+                            <field name="subject_type" />
                             <field name="value_type" />
+                            <field name="default_disclosure" />
+                            <field name="default_purpose_url" />
+                            <field name="last_synced_at" readonly="1" />
                             <field name="active" />
                         </group>
                         <group string="CEL Contract">
@@ -51,6 +63,7 @@
                         </page>
                     </notebook>
                 </sheet>
+                <chatter />
             </form>
         </field>
     </record>
@@ -64,10 +77,15 @@
                 <field name="provider_id" />
                 <field name="external_id" />
                 <field name="variable_name" />
+                <field name="claim_version" />
+                <field name="pinned_version" />
+                <field name="state" />
                 <filter string="Active" name="active" domain="[('active', '=', True)]" />
                 <filter string="Archived" name="archived" domain="[('active', '=', False)]" />
+                <filter string="Version Drift" name="version_drift" domain="[('state', '=', 'version_drift')]" />
                 <group>
                     <filter string="Provider" name="group_provider" context="{'group_by': 'provider_id'}" />
+                    <filter string="State" name="group_state" context="{'group_by': 'state'}" />
                     <filter string="Value Type" name="group_value_type" context="{'group_by': 'value_type'}" />
                 </group>
             </search>

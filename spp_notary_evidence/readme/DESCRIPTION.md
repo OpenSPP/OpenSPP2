@@ -1,11 +1,11 @@
-Notary evidence catalog skeleton for CEL external data providers.
+Notary evidence integration for CEL external data providers.
 
-This module adds catalog-only plumbing for Notary evidence:
+This module adds Notary evidence support:
 
 - `notary` provider kind on `spp.data.provider`
 - `spp.notary.claim` catalog rows
-- Stable claim-to-variable naming helper
-- Mockable catalog sync entry point
-- Security groups, ACLs, views, and sync wizard
-
-It deliberately does not add executor behavior or live Notary evaluation.
+- Preview-and-confirm catalog sync with accessor collision checks
+- Stable claim-to-variable naming and generated CEL external variables
+- Live Notary evaluate and batch-evaluate hooks
+- Provider-scoped cache writes, stale-cache-with-audit fallback, raise, and null policies
+- Security groups, ACLs, forms, menus, and sync wizard

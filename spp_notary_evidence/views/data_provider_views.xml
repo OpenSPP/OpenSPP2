@@ -10,7 +10,7 @@
             </xpath>
             <xpath expr="//header" position="inside">
                 <button
-                    name="action_sync_notary_claim_catalog"
+                    name="action_open_notary_catalog_sync_wizard"
                     string="Sync Notary Catalog"
                     type="object"
                     class="btn-secondary"
@@ -36,17 +36,37 @@
                             <field name="notary_catalog_path" />
                             <field name="notary_catalog_synced_at" readonly="1" />
                         </group>
+                        <group string="Evaluation">
+                            <field name="notary_default_purpose_url" />
+                            <field name="notary_unavailable_policy" />
+                            <field name="notary_subject_id_type_id" />
+                            <field name="notary_min_cache_ttl_seconds" />
+                            <field name="notary_default_ttl_seconds" />
+                        </group>
+                        <group string="Authentication">
+                            <field name="notary_bearer_token" password="True" />
+                            <field name="notary_subject_log_secret" password="True" />
+                        </group>
+                        <group string="Sync Log">
+                            <field name="notary_sync_log" nolabel="1" readonly="1" />
+                        </group>
                     </group>
                     <field name="notary_claim_ids" readonly="1">
                         <list>
                             <field name="name" />
                             <field name="external_id" />
+                            <field name="claim_version" />
+                            <field name="pinned_version" />
                             <field name="variable_name" />
+                            <field name="state" widget="badge" />
                             <field name="value_type" widget="badge" />
                             <field name="active" />
                         </list>
                     </field>
                 </page>
+            </xpath>
+            <xpath expr="//form/sheet" position="after">
+                <chatter />
             </xpath>
         </field>
     </record>

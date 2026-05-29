@@ -13,7 +13,8 @@ from odoo.exceptions import AccessError, UserError
 from odoo.tests import TransactionCase, tagged
 
 from odoo.addons.spp_notary_client.services.client import NotaryClient
-from odoo.addons.spp_notary_client.services.exceptions import NotaryTransportError
+from odoo.addons.spp_notary_client.services.exceptions import NotarySubjectIdMissing, NotaryTransportError
+from odoo.addons.spp_notary_client.services.schemas import CatalogResponse
 
 
 @tagged("post_install", "-at_install")
@@ -122,6 +123,7 @@ class TestNotaryEvidence(TransactionCase):
         )
         self.assertTrue(claim)
         self.assertEqual(claim.claim_version, "2026-01")
+        self.assertEqual(claim.pinned_version, "2026-01")
         self.assertEqual(claim.value_type, "boolean")
         self.assertTrue(claim.variable_id)
         self.assertEqual(claim.variable_id.source_type, "external")
@@ -396,7 +398,7 @@ class TestNotaryEvidence(TransactionCase):
         kwargs = mocked_client.return_value.evaluate.call_args.kwargs
         self.assertEqual(kwargs["purpose"], "https://openspp.example/purpose/default")
 
-    def test_missing_subject_id_returns_no_value(self):
+    def test_missing_subject_id_raises_before_client_call(self):
         claim = self._create_claim_with_variable("missing-subject-id", value_type="boolean")
         partner = self.env["res.partner"].create(
             {
@@ -407,13 +409,14 @@ class TestNotaryEvidence(TransactionCase):
         )
 
         with patch.object(type(self.provider), "_notary_client") as mocked_client:
-            value = self.provider._refresh_external_value(claim.variable_id, partner.id, "current")
+            with self.assertRaises(NotarySubjectIdMissing):
+                self.provider._refresh_external_value(claim.variable_id, partner.id, "current")
 
-        self.assertIsNone(value)
         mocked_client.assert_not_called()
 
-    def test_stale_if_available_policy_returns_expired_provider_scoped_value(self):
+    def test_stale_cache_with_audit_policy_returns_expired_provider_scoped_value(self):
         claim = self._create_claim_with_variable("stale-claim", value_type="string")
+        stale_expires_at = fields.Datetime.now() - timedelta(hours=1)
         self.env["spp.data.value"].upsert_values(
             [
                 {
@@ -424,14 +427,14 @@ class TestNotaryEvidence(TransactionCase):
                     "value_json": {"value": "cached-stale"},
                     "value_type": "string",
                     "source_type": "external",
-                    "expires_at": fields.Datetime.now() - timedelta(hours=1),
+                    "expires_at": stale_expires_at,
                 }
             ]
         )
         provider = self.provider.with_context(
             cel_cfg={"notary_purpose": "https://openspp.example/purpose/evaluation"}
         )
-        provider.notary_unavailable_policy = "stale_if_available"
+        provider.notary_unavailable_policy = "stale_cache_with_audit"
 
         with patch.object(type(provider), "_notary_client") as mocked_client:
             mocked_client.return_value.evaluate.side_effect = NotaryTransportError(
@@ -441,8 +444,28 @@ class TestNotaryEvidence(TransactionCase):
             value = provider._refresh_external_value(claim.variable_id, self.partner_a.id, "current")
 
         self.assertEqual(value, "cached-stale")
+        cached = self.env["spp.data.value"].search(
+            [
+                ("variable_name", "=", claim.variable_id.name),
+                ("subject_id", "=", self.partner_a.id),
+                ("provider", "=", self.provider.code),
+            ],
+            limit=1,
+        )
+        self.assertEqual(cached.expires_at, stale_expires_at)
+        log = self.env["spp.api.outgoing.log"].sudo().search(
+            [
+                ("service_code", "=", self.provider.code),
+                ("endpoint", "=", "/claims/stale-cache-read"),
+            ],
+            limit=1,
+        )
+        self.assertTrue(log)
+        self.assertEqual(log.request_summary["cache_policy"], "stale_cache_with_audit")
+        self.assertEqual(log.request_summary["subject_count"], 1)
+        self.assertNotIn(f"NID-A-{self._test_id}", str(log.request_summary))
 
-    def test_stale_if_available_does_not_cross_provider_boundary(self):
+    def test_stale_cache_with_audit_does_not_cross_provider_boundary(self):
         claim = self._create_claim_with_variable("stale-other-provider", value_type="string")
         other_provider = self.Provider.create(
             {
@@ -472,7 +495,7 @@ class TestNotaryEvidence(TransactionCase):
         provider = self.provider.with_context(
             cel_cfg={"notary_purpose": "https://openspp.example/purpose/evaluation"}
         )
-        provider.notary_unavailable_policy = "stale_if_available"
+        provider.notary_unavailable_policy = "stale_cache_with_audit"
 
         with patch.object(type(provider), "_notary_client") as mocked_client:
             mocked_client.return_value.evaluate.side_effect = NotaryTransportError(
@@ -482,6 +505,173 @@ class TestNotaryEvidence(TransactionCase):
             value = provider._refresh_external_value(claim.variable_id, self.partner_a.id, "current")
 
         self.assertIsNone(value)
+
+    def test_null_policy_returns_none_without_cache_write(self):
+        claim = self._create_claim_with_variable("null-policy-claim", value_type="string")
+        self.provider.notary_unavailable_policy = "null"
+
+        with patch.object(type(self.provider), "_notary_client") as mocked_client:
+            mocked_client.return_value.evaluate.side_effect = NotaryTransportError(
+                code="source.unavailable",
+                status_code=503,
+            )
+            value = self.provider._refresh_external_value(claim.variable_id, self.partner_a.id, "current")
+
+        self.assertIsNone(value)
+        cached = self.env["spp.data.value"].search(
+            [
+                ("variable_name", "=", claim.variable_id.name),
+                ("subject_id", "=", self.partner_a.id),
+                ("provider", "=", self.provider.code),
+            ],
+            limit=1,
+        )
+        self.assertFalse(cached)
+
+    def test_raise_policy_surfaces_notary_error_as_user_error(self):
+        claim = self._create_claim_with_variable("raise-policy-claim", value_type="string")
+        self.provider.notary_unavailable_policy = "raise"
+
+        with patch.object(type(self.provider), "_notary_client") as mocked_client:
+            mocked_client.return_value.evaluate.side_effect = NotaryTransportError(
+                code="source.unavailable",
+                status_code=503,
+            )
+            with self.assertRaises(UserError):
+                self.provider._refresh_external_value(claim.variable_id, self.partner_a.id, "current")
+
+    def test_notary_expires_at_is_clamped_to_minimum_cache_ttl(self):
+        claim = self._create_claim_with_variable("ttl-clamp", value_type="number")
+        self.provider.notary_min_cache_ttl_seconds = 300
+        upstream_expires_at = fields.Datetime.now() - timedelta(minutes=1)
+        response = SimpleNamespace(
+            evaluation_id="eval-ttl-clamp",
+            results=[
+                SimpleNamespace(
+                    claim_id="ttl-clamp",
+                    value=99,
+                    satisfied=True,
+                    expires_at=upstream_expires_at,
+                )
+            ],
+        )
+
+        with patch.object(type(self.provider), "_notary_client") as mocked_client:
+            mocked_client.return_value.evaluate.return_value = response
+            self.provider._refresh_external_value(claim.variable_id, self.partner_a.id, "current")
+
+        cached = self.env["spp.data.value"].search(
+            [
+                ("variable_name", "=", claim.variable_id.name),
+                ("subject_id", "=", self.partner_a.id),
+                ("provider", "=", self.provider.code),
+            ],
+            limit=1,
+        )
+        self.assertGreaterEqual(cached.expires_at, fields.Datetime.now() + timedelta(seconds=250))
+
+    def test_catalog_sync_marks_existing_pinned_claim_as_version_drift(self):
+        claim = self._create_claim_with_variable("drifting-claim", value_type="boolean")
+        catalog = SimpleNamespace(
+            claims=[
+                SimpleNamespace(
+                    id="drifting-claim",
+                    title="Drifting claim",
+                    description="Version changed upstream",
+                    version="2026-02",
+                    subject_type="individual",
+                    disclosure=["predicate"],
+                    value_type="boolean",
+                    default_disclosure=None,
+                )
+            ]
+        )
+
+        with patch.object(type(self.provider), "_fetch_notary_catalog", return_value=catalog):
+            self.provider.action_sync_notary_claim_catalog()
+
+        claim.invalidate_recordset()
+        self.assertEqual(claim.claim_version, "2026-02")
+        self.assertEqual(claim.pinned_version, "2026-01")
+        self.assertEqual(claim.state, "version_drift")
+        self.assertEqual(
+            self.Claim.search_count(
+                [("provider_id", "=", self.provider.id), ("external_id", "=", "drifting-claim")]
+            ),
+            1,
+        )
+
+    def test_catalog_sync_wizard_previews_before_confirming(self):
+        catalog = CatalogResponse.model_validate(
+            {
+                "claims": [
+                    {
+                        "id": "wizard-preview-claim",
+                        "title": "Wizard Preview Claim",
+                        "description": "Created only after confirm",
+                        "version": "2026-01",
+                        "subject_type": "individual",
+                        "disclosure": ["predicate"],
+                        "value_type": "boolean",
+                    }
+                ]
+            }
+        )
+        wizard = self.env["spp.notary.catalog.sync.wizard"].create({"provider_id": self.provider.id})
+
+        with patch.object(type(self.provider), "_fetch_notary_catalog", return_value=catalog):
+            wizard.action_load_preview()
+
+        self.assertEqual(wizard.state, "preview")
+        self.assertEqual(len(wizard.line_ids), 1)
+        self.assertEqual(wizard.line_ids.action, "create")
+        self.assertFalse(
+            self.Claim.search(
+                [("provider_id", "=", self.provider.id), ("external_id", "=", "wizard-preview-claim")]
+            )
+        )
+
+        wizard.action_sync_catalog()
+
+        self.assertTrue(
+            self.Claim.search(
+                [("provider_id", "=", self.provider.id), ("external_id", "=", "wizard-preview-claim")]
+            )
+        )
+
+    def test_catalog_sync_wizard_blocks_accessor_collision(self):
+        catalog = CatalogResponse.model_validate(
+            {
+                "claims": [
+                    {
+                        "id": "collision-claim",
+                        "title": "Collision Claim",
+                        "version": "2026-01",
+                        "subject_type": "individual",
+                        "value_type": "boolean",
+                    }
+                ]
+            }
+        )
+        variable_name = self.Claim._build_variable_name(self.provider.code, "collision-claim")
+        self.env["spp.cel.variable"].create(
+            {
+                "name": variable_name,
+                "cel_accessor": variable_name,
+                "source_type": "constant",
+                "value_type": "boolean",
+                "applies_to": "individual",
+            }
+        )
+        wizard = self.env["spp.notary.catalog.sync.wizard"].create({"provider_id": self.provider.id})
+
+        with patch.object(type(self.provider), "_fetch_notary_catalog", return_value=catalog):
+            wizard.action_load_preview()
+
+        self.assertEqual(wizard.line_ids.action, "blocked")
+        self.assertTrue(wizard.line_ids.blocking)
+        with self.assertRaises(UserError):
+            wizard.action_sync_catalog()
 
     def test_real_client_is_created_with_outgoing_log_context(self):
         provider = self.provider.with_context()
@@ -634,8 +824,17 @@ class TestNotaryEvidence(TransactionCase):
             }
         )
         claim = self._create_claim_with_variable("acl-read", value_type="boolean")
+        log = self.env["spp.api.outgoing.log"].sudo().log_call(
+            url="https://notary.example/claims/evaluate",
+            endpoint="/claims/evaluate",
+            http_method="POST",
+            service_name="Notary Client",
+            service_code=self.provider.code,
+            status="success",
+        )
 
         claim.with_user(user_viewer).read(["name"])
+        log.with_user(user_viewer).read(["display_name", "service_name"])
         with self.assertRaises(AccessError):
             self.Claim.with_user(user_viewer).create(
                 {
@@ -665,6 +864,7 @@ class TestNotaryEvidence(TransactionCase):
                 "provider_id": self.provider.id,
                 "external_id": claim_id,
                 "claim_version": "2026-01",
+                "pinned_version": "2026-01",
                 "name": claim_id,
                 "subject_type": "individual",
                 "value_type": value_type,

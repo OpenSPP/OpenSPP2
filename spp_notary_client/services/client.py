@@ -17,6 +17,8 @@ from .audit_log import NotaryOutgoingLogWrapper, build_request_summary, claim_id
 from .exceptions import (
     NotaryConfigurationError,
     NotaryError,
+    NotaryPurposeMissing,
+    NotarySubjectIdMissing,
     NotaryTransportError,
     exception_from_error_payload,
 )
@@ -172,12 +174,13 @@ class NotaryClient:
         """Evaluate one subject against one or more claims."""
         active_config = self._resolve_config(config)
         if not subject_id:
-            raise NotaryConfigurationError("Notary subject_id is required")
+            raise NotarySubjectIdMissing("Notary subject_id is required")
         if not claim_refs:
             raise NotaryConfigurationError("At least one Notary claim is required")
 
         normalized_claims = self._normalize_claim_refs(claim_refs)
         resolved_purpose, purpose_layer = self._resolve_purpose(active_config, purpose)
+        self._validate_audit_subject_hash(active_config, subject_id)
         request_model = EvaluateRequest(
             subject=Subject(id=subject_id, id_type=subject_id_type),
             claims=normalized_claims,
@@ -298,7 +301,13 @@ class NotaryClient:
             return purpose, "evaluation_context"
         if config.default_purpose_url:
             return config.default_purpose_url, "provider_default"
-        raise NotaryConfigurationError("Notary data-purpose is required")
+        raise NotaryPurposeMissing("Notary data-purpose is required")
+
+    def _validate_audit_subject_hash(self, config: NotaryClientConfig, subject_id: str | None) -> None:
+        if self.log_wrapper and subject_id and not config.subject_log_secret:
+            raise NotaryConfigurationError(
+                "Notary subject_log_secret is required before logging subject-scoped calls"
+            )
 
     def _request(
         self,

@@ -31,6 +31,18 @@ class NotaryConfigurationError(NotaryError, ValueError):
     default_message = "Notary client configuration is invalid"
 
 
+class NotaryPurposeMissing(NotaryConfigurationError):
+    """A data-purpose URL was required but no layer supplied one."""
+
+    default_message = "Notary data-purpose is required"
+
+
+class NotarySubjectIdMissing(NotaryConfigurationError):
+    """A subject identifier was required but could not be resolved."""
+
+    default_message = "Notary subject_id is required"
+
+
 class NotarySubjectNotFound(NotaryError):
     """The source could not find a matching subject."""
 
@@ -116,4 +128,6 @@ def exception_from_error_payload(status_code: int, payload: dict[str, Any] | Non
         return NotaryRateLimited, code or "rate_limited"
     if status_code in (401, 403) or (code and code.startswith("auth.")):
         return NotaryAuthError, code
+    if status_code in (400, 422):
+        return NotaryRequestError, code or "request.invalid"
     return ERROR_CODE_EXCEPTIONS.get(code, NotaryError), code

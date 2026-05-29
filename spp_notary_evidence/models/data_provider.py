@@ -2,13 +2,13 @@
 """Notary extensions for CEL data providers."""
 
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from odoo import _, fields, models
 from odoo.exceptions import UserError
 
 from odoo.addons.spp_notary_client.services.client import NotaryClient
-from odoo.addons.spp_notary_client.services.exceptions import NotaryError
+from odoo.addons.spp_notary_client.services.exceptions import NotaryError, NotarySubjectIdMissing
 from odoo.addons.spp_notary_client.services.schemas import CatalogResponse
 
 from .notary_claim import data_value_type_for_cel, normalize_notary_value_type
@@ -19,7 +19,9 @@ _logger = logging.getLogger(__name__)
 class DataProvider(models.Model):
     """Extend external providers with Notary catalog and execution behavior."""
 
-    _inherit = "spp.data.provider"
+    _name = "spp.data.provider"
+    _inherit = ["spp.data.provider", "mail.thread", "mail.activity.mixin"]
+    _description = "External Data Provider"
 
     provider_kind = fields.Selection(
         selection_add=[("notary", "Notary")],
@@ -30,21 +32,25 @@ class DataProvider(models.Model):
         string="Notary Bearer Token",
         groups="spp_notary_evidence.group_notary_evidence_manager",
     )
-    notary_default_purpose_url = fields.Char(string="Default Data Purpose")
+    notary_default_purpose_url = fields.Char(string="Default Data Purpose", tracking=True)
     notary_unavailable_policy = fields.Selection(
         selection=[
-            ("fail_closed", "Fail Closed"),
-            ("stale_if_available", "Use Stale Cache If Available"),
+            ("raise", "Raise"),
+            ("stale_cache_with_audit", "Use Stale Cache With Audit"),
+            ("null", "Return Null"),
         ],
-        default="fail_closed",
+        default="raise",
         required=True,
+        tracking=True,
     )
     notary_subject_id_type_id = fields.Many2one(
         comodel_name="spp.vocabulary.code",
         string="Notary Subject ID Type",
+        domain=[("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:id-type")],
+        tracking=True,
     )
-    notary_min_cache_ttl_seconds = fields.Integer(default=300)
-    notary_default_ttl_seconds = fields.Integer(default=86400)
+    notary_min_cache_ttl_seconds = fields.Integer(default=300, tracking=True)
+    notary_default_ttl_seconds = fields.Integer(default=86400, tracking=True)
     notary_subject_log_secret = fields.Char(groups="spp_notary_evidence.group_notary_evidence_manager")
     notary_catalog_path = fields.Char(
         string="Notary Catalog Path",
@@ -69,13 +75,12 @@ class DataProvider(models.Model):
         mock_client = self.env.context.get("notary_client")
         if mock_client:
             return mock_client
-        auth_type = "bearer" if self.auth_type == "oauth2" else self.auth_type
         return NotaryClient(
             {
                 "base_url": self.base_url,
-                "auth_type": auth_type,
+                "auth_type": self.auth_type,
                 "api_key": self.api_key,
-                "bearer_token": self.notary_bearer_token or self.oauth_client_secret,
+                "bearer_token": self.notary_bearer_token,
                 "default_purpose_url": self.notary_default_purpose_url,
                 "timeout_seconds": (self.timeout_ms or 5000) / 1000.0,
                 "code": self.code,
@@ -112,14 +117,29 @@ class DataProvider(models.Model):
         except NotaryError as error:
             raise UserError(_("Notary catalog sync failed: %(error)s") % {"error": error}) from error
 
+        return self._apply_notary_claim_catalog(catalog)
+
+    def action_open_notary_catalog_sync_wizard(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Sync Notary Catalog"),
+            "res_model": "spp.notary.catalog.sync.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {"default_provider_id": self.id},
+        }
+
+    def _apply_notary_claim_catalog(self, catalog):
+        self.ensure_one()
         Claim = self.env["spp.notary.claim"]
         created = updated = deactivated = 0
         now = fields.Datetime.now()
-        seen_keys = set()
+        seen_claim_ids = set()
         for summary in catalog.claims:
             claim_id = summary.id
             claim_version = summary.version or ""
-            seen_keys.add((claim_id, claim_version))
+            seen_claim_ids.add(claim_id)
             values = {
                 "provider_id": self.id,
                 "external_id": claim_id,
@@ -139,19 +159,25 @@ class DataProvider(models.Model):
                 [
                     ("provider_id", "=", self.id),
                     ("external_id", "=", claim_id),
-                    ("claim_version", "=", claim_version),
                 ],
                 limit=1,
             )
             if claim:
+                version_changed = claim.claim_version != claim_version
+                pinned_elsewhere = claim.pinned_version and claim.pinned_version != claim_version
+                if version_changed and pinned_elsewhere:
+                    values["state"] = "version_drift"
+                if not claim.pinned_version and claim_version:
+                    values["pinned_version"] = claim_version
                 claim.write(values)
                 updated += 1
             else:
+                if claim_version:
+                    values["pinned_version"] = claim_version
                 Claim.create(values)
                 created += 1
         for claim in self.notary_claim_ids:
-            key = (claim.external_id, claim.claim_version or "")
-            if claim.active and key not in seen_keys:
+            if claim.active and claim.external_id not in seen_claim_ids:
                 claim.write({"active": False, "state": "unavailable"})
                 deactivated += 1
         self.write(
@@ -226,12 +252,14 @@ class DataProvider(models.Model):
             except NotaryError as error:
                 _logger.warning("Notary batch evaluation failed for provider %s: %s", self.code, error)
                 chunk_subject_ids = [subject_id for subject_id, _subject_ref in chunk]
-                for subject_id, value in self._read_stale_notary_values(
-                    variable,
-                    chunk_subject_ids,
-                    period_key,
-                ).items():
-                    values_by_subject[subject_id] = {"value": value, "expires_at": None}
+                values_by_subject.update(
+                    self._values_for_notary_error(
+                        error,
+                        variable,
+                        chunk_subject_ids,
+                        period_key,
+                    )
+                )
                 continue
             values_by_subject.update(self._values_from_batch_response(response, chunk, claim))
         self._write_notary_values(variable, values_by_subject, period_key)
@@ -256,7 +284,8 @@ class DataProvider(models.Model):
             )
         except NotaryError as error:
             _logger.warning("Notary evaluation failed for provider %s: %s", self.code, error)
-            return self._read_stale_notary_values(variable, [subject_id], period_key).get(subject_id)
+            fallback = self._values_for_notary_error(error, variable, [subject_id], period_key)
+            return fallback.get(subject_id, {}).get("value")
         result = self._first_matching_result(response.results, claim.external_id)
         if result is None:
             return None
@@ -268,8 +297,7 @@ class DataProvider(models.Model):
         result = []
         for subject_id in subject_ids:
             subject_ref = self._notary_subject_ref(subject_id)
-            if subject_ref:
-                result.append((subject_id, subject_ref))
+            result.append((subject_id, subject_ref))
         return result
 
     def _chunk_notary_subjects(self, subject_records):
@@ -280,13 +308,13 @@ class DataProvider(models.Model):
     def _notary_subject_ref(self, subject_id):
         self.ensure_one()
         if not self.notary_subject_id_type_id:
-            return None
+            raise NotarySubjectIdMissing("Notary subject ID type is not configured")
         partner = self.env["res.partner"].browse(subject_id).exists()
         if not partner:
-            return None
+            raise NotarySubjectIdMissing("Notary subject record was not found")
         reg_id = partner.reg_ids.filtered(lambda rec: rec.id_type_id == self.notary_subject_id_type_id)[:1]
         if not reg_id or not reg_id.value:
-            return None
+            raise NotarySubjectIdMissing("Notary subject ID value was not found")
         return {"id": reg_id.value, "id_type": self.notary_subject_id_type_id.uri}
 
     def _notary_purpose(self, claim):
@@ -302,8 +330,8 @@ class DataProvider(models.Model):
         return purpose
 
     def _notary_claim_ref(self, claim):
-        if claim.pinned_version and claim.claim_version:
-            return {"id": claim.external_id, "version": claim.claim_version}
+        if claim.pinned_version:
+            return {"id": claim.external_id, "version": claim.pinned_version}
         return claim.external_id
 
     def _values_from_batch_response(self, response, subject_records, claim):
@@ -341,6 +369,8 @@ class DataProvider(models.Model):
             self.notary_default_ttl_seconds or self.default_ttl_seconds or 0,
         )
         for subject_id, value_data in values_by_subject.items():
+            if value_data.get("stale"):
+                continue
             values_list.append(
                 {
                     "variable_name": variable.name,
@@ -351,14 +381,16 @@ class DataProvider(models.Model):
                     "value_type": data_value_type_for_cel(variable.value_type),
                     "source_type": "external",
                     "provider": self.code,
-                    "expires_at": value_data.get("expires_at"),
+                    "expires_at": self._effective_notary_expires_at(value_data.get("expires_at")),
                     "ttl_seconds": ttl,
                 }
             )
+        if not values_list:
+            return
         self.env["spp.data.value"].upsert_values(values_list)
 
     def _read_stale_notary_values(self, variable, subject_ids, period_key):
-        if self.notary_unavailable_policy != "stale_if_available" or not subject_ids:
+        if not subject_ids:
             return {}
         records = self.env["spp.data.value"].search(
             [
@@ -377,10 +409,72 @@ class DataProvider(models.Model):
             if record.subject_id in values:
                 continue
             if isinstance(record.value_json, dict) and "value" in record.value_json:
-                values[record.subject_id] = record.value_json["value"]
+                values[record.subject_id] = {
+                    "value": record.value_json["value"],
+                    "expires_at": record.expires_at,
+                    "stale": True,
+                }
             else:
-                values[record.subject_id] = record.value_json
+                values[record.subject_id] = {
+                    "value": record.value_json,
+                    "expires_at": record.expires_at,
+                    "stale": True,
+                }
         return values
+
+    def _values_for_notary_error(self, error, variable, subject_ids, period_key):
+        if self.notary_unavailable_policy == "raise":
+            raise UserError(_("Notary evaluation failed: %(error)s") % {"error": error}) from error
+        if self.notary_unavailable_policy == "null":
+            return {}
+        if self.notary_unavailable_policy != "stale_cache_with_audit":
+            return {}
+
+        stale_values = self._read_stale_notary_values(variable, subject_ids, period_key)
+        if stale_values:
+            self._log_stale_cache_read(variable, stale_values, period_key, error)
+        return stale_values
+
+    def _log_stale_cache_read(self, variable, stale_values, period_key, error):
+        if "spp.api.outgoing.log" not in self.env:
+            return
+
+        from odoo.addons.spp_api_v2.services.outgoing_api_log_service import OutgoingApiLogService
+
+        claim = variable.notary_claim_id
+        request_summary = {
+            "purpose": "stale_cache_read",
+            "purpose_layer": "cache_policy",
+            "claim_ids": [claim.external_id] if claim else [],
+            "subject_count": len(stale_values),
+            "cache_policy": "stale_cache_with_audit",
+            "period_key": period_key or "current",
+        }
+        service = OutgoingApiLogService(
+            self.env,
+            service_name="Notary Client",
+            service_code=self.code,
+        )
+        service.log_call(
+            url=self.base_url or "notary://stale-cache",
+            endpoint="/claims/stale-cache-read",
+            http_method="GET",
+            request_summary=request_summary,
+            response_status_code=getattr(error, "status_code", None),
+            origin_model=self._name,
+            origin_record_id=self.id,
+            status="error",
+            error_detail=str(getattr(error, "code", None) or error.__class__.__name__),
+        )
+
+    def _effective_notary_expires_at(self, expires_at):
+        if not expires_at:
+            return None
+        minimum_ttl = self.notary_min_cache_ttl_seconds or 0
+        if minimum_ttl <= 0:
+            return expires_at
+        minimum_expires_at = fields.Datetime.now() + timedelta(seconds=minimum_ttl)
+        return max(expires_at, minimum_expires_at)
 
     def _parse_notary_datetime(self, value):
         if not value:
