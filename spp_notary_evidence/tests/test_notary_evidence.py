@@ -13,8 +13,9 @@ from odoo.exceptions import AccessError, UserError
 from odoo.tests import TransactionCase, tagged
 
 from odoo.addons.spp_notary_client.services.client import NotaryClient
-from odoo.addons.spp_notary_client.services.exceptions import NotarySubjectIdMissing, NotaryTransportError
+from odoo.addons.spp_notary_client.services.exceptions import NotaryError, NotarySubjectIdMissing, NotaryTransportError
 from odoo.addons.spp_notary_client.services.schemas import CatalogResponse
+from odoo.addons.spp_notary_evidence.models.notary_claim import data_value_type_for_cel, normalize_notary_value_type
 
 
 @tagged("post_install", "-at_install")
@@ -129,6 +130,71 @@ class TestNotaryEvidence(TransactionCase):
         self.assertEqual(claim.variable_id.source_type, "external")
         self.assertEqual(claim.variable_id.external_provider_id, self.provider)
         self.assertEqual(claim.variable_id.notary_claim_id, claim)
+
+    def test_fetch_notary_catalog_supports_legacy_client_shapes(self):
+        get_client = SimpleNamespace(
+            get_claim_catalog=lambda: [
+                {
+                    "id": "legacy-get",
+                    "name": "Legacy Get",
+                    "version": "2026-01",
+                    "type": "bool",
+                }
+            ]
+        )
+        fetch_client = SimpleNamespace(
+            fetch_claim_catalog=lambda path: [
+                {
+                    "id": f"legacy-fetch-{path.strip('/')}",
+                    "title": "Legacy Fetch",
+                    "formats": ["json"],
+                }
+            ]
+        )
+
+        with patch.object(type(self.provider), "_notary_client", return_value=get_client):
+            get_catalog = self.provider._fetch_notary_catalog()
+        with patch.object(type(self.provider), "_notary_client", return_value=fetch_client):
+            fetch_catalog = self.provider._fetch_notary_catalog()
+
+        self.assertEqual(get_catalog.claims[0].id, "legacy-get")
+        self.assertEqual(get_catalog.claims[0].title, "Legacy Get")
+        self.assertEqual(get_catalog.claims[0].value_type, "bool")
+        self.assertEqual(fetch_catalog.claims[0].id, "legacy-fetch-claims")
+        self.assertEqual(fetch_catalog.claims[0].supported_formats, ["json"])
+        with patch.object(type(self.provider), "_notary_client", return_value=SimpleNamespace()):
+            with self.assertRaises(UserError):
+                self.provider._fetch_notary_catalog()
+
+    def test_catalog_sync_rejects_non_notary_and_wraps_notary_error(self):
+        generic_provider = self.Provider.create(
+            {
+                "name": "Generic Provider",
+                "code": f"generic_notary_test_{self._test_id}",
+                "provider_kind": "generic",
+                "base_url": "https://generic.example",
+                "auth_type": "none",
+            }
+        )
+
+        with self.assertRaises(UserError):
+            generic_provider.action_sync_notary_claim_catalog()
+        with patch.object(type(self.provider), "_fetch_notary_catalog", side_effect=NotaryError("catalog down")):
+            with self.assertRaises(UserError):
+                self.provider.action_sync_notary_claim_catalog()
+
+    def test_provider_actions_return_wizard_and_claim_windows(self):
+        claim = self._create_claim_with_variable("window-claim", value_type="boolean")
+
+        wizard_action = self.provider.action_open_notary_catalog_sync_wizard()
+        claim_action = self.provider.action_view_notary_claims()
+
+        self.assertEqual(wizard_action["res_model"], "spp.notary.catalog.sync.wizard")
+        self.assertEqual(wizard_action["context"]["default_provider_id"], self.provider.id)
+        self.assertEqual(claim_action["res_model"], "spp.notary.claim")
+        self.assertIn(("provider_id", "=", self.provider.id), claim_action["domain"])
+        self.assertEqual(self.provider.notary_claim_count, 1)
+        self.assertEqual(claim.provider_id, self.provider)
 
     def test_catalog_sync_marks_missing_claims_unavailable(self):
         claim = self._create_claim_with_variable("removed-claim", value_type="boolean")
@@ -528,6 +594,17 @@ class TestNotaryEvidence(TransactionCase):
         )
         self.assertFalse(cached)
 
+    def test_error_policy_helpers_handle_unknown_policy_and_empty_stale_reads(self):
+        claim = self._create_claim_with_variable("empty-stale-policy", value_type="string")
+        error = NotaryTransportError(code="source.unavailable", status_code=503)
+
+        self.provider.notary_unavailable_policy = "stale_cache_with_audit"
+        self.assertEqual(self.provider._read_stale_notary_values(claim.variable_id, [], "current"), {})
+        self.assertEqual(
+            self.provider._values_for_notary_error(error, claim.variable_id, [self.partner_a.id], "current"),
+            {},
+        )
+
     def test_raise_policy_surfaces_notary_error_as_user_error(self):
         claim = self._create_claim_with_variable("raise-policy-claim", value_type="string")
         self.provider.notary_unavailable_policy = "raise"
@@ -569,6 +646,68 @@ class TestNotaryEvidence(TransactionCase):
             limit=1,
         )
         self.assertGreaterEqual(cached.expires_at, fields.Datetime.now() + timedelta(seconds=250))
+
+    def test_notary_value_helpers_cover_stale_raw_values_and_fallback_shapes(self):
+        claim = self._create_claim_with_variable("helper-shapes", value_type="boolean")
+        stale_expires_at = fields.Datetime.now() - timedelta(minutes=30)
+        self.env["spp.data.value"].upsert_values(
+            [
+                {
+                    "variable_name": claim.variable_id.name,
+                    "subject_id": self.partner_a.id,
+                    "period_key": "past",
+                    "provider": self.provider.code,
+                    "value_json": "raw-stale",
+                    "value_type": "string",
+                    "source_type": "external",
+                    "expires_at": stale_expires_at,
+                }
+            ]
+        )
+        batch_response = SimpleNamespace(
+            items=[
+                SimpleNamespace(
+                    input_index=None,
+                    status="succeeded",
+                    claim_results=[],
+                    results=[
+                        SimpleNamespace(
+                            claim_id="helper-shapes",
+                            value=None,
+                            satisfied=False,
+                            expires_at="2026-01-02T03:04:05Z",
+                        )
+                    ],
+                ),
+                SimpleNamespace(input_index=2, status="failed", claim_results=[], results=[]),
+            ]
+        )
+
+        stale = self.provider._read_stale_notary_values(claim.variable_id, [self.partner_a.id], "past")
+        values = self.provider._values_from_batch_response(batch_response, [(self.partner_b.id, {})], claim)
+        self.provider._write_notary_values(
+            claim.variable_id,
+            {self.partner_c.id: {"value": "do-not-write", "stale": True}},
+            "current",
+        )
+
+        self.assertEqual(stale[self.partner_a.id]["value"], "raw-stale")
+        self.assertEqual(values[self.partner_b.id]["value"], False)
+        self.assertTrue(values[self.partner_b.id]["expires_at"])
+        self.assertIsNone(self.provider._effective_notary_expires_at(None))
+        self.provider.notary_min_cache_ttl_seconds = 0
+        upstream_expires_at = fields.Datetime.now() + timedelta(minutes=5)
+        self.assertEqual(self.provider._effective_notary_expires_at(upstream_expires_at), upstream_expires_at)
+        self.assertIsNone(self.provider._parse_notary_datetime(object()))
+        self.assertFalse(
+            self.env["spp.data.value"].search(
+                [
+                    ("variable_name", "=", claim.variable_id.name),
+                    ("subject_id", "=", self.partner_c.id),
+                    ("provider", "=", self.provider.code),
+                ]
+            )
+        )
 
     def test_catalog_sync_marks_existing_pinned_claim_as_version_drift(self):
         claim = self._create_claim_with_variable("drifting-claim", value_type="boolean")
@@ -633,6 +772,85 @@ class TestNotaryEvidence(TransactionCase):
             self.Claim.search([("provider_id", "=", self.provider.id), ("external_id", "=", "wizard-preview-claim")])
         )
 
+    def test_catalog_sync_wizard_default_get_guards_and_preview_errors(self):
+        generic_provider = self.Provider.create(
+            {
+                "name": "Generic Wizard Provider",
+                "code": f"generic_wizard_notary_{self._test_id}",
+                "provider_kind": "generic",
+                "base_url": "https://generic-wizard.example",
+                "auth_type": "none",
+            }
+        )
+        values = (
+            self.env["spp.notary.catalog.sync.wizard"]
+            .with_context(active_model="spp.data.provider", active_id=self.provider.id)
+            .default_get(["provider_id"])
+        )
+        wizard = self.env["spp.notary.catalog.sync.wizard"].create({"provider_id": self.provider.id})
+        generic_wizard = self.env["spp.notary.catalog.sync.wizard"].create({"provider_id": generic_provider.id})
+
+        self.assertEqual(values["provider_id"], self.provider.id)
+        with self.assertRaises(UserError):
+            wizard.action_sync_catalog()
+        with self.assertRaises(UserError):
+            generic_wizard.action_load_preview()
+        with patch.object(type(self.provider), "_fetch_notary_catalog", side_effect=NotaryError("preview down")):
+            with self.assertRaises(UserError):
+                wizard.action_load_preview()
+
+    def test_catalog_sync_wizard_previews_update_no_change_drift_and_unavailable(self):
+        no_change = self._create_claim_with_variable("wizard-no-change", value_type="boolean")
+        update = self._create_claim_with_variable("wizard-update", value_type="boolean")
+        drift = self._create_claim_with_variable("wizard-drift", value_type="number")
+        unavailable = self._create_claim_with_variable("wizard-unavailable", value_type="string")
+        catalog = CatalogResponse.model_validate(
+            {
+                "claims": [
+                    {
+                        "id": no_change.external_id,
+                        "title": no_change.name,
+                        "description": "",
+                        "version": "2026-01",
+                        "subject_type": "individual",
+                        "disclosure": ["predicate"],
+                        "value_type": "boolean",
+                    },
+                    {
+                        "id": update.external_id,
+                        "title": "Wizard Update Changed",
+                        "description": "Changed description",
+                        "version": "2026-01",
+                        "subject_type": "individual",
+                        "disclosure": ["predicate"],
+                        "value_type": "boolean",
+                    },
+                    {
+                        "id": drift.external_id,
+                        "title": drift.name,
+                        "description": "",
+                        "version": "2026-02",
+                        "subject_type": "individual",
+                        "disclosure": ["predicate"],
+                        "value_type": "number",
+                    },
+                ]
+            }
+        )
+        wizard = self.env["spp.notary.catalog.sync.wizard"].create({"provider_id": self.provider.id})
+
+        line_values = wizard._preview_line_values(catalog)
+        by_claim = {values["claim_id"]: values for values in line_values}
+        summary = wizard._summary_from_lines(line_values)
+
+        self.assertEqual(by_claim[no_change.external_id]["action"], "no_change")
+        self.assertEqual(by_claim[update.external_id]["action"], "update")
+        self.assertEqual(by_claim[drift.external_id]["action"], "version_drift")
+        self.assertEqual(by_claim[drift.external_id]["state_after"], "version_drift")
+        self.assertEqual(by_claim[unavailable.external_id]["action"], "unavailable")
+        self.assertIn("Update: 1", summary)
+        self.assertIn("Version drift: 1", summary)
+
     def test_catalog_sync_wizard_blocks_accessor_collision(self):
         catalog = CatalogResponse.model_validate(
             {
@@ -666,6 +884,21 @@ class TestNotaryEvidence(TransactionCase):
         self.assertTrue(wizard.line_ids.blocking)
         with self.assertRaises(UserError):
             wizard.action_sync_catalog()
+
+    def test_claim_helpers_normalize_values_and_update_existing_variable(self):
+        self.assertEqual(self.Claim._build_variable_name("123 Provider", "Claim!!!"), "notary_123_provider_claim")
+        self.assertEqual(normalize_notary_value_type("decimal"), "number")
+        self.assertEqual(normalize_notary_value_type("unsupported"), "string")
+        self.assertEqual(data_value_type_for_cel("date"), "string")
+        self.assertEqual(data_value_type_for_cel("list"), "json")
+
+        claim = self._create_claim_with_variable("helper-variable", value_type="money")
+        claim.write({"state": "deprecated", "active": False, "subject_type": "group"})
+
+        self.assertFalse(claim.variable_id.active)
+        self.assertEqual(claim.variable_id.state, "inactive")
+        self.assertEqual(claim.variable_id.applies_to, "group")
+        self.assertEqual(claim.variable_id.value_type, "money")
 
     def test_real_client_is_created_with_outgoing_log_context(self):
         provider = self.provider.with_context()

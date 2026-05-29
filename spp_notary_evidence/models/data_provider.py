@@ -2,7 +2,7 @@
 """Notary extensions for CEL data providers."""
 
 import logging
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from odoo import _, fields, models
 from odoo.exceptions import UserError
@@ -487,5 +487,11 @@ class DataProvider(models.Model):
         if isinstance(value, datetime):
             return value
         if isinstance(value, str):
-            return fields.Datetime.to_datetime(value.replace("Z", "+00:00"))
+            try:
+                return fields.Datetime.to_datetime(value)
+            except ValueError:
+                parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+                if parsed.tzinfo:
+                    parsed = parsed.astimezone(UTC).replace(tzinfo=None)
+                return parsed
         return None
