@@ -97,6 +97,12 @@ class DCISocialSearchService:
             try:
                 response_item = self._process_search_item(search_req)
                 response_items.append(response_item)
+            except AccessError:
+                # Permission failures aren't per-item processing errors;
+                # propagate so the FastAPI layer can answer with the
+                # right HTTP status instead of a silent rjct response
+                # that hides why the request was denied.
+                raise
             except Exception:
                 _logger.exception("Error processing search item %s", search_req.reference_id)
                 # Return error response for this item
@@ -410,17 +416,29 @@ class DCISocialSearchService:
             domain_item = self._condition_to_domain(attr, op, val)
             domain.append(domain_item)
 
-        # Process OR expressions
+        # Process OR expressions. Semantically the parsed DCI shape
+        # ``{seq: [...], or: [{seq: [...]}, ...]}`` means
+        # ``(seq[0] AND seq[1] ...) OR (or[0]) OR (or[1]) ...``.
+        # In Odoo prefix notation we need explicit '&' grouping when an
+        # alternative has more than one condition, and one '|' between
+        # every pair of alternatives.
         if or_exprs:
-            or_domain = []
+
+            def _and_group(conditions: list) -> list:
+                if len(conditions) <= 1:
+                    return list(conditions)
+                return ["&"] * (len(conditions) - 1) + list(conditions)
+
+            alternatives = [_and_group(domain)]
             for or_expr in or_exprs:
                 sub_domain = self._parse_expression(or_expr)
                 if sub_domain:
-                    # Add OR operator before each alternative (except first)
-                    if or_domain:
-                        or_domain.append("|")
-                    or_domain.extend(sub_domain)
-            domain.extend(or_domain)
+                    alternatives.append(_and_group(sub_domain))
+
+            new_domain: list = ["|"] * (len(alternatives) - 1)
+            for alt in alternatives:
+                new_domain.extend(alt)
+            domain = new_domain
 
         return domain
 

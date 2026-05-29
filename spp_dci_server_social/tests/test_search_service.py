@@ -9,7 +9,7 @@ from odoo.exceptions import AccessError, ValidationError
 from odoo.tests import tagged
 
 from odoo.addons.spp_dci.schemas.search import (
-    Pagination,
+    PaginationRequest,
     SearchCriteria,
     SearchRequest,
     SearchRequestItem,
@@ -228,10 +228,11 @@ class TestDCISocialSearchService(DCISocialServerCommon):
 
         response = self.search_service.execute_search(request)
 
-        # Verify response - should find individuals in Test City
+        # Verify response - should find both individuals plus the
+        # household, all of which the fixture places in "Test City".
         response_item = response.search_response[0]
         self.assertEqual(response_item.status, "succ")
-        self.assertEqual(len(response_item.data.reg_records), 2)
+        self.assertEqual(len(response_item.data.reg_records), 3)
 
     def test_search_group(self):
         """Test searching for groups/households."""
@@ -277,7 +278,7 @@ class TestDCISocialSearchService(DCISocialServerCommon):
             reg_event_type="ACTIVE",
             query_type="expression",
             query={"seq": []},  # Empty query to match all registrants
-            pagination=Pagination(page_size=2, page_number=1),
+            pagination=PaginationRequest(page_size=2, page_number=1),
         )
 
         search_req = SearchRequestItem(
@@ -311,7 +312,7 @@ class TestDCISocialSearchService(DCISocialServerCommon):
             reg_event_type="ACTIVE",
             query_type="expression",
             query={"seq": []},  # Empty query to match all registrants
-            pagination=Pagination(page_size=2, page_number=2),
+            pagination=PaginationRequest(page_size=2, page_number=2),
         )
 
         search_req = SearchRequestItem(
@@ -532,9 +533,13 @@ class TestDCISocialSearchService(DCISocialServerCommon):
         criteria = SearchCriteria(
             reg_type="SOCIAL_REGISTRY",
             reg_event_type="ACTIVE",
-            query_type="namedQuery",
-            query={"query_name": "all"},
-            pagination=Pagination(page_size=1, page_number=1),
+            # query_type="namedQuery" is not implemented by the service;
+            # an empty expression matches every registrant and is a fair
+            # stand-in for "give me all results" while exercising cursor
+            # pagination.
+            query_type="expression",
+            query={"seq": []},
+            pagination=PaginationRequest(page_size=1, page_number=1),
         )
 
         search_req = SearchRequestItem(
@@ -565,9 +570,9 @@ class TestDCISocialSearchService(DCISocialServerCommon):
             criteria_with_cursor = SearchCriteria(
                 reg_type="SOCIAL_REGISTRY",
                 reg_event_type="ACTIVE",
-                query_type="namedQuery",
-                query={"query_name": "all"},
-                pagination=Pagination(
+                query_type="expression",
+                query={"seq": []},
+                pagination=PaginationRequest(
                     page_size=1,
                     page_number=1,
                     cursor=response_item.pagination.next_cursor,
@@ -612,9 +617,13 @@ class TestDCISocialSearchService(DCISocialServerCommon):
         criteria = SearchCriteria(
             reg_type="SOCIAL_REGISTRY",
             reg_event_type="ACTIVE",
-            query_type="namedQuery",
-            query={"query_name": "all"},
-            pagination=Pagination(
+            # query_type="namedQuery" is not implemented by the service;
+            # an empty expression matches every registrant and is a fair
+            # stand-in for "give me all results" while exercising cursor
+            # pagination.
+            query_type="expression",
+            query={"seq": []},
+            pagination=PaginationRequest(
                 page_size=10,
                 page_number=1,
                 cursor="invalid_cursor_string",
@@ -672,9 +681,19 @@ class TestDCISocialSearchService(DCISocialServerCommon):
         self.assertEqual(response_item.status_reason_message, "The search query format is invalid")
 
     def test_search_without_permission(self):
-        """Test that search without registry viewer permission is denied."""
-        # Remove registry viewer permission
-        self.env.user.write({"group_ids": [(3, self.env.ref("spp_registry.group_registry_viewer").id, False)]})
+        """Test that search without registry viewer permission is denied.
+
+        Use a fresh internal user (not the test superuser) because
+        ``has_group`` returns True for superuser regardless of the
+        actual group memberships, which would silently mask the check.
+        """
+        plain_user = self.env["res.users"].create(
+            {
+                "name": "DCI Search Plain User",
+                "login": "dci_plain_user@example.test",
+                "group_ids": [(6, 0, [self.env.ref("base.group_user").id])],
+            }
+        )
 
         criteria = SearchCriteria(
             reg_type="SOCIAL_REGISTRY",
@@ -694,9 +713,14 @@ class TestDCISocialSearchService(DCISocialServerCommon):
             search_request=[search_req],
         )
 
-        # Execute search should raise AccessError
+        plain_env = self.env(user=plain_user.id)
+        self.assertFalse(
+            plain_env.user.has_group("spp_registry.group_registry_viewer"),
+            "fixture mistake: plain_user should not have registry_viewer",
+        )
+        service = DCISocialSearchService(plain_env, sender_registry=self.test_sender)
         with self.assertRaises(AccessError) as context:
-            self.search_service.execute_search(request)
+            service.execute_search(request)
 
         error_msg = str(context.exception)
         self.assertIn("permission", error_msg.lower())
@@ -722,9 +746,12 @@ class TestDCISocialSearchService(DCISocialServerCommon):
             search_request=[search_req],
         )
 
-        # Mock search to raise an exception
-        with patch.object(self.search_service.env["res.partner"], "search", side_effect=Exception("Internal error")):
-            self.env.user.write({"group_ids": [(4, self.env.ref("spp_registry.group_registry_viewer").id)]})
+        # Mock search to raise an exception. In Odoo 19 recordsets are
+        # immutable so patch.object on the recordset raises read-only;
+        # patch the model class via type(...) instead.
+        self.env.user.write({"group_ids": [(4, self.env.ref("spp_registry.group_registry_viewer").id)]})
+        partner_cls = type(self.search_service.env["res.partner"])
+        with patch.object(partner_cls, "search", side_effect=Exception("Internal error")):
             response = self.search_service.execute_search(request)
 
         # Verify error response with sanitized message

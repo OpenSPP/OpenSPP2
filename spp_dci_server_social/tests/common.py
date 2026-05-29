@@ -24,13 +24,13 @@ class DCISocialServerCommon(TransactionCase):
         cls.VocabularyCode = cls.env["spp.vocabulary.code"]
         cls.SenderRegistry = cls.env["spp.dci.sender.registry"]
 
-        # Create test ID type for identifiers
-        cls.test_id_type = cls.env["spp.id.type"].create(
-            {
-                "name": "National ID",
-                "namespace_uri": "urn:gov:example:id:national-id",
-            }
-        )
+        # spp.registry.id.id_type_id is a Many2one("spp.vocabulary.code"),
+        # not Many2one("spp.id.type") - the earlier fixture created a
+        # spp.id.type record and the integer id silently collided with a
+        # vocabulary code from another vocabulary (urn:openspp:vocab:relationship),
+        # so every search-by-identifier returned 0 records. Use the real
+        # vocabulary code shipped with spp_vocabulary instead.
+        cls.test_id_type = cls.env.ref("spp_vocabulary.code_id_type_national_id")
 
         # Create test vocabulary codes if they don't exist
         cls._create_test_vocabularies()
@@ -306,5 +306,9 @@ class DCISocialServerCommon(TransactionCase):
                 "active": True,
                 "partner_id": test_partner.id,
                 "organization_type_id": org_type_government.id,
+                # Bypass consent filtering for the default fixture so search
+                # tests don't have to create a consent record per partner.
+                # The dedicated consent-flow tests override this explicitly.
+                "legal_basis": "legal_obligation",
             }
         )
