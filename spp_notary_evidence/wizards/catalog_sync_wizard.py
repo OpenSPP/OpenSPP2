@@ -85,8 +85,12 @@ class NotaryCatalogSyncWizard(models.TransientModel):
 
         catalog = CatalogResponse.model_validate(self.catalog_payload)
         result = self.provider_id._apply_notary_claim_catalog(catalog)
-        self.write({"state": "done"})
+        self.action_validate()
         return result
+
+    def action_validate(self):
+        """Mark the transient wizard as complete after a confirmed sync."""
+        self.write({"state": "done"})
 
     def _preview_line_values(self, catalog):
         self.ensure_one()

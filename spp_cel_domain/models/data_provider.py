@@ -225,17 +225,20 @@ class DataProvider(models.Model):
     # EXTERNAL-VALUE HOOKS
     # ═══════════════════════════════════════════════════════════════════════
     # These are the integration points used by the evaluator and executor when
-    # a variable has `source_type='external'`. The base implementation is a
-    # no-op that warns. Downstream modules (e.g. spp_notary_evidence) override
-    # them on providers whose `provider_kind` matches their integration.
+    # a variable has `source_type='external'`. Downstream modules (e.g.
+    # spp_notary_evidence) override them on providers whose `provider_kind`
+    # matches their integration. The base batch hook falls back to the single
+    # refresh hook to preserve older provider-specific implementations.
 
     def _compute_external_values(self, variable, subject_ids, period_key):
         """Batch-compute external values for a variable across subjects.
 
-        Called from `spp.data.cache.manager._compute_variable_values` when
-        `variable.source_type == 'external'`. Downstream modules override
-        this on their own `provider_kind` to issue the actual upstream call
-        (e.g. POST `/claims/batch-evaluate` for Notary).
+        Called from `spp.data.cache.manager._compute_variable_values` and
+        `spp.cel.executor._exec_external_metric` when
+        `variable.source_type == 'external'`. Downstream modules override this
+        on their own `provider_kind` to issue the actual upstream batch call
+        (e.g. POST `/claims/batch-evaluate` for Notary). The base
+        implementation falls back to the single-subject refresh hook.
 
         Args:
             variable: `spp.cel.variable` record (source_type='external').
@@ -248,15 +251,13 @@ class DataProvider(models.Model):
                   missing keys as "no cached value").
         """
         self.ensure_one()
-        _logger.warning(
-            "Provider '%s' (kind=%s) has no `_compute_external_values` override "
-            "for variable '%s'. Returning empty dict; cached values must be "
-            "supplied via API push or a provider-specific override.",
-            self.code,
-            self.provider_kind,
-            variable.name,
-        )
-        return {}
+        values = {}
+        for subject_id in subject_ids:
+            # pylint: disable=assignment-from-none
+            value = self._refresh_external_value(variable, int(subject_id), period_key)
+            if value is not None:
+                values[int(subject_id)] = value
+        return values
 
     def _refresh_external_value(self, variable, subject_id, period_key):
         """Refresh a single external value on cache miss.
@@ -279,8 +280,7 @@ class DataProvider(models.Model):
         """
         self.ensure_one()
         _logger.warning(
-            "Provider '%s' (kind=%s) has no `_refresh_external_value` override "
-            "for variable '%s'. Returning None.",
+            "Provider '%s' (kind=%s) has no `_refresh_external_value` override for variable '%s'. Returning None.",
             self.code,
             self.provider_kind,
             variable.name,

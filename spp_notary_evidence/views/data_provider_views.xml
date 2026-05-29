@@ -26,11 +26,19 @@
                     icon="fa-certificate"
                     invisible="provider_kind != 'notary'"
                 >
-                    <field name="notary_claim_count" widget="statinfo" string="Claims" />
+                    <field
+                        name="notary_claim_count"
+                        widget="statinfo"
+                        string="Claims"
+                    />
                 </button>
             </xpath>
             <xpath expr="//notebook" position="inside">
-                <page string="Notary" name="notary" invisible="provider_kind != 'notary'">
+                <page
+                    string="Notary"
+                    name="notary"
+                    invisible="provider_kind != 'notary'"
+                >
                     <group>
                         <group string="Catalog">
                             <field name="notary_catalog_path" />

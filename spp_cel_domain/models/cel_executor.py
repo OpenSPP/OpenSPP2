@@ -1131,11 +1131,7 @@ class CelExecutor(models.AbstractModel):
         # provider-scoped cache row is fresh; the provider hook below is only
         # for cache misses or stale rows.
         rhs = p.rhs
-        if (
-            enable_sql
-            and status.get("status") == "fresh"
-            and self._metric_cmp_supported(p.op, rhs, return_type)
-        ):
+        if enable_sql and status.get("status") == "fresh" and self._metric_cmp_supported(p.op, rhs, return_type):
             sql = self._metric_inselect_sql(
                 subject_model,
                 cache_metric,
@@ -1177,9 +1173,7 @@ class CelExecutor(models.AbstractModel):
         # integration uses (the override does session-scoped batching so
         # per-subject calls amortize to a single upstream HTTP request).
         if external_var:
-            return self._exec_external_metric(
-                external_var, p, subject_model, base_dom, period_key, metrics_info
-            )
+            return self._exec_external_metric(external_var, p, subject_model, base_dom, period_key, metrics_info)
 
         # Check for evaluation service (legacy spp.indicator for now)
         # TODO: Fully migrate to spp.data.cache.manager (Phase 4 of ADR-017 complete)
@@ -1313,8 +1307,8 @@ class CelExecutor(models.AbstractModel):
         For each subject in the base domain: first consults the unified value
         cache (`spp.data.value`) scoped to this variable's bound provider (no
         cross-provider fallback). For subjects without a fresh cached value,
-        dispatches to `provider._refresh_external_value(variable, subject_id,
-        period_key)`; the override is expected to persist the value through
+        dispatches to `provider._compute_external_values(variable, subject_ids,
+        period_key)`; the override is expected to persist the values through
         `spp.data.value.upsert_values` so subsequent calls hit the cache.
 
         Results are filtered against `p.op` / `p.rhs` and returned as matching
@@ -1337,6 +1331,7 @@ class CelExecutor(models.AbstractModel):
                 period_key=period_key,
                 provider=provider.code,
             )
+            miss_ids = []
             for subject_id in batch_ids:
                 sid = int(subject_id)
                 if sid in cached:
@@ -1344,10 +1339,13 @@ class CelExecutor(models.AbstractModel):
                     cache_hits += 1
                     continue
                 misses += 1
-                value = provider._refresh_external_value(variable, sid, period_key)
-                if value is not None:
-                    aggregated[sid] = value
-                    fresh_fetches += 1
+                miss_ids.append(sid)
+            if miss_ids:
+                fresh_values = provider._compute_external_values(variable, miss_ids, period_key)
+                for sid in miss_ids:
+                    if fresh_values.get(sid) is not None:
+                        aggregated[sid] = fresh_values[sid]
+                        fresh_fetches += 1
         if metrics_info is not None:
             metrics_info.append(
                 {

@@ -35,7 +35,10 @@
                     <div class="oe_title">
                         <label for="name" string="Claim Name" />
                         <h1>
-                            <field name="name" placeholder="e.g., Birth Registration Status" />
+                            <field
+                                name="name"
+                                placeholder="e.g., Birth Registration Status"
+                            />
                         </h1>
                     </div>
                     <group>
@@ -59,7 +62,10 @@
                     </group>
                     <notebook>
                         <page string="Description" name="description">
-                            <field name="description" placeholder="Claim meaning and upstream catalog notes..." />
+                            <field
+                                name="description"
+                                placeholder="Claim meaning and upstream catalog notes..."
+                            />
                         </page>
                     </notebook>
                 </sheet>
@@ -80,13 +86,37 @@
                 <field name="claim_version" />
                 <field name="pinned_version" />
                 <field name="state" />
-                <filter string="Active" name="active" domain="[('active', '=', True)]" />
-                <filter string="Archived" name="archived" domain="[('active', '=', False)]" />
-                <filter string="Version Drift" name="version_drift" domain="[('state', '=', 'version_drift')]" />
+                <filter
+                    string="Active"
+                    name="active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    string="Archived"
+                    name="archived"
+                    domain="[('active', '=', False)]"
+                />
+                <filter
+                    string="Version Drift"
+                    name="version_drift"
+                    domain="[('state', '=', 'version_drift')]"
+                />
                 <group>
-                    <filter string="Provider" name="group_provider" context="{'group_by': 'provider_id'}" />
-                    <filter string="State" name="group_state" context="{'group_by': 'state'}" />
-                    <filter string="Value Type" name="group_value_type" context="{'group_by': 'value_type'}" />
+                    <filter
+                        string="Provider"
+                        name="group_provider"
+                        context="{'group_by': 'provider_id'}"
+                    />
+                    <filter
+                        string="State"
+                        name="group_state"
+                        context="{'group_by': 'state'}"
+                    />
+                    <filter
+                        string="Value Type"
+                        name="group_value_type"
+                        context="{'group_by': 'value_type'}"
+                    />
                 </group>
             </search>
         </field>

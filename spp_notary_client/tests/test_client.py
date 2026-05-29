@@ -241,6 +241,43 @@ def test_evaluate_refuses_logged_subject_call_without_hash_secret():
     client.log_wrapper.log_call.assert_not_called()
 
 
+def test_context_manager_closes_owned_http_client():
+    """Internally-created HTTP clients are closed when used as a context manager."""
+    client = NotaryClient(
+        {
+            "base_url": "https://notary.example",
+            "auth_type": "none",
+            "default_purpose_url": "https://openspp.example/default-purpose",
+        }
+    )
+
+    with client as managed:
+        assert managed is client
+        managed._client(managed.config)
+        assert not managed._http_client.is_closed
+
+    assert client._http_client.is_closed
+
+
+def test_context_manager_does_not_close_external_http_client():
+    """Callers keep ownership of externally-supplied HTTP clients."""
+    http_client = httpx.Client(transport=SequenceTransport([_json_response()]))
+    client = NotaryClient(
+        {
+            "base_url": "https://notary.example",
+            "auth_type": "none",
+            "default_purpose_url": "https://openspp.example/default-purpose",
+        },
+        http_client=http_client,
+    )
+
+    with client:
+        pass
+
+    assert not http_client.is_closed
+    http_client.close()
+
+
 def test_batch_evaluate_posts_subjects_and_claims():
     """Batch evaluation uses the batch endpoint and tolerant response model."""
     client, transport = _client(

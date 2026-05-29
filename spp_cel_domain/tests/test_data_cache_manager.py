@@ -684,9 +684,7 @@ class TestExternalProviderDispatch(TransactionCase, CELTestDataMixin):
     @mute_logger("odoo.addons.spp_cel_domain.models.data_provider")
     def test_compute_base_provider_no_op_returns_empty(self):
         """Base provider's hook returns {} and warns (no override installed)."""
-        result = self.provider._compute_external_values(
-            self.variable, [self.partner_a.id], "current"
-        )
+        result = self.provider._compute_external_values(self.variable, [self.partner_a.id], "current")
         self.assertEqual(result, {})
 
     def test_precompute_external_variable_stores_provider_code(self):
@@ -802,7 +800,7 @@ class TestExternalMetricExecution(TransactionCase, CELTestDataMixin):
                     "value_type": "number",
                     "source_type": "external",
                     "ttl_seconds": 3600,
-                }
+                },
             ]
         )
 
@@ -846,7 +844,7 @@ class TestExternalMetricExecution(TransactionCase, CELTestDataMixin):
                     "value_type": "number",
                     "source_type": "external",
                     "ttl_seconds": 3600,
-                }
+                },
             ]
         )
         plan = MetricCompare(
@@ -863,10 +861,10 @@ class TestExternalMetricExecution(TransactionCase, CELTestDataMixin):
 
         with patch.object(
             type(self.provider_a),
-            "_refresh_external_value",
-            return_value=None,
-        ) as mocked_refresh:
+            "_compute_external_values",
+            return_value={},
+        ) as mocked_compute:
             result = executor._exec_metric("res.partner", plan)
 
         self.assertEqual(result, [])
-        mocked_refresh.assert_called_once()
+        mocked_compute.assert_called_once()

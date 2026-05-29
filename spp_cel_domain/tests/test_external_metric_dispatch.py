@@ -5,8 +5,8 @@ These cover two framework touches needed by the Notary integration:
 
 - Touch #3: provider hook on cache miss. When a metric corresponds to a
   `source_type='external'` variable with a configured provider, the executor
-  dispatches to `provider._refresh_external_value(...)` instead of warning and
-  returning [].
+  dispatches cache misses to `provider._compute_external_values(...)` instead
+  of warning and returning [].
 - Touch #5: provider scoping in metric lookup. External variables MUST NOT
   fall back across providers; a value cached under Provider A is not
   interchangeable with the same accessor under Provider B.
@@ -62,15 +62,13 @@ class TestExternalVariableLookup(TransactionCase, CELTestDataMixin):
         self.assertFalse(result)
 
     def test_returns_empty_when_metric_unknown(self):
-        result = self.executor._external_variable_for_metric(
-            f"unknown_metric_{self._test_id}"
-        )
+        result = self.executor._external_variable_for_metric(f"unknown_metric_{self._test_id}")
         self.assertFalse(result)
 
 
 @tagged("post_install", "-at_install")
 class TestExternalMetricDispatch(TransactionCase, CELTestDataMixin):
-    """`_exec_metric` should call `provider._refresh_external_value` on miss."""
+    """`_exec_metric` should batch cache misses through the provider hook."""
 
     @classmethod
     def setUpClass(cls):
@@ -110,8 +108,8 @@ class TestExternalMetricDispatch(TransactionCase, CELTestDataMixin):
             ]
         ).unlink()
 
-    def test_refresh_hook_invoked_on_cache_miss(self):
-        """Empty cache calls provider._refresh_external_value per subject."""
+    def test_compute_hook_invoked_once_for_cache_misses(self):
+        """Empty cache calls provider._compute_external_values once per domain batch."""
         base_domain = [
             (
                 "id",
@@ -126,14 +124,14 @@ class TestExternalMetricDispatch(TransactionCase, CELTestDataMixin):
             self.partner_c.id: None,
         }
 
-        def fake_refresh(self_provider, variable, subject_id, period_key):
-            return per_subject.get(subject_id)
+        def fake_compute(self_provider, variable, subject_ids, period_key):
+            return {subject_id: per_subject.get(subject_id) for subject_id in subject_ids}
 
         with patch.object(
             type(self.provider),
-            "_refresh_external_value",
+            "_compute_external_values",
             autospec=True,
-            side_effect=fake_refresh,
+            side_effect=fake_compute,
         ) as mocked:
             result = self.service.compile_expression(
                 f"{self.variable.cel_accessor} > 75",
@@ -141,8 +139,10 @@ class TestExternalMetricDispatch(TransactionCase, CELTestDataMixin):
                 base_domain=base_domain,
             )
 
-        # All three subjects should have been requested.
-        self.assertGreaterEqual(mocked.call_count, 3)
+        mocked.assert_called_once()
+        args, _kwargs = mocked.call_args
+        self.assertEqual(args[1].id, self.variable.id)
+        self.assertEqual(set(args[2]), {self.partner_a.id, self.partner_b.id, self.partner_c.id})
         self.assertTrue(result["valid"], result.get("error"))
         matching_ids = result["ids"]
         self.assertIn(self.partner_a.id, matching_ids)
@@ -207,13 +207,13 @@ class TestExternalProviderCacheIsolation(TransactionCase, CELTestDataMixin):
             }
         )
 
-        # Mock Provider B's refresh hook so we can detect whether the executor
+        # Mock Provider B's compute hook so we can detect whether the executor
         # had to refresh (it should, because A's row must not satisfy B).
         with patch.object(
             type(self.provider_b),
-            "_refresh_external_value",
+            "_compute_external_values",
             autospec=True,
-            return_value=10,
+            return_value={self.partner.id: 10},
         ) as mocked:
             result = self.service.compile_expression(
                 f"{var.cel_accessor} > 100",
@@ -222,8 +222,8 @@ class TestExternalProviderCacheIsolation(TransactionCase, CELTestDataMixin):
             )
 
         self.assertTrue(result["valid"], result.get("error"))
-        # Provider B's refresh hook MUST be invoked since the cache lookup
+        # Provider B's compute hook MUST be invoked since the cache lookup
         # under B's code was empty.
-        self.assertGreaterEqual(mocked.call_count, 1)
+        mocked.assert_called_once()
         # And the partner must NOT match: B returned 10, threshold is > 100.
         self.assertNotIn(self.partner.id, result["ids"])

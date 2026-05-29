@@ -141,6 +141,14 @@ class NotaryClient:
         if self._http_client and self._owns_http_client:
             self._http_client.close()
 
+    def __enter__(self):
+        """Return this client for use in a context manager."""
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        """Close owned HTTP resources when leaving a context manager."""
+        self.close()
+
     def discover_claims(
         self,
         config: NotaryClientConfig | dict[str, Any] | Any | None = None,
@@ -305,9 +313,7 @@ class NotaryClient:
 
     def _validate_audit_subject_hash(self, config: NotaryClientConfig, subject_id: str | None) -> None:
         if self.log_wrapper and subject_id and not config.subject_log_secret:
-            raise NotaryConfigurationError(
-                "Notary subject_log_secret is required before logging subject-scoped calls"
-            )
+            raise NotaryConfigurationError("Notary subject_log_secret is required before logging subject-scoped calls")
 
     def _request(
         self,

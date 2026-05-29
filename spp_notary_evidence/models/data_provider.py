@@ -136,6 +136,15 @@ class DataProvider(models.Model):
         created = updated = deactivated = 0
         now = fields.Datetime.now()
         seen_claim_ids = set()
+        catalog_claim_ids = [summary.id for summary in catalog.claims]
+        existing_claims = Claim.search(
+            [
+                ("provider_id", "=", self.id),
+                ("external_id", "in", catalog_claim_ids),
+            ]
+        )
+        existing_by_external_id = {claim.external_id: claim for claim in existing_claims}
+        create_vals_list = []
         for summary in catalog.claims:
             claim_id = summary.id
             claim_version = summary.version or ""
@@ -155,13 +164,7 @@ class DataProvider(models.Model):
                 "active": True,
                 "state": "active",
             }
-            claim = Claim.search(
-                [
-                    ("provider_id", "=", self.id),
-                    ("external_id", "=", claim_id),
-                ],
-                limit=1,
-            )
+            claim = existing_by_external_id.get(claim_id)
             if claim:
                 version_changed = claim.claim_version != claim_version
                 pinned_elsewhere = claim.pinned_version and claim.pinned_version != claim_version
@@ -174,8 +177,10 @@ class DataProvider(models.Model):
             else:
                 if claim_version:
                     values["pinned_version"] = claim_version
-                Claim.create(values)
+                create_vals_list.append(values)
                 created += 1
+        if create_vals_list:
+            Claim.create(create_vals_list)
         for claim in self.notary_claim_ids:
             if claim.active and claim.external_id not in seen_claim_ids:
                 claim.write({"active": False, "state": "unavailable"})
