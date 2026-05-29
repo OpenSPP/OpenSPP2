@@ -205,11 +205,14 @@ class ResPartnerDCINotify(models.Model):
             len(partner_ids),
         )
 
-        # Get subscription model
-        Subscription = self.env.get("spp.dci.subscription")
-        if not Subscription:
+        # Get subscription model. env.get() returns an empty recordset
+        # when the model is registered, which is *falsy*, so an
+        # ``if not Subscription`` check would incorrectly bail out. Test
+        # membership against env explicitly instead.
+        if "spp.dci.subscription" not in self.env:
             _logger.warning("DCI subscription model not available")
             return
+        Subscription = self.env["spp.dci.subscription"]
 
         # For delete events, we only have IDs (records are gone)
         if event_type == "delete":

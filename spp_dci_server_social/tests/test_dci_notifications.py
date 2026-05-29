@@ -20,6 +20,11 @@ class TestDCINotifications(DCISocialServerCommon):
         super().setUp()
         # Enable notifications for testing
         self.env["ir.config_parameter"].sudo().set_param("dci.notifications_enabled", "true")
+        # setUpClass creates several partners; each registered a
+        # postcommit callback in _schedule_dci_notification. Drain them
+        # here so the per-test postcommit.run() only fires for callbacks
+        # the test itself triggers.
+        self.env.cr.postcommit.run()
 
     def test_create_triggers_registration_notification(self):
         """Test that creating a registrant schedules a registration notification."""
@@ -31,6 +36,11 @@ class TestDCINotifications(DCISocialServerCommon):
                 },
                 identifier_value="NAT-NOTIFY-001",
             )
+            # _schedule_dci_notification registers its callback via
+            # env.cr.postcommit, which TransactionCase never flushes
+            # (it rolls back). Drive the post-commit queue explicitly so
+            # the mock can record the call.
+            self.env.cr.postcommit.run()
 
             # Verify notification was scheduled
             mock_queue.assert_called_once()
@@ -48,10 +58,14 @@ class TestDCINotifications(DCISocialServerCommon):
             },
             identifier_value="NAT-NOTIFY-002",
         )
+        # Drop the registration-time postcommit callback so the test
+        # only observes the update callback queued inside the patch.
+        self.env.cr.postcommit.clear()
 
         with patch.object(self.Partner.__class__, "_queue_dci_notification_job") as mock_queue:
             # Modify a tracked field
             individual.write({"given_name": "After"})
+            self.env.cr.postcommit.run()
 
             # Verify update notification was scheduled
             mock_queue.assert_called_once()
@@ -69,29 +83,35 @@ class TestDCINotifications(DCISocialServerCommon):
             },
             identifier_value="NAT-NOTIFY-003",
         )
+        self.env.cr.postcommit.clear()
 
         with patch.object(self.Partner.__class__, "_queue_dci_notification_job") as mock_queue:
             # Modify an untracked field (comment is not in TRACKED_FIELDS)
             individual.write({"comment": "Test comment"})
+            self.env.cr.postcommit.run()
 
             # Verify no notification was scheduled
             mock_queue.assert_not_called()
 
     def test_unlink_triggers_delete_notification(self):
         """Test that deleting a registrant schedules a delete notification."""
-        # Create individual first
+        # Create individual *without* a reg_id - spp.registry.id has an
+        # ON DELETE RESTRICT FK on res.partner, so the unlink would
+        # otherwise raise a foreign-key violation that has nothing to do
+        # with the DCI notification path under test.
         individual = self._create_test_individual(
             {
                 "family_name": "DeleteTest",
                 "given_name": "ToDelete",
             },
-            identifier_value="NAT-NOTIFY-004",
         )
         individual_id = individual.id
+        self.env.cr.postcommit.clear()
 
         with patch.object(self.Partner.__class__, "_queue_dci_notification_job") as mock_queue:
             # Delete the individual
             individual.unlink()
+            self.env.cr.postcommit.run()
 
             # Verify delete notification was scheduled
             mock_queue.assert_called_once()
@@ -128,6 +148,7 @@ class TestDCINotifications(DCISocialServerCommon):
                 },
                 identifier_value="NAT-NOTIFY-005",
             )
+            self.env.cr.postcommit.run()
 
             # Verify no notification was queued
             mock_queue.assert_not_called()
@@ -185,6 +206,7 @@ class TestDCINotifications(DCISocialServerCommon):
             },
             identifier_value="NAT-NOTIFY-006",
         )
+        self.env.cr.postcommit.clear()
 
         call_count = 0
 
@@ -197,6 +219,7 @@ class TestDCINotifications(DCISocialServerCommon):
             individual.write({"given_name": "First"})
             individual.write({"given_name": "Second"})
             individual.write({"given_name": "Third"})
+            self.env.cr.postcommit.run()
 
             # Each write should schedule a notification
             # (deduplication happens at queue_job level via identity_key)
@@ -215,6 +238,7 @@ class TestDCINotifications(DCISocialServerCommon):
                 identifier_value="HH-NOTIFY-001",
                 members=[],
             )
+            self.env.cr.postcommit.run()
 
             # Verify registration notification was scheduled
             mock_queue.assert_called()
