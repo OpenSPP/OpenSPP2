@@ -48,12 +48,21 @@ class DCIClientTriggerController(http.Controller):
         """
         if tools.config.get("test_enable", False):
             return True
+        # sudo() required: routes are auth='none' so request.env is the
+        # public user, which has no read on ir.config_parameter. The
+        # value read is a boolean flag (not PII).
+        # nosemgrep: odoo-sudo-without-context
         param = env["ir.config_parameter"].sudo().get_param(COMPLIANCE_ENABLED_PARAM, "false").lower()
         return param == "true"
 
     @staticmethod
     def _get_compliance_bearer_token(env):
         """Return the configured compliance bearer token or raise."""
+        # sudo() required: same reasoning as _compliance_enabled - the
+        # public user cannot read ir.config_parameter. The token itself
+        # is then used as an outbound credential to the mock registry,
+        # not echoed back to the caller.
+        # nosemgrep: odoo-sudo-without-context
         token = env["ir.config_parameter"].sudo().get_param(BEARER_TOKEN_PARAM, "")
         if not token:
             raise UserError(
@@ -80,6 +89,10 @@ class DCIClientTriggerController(http.Controller):
         Raises:
             ValueError: If no test data source is found
         """
+        # sudo() required: routes are auth='none' so request.env is the
+        # public user; the test data source is registry-level config
+        # the public user cannot search. Read scope only.
+        # nosemgrep: odoo-sudo-without-context
         DataSource = request.env["spp.dci.data.source"].sudo()
 
         # First try to find one marked for compliance testing
@@ -107,12 +120,18 @@ class DCIClientTriggerController(http.Controller):
         Returns:
             Newly created spp.dci.data.source record
         """
+        # sudo() required on both: the public user cannot read system
+        # parameters or write to spp.dci.data.source. Routes only run
+        # when _compliance_enabled() is true (test_enable or explicit
+        # opt-in), which is the audit boundary.
+        # nosemgrep: odoo-sudo-without-context
         ICP = request.env["ir.config_parameter"].sudo()
         mock_url = ICP.get_param(MOCK_URL_PARAM, "http://mock_registry:3335")
 
         # Bearer token has no default - operators must configure one explicitly.
         bearer_token = self._get_compliance_bearer_token(request.env)
 
+        # nosemgrep: odoo-sudo-without-context
         DataSource = request.env["spp.dci.data.source"].sudo()
         return DataSource.create(
             {
