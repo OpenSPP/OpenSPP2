@@ -48,6 +48,17 @@ class DataProvider(models.Model):
         string="Active",
         default=True,
     )
+    provider_kind = fields.Selection(
+        selection=[("generic", "Generic")],
+        string="Provider Kind",
+        required=True,
+        default="generic",
+        help=(
+            "Typed discriminator used by the evaluator and executor to dispatch "
+            "external-value resolution to provider-specific overrides. Downstream "
+            "modules extend this selection via `_selection_add` (e.g. 'notary')."
+        ),
+    )
 
     # ─── Connection Settings ─────────────────────────────────────────────
     base_url = fields.Char(
@@ -209,6 +220,72 @@ class DataProvider(models.Model):
     def name_get(self):
         """Display name with code."""
         return [(rec.id, f"{rec.name} ({rec.code})") for rec in self]
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # EXTERNAL-VALUE HOOKS
+    # ═══════════════════════════════════════════════════════════════════════
+    # These are the integration points used by the evaluator and executor when
+    # a variable has `source_type='external'`. The base implementation is a
+    # no-op that warns. Downstream modules (e.g. spp_notary_evidence) override
+    # them on providers whose `provider_kind` matches their integration.
+
+    def _compute_external_values(self, variable, subject_ids, period_key):
+        """Batch-compute external values for a variable across subjects.
+
+        Called from `spp.data.cache.manager._compute_variable_values` when
+        `variable.source_type == 'external'`. Downstream modules override
+        this on their own `provider_kind` to issue the actual upstream call
+        (e.g. POST `/claims/batch-evaluate` for Notary).
+
+        Args:
+            variable: `spp.cel.variable` record (source_type='external').
+            subject_ids: List of subject record IDs to compute values for.
+            period_key: Period key string (or None / 'current').
+
+        Returns:
+            dict: `{subject_id: value, ...}` for subjects that returned a value.
+                  Subjects without a value are omitted (the framework treats
+                  missing keys as "no cached value").
+        """
+        self.ensure_one()
+        _logger.warning(
+            "Provider '%s' (kind=%s) has no `_compute_external_values` override "
+            "for variable '%s'. Returning empty dict; cached values must be "
+            "supplied via API push or a provider-specific override.",
+            self.code,
+            self.provider_kind,
+            variable.name,
+        )
+        return {}
+
+    def _refresh_external_value(self, variable, subject_id, period_key):
+        """Refresh a single external value on cache miss.
+
+        Called from `spp.cel.executor._exec_metric` when an external variable
+        has no cached value for `(subject_id, period_key)` and lazy refresh is
+        wanted. Downstream modules override this to issue the upstream call
+        (e.g. POST `/claims/evaluate` for Notary, possibly session-batched).
+
+        Args:
+            variable: `spp.cel.variable` record (source_type='external').
+            subject_id: Subject record ID.
+            period_key: Period key string (or None / 'current').
+
+        Returns:
+            The resolved value, or None if no value is available.
+
+        Implementations that write through to `spp.data.value` (the usual case)
+        should do so before returning, so subsequent reads hit the cache.
+        """
+        self.ensure_one()
+        _logger.warning(
+            "Provider '%s' (kind=%s) has no `_refresh_external_value` override "
+            "for variable '%s'. Returning None.",
+            self.code,
+            self.provider_kind,
+            variable.name,
+        )
+        return None
 
     # ═══════════════════════════════════════════════════════════════════════
     # ACTIONS

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <menuitem
+        id="menu_notary_evidence"
+        name="Notary Evidence"
+        parent="spp_cel_domain.menu_data_management"
+        sequence="30"
+        groups="spp_notary_evidence.group_notary_evidence_viewer"
+    />
+
+    <menuitem
+        id="menu_notary_claims"
+        name="Claims"
+        parent="menu_notary_evidence"
+        action="action_notary_claim"
+        sequence="10"
+        groups="spp_notary_evidence.group_notary_evidence_viewer"
+    />
+
+    <menuitem
+        id="menu_notary_catalog_sync"
+        name="Sync Catalog"
+        parent="menu_notary_evidence"
+        action="action_notary_catalog_sync_wizard"
+        sequence="20"
+        groups="spp_notary_evidence.group_notary_evidence_manager"
+    />
+</odoo>

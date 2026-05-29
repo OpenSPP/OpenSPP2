@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_notary_catalog_sync_wizard_form" model="ir.ui.view">
+        <field name="name">spp.notary.catalog.sync.wizard.form</field>
+        <field name="model">spp.notary.catalog.sync.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Sync Notary Catalog">
+                <group>
+                    <field name="provider_id" />
+                </group>
+                <footer>
+                    <button
+                        name="action_sync_catalog"
+                        string="Sync"
+                        type="object"
+                        class="btn-primary"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_notary_catalog_sync_wizard" model="ir.actions.act_window">
+        <field name="name">Sync Notary Catalog</field>
+        <field name="res_model">spp.notary.catalog.sync.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

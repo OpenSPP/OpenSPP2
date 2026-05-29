@@ -1103,23 +1103,42 @@ class CelExecutor(models.AbstractModel):
         # Provider resolution
         provider, return_type = self._metric_registry_info(p.metric)
         params_hash = ""  # CEL V2: no params by default
+        cache_metric = p.metric
+
+        # If the metric is backed by a `source_type='external'` variable bound
+        # to a specific provider, tighten the cache lookup to that provider and
+        # disable cross-provider fallback; values from one external provider
+        # are not interchangeable with another's, even when they share an
+        # accessor name (e.g. two Notary instances issuing the same claim).
+        external_var = self._external_variable_for_metric(p.metric)
+        if external_var:
+            provider = external_var.external_provider_id.code
+            return_type = external_var.value_type or return_type
+            allow_any_provider = False
+            cache_metric = external_var.name
         # Preflight completeness/freshness
         status = self._metric_cache_status_sql(
             subject_model,
             base_dom,
-            p.metric,
+            cache_metric,
             period_key,
             provider,
             params_hash,
             allow_any_provider,
         )
         path = "python"
-        # SQL fast path
+        # SQL fast path. External variables use the same fast path once their
+        # provider-scoped cache row is fresh; the provider hook below is only
+        # for cache misses or stale rows.
         rhs = p.rhs
-        if enable_sql and status.get("status") == "fresh" and self._metric_cmp_supported(p.op, rhs, return_type):
+        if (
+            enable_sql
+            and status.get("status") == "fresh"
+            and self._metric_cmp_supported(p.op, rhs, return_type)
+        ):
             sql = self._metric_inselect_sql(
                 subject_model,
-                p.metric,
+                cache_metric,
                 period_key,
                 provider,
                 params_hash,
@@ -1150,6 +1169,17 @@ class CelExecutor(models.AbstractModel):
         # Evaluate/batch or preview fallback (small cohorts): compute via service
         # Compute candidate size cheaply via search_count
         base_count = self.env[subject_model].search_count(base_dom)
+
+        # External-variable refresh hook: when the metric maps to a variable
+        # with `source_type='external'` and a configured provider, delegate to
+        # the provider's `_refresh_external_value` override. This works whether
+        # or not `spp.indicator` is installed, and is the path the Notary
+        # integration uses (the override does session-scoped batching so
+        # per-subject calls amortize to a single upstream HTTP request).
+        if external_var:
+            return self._exec_external_metric(
+                external_var, p, subject_model, base_dom, period_key, metrics_info
+            )
 
         # Check for evaluation service (legacy spp.indicator for now)
         # TODO: Fully migrate to spp.data.cache.manager (Phase 4 of ADR-017 complete)
@@ -1246,6 +1276,102 @@ class CelExecutor(models.AbstractModel):
             provider = metric
             return_type = "json"
         return provider, return_type
+
+    def _external_variable_for_metric(self, metric: str):
+        """Return the external `spp.cel.variable` record for `metric`, if any.
+
+        Returns an empty recordset when the metric is not backed by an
+        `source_type='external'` variable bound to a provider. Used by
+        `_exec_metric` to tighten cache lookups and to dispatch lazy
+        refresh to the provider's `_refresh_external_value` hook.
+        """
+        Variable = self.env["spp.cel.variable"]
+        var = Variable.search(
+            [
+                ("active", "=", True),
+                "|",
+                ("name", "=", metric),
+                ("cel_accessor", "=", metric),
+            ],
+            limit=1,
+        )
+        if var and var.source_type == "external" and var.external_provider_id:
+            return var
+        return Variable
+
+    def _exec_external_metric(
+        self,
+        variable,
+        p: MetricCompare,
+        subject_model: str,
+        base_dom: list[Any],
+        period_key: str,
+        metrics_info: list[dict[str, Any]] | None,
+    ) -> list[int]:
+        """Resolve an external-variable metric via cache + provider refresh hook.
+
+        For each subject in the base domain: first consults the unified value
+        cache (`spp.data.value`) scoped to this variable's bound provider (no
+        cross-provider fallback). For subjects without a fresh cached value,
+        dispatches to `provider._refresh_external_value(variable, subject_id,
+        period_key)`; the override is expected to persist the value through
+        `spp.data.value.upsert_values` so subsequent calls hit the cache.
+
+        Results are filtered against `p.op` / `p.rhs` and returned as matching
+        subject IDs.
+        """
+        provider = variable.external_provider_id
+        DataValue = self.env["spp.data.value"]
+        aggregated: dict[int, Any] = {}
+        cache_hits = 0
+        misses = 0
+        fresh_fetches = 0
+        total_requested = 0
+        for batch_ids in self._iter_domain_ids(subject_model, base_dom):
+            if not batch_ids:
+                continue
+            total_requested += len(batch_ids)
+            cached = DataValue.read_values(
+                variable.name,
+                list(batch_ids),
+                period_key=period_key,
+                provider=provider.code,
+            )
+            for subject_id in batch_ids:
+                sid = int(subject_id)
+                if sid in cached:
+                    aggregated[sid] = cached[sid]
+                    cache_hits += 1
+                    continue
+                misses += 1
+                value = provider._refresh_external_value(variable, sid, period_key)
+                if value is not None:
+                    aggregated[sid] = value
+                    fresh_fetches += 1
+        if metrics_info is not None:
+            metrics_info.append(
+                {
+                    "metric": p.metric,
+                    "cache_metric": variable.name,
+                    "period_key": period_key,
+                    "path": "external",
+                    "provider": provider.code,
+                    "params_hash": "",
+                    "requested": total_requested,
+                    "cache_hits": cache_hits,
+                    "misses": misses,
+                    "fresh_fetches": fresh_fetches,
+                    "coverage": (len(aggregated) / float(total_requested)) if total_requested else 0.0,
+                    "company_id": self.env.company.id,
+                    "provider_missing": False,
+                    "cache_any_provider_used": False,
+                }
+            )
+        res: list[int] = []
+        for sid, val in aggregated.items():
+            if self._cmp_value(val, p.op, p.rhs):
+                res.append(int(sid))
+        return res
 
     def _metric_cmp_supported(self, op: str, rhs: Any, return_type: str) -> bool:
         if isinstance(rhs, int | float):
@@ -1442,6 +1568,8 @@ class CelExecutor(models.AbstractModel):
     def _provider_clause(self, provider: str, params_hash: str, allow_any_provider: bool) -> tuple[str, list[Any]]:
         provider = provider or ""
         params_hash = params_hash or ""
+        if provider and not allow_any_provider:
+            return "(fv.provider = %s AND fv.params_hash = %s)", [provider, params_hash]
         combos: list[tuple[str, str]] = [
             (provider, params_hash),
         ]

@@ -105,13 +105,27 @@ class DataCacheManager(models.AbstractModel):
         elif source_type == "constant":
             return self._compute_constant_values(variable, subject_ids, program_id)
 
-        elif source_type in ("external", "scoring"):
-            # These should come from cache; if missing, return None
+        elif source_type == "external":
+            # Dispatch to the configured external provider. Base implementation
+            # warns and returns {}; downstream modules (e.g. spp_notary_evidence)
+            # override `_compute_external_values` on their own provider_kind to
+            # issue the actual upstream call.
+            provider = variable.external_provider_id
+            if not provider:
+                _logger.warning(
+                    "Variable '%s' (source_type='external') has no external_provider_id; "
+                    "returning empty dict.",
+                    variable.name,
+                )
+                return {}
+            return provider._compute_external_values(variable, subject_ids, period_key)
+
+        elif source_type == "scoring":
+            # Scoring values come from cache; if missing, return empty.
             _logger.warning(
-                "Variable '%s' with source_type '%s' has no cached value. "
+                "Variable '%s' with source_type 'scoring' has no cached value. "
                 "Values must be pushed via API or scoring run.",
                 variable.name,
-                source_type,
             )
             return {}
 
@@ -326,6 +340,9 @@ class DataCacheManager(models.AbstractModel):
             cache_source_type = source_type_map.get(variable.source_type, "computed")
 
             for subject_id, value in computed.items():
+                provider_code = ""
+                if variable.source_type == "external" and variable.external_provider_id:
+                    provider_code = variable.external_provider_id.code or ""
                 values_list.append(
                     {
                         "variable_name": variable.name,
@@ -335,6 +352,7 @@ class DataCacheManager(models.AbstractModel):
                         "value_json": {"value": value},
                         "value_type": variable.value_type or "number",
                         "source_type": cache_source_type,
+                        "provider": provider_code,
                         "ttl_seconds": variable.cache_ttl_seconds if variable.cache_strategy == "ttl" else None,
                     }
                 )

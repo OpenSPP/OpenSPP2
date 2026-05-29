@@ -7,12 +7,16 @@ Tests cover:
 - Session cache management
 - Batch pre-computation for all cached variables
 - Integration with spp.data.value cache table
+- External-value dispatch hooks on spp.data.provider
 """
 
 import time
+from unittest.mock import patch
 
 from odoo.tests import TransactionCase, tagged
+from odoo.tools import mute_logger
 
+from ..models.cel_queryplan import MetricCompare
 from .common import CELTestDataMixin
 
 
@@ -620,3 +624,249 @@ class TestDataCacheManager(TransactionCase, CELTestDataMixin):
         self.assertEqual(stats["size"], 2)
         self.assertIn(var1_name, stats["variables"])
         self.assertIn(var2_name, stats["variables"])
+
+
+@tagged("post_install", "-at_install")
+class TestExternalProviderDispatch(TransactionCase, CELTestDataMixin):
+    """Test that `_compute_variable_values` dispatches to the provider hook.
+
+    The base provider's `_compute_external_values` is a no-op that returns {}
+    and warns. Downstream modules override it; here we patch the method to
+    verify the cache manager actually routes through the provider record.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls._test_id = int(time.time() * 1000)
+        cls.cache_mgr = cls.env["spp.data.cache.manager"]
+        cls.Provider = cls.env["spp.data.provider"]
+        cls.partner_a = cls._create_test_partner(name=f"Subject A {cls._test_id}")
+        cls.partner_b = cls._create_test_partner(name=f"Subject B {cls._test_id}")
+        cls.category = cls._create_test_category()
+        cls.provider = cls.Provider.create(
+            {
+                "name": "Test External Provider",
+                "code": f"test_ext_{cls._test_id}",
+            }
+        )
+        cls.variable = cls._create_test_variable(
+            name=f"ext_var_{cls._test_id}",
+            source_type="external",
+            value_type="number",
+            cache_strategy="ttl",
+            category=cls.category,
+            external_provider_id=cls.provider.id,
+        )
+
+    def test_compute_dispatches_to_provider_hook(self):
+        """`_compute_variable_values` calls `provider._compute_external_values`."""
+        subject_ids = [self.partner_a.id, self.partner_b.id]
+        expected = {self.partner_a.id: 11, self.partner_b.id: 22}
+
+        with patch.object(
+            type(self.provider),
+            "_compute_external_values",
+            return_value=expected,
+        ) as mocked:
+            result = self.cache_mgr._compute_variable_values(
+                self.variable, subject_ids, period_key="current", program_id=None
+            )
+
+        self.assertEqual(result, expected)
+        mocked.assert_called_once()
+        # Verify the variable and subject list were forwarded.
+        args, _kwargs = mocked.call_args
+        self.assertEqual(args[0].id, self.variable.id)
+        self.assertEqual(list(args[1]), subject_ids)
+        self.assertEqual(args[2], "current")
+
+    @mute_logger("odoo.addons.spp_cel_domain.models.data_provider")
+    def test_compute_base_provider_no_op_returns_empty(self):
+        """Base provider's hook returns {} and warns (no override installed)."""
+        result = self.provider._compute_external_values(
+            self.variable, [self.partner_a.id], "current"
+        )
+        self.assertEqual(result, {})
+
+    def test_precompute_external_variable_stores_provider_code(self):
+        """Precomputed external cache rows are scoped to the provider code."""
+        expected = {self.partner_a.id: 11}
+
+        with patch.object(
+            type(self.provider),
+            "_compute_external_values",
+            return_value=expected,
+        ):
+            result = self.cache_mgr.precompute_variable(
+                self.variable.name,
+                [self.partner_a.id],
+                period_key="current",
+            )
+
+        self.assertTrue(result["success"])
+        cached = self.env["spp.data.value"].search(
+            [
+                ("variable_name", "=", self.variable.name),
+                ("subject_id", "=", self.partner_a.id),
+                ("period_key", "=", "current"),
+            ],
+            limit=1,
+        )
+        self.assertTrue(cached)
+        self.assertEqual(cached.provider, self.provider.code)
+
+    @mute_logger("odoo.addons.spp_cel_domain.models.data_evaluator")
+    def test_compute_external_without_provider_returns_empty(self):
+        """An external variable with no provider returns {} (and warns)."""
+        orphan_var = self._create_test_variable(
+            name=f"orphan_ext_{self._test_id}",
+            source_type="external",
+            value_type="number",
+            category=self.category,
+            external_provider_id=False,
+        )
+        # The constraint normally prevents this, so bypass with a write that
+        # the runtime ACL allows (constraint check happens at create/write of
+        # `external_provider_id` itself; a False here means the variable is
+        # mid-config). Using sudo to bypass the constraint is OK in tests
+        # because we only want to verify the dispatch path.
+        self.env.cr.execute(
+            "UPDATE spp_cel_variable SET external_provider_id = NULL WHERE id = %s",
+            (orphan_var.id,),
+        )
+        orphan_var.invalidate_recordset()
+        result = self.cache_mgr._compute_variable_values(
+            orphan_var, [self.partner_a.id], period_key="current", program_id=None
+        )
+        self.assertEqual(result, {})
+
+
+@tagged("post_install", "-at_install")
+class TestExternalMetricExecution(TransactionCase, CELTestDataMixin):
+    """Tests for lazy metric execution of external variables."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls._test_id = int(time.time() * 1000)
+        cls.Provider = cls.env["spp.data.provider"]
+        cls.DataValue = cls.env["spp.data.value"]
+        cls.executor = cls.env["spp.cel.executor"]
+        cls.service = cls.env["spp.cel.service"]
+        cls.partner_a = cls._create_test_partner(name=f"Metric Subject A {cls._test_id}")
+        cls.partner_b = cls._create_test_partner(name=f"Metric Subject B {cls._test_id}")
+        cls.category = cls._create_test_category()
+        cls.provider_a = cls.Provider.create(
+            {
+                "name": "Metric Provider A",
+                "code": f"metric_provider_a_{cls._test_id}",
+            }
+        )
+        cls.provider_b = cls.Provider.create(
+            {
+                "name": "Metric Provider B",
+                "code": f"metric_provider_b_{cls._test_id}",
+            }
+        )
+
+    def test_external_metric_uses_variable_name_when_metric_is_accessor(self):
+        """A CEL accessor resolves to the external variable's cache variable_name."""
+        variable = self._create_test_variable(
+            name=f"notary_claim_name_{self._test_id}",
+            cel_accessor=f"notary_claim_accessor_{self._test_id}",
+            source_type="external",
+            value_type="number",
+            cache_strategy="ttl",
+            category=self.category,
+            external_provider_id=self.provider_a.id,
+        )
+        self.DataValue.upsert_values(
+            [
+                {
+                    "variable_name": variable.name,
+                    "subject_id": self.partner_a.id,
+                    "period_key": "current",
+                    "provider": self.provider_a.code,
+                    "value_json": {"value": 42},
+                    "value_type": "number",
+                    "source_type": "external",
+                    "ttl_seconds": 3600,
+                },
+                {
+                    "variable_name": variable.name,
+                    "subject_id": self.partner_a.id,
+                    "period_key": "current",
+                    "provider": "",
+                    "value_json": {"value": 100},
+                    "value_type": "number",
+                    "source_type": "external",
+                    "ttl_seconds": 3600,
+                }
+            ]
+        )
+
+        result = self.service.compile_expression(
+            f"{variable.cel_accessor} >= 40",
+            "registry_individuals",
+            base_domain=[("id", "=", self.partner_a.id)],
+        )
+
+        self.assertTrue(result["valid"], result.get("error"))
+        self.assertIn(self.partner_a.id, result["ids"])
+
+    def test_external_metric_does_not_fall_back_to_other_provider(self):
+        """External metric lookup must not use a row from another provider."""
+        variable = self._create_test_variable(
+            name=f"provider_scoped_metric_{self._test_id}",
+            source_type="external",
+            value_type="number",
+            cache_strategy="ttl",
+            category=self.category,
+            external_provider_id=self.provider_a.id,
+        )
+        self.DataValue.upsert_values(
+            [
+                {
+                    "variable_name": variable.name,
+                    "subject_id": self.partner_a.id,
+                    "period_key": "current",
+                    "provider": self.provider_b.code,
+                    "value_json": {"value": 99},
+                    "value_type": "number",
+                    "source_type": "external",
+                    "ttl_seconds": 3600,
+                },
+                {
+                    "variable_name": variable.name,
+                    "subject_id": self.partner_a.id,
+                    "period_key": "current",
+                    "provider": "",
+                    "value_json": {"value": 100},
+                    "value_type": "number",
+                    "source_type": "external",
+                    "ttl_seconds": 3600,
+                }
+            ]
+        )
+        plan = MetricCompare(
+            metric=variable.name,
+            subject_var="me",
+            period_key="current",
+            params=None,
+            op=">=",
+            rhs=90,
+        )
+        executor = self.executor.with_context(
+            cel_cfg={"base_domain": [("id", "=", self.partner_a.id)], "root_model": "res.partner"}
+        )
+
+        with patch.object(
+            type(self.provider_a),
+            "_refresh_external_value",
+            return_value=None,
+        ) as mocked_refresh:
+            result = executor._exec_metric("res.partner", plan)
+
+        self.assertEqual(result, [])
+        mocked_refresh.assert_called_once()

@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_notary_claim_viewer,spp.notary.claim viewer,model_spp_notary_claim,group_notary_evidence_viewer,1,0,0,0
+access_notary_claim_manager,spp.notary.claim manager,model_spp_notary_claim,group_notary_evidence_manager,1,1,1,1
+access_notary_catalog_sync_wizard_manager,spp.notary.catalog.sync.wizard manager,model_spp_notary_catalog_sync_wizard,group_notary_evidence_manager,1,1,1,0
