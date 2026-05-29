@@ -113,8 +113,7 @@ class DataCacheManager(models.AbstractModel):
             provider = variable.external_provider_id
             if not provider:
                 _logger.warning(
-                    "Variable '%s' (source_type='external') has no external_provider_id; "
-                    "returning empty dict.",
+                    "Variable '%s' (source_type='external') has no external_provider_id; returning empty dict.",
                     variable.name,
                 )
                 return {}

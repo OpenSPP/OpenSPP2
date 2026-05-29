@@ -431,9 +431,7 @@ class TestNotaryEvidence(TransactionCase):
                 }
             ]
         )
-        provider = self.provider.with_context(
-            cel_cfg={"notary_purpose": "https://openspp.example/purpose/evaluation"}
-        )
+        provider = self.provider.with_context(cel_cfg={"notary_purpose": "https://openspp.example/purpose/evaluation"})
         provider.notary_unavailable_policy = "stale_cache_with_audit"
 
         with patch.object(type(provider), "_notary_client") as mocked_client:
@@ -453,12 +451,16 @@ class TestNotaryEvidence(TransactionCase):
             limit=1,
         )
         self.assertEqual(cached.expires_at, stale_expires_at)
-        log = self.env["spp.api.outgoing.log"].sudo().search(
-            [
-                ("service_code", "=", self.provider.code),
-                ("endpoint", "=", "/claims/stale-cache-read"),
-            ],
-            limit=1,
+        log = (
+            self.env["spp.api.outgoing.log"]
+            .sudo()
+            .search(
+                [
+                    ("service_code", "=", self.provider.code),
+                    ("endpoint", "=", "/claims/stale-cache-read"),
+                ],
+                limit=1,
+            )
         )
         self.assertTrue(log)
         self.assertEqual(log.request_summary["cache_policy"], "stale_cache_with_audit")
@@ -492,9 +494,7 @@ class TestNotaryEvidence(TransactionCase):
                 }
             ]
         )
-        provider = self.provider.with_context(
-            cel_cfg={"notary_purpose": "https://openspp.example/purpose/evaluation"}
-        )
+        provider = self.provider.with_context(cel_cfg={"notary_purpose": "https://openspp.example/purpose/evaluation"})
         provider.notary_unavailable_policy = "stale_cache_with_audit"
 
         with patch.object(type(provider), "_notary_client") as mocked_client:
@@ -595,9 +595,7 @@ class TestNotaryEvidence(TransactionCase):
         self.assertEqual(claim.pinned_version, "2026-01")
         self.assertEqual(claim.state, "version_drift")
         self.assertEqual(
-            self.Claim.search_count(
-                [("provider_id", "=", self.provider.id), ("external_id", "=", "drifting-claim")]
-            ),
+            self.Claim.search_count([("provider_id", "=", self.provider.id), ("external_id", "=", "drifting-claim")]),
             1,
         )
 
@@ -626,17 +624,13 @@ class TestNotaryEvidence(TransactionCase):
         self.assertEqual(len(wizard.line_ids), 1)
         self.assertEqual(wizard.line_ids.action, "create")
         self.assertFalse(
-            self.Claim.search(
-                [("provider_id", "=", self.provider.id), ("external_id", "=", "wizard-preview-claim")]
-            )
+            self.Claim.search([("provider_id", "=", self.provider.id), ("external_id", "=", "wizard-preview-claim")])
         )
 
         wizard.action_sync_catalog()
 
         self.assertTrue(
-            self.Claim.search(
-                [("provider_id", "=", self.provider.id), ("external_id", "=", "wizard-preview-claim")]
-            )
+            self.Claim.search([("provider_id", "=", self.provider.id), ("external_id", "=", "wizard-preview-claim")])
         )
 
     def test_catalog_sync_wizard_blocks_accessor_collision(self):
@@ -824,13 +818,17 @@ class TestNotaryEvidence(TransactionCase):
             }
         )
         claim = self._create_claim_with_variable("acl-read", value_type="boolean")
-        log = self.env["spp.api.outgoing.log"].sudo().log_call(
-            url="https://notary.example/claims/evaluate",
-            endpoint="/claims/evaluate",
-            http_method="POST",
-            service_name="Notary Client",
-            service_code=self.provider.code,
-            status="success",
+        log = (
+            self.env["spp.api.outgoing.log"]
+            .sudo()
+            .log_call(
+                url="https://notary.example/claims/evaluate",
+                endpoint="/claims/evaluate",
+                http_method="POST",
+                service_name="Notary Client",
+                service_code=self.provider.code,
+                status="success",
+            )
         )
 
         claim.with_user(user_viewer).read(["name"])
