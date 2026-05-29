@@ -6,6 +6,7 @@ from . import test_bearer_middleware
 from . import test_bulk_upload
 from . import test_bulk_upload_router
 from . import test_callback_routers
+from . import test_consent_adapter
 from . import test_jwks_router
 from . import test_receipt
 from . import test_receipt_router
@@ -16,3 +17,4 @@ from . import test_subscription
 from . import test_transaction
 from . import test_url_validator
 from . import test_view_pii_gating
+from . import test_vocabulary_adapter
