@@ -6,6 +6,7 @@ the Unified Variable System implementation.
 """
 
 import time
+from unittest.mock import patch
 
 from psycopg2 import IntegrityError
 
@@ -355,3 +356,76 @@ class TestDataProviderMethods(TransactionCase, CELTestDataMixin):
         self.assertEqual(result["type"], "ir.actions.client")
         self.assertEqual(result["tag"], "display_notification")
         self.assertEqual(result["params"]["type"], "warning")
+
+    def test_action_test_connection_api_key_uses_configured_header(self):
+        provider = self.DataProvider.create(
+            {
+                "name": "API Key Test",
+                "code": f"conn_api_key_{self._test_id}",
+                "base_url": "https://api.example.test",
+                "auth_type": "api_key",
+                "api_key": "secret-key",
+            }
+        )
+
+        with patch("requests.head") as mocked_head:
+            mocked_head.return_value.ok = True
+            provider.action_test_connection()
+
+        self.assertEqual(mocked_head.call_args.kwargs["headers"], {"x-api-key": "secret-key"})
+
+
+@tagged("post_install", "-at_install")
+class TestDataProviderKind(TransactionCase, CELTestDataMixin):
+    """Tests for the provider_kind discriminator on spp.data.provider.
+
+    `provider_kind` is the typed discriminator used by `_compute_variable_values`
+    and `_exec_metric` to dispatch external-value resolution to provider-specific
+    overrides. Base ships with `generic`; downstream modules (e.g. notary) extend
+    the selection via `_selection_add`.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls._test_id = int(time.time() * 1000)
+        cls.DataProvider = cls.env["spp.data.provider"]
+
+    def test_provider_kind_defaults_to_generic(self):
+        """New providers default to provider_kind='generic'."""
+        provider = self.DataProvider.create(
+            {
+                "name": "Default Kind",
+                "code": f"default_kind_{self._test_id}",
+            }
+        )
+        self.assertEqual(provider.provider_kind, "generic")
+
+    def test_provider_kind_selection_includes_generic(self):
+        """The provider_kind selection includes at least 'generic'."""
+        kinds = dict(self.DataProvider._fields["provider_kind"].selection)
+        self.assertIn("generic", kinds)
+
+    def test_provider_kind_explicit_assignment(self):
+        """Assigning a known kind sticks."""
+        provider = self.DataProvider.create(
+            {
+                "name": "Explicit Generic",
+                "code": f"explicit_generic_{self._test_id}",
+                "provider_kind": "generic",
+            }
+        )
+        self.assertEqual(provider.provider_kind, "generic")
+
+    @mute_logger("odoo.sql_db")
+    def test_provider_kind_required(self):
+        """provider_kind is required (cannot be set to false)."""
+        with self.assertRaises(IntegrityError):
+            with self.cr.savepoint():
+                self.DataProvider.create(
+                    {
+                        "name": "No Kind",
+                        "code": f"no_kind_{self._test_id}",
+                        "provider_kind": False,
+                    }
+                )

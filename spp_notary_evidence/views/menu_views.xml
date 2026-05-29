@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <menuitem
+        id="menu_notary_evidence"
+        name="Notary Evidence"
+        parent="spp_cel_domain.menu_data_management"
+        sequence="30"
+        groups="spp_notary_evidence.group_notary_evidence_viewer"
+    />
+
+    <menuitem
+        id="menu_notary_claims"
+        name="Claims"
+        parent="menu_notary_evidence"
+        action="action_notary_claim"
+        sequence="10"
+        groups="spp_notary_evidence.group_notary_evidence_viewer"
+    />
+
+    <menuitem
+        id="menu_notary_catalog_sync"
+        name="Sync Catalog"
+        parent="menu_notary_evidence"
+        action="action_notary_catalog_sync_wizard"
+        sequence="20"
+        groups="spp_notary_evidence.group_notary_evidence_manager"
+    />
+
+    <record id="action_notary_stale_cache_logs" model="ir.actions.act_window">
+        <field name="name">Stale Cache Reads</field>
+        <field name="res_model">spp.api.outgoing.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">
+            [('service_name', '=', 'Notary Client'), ('endpoint', '=', '/claims/stale-cache-read')]
+        </field>
+        <field name="context">{'search_default_group_by_status': 1}</field>
+    </record>
+
+    <menuitem
+        id="menu_notary_stale_cache_logs"
+        name="Stale Cache Reads"
+        parent="menu_notary_evidence"
+        action="action_notary_stale_cache_logs"
+        sequence="30"
+        groups="spp_notary_evidence.group_notary_evidence_viewer"
+    />
+</odoo>

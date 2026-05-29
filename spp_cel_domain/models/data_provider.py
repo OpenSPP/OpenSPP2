@@ -48,6 +48,17 @@ class DataProvider(models.Model):
         string="Active",
         default=True,
     )
+    provider_kind = fields.Selection(
+        selection=[("generic", "Generic")],
+        string="Provider Kind",
+        required=True,
+        default="generic",
+        help=(
+            "Typed discriminator used by the evaluator and executor to dispatch "
+            "external-value resolution to provider-specific overrides. Downstream "
+            "modules extend this selection via `_selection_add` (e.g. 'notary')."
+        ),
+    )
 
     # ─── Connection Settings ─────────────────────────────────────────────
     base_url = fields.Char(
@@ -211,6 +222,76 @@ class DataProvider(models.Model):
         return [(rec.id, f"{rec.name} ({rec.code})") for rec in self]
 
     # ═══════════════════════════════════════════════════════════════════════
+    # EXTERNAL-VALUE HOOKS
+    # ═══════════════════════════════════════════════════════════════════════
+    # These are the integration points used by the evaluator and executor when
+    # a variable has `source_type='external'`. Downstream modules (e.g.
+    # spp_notary_evidence) override them on providers whose `provider_kind`
+    # matches their integration. The base batch hook falls back to the single
+    # refresh hook to preserve older provider-specific implementations.
+
+    def _compute_external_values(self, variable, subject_ids, period_key):
+        """Batch-compute external values for a variable across subjects.
+
+        Called from `spp.data.cache.manager._compute_variable_values` and
+        `spp.cel.executor._exec_external_metric` when
+        `variable.source_type == 'external'`. Downstream modules override this
+        on their own `provider_kind` to issue the actual upstream batch call
+        (e.g. POST `/claims/batch-evaluate` for Notary). The base
+        implementation falls back to the single-subject refresh hook.
+
+        Args:
+            variable: `spp.cel.variable` record (source_type='external').
+            subject_ids: List of subject record IDs to compute values for.
+            period_key: Period key string (or None / 'current').
+
+        Returns:
+            dict: `{subject_id: value, ...}` for subjects that returned a value.
+                  Subjects without a value are omitted (the framework treats
+                  missing keys as "no cached value").
+        """
+        self.ensure_one()
+        values = {}
+        for subject_id in subject_ids:
+            # pylint: disable=assignment-from-none
+            value = self._refresh_external_value(variable, int(subject_id), period_key)
+            if value is not None:
+                values[int(subject_id)] = value
+        return values
+
+    def _refresh_external_value(self, variable, subject_id, period_key):
+        """Refresh a single external value on cache miss.
+
+        Called from `spp.cel.executor._exec_metric` when an external variable
+        has no cached value for `(subject_id, period_key)` and lazy refresh is
+        wanted. Downstream modules override this to issue the upstream call
+        (e.g. POST `/claims/evaluate` for Notary, possibly session-batched).
+
+        Args:
+            variable: `spp.cel.variable` record (source_type='external').
+            subject_id: Subject record ID.
+            period_key: Period key string (or None / 'current').
+
+        Returns:
+            The resolved value, or None if no value is available.
+
+        Implementations that write through to `spp.data.value` (the usual case)
+        should do so before returning, so subsequent reads hit the cache.
+        """
+        self.ensure_one()
+        _logger.warning(
+            "Provider '%s' (kind=%s) has no `_refresh_external_value` override for variable '%s'. Returning None.",
+            self.code,
+            self.provider_kind,
+            variable.name,
+        )
+        return None
+
+    def _external_value_cache_params(self, variable):
+        """Return provider-specific parameters that partition external value cache rows."""
+        return {}
+
+    # ═══════════════════════════════════════════════════════════════════════
     # ACTIONS
     # ═══════════════════════════════════════════════════════════════════════
 
@@ -251,7 +332,8 @@ class DataProvider(models.Model):
             # Build authentication headers based on auth_type
             headers = {}
             if self.auth_type == "api_key" and self.api_key:
-                headers["Authorization"] = f"Bearer {self.api_key}"
+                header_name = getattr(self, "api_key_header", None) or getattr(self, "notary_api_key_header", None)
+                headers[header_name or "x-api-key"] = self.api_key
 
             # Simple HEAD request to test connectivity
             response = requests.head(  # nosec B113 — explicit timeout via self.timeout_ms

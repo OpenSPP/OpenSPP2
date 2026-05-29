@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="rule_notary_outgoing_log_viewer" model="ir.rule">
+        <field name="name">Notary outgoing logs are visible to Notary viewers</field>
+        <field name="model_id" ref="spp_api_v2.model_spp_api_outgoing_log" />
+        <field name="domain_force">[('service_name', '=', 'Notary Client')]</field>
+        <field
+            name="groups"
+            eval="[Command.link(ref('group_notary_evidence_viewer'))]"
+        />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="False" />
+        <field name="perm_create" eval="False" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+</odoo>
