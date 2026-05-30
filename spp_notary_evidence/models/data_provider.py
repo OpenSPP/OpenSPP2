@@ -57,8 +57,8 @@ class DataProvider(models.Model):
     notary_subject_log_secret = fields.Char(groups="spp_notary_evidence.group_notary_evidence_manager")
     notary_catalog_path = fields.Char(
         string="Notary Catalog Path",
-        default="/claims",
-        help="Relative endpoint used by older mock clients. The real Notary client uses GET /claims.",
+        default="/v1/claims",
+        help="Relative endpoint used by older mock clients. The real Notary client uses GET /v1/claims.",
     )
     notary_catalog_synced_at = fields.Datetime(readonly=True)
     notary_sync_log = fields.Text(readonly=True)
@@ -288,6 +288,19 @@ class DataProvider(models.Model):
                     )
                     values_by_subject.update(self._values_from_batch_response(response, chunk, claim))
                 except NotaryError as error:
+                    if self._notary_batch_operation_unsupported(error):
+                        values_by_subject.update(
+                            self._values_from_single_evaluate_fallback(
+                                client,
+                                variable,
+                                chunk,
+                                claim,
+                                period_key,
+                                purpose,
+                                purpose_layer,
+                            )
+                        )
+                        continue
                     _logger.warning("Notary batch evaluation failed for provider %s: %s", self.code, error)
                     chunk_subject_ids = [subject_id for subject_id, _subject_ref in chunk]
                     values_by_subject.update(
@@ -301,6 +314,40 @@ class DataProvider(models.Model):
                     continue
         self._write_notary_values(variable, values_by_subject, period_key)
         return {subject_id: value_data["value"] for subject_id, value_data in values_by_subject.items()}
+
+    def _notary_batch_operation_unsupported(self, error):
+        return error.status_code == 501 or error.code == "claim.operation_unsupported"
+
+    def _values_from_single_evaluate_fallback(
+        self,
+        client,
+        variable,
+        subject_records,
+        claim,
+        period_key,
+        purpose,
+        purpose_layer,
+    ):
+        values_by_subject = {}
+        claim_ref = self._notary_claim_ref(claim)
+        for subject_id, subject_ref in subject_records:
+            try:
+                response = client.evaluate(
+                    subject_id=subject_ref["id"],
+                    subject_id_type=subject_ref.get("id_type"),
+                    claim_refs=[claim_ref],
+                    purpose=purpose,
+                    purpose_layer=purpose_layer,
+                    disclosure=claim.default_disclosure,
+                )
+            except NotaryError as error:
+                _logger.warning("Notary single evaluation fallback failed for provider %s: %s", self.code, error)
+                values_by_subject.update(self._values_for_notary_error(error, variable, [subject_id], period_key))
+                continue
+            result = self._first_matching_result(response.results, claim.external_id)
+            if result is not None:
+                values_by_subject[subject_id] = self._value_data_from_result(result)
+        return values_by_subject
 
     def _refresh_external_value(self, variable, subject_id, period_key):
         self.ensure_one()

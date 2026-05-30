@@ -27,6 +27,7 @@ from odoo.addons.spp_notary_client.services.exceptions import (
     NotaryPurposeMissing,
     NotaryRateLimited,
     NotaryRequestError,
+    NotarySourceUnavailable,
     NotarySubjectIdMissing,
     NotarySubjectNotFound,
     NotaryTransportError,
@@ -137,7 +138,7 @@ class TestNotaryClientOdooRunner(TransactionCase):
         self.assertEqual(response.claims[0].value_type, "string")
         self.assertEqual(response.claims[0].supported_formats, ["json"])
         self.assertEqual(transport.requests[0].method, "GET")
-        self.assertEqual(transport.requests[0].url.path, "/api/claims")
+        self.assertEqual(transport.requests[0].url.path, "/api/v1/claims")
         self.assertEqual(transport.requests[0].headers["data-purpose"], "https://openspp.example/default-purpose")
         self.assertEqual(transport.requests[0].headers["x-api-key"], "secret-key")
 
@@ -204,7 +205,7 @@ class TestNotaryClientOdooRunner(TransactionCase):
 
         self.assertEqual(log_wrapper.log_call.call_args.kwargs["request_summary"]["purpose_layer"], "claim_default")
 
-    def test_evaluate_sends_bearer_auth_payload_and_stable_idempotency_key_on_retry(self):
+    def test_evaluate_sends_bearer_auth_payload_and_does_not_retry(self):
         client, transport = _client(
             {
                 "base_url": "https://notary.example",
@@ -214,36 +215,22 @@ class TestNotaryClientOdooRunner(TransactionCase):
             },
             [
                 _json_response(500, {"error": {"code": "source.unavailable"}}),
-                _json_response(
-                    200,
-                    {
-                        "evaluation_id": "eval-123",
-                        "results": [
-                            {
-                                "claim_id": "disability-severity-code",
-                                "value": "severe",
-                                "satisfied": True,
-                            }
-                        ],
-                    },
-                ),
             ],
         )
 
-        response = client.evaluate(
-            subject_id="NATIONAL-ID-123",
-            claim_refs=["disability-severity-code"],
-            purpose="https://openspp.example/purpose",
-        )
+        with self.assertRaises(NotarySourceUnavailable):
+            client.evaluate(
+                subject_id="NATIONAL-ID-123",
+                claim_refs=["disability-severity-code"],
+                purpose="https://openspp.example/purpose",
+            )
 
-        self.assertEqual(response.evaluation_id, "eval-123")
-        self.assertEqual(len(transport.requests), 2)
+        self.assertEqual(len(transport.requests), 1)
+        self.assertEqual(transport.requests[0].url.path, "/v1/evaluations")
         self.assertEqual(transport.requests[0].headers["authorization"], "Bearer bearer-token")
-        self.assertEqual(
-            transport.requests[0].headers["idempotency-key"],
-            transport.requests[1].headers["idempotency-key"],
-        )
-        self.assertIn("NATIONAL-ID-123", transport.requests[1].read().decode())
+        self.assertEqual(transport.requests[0].headers["accept"], "application/vnd.registry-notary.claim-result+json")
+        self.assertNotIn("idempotency-key", transport.requests[0].headers)
+        self.assertIn("NATIONAL-ID-123", transport.requests[0].read().decode())
 
     def test_batch_evaluate_posts_subjects_and_claims(self):
         client, transport = _client(
@@ -275,7 +262,9 @@ class TestNotaryClientOdooRunner(TransactionCase):
         self.assertEqual(response.items[0].results[0].claim_id, "claim-a")
         self.assertEqual(response.items[0].claim_results[0].claim_id, "claim-a")
         self.assertEqual(transport.requests[0].method, "POST")
-        self.assertEqual(transport.requests[0].url.path, "/claims/batch-evaluate")
+        self.assertEqual(transport.requests[0].url.path, "/v1/batch-evaluations")
+        self.assertEqual(transport.requests[0].headers["accept"], "application/vnd.registry-notary.claim-result+json")
+        self.assertIn("idempotency-key", transport.requests[0].headers)
         self.assertIn('"subjects":[{"id":"NATIONAL-ID-123"}]', transport.requests[0].read().decode())
 
     def test_batch_evaluate_requires_subjects_and_claims(self):
@@ -306,8 +295,8 @@ class TestNotaryClientOdooRunner(TransactionCase):
                 _json_response(
                     payload={
                         "issuer": "notary",
-                        "claims_endpoint": "/claims",
-                        "evaluate_endpoint": "/claims/evaluate",
+                        "claims_endpoint": "/v1/claims",
+                        "evaluate_endpoint": "/v1/evaluations",
                     }
                 ),
                 _json_response(payload={"keys": [{"kid": "key-1"}]}),
@@ -320,8 +309,37 @@ class TestNotaryClientOdooRunner(TransactionCase):
         self.assertEqual(metadata.issuer, "notary")
         self.assertEqual(jwks["keys"][0]["kid"], "key-1")
         self.assertEqual(transport.requests[0].url.path, "/.well-known/evidence-service")
-        self.assertEqual(transport.requests[1].url.path, "/.well-known/jwks.json")
+        self.assertEqual(transport.requests[1].url.path, "/.well-known/evidence/jwks.json")
         self.assertEqual(transport.requests[1].headers["data-purpose"], "https://openspp.example/override")
+
+    def test_metadata_accepts_lab_service_document_shape(self):
+        client, _transport = _client(
+            {
+                "base_url": "https://notary.example",
+                "auth_type": "none",
+                "default_purpose_url": "https://openspp.example/default-purpose",
+            },
+            [
+                _json_response(
+                    payload={
+                        "api_version": "2026-05",
+                        "service_id": "civil-notary",
+                        "issuer": {
+                            "id": "did:web:civil-evidence.demo.example",
+                            "name": "civil-notary",
+                        },
+                        "claims_url": "/v1/claims",
+                        "formats_url": "/v1/formats",
+                    }
+                ),
+            ],
+        )
+
+        metadata = client.get_metadata()
+
+        self.assertEqual(metadata.service_id, "civil-notary")
+        self.assertEqual(metadata.issuer["id"], "did:web:civil-evidence.demo.example")
+        self.assertEqual(metadata.claims_url, "/v1/claims")
 
     def test_evaluate_requires_subject_claim_and_purpose_before_network_io(self):
         client, transport = _client(
@@ -347,6 +365,27 @@ class TestNotaryClientOdooRunner(TransactionCase):
 
         self.assertEqual(transport.requests, [])
         self.assertEqual(purpose_transport.requests, [])
+
+    def test_high_level_helpers_reject_single_claim_and_subject_shapes(self):
+        client, transport = _client(
+            {
+                "base_url": "https://notary.example",
+                "auth_type": "none",
+                "default_purpose_url": "https://openspp.example/default-purpose",
+            },
+            [_json_response()],
+        )
+
+        with self.assertRaises(NotaryConfigurationError):
+            client.evaluate(subject_id="NATIONAL-ID-123", claim_refs="claim-a")
+        with self.assertRaises(NotaryConfigurationError):
+            client.evaluate(subject_id="NATIONAL-ID-123", claim_refs={"id": "claim-a"})
+        with self.assertRaises(NotaryConfigurationError):
+            client.batch_evaluate(subjects="NATIONAL-ID-123", claim_refs=["claim-a"])
+        with self.assertRaises(NotaryConfigurationError):
+            client.batch_evaluate(subjects={"id": "NATIONAL-ID-123"}, claim_refs=["claim-a"])
+
+        self.assertEqual(transport.requests, [])
 
     def test_evaluate_refuses_logged_subject_call_without_hash_secret(self):
         client, transport = _client(
@@ -419,7 +458,25 @@ class TestNotaryClientOdooRunner(TransactionCase):
                 self.assertNotIn("NATIONAL-ID-123", str(error.exception))
                 self.assertNotIn("secret-claim", str(error.exception))
 
-    def test_rate_limit_retries_once_then_raises_with_same_idempotency_key(self):
+    def test_evaluate_rate_limit_does_not_retry_or_send_idempotency_key(self):
+        client, transport = _client(
+            {
+                "base_url": "https://notary.example",
+                "auth_type": "none",
+                "default_purpose_url": "https://openspp.example/default-purpose",
+            },
+            [
+                _json_response(429, {"error": {"code": "rate_limited"}}),
+            ],
+        )
+
+        with self.assertRaises(NotaryRateLimited):
+            client.evaluate(subject_id="NATIONAL-ID-123", claim_refs=["claim-a"])
+
+        self.assertEqual(len(transport.requests), 1)
+        self.assertNotIn("idempotency-key", transport.requests[0].headers)
+
+    def test_batch_rate_limit_retries_once_with_same_idempotency_key(self):
         client, transport = _client(
             {
                 "base_url": "https://notary.example",
@@ -433,7 +490,7 @@ class TestNotaryClientOdooRunner(TransactionCase):
         )
 
         with self.assertRaises(NotaryRateLimited):
-            client.evaluate(subject_id="NATIONAL-ID-123", claim_refs=["claim-a"])
+            client.batch_evaluate(subjects=["NATIONAL-ID-123"], claim_refs=["claim-a"])
 
         self.assertEqual(len(transport.requests), 2)
         self.assertEqual(
@@ -442,7 +499,7 @@ class TestNotaryClientOdooRunner(TransactionCase):
         )
 
     def test_transport_and_timeout_errors_are_logged_as_sanitized_transport_errors(self):
-        request = httpx.Request("POST", "https://notary.example/claims/evaluate")
+        request = httpx.Request("POST", "https://notary.example/v1/evaluations")
         cases = [
             (httpx.TimeoutException("timeout", request=request), "Notary request timed out"),
             (httpx.ConnectError("connect failed", request=request), "Notary transport error"),
@@ -583,7 +640,7 @@ class TestNotaryClientOdooRunner(TransactionCase):
 
         wrapper = NotaryOutgoingLogWrapper(EnvWithoutOutgoingLog(), service_code="notary")
 
-        self.assertIsNone(wrapper.log_call(endpoint="/claims/evaluate"))
+        self.assertIsNone(wrapper.log_call(endpoint="/v1/evaluations"))
 
     def test_schema_models_accept_aliases_and_extra_fields(self):
         catalog = CatalogResponse.model_validate(

@@ -57,7 +57,7 @@ class ClaimMetadata(NotaryBaseModel):
 
 
 class CatalogResponse(NotaryBaseModel):
-    """Response from GET /claims."""
+    """Response from GET /v1/claims."""
 
     claims: list[ClaimMetadata] = Field(default_factory=list)
 
@@ -75,15 +75,18 @@ class CatalogResponse(NotaryBaseModel):
 class EvidenceServiceMetadata(NotaryBaseModel):
     """Minimal .well-known/evidence-service metadata shape."""
 
-    issuer: str | None = None
+    issuer: str | dict[str, Any] | None = None
+    service_id: str | None = None
     claims_endpoint: str | None = None
     evaluate_endpoint: str | None = None
     batch_evaluate_endpoint: str | None = None
     jwks_uri: str | None = None
+    claims_url: str | None = None
+    formats_url: str | None = None
 
 
 class EvaluateRequest(NotaryBaseModel):
-    """Request body for POST /claims/evaluate."""
+    """Request body for POST /v1/evaluations."""
 
     subject: Subject
     claims: list[str | ClaimRef]
@@ -107,7 +110,7 @@ class ClaimResult(NotaryBaseModel):
 
 
 class EvaluateResponse(NotaryBaseModel):
-    """Response from POST /claims/evaluate."""
+    """Response from POST /v1/evaluations."""
 
     evaluation_id: str | None = None
     results: list[ClaimResult] = Field(default_factory=list)
@@ -116,7 +119,7 @@ class EvaluateResponse(NotaryBaseModel):
 
 
 class BatchEvaluateRequest(NotaryBaseModel):
-    """Request body for POST /claims/batch-evaluate."""
+    """Request body for POST /v1/batch-evaluations."""
 
     subjects: list[Subject]
     claims: list[str | ClaimRef]
@@ -150,7 +153,7 @@ class BatchItem(NotaryBaseModel):
 
 
 class BatchEvaluateResponse(NotaryBaseModel):
-    """Response from POST /claims/batch-evaluate."""
+    """Response from POST /v1/batch-evaluations."""
 
     batch_id: str | None = None
     status: str | None = None

@@ -33,11 +33,14 @@ from .schemas import (
     Subject,
 )
 
-ENDPOINT_CLAIMS = "/claims"
-ENDPOINT_EVALUATE = "/claims/evaluate"
-ENDPOINT_BATCH_EVALUATE = "/claims/batch-evaluate"
+CLAIM_RESULT_JSON = "application/vnd.registry-notary.claim-result+json"
+APPLICATION_JSON = "application/json"
+
+ENDPOINT_CLAIMS = "/v1/claims"
+ENDPOINT_EVALUATE = "/v1/evaluations"
+ENDPOINT_BATCH_EVALUATE = "/v1/batch-evaluations"
 ENDPOINT_METADATA = "/.well-known/evidence-service"
-ENDPOINT_JWKS = "/.well-known/jwks.json"
+ENDPOINT_JWKS = "/.well-known/evidence/jwks.json"
 RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}
 
 
@@ -186,6 +189,8 @@ class NotaryClient:
             raise NotarySubjectIdMissing("Notary subject_id is required")
         if not claim_refs:
             raise NotaryConfigurationError("At least one Notary claim is required")
+        if idempotency_key:
+            raise NotaryConfigurationError("Notary evaluate does not support idempotency_key")
 
         normalized_claims = self._normalize_claim_refs(claim_refs)
         resolved_purpose, resolved_purpose_layer = self._resolve_purpose(active_config, purpose, purpose_layer)
@@ -210,10 +215,9 @@ class NotaryClient:
             json_body=request_payload,
             purpose=resolved_purpose,
             purpose_layer=resolved_purpose_layer,
-            idempotency_key=idempotency_key,
+            accept=CLAIM_RESULT_JSON,
             audit_subject_id=subject_id,
             audit_claim_refs=normalized_claims,
-            retry_once=True,
         )
         return EvaluateResponse.model_validate(response)
 
@@ -258,6 +262,7 @@ class NotaryClient:
             json_body=request_model.model_dump(mode="json", exclude_none=True),
             purpose=resolved_purpose,
             purpose_layer=resolved_purpose_layer,
+            accept=CLAIM_RESULT_JSON,
             idempotency_key=idempotency_key,
             audit_claim_refs=normalized_claims,
             audit_subject_count=len(normalized_subjects),
@@ -331,6 +336,7 @@ class NotaryClient:
         purpose: str,
         purpose_layer: str,
         json_body: dict[str, Any] | None = None,
+        accept: str = APPLICATION_JSON,
         idempotency_key: str | None = None,
         audit_subject_id: str | None = None,
         audit_claim_refs: Iterable[Any] | None = None,
@@ -338,7 +344,7 @@ class NotaryClient:
         retry_once: bool = False,
     ) -> dict[str, Any]:
         url = self._build_url(config, endpoint)
-        headers = self._headers(config, purpose, idempotency_key=idempotency_key)
+        headers = self._headers(config, purpose, accept=accept, idempotency_key=idempotency_key)
         started_at = time.monotonic()
         attempts = 2 if retry_once else 1
         last_response = None
@@ -482,10 +488,11 @@ class NotaryClient:
         config: NotaryClientConfig,
         purpose: str,
         *,
+        accept: str = APPLICATION_JSON,
         idempotency_key: str | None = None,
     ) -> dict[str, str]:
         headers = {
-            "accept": "application/json",
+            "Accept": accept,
             "data-purpose": purpose,
         }
         if config.auth_type == "bearer":
@@ -493,7 +500,7 @@ class NotaryClient:
         elif config.auth_type == "api_key":
             headers[config.api_key_header] = config.api_key or ""
         if idempotency_key:
-            headers["idempotency-key"] = idempotency_key
+            headers["Idempotency-Key"] = idempotency_key
         return headers
 
     def _build_url(self, config: NotaryClientConfig, endpoint: str) -> str:
@@ -531,6 +538,8 @@ class NotaryClient:
         return str(uuid.uuid5(uuid.NAMESPACE_URL, seed))
 
     def _normalize_claim_refs(self, claim_refs: Iterable[str | ClaimRef | dict[str, Any]]) -> list[str | ClaimRef]:
+        if isinstance(claim_refs, str | dict | ClaimRef):
+            raise NotaryConfigurationError("Notary claim_refs must be a list or iterable of claim references")
         normalized = []
         for claim_ref in claim_refs:
             if isinstance(claim_ref, str):
@@ -544,6 +553,8 @@ class NotaryClient:
         return normalized
 
     def _normalize_subjects(self, subjects: Iterable[str | Subject | dict[str, Any]] | None) -> list[Subject]:
+        if isinstance(subjects, str | dict | Subject):
+            raise NotaryConfigurationError("Notary subjects must be a list or iterable of subject references")
         normalized = []
         for subject in subjects or []:
             if isinstance(subject, str):

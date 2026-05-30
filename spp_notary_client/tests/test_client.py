@@ -14,6 +14,7 @@ from spp_notary_client.services.exceptions import (
     NotaryConfigurationError,
     NotaryPurposeMissing,
     NotaryRateLimited,
+    NotarySourceUnavailable,
     NotarySubjectIdMissing,
     NotarySubjectNotFound,
     NotaryTransportError,
@@ -108,13 +109,13 @@ def test_discover_claims_sends_purpose_and_api_key_headers():
 
     assert response.claims[0].id == "disability-severity-code"
     assert transport.requests[0].method == "GET"
-    assert transport.requests[0].url.path == "/api/claims"
+    assert transport.requests[0].url.path == "/api/v1/claims"
     assert transport.requests[0].headers["data-purpose"] == "https://openspp.example/default-purpose"
     assert transport.requests[0].headers["x-api-key"] == "secret-key"
 
 
-def test_evaluate_sends_bearer_auth_payload_and_stable_idempotency_key_on_retry():
-    """Retryable responses reuse one idempotency key across attempts."""
+def test_evaluate_sends_bearer_auth_payload_and_does_not_retry():
+    """Single-subject evaluation is not retried because the route is not deduplicated."""
     client, transport = _client(
         {
             "base_url": "https://notary.example",
@@ -124,35 +125,24 @@ def test_evaluate_sends_bearer_auth_payload_and_stable_idempotency_key_on_retry(
         },
         [
             _json_response(500, {"error": {"code": "source.unavailable"}}),
-            _json_response(
-                200,
-                {
-                    "evaluation_id": "eval-123",
-                    "results": [
-                        {
-                            "claim_id": "disability-severity-code",
-                            "value": "severe",
-                            "satisfied": True,
-                        }
-                    ],
-                },
-            ),
         ],
     )
 
-    response = client.evaluate(
-        subject_id="NATIONAL-ID-123",
-        claim_refs=["disability-severity-code"],
-        purpose="https://openspp.example/purpose",
-    )
+    with pytest.raises(NotarySourceUnavailable):
+        client.evaluate(
+            subject_id="NATIONAL-ID-123",
+            claim_refs=["disability-severity-code"],
+            purpose="https://openspp.example/purpose",
+        )
 
-    assert response.evaluation_id == "eval-123"
-    assert len(transport.requests) == 2
+    assert len(transport.requests) == 1
+    assert transport.requests[0].url.path == "/v1/evaluations"
     assert transport.requests[0].headers["authorization"] == "Bearer bearer-token"
-    assert transport.requests[0].headers["idempotency-key"] == transport.requests[1].headers["idempotency-key"]
-    payload = dict(httpx.QueryParams(transport.requests[1].url.query))
+    assert transport.requests[0].headers["accept"] == "application/vnd.registry-notary.claim-result+json"
+    assert "idempotency-key" not in transport.requests[0].headers
+    payload = dict(httpx.QueryParams(transport.requests[0].url.query))
     assert payload == {}
-    request_json = transport.requests[1].read().decode()
+    request_json = transport.requests[0].read().decode()
     assert "NATIONAL-ID-123" in request_json
     assert "disability-severity-code" in request_json
 
@@ -190,6 +180,8 @@ def test_evaluate_serializes_versioned_claim_ref_objects():
 
     request_json = transport.requests[0].read().decode()
     assert '"claims":[{"id":"disability-severity-code","version":"2026-01"}]' in request_json
+    assert transport.requests[0].url.path == "/v1/evaluations"
+    assert transport.requests[0].headers["accept"] == "application/vnd.registry-notary.claim-result+json"
 
 
 def test_evaluate_requires_purpose():
@@ -218,6 +210,42 @@ def test_evaluate_requires_subject_id():
 
     with pytest.raises(NotarySubjectIdMissing):
         client.evaluate(subject_id="", claim_refs=["claim-a"])
+
+    assert transport.requests == []
+
+
+@pytest.mark.parametrize("claim_refs", ["claim-a", {"id": "claim-a"}])
+def test_evaluate_rejects_single_claim_ref_shapes(claim_refs):
+    """High-level claim_refs must be a list, matching the official Python client guard."""
+    client, transport = _client(
+        {
+            "base_url": "https://notary.example",
+            "auth_type": "none",
+            "default_purpose_url": "https://openspp.example/default-purpose",
+        },
+        [_json_response()],
+    )
+
+    with pytest.raises(NotaryConfigurationError):
+        client.evaluate(subject_id="NATIONAL-ID-123", claim_refs=claim_refs)
+
+    assert transport.requests == []
+
+
+@pytest.mark.parametrize("subjects", ["NATIONAL-ID-123", {"id": "NATIONAL-ID-123"}])
+def test_batch_evaluate_rejects_single_subject_shapes(subjects):
+    """Batch subjects must be a list so strings are never split into characters."""
+    client, transport = _client(
+        {
+            "base_url": "https://notary.example",
+            "auth_type": "none",
+            "default_purpose_url": "https://openspp.example/default-purpose",
+        },
+        [_json_response()],
+    )
+
+    with pytest.raises(NotaryConfigurationError):
+        client.batch_evaluate(subjects=subjects, claim_refs=["claim-a"])
 
     assert transport.requests == []
 
@@ -308,7 +336,9 @@ def test_batch_evaluate_posts_subjects_and_claims():
     assert response.batch_id == "batch-123"
     assert response.items[0].status == "succeeded"
     assert transport.requests[0].method == "POST"
-    assert transport.requests[0].url.path == "/claims/batch-evaluate"
+    assert transport.requests[0].url.path == "/v1/batch-evaluations"
+    assert transport.requests[0].headers["accept"] == "application/vnd.registry-notary.claim-result+json"
+    assert "idempotency-key" in transport.requests[0].headers
     assert '"subjects":[{"id":"NATIONAL-ID-123"}]' in transport.requests[0].read().decode()
 
 
@@ -339,8 +369,28 @@ def test_error_payloads_map_to_typed_exceptions_without_leaking_request_values(s
     assert "secret-claim" not in str(error.value)
 
 
-def test_rate_limit_retries_once_then_raises_with_same_idempotency_key():
-    """HTTP 429 retries once and raises NotaryRateLimited if still limited."""
+def test_evaluate_rate_limit_does_not_retry_or_send_idempotency_key():
+    """HTTP 429 on single evaluate is surfaced after one attempt."""
+    client, transport = _client(
+        {
+            "base_url": "https://notary.example",
+            "auth_type": "none",
+            "default_purpose_url": "https://openspp.example/default-purpose",
+        },
+        [
+            _json_response(429, {"error": {"code": "rate_limited"}}),
+        ],
+    )
+
+    with pytest.raises(NotaryRateLimited):
+        client.evaluate(subject_id="NATIONAL-ID-123", claim_refs=["claim-a"])
+
+    assert len(transport.requests) == 1
+    assert "idempotency-key" not in transport.requests[0].headers
+
+
+def test_batch_rate_limit_retries_once_with_same_idempotency_key():
+    """Batch evaluation remains retryable because it has a server idempotency contract."""
     client, transport = _client(
         {
             "base_url": "https://notary.example",
@@ -354,7 +404,7 @@ def test_rate_limit_retries_once_then_raises_with_same_idempotency_key():
     )
 
     with pytest.raises(NotaryRateLimited):
-        client.evaluate(subject_id="NATIONAL-ID-123", claim_refs=["claim-a"])
+        client.batch_evaluate(subjects=["NATIONAL-ID-123"], claim_refs=["claim-a"])
 
     assert len(transport.requests) == 2
     assert transport.requests[0].headers["idempotency-key"] == transport.requests[1].headers["idempotency-key"]
@@ -362,7 +412,7 @@ def test_rate_limit_retries_once_then_raises_with_same_idempotency_key():
 
 def test_transport_errors_raise_typed_exception_without_request_values():
     """Connection failures map to NotaryTransportError and avoid PII in text."""
-    request = httpx.Request("POST", "https://notary.example/claims/evaluate")
+    request = httpx.Request("POST", "https://notary.example/v1/evaluations")
     client, _transport = _client(
         {
             "base_url": "https://notary.example",

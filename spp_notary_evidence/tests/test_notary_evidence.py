@@ -168,7 +168,7 @@ class TestNotaryEvidence(TransactionCase):
         self.assertEqual(get_catalog.claims[0].id, "legacy-get")
         self.assertEqual(get_catalog.claims[0].title, "Legacy Get")
         self.assertEqual(get_catalog.claims[0].value_type, "bool")
-        self.assertEqual(fetch_catalog.claims[0].id, "legacy-fetch-claims")
+        self.assertEqual(fetch_catalog.claims[0].id, "legacy-fetch-v1/claims")
         self.assertEqual(fetch_catalog.claims[0].supported_formats, ["json"])
         with patch.object(type(self.provider), "_notary_client", return_value=SimpleNamespace()):
             with self.assertRaises(UserError):
@@ -265,6 +265,44 @@ class TestNotaryEvidence(TransactionCase):
         )
         self.assertTrue(cached)
         self.assertEqual(cached.value_json, {"value": 3})
+
+    def test_compute_external_values_falls_back_to_single_evaluate_when_batch_unsupported(self):
+        claim = self._create_claim_with_variable("person-is-alive", value_type="boolean")
+        unsupported_batch = NotaryError(code="claim.operation_unsupported", status_code=501)
+        single_response = SimpleNamespace(
+            results=[
+                SimpleNamespace(
+                    claim_id="person-is-alive",
+                    value=True,
+                    satisfied=True,
+                    expires_at=None,
+                )
+            ]
+        )
+
+        with patch.object(type(self.provider), "_notary_client") as mocked_client:
+            mocked_client.return_value.batch_evaluate.side_effect = unsupported_batch
+            mocked_client.return_value.evaluate.return_value = single_response
+            values = self.provider._compute_external_values(
+                claim.variable_id,
+                [self.partner_a.id, self.partner_b.id],
+                "current",
+            )
+
+        self.assertEqual(values, {self.partner_a.id: True, self.partner_b.id: True})
+        mocked_client.return_value.batch_evaluate.assert_called_once()
+        self.assertEqual(mocked_client.return_value.evaluate.call_count, 2)
+        first_call = mocked_client.return_value.evaluate.call_args_list[0].kwargs
+        self.assertEqual(first_call["claim_refs"], [{"id": "person-is-alive", "version": "2026-01"}])
+        self.assertEqual(first_call["subject_id_type"], self.id_type.uri)
+        cached = self.env["spp.data.value"].search(
+            [
+                ("variable_name", "=", claim.variable_id.name),
+                ("subject_id", "in", [self.partner_a.id, self.partner_b.id]),
+                ("provider", "=", self.provider.code),
+            ]
+        )
+        self.assertEqual(len(cached), 2)
 
     def test_compute_external_values_partitions_by_provider_batch_size(self):
         claim = self._create_claim_with_variable("partitioned-claim", value_type="number")
@@ -1199,7 +1237,7 @@ class TestNotaryEvidence(TransactionCase):
 
         log = self.env["spp.api.outgoing.log"].sudo().search([("service_code", "=", service_code)], limit=1)
         self.assertTrue(log)
-        self.assertEqual(log.endpoint, "/claims/evaluate")
+        self.assertEqual(log.endpoint, "/v1/evaluations")
         self.assertEqual(log.status, "success")
         self.assertEqual(log.origin_model, "spp.data.provider")
         self.assertEqual(log.origin_record_id, self.provider.id)
@@ -1302,8 +1340,8 @@ class TestNotaryEvidence(TransactionCase):
             self.env["spp.api.outgoing.log"]
             .sudo()
             .log_call(
-                url="https://notary.example/claims/evaluate",
-                endpoint="/claims/evaluate",
+                url="https://notary.example/v1/evaluations",
+                endpoint="/v1/evaluations",
                 http_method="POST",
                 service_name="Notary Client",
                 service_code=self.provider.code,

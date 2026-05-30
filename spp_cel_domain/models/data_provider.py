@@ -237,7 +237,7 @@ class DataProvider(models.Model):
         `spp.cel.executor._exec_external_metric` when
         `variable.source_type == 'external'`. Downstream modules override this
         on their own `provider_kind` to issue the actual upstream batch call
-        (e.g. POST `/claims/batch-evaluate` for Notary). The base
+        (e.g. POST `/v1/batch-evaluations` for Notary). The base
         implementation falls back to the single-subject refresh hook.
 
         Args:
@@ -265,7 +265,7 @@ class DataProvider(models.Model):
         Called from `spp.cel.executor._exec_metric` when an external variable
         has no cached value for `(subject_id, period_key)` and lazy refresh is
         wanted. Downstream modules override this to issue the upstream call
-        (e.g. POST `/claims/evaluate` for Notary, possibly session-batched).
+        (e.g. POST `/v1/evaluations` for Notary, possibly session-batched).
 
         Args:
             variable: `spp.cel.variable` record (source_type='external').
