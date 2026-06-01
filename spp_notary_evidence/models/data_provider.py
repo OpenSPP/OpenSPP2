@@ -149,6 +149,54 @@ class DataProvider(models.Model):
             "context": {"default_provider_id": self.id},
         }
 
+    def action_test_connection(self):
+        self.ensure_one()
+        if self.provider_kind != "notary":
+            return super().action_test_connection()
+        if not self.base_url:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("No URL Configured"),
+                    "message": _("Please configure a base URL first."),
+                    "type": "warning",
+                },
+            }
+
+        try:
+            catalog = self._fetch_notary_catalog()
+        except NotaryError as error:
+            message = str(error)
+            if error.status_code:
+                message = _("Server returned status %(status)s: %(error)s") % {
+                    "status": error.status_code,
+                    "error": error,
+                }
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("Connection Failed"),
+                    "message": message,
+                    "type": "warning",
+                },
+            }
+
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": _("Connection Successful"),
+                "message": _("Connected to %(url)s and fetched %(count)s Notary claim(s).")
+                % {
+                    "url": self.base_url,
+                    "count": len(catalog.claims),
+                },
+                "type": "success",
+            },
+        }
+
     def _apply_notary_claim_catalog(self, catalog):
         self.ensure_one()
         Claim = self.env["spp.notary.claim"]
@@ -174,9 +222,7 @@ class DataProvider(models.Model):
                 "claim_version": claim_version,
                 "name": summary.title or claim_id,
                 "description": summary.description,
-                "subject_type": summary.subject_type
-                if summary.subject_type in ("individual", "group", "both")
-                else "individual",
+                "subject_type": self._notary_subject_type(summary.subject_type),
                 "value_type": normalize_notary_value_type(summary.value_type),
                 "default_disclosure": summary.default_disclosure or self._notary_default_disclosure(summary),
                 "last_synced_at": now,
@@ -251,6 +297,17 @@ class DataProvider(models.Model):
         if isinstance(disclosure, list) and disclosure:
             return disclosure[0]
         return "predicate"
+
+    def _notary_subject_type(self, subject_type):
+        subject_type = str(subject_type or "").lower()
+        aliases = {
+            "person": "individual",
+            "individual": "individual",
+            "household": "group",
+            "group": "group",
+            "both": "both",
+        }
+        return aliases.get(subject_type, "individual")
 
     def _compute_external_values(self, variable, subject_ids, period_key):
         self.ensure_one()
@@ -401,7 +458,10 @@ class DataProvider(models.Model):
         reg_id = partner.reg_ids.filtered(lambda rec: rec.id_type_id == self.notary_subject_id_type_id)[:1]
         if not reg_id or not reg_id.value:
             raise NotarySubjectIdMissing("Notary subject ID value was not found")
-        return {"id": reg_id.value, "id_type": self.notary_subject_id_type_id.uri}
+        return {
+            "id": reg_id.value,
+            "id_type": self.notary_subject_id_type_id.code or self.notary_subject_id_type_id.uri,
+        }
 
     def _notary_purpose(self, claim):
         return self._notary_purpose_with_layer(claim)[0]

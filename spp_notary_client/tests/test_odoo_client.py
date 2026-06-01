@@ -1,6 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Odoo-runner coverage for the pure Python Notary client."""
 
+import json
 from dataclasses import dataclass
 from unittest.mock import Mock
 
@@ -37,6 +38,8 @@ from odoo.addons.spp_notary_client.services.schemas import (
     CatalogResponse,
     ClaimRef,
     EvaluateRequest,
+    EvidenceEntity,
+    EvidenceIdentifier,
     Subject,
 )
 
@@ -230,7 +233,16 @@ class TestNotaryClientOdooRunner(TransactionCase):
         self.assertEqual(transport.requests[0].headers["authorization"], "Bearer bearer-token")
         self.assertEqual(transport.requests[0].headers["accept"], "application/vnd.registry-notary.claim-result+json")
         self.assertNotIn("idempotency-key", transport.requests[0].headers)
-        self.assertIn("NATIONAL-ID-123", transport.requests[0].read().decode())
+        request_payload = json.loads(transport.requests[0].read().decode())
+        self.assertEqual(
+            request_payload["target"],
+            {
+                "type": "Person",
+                "id": "NATIONAL-ID-123",
+                "identifiers": [],
+                "attributes": {},
+            },
+        )
 
     def test_batch_evaluate_posts_subjects_and_claims(self):
         client, transport = _client(
@@ -246,7 +258,7 @@ class TestNotaryClientOdooRunner(TransactionCase):
                         "status": "completed",
                         "items": [
                             {
-                                "subject": {"id": "NATIONAL-ID-123"},
+                                "target_ref": {"type": "Person", "handle": "hashed-target"},
                                 "status": "succeeded",
                                 "claim_results": [{"claim_id": "claim-a", "value": True}],
                             }
@@ -265,7 +277,20 @@ class TestNotaryClientOdooRunner(TransactionCase):
         self.assertEqual(transport.requests[0].url.path, "/v1/batch-evaluations")
         self.assertEqual(transport.requests[0].headers["accept"], "application/vnd.registry-notary.claim-result+json")
         self.assertIn("idempotency-key", transport.requests[0].headers)
-        self.assertIn('"subjects":[{"id":"NATIONAL-ID-123"}]', transport.requests[0].read().decode())
+        request_payload = json.loads(transport.requests[0].read().decode())
+        self.assertEqual(
+            request_payload["items"],
+            [
+                {
+                    "target": {
+                        "type": "Person",
+                        "id": "NATIONAL-ID-123",
+                        "identifiers": [],
+                        "attributes": {},
+                    }
+                }
+            ],
+        )
 
     def test_batch_evaluate_requires_subjects_and_claims(self):
         client, transport = _client(
@@ -438,7 +463,7 @@ class TestNotaryClientOdooRunner(TransactionCase):
 
     def test_http_error_payloads_map_to_typed_exceptions(self):
         cases = [
-            (404, {"error": {"code": "source.not_found"}}, NotarySubjectNotFound),
+            (404, {"error": {"code": "target.not_found"}}, NotarySubjectNotFound),
             (404, {"error": {"code": "claim.not_found"}}, NotaryClaimNotFound),
             (401, {"error": {"code": "auth.invalid"}}, NotaryAuthError),
             (400, {"error": {"code": "request.invalid"}}, NotaryRequestError),
@@ -649,8 +674,9 @@ class TestNotaryClientOdooRunner(TransactionCase):
                     {
                         "id": "disability-severity-code",
                         "name": "Disability severity",
-                        "type": "string",
+                        "value": {"type": "string"},
                         "formats": ["json"],
+                        "disclosure": {"default": "value", "allowed": ["value", "redacted"]},
                         "future_field": {"kept": True},
                     }
                 ],
@@ -658,12 +684,15 @@ class TestNotaryClientOdooRunner(TransactionCase):
             }
         )
         bare = EvaluateRequest(
-            subject=Subject(id="NATIONAL-ID-123"),
+            target=EvidenceEntity(type="Person", id="NATIONAL-ID-123"),
             claims=["disability-severity-code"],
             purpose="https://openspp.example/purpose",
         )
         versioned = EvaluateRequest(
-            subject=Subject(id="NATIONAL-ID-123"),
+            target=EvidenceEntity(
+                type="Person",
+                identifiers=[EvidenceIdentifier(scheme="national_id", value="NATIONAL-ID-123")],
+            ),
             claims=[ClaimRef(id="disability-severity-code", version="2026-01")],
             purpose="https://openspp.example/purpose",
         )
@@ -680,9 +709,12 @@ class TestNotaryClientOdooRunner(TransactionCase):
 
         self.assertEqual(catalog.claims[0].title, "Disability severity")
         self.assertEqual(catalog.claims[0].value_type, "string")
+        self.assertEqual(catalog.claims[0].default_disclosure, "value")
+        self.assertEqual(catalog.claims[0].allowed_disclosures, ["value", "redacted"])
         self.assertEqual(catalog.claims[0].supported_formats, ["json"])
         self.assertEqual(catalog.claims[0].model_extra["future_field"], {"kept": True})
         self.assertEqual(catalog.model_extra["future_top_level"], "kept")
+        self.assertEqual(bare.model_dump(exclude_none=True)["target"]["id"], "NATIONAL-ID-123")
         self.assertEqual(bare.model_dump(exclude_none=True)["claims"], ["disability-severity-code"])
         self.assertEqual(
             versioned.model_dump(exclude_none=True)["claims"],

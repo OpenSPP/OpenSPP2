@@ -21,6 +21,33 @@ class Subject(NotaryBaseModel):
     id_type: str | None = None
 
 
+class EvidenceIdentifier(NotaryBaseModel):
+    """Canonical Registry Notary target identifier."""
+
+    scheme: str
+    value: str
+    issuer: str | None = None
+    country: str | None = None
+
+
+class EvidenceEntity(NotaryBaseModel):
+    """Canonical Registry Notary evidence entity."""
+
+    type: str
+    id: str | None = None
+    identifiers: list[EvidenceIdentifier] = Field(default_factory=list)
+    attributes: dict[str, Any] = Field(default_factory=dict)
+    assurance: dict[str, Any] | None = None
+    profile: str | None = None
+
+
+class EvidenceRelationship(NotaryBaseModel):
+    """Requester-to-target relationship context."""
+
+    type: str
+    attributes: dict[str, Any] = Field(default_factory=dict)
+
+
 class ClaimRef(NotaryBaseModel):
     """Claim reference, with optional version for future Notary schema support."""
 
@@ -49,10 +76,22 @@ class ClaimMetadata(NotaryBaseModel):
         values = dict(values)
         if "title" not in values and "name" in values:
             values["title"] = values["name"]
+        if "value_type" not in values and isinstance(values.get("value"), dict):
+            values["value_type"] = values["value"].get("type")
         if "value_type" not in values and "type" in values:
             values["value_type"] = values["type"]
         if "supported_formats" not in values and "formats" in values:
             values["supported_formats"] = values["formats"]
+        disclosure = values.get("disclosure")
+        if isinstance(disclosure, dict):
+            values.setdefault("default_disclosure", disclosure.get("default"))
+            values.setdefault("allowed_disclosures", disclosure.get("allowed") or [])
+        elif isinstance(disclosure, list):
+            values.setdefault("allowed_disclosures", disclosure)
+            if disclosure:
+                values.setdefault("default_disclosure", disclosure[0])
+        elif isinstance(disclosure, str):
+            values.setdefault("default_disclosure", disclosure)
         return values
 
 
@@ -88,9 +127,12 @@ class EvidenceServiceMetadata(NotaryBaseModel):
 class EvaluateRequest(NotaryBaseModel):
     """Request body for POST /v1/evaluations."""
 
-    subject: Subject
+    target: EvidenceEntity
     claims: list[str | ClaimRef]
-    purpose: str
+    purpose: str | None = None
+    requester: EvidenceEntity | None = None
+    relationship: EvidenceRelationship | None = None
+    on_behalf_of: dict[str, Any] | None = None
     disclosure: str | None = None
     format: str | None = None
 
@@ -118,12 +160,22 @@ class EvaluateResponse(NotaryBaseModel):
     expires_at: str | None = None
 
 
+class BatchEvaluateItemRequest(NotaryBaseModel):
+    """One canonical batch evaluation item."""
+
+    target: EvidenceEntity
+    requester: EvidenceEntity | None = None
+    relationship: EvidenceRelationship | None = None
+    on_behalf_of: dict[str, Any] | None = None
+    purpose: str | None = None
+
+
 class BatchEvaluateRequest(NotaryBaseModel):
     """Request body for POST /v1/batch-evaluations."""
 
-    subjects: list[Subject]
+    items: list[BatchEvaluateItemRequest]
     claims: list[str | ClaimRef]
-    purpose: str
+    purpose: str | None = None
     disclosure: str | None = None
     format: str | None = None
 

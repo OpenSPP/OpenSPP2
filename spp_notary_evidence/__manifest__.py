@@ -19,6 +19,7 @@
     ],
     "data": [
         "security/security_groups.xml",
+        "security/default_admin_groups.xml",
         "security/ir.model.access.csv",
         "security/record_rules.xml",
         "views/notary_claim_views.xml",

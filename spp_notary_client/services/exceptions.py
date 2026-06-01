@@ -113,10 +113,19 @@ ERROR_CODE_EXCEPTIONS = {
     "source.not_found": NotarySubjectNotFound,
     "source.ambiguous": NotarySourceAmbiguous,
     "source.unavailable": NotarySourceUnavailable,
+    "target.not_found": NotarySubjectNotFound,
+    "target.identifier_missing": NotarySubjectIdMissing,
+    "target.match_ambiguous": NotarySourceAmbiguous,
+    "target.attributes_insufficient": NotarySubjectIdMissing,
+    "requester.not_found": NotarySubjectNotFound,
+    "requester.identifier_missing": NotarySubjectIdMissing,
+    "requester.match_ambiguous": NotarySourceAmbiguous,
+    "evidence.not_available": NotarySubjectNotFound,
     "claim.not_found": NotaryClaimNotFound,
     "claim.version_not_found": NotaryClaimVersionNotFound,
     "claim.rule_evaluation_failed": NotaryRuleEvaluationFailed,
     "claim.format_not_supported": NotaryFormatNotSupported,
+    "claim.disclosure_not_allowed": NotaryFormatNotSupported,
 }
 
 
@@ -128,6 +137,8 @@ def exception_from_error_payload(status_code: int, payload: dict[str, Any] | Non
         return NotaryRateLimited, code or "rate_limited"
     if status_code in (401, 403) or (code and code.startswith("auth.")):
         return NotaryAuthError, code
+    if code in ERROR_CODE_EXCEPTIONS:
+        return ERROR_CODE_EXCEPTIONS[code], code
     if status_code in (400, 422):
         return NotaryRequestError, code or "request.invalid"
     return ERROR_CODE_EXCEPTIONS.get(code, NotaryError), code

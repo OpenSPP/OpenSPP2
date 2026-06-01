@@ -23,12 +23,15 @@ from .exceptions import (
     exception_from_error_payload,
 )
 from .schemas import (
+    BatchEvaluateItemRequest,
     BatchEvaluateRequest,
     BatchEvaluateResponse,
     CatalogResponse,
     ClaimRef,
     EvaluateRequest,
     EvaluateResponse,
+    EvidenceEntity,
+    EvidenceIdentifier,
     EvidenceServiceMetadata,
     Subject,
 )
@@ -196,7 +199,7 @@ class NotaryClient:
         resolved_purpose, resolved_purpose_layer = self._resolve_purpose(active_config, purpose, purpose_layer)
         self._validate_audit_subject_hash(active_config, subject_id)
         request_model = EvaluateRequest(
-            subject=Subject(id=subject_id, id_type=subject_id_type),
+            target=self._target_from_subject(Subject(id=subject_id, id_type=subject_id_type)),
             claims=normalized_claims,
             disclosure=disclosure,
             format=response_format,
@@ -244,7 +247,9 @@ class NotaryClient:
 
         resolved_purpose, resolved_purpose_layer = self._resolve_purpose(active_config, purpose, purpose_layer)
         request_model = BatchEvaluateRequest(
-            subjects=normalized_subjects,
+            items=[
+                BatchEvaluateItemRequest(target=self._target_from_subject(subject)) for subject in normalized_subjects
+            ],
             claims=normalized_claims,
             disclosure=disclosure,
             format=response_format,
@@ -536,6 +541,14 @@ class NotaryClient:
             separators=(",", ":"),
         )
         return str(uuid.uuid5(uuid.NAMESPACE_URL, seed))
+
+    def _target_from_subject(self, subject: Subject) -> EvidenceEntity:
+        if subject.id_type:
+            return EvidenceEntity(
+                type="Person",
+                identifiers=[EvidenceIdentifier(scheme=subject.id_type, value=subject.id)],
+            )
+        return EvidenceEntity(type="Person", id=subject.id)
 
     def _normalize_claim_refs(self, claim_refs: Iterable[str | ClaimRef | dict[str, Any]]) -> list[str | ClaimRef]:
         if isinstance(claim_refs, str | dict | ClaimRef):

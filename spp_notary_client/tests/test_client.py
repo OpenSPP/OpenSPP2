@@ -1,6 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Tests for the pure Python Notary client."""
 
+import json
 from dataclasses import dataclass
 from unittest.mock import Mock
 
@@ -143,8 +144,14 @@ def test_evaluate_sends_bearer_auth_payload_and_does_not_retry():
     payload = dict(httpx.QueryParams(transport.requests[0].url.query))
     assert payload == {}
     request_json = transport.requests[0].read().decode()
-    assert "NATIONAL-ID-123" in request_json
-    assert "disability-severity-code" in request_json
+    request_payload = json.loads(request_json)
+    assert request_payload["target"] == {
+        "type": "Person",
+        "id": "NATIONAL-ID-123",
+        "identifiers": [],
+        "attributes": {},
+    }
+    assert request_payload["claims"] == ["disability-severity-code"]
 
 
 def test_evaluate_serializes_versioned_claim_ref_objects():
@@ -180,8 +187,34 @@ def test_evaluate_serializes_versioned_claim_ref_objects():
 
     request_json = transport.requests[0].read().decode()
     assert '"claims":[{"id":"disability-severity-code","version":"2026-01"}]' in request_json
+    assert '"target":{"type":"Person","id":"NATIONAL-ID-123"' in request_json
     assert transport.requests[0].url.path == "/v1/evaluations"
     assert transport.requests[0].headers["accept"] == "application/vnd.registry-notary.claim-result+json"
+
+
+def test_evaluate_serializes_subject_id_type_as_target_identifier_scheme():
+    """The compatibility API maps subject_id_type onto canonical target identifiers."""
+    client, transport = _client(
+        {
+            "base_url": "https://notary.example",
+            "auth_type": "none",
+            "default_purpose_url": "https://openspp.example/default-purpose",
+        },
+        [_json_response(200, {"results": []})],
+    )
+
+    client.evaluate(
+        subject_id="NATIONAL-ID-123",
+        subject_id_type="national_id",
+        claim_refs=["person-is-alive"],
+    )
+
+    request_payload = json.loads(transport.requests[0].read().decode())
+    assert request_payload["target"] == {
+        "type": "Person",
+        "identifiers": [{"scheme": "national_id", "value": "NATIONAL-ID-123"}],
+        "attributes": {},
+    }
 
 
 def test_evaluate_requires_purpose():
@@ -321,9 +354,9 @@ def test_batch_evaluate_posts_subjects_and_claims():
                     "status": "completed",
                     "items": [
                         {
-                            "subject": {"id": "NATIONAL-ID-123"},
+                            "target_ref": {"type": "Person", "handle": "hashed-target"},
                             "status": "succeeded",
-                            "results": [{"claim_id": "claim-a", "value": True}],
+                            "claim_results": [{"claim_id": "claim-a", "value": True}],
                         }
                     ],
                 }
@@ -339,13 +372,23 @@ def test_batch_evaluate_posts_subjects_and_claims():
     assert transport.requests[0].url.path == "/v1/batch-evaluations"
     assert transport.requests[0].headers["accept"] == "application/vnd.registry-notary.claim-result+json"
     assert "idempotency-key" in transport.requests[0].headers
-    assert '"subjects":[{"id":"NATIONAL-ID-123"}]' in transport.requests[0].read().decode()
+    request_payload = json.loads(transport.requests[0].read().decode())
+    assert request_payload["items"] == [
+        {
+            "target": {
+                "type": "Person",
+                "id": "NATIONAL-ID-123",
+                "identifiers": [],
+                "attributes": {},
+            }
+        }
+    ]
 
 
 @pytest.mark.parametrize(
     ("status_code", "payload", "exception_type"),
     [
-        (404, {"error": {"code": "source.not_found", "message": "missing subject"}}, NotarySubjectNotFound),
+        (404, {"error": {"code": "target.not_found", "message": "missing target"}}, NotarySubjectNotFound),
         (404, {"error": {"code": "claim.not_found", "message": "missing claim"}}, NotaryClaimNotFound),
         (401, {"error": {"code": "auth.invalid", "message": "bad token"}}, NotaryAuthError),
     ],

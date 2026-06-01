@@ -154,7 +154,7 @@ class NotaryCatalogSyncWizard(models.TransientModel):
         return values
 
     def _summary_differs(self, claim, summary):
-        subject_type = summary.subject_type if summary.subject_type in ("individual", "group", "both") else "individual"
+        subject_type = self.provider_id._notary_subject_type(summary.subject_type)
         default_disclosure = summary.default_disclosure or self.provider_id._notary_default_disclosure(summary)
         return any(
             [

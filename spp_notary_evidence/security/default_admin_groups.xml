@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="base.group_system" model="res.groups">
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('spp_notary_evidence.group_notary_evidence_manager'))]"
+        />
+    </record>
+</odoo>

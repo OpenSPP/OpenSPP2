@@ -138,7 +138,7 @@ class TestNotaryEvidenceDemo(TransactionCase):
 
         self.assertEqual(values, {partner.id: True})
         self.assertEqual(client.last_evaluate_kwargs["subject_id"], "NID-1001")
-        self.assertEqual(client.last_evaluate_kwargs["subject_id_type"], provider.notary_subject_id_type_id.uri)
+        self.assertEqual(client.last_evaluate_kwargs["subject_id_type"], provider.notary_subject_id_type_id.code)
         self.assertEqual(client.last_evaluate_kwargs["claim_refs"], [{"id": "person-is-alive", "version": "2026-05"}])
 
     def test_seeded_program_expression_dispatches_to_notary_variable(self):

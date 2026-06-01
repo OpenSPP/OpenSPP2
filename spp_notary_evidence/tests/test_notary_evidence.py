@@ -204,6 +204,25 @@ class TestNotaryEvidence(TransactionCase):
         self.assertEqual(self.provider.notary_claim_count, 1)
         self.assertEqual(claim.provider_id, self.provider)
 
+    def test_notary_test_connection_fetches_claim_catalog(self):
+        catalog = SimpleNamespace(claims=[SimpleNamespace(id="person-is-alive")])
+
+        with patch.object(type(self.provider), "_fetch_notary_catalog", return_value=catalog) as mocked_fetch:
+            action = self.provider.action_test_connection()
+
+        mocked_fetch.assert_called_once()
+        self.assertEqual(action["params"]["type"], "success")
+        self.assertIn("fetched 1 Notary claim", action["params"]["message"])
+
+    def test_notary_test_connection_reports_notary_errors(self):
+        error = NotaryError("Notary authentication failed", status_code=401)
+
+        with patch.object(type(self.provider), "_fetch_notary_catalog", side_effect=error):
+            action = self.provider.action_test_connection()
+
+        self.assertEqual(action["params"]["type"], "warning")
+        self.assertIn("401", action["params"]["message"])
+
     def test_catalog_sync_marks_missing_claims_unavailable(self):
         claim = self._create_claim_with_variable("removed-claim", value_type="boolean")
         catalog = SimpleNamespace(claims=[])
@@ -294,7 +313,7 @@ class TestNotaryEvidence(TransactionCase):
         self.assertEqual(mocked_client.return_value.evaluate.call_count, 2)
         first_call = mocked_client.return_value.evaluate.call_args_list[0].kwargs
         self.assertEqual(first_call["claim_refs"], [{"id": "person-is-alive", "version": "2026-01"}])
-        self.assertEqual(first_call["subject_id_type"], self.id_type.uri)
+        self.assertEqual(first_call["subject_id_type"], self.id_type.code)
         cached = self.env["spp.data.value"].search(
             [
                 ("variable_name", "=", claim.variable_id.name),
@@ -467,7 +486,7 @@ class TestNotaryEvidence(TransactionCase):
         self.assertEqual(kwargs["purpose"], "https://openspp.example/purpose/evaluation")
         self.assertEqual(kwargs["purpose_layer"], "evaluation_context")
         self.assertEqual(kwargs["subject_id"], f"NID-A-{self._test_id}")
-        self.assertEqual(kwargs["subject_id_type"], self.id_type.uri)
+        self.assertEqual(kwargs["subject_id_type"], self.id_type.code)
         self.assertEqual(kwargs["claim_refs"], [{"id": "disability-severity", "version": "2026-01"}])
 
     def test_refresh_external_value_uses_string_claim_ref_when_unpinned(self):
@@ -1314,6 +1333,14 @@ class TestNotaryEvidence(TransactionCase):
             limit=1,
         )
         self.assertTrue(cached)
+
+    def test_odoo_administrator_gets_notary_manager_by_default(self):
+        group_system = self.env.ref("base.group_system")
+        group_manager = self.env.ref("spp_notary_evidence.group_notary_evidence_manager")
+        admin = self.env.ref("base.user_admin")
+
+        self.assertIn(group_manager, group_system.implied_ids)
+        self.assertTrue(admin.has_group("spp_notary_evidence.group_notary_evidence_manager"))
 
     def test_claim_acl_viewer_read_only_manager_create(self):
         group_user = self.env.ref("base.group_user")
