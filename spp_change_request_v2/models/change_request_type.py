@@ -78,14 +78,33 @@ class SPPChangeRequestType(models.Model):
     )
 
     is_requires_registrant = fields.Boolean(
+        string="Requires Registrant",
         default=True,
         help="Require selecting a registrant when creating this type of change request. "
         "Disable for types like 'Create New Group' that don't apply to an existing registrant.",
     )
 
     is_requires_applicant = fields.Boolean(
+        string="Requires Applicant",
         default=False,
         help="Require an applicant (person submitting on behalf of registrant)",
+    )
+
+    # OP#876: group-creation-specific config. Only read by the Create Group
+    # detail/strategy today, but lives on the type so each group-creating CR
+    # type can ship its own defaults (e.g. cooperatives may not require a head
+    # while households do).
+    allow_empty_members = fields.Boolean(
+        string="Allow Empty Groups",
+        default=False,
+        help="When set, the Create Group flow asks whether the user wants to add members "
+        "instead of forcing it. When unset, the user must add at least one member.",
+    )
+    requires_head = fields.Boolean(
+        string="Requires Head of Household",
+        default=False,
+        help="When set, the Create Group flow requires exactly one member to be assigned "
+        "the 'head' role from the group-membership-type vocabulary before the CR can apply.",
     )
 
     # ══════════════════════════════════════════════════════════════════════════

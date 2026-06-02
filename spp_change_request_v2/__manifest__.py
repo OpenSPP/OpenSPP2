@@ -43,6 +43,7 @@
         "views/detail_transfer_member_views.xml",
         "views/detail_update_id_views.xml",
         "views/detail_create_group_views.xml",
+        "views/create_group_member_wizard_views.xml",
         "views/detail_merge_registrants_views.xml",
         "views/detail_split_household_views.xml",
         "views/preview_changes_wizard_views.xml",

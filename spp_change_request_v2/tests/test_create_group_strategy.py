@@ -1,5 +1,5 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
-"""Tests for Create Group strategy."""
+"""Tests for the redesigned Create Group strategy (OP#876)."""
 
 from odoo.exceptions import UserError
 from odoo.tests import TransactionCase
@@ -17,13 +17,10 @@ class TestCreateGroupStrategy(TransactionCase):
         cls.membership_model = cls.env["spp.group.membership"]
         cls.cr_model = cls.env["spp.change.request"]
 
-        # Get head membership kind from vocabulary
         cls.head_kind = cls.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", "head")
-
-        # Get group type from vocabulary
+        cls.member_kind = cls.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", "member")
         cls.group_kind = cls.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-type", "household")
 
-        # Create existing individual for head
         cls.existing_head = cls.partner_model.create(
             {
                 "name": "Existing Head",
@@ -32,7 +29,9 @@ class TestCreateGroupStrategy(TransactionCase):
             }
         )
 
-        # Get CR type - use a dummy registrant since create_group creates the actual group
+        # Placeholder registrant — required by the base CR model even though
+        # the apply strategy replaces registrant_id with the newly-created
+        # group at the end of apply.
         cls.dummy_group = cls.partner_model.create(
             {
                 "name": "Placeholder",
@@ -42,35 +41,40 @@ class TestCreateGroupStrategy(TransactionCase):
         )
 
         cls.cr_type = get_or_create_cr_type(cls.env, "create_group")
+        # Default: groups don't have to be empty, head not required, members allowed.
+        cls.cr_type.write({"allow_empty_members": True, "requires_head": False})
 
-    def test_create_group_basic(self):
-        """Test creating new group."""
-
+    # ──────────────────────────────────────────────────────────────────
+    # Helpers
+    # ──────────────────────────────────────────────────────────────────
+    def _make_cr(self, **detail_vals):
         cr = self.cr_model.create(
             {
                 "request_type_id": self.cr_type.id,
-                "registrant_id": self.dummy_group.id,  # Placeholder
+                "registrant_id": self.dummy_group.id,
             }
         )
+        cr.get_detail().write(detail_vals)
+        return cr
 
-        detail = cr.get_detail()
-        detail.write(
-            {
-                "group_name": "New Household",
-                "group_type_id": self.group_kind.id,
-                "address_line1": "123 Main St",
-                "city": "Manila",
-                "phone": "+63912345678",
-            }
+    # ──────────────────────────────────────────────────────────────────
+    # Basic create — empty group allowed by config
+    # ──────────────────────────────────────────────────────────────────
+    def test_create_group_basic_no_members(self):
+        self.cr_type.write({"allow_empty_members": True, "requires_head": False})
+        cr = self._make_cr(
+            group_name="New Household",
+            group_type_id=self.group_kind.id if self.group_kind else False,
+            address_line1="123 Main St",
+            city="Manila",
         )
 
         cr.approval_state = "approved"
         cr.action_apply()
 
-        # Verify group created
         self.assertTrue(cr.is_applied)
+        detail = cr.get_detail()
         self.assertTrue(detail.created_group_id)
-
         new_group = detail.created_group_id
         self.assertEqual(new_group.name, "New Household")
         self.assertTrue(new_group.is_registrant)
@@ -78,166 +82,352 @@ class TestCreateGroupStrategy(TransactionCase):
         self.assertEqual(new_group.street, "123 Main St")
         self.assertEqual(new_group.city, "Manila")
 
+    # ──────────────────────────────────────────────────────────────────
+    # Existing member becomes the head
+    # ──────────────────────────────────────────────────────────────────
     def test_create_group_with_existing_head(self):
-        """Test creating group with existing individual as head."""
-
-        cr = self.cr_model.create(
-            {
-                "request_type_id": self.cr_type.id,
-                "registrant_id": self.dummy_group.id,
-            }
-        )
-
-        detail = cr.get_detail()
-        detail.write(
-            {
-                "group_name": "Group with Head",
-                "head_individual_id": self.existing_head.id,
-                "create_new_head": False,
-            }
+        cr = self._make_cr(
+            group_name="Group with Head",
+            member_existing_ids=[
+                (
+                    0,
+                    0,
+                    {
+                        "individual_id": self.existing_head.id,
+                        "membership_type_id": self.head_kind.id if self.head_kind else False,
+                    },
+                ),
+            ],
         )
 
         cr.approval_state = "approved"
         cr.action_apply()
 
-        # Verify group and membership
         self.assertTrue(cr.is_applied)
-        new_group = detail.created_group_id
-
+        new_group = cr.get_detail().created_group_id
         membership = self.membership_model.search(
-            [
-                ("group", "=", new_group.id),
-                ("individual", "=", self.existing_head.id),
-            ]
+            [("group", "=", new_group.id), ("individual", "=", self.existing_head.id)]
         )
         self.assertTrue(membership, "Head should be member of new group")
-
         if self.head_kind:
-            self.assertIn(
-                self.head_kind,
-                membership.membership_type_ids,
-                "Head should have head role",
-            )
+            self.assertIn(self.head_kind, membership.membership_type_ids)
 
+    # ──────────────────────────────────────────────────────────────────
+    # New individual is created and attached as head
+    # ──────────────────────────────────────────────────────────────────
     def test_create_group_with_new_head(self):
-        """Test creating group with new individual as head."""
-
-        cr = self.cr_model.create(
-            {
-                "request_type_id": self.cr_type.id,
-                "registrant_id": self.dummy_group.id,
-            }
-        )
-
-        detail = cr.get_detail()
-        detail.write(
-            {
-                "group_name": "Group with New Head",
-                "create_new_head": True,
-                "head_given_name": "Juan",
-                "head_family_name": "Dela Cruz",
-                "head_name": "Juan Dela Cruz",
-                "head_phone": "+63987654321",
-            }
+        cr = self._make_cr(
+            group_name="Group with New Head",
+            member_new_ids=[
+                (
+                    0,
+                    0,
+                    {
+                        "given_name": "Juan",
+                        "family_name": "Dela Cruz",
+                        "phone": "+63987654321",
+                        "membership_type_id": self.head_kind.id if self.head_kind else False,
+                    },
+                ),
+            ],
         )
 
         cr.approval_state = "approved"
         cr.action_apply()
 
-        # Verify group and new individual
         self.assertTrue(cr.is_applied)
-        new_group = detail.created_group_id
-
-        # Find the new head
-        membership = self.membership_model.search(
-            [
-                ("group", "=", new_group.id),
-                ("status", "=", "active"),
-            ]
-        )
+        new_group = cr.get_detail().created_group_id
+        membership = self.membership_model.search([("group", "=", new_group.id), ("status", "=", "active")])
         self.assertTrue(membership)
-
         new_head = membership.individual
-        self.assertEqual(new_head.name, "DELA CRUZ, JUAN")
         self.assertEqual(new_head.given_name, "Juan")
         self.assertEqual(new_head.family_name, "Dela Cruz")
         self.assertTrue(new_head.is_registrant)
         self.assertFalse(new_head.is_group)
 
-    def test_create_group_without_name_fails(self):
-        """Test creating group without name fails."""
+    # ──────────────────────────────────────────────────────────────────
+    # Multiple members of mixed origin all attached
+    # ──────────────────────────────────────────────────────────────────
+    def test_create_group_mixed_members(self):
+        spouse = self.partner_model.create({"name": "Existing Spouse", "is_registrant": True, "is_group": False})
 
-        cr = self.cr_model.create(
-            {
-                "request_type_id": self.cr_type.id,
-                "registrant_id": self.dummy_group.id,
-            }
-        )
-
-        detail = cr.get_detail()
-        detail.write(
-            {
-                # No group_name
-                "city": "Manila",
-            }
+        cr = self._make_cr(
+            group_name="Mixed-membership Group",
+            member_existing_ids=[
+                (
+                    0,
+                    0,
+                    {
+                        "individual_id": self.existing_head.id,
+                        "membership_type_id": self.head_kind.id if self.head_kind else False,
+                    },
+                ),
+                (
+                    0,
+                    0,
+                    {
+                        "individual_id": spouse.id,
+                        "membership_type_id": self.member_kind.id if self.member_kind else False,
+                    },
+                ),
+            ],
+            member_new_ids=[
+                (
+                    0,
+                    0,
+                    {
+                        "given_name": "Anak",
+                        "family_name": "Dela Cruz",
+                        "membership_type_id": self.member_kind.id if self.member_kind else False,
+                    },
+                ),
+            ],
         )
 
         cr.approval_state = "approved"
+        cr.action_apply()
 
+        new_group = cr.get_detail().created_group_id
+        memberships = self.membership_model.search([("group", "=", new_group.id)])
+        self.assertEqual(len(memberships), 3, "all 3 members should be attached")
+
+    # ──────────────────────────────────────────────────────────────────
+    # Validation: group name still required
+    # ──────────────────────────────────────────────────────────────────
+    def test_create_group_without_name_fails(self):
+        cr = self._make_cr(city="Manila")
+        cr.approval_state = "approved"
         with self.assertRaises(UserError) as cm:
             cr.action_apply()
-
         self.assertIn("name", str(cm.exception).lower())
 
-    def test_create_group_new_head_requires_name(self):
-        """Test creating new head requires name."""
-
-        cr = self.cr_model.create(
-            {
-                "request_type_id": self.cr_type.id,
-                "registrant_id": self.dummy_group.id,
-            }
-        )
-
-        detail = cr.get_detail()
-        detail.write(
-            {
-                "group_name": "Group Without Head Name",
-                "create_new_head": True,
-                # No head_name
-            }
-        )
-
+    # ──────────────────────────────────────────────────────────────────
+    # Validation: allow_empty_members=False forces at least one member
+    # ──────────────────────────────────────────────────────────────────
+    def test_apply_blocks_when_members_required_but_absent(self):
+        self.cr_type.write({"allow_empty_members": False, "requires_head": False})
+        cr = self._make_cr(group_name="Members Required Group")
         cr.approval_state = "approved"
-
         with self.assertRaises(UserError) as cm:
             cr.action_apply()
+        self.assertIn("member", str(cm.exception).lower())
 
+    # ──────────────────────────────────────────────────────────────────
+    # Validation: requires_head=True forces exactly one Head
+    # ──────────────────────────────────────────────────────────────────
+    def test_apply_blocks_when_head_required_but_absent(self):
+        self.cr_type.write({"allow_empty_members": True, "requires_head": True})
+        cr = self._make_cr(
+            group_name="Headless Group",
+            member_new_ids=[
+                (
+                    0,
+                    0,
+                    {
+                        "given_name": "Member",
+                        "family_name": "Only",
+                        "membership_type_id": self.member_kind.id if self.member_kind else False,
+                    },
+                ),
+            ],
+        )
+        cr.approval_state = "approved"
+        with self.assertRaises(UserError) as cm:
+            cr.action_apply()
         self.assertIn("head", str(cm.exception).lower())
 
-    def test_create_group_preview(self):
-        """Test preview returns expected structure."""
+    # ──────────────────────────────────────────────────────────────────
+    # Validation: at most one Head — caught at write-time on the detail
+    # ──────────────────────────────────────────────────────────────────
+    def test_two_heads_is_rejected(self):
+        if not self.head_kind:
+            self.skipTest("head membership-type code missing in vocabulary")
+        from odoo.exceptions import ValidationError
 
-        cr = self.cr_model.create(
-            {
-                "request_type_id": self.cr_type.id,
-                "registrant_id": self.dummy_group.id,
-            }
-        )
-
+        cr = self._make_cr(group_name="Two-Head Group")
         detail = cr.get_detail()
-        detail.write(
-            {
-                "group_name": "Preview Group",
-                "group_type_id": self.group_kind.id,
-                "create_new_head": True,
-                "head_name": "Head Name",
-            }
+        with self.assertRaises(ValidationError):
+            detail.write(
+                {
+                    "member_existing_ids": [
+                        (0, 0, {"individual_id": self.existing_head.id, "membership_type_id": self.head_kind.id}),
+                    ],
+                    "member_new_ids": [
+                        (
+                            0,
+                            0,
+                            {
+                                "given_name": "Another",
+                                "family_name": "Head",
+                                "membership_type_id": self.head_kind.id,
+                            },
+                        ),
+                    ],
+                }
+            )
+
+    # ──────────────────────────────────────────────────────────────────
+    # Multi-value sub-records: phones, banks, ID docs
+    # ──────────────────────────────────────────────────────────────────
+    def test_phones_banks_id_docs_attach_to_created_group(self):
+        id_type = self.env["spp.vocabulary.code"].search(
+            [("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:id-type")], limit=1
         )
+        cr = self._make_cr(
+            group_name="Fully-loaded Group",
+            phone_line_ids=[
+                (0, 0, {"phone_no": "+63912345678", "is_primary": True}),
+                (0, 0, {"phone_no": "+63923456789", "is_primary": False}),
+            ],
+            bank_line_ids=[
+                (0, 0, {"acc_number": "PH00 ACME 1234 5678", "acc_holder_name": "Group Account"}),
+            ],
+            id_doc_line_ids=(
+                [(0, 0, {"id_type_id": id_type.id, "value": "X-12345", "expiry_date": "2030-01-01"})] if id_type else []
+            ),
+        )
+        cr.approval_state = "approved"
+        cr.action_apply()
 
+        new_group = cr.get_detail().created_group_id
+
+        phones = self.env["spp.phone.number"].search([("partner_id", "=", new_group.id)])
+        self.assertEqual(len(phones), 2)
+
+        banks = self.env["res.partner.bank"].search([("partner_id", "=", new_group.id)])
+        self.assertEqual(len(banks), 1)
+        self.assertEqual(banks.acc_number, "PH00 ACME 1234 5678")
+
+        # Group header phone should match the primary entry.
+        self.assertEqual(new_group.phone, "+63912345678")
+
+        if id_type:
+            ids = self.env["spp.registry.id"].search([("partner_id", "=", new_group.id)])
+            self.assertEqual(len(ids), 1)
+            self.assertEqual(ids.value, "X-12345")
+
+    # ──────────────────────────────────────────────────────────────────
+    # preview returns counts + head label
+    # ──────────────────────────────────────────────────────────────────
+    def test_preview(self):
+        cr = self._make_cr(
+            group_name="Preview Group",
+            group_type_id=self.group_kind.id if self.group_kind else False,
+            member_new_ids=[
+                (
+                    0,
+                    0,
+                    {
+                        "given_name": "Head",
+                        "family_name": "Person",
+                        "membership_type_id": self.head_kind.id if self.head_kind else False,
+                    },
+                ),
+            ],
+            bank_line_ids=[(0, 0, {"acc_number": "12-34-56"})],
+        )
         preview = cr.action_preview_changes()
-
-        self.assertIn("_action", preview)
         self.assertEqual(preview["_action"], "create_group")
         self.assertEqual(preview["group_name"], "Preview Group")
-        self.assertTrue(preview["create_new_head"])
+        self.assertEqual(preview["new_member_count"], 1)
+        self.assertEqual(preview["bank_count"], 1)
+        if self.head_kind:
+            self.assertEqual(preview["head_of_household"], "PERSON, Head")
+
+    # ──────────────────────────────────────────────────────────────────
+    # Wizard flow (OP#876 round 2): Add Member wizard, both modes
+    # ──────────────────────────────────────────────────────────────────
+    def _make_wizard(self, detail, mode, **extra):
+        Wizard = self.env["spp.cr.detail.create_group.member.wizard"]
+        return Wizard.create({"detail_id": detail.id, "mode": mode, **extra})
+
+    def test_wizard_add_existing_close_creates_row(self):
+        cr = self._make_cr(group_name="Wizard Existing Group")
+        detail = cr.get_detail()
+        wiz = self._make_wizard(
+            detail,
+            "existing",
+            individual_id=self.existing_head.id,
+            membership_type_id=self.head_kind.id if self.head_kind else False,
+        )
+        action = wiz.action_add_close()
+        self.assertEqual(action["type"], "ir.actions.act_window_close")
+        self.assertEqual(len(detail.member_existing_ids), 1)
+        self.assertEqual(detail.member_existing_ids.individual_id, self.existing_head)
+
+    def test_wizard_add_existing_keeps_window_open(self):
+        cr = self._make_cr(group_name="Wizard Add-More Group")
+        detail = cr.get_detail()
+        wiz = self._make_wizard(detail, "existing", individual_id=self.existing_head.id)
+        action = wiz.action_add()
+        # The row is persisted...
+        self.assertEqual(len(detail.member_existing_ids), 1)
+        # ...and the wizard returns a follow-up act_window for itself.
+        self.assertEqual(action["type"], "ir.actions.act_window")
+        self.assertEqual(action["res_model"], "spp.cr.detail.create_group.member.wizard")
+        self.assertEqual(action["context"]["default_mode"], "existing")
+
+    def test_wizard_add_new_close_creates_row(self):
+        cr = self._make_cr(group_name="Wizard New-Member Group")
+        detail = cr.get_detail()
+        wiz = self._make_wizard(
+            detail,
+            "new",
+            given_name="Wizard",
+            family_name="Added",
+            phone="+639000",
+            membership_type_id=self.head_kind.id if self.head_kind else False,
+        )
+        wiz.action_add_close()
+        self.assertEqual(len(detail.member_new_ids), 1)
+        row = detail.member_new_ids
+        self.assertEqual(row.given_name, "Wizard")
+        self.assertEqual(row.family_name, "Added")
+        self.assertEqual(row.full_name, "ADDED, Wizard")
+
+    def test_wizard_edit_new_member_updates_row(self):
+        cr = self._make_cr(group_name="Edit-Wizard Group")
+        detail = cr.get_detail()
+        # Seed a new-member row first.
+        wiz = self._make_wizard(detail, "new", given_name="Old", family_name="Name")
+        wiz.action_add_close()
+        row = detail.member_new_ids
+        self.assertEqual(row.full_name, "NAME, Old")
+
+        # Open the wizard for that row in edit mode.
+        open_action = row.action_open_edit_wizard()
+        self.assertEqual(open_action["context"]["default_editing_member_new_id"], row.id)
+
+        # Recreate the wizard with the edit context as Odoo would.
+        edit_wiz = self.env["spp.cr.detail.create_group.member.wizard"].create(
+            {
+                "detail_id": detail.id,
+                "mode": "new",
+                "editing_member_new_id": row.id,
+                "given_name": "New",
+                "family_name": "Name",
+            }
+        )
+        self.assertTrue(edit_wiz.is_editing)
+        action = edit_wiz.action_add()
+        # Edit branch should close the window in one shot.
+        self.assertEqual(action["type"], "ir.actions.act_window_close")
+        # ...and only one row remains, with the updated name.
+        self.assertEqual(len(detail.member_new_ids), 1)
+        self.assertEqual(detail.member_new_ids.given_name, "New")
+
+    def test_wizard_existing_blocks_duplicate(self):
+        cr = self._make_cr(group_name="Dedup-Wizard Group")
+        detail = cr.get_detail()
+        self._make_wizard(detail, "existing", individual_id=self.existing_head.id).action_add_close()
+        # Trying to add the same individual again must fail.
+        dup_wiz = self._make_wizard(detail, "existing", individual_id=self.existing_head.id)
+        with self.assertRaises(UserError):
+            dup_wiz.action_add_close()
+
+    def test_wizard_new_requires_names(self):
+        cr = self._make_cr(group_name="Bad-Wizard Group")
+        detail = cr.get_detail()
+        wiz = self._make_wizard(detail, "new", given_name="Only")
+        with self.assertRaises(UserError):
+            wiz.action_add_close()

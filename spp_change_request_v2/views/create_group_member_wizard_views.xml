@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Add Member to Create Group CR — wizard form -->
+    <record id="spp_cr_detail_create_group_member_wizard_form" model="ir.ui.view">
+        <field name="name">spp.cr.detail.create_group.member.wizard.form</field>
+        <field name="model">spp.cr.detail.create_group.member.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="detail_id" invisible="1" />
+                <field name="mode" invisible="1" />
+                <field name="editing_member_new_id" invisible="1" />
+                <field name="is_editing" invisible="1" />
+
+                <sheet>
+                    <!-- Existing-mode body -->
+                    <group invisible="mode != 'existing'">
+                        <field
+                            name="individual_id"
+                            options="{'no_create': True}"
+                            required="mode == 'existing'"
+                        />
+                        <field
+                            name="membership_type_id"
+                            options="{'no_create': True, 'no_open': True}"
+                        />
+                    </group>
+
+                    <!-- New-mode body -->
+                    <group invisible="mode != 'new'">
+                        <group>
+                            <field name="given_name" required="mode == 'new'" />
+                            <field name="family_name" required="mode == 'new'" />
+                            <field name="birthdate" />
+                        </group>
+                        <group>
+                            <field
+                                name="gender_id"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
+                            <field name="phone" />
+                            <field
+                                name="membership_type_id"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
+                        </group>
+                    </group>
+                </sheet>
+
+                <footer>
+                    <!-- Editing: single Save button, no "Add another". -->
+                    <button
+                        name="action_add"
+                        string="Save"
+                        type="object"
+                        class="btn-primary"
+                        invisible="not is_editing"
+                    />
+                    <!-- Adding: Add (keep open) + Add &amp; Close. -->
+                    <button
+                        name="action_add"
+                        string="Add"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="is_editing"
+                    />
+                    <button
+                        name="action_add_close"
+                        string="Add &amp; Close"
+                        type="object"
+                        class="btn-primary"
+                        invisible="is_editing"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

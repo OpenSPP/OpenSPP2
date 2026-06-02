@@ -84,17 +84,25 @@ class TestE2EWorkflows(TransactionCase):
                 "registrant_id": placeholder.id,
             }
         )
+        head_kind = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", "head")
         detail1 = cr1.get_detail()
         detail1.write(
             {
                 "group_name": "Dela Cruz Household",
-                "create_new_head": True,
-                "head_given_name": "Juan",
-                "head_family_name": "Dela Cruz",
-                "head_name": "Juan Dela Cruz",
                 "address_line1": "123 Mabini St",
                 "city": "Quezon City",
-                "phone": "+639123456789",
+                "phone_line_ids": [(0, 0, {"phone_no": "+639123456789", "is_primary": True})],
+                "member_new_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "given_name": "Juan",
+                            "family_name": "Dela Cruz",
+                            "membership_type_id": head_kind.id if head_kind else False,
+                        },
+                    )
+                ],
             }
         )
         self._approve_and_apply(cr1)
@@ -608,12 +616,22 @@ class TestE2EWorkflows(TransactionCase):
                 "registrant_id": placeholder.id,
             }
         )
+        head_kind = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", "head")
         detail1 = cr1.get_detail()
         detail1.write(
             {
                 "group_name": "Lifecycle Household",
-                "create_new_head": True,
-                "head_name": "Lifecycle Head",
+                "member_new_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "given_name": "Lifecycle",
+                            "family_name": "Head",
+                            "membership_type_id": head_kind.id if head_kind else False,
+                        },
+                    )
+                ],
             }
         )
         self._approve_and_apply(cr1)

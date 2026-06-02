@@ -163,6 +163,10 @@
         <field name="apply_model">spp.cr.apply.create_group</field>
         <field name="icon">fa-home</field>
         <field name="sequence">90</field>
+        <!-- OP#876: a "create group" CR conceptually has no pre-existing
+             registrant to attach to — the registrant is what we're about to
+             create. Hide the registrant picker in the creation wizard. -->
+        <field name="is_requires_registrant" eval="False" />
         <!-- Editability flags - Python-only type -->
         <field name="is_studio_editable">False</field>
         <field name="is_studio_cloneable">False</field>

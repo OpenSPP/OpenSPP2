@@ -3226,16 +3226,39 @@ class SPPMISDemoGenerator(models.TransientModel):
                     }
                 )
             # Phase 5.1: Add create_group support
+            #
+            # OP#876 redesigned the detail model — head info now lives on a
+            # member_new_ids sub-record with the "head" membership-type code.
+            # Split `head_name` ("Maricel Ramos") into given + family so the
+            # downstream CR has a real new-member row.
             elif detail_model == "spp.cr.detail.create_group":
                 vals.update(
                     {
                         "group_name": proposed_changes.get("group_name", "New Household"),
-                        "head_name": proposed_changes.get("head_name", ""),
                         "address_line1": proposed_changes.get("address_line1", ""),
                         "city": proposed_changes.get("city", ""),
                         "postal_code": proposed_changes.get("postal_code", ""),
                     }
                 )
+                head_name = proposed_changes.get("head_name", "").strip()
+                if head_name:
+                    parts = head_name.split(None, 1)
+                    given = parts[0]
+                    family = parts[1] if len(parts) > 1 else parts[0]
+                    head_kind = self.env["spp.vocabulary.code"].get_code(
+                        "urn:openspp:vocab:group-membership-type", "head"
+                    )
+                    vals["member_new_ids"] = [
+                        (
+                            0,
+                            0,
+                            {
+                                "given_name": given,
+                                "family_name": family,
+                                "membership_type_id": head_kind.id if head_kind else False,
+                            },
+                        )
+                    ]
             # Phase 5.1: Add split_household support
             elif detail_model == "spp.cr.detail.split_household":
                 vals.update(
