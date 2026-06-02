@@ -19,6 +19,7 @@
     "data": [
         "security/ir.model.access.csv",
         "data/indicator_data.xml",
+        "data/dci_sync.xml",
         "views/data_provider_dci_views.xml",
     ],
     "installable": True,

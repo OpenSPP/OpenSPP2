@@ -7,4 +7,5 @@ from . import test_cel_extension
 from . import test_cel_integration_live
 from . import test_data_provider_dci
 from . import test_dci_cel_fetcher
+from . import test_dci_cel_dr
 from . import test_dci_cel_end_to_end

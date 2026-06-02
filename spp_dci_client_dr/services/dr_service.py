@@ -7,6 +7,7 @@ import logging
 from odoo import _, fields
 from odoo.exceptions import UserError, ValidationError
 
+from odoo.addons.spp_dci.schemas.constants import RegistryType
 from odoo.addons.spp_dci_client.services import DCIClient
 
 from .dr_parsing import extract_disability_data, extract_functional_scores, unwrap_search_data
@@ -37,8 +38,8 @@ class DRService:
         # Get data source
         self.data_source = self.env["spp.dci.data.source"].get_by_code(data_source_code)
 
-        # Validate it's a DR registry
-        if self.data_source.registry_type != "DR":
+        # Validate it's a DR registry (canonical namespaced registry_type value)
+        if self.data_source.registry_type != RegistryType.DISABILITY_REGISTRY.value:
             msg = (
                 f"Data source '{data_source_code}' is not a Disability Registry "
                 f"(type: {self.data_source.registry_type})"

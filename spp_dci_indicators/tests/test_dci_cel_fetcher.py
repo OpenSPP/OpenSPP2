@@ -142,6 +142,38 @@ class TestDCICelFetcher(TransactionCase):
             )
         self.assertEqual(result, {self.partner.id: True})
 
+    # ── sync trigger ─────────────────────────────────────────────────────────
+
+    def test_sync_for_partners_caches_values(self):
+        with patch(CHECK_DEATH, return_value=False):
+            count = self.Fetcher.sync_for_partners([self.partner.id], variables=self.var_is_alive)
+        self.assertGreaterEqual(count, 1)
+        cached = self.env["spp.data.value"].search(
+            [("variable_name", "=", "crvs.dci.is_alive"), ("subject_id", "=", self.partner.id)]
+        )
+        self.assertTrue(cached)
+        self.assertEqual(cached.value_json, {"value": 1})
+
+    def test_sync_for_partners_empty_is_noop(self):
+        self.assertEqual(self.Fetcher.sync_for_partners([]), 0)
+
+    def test_dci_backed_variables_excludes_plain_providers(self):
+        plain = self.env["spp.data.provider"].create({"name": "Plain", "code": "plain_excl_t"})
+        self.env["spp.cel.variable"].create(
+            {
+                "name": "zz_plain_excl",
+                "label": "Plain",
+                "cel_accessor": "plain.excl",
+                "source_type": "external",
+                "value_type": "boolean",
+                "external_provider_id": plain.id,
+                "cache_strategy": "ttl",
+            }
+        )
+        backed = self.Fetcher._dci_backed_variables()
+        self.assertIn(self.var_is_alive, backed)
+        self.assertFalse(backed.filtered(lambda v: v.cel_accessor == "plain.excl"))
+
     def test_cache_manager_non_dci_external_falls_back_to_super(self):
         """An external variable whose provider is NOT DCI-backed must not be
         routed to the DCI fetcher (base behaviour: returns {})."""
