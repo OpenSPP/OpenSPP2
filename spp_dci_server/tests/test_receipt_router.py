@@ -14,14 +14,13 @@ envelope. Cases:
 """
 
 import asyncio
-from datetime import UTC, datetime
 from unittest.mock import patch
+
+from odoo.tests import tagged
 
 from odoo.addons.spp_dci.schemas import DCIEnvelope
 
 from fastapi import HTTPException
-
-from odoo.tests import tagged
 
 from .common import DCIServerCommon
 

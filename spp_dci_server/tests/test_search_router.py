@@ -10,7 +10,9 @@ responses look like.
 
 import asyncio
 from datetime import UTC, datetime
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
+
+from odoo.tests import tagged
 
 from odoo.addons.spp_dci.schemas import DCIEnvelope, SearchResponse, SearchResponseItem
 from odoo.addons.spp_dci.schemas.constants import (
@@ -19,8 +21,6 @@ from odoo.addons.spp_dci.schemas.constants import (
 )
 
 from fastapi import HTTPException
-
-from odoo.tests import tagged
 
 from .common import DCIServerCommon
 
@@ -85,8 +85,7 @@ class TestSearchRouter(DCIServerCommon):
 
     def _call(self, envelope, search_response, sender_id="external.test.gov"):
         with patch(
-            "odoo.addons.spp_dci_server_social.services.search_service."
-            "DCISocialSearchService"
+            "odoo.addons.spp_dci_server_social.services.search_service.DCISocialSearchService"
         ) as mock_service_cls:
             instance = mock_service_cls.return_value
             instance.execute_search.return_value = search_response
@@ -162,12 +161,9 @@ class TestSearchRouter(DCIServerCommon):
     def test_search_service_exception_rejects_all_items(self):
         envelope = self._build_envelope()
         with patch(
-            "odoo.addons.spp_dci_server_social.services.search_service."
-            "DCISocialSearchService"
+            "odoo.addons.spp_dci_server_social.services.search_service.DCISocialSearchService"
         ) as mock_service_cls:
-            mock_service_cls.return_value.execute_search.side_effect = RuntimeError(
-                "service exploded"
-            )
+            mock_service_cls.return_value.execute_search.side_effect = RuntimeError("service exploded")
             result = _run(
                 self.search_registry(
                     envelope,
@@ -224,8 +220,7 @@ class TestSearchRouter(DCIServerCommon):
         envelope = self._build_envelope()
         response = self._build_response(statuses=("succ",))
         with patch(
-            "odoo.addons.spp_dci_server_social.services.search_service."
-            "DCISocialSearchService"
+            "odoo.addons.spp_dci_server_social.services.search_service.DCISocialSearchService"
         ) as mock_service_cls:
             mock_service_cls.return_value.execute_search.return_value = response
 
@@ -252,13 +247,15 @@ class TestSearchRouter(DCIServerCommon):
     def test_unexpected_error_returns_500(self):
         envelope = self._build_envelope()
         # Force an exception outside the known branches by making get_sender_id raise.
-        with patch(
-            "odoo.addons.spp_dci_server.routers.search.get_sender_id",
-            side_effect=RuntimeError("config explosion"),
-        ), patch(
-            "odoo.addons.spp_dci_server_social.services.search_service."
-            "DCISocialSearchService"
-        ) as mock_service_cls:
+        with (
+            patch(
+                "odoo.addons.spp_dci_server.routers.search.get_sender_id",
+                side_effect=RuntimeError("config explosion"),
+            ),
+            patch(
+                "odoo.addons.spp_dci_server_social.services.search_service.DCISocialSearchService"
+            ) as mock_service_cls,
+        ):
             instance = mock_service_cls.return_value
             instance.execute_search.return_value = self._build_response(("succ",))
             with self.assertRaises(HTTPException) as ctx:

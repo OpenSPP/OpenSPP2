@@ -12,14 +12,14 @@ import asyncio
 from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock
 
+from odoo.tests import tagged
+
 from odoo.addons.spp_dci.schemas.constants import MsgHeaderStatusReasonCode
 from odoo.addons.spp_dci.schemas.search import (
     SearchCriteria,
     SearchRequest,
     SearchRequestItem,
 )
-
-from odoo.tests import tagged
 
 from .common import DCIServerCommon
 

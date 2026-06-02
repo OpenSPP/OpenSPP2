@@ -70,9 +70,7 @@ class TestJWKSRouter(DCIServerCommon):
         """draft and revoked keys must not leak into the JWKS response."""
         self._make_active_key("active-1")
         # Draft key (just created, not activated)
-        self.SigningKey.create(
-            {"name": "Draft", "key_id": "draft-1", "algorithm": "ed25519"}
-        )
+        self.SigningKey.create({"name": "Draft", "key_id": "draft-1", "algorithm": "ed25519"})
         # Revoked key
         revoked = self._make_active_key("revoked-1")
         revoked.action_revoke()

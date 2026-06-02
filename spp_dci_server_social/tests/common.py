@@ -293,9 +293,7 @@ class DCISocialServerCommon(TransactionCase):
             raise_if_not_found=False,
         )
         if not org_type_government:
-            org_type_government = cls.env["spp.consent.org.type"].search(
-                [("code", "=", "government")], limit=1
-            )
+            org_type_government = cls.env["spp.consent.org.type"].search([("code", "=", "government")], limit=1)
 
         return cls.SenderRegistry.create(
             {

@@ -13,11 +13,11 @@ action_view_job).
 import json
 import uuid
 from datetime import UTC, datetime
-from unittest.mock import MagicMock, patch
-
-from odoo.addons.spp_dci.schemas import SearchResponse, SearchResponseItem
+from unittest.mock import patch
 
 from odoo.tests import tagged
+
+from odoo.addons.spp_dci.schemas import SearchResponse, SearchResponseItem
 
 from .common import DCIServerCommon
 
@@ -87,7 +87,6 @@ class TestTransactionProcessing(DCIServerCommon):
                 txn = self._make_txn(action=action)
                 self.assertEqual(txn._get_callback_action(), expected)
 
-
     # --- _build_minimal_txn_status ------------------------------------------
 
     def test_build_minimal_txn_status_search(self):
@@ -143,9 +142,7 @@ class TestTransactionProcessing(DCIServerCommon):
         transitions to 'success' and persists the payload."""
         txn = self._make_txn(callback_uri=False)
         response = self._make_search_response()
-        with patch(
-            "odoo.addons.spp_dci_server_social.services.DCISocialSearchService"
-        ) as service_cls:
+        with patch("odoo.addons.spp_dci_server_social.services.DCISocialSearchService") as service_cls:
             service_cls.return_value.execute_search.return_value = response
             txn.process_async_search()
 
@@ -159,11 +156,10 @@ class TestTransactionProcessing(DCIServerCommon):
         """When callback_uri is set, _send_callback is invoked."""
         txn = self._make_txn(callback_uri="https://cb.example.test/cb")
         response = self._make_search_response()
-        with patch(
-            "odoo.addons.spp_dci_server_social.services.DCISocialSearchService"
-        ) as service_cls, patch.object(
-            type(txn), "_send_callback"
-        ) as send:
+        with (
+            patch("odoo.addons.spp_dci_server_social.services.DCISocialSearchService") as service_cls,
+            patch.object(type(txn), "_send_callback") as send,
+        ):
             service_cls.return_value.execute_search.return_value = response
             txn.process_async_search()
         send.assert_called_once_with(response)
@@ -173,12 +169,8 @@ class TestTransactionProcessing(DCIServerCommon):
         """When the search service raises, the transaction is rejected
         with the error captured."""
         txn = self._make_txn()
-        with patch(
-            "odoo.addons.spp_dci_server_social.services.DCISocialSearchService"
-        ) as service_cls:
-            service_cls.return_value.execute_search.side_effect = RuntimeError(
-                "service exploded"
-            )
+        with patch("odoo.addons.spp_dci_server_social.services.DCISocialSearchService") as service_cls:
+            service_cls.return_value.execute_search.side_effect = RuntimeError("service exploded")
             txn.process_async_search()
         self.assertEqual(txn.state, "rejected")
         self.assertIn("service exploded", txn.error_message)

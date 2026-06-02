@@ -13,11 +13,11 @@ import uuid
 from datetime import UTC, datetime
 from unittest.mock import MagicMock, patch
 
+from odoo.tests import tagged
+
 from odoo.addons.spp_dci.schemas import DCIEnvelope
 
 from fastapi import HTTPException, Response
-
-from odoo.tests import tagged
 
 from .common import DCIServerCommon
 
@@ -112,9 +112,7 @@ class TestAsyncSearch(_AsyncRouterCommon):
         ack = self._call(envelope)
         self.assertEqual(ack.message.ack_status, "ACK")
         # Transaction record exists
-        txn = self.Transaction.search(
-            [("message_id", "=", envelope.header.message_id)], limit=1
-        )
+        txn = self.Transaction.search([("message_id", "=", envelope.header.message_id)], limit=1)
         self.assertTrue(txn)
         self.assertEqual(txn.action, "search")
         self.assertEqual(txn.state, "pending")
@@ -163,9 +161,7 @@ class TestSubscribe(_AsyncRouterCommon):
                     }
                 ],
             }
-        envelope = DCIEnvelope(
-            **self.create_signed_envelope(message=message, action="subscribe")
-        )
+        envelope = DCIEnvelope(**self.create_signed_envelope(message=message, action="subscribe"))
         envelope.header.sender_uri = sender_uri
         return envelope
 
@@ -185,15 +181,11 @@ class TestSubscribe(_AsyncRouterCommon):
         ack = self._call(envelope)
         self.assertEqual(ack.message.ack_status, "ACK")
         # Subscription was created and (sender.auto_approve=True) confirmed
-        subs = self.env["spp.dci.subscription"].sudo().search(
-            [("sender_id", "=", self.test_sender.id)]
-        )
+        subs = self.env["spp.dci.subscription"].sudo().search([("sender_id", "=", self.test_sender.id)])
         self.assertTrue(subs)
         self.assertEqual(subs[0].state, "active")  # action_confirm fires
         # Transaction record was created
-        txn = self.Transaction.search(
-            [("message_id", "=", envelope.header.message_id)], limit=1
-        )
+        txn = self.Transaction.search([("message_id", "=", envelope.header.message_id)], limit=1)
         self.assertTrue(txn)
         self.assertEqual(txn.action, "subscribe")
 
@@ -232,13 +224,17 @@ class TestUnsubscribe(_AsyncRouterCommon):
     def setUp(self):
         super().setUp()
         # Create a subscription to cancel.
-        self.subscription = self.env["spp.dci.subscription"].sudo().create(
-            {
-                "sender_id": self.test_sender.id,
-                "callback_uri": "https://cb.example.test/cb",
-                "event_type": "registration",
-                "reg_type": "SOCIAL_REGISTRY",
-            }
+        self.subscription = (
+            self.env["spp.dci.subscription"]
+            .sudo()
+            .create(
+                {
+                    "sender_id": self.test_sender.id,
+                    "callback_uri": "https://cb.example.test/cb",
+                    "event_type": "registration",
+                    "reg_type": "SOCIAL_REGISTRY",
+                }
+            )
         )
         self.subscription.action_confirm()
 
@@ -246,12 +242,9 @@ class TestUnsubscribe(_AsyncRouterCommon):
         message = {
             "transaction_id": f"txn-unsub-{uuid.uuid4()}",
             "timestamp": datetime.now(UTC).isoformat(),
-            "subscription_codes": subscription_codes
-            or [self.subscription.subscription_code],
+            "subscription_codes": subscription_codes or [self.subscription.subscription_code],
         }
-        envelope = DCIEnvelope(
-            **self.create_signed_envelope(message=message, action="unsubscribe")
-        )
+        envelope = DCIEnvelope(**self.create_signed_envelope(message=message, action="unsubscribe"))
         envelope.header.sender_uri = "https://cb.example.test/cb"
         return envelope
 
@@ -281,9 +274,7 @@ class TestUnsubscribe(_AsyncRouterCommon):
         self.assertEqual(ack.message.ack_status, "ACK")
 
     def test_invalid_unsubscribe_request_returns_400(self):
-        envelope = DCIEnvelope(
-            **self.create_signed_envelope(message={"bogus": "payload"}, action="unsubscribe")
-        )
+        envelope = DCIEnvelope(**self.create_signed_envelope(message={"bogus": "payload"}, action="unsubscribe"))
         with self.assertRaises(HTTPException) as ctx:
             self._call(envelope)
         self.assertEqual(ctx.exception.status_code, 400)
@@ -307,9 +298,7 @@ class TestTxnStatus(_AsyncRouterCommon):
                 "attribute_value": attribute_value,
             },
         }
-        return DCIEnvelope(
-            **self.create_signed_envelope(message=message, action="txn-status")
-        )
+        return DCIEnvelope(**self.create_signed_envelope(message=message, action="txn-status"))
 
     def _make_transaction(self, **overrides):
         defaults = {
@@ -381,9 +370,7 @@ class TestTxnStatus(_AsyncRouterCommon):
         result = self._call(envelope)
         # The payload is wrapped inside txnstatus_response.txn_status
         message = result.message
-        self.assertEqual(
-            message["txnstatus_response"]["txn_status"], payload
-        )
+        self.assertEqual(message["txnstatus_response"]["txn_status"], payload)
 
     def test_malformed_response_payload_falls_back_to_minimal(self):
         self._make_transaction(
@@ -398,9 +385,7 @@ class TestTxnStatus(_AsyncRouterCommon):
         self.assertIn("search_response", txn_status)
 
     def test_invalid_txn_status_request_returns_400(self):
-        envelope = DCIEnvelope(
-            **self.create_signed_envelope(message={"bogus": "payload"}, action="txn-status")
-        )
+        envelope = DCIEnvelope(**self.create_signed_envelope(message={"bogus": "payload"}, action="txn-status"))
         with self.assertRaises(HTTPException) as ctx:
             self._call(envelope)
         self.assertEqual(ctx.exception.status_code, 400)

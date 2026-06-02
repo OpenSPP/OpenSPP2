@@ -45,9 +45,7 @@ class TestVocabularyAdapter(DCIServerCommon):
             self.skipTest("spp.vocabulary.mapping not installed in this env")
         self.assertIsNotNone(self.adapter.mapping_model)
         # Idempotent: second access returns the cached value.
-        self.assertIs(
-            self.adapter.mapping_model, self.adapter._mapping_model
-        )
+        self.assertIs(self.adapter.mapping_model, self.adapter._mapping_model)
 
     def test_mapping_model_none_when_not_installed(self):
         from odoo.addons.spp_dci_server.services.vocabulary_adapter import (

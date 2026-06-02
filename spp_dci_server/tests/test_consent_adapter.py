@@ -12,7 +12,6 @@ Tests cover:
 - access logging side-effect
 """
 
-from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 from odoo.tests import tagged
@@ -188,14 +187,17 @@ class TestConsentAdapter(DCIServerCommon):
             self.skipTest("spp.consent.access.log model not installed")
 
         consent_mock = MagicMock()
-        with patch.object(
-            type(self.env["spp.consent"]),
-            "check_api_consent",
-            return_value=consent_mock,
-        ), patch.object(
-            type(self.env["spp.consent.access.log"]),
-            "log_access",
-        ) as log:
+        with (
+            patch.object(
+                type(self.env["spp.consent"]),
+                "check_api_consent",
+                return_value=consent_mock,
+            ),
+            patch.object(
+                type(self.env["spp.consent.access.log"]),
+                "log_access",
+            ) as log,
+        ):
             adapter.log_dci_access(1, "individual", action="read", fields_accessed=["name"])
         log.assert_called_once()
 
@@ -204,14 +206,17 @@ class TestConsentAdapter(DCIServerCommon):
         if "spp.consent.access.log" not in self.env:
             self.skipTest("spp.consent.access.log model not installed")
         consent_mock = MagicMock()
-        with patch.object(
-            type(self.env["spp.consent"]),
-            "check_api_consent",
-            return_value=consent_mock,
-        ), patch.object(
-            type(self.env["spp.consent.access.log"]),
-            "log_access",
-            side_effect=RuntimeError("broken"),
+        with (
+            patch.object(
+                type(self.env["spp.consent"]),
+                "check_api_consent",
+                return_value=consent_mock,
+            ),
+            patch.object(
+                type(self.env["spp.consent.access.log"]),
+                "log_access",
+                side_effect=RuntimeError("broken"),
+            ),
         ):
             # Must not raise.
             adapter.log_dci_access(1, "individual")

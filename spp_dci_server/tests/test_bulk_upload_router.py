@@ -12,9 +12,9 @@ import asyncio
 import json
 from unittest.mock import MagicMock, patch
 
-from fastapi import HTTPException
-
 from odoo.tests import tagged
+
+from fastapi import HTTPException
 
 from .common import DCIServerCommon
 
@@ -98,18 +98,14 @@ class TestBulkSearchUpload(_BulkRouterCommon):
         )
 
     def test_valid_json_queues_async_job(self):
-        payload = json.dumps(
-            {"identifiers": [{"type": "urn:test", "value": "X-001"}]}
-        ).encode()
+        payload = json.dumps({"identifiers": [{"type": "urn:test", "value": "X-001"}]}).encode()
         result = self._call(payload)
 
         self.assertEqual(result["status"], "accepted")
         self.assertEqual(result["item_count"], 1)
         self.assertTrue(result["transaction_id"].startswith("bulk-"))
 
-        txn = self.Transaction.search(
-            [("transaction_id", "=", result["transaction_id"])], limit=1
-        )
+        txn = self.Transaction.search([("transaction_id", "=", result["transaction_id"])], limit=1)
         self.assertTrue(txn)
         self.assertEqual(txn.state, "pending")
         self.assertEqual(txn.job_uuid, "bulk-job-1")
@@ -173,16 +169,12 @@ class TestBulkSearchUpload(_BulkRouterCommon):
         payload = json.dumps({"identifiers": [{"type": "urn:test", "value": "Y"}]}).encode()
         result = self._call(payload, sender_id="stranger.example.test")
         self.assertEqual(result["status"], "accepted")
-        txn = self.Transaction.search(
-            [("transaction_id", "=", result["transaction_id"])], limit=1
-        )
+        txn = self.Transaction.search([("transaction_id", "=", result["transaction_id"])], limit=1)
         self.assertFalse(txn.sender_id)
 
     def test_unexpected_exception_returns_500(self):
         payload = json.dumps({"identifiers": [{"type": "urn:test", "value": "Z"}]}).encode()
-        with patch.object(
-            type(self.Transaction), "create", side_effect=RuntimeError("db down")
-        ):
+        with patch.object(type(self.Transaction), "create", side_effect=RuntimeError("db down")):
             with self.assertRaises(HTTPException) as ctx:
                 self._call(payload)
         self.assertEqual(ctx.exception.status_code, 500)
@@ -197,13 +189,7 @@ class TestBulkSearchUpload(_BulkRouterCommon):
 class TestBulkVerifyIdentifiers(_BulkRouterCommon):
     def setUp(self):
         super().setUp()
-        self.env.user.write(
-            {
-                "group_ids": [
-                    (4, self.env.ref("spp_registry.group_registry_viewer").id)
-                ]
-            }
-        )
+        self.env.user.write({"group_ids": [(4, self.env.ref("spp_registry.group_registry_viewer").id)]})
 
     def _call(
         self,
@@ -226,9 +212,7 @@ class TestBulkVerifyIdentifiers(_BulkRouterCommon):
         """Create a partner with a single reg_id so bulk_verify_identifiers
         can match it. The route surfaces the namespace#value pair as the
         external registry_id."""
-        partner = self.env["res.partner"].create(
-            {"name": "Bulk Verify Target", "is_registrant": True}
-        )
+        partner = self.env["res.partner"].create({"name": "Bulk Verify Target", "is_registrant": True})
         code = self.env.ref("spp_vocabulary.code_id_type_national_id")
         self.env["spp.registry.id"].create(
             {
@@ -306,9 +290,7 @@ class TestBulkVerifyIdentifiers(_BulkRouterCommon):
 
     def test_too_many_items_returns_400(self):
         max_items = 10000
-        identifiers = [
-            {"type": "urn:test", "value": f"V-{i:05d}"} for i in range(max_items + 1)
-        ]
+        identifiers = [{"type": "urn:test", "value": f"V-{i:05d}"} for i in range(max_items + 1)]
         payload = json.dumps({"identifiers": identifiers}).encode()
         with self.assertRaises(HTTPException) as ctx:
             self._call(payload)
