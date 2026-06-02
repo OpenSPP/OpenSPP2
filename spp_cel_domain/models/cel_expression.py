@@ -193,17 +193,31 @@ class CELExpression(models.Model):
 
             potential_vars = record._extract_potential_variables()
             if not potential_vars:
-                record.variable_ids = [Command.clear()]
-                continue
+                found_vars = []
+            else:
+                found_vars = []
+                for var_name in potential_vars:
+                    var = Variable.search(
+                        ["|", ("cel_accessor", "=", var_name), ("name", "=", var_name)],
+                        limit=1,
+                    )
+                    if var:
+                        found_vars.append(var.id)
 
-            found_vars = []
-            for var_name in potential_vars:
-                var = Variable.search(
-                    ["|", ("cel_accessor", "=", var_name), ("name", "=", var_name)],
-                    limit=1,
-                )
-                if var:
-                    found_vars.append(var.id)
+            resolved_names = []
+            if record.cel_expression:
+                try:
+                    resolver = self.env["spp.cel.variable.resolver"]
+                    resolved = resolver.resolve_for_evaluation(
+                        record.cel_expression,
+                        context_type=record.context_type or "group",
+                    )
+                    resolved_names = resolved.get("variables_used", [])
+                except Exception:
+                    _logger.debug("Unable to resolve expression variables for %s", record.display_name, exc_info=True)
+
+            for var in Variable.search(["|", ("cel_accessor", "in", resolved_names), ("name", "in", resolved_names)]):
+                found_vars.append(var.id)
 
             record.variable_ids = [Command.set(found_vars)]
 

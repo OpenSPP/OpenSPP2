@@ -27,7 +27,7 @@ export function createCelLinter(cm, getValidation, profile) {
             try {
                 const result = await getValidation(doc, profile);
 
-                if (!result || result.valid) {
+                if (!result) {
                     return [];
                 }
 

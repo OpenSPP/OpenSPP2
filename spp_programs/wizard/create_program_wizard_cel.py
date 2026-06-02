@@ -179,6 +179,7 @@ class SPPCreateProgramWizardCEL(models.TransientModel):
                     profile=profile,
                     base_domain=base_domain,
                     limit=0,
+                    allow_external_refresh=False,
                 )
 
                 if result.get("valid"):
@@ -212,6 +213,7 @@ class SPPCreateProgramWizardCEL(models.TransientModel):
                     profile=profile,
                     base_domain=base_domain,
                     limit=0,
+                    allow_external_refresh=False,
                 )
 
                 if result.get("valid"):
@@ -738,6 +740,7 @@ class SPPCreateProgramWizardCashItemCEL(models.TransientModel):
                     profile=profile,
                     base_domain=[("disabled", "=", False)],
                     limit=0,
+                    allow_external_refresh=False,
                 )
 
                 if result.get("valid"):
@@ -938,6 +941,7 @@ class SPPCreateProgramWizardInKindItemCEL(models.TransientModel):
                     profile=profile,
                     base_domain=[("disabled", "=", False)],
                     limit=0,
+                    allow_external_refresh=False,
                 )
 
                 if result.get("valid"):

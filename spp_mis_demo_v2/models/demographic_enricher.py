@@ -75,11 +75,19 @@ class DemographicEnricher:
         id_xmlids = {
             "national_id": "spp_vocabulary.code_id_type_national_id",
             "birth_certificate": "spp_vocabulary.code_id_type_birth_certificate",
+            "household_id": "spp_vocabulary.code_id_type_household_id",
         }
         for code, xmlid in id_xmlids.items():
             rec = self.env.ref(xmlid, raise_if_not_found=False)
             if rec:
                 self._id_type_ids[code] = rec.id
+
+    def _has_registry_id(self, partner, id_type_id):
+        if not id_type_id or "spp.registry.id" not in self.env:
+            return False
+        return bool(
+            self.env["spp.registry.id"].search_count([("partner_id", "=", partner.id), ("id_type_id", "=", id_type_id)])
+        )
 
     def _resolve_country(self):
         """Resolve country_id from the locale provider's country_code."""
@@ -315,12 +323,17 @@ class DemographicEnricher:
 
         # Household registration ID
         hh_id_value = self._generate_household_id()
-        national_id_type = self._id_type_ids.get("national_id")
-        if hh_id_value and national_id_type and "spp.registry.id" in self.env:
+        household_id_type = self._id_type_ids.get("household_id")
+        if (
+            hh_id_value
+            and household_id_type
+            and "spp.registry.id" in self.env
+            and not self._has_registry_id(group, household_id_type)
+        ):
             self.env["spp.registry.id"].create(
                 {
                     "partner_id": group.id,
-                    "id_type_id": national_id_type,
+                    "id_type_id": household_id_type,
                     "value": hh_id_value,
                 }
             )
@@ -383,7 +396,7 @@ class DemographicEnricher:
         registry_id_vals = []
         phone_vals = []
 
-        national_id_type = self._id_type_ids.get("national_id")
+        household_id_type = self._id_type_ids.get("household_id")
 
         for meta in groups_with_metadata:
             record = meta["record"]
@@ -418,13 +431,17 @@ class DemographicEnricher:
                 )
 
             # Household registration ID
-            if national_id_type and "spp.registry.id" in self.env:
+            if (
+                household_id_type
+                and "spp.registry.id" in self.env
+                and not self._has_registry_id(record, household_id_type)
+            ):
                 hh_id = self._generate_household_id()
                 if hh_id:
                     registry_id_vals.append(
                         {
                             "partner_id": record.id,
-                            "id_type_id": national_id_type,
+                            "id_type_id": household_id_type,
                             "value": hh_id,
                         }
                     )
@@ -502,7 +519,12 @@ class DemographicEnricher:
                 )
 
             # ID documents — national ID for adults (>=15), birth certificate for children (<15)
-            if national_id_type and age is not None and age >= 15:
+            if (
+                national_id_type
+                and age is not None
+                and age >= 15
+                and not self._has_registry_id(record, national_id_type)
+            ):
                 id_value = self._generate_national_id()
                 if id_value:
                     registry_id_vals.append(
@@ -512,7 +534,9 @@ class DemographicEnricher:
                             "value": id_value,
                         }
                     )
-            elif birth_cert_type and age is not None and age < 15:
+            elif (
+                birth_cert_type and age is not None and age < 15 and not self._has_registry_id(record, birth_cert_type)
+            ):
                 bc_value = self._fill_format("BC-{d4}-{d6}")
                 registry_id_vals.append(
                     {

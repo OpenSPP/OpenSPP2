@@ -1,5 +1,7 @@
 """Tests for CEL Symbol Provider."""
 
+from unittest.mock import patch
+
 from odoo.tests.common import TransactionCase
 
 
@@ -115,6 +117,19 @@ class TestCelSymbolProvider(TransactionCase):
 
         self.assertTrue(result["valid"])
         self.assertEqual(result["errors"], [])
+
+    def test_validate_filter_expression_does_not_compile_count(self):
+        """Passive editor validation must not execute count/preview compilation."""
+        service = self.env["spp.cel.service"]
+        with patch.object(type(service), "compile_expression") as mocked_compile:
+            result = self.provider.validate_expression(
+                'r.name == "Test"',
+                "registry_individuals",
+            )
+
+        self.assertTrue(result["valid"], result["errors"])
+        self.assertIsNone(result["matching_count"])
+        mocked_compile.assert_not_called()
 
     def test_validate_empty_expression(self):
         """Test validation of empty expression."""

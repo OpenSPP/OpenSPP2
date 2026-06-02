@@ -473,6 +473,64 @@ class TestDataValueBulkOperations(TransactionCase, CELTestDataMixin):
         self.assertTrue(value.expires_at)
         self.assertFalse(value.is_stale)
 
+    def test_upsert_values_with_explicit_expires_at(self):
+        """Explicit `expires_at` in values_list is written verbatim."""
+        var_name = f"bulk_explicit_exp_{self._test_id}"
+        explicit_expiry = fields.Datetime.now() + timedelta(hours=4)
+        values_list = [
+            {
+                "variable_name": var_name,
+                "subject_id": self.partners[0].id,
+                "value_json": {"value": 42},
+                "expires_at": explicit_expiry,
+            }
+        ]
+
+        self.DataValue.upsert_values(values_list)
+
+        value = self.DataValue.search(
+            [
+                ("variable_name", "=", var_name),
+                ("subject_id", "=", self.partners[0].id),
+            ]
+        )
+
+        self.assertTrue(value.expires_at)
+        # Stored value should match (modulo microsecond rounding via DB).
+        self.assertEqual(
+            value.expires_at.replace(microsecond=0),
+            explicit_expiry.replace(microsecond=0),
+        )
+
+    def test_upsert_values_explicit_expires_at_overrides_ttl(self):
+        """When both `expires_at` and `ttl_seconds` are provided, explicit wins."""
+        var_name = f"bulk_both_exp_{self._test_id}"
+        explicit_expiry = fields.Datetime.now() + timedelta(hours=10)
+        values_list = [
+            {
+                "variable_name": var_name,
+                "subject_id": self.partners[0].id,
+                "value_json": {"value": 42},
+                "ttl_seconds": 60,  # would set expiry ~now+1min
+                "expires_at": explicit_expiry,
+            }
+        ]
+
+        self.DataValue.upsert_values(values_list)
+
+        value = self.DataValue.search(
+            [
+                ("variable_name", "=", var_name),
+                ("subject_id", "=", self.partners[0].id),
+            ]
+        )
+
+        # Explicit expires_at (10h) must win over ttl_seconds (60s).
+        self.assertGreater(
+            value.expires_at,
+            fields.Datetime.now() + timedelta(hours=1),
+        )
+
     def test_read_values_basic(self):
         """Test reading cached values."""
         var_name = f"read_test_{self._test_id}"

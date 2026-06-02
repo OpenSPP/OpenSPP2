@@ -292,6 +292,9 @@ class DataValue(models.Model):
                 - provider (optional)
                 - params (optional dict, will be hashed)
                 - ttl_seconds (optional, to compute expires_at)
+                - expires_at (optional, explicit expiry; takes precedence over
+                  ttl_seconds when both are provided; used by external
+                  providers that supply their own expiry)
                 - as_of (optional)
                 - coverage (optional)
 
@@ -321,9 +324,17 @@ class DataValue(models.Model):
             params = vals.get("params")
             params_hash = self._hash_params(params) if params else ""
 
-            # Compute expires_at if TTL provided
+            # Resolve expires_at: explicit value wins over TTL-derived value.
+            # External providers (e.g. Notary) supply expires_at directly from
+            # upstream response headers; TTL-only callers continue to work.
+            explicit_expires_at = vals.get("expires_at")
             ttl_seconds = vals.get("ttl_seconds")
-            expires_at = now + timedelta(seconds=ttl_seconds) if ttl_seconds and ttl_seconds > 0 else None
+            if explicit_expires_at:
+                expires_at = explicit_expires_at
+            elif ttl_seconds and ttl_seconds > 0:
+                expires_at = now + timedelta(seconds=ttl_seconds)
+            else:
+                expires_at = None
 
             records.append(
                 {
@@ -396,7 +407,7 @@ class DataValue(models.Model):
         return {"inserted": len(records), "updated": 0}
 
     @api.model
-    def read_values(self, variable_name, subject_ids, period_key=None, provider=None):
+    def read_values(self, variable_name, subject_ids, period_key=None, provider=None, params=None):
         """Read cached values for a variable.
 
         Args:
@@ -404,6 +415,7 @@ class DataValue(models.Model):
             subject_ids: List of subject IDs
             period_key: Optional period filter (defaults to 'current')
             provider: Optional provider filter
+            params: Optional parameter dict used to partition cache entries
 
         Returns:
             dict: {subject_id: value, ...} for subjects with cached values
@@ -424,6 +436,9 @@ class DataValue(models.Model):
 
         if provider:
             domain.append(("provider", "=", provider))
+
+        params_hash = self._hash_params(params) if params else ""
+        domain.append(("params_hash", "=", params_hash))
 
         # Exclude expired values unless explicitly including stale
         domain.append("|")

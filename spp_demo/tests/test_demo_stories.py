@@ -96,6 +96,51 @@ class TestDemoStories(TransactionCase):
             self.assertIn("profile", story)
             self.assertIsInstance(story["profile"], dict)
 
+    def test_notary_demo_story_id_matrix_is_declared(self):
+        """The shared Registry Lab/OpenSPP matrix is explicit in story data."""
+        from odoo.addons.spp_demo.models import demo_stories
+
+        expected = {
+            "NID-1001": ("Miguel Santos", "2016-01-15"),
+            "NID-1002": ("Maria Dela Cruz", "2018-01-15"),
+            "NID-1003": ("Cara Okafor", "1957-02-14"),
+            "NID-1004": ("Rafael Aquino", "2019-01-15"),
+            "NID-1005": ("Rosalie Bautista", "2013-01-15"),
+            "NID-1006": ("Miguel Martinez", "2014-01-15"),
+            "NID-1007": ("Lola Santos", "1958-01-15"),
+            "NID-1008": ("Rosa Garcia", "1954-01-15"),
+            "NID-1009": ("Ana Mendoza", "1998-01-15"),
+            "NID-1010": ("Pedro Reyes", "1971-01-15"),
+        }
+        found = {}
+        household_ids = {}
+
+        for story in demo_stories.get_all_stories():
+            profile = story.get("profile", {})
+            for item in [profile, profile.get("head", {}), profile.get("spouse", {})]:
+                for ident in item.get("ids", []):
+                    if ident["type"] == "national_id":
+                        found[ident["value"]] = (item.get("name", story["name"]), item.get("birthdate"))
+                    elif ident["type"] == "household_id":
+                        household_ids[ident["value"]] = story["name"]
+            for collection in ("adults", "children"):
+                for member in profile.get(collection, []):
+                    for ident in member.get("ids", []):
+                        if ident["type"] == "national_id":
+                            found[ident["value"]] = (member["name"], member.get("birthdate"))
+
+        self.assertEqual(found, expected)
+        self.assertEqual(
+            household_ids,
+            {
+                "HH-100": "Santos",
+                "HH-200": "Dela Cruz",
+                "HH-400": "Aquino",
+                "HH-500": "Bautista",
+                "HH-900": "Martinez",
+            },
+        )
+
     def test_06_reserved_names_match_stories(self):
         """Test that reserved names match story names."""
         from odoo.addons.spp_demo.models import demo_stories
@@ -224,6 +269,48 @@ class TestDemoStories(TransactionCase):
         # Check no duplicates
         maria_count = self.env["res.partner"].search_count([("name", "=", "Santos"), ("is_registrant", "=", True)])
         self.assertEqual(maria_count, 1)
+
+    def test_generate_stories_reuses_existing_partner_with_shared_nid(self):
+        """Story members with shared Notary IDs should reuse existing partners."""
+        national_id = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:id-type", "national_id")
+        existing = self.env["res.partner"].create(
+            {
+                "name": "Miguel Santos",
+                "given_name": "Miguel",
+                "family_name": "Santos",
+                "is_registrant": True,
+                "is_group": False,
+            }
+        )
+        self.env["spp.registry.id"].create(
+            {
+                "partner_id": existing.id,
+                "id_type_id": national_id.id,
+                "value": "NID-1001",
+            }
+        )
+        generator = self.env["spp.demo.data.generator"].create(
+            {
+                "name": "Test Reuse Existing Shared NID",
+                "locale_origin": self.test_country.id,
+            }
+        )
+
+        generator.generate_stories()
+
+        reg_ids = self.env["spp.registry.id"].search([("id_type_id", "=", national_id.id), ("value", "=", "NID-1001")])
+        self.assertEqual(reg_ids.mapped("partner_id"), existing)
+
+        santos = self.env["res.partner"].search(
+            [("name", "=", "Santos"), ("is_registrant", "=", True), ("is_group", "=", True)],
+            limit=1,
+        )
+        self.assertTrue(
+            self.env["spp.group.membership"].search(
+                [("group", "=", santos.id), ("individual", "=", existing.id)],
+                limit=1,
+            )
+        )
 
     def test_12_maria_santos_story(self):
         """Test Maria Santos story creation with expected attributes."""

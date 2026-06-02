@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_notary_demo_run_viewer,spp.notary.demo.run viewer,model_spp_notary_demo_run,spp_notary_evidence.group_notary_evidence_viewer,1,0,0,0
+access_notary_demo_run_manager,spp.notary.demo.run manager,model_spp_notary_demo_run,spp_notary_evidence.group_notary_evidence_manager,1,1,1,1
+access_notary_demo_result_viewer,spp.notary.demo.result viewer,model_spp_notary_demo_result,spp_notary_evidence.group_notary_evidence_viewer,1,0,0,0
+access_notary_demo_result_manager,spp.notary.demo.result manager,model_spp_notary_demo_result,spp_notary_evidence.group_notary_evidence_manager,1,1,1,1

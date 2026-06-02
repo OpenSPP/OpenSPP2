@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_notary_demo_result_list" model="ir.ui.view">
+        <field name="name">spp.notary.demo.result.list</field>
+        <field name="model">spp.notary.demo.result</field>
+        <field name="arch" type="xml">
+            <list
+                string="Registry Notary Demo Results"
+                decoration-success="outcome == 'pass'"
+                decoration-danger="outcome in ('fail', 'error')"
+                decoration-muted="outcome == 'skipped'"
+            >
+                <field name="sequence" widget="handle" />
+                <field name="persona_name" />
+                <field name="national_id" />
+                <field name="program_id" />
+                <field name="expected_eligible" widget="boolean_toggle" />
+                <field name="actual_eligible" widget="boolean_toggle" />
+                <field name="outcome" widget="badge" />
+                <field name="detail" optional="show" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_notary_demo_result_form" model="ir.ui.view">
+        <field name="name">spp.notary.demo.result.form</field>
+        <field name="model">spp.notary.demo.result</field>
+        <field name="arch" type="xml">
+            <form string="Registry Notary Demo Result">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="run_id" />
+                            <field name="persona_id" />
+                            <field name="persona_name" />
+                            <field name="national_id" />
+                            <field name="program_id" />
+                        </group>
+                        <group>
+                            <field name="expected_eligible" />
+                            <field name="actual_eligible" />
+                            <field name="outcome" widget="badge" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Expression" name="expression">
+                            <field name="expression" />
+                        </page>
+                        <page string="Details" name="details">
+                            <field name="detail" />
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_notary_demo_run_list" model="ir.ui.view">
+        <field name="name">spp.notary.demo.run.list</field>
+        <field name="model">spp.notary.demo.run</field>
+        <field name="arch" type="xml">
+            <list
+                string="Registry Notary Demo Runs"
+                decoration-success="state == 'done'"
+                decoration-danger="state == 'failed'"
+                decoration-info="state == 'running'"
+            >
+                <field name="name" />
+                <field name="state" widget="badge" />
+                <field name="started_at" />
+                <field name="finished_at" />
+                <field name="pass_count" />
+                <field name="fail_count" />
+                <field name="error_count" />
+                <field name="skipped_count" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_notary_demo_run_form" model="ir.ui.view">
+        <field name="name">spp.notary.demo.run.form</field>
+        <field name="model">spp.notary.demo.run</field>
+        <field name="arch" type="xml">
+            <form string="Registry Notary Demo Run">
+                <header>
+                    <button
+                        name="action_run_demo"
+                        type="object"
+                        string="Run Demo"
+                        class="btn-primary"
+                        groups="spp_notary_evidence.group_notary_evidence_manager"
+                    />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,running,done,failed"
+                    />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Demo Run" />
+                        <h1>
+                            <field name="name" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="started_at" />
+                            <field name="finished_at" />
+                        </group>
+                        <group>
+                            <field name="pass_count" />
+                            <field name="fail_count" />
+                            <field name="error_count" />
+                            <field name="skipped_count" />
+                        </group>
+                    </group>
+                    <field name="summary" readonly="1" />
+                    <notebook>
+                        <page string="Results" name="results">
+                            <field name="result_ids" readonly="1">
+                                <list
+                                    decoration-success="outcome == 'pass'"
+                                    decoration-danger="outcome in ('fail', 'error')"
+                                    decoration-muted="outcome == 'skipped'"
+                                >
+                                    <field name="persona_name" />
+                                    <field name="national_id" />
+                                    <field name="program_id" />
+                                    <field
+                                        name="expected_eligible"
+                                        widget="boolean_toggle"
+                                    />
+                                    <field
+                                        name="actual_eligible"
+                                        widget="boolean_toggle"
+                                    />
+                                    <field name="outcome" widget="badge" />
+                                    <field name="detail" optional="show" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_notary_demo_run_search" model="ir.ui.view">
+        <field name="name">spp.notary.demo.run.search</field>
+        <field name="model">spp.notary.demo.run</field>
+        <field name="arch" type="xml">
+            <search string="Search Registry Notary Demo Runs">
+                <field name="name" />
+                <field name="state" />
+                <filter string="Done" name="done" domain="[('state', '=', 'done')]" />
+                <filter
+                    string="Failed"
+                    name="failed"
+                    domain="[('state', '=', 'failed')]"
+                />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_notary_demo_runs" model="ir.actions.act_window">
+        <field name="name">Demo Runs</field>
+        <field name="res_model">spp.notary.demo.run</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_notary_demo_results" model="ir.actions.act_window">
+        <field name="name">Demo Results</field>
+        <field name="res_model">spp.notary.demo.result</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_notary_demo_run_now" model="ir.actions.server">
+        <field name="name">Run Registry Notary Demo</field>
+        <field name="model_id" ref="model_spp_notary_demo_run" />
+        <field name="state">code</field>
+        <field name="code">action = model.action_create_and_run_demo()</field>
+    </record>
+
+    <menuitem
+        id="menu_notary_demo"
+        name="Registry Notary Demo"
+        parent="spp_notary_evidence.menu_notary_evidence"
+        sequence="5"
+        groups="spp_notary_evidence.group_notary_evidence_viewer"
+    />
+
+    <menuitem
+        id="menu_notary_demo_run_now"
+        name="Run Demo"
+        parent="menu_notary_demo"
+        action="action_notary_demo_run_now"
+        sequence="5"
+        groups="spp_notary_evidence.group_notary_evidence_manager"
+    />
+
+    <menuitem
+        id="menu_notary_demo_runs"
+        name="Demo Runs"
+        parent="menu_notary_demo"
+        action="action_notary_demo_runs"
+        sequence="10"
+        groups="spp_notary_evidence.group_notary_evidence_viewer"
+    />
+
+    <menuitem
+        id="menu_notary_demo_results"
+        name="Demo Results"
+        parent="menu_notary_demo"
+        action="action_notary_demo_results"
+        sequence="20"
+        groups="spp_notary_evidence.group_notary_evidence_viewer"
+    />
+</odoo>

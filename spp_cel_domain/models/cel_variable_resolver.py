@@ -187,6 +187,14 @@ class CELVariableResolver(models.AbstractModel):
         variables_used = []
         missing_variables = []
         warnings = []
+        errors = []
+
+        expression, custom_variables, custom_warnings, errors = self._prepare_custom_accessor_resolution(
+            expression,
+            context_type,
+        )
+        variables_used.extend(custom_variables)
+        warnings.extend(custom_warnings)
 
         # Extract potential variable names
         potential_vars = self._extract_variable_names(expression)
@@ -333,7 +341,28 @@ class CELVariableResolver(models.AbstractModel):
             "variables_used": list(set(variables_used)),
             "missing_variables": list(set(missing_variables)),
             "warnings": warnings,
+            "errors": errors,
         }
+
+    @api.model
+    def _resolve_custom_accessors(self, expression, context_type="group"):
+        """Allow modules to lower dotted domain-specific accessors before CEL compilation."""
+        return {
+            "expression": expression,
+            "variables_used": [],
+            "warnings": [],
+            "errors": [],
+        }
+
+    @api.model
+    def _prepare_custom_accessor_resolution(self, expression, context_type):
+        custom_result = self._resolve_custom_accessors(expression, context_type=context_type)
+        return (
+            custom_result.get("expression") or expression,
+            custom_result.get("variables_used", []),
+            custom_result.get("warnings", []),
+            custom_result.get("errors", []),
+        )
 
     @api.model
     def _extract_variable_names(self, expression):
@@ -446,6 +475,8 @@ class CELVariableResolver(models.AbstractModel):
         result = self.expand_expression(expression, program_id, context_type)
 
         errors = []
+        if result.get("errors"):
+            errors.extend(result["errors"])
         if result["missing_variables"]:
             errors.append(_("Undefined variables: %s") % ", ".join(result["missing_variables"]))
 
