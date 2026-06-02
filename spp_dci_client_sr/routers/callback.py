@@ -49,7 +49,6 @@ async def receive_sr_search_response(
             verified_sender_id,
         )
 
-        header = envelope.header.model_dump()
         message = envelope.message
 
         # Extract search response data
