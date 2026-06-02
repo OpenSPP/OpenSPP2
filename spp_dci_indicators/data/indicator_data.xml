@@ -18,7 +18,7 @@
             <field name="category_id" ref="variable_category_dci"/>
             <field name="value_type">boolean</field>
             <field name="source_type">external</field>
-            <field name="cel_accessor">dr.has_disability</field>
+            <field name="cel_accessor">dr.dci.has_disability</field>
             <field name="applies_to">individual</field>
             <field name="cache_strategy">ttl</field>
             <field name="cache_ttl_seconds">86400</field>
@@ -32,7 +32,7 @@
             <field name="category_id" ref="variable_category_dci"/>
             <field name="value_type">boolean</field>
             <field name="source_type">external</field>
-            <field name="cel_accessor">dr.severity('Vision') >= 3</field>
+            <field name="cel_accessor">dr.dci.vision_severe</field>
             <field name="applies_to">individual</field>
             <field name="cache_strategy">ttl</field>
             <field name="cache_ttl_seconds">86400</field>
@@ -46,7 +46,7 @@
             <field name="category_id" ref="variable_category_dci"/>
             <field name="value_type">boolean</field>
             <field name="source_type">external</field>
-            <field name="cel_accessor">dr.severity('Hearing') >= 3</field>
+            <field name="cel_accessor">dr.dci.hearing_severe</field>
             <field name="applies_to">individual</field>
             <field name="cache_strategy">ttl</field>
             <field name="cache_ttl_seconds">86400</field>
@@ -60,7 +60,7 @@
             <field name="category_id" ref="variable_category_dci"/>
             <field name="value_type">boolean</field>
             <field name="source_type">external</field>
-            <field name="cel_accessor">dr.severity('Mobility') >= 3</field>
+            <field name="cel_accessor">dr.dci.mobility_severe</field>
             <field name="applies_to">individual</field>
             <field name="cache_strategy">ttl</field>
             <field name="cache_ttl_seconds">86400</field>
@@ -74,7 +74,7 @@
             <field name="category_id" ref="variable_category_dci"/>
             <field name="value_type">boolean</field>
             <field name="source_type">external</field>
-            <field name="cel_accessor">dr.assessed</field>
+            <field name="cel_accessor">dr.dci.assessed</field>
             <field name="applies_to">individual</field>
             <field name="cache_strategy">ttl</field>
             <field name="cache_ttl_seconds">86400</field>
@@ -90,7 +90,7 @@
             <field name="category_id" ref="variable_category_dci"/>
             <field name="value_type">boolean</field>
             <field name="source_type">external</field>
-            <field name="cel_accessor">crvs.is_alive</field>
+            <field name="cel_accessor">crvs.dci.is_alive</field>
             <field name="applies_to">individual</field>
             <field name="cache_strategy">ttl</field>
             <field name="cache_ttl_seconds">86400</field>
@@ -104,7 +104,7 @@
             <field name="category_id" ref="variable_category_dci"/>
             <field name="value_type">boolean</field>
             <field name="source_type">external</field>
-            <field name="cel_accessor">crvs.birth_verified</field>
+            <field name="cel_accessor">crvs.dci.birth_verified</field>
             <field name="applies_to">individual</field>
             <field name="cache_strategy">ttl</field>
             <field name="cache_ttl_seconds">86400</field>
@@ -118,7 +118,7 @@
             <field name="category_id" ref="variable_category_dci"/>
             <field name="value_type">boolean</field>
             <field name="source_type">external</field>
-            <field name="cel_accessor">crvs.is_married</field>
+            <field name="cel_accessor">crvs.dci.is_married</field>
             <field name="applies_to">individual</field>
             <field name="cache_strategy">ttl</field>
             <field name="cache_ttl_seconds">86400</field>
@@ -134,7 +134,7 @@
             <field name="category_id" ref="variable_category_dci"/>
             <field name="value_type">boolean</field>
             <field name="source_type">external</field>
-            <field name="cel_accessor">ibr.has_duplicate</field>
+            <field name="cel_accessor">ibr.dci.has_duplicate</field>
             <field name="applies_to">individual</field>
             <field name="cache_strategy">ttl</field>
             <field name="cache_ttl_seconds">3600</field>
@@ -148,7 +148,7 @@
             <field name="category_id" ref="variable_category_dci"/>
             <field name="value_type">boolean</field>
             <field name="source_type">external</field>
-            <field name="cel_accessor">ibr.has_duplicate == false</field>
+            <field name="cel_accessor">ibr.dci.no_duplicate</field>
             <field name="applies_to">individual</field>
             <field name="cache_strategy">ttl</field>
             <field name="cache_ttl_seconds">3600</field>
@@ -162,7 +162,7 @@
             <field name="category_id" ref="variable_category_dci"/>
             <field name="value_type">boolean</field>
             <field name="source_type">external</field>
-            <field name="cel_accessor">ibr.checked</field>
+            <field name="cel_accessor">ibr.dci.checked</field>
             <field name="applies_to">individual</field>
             <field name="cache_strategy">ttl</field>
             <field name="cache_ttl_seconds">3600</field>
@@ -178,7 +178,7 @@
             <field name="category_id" ref="variable_category_dci"/>
             <field name="value_type">boolean</field>
             <field name="source_type">external</field>
-            <field name="cel_accessor">sr.is_registered</field>
+            <field name="cel_accessor">sr.dci.is_registered</field>
             <field name="applies_to">individual</field>
             <field name="cache_strategy">ttl</field>
             <field name="cache_ttl_seconds">86400</field>
@@ -192,7 +192,7 @@
             <field name="category_id" ref="variable_category_dci"/>
             <field name="value_type">number</field>
             <field name="source_type">external</field>
-            <field name="cel_accessor">sr.program_count</field>
+            <field name="cel_accessor">sr.dci.program_count</field>
             <field name="applies_to">individual</field>
             <field name="cache_strategy">ttl</field>
             <field name="cache_ttl_seconds">86400</field>
@@ -206,7 +206,7 @@
             <field name="category_id" ref="variable_category_dci"/>
             <field name="value_type">boolean</field>
             <field name="source_type">external</field>
-            <field name="cel_accessor">sr.program_count >= 1</field>
+            <field name="cel_accessor">sr.dci.has_programs</field>
             <field name="applies_to">individual</field>
             <field name="cache_strategy">ttl</field>
             <field name="cache_ttl_seconds">86400</field>
@@ -220,7 +220,7 @@
             <field name="category_id" ref="variable_category_dci"/>
             <field name="value_type">number</field>
             <field name="source_type">external</field>
-            <field name="cel_accessor">sr.household_size</field>
+            <field name="cel_accessor">sr.dci.household_size</field>
             <field name="applies_to">individual</field>
             <field name="cache_strategy">ttl</field>
             <field name="cache_ttl_seconds">86400</field>
@@ -234,7 +234,7 @@
             <field name="category_id" ref="variable_category_dci"/>
             <field name="value_type">boolean</field>
             <field name="source_type">external</field>
-            <field name="cel_accessor">sr.is_head_of_household</field>
+            <field name="cel_accessor">sr.dci.is_head_of_household</field>
             <field name="applies_to">individual</field>
             <field name="cache_strategy">ttl</field>
             <field name="cache_ttl_seconds">86400</field>
@@ -248,7 +248,7 @@
             <field name="category_id" ref="variable_category_dci"/>
             <field name="value_type">boolean</field>
             <field name="source_type">external</field>
-            <field name="cel_accessor">sr.household_size > 5</field>
+            <field name="cel_accessor">sr.dci.large_household</field>
             <field name="applies_to">individual</field>
             <field name="cache_strategy">ttl</field>
             <field name="cache_ttl_seconds">86400</field>

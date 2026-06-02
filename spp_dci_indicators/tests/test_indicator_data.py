@@ -31,7 +31,7 @@ class TestDCIIndicatorData(TransactionCase):
         self.assertTrue(var, "dci.dr.has_disability should exist")
         self.assertEqual(var.value_type, "boolean")
         self.assertEqual(var.source_type, "external")
-        self.assertEqual(var.cel_accessor, "dr.has_disability")
+        self.assertEqual(var.cel_accessor, "dr.dci.has_disability")
         self.assertEqual(var.applies_to, "individual")
         self.assertTrue(var.is_system)
 
