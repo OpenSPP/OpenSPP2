@@ -1,3 +1,14 @@
+# Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+"""Detail model for the Add Member CR (OP#871).
+
+Adds a single new individual to an existing group. The detail captures the
+spec-mandated field set (names, demographics, contact, location, financials,
+ID docs, role) and reuses the per-line phone/bank/id_doc sub-models that
+already exist for Create Group (see OP#876).
+"""
+
+from datetime import date
+
 from odoo import api, fields, models
 
 
@@ -8,57 +19,189 @@ class SPPCRDetailAddMember(models.Model):
     _description = "CR Detail: Add Group Member"
     _inherit = ["spp.cr.detail.base", "mail.thread"]
 
-    # ══════════════════════════════════════════════════════════════════════════
-    # MEMBER INFORMATION - Real Odoo fields with full features
-    # ══════════════════════════════════════════════════════════════════════════
-
+    # ──────────────────────────────────────────────────────────────────────
+    # Names
+    # ──────────────────────────────────────────────────────────────────────
+    given_name = fields.Char(string="Given Name", tracking=True, required=False)
+    family_name = fields.Char(string="Family Name", tracking=True, required=False)
+    middle_name = fields.Char(
+        string="Middle Name",
+        tracking=True,
+        help="Stored on the CR. On apply, prepended to the given name when "
+        "composing the partner's display name (res.partner has no native "
+        "middle_name field).",
+    )
     member_name = fields.Char(
         string="Full Name",
-        tracking=True,
-        help="Required before apply. Auto-computed from given/family names.",
+        compute="_compute_member_name",
+        store=True,
+        help="Auto-computed: FAMILY, GIVEN MIDDLE. Read-only.",
     )
-    given_name = fields.Char(string="Given Name", tracking=True)
-    family_name = fields.Char(string="Family Name", tracking=True)
+
+    # ──────────────────────────────────────────────────────────────────────
+    # Demographics
+    # ──────────────────────────────────────────────────────────────────────
     birthdate = fields.Date(string="Date of Birth", tracking=True)
+    is_approximate_birthdate = fields.Boolean(
+        string="Approximate Birthdate",
+        help="Flag the birthdate as approximate; downstream stats may exclude "
+        "approximate records or treat them with reduced precision.",
+    )
+    age = fields.Integer(
+        string="Age",
+        compute="_compute_age",
+        help="Auto-computed from Date of Birth.",
+    )
+    birth_place = fields.Char(string="Birth Place", tracking=True)
+    occupation_id = fields.Many2one(
+        "spp.vocabulary.code",
+        string="Occupation",
+        domain="[('vocabulary_id.namespace_uri', '=', 'urn:ilo:isco-08')]",
+        tracking=True,
+    )
     gender_id = fields.Many2one(
         "spp.vocabulary.code",
         string="Gender",
         domain="[('namespace_uri', '=', 'urn:iso:std:iso:5218')]",
         tracking=True,
     )
-    relationship_id = fields.Many2one(
+    civil_status_id = fields.Many2one(
         "spp.vocabulary.code",
-        string="Relationship to Head",
-        domain="[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:group-membership-type'),"
-        " ('code', '!=', 'head')]",
+        string="Civil Status",
+        domain="[('vocabulary_id.namespace_uri', '=', 'urn:un:unsd:pop-census:marital-status')]",
         tracking=True,
     )
-    id_number = fields.Char(string="ID Number", tracking=True)
-    phone = fields.Char(string="Phone Number", tracking=True)
+    income = fields.Float(string="Income", tracking=True)
 
-    # Reference to created individual (set after apply)
+    # ──────────────────────────────────────────────────────────────────────
+    # Contact
+    # ──────────────────────────────────────────────────────────────────────
+    area_id = fields.Many2one("spp.area", string="Area", tracking=True)
+    address_line1 = fields.Char(string="Address Line 1", tracking=True)
+    address_line2 = fields.Char(string="Address Line 2", tracking=True)
+    city = fields.Char(string="City", tracking=True)
+    state_id = fields.Many2one("res.country.state", string="State/Province", tracking=True)
+    postal_code = fields.Char(string="Postal Code", tracking=True)
+    country_id = fields.Many2one("res.country", string="Country", tracking=True)
+    email = fields.Char(string="Email", tracking=True)
+
+    phone_line_ids = fields.One2many(
+        "spp.cr.detail.create_group.phone",
+        "add_member_detail_id",
+        string="Phone Numbers",
+    )
+
+    # ──────────────────────────────────────────────────────────────────────
+    # Location
+    # ──────────────────────────────────────────────────────────────────────
+    latitude = fields.Float(string="Latitude", digits=(13, 10), tracking=True)
+    longitude = fields.Float(string="Longitude", digits=(13, 10), tracking=True)
+
+    # ──────────────────────────────────────────────────────────────────────
+    # Financial
+    # ──────────────────────────────────────────────────────────────────────
+    bank_line_ids = fields.One2many(
+        "spp.cr.detail.create_group.bank",
+        "add_member_detail_id",
+        string="Bank Accounts",
+    )
+
+    # ──────────────────────────────────────────────────────────────────────
+    # Identity Documents
+    # ──────────────────────────────────────────────────────────────────────
+    id_doc_line_ids = fields.One2many(
+        "spp.cr.detail.create_group.id_doc",
+        "add_member_detail_id",
+        string="Identity Documents",
+    )
+
+    # ──────────────────────────────────────────────────────────────────────
+    # Role (per-member, single row)
+    # ──────────────────────────────────────────────────────────────────────
+    membership_type_id = fields.Many2one(
+        "spp.vocabulary.code",
+        string="Role",
+        domain="[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:group-membership-type')]",
+        tracking=True,
+        help="Role of the new member in the group. Optionality controlled by the CR type.",
+    )
+
+    # ──────────────────────────────────────────────────────────────────────
+    # Type-config mirrors (for view conditionals)
+    # ──────────────────────────────────────────────────────────────────────
+    type_requires_head = fields.Boolean(
+        related="change_request_id.request_type_id.requires_head",
+        string="Requires Head",
+    )
+    roles_available = fields.Boolean(
+        compute="_compute_roles_available",
+        string="Has Membership Roles",
+        help="True when the urn:openspp:vocab:group-membership-type vocabulary has any active code.",
+    )
+
+    # ──────────────────────────────────────────────────────────────────────
+    # Read-only context: existing members of the group (for the spec's
+    # "display a table with all members" requirement). Computed, not stored.
+    # ──────────────────────────────────────────────────────────────────────
+    existing_membership_ids = fields.Many2many(
+        "spp.group.membership",
+        string="Existing Members",
+        compute="_compute_existing_memberships",
+    )
+
+    # Reference to created individual (set after apply).
     created_individual_id = fields.Many2one(
         "res.partner",
         string="Created Individual",
         readonly=True,
     )
 
-    # ══════════════════════════════════════════════════════════════════════════
-    # ONCHANGE - Full Odoo functionality
-    # ══════════════════════════════════════════════════════════════════════════
+    # ──────────────────────────────────────────────────────────────────────
+    # Computes
+    # ──────────────────────────────────────────────────────────────────────
+    @api.depends("given_name", "family_name", "middle_name")
+    def _compute_member_name(self):
+        for rec in self:
+            given = (rec.given_name or "").strip()
+            family = (rec.family_name or "").strip()
+            middle = (rec.middle_name or "").strip()
+            first_part = " ".join(filter(None, [given, middle]))
+            if family and first_part:
+                rec.member_name = f"{family.upper()}, {first_part}".strip()
+            elif family:
+                rec.member_name = family.upper()
+            elif first_part:
+                rec.member_name = first_part.upper()
+            else:
+                rec.member_name = False
 
-    @api.onchange("given_name", "family_name")
-    def _onchange_names(self):
-        """Auto-compute full name from given + family."""
-        if self.given_name or self.family_name:
-            name_vals = [
-                f"{self.family_name},"
-                if self.family_name and self.given_name
-                else f"{self.family_name}"
-                if self.family_name
-                else "",
-                self.given_name,
-            ]
+    @api.depends("birthdate")
+    def _compute_age(self):
+        today = date.today()
+        for rec in self:
+            if not rec.birthdate:
+                rec.age = 0
+                continue
+            bd = rec.birthdate
+            years = today.year - bd.year - ((today.month, today.day) < (bd.month, bd.day))
+            rec.age = max(years, 0)
 
-            name = " ".join(filter(None, name_vals))
-            self.member_name = name.upper()
+    @api.depends_context("uid")
+    def _compute_roles_available(self):
+        has_any = bool(
+            self.env["spp.vocabulary.code"].search_count(
+                [("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:group-membership-type")]
+            )
+        )
+        for rec in self:
+            rec.roles_available = has_any
+
+    @api.depends("change_request_id", "change_request_id.registrant_id")
+    def _compute_existing_memberships(self):
+        Membership = self.env["spp.group.membership"]
+        for rec in self:
+            group = rec.change_request_id.registrant_id
+            if group and group.is_group:
+                rec.existing_membership_ids = Membership.search([("group", "=", group.id), ("status", "=", "active")])
+            else:
+                rec.existing_membership_ids = Membership.browse([])

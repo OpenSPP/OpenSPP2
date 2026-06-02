@@ -133,8 +133,7 @@ class TestE2EWorkflows(TransactionCase):
             {
                 "given_name": "Maria",
                 "family_name": "Dela Cruz",
-                "member_name": "Maria Dela Cruz",
-                "relationship_id": self.spouse_kind.id,
+                "membership_type_id": self.spouse_kind.id,
             }
         )
         self._approve_and_apply(cr2)
@@ -155,8 +154,7 @@ class TestE2EWorkflows(TransactionCase):
                 {
                     "given_name": name,
                     "family_name": "Dela Cruz",
-                    "member_name": f"{name} Dela Cruz",
-                    "relationship_id": self.child_kind.id,
+                    "membership_type_id": self.child_kind.id,
                 }
             )
             self._approve_and_apply(cr)
@@ -312,8 +310,7 @@ class TestE2EWorkflows(TransactionCase):
             {
                 "given_name": "New",
                 "family_name": "Spouse",
-                "member_name": "New Spouse",
-                "relationship_id": self.spouse_kind.id,
+                "membership_type_id": self.spouse_kind.id,
             }
         )
         self._approve_and_apply(cr2)
@@ -655,8 +652,9 @@ class TestE2EWorkflows(TransactionCase):
         detail2 = cr2.get_detail()
         detail2.write(
             {
-                "member_name": "Lifecycle Member",
-                "relationship_id": self.spouse_kind.id,
+                "given_name": "Lifecycle",
+                "family_name": "Member",
+                "membership_type_id": self.spouse_kind.id,
             }
         )
         self._approve_and_apply(cr2)

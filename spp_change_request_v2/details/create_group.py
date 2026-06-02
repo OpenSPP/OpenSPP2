@@ -188,43 +188,66 @@ class SPPCRDetailCreateGroup(models.Model):
 
 class SPPCRDetailCreateGroupPhone(models.Model):
     _name = "spp.cr.detail.create_group.phone"
-    _description = "CR Detail: Create Group — Phone Number"
+    _description = "CR Detail: Phone Number (Create Group / Add Member)"
     _order = "is_primary desc, id"
 
+    # OP#871: the same row shape is used by both Create Group and Add Member.
+    # Exactly one parent FK must be set — enforced by ``_check_one_parent``.
     detail_id = fields.Many2one(
         "spp.cr.detail.create_group",
-        required=True,
+        ondelete="cascade",
+    )
+    add_member_detail_id = fields.Many2one(
+        "spp.cr.detail.add_member",
         ondelete="cascade",
     )
     phone_no = fields.Char(string="Phone Number", required=True)
     country_id = fields.Many2one("res.country", string="Country")
     is_primary = fields.Boolean(
         string="Primary",
-        help="The first primary phone is also written to the group's header phone field.",
+        help="The first primary phone is also written to the partner's header phone field.",
     )
+
+    @api.constrains("detail_id", "add_member_detail_id")
+    def _check_one_parent(self):
+        for rec in self:
+            if bool(rec.detail_id) == bool(rec.add_member_detail_id):
+                raise ValidationError(_("Exactly one parent detail must be set on a phone-number row."))
 
 
 class SPPCRDetailCreateGroupBank(models.Model):
     _name = "spp.cr.detail.create_group.bank"
-    _description = "CR Detail: Create Group — Bank Account"
+    _description = "CR Detail: Bank Account (Create Group / Add Member)"
 
     detail_id = fields.Many2one(
         "spp.cr.detail.create_group",
-        required=True,
+        ondelete="cascade",
+    )
+    add_member_detail_id = fields.Many2one(
+        "spp.cr.detail.add_member",
         ondelete="cascade",
     )
     acc_number = fields.Char(string="Account Number", required=True)
     acc_holder_name = fields.Char(string="Account Holder")
     bank_id = fields.Many2one("res.bank", string="Bank")
 
+    @api.constrains("detail_id", "add_member_detail_id")
+    def _check_one_parent(self):
+        for rec in self:
+            if bool(rec.detail_id) == bool(rec.add_member_detail_id):
+                raise ValidationError(_("Exactly one parent detail must be set on a bank-account row."))
+
 
 class SPPCRDetailCreateGroupIdDoc(models.Model):
     _name = "spp.cr.detail.create_group.id_doc"
-    _description = "CR Detail: Create Group — Identity Document"
+    _description = "CR Detail: Identity Document (Create Group / Add Member)"
 
     detail_id = fields.Many2one(
         "spp.cr.detail.create_group",
-        required=True,
+        ondelete="cascade",
+    )
+    add_member_detail_id = fields.Many2one(
+        "spp.cr.detail.add_member",
         ondelete="cascade",
     )
     id_type_id = fields.Many2one(
@@ -235,6 +258,12 @@ class SPPCRDetailCreateGroupIdDoc(models.Model):
     )
     value = fields.Char(string="Value", required=True)
     expiry_date = fields.Date(string="Expiry Date")
+
+    @api.constrains("detail_id", "add_member_detail_id")
+    def _check_one_parent(self):
+        for rec in self:
+            if bool(rec.detail_id) == bool(rec.add_member_detail_id):
+                raise ValidationError(_("Exactly one parent detail must be set on an ID document row."))
 
 
 class SPPCRDetailCreateGroupMemberExisting(models.Model):

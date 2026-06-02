@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <!-- Add Member Detail Form View -->
+    <!-- Add Member Detail Form View (OP#871 redesign) -->
     <record id="spp_cr_detail_add_member_form" model="ir.ui.view">
         <field name="name">spp.cr.detail.add_member.form</field>
         <field name="model">spp.cr.detail.add_member</field>
@@ -10,6 +10,8 @@
             >
                 <header>
                     <field name="is_cr_manager" invisible="1" />
+                    <field name="type_requires_head" invisible="1" />
+                    <field name="roles_available" invisible="1" />
                     <button
                         name="action_next_documents"
                         string="Next: Upload Documents"
@@ -47,7 +49,15 @@
                         <h1>Add Member to Group</h1>
                     </div>
 
-                    <!-- Target Group -->
+                    <!-- Review-stage hint above the proposed-changes table. -->
+                    <div
+                        class="alert alert-info"
+                        role="alert"
+                        invisible="stage != 'review'"
+                    >
+                        <strong>The following individual is to be added:</strong>
+                    </div>
+
                     <group string="Target Group">
                         <field
                             name="registrant_id"
@@ -57,55 +67,142 @@
                         <field name="change_request_id" invisible="1" />
                     </group>
 
-                    <!-- Member Details -->
-                    <group string="New Member Information">
+                    <group>
+                        <group string="Name">
+                            <field name="family_name" required="1" />
+                            <field name="given_name" required="1" />
+                            <field name="middle_name" />
+                            <field name="member_name" readonly="1" />
+                        </group>
+                    </group>
+
+                    <separator string="Demographics" />
+                    <group>
                         <group>
-                            <field
-                                name="given_name"
-                                required="1"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            />
-                            <field
-                                name="family_name"
-                                required="1"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            />
-                            <field name="member_name" readonly="1" force_save="1" />
+                            <field name="birthdate" />
+                            <field name="is_approximate_birthdate" />
+                            <field name="age" readonly="1" />
+                            <field name="birth_place" />
                         </group>
                         <group>
                             <field
-                                name="birthdate"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                                name="occupation_id"
+                                options="{'no_create': True, 'no_open': True}"
                             />
                             <field
                                 name="gender_id"
                                 options="{'no_create': True, 'no_open': True}"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
                             <field
-                                name="relationship_id"
+                                name="civil_status_id"
                                 options="{'no_create': True, 'no_open': True}"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
+                            <field name="income" widget="monetary" />
                         </group>
                     </group>
 
-                    <group string="Contact Information">
+                    <separator string="Contact Information" />
+                    <group>
+                        <group>
+                            <field name="area_id" options="{'no_create': True}" />
+                            <field name="address_line1" />
+                            <field name="address_line2" />
+                            <field name="city" />
+                        </group>
                         <group>
                             <field
-                                name="phone"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                                name="state_id"
+                                options="{'no_create': True, 'no_open': True}"
                             />
+                            <field name="postal_code" />
                             <field
-                                name="id_number"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                                name="country_id"
+                                options="{'no_create': True, 'no_open': True}"
                             />
+                            <field name="email" widget="email" />
                         </group>
                     </group>
 
-                    <!-- Result (after apply) -->
-                    <group string="Result" invisible="not created_individual_id">
-                        <field name="created_individual_id" />
+                    <separator string="Phone Numbers" />
+                    <field name="phone_line_ids">
+                        <list editable="bottom">
+                            <field name="phone_no" />
+                            <field name="country_id" options="{'no_create': True}" />
+                            <field name="is_primary" widget="boolean_toggle" />
+                        </list>
+                    </field>
+
+                    <separator string="Location" />
+                    <group>
+                        <group>
+                            <field name="latitude" />
+                            <field name="longitude" />
+                        </group>
+                    </group>
+
+                    <separator string="Financial Information" />
+                    <field name="bank_line_ids">
+                        <list editable="bottom">
+                            <field name="acc_number" />
+                            <field name="acc_holder_name" />
+                            <field name="bank_id" options="{'no_create': True}" />
+                        </list>
+                    </field>
+
+                    <separator string="Identity Document" />
+                    <field name="id_doc_line_ids">
+                        <list editable="bottom">
+                            <field name="id_type_id" options="{'no_create': True}" />
+                            <field name="value" />
+                            <field name="expiry_date" />
+                        </list>
+                    </field>
+
+                    <notebook>
+                        <page string="Members" name="members">
+                            <div class="alert alert-info" role="alert">
+                                <strong>Group members.</strong>
+                                The new individual will be added to the group below.
+                                Pick a Role for the new member; existing members are shown read-only for context.
+                            </div>
+
+                            <group invisible="not roles_available">
+                                <group>
+                                    <field
+                                        name="membership_type_id"
+                                        options="{'no_create': True, 'no_open': True}"
+                                        required="type_requires_head"
+                                    />
+                                </group>
+                            </group>
+
+                            <div
+                                class="alert alert-warning"
+                                role="alert"
+                                invisible="not type_requires_head"
+                            >
+                                This Change Request type requires a Head of Household.
+                                If you set the new member's <strong>Role</strong> to <em
+                            >Head</em>, the existing head of the group will be demoted
+                                automatically when the CR is applied.
+                            </div>
+
+                            <separator string="Existing members (read-only)" />
+                            <field name="existing_membership_ids" nolabel="1">
+                                <list create="0" edit="0" delete="0">
+                                    <field name="individual" />
+                                    <field
+                                        name="membership_type_ids"
+                                        widget="many2many_tags"
+                                    />
+                                    <field name="start_date" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+
+                    <group invisible="not created_individual_id">
+                        <field name="created_individual_id" readonly="1" />
                     </group>
                 </sheet>
                 <chatter />

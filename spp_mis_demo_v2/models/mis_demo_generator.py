@@ -3139,20 +3139,19 @@ class SPPMISDemoGenerator(models.TransientModel):
                     }
                 )
             elif detail_model == "spp.cr.detail.add_member":
+                # OP#871: detail no longer has relationship_id / member_name —
+                # role is on membership_type_id and member_name is computed.
                 rel_xmlid = proposed_changes.get("relationship_xmlid")
-                relationship_id = False
+                membership_type_id = False
                 if rel_xmlid:
-                    relationship_id = self.env.ref(rel_xmlid, raise_if_not_found=False)
-                    relationship_id = relationship_id.id if relationship_id else False
+                    code = self.env.ref(rel_xmlid, raise_if_not_found=False)
+                    membership_type_id = code.id if code else False
                 vals.update(
                     {
                         "given_name": proposed_changes.get("given_name"),
                         "family_name": proposed_changes.get("family_name"),
-                        "member_name": " ".join(
-                            filter(None, [proposed_changes.get("given_name"), proposed_changes.get("family_name")])
-                        ),
                         "birthdate": proposed_changes.get("birthdate"),
-                        "relationship_id": relationship_id,
+                        "membership_type_id": membership_type_id,
                     }
                 )
             elif detail_model == "spp.cr.detail.transfer_member":
