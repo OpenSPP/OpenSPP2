@@ -1102,7 +1102,9 @@ class CelExecutor(models.AbstractModel):
         allow_any_provider = self._allow_any_provider_fallback()
         # Provider resolution
         provider, return_type = self._metric_registry_info(p.metric)
-        params_hash = ""  # CEL V2: no params by default
+        # Parameterized metrics: hash the params so the cache lookup is keyed by
+        # them (must match how upsert_values hashed them on write). No params -> "".
+        params_hash = self.env["spp.data.value"]._hash_params(p.params) if getattr(p, "params", None) else ""
         # Preflight completeness/freshness
         status = self._metric_cache_status_sql(
             subject_model,

@@ -873,13 +873,18 @@ class CelTranslator(models.AbstractModel):
                         subject_var = a1.name
                     elif isinstance(a1, P.Attr) and isinstance(a1.obj, P.Ident):
                         subject_var = a1.obj.name
+            # Named call arguments become metric params (keyed via params_hash),
+            # e.g. metric('dr.dci.severity', me, arg='Vision').
+            params = None
+            if getattr(cmp.left, "kwargs", None):
+                params = {k: self._eval_literal(v, ctx) for k, v in cmp.left.kwargs.items()}
             rhs = self._eval_literal(cmp.right, ctx)
             op = {"EQ": "==", "NE": "!=", "GT": ">", "GE": ">=", "LT": "<", "LE": "<="}[cmp.op]
             plan = MetricCompare(
                 metric=metric_name,
                 subject_var=subject_var,
                 period_key=period_key,
-                params=None,
+                params=params,
                 op=op,
                 rhs=rhs,
             )
