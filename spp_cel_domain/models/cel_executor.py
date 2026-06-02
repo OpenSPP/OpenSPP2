@@ -1369,6 +1369,10 @@ class CelExecutor(models.AbstractModel):
             *clause_args,
         )
         if isinstance(rhs, int | float):
+            # bool is a subclass of int. Postgres rejects `numeric = boolean`, so
+            # coerce a boolean RHS (true/false) to 1/0 for the numeric comparison.
+            # Boolean metric values are likewise stored as 1/0.
+            rhs_value = int(rhs) if isinstance(rhs, bool) else rhs
             # Handle both scalar numbers and {"value": number} objects
             # COALESCE extracts from object first, then tries scalar cast
             return SQL(
@@ -1382,7 +1386,7 @@ class CelExecutor(models.AbstractModel):
                     + num_ops[op]
                     + " %s",
                     *base_args,
-                    rhs,
+                    rhs_value,
                 ),
             )
         if isinstance(rhs, str):
