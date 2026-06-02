@@ -21,6 +21,14 @@ _logger = logging.getLogger(__name__)
 # registry. Mirrors DRService._get_partner_identifier.
 _IDENTIFIER_PRIORITY = ["UIN", "DRN", "NATIONAL_ID", "NID", "BRN"]
 
+# Parameterized DCI methods: cel_accessor -> the enumerated argument set + value
+# type. Each (subject, arg) is cached as a separate spp.data.value row keyed by
+# params (params_hash), e.g. dr.dci.severity('Vision') or crvs.dci.has_event('death').
+DCI_METHOD_ACCESSORS = {
+    "dr.dci.severity": {"args": ["Vision", "Hearing", "Mobility"], "value_type": "number"},
+    "crvs.dci.has_event": {"args": ["birth", "death"], "value_type": "boolean"},
+}
+
 
 class DCICelFetcher(models.AbstractModel):
     _name = "spp.dci.cel.fetcher"
@@ -100,10 +108,73 @@ class DCICelFetcher(models.AbstractModel):
         mgr = self.env["spp.data.cache.manager"]
         total = 0
         for variable in variables:
-            result = mgr.precompute_variable(variable.name, partner_ids)
-            if isinstance(result, dict):
-                total += result.get("cached", 0)
+            if variable.cel_accessor in DCI_METHOD_ACCESSORS:
+                # Parameterized method: materialize one params-keyed row per argument.
+                total += self._materialize_method_variable(variable, partner_ids)
+            else:
+                result = mgr.precompute_variable(variable.name, partner_ids)
+                if isinstance(result, dict):
+                    total += result.get("cached", 0)
         return total
+
+    def _materialize_method_variable(self, variable, partner_ids):
+        """Cache a parameterized method variable: one spp.data.value row per
+        (subject, argument), keyed by params={'arg': <argument>}."""
+        accessor = variable.cel_accessor
+        data_source = variable.external_provider_id.dci_data_source_id
+        if not data_source:
+            return 0
+        value_type = DCI_METHOD_ACCESSORS[accessor]["value_type"]
+        rows = []
+        for partner in self.env["res.partner"].browse(partner_ids):
+            identifier = self._get_partner_identifier(partner)
+            if not identifier:
+                continue
+            id_type, id_value = identifier
+            try:
+                pairs = self._compute_method_values(accessor, data_source, partner, id_type, id_value)
+            except Exception as e:
+                _logger.error("DCI method fetch failed for '%s' on partner %s: %s", accessor, partner.id, e)
+                continue
+            for params, value in pairs:
+                if value is None:
+                    continue
+                rows.append(
+                    {
+                        "variable_name": accessor,
+                        "subject_model": "res.partner",
+                        "subject_id": partner.id,
+                        "period_key": "current",
+                        "value_json": {"value": int(value) if isinstance(value, bool) else value},
+                        "value_type": value_type,
+                        "source_type": "external",
+                        "params": params,
+                        "ttl_seconds": variable.cache_ttl_seconds or None,
+                    }
+                )
+        if rows:
+            self.env["spp.data.value"].upsert_values(rows)
+        return len(rows)
+
+    def _compute_method_values(self, accessor, data_source, partner, id_type, id_value):
+        """Return [(params, value), ...] for each enumerated argument of a method."""
+        args = DCI_METHOD_ACCESSORS[accessor]["args"]
+        if accessor == "dr.dci.severity":
+            scores = self._dr_status(data_source, partner).get("functional_scores") or {}
+            return [({"arg": t}, scores.get(t) or 0) for t in args]
+        if accessor == "crvs.dci.has_event":
+            svc = self._crvs_service(data_source)
+            out = []
+            for event in args:
+                if event == "birth":
+                    value = svc.verify_birth(id_type, id_value) is not None
+                elif event == "death":
+                    value = svc.check_death(id_type, id_value)
+                else:
+                    continue
+                out.append(({"arg": event}, value))
+            return out
+        return []
 
     @api.model
     def cron_sync_all_registrants(self, batch_size=500):

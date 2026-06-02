@@ -25,6 +25,8 @@ class CelVariableResolverDCI(models.AbstractModel):
         # Only rewrite at the top level; once expanded, the dotted accessor lives
         # inside a metric('...') string literal and must not be touched again.
         if expression and _depth == 0:
+            # Parameterized methods first: accessor('arg') -> metric(accessor, me, arg='arg').
+            expression = self._expand_dci_methods(expression)
             expression = self._expand_dotted_cached_accessors(expression)
         return super().expand_expression(
             expression,
@@ -35,8 +37,27 @@ class CelVariableResolverDCI(models.AbstractModel):
         )
 
     @api.model
+    def _expand_dci_methods(self, expression):
+        """Rewrite parameterized DCI method calls into params-carrying metric()
+        calls: e.g. dr.dci.severity('Vision') -> metric('dr.dci.severity', me,
+        arg='Vision'). The named arg becomes the metric params (params_hash)."""
+        from .dci_cel_fetcher import DCI_METHOD_ACCESSORS
+
+        for accessor in DCI_METHOD_ACCESSORS:
+            # accessor('arg') or accessor("arg")
+            pattern = re.escape(accessor) + r"\(\s*(['\"])([^'\"]+)\1\s*\)"
+            expression = re.sub(
+                pattern,
+                lambda m, a=accessor: "metric('%s', me, arg='%s')" % (a, m.group(2)),
+                expression,
+            )
+        return expression
+
+    @api.model
     def _expand_dotted_cached_accessors(self, expression):
         """Rewrite dotted cached-variable accessors into metric() calls."""
+        from .dci_cel_fetcher import DCI_METHOD_ACCESSORS
+
         Variable = self.env[self._get_variable_model()]
         dotted_vars = Variable.search(
             [
@@ -49,7 +70,9 @@ class CelVariableResolverDCI(models.AbstractModel):
         # by a shorter one that is its prefix.
         for var in sorted(dotted_vars, key=lambda v: len(v.cel_accessor or ""), reverse=True):
             accessor = var.cel_accessor
-            if not accessor or accessor not in expression:
+            # Method accessors are handled by _expand_dci_methods; a bare method
+            # reference (no call) is not a usable value, so skip it here.
+            if not accessor or accessor in DCI_METHOD_ACCESSORS or accessor not in expression:
                 continue
             # Match the accessor as a standalone token: not part of a longer
             # dotted/identifier chain and not already inside a quoted string.

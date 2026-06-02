@@ -76,8 +76,9 @@ class TestDCIIndicatorData(TransactionCase):
         category = Category.search([("code", "=", "dci")])
         variables = Variable.search([("category_id", "=", category.id)])
 
-        # Should have: 5 DR + 3 CRVS + 3 IBR + 6 SR = 17 variables
-        self.assertEqual(len(variables), 17, "Should have 17 DCI variables")
+        # 5 DR + 3 CRVS + 3 IBR + 6 SR + 2 parameterized methods
+        # (dr.dci.severity, crvs.dci.has_event) = 19 variables
+        self.assertEqual(len(variables), 19, "Should have 19 DCI variables")
 
     def test_dci_variables_have_labels(self):
         """Test that DCI variables have user-friendly labels."""
