@@ -78,11 +78,14 @@ class DRSymbolProvider:
         if not self.partner:
             return
 
-        # Query disability status cache
+        # Query disability status cache. The model's states are
+        # synced/stale/error (there is no active/draft); a stale record
+        # is still the last-known cached value, so both synced and stale
+        # surface here while error records are excluded.
         disability_status = self.env["spp.dci.disability.status"].search(
             [
                 ("partner_id", "=", self.partner.id),
-                ("state", "in", ["active", "draft"]),
+                ("state", "in", ["synced", "stale"]),
             ],
             limit=1,
         )
