@@ -13,7 +13,7 @@ action_view_job).
 import json
 import uuid
 from datetime import UTC, datetime
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from odoo.tests import tagged
 
@@ -204,3 +204,267 @@ class TestTransactionProcessing(DCIServerCommon):
         txn = self._make_txn(job_uuid="job-does-not-exist")
         with self.assertRaises(UserError):
             txn.action_view_job()
+
+
+@tagged("post_install", "-at_install")
+class TestTransactionAsyncProcessors(DCIServerCommon):
+    """Cover process_async_subscribe / _unsubscribe / _txn_status and the
+    dict-based callback sender they all delegate to."""
+
+    def setUp(self):
+        super().setUp()
+        self.test_sender = self.create_test_sender()
+        self.Transaction = self.env["spp.dci.transaction"].sudo()
+        self.Subscription = self.env["spp.dci.subscription"].sudo()
+
+    def _make_txn(self, action, message, state="received", **overrides):
+        payload = {
+            "header": {
+                "version": "1.0.0",
+                "message_id": str(uuid.uuid4()),
+                "message_ts": datetime.now(UTC).isoformat(),
+                "action": action,
+                "sender_id": self.test_sender.sender_id,
+                "total_count": 1,
+            },
+            "message": message,
+        }
+        defaults = {
+            "transaction_id": message.get("transaction_id", f"txn-{uuid.uuid4()}"),
+            "message_id": payload["header"]["message_id"],
+            "correlation_id": str(uuid.uuid4()),
+            "action": action,
+            "reg_type": "SOCIAL_REGISTRY",
+            "sender_id": self.test_sender.id,
+            "sender_uri": self.test_sender.sender_id,
+            "request_payload": json.dumps(payload),
+            "state": state,
+        }
+        defaults.update(overrides)
+        return self.Transaction.create(defaults)
+
+    # --- process_async_subscribe ---------------------------------------------
+
+    def test_subscribe_builds_response_from_subscriptions(self):
+        txn_id = f"txn-sub-{uuid.uuid4()}"
+        sub = self.Subscription.create(
+            {
+                "sender_id": self.test_sender.id,
+                "callback_uri": "https://cb.example.test/cb",
+                "event_type": "registration",
+                "reg_type": "SOCIAL_REGISTRY",
+                "original_transaction_id": txn_id,
+            }
+        )
+        txn = self._make_txn(
+            "subscribe",
+            {"transaction_id": txn_id},
+            callback_uri=False,
+        )
+        txn.process_async_subscribe()
+
+        self.assertEqual(txn.state, "success")
+        body = json.loads(txn.response_payload)
+        codes = [r.get("subscription_code") for r in body["subscribe_response"]]
+        self.assertIn(sub.subscription_code, codes)
+
+    def test_subscribe_adds_placeholder_when_no_subscriptions(self):
+        txn = self._make_txn(
+            "subscribe",
+            {"transaction_id": f"txn-sub-empty-{uuid.uuid4()}"},
+            callback_uri=False,
+        )
+        txn.process_async_subscribe()
+        self.assertEqual(txn.state, "success")
+        body = json.loads(txn.response_payload)
+        self.assertEqual(len(body["subscribe_response"]), 1)
+        self.assertEqual(body["subscribe_response"][0]["status"], "succ")
+
+    def test_subscribe_sends_callback_when_uri_set(self):
+        txn = self._make_txn(
+            "subscribe",
+            {"transaction_id": f"txn-sub-cb-{uuid.uuid4()}"},
+            callback_uri="https://cb.example.test/cb",
+        )
+        with patch.object(type(txn), "_send_callback_dict") as send:
+            txn.process_async_subscribe()
+        send.assert_called_once()
+        self.assertEqual(txn.state, "success")
+
+    def test_subscribe_rejects_on_error(self):
+        txn = self._make_txn("subscribe", {"transaction_id": "x"}, callback_uri=False)
+        txn.request_payload = "not valid json"
+        txn.process_async_subscribe()
+        self.assertEqual(txn.state, "rejected")
+        self.assertEqual(txn.error_code, "rjct.subscribe.error")
+
+    # --- process_async_unsubscribe -------------------------------------------
+
+    def test_unsubscribe_builds_status_per_code(self):
+        txn = self._make_txn(
+            "unsubscribe",
+            {
+                "transaction_id": f"txn-unsub-{uuid.uuid4()}",
+                "subscription_codes": ["SUB-1", "SUB-2"],
+            },
+            callback_uri=False,
+        )
+        txn.process_async_unsubscribe()
+        self.assertEqual(txn.state, "success")
+        body = json.loads(txn.response_payload)
+        self.assertEqual(len(body["subscription_status"]), 2)
+        self.assertEqual(body["subscription_status"][0]["status"], "unsubscribe")
+
+    def test_unsubscribe_sends_callback_when_uri_set(self):
+        txn = self._make_txn(
+            "unsubscribe",
+            {"transaction_id": f"txn-unsub-cb-{uuid.uuid4()}", "subscription_codes": ["SUB-1"]},
+            callback_uri="https://cb.example.test/cb",
+        )
+        with patch.object(type(txn), "_send_callback_dict") as send:
+            txn.process_async_unsubscribe()
+        send.assert_called_once()
+        self.assertEqual(txn.state, "success")
+
+    def test_unsubscribe_rejects_on_error(self):
+        txn = self._make_txn("unsubscribe", {"transaction_id": "x"}, callback_uri=False)
+        txn.request_payload = "not valid json"
+        txn.process_async_unsubscribe()
+        self.assertEqual(txn.state, "rejected")
+        self.assertEqual(txn.error_code, "rjct.unsubscribe.error")
+
+    # --- process_async_txn_status --------------------------------------------
+
+    def test_txn_status_returns_referenced_payload(self):
+        ref = self._make_txn(
+            "search",
+            {"transaction_id": "txn-ref-known"},
+            state="success",
+            response_payload=json.dumps({"stored": "response"}),
+        )
+        txn = self._make_txn(
+            "txn_status",
+            {
+                "transaction_id": f"txn-stat-{uuid.uuid4()}",
+                "txnstatus_request": {
+                    "attribute_type": "transaction_id",
+                    "attribute_value": ref.transaction_id,
+                    "txn_type": "search",
+                },
+            },
+            callback_uri=False,
+        )
+        txn.process_async_txn_status()
+        self.assertEqual(txn.state, "success")
+        body = json.loads(txn.response_payload)
+        self.assertEqual(body["txnstatus_response"]["txn_status"], {"stored": "response"})
+
+    def test_txn_status_minimal_when_no_payload(self):
+        ref = self._make_txn(
+            "search",
+            {"transaction_id": "txn-ref-nopayload"},
+            state="success",
+        )
+        txn = self._make_txn(
+            "txn_status",
+            {
+                "transaction_id": f"txn-stat-{uuid.uuid4()}",
+                "txnstatus_request": {
+                    "attribute_type": "transaction_id",
+                    "attribute_value": ref.transaction_id,
+                    "txn_type": "search",
+                },
+            },
+            callback_uri=False,
+        )
+        txn.process_async_txn_status()
+        self.assertEqual(txn.state, "success")
+        body = json.loads(txn.response_payload)
+        self.assertIn("search_response", body["txnstatus_response"]["txn_status"])
+
+    def test_txn_status_not_found_returns_rjct(self):
+        txn = self._make_txn(
+            "txn_status",
+            {
+                "transaction_id": f"txn-stat-{uuid.uuid4()}",
+                "txnstatus_request": {
+                    "attribute_type": "transaction_id",
+                    "attribute_value": "txn-nowhere",
+                    "txn_type": "search",
+                },
+            },
+            callback_uri=False,
+        )
+        txn.process_async_txn_status()
+        self.assertEqual(txn.state, "success")
+        body = json.loads(txn.response_payload)
+        item = body["txnstatus_response"]["txn_status"]["search_response"][0]
+        self.assertEqual(item["status"], "rjct")
+        self.assertEqual(item["status_reason_code"], "rjct.reference_id.invalid")
+
+    def test_txn_status_correlation_id_lookup(self):
+        ref = self._make_txn(
+            "search",
+            {"transaction_id": "txn-ref-corr"},
+            state="success",
+            response_payload=json.dumps({"by": "correlation"}),
+        )
+        txn = self._make_txn(
+            "txn_status",
+            {
+                "transaction_id": f"txn-stat-{uuid.uuid4()}",
+                "txnstatus_request": {
+                    "attribute_type": "correlation_id",
+                    "attribute_value": ref.correlation_id,
+                    "txn_type": "search",
+                },
+            },
+            callback_uri=False,
+        )
+        txn.process_async_txn_status()
+        body = json.loads(txn.response_payload)
+        self.assertEqual(body["txnstatus_response"]["txn_status"], {"by": "correlation"})
+
+    def test_txn_status_rejects_on_error(self):
+        txn = self._make_txn("txn_status", {"transaction_id": "x"}, callback_uri=False)
+        txn.request_payload = "not valid json"
+        txn.process_async_txn_status()
+        self.assertEqual(txn.state, "rejected")
+        self.assertEqual(txn.error_code, "rjct.txnstatus.error")
+
+    # --- _send_callback_dict --------------------------------------------------
+
+    @patch("odoo.addons.spp_dci_server.models.transaction.validate_callback_url")
+    @patch("requests.post")
+    def test_send_callback_dict_success(self, mock_post, mock_validate):
+        mock_validate.return_value = "https://cb.example.test/cb"
+        mock_post.return_value = MagicMock(raise_for_status=MagicMock())
+        txn = self._make_txn(
+            "subscribe",
+            {"transaction_id": "txn-cbd-1"},
+            callback_uri="https://cb.example.test/cb",
+        )
+        txn._send_callback_dict({"some": "response"})
+        self.assertEqual(txn.state, "callback_sent")
+        self.assertTrue(txn.callback_sent_at)
+        mock_post.assert_called_once()
+
+    @patch("odoo.addons.spp_dci_server.models.transaction.validate_callback_url")
+    def test_send_callback_dict_ssrf_blocked(self, mock_validate):
+        from odoo.exceptions import ValidationError
+
+        mock_validate.side_effect = ValidationError("Blocked IP")
+        txn = self._make_txn(
+            "subscribe",
+            {"transaction_id": "txn-cbd-2"},
+            callback_uri="http://169.254.169.254/latest",
+        )
+        txn._send_callback_dict({"some": "response"})
+        self.assertEqual(txn.state, "callback_failed")
+        self.assertEqual(txn.error_code, "rjct.callback.invalid_url")
+
+    def test_send_callback_dict_noop_without_uri(self):
+        txn = self._make_txn("subscribe", {"transaction_id": "txn-cbd-3"}, callback_uri=False)
+        # No callback_uri -> early return, state unchanged.
+        txn._send_callback_dict({"some": "response"})
+        self.assertEqual(txn.state, "received")
