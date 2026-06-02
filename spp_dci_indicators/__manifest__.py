@@ -9,6 +9,7 @@
     "license": "LGPL-3",
     "development_status": "Alpha",
     "depends": [
+        "spp_dci_client",  # spp.dci.data.source (DCI Integration bridge)
         "spp_dci_client_dr",
         "spp_dci_client_crvs",
         "spp_dci_client_ibr",
@@ -18,6 +19,7 @@
     "data": [
         "security/ir.model.access.csv",
         "data/indicator_data.xml",
+        "views/data_provider_dci_views.xml",
     ],
     "installable": True,
     "application": False,
