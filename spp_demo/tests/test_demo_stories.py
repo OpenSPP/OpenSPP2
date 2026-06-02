@@ -298,9 +298,7 @@ class TestDemoStories(TransactionCase):
 
         generator.generate_stories()
 
-        reg_ids = self.env["spp.registry.id"].search(
-            [("id_type_id", "=", national_id.id), ("value", "=", "NID-1001")]
-        )
+        reg_ids = self.env["spp.registry.id"].search([("id_type_id", "=", national_id.id), ("value", "=", "NID-1001")])
         self.assertEqual(reg_ids.mapped("partner_id"), existing)
 
         santos = self.env["res.partner"].search(

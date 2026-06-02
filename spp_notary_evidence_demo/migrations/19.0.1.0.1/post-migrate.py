@@ -17,19 +17,25 @@ EXPRESSION_REPLACEMENTS = {
     ),
 }
 
+CEL_EXPRESSION_TABLES = {
+    "spp_program_membership_manager_default": """
+        UPDATE spp_program_membership_manager_default
+        SET cel_expression = %s
+        WHERE cel_expression = %s
+    """,
+    "spp_cel_expression": """
+        UPDATE spp_cel_expression
+        SET cel_expression = %s
+        WHERE cel_expression = %s
+    """,
+}
+
 
 def migrate(cr, version):
     """Rewrite installed demo program expressions from flat Notary variables."""
-    for table in ("spp_program_membership_manager_default", "spp_cel_expression"):
+    for table, query in CEL_EXPRESSION_TABLES.items():
         for old_expression, new_expression in EXPRESSION_REPLACEMENTS.items():
-            cr.execute(
-                f"""
-                UPDATE {table}
-                SET cel_expression = %s
-                WHERE cel_expression = %s
-                """,
-                (new_expression, old_expression),
-            )
+            cr.execute(query, (new_expression, old_expression))
             if cr.rowcount:
                 _logger.info(
                     "Updated %s %s row(s) from %s to explicit Notary evidence syntax",

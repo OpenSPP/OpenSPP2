@@ -1,6 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Tests for GroupService"""
 
+from odoo import fields
 from odoo.exceptions import ValidationError
 
 from ..schemas.base import Address, CodeableConcept, Coding, Identifier, Reference
@@ -709,7 +710,8 @@ class TestGroupServiceMembershipHistory(ApiV2TestCase):
             [("group", "=", self.group.id), ("individual", "=", self.members[0].id)],
             limit=1,
         )
-        membership.sudo().write({"ended_date": "2026-06-01 10:00:00"})
+        ended_date = fields.Datetime.add(membership.start_date, minutes=1)
+        membership.sudo().write({"ended_date": ended_date})
 
         count = self.service.get_membership_history_count(self.group)
         # 5 added + 1 removed = 6

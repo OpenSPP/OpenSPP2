@@ -338,10 +338,10 @@ class DataCacheManager(models.AbstractModel):
             }
             cache_source_type = source_type_map.get(variable.source_type, "computed")
 
+            provider_code = ""
+            if variable.source_type == "external" and variable.external_provider_id:
+                provider_code = variable.external_provider_id.code or ""
             for subject_id, value in computed.items():
-                provider_code = ""
-                if variable.source_type == "external" and variable.external_provider_id:
-                    provider_code = variable.external_provider_id.code or ""
                 values_list.append(
                     {
                         "variable_name": variable.name,

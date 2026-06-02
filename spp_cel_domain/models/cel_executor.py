@@ -1099,13 +1099,11 @@ class CelExecutor(models.AbstractModel):
         base_dom = cfg.get("base_domain", []) if isinstance(cfg.get("base_domain"), list) else []
         if p.subject_var and p.subject_var not in ("me", "r"):
             if model == "res.partner":
-                base_dom = [
+                base_dom = base_dom + [
                     ("is_registrant", "=", True),
                     ("is_group", "=", False),
                     ("disabled", "=", False),
                 ]
-            else:
-                base_dom = []
         period_key = str(p.period_key or "current")
         subject_model = model
         # Resolve flags

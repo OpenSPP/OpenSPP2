@@ -455,6 +455,28 @@ def test_batch_rate_limit_retries_once_with_same_idempotency_key():
     assert transport.requests[0].headers["idempotency-key"] == transport.requests[1].headers["idempotency-key"]
 
 
+def test_batch_transport_error_retries_once_with_same_idempotency_key():
+    """Batch evaluation retries one transient transport failure before succeeding."""
+    request = httpx.Request("POST", "https://notary.example/v1/batch-evaluations")
+    client, transport = _client(
+        {
+            "base_url": "https://notary.example",
+            "auth_type": "none",
+            "default_purpose_url": "https://openspp.example/default-purpose",
+        },
+        [
+            httpx.ConnectError("connect failed", request=request),
+            _json_response(payload={"items": []}),
+        ],
+    )
+
+    response = client.batch_evaluate(subjects=["NATIONAL-ID-123"], claim_refs=["claim-a"])
+
+    assert response.items == []
+    assert len(transport.requests) == 2
+    assert transport.requests[0].headers["idempotency-key"] == transport.requests[1].headers["idempotency-key"]
+
+
 def test_transport_errors_raise_typed_exception_without_request_values():
     """Connection failures map to NotaryTransportError and avoid PII in text."""
     request = httpx.Request("POST", "https://notary.example/v1/evaluations")

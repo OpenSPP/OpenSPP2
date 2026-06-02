@@ -86,7 +86,7 @@ class CELVariableResolver(models.AbstractModel):
         except ImportError:
             return []
 
-        token_names = {token.value for token in Lexer(expression).tokens() if token.kind == "IDENT"}
+        token_names = {token.value for token in Lexer(expression).tokens() if token.kind in ("IDENT",)}
         if not token_names:
             return []
 
@@ -108,10 +108,7 @@ class CELVariableResolver(models.AbstractModel):
                 continue
             seen.add(accessor)
             errors.append(
-                _(
-                    "Bare Notary variable '%(accessor)s' is no longer supported. "
-                    "Use '%(explicit)s' instead."
-                )
+                _("Bare Notary variable '%(accessor)s' is no longer supported. Use '%(explicit)s' instead.")
                 % {
                     "accessor": accessor,
                     "explicit": variable.notary_claim_id._evidence_accessor("r"),

@@ -828,7 +828,7 @@ class SPPMISDemoGenerator(models.TransientModel):
     def _story_id_type(self, identifier):
         code = identifier.get("type") or identifier.get("code")
         uri = identifier.get("uri")
-        Code = self.env["spp.vocabulary.code"].sudo()
+        Code = self.env["spp.vocabulary.code"].sudo()  # nosemgrep: odoo-sudo-without-context
         if uri:
             return Code.search([("uri", "=", uri)], limit=1)
         if not code:
@@ -836,7 +836,7 @@ class SPPMISDemoGenerator(models.TransientModel):
         return Code.get_code("urn:openspp:vocab:id-type", code)
 
     def _find_story_partner_by_ids(self, data, is_group=False):
-        RegistryId = self.env["spp.registry.id"].sudo()
+        RegistryId = self.env["spp.registry.id"].sudo()  # nosemgrep: odoo-sudo-without-context
         for identifier in data.get("ids", []):
             value = identifier.get("value")
             id_type = self._story_id_type(identifier)
@@ -868,7 +868,7 @@ class SPPMISDemoGenerator(models.TransientModel):
             partner.with_context(skip_name_format=True).write(missing_vals)
 
     def _materialize_story_ids(self, partner, data):
-        RegistryId = self.env["spp.registry.id"].sudo()
+        RegistryId = self.env["spp.registry.id"].sudo()  # nosemgrep: odoo-sudo-without-context
         for identifier in data.get("ids", []):
             value = identifier.get("value")
             id_type = self._story_id_type(identifier)

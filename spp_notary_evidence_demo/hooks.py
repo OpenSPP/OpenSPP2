@@ -167,7 +167,7 @@ def post_init_hook(env):
 
 
 def _config_or_env(env, param_key, env_key, default=None):
-    Config = env["ir.config_parameter"].sudo()
+    Config = env["ir.config_parameter"]
     configured = Config.get_param(param_key)
     if configured:
         return configured
@@ -181,8 +181,8 @@ def _config_or_env(env, param_key, env_key, default=None):
 
 
 def _ensure_national_id_type(env):
-    Vocabulary = env["spp.vocabulary"].sudo()
-    Code = env["spp.vocabulary.code"].sudo().with_context(_test_bypass_system_protection=True)
+    Vocabulary = env["spp.vocabulary"]
+    Code = env["spp.vocabulary.code"].with_context(_test_bypass_system_protection=True)
     vocabulary = Vocabulary.search([("namespace_uri", "=", ID_TYPE_NAMESPACE)], limit=1)
     if not vocabulary:
         vocabulary = Vocabulary.create(
@@ -207,8 +207,8 @@ def _ensure_national_id_type(env):
 
 
 def _ensure_providers_and_claims(env, id_type):
-    Provider = env["spp.data.provider"].sudo()
-    Claim = env["spp.notary.claim"].sudo()
+    Provider = env["spp.data.provider"]
+    Claim = env["spp.notary.claim"]
     for provider_def in PROVIDERS:
         secret = _config_or_env(
             env,
@@ -278,8 +278,8 @@ def _ensure_providers_and_claims(env, id_type):
 
 
 def _ensure_personas(env, id_type):
-    Partner = env["res.partner"].sudo()
-    RegistryId = env["spp.registry.id"].sudo()
+    Partner = env["res.partner"]
+    RegistryId = env["spp.registry.id"]
     for persona in PERSONAS:
         reg_id = RegistryId.search(
             [
@@ -322,7 +322,7 @@ def _is_demo_owned_fallback_persona(partner):
 
 
 def _ensure_programs(env):
-    Program = env["spp.program"].sudo()
+    Program = env["spp.program"]
     for program_def in PROGRAMS:
         program = Program.search([("name", "=", program_def["name"])], limit=1)
         values = {
@@ -340,27 +340,19 @@ def _ensure_programs(env):
 
 def _ensure_program_eligibility(program, expression):
     if not program.eligibility_manager_ids:
-        manager = (
-            program.env["spp.program.membership.manager.default"]
-            .sudo()
-            .create(
-                {
-                    "name": "Notary Lab Eligibility",
-                    "program_id": program.id,
-                    "eligibility_mode": "cel",
-                    "cel_expression": expression,
-                }
-            )
+        manager = program.env["spp.program.membership.manager.default"].create(
+            {
+                "name": "Notary Lab Eligibility",
+                "program_id": program.id,
+                "eligibility_mode": "cel",
+                "cel_expression": expression,
+            }
         )
-        wrapper = (
-            program.env["spp.eligibility.manager"]
-            .sudo()
-            .create(
-                {
-                    "program_id": program.id,
-                    "manager_ref_id": f"spp.program.membership.manager.default,{manager.id}",
-                }
-            )
+        wrapper = program.env["spp.eligibility.manager"].create(
+            {
+                "program_id": program.id,
+                "manager_ref_id": f"spp.program.membership.manager.default,{manager.id}",
+            }
         )
         program.write({"eligibility_manager_ids": [Command.link(wrapper.id)]})
         return
@@ -374,7 +366,7 @@ def _ensure_program_eligibility(program, expression):
             values["eligibility_mode"] = "cel"
         if "cel_expression" in manager._fields:
             values["cel_expression"] = expression
-        manager.sudo().write(values)
+        manager.write(values)
         return
 
     _logger.warning("No writable eligibility manager found for Notary demo program %s", program.display_name)

@@ -220,16 +220,16 @@ class TestNotaryEvidenceDemo(TransactionCase):
     def test_post_migrate_rewrites_installed_flat_notary_expressions(self):
         old_manager_expression = "notary_registry_lab_civil_notary_person_is_alive == true"
         new_manager_expression = "r.evidence.registry_lab_civil_notary.person_is_alive == true"
-        old_template_expression = (
-            "notary_registry_lab_shared_eligibility_notary_health_service_available == true"
+        old_template_expression = "notary_registry_lab_shared_eligibility_notary_health_service_available == true"
+        new_template_expression = "r.evidence.registry_lab_shared_eligibility_notary.health_service_available == true"
+        manager = (
+            self.Program.search(
+                [("name", "=", "Registry Lab Living Person Grant")],
+                limit=1,
+            )
+            .eligibility_manager_ids[0]
+            .manager_ref_id
         )
-        new_template_expression = (
-            "r.evidence.registry_lab_shared_eligibility_notary.health_service_available == true"
-        )
-        manager = self.Program.search(
-            [("name", "=", "Registry Lab Living Person Grant")],
-            limit=1,
-        ).eligibility_manager_ids[0].manager_ref_id
         template = self.env["spp.cel.expression"].create(
             {
                 "name": "Old Registry Lab Template",
@@ -241,12 +241,7 @@ class TestNotaryEvidenceDemo(TransactionCase):
         manager.flush_recordset(["cel_expression"])
         template.flush_recordset(["cel_expression"])
 
-        module_path = (
-            Path(__file__).resolve().parents[1]
-            / "migrations"
-            / "19.0.1.0.1"
-            / "post-migrate.py"
-        )
+        module_path = Path(__file__).resolve().parents[1] / "migrations" / "19.0.1.0.1" / "post-migrate.py"
         spec = importlib.util.spec_from_file_location("spp_notary_evidence_demo_post_migrate", module_path)
         migration = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(migration)

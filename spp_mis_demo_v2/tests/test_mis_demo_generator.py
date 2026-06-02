@@ -572,10 +572,15 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
             limit=1,
         )
         self.assertTrue(birth_reg, "Miguel Santos birth certificate should be materialized")
-        self.assertEqual(birth_reg.partner_id, self.env["spp.registry.id"].search(
-            [("id_type_id", "=", national_id.id), ("value", "=", "NID-1001")],
-            limit=1,
-        ).partner_id)
+        self.assertEqual(
+            birth_reg.partner_id,
+            self.env["spp.registry.id"]
+            .search(
+                [("id_type_id", "=", national_id.id), ("value", "=", "NID-1001")],
+                limit=1,
+            )
+            .partner_id,
+        )
 
         expected_households = {
             "HH-100": "Santos",
@@ -629,18 +634,22 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
         national_id = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:id-type", "national_id")
         household_id = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:id-type", "household_id")
         self.assertEqual(
-            self.env["spp.registry.id"].search(
+            self.env["spp.registry.id"]
+            .search(
                 [("partner_id", "=", member.id), ("id_type_id", "=", national_id.id)],
                 limit=1,
-            ).value,
+            )
+            .value,
             "NID-1001",
         )
         self.assertEqual(member.birthdate, fields.Date.to_date("2016-01-15"))
         self.assertEqual(
-            self.env["spp.registry.id"].search(
+            self.env["spp.registry.id"]
+            .search(
                 [("partner_id", "=", group.id), ("id_type_id", "=", household_id.id)],
                 limit=1,
-            ).value,
+            )
+            .value,
             "HH-100",
         )
 
@@ -666,9 +675,7 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
 
         self._run_generator_for_stories()
 
-        reg_ids = self.env["spp.registry.id"].search(
-            [("id_type_id", "=", national_id.id), ("value", "=", "NID-1001")]
-        )
+        reg_ids = self.env["spp.registry.id"].search([("id_type_id", "=", national_id.id), ("value", "=", "NID-1001")])
         self.assertEqual(reg_ids.mapped("partner_id"), existing)
 
         santos = self.env["res.partner"].search(

@@ -204,16 +204,17 @@ class CELExpression(models.Model):
                     if var:
                         found_vars.append(var.id)
 
-            try:
-                resolver = self.env["spp.cel.variable.resolver"]
-                resolved = resolver.resolve_for_evaluation(
-                    record.cel_expression,
-                    context_type=record.context_type or "group",
-                )
-                resolved_names = resolved.get("variables_used", [])
-            except Exception:
-                _logger.debug("Unable to resolve expression variables for %s", record.display_name, exc_info=True)
-                resolved_names = []
+            resolved_names = []
+            if record.cel_expression:
+                try:
+                    resolver = self.env["spp.cel.variable.resolver"]
+                    resolved = resolver.resolve_for_evaluation(
+                        record.cel_expression,
+                        context_type=record.context_type or "group",
+                    )
+                    resolved_names = resolved.get("variables_used", [])
+                except Exception:
+                    _logger.debug("Unable to resolve expression variables for %s", record.display_name, exc_info=True)
 
             for var in Variable.search(["|", ("cel_accessor", "in", resolved_names), ("name", "in", resolved_names)]):
                 found_vars.append(var.id)

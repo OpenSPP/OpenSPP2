@@ -108,10 +108,10 @@ class NotaryDemoRun(models.Model):
                 "summary": False,
             }
         )
-        Result = self.env["spp.notary.demo.result"].sudo()
+        Result = self.env["spp.notary.demo.result"]
         sequence = 10
         for program_def in PROGRAMS:
-            program = self.env["spp.program"].sudo().search([("name", "=", program_def["name"])], limit=1)
+            program = self.env["spp.program"].search([("name", "=", program_def["name"])], limit=1)
             expression = self._program_expression(program)
             for persona in PERSONAS:
                 result_values = self._evaluate_persona_program(program, expression, persona)
@@ -151,14 +151,10 @@ class NotaryDemoRun(models.Model):
                 partner=partner,
             )
         try:
-            result = (
-                self.env["spp.cel.service"]
-                .sudo()
-                .compile_expression(
-                    expression,
-                    "registry_individuals",
-                    base_domain=[("id", "=", partner.id)],
-                )
+            result = self.env["spp.cel.service"].compile_expression(
+                expression,
+                "registry_individuals",
+                base_domain=[("id", "=", partner.id)],
             )
         except Exception as error:  # noqa: BLE001 - demo result should record operational failures.
             return self._result_values(
@@ -221,19 +217,15 @@ class NotaryDemoRun(models.Model):
         return ""
 
     def _partner_for_national_id(self, national_id, persona=None):
-        providers = self.env["spp.data.provider"].sudo().search([("provider_kind", "=", "notary")])
+        providers = self.env["spp.data.provider"].search([("provider_kind", "=", "notary")])
         id_types = providers.mapped("notary_subject_id_type_id")
         if not id_types:
             return self.env["res.partner"]
-        reg_ids = (
-            self.env["spp.registry.id"]
-            .sudo()
-            .search(
-                [
-                    ("id_type_id", "in", id_types.ids),
-                    ("value", "=", national_id),
-                ],
-            )
+        reg_ids = self.env["spp.registry.id"].search(
+            [
+                ("id_type_id", "in", id_types.ids),
+                ("value", "=", national_id),
+            ],
         )
         partners = reg_ids.mapped("partner_id").filtered(lambda partner: partner.is_registrant and not partner.is_group)
         if not partners:
@@ -254,7 +246,7 @@ class NotaryDemoRun(models.Model):
             provider_codes.add("registry_lab_civil_notary")
         if "registry_lab_shared_eligibility_notary" in expression:
             provider_codes.add("registry_lab_shared_eligibility_notary")
-        providers = self.env["spp.data.provider"].sudo().search([("code", "in", list(provider_codes))])
+        providers = self.env["spp.data.provider"].search([("code", "in", list(provider_codes))])
         for provider in providers:
             if provider.auth_type == "api_key" and not provider.api_key:
                 return _("%s API key") % provider.display_name

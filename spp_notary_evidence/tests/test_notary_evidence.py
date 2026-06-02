@@ -681,8 +681,7 @@ class TestNotaryEvidence(TransactionCase):
         )
         self.assertEqual(mocked_client.return_value.batch_evaluate.call_count, 3)
         batch_sizes = [
-            len(call.kwargs["subjects"])
-            for call in mocked_client.return_value.batch_evaluate.call_args_list
+            len(call.kwargs["subjects"]) for call in mocked_client.return_value.batch_evaluate.call_args_list
         ]
         self.assertEqual(batch_sizes, [3, 1, 2])
 

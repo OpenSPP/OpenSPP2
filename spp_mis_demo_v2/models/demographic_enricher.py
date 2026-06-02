@@ -86,9 +86,7 @@ class DemographicEnricher:
         if not id_type_id or "spp.registry.id" not in self.env:
             return False
         return bool(
-            self.env["spp.registry.id"].search_count(
-                [("partner_id", "=", partner.id), ("id_type_id", "=", id_type_id)]
-            )
+            self.env["spp.registry.id"].search_count([("partner_id", "=", partner.id), ("id_type_id", "=", id_type_id)])
         )
 
     def _resolve_country(self):
@@ -537,10 +535,7 @@ class DemographicEnricher:
                         }
                     )
             elif (
-                birth_cert_type
-                and age is not None
-                and age < 15
-                and not self._has_registry_id(record, birth_cert_type)
+                birth_cert_type and age is not None and age < 15 and not self._has_registry_id(record, birth_cert_type)
             ):
                 bc_value = self._fill_format("BC-{d4}-{d6}")
                 registry_id_vals.append(

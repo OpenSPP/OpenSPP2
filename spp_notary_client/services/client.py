@@ -398,6 +398,9 @@ class NotaryClient:
                 )
                 self._raise_for_response(response.status_code, response_payload)
             except httpx.TimeoutException as error:
+                if retry_once and attempt < attempts - 1:
+                    self.sleep(0.2)
+                    continue
                 self._log_call(
                     config,
                     url=url,
@@ -416,6 +419,9 @@ class NotaryClient:
                 )
                 raise NotaryTransportError("Notary request timed out", code="transport.timeout") from error
             except httpx.TransportError as error:
+                if retry_once and attempt < attempts - 1:
+                    self.sleep(0.2)
+                    continue
                 self._log_call(
                     config,
                     url=url,
