@@ -17,10 +17,11 @@ PROVIDERS = [
         "name": "Registry Lab Civil Notary",
         "base_url_param": "spp_notary_evidence_demo.civil_notary_url",
         "base_url_env": "REGISTRY_LAB_CIVIL_NOTARY_URL",
-        "base_url_default": "http://host.docker.internal:4321",
+        "base_url_default": "https://civil-notary.lab.registrystack.org",
         "auth_type": "api_key",
         "secret_param": "spp_notary_evidence_demo.civil_api_key",
         "secret_env": "CIVIL_EVIDENCE_CLIENT_TOKEN",
+        "secret_default": "p3SuJb3Vr6wLNLYOe85ecUSiETMHeCXN5kVL4jUEQ_s",
         "secret_field": "api_key",
         "claims": [
             {
@@ -46,10 +47,11 @@ PROVIDERS = [
         "name": "Registry Lab Shared Eligibility Notary",
         "base_url_param": "spp_notary_evidence_demo.shared_notary_url",
         "base_url_env": "REGISTRY_LAB_SHARED_NOTARY_URL",
-        "base_url_default": "http://host.docker.internal:4323",
+        "base_url_default": "https://shared-eligibility-notary.lab.registrystack.org",
         "auth_type": "bearer",
         "secret_param": "spp_notary_evidence_demo.shared_bearer_token",
         "secret_env": "SHARED_EVIDENCE_CLIENT_BEARER",
+        "secret_default": "55I6FLvAD7mjiqlmY49oatUyVrgXt8D_GuOdI9kg6rw",
         "secret_field": "notary_bearer_token",
         "claims": [
             {
@@ -74,15 +76,15 @@ PROVIDERS = [
 
 PERSONAS = [
     {
-        "name": "Amina Diallo",
+        "name": "Miguel Santos",
         "national_id": "NID-1001",
-        "birthdate": "2020-04-12",
+        "birthdate": "2016-01-15",
         "note": "Expected positive path in registry-lab civil and shared Notary demos.",
     },
     {
-        "name": "Ben Mensah",
+        "name": "Maria Dela Cruz",
         "national_id": "NID-1002",
-        "birthdate": "2017-11-02",
+        "birthdate": "2018-01-15",
         "note": "Civil record exists, but shared eligibility may fail depending on social/health facts.",
     },
     {
@@ -91,23 +93,67 @@ PERSONAS = [
         "birthdate": "1957-02-14",
         "note": "Civil demo record is marked deceased in registry-lab.",
     },
+    {
+        "name": "Rafael Aquino",
+        "national_id": "NID-1004",
+        "birthdate": "2019-01-15",
+        "note": "Expected positive path for living-person, health, and combined-support demos.",
+    },
+    {
+        "name": "Rosalie Bautista",
+        "national_id": "NID-1005",
+        "birthdate": "2013-01-15",
+        "note": "Civil record exists, but health and combined-support predicates are false.",
+    },
+    {
+        "name": "Miguel Martinez",
+        "national_id": "NID-1006",
+        "birthdate": "2014-01-15",
+        "note": "Expected positive path for living-person, health, and combined-support demos.",
+    },
+    {
+        "name": "Lola Santos",
+        "national_id": "NID-1007",
+        "birthdate": "1958-01-15",
+        "note": "Civil and health records exist; combined-support predicate is false.",
+    },
+    {
+        "name": "Rosa Garcia",
+        "national_id": "NID-1008",
+        "birthdate": "1954-01-15",
+        "note": "Expected positive path for living-person, health, and combined-support demos.",
+    },
+    {
+        "name": "Ana Mendoza",
+        "national_id": "NID-1009",
+        "birthdate": "1998-01-15",
+        "note": "Civil and health records exist; combined-support predicate is false.",
+    },
+    {
+        "name": "Pedro Reyes",
+        "national_id": "NID-1010",
+        "birthdate": "1971-01-15",
+        "note": "Civil record exists; shared eligibility predicates are false.",
+    },
 ]
+
+LEGACY_FALLBACK_PERSONA_NAMES = {"Amina Diallo", "Ben Mensah"}
 
 PROGRAMS = [
     {
         "name": "Registry Lab Living Person Grant",
         "description": "Demo program using the civil Notary person-is-alive predicate.",
-        "expression": "notary_registry_lab_civil_notary_person_is_alive == true",
+        "expression": "r.evidence.registry_lab_civil_notary.person_is_alive == true",
     },
     {
         "name": "Registry Lab Combined Support",
         "description": "Demo program using the shared Notary combined-support predicate.",
-        "expression": "notary_registry_lab_shared_eligibility_notary_eligible_for_combined_support == true",
+        "expression": "r.evidence.registry_lab_shared_eligibility_notary.eligible_for_combined_support == true",
     },
     {
         "name": "Registry Lab Health Access Support",
         "description": "Demo program using the shared Notary health-service-available predicate.",
-        "expression": "notary_registry_lab_shared_eligibility_notary_health_service_available == true",
+        "expression": "r.evidence.registry_lab_shared_eligibility_notary.health_service_available == true",
     },
 ]
 
@@ -164,7 +210,12 @@ def _ensure_providers_and_claims(env, id_type):
     Provider = env["spp.data.provider"].sudo()
     Claim = env["spp.notary.claim"].sudo()
     for provider_def in PROVIDERS:
-        secret = _config_or_env(env, provider_def["secret_param"], provider_def["secret_env"])
+        secret = _config_or_env(
+            env,
+            provider_def["secret_param"],
+            provider_def["secret_env"],
+            provider_def["secret_default"],
+        )
         values = {
             "name": provider_def["name"],
             "code": provider_def["code"],
@@ -239,25 +290,10 @@ def _ensure_personas(env, id_type):
         )
         if reg_id:
             partner = reg_id.partner_id
-            partner.write(
-                {
-                    "name": persona["name"],
-                    "birthdate": persona["birthdate"],
-                    "is_registrant": True,
-                    "is_group": False,
-                    "comment": persona["note"],
-                }
-            )
+            if _is_demo_owned_fallback_persona(partner):
+                partner.write(_persona_partner_values(persona))
             continue
-        partner = Partner.create(
-            {
-                "name": persona["name"],
-                "birthdate": persona["birthdate"],
-                "is_registrant": True,
-                "is_group": False,
-                "comment": persona["note"],
-            }
-        )
+        partner = Partner.create(_persona_partner_values(persona))
         RegistryId.create(
             {
                 "partner_id": partner.id,
@@ -265,6 +301,24 @@ def _ensure_personas(env, id_type):
                 "value": persona["national_id"],
             }
         )
+
+
+def _persona_partner_values(persona):
+    return {
+        "name": persona["name"],
+        "birthdate": persona["birthdate"],
+        "is_registrant": True,
+        "is_group": False,
+        "comment": persona["note"],
+    }
+
+
+def _is_demo_owned_fallback_persona(partner):
+    if partner.is_group:
+        return False
+    if partner.name in LEGACY_FALLBACK_PERSONA_NAMES:
+        return True
+    return bool(partner.comment and "registry-lab" in partner.comment)
 
 
 def _ensure_programs(env):

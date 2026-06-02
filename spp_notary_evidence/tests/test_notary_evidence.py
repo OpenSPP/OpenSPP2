@@ -13,7 +13,13 @@ from odoo.exceptions import AccessError, UserError
 from odoo.tests import TransactionCase, tagged
 
 from odoo.addons.spp_notary_client.services.client import NotaryClient
-from odoo.addons.spp_notary_client.services.exceptions import NotaryError, NotarySubjectIdMissing, NotaryTransportError
+from odoo.addons.spp_notary_client.services.exceptions import (
+    NotaryBatchTooLarge,
+    NotaryError,
+    NotarySubjectIdMissing,
+    NotarySubjectNotFound,
+    NotaryTransportError,
+)
 from odoo.addons.spp_notary_client.services.schemas import CatalogResponse
 from odoo.addons.spp_notary_evidence.models.notary_claim import data_value_type_for_cel, normalize_notary_value_type
 
@@ -130,6 +136,205 @@ class TestNotaryEvidence(TransactionCase):
         self.assertEqual(claim.variable_id.source_type, "external")
         self.assertEqual(claim.variable_id.external_provider_id, self.provider)
         self.assertEqual(claim.variable_id.notary_claim_id, claim)
+        self.assertEqual(
+            claim.evidence_accessor,
+            f"r.evidence.{self.provider.code}.farmer_under_4ha",
+        )
+
+    def test_explicit_evidence_accessor_resolves_to_notary_metric(self):
+        claim = self._create_claim_with_variable("person-is-alive", value_type="boolean")
+
+        result = self.env["spp.cel.variable.resolver"].resolve_for_evaluation(
+            "r.evidence.notary_test_provider.person_is_alive == true",
+            context_type="individual",
+        )
+
+        self.assertFalse(result.get("errors"), result.get("errors"))
+        self.assertEqual(
+            result["expression"],
+            f"metric('{claim.variable_id.name}', r) == true",
+        )
+        self.assertIn(claim.variable_id.name, result["variables_used"])
+        expression = self.env["spp.cel.expression"].create(
+            {
+                "name": f"Notary Evidence Expression {self._test_id}",
+                "context_type": "individual",
+                "cel_expression": "r.evidence.notary_test_provider.person_is_alive == true",
+            }
+        )
+        self.assertIn(claim.variable_id, expression.variable_ids)
+
+    def test_filter_validation_does_not_call_notary_provider(self):
+        self._create_claim_with_variable("passive-validation", value_type="boolean")
+
+        with patch.object(type(self.provider), "_notary_client") as mocked_client:
+            result = self.env["spp.cel.service"].validate_filter_expression(
+                "r.evidence.notary_test_provider.passive_validation == true",
+                "registry_individuals",
+            )
+
+        self.assertTrue(result["valid"], result.get("error"))
+        self.assertIsNone(result["count"])
+        self.assertTrue(result["warnings"])
+        warning = result["warnings"][0]
+        self.assertIn("Notary Test Provider: passive-validation", warning)
+        self.assertNotIn("()", warning)
+        mocked_client.assert_not_called()
+
+    def test_compile_expression_can_skip_external_refresh_and_use_cache_only(self):
+        claim = self._create_claim_with_variable("cache-only-preview", value_type="boolean")
+        self.env["spp.data.value"].upsert_values(
+            [
+                {
+                    "variable_name": claim.variable_id.name,
+                    "subject_id": self.partner_a.id,
+                    "period_key": "current",
+                    "provider": self.provider.code,
+                    "value_json": {"value": True},
+                    "value_type": "boolean",
+                    "source_type": "external",
+                    "params": {"version": "2026-01"},
+                    "expires_at": fields.Datetime.now() + timedelta(hours=1),
+                }
+            ]
+        )
+
+        with patch.object(type(self.provider), "_notary_client") as mocked_client:
+            result = self.env["spp.cel.service"].compile_expression(
+                "r.evidence.notary_test_provider.cache_only_preview == true",
+                "registry_individuals",
+                base_domain=[("id", "in", [self.partner_a.id, self.partner_b.id])],
+                limit=-1,
+                allow_external_refresh=False,
+            )
+
+        self.assertTrue(result["valid"], result.get("error"))
+        self.assertEqual(result["count"], 1)
+        self.assertIn("External evidence refresh was skipped", " ".join(result.get("warnings") or []))
+        mocked_client.assert_not_called()
+
+    def test_member_evidence_accessor_resolves_to_member_metric(self):
+        claim = self._create_claim_with_variable("member-person-is-alive", value_type="boolean")
+
+        result = self.env["spp.cel.variable.resolver"].resolve_for_evaluation(
+            "members.exists(m, m.evidence.notary_test_provider.member_person_is_alive == true)",
+            context_type="group",
+        )
+
+        self.assertFalse(result.get("errors"), result.get("errors"))
+        self.assertIn(f"metric('{claim.variable_id.name}', m) == true", result["expression"])
+
+    def test_member_evidence_accessor_evaluates_member_subjects(self):
+        self._create_claim_with_variable("member-evidence-exec", value_type="boolean")
+        group = self.env["res.partner"].create(
+            {
+                "name": f"Notary Group {self._test_id}",
+                "is_registrant": True,
+                "is_group": True,
+            }
+        )
+        self.env["spp.group.membership"].create(
+            {
+                "group": group.id,
+                "individual": self.partner_a.id,
+            }
+        )
+
+        with patch.object(
+            type(self.provider),
+            "_compute_external_values",
+            autospec=True,
+            return_value={self.partner_a.id: True},
+        ) as mocked:
+            result = self.env["spp.cel.service"].compile_expression(
+                "members.exists(m, m.evidence.notary_test_provider.member_evidence_exec == true)",
+                "registry_groups",
+                base_domain=[("id", "=", group.id)],
+            )
+
+        self.assertTrue(result["valid"], result.get("error"))
+        self.assertIn(group.id, result["ids"])
+        mocked.assert_called_once()
+        self.assertIn(self.partner_a.id, mocked.call_args.args[2])
+        self.assertNotIn(group.id, mocked.call_args.args[2])
+
+    def test_bare_notary_variable_is_rejected_with_explicit_hint(self):
+        claim = self._create_claim_with_variable("legacy-bare-accessor", value_type="boolean")
+
+        result = self.env["spp.cel.service"].compile_expression(
+            f"{claim.variable_id.cel_accessor} == true",
+            "registry_individuals",
+            base_domain=[("id", "=", self.partner_a.id)],
+            limit=1,
+        )
+
+        self.assertFalse(result["valid"])
+        self.assertIn(claim._evidence_accessor("r"), result["error"])
+
+    def test_explicit_evidence_reports_unknown_provider(self):
+        result = self.env["spp.cel.service"].compile_expression(
+            "r.evidence.unknown_notary_provider.person_is_alive == true",
+            "registry_individuals",
+            base_domain=[("id", "=", self.partner_a.id)],
+            limit=1,
+        )
+
+        self.assertFalse(result["valid"])
+        self.assertIn("Unknown Notary provider", result["error"])
+
+    def test_explicit_evidence_reports_unknown_claim(self):
+        result = self.env["spp.cel.service"].compile_expression(
+            "r.evidence.notary_test_provider.unknown_claim == true",
+            "registry_individuals",
+            base_domain=[("id", "=", self.partner_a.id)],
+            limit=1,
+        )
+
+        self.assertFalse(result["valid"])
+        self.assertIn("Unknown Notary claim", result["error"])
+
+    def test_explicit_evidence_reports_ambiguous_provider(self):
+        self.Provider.create(
+            {
+                "name": "Notary Test Provider",
+                "code": f"ambiguous_notary_test_{self._test_id}",
+                "provider_kind": "notary",
+                "base_url": "https://notary-ambiguous.example",
+                "auth_type": "none",
+                "notary_subject_id_type_id": self.id_type.id,
+            }
+        )
+
+        result = self.env["spp.cel.service"].compile_expression(
+            "r.evidence.notary_test_provider.person_is_alive == true",
+            "registry_individuals",
+            base_domain=[("id", "=", self.partner_a.id)],
+            limit=1,
+        )
+
+        self.assertFalse(result["valid"])
+        self.assertIn("ambiguous", result["error"])
+
+    def test_duplicate_evidence_claim_code_is_rejected_by_variable_constraint(self):
+        self._create_claim_with_variable("duplicate-claim-code", value_type="boolean")
+
+        with self.env.cr.savepoint(), self.assertRaises(Exception) as caught:
+            self._create_claim_with_variable("duplicate_claim_code", value_type="boolean")
+
+        self.assertIn("spp_notary_claim_unique_claim_provider_variable", str(caught.exception))
+
+    def test_explicit_evidence_reports_wrong_subject_type(self):
+        self._create_claim_with_variable("household-only-claim", value_type="boolean", subject_type="group")
+
+        result = self.env["spp.cel.service"].compile_expression(
+            "r.evidence.notary_test_provider.household_only_claim == true",
+            "registry_individuals",
+            base_domain=[("id", "=", self.partner_a.id)],
+            limit=1,
+        )
+
+        self.assertFalse(result["valid"])
+        self.assertIn("cannot be used for individual subjects", result["error"])
 
     def test_fetch_notary_catalog_supports_legacy_client_shapes(self):
         discover_client = SimpleNamespace(
@@ -401,6 +606,86 @@ class TestNotaryEvidence(TransactionCase):
         self.assertEqual(len(first_subjects), 2)
         self.assertEqual(len(second_subjects), 1)
 
+    def test_compute_external_values_splits_batch_when_notary_rejects_size(self):
+        claim = self._create_claim_with_variable("adaptive-batch", value_type="number")
+        too_large = NotaryBatchTooLarge(code="batch.too_large", status_code=413)
+        responses = [
+            too_large,
+            SimpleNamespace(
+                items=[
+                    SimpleNamespace(
+                        input_index=0,
+                        status="succeeded",
+                        claim_results=[
+                            SimpleNamespace(
+                                claim_id="adaptive-batch",
+                                value=10,
+                                satisfied=None,
+                                expires_at=None,
+                            )
+                        ],
+                        results=[],
+                        errors=[],
+                    )
+                ]
+            ),
+            SimpleNamespace(
+                items=[
+                    SimpleNamespace(
+                        input_index=0,
+                        status="succeeded",
+                        claim_results=[
+                            SimpleNamespace(
+                                claim_id="adaptive-batch",
+                                value=20,
+                                satisfied=None,
+                                expires_at=None,
+                            )
+                        ],
+                        results=[],
+                        errors=[],
+                    ),
+                    SimpleNamespace(
+                        input_index=1,
+                        status="succeeded",
+                        claim_results=[
+                            SimpleNamespace(
+                                claim_id="adaptive-batch",
+                                value=30,
+                                satisfied=None,
+                                expires_at=None,
+                            )
+                        ],
+                        results=[],
+                        errors=[],
+                    ),
+                ]
+            ),
+        ]
+
+        with patch.object(type(self.provider), "_notary_client") as mocked_client:
+            mocked_client.return_value.batch_evaluate.side_effect = responses
+            values = self.provider._compute_external_values(
+                claim.variable_id,
+                [self.partner_a.id, self.partner_b.id, self.partner_c.id],
+                "current",
+            )
+
+        self.assertEqual(
+            values,
+            {
+                self.partner_a.id: 10,
+                self.partner_b.id: 20,
+                self.partner_c.id: 30,
+            },
+        )
+        self.assertEqual(mocked_client.return_value.batch_evaluate.call_count, 3)
+        batch_sizes = [
+            len(call.kwargs["subjects"])
+            for call in mocked_client.return_value.batch_evaluate.call_args_list
+        ]
+        self.assertEqual(batch_sizes, [3, 1, 2])
+
     def test_compute_external_values_sends_pinned_claim_version(self):
         claim = self._create_claim_with_variable("versioned-batch", value_type="number")
         batch_response = SimpleNamespace(
@@ -561,7 +846,7 @@ class TestNotaryEvidence(TransactionCase):
         self.assertEqual(kwargs["purpose"], "https://openspp.example/purpose/default")
         self.assertEqual(kwargs["purpose_layer"], "provider_default")
 
-    def test_missing_subject_id_raises_before_client_call(self):
+    def test_missing_subject_id_returns_unavailable_value_before_client_call(self):
         claim = self._create_claim_with_variable("missing-subject-id", value_type="boolean")
         partner = self.env["res.partner"].create(
             {
@@ -572,10 +857,104 @@ class TestNotaryEvidence(TransactionCase):
         )
 
         with patch.object(type(self.provider), "_notary_client") as mocked_client:
-            with self.assertRaises(NotarySubjectIdMissing):
-                self.provider._refresh_external_value(claim.variable_id, partner.id, "current")
+            value = self.provider._refresh_external_value(claim.variable_id, partner.id, "current")
 
+        self.assertIsNone(value)
         mocked_client.assert_not_called()
+
+    def test_subject_not_found_returns_no_value_without_cache_write(self):
+        claim = self._create_claim_with_variable("notary-subject-not-found", value_type="boolean")
+
+        with patch.object(type(self.provider), "_notary_client") as mocked_client:
+            mocked_client.return_value.evaluate.side_effect = NotarySubjectNotFound(
+                code="target.not_found",
+                status_code=404,
+            )
+            value = self.provider._refresh_external_value(claim.variable_id, self.partner_a.id, "current")
+
+        self.assertIsNone(value)
+        cached = self.env["spp.data.value"].search(
+            [
+                ("variable_name", "=", claim.variable_id.name),
+                ("subject_id", "=", self.partner_a.id),
+                ("provider", "=", self.provider.code),
+            ],
+            limit=1,
+        )
+        self.assertFalse(cached)
+
+    def test_compute_external_values_skips_subjects_missing_notary_id(self):
+        claim = self._create_claim_with_variable("mixed-missing-subject-id", value_type="boolean")
+        partner = self.env["res.partner"].create(
+            {
+                "name": f"No Batch ID {self._test_id}",
+                "is_registrant": True,
+                "is_group": False,
+            }
+        )
+        batch_response = SimpleNamespace(
+            items=[
+                SimpleNamespace(
+                    input_index=0,
+                    status="succeeded",
+                    claim_results=[
+                        SimpleNamespace(
+                            claim_id="mixed-missing-subject-id",
+                            value=True,
+                            satisfied=True,
+                            expires_at=None,
+                        )
+                    ],
+                    results=[],
+                    errors=[],
+                )
+            ]
+        )
+
+        with patch.object(type(self.provider), "_notary_client") as mocked_client:
+            mocked_client.return_value.batch_evaluate.return_value = batch_response
+            values = self.provider._compute_external_values(
+                claim.variable_id,
+                [self.partner_a.id, partner.id],
+                "current",
+            )
+
+        self.assertEqual(values, {self.partner_a.id: True})
+        subjects = mocked_client.return_value.batch_evaluate.call_args.kwargs["subjects"]
+        self.assertEqual(subjects, [{"id": f"NID-A-{self._test_id}", "id_type": self.id_type.code}])
+
+    def test_batch_subject_not_found_falls_back_and_skips_missing_subjects(self):
+        claim = self._create_claim_with_variable("batch-subject-not-found", value_type="boolean")
+
+        def evaluate(**kwargs):
+            if kwargs["subject_id"] == f"NID-B-{self._test_id}":
+                raise NotarySubjectNotFound(code="target.not_found", status_code=404)
+            return SimpleNamespace(
+                results=[
+                    SimpleNamespace(
+                        claim_id="batch-subject-not-found",
+                        value=True,
+                        satisfied=True,
+                        expires_at=None,
+                    )
+                ]
+            )
+
+        with patch.object(type(self.provider), "_notary_client") as mocked_client:
+            mocked_client.return_value.batch_evaluate.side_effect = NotarySubjectNotFound(
+                code="target.not_found",
+                status_code=404,
+            )
+            mocked_client.return_value.evaluate.side_effect = evaluate
+            values = self.provider._compute_external_values(
+                claim.variable_id,
+                [self.partner_a.id, self.partner_b.id],
+                "current",
+            )
+
+        self.assertEqual(values, {self.partner_a.id: True})
+        self.assertEqual(mocked_client.return_value.batch_evaluate.call_count, 1)
+        self.assertEqual(mocked_client.return_value.evaluate.call_count, 2)
 
     def test_stale_cache_with_audit_policy_returns_expired_provider_scoped_value(self):
         claim = self._create_claim_with_variable("stale-claim", value_type="string")
@@ -1401,7 +1780,7 @@ class TestNotaryEvidence(TransactionCase):
         )
         self.assertTrue(created.exists())
 
-    def _create_claim_with_variable(self, claim_id, value_type):
+    def _create_claim_with_variable(self, claim_id, value_type, subject_type="individual"):
         return self.Claim.create(
             {
                 "provider_id": self.provider.id,
@@ -1409,7 +1788,7 @@ class TestNotaryEvidence(TransactionCase):
                 "claim_version": "2026-01",
                 "pinned_version": "2026-01",
                 "name": claim_id,
-                "subject_type": "individual",
+                "subject_type": subject_type,
                 "value_type": value_type,
                 "state": "active",
             }

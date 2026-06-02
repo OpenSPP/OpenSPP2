@@ -208,6 +208,7 @@ class DefaultComplianceManager(models.Model):
                     profile=profile,
                     base_domain=base_domain,
                     limit=0,
+                    allow_external_refresh=False,
                 )
 
                 if result.get("valid"):

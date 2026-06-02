@@ -337,7 +337,13 @@ class CELBuilderWizard(models.TransientModel):
             base_domain = [["disabled", "=", False]]
 
             service = self.env["spp.cel.service"]
-            result = service.compile_expression(self.cel_expression, profile=profile, base_domain=base_domain, limit=10)
+            result = service.compile_expression(
+                self.cel_expression,
+                profile=profile,
+                base_domain=base_domain,
+                limit=10,
+                allow_external_refresh=False,
+            )
 
             if result.get("valid"):
                 self.preview_count = result.get("count", 0)

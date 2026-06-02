@@ -103,6 +103,12 @@ class NotaryRateLimited(NotaryError):
     default_message = "Notary rate limit exceeded"
 
 
+class NotaryBatchTooLarge(NotaryError):
+    """Notary rejected a batch request because it exceeded server limits."""
+
+    default_message = "Notary batch request is too large"
+
+
 class NotaryTransportError(NotaryError):
     """The Notary service could not be reached."""
 
@@ -126,6 +132,7 @@ ERROR_CODE_EXCEPTIONS = {
     "claim.rule_evaluation_failed": NotaryRuleEvaluationFailed,
     "claim.format_not_supported": NotaryFormatNotSupported,
     "claim.disclosure_not_allowed": NotaryFormatNotSupported,
+    "batch.too_large": NotaryBatchTooLarge,
 }
 
 
@@ -139,6 +146,8 @@ def exception_from_error_payload(status_code: int, payload: dict[str, Any] | Non
         return NotaryAuthError, code
     if code in ERROR_CODE_EXCEPTIONS:
         return ERROR_CODE_EXCEPTIONS[code], code
+    if status_code == 413:
+        return NotaryBatchTooLarge, code or "batch.too_large"
     if status_code in (400, 422):
         return NotaryRequestError, code or "request.invalid"
     return ERROR_CODE_EXCEPTIONS.get(code, NotaryError), code

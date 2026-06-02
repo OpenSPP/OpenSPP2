@@ -92,6 +92,12 @@ class NotaryClaim(models.Model):
         readonly=True,
         index=True,
     )
+    evidence_accessor = fields.Char(
+        string="CEL Evidence Path",
+        compute="_compute_evidence_accessor",
+        help="User-facing CEL path for this Notary claim, for example "
+        "r.evidence.registry_lab_civil_notary.person_is_alive.",
+    )
     variable_id = fields.Many2one(
         comodel_name="spp.cel.variable",
         string="CEL Variable",
@@ -127,6 +133,11 @@ class NotaryClaim(models.Model):
             provider_name = claim.provider_id.code or claim.provider_id.name or ""
             claim.variable_name = self._build_variable_name(provider_name, claim.external_id or "")
 
+    @api.depends("provider_id.code", "provider_id.name", "external_id")
+    def _compute_evidence_accessor(self):
+        for claim in self:
+            claim.evidence_accessor = claim._evidence_accessor("r") if claim.provider_id and claim.external_id else ""
+
     @api.depends("default_purpose_url", "provider_id.notary_default_purpose_url")
     def _compute_effective_purpose_url(self):
         for claim in self:
@@ -161,6 +172,18 @@ class NotaryClaim(models.Model):
         value = str(value or "").strip().lower()
         value = re.sub(r"[^a-z0-9]+", "_", value)
         return value.strip("_")
+
+    def _evidence_provider_code(self):
+        self.ensure_one()
+        return self._slug_part(self.provider_id.code or self.provider_id.name)
+
+    def _evidence_claim_code(self):
+        self.ensure_one()
+        return self._slug_part(self.external_id)
+
+    def _evidence_accessor(self, subject_alias="r"):
+        self.ensure_one()
+        return f"{subject_alias}.evidence.{self._evidence_provider_code()}.{self._evidence_claim_code()}"
 
     def _ensure_cel_variable(self):
         Variable = self.env["spp.cel.variable"]

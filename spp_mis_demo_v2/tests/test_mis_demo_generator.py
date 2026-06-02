@@ -516,6 +516,173 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
                 f"Household '{story_name}' should have {expected_count} members, but has {member_count}",
             )
 
+    def test_story_explicit_ids_and_birthdates_are_materialized(self):
+        """MIS demo must create the shared Registry Lab IDs from story metadata."""
+        from odoo import fields
+
+        self._run_generator_for_stories()
+
+        national_id = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:id-type", "national_id")
+        birth_certificate = self.env["spp.vocabulary.code"].get_code(
+            "urn:openspp:vocab:id-type",
+            "birth_certificate",
+        )
+        household_id = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:id-type", "household_id")
+        self.assertTrue(household_id, "household_id vocabulary code must exist")
+
+        expected_people = {
+            "NID-1001": ("Miguel", "Santos", "2016-01-15"),
+            "NID-1002": ("Maria", "Dela Cruz", "2018-01-15"),
+            "NID-1003": ("Cara", "Okafor", "1957-02-14"),
+            "NID-1004": ("Rafael", "Aquino", "2019-01-15"),
+            "NID-1005": ("Rosalie", "Bautista", "2013-01-15"),
+            "NID-1006": ("Miguel", "Martinez", "2014-01-15"),
+            "NID-1007": ("Lola", "Santos", "1958-01-15"),
+            "NID-1008": ("Rosa", "Garcia", "1954-01-15"),
+            "NID-1009": ("Ana", "Mendoza", "1998-01-15"),
+            "NID-1010": ("Pedro", "Reyes", "1971-01-15"),
+        }
+        expected_story_names = {
+            "NID-1003": "Cara Okafor",
+            "NID-1008": "Rosa Garcia",
+            "NID-1009": "Ana Mendoza",
+            "NID-1010": "Pedro Reyes",
+        }
+        for value, (given_name, family_name, birthdate) in expected_people.items():
+            reg_id = self.env["spp.registry.id"].search(
+                [("id_type_id", "=", national_id.id), ("value", "=", value)],
+                limit=1,
+            )
+            self.assertTrue(reg_id, f"{value} should be materialized")
+            self.assertEqual(reg_id.partner_id.given_name, given_name)
+            self.assertEqual(reg_id.partner_id.family_name, family_name)
+            self.assertEqual(reg_id.partner_id.birthdate, fields.Date.to_date(birthdate))
+            if value in expected_story_names:
+                self.assertEqual(reg_id.partner_id.name, expected_story_names[value])
+            self.assertEqual(
+                self.env["spp.registry.id"].search_count(
+                    [("partner_id", "=", reg_id.partner_id.id), ("id_type_id", "=", national_id.id)]
+                ),
+                1,
+                f"{value} partner should have one national_id row",
+            )
+
+        birth_reg = self.env["spp.registry.id"].search(
+            [("id_type_id", "=", birth_certificate.id), ("value", "=", "BC-1001")],
+            limit=1,
+        )
+        self.assertTrue(birth_reg, "Miguel Santos birth certificate should be materialized")
+        self.assertEqual(birth_reg.partner_id, self.env["spp.registry.id"].search(
+            [("id_type_id", "=", national_id.id), ("value", "=", "NID-1001")],
+            limit=1,
+        ).partner_id)
+
+        expected_households = {
+            "HH-100": "Santos",
+            "HH-200": "Dela Cruz",
+            "HH-400": "Aquino",
+            "HH-500": "Bautista",
+            "HH-900": "Martinez",
+        }
+        for value, group_name in expected_households.items():
+            reg_id = self.env["spp.registry.id"].search(
+                [("id_type_id", "=", household_id.id), ("value", "=", value)],
+                limit=1,
+            )
+            self.assertTrue(reg_id, f"{value} should be materialized")
+            self.assertEqual(reg_id.partner_id.name, group_name)
+            self.assertTrue(reg_id.partner_id.is_group)
+            self.assertFalse(
+                self.env["spp.registry.id"].search(
+                    [("partner_id", "=", reg_id.partner_id.id), ("id_type_id", "=", national_id.id)],
+                    limit=1,
+                ),
+                "households should not use national_id for household registration IDs",
+            )
+
+    def test_explicit_ids_backfill_for_already_enriched_story_members(self):
+        """Backfill must run before enrichment skips existing street-bearing records."""
+        from odoo import fields
+
+        group = self.env["res.partner"].create(
+            {
+                "name": "Santos",
+                "is_registrant": True,
+                "is_group": True,
+                "street": "Existing Street",
+            }
+        )
+        member = self.env["res.partner"].create(
+            {
+                "name": "SANTOS, MIGUEL",
+                "given_name": "Miguel",
+                "family_name": "Santos",
+                "is_registrant": True,
+                "is_group": False,
+                "street": "Existing Street",
+            }
+        )
+        self.env["spp.group.membership"].create({"group": group.id, "individual": member.id})
+
+        self._run_generator_for_stories()
+
+        national_id = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:id-type", "national_id")
+        household_id = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:id-type", "household_id")
+        self.assertEqual(
+            self.env["spp.registry.id"].search(
+                [("partner_id", "=", member.id), ("id_type_id", "=", national_id.id)],
+                limit=1,
+            ).value,
+            "NID-1001",
+        )
+        self.assertEqual(member.birthdate, fields.Date.to_date("2016-01-15"))
+        self.assertEqual(
+            self.env["spp.registry.id"].search(
+                [("partner_id", "=", group.id), ("id_type_id", "=", household_id.id)],
+                limit=1,
+            ).value,
+            "HH-100",
+        )
+
+    def test_story_generation_reuses_existing_partner_with_shared_nid(self):
+        """Notary personas installed first must become story members, not duplicates."""
+        national_id = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:id-type", "national_id")
+        existing = self.env["res.partner"].create(
+            {
+                "name": "Miguel Santos",
+                "given_name": "Miguel",
+                "family_name": "Santos",
+                "is_registrant": True,
+                "is_group": False,
+            }
+        )
+        self.env["spp.registry.id"].create(
+            {
+                "partner_id": existing.id,
+                "id_type_id": national_id.id,
+                "value": "NID-1001",
+            }
+        )
+
+        self._run_generator_for_stories()
+
+        reg_ids = self.env["spp.registry.id"].search(
+            [("id_type_id", "=", national_id.id), ("value", "=", "NID-1001")]
+        )
+        self.assertEqual(reg_ids.mapped("partner_id"), existing)
+
+        santos = self.env["res.partner"].search(
+            [("name", "=", "Santos"), ("is_registrant", "=", True), ("is_group", "=", True)],
+            limit=1,
+        )
+        self.assertTrue(santos)
+        self.assertTrue(
+            self.env["spp.group.membership"].search(
+                [("group", "=", santos.id), ("individual", "=", existing.id)],
+                limit=1,
+            )
+        )
+
     def test_bautista_family_has_all_members(self):
         """Test Bautista family has head, spouse, and all 5 children."""
         self._run_generator_for_stories()

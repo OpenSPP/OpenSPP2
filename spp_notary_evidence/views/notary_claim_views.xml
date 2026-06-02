@@ -56,7 +56,8 @@
                             <field name="active" />
                         </group>
                         <group string="CEL Contract">
-                            <field name="variable_name" readonly="1" />
+                            <field name="evidence_accessor" readonly="1" />
+                            <field name="variable_name" string="Internal Variable Name" readonly="1" />
                             <field name="variable_id" readonly="1" />
                             <field
                                 name="effective_purpose_url"

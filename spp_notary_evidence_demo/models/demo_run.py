@@ -10,16 +10,37 @@ EXPECTED_OUTCOMES = {
         "NID-1001": True,
         "NID-1002": True,
         "NID-1003": False,
+        "NID-1004": True,
+        "NID-1005": True,
+        "NID-1006": True,
+        "NID-1007": True,
+        "NID-1008": True,
+        "NID-1009": True,
+        "NID-1010": True,
     },
     "Registry Lab Combined Support": {
         "NID-1001": True,
         "NID-1002": False,
         "NID-1003": False,
+        "NID-1004": True,
+        "NID-1005": False,
+        "NID-1006": True,
+        "NID-1007": False,
+        "NID-1008": True,
+        "NID-1009": False,
+        "NID-1010": False,
     },
     "Registry Lab Health Access Support": {
         "NID-1001": True,
         "NID-1002": False,
         "NID-1003": True,
+        "NID-1004": True,
+        "NID-1005": False,
+        "NID-1006": True,
+        "NID-1007": True,
+        "NID-1008": True,
+        "NID-1009": True,
+        "NID-1010": False,
     },
 }
 
@@ -110,7 +131,7 @@ class NotaryDemoRun(models.Model):
     def _evaluate_persona_program(self, program, expression, persona):
         national_id = persona["national_id"]
         expected = EXPECTED_OUTCOMES.get(program.name if program else "", {}).get(national_id, False)
-        partner = self._partner_for_national_id(national_id)
+        partner = self._partner_for_national_id(national_id, persona=persona)
         if not program:
             return self._result_values(persona, program, expected, False, "error", "Program is not configured.")
         if not partner:
@@ -182,7 +203,7 @@ class NotaryDemoRun(models.Model):
         return {
             "persona_id": partner.id if partner else False,
             "program_id": program.id if program else False,
-            "persona_name": persona["name"],
+            "persona_name": partner.display_name if partner else persona["name"],
             "national_id": persona["national_id"],
             "expected_eligible": expected,
             "actual_eligible": actual,
@@ -199,12 +220,12 @@ class NotaryDemoRun(models.Model):
             return manager.cel_expression or ""
         return ""
 
-    def _partner_for_national_id(self, national_id):
+    def _partner_for_national_id(self, national_id, persona=None):
         providers = self.env["spp.data.provider"].sudo().search([("provider_kind", "=", "notary")])
         id_types = providers.mapped("notary_subject_id_type_id")
         if not id_types:
             return self.env["res.partner"]
-        reg_id = (
+        reg_ids = (
             self.env["spp.registry.id"]
             .sudo()
             .search(
@@ -212,17 +233,28 @@ class NotaryDemoRun(models.Model):
                     ("id_type_id", "in", id_types.ids),
                     ("value", "=", national_id),
                 ],
-                limit=1,
             )
         )
-        return reg_id.partner_id
+        partners = reg_ids.mapped("partner_id").filtered(lambda partner: partner.is_registrant and not partner.is_group)
+        if not partners:
+            return self.env["res.partner"]
+        if persona:
+            expected_name = persona.get("name")
+            exact = partners.filtered(
+                lambda partner: partner.name == expected_name
+                or f"{partner.given_name or ''} {partner.family_name or ''}".strip() == expected_name
+            )
+            if exact:
+                return exact[0]
+        return partners[0]
 
     def _missing_provider_credentials(self, expression):
-        providers = self.env["spp.data.provider"].sudo()
-        if "notary_registry_lab_civil_notary_" in expression:
-            providers |= providers.search([("code", "=", "registry_lab_civil_notary")], limit=1)
-        if "notary_registry_lab_shared_eligibility_notary_" in expression:
-            providers |= providers.search([("code", "=", "registry_lab_shared_eligibility_notary")], limit=1)
+        provider_codes = set()
+        if "registry_lab_civil_notary" in expression:
+            provider_codes.add("registry_lab_civil_notary")
+        if "registry_lab_shared_eligibility_notary" in expression:
+            provider_codes.add("registry_lab_shared_eligibility_notary")
+        providers = self.env["spp.data.provider"].sudo().search([("code", "in", list(provider_codes))])
         for provider in providers:
             if provider.auth_type == "api_key" and not provider.api_key:
                 return _("%s API key") % provider.display_name

@@ -4,6 +4,7 @@
 from .client import NotaryClient, normalize_config
 from .exceptions import (
     NotaryAuthError,
+    NotaryBatchTooLarge,
     NotaryClaimNotFound,
     NotaryClaimVersionNotFound,
     NotaryConfigurationError,

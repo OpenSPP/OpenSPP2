@@ -499,6 +499,11 @@ class CelExecutor(models.AbstractModel):
                     mi_warnings.append("PROVIDER_MISSING")
                 if mi.get("cache_any_provider_used"):
                     mi_warnings.append("CACHE_ANY_PROVIDER")
+                if mi.get("external_refresh_disabled"):
+                    mi_warnings.append("EXTERNAL_REFRESH_DISABLED")
+                    warnings.append(
+                        "External evidence refresh was skipped; match counts use currently cached values only."
+                    )
                 mi["warnings"] = mi_warnings
                 parts.append(
                     f"metric={mi.get('metric')} period={mi.get('period_key')} "
@@ -1092,6 +1097,15 @@ class CelExecutor(models.AbstractModel):
 
         cfg = self.env.context.get("cel_cfg") or {}
         base_dom = cfg.get("base_domain", []) if isinstance(cfg.get("base_domain"), list) else []
+        if p.subject_var and p.subject_var not in ("me", "r"):
+            if model == "res.partner":
+                base_dom = [
+                    ("is_registrant", "=", True),
+                    ("is_group", "=", False),
+                    ("disabled", "=", False),
+                ]
+            else:
+                base_dom = []
         period_key = str(p.period_key or "current")
         subject_model = model
         # Resolve flags
@@ -1316,16 +1330,18 @@ class CelExecutor(models.AbstractModel):
         """
         provider = variable.external_provider_id
         DataValue = self.env["spp.data.value"]
+        allow_external_refresh = self.env.context.get("cel_allow_external_refresh", True)
         aggregated: dict[int, Any] = {}
         cache_hits = 0
         misses = 0
         fresh_fetches = 0
         total_requested = 0
+        refresh_disabled_misses = 0
+        cache_params = provider._external_value_cache_params(variable)
         for batch_ids in self._iter_domain_ids(subject_model, base_dom):
             if not batch_ids:
                 continue
             total_requested += len(batch_ids)
-            cache_params = provider._external_value_cache_params(variable)
             cached = DataValue.read_values(
                 variable.name,
                 list(batch_ids),
@@ -1342,12 +1358,14 @@ class CelExecutor(models.AbstractModel):
                     continue
                 misses += 1
                 miss_ids.append(sid)
-            if miss_ids:
+            if miss_ids and allow_external_refresh:
                 fresh_values = provider._compute_external_values(variable, miss_ids, period_key)
                 for sid in miss_ids:
                     if fresh_values.get(sid) is not None:
                         aggregated[sid] = fresh_values[sid]
                         fresh_fetches += 1
+            elif miss_ids:
+                refresh_disabled_misses += len(miss_ids)
         if metrics_info is not None:
             metrics_info.append(
                 {
@@ -1362,6 +1380,7 @@ class CelExecutor(models.AbstractModel):
                     "misses": misses,
                     "fresh_fetches": fresh_fetches,
                     "coverage": (len(aggregated) / float(total_requested)) if total_requested else 0.0,
+                    "external_refresh_disabled": bool(refresh_disabled_misses),
                     "company_id": self.env.company.id,
                     "provider_missing": False,
                     "cache_any_provider_used": False,

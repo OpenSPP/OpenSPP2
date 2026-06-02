@@ -33,6 +33,7 @@ RESERVED_NAMES = [
     "Rosa Garcia",
     "Pedro Reyes",
     "Ana Mendoza",
+    "Cara Okafor",
     "Carlos Morales",
     "Elena Morales",
     "Ramon Gutierrez",
@@ -110,14 +111,31 @@ DEMO_STORIES = [
         "story_title": "The Success Story",
         "story_description": "Happy path from registration to graduation",
         "profile": {
+            "ids": [{"type": "household_id", "value": "HH-100"}],
             "head": {"name": "Maria Santos", "gender": "female", "age": 42},
             "spouse": {"name": "Ricardo Santos", "gender": "male", "age": 44},
             "children": [
                 {"name": "Sofia Santos", "gender": "female", "age": 14},
-                {"name": "Miguel Santos", "gender": "male", "age": 10},
+                {
+                    "name": "Miguel Santos",
+                    "gender": "male",
+                    "age": 10,
+                    "birthdate": "2016-01-15",
+                    "ids": [
+                        {"type": "national_id", "value": "NID-1001"},
+                        {"type": "birth_certificate", "value": "BC-1001"},
+                    ],
+                },
             ],
             "adults": [
-                {"name": "Lola Santos", "gender": "female", "age": 68, "relation": "parent"},
+                {
+                    "name": "Lola Santos",
+                    "gender": "female",
+                    "age": 68,
+                    "birthdate": "1958-01-15",
+                    "relation": "parent",
+                    "ids": [{"type": "national_id", "value": "NID-1007"}],
+                },
             ],
             "district": "Northern District",
             "marital_status": "married",
@@ -153,11 +171,18 @@ DEMO_STORIES = [
         "story_title": "GRM Resolution",
         "story_description": "Demonstrate grievance handling workflow",
         "profile": {
+            "ids": [{"type": "household_id", "value": "HH-200"}],
             "head": {"name": "Juan Dela Cruz", "gender": "male", "age": 38},
             "spouse": {"name": "Ana Dela Cruz", "gender": "female", "age": 35},
             "children": [
                 {"name": "Paolo Dela Cruz", "gender": "male", "age": 12},
-                {"name": "Maria Dela Cruz", "gender": "female", "age": 8},
+                {
+                    "name": "Maria Dela Cruz",
+                    "gender": "female",
+                    "age": 8,
+                    "birthdate": "2018-01-15",
+                    "ids": [{"type": "national_id", "value": "NID-1002"}],
+                },
             ],
             "marital_status": "married",
             "household_size": 4,
@@ -194,6 +219,8 @@ DEMO_STORIES = [
         "profile": {
             "gender": "female",
             "age": 72,
+            "birthdate": "1954-01-15",
+            "ids": [{"type": "national_id", "value": "NID-1008"}],
             "education": "none",
             "marital_status": "widowed",
             "household_size": 1,
@@ -257,6 +284,8 @@ DEMO_STORIES = [
         "profile": {
             "gender": "male",
             "age": 55,
+            "birthdate": "1971-01-15",
+            "ids": [{"type": "national_id", "value": "NID-1010"}],
             "education": "tertiary",
             "district": "Central District",
             "marital_status": "married",
@@ -282,6 +311,8 @@ DEMO_STORIES = [
         "profile": {
             "gender": "female",
             "age": 28,
+            "birthdate": "1998-01-15",
+            "ids": [{"type": "national_id", "value": "NID-1009"}],
             "education": "university",
             "district": "Eastern District",
             "marital_status": "single",
@@ -341,11 +372,18 @@ DEMO_STORIES = [
         "story_title": "Single-Parent Household",
         "story_description": "Widowed mother with children - vulnerable household",
         "profile": {
+            "ids": [{"type": "household_id", "value": "HH-400"}],
             "head": {"name": "Rosario Aquino", "gender": "female", "age": 38},
             "children": [
                 {"name": "Daniel Aquino", "gender": "male", "age": 15},
                 {"name": "Angela Aquino", "gender": "female", "age": 11},
-                {"name": "Rafael Aquino", "gender": "male", "age": 7},
+                {
+                    "name": "Rafael Aquino",
+                    "gender": "male",
+                    "age": 7,
+                    "birthdate": "2019-01-15",
+                    "ids": [{"type": "national_id", "value": "NID-1004"}],
+                },
             ],
             "marital_status": "widowed",
             "vulnerability": ["single_parent", "low_income", "female_headed"],
@@ -457,13 +495,20 @@ DEMO_STORIES = [
         "story_title": "Large Family",
         "story_description": "Large family with many children - demonstrates scale",
         "profile": {
+            "ids": [{"type": "household_id", "value": "HH-500"}],
             "head": {"name": "Eduardo Bautista", "gender": "male", "age": 48},
             "spouse": {"name": "Carmen Bautista", "gender": "female", "age": 44},
             "children": [
                 {"name": "Patricia Bautista", "gender": "female", "age": 22},
                 {"name": "Fernando Bautista", "gender": "male", "age": 19},
                 {"name": "Lucia Bautista", "gender": "female", "age": 16},
-                {"name": "Rosalie Bautista", "gender": "female", "age": 13},
+                {
+                    "name": "Rosalie Bautista",
+                    "gender": "female",
+                    "age": 13,
+                    "birthdate": "2013-01-15",
+                    "ids": [{"type": "national_id", "value": "NID-1005"}],
+                },
                 {"name": "Antonio Bautista", "gender": "male", "age": 9},
             ],
             "child_count": 3,  # CEL: Children under 18 (Lucia, Rosalie, Antonio)
@@ -657,10 +702,18 @@ DEMO_STORIES = [
         "story_title": "Disability Support",
         "story_description": "Household with disabled child - demonstrates disability assistance",
         "profile": {
+            "ids": [{"type": "household_id", "value": "HH-900"}],
             "head": {"name": "David Martinez", "gender": "male", "age": 48},
             "spouse": {"name": "Sofia Martinez", "gender": "female", "age": 45},
             "children": [
-                {"name": "Miguel Martinez", "gender": "male", "age": 12, "disability_status": "disabled"},
+                {
+                    "name": "Miguel Martinez",
+                    "gender": "male",
+                    "age": 12,
+                    "birthdate": "2014-01-15",
+                    "disability_status": "disabled",
+                    "ids": [{"type": "national_id", "value": "NID-1006"}],
+                },
             ],
             "disabled_count": 1,  # CEL: Disability Support Grant eligibility
             "child_count": 1,
@@ -692,6 +745,23 @@ DEMO_STORIES = [
 
 # Background stories (simpler, for context/volume)
 BACKGROUND_STORIES = [
+    {
+        "id": "cara_okafor_control",
+        "name": "Cara Okafor",
+        "type": "individual",
+        "story_title": "Civil Registry Control",
+        "story_description": "Deceased-control record for Registry Notary evidence demos",
+        "profile": {
+            "gender": "female",
+            "age": 69,
+            "birthdate": "1957-02-14",
+            "civil_status": "deceased_control",
+            "ids": [{"type": "national_id", "value": "NID-1003"}],
+        },
+        "journey": [
+            {"action": "register", "days_back": 300},
+        ],
+    },
     {
         "id": "luis_fernandez",
         "name": "Luis Fernandez",
@@ -936,6 +1006,7 @@ LOCALE_NAMES = {
         "rosa_garcia": {"name": "Malini Silva"},
         "pedro_reyes": {"name": "Saman Jayawardena"},
         "ana_mendoza": {"name": "Sachini Dissanayake"},
+        "cara_okafor_control": {"name": "Chandra Perera"},
         "carlos_elena_morales": {
             "name": "Fernando",
             "profile_names": {
@@ -1100,6 +1171,7 @@ LOCALE_NAMES = {
         "rosa_garcia": {"name": "Adzo Amegah"},
         "pedro_reyes": {"name": "Yao Dossou"},
         "ana_mendoza": {"name": "Akua Ayivi"},
+        "cara_okafor_control": {"name": "Ama Okafor"},
         "carlos_elena_morales": {
             "name": "Agbeko",
             "profile_names": {

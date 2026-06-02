@@ -1,8 +1,11 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Tests for the Registry Notary lab demo seed data."""
 
+import importlib.util
+from pathlib import Path
 from unittest.mock import patch
 
+from odoo import fields
 from odoo.tests import TransactionCase, tagged
 
 from odoo.addons.spp_notary_client.services.exceptions import NotaryError
@@ -33,6 +36,34 @@ class TestNotaryEvidenceDemo(TransactionCase):
         )
         self.assertEqual(self.Program.search_count([("name", "=", "Registry Lab Living Person Grant")]), 1)
 
+    def test_post_init_hook_does_not_overwrite_existing_shared_id_partner(self):
+        provider = self.Provider.search([("code", "=", "registry_lab_civil_notary")], limit=1)
+        reg_id = self.RegistryId.search(
+            [
+                ("id_type_id", "=", provider.notary_subject_id_type_id.id),
+                ("value", "=", "NID-1001"),
+            ],
+            limit=1,
+        )
+        partner = reg_id.partner_id
+        partner.write(
+            {
+                "name": "SANTOS, MIGUEL",
+                "given_name": "Miguel",
+                "family_name": "Santos",
+                "birthdate": fields.Date.to_date("2016-01-15"),
+                "comment": "MIS story record",
+            }
+        )
+
+        post_init_hook(self.env)
+
+        self.assertEqual(partner.name, "SANTOS, MIGUEL")
+        self.assertEqual(partner.given_name, "Miguel")
+        self.assertEqual(partner.family_name, "Santos")
+        self.assertEqual(partner.birthdate, fields.Date.to_date("2016-01-15"))
+        self.assertIn("MIS story record", str(partner.comment))
+
     def test_seeded_providers_claims_variables_and_personas(self):
         civil_provider = self.Provider.search([("code", "=", "registry_lab_civil_notary")], limit=1)
         shared_provider = self.Provider.search([("code", "=", "registry_lab_shared_eligibility_notary")], limit=1)
@@ -52,8 +83,12 @@ class TestNotaryEvidenceDemo(TransactionCase):
         )
 
         self.assertTrue(civil_provider)
-        self.assertEqual(civil_provider.base_url, "http://host.docker.internal:4321")
+        self.assertEqual(civil_provider.base_url, "https://civil-notary.lab.registrystack.org")
         self.assertEqual(civil_provider.auth_type, "api_key")
+        self.assertTrue(civil_provider.api_key)
+        self.assertEqual(shared_provider.base_url, "https://shared-eligibility-notary.lab.registrystack.org")
+        self.assertEqual(shared_provider.auth_type, "bearer")
+        self.assertTrue(shared_provider.notary_bearer_token)
         self.assertEqual(civil_provider.notary_subject_id_type_id.code, "national_id")
         self.assertTrue(person_alive.variable_id)
         self.assertEqual(person_alive.pinned_version, "2026-05")
@@ -75,12 +110,12 @@ class TestNotaryEvidenceDemo(TransactionCase):
 
     def test_seeded_programs_have_notary_cel_eligibility(self):
         expected = {
-            "Registry Lab Living Person Grant": "notary_registry_lab_civil_notary_person_is_alive == true",
+            "Registry Lab Living Person Grant": "r.evidence.registry_lab_civil_notary.person_is_alive == true",
             "Registry Lab Combined Support": (
-                "notary_registry_lab_shared_eligibility_notary_eligible_for_combined_support == true"
+                "r.evidence.registry_lab_shared_eligibility_notary.eligible_for_combined_support == true"
             ),
             "Registry Lab Health Access Support": (
-                "notary_registry_lab_shared_eligibility_notary_health_service_available == true"
+                "r.evidence.registry_lab_shared_eligibility_notary.health_service_available == true"
             ),
         }
         for name, expression in expected.items():
@@ -141,6 +176,19 @@ class TestNotaryEvidenceDemo(TransactionCase):
         self.assertEqual(client.last_evaluate_kwargs["subject_id_type"], provider.notary_subject_id_type_id.code)
         self.assertEqual(client.last_evaluate_kwargs["claim_refs"], [{"id": "person-is-alive", "version": "2026-05"}])
 
+    def test_symbol_provider_returns_explicit_notary_evidence_expression(self):
+        symbols = self.env["spp.cel.symbol.provider"].get_symbols_for_profile("registry_individuals")
+
+        variable = next(
+            item
+            for item in symbols["cel_variables"]
+            if item["name"] == "notary_registry_lab_civil_notary_person_is_alive"
+        )
+        self.assertEqual(
+            variable["cel_expression"],
+            "r.evidence.registry_lab_civil_notary.person_is_alive",
+        )
+
     def test_seeded_program_expression_dispatches_to_notary_variable(self):
         provider = self.Provider.search([("code", "=", "registry_lab_civil_notary")], limit=1)
         partner = self.RegistryId.search(
@@ -169,18 +217,80 @@ class TestNotaryEvidenceDemo(TransactionCase):
         self.assertIn(partner.id, result["ids"])
         mocked.assert_called_once()
 
+    def test_post_migrate_rewrites_installed_flat_notary_expressions(self):
+        old_manager_expression = "notary_registry_lab_civil_notary_person_is_alive == true"
+        new_manager_expression = "r.evidence.registry_lab_civil_notary.person_is_alive == true"
+        old_template_expression = (
+            "notary_registry_lab_shared_eligibility_notary_health_service_available == true"
+        )
+        new_template_expression = (
+            "r.evidence.registry_lab_shared_eligibility_notary.health_service_available == true"
+        )
+        manager = self.Program.search(
+            [("name", "=", "Registry Lab Living Person Grant")],
+            limit=1,
+        ).eligibility_manager_ids[0].manager_ref_id
+        template = self.env["spp.cel.expression"].create(
+            {
+                "name": "Old Registry Lab Template",
+                "context_type": "individual",
+                "cel_expression": old_template_expression,
+            }
+        )
+        manager.cel_expression = old_manager_expression
+        manager.flush_recordset(["cel_expression"])
+        template.flush_recordset(["cel_expression"])
+
+        module_path = (
+            Path(__file__).resolve().parents[1]
+            / "migrations"
+            / "19.0.1.0.1"
+            / "post-migrate.py"
+        )
+        spec = importlib.util.spec_from_file_location("spp_notary_evidence_demo_post_migrate", module_path)
+        migration = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(migration)
+        migration.migrate(self.env.cr, "19.0.1.0.0")
+        manager.invalidate_recordset(["cel_expression"])
+        template.invalidate_recordset(["cel_expression"])
+
+        self.assertEqual(manager.cel_expression, new_manager_expression)
+        self.assertEqual(template.cel_expression, new_template_expression)
+
     def test_demo_run_records_expected_matrix(self):
         run = self.DemoRun.create({"name": "Test Notary Demo Run"})
+
+        alive_ids = {
+            "NID-1001",
+            "NID-1002",
+            "NID-1004",
+            "NID-1005",
+            "NID-1006",
+            "NID-1007",
+            "NID-1008",
+            "NID-1009",
+            "NID-1010",
+        }
+        health_ids = {
+            "NID-1001",
+            "NID-1003",
+            "NID-1004",
+            "NID-1006",
+            "NID-1007",
+            "NID-1008",
+            "NID-1009",
+        }
+        combined_ids = {"NID-1001", "NID-1004", "NID-1006", "NID-1008"}
 
         def fake_compile(_service, expression, profile, base_domain=None, **kwargs):
             partner_id = base_domain[0][2]
             national_id = self.RegistryId.search([("partner_id", "=", partner_id)], limit=1).value
             if "person_is_alive" in expression:
-                matched = national_id in ("NID-1001", "NID-1002")
+                matched = national_id in alive_ids
             elif "eligible_for_combined_support" in expression:
-                matched = national_id == "NID-1001"
+                matched = national_id in combined_ids
             elif "health_service_available" in expression:
-                matched = national_id in ("NID-1001", "NID-1003")
+                matched = national_id in health_ids
             else:
                 matched = False
             return {"valid": True, "ids": [partner_id] if matched else []}
@@ -197,8 +307,8 @@ class TestNotaryEvidenceDemo(TransactionCase):
             run.action_run_demo()
 
         self.assertEqual(run.state, "done")
-        self.assertEqual(run.pass_count, 9)
+        self.assertEqual(run.pass_count, 30)
         self.assertEqual(run.fail_count, 0)
         self.assertEqual(run.error_count, 0)
         self.assertEqual(run.skipped_count, 0)
-        self.assertEqual(len(run.result_ids), 9)
+        self.assertEqual(len(run.result_ids), 30)

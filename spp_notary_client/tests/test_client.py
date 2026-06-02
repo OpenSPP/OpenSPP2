@@ -11,6 +11,7 @@ import pytest
 from spp_notary_client.services.client import NotaryClient, normalize_config
 from spp_notary_client.services.exceptions import (
     NotaryAuthError,
+    NotaryBatchTooLarge,
     NotaryClaimNotFound,
     NotaryConfigurationError,
     NotaryPurposeMissing,
@@ -391,6 +392,7 @@ def test_batch_evaluate_posts_subjects_and_claims():
         (404, {"error": {"code": "target.not_found", "message": "missing target"}}, NotarySubjectNotFound),
         (404, {"error": {"code": "claim.not_found", "message": "missing claim"}}, NotaryClaimNotFound),
         (401, {"error": {"code": "auth.invalid", "message": "bad token"}}, NotaryAuthError),
+        (413, {"error": {"code": "batch.too_large", "message": "too many items"}}, NotaryBatchTooLarge),
     ],
 )
 def test_error_payloads_map_to_typed_exceptions_without_leaking_request_values(status_code, payload, exception_type):

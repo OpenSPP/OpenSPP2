@@ -130,6 +130,8 @@ class TestGeneratorFieldPopulation(TransactionCase):
         """Test _create_individual_member sets income from income param."""
         from datetime import date
 
+        from odoo import fields
+
         generator = self.env["spp.mis.demo.generator"].create(
             {
                 "name": "Test Income",
@@ -141,6 +143,7 @@ class TestGeneratorFieldPopulation(TransactionCase):
             "name": "Test Income Person",
             "gender": "male",
             "age": 35,
+            "birthdate": "1988-03-04",
             "income": 5000,
         }
 
@@ -152,6 +155,7 @@ class TestGeneratorFieldPopulation(TransactionCase):
             5000.0,
             "income should be set from income parameter",
         )
+        self.assertEqual(member.birthdate, fields.Date.to_date("1988-03-04"))
 
     def test_create_individual_member_defaults(self):
         """Test _create_individual_member with minimal data."""

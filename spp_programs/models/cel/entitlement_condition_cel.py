@@ -78,7 +78,11 @@ class CashEntitlementItemCEL(models.Model):
 
                 service = self.env["spp.cel.service"]
                 result = service.compile_expression(
-                    rec.cel_condition, profile=profile, base_domain=base_domain, limit=0
+                    rec.cel_condition,
+                    profile=profile,
+                    base_domain=base_domain,
+                    limit=0,
+                    allow_external_refresh=False,
                 )
 
                 if result.get("valid"):

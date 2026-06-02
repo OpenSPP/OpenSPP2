@@ -3,3 +3,4 @@
 from . import data_provider
 from . import notary_claim
 from . import cel_variable
+from . import cel_variable_resolver

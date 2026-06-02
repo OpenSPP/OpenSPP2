@@ -11,6 +11,7 @@ Generates demo data for SP-MIS programs following the V2 architecture:
 import datetime
 import logging
 import random
+import re
 
 from odoo import Command, _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
@@ -751,13 +752,25 @@ class SPPMISDemoGenerator(models.TransientModel):
             if gender_id:
                 partner_vals["gender_id"] = gender_id
 
-            # Birthdate from age
-            if profile.get("age"):
-                birth_year = fields.Date.today().year - profile["age"]
-                partner_vals["birthdate"] = f"{birth_year}-01-15"
+            birthdate = self._story_birthdate(profile)
+            if birthdate:
+                partner_vals["birthdate"] = birthdate
+
+            existing_by_id = self._find_story_partner_by_ids(profile, is_group=False)
+            if existing_by_id:
+                self._write_missing_story_values(existing_by_id, partner_vals)
+                self._apply_story_identity(existing_by_id, profile)
+                _logger.info(
+                    "Reused story registrant by explicit ID (partner_id=%s, story_id=%s)",
+                    existing_by_id.id,
+                    story.get("id", "unknown"),
+                )
+                return existing_by_id
 
         # Create the registrant
         registrant = self.env["res.partner"].create(partner_vals)
+        if not is_group:
+            registrant.with_context(skip_name_format=True).write({"name": story_name})
 
         # Explicitly ensure fields are set after creation for individuals
         if not is_group and (family_name or given_name):
@@ -767,7 +780,9 @@ class SPPMISDemoGenerator(models.TransientModel):
             if given_name:
                 write_vals["given_name"] = given_name
             if write_vals:
-                registrant.write(write_vals)
+                registrant.with_context(skip_name_format=True).write(write_vals)
+
+        self._apply_story_identity(registrant, profile)
 
         # Backdate registration
         self.env.cr.execute(
@@ -802,6 +817,135 @@ class SPPMISDemoGenerator(models.TransientModel):
         rng = random.Random(99)  # Separate seed from volume generation
         return DemographicEnricher(self.env, locale, rng)
 
+    def _story_birthdate(self, data):
+        if data.get("birthdate"):
+            return fields.Date.to_date(data["birthdate"])
+        if data.get("age"):
+            birth_year = fields.Date.today().year - data["age"]
+            return fields.Date.to_date(f"{birth_year}-01-15")
+        return False
+
+    def _story_id_type(self, identifier):
+        code = identifier.get("type") or identifier.get("code")
+        uri = identifier.get("uri")
+        Code = self.env["spp.vocabulary.code"].sudo()
+        if uri:
+            return Code.search([("uri", "=", uri)], limit=1)
+        if not code:
+            return Code.browse()
+        return Code.get_code("urn:openspp:vocab:id-type", code)
+
+    def _find_story_partner_by_ids(self, data, is_group=False):
+        RegistryId = self.env["spp.registry.id"].sudo()
+        for identifier in data.get("ids", []):
+            value = identifier.get("value")
+            id_type = self._story_id_type(identifier)
+            if not value or not id_type:
+                continue
+            reg_id = RegistryId.search(
+                [
+                    ("id_type_id", "=", id_type.id),
+                    ("value", "=", value),
+                    ("partner_id.is_registrant", "=", True),
+                    ("partner_id.is_group", "=", is_group),
+                ],
+                limit=1,
+            )
+            if reg_id:
+                return reg_id.partner_id
+        return self.env["res.partner"].browse()
+
+    def _write_missing_story_values(self, partner, values):
+        missing_vals = {
+            field_name: value
+            for field_name, value in values.items()
+            if field_name in partner._fields
+            and value
+            and field_name not in ("name", "is_registrant", "is_group")
+            and not partner[field_name]
+        }
+        if missing_vals:
+            partner.with_context(skip_name_format=True).write(missing_vals)
+
+    def _materialize_story_ids(self, partner, data):
+        RegistryId = self.env["spp.registry.id"].sudo()
+        for identifier in data.get("ids", []):
+            value = identifier.get("value")
+            id_type = self._story_id_type(identifier)
+            if not value or not id_type:
+                continue
+            existing = RegistryId.search(
+                [("partner_id", "=", partner.id), ("id_type_id", "=", id_type.id)],
+                limit=1,
+            )
+            if existing:
+                if existing.value != value:
+                    existing.write({"value": value})
+                continue
+            if RegistryId.search(
+                [
+                    ("partner_id", "!=", partner.id),
+                    ("id_type_id", "=", id_type.id),
+                    ("value", "=", value),
+                ],
+                limit=1,
+            ):
+                continue
+            RegistryId.create(
+                {
+                    "partner_id": partner.id,
+                    "id_type_id": id_type.id,
+                    "value": value,
+                }
+            )
+
+    def _apply_story_identity(self, partner, data):
+        if not partner or not data:
+            return
+        if data.get("birthdate") and "birthdate" in partner._fields:
+            partner.write({"birthdate": fields.Date.to_date(data["birthdate"])})
+        self._materialize_story_ids(partner, data)
+
+    def _story_member_definitions(self, profile):
+        members = []
+        if profile.get("head"):
+            members.append(("head", profile["head"]))
+        if profile.get("spouse"):
+            members.append(("spouse", profile["spouse"]))
+        for adult in profile.get("adults", []):
+            members.append(("adult", adult))
+        for child in profile.get("children", []):
+            members.append(("child", child))
+        return members
+
+    def _normalized_story_name(self, value):
+        return re.sub(r"[^a-z0-9]", "", (value or "").lower())
+
+    def _story_member_definition_for_partner(self, partner, member_defs, fallback_idx=None):
+        partner_names = {
+            self._normalized_story_name(partner.name),
+            self._normalized_story_name(f"{partner.given_name or ''} {partner.family_name or ''}"),
+            self._normalized_story_name(f"{partner.family_name or ''} {partner.given_name or ''}"),
+        }
+        for role, member_def in member_defs:
+            if self._normalized_story_name(member_def.get("name")) in partner_names:
+                return role, member_def
+        if fallback_idx is not None and fallback_idx < len(member_defs):
+            return member_defs[fallback_idx]
+        return "child", {}
+
+    def _backfill_story_household_identity(self, group, profile):
+        self._apply_story_identity(group, profile)
+        member_defs = self._story_member_definitions(profile)
+        memberships = self.env["spp.group.membership"].search([("group", "=", group.id)])
+        for idx, membership in enumerate(memberships):
+            _role, member_def = self._story_member_definition_for_partner(
+                membership.individual,
+                member_defs,
+                fallback_idx=idx,
+            )
+            self._apply_story_identity(membership.individual, member_def)
+
     def _enrich_all_story_registrants(self, stories):
         """Enrich all story registrants with demographic data if not already set.
 
@@ -828,6 +972,11 @@ class SPPMISDemoGenerator(models.TransientModel):
             if not registrant:
                 continue
 
+            if story_type == "household" and registrant.is_group:
+                self._backfill_story_household_identity(registrant, profile)
+            else:
+                self._apply_story_identity(registrant, profile)
+
             # Skip if already enriched (check for street as proxy)
             if registrant.street:
                 continue
@@ -839,28 +988,19 @@ class SPPMISDemoGenerator(models.TransientModel):
 
                     # Enrich individual members
                     memberships = self.env["spp.group.membership"].search([("group", "=", registrant.id)])
-                    all_member_defs = []
-                    head = profile.get("head", {})
-                    if head:
-                        all_member_defs.append(("head", head))
-                    spouse = profile.get("spouse", {})
-                    if spouse:
-                        all_member_defs.append(("spouse", spouse))
-                    for adult in profile.get("adults", []):
-                        all_member_defs.append(("adult", adult))
-                    for child in profile.get("children", []):
-                        all_member_defs.append(("child", child))
+                    all_member_defs = self._story_member_definitions(profile)
 
                     for idx, membership in enumerate(memberships):
                         member = membership.individual
+                        role, member_def = self._story_member_definition_for_partner(
+                            member,
+                            all_member_defs,
+                            fallback_idx=idx,
+                        )
+                        self._apply_story_identity(member, member_def)
                         if member.street:
                             continue  # Already enriched
-                        if idx < len(all_member_defs):
-                            role, member_def = all_member_defs[idx]
-                            age = member_def.get("age")
-                        else:
-                            role = "child"
-                            age = None
+                        age = member_def.get("age")
                         enricher.enrich_individual(member, age=age, role=role)
                 else:
                     # Individual story
@@ -874,28 +1014,16 @@ class SPPMISDemoGenerator(models.TransientModel):
         """Enrich a story household and its members with demographic data."""
         try:
             enricher = self._get_demographic_enricher()
+            self._apply_story_identity(group, profile)
             enricher.enrich_group(group)
 
             # Map members to roles from profile
-            all_member_defs = []
-            head = profile.get("head", {})
-            if head:
-                all_member_defs.append(("head", head))
-            spouse = profile.get("spouse", {})
-            if spouse:
-                all_member_defs.append(("spouse", spouse))
-            for adult in profile.get("adults", []):
-                all_member_defs.append(("adult", adult))
-            for child in profile.get("children", []):
-                all_member_defs.append(("child", child))
+            all_member_defs = self._story_member_definitions(profile)
 
             for idx, member in enumerate(members):
-                if idx < len(all_member_defs):
-                    role, member_def = all_member_defs[idx]
-                    age = member_def.get("age")
-                else:
-                    role = "child"
-                    age = None
+                role, member_def = self._story_member_definition_for_partner(member, all_member_defs, fallback_idx=idx)
+                self._apply_story_identity(member, member_def)
+                age = member_def.get("age")
                 enricher.enrich_individual(member, age=age, role=role)
         except Exception as e:
             _logger.warning("Story demographic enrichment failed: %s", e)
@@ -978,6 +1106,8 @@ class SPPMISDemoGenerator(models.TransientModel):
         - name: Full name (parsed into given_name + family_name)
         - gender: "male" or "female" (mapped to vocabulary code)
         - age: Integer (converted to birthdate)
+        - birthdate: ISO date string (wins over age)
+        - ids: Explicit registry identifiers to upsert
         - income: Income amount (set as income field)
         - is_head: Boolean (used for membership role, not partner field)
         """
@@ -1011,14 +1141,19 @@ class SPPMISDemoGenerator(models.TransientModel):
         if gender_id:
             partner_vals["gender_id"] = gender_id
 
-        # Birthdate from age
-        if member_data.get("age"):
-            birth_year = fields.Date.today().year - member_data["age"]
-            partner_vals["birthdate"] = f"{birth_year}-01-15"
+        birthdate = self._story_birthdate(member_data)
+        if birthdate:
+            partner_vals["birthdate"] = birthdate
 
         # Income (for economic variables like hh_total_income)
         if member_data.get("income"):
             partner_vals["income"] = float(member_data["income"])
+
+        existing_by_id = self._find_story_partner_by_ids(member_data, is_group=False)
+        if existing_by_id:
+            self._write_missing_story_values(existing_by_id, partner_vals)
+            self._apply_story_identity(existing_by_id, member_data)
+            return existing_by_id
 
         member = self.env["res.partner"].create(partner_vals)
 
@@ -1031,6 +1166,8 @@ class SPPMISDemoGenerator(models.TransientModel):
                 write_vals["given_name"] = given_name
             if write_vals:
                 member.write(write_vals)
+
+        self._apply_story_identity(member, member_data)
 
         # Backdate registration
         self.env.cr.execute(

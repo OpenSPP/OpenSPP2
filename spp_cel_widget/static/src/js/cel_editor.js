@@ -434,6 +434,9 @@ export class CelEditor extends Component {
         if (!this.state.validation) {
             return "";
         }
+        if (this.state.validation.valid && this.state.validation.warnings?.length) {
+            return "text-warning";
+        }
         return this.state.validation.valid ? "text-success" : "text-danger";
     }
 
@@ -443,6 +446,9 @@ export class CelEditor extends Component {
         }
         if (!this.state.validation) {
             return "";
+        }
+        if (this.state.validation.valid && this.state.validation.warnings?.length) {
+            return "fa-exclamation-triangle";
         }
         return this.state.validation.valid ? "fa-check-circle" : "fa-times-circle";
     }
@@ -455,6 +461,10 @@ export class CelEditor extends Component {
             return "";
         }
         if (this.state.validation.valid) {
+            const firstWarning = this.state.validation.warnings?.[0];
+            if (firstWarning?.message) {
+                return firstWarning.message;
+            }
             if (this.props.showValidationCount !== false) {
                 const count = this.state.validation.matching_count;
                 if (count !== null && count !== undefined) {

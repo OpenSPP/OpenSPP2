@@ -4,7 +4,7 @@
     "name": "OpenSPP Notary Evidence Demo",
     "summary": "Demo Registry Notary providers, personas, and programs for the registry-lab stack",
     "category": "OpenSPP/Integration",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.2",
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",

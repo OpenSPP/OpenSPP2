@@ -328,6 +328,8 @@ class CelSymbolProvider(models.AbstractModel):
         for v in variables:
             # Get the expression to use - prefer cel_expression, fallback to accessor
             cel_expr = v.cel_expression or v.cel_accessor
+            if getattr(v, "notary_claim_id", False):
+                cel_expr = v.notary_claim_id._evidence_accessor("r")
             # For field-type variables, build r.field expression
             if v.source_type == "field" and v.source_field and not v.cel_expression:
                 cel_expr = f"r.{v.source_field}"
@@ -644,13 +646,19 @@ class CelSymbolProvider(models.AbstractModel):
                     expression, profile_name, output_type=output_type
                 )
             else:
-                # Default to domain compilation for filter, validation, or unspecified types
-                compile_result = cel_service.compile_expression(expression, profile_name)
+                # Default filter validation is passive: syntax/accessor/plan only.
+                # Counting matches may refresh external variables such as Notary evidence,
+                # which is too expensive for editor open/keystroke validation.
+                compile_result = cel_service.validate_filter_expression(expression, profile_name)
 
             if compile_result.get("valid"):
                 result["valid"] = True
                 result["matching_count"] = compile_result.get("count", 0)
                 result["explain"] = compile_result.get("explain", "")
+                result["warnings"] = self._format_validation_warnings(
+                    compile_result.get("warnings") or [],
+                    expression,
+                )
             else:
                 error_msg = compile_result.get("error", "Unknown error")
                 error_info = self._parse_error_message(error_msg, expression)
@@ -668,6 +676,23 @@ class CelSymbolProvider(models.AbstractModel):
                 }
             )
 
+        return result
+
+    def _format_validation_warnings(self, warnings, expression):
+        result = []
+        for warning in warnings:
+            if isinstance(warning, dict):
+                result.append(warning)
+                continue
+            result.append(
+                {
+                    "message": str(warning),
+                    "line": 1,
+                    "col_start": 0,
+                    "col_end": len(expression),
+                    "severity": "warning",
+                }
+            )
         return result
 
     def _parse_error_message(self, error_msg, expression):

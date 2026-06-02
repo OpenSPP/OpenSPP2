@@ -23,6 +23,7 @@ from odoo.addons.spp_notary_client.services.audit_log import (
 from odoo.addons.spp_notary_client.services.client import NotaryClient, normalize_config
 from odoo.addons.spp_notary_client.services.exceptions import (
     NotaryAuthError,
+    NotaryBatchTooLarge,
     NotaryClaimNotFound,
     NotaryConfigurationError,
     NotaryPurposeMissing,
@@ -467,6 +468,7 @@ class TestNotaryClientOdooRunner(TransactionCase):
             (404, {"error": {"code": "claim.not_found"}}, NotaryClaimNotFound),
             (401, {"error": {"code": "auth.invalid"}}, NotaryAuthError),
             (400, {"error": {"code": "request.invalid"}}, NotaryRequestError),
+            (413, {"error": {"code": "batch.too_large"}}, NotaryBatchTooLarge),
         ]
         for status_code, payload, exception_type in cases:
             with self.subTest(status_code=status_code, code=payload["error"]["code"]):

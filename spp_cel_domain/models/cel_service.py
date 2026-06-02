@@ -47,6 +47,7 @@ class CELService(models.AbstractModel):
         offset=0,
         fields=None,
         materialize_sql=False,
+        allow_external_refresh=True,
     ):
         """Compile a CEL expression and return results.
 
@@ -107,10 +108,14 @@ class CELService(models.AbstractModel):
             context_type = "individual" if "individual" in profile_str or not profile_str else "group"
             resolver = self.env["spp.cel.variable.resolver"]
             resolution = resolver.resolve_for_evaluation(expression, context_type=context_type)
+            if resolution.get("errors"):
+                result["error"] = "; ".join(resolution["errors"])
+                return result
             expanded_expression = resolution.get("expression", expression)
 
             # Execute compilation with expanded expression
             executor = self.env["spp.cel.executor"].with_context(cel_profile=profile, cel_cfg=cfg)
+            executor = executor.with_context(cel_allow_external_refresh=allow_external_refresh)
             exec_result = executor.compile_and_preview(
                 root_model,
                 expanded_expression,
@@ -126,6 +131,7 @@ class CELService(models.AbstractModel):
             result["preview_records"] = exec_result.get("preview_records", [])
             result["explain"] = exec_result.get("explain", "")
             result["path"] = exec_result.get("path")
+            result["warnings"] = exec_result.get("warnings", [])
             result["valid"] = True
 
         except CELSyntaxError as e:
@@ -173,6 +179,97 @@ class CELService(models.AbstractModel):
         }
 
     @api.model
+    def validate_filter_expression(self, expression, profile):
+        """Validate a boolean/filter CEL expression without executing it.
+
+        This is intended for passive UI validation while a user is viewing or
+        editing an expression. It resolves accessors and translates the
+        expression to a query plan, but it never counts records and never
+        refreshes external variables.
+        """
+        from ..services.cel_parser import parse
+
+        result = {
+            "valid": False,
+            "error": None,
+            "explain": "",
+            "resolved_expression": expression,
+            "count": None,
+            "warnings": [],
+        }
+
+        if not expression or not expression.strip():
+            result["error"] = "Expression cannot be empty"
+            return result
+
+        try:
+            cfg = self.env["spp.cel.registry"].load_profile(profile)
+            root_model = cfg.get("root_model", "res.partner")
+            profile_str = str(profile) if profile else ""
+            context_type = "individual" if "individual" in profile_str or not profile_str else "group"
+
+            resolver = self.env["spp.cel.variable.resolver"]
+            resolution = resolver.resolve_for_evaluation(expression, context_type=context_type)
+            if resolution.get("errors"):
+                result["error"] = "; ".join(resolution["errors"])
+                return result
+            expanded_expression = resolution.get("expression", expression)
+            result["resolved_expression"] = expanded_expression
+
+            ast = parse(expanded_expression)
+            if ast is None:
+                result["error"] = "Failed to parse expression"
+                return result
+
+            translator = self.env["spp.cel.translator"]
+            _plan, explain = translator.translate(root_model, expanded_expression, cfg)
+            result["explain"] = explain
+            result["warnings"] = self._external_variable_validation_warnings(resolution)
+            result["valid"] = True
+
+        except SyntaxError as e:
+            result["error"] = f"Syntax error: {str(e)}"
+        except Exception as e:
+            _logger.exception("Filter validation error")
+            result["error"] = f"Validation error: {str(e)}"
+
+        return result
+
+    def _external_variable_validation_warnings(self, resolution):
+        variable_names = resolution.get("variables_used") or []
+        if not variable_names or "spp.cel.variable" not in self.env:
+            return []
+        variables = self.env["spp.cel.variable"].search(
+            [
+                ("source_type", "=", "external"),
+                "|",
+                ("name", "in", variable_names),
+                ("cel_accessor", "in", variable_names),
+            ]
+        )
+        if not variables:
+            return []
+        labels = ", ".join(sorted({self._external_variable_label(variable) for variable in variables})[:3])
+        if len(variables) > 3:
+            labels = f"{labels}, ..."
+        return [
+            f"This expression uses live external evidence ({labels}). "
+            "Editing validates syntax only; use Preview Beneficiaries to run remote checks."
+        ]
+
+    def _external_variable_label(self, variable):
+        if "notary_claim_id" in variable._fields and variable.notary_claim_id:
+            claim = variable.notary_claim_id
+            provider = claim.provider_id.name or claim.provider_id.code
+            claim_name = claim.name or claim.external_id
+            if provider and claim_name:
+                return f"{provider}: {claim_name}"
+        for field_name in ("label", "name", "cel_accessor"):
+            if field_name in variable._fields and variable[field_name]:
+                return variable[field_name]
+        return variable.display_name
+
+    @api.model
     def validate_formula_expression(self, expression, profile, output_type=None):
         """Validate a formula/scoring CEL expression without domain compilation.
 
@@ -216,6 +313,9 @@ class CELService(models.AbstractModel):
             context_type = "individual" if "individual" in profile_str or not profile_str else "group"
             resolver = self.env["spp.cel.variable.resolver"]
             resolution = resolver.resolve_for_evaluation(expression, context_type=context_type)
+            if resolution.get("errors"):
+                result["error"] = "; ".join(resolution["errors"])
+                return result
             expanded_expression = resolution.get("expression", expression)
             result["resolved_expression"] = expanded_expression
 

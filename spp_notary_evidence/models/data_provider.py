@@ -10,7 +10,12 @@ from odoo.exceptions import UserError
 
 from odoo.addons.spp_notary_client.services.audit_log import hmac_subject_hash
 from odoo.addons.spp_notary_client.services.client import NotaryClient
-from odoo.addons.spp_notary_client.services.exceptions import NotaryError, NotarySubjectIdMissing
+from odoo.addons.spp_notary_client.services.exceptions import (
+    NotaryBatchTooLarge,
+    NotaryError,
+    NotarySubjectIdMissing,
+    NotarySubjectNotFound,
+)
 from odoo.addons.spp_notary_client.services.schemas import CatalogResponse
 
 from .notary_claim import data_value_type_for_cel, normalize_notary_value_type
@@ -335,45 +340,83 @@ class DataProvider(models.Model):
             return {}
         with self._managed_notary_client() as client:
             for chunk in self._chunk_notary_subjects(subject_records):
-                try:
-                    response = client.batch_evaluate(
-                        subjects=[subject_ref for _subject_id, subject_ref in chunk],
-                        claim_refs=[self._notary_claim_ref(claim)],
-                        purpose=purpose,
-                        purpose_layer=purpose_layer,
-                        disclosure=claim.default_disclosure,
+                values_by_subject.update(
+                    self._values_from_notary_batch(
+                        client,
+                        variable,
+                        chunk,
+                        claim,
+                        period_key,
+                        purpose,
+                        purpose_layer,
                     )
-                    values_by_subject.update(self._values_from_batch_response(response, chunk, claim))
-                except NotaryError as error:
-                    if self._notary_batch_operation_unsupported(error):
-                        values_by_subject.update(
-                            self._values_from_single_evaluate_fallback(
-                                client,
-                                variable,
-                                chunk,
-                                claim,
-                                period_key,
-                                purpose,
-                                purpose_layer,
-                            )
-                        )
-                        continue
-                    _logger.warning("Notary batch evaluation failed for provider %s: %s", self.code, error)
-                    chunk_subject_ids = [subject_id for subject_id, _subject_ref in chunk]
-                    values_by_subject.update(
-                        self._values_for_notary_error(
-                            error,
-                            variable,
-                            chunk_subject_ids,
-                            period_key,
-                        )
-                    )
-                    continue
+                )
         self._write_notary_values(variable, values_by_subject, period_key)
         return {subject_id: value_data["value"] for subject_id, value_data in values_by_subject.items()}
 
+    def _values_from_notary_batch(
+        self,
+        client,
+        variable,
+        subject_records,
+        claim,
+        period_key,
+        purpose,
+        purpose_layer,
+    ):
+        try:
+            response = client.batch_evaluate(
+                subjects=[subject_ref for _subject_id, subject_ref in subject_records],
+                claim_refs=[self._notary_claim_ref(claim)],
+                purpose=purpose,
+                purpose_layer=purpose_layer,
+                disclosure=claim.default_disclosure,
+            )
+            return self._values_from_batch_response(response, subject_records, claim)
+        except NotaryError as error:
+            if self._notary_batch_too_large(error) and len(subject_records) > 1:
+                midpoint = len(subject_records) // 2
+                values = {}
+                for smaller_chunk in (subject_records[:midpoint], subject_records[midpoint:]):
+                    values.update(
+                        self._values_from_notary_batch(
+                            client,
+                            variable,
+                            smaller_chunk,
+                            claim,
+                            period_key,
+                            purpose,
+                            purpose_layer,
+                        )
+                    )
+                return values
+            if self._notary_batch_operation_unsupported(error) or self._notary_subject_not_found(error):
+                return self._values_from_single_evaluate_fallback(
+                    client,
+                    variable,
+                    subject_records,
+                    claim,
+                    period_key,
+                    purpose,
+                    purpose_layer,
+                )
+            _logger.warning("Notary batch evaluation failed for provider %s: %s", self.code, error)
+            chunk_subject_ids = [subject_id for subject_id, _subject_ref in subject_records]
+            return self._values_for_notary_error(
+                error,
+                variable,
+                chunk_subject_ids,
+                period_key,
+            )
+
     def _notary_batch_operation_unsupported(self, error):
         return error.status_code == 501 or error.code == "claim.operation_unsupported"
+
+    def _notary_batch_too_large(self, error):
+        return isinstance(error, NotaryBatchTooLarge) or error.status_code == 413 or error.code == "batch.too_large"
+
+    def _notary_subject_not_found(self, error):
+        return isinstance(error, NotarySubjectNotFound)
 
     def _values_from_single_evaluate_fallback(
         self,
@@ -398,6 +441,14 @@ class DataProvider(models.Model):
                     disclosure=claim.default_disclosure,
                 )
             except NotaryError as error:
+                if self._notary_subject_not_found(error):
+                    _logger.info(
+                        "Skipping Notary evaluation for subject %s on provider %s: %s",
+                        subject_id,
+                        self.code,
+                        error,
+                    )
+                    continue
                 _logger.warning("Notary single evaluation fallback failed for provider %s: %s", self.code, error)
                 values_by_subject.update(self._values_for_notary_error(error, variable, [subject_id], period_key))
                 continue
@@ -411,8 +462,21 @@ class DataProvider(models.Model):
         if self.provider_kind != "notary":
             return super()._refresh_external_value(variable, subject_id, period_key)
         claim = variable.notary_claim_id
-        subject_ref = self._notary_subject_ref(subject_id)
-        if not claim or not subject_ref:
+        if not claim:
+            return None
+        try:
+            subject_ref = self._notary_subject_ref(subject_id)
+        except NotarySubjectIdMissing as error:
+            if self._notary_missing_subject_id_is_local(error):
+                _logger.info(
+                    "Skipping Notary evaluation for subject %s on provider %s: %s",
+                    subject_id,
+                    self.code,
+                    error,
+                )
+                return None
+            raise
+        if not subject_ref:
             return None
         purpose, purpose_layer = self._notary_purpose_with_layer(claim)
         try:
@@ -426,6 +490,14 @@ class DataProvider(models.Model):
                     disclosure=claim.default_disclosure,
                 )
         except NotaryError as error:
+            if self._notary_subject_not_found(error):
+                _logger.info(
+                    "Skipping Notary evaluation for subject %s on provider %s: %s",
+                    subject_id,
+                    self.code,
+                    error,
+                )
+                return None
             _logger.warning("Notary evaluation failed for provider %s: %s", self.code, error)
             fallback = self._values_for_notary_error(error, variable, [subject_id], period_key)
             return fallback.get(subject_id, {}).get("value")
@@ -437,11 +509,53 @@ class DataProvider(models.Model):
         return value_data["value"]
 
     def _notary_subjects(self, subject_ids):
+        self.ensure_one()
+        if not self.notary_subject_id_type_id:
+            raise NotarySubjectIdMissing("Notary subject ID type is not configured")
+        subject_ids = [int(subject_id) for subject_id in subject_ids if subject_id]
+        if not subject_ids:
+            return []
+        existing_subject_ids = set(self.env["res.partner"].browse(subject_ids).exists().ids)
+        missing_subject_ids = [subject_id for subject_id in subject_ids if subject_id not in existing_subject_ids]
+        if missing_subject_ids:
+            raise NotarySubjectIdMissing("Notary subject record was not found")
+
+        RegId = self.env["spp.registry.id"]
+        registry_ids = RegId.search(
+            [
+                ("partner_id", "in", subject_ids),
+                ("id_type_id", "=", self.notary_subject_id_type_id.id),
+                ("value", "!=", False),
+            ],
+            order="id desc",
+        )
+        subject_refs_by_partner = {}
+        id_type = self.notary_subject_id_type_id.code or self.notary_subject_id_type_id.uri
+        for reg_id in registry_ids:
+            subject_refs_by_partner.setdefault(
+                reg_id.partner_id.id,
+                {
+                    "id": reg_id.value,
+                    "id_type": id_type,
+                },
+            )
+
         result = []
         for subject_id in subject_ids:
-            subject_ref = self._notary_subject_ref(subject_id)
+            subject_ref = subject_refs_by_partner.get(subject_id)
+            if not subject_ref:
+                _logger.info(
+                    "Skipping Notary evaluation for subject %s on provider %s: %s",
+                    subject_id,
+                    self.code,
+                    "Notary subject ID value was not found",
+                )
+                continue
             result.append((subject_id, subject_ref))
         return result
+
+    def _notary_missing_subject_id_is_local(self, error):
+        return str(error) == "Notary subject ID value was not found"
 
     def _chunk_notary_subjects(self, subject_records):
         batch_size = self.max_batch_size or 1000

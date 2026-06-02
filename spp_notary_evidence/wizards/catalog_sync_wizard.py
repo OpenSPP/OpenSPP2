@@ -176,7 +176,9 @@ class NotaryCatalogSyncWizard(models.TransientModel):
             or variable.notary_claim_id.provider_id != self.provider_id
             or variable.notary_claim_id.external_id != claim_id
         ):
-            return _("CEL accessor '%(name)s' is already used by another variable.") % {"name": variable_name}
+            return _("Internal Notary CEL variable '%(name)s' is already used by another variable.") % {
+                "name": variable_name
+            }
         return ""
 
     def _summary_from_lines(self, line_values):

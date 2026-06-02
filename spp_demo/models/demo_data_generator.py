@@ -1219,6 +1219,7 @@ class SPPDemoDataGenerator(models.Model):
                 )
                 if existing:
                     _logger.info("Story '%s' already exists, skipping...", story["id"])
+                    self._backfill_story_identity(existing, story)
                     created_partners[story["id"]] = existing
                     continue
 
@@ -1242,6 +1243,132 @@ class SPPDemoDataGenerator(models.Model):
         _logger.info(f"Demo story generation completed. Created {len(created_partners)} stories.")
         return created_partners
 
+    def _story_birthdate(self, data, fallback_age=35, month=1, day=15):
+        if data.get("birthdate"):
+            return fields.Date.to_date(data["birthdate"])
+        age = data.get("age", fallback_age)
+        birth_year = fields.Date.today().year - age
+        return fields.Date.today().replace(year=birth_year, month=month, day=day)
+
+    def _story_member_definitions(self, profile):
+        members = []
+        if profile.get("head"):
+            members.append(profile["head"])
+        if profile.get("spouse"):
+            members.append(profile["spouse"])
+        members.extend(profile.get("adults", []))
+        members.extend(profile.get("children", []))
+        return members
+
+    def _normalized_story_name(self, value):
+        return re.sub(r"[^a-z0-9]", "", (value or "").lower())
+
+    def _story_member_definition_for_partner(self, partner, member_defs):
+        partner_names = {
+            self._normalized_story_name(partner.name),
+            self._normalized_story_name(f"{partner.given_name or ''} {partner.family_name or ''}"),
+            self._normalized_story_name(f"{partner.family_name or ''} {partner.given_name or ''}"),
+        }
+        for member_def in member_defs:
+            if self._normalized_story_name(member_def.get("name")) in partner_names:
+                return member_def
+        return {}
+
+    def _story_id_type(self, identifier):
+        code = identifier.get("type") or identifier.get("code")
+        uri = identifier.get("uri")
+        Code = self.env["spp.vocabulary.code"].sudo()
+        if uri:
+            return Code.search([("uri", "=", uri)], limit=1)
+        if not code:
+            return Code.browse()
+        return Code.get_code("urn:openspp:vocab:id-type", code)
+
+    def _find_story_partner_by_ids(self, data, is_group=False):
+        RegistryId = self.env["spp.registry.id"].sudo()
+        for identifier in data.get("ids", []):
+            value = identifier.get("value")
+            id_type = self._story_id_type(identifier)
+            if not value or not id_type:
+                continue
+            reg_id = RegistryId.search(
+                [
+                    ("id_type_id", "=", id_type.id),
+                    ("value", "=", value),
+                    ("partner_id.is_registrant", "=", True),
+                    ("partner_id.is_group", "=", is_group),
+                ],
+                limit=1,
+            )
+            if reg_id:
+                return reg_id.partner_id
+        return self.env["res.partner"].browse()
+
+    def _write_missing_story_values(self, partner, values):
+        missing_vals = {
+            field_name: value
+            for field_name, value in values.items()
+            if field_name in partner._fields
+            and value
+            and field_name not in ("name", "is_registrant", "is_group")
+            and not partner[field_name]
+        }
+        if missing_vals:
+            partner.with_context(skip_name_format=True).write(missing_vals)
+
+    def _materialize_story_ids(self, partner, data):
+        RegistryId = self.env["spp.registry.id"].sudo()
+        for identifier in data.get("ids", []):
+            value = identifier.get("value")
+            id_type = self._story_id_type(identifier)
+            if not value or not id_type:
+                continue
+            existing = RegistryId.search(
+                [("partner_id", "=", partner.id), ("id_type_id", "=", id_type.id)],
+                limit=1,
+            )
+            if existing:
+                if existing.value != value:
+                    existing.write({"value": value})
+                continue
+            if RegistryId.search(
+                [
+                    ("partner_id", "!=", partner.id),
+                    ("id_type_id", "=", id_type.id),
+                    ("value", "=", value),
+                ],
+                limit=1,
+            ):
+                continue
+            RegistryId.create(
+                {
+                    "partner_id": partner.id,
+                    "id_type_id": id_type.id,
+                    "value": value,
+                }
+            )
+
+    def _apply_story_identity(self, partner, data):
+        if not partner or not data:
+            return
+        vals = {}
+        if data.get("birthdate") and "birthdate" in partner._fields:
+            vals["birthdate"] = fields.Date.to_date(data["birthdate"])
+        if vals:
+            partner.write(vals)
+        self._materialize_story_ids(partner, data)
+
+    def _backfill_story_identity(self, registrant, story):
+        profile = story.get("profile", {})
+        self._apply_story_identity(registrant, profile)
+        if not registrant.is_group:
+            return
+        member_defs = self._story_member_definitions(profile)
+        memberships = self.env["spp.group.membership"].search([("group", "=", registrant.id)])
+        for membership in memberships:
+            member_def = self._story_member_definition_for_partner(membership.individual, member_defs)
+            self._apply_story_identity(membership.individual, member_def)
+
     def _create_individual_story(self, story):
         """Create an individual registrant from a story definition."""
         profile = story.get("profile", {})
@@ -1255,10 +1382,7 @@ class SPPDemoDataGenerator(models.Model):
             days=story.get("journey", [{}])[0].get("days_back", 100)
         )
 
-        # Calculate birthdate from age
-        age = profile.get("age", 35)
-        birth_year = fields.Date.today().year - age
-        birthdate = fields.Date.today().replace(year=birth_year, month=1, day=15)
+        birthdate = self._story_birthdate(profile, fallback_age=35, month=1, day=15)
 
         # Get gender ID
         gender = profile.get("gender", "male")
@@ -1348,11 +1472,19 @@ class SPPDemoDataGenerator(models.Model):
         elif "income" in partner_fields:
             vals["income"] = round(random.uniform(0, 100000), 2)
 
+        existing_by_id = self._find_story_partner_by_ids(profile, is_group=False)
+        if existing_by_id:
+            self._write_missing_story_values(existing_by_id, vals)
+            self._apply_story_identity(existing_by_id, profile)
+            return existing_by_id
+
         partner = self.env["res.partner"].create(vals)
+        partner.with_context(skip_name_format=True).write({"name": computed_name})
 
         # Create IDs and phone numbers using Faker
 
         self.create_ids(fake, partner)
+        self._apply_story_identity(partner, profile)
         self.create_phone_numbers(fake, partner)
         self.create_bank_accounts(fake, partner)
 
@@ -1367,10 +1499,7 @@ class SPPDemoDataGenerator(models.Model):
         first_action = journey[0] if journey else {}
         registration_date = fields.Date.today() - datetime.timedelta(days=first_action.get("days_back", 100))
 
-        # Calculate birthdate from age
-        age = profile.get("age", 40)
-        birth_year = fields.Date.today().year - age
-        birthdate = fields.Date.today().replace(year=birth_year, month=6, day=15)
+        birthdate = self._story_birthdate(profile, fallback_age=40, month=6, day=15)
 
         # Get gender ID
         gender = profile.get("gender", "male")
@@ -1445,6 +1574,7 @@ class SPPDemoDataGenerator(models.Model):
         fake = Faker(faker_code)
 
         self.create_ids(fake, partner)
+        self._apply_story_identity(partner, profile)
         self.create_phone_numbers(fake, partner)
         self.create_bank_accounts(fake, partner)
         self.create_gps_coordinates(fake, partner)
@@ -1487,6 +1617,7 @@ class SPPDemoDataGenerator(models.Model):
         household_size = 1  # head
         if profile.get("spouse"):
             household_size += 1
+        household_size += len(profile.get("adults", []))
         household_size += len(profile.get("children", []))
 
         if "household_size" in self.env["res.partner"]._fields:
@@ -1504,9 +1635,7 @@ class SPPDemoDataGenerator(models.Model):
                 gender = head_info.get("gender", "male")
                 vals["farmer_sex"] = self.get_gender_id(gender.capitalize())
             if "farmer_birthdate" in partner_fields:
-                age = head_info.get("age", 45)
-                birth_year = fields.Date.today().year - age
-                vals["farmer_birthdate"] = fields.Date.today().replace(year=birth_year, month=3, day=15)
+                vals["farmer_birthdate"] = self._story_birthdate(head_info, fallback_age=45, month=3, day=15)
 
         group = self.env["res.partner"].create(vals)
 
@@ -1515,6 +1644,7 @@ class SPPDemoDataGenerator(models.Model):
         fake = Faker(faker_code)
 
         self.create_ids(fake, group)
+        self._apply_story_identity(group, profile)
         self.create_phone_numbers(fake, group)
         self.create_bank_accounts(fake, group)
 
@@ -1537,6 +1667,16 @@ class SPPDemoDataGenerator(models.Model):
                 }
                 self.env["spp.group.membership"].create(membership_vals)
 
+        for adult_info in profile.get("adults", []):
+            adult = self._create_member_from_info(adult_info, registration_date, fake)
+            if adult:
+                membership_vals = {
+                    "group": group.id,
+                    "individual": adult.id,
+                    "start_date": registration_date,
+                }
+                self.env["spp.group.membership"].create(membership_vals)
+
         # Create children if defined
         children = profile.get("children", [])
         for child_info in children:
@@ -1555,8 +1695,7 @@ class SPPDemoDataGenerator(models.Model):
         gender = member_info.get("gender", "male")
         age = member_info.get("age", 30)
 
-        birth_year = fields.Date.today().year - age
-        birthdate = fields.Date.today().replace(year=birth_year, month=7, day=1)
+        birthdate = self._story_birthdate(member_info, fallback_age=age, month=7, day=1)
 
         name_parts = name.split(" ", 1)
         given_name = name_parts[0]
@@ -1619,8 +1758,15 @@ class SPPDemoDataGenerator(models.Model):
         if "income" in partner_fields:
             vals["income"] = round(random.uniform(0, 100000), 2)
 
+        existing_by_id = self._find_story_partner_by_ids(member_info, is_group=False)
+        if existing_by_id:
+            self._write_missing_story_values(existing_by_id, vals)
+            self._apply_story_identity(existing_by_id, member_info)
+            return existing_by_id
+
         individual = self.env["res.partner"].create(vals)
         self.create_ids(fake, individual)
+        self._apply_story_identity(individual, member_info)
 
         return individual
 
