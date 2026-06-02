@@ -6,6 +6,7 @@ import logging
 from datetime import UTC, datetime
 from typing import Annotated
 
+from odoo import fields
 from odoo.api import Environment
 
 from odoo.addons.fastapi.dependencies import odoo_env
@@ -326,7 +327,9 @@ def _update_sr_record(
         "is_head_of_household": record.get("is_head_of_household"),
         "raw_data": json.dumps(record),
         "state": "synced",
-        "last_sync_date": datetime.now(UTC),
+        # Odoo Datetime fields store naive UTC; fields.Datetime.now() returns
+        # that. A tz-aware datetime.now(UTC) is rejected by convert_to_cache.
+        "last_sync_date": fields.Datetime.now(),
         "synced_by": env.user.id,
     }
 

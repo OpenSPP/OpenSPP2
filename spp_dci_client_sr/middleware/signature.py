@@ -92,7 +92,9 @@ async def verify_sr_signature(
         # Verify signature against header and message
         is_valid = verifier.verify(
             envelope.signature,
-            envelope.header.model_dump(),
+            # Use mode="json" to serialize datetime fields to ISO strings, matching
+            # the format used when the request was signed (see crvs sibling).
+            envelope.header.model_dump(mode="json"),
             envelope.message,
         )
 
