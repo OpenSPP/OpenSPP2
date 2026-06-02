@@ -94,6 +94,49 @@ class TestCRVSServiceInternals(CRVSClientCommon):
         self.assertFalse(self._get_service().check_death("UIN", "U-1"))
 
     @patch(SEARCH)
+    def test_check_death_empty_reg_records_false(self, mock_search):
+        # OpenCRVS returns a populated envelope with empty reg_records for a
+        # no-match; check_death must read reg_records, not just data presence.
+        mock_search.return_value = {
+            "message": {
+                "search_response": [
+                    {"status": "succ", "data": {"reg_type": "ns:org:RegistryType:Civil", "reg_records": []}}
+                ]
+            }
+        }
+        self.assertFalse(self._get_service().check_death("UIN", "U-1"))
+
+    @patch(SEARCH)
+    def test_check_death_with_reg_records_true(self, mock_search):
+        mock_search.return_value = {
+            "message": {
+                "search_response": [
+                    {"status": "succ", "data": {"reg_records": [{"death_date": "2024-06-15"}]}}
+                ]
+            }
+        }
+        self.assertTrue(self._get_service().check_death("UIN", "U-1"))
+
+    @patch(SEARCH)
+    def test_verify_birth_empty_reg_records_returns_none(self, mock_search):
+        mock_search.return_value = {
+            "message": {"search_response": [{"status": "succ", "data": {"reg_records": []}}]}
+        }
+        self.assertIsNone(self._get_service().verify_birth("BRN", "B-1"))
+
+    @patch(SEARCH)
+    def test_verify_birth_from_reg_records(self, mock_search):
+        mock_search.return_value = {
+            "message": {
+                "search_response": [
+                    {"status": "succ", "data": {"reg_records": [{"name": "Jane Doe", "birth_date": "2001-02-03"}]}}
+                ]
+            }
+        }
+        result = self._get_service().verify_birth("BRN", "B-1")
+        self.assertEqual(result["person_name"], "Jane Doe")
+
+    @patch(SEARCH)
     def test_check_death_propagates_as_usererror(self, mock_search):
         mock_search.side_effect = RuntimeError("boom")
         with self.assertRaises(UserError):

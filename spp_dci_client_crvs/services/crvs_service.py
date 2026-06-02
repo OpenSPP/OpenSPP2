@@ -102,15 +102,13 @@ class CRVSService:
 
             # Extract first result
             search_response = message["search_response"][0]
-            if "data" not in search_response or not search_response["data"]:
+            reg_records = self._records_from_search_item(search_response)
+            if not reg_records:
+                _logger.info("No birth record found for %s:%s", identifier_type, identifier_value)
                 return None
 
-            record_data = (
-                search_response["data"][0] if isinstance(search_response["data"], list) else search_response["data"]
-            )
-
-            # Extract birth information
-            birth_data = self._extract_birth_data(record_data)
+            # Extract birth information from the first record
+            birth_data = self._extract_birth_data(reg_records[0])
 
             _logger.info("Birth record verified for %s:%s", identifier_type, identifier_value)
             return birth_data
@@ -166,10 +164,12 @@ class CRVSService:
                 return False
 
             search_response = message["search_response"][0]
-            if "data" not in search_response or not search_response["data"]:
+            reg_records = self._records_from_search_item(search_response)
+            if not reg_records:
+                _logger.info("No death record found for %s:%s", identifier_type, identifier_value)
                 return False
 
-            # If we found death records, person is deceased
+            # A matching death record exists - person is deceased
             _logger.info(
                 "Death record found for %s:%s - person is deceased",
                 identifier_type,
@@ -364,6 +364,25 @@ class CRVSService:
         except Exception as e:
             _logger.error("Failed to process CRVS notification: %s", str(e), exc_info=True)
             raise ValidationError(_("Failed to process CRVS notification: %s") % str(e)) from e
+
+    @staticmethod
+    def _records_from_search_item(search_response: dict) -> list:
+        """Return the list of registry records from a DCI search_response item.
+
+        Tolerates the shapes seen in practice:
+        - DCI v1.0.0 / OpenCRVS: data = {"reg_records": [...], ...} (records nested,
+          and an empty reg_records means *no match* even though the envelope exists)
+        - a bare list of records: data = [...]
+        - a single record dict: data = {...} (no reg_records key)
+        """
+        data = search_response.get("data")
+        if isinstance(data, dict):
+            if "reg_records" in data:
+                return data.get("reg_records") or []
+            return [data] if data else []
+        if isinstance(data, list):
+            return data
+        return []
 
     def _extract_birth_data(self, record_data: dict) -> dict:
         """Extract birth information from DCI record data.
