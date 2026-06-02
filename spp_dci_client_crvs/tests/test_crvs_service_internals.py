@@ -16,7 +16,8 @@ from odoo.addons.spp_dci.schemas.constants import RegistryType
 
 from .common import CRVSClientCommon
 
-SEARCH = "odoo.addons.spp_dci_client.services.client.DCIClient.search"
+# verify_birth/check_death now use the OpenCRVS-specific search format.
+SEARCH = "odoo.addons.spp_dci_client.services.client.DCIClient.search_by_id_opencrvs"
 
 
 @tagged("post_install", "-at_install")

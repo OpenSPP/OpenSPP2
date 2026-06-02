@@ -78,11 +78,12 @@ class CRVSService:
         )
 
         try:
-            # Search for birth record using DCI client
-            response = self.client.search_by_id(
+            # Search for birth record using OpenCRVS's non-standard search format
+            # (OpenCRVS does not support the standard DCI idtype-value query).
+            response = self.client.search_by_id_opencrvs(
                 identifier_type=identifier_type,
                 identifier_value=identifier_value,
-                record_type="PERSON",
+                event_type="birth",
                 page=1,
                 page_size=1,
             )
@@ -142,14 +143,14 @@ class CRVSService:
         )
 
         try:
-            # Search for death record using DCI client
-            response = self.client.search(
-                query_type="idtype-value",
-                query_value=f"{identifier_type}:{identifier_value}",
-                record_type="PERSON",
+            # Search for death record using OpenCRVS's non-standard search format
+            # (OpenCRVS does not support the standard DCI idtype-value query).
+            response = self.client.search_by_id_opencrvs(
+                identifier_type=identifier_type,
+                identifier_value=identifier_value,
+                event_type="death",
                 page=1,
                 page_size=1,
-                registry_event_type="DEATH",
             )
 
             # Parse response
