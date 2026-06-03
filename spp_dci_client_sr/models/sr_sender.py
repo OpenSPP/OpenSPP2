@@ -131,8 +131,8 @@ class SRSender(models.Model):
             from odoo.addons.spp_dci_client_sr.services import SRService
 
             service = SRService(self.env, self.sender_id)
-            # Try a simple health check or search
-            result = service.check_connection()
+            # Try a simple health check or search (raises on failure)
+            service.check_connection()
 
             return {
                 "type": "ir.actions.client",

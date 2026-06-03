@@ -48,7 +48,7 @@ class CelVariableResolverDCI(models.AbstractModel):
             pattern = re.escape(accessor) + r"\(\s*(['\"])([^'\"]+)\1\s*\)"
             expression = re.sub(
                 pattern,
-                lambda m, a=accessor: "metric('%s', me, arg='%s')" % (a, m.group(2)),
+                lambda m, a=accessor: f"metric('{a}', me, arg='{m.group(2)}')",
                 expression,
             )
         return expression

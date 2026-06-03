@@ -1,15 +1,18 @@
 # OpenSPP DCI Indicators
 
-This module provides DCI (Data Collaboration Infrastructure) data integration with OpenSPP's CEL (Common Expression
-Language) eligibility system.
+This module provides DCI (Data Collaboration Infrastructure) data integration with
+OpenSPP's CEL (Common Expression Language) eligibility system.
 
 ## Overview
 
-The module enables clean, readable CEL expressions that access data from external DCI registries:
+The module enables clean, readable CEL expressions that access data from external DCI
+registries:
 
 - **Disability Registry (DR)**: Access disability status and functional assessments
-- **Civil Registration and Vital Statistics (CRVS)**: Access vital events (birth, death, marriage)
-- **Integrated Beneficiary Registry (IBR)**: Access duplication checks and enrollment status
+- **Civil Registration and Vital Statistics (CRVS)**: Access vital events (birth, death,
+  marriage)
+- **Integrated Beneficiary Registry (IBR)**: Access duplication checks and enrollment
+  status
 
 ## CEL Expression Examples
 
@@ -136,20 +139,19 @@ This module reads cached DCI data from:
 - `spp.dci.crvs.event` (from spp_dci_client_crvs)
 - `spp.dci.duplication.check` (from spp_dci_client_ibr)
 
-Ensure these DCI client modules are installed and data is synced before using DCI symbols in eligibility expressions.
+Ensure these DCI client modules are installed and data is synced before using DCI
+symbols in eligibility expressions.
 
 ## Architecture
 
 ### Components
 
 1. **Symbol Providers** (`symbols/dci_symbols.py`):
-
    - `DRSymbolProvider`: Disability Registry symbols
    - `CRVSSymbolProvider`: CRVS symbols
    - `IBRSymbolProvider`: IBR symbols
 
 2. **CEL Integration** (`services/cel_integration.py`):
-
    - Symbol resolution service
    - Documentation service
 

@@ -12,7 +12,6 @@ The mock server provides:
 """
 
 import os
-from unittest.mock import MagicMock, patch
 
 import requests
 

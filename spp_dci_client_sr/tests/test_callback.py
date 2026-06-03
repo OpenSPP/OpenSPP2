@@ -46,9 +46,7 @@ class TestSRCallback(SRClientCommon):
 
         # Local partner reachable by national_id identifier.
         self.id_code = self.env.ref("spp_vocabulary.code_id_type_national_id")
-        self.partner = self.env["res.partner"].create(
-            {"name": "SR Person", "is_registrant": True, "is_group": False}
-        )
+        self.partner = self.env["res.partner"].create({"name": "SR Person", "is_registrant": True, "is_group": False})
         self.env["spp.registry.id"].create(
             {
                 "partner_id": self.partner.id,

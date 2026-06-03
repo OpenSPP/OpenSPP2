@@ -54,12 +54,8 @@ class TestDCICelEndToEnd(TransactionCase):
 
     @classmethod
     def _make_registrant(cls, name, id_value):
-        partner = cls.env["res.partner"].create(
-            {"name": name, "is_registrant": True, "is_group": False}
-        )
-        cls.env["spp.registry.id"].create(
-            {"partner_id": partner.id, "id_type_id": cls.id_code.id, "value": id_value}
-        )
+        partner = cls.env["res.partner"].create({"name": name, "is_registrant": True, "is_group": False})
+        cls.env["spp.registry.id"].create({"partner_id": partner.id, "id_type_id": cls.id_code.id, "value": id_value})
         return partner
 
     def test_variable_accessor_is_new_format(self):
@@ -78,9 +74,7 @@ class TestDCICelEndToEnd(TransactionCase):
         # Booleans are stored as 1/0 so the metric comparison SQL can cast them.
         self.assertEqual(cached.value_json, {"value": 1})
         # Nothing cached under the variable name.
-        self.assertFalse(
-            self.env["spp.data.value"].search([("variable_name", "=", "dci.crvs.is_alive")])
-        )
+        self.assertFalse(self.env["spp.data.value"].search([("variable_name", "=", "dci.crvs.is_alive")]))
 
     def test_cel_expression_filters_on_cached_dci_value(self):
         """The acceptance gate: a CEL expression using the DCI accessor selects

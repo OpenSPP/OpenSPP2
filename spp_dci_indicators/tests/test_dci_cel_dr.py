@@ -36,9 +36,7 @@ class TestDCICelDRHandlers(TransactionCase):
             {"name": "DR", "code": "national_dr_prov", "dci_data_source_id": cls.dr_source.id}
         )
         cls.id_code = cls.env.ref("spp_vocabulary.code_id_type_national_id")
-        cls.partner = cls.env["res.partner"].create(
-            {"name": "DR Person", "is_registrant": True, "is_group": False}
-        )
+        cls.partner = cls.env["res.partner"].create({"name": "DR Person", "is_registrant": True, "is_group": False})
         cls.env["spp.registry.id"].create(
             {"partner_id": cls.partner.id, "id_type_id": cls.id_code.id, "value": "NID-DR-1"}
         )

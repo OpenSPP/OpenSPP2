@@ -3,11 +3,11 @@
 
 import asyncio
 import json
-from unittest.mock import AsyncMock, MagicMock
-
-from fastapi import APIRouter
+from unittest.mock import MagicMock
 
 from odoo.tests import tagged
+
+from fastapi import APIRouter
 
 from .common import DCIServerCommon
 
@@ -112,9 +112,7 @@ class TestDCIErrorResponseMiddleware(DCIServerCommon):
         self.assertEqual(result.status_code, 401)
         # The body is returned as-is (no re-wrap)
         body = json.loads(result.body.decode("utf-8"))
-        self.assertEqual(
-            body["message"]["error"]["code"], "err.signature.invalid"
-        )
+        self.assertEqual(body["message"]["error"]["code"], "err.signature.invalid")
 
     def test_non_json_body_returned_as_is(self):
         original = _build_response(500, b"<html>fatal</html>")

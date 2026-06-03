@@ -56,9 +56,7 @@ class TestCRVSEvent(TransactionCase):
 
     def test_process_birth_sets_birthdate_and_links_person(self):
         partner = self.Partner.create({"name": "Born", "is_registrant": True})
-        self.RegID.create(
-            {"partner_id": partner.id, "id_type_id": self.id_code.id, "value": "BIRTH-1"}
-        )
+        self.RegID.create({"partner_id": partner.id, "id_type_id": self.id_code.id, "value": "BIRTH-1"})
         ev = self._event(event_type="birth", identifier_value="BIRTH-1", event_date=date(2010, 6, 1))
         result = ev.process_event()
         self.assertTrue(result)
@@ -68,9 +66,7 @@ class TestCRVSEvent(TransactionCase):
 
     def test_process_death_disables_registrant(self):
         partner = self.Partner.create({"name": "Deceased", "is_registrant": True})
-        self.RegID.create(
-            {"partner_id": partner.id, "id_type_id": self.id_code.id, "value": "DEATH-1"}
-        )
+        self.RegID.create({"partner_id": partner.id, "id_type_id": self.id_code.id, "value": "DEATH-1"})
         ev = self._event(event_type="death", identifier_value="DEATH-1", event_date=date(2024, 2, 2))
         result = ev.process_event()
         self.assertTrue(result)
@@ -79,27 +75,21 @@ class TestCRVSEvent(TransactionCase):
 
     def test_process_marriage_processed(self):
         partner = self.Partner.create({"name": "Wed", "is_registrant": True})
-        self.RegID.create(
-            {"partner_id": partner.id, "id_type_id": self.id_code.id, "value": "MAR-1"}
-        )
+        self.RegID.create({"partner_id": partner.id, "id_type_id": self.id_code.id, "value": "MAR-1"})
         ev = self._event(event_type="marriage", identifier_value="MAR-1", event_date=date(2024, 3, 3))
         self.assertTrue(ev.process_event())
         self.assertEqual(ev.state, "processed")
 
     def test_process_divorce_processed(self):
         partner = self.Partner.create({"name": "Split", "is_registrant": True})
-        self.RegID.create(
-            {"partner_id": partner.id, "id_type_id": self.id_code.id, "value": "DIV-1"}
-        )
+        self.RegID.create({"partner_id": partner.id, "id_type_id": self.id_code.id, "value": "DIV-1"})
         ev = self._event(event_type="divorce", identifier_value="DIV-1", event_date=date(2024, 4, 4))
         self.assertTrue(ev.process_event())
         self.assertEqual(ev.state, "processed")
 
     def test_process_already_processed_raises(self):
         partner = self.Partner.create({"name": "Done", "is_registrant": True})
-        self.RegID.create(
-            {"partner_id": partner.id, "id_type_id": self.id_code.id, "value": "DONE-1"}
-        )
+        self.RegID.create({"partner_id": partner.id, "id_type_id": self.id_code.id, "value": "DONE-1"})
         ev = self._event(identifier_value="DONE-1")
         ev.process_event()
         self.assertEqual(ev.state, "processed")
@@ -120,9 +110,7 @@ class TestCRVSEvent(TransactionCase):
 
     def test_birth_adds_brn_from_raw_data(self):
         partner = self.Partner.create({"name": "RawBirth", "is_registrant": True})
-        self.RegID.create(
-            {"partner_id": partner.id, "id_type_id": self.id_code.id, "value": "RAW-1"}
-        )
+        self.RegID.create({"partner_id": partner.id, "id_type_id": self.id_code.id, "value": "RAW-1"})
         raw = {"identifiers": [{"type": "BRN", "value": "BRN-999"}]}
         ev = self._event(
             event_type="birth",
@@ -132,4 +120,3 @@ class TestCRVSEvent(TransactionCase):
         )
         # Should process without raising even if BRN handling is best-effort.
         self.assertTrue(ev.process_event())
-

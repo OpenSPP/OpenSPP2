@@ -55,8 +55,9 @@ class TestCRVSCallback(CRVSClientCommon):
 
     def test_notification_via_service(self):
         """Happy path: CRVSService.process_notification handles the event."""
-        with patch(f"{CRVS_SERVICE}.process_notification", return_value=42), patch(
-            f"{CRVS_SERVICE}.__init__", return_value=None
+        with (
+            patch(f"{CRVS_SERVICE}.process_notification", return_value=42),
+            patch(f"{CRVS_SERVICE}.__init__", return_value=None),
         ):
             result = self._call({"event_type": "birth", "event_date": "2024-01-01"})
         self.assertEqual(result["status"], "success")
@@ -73,14 +74,13 @@ class TestCRVSCallback(CRVSClientCommon):
         with patch(f"{CRVS_SERVICE}.__init__", side_effect=RuntimeError("no data source")):
             result = self._call(message)
         self.assertEqual(result["status"], "success")
-        ev = self.env["spp.dci.crvs.event"].search(
-            [("identifier_value", "=", "FALLBACK-1")], limit=1
-        )
+        ev = self.env["spp.dci.crvs.event"].search([("identifier_value", "=", "FALLBACK-1")], limit=1)
         self.assertTrue(ev)
 
     def test_notification_processing_error_returns_500(self):
-        with patch(f"{CRVS_SERVICE}.__init__", return_value=None), patch(
-            f"{CRVS_SERVICE}.process_notification", side_effect=RuntimeError("boom")
+        with (
+            patch(f"{CRVS_SERVICE}.__init__", return_value=None),
+            patch(f"{CRVS_SERVICE}.process_notification", side_effect=RuntimeError("boom")),
         ):
             with self.assertRaises(HTTPException) as ctx:
                 self._call({"event_type": "death"})

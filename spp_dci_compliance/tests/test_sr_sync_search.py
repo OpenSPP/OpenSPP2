@@ -104,7 +104,7 @@ class TestSRSyncSearchCompliance(DCIComplianceCommon):
         self.assertEqual(
             response_item.status,
             "succ",
-            f"Expected success status, got: {response_item.status}. " f"Reason: {response_item.status_reason_message}",
+            f"Expected success status, got: {response_item.status}. Reason: {response_item.status_reason_message}",
         )
 
     def test_02_response_content_type_header(self):
@@ -258,7 +258,7 @@ class TestSRSyncSearchCompliance(DCIComplianceCommon):
 
         self.assertTrue(
             found_match,
-            f"Record should contain identifier urn:dci:id:uin:847951632. " f"Found identifiers: {identifiers}",
+            f"Record should contain identifier urn:dci:id:uin:847951632. Found identifiers: {identifiers}",
         )
 
     def test_06_pagination_works_correctly(self):

@@ -41,7 +41,7 @@ SEARCH_REQUEST_SCHEMA = {
         "search_request": {
             "type": "array",
             "description": (
-                "1. Batch requests enable multiple individual requests with respective " "consent/authorize codes"
+                "1. Batch requests enable multiple individual requests with respective consent/authorize codes"
             ),
             "items": {
                 "type": "object",

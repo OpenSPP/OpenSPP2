@@ -110,18 +110,14 @@ class TestCRVSServiceInternals(CRVSClientCommon):
     def test_check_death_with_reg_records_true(self, mock_search):
         mock_search.return_value = {
             "message": {
-                "search_response": [
-                    {"status": "succ", "data": {"reg_records": [{"death_date": "2024-06-15"}]}}
-                ]
+                "search_response": [{"status": "succ", "data": {"reg_records": [{"death_date": "2024-06-15"}]}}]
             }
         }
         self.assertTrue(self._get_service().check_death("UIN", "U-1"))
 
     @patch(SEARCH)
     def test_verify_birth_empty_reg_records_returns_none(self, mock_search):
-        mock_search.return_value = {
-            "message": {"search_response": [{"status": "succ", "data": {"reg_records": []}}]}
-        }
+        mock_search.return_value = {"message": {"search_response": [{"status": "succ", "data": {"reg_records": []}}]}}
         self.assertIsNone(self._get_service().verify_birth("BRN", "B-1"))
 
     @patch(SEARCH)
@@ -184,9 +180,7 @@ class TestCRVSServiceInternals(CRVSClientCommon):
         # must re-raise as ValidationError.
         service = self._get_service()
         with self.assertRaises(ValidationError):
-            service.process_notification(
-                {"message": {"event_type": "not-a-real-type", "identifiers": []}}
-            )
+            service.process_notification({"message": {"event_type": "not-a-real-type", "identifiers": []}})
 
     # --- _extract_birth_data variants ----------------------------------------
 

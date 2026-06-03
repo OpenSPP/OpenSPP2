@@ -9,11 +9,10 @@ don't need a live FastAPI request.
 
 import asyncio
 from datetime import date, datetime, timedelta
-from unittest.mock import patch
-
-from fastapi import HTTPException
 
 from odoo.tests import tagged
+
+from fastapi import HTTPException
 
 from .common import DCIServerCommon
 
@@ -38,9 +37,7 @@ class TestRateLimitMiddleware(DCIServerCommon):
         self.middleware = DCIRateLimitMiddleware
         self.check_dci_rate_limit = check_dci_rate_limit
         self.sender = self.create_test_sender()
-        self.sender.write(
-            {"rate_limit_per_minute": 5, "rate_limit_per_day": 100}
-        )
+        self.sender.write({"rate_limit_per_minute": 5, "rate_limit_per_day": 100})
 
     # --- no-sender path -------------------------------------------------------
 
@@ -92,9 +89,7 @@ class TestRateLimitMiddleware(DCIServerCommon):
         with self.assertRaises(HTTPException) as ctx:
             self.middleware.check_rate_limit(self.env, self.sender)
         self.assertEqual(ctx.exception.status_code, 429)
-        self.assertEqual(
-            ctx.exception.detail["error_code"], "RATE_LIMIT_PER_MINUTE"
-        )
+        self.assertEqual(ctx.exception.detail["error_code"], "RATE_LIMIT_PER_MINUTE")
 
     # --- per-day branch -------------------------------------------------------
 

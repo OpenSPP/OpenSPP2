@@ -351,7 +351,7 @@ class SRService:
         identifier_type: str,
         identifier_value: str,
         partner_id: int | None = None,
-    ) -> "models.Model":
+    ):
         """Sync person data from SR to local SR record.
 
         Args:

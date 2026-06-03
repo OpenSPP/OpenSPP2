@@ -71,7 +71,10 @@
                             />
                         </page>
                         <page string="Notes" name="notes">
-                            <field name="description" placeholder="Additional notes..." />
+                            <field
+                                name="description"
+                                placeholder="Additional notes..."
+                            />
                         </page>
                     </notebook>
                 </sheet>
@@ -87,10 +90,22 @@
             <search>
                 <field name="name" />
                 <field name="sender_id" />
-                <filter string="Active" name="active" domain="[('active', '=', True)]" />
-                <filter string="Archived" name="archived" domain="[('active', '=', False)]" />
+                <filter
+                    string="Active"
+                    name="active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    string="Archived"
+                    name="archived"
+                    domain="[('active', '=', False)]"
+                />
                 <separator />
-                <filter string="Algorithm" name="group_algorithm" context="{'group_by': 'algorithm'}" />
+                <filter
+                    string="Algorithm"
+                    name="group_algorithm"
+                    context="{'group_by': 'algorithm'}"
+                />
             </search>
         </field>
     </record>

@@ -135,7 +135,7 @@ MCowBQYDK2VwAyEAGb9F2CMM8wnM7wQTmPTo2HKrVsc0YwXPKQMKLX5rJ6g=
                 "sender_id": "SR_UNIQUE",
             }
         )
-        with self.assertRaises(Exception):
+        with self.assertRaises(Exception):  # noqa: B017 - duplicate sender_id may raise IntegrityError or ValidationError
             self.SRSender.create(
                 {
                     "name": "Second SR",

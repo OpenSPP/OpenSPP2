@@ -1,12 +1,12 @@
 # OpenSPP DCI Client Compliance Tests
 
-This module provides DCI client compliance testing infrastructure for validating that OpenSPP's DCI client
-implementation correctly sends requests to external registries.
+This module provides DCI client compliance testing infrastructure for validating that
+OpenSPP's DCI client implementation correctly sends requests to external registries.
 
 ## Purpose
 
-The `spp_dci_client_compliance` module exposes test trigger endpoints that allow the external `spdci-compliance` test
-framework to:
+The `spp_dci_client_compliance` module exposes test trigger endpoints that allow the
+external `spdci-compliance` test framework to:
 
 1. Trigger DCI client actions (search, subscribe, unsubscribe, txn_status)
 2. Validate that requests sent by the client are spec-compliant

@@ -134,7 +134,7 @@ class TestDCINotifications(DCISocialServerCommon):
     def test_non_registrant_no_notification(self):
         """Test that changes to non-registrants don't trigger notifications."""
         # Create a non-registrant partner
-        partner = self.Partner.create(
+        self.Partner.create(
             {
                 "name": "Non-Registrant Company",
                 "is_registrant": False,

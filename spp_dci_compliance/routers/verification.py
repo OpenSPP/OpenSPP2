@@ -136,7 +136,7 @@ async def get_callbacks(
         )
 
         _logger.debug(
-            "Callback verification query returned %d records " "(transaction_id=%s, registry_type=%s)",
+            "Callback verification query returned %d records (transaction_id=%s, registry_type=%s)",
             len(callbacks),
             transaction_id,
             registry_type,

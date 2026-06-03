@@ -190,7 +190,7 @@ class TestTransactionProcessing(DCIServerCommon):
         action stays callable but does not raise."""
         txn = self._make_txn(state="callback_failed", callback_uri="https://cb.example.test/cb")
         # Stub _send_callback so we don't actually issue an HTTP request.
-        with patch.object(type(txn), "_send_callback") as send:
+        with patch.object(type(txn), "_send_callback"):
             txn.action_retry_callback()
         # No exception raised.
 

@@ -1,16 +1,20 @@
 # OpenSPP DCI Compliance Tests
 
-This module provides DCI (Digital Convergence Initiative) compliance validation test suite for OpenSPP.
+This module provides DCI (Digital Convergence Initiative) compliance validation test
+suite for OpenSPP.
 
 ## Purpose
 
-The `spp_dci_compliance` module contains automated tests to verify that OpenSPP's DCI implementation conforms to DCI
-protocol requirements, particularly for the Social Registry sync search endpoint.
+The `spp_dci_compliance` module contains automated tests to verify that OpenSPP's DCI
+implementation conforms to DCI protocol requirements, particularly for the Social
+Registry sync search endpoint.
 
 ## Features
 
-- **Test Data Fixtures**: Pre-configured test individuals and identifiers matching DCI compliance test cases
-- **Common Test Utilities**: Helper methods for building DCI envelopes, search requests, and assertions
+- **Test Data Fixtures**: Pre-configured test individuals and identifiers matching DCI
+  compliance test cases
+- **Common Test Utilities**: Helper methods for building DCI envelopes, search requests,
+  and assertions
 - **Compliance Test Suite**: Comprehensive tests validating DCI protocol requirements
 
 ## Test Coverage
@@ -107,7 +111,8 @@ When adding new compliance tests:
 
 ## Running SPDCI Compliance Tests
 
-The external SPDCI compliance test suite (`spdci-compliance`) validates protocol compliance.
+The external SPDCI compliance test suite (`spdci-compliance`) validates protocol
+compliance.
 
 ### Quick Start
 
@@ -172,8 +177,9 @@ Then security tests should pass (requests without auth will be rejected).
 
 ### Bearer Token Authentication
 
-By default, bearer token authentication is **ENFORCED** for all DCI API endpoints. Requests without a valid
-`Authorization: Bearer <token>` header will be rejected with HTTP 401.
+By default, bearer token authentication is **ENFORCED** for all DCI API endpoints.
+Requests without a valid `Authorization: Bearer <token>` header will be rejected with
+HTTP 401.
 
 To bypass bearer auth for testing (NOT recommended for production):
 
@@ -193,7 +199,8 @@ VALUES ('dci.api_tokens', 'token1,token2,token3')
 ON CONFLICT (key) DO UPDATE SET value = 'token1,token2,token3';
 ```
 
-If `dci.api_tokens` is not set, any non-empty bearer token will be accepted (useful for testing).
+If `dci.api_tokens` is not set, any non-empty bearer token will be accepted (useful for
+testing).
 
 ### Environment Variables
 
@@ -221,12 +228,14 @@ DELETE FROM endpoint_route;
 ### Tests Fail with Connection Errors
 
 1. Check Odoo is running: `curl http://localhost:19069/web/health`
-2. Check DCI API responds: `curl -H "X-Odoo-Database: devel" http://localhost:19069/dci_api/v1/.well-known/jwks.json`
+2. Check DCI API responds:
+   `curl -H "X-Odoo-Database: devel" http://localhost:19069/dci_api/v1/.well-known/jwks.json`
 3. Verify routes exist: `SELECT route FROM endpoint_route WHERE route LIKE '%dci%';`
 
 ### X-Odoo-Database Header
 
-Multi-database Odoo requires this header. The test script handles this automatically via `--db` option.
+Multi-database Odoo requires this header. The test script handles this automatically via
+`--db` option.
 
 ### Port Mapping
 

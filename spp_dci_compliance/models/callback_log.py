@@ -224,11 +224,11 @@ class DCICallbackLog(models.Model):
         # Validate inputs
         if registry_type not in VALID_REGISTRY_TYPES:
             raise ValidationError(
-                f"Invalid registry_type: {registry_type}. " f"Must be one of: {', '.join(VALID_REGISTRY_TYPES)}"
+                f"Invalid registry_type: {registry_type}. Must be one of: {', '.join(VALID_REGISTRY_TYPES)}"
             )
         if callback_type not in VALID_CALLBACK_TYPES:
             raise ValidationError(
-                f"Invalid callback_type: {callback_type}. " f"Must be one of: {', '.join(VALID_CALLBACK_TYPES)}"
+                f"Invalid callback_type: {callback_type}. Must be one of: {', '.join(VALID_CALLBACK_TYPES)}"
             )
 
         # Process payload: hash original, sanitize for storage
@@ -328,14 +328,14 @@ class DCICallbackLog(models.Model):
         # Validate filter values
         if registry_type and registry_type not in VALID_REGISTRY_TYPES:
             raise ValueError(
-                f"Invalid registry_type: {registry_type}. " f"Must be one of: {', '.join(VALID_REGISTRY_TYPES)}"
+                f"Invalid registry_type: {registry_type}. Must be one of: {', '.join(VALID_REGISTRY_TYPES)}"
             )
         if callback_type and callback_type not in VALID_CALLBACK_TYPES:
             raise ValueError(
-                f"Invalid callback_type: {callback_type}. " f"Must be one of: {', '.join(VALID_CALLBACK_TYPES)}"
+                f"Invalid callback_type: {callback_type}. Must be one of: {', '.join(VALID_CALLBACK_TYPES)}"
             )
         if status and status not in VALID_STATUSES:
-            raise ValueError(f"Invalid status: {status}. " f"Must be one of: {', '.join(VALID_STATUSES)}")
+            raise ValueError(f"Invalid status: {status}. Must be one of: {', '.join(VALID_STATUSES)}")
 
         domain = []
 

@@ -1,7 +1,7 @@
 # SPDCI JSON Schemas
 
-This directory contains Python dictionaries representing SPDCI (Social Protection Data Connectivity Initiative) JSON
-schemas for compliance validation.
+This directory contains Python dictionaries representing SPDCI (Social Protection Data
+Connectivity Initiative) JSON schemas for compliance validation.
 
 ## Overview
 
@@ -9,9 +9,11 @@ The schemas are extracted and converted from:
 
 1. **spdci-api-standards** repository - Official YAML schema definitions
 2. **DR-Mockup-Compliance** repository - Disability Registry test schemas
-3. **CRVS-Mockup-Compliance** repository - Civil Registration and Vital Statistics test schemas
+3. **CRVS-Mockup-Compliance** repository - Civil Registration and Vital Statistics test
+   schemas
 
-All schemas are JSON Schema Draft-07 compatible and can be used with the `jsonschema` library.
+All schemas are JSON Schema Draft-07 compatible and can be used with the `jsonschema`
+library.
 
 ## Available Schemas
 
@@ -30,7 +32,8 @@ All schemas are JSON Schema Draft-07 compatible and can be used with the `jsonsc
 
 ### CRVS Schemas
 
-- **CRVS_REG_RECORDS_SCHEMA** - Vital events record structure (birth, death, marriage, divorce)
+- **CRVS_REG_RECORDS_SCHEMA** - Vital events record structure (birth, death, marriage,
+  divorce)
 - **CRVS_SEARCH_RESPONSE_SCHEMA** - Sync search response from CRVS
 - **CRVS_ASYNC_SEARCH_RESPONSE_SCHEMA** - Async search response from CRVS
 - **CRVS_ON_SEARCH_REQUEST_SCHEMA** - On-search callback request structure

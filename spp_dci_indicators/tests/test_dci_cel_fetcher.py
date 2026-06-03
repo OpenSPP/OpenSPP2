@@ -56,9 +56,7 @@ class TestDCICelFetcher(TransactionCase):
         )
 
         cls.id_code = cls.env.ref("spp_vocabulary.code_id_type_national_id")
-        cls.partner = cls.env["res.partner"].create(
-            {"name": "CRVS Person", "is_registrant": True, "is_group": False}
-        )
+        cls.partner = cls.env["res.partner"].create({"name": "CRVS Person", "is_registrant": True, "is_group": False})
         cls.env["spp.registry.id"].create(
             {"partner_id": cls.partner.id, "id_type_id": cls.id_code.id, "value": "NID-FETCH-1"}
         )
@@ -114,9 +112,7 @@ class TestDCICelFetcher(TransactionCase):
 
     def test_fetch_single_subject_failure_does_not_abort_batch(self):
         p2 = self.env["res.partner"].create({"name": "CRVS Person 2", "is_registrant": True})
-        self.env["spp.registry.id"].create(
-            {"partner_id": p2.id, "id_type_id": self.id_code.id, "value": "NID-FETCH-2"}
-        )
+        self.env["spp.registry.id"].create({"partner_id": p2.id, "id_type_id": self.id_code.id, "value": "NID-FETCH-2"})
         # First call raises, second succeeds.
         with patch(CHECK_DEATH, side_effect=[RuntimeError("boom"), False]):
             result = self.Fetcher.fetch_values(self.var_is_alive, [self.partner.id, p2.id])
@@ -137,9 +133,7 @@ class TestDCICelFetcher(TransactionCase):
 
     def test_cache_manager_routes_dci_backed_to_fetcher(self):
         with patch(CHECK_DEATH, return_value=False):
-            result = self.CacheMgr._compute_variable_values(
-                self.var_is_alive, [self.partner.id], "current", False
-            )
+            result = self.CacheMgr._compute_variable_values(self.var_is_alive, [self.partner.id], "current", False)
         self.assertEqual(result, {self.partner.id: True})
 
     # ── sync trigger ─────────────────────────────────────────────────────────
@@ -177,9 +171,7 @@ class TestDCICelFetcher(TransactionCase):
     def test_cache_manager_non_dci_external_falls_back_to_super(self):
         """An external variable whose provider is NOT DCI-backed must not be
         routed to the DCI fetcher (base behaviour: returns {})."""
-        plain_provider = self.env["spp.data.provider"].create(
-            {"name": "Plain", "code": "plain_prov_t"}
-        )
+        plain_provider = self.env["spp.data.provider"].create({"name": "Plain", "code": "plain_prov_t"})
         var = self.env["spp.cel.variable"].create(
             {
                 "name": "plain.external",

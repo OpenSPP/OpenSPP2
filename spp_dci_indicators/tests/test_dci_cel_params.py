@@ -17,9 +17,7 @@ class TestDCICelParams(TransactionCase):
         super().setUpClass()
         cls.DV = cls.env["spp.data.value"]
         cls.svc = cls.env["spp.cel.service"]
-        cls.partner = cls.env["res.partner"].create(
-            {"name": "Param Person", "is_registrant": True, "is_group": False}
-        )
+        cls.partner = cls.env["res.partner"].create({"name": "Param Person", "is_registrant": True, "is_group": False})
         # Two cached values for the same metric, distinguished only by params.
         cls.DV.upsert_values(
             [
@@ -50,8 +48,11 @@ class TestDCICelParams(TransactionCase):
 
     def _match(self, expr):
         r = self.svc.compile_expression(
-            expr, profile="registry_individuals",
-            base_domain=[("id", "in", [self.partner.id])], limit=0, materialize_sql=True,
+            expr,
+            profile="registry_individuals",
+            base_domain=[("id", "in", [self.partner.id])],
+            limit=0,
+            materialize_sql=True,
         )
         self.assertTrue(r.get("valid"), r.get("error"))
         return self.env["res.partner"].search(r["domain"])

@@ -2,7 +2,6 @@
 """Tests for spp.dci.sr.record model."""
 
 import json
-from datetime import datetime
 from unittest.mock import patch
 
 from odoo import fields

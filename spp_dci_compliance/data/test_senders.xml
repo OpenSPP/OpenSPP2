@@ -1,45 +1,57 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <data noupdate="1">
         <!-- Partner for DCI Test Client -->
         <record id="partner_dci_test_client" model="res.partner">
             <field name="name">DCI Test Client Organization</field>
-            <field name="is_company" eval="True"/>
+            <field name="is_company" eval="True" />
             <field name="comment">Partner for DCI compliance test client</field>
         </record>
 
         <!-- Partner for SR Server -->
         <record id="partner_sr_server" model="res.partner">
             <field name="name">SR Server Organization (Test)</field>
-            <field name="is_company" eval="True"/>
+            <field name="is_company" eval="True" />
             <field name="comment">Partner for SR server test sender</field>
         </record>
 
         <!-- Test client for DCI compliance testing -->
         <!-- Uses sender_id="test-client" to match spdci-compliance test suite defaults -->
-        <record id="dci_sender_test_client" model="spp.dci.sender.registry" forcecreate="False">
+        <record
+            id="dci_sender_test_client"
+            model="spp.dci.sender.registry"
+            forcecreate="False"
+        >
             <field name="name">DCI Compliance Test Client</field>
-            <field name="partner_id" ref="partner_dci_test_client"/>
-            <field name="organization_type_id" ref="spp_consent.org_type_government"/>
+            <field name="partner_id" ref="partner_dci_test_client" />
+            <field name="organization_type_id" ref="spp_consent.org_type_government" />
             <field name="sender_id">test-client</field>
             <field name="auth_type">none</field>
-            <field name="active" eval="True"/>
-            <field name="auto_approve" eval="True"/>
-            <field name="notes">Test client for DCI compliance testing. Uses sender_id="test-client" to match spdci-compliance defaults. Signature verification is disabled (auth_type=none).</field>
+            <field name="active" eval="True" />
+            <field name="auto_approve" eval="True" />
+            <field
+                name="notes"
+            >Test client for DCI compliance testing. Uses sender_id="test-client" to match spdci-compliance defaults. Signature verification is disabled (auth_type=none).</field>
             <field name="rate_limit_per_minute">100</field>
             <field name="rate_limit_per_day">10000</field>
         </record>
 
         <!-- SR Server sender for testing callbacks -->
-        <record id="dci_sender_sr_server" model="spp.dci.sender.registry" forcecreate="False">
+        <record
+            id="dci_sender_sr_server"
+            model="spp.dci.sender.registry"
+            forcecreate="False"
+        >
             <field name="name">SR Compliance Server (Test)</field>
-            <field name="partner_id" ref="partner_sr_server"/>
-            <field name="organization_type_id" ref="spp_consent.org_type_government"/>
+            <field name="partner_id" ref="partner_sr_server" />
+            <field name="organization_type_id" ref="spp_consent.org_type_government" />
             <field name="sender_id">compliance-sr-server</field>
             <field name="auth_type">none</field>
-            <field name="active" eval="True"/>
-            <field name="auto_approve" eval="True"/>
-            <field name="notes">SR server sender for testing DCI callbacks. Signature verification is disabled (auth_type=none).</field>
+            <field name="active" eval="True" />
+            <field name="auto_approve" eval="True" />
+            <field
+                name="notes"
+            >SR server sender for testing DCI callbacks. Signature verification is disabled (auth_type=none).</field>
             <field name="rate_limit_per_minute">100</field>
             <field name="rate_limit_per_day">10000</field>
         </record>

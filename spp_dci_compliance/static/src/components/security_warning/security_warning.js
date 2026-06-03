@@ -65,4 +65,6 @@ const systrayItem = {
     isDisplayed: (env) => true, // Always check, component handles visibility
 };
 
-registry.category("systray").add("spp_dci_compliance.SecurityWarning", systrayItem, {sequence: 1});
+registry
+    .category("systray")
+    .add("spp_dci_compliance.SecurityWarning", systrayItem, {sequence: 1});
