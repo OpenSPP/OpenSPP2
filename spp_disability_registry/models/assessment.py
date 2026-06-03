@@ -39,6 +39,17 @@ CFM_BEHAVIOR_LEVELS = [
     ("refused", "Refused"),
     ("dont_know", "Don't know"),
 ]
+# Frequency scale used by CFM 5-17 CF23 (anxiety) and CF24 (depression).
+# Disability threshold is "daily".
+CFM_FREQUENCY_LEVELS = [
+    ("daily", "Daily"),
+    ("weekly", "Weekly"),
+    ("monthly", "Monthly"),
+    ("few_times_year", "A few times a year"),
+    ("never", "Never"),
+    ("refused", "Refused"),
+    ("dont_know", "Don't know"),
+]
 
 # Review category to months mapping
 REVIEW_CATEGORY_MONTHS = {
@@ -204,6 +215,110 @@ class SppDisabilityAssessment(models.Model):
     cfm24_behavior = fields.Selection(  # CF16 (behaviour scale, threshold "a lot more")
         CFM_BEHAVIOR_LEVELS,
         string="How much does the child kick, bite or hit others?",
+    )
+
+    # === CFM 5-17 Responses (children aged 5-17, CF1-CF24) ===
+    # Vision
+    cfm517_glasses = fields.Boolean(string="Does the child wear glasses?")  # CF1
+    cfm517_vision_aided = fields.Selection(  # CF2
+        CFM_DIFFICULTY_LEVELS,
+        string="When wearing glasses, difficulty seeing?",
+    )
+    cfm517_vision = fields.Selection(  # CF3
+        CFM_DIFFICULTY_LEVELS,
+        string="Difficulty seeing?",
+    )
+    # Hearing
+    cfm517_hearing_aid = fields.Boolean(string="Does the child use a hearing aid?")  # CF4
+    cfm517_hearing_aided = fields.Selection(  # CF5
+        CFM_DIFFICULTY_LEVELS,
+        string="When using a hearing aid, difficulty hearing?",
+    )
+    cfm517_hearing = fields.Selection(  # CF6
+        CFM_DIFFICULTY_LEVELS,
+        string="Difficulty hearing sounds like voices or music?",
+    )
+    # Mobility (100m / 500m, with and without equipment; concluding = the "with aid"
+    # answer when equipment is used, otherwise the "compared with peers" answer)
+    cfm517_walk_equipment = fields.Boolean(  # CF7
+        string="Does the child use equipment or assistance for walking?"
+    )
+    cfm517_walk_unaided_100 = fields.Selection(  # CF8 (without equipment, 100m)
+        CFM_DIFFICULTY_LEVELS,
+        string="Without equipment, difficulty walking 100 m on level ground?",
+    )
+    cfm517_walk_unaided_500 = fields.Selection(  # CF9 (without equipment, 500m)
+        CFM_DIFFICULTY_LEVELS,
+        string="Without equipment, difficulty walking 500 m on level ground?",
+    )
+    cfm517_walk_aided_100 = fields.Selection(  # CF10 (with equipment, 100m) - concluding
+        CFM_DIFFICULTY_LEVELS,
+        string="With equipment, difficulty walking 100 m on level ground?",
+    )
+    cfm517_walk_aided_500 = fields.Selection(  # CF11 (with equipment, 500m) - concluding
+        CFM_DIFFICULTY_LEVELS,
+        string="With equipment, difficulty walking 500 m on level ground?",
+    )
+    cfm517_walk_compare_100 = fields.Selection(  # CF12 (no equipment, compared, 100m) - concluding
+        CFM_DIFFICULTY_LEVELS,
+        string="Compared with peers, difficulty walking 100 m on level ground?",
+    )
+    cfm517_walk_compare_500 = fields.Selection(  # CF13 (no equipment, compared, 500m) - concluding
+        CFM_DIFFICULTY_LEVELS,
+        string="Compared with peers, difficulty walking 500 m on level ground?",
+    )
+    # Self-care
+    cfm517_selfcare = fields.Selection(  # CF14
+        CFM_DIFFICULTY_LEVELS,
+        string="Difficulty with self-care such as feeding or dressing?",
+    )
+    # Communication
+    cfm517_comm_inside = fields.Selection(  # CF15
+        CFM_DIFFICULTY_LEVELS,
+        string="Difficulty being understood by people inside the household?",
+    )
+    cfm517_comm_outside = fields.Selection(  # CF16
+        CFM_DIFFICULTY_LEVELS,
+        string="Difficulty being understood by people outside the household?",
+    )
+    # Learning
+    cfm517_learning = fields.Selection(  # CF17
+        CFM_DIFFICULTY_LEVELS,
+        string="Difficulty learning things?",
+    )
+    # Remembering
+    cfm517_remembering = fields.Selection(  # CF18
+        CFM_DIFFICULTY_LEVELS,
+        string="Difficulty remembering things?",
+    )
+    # Concentrating
+    cfm517_concentrating = fields.Selection(  # CF19
+        CFM_DIFFICULTY_LEVELS,
+        string="Difficulty concentrating on an activity he/she enjoys?",
+    )
+    # Accepting change
+    cfm517_accepting_change = fields.Selection(  # CF20
+        CFM_DIFFICULTY_LEVELS,
+        string="Difficulty accepting changes in routine?",
+    )
+    # Controlling behaviour (standard difficulty scale in CFM 5-17)
+    cfm517_behavior = fields.Selection(  # CF21
+        CFM_DIFFICULTY_LEVELS,
+        string="Difficulty controlling his/her behaviour?",
+    )
+    # Making friends
+    cfm517_friends = fields.Selection(  # CF22
+        CFM_DIFFICULTY_LEVELS,
+        string="Difficulty making friends?",
+    )
+    # Anxiety / Depression (frequency scale, threshold "daily")
+    cfm517_anxiety = fields.Selection(  # CF23
+        CFM_FREQUENCY_LEVELS,
+        string="How often does the child seem very anxious, nervous or worried?",
+    )
+    cfm517_depression = fields.Selection(  # CF24
+        CFM_FREQUENCY_LEVELS,
+        string="How often does the child seem very sad or depressed?",
     )
 
     # === Impairment Classification (DCI DO.DR.02) ===
@@ -489,6 +604,44 @@ class SppDisabilityAssessment(models.Model):
             count += 1
         return count
 
+    def _cfm_5_17_domain_count(self):
+        """Number of CFM 5-17 domains meeting the disability threshold.
+
+        Standard domains use 'a lot of difficulty'/'cannot do at all' on the
+        concluding answer; mobility uses the 'with aid' answer (either distance)
+        when equipment is used, otherwise the 'compared with peers' answer;
+        anxiety (CF23) and depression (CF24) use a 'daily' frequency threshold.
+        """
+        self.ensure_one()
+        severe = WG_SEVERE_DIFFICULTY_LEVELS
+        vision = self.cfm517_vision_aided if self.cfm517_glasses else self.cfm517_vision
+        hearing = self.cfm517_hearing_aided if self.cfm517_hearing_aid else self.cfm517_hearing
+        if self.cfm517_walk_equipment:
+            mobility_severe = self.cfm517_walk_aided_100 in severe or self.cfm517_walk_aided_500 in severe
+        else:
+            mobility_severe = self.cfm517_walk_compare_100 in severe or self.cfm517_walk_compare_500 in severe
+        standard = [
+            vision,
+            hearing,
+            self.cfm517_selfcare,
+            self.cfm517_comm_inside,
+            self.cfm517_comm_outside,
+            self.cfm517_learning,
+            self.cfm517_remembering,
+            self.cfm517_concentrating,
+            self.cfm517_accepting_change,
+            self.cfm517_behavior,
+            self.cfm517_friends,
+        ]
+        count = sum(1 for r in standard if r in severe)
+        if mobility_severe:
+            count += 1
+        if self.cfm517_anxiety == "daily":
+            count += 1
+        if self.cfm517_depression == "daily":
+            count += 1
+        return count
+
     @api.depends(
         "assessment_type",
         "wg_seeing",
@@ -512,6 +665,28 @@ class SppDisabilityAssessment(models.Model):
         "cfm24_learning",
         "cfm24_playing",
         "cfm24_behavior",
+        "cfm517_glasses",
+        "cfm517_vision_aided",
+        "cfm517_vision",
+        "cfm517_hearing_aid",
+        "cfm517_hearing_aided",
+        "cfm517_hearing",
+        "cfm517_walk_equipment",
+        "cfm517_walk_aided_100",
+        "cfm517_walk_aided_500",
+        "cfm517_walk_compare_100",
+        "cfm517_walk_compare_500",
+        "cfm517_selfcare",
+        "cfm517_comm_inside",
+        "cfm517_comm_outside",
+        "cfm517_learning",
+        "cfm517_remembering",
+        "cfm517_concentrating",
+        "cfm517_accepting_change",
+        "cfm517_behavior",
+        "cfm517_friends",
+        "cfm517_anxiety",
+        "cfm517_depression",
     )
     def _compute_disability_indicator(self):
         """Count domains meeting the disability threshold for the active instrument.
@@ -521,8 +696,9 @@ class SppDisabilityAssessment(models.Model):
         for rec in self:
             if rec.assessment_type == "cfm_2_4":
                 domain_count = rec._cfm_2_4_domain_count()
+            elif rec.assessment_type == "cfm_5_17":
+                domain_count = rec._cfm_5_17_domain_count()
             else:
-                # WG-SS, and CFM 5-17 until its own instrument lands (#1049).
                 domain_count = rec._wg_ss_domain_count()
             rec.wg_domain_count = domain_count
             rec.has_disability = domain_count > 0
