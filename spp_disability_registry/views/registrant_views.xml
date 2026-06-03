@@ -51,7 +51,7 @@
                     type="object"
                     class="oe_stat_button"
                     icon="fa-medkit"
-                    invisible="not is_registrant or is_group or assistive_device_count == 0"
+                    invisible="not is_registrant or is_group"
                 >
                     <field
                         name="assistive_device_count"
@@ -206,8 +206,8 @@
                         </field>
                     </div>
 
-                    <!-- Assistive Devices Section -->
-                    <div class="mt-4" invisible="not has_disability">
+                    <!-- Assistive Devices Section (no disability prerequisite — OP#1052) -->
+                    <div class="mt-4">
                         <separator string="Assistive Devices" />
                         <div invisible="assistive_device_count == 0" class="mb-3">
                             <span
@@ -223,21 +223,25 @@
                             nolabel="1"
                             widget="x2many_no_padding"
                         >
-                            <list editable="bottom">
+                            <list
+                                editable="bottom"
+                                decoration-info="status == 'needed'"
+                                decoration-warning="status == 'requested'"
+                                decoration-success="status == 'provided'"
+                            >
                                 <field
                                     name="device_type_id"
                                     options="{'no_create': True}"
                                 />
-                                <field
-                                    name="status"
-                                    widget="badge"
-                                    decoration-info="status == 'needed'"
-                                    decoration-warning="status == 'requested'"
-                                    decoration-success="status == 'provided'"
-                                />
+                                <field name="status" />
                                 <field
                                     name="provision_date"
                                     invisible="status != 'provided'"
+                                />
+                                <field
+                                    name="provider"
+                                    invisible="status != 'provided'"
+                                    optional="hide"
                                 />
                                 <field name="notes" optional="hide" />
                             </list>

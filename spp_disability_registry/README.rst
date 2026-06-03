@@ -40,8 +40,7 @@ Key Features
   scheduling
 - Impairment type, cause, and severity classifications using DCI
   vocabularies
-- Assistive device management with status workflow (needed, requested,
-  provided)
+- Assistive device management with status (needed, requested, provided)
 - Proxy response tracking for children
 - CEL function integration for program eligibility targeting
 
