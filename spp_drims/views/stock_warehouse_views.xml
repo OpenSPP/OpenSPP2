@@ -125,11 +125,6 @@
                                     name="area_id"
                                     invisible="not is_drims_warehouse"
                                 />
-                                <field
-                                    name="gis_location"
-                                    widget="geo_point"
-                                    invisible="not is_drims_warehouse"
-                                />
                             </group>
                             <group string="Emergency Contact" name="emergency_contact">
                                 <field
@@ -141,6 +136,26 @@
                                     invisible="not is_drims_warehouse"
                                 />
                             </group>
+                        </group>
+
+                        <!--
+                            OP#1038: GPS map gets its own full-width section
+                            below the two settings sub-groups. Inside the
+                            nested 2-column group above, the geo_point
+                            canvas was constrained to ~1/4 of the form
+                            width and felt unusable.
+                        -->
+                        <group
+                            string="GPS Location"
+                            name="drims_gps"
+                            invisible="not is_drims_warehouse"
+                        >
+                            <field
+                                name="gis_location"
+                                widget="geo_point"
+                                nolabel="1"
+                                colspan="2"
+                            />
                         </group>
                     </page>
                 </notebook>
