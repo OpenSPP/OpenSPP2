@@ -103,12 +103,19 @@
                             <group col="2">
                                 <group string="Registrant">
                                     <field
+                                        name="age_restriction_enforced"
+                                        invisible="1"
+                                    />
+                                    <field
                                         name="registrant_id"
                                         readonly="approval_state != 'draft'"
                                         options="{'no_create': True}"
                                     />
                                     <field name="age_at_assessment" />
-                                    <field name="assessment_type" />
+                                    <field
+                                        name="assessment_type"
+                                        readonly="age_restriction_enforced or approval_state != 'draft'"
+                                    />
                                 </group>
                                 <group string="Assessment Details">
                                     <field
@@ -145,33 +152,48 @@
                             </group>
                         </page>
 
-                        <!-- Tab 2: Washington Group Assessment -->
-                        <page name="wg_assessment" string="WG Assessment">
-                            <div class="alert alert-light mb-3" role="status">
-                                <strong>Washington Group Short Set (WG-SS)</strong>
+                        <!-- Tab 2: WG/CFM Assessment (form varies by assessment type) -->
+                        <page name="wg_assessment" string="WG/CFM Assessment">
+                            <!-- Adults 18+ : Washington Group Short Set -->
+                            <div invisible="assessment_type != 'wg_ss'">
+                                <div class="alert alert-light mb-3" role="status">
+                                    <strong>Washington Group Short Set (WG-SS)</strong>
+                                    <p class="mb-0">
+                                        Rate difficulty levels for each domain.
+                                        A person has a disability if they have "A lot of difficulty" or "Cannot do at all" in at least one domain.
+                                    </p>
+                                </div>
+                                <group col="2">
+                                    <group string="Sensory Functions">
+                                        <field name="wg_seeing" widget="radio" />
+                                        <field name="wg_hearing" widget="radio" />
+                                    </group>
+                                    <group string="Motor Functions">
+                                        <field name="wg_walking" widget="radio" />
+                                        <field name="wg_selfcare" widget="radio" />
+                                    </group>
+                                </group>
+                                <group col="2">
+                                    <group string="Cognitive Functions">
+                                        <field name="wg_remembering" widget="radio" />
+                                    </group>
+                                    <group string="Communication">
+                                        <field name="wg_communicating" widget="radio" />
+                                    </group>
+                                </group>
+                            </div>
+                            <!-- Children : CFM questionnaire added by CFM 2-4 / CFM 5-17 support -->
+                            <div
+                                class="alert alert-info mb-0"
+                                role="status"
+                                invisible="assessment_type == 'wg_ss'"
+                            >
+                                <strong>Child Functioning Module (CFM)</strong>
                                 <p class="mb-0">
-                                    Rate difficulty levels for each domain.
-                                    A person has a disability if they have "A lot of difficulty" or "Cannot do at all" in at least one domain.
+                                    The CFM questionnaire for children is provided by the
+                                    Child Functioning Module support (CFM 2-4 and CFM 5-17).
                                 </p>
                             </div>
-                            <group col="2">
-                                <group string="Sensory Functions">
-                                    <field name="wg_seeing" widget="radio" />
-                                    <field name="wg_hearing" widget="radio" />
-                                </group>
-                                <group string="Motor Functions">
-                                    <field name="wg_walking" widget="radio" />
-                                    <field name="wg_selfcare" widget="radio" />
-                                </group>
-                            </group>
-                            <group col="2">
-                                <group string="Cognitive Functions">
-                                    <field name="wg_remembering" widget="radio" />
-                                </group>
-                                <group string="Communication">
-                                    <field name="wg_communicating" widget="radio" />
-                                </group>
-                            </group>
                         </page>
 
                         <!-- Tab 3: Support Needs -->

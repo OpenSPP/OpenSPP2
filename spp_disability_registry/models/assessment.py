@@ -77,6 +77,13 @@ class SppDisabilityAssessment(models.Model):
         compute="_compute_age_at_assessment",
         store=True,
     )
+    age_restriction_enforced = fields.Boolean(
+        string="Age Restriction Enforced",
+        compute="_compute_age_restriction_enforced",
+        help="Technical flag driving the form: True when the assessment type is "
+        "auto-determined by age (default). Toggled by the 'Allow manual assessment "
+        "type' setting in Disability Registry configuration.",
+    )
 
     # === WG-SS Responses (6 domains) ===
     wg_seeing = fields.Selection(
@@ -227,18 +234,56 @@ class SppDisabilityAssessment(models.Model):
             delta = relativedelta(rec.assessment_date, rec.registrant_id.birthdate)
             rec.age_at_assessment = delta.years
 
+    @api.model
+    def _disability_disregard_age(self):
+        """Read the 'disregard age for assessment type' configuration flag."""
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
+        icp = self.env["ir.config_parameter"].sudo()
+        return icp.get_param("spp_disability_registry.disregard_age", "False") == "True"
+
+    def _assessment_type_for_age(self):
+        """Return the WG/CFM assessment type implied by the age at assessment."""
+        self.ensure_one()
+        age = self.age_at_assessment
+        if age >= 18:
+            return "wg_ss"
+        elif age >= 5:
+            return "cfm_5_17"
+        # Under 5 (including under 2) defaults to the CFM 2-4 instrument.
+        return "cfm_2_4"
+
+    def _compute_age_restriction_enforced(self):
+        enforced = not self._disability_disregard_age()
+        for rec in self:
+            rec.age_restriction_enforced = enforced
+
     @api.depends("age_at_assessment")
     def _compute_assessment_type(self):
+        disregard_age = self._disability_disregard_age()
         for rec in self:
-            if rec.age_at_assessment >= 18:
-                rec.assessment_type = "wg_ss"
-            elif rec.age_at_assessment >= 5:
-                rec.assessment_type = "cfm_5_17"
-            elif rec.age_at_assessment >= 2:
-                rec.assessment_type = "cfm_2_4"
-            else:
-                # Under 2 - default to CFM 2-4 but flag for manual review
-                rec.assessment_type = "cfm_2_4"
+            if disregard_age:
+                # Manual mode: preserve the user's selection; only seed a
+                # sensible default when nothing has been chosen yet.
+                if not rec.assessment_type:
+                    rec.assessment_type = rec._assessment_type_for_age()
+                continue
+            rec.assessment_type = rec._assessment_type_for_age()
+
+    @api.constrains("registrant_id")
+    def _check_birthdate_required_for_age(self):
+        """Require a date of birth when the assessment type is age-driven."""
+        if self._disability_disregard_age():
+            return
+        for rec in self:
+            if rec.registrant_id and not rec.registrant_id.birthdate:
+                raise ValidationError(
+                    _(
+                        "A date of birth is required for %s to determine the assessment type by age. "
+                        "Set the registrant's date of birth, or enable 'Allow manual assessment type' "
+                        "in the Disability Registry settings.",
+                        rec.registrant_id.display_name,
+                    )
+                )
 
     @api.depends("review_category", "assessment_date")
     def _compute_next_review_date(self):

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_res_config_settings_form_disability" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.disability</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app
+                    data-string="Disability Registry"
+                    string="Disability Registry"
+                    name="spp_disability_registry"
+                    logo="/spp_disability_registry/static/description/icon.png"
+                >
+                    <block title="Assessment" name="disability_assessment_block">
+                        <setting
+                            string="Allow manual assessment type"
+                            help="When enabled, the assessment type can be selected manually and the registrant's date of birth is not required. When disabled (default), the assessment type is determined automatically from the registrant's age and a date of birth is required."
+                        >
+                            <field name="disability_disregard_age" />
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Open the general Settings at the Disability Registry section -->
+    <record id="action_disability_config_settings" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="context">{'module': 'spp_disability_registry'}</field>
+    </record>
+</odoo>
