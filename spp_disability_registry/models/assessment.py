@@ -164,8 +164,17 @@ class SppDisabilityAssessment(models.Model):
     # === Proxy Response Tracking ===
     is_proxy_response = fields.Boolean(
         string="Proxy Response",
-        default=False,
-        help="True if responses provided by proxy (always true for children)",
+        compute="_compute_is_proxy_response",
+        store=True,
+        readonly=False,
+        help="True if responses were provided by a proxy. Forced on for CFM 2-4 and "
+        "(unless self-report is enabled) CFM 5-17; optional for WG-SS.",
+    )
+    proxy_locked = fields.Boolean(
+        string="Proxy Locked",
+        compute="_compute_proxy_locked",
+        help="Technical flag: True when the proxy response checkbox is forced and "
+        "must not be edited (driven by assessment type, age and configuration).",
     )
     proxy_respondent_id = fields.Many2one(
         "res.partner",
@@ -181,6 +190,19 @@ class SppDisabilityAssessment(models.Model):
             ("other", "Other"),
         ],
         string="Proxy Relationship",
+    )
+    proxy_reason = fields.Selection(
+        [
+            (
+                "functional_limitation",
+                "Unable to respond due to functional limitation (hearing, communication, cognitive, etc.)",
+            ),
+            ("caregiver", "Individual not present - caregiver responding"),
+            ("household_head", "Individual not present - household head responding"),
+            ("other", "Other"),
+        ],
+        string="Reason for Proxy",
+        help="Why a proxy responded instead of the individual (WG-SS).",
     )
 
     # === Computed Disability Indicator ===
@@ -235,11 +257,56 @@ class SppDisabilityAssessment(models.Model):
             rec.age_at_assessment = delta.years
 
     @api.model
-    def _disability_disregard_age(self):
-        """Read the 'disregard age for assessment type' configuration flag."""
+    def _disability_config(self):
+        """Read the Disability Registry configuration parameters with defaults."""
         # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         icp = self.env["ir.config_parameter"].sudo()
-        return icp.get_param("spp_disability_registry.disregard_age", "False") == "True"
+        get = icp.get_param
+        return {
+            "disregard_age": get("spp_disability_registry.disregard_age", "False") == "True",
+            "allow_self_report_cfm": get("spp_disability_registry.allow_self_report_cfm_5_17", "False") == "True",
+            "self_report_min_age": int(get("spp_disability_registry.self_report_min_age", "0") or 0),
+            "allow_proxy_wg_ss": get("spp_disability_registry.allow_proxy_wg_ss", "True") == "True",
+        }
+
+    @api.model
+    def _disability_disregard_age(self):
+        """Read the 'disregard age for assessment type' configuration flag."""
+        return self._disability_config()["disregard_age"]
+
+    def _proxy_is_locked(self):
+        """Whether the proxy response flag is forced (non-editable) for this record.
+
+        - CFM 2-4: always locked (proxy mandatory).
+        - CFM 5-17: locked unless self-report is enabled and the child meets the
+          optional minimum self-report age.
+        - WG-SS: locked only when proxy reporting is disabled by configuration.
+        """
+        self.ensure_one()
+        cfg = self._disability_config()
+        if self.assessment_type == "cfm_2_4":
+            return True
+        if self.assessment_type == "cfm_5_17":
+            min_age = cfg["self_report_min_age"]
+            old_enough = (not min_age) or (self.age_at_assessment >= min_age)
+            return not (cfg["allow_self_report_cfm"] and old_enough)
+        # WG-SS (adult) and any fallback.
+        return not cfg["allow_proxy_wg_ss"]
+
+    @api.depends("assessment_type")
+    def _compute_is_proxy_response(self):
+        """Seed the proxy flag from the assessment type (children = proxy by default,
+        adults = self-report). This default also matches the forced value in every
+        locked case, so locked records always carry the correct flag. Editable for
+        unlocked types — user toggles persist until the assessment type changes.
+        """
+        for rec in self:
+            rec.is_proxy_response = rec.assessment_type in ("cfm_2_4", "cfm_5_17")
+
+    @api.depends("assessment_type", "age_at_assessment")
+    def _compute_proxy_locked(self):
+        for rec in self:
+            rec.proxy_locked = rec._proxy_is_locked()
 
     def _assessment_type_for_age(self):
         """Return the WG/CFM assessment type implied by the age at assessment."""
@@ -317,12 +384,6 @@ class SppDisabilityAssessment(models.Model):
             domain_count = sum(1 for r in responses if r in WG_SEVERE_DIFFICULTY_LEVELS)
             rec.wg_domain_count = domain_count
             rec.has_disability = domain_count > 0
-
-    @api.onchange("assessment_type")
-    def _onchange_assessment_type(self):
-        """Set proxy response flag automatically for child assessments."""
-        if self.assessment_type in ("cfm_2_4", "cfm_5_17"):
-            self.is_proxy_response = True
 
     def action_view_registrant(self):
         """Open the registrant form."""

@@ -154,6 +154,27 @@
 
                         <!-- Tab 2: WG/CFM Assessment (form varies by assessment type) -->
                         <page name="wg_assessment" string="WG/CFM Assessment">
+                            <!-- Respondent / proxy (OP#1053) -->
+                            <field name="proxy_locked" invisible="1" />
+                            <group string="Respondent" col="2">
+                                <group>
+                                    <field
+                                        name="is_proxy_response"
+                                        readonly="proxy_locked"
+                                    />
+                                </group>
+                                <group invisible="not is_proxy_response">
+                                    <field
+                                        name="proxy_respondent_id"
+                                        options="{'no_create': True}"
+                                    />
+                                    <field name="proxy_relationship" />
+                                    <field
+                                        name="proxy_reason"
+                                        invisible="assessment_type != 'wg_ss'"
+                                    />
+                                </group>
+                            </group>
                             <!-- Adults 18+ : Washington Group Short Set -->
                             <div invisible="assessment_type != 'wg_ss'">
                                 <div class="alert alert-light mb-3" role="status">
@@ -204,22 +225,6 @@
                                     nolabel="1"
                                     placeholder="Describe the person's support needs (human assistance, accessibility requirements, etc.)..."
                                 />
-                            </group>
-                        </page>
-
-                        <!-- Tab 4: Proxy Response -->
-                        <page name="proxy" string="Response Information">
-                            <group col="2">
-                                <group string="Response Type">
-                                    <field name="is_proxy_response" />
-                                </group>
-                                <group
-                                    string="Proxy Respondent"
-                                    invisible="not is_proxy_response"
-                                >
-                                    <field name="proxy_respondent_id" />
-                                    <field name="proxy_relationship" />
-                                </group>
                             </group>
                         </page>
                     </notebook>

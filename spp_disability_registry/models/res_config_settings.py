@@ -13,3 +13,47 @@ class ResConfigSettings(models.TransientModel):
         "assessment type is determined automatically from the registrant's age and "
         "a date of birth is required.",
     )
+
+    # === Proxy Response ===
+    disability_allow_self_report_cfm = fields.Boolean(
+        string="Allow self-report on CFM 5-17",
+        config_parameter="spp_disability_registry.allow_self_report_cfm_5_17",
+        help="When enabled, the proxy response flag can be unticked on CFM 5-17 "
+        "assessments (subject to the minimum self-report age below). Disabled by "
+        "default — CFM 5-17 assessments are proxy responses.",
+    )
+    disability_self_report_min_age = fields.Integer(
+        string="Minimum age for self-report (CFM 5-17)",
+        config_parameter="spp_disability_registry.self_report_min_age",
+        help="Minimum age at assessment at which self-report is allowed on CFM 5-17 "
+        "(only applies when self-report is enabled). 0 means no minimum.",
+    )
+    # NB: managed manually below (not via config_parameter). A config_parameter
+    # Boolean defaulting to True cannot persist a False value: set_param(key, False)
+    # DELETES the parameter, and get_values then falls back to the field default
+    # (True), so the box re-ticks itself on save. Storing an explicit "True"/"False"
+    # string avoids the delete.
+    disability_allow_proxy_wg_ss = fields.Boolean(
+        string="Allow proxy report on WG-SS",
+        default=True,
+        help="When enabled (default), the proxy response flag can be ticked on adult "
+        "WG-SS assessments. When disabled, WG-SS assessments are self-report only.",
+    )
+
+    def get_values(self):
+        res = super().get_values()
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
+        icp = self.env["ir.config_parameter"].sudo()
+        res["disability_allow_proxy_wg_ss"] = (
+            icp.get_param("spp_disability_registry.allow_proxy_wg_ss", "True") == "True"
+        )
+        return res
+
+    def set_values(self):
+        super().set_values()
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
+        icp = self.env["ir.config_parameter"].sudo()
+        icp.set_param(
+            "spp_disability_registry.allow_proxy_wg_ss",
+            "True" if self.disability_allow_proxy_wg_ss else "False",
+        )
