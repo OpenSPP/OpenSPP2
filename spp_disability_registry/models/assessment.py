@@ -18,6 +18,28 @@ WG_DIFFICULTY_LEVELS = [
 # Severe difficulty levels that indicate disability per WG standard
 WG_SEVERE_DIFFICULTY_LEVELS = ("a_lot", "cannot")
 
+# WG/UNICEF Child Functioning Module (CFM) response scales.
+# Standard difficulty scale (shared by CFM 2-4 and CFM 5-17), including the
+# survey non-response codes; "a_lot"/"cannot" reuse WG_SEVERE_DIFFICULTY_LEVELS.
+CFM_DIFFICULTY_LEVELS = [
+    ("none", "No difficulty"),
+    ("some", "Some difficulty"),
+    ("a_lot", "A lot of difficulty"),
+    ("cannot", "Cannot do at all"),
+    ("refused", "Refused"),
+    ("dont_know", "Don't know"),
+]
+# Behaviour-frequency scale used by CFM 2-4 CF16 (controlling behaviour).
+# Disability threshold is "a lot more".
+CFM_BEHAVIOR_LEVELS = [
+    ("not_at_all", "Not at all"),
+    ("same_or_less", "The same or less"),
+    ("more", "More"),
+    ("a_lot_more", "A lot more"),
+    ("refused", "Refused"),
+    ("dont_know", "Don't know"),
+]
+
 # Review category to months mapping
 REVIEW_CATEGORY_MONTHS = {
     "mie": 12,  # Medical Improvement Expected: 6-18 months (using 12)
@@ -115,6 +137,73 @@ class SppDisabilityAssessment(models.Model):
         WG_DIFFICULTY_LEVELS,
         string="Communicating",
         help="Do you have difficulty communicating (understanding or being understood)?",
+    )
+
+    # === CFM 2-4 Responses (children aged 2-4, CF1-CF16) ===
+    # Vision
+    cfm24_glasses = fields.Boolean(string="Does the child wear glasses?")  # CF1
+    cfm24_vision_aided = fields.Selection(  # CF2 (asked when glasses are worn)
+        CFM_DIFFICULTY_LEVELS,
+        string="When wearing glasses, difficulty seeing?",
+    )
+    cfm24_vision = fields.Selection(  # CF3 (asked when no glasses)
+        CFM_DIFFICULTY_LEVELS,
+        string="Difficulty seeing?",
+    )
+    # Hearing
+    cfm24_hearing_aid = fields.Boolean(string="Does the child use a hearing aid?")  # CF4
+    cfm24_hearing_aided = fields.Selection(  # CF5
+        CFM_DIFFICULTY_LEVELS,
+        string="When using a hearing aid, difficulty hearing?",
+    )
+    cfm24_hearing = fields.Selection(  # CF6
+        CFM_DIFFICULTY_LEVELS,
+        string="Difficulty hearing sounds like voices or music?",
+    )
+    # Mobility
+    cfm24_walk_equipment = fields.Boolean(  # CF7
+        string="Does the child use equipment or assistance for walking?"
+    )
+    cfm24_walk_unaided = fields.Selection(  # CF8 (without equipment)
+        CFM_DIFFICULTY_LEVELS,
+        string="Without equipment/assistance, difficulty walking?",
+    )
+    cfm24_walk_aided = fields.Selection(  # CF9 (with equipment) - concluding when equipment used
+        CFM_DIFFICULTY_LEVELS,
+        string="With equipment/assistance, difficulty walking?",
+    )
+    cfm24_walk_compare = fields.Selection(  # CF10 (no equipment) - concluding when no equipment
+        CFM_DIFFICULTY_LEVELS,
+        string="Compared with other children, difficulty walking?",
+    )
+    # Dexterity
+    cfm24_dexterity = fields.Selection(  # CF11
+        CFM_DIFFICULTY_LEVELS,
+        string="Difficulty picking up small objects with the hand?",
+    )
+    # Communication
+    cfm24_understand_you = fields.Selection(  # CF12
+        CFM_DIFFICULTY_LEVELS,
+        string="Difficulty understanding you?",
+    )
+    cfm24_understood = fields.Selection(  # CF13
+        CFM_DIFFICULTY_LEVELS,
+        string="When the child speaks, difficulty understanding him/her?",
+    )
+    # Learning
+    cfm24_learning = fields.Selection(  # CF14
+        CFM_DIFFICULTY_LEVELS,
+        string="Difficulty learning things?",
+    )
+    # Playing
+    cfm24_playing = fields.Selection(  # CF15
+        CFM_DIFFICULTY_LEVELS,
+        string="Difficulty playing?",
+    )
+    # Controlling behaviour
+    cfm24_behavior = fields.Selection(  # CF16 (behaviour scale, threshold "a lot more")
+        CFM_BEHAVIOR_LEVELS,
+        string="How much does the child kick, bite or hit others?",
     )
 
     # === Impairment Classification (DCI DO.DR.02) ===
@@ -361,27 +450,80 @@ class SppDisabilityAssessment(models.Model):
             months = REVIEW_CATEGORY_MONTHS.get(rec.review_category, REVIEW_CATEGORY_MONTHS["mip"])
             rec.next_review_date = rec.assessment_date + relativedelta(months=months)
 
+    def _wg_ss_domain_count(self):
+        """Number of WG-SS domains with 'a lot of difficulty' or 'cannot do at all'."""
+        self.ensure_one()
+        responses = [
+            self.wg_seeing,
+            self.wg_hearing,
+            self.wg_walking,
+            self.wg_remembering,
+            self.wg_selfcare,
+            self.wg_communicating,
+        ]
+        return sum(1 for r in responses if r in WG_SEVERE_DIFFICULTY_LEVELS)
+
+    def _cfm_2_4_domain_count(self):
+        """Number of CFM 2-4 domains meeting the disability threshold.
+
+        Standard domains use 'a lot of difficulty'/'cannot do at all' on the
+        concluding answer; controlling behaviour (CF16) uses 'a lot more'.
+        """
+        self.ensure_one()
+        # Concluding answer per branched domain.
+        vision = self.cfm24_vision_aided if self.cfm24_glasses else self.cfm24_vision
+        hearing = self.cfm24_hearing_aided if self.cfm24_hearing_aid else self.cfm24_hearing
+        mobility = self.cfm24_walk_aided if self.cfm24_walk_equipment else self.cfm24_walk_compare
+        standard = [
+            vision,
+            hearing,
+            mobility,
+            self.cfm24_dexterity,
+            self.cfm24_understand_you,
+            self.cfm24_understood,
+            self.cfm24_learning,
+            self.cfm24_playing,
+        ]
+        count = sum(1 for r in standard if r in WG_SEVERE_DIFFICULTY_LEVELS)
+        if self.cfm24_behavior == "a_lot_more":
+            count += 1
+        return count
+
     @api.depends(
+        "assessment_type",
         "wg_seeing",
         "wg_hearing",
         "wg_walking",
         "wg_remembering",
         "wg_selfcare",
         "wg_communicating",
+        "cfm24_glasses",
+        "cfm24_vision_aided",
+        "cfm24_vision",
+        "cfm24_hearing_aid",
+        "cfm24_hearing_aided",
+        "cfm24_hearing",
+        "cfm24_walk_equipment",
+        "cfm24_walk_aided",
+        "cfm24_walk_compare",
+        "cfm24_dexterity",
+        "cfm24_understand_you",
+        "cfm24_understood",
+        "cfm24_learning",
+        "cfm24_playing",
+        "cfm24_behavior",
     )
     def _compute_disability_indicator(self):
-        """WG standard: any domain with 'a_lot' or 'cannot' indicates disability."""
+        """Count domains meeting the disability threshold for the active instrument.
+
+        Any domain at/above threshold marks the person as having a disability.
+        """
         for rec in self:
-            responses = [
-                rec.wg_seeing,
-                rec.wg_hearing,
-                rec.wg_walking,
-                rec.wg_remembering,
-                rec.wg_selfcare,
-                rec.wg_communicating,
-            ]
-            # Count domains with severe difficulty
-            domain_count = sum(1 for r in responses if r in WG_SEVERE_DIFFICULTY_LEVELS)
+            if rec.assessment_type == "cfm_2_4":
+                domain_count = rec._cfm_2_4_domain_count()
+            else:
+                # WG-SS, and CFM 5-17 until its own instrument lands (#1049).
+                domain_count = rec._wg_ss_domain_count()
             rec.wg_domain_count = domain_count
             rec.has_disability = domain_count > 0
 
