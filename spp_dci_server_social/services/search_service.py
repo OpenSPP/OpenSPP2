@@ -26,6 +26,14 @@ from odoo.addons.spp_dci.services import DCIErrorMessages
 
 _logger = logging.getLogger(__name__)
 
+# Accepted spellings of the Social Registry type (compared lowercase): the
+# SPDCI namespaced value sent by DCI clients, plus legacy bare forms.
+_ACCEPTED_SOCIAL_REG_TYPES = {
+    "ns:org:registrytype:social",
+    "social_registry",
+    "social",
+}
+
 
 class DCISocialSearchService:
     """Service for DCI Social Registry search operations.
@@ -138,11 +146,11 @@ class DCISocialSearchService:
         """
         criteria = search_req.search_criteria
 
-        # Default reg_type to SOCIAL_REGISTRY if not provided (optional per SPDCI spec)
-        reg_type = criteria.reg_type or "SOCIAL_REGISTRY"
-
-        # Validate registry type
-        if reg_type != "SOCIAL_REGISTRY":
+        # reg_type is optional per the SPDCI spec (defaults to social);
+        # accept both the namespaced spelling DCI clients send
+        # (ns:org:RegistryType:Social) and the legacy bare form.
+        reg_type = criteria.reg_type
+        if reg_type and str(reg_type).strip().lower() not in _ACCEPTED_SOCIAL_REG_TYPES:
             return SearchResponseItem(
                 reference_id=search_req.reference_id,
                 timestamp=datetime.now(UTC),
@@ -289,11 +297,17 @@ class DCISocialSearchService:
                 id_type = query.type
                 id_value = query.value
 
-            # Match by identifier type and value
-            # Note: Assuming id_type is a namespace URI
+            if not id_type or not id_value:
+                raise ValueError("idtype-value query requires both 'type' and 'value'")
+
+            # Match the identifier type by namespace URI or by the short
+            # vocabulary code - DCI clients resolve identifiers from their
+            # local registrant IDs as short codes (UIN, NATIONAL_ID, ...).
             domain.extend(
                 [
+                    "|",
                     ("reg_ids.id_type_id.namespace_uri", "=", id_type),
+                    ("reg_ids.id_type_id.code", "=", id_type),
                     ("reg_ids.value", "=", id_value),
                 ]
             )

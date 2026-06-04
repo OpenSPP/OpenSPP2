@@ -8,6 +8,7 @@ from unittest.mock import patch
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests import tagged
 
+from odoo.addons.spp_dci.schemas.constants import SearchStatusReasonCode
 from odoo.addons.spp_dci.schemas.search import (
     PaginationRequest,
     SearchCriteria,
@@ -47,6 +48,84 @@ class TestDCISocialSearchService(DCISocialServerCommon):
 
         service.set_sender(self.test_sender)
         self.assertEqual(service.sender, self.test_sender)
+
+    def test_search_accepts_namespaced_reg_type(self):
+        """The DCI client sends the namespaced RegistryType value from its data
+        source (ns:org:RegistryType:Social) - the service must accept it, not
+        only the bare legacy form."""
+        criteria = SearchCriteria(
+            reg_type="ns:org:RegistryType:Social",
+            query_type="idtype-value",
+            query={"type": self.test_id_type.namespace_uri, "value": "NAT-001"},
+        )
+        search_req = SearchRequestItem(
+            reference_id="test-ref-ns",
+            timestamp=datetime.now(UTC),
+            search_criteria=criteria,
+        )
+        request = SearchRequest(transaction_id="test-txn-ns", search_request=[search_req])
+        self.env.user.write({"group_ids": [(4, self.env.ref("spp_registry.group_registry_viewer").id)]})
+
+        response = self.search_service.execute_search(request)
+
+        response_item = response.search_response[0]
+        self.assertEqual(
+            response_item.status,
+            "succ",
+            f"namespaced reg_type rejected: {response_item.status_reason_message}",
+        )
+
+    def test_search_by_identifier_short_code(self):
+        """idtype-value must also match the vocabulary code, not only the
+        namespace URI - DCI clients resolve identifiers from their local
+        registrant IDs as short codes (UIN, NATIONAL_ID, ...)."""
+        criteria = SearchCriteria(
+            reg_type="SOCIAL_REGISTRY",
+            query_type="idtype-value",
+            query={"type": self.test_id_type.code, "value": "NAT-001"},
+        )
+        search_req = SearchRequestItem(
+            reference_id="test-ref-code",
+            timestamp=datetime.now(UTC),
+            search_criteria=criteria,
+        )
+        request = SearchRequest(transaction_id="test-txn-code", search_request=[search_req])
+        self.env.user.write({"group_ids": [(4, self.env.ref("spp_registry.group_registry_viewer").id)]})
+
+        response = self.search_service.execute_search(request)
+
+        response_item = response.search_response[0]
+        self.assertEqual(response_item.status, "succ")
+        self.assertEqual(
+            len(response_item.data.reg_records),
+            1,
+            "short-code identifier type did not match any record",
+        )
+
+    def test_search_by_identifier_missing_value_rejected(self):
+        """A malformed idtype-value query (missing value) must be rejected
+        with FILTER_INVALID instead of silently matching nothing."""
+        criteria = SearchCriteria(
+            reg_type="SOCIAL_REGISTRY",
+            query_type="idtype-value",
+            query={"type": self.test_id_type.namespace_uri},
+        )
+        search_req = SearchRequestItem(
+            reference_id="test-ref-noval",
+            timestamp=datetime.now(UTC),
+            search_criteria=criteria,
+        )
+        request = SearchRequest(transaction_id="test-txn-noval", search_request=[search_req])
+        self.env.user.write({"group_ids": [(4, self.env.ref("spp_registry.group_registry_viewer").id)]})
+
+        response = self.search_service.execute_search(request)
+
+        response_item = response.search_response[0]
+        self.assertEqual(response_item.status, "rjct")
+        self.assertEqual(
+            response_item.status_reason_code,
+            SearchStatusReasonCode.FILTER_INVALID.value,
+        )
 
     def test_search_by_identifier_success(self):
         """Test searching by identifier type and value."""

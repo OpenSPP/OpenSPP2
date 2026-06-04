@@ -456,6 +456,27 @@ Registries</strong></li>
 &gt; Scheduled Actions</strong></li>
 </ol>
 </div>
+<div class="section" id="deployment-prerequisites-read-before-exposing-the-server">
+<h1>Deployment Prerequisites (read before exposing the server)</h1>
+<ul class="simple">
+<li><strong>Endpoint user groups</strong>: the Odoo user configured on the DCI
+<tt class="docutils literal">fastapi.endpoint</tt> must belong to
+<tt class="docutils literal">spp_registry.group_registry_viewer</tt> - every search fails with an
+access error otherwise.</li>
+<li><strong>queue_job worker</strong>: event notifications are delivered through
+delayed jobs on channels <tt class="docutils literal">root.dci</tt> and <tt class="docutils literal">dci</tt>. A running queue_job
+worker with those channels configured is a hard requirement - without
+it, notifications are enqueued and silently never sent.</li>
+<li><strong>Inbound auth</strong>: searches go through <tt class="docutils literal">spp_dci_server</tt>’s
+authenticated route (bearer token per <tt class="docutils literal">dci.api_tokens</tt> plus DCI
+envelope signature). This module deliberately ships no unauthenticated
+routes.</li>
+<li><strong>Client base URL</strong>: DCI clients post to
+<tt class="docutils literal"><span class="pre">{base_url}/registry/sync/search</span></tt>; point their data source base URL
+at <tt class="docutils literal"><span class="pre">.../api/v1/social</span></tt> so requests land on this server’s
+<tt class="docutils literal">/social/registry/sync/search</tt> mount.</li>
+</ul>
+</div>
 <div class="section" id="ui-location">
 <h1>UI Location</h1>
 <p>No standalone UI. Search functionality accessed via DCI API endpoints.
