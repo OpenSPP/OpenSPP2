@@ -7,12 +7,19 @@
         <field name="arch" type="xml">
             <form string="Disability Assessment">
                 <header>
+                    <!-- Approve/Reject visibility follows the configured approval
+                         workflow (can_approve/can_reject), so the configured
+                         approvers drive the buttons rather than a fixed group. -->
+                    <field name="can_submit" invisible="1" />
+                    <field name="can_approve" invisible="1" />
+                    <field name="can_reject" invisible="1" />
+                    <field name="has_approval_definition" invisible="1" />
                     <button
                         name="action_submit_for_approval"
                         string="Submit"
                         type="object"
                         class="btn-primary"
-                        invisible="approval_state != 'draft'"
+                        invisible="not can_submit or not has_approval_definition"
                         groups="spp_disability_registry.group_disability_assessor"
                     />
                     <button
@@ -20,16 +27,14 @@
                         string="Approve"
                         type="object"
                         class="btn-success"
-                        invisible="approval_state != 'pending'"
-                        groups="spp_disability_registry.group_disability_validator"
+                        invisible="not can_approve"
                     />
                     <button
                         name="action_reject"
                         string="Reject"
                         type="object"
                         class="btn-danger"
-                        invisible="approval_state != 'pending'"
-                        groups="spp_disability_registry.group_disability_validator"
+                        invisible="not can_reject"
                     />
                     <button
                         name="action_reset_to_draft"
@@ -92,6 +97,30 @@
                                     name="wg_domain_count"
                                     class="d-inline"
                                 /> domain(s) with significant difficulty).
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- No approval workflow configured: Submit is hidden until one exists -->
+                    <div
+                        class="alert alert-warning mb-3"
+                        role="alert"
+                        invisible="approval_state != 'draft' or has_approval_definition"
+                    >
+                        <div class="d-flex align-items-center">
+                            <i
+                                class="fa fa-exclamation-triangle fa-lg me-3"
+                                aria-hidden="true"
+                            />
+                            <div>
+                                <strong>No approval workflow configured</strong>
+                                <p class="mb-0">
+                                    This assessment cannot be submitted for approval yet.
+                                    An administrator must create an approval workflow in
+                                    <b>Approvals → Approval Definitions</b> (Model =
+                                    Disability Assessment), then select it under
+                                    <b>Settings → Disability Registry → Approval</b>.
                                 </p>
                             </div>
                         </div>

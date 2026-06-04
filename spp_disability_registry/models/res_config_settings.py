@@ -40,6 +40,21 @@ class ResConfigSettings(models.TransientModel):
         "WG-SS assessments. When disabled, WG-SS assessments are self-report only.",
     )
 
+    # === Approval ===
+    # The approval workflow applied to disability assessments. Create the workflow in
+    # Approvals > Approval Definitions (Model = Disability Assessment), then select it
+    # here. The assessment reads it via _get_approval_definition().
+    disability_approval_definition_id = fields.Many2one(
+        "spp.approval.definition",
+        string="Assessment approval workflow",
+        domain="[('model', '=', 'spp.disability.assessment')]",
+        config_parameter="spp_disability_registry.approval_definition_id",
+        help="Approval workflow applied to disability assessments. Create it under "
+        "Approvals > Approval Definitions (with Model = Disability Assessment), then "
+        "select it here. Until one is selected, assessments cannot be submitted for "
+        "approval.",
+    )
+
     def get_values(self):
         res = super().get_values()
         # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access

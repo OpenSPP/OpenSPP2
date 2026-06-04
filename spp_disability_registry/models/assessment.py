@@ -117,6 +117,12 @@ class SppDisabilityAssessment(models.Model):
         "auto-determined by age (default). Toggled by the 'Allow manual assessment "
         "type' setting in Disability Registry configuration.",
     )
+    has_approval_definition = fields.Boolean(
+        string="Approval Workflow Configured",
+        compute="_compute_has_approval_definition",
+        help="Technical flag: whether an approval workflow is configured for "
+        "disability assessments. The Submit button is hidden until one exists.",
+    )
 
     # === WG-SS Responses (6 domains) ===
     wg_seeing = fields.Selection(
@@ -548,6 +554,26 @@ class SppDisabilityAssessment(models.Model):
         enforced = not self._disability_disregard_age()
         for rec in self:
             rec.age_restriction_enforced = enforced
+
+    def _compute_has_approval_definition(self):
+        for rec in self:
+            rec.has_approval_definition = bool(rec._resolve_approval_definition())
+
+    def _get_approval_definition(self):
+        """Return the approval workflow configured for disability assessments
+        (Settings > Disability Registry), or an empty recordset if none is set.
+        """
+        definition = self.env["spp.approval.definition"]
+        # nosemgrep: odoo-sudo-without-context — read approval definition id from config
+        def_id = self.env["ir.config_parameter"].sudo().get_param("spp_disability_registry.approval_definition_id")
+        return definition.browse(int(def_id)).exists() if def_id else definition
+
+    def _resolve_approval_definition(self):
+        """Use only the configured definition (no model-wide fallback), so the
+        Submit button stays hidden until an admin selects a workflow.
+        """
+        self.ensure_one()
+        return self._get_approval_definition()
 
     @api.depends("age_at_assessment")
     def _compute_assessment_type(self):
