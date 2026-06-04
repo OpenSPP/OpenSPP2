@@ -1,74 +1,79 @@
-Extends CEL expression evaluation to inject DCI registry symbols for eligibility rules. Provides lazy-loaded access to Disability Registry, Civil Registration, Integrated Beneficiary Registry, and Social Registry data through CEL expressions. Creates predefined variables for common DCI-based eligibility criteria.
+Connects OpenSPP's CEL eligibility/indicator engine to external DCI-compliant
+registries (CRVS, Disability Registry). Registry data is fetched over the DCI
+protocol at sync time, cached locally with a TTL, and becomes usable in any CEL
+expression. CEL evaluation compiles to SQL over the cache and never calls a
+registry per record, so eligibility scales to full populations.
 
 ### Key Capabilities
 
-- Inject DCI symbols (`dr`, `crvs`, `ibr`, `sr`) into CEL context when evaluating `res.partner` records
-- Query Disability Registry via `dr.has_disability`, `dr.severity('Vision')`, `dr.types`, `dr.assessed`
-- Query Civil Registration via `crvs.is_alive`, `crvs.birth_verified`, `crvs.is_married`, `crvs.has_event()`
-- Query IBR duplication checks via `ibr.has_duplicate`, `ibr.last_check_date`, `ibr.matched_programs`
-- Query external Social Registry via `sr.is_registered`, `sr.program_count`, `sr.household_size`
-- Lazy-load DCI data only when symbols are accessed in expressions
-- Support live queries to DCI registries via `query_live()` methods on symbol providers
+- Link a CEL Data Provider to a DCI Data Source via the **DCI Integration** tab,
+  making the provider "DCI-backed"
+- Fetch and cache registry values per registrant via the **Sync DCI Values**
+  action (or the disabled-by-default daily cron)
+- Query Civil Registration via `crvs.dci.is_alive`, `crvs.dci.birth_verified`,
+  and the parameterized `crvs.dci.has_event('birth'|'death')`
+- Query the Disability Registry via `dr.dci.has_disability`, `dr.dci.assessed`,
+  `dr.dci.vision_severe`/`hearing_severe`/`mobility_severe`, and the
+  parameterized `dr.dci.severity('Vision'|'Hearing'|'Mobility')`
+- Parameterized methods cache one value per (registrant, argument), keyed via
+  `params_hash`; arguments come from a fixed, pre-synced set
 
 ### Key Models
 
-| Model                      | Description                                                  |
-| -------------------------- | ------------------------------------------------------------ |
-| `spp.cel.executor`         | Extended to inject DCI symbols during expression compilation |
-| `spp.cel.registry`         | Extended to document DCI symbols in profile configurations   |
-| `spp.dci.cel.integration`  | Service that resolves DCI symbols and provides documentation |
+| Model                      | Description                                                       |
+| -------------------------- | ----------------------------------------------------------------- |
+| `spp.data.provider`        | Extended with `dci_data_source_id` / `is_dci_backed` (the bridge) |
+| `spp.dci.cel.fetcher`      | Outbound fetch per metric; sync entry points                      |
+| `spp.data.cache.manager`   | Extended to route DCI-backed variables through the fetcher        |
+| `spp.cel.variable.resolver`| Extended to resolve `*.dci.*` accessors and method calls          |
 
 ### Configuration
 
-After installing:
-
-1. Configure DCI data sources in dependent modules (`spp_dci_client_dr`, `spp_dci_client_crvs`, `spp_dci_client_ibr`)
-2. Sync DCI data to local cache using scheduled actions or manual sync
-3. Verify cached records exist in `spp.dci.disability.status`, `spp.dci.crvs.event`, `spp.dci.duplication.check`
-4. Use predefined variables under **DCI Integration** category when building eligibility rules
+1. Configure a DCI Data Source (Settings → Technical → DCI → Data Sources) and
+   test the connection
+2. Link a Data Provider to it via the **DCI Integration** tab
+3. Point the DCI variables (Studio → Variables → External Source) at that
+   provider
+4. Sync: select registrants → **Action ▸ Sync DCI Values** (registrants need an
+   identifier the registry recognizes)
 
 ### Data
 
-Creates a **DCI Integration** variable category and 16 predefined variables:
-
-- **DR variables**: `dci.dr.has_disability`, `dci.dr.vision_severe`, `dci.dr.hearing_severe`, `dci.dr.mobility_severe`, `dci.dr.assessed`
-- **CRVS variables**: `dci.crvs.is_alive`, `dci.crvs.birth_verified`, `dci.crvs.is_married`
-- **IBR variables**: `dci.ibr.has_duplicate`, `dci.ibr.no_duplicate`, `dci.ibr.checked`
-- **SR variables**: `dci.sr.is_registered`, `dci.sr.program_count`, `dci.sr.has_programs`, `dci.sr.household_size`, `dci.sr.is_head_of_household`, `dci.sr.large_household`
-
-### UI Location
-
-DCI symbols appear automatically in CEL expression editors when evaluating eligibility for `res.partner` records. No dedicated menu entries.
+Creates a **DCI Integration** variable category and the predefined variables.
+Working today: the CRVS and DR variables listed above. Present but not yet
+wired (no fetch handlers): `dci.crvs.is_married`, the IBR variables
+(`dci.ibr.*`) and Social Registry variables (`dci.sr.*`).
 
 ### Security
 
-No access control rules defined in this module. Access to DCI symbols inherits from cached DCI models in dependent modules.
+No access control rules defined in this module. Access inherits from the CEL
+cache (`spp.data.value`) and the DCI client modules.
 
 ### Extension Points
 
-- Override `_build_symbol_context()` in `spp.cel.executor` to add custom DCI symbols
-- Inherit symbol provider classes (`DRSymbolProvider`, `CRVSSymbolProvider`, `IBRSymbolProvider`, `SRSymbolProvider`) to add computed properties
-- Create `spp.cel.variable` records that reference DCI symbols in `cel_accessor` field
+- Add a fetch handler in `spp.dci.cel.fetcher` (`_dci_metric_handlers` for
+  simple metrics, `DCI_METHOD_ACCESSORS` + `_compute_method_values` for
+  parameterized ones)
+- Create the matching `spp.cel.variable` record (external source type, `ttl`
+  cache strategy, `<registry>.dci.<metric>` accessor)
 
 ### CEL Expression Examples
 
 ```python
-# Disability-based eligibility
-dr.has_disability == true and dr.severity('Mobility') >= 3
-
 # Vital statistics verification
-crvs.is_alive == true and crvs.birth_verified == true
+crvs.dci.is_alive == true and crvs.dci.birth_verified == true
 
-# Duplication prevention
-ibr.has_duplicate == false
+# Parameterized event check
+crvs.dci.has_event('death') == true
+
+# Disability-based eligibility
+dr.dci.has_disability == true and dr.dci.severity('Mobility') >= 3
 
 # Multi-registry combined criteria
-crvs.is_alive == true and dr.has_disability == true and ibr.has_duplicate == false
-
-# Social Registry integration (requires spp_dci_client_sr)
-sr.is_registered == true and sr.household_size > 5
+crvs.dci.is_alive == true and dr.dci.has_disability == true and age_years(me.birthdate) >= 18
 ```
 
 ### Dependencies
 
-`spp_dci_client_dr`, `spp_dci_client_crvs`, `spp_dci_client_ibr`, `spp_cel_domain`, `spp_studio`
+`spp_dci_client`, `spp_dci_client_crvs`, `spp_dci_client_dr`,
+`spp_dci_client_ibr`, `spp_cel_domain`, `spp_studio`

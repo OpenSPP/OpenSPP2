@@ -4,326 +4,194 @@
 
 ### 1. Installation
 
-Install the module and its dependencies:
-
 ```bash
-# Install the module
 odoo-bin -d your_database -i spp_dci_indicators --stop-after-init
 ```
 
-The module will automatically install:
+Dependencies installed automatically: `spp_dci_client` (+ CRVS/DR/IBR clients),
+`spp_cel_domain`, `spp_studio`.
 
-- spp_dci_client_dr
-- spp_dci_client_crvs
-- spp_dci_client_ibr
-- spp_indicators
-- spp_cel_domain
+### 2. Configure a DCI Data Source
 
-### 2. Configure DCI Data Sources
+1. Go to **Settings → Technical → DCI → Configuration → Data Sources**
+2. Create the registry connection: base URL, registry type (e.g. _Civil Registration and
+   Vital Statistics (CRVS)_), authentication (e.g. OAuth2 client credentials)
+3. Click **Test Connection** — the source should become **Active**
 
-Before using DCI symbols, ensure DCI data sources are configured:
+### 3. Link a Data Provider to the DCI Data Source
 
-1. Go to **Settings → DCI Configuration**
-2. Configure data sources for:
-   - Disability Registry (DR)
-   - Civil Registration (CRVS)
-   - Integrated Beneficiary Registry (IBR)
-3. Test connections to ensure they work
+1. Go to **Settings → Technical → CEL Domain → Data Management → Data Providers** and
+   create/open a provider (e.g. "OpenCRVS")
+2. Open the **DCI Integration** tab and select the **DCI Data Source**
+3. The provider is now _DCI-backed_: variable values are fetched via the DCI protocol
+   using the linked source. The provider's own Base URL and Authentication are ignored
+   at runtime.
 
-### 3. Sync DCI Data
+### 4. Point the variables at the provider
 
-DCI symbols read from cached data. Sync data before using in eligibility:
+1. Go to **Studio → Variables**
+2. Open a DCI variable (e.g. `dci.crvs.is_alive`)
+3. Set **External Source** to your DCI-backed provider
 
-**Option A: Manual Sync**
+### 5. Sync DCI values
 
-```
-Navigate to: Registry → Partners → Select Partner → DCI Tab → Sync Data
-```
+CEL reads **cached** values (`spp.data.value`, TTL per variable) — sync before using a
+variable in eligibility:
 
-**Option B: Batch Sync**
+- **Manual:** Registrants list → select people → **Action ▸ Sync DCI Values**. A
+  notification reports how many values were cached. Real DCI calls are made per
+  registrant; the action is idempotent.
+- **Scheduled:** enable the cron **"DCI: Sync CEL metrics"** (disabled by default) to
+  refresh all registrants daily.
+- **Scripted:**
 
-```python
-# Via scheduled action or script
-partners = env['res.partner'].search([('is_registrant', '=', True)])
-for partner in partners:
-    # Sync DR data
-    env['spp.dci.disability.status'].create({'partner_id': partner.id})
-    # Sync CRVS data
-    # ... (depends on your DCI client implementation)
-```
+  ```python
+  env["spp.dci.cel.fetcher"].sync_for_partners(partner_ids)
+  ```
 
-### 4. Use in Program Eligibility
+> Registrants must carry an identifier the registry recognizes (e.g. BRN/UIN as a
+> Registrant ID). People without a recognized identifier are skipped.
 
-#### Example 1: Disability Program
-
-**Eligibility Criteria:**
-
-- Must be alive
-- Must have severe mobility disability
-- Must be 18 years or older
-- Must not be enrolled in other programs
-
-**CEL Expression:**
-
-```python
-crvs.is_alive == true and
-dr.severity('Mobility') >= 3 and
-age_years(me.birthdate) >= 18 and
-ibr.has_duplicate == false
-```
-
-**Steps:**
+## Use in Program Eligibility
 
 1. Navigate to **Programs → Your Program → Eligibility Manager**
 2. Select **"CEL Expression"** mode
-3. Enter the expression above
-4. Click **Test Expression** to validate
-5. Click **Preview Beneficiaries** to see matches
-6. Save and run enrollment
+3. Enter the expression, **Test Expression**, **Preview Beneficiaries**, save
 
-#### Example 2: Child Support Program
+### Example 1: Disability Program
 
-**Eligibility Criteria:**
-
-- Birth must be verified in CRVS
-- Child must be under 5 years old
-- Parent must not be enrolled in similar programs
-
-**CEL Expression:**
+Must be alive, severe mobility disability, 18+:
 
 ```python
-crvs.birth_verified == true and
-age_years(me.birthdate) < 5 and
-ibr.is_enrolled('Child Grant') == false
+crvs.dci.is_alive == true and
+dr.dci.severity('Mobility') >= 3 and
+age_years(me.birthdate) >= 18
 ```
 
-#### Example 3: Complex Multi-Criteria
+### Example 2: Child Support Program
 
-**Eligibility Criteria:**
-
-- Must be alive
-- Either has disability OR is elderly (60+)
-- Birth verified OR has functional assessment
-- No duplicates in other programs
-
-**CEL Expression:**
+Birth verified, under 5:
 
 ```python
-crvs.is_alive == true and
-(dr.has_disability == true or age_years(me.birthdate) >= 60) and
-(crvs.birth_verified == true or dr.assessed == true) and
-ibr.has_duplicate == false
+crvs.dci.birth_verified == true and
+age_years(me.birthdate) < 5
 ```
 
-## DCI Symbol Reference
+### Example 3: Combined criteria
 
-### dr (Disability Registry)
+Alive, and either disabled or elderly:
 
-| Symbol              | Type | Description               | Example                      |
-| ------------------- | ---- | ------------------------- | ---------------------------- |
-| `dr.has_disability` | bool | Has any disability        | `dr.has_disability == true`  |
-| `dr.types`          | list | List of disability types  | `'Vision' in dr.types`       |
-| `dr.assessed`       | bool | Has functional assessment | `dr.assessed == true`        |
-| `dr.severity(type)` | int  | Severity (1-4) for type   | `dr.severity('Vision') >= 3` |
-| `dr.has_type(type)` | bool | Has specific disability   | `dr.has_type('Mobility')`    |
+```python
+crvs.dci.is_alive == true and
+(dr.dci.has_disability == true or age_years(me.birthdate) >= 60)
+```
 
-**Disability Types:**
+## Variable Reference
 
-- Vision
-- Hearing
-- Mobility
-- Cognition
-- SelfCare
-- Communication
+### CRVS (Civil Registration and Vital Statistics)
 
-**Severity Levels:**
+| Accessor                               | Type | Description               | Example                               |
+| -------------------------------------- | ---- | ------------------------- | ------------------------------------- |
+| `crvs.dci.is_alive`                    | bool | no death event in CRVS    | `crvs.dci.is_alive == true`           |
+| `crvs.dci.birth_verified`              | bool | birth registration exists | `crvs.dci.birth_verified == true`     |
+| `crvs.dci.has_event('birth'\|'death')` | bool | parameterized event check | `crvs.dci.has_event('death') == true` |
 
-- 1: No difficulty
-- 2: Some difficulty
-- 3: A lot of difficulty
-- 4: Cannot do
+### DR (Disability Registry)
 
-### crvs (Civil Registration)
+| Accessor                                                      | Type   | Description                  | Example                          |
+| ------------------------------------------------------------- | ------ | ---------------------------- | -------------------------------- |
+| `dr.dci.has_disability`                                       | bool   | any registered disability    | `dr.dci.has_disability == true`  |
+| `dr.dci.assessed`                                             | bool   | functional assessment exists | `dr.dci.assessed == true`        |
+| `dr.dci.vision_severe` / `hearing_severe` / `mobility_severe` | bool   | score ≥ 3                    | `dr.dci.vision_severe == true`   |
+| `dr.dci.severity('Vision'\|'Hearing'\|'Mobility')`            | number | functional score (0–4)       | `dr.dci.severity('Vision') >= 3` |
 
-| Symbol                 | Type | Description        | Example                       |
-| ---------------------- | ---- | ------------------ | ----------------------------- |
-| `crvs.is_alive`        | bool | No death event     | `crvs.is_alive == true`       |
-| `crvs.birth_verified`  | bool | Birth registered   | `crvs.birth_verified == true` |
-| `crvs.is_married`      | bool | Currently married  | `crvs.is_married == true`     |
-| `crvs.has_event(type)` | bool | Has specific event | `crvs.has_event('birth')`     |
+**Severity levels:** 1 no difficulty · 2 some difficulty · 3 a lot of difficulty · 4
+cannot do. (Scores depend on the registry returning functional assessment data.)
 
-**Event Types:**
+### Parameterized methods
 
-- birth
-- death
-- marriage
-- divorce
+`severity(...)` and `has_event(...)` take an argument from a **fixed, enumerated set**
+(listed above). Each (person, argument) is synced and cached as its own value — an
+argument outside the enumerated set simply matches nothing.
 
-### ibr (Integrated Beneficiary Registry)
+### Planned (not yet wired)
 
-| Symbol                  | Type     | Description           | Example                          |
-| ----------------------- | -------- | --------------------- | -------------------------------- |
-| `ibr.has_duplicate`     | bool     | Duplicates found      | `ibr.has_duplicate == false`     |
-| `ibr.last_check_date`   | datetime | Last check date       | `ibr.last_check_date != None`    |
-| `ibr.matched_programs`  | list     | Programs with matches | `len(ibr.matched_programs) == 0` |
-| `ibr.is_enrolled(name)` | bool     | Enrolled in program   | `ibr.is_enrolled('Cash')`        |
+`crvs.dci.is_married` and the IBR / Social Registry variables (`ibr.dci.*`, `sr.dci.*`)
+exist as variable records but have no fetch handlers yet — they return no data until
+implemented.
 
 ## Common Patterns
 
-### Pattern: Must be alive and verified
-
 ```python
-crvs.is_alive == true and crvs.birth_verified == true
-```
+# Alive and birth-verified
+crvs.dci.is_alive == true and crvs.dci.birth_verified == true
 
-### Pattern: Disability-based eligibility
+# Any severe disability
+dr.dci.vision_severe == true or dr.dci.hearing_severe == true or dr.dci.mobility_severe == true
 
-```python
-# Any disability
-dr.has_disability == true
+# Same, with explicit thresholds
+dr.dci.severity('Vision') >= 3 or dr.dci.severity('Hearing') >= 3
 
-# Severe disability only
-dr.severity('Vision') >= 3 or dr.severity('Hearing') >= 3 or dr.severity('Mobility') >= 3
-
-# Multiple disabilities
-len(dr.types) >= 2
-```
-
-### Pattern: No duplicates in similar programs
-
-```python
-ibr.has_duplicate == false or len(ibr.matched_programs) == 0
-```
-
-### Pattern: Combining age and DCI data
-
-```python
 # Elderly OR disabled
-age_years(me.birthdate) >= 60 or dr.has_disability == true
+age_years(me.birthdate) >= 60 or dr.dci.has_disability == true
 
 # Child with verified birth
-age_years(me.birthdate) < 18 and crvs.birth_verified == true
+age_years(me.birthdate) < 18 and crvs.dci.birth_verified == true
 ```
 
 ## Troubleshooting
 
-### Issue: DCI symbols not available
+### Expression matches nobody
 
-**Solution:**
+DCI variables only match registrants with a **fresh cached value**:
 
-1. Verify module is installed: `spp_dci_indicators`
-2. Check dependencies are installed
-3. Restart Odoo server
-4. Clear CEL cache: Settings → CEL Configuration → Clear Cache
+1. Is the variable linked to a **DCI-backed provider**? (Studio → Variables → External
+   Source; the provider's DCI Integration tab must link a Data Source.)
+2. Did you run **Sync DCI Values** for those registrants?
+3. Has the value's **TTL expired**? Re-sync.
+4. Inspect the cache: **Settings → Technical → CEL Domain → Data Management → Data
+   Values**, filter by Variable Name (e.g. `crvs.dci.is_alive`).
 
-### Issue: DCI symbols return default values
+### Some registrants never get a value
 
-**Possible causes:**
+The sync resolves each registrant's identifier (UIN → DRN → national id → BRN, else
+first available) and queries the registry with it. Registrants without an identifier —
+or with one the registry doesn't know — are skipped. Check the Registrant IDs on the
+person.
 
-1. DCI data not synced for partner
-2. DCI client modules not configured
-3. Partner not linked to DCI records
+### Sync errors
 
-**Solution:**
+- Check the DCI Data Source: **Test Connection**, OAuth2 credentials, state Active.
+- Outbound calls are logged in the outgoing API log (`spp.api.outgoing.log`) with HTTP
+  status and duration.
+- One registrant's failure never aborts the batch — failures are logged and skipped.
 
-1. Navigate to partner record
-2. Check DCI tab
-3. Sync data from DCI sources
-4. Verify records exist in:
-   - Disability Status
-   - CRVS Events
-   - Duplication Checks
+### Compilation error mentions the accessor as a field
 
-### Issue: Expression returns no matches
+If an expression errors like `Invalid field res.partner.crvs`, the variable record for
+that accessor is missing or inactive — the resolver could not recognize it. Verify the
+variable exists and is active.
 
-**Debug steps:**
+## Advanced
 
-1. Test expression in CEL builder
-2. Check error messages
-3. Verify DCI data exists
-4. Simplify expression to isolate issue:
-   ```python
-   # Test each part separately
-   dr.has_disability == true  # Works?
-   crvs.is_alive == true      # Works?
-   ibr.has_duplicate == false # Works?
-   ```
+### Adding a new DCI metric
 
-### Issue: Performance slow with DCI symbols
+1. Add a fetch handler in `spp_dci_indicators/models/dci_cel_fetcher.py`
+   (`_dci_metric_handlers` for simple metrics; `DCI_METHOD_ACCESSORS` +
+   `_compute_method_values` for parameterized ones).
+2. Add the `spp.cel.variable` record (external source type, `ttl` cache strategy, the
+   `<registry>.dci.<metric>` accessor) in `data/indicator_data.xml`.
+3. Link the variable to a DCI-backed provider and sync.
 
-**Optimization:**
+### How values are stored
 
-1. DCI symbols use lazy loading (already optimized)
-2. Ensure database indexes exist on:
-   - `spp.dci.disability.status.partner_id`
-   - `spp.dci.crvs.event.person_id`
-   - `spp.dci.duplication.check.partner_id`
-3. Run eligibility checks in batch mode
-4. Consider caching results in indicators
-
-## Advanced Usage
-
-### Custom DCI Functions
-
-You can extend DCI symbols by adding custom functions to the CEL registry:
-
-```python
-# In your custom module
-def custom_dci_check(env, partner):
-    # Your custom logic
-    return True
-
-# Register function
-env['spp.cel.function.registry'].register('my_dci_check', custom_dci_check)
-
-# Use in CEL
-my_dci_check(me) == true
-```
-
-### Batch DCI Data Sync
-
-For large-scale operations, sync DCI data in batches:
-
-```python
-# Via scheduled action
-partners = env['res.partner'].search([
-    ('is_registrant', '=', True),
-    ('disabled', '=', False)
-])
-
-# Sync in chunks
-chunk_size = 100
-for i in range(0, len(partners), chunk_size):
-    chunk = partners[i:i+chunk_size]
-    # Sync DR data
-    for partner in chunk:
-        env['spp.dci.disability.status'].sudo().create({
-            'partner_id': partner.id,
-            'state': 'draft'
-        }).refresh_from_dr()
-    env.cr.commit()  # Commit after each chunk
-```
-
-### Monitoring DCI Data Quality
-
-Check data quality before running eligibility:
-
-```python
-# Partners with DCI data
-total_partners = env['res.partner'].search_count([('is_registrant', '=', True)])
-with_dr = env['spp.dci.disability.status'].search_count([('state', '=', 'active')])
-with_crvs = env['spp.dci.crvs.event'].search_count([('state', '=', 'processed')])
-with_ibr = env['spp.dci.duplication.check'].search_count([('state', '=', 'completed')])
-
-print(f"DR coverage: {with_dr}/{total_partners} ({with_dr*100/total_partners:.1f}%)")
-print(f"CRVS coverage: {with_crvs}/{total_partners} ({with_crvs*100/total_partners:.1f}%)")
-print(f"IBR coverage: {with_ibr}/{total_partners} ({with_ibr*100/total_partners:.1f}%)")
-```
+Each synced value is one `spp.data.value` row keyed by
+`(variable accessor, registrant, period, params)` with an `expires_at` computed from the
+variable's TTL. Parameterized methods store one row per argument, keyed via
+`params_hash`. CEL compiles the accessor into a SQL sub-query over this table.
 
 ## Support
 
-For issues or questions:
-
-- GitHub: https://github.com/OpenSPP/openspp-modules
+- GitHub: https://github.com/OpenSPP/OpenSPP2
 - Documentation: https://docs.openspp.org
 - Community: https://openspp.org/community

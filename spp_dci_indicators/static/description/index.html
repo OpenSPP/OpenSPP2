@@ -370,35 +370,36 @@ ul.auto-toc {
 !! source digest: sha256:0604a32bf5aa6150fe254a3bcb0435a26e71a307533aff9239239d217d2b2cfd
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 <p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Alpha" src="https://img.shields.io/badge/maturity-Alpha-red.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_dci_indicators"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
-<p>Extends CEL expression evaluation to inject DCI registry symbols for
-eligibility rules. Provides lazy-loaded access to Disability Registry,
-Civil Registration, Integrated Beneficiary Registry, and Social Registry
-data through CEL expressions. Creates predefined variables for common
-DCI-based eligibility criteria.</p>
+<p>Connects OpenSPP’s CEL eligibility/indicator engine to external
+DCI-compliant registries (CRVS, Disability Registry). Registry data is
+fetched over the DCI protocol at sync time, cached locally with a TTL,
+and becomes usable in any CEL expression. CEL evaluation compiles to SQL
+over the cache and never calls a registry per record, so eligibility
+scales to full populations.</p>
 <div class="section" id="key-capabilities">
 <h1>Key Capabilities</h1>
 <ul class="simple">
-<li>Inject DCI symbols (<tt class="docutils literal">dr</tt>, <tt class="docutils literal">crvs</tt>, <tt class="docutils literal">ibr</tt>, <tt class="docutils literal">sr</tt>) into CEL
-context when evaluating <tt class="docutils literal">res.partner</tt> records</li>
-<li>Query Disability Registry via <tt class="docutils literal">dr.has_disability</tt>,
-<tt class="docutils literal"><span class="pre">dr.severity('Vision')</span></tt>, <tt class="docutils literal">dr.types</tt>, <tt class="docutils literal">dr.assessed</tt></li>
-<li>Query Civil Registration via <tt class="docutils literal">crvs.is_alive</tt>,
-<tt class="docutils literal">crvs.birth_verified</tt>, <tt class="docutils literal">crvs.is_married</tt>, <tt class="docutils literal">crvs.has_event()</tt></li>
-<li>Query IBR duplication checks via <tt class="docutils literal">ibr.has_duplicate</tt>,
-<tt class="docutils literal">ibr.last_check_date</tt>, <tt class="docutils literal">ibr.matched_programs</tt></li>
-<li>Query external Social Registry via <tt class="docutils literal">sr.is_registered</tt>,
-<tt class="docutils literal">sr.program_count</tt>, <tt class="docutils literal">sr.household_size</tt></li>
-<li>Lazy-load DCI data only when symbols are accessed in expressions</li>
-<li>Support live queries to DCI registries via <tt class="docutils literal">query_live()</tt> methods on
-symbol providers</li>
+<li>Link a CEL Data Provider to a DCI Data Source via the <strong>DCI
+Integration</strong> tab, making the provider “DCI-backed”</li>
+<li>Fetch and cache registry values per registrant via the <strong>Sync DCI
+Values</strong> action (or the disabled-by-default daily cron)</li>
+<li>Query Civil Registration via <tt class="docutils literal">crvs.dci.is_alive</tt>,
+<tt class="docutils literal">crvs.dci.birth_verified</tt>, and the parameterized
+<tt class="docutils literal"><span class="pre">crvs.dci.has_event('birth'|'death')</span></tt></li>
+<li>Query the Disability Registry via <tt class="docutils literal">dr.dci.has_disability</tt>,
+<tt class="docutils literal">dr.dci.assessed</tt>,
+<tt class="docutils literal">dr.dci.vision_severe</tt>/<tt class="docutils literal">hearing_severe</tt>/<tt class="docutils literal">mobility_severe</tt>, and
+the parameterized <tt class="docutils literal"><span class="pre">dr.dci.severity('Vision'|'Hearing'|'Mobility')</span></tt></li>
+<li>Parameterized methods cache one value per (registrant, argument),
+keyed via <tt class="docutils literal">params_hash</tt>; arguments come from a fixed, pre-synced set</li>
 </ul>
 </div>
 <div class="section" id="key-models">
 <h1>Key Models</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="42%" />
-<col width="58%" />
+<col width="45%" />
+<col width="55%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -406,98 +407,80 @@ symbol providers</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><tt class="docutils literal">spp.cel.executor</tt></td>
-<td>Extended to inject DCI symbols during
-expression compilation</td>
+<tr><td><tt class="docutils literal">spp.data.provider</tt></td>
+<td>Extended with <tt class="docutils literal">dci_data_source_id</tt>
+/ <tt class="docutils literal">is_dci_backed</tt> (the bridge)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.cel.registry</tt></td>
-<td>Extended to document DCI symbols in
-profile configurations</td>
+<tr><td><tt class="docutils literal">spp.dci.cel.fetcher</tt></td>
+<td>Outbound fetch per metric; sync
+entry points</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.dci.cel.integration</tt></td>
-<td>Service that resolves DCI symbols and
-provides documentation</td>
+<tr><td><tt class="docutils literal">spp.data.cache.manager</tt></td>
+<td>Extended to route DCI-backed
+variables through the fetcher</td>
+</tr>
+<tr><td><tt class="docutils literal">spp.cel.variable.resolver</tt></td>
+<td>Extended to resolve <tt class="docutils literal">*.dci.*</tt>
+accessors and method calls</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="configuration">
 <h1>Configuration</h1>
-<p>After installing:</p>
 <ol class="arabic simple">
-<li>Configure DCI data sources in dependent modules
-(<tt class="docutils literal">spp_dci_client_dr</tt>, <tt class="docutils literal">spp_dci_client_crvs</tt>,
-<tt class="docutils literal">spp_dci_client_ibr</tt>)</li>
-<li>Sync DCI data to local cache using scheduled actions or manual sync</li>
-<li>Verify cached records exist in <tt class="docutils literal">spp.dci.disability.status</tt>,
-<tt class="docutils literal">spp.dci.crvs.event</tt>, <tt class="docutils literal">spp.dci.duplication.check</tt></li>
-<li>Use predefined variables under <strong>DCI Integration</strong> category when
-building eligibility rules</li>
+<li>Configure a DCI Data Source (Settings → Technical → DCI → Data
+Sources) and test the connection</li>
+<li>Link a Data Provider to it via the <strong>DCI Integration</strong> tab</li>
+<li>Point the DCI variables (Studio → Variables → External Source) at
+that provider</li>
+<li>Sync: select registrants → <strong>Action ▸ Sync DCI Values</strong> (registrants
+need an identifier the registry recognizes)</li>
 </ol>
 </div>
 <div class="section" id="data">
 <h1>Data</h1>
-<p>Creates a <strong>DCI Integration</strong> variable category and 16 predefined
-variables:</p>
-<ul class="simple">
-<li><strong>DR variables</strong>: <tt class="docutils literal">dci.dr.has_disability</tt>, <tt class="docutils literal">dci.dr.vision_severe</tt>,
-<tt class="docutils literal">dci.dr.hearing_severe</tt>, <tt class="docutils literal">dci.dr.mobility_severe</tt>,
-<tt class="docutils literal">dci.dr.assessed</tt></li>
-<li><strong>CRVS variables</strong>: <tt class="docutils literal">dci.crvs.is_alive</tt>,
-<tt class="docutils literal">dci.crvs.birth_verified</tt>, <tt class="docutils literal">dci.crvs.is_married</tt></li>
-<li><strong>IBR variables</strong>: <tt class="docutils literal">dci.ibr.has_duplicate</tt>,
-<tt class="docutils literal">dci.ibr.no_duplicate</tt>, <tt class="docutils literal">dci.ibr.checked</tt></li>
-<li><strong>SR variables</strong>: <tt class="docutils literal">dci.sr.is_registered</tt>, <tt class="docutils literal">dci.sr.program_count</tt>,
-<tt class="docutils literal">dci.sr.has_programs</tt>, <tt class="docutils literal">dci.sr.household_size</tt>,
-<tt class="docutils literal">dci.sr.is_head_of_household</tt>, <tt class="docutils literal">dci.sr.large_household</tt></li>
-</ul>
-</div>
-<div class="section" id="ui-location">
-<h1>UI Location</h1>
-<p>DCI symbols appear automatically in CEL expression editors when
-evaluating eligibility for <tt class="docutils literal">res.partner</tt> records. No dedicated menu
-entries.</p>
+<p>Creates a <strong>DCI Integration</strong> variable category and the predefined
+variables. Working today: the CRVS and DR variables listed above.
+Present but not yet wired (no fetch handlers): <tt class="docutils literal">dci.crvs.is_married</tt>,
+the IBR variables (<tt class="docutils literal">dci.ibr.*</tt>) and Social Registry variables
+(<tt class="docutils literal">dci.sr.*</tt>).</p>
 </div>
 <div class="section" id="security">
 <h1>Security</h1>
-<p>No access control rules defined in this module. Access to DCI symbols
-inherits from cached DCI models in dependent modules.</p>
+<p>No access control rules defined in this module. Access inherits from the
+CEL cache (<tt class="docutils literal">spp.data.value</tt>) and the DCI client modules.</p>
 </div>
 <div class="section" id="extension-points">
 <h1>Extension Points</h1>
 <ul class="simple">
-<li>Override <tt class="docutils literal">_build_symbol_context()</tt> in <tt class="docutils literal">spp.cel.executor</tt> to add
-custom DCI symbols</li>
-<li>Inherit symbol provider classes (<tt class="docutils literal">DRSymbolProvider</tt>,
-<tt class="docutils literal">CRVSSymbolProvider</tt>, <tt class="docutils literal">IBRSymbolProvider</tt>, <tt class="docutils literal">SRSymbolProvider</tt>)
-to add computed properties</li>
-<li>Create <tt class="docutils literal">spp.cel.variable</tt> records that reference DCI symbols in
-<tt class="docutils literal">cel_accessor</tt> field</li>
+<li>Add a fetch handler in <tt class="docutils literal">spp.dci.cel.fetcher</tt>
+(<tt class="docutils literal">_dci_metric_handlers</tt> for simple metrics, <tt class="docutils literal">DCI_METHOD_ACCESSORS</tt>
++ <tt class="docutils literal">_compute_method_values</tt> for parameterized ones)</li>
+<li>Create the matching <tt class="docutils literal">spp.cel.variable</tt> record (external source type,
+<tt class="docutils literal">ttl</tt> cache strategy, <tt class="docutils literal"><span class="pre">&lt;registry&gt;.dci.&lt;metric&gt;</span></tt> accessor)</li>
 </ul>
 </div>
 <div class="section" id="cel-expression-examples">
 <h1>CEL Expression Examples</h1>
 <pre class="code python literal-block">
-<span class="c1"># Disability-based eligibility</span><span class="w">
-</span><span class="n">dr</span><span class="o">.</span><span class="n">has_disability</span> <span class="o">==</span> <span class="n">true</span> <span class="ow">and</span> <span class="n">dr</span><span class="o">.</span><span class="n">severity</span><span class="p">(</span><span class="s1">'Mobility'</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="w">
+<span class="c1"># Vital statistics verification</span><span class="w">
+</span><span class="n">crvs</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">is_alive</span> <span class="o">==</span> <span class="n">true</span> <span class="ow">and</span> <span class="n">crvs</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">birth_verified</span> <span class="o">==</span> <span class="n">true</span><span class="w">
 
-</span><span class="c1"># Vital statistics verification</span><span class="w">
-</span><span class="n">crvs</span><span class="o">.</span><span class="n">is_alive</span> <span class="o">==</span> <span class="n">true</span> <span class="ow">and</span> <span class="n">crvs</span><span class="o">.</span><span class="n">birth_verified</span> <span class="o">==</span> <span class="n">true</span><span class="w">
+</span><span class="c1"># Parameterized event check</span><span class="w">
+</span><span class="n">crvs</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">has_event</span><span class="p">(</span><span class="s1">'death'</span><span class="p">)</span> <span class="o">==</span> <span class="n">true</span><span class="w">
 
-</span><span class="c1"># Duplication prevention</span><span class="w">
-</span><span class="n">ibr</span><span class="o">.</span><span class="n">has_duplicate</span> <span class="o">==</span> <span class="n">false</span><span class="w">
+</span><span class="c1"># Disability-based eligibility</span><span class="w">
+</span><span class="n">dr</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">has_disability</span> <span class="o">==</span> <span class="n">true</span> <span class="ow">and</span> <span class="n">dr</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">severity</span><span class="p">(</span><span class="s1">'Mobility'</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="w">
 
 </span><span class="c1"># Multi-registry combined criteria</span><span class="w">
-</span><span class="n">crvs</span><span class="o">.</span><span class="n">is_alive</span> <span class="o">==</span> <span class="n">true</span> <span class="ow">and</span> <span class="n">dr</span><span class="o">.</span><span class="n">has_disability</span> <span class="o">==</span> <span class="n">true</span> <span class="ow">and</span> <span class="n">ibr</span><span class="o">.</span><span class="n">has_duplicate</span> <span class="o">==</span> <span class="n">false</span><span class="w">
-
-</span><span class="c1"># Social Registry integration (requires spp_dci_client_sr)</span><span class="w">
-</span><span class="n">sr</span><span class="o">.</span><span class="n">is_registered</span> <span class="o">==</span> <span class="n">true</span> <span class="ow">and</span> <span class="n">sr</span><span class="o">.</span><span class="n">household_size</span> <span class="o">&gt;</span> <span class="mi">5</span>
+</span><span class="n">crvs</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">is_alive</span> <span class="o">==</span> <span class="n">true</span> <span class="ow">and</span> <span class="n">dr</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">has_disability</span> <span class="o">==</span> <span class="n">true</span> <span class="ow">and</span> <span class="n">age_years</span><span class="p">(</span><span class="n">me</span><span class="o">.</span><span class="n">birthdate</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">18</span>
 </pre>
 </div>
 <div class="section" id="dependencies">
 <h1>Dependencies</h1>
-<p><tt class="docutils literal">spp_dci_client_dr</tt>, <tt class="docutils literal">spp_dci_client_crvs</tt>, <tt class="docutils literal">spp_dci_client_ibr</tt>,
-<tt class="docutils literal">spp_cel_domain</tt>, <tt class="docutils literal">spp_studio</tt></p>
+<p><tt class="docutils literal">spp_dci_client</tt>, <tt class="docutils literal">spp_dci_client_crvs</tt>, <tt class="docutils literal">spp_dci_client_dr</tt>,
+<tt class="docutils literal">spp_dci_client_ibr</tt>, <tt class="docutils literal">spp_cel_domain</tt>, <tt class="docutils literal">spp_studio</tt></p>
 <div class="admonition important">
 <p class="first admonition-title">Important</p>
 <p class="last">This is an alpha version, the data model and design can change at any time without warning.

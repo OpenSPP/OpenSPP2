@@ -1,181 +1,104 @@
 # OpenSPP DCI Indicators
 
-This module provides DCI (Data Collaboration Infrastructure) data integration with
-OpenSPP's CEL (Common Expression Language) eligibility system.
+Connects OpenSPP's CEL eligibility/indicator engine to external DCI-compliant registries
+(CRVS, Disability Registry). Registry data is fetched over the DCI protocol, cached
+locally, and becomes usable in any CEL expression.
 
-## Overview
+## How it works
 
-The module enables clean, readable CEL expressions that access data from external DCI
-registries:
-
-- **Disability Registry (DR)**: Access disability status and functional assessments
-- **Civil Registration and Vital Statistics (CRVS)**: Access vital events (birth, death,
-  marriage)
-- **Integrated Beneficiary Registry (IBR)**: Access duplication checks and enrollment
-  status
-
-## CEL Expression Examples
-
-### Disability Registry (DR)
-
-```python
-# Check if person has any disability
-dr.has_disability == true
-
-# Check for severe vision impairment
-dr.severity('Vision') >= 3
-
-# Check for specific disability type
-dr.has_type('Mobility')
-
-# Check if functional assessment exists
-dr.assessed == true
-
-# Get list of disability types
-'Vision' in dr.types
+```
+DCI Data Source (connection: URL, OAuth2, registry type)
+      ▲ linked via the "DCI Integration" tab
+Data Provider (becomes "DCI-backed")
+      ▲ External Source on the variable
+Studio Variable (e.g. crvs.dci.is_alive)
+      │
+      │  Sync DCI Values (action / cron) — real DCI calls, results cached
+      ▼
+spp.data.value cache (TTL per variable)
+      ▼
+Any CEL expression: eligibility, indicators, compliance…
 ```
 
-### Civil Registration and Vital Statistics (CRVS)
+Values are fetched at **sync time** and cached with a TTL. CEL evaluation compiles to
+SQL over the cache and **never calls a registry per record** — that is what lets
+eligibility scale to full populations. Freshness is controlled by when you sync and each
+variable's TTL.
+
+## CEL expression examples
 
 ```python
-# Check if person is alive
-crvs.is_alive == true
+# Check if person is alive (no death record in CRVS)
+crvs.dci.is_alive == true
 
 # Check if birth was registered
-crvs.birth_verified == true
+crvs.dci.birth_verified == true
 
-# Check marital status
-crvs.is_married == true
+# Parameterized: check for a specific CRVS event
+crvs.dci.has_event('death') == true
 
-# Check for specific event type
-crvs.has_event('birth')
+# Check disability status
+dr.dci.has_disability == true
+
+# Parameterized: functional severity score for a disability type
+dr.dci.severity('Vision') >= 3
+
+# Combined eligibility criteria
+crvs.dci.is_alive == true and dr.dci.has_disability == true and age_years(me.birthdate) >= 18
 ```
 
-### Integrated Beneficiary Registry (IBR)
+## Available variables
 
-```python
-# Check for duplicates in other programs
-ibr.has_duplicate == false
+| Accessor                                                      | Type   | Meaning                         |
+| ------------------------------------------------------------- | ------ | ------------------------------- |
+| `crvs.dci.is_alive`                                           | bool   | no death event recorded in CRVS |
+| `crvs.dci.birth_verified`                                     | bool   | birth registration exists       |
+| `crvs.dci.has_event('birth'\|'death')`                        | bool   | parameterized event check       |
+| `dr.dci.has_disability`                                       | bool   | disability registered in DR     |
+| `dr.dci.assessed`                                             | bool   | functional assessment exists    |
+| `dr.dci.vision_severe` / `hearing_severe` / `mobility_severe` | bool   | functional score ≥ 3            |
+| `dr.dci.severity('Vision'\|'Hearing'\|'Mobility')`            | number | functional score (0–4)          |
 
-# Check if enrolled in specific program
-ibr.is_enrolled('Cash Transfer Program') == false
+Parameterized methods take arguments from a **fixed, pre-synced set**: each (person,
+argument) pair is cached as its own row, keyed by the argument (`params_hash`).
+Arbitrary/dynamic arguments are not supported.
 
-# Check if duplication check was performed
-ibr.last_check_date != None
+> **Planned, not yet wired:** IBR and Social Registry variables, and
+> `crvs.dci.is_married` (no outbound CRVS marriage query). The corresponding variable
+> records exist but return no data until their fetch handlers are implemented.
 
-# Get list of programs with matches
-len(ibr.matched_programs) == 0
-```
+## Setup
 
-## Combined Expressions
+1. **DCI Data Source** — _Settings → Technical → DCI → Configuration → Data Sources_:
+   configure the registry connection (base URL, OAuth2, registry type) and **Test
+   Connection**.
+2. **Data Provider** — _Settings → Technical → CEL Domain → Data Management → Data
+   Providers_: open the **DCI Integration** tab and link the Data Source. The provider
+   becomes _DCI-backed_; its own Base URL/Authentication are ignored at runtime.
+3. **Variable** — _Studio → Variables_: set the variable's **External Source** to that
+   provider.
+4. **Sync** — select registrants → **Action ▸ Sync DCI Values** (or enable the daily
+   cron _"DCI: Sync CEL metrics"_, disabled by default). Registrants need an identifier
+   (BRN/UIN/national id…) that the registry recognizes.
 
-You can combine multiple DCI checks in a single eligibility expression:
-
-```python
-# Eligible if: alive, has severe disability, no duplicates
-crvs.is_alive == true and dr.severity('Vision') >= 3 and ibr.has_duplicate == false
-
-# Eligible if: birth verified, has disability, not enrolled elsewhere
-crvs.birth_verified == true and dr.has_disability == true and ibr.is_enrolled('Other Program') == false
-```
-
-## Usage in Program Eligibility
-
-1. Navigate to a Program
-2. Go to Eligibility Manager
-3. Select "CEL Expression" mode
-4. Write your eligibility criteria using DCI symbols
-5. Test and preview matching beneficiaries
-
-Example eligibility criteria for a disability program:
-
-```python
-# Must be alive, have severe disability, and no duplicates
-crvs.is_alive == true and
-dr.severity('Mobility') >= 3 and
-ibr.has_duplicate == false and
-age_years(me.birthdate) >= 18
-```
-
-## Data Caching
-
-DCI symbols use lazy-loading:
-
-- Data is only fetched when the symbol is accessed in an expression
-- Data is cached per-partner during CEL evaluation
-- No data is loaded if the symbol is not referenced
-
-This ensures efficient batch eligibility checks across thousands of beneficiaries.
-
-## Predefined Indicators
-
-The module includes predefined indicator definitions for common DCI checks:
-
-### Disability Registry
-
-- `dci.dr.has_disability`: Has any disability
-- `dci.dr.vision_severe`: Severe vision impairment (3+)
-- `dci.dr.hearing_severe`: Severe hearing impairment (3+)
-- `dci.dr.mobility_severe`: Severe mobility impairment (3+)
-- `dci.dr.assessed`: Has functional assessment
-
-### CRVS
-
-- `dci.crvs.is_alive`: Is alive (no death event)
-- `dci.crvs.birth_verified`: Birth registration exists
-- `dci.crvs.is_married`: Currently married
-
-### IBR
-
-- `dci.ibr.has_duplicate`: Duplicates found
-- `dci.ibr.no_duplicate`: No duplicates found
-- `dci.ibr.checked`: Duplication check performed
-
-## Data Sources
-
-This module reads cached DCI data from:
-
-- `spp.dci.disability.status` (from spp_dci_client_dr)
-- `spp.dci.crvs.event` (from spp_dci_client_crvs)
-- `spp.dci.duplication.check` (from spp_dci_client_ibr)
-
-Ensure these DCI client modules are installed and data is synced before using DCI
-symbols in eligibility expressions.
+See [USAGE.md](USAGE.md) for a full walkthrough, the variable reference, and
+troubleshooting.
 
 ## Architecture
 
-### Components
-
-1. **Symbol Providers** (`symbols/dci_symbols.py`):
-   - `DRSymbolProvider`: Disability Registry symbols
-   - `CRVSSymbolProvider`: CRVS symbols
-   - `IBRSymbolProvider`: IBR symbols
-
-2. **CEL Integration** (`services/cel_integration.py`):
-   - Symbol resolution service
-   - Documentation service
-
-3. **CEL Extensions** (`models/cel_extension.py`):
-   - Extends `spp.cel.executor` to inject DCI symbols
-   - Extends `spp.cel.registry` to document symbols
-
-### Symbol Injection
-
-When a CEL expression is evaluated:
-
-1. CEL executor builds symbol context
-2. DCI extension checks if root model is `res.partner`
-3. If yes, DCI symbol providers are instantiated
-4. Providers are added to context as `dr`, `crvs`, `ibr`
-5. Expression can access DCI data via these symbols
+| Component                      | Role                                                                                                       |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `data_provider_dci.py`         | provider ↔ DCI Data Source bridge (`dci_data_source_id`, `is_dci_backed`)                                 |
+| `dci_cel_fetcher.py`           | outbound fetch per metric; parameterized-method materialization; the `sync_for_partners`/cron entry points |
+| `data_cache_manager_dci.py`    | routes DCI-backed variables through the fetcher; caches under the accessor key                             |
+| `cel_variable_resolver_dci.py` | resolves the dotted `*.dci.*` accessors; rewrites method calls into params-carrying `metric()` lookups     |
 
 ## Dependencies
 
-- `spp_dci_client_dr`: Disability Registry client
-- `spp_dci_client_crvs`: CRVS client
-- `spp_dci_client_ibr`: IBR client
-- `spp_indicators`: Metrics core
-- `spp_cel_domain`: CEL expression engine
+- `spp_dci_client` (+ `spp_dci_client_crvs`, `spp_dci_client_dr`, `spp_dci_client_ibr`)
+  — DCI protocol clients
+- `spp_cel_domain` — CEL engine, variables, `spp.data.value` cache
+- `spp_studio` — variable management UI
 
 ## License
 
