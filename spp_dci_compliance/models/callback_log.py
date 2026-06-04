@@ -355,20 +355,22 @@ class DCICallbackLog(models.Model):
 
         callbacks = self.search(domain, limit=limit, order="create_date desc")
 
+        # Optional Char fields read back as False when unset; coerce to None
+        # so the dicts validate against str|None schema fields downstream.
         return [
             {
                 "id": cb.id,
                 "transaction_id": cb.transaction_id,
-                "correlation_id": cb.correlation_id,
+                "correlation_id": cb.correlation_id or None,
                 "registry_type": cb.registry_type,
                 "callback_type": cb.callback_type,
-                "endpoint": cb.endpoint,
+                "endpoint": cb.endpoint or None,
                 "status": cb.status,
-                "payload_hash": cb.payload_hash,
+                "payload_hash": cb.payload_hash or None,
                 "response_code": cb.response_code,
-                "error_message": cb.error_message,
+                "error_message": cb.error_message or None,
                 "processing_time_ms": cb.processing_time_ms,
-                "sender_id": cb.sender_id,
+                "sender_id": cb.sender_id or None,
                 "received_at": cb.create_date.isoformat() if cb.create_date else None,
             }
             for cb in callbacks

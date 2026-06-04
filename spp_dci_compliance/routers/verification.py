@@ -107,8 +107,11 @@ async def get_callbacks(
         None,
         description="Filter by callback type (on_search, on_subscribe, etc.)",
     ),
-    status: str | None = Query(
+    # Named status_filter so it does not shadow fastapi.status (used by the
+    # exception handlers below); the wire-level query param stays "status".
+    status_filter: str | None = Query(
         None,
+        alias="status",
         description="Filter by status (received, processing, processed, failed)",
     ),
     since_minutes: int | None = Query(
@@ -131,7 +134,7 @@ async def get_callbacks(
             correlation_id=correlation_id,
             registry_type=registry_type,
             callback_type=callback_type,
-            status=status,
+            status=status_filter,
             since_minutes=since_minutes,
             limit=limit,
         )
