@@ -50,6 +50,11 @@ CFM_FREQUENCY_LEVELS = [
     ("refused", "Refused"),
     ("dont_know", "Don't know"),
 ]
+# Yes/No gate questions in the CFM instruments (glasses, hearing aid, walking aid).
+CFM_YES_NO = [
+    ("yes", "Yes"),
+    ("no", "No"),
+]
 
 # Review category to months mapping
 REVIEW_CATEGORY_MONTHS = {
@@ -169,69 +174,79 @@ class SppDisabilityAssessment(models.Model):
 
     # === CFM 2-4 Responses (children aged 2-4, CF1-CF16) ===
     # Vision
-    cfm24_glasses = fields.Boolean(string="Does the child wear glasses?")  # CF1
+    cfm24_glasses = fields.Selection(  # CF1
+        CFM_YES_NO,
+        string="Does the child wear glasses?",
+    )
     cfm24_vision_aided = fields.Selection(  # CF2 (asked when glasses are worn)
         CFM_DIFFICULTY_LEVELS,
-        string="When wearing glasses, difficulty seeing?",
+        string="When wearing his/her glasses, does the child have difficulty seeing?",
     )
     cfm24_vision = fields.Selection(  # CF3 (asked when no glasses)
         CFM_DIFFICULTY_LEVELS,
-        string="Difficulty seeing?",
+        string="Does the child have difficulty seeing?",
     )
     # Hearing
-    cfm24_hearing_aid = fields.Boolean(string="Does the child use a hearing aid?")  # CF4
+    cfm24_hearing_aid = fields.Selection(  # CF4
+        CFM_YES_NO,
+        string="Does the child use a hearing aid?",
+    )
     cfm24_hearing_aided = fields.Selection(  # CF5
         CFM_DIFFICULTY_LEVELS,
-        string="When using a hearing aid, difficulty hearing?",
+        string="When using his/her hearing aid, does the child have difficulty hearing sounds "
+        "like people's voices or music?",
     )
     cfm24_hearing = fields.Selection(  # CF6
         CFM_DIFFICULTY_LEVELS,
-        string="Difficulty hearing sounds like voices or music?",
+        string="Does the child have difficulty hearing sounds like people's voices or music?",
     )
     # Mobility
-    cfm24_walk_equipment = fields.Boolean(  # CF7
-        string="Does the child use equipment or assistance for walking?"
+    cfm24_walk_equipment = fields.Selection(  # CF7
+        CFM_YES_NO,
+        string="Does the child use any equipment or receive assistance for walking?",
     )
     cfm24_walk_unaided = fields.Selection(  # CF8 (without equipment)
         CFM_DIFFICULTY_LEVELS,
-        string="Without equipment/assistance, difficulty walking?",
+        string="Without his/her equipment or assistance, does the child have difficulty walking?",
     )
     cfm24_walk_aided = fields.Selection(  # CF9 (with equipment) - concluding when equipment used
         CFM_DIFFICULTY_LEVELS,
-        string="With equipment/assistance, difficulty walking?",
+        string="With his/her equipment or assistance, does the child have difficulty walking?",
     )
     cfm24_walk_compare = fields.Selection(  # CF10 (no equipment) - concluding when no equipment
         CFM_DIFFICULTY_LEVELS,
-        string="Compared with other children, difficulty walking?",
+        string="Compared with children of the same age, does the child have difficulty walking?",
     )
     # Dexterity
     cfm24_dexterity = fields.Selection(  # CF11
         CFM_DIFFICULTY_LEVELS,
-        string="Difficulty picking up small objects with the hand?",
+        string="Compared with children of the same age, does the child have difficulty picking "
+        "up small objects with his/her hand?",
     )
     # Communication
     cfm24_understand_you = fields.Selection(  # CF12
         CFM_DIFFICULTY_LEVELS,
-        string="Difficulty understanding you?",
+        string="Does the child have difficulty understanding you?",
     )
     cfm24_understood = fields.Selection(  # CF13
         CFM_DIFFICULTY_LEVELS,
-        string="When the child speaks, difficulty understanding him/her?",
+        string="When the child speaks, do you have difficulty understanding him/her?",
     )
     # Learning
     cfm24_learning = fields.Selection(  # CF14
         CFM_DIFFICULTY_LEVELS,
-        string="Difficulty learning things?",
+        string="Compared with children of the same age, does the child have difficulty learning things?",
     )
     # Playing
     cfm24_playing = fields.Selection(  # CF15
         CFM_DIFFICULTY_LEVELS,
-        string="Difficulty playing?",
+        string="Compared with children of the same age, does the child have difficulty playing?",
     )
     # Controlling behaviour
     cfm24_behavior = fields.Selection(  # CF16 (behaviour scale, threshold "a lot more")
         CFM_BEHAVIOR_LEVELS,
-        string="How much does the child kick, bite or hit others?",
+        string="Compared with children of the same age, how much does the child kick, bite or hit "
+        "other children or adults?",
     )
 
     # === CFM 5-17 Responses (children aged 5-17, CF1-CF24) ===
@@ -594,9 +609,9 @@ class SppDisabilityAssessment(models.Model):
         """
         self.ensure_one()
         if self.assessment_type == "cfm_2_4":
-            vision = self.cfm24_vision_aided if self.cfm24_glasses else self.cfm24_vision
-            hearing = self.cfm24_hearing_aided if self.cfm24_hearing_aid else self.cfm24_hearing
-            mobility = self.cfm24_walk_aided if self.cfm24_walk_equipment else self.cfm24_walk_compare
+            vision = self.cfm24_vision_aided if self.cfm24_glasses == "yes" else self.cfm24_vision
+            hearing = self.cfm24_hearing_aided if self.cfm24_hearing_aid == "yes" else self.cfm24_hearing
+            mobility = self.cfm24_walk_aided if self.cfm24_walk_equipment == "yes" else self.cfm24_walk_compare
             return [
                 vision,
                 hearing,
@@ -796,10 +811,10 @@ class SppDisabilityAssessment(models.Model):
         concluding answer; controlling behaviour (CF16) uses 'a lot more'.
         """
         self.ensure_one()
-        # Concluding answer per branched domain.
-        vision = self.cfm24_vision_aided if self.cfm24_glasses else self.cfm24_vision
-        hearing = self.cfm24_hearing_aided if self.cfm24_hearing_aid else self.cfm24_hearing
-        mobility = self.cfm24_walk_aided if self.cfm24_walk_equipment else self.cfm24_walk_compare
+        # Concluding answer per branched domain (gate answered "yes" = aided path).
+        vision = self.cfm24_vision_aided if self.cfm24_glasses == "yes" else self.cfm24_vision
+        hearing = self.cfm24_hearing_aided if self.cfm24_hearing_aid == "yes" else self.cfm24_hearing
+        mobility = self.cfm24_walk_aided if self.cfm24_walk_equipment == "yes" else self.cfm24_walk_compare
         standard = [
             vision,
             hearing,
