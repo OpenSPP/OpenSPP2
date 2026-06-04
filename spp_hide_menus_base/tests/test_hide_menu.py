@@ -9,6 +9,7 @@ the model's state transition without depending on a real "Apps install"
 flow.
 """
 
+from odoo import Command
 from odoo.tests import TransactionCase, tagged
 
 
@@ -148,6 +149,101 @@ class TestSppHideMenu(TransactionCase):
         self.assertEqual(set(after_first.ids), set(after_second.ids))
         for record in after_second:
             self.assertEqual(record.state, "hide")
+
+    def test_reapply_hide_after_simulated_upgrade_reset(self):
+        """_reapply_hide() re-applies the hide group after a module upgrade
+        reset the menu's group_ids via XML (noupdate="0").
+
+        A real module upgrade can't run inside a test transaction, so we
+        simulate its effect: hide the menu, then overwrite group_ids the way
+        an XML data reload would, dropping the hide group. _reapply_hide()
+        must detect the stale state and restore the hidden configuration.
+        """
+        hide_group = self.env.ref("spp_hide_menus_base.group_hide_menus_user")
+        record = self.env["spp.hide.menu"].create({"menu_id": self.menu.id, "xml_id": "test.hide_menu_target"})
+        record.hide_menu()
+        self.assertIn(hide_group, self.menu.group_ids, "precondition: menu should be hidden")
+
+        # Simulate the upgrade resetting group_ids to the module's XML default
+        # (some real group, without the hide group).
+        reset_groups = self.env.ref("base.group_user")
+        self.menu.write({"group_ids": [Command.set([reset_groups.id])]})
+        self.assertNotIn(hide_group, self.menu.group_ids, "precondition: reset must drop the hide group")
+
+        record._reapply_hide()
+
+        self.assertIn(
+            hide_group,
+            self.menu.group_ids,
+            "_reapply_hide() should restore the hide group after an upgrade reset",
+        )
+        # The reset groups become the new restore snapshot so show_menu()
+        # returns the menu to its real post-upgrade default.
+        self.assertEqual(record.default_group_ids, reset_groups)
+
+    def test_reapply_hide_noop_when_already_hidden(self):
+        """_reapply_hide() is a no-op when the hide group is still present.
+
+        If no upgrade reset happened, the guard (hide_group not in
+        group_ids) is False, so neither group_ids nor the saved snapshot
+        should change.
+        """
+        hide_group = self.env.ref("spp_hide_menus_base.group_hide_menus_user")
+        record = self.env["spp.hide.menu"].create({"menu_id": self.menu.id, "xml_id": "test.hide_menu_target"})
+        record.hide_menu()
+        groups_before = self.menu.group_ids
+        snapshot_before = record.default_group_ids
+        self.assertIn(hide_group, groups_before, "precondition: menu should be hidden")
+
+        record._reapply_hide()
+
+        self.assertEqual(self.menu.group_ids, groups_before)
+        self.assertEqual(record.default_group_ids, snapshot_before)
+
+    def test_hide_menus_reapplies_after_reset(self):
+        """``hide_menus()`` re-hides an already-hidden menu whose group_ids
+        were reset, exercising the ``elif ... state == "hide"`` branch.
+
+        This is the end-to-end shape of the upgrade bug: a menu is hidden,
+        a later module upgrade resets its group_ids, and the next
+        install/upgrade pass through hide_menus() must put the hide group
+        back.
+        """
+        IrModuleModule = self.env["ir.module.module"]
+        HideMenu = self.env["spp.hide.menu"]
+        hide_group = self.env.ref("spp_hide_menus_base.group_hide_menus_user")
+
+        # Find one resolvable MENU_APP entry to drive the real entry point.
+        target = None
+        for module_name, info in IrModuleModule.MENU_APP.items():
+            menu = self.env.ref(info["menu_xml_id"], raise_if_not_found=False)
+            module = IrModuleModule.search([("name", "=", module_name)], limit=1)
+            if menu and module:
+                target = menu
+                break
+        if target is None:
+            self.skipTest("No MENU_APP entries are resolvable in this test DB")
+
+        # First pass creates the record and hides the menu.
+        HideMenu.search([]).unlink()
+        IrModuleModule.hide_menus()
+        record = HideMenu.search([("menu_id", "=", target.id)], limit=1)
+        self.assertTrue(record, "hide_menus() should have created a hide record")
+        self.assertEqual(record.state, "hide")
+        self.assertIn(hide_group, target.group_ids)
+
+        # Simulate an upgrade resetting the menu's group_ids via XML.
+        reset_groups = self.env.ref("base.group_user")
+        target.write({"group_ids": [Command.set([reset_groups.id])]})
+        self.assertNotIn(hide_group, target.group_ids)
+
+        # Second pass must re-hide via the state == "hide" branch.
+        IrModuleModule.hide_menus()
+        self.assertIn(
+            hide_group,
+            target.group_ids,
+            "hide_menus() should re-hide a menu whose group_ids were reset on upgrade",
+        )
 
     def test_hide_menus_skips_unknown_modules(self):
         """An ir.module.module record whose name isn't in MENU_APP must be
