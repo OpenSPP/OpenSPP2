@@ -255,40 +255,33 @@ class DCICelFetcher(models.AbstractModel):
         """Fetch the person record from the Social Registry, or None."""
         return self._sr_service(data_source).search_person(id_type, id_value)
 
+    # Every SR handler returns a value for every queried person - the CEL
+    # SQL fast path requires a complete cache (a row per candidate), so a
+    # person not found in the SR yields the semantic defaults (no programs,
+    # no household) rather than a missing row.
+
     def _sr_is_registered(self, data_source, partner, id_type, id_value):
-        # Not found is a meaningful False, not missing data.
         return self._sr_person(data_source, id_type, id_value) is not None
 
     def _sr_program_count(self, data_source, partner, id_type, id_value):
-        person = self._sr_person(data_source, id_type, id_value)
-        if person is None:
-            return None
+        person = self._sr_person(data_source, id_type, id_value) or {}
         return len(person.get("enrolled_programs") or [])
 
     def _sr_has_programs(self, data_source, partner, id_type, id_value):
-        person = self._sr_person(data_source, id_type, id_value)
-        if person is None:
-            return None
+        person = self._sr_person(data_source, id_type, id_value) or {}
         return bool(person.get("enrolled_programs"))
 
     def _sr_household_size(self, data_source, partner, id_type, id_value):
-        person = self._sr_person(data_source, id_type, id_value)
-        if person is None:
-            return None
-        # No household summary -> size unknown, skip (no cache row).
-        return (person.get("household_info") or {}).get("household_size")
+        person = self._sr_person(data_source, id_type, id_value) or {}
+        # Not registered or household-less -> size 0.
+        return (person.get("household_info") or {}).get("household_size") or 0
 
     def _sr_is_head_of_household(self, data_source, partner, id_type, id_value):
-        person = self._sr_person(data_source, id_type, id_value)
-        if person is None:
-            return None
-        # Registered but household-less -> not a head.
+        person = self._sr_person(data_source, id_type, id_value) or {}
         return bool((person.get("household_info") or {}).get("is_household_head"))
 
     def _sr_large_household(self, data_source, partner, id_type, id_value):
-        person = self._sr_person(data_source, id_type, id_value)
-        if person is None:
-            return None
+        person = self._sr_person(data_source, id_type, id_value) or {}
         size = (person.get("household_info") or {}).get("household_size") or 0
         return size > self._SR_LARGE_HOUSEHOLD_THRESHOLD
 

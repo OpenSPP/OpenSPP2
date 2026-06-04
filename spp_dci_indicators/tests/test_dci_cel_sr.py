@@ -5,11 +5,10 @@ All six sr.dci.* metrics derive from a single person record returned by
 SRService.search_person (identifiers -> registration, enrolled_programs,
 household_info). The service is mocked here.
 
-Semantics:
-- person not found: is_registered is False (a meaningful value);
-  every other metric is skipped (no data, no cache row)
-- registered but no household_info: household_size skipped,
-  is_head_of_household / large_household are False
+Semantics: every metric returns a value for every queried person - the CEL
+SQL fast path requires a complete cache (a row per candidate). A person not
+found in the SR yields the semantic defaults: not registered, 0 programs,
+household size 0, not a head, not a large household.
 """
 
 from unittest.mock import patch
@@ -92,9 +91,10 @@ class TestDCICelSRHandlers(TransactionCase):
         result = self._fetch("sr.dci.program_count", {"id": "EXT-1"}, value_type="number")
         self.assertEqual(result, {self.partner.id: 0})
 
-    def test_sr_program_metrics_skipped_when_not_found(self):
+    def test_sr_program_count_zero_when_not_found(self):
+        """Not found in SR -> 0 programs (a value, so the cache stays complete)."""
         result = self._fetch("sr.dci.program_count", None, value_type="number")
-        self.assertEqual(result, {})
+        self.assertEqual(result, {self.partner.id: 0})
 
     def test_sr_has_programs(self):
         person = {"enrolled_programs": [{"programme_name": "A"}]}
@@ -108,9 +108,10 @@ class TestDCICelSRHandlers(TransactionCase):
         result = self._fetch("sr.dci.household_size", person, value_type="number")
         self.assertEqual(result, {self.partner.id: 4})
 
-    def test_sr_household_size_skipped_without_household(self):
+    def test_sr_household_size_zero_without_household(self):
+        """Registered but household-less -> size 0 (complete cache)."""
         result = self._fetch("sr.dci.household_size", {"id": "EXT-1"}, value_type="number")
-        self.assertEqual(result, {})
+        self.assertEqual(result, {self.partner.id: 0})
 
     def test_sr_is_head_of_household(self):
         person = {"household_info": {"household_size": 3, "is_household_head": True}}
