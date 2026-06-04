@@ -245,6 +245,50 @@ class TestSppHideMenu(TransactionCase):
             "hide_menus() should re-hide a menu whose group_ids were reset on upgrade",
         )
 
+    def test_register_hook_rehides_after_reset(self):
+        """``_register_hook()`` re-applies hiding on every registry load.
+
+        ``ir.module.module.next()`` only runs on the immediate
+        install/upgrade path (button_immediate_*). Upgrades performed
+        through the ``base.module.upgrade`` wizard or the CLI (``-u``)
+        reload module XML — resetting ``group_ids`` — but never call
+        ``next()``. ``_register_hook`` runs at the end of *every* registry
+        load, so it must re-hide regardless of the upgrade path. We can't
+        run a real upgrade in a test, so we reset the groups by hand and
+        call the hook the way the loader does.
+        """
+        IrModuleModule = self.env["ir.module.module"]
+        HideMenu = self.env["spp.hide.menu"]
+        hide_group = self.env.ref("spp_hide_menus_base.group_hide_menus_user")
+
+        target = None
+        for module_name, info in IrModuleModule.MENU_APP.items():
+            menu = self.env.ref(info["menu_xml_id"], raise_if_not_found=False)
+            module = IrModuleModule.search([("name", "=", module_name)], limit=1)
+            if menu and module:
+                target = menu
+                break
+        if target is None:
+            self.skipTest("No MENU_APP entries are resolvable in this test DB")
+
+        HideMenu.search([]).unlink()
+        IrModuleModule.hide_menus()
+        self.assertIn(hide_group, target.group_ids, "precondition: menu should be hidden")
+
+        # Simulate the wizard/CLI upgrade path: group_ids reset, next() not called.
+        reset_groups = self.env.ref("base.group_user")
+        target.write({"group_ids": [Command.set([reset_groups.id])]})
+        self.assertNotIn(hide_group, target.group_ids)
+
+        IrModuleModule._register_hook()
+
+        self.assertIn(
+            hide_group,
+            target.group_ids,
+            "_register_hook() should re-hide menus on every registry load, "
+            "covering upgrade paths that never call next()",
+        )
+
     def test_hide_menus_skips_unknown_modules(self):
         """An ir.module.module record whose name isn't in MENU_APP must be
         ignored by hide_menus() — no spp.hide.menu record is created for it.

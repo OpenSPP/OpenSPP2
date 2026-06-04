@@ -89,3 +89,15 @@ class IrModuleModule(models.Model):
         self.hide_menus()
         # Then call the original Odoo logic
         return super().next()
+
+    def _register_hook(self):
+        # next() only runs on the immediate install/upgrade path
+        # (button_immediate_*). Upgrades through the base.module.upgrade
+        # wizard or the CLI (-u) reload menu XML — resetting group_ids via
+        # noupdate="0" — but never call next(), leaving hidden menus visible.
+        # _register_hook runs at the end of every registry load (startup,
+        # install, upgrade — all paths), so re-applying hiding here keeps
+        # menus hidden regardless of how the upgrade was triggered.
+        res = super()._register_hook()
+        self.hide_menus()
+        return res
