@@ -9,9 +9,9 @@ class ResConfigSettings(models.TransientModel):
         string="Allow manual assessment type",
         config_parameter="spp_disability_registry.disregard_age",
         help="When enabled, the assessment type can be selected manually and the "
-        "registrant's date of birth is not required. When disabled (default), the "
-        "assessment type is determined automatically from the registrant's age and "
-        "a date of birth is required.",
+        "registrant's date of birth is not required. When disabled, the assessment "
+        "type is determined automatically from the registrant's age and a date of "
+        "birth is required.",
     )
 
     # === Proxy Response ===

@@ -158,12 +158,16 @@
                                         name="age_restriction_enforced"
                                         invisible="1"
                                     />
+                                    <field name="registrant_birthdate" invisible="1" />
                                     <field
                                         name="registrant_id"
                                         readonly="approval_state != 'draft'"
                                         options="{'no_create': True}"
                                     />
-                                    <field name="age_at_assessment" />
+                                    <field
+                                        name="age_at_assessment"
+                                        invisible="not registrant_birthdate"
+                                    />
                                     <field
                                         name="assessment_type"
                                         readonly="age_restriction_enforced or approval_state != 'draft'"

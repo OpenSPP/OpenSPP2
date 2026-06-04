@@ -149,10 +149,17 @@
                             name="action_create_disability_assessment"
                             type="object"
                             class="btn btn-primary mt-2"
+                            invisible="not can_create_disability_assessment"
                             groups="spp_disability_registry.group_disability_assessor"
                         >
                             <i class="fa fa-plus me-1" /> Create Assessment
                         </button>
+                        <div
+                            class="text-warning mt-2"
+                            invisible="can_create_disability_assessment"
+                        >
+                            <field name="disability_no_create_reason" nolabel="1" />
+                        </div>
                     </div>
 
                     <!-- Assessment History -->
@@ -165,6 +172,7 @@
                                 name="action_create_disability_assessment"
                                 type="object"
                                 class="btn btn-sm btn-primary"
+                                invisible="not can_create_disability_assessment"
                                 groups="spp_disability_registry.group_disability_assessor"
                             >
                                 <i class="fa fa-plus me-1" /> New Assessment
@@ -254,6 +262,7 @@
                     <field name="has_disability" invisible="1" />
                     <field name="has_unmet_device_need" invisible="1" />
                     <field name="current_disability_assessment_id" invisible="1" />
+                    <field name="can_create_disability_assessment" invisible="1" />
                 </page>
             </xpath>
         </field>

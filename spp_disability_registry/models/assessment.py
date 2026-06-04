@@ -110,6 +110,11 @@ class SppDisabilityAssessment(models.Model):
         compute="_compute_age_at_assessment",
         store=True,
     )
+    # Surfaced so the form can hide "Age at Assessment" when there is no date of birth.
+    registrant_birthdate = fields.Date(
+        related="registrant_id.birthdate",
+        string="Registrant Date of Birth",
+    )
     age_restriction_enforced = fields.Boolean(
         string="Age Restriction Enforced",
         compute="_compute_age_restriction_enforced",
@@ -734,18 +739,29 @@ class SppDisabilityAssessment(models.Model):
                 continue
             rec.assessment_type = rec._assessment_type_for_age()
 
-    @api.constrains("registrant_id")
+    @api.constrains("registrant_id", "assessment_date")
     def _check_birthdate_required_for_age(self):
-        """Require a date of birth when the assessment type is age-driven."""
+        """When the assessment type is age-driven, require a date of birth and an
+        age of at least 2 (the youngest CFM instrument covers ages 2-4)."""
         if self._disability_disregard_age():
             return
         for rec in self:
-            if rec.registrant_id and not rec.registrant_id.birthdate:
+            if not rec.registrant_id:
+                continue
+            if not rec.registrant_id.birthdate:
                 raise ValidationError(
                     _(
                         "A date of birth is required for %s to determine the assessment type by age. "
                         "Set the registrant's date of birth, or enable 'Allow manual assessment type' "
                         "in the Disability Registry settings.",
+                        rec.registrant_id.display_name,
+                    )
+                )
+            if rec.age_at_assessment < 2:
+                raise ValidationError(
+                    _(
+                        "Disability assessments are only available for individuals aged 2 years or "
+                        "older. %s is younger than 2 at the assessment date.",
                         rec.registrant_id.display_name,
                     )
                 )
