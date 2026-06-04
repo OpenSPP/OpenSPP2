@@ -3,6 +3,8 @@
 
 import json
 
+from odoo import fields
+
 from .common import ApiV2HttpTestCase
 
 
@@ -1083,7 +1085,7 @@ class TestGroupAPIEndpoints(ApiV2HttpTestCase):
             ],
             limit=1,
         )
-        membership.write({"ended_date": "2026-06-01 10:00:00"})
+        membership.write({"ended_date": fields.Datetime.now()})
 
         # Get membership history
         url = f"{self.api_base_url}/urn:openspp:vocab:id-type%23test_household_id|HH-HISTORY-002/membership-history"
