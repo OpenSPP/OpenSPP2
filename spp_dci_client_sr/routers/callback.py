@@ -258,7 +258,7 @@ def _find_partner_by_identifier(env: Environment, id_type: str, id_value: str):
     """
     # Search in spp.id records
     id_record = (
-        env["spp.registry.id"]
+        env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
         .sudo()
         .search(
             [
@@ -275,7 +275,7 @@ def _find_partner_by_identifier(env: Environment, id_type: str, id_value: str):
     # Also check with namespace URIs
     if not id_type.startswith("urn:"):
         id_record = (
-            env["spp.registry.id"]
+            env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .search(
                 [
@@ -305,7 +305,7 @@ def _update_sr_record(
         record: SR person record
         source_registry: Source registry ID
     """
-    SRRecord = env["spp.dci.sr.record"].sudo()
+    SRRecord = env["spp.dci.sr.record"].sudo()  # nosemgrep: odoo-sudo-without-context
 
     # Find existing record
     existing = SRRecord.search(

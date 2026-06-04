@@ -3,4 +3,3 @@
 from . import models
 from . import routers
 from . import services
-from . import tests

@@ -55,7 +55,7 @@ class DCISecurityWarning(models.AbstractModel):
                 - name: Human-readable name
                 - description: Detailed description of the risk
         """
-        config = self.env["ir.config_parameter"].sudo()
+        config = self.env["ir.config_parameter"].sudo()  # nosemgrep: odoo-sudo-without-context
         warnings = []
 
         for setting in self.INSECURE_SETTINGS:

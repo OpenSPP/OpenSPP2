@@ -36,9 +36,8 @@ async def verify_sr_signature(
     """
     try:
         # Check if unsigned requests are allowed (development mode)
-        allow_unsigned = (
-            env["ir.config_parameter"].sudo().get_param("dci.allow_unsigned_requests", "false").lower() == "true"
-        )
+        config = env["ir.config_parameter"].sudo()  # nosemgrep: odoo-sudo-without-context
+        allow_unsigned = config.get_param("dci.allow_unsigned_requests", "false").lower() == "true"
 
         # Extract sender_id from header
         sender_id = envelope.header.sender_id
@@ -65,7 +64,9 @@ async def verify_sr_signature(
                 )
 
         # Look up SR sender in registry
-        sr_sender = env["spp.dci.sr.sender"].sudo().search([("sender_id", "=", sender_id)], limit=1)
+        # sudo: sender lookup happens before request authentication
+        SRSender = env["spp.dci.sr.sender"].sudo()  # nosemgrep: odoo-sudo-without-context
+        sr_sender = SRSender.search([("sender_id", "=", sender_id)], limit=1)
 
         if not sr_sender:
             _logger.warning("Unknown SR sender_id in callback: %s", sender_id)

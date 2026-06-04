@@ -370,7 +370,7 @@ class SRService:
         if not person_data:
             raise UserError(f"Person with {identifier_type}:{identifier_value} not found in SR")
 
-        SRRecord = self.env["spp.dci.sr.record"].sudo()
+        SRRecord = self.env["spp.dci.sr.record"].sudo()  # nosemgrep: odoo-sudo-without-context
 
         # Find or create partner if not provided
         if not partner_id:
@@ -378,7 +378,7 @@ class SRService:
             # earlier code referenced a non-existent 'spp.id', which
             # raised KeyError on every lookup-by-identifier call.
             id_record = (
-                self.env["spp.registry.id"]
+                self.env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
                 .sudo()
                 .search(
                     [

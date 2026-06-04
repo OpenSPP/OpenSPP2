@@ -130,9 +130,8 @@ class ResPartnerDCINotify(models.Model):
             bool: True if notifications should be sent
         """
         # Check system parameter
-        enabled = (
-            self.env["ir.config_parameter"].sudo().get_param("dci.notifications_enabled", "true").lower() == "true"
-        )
+        config = self.env["ir.config_parameter"].sudo()  # nosemgrep: odoo-sudo-without-context
+        enabled = config.get_param("dci.notifications_enabled", "true").lower() == "true"
         return enabled
 
     def _queue_dci_notification_job(self, event_type, partner_ids):

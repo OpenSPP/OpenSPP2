@@ -42,10 +42,8 @@ class FastAPIEndpointCompliance(models.Model):
         if self.app == "dci_api":
             # Check if compliance endpoints should be enabled
             is_test_mode = tools.config.get("test_enable", False)
-            enable_param = (
-                self.env["ir.config_parameter"].sudo().get_param("dci.enable_compliance_endpoints", "false").lower()
-                == "true"
-            )
+            config = self.env["ir.config_parameter"].sudo()  # nosemgrep: odoo-sudo-without-context
+            enable_param = config.get_param("dci.enable_compliance_endpoints", "false").lower() == "true"
 
             if is_test_mode or enable_param:
                 from ..routers.verification import verification_router

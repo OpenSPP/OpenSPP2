@@ -205,9 +205,10 @@ class DCISocialSearchService:
                 )
             )
 
-        Partner = self.env[
-            "res.partner"
-        ].sudo()  # nosemgrep: odoo-sudo-on-sensitive-models - Read-only Social Registry search restricted to spp_registry.group_registry_viewer; DCI output uses schema objects, not raw partner records.
+        # sudo: read-only Social Registry search; access gated above by
+        # spp_registry.group_registry_viewer, and DCI output uses schema
+        # objects, not raw partner records.
+        Partner = self.env["res.partner"].sudo()  # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context
         total_count = Partner.search_count(domain)
         # NOTE: Offset-based pagination required by SPDCI specification (PaginationRequest schema)
         # The DCI spec mandates page_number/page_size pagination, not cursor-based last_id

@@ -62,7 +62,8 @@ export class DCISecurityWarning extends Component {
 // Only show the systray item if there are warnings
 const systrayItem = {
     Component: DCISecurityWarning,
-    isDisplayed: (env) => true, // Always check, component handles visibility
+    // Always displayed; the component itself decides visibility
+    isDisplayed: () => true,
 };
 
 registry

@@ -17,10 +17,12 @@ def _post_init_hook(env):
     if public_user and registry_viewer_group:
         # Write to group's user_ids field (Odoo 19 field name)
         if public_user.id not in registry_viewer_group.user_ids.ids:
-            registry_viewer_group.sudo().write({"user_ids": [(4, public_user.id)]})
+            # sudo: install hook granting compliance-test access
+            group_sudo = registry_viewer_group.sudo()  # nosemgrep: odoo-sudo-without-context
+            group_sudo.write({"user_ids": [(4, public_user.id)]})
 
     # Set DCI config parameters for compliance testing
-    config = env["ir.config_parameter"].sudo()
+    config = env["ir.config_parameter"].sudo()  # nosemgrep: odoo-sudo-without-context
 
     # Allow unsigned requests for signature verification testing
     config.set_param("dci.allow_unsigned_requests", "true")

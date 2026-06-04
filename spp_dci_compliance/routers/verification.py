@@ -124,7 +124,8 @@ async def get_callbacks(
 ):
     """Query callback logs with optional filters."""
     try:
-        CallbackLog = env["spp.dci.callback.log"].sudo()
+        # sudo: technical callback-log model; compliance-test-only endpoints
+        CallbackLog = env["spp.dci.callback.log"].sudo()  # nosemgrep: odoo-sudo-without-context
         callbacks = CallbackLog.get_callbacks(
             transaction_id=transaction_id,
             correlation_id=correlation_id,
@@ -182,7 +183,8 @@ async def get_callback_stats(
 ):
     """Get callback processing statistics."""
     try:
-        CallbackLog = env["spp.dci.callback.log"].sudo()
+        # sudo: technical callback-log model; compliance-test-only endpoints
+        CallbackLog = env["spp.dci.callback.log"].sudo()  # nosemgrep: odoo-sudo-without-context
 
         # Build domain for time filter
         domain = []
@@ -241,7 +243,8 @@ async def clear_callbacks(
 ):
     """Clear callback logs."""
     try:
-        CallbackLog = env["spp.dci.callback.log"].sudo()
+        # sudo: technical callback-log model; compliance-test-only endpoints
+        CallbackLog = env["spp.dci.callback.log"].sudo()  # nosemgrep: odoo-sudo-without-context
 
         if older_than_days:
             count = CallbackLog.cleanup_old_logs(days=older_than_days)
@@ -304,7 +307,8 @@ async def wait_for_callback(
     """Wait for a callback with the specified transaction_id."""
     import asyncio
 
-    CallbackLog = env["spp.dci.callback.log"].sudo()
+    # sudo: technical callback-log model; compliance-test-only endpoints
+    CallbackLog = env["spp.dci.callback.log"].sudo()  # nosemgrep: odoo-sudo-without-context
     start_time = asyncio.get_event_loop().time()
     poll_interval = poll_interval_ms / 1000
 

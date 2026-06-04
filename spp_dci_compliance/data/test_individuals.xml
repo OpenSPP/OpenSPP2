@@ -1,98 +1,96 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<odoo>
-    <data noupdate="1">
-        <!-- Test Individual with UIN 847951632 (matching DR compliance tests) -->
-        <record id="test_individual_847951632" model="res.partner">
-            <field name="name">Test Individual 847951632</field>
-            <field name="is_registrant" eval="True" />
-            <field name="is_group" eval="False" />
-            <field name="given_name">John</field>
-            <field name="family_name">Doe</field>
-            <field name="addl_name">Michael</field>
-            <field name="birthdate">1994-06-15</field>
-            <field name="phone">+1234567890</field>
-            <field name="email">john.doe@example.com</field>
-            <field name="street">123 Test Street</field>
-            <field name="street2">Apt 4B</field>
-            <field name="city">Test City</field>
-            <field name="zip">12345</field>
-        </record>
+<odoo noupdate="1">
+    <!-- Test Individual with UIN 847951632 (matching DR compliance tests) -->
+    <record id="test_individual_847951632" model="res.partner">
+        <field name="name">Test Individual 847951632</field>
+        <field name="is_registrant" eval="True" />
+        <field name="is_group" eval="False" />
+        <field name="given_name">John</field>
+        <field name="family_name">Doe</field>
+        <field name="addl_name">Michael</field>
+        <field name="birthdate">1994-06-15</field>
+        <field name="phone">+1234567890</field>
+        <field name="email">john.doe@example.com</field>
+        <field name="street">123 Test Street</field>
+        <field name="street2">Apt 4B</field>
+        <field name="city">Test City</field>
+        <field name="zip">12345</field>
+    </record>
 
-        <!-- Identifier for test individual matching compliance test value -->
-        <record id="test_individual_847951632_identifier" model="spp.registry.id">
-            <field name="partner_id" ref="test_individual_847951632" />
-            <field name="id_type_id" ref="spp_dci.id_type_uin" />
-            <field name="value">847951632</field>
-        </record>
+    <!-- Identifier for test individual matching compliance test value -->
+    <record id="test_individual_847951632_identifier" model="spp.registry.id">
+        <field name="partner_id" ref="test_individual_847951632" />
+        <field name="id_type_id" ref="spp_dci.id_type_uin" />
+        <field name="value">847951632</field>
+    </record>
 
-        <!-- Test Individual with disability information -->
-        <record id="test_individual_with_disability" model="res.partner">
-            <field name="name">Test Individual with Disability</field>
-            <field name="is_registrant" eval="True" />
-            <field name="is_group" eval="False" />
-            <field name="given_name">Jane</field>
-            <field name="family_name">Smith</field>
-            <field name="birthdate">1999-03-22</field>
-            <field name="phone">+1234567891</field>
-            <field name="email">jane.smith@example.com</field>
-        </record>
+    <!-- Test Individual with disability information -->
+    <record id="test_individual_with_disability" model="res.partner">
+        <field name="name">Test Individual with Disability</field>
+        <field name="is_registrant" eval="True" />
+        <field name="is_group" eval="False" />
+        <field name="given_name">Jane</field>
+        <field name="family_name">Smith</field>
+        <field name="birthdate">1999-03-22</field>
+        <field name="phone">+1234567891</field>
+        <field name="email">jane.smith@example.com</field>
+    </record>
 
-        <!-- Identifier for individual with disability -->
-        <record id="test_individual_with_disability_identifier" model="spp.registry.id">
-            <field name="partner_id" ref="test_individual_with_disability" />
-            <field name="id_type_id" ref="spp_dci.id_type_uin" />
-            <field name="value">987654321</field>
-        </record>
+    <!-- Identifier for individual with disability -->
+    <record id="test_individual_with_disability_identifier" model="spp.registry.id">
+        <field name="partner_id" ref="test_individual_with_disability" />
+        <field name="id_type_id" ref="spp_dci.id_type_uin" />
+        <field name="value">987654321</field>
+    </record>
 
-        <!-- Test Household/Group -->
-        <record id="test_household_group" model="res.partner">
-            <field name="name">Test Household Group</field>
-            <field name="is_registrant" eval="True" />
-            <field name="is_group" eval="True" />
-            <field name="street">456 Family Avenue</field>
-            <field name="city">Test Town</field>
-            <field name="zip">54321</field>
-        </record>
+    <!-- Test Household/Group -->
+    <record id="test_household_group" model="res.partner">
+        <field name="name">Test Household Group</field>
+        <field name="is_registrant" eval="True" />
+        <field name="is_group" eval="True" />
+        <field name="street">456 Family Avenue</field>
+        <field name="city">Test Town</field>
+        <field name="zip">54321</field>
+    </record>
 
-        <!-- Identifier for test household -->
-        <record id="test_household_group_identifier" model="spp.registry.id">
-            <field name="partner_id" ref="test_household_group" />
-            <field name="id_type_id" ref="spp_dci.id_type_uin" />
-            <field name="value">HH123456</field>
-        </record>
+    <!-- Identifier for test household -->
+    <record id="test_household_group_identifier" model="spp.registry.id">
+        <field name="partner_id" ref="test_household_group" />
+        <field name="id_type_id" ref="spp_dci.id_type_uin" />
+        <field name="value">HH123456</field>
+    </record>
 
-        <!-- Test Individual - Member of Household -->
-        <record id="test_household_member_1" model="res.partner">
-            <field name="name">Test Household Member 1</field>
-            <field name="is_registrant" eval="True" />
-            <field name="is_group" eval="False" />
-            <field name="given_name">Alice</field>
-            <field name="family_name">Johnson</field>
-            <field name="birthdate">1989-11-08</field>
-        </record>
+    <!-- Test Individual - Member of Household -->
+    <record id="test_household_member_1" model="res.partner">
+        <field name="name">Test Household Member 1</field>
+        <field name="is_registrant" eval="True" />
+        <field name="is_group" eval="False" />
+        <field name="given_name">Alice</field>
+        <field name="family_name">Johnson</field>
+        <field name="birthdate">1989-11-08</field>
+    </record>
 
-        <!-- Identifier for household member 1 -->
-        <record id="test_household_member_1_identifier" model="spp.registry.id">
-            <field name="partner_id" ref="test_household_member_1" />
-            <field name="id_type_id" ref="spp_dci.id_type_uin" />
-            <field name="value">111222333</field>
-        </record>
+    <!-- Identifier for household member 1 -->
+    <record id="test_household_member_1_identifier" model="spp.registry.id">
+        <field name="partner_id" ref="test_household_member_1" />
+        <field name="id_type_id" ref="spp_dci.id_type_uin" />
+        <field name="value">111222333</field>
+    </record>
 
-        <!-- Test Individual - Member 2 of Household -->
-        <record id="test_household_member_2" model="res.partner">
-            <field name="name">Test Household Member 2</field>
-            <field name="is_registrant" eval="True" />
-            <field name="is_group" eval="False" />
-            <field name="given_name">Bob</field>
-            <field name="family_name">Johnson</field>
-            <field name="birthdate">2014-07-20</field>
-        </record>
+    <!-- Test Individual - Member 2 of Household -->
+    <record id="test_household_member_2" model="res.partner">
+        <field name="name">Test Household Member 2</field>
+        <field name="is_registrant" eval="True" />
+        <field name="is_group" eval="False" />
+        <field name="given_name">Bob</field>
+        <field name="family_name">Johnson</field>
+        <field name="birthdate">2014-07-20</field>
+    </record>
 
-        <!-- Identifier for household member 2 -->
-        <record id="test_household_member_2_identifier" model="spp.registry.id">
-            <field name="partner_id" ref="test_household_member_2" />
-            <field name="id_type_id" ref="spp_dci.id_type_uin" />
-            <field name="value">444555666</field>
-        </record>
-    </data>
+    <!-- Identifier for household member 2 -->
+    <record id="test_household_member_2_identifier" model="spp.registry.id">
+        <field name="partner_id" ref="test_household_member_2" />
+        <field name="id_type_id" ref="spp_dci.id_type_uin" />
+        <field name="value">444555666</field>
+    </record>
 </odoo>
