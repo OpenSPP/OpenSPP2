@@ -536,6 +536,17 @@ matching logic</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.1</h1>
+<ul class="simple">
+<li>Fix CEL Expressions tab crash: the ace editor fields used the invalid
+CodeEditor mode <tt class="docutils literal">text</tt>; changed to <tt class="docutils literal">javascript</tt> (Odoo 19 only
+accepts <tt class="docutils literal">javascript</tt>/<tt class="docutils literal">xml</tt>/<tt class="docutils literal">qweb</tt>/<tt class="docutils literal">scss</tt>/<tt class="docutils literal">python</tt>).
+<tt class="docutils literal">javascript</tt> is used because the CEL dialect uses
+<tt class="docutils literal">&amp;&amp;</tt>/<tt class="docutils literal">||</tt>/<tt class="docutils literal">!</tt>, <tt class="docutils literal">true</tt>/<tt class="docutils literal">false</tt>/ <tt class="docutils literal">null</tt> and <tt class="docutils literal">? :</tt>
+ternaries, which it highlights correctly.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
