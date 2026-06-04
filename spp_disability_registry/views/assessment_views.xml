@@ -646,21 +646,24 @@
                                         >Vision</span>
                                     </div>
                                     <div class="card-body">
-                                        <div
-                                            class="d-flex align-items-center gap-2 mb-3"
-                                        >
-                                            <field name="cfm517_glasses" nolabel="1" />
-                                            <span
-                                                class="fw-bold"
-                                            >Does the child wear glasses?</span>
+                                        <div class="mb-3">
+                                            <div
+                                                class="fw-bold mb-1"
+                                            >Does the child wear glasses?</div>
+                                            <field
+                                                name="cfm517_glasses"
+                                                widget="radio"
+                                                options="{'horizontal': true}"
+                                                nolabel="1"
+                                            />
                                         </div>
                                         <div
                                             class="mb-0"
-                                            invisible="not cfm517_glasses"
+                                            invisible="cfm517_glasses != 'yes'"
                                         >
                                             <div
                                                 class="fw-bold mb-1"
-                                            >When wearing glasses, difficulty seeing?</div>
+                                            >When wearing his/her glasses, does the child have difficulty seeing?</div>
                                             <field
                                                 name="cfm517_vision_aided"
                                                 widget="radio"
@@ -668,10 +671,13 @@
                                                 nolabel="1"
                                             />
                                         </div>
-                                        <div class="mb-0" invisible="cfm517_glasses">
+                                        <div
+                                            class="mb-0"
+                                            invisible="cfm517_glasses != 'no'"
+                                        >
                                             <div
                                                 class="fw-bold mb-1"
-                                            >Difficulty seeing?</div>
+                                            >Does the child have difficulty seeing?</div>
                                             <field
                                                 name="cfm517_vision"
                                                 widget="radio"
@@ -689,24 +695,24 @@
                                         >Hearing</span>
                                     </div>
                                     <div class="card-body">
-                                        <div
-                                            class="d-flex align-items-center gap-2 mb-3"
-                                        >
+                                        <div class="mb-3">
+                                            <div
+                                                class="fw-bold mb-1"
+                                            >Does the child use a hearing aid?</div>
                                             <field
                                                 name="cfm517_hearing_aid"
+                                                widget="radio"
+                                                options="{'horizontal': true}"
                                                 nolabel="1"
                                             />
-                                            <span
-                                                class="fw-bold"
-                                            >Does the child use a hearing aid?</span>
                                         </div>
                                         <div
                                             class="mb-0"
-                                            invisible="not cfm517_hearing_aid"
+                                            invisible="cfm517_hearing_aid != 'yes'"
                                         >
                                             <div
                                                 class="fw-bold mb-1"
-                                            >When using a hearing aid, difficulty hearing?</div>
+                                            >When using his/her hearing aid, does the child have difficulty hearing sounds like people's voices or music?</div>
                                             <field
                                                 name="cfm517_hearing_aided"
                                                 widget="radio"
@@ -716,11 +722,11 @@
                                         </div>
                                         <div
                                             class="mb-0"
-                                            invisible="cfm517_hearing_aid"
+                                            invisible="cfm517_hearing_aid != 'no'"
                                         >
                                             <div
                                                 class="fw-bold mb-1"
-                                            >Difficulty hearing sounds like voices or music?</div>
+                                            >Does the child have difficulty hearing sounds like people's voices or music?</div>
                                             <field
                                                 name="cfm517_hearing"
                                                 widget="radio"
@@ -738,24 +744,24 @@
                                         >Mobility</span>
                                     </div>
                                     <div class="card-body">
-                                        <div
-                                            class="d-flex align-items-center gap-2 mb-3"
-                                        >
+                                        <div class="mb-3">
+                                            <div
+                                                class="fw-bold mb-1"
+                                            >Does the child use any equipment or receive assistance for walking?</div>
                                             <field
                                                 name="cfm517_walk_equipment"
+                                                widget="radio"
+                                                options="{'horizontal': true}"
                                                 nolabel="1"
                                             />
-                                            <span
-                                                class="fw-bold"
-                                            >Does the child use equipment or assistance for walking?</span>
                                         </div>
                                         <div
                                             class="mb-3"
-                                            invisible="not cfm517_walk_equipment"
+                                            invisible="cfm517_walk_equipment != 'yes'"
                                         >
                                             <div
                                                 class="fw-bold mb-1"
-                                            >Without equipment, difficulty walking 100 m on level ground?</div>
+                                            >Without his/her equipment or assistance, does the child have difficulty walking 100 yards/meters on level ground?</div>
                                             <field
                                                 name="cfm517_walk_unaided_100"
                                                 widget="radio"
@@ -765,11 +771,11 @@
                                         </div>
                                         <div
                                             class="mb-3"
-                                            invisible="not cfm517_walk_equipment"
+                                            invisible="cfm517_walk_equipment != 'yes'"
                                         >
                                             <div
                                                 class="fw-bold mb-1"
-                                            >Without equipment, difficulty walking 500 m on level ground?</div>
+                                            >Without his/her equipment or assistance, does the child have difficulty walking 500 yards/meters on level ground?</div>
                                             <field
                                                 name="cfm517_walk_unaided_500"
                                                 widget="radio"
@@ -779,11 +785,11 @@
                                         </div>
                                         <div
                                             class="mb-3"
-                                            invisible="not cfm517_walk_equipment"
+                                            invisible="cfm517_walk_equipment != 'yes'"
                                         >
                                             <div
                                                 class="fw-bold mb-1"
-                                            >With equipment, difficulty walking 100 m on level ground?</div>
+                                            >With his/her equipment or assistance, does the child have difficulty walking 100 yards/meters on level ground?</div>
                                             <field
                                                 name="cfm517_walk_aided_100"
                                                 widget="radio"
@@ -793,11 +799,11 @@
                                         </div>
                                         <div
                                             class="mb-0"
-                                            invisible="not cfm517_walk_equipment"
+                                            invisible="cfm517_walk_equipment != 'yes'"
                                         >
                                             <div
                                                 class="fw-bold mb-1"
-                                            >With equipment, difficulty walking 500 m on level ground?</div>
+                                            >With his/her equipment or assistance, does the child have difficulty walking 500 yards/meters on level ground?</div>
                                             <field
                                                 name="cfm517_walk_aided_500"
                                                 widget="radio"
@@ -807,11 +813,11 @@
                                         </div>
                                         <div
                                             class="mb-3"
-                                            invisible="cfm517_walk_equipment"
+                                            invisible="cfm517_walk_equipment != 'no'"
                                         >
                                             <div
                                                 class="fw-bold mb-1"
-                                            >Compared with peers, difficulty walking 100 m on level ground?</div>
+                                            >Compared with children of the same age, does the child have difficulty walking 100 yards/meters on level ground?</div>
                                             <field
                                                 name="cfm517_walk_compare_100"
                                                 widget="radio"
@@ -821,11 +827,11 @@
                                         </div>
                                         <div
                                             class="mb-0"
-                                            invisible="cfm517_walk_equipment"
+                                            invisible="cfm517_walk_equipment != 'no'"
                                         >
                                             <div
                                                 class="fw-bold mb-1"
-                                            >Compared with peers, difficulty walking 500 m on level ground?</div>
+                                            >Compared with children of the same age, does the child have difficulty walking 500 yards/meters on level ground?</div>
                                             <field
                                                 name="cfm517_walk_compare_500"
                                                 widget="radio"
@@ -835,18 +841,18 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- Self-care and Communication -->
+                                <!-- Self-care -->
                                 <div class="card mb-3">
                                     <div class="card-header bg-light py-2">
                                         <span
                                             class="fw-bold text-uppercase small"
-                                        >Self-care and Communication</span>
+                                        >Self-care</span>
                                     </div>
                                     <div class="card-body">
-                                        <div class="mb-3">
+                                        <div class="mb-0">
                                             <div
                                                 class="fw-bold mb-1"
-                                            >Difficulty with self-care such as feeding or dressing?</div>
+                                            >Does the child have difficulty with self-care such as feeding or dressing him/herself?</div>
                                             <field
                                                 name="cfm517_selfcare"
                                                 widget="radio"
@@ -854,10 +860,20 @@
                                                 nolabel="1"
                                             />
                                         </div>
+                                    </div>
+                                </div>
+                                <!-- Communication -->
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light py-2">
+                                        <span
+                                            class="fw-bold text-uppercase small"
+                                        >Communication</span>
+                                    </div>
+                                    <div class="card-body">
                                         <div class="mb-3">
                                             <div
                                                 class="fw-bold mb-1"
-                                            >Difficulty being understood by people inside the household?</div>
+                                            >When the child speaks, does he/she have difficulty being understood by people inside this household?</div>
                                             <field
                                                 name="cfm517_comm_inside"
                                                 widget="radio"
@@ -868,7 +884,7 @@
                                         <div class="mb-0">
                                             <div
                                                 class="fw-bold mb-1"
-                                            >Difficulty being understood by people outside the household?</div>
+                                            >When the child speaks, does he/she have difficulty being understood by people outside this household?</div>
                                             <field
                                                 name="cfm517_comm_outside"
                                                 widget="radio"
@@ -878,18 +894,18 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- Cognition and Behaviour -->
+                                <!-- Learning -->
                                 <div class="card mb-3">
                                     <div class="card-header bg-light py-2">
                                         <span
                                             class="fw-bold text-uppercase small"
-                                        >Cognition and Behaviour</span>
+                                        >Learning</span>
                                     </div>
                                     <div class="card-body">
-                                        <div class="mb-3">
+                                        <div class="mb-0">
                                             <div
                                                 class="fw-bold mb-1"
-                                            >Difficulty learning things?</div>
+                                            >Compared with children of the same age, does the child have difficulty learning things?</div>
                                             <field
                                                 name="cfm517_learning"
                                                 widget="radio"
@@ -897,10 +913,20 @@
                                                 nolabel="1"
                                             />
                                         </div>
-                                        <div class="mb-3">
+                                    </div>
+                                </div>
+                                <!-- Remembering -->
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light py-2">
+                                        <span
+                                            class="fw-bold text-uppercase small"
+                                        >Remembering</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-0">
                                             <div
                                                 class="fw-bold mb-1"
-                                            >Difficulty remembering things?</div>
+                                            >Compared with children of the same age, does the child have difficulty remembering things?</div>
                                             <field
                                                 name="cfm517_remembering"
                                                 widget="radio"
@@ -908,10 +934,20 @@
                                                 nolabel="1"
                                             />
                                         </div>
-                                        <div class="mb-3">
+                                    </div>
+                                </div>
+                                <!-- Concentrating -->
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light py-2">
+                                        <span
+                                            class="fw-bold text-uppercase small"
+                                        >Concentrating</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-0">
                                             <div
                                                 class="fw-bold mb-1"
-                                            >Difficulty concentrating on an activity he/she enjoys?</div>
+                                            >Does the child have difficulty concentrating on an activity that he/she enjoys doing?</div>
                                             <field
                                                 name="cfm517_concentrating"
                                                 widget="radio"
@@ -919,10 +955,20 @@
                                                 nolabel="1"
                                             />
                                         </div>
-                                        <div class="mb-3">
+                                    </div>
+                                </div>
+                                <!-- Accepting change -->
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light py-2">
+                                        <span
+                                            class="fw-bold text-uppercase small"
+                                        >Accepting change</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-0">
                                             <div
                                                 class="fw-bold mb-1"
-                                            >Difficulty accepting changes in routine?</div>
+                                            >Does the child have difficulty accepting changes in his/her routine?</div>
                                             <field
                                                 name="cfm517_accepting_change"
                                                 widget="radio"
@@ -930,10 +976,20 @@
                                                 nolabel="1"
                                             />
                                         </div>
-                                        <div class="mb-3">
+                                    </div>
+                                </div>
+                                <!-- Controlling behaviour -->
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light py-2">
+                                        <span
+                                            class="fw-bold text-uppercase small"
+                                        >Controlling behaviour</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-0">
                                             <div
                                                 class="fw-bold mb-1"
-                                            >Difficulty controlling his/her behaviour?</div>
+                                            >Compared with children of the same age, does the child have difficulty controlling his/her behaviour?</div>
                                             <field
                                                 name="cfm517_behavior"
                                                 widget="radio"
@@ -941,10 +997,20 @@
                                                 nolabel="1"
                                             />
                                         </div>
+                                    </div>
+                                </div>
+                                <!-- Making friends -->
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light py-2">
+                                        <span
+                                            class="fw-bold text-uppercase small"
+                                        >Making friends</span>
+                                    </div>
+                                    <div class="card-body">
                                         <div class="mb-0">
                                             <div
                                                 class="fw-bold mb-1"
-                                            >Difficulty making friends?</div>
+                                            >Does the child have difficulty making friends?</div>
                                             <field
                                                 name="cfm517_friends"
                                                 widget="radio"
@@ -954,15 +1020,15 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- Emotional Wellbeing -->
+                                <!-- Anxiety -->
                                 <div class="card mb-3">
                                     <div class="card-header bg-light py-2">
                                         <span
                                             class="fw-bold text-uppercase small"
-                                        >Emotional Wellbeing</span>
+                                        >Anxiety</span>
                                     </div>
                                     <div class="card-body">
-                                        <div class="mb-3">
+                                        <div class="mb-0">
                                             <div
                                                 class="fw-bold mb-1"
                                             >How often does the child seem very anxious, nervous or worried?</div>
@@ -973,6 +1039,16 @@
                                                 nolabel="1"
                                             />
                                         </div>
+                                    </div>
+                                </div>
+                                <!-- Depression -->
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light py-2">
+                                        <span
+                                            class="fw-bold text-uppercase small"
+                                        >Depression</span>
+                                    </div>
+                                    <div class="card-body">
                                         <div class="mb-0">
                                             <div
                                                 class="fw-bold mb-1"

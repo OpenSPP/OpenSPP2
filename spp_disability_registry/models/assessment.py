@@ -251,97 +251,111 @@ class SppDisabilityAssessment(models.Model):
 
     # === CFM 5-17 Responses (children aged 5-17, CF1-CF24) ===
     # Vision
-    cfm517_glasses = fields.Boolean(string="Does the child wear glasses?")  # CF1
+    cfm517_glasses = fields.Selection(  # CF1
+        CFM_YES_NO,
+        string="Does the child wear glasses?",
+    )
     cfm517_vision_aided = fields.Selection(  # CF2
         CFM_DIFFICULTY_LEVELS,
-        string="When wearing glasses, difficulty seeing?",
+        string="When wearing his/her glasses, does the child have difficulty seeing?",
     )
     cfm517_vision = fields.Selection(  # CF3
         CFM_DIFFICULTY_LEVELS,
-        string="Difficulty seeing?",
+        string="Does the child have difficulty seeing?",
     )
     # Hearing
-    cfm517_hearing_aid = fields.Boolean(string="Does the child use a hearing aid?")  # CF4
+    cfm517_hearing_aid = fields.Selection(  # CF4
+        CFM_YES_NO,
+        string="Does the child use a hearing aid?",
+    )
     cfm517_hearing_aided = fields.Selection(  # CF5
         CFM_DIFFICULTY_LEVELS,
-        string="When using a hearing aid, difficulty hearing?",
+        string="When using his/her hearing aid, does the child have difficulty hearing sounds "
+        "like people's voices or music?",
     )
     cfm517_hearing = fields.Selection(  # CF6
         CFM_DIFFICULTY_LEVELS,
-        string="Difficulty hearing sounds like voices or music?",
+        string="Does the child have difficulty hearing sounds like people's voices or music?",
     )
-    # Mobility (100m / 500m, with and without equipment; concluding = the "with aid"
-    # answer when equipment is used, otherwise the "compared with peers" answer)
-    cfm517_walk_equipment = fields.Boolean(  # CF7
-        string="Does the child use equipment or assistance for walking?"
+    # Mobility (100/500 yards-meters, with and without equipment; concluding = the
+    # "with aid" answer when equipment is used, otherwise the "compared" answer)
+    cfm517_walk_equipment = fields.Selection(  # CF7
+        CFM_YES_NO,
+        string="Does the child use any equipment or receive assistance for walking?",
     )
-    cfm517_walk_unaided_100 = fields.Selection(  # CF8 (without equipment, 100m)
+    cfm517_walk_unaided_100 = fields.Selection(  # CF8 (without equipment, 100)
         CFM_DIFFICULTY_LEVELS,
-        string="Without equipment, difficulty walking 100 m on level ground?",
+        string="Without his/her equipment or assistance, does the child have difficulty walking "
+        "100 yards/meters on level ground?",
     )
-    cfm517_walk_unaided_500 = fields.Selection(  # CF9 (without equipment, 500m)
+    cfm517_walk_unaided_500 = fields.Selection(  # CF9 (without equipment, 500)
         CFM_DIFFICULTY_LEVELS,
-        string="Without equipment, difficulty walking 500 m on level ground?",
+        string="Without his/her equipment or assistance, does the child have difficulty walking "
+        "500 yards/meters on level ground?",
     )
-    cfm517_walk_aided_100 = fields.Selection(  # CF10 (with equipment, 100m) - concluding
+    cfm517_walk_aided_100 = fields.Selection(  # CF10 (with equipment, 100) - concluding
         CFM_DIFFICULTY_LEVELS,
-        string="With equipment, difficulty walking 100 m on level ground?",
+        string="With his/her equipment or assistance, does the child have difficulty walking "
+        "100 yards/meters on level ground?",
     )
-    cfm517_walk_aided_500 = fields.Selection(  # CF11 (with equipment, 500m) - concluding
+    cfm517_walk_aided_500 = fields.Selection(  # CF11 (with equipment, 500) - concluding
         CFM_DIFFICULTY_LEVELS,
-        string="With equipment, difficulty walking 500 m on level ground?",
+        string="With his/her equipment or assistance, does the child have difficulty walking "
+        "500 yards/meters on level ground?",
     )
-    cfm517_walk_compare_100 = fields.Selection(  # CF12 (no equipment, compared, 100m) - concluding
+    cfm517_walk_compare_100 = fields.Selection(  # CF12 (no equipment, compared, 100) - concluding
         CFM_DIFFICULTY_LEVELS,
-        string="Compared with peers, difficulty walking 100 m on level ground?",
+        string="Compared with children of the same age, does the child have difficulty walking "
+        "100 yards/meters on level ground?",
     )
-    cfm517_walk_compare_500 = fields.Selection(  # CF13 (no equipment, compared, 500m) - concluding
+    cfm517_walk_compare_500 = fields.Selection(  # CF13 (no equipment, compared, 500) - concluding
         CFM_DIFFICULTY_LEVELS,
-        string="Compared with peers, difficulty walking 500 m on level ground?",
+        string="Compared with children of the same age, does the child have difficulty walking "
+        "500 yards/meters on level ground?",
     )
     # Self-care
     cfm517_selfcare = fields.Selection(  # CF14
         CFM_DIFFICULTY_LEVELS,
-        string="Difficulty with self-care such as feeding or dressing?",
+        string="Does the child have difficulty with self-care such as feeding or dressing him/herself?",
     )
     # Communication
     cfm517_comm_inside = fields.Selection(  # CF15
         CFM_DIFFICULTY_LEVELS,
-        string="Difficulty being understood by people inside the household?",
+        string="When the child speaks, does he/she have difficulty being understood by people inside this household?",
     )
     cfm517_comm_outside = fields.Selection(  # CF16
         CFM_DIFFICULTY_LEVELS,
-        string="Difficulty being understood by people outside the household?",
+        string="When the child speaks, does he/she have difficulty being understood by people outside this household?",
     )
     # Learning
     cfm517_learning = fields.Selection(  # CF17
         CFM_DIFFICULTY_LEVELS,
-        string="Difficulty learning things?",
+        string="Compared with children of the same age, does the child have difficulty learning things?",
     )
     # Remembering
     cfm517_remembering = fields.Selection(  # CF18
         CFM_DIFFICULTY_LEVELS,
-        string="Difficulty remembering things?",
+        string="Compared with children of the same age, does the child have difficulty remembering things?",
     )
     # Concentrating
     cfm517_concentrating = fields.Selection(  # CF19
         CFM_DIFFICULTY_LEVELS,
-        string="Difficulty concentrating on an activity he/she enjoys?",
+        string="Does the child have difficulty concentrating on an activity that he/she enjoys doing?",
     )
     # Accepting change
     cfm517_accepting_change = fields.Selection(  # CF20
         CFM_DIFFICULTY_LEVELS,
-        string="Difficulty accepting changes in routine?",
+        string="Does the child have difficulty accepting changes in his/her routine?",
     )
     # Controlling behaviour (standard difficulty scale in CFM 5-17)
     cfm517_behavior = fields.Selection(  # CF21
         CFM_DIFFICULTY_LEVELS,
-        string="Difficulty controlling his/her behaviour?",
+        string="Compared with children of the same age, does the child have difficulty controlling his/her behaviour?",
     )
     # Making friends
     cfm517_friends = fields.Selection(  # CF22
         CFM_DIFFICULTY_LEVELS,
-        string="Difficulty making friends?",
+        string="Does the child have difficulty making friends?",
     )
     # Anxiety / Depression (frequency scale, threshold "daily")
     cfm517_anxiety = fields.Selection(  # CF23
@@ -624,9 +638,9 @@ class SppDisabilityAssessment(models.Model):
                 self.cfm24_behavior,
             ]
         if self.assessment_type == "cfm_5_17":
-            vision = self.cfm517_vision_aided if self.cfm517_glasses else self.cfm517_vision
-            hearing = self.cfm517_hearing_aided if self.cfm517_hearing_aid else self.cfm517_hearing
-            if self.cfm517_walk_equipment:
+            vision = self.cfm517_vision_aided if self.cfm517_glasses == "yes" else self.cfm517_vision
+            hearing = self.cfm517_hearing_aided if self.cfm517_hearing_aid == "yes" else self.cfm517_hearing
+            if self.cfm517_walk_equipment == "yes":
                 mobility = [self.cfm517_walk_aided_100, self.cfm517_walk_aided_500]
             else:
                 mobility = [self.cfm517_walk_compare_100, self.cfm517_walk_compare_500]
@@ -840,9 +854,9 @@ class SppDisabilityAssessment(models.Model):
         """
         self.ensure_one()
         severe = WG_SEVERE_DIFFICULTY_LEVELS
-        vision = self.cfm517_vision_aided if self.cfm517_glasses else self.cfm517_vision
-        hearing = self.cfm517_hearing_aided if self.cfm517_hearing_aid else self.cfm517_hearing
-        if self.cfm517_walk_equipment:
+        vision = self.cfm517_vision_aided if self.cfm517_glasses == "yes" else self.cfm517_vision
+        hearing = self.cfm517_hearing_aided if self.cfm517_hearing_aid == "yes" else self.cfm517_hearing
+        if self.cfm517_walk_equipment == "yes":
             mobility_severe = self.cfm517_walk_aided_100 in severe or self.cfm517_walk_aided_500 in severe
         else:
             mobility_severe = self.cfm517_walk_compare_100 in severe or self.cfm517_walk_compare_500 in severe
