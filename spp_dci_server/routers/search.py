@@ -158,8 +158,10 @@ async def search_registry(
         completed_count = sum(1 for item in response_items if item.status == "succ")
         rejected_count = sum(1 for item in response_items if item.status == "rjct")
 
-        # Set overall status based on results
-        # Note: For success, omit status_reason_code/message per SPDCI spec
+        # Set overall status based on results. SPDCI v1.0.0 restricts the
+        # envelope status to rcvd/pdng/succ/rjct, so partial-success is
+        # surfaced as ``succ`` with a status_reason_message; per-item
+        # statuses in search_response carry the per-item detail.
         if completed_count == total_count:
             overall_status = "succ"
             status_reason_code = None
@@ -170,8 +172,7 @@ async def search_registry(
             status_reason_code = MsgHeaderStatusReasonCode.ERRORS_TOO_MANY.value
             status_reason_message = "All search requests failed"
         else:
-            overall_status = "part"
-            # For partial success, omit reason code per SPDCI spec
+            overall_status = "succ"
             status_reason_code = None
             status_reason_message = f"{completed_count}/{total_count} search requests completed"
 
