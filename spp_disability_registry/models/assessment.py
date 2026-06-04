@@ -3,7 +3,7 @@ import logging
 from dateutil.relativedelta import relativedelta
 
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -122,6 +122,12 @@ class SppDisabilityAssessment(models.Model):
         compute="_compute_has_approval_definition",
         help="Technical flag: whether an approval workflow is configured for "
         "disability assessments. The Submit button is hidden until one exists.",
+    )
+    questionnaire_complete = fields.Boolean(
+        string="Questionnaire Complete",
+        compute="_compute_questionnaire_complete",
+        help="Technical flag: whether the WG/CFM questionnaire has enough answers to "
+        "compute a disability result for the assessment type. Required to submit.",
     )
 
     # === WG-SS Responses (6 domains) ===
@@ -574,6 +580,147 @@ class SppDisabilityAssessment(models.Model):
         """
         self.ensure_one()
         return self._get_approval_definition()
+
+    def _questionnaire_answers(self):
+        """The answers that feed the disability result for this assessment type
+        (the concluding answer per branched domain). The questionnaire is
+        'complete enough to compute a result' when all of these are answered.
+        """
+        self.ensure_one()
+        if self.assessment_type == "cfm_2_4":
+            vision = self.cfm24_vision_aided if self.cfm24_glasses else self.cfm24_vision
+            hearing = self.cfm24_hearing_aided if self.cfm24_hearing_aid else self.cfm24_hearing
+            mobility = self.cfm24_walk_aided if self.cfm24_walk_equipment else self.cfm24_walk_compare
+            return [
+                vision,
+                hearing,
+                mobility,
+                self.cfm24_dexterity,
+                self.cfm24_understand_you,
+                self.cfm24_understood,
+                self.cfm24_learning,
+                self.cfm24_playing,
+                self.cfm24_behavior,
+            ]
+        if self.assessment_type == "cfm_5_17":
+            vision = self.cfm517_vision_aided if self.cfm517_glasses else self.cfm517_vision
+            hearing = self.cfm517_hearing_aided if self.cfm517_hearing_aid else self.cfm517_hearing
+            if self.cfm517_walk_equipment:
+                mobility = [self.cfm517_walk_aided_100, self.cfm517_walk_aided_500]
+            else:
+                mobility = [self.cfm517_walk_compare_100, self.cfm517_walk_compare_500]
+            return [
+                vision,
+                hearing,
+                *mobility,
+                self.cfm517_selfcare,
+                self.cfm517_comm_inside,
+                self.cfm517_comm_outside,
+                self.cfm517_learning,
+                self.cfm517_remembering,
+                self.cfm517_concentrating,
+                self.cfm517_accepting_change,
+                self.cfm517_behavior,
+                self.cfm517_friends,
+                self.cfm517_anxiety,
+                self.cfm517_depression,
+            ]
+        # WG-SS (adult) and any fallback.
+        return [
+            self.wg_seeing,
+            self.wg_hearing,
+            self.wg_walking,
+            self.wg_remembering,
+            self.wg_selfcare,
+            self.wg_communicating,
+        ]
+
+    @api.depends(
+        "assessment_type",
+        "wg_seeing",
+        "wg_hearing",
+        "wg_walking",
+        "wg_remembering",
+        "wg_selfcare",
+        "wg_communicating",
+        "cfm24_glasses",
+        "cfm24_vision_aided",
+        "cfm24_vision",
+        "cfm24_hearing_aid",
+        "cfm24_hearing_aided",
+        "cfm24_hearing",
+        "cfm24_walk_equipment",
+        "cfm24_walk_aided",
+        "cfm24_walk_compare",
+        "cfm24_dexterity",
+        "cfm24_understand_you",
+        "cfm24_understood",
+        "cfm24_learning",
+        "cfm24_playing",
+        "cfm24_behavior",
+        "cfm517_glasses",
+        "cfm517_vision_aided",
+        "cfm517_vision",
+        "cfm517_hearing_aid",
+        "cfm517_hearing_aided",
+        "cfm517_hearing",
+        "cfm517_walk_equipment",
+        "cfm517_walk_aided_100",
+        "cfm517_walk_aided_500",
+        "cfm517_walk_compare_100",
+        "cfm517_walk_compare_500",
+        "cfm517_selfcare",
+        "cfm517_comm_inside",
+        "cfm517_comm_outside",
+        "cfm517_learning",
+        "cfm517_remembering",
+        "cfm517_concentrating",
+        "cfm517_accepting_change",
+        "cfm517_behavior",
+        "cfm517_friends",
+        "cfm517_anxiety",
+        "cfm517_depression",
+    )
+    def _compute_questionnaire_complete(self):
+        for rec in self:
+            answers = rec._questionnaire_answers()
+            rec.questionnaire_complete = bool(answers) and all(answers)
+
+    def _check_can_submit(self):
+        """Require the questionnaire to be complete before submitting for approval."""
+        super()._check_can_submit()
+        if not self.questionnaire_complete:
+            raise UserError(
+                _(
+                    "Complete the WG/CFM questionnaire before submitting this assessment "
+                    "for approval — all questions that determine the disability result "
+                    "must be answered."
+                )
+            )
+
+    def _sync_registrant_disability_status(self):
+        """Notify the ORM that approval_state changed so the registrant's
+        disability status (current_disability_assessment_id, has_disability, ...)
+        recomputes. The approval mixin writes approval_state via raw SQL for
+        optimistic locking, which bypasses ORM dependency tracking, so the
+        registrant would otherwise show a stale status (#1022).
+        """
+        self.modified(["approval_state"])
+
+    def _on_approve(self):
+        res = super()._on_approve()
+        self._sync_registrant_disability_status()
+        return res
+
+    def _on_reject(self, reason):
+        res = super()._on_reject(reason)
+        self._sync_registrant_disability_status()
+        return res
+
+    def _on_reset_to_draft(self):
+        res = super()._on_reset_to_draft()
+        self._sync_registrant_disability_status()
+        return res
 
     @api.depends("age_at_assessment")
     def _compute_assessment_type(self):

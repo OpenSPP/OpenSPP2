@@ -20,6 +20,7 @@
                             name="disability_severity_id"
                             class="o_stat_text"
                             invisible="not has_disability"
+                            options="{'no_open': True}"
                         />
                         <span
                             class="o_stat_text"
@@ -142,7 +143,8 @@
                             aria-hidden="true"
                         />
                         <h5>No Disability Status Recorded</h5>
-                        <p>No approved disability assessment exists for this person.</p>
+                        <p
+                        >No approved assessment currently identifies a disability for this person.</p>
                         <button
                             name="action_create_disability_assessment"
                             type="object"

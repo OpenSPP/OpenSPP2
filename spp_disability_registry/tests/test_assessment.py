@@ -3,7 +3,7 @@ from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 
 from odoo import Command
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tests import TransactionCase, tagged
 
 
@@ -291,6 +291,58 @@ class TestDisabilityAssessment(TransactionCase):
         # is_proxy_response is computed from the (age-derived) assessment type.
         self.assertIn(assessment.assessment_type, ("cfm_2_4", "cfm_5_17"))
         self.assertTrue(assessment.is_proxy_response)
+
+    def test_questionnaire_required_before_submit(self):
+        """A blank questionnaire blocks submission; completing it lifts the gate."""
+        assessment = self.env["spp.disability.assessment"].create(
+            {
+                "registrant_id": self.adult_registrant.id,
+                "assessment_date": date.today(),
+            }
+        )
+        # WG-SS with no answers cannot be submitted.
+        self.assertFalse(assessment.questionnaire_complete)
+        with self.assertRaises(UserError):
+            assessment.action_submit_for_approval()
+        # Answering all six WG-SS domains makes it complete (even "no difficulty").
+        assessment.write(
+            {
+                "wg_seeing": "none",
+                "wg_hearing": "none",
+                "wg_walking": "none",
+                "wg_remembering": "none",
+                "wg_selfcare": "none",
+                "wg_communicating": "none",
+            }
+        )
+        self.assertTrue(assessment.questionnaire_complete)
+
+    def test_approval_propagates_to_registrant(self):
+        """Approving updates the registrant's disability status (#1022).
+
+        The approval mixin writes approval_state via raw SQL, so the registrant's
+        computed status must be re-synced via the _on_approve hook.
+        """
+        assessment = self.env["spp.disability.assessment"].create(
+            {
+                "registrant_id": self.adult_registrant.id,
+                "assessment_date": date.today(),
+                "wg_seeing": "cannot",
+                "wg_hearing": "none",
+                "wg_walking": "none",
+                "wg_remembering": "none",
+                "wg_selfcare": "none",
+                "wg_communicating": "none",
+            }
+        )
+        self.assertTrue(assessment.has_disability)
+        self.assertFalse(self.adult_registrant.has_disability)
+        # Simulate a submitted record and approve via the mixin's SQL path.
+        assessment.write({"approval_state": "pending"})
+        assessment._do_approve()
+        self.assertEqual(assessment.approval_state, "approved")
+        self.assertTrue(self.adult_registrant.has_disability)
+        self.assertEqual(self.adult_registrant.current_disability_assessment_id, assessment)
 
     # === Date Validation Tests ===
 
