@@ -186,6 +186,54 @@ class TestDCISocialSearchService(DCISocialServerCommon):
             f"inactive enrollment leaked into the record: {record.get('enrolled_programs')}",
         )
 
+    def test_person_record_includes_household_info(self):
+        """The served person record must carry a household summary - DCI
+        clients derive sr.dci.household_size / is_head_of_household /
+        large_household from it (one search covers all variables)."""
+        head_code = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", "head")
+        self.assertTrue(head_code, "seeded head membership-type code missing")
+        membership = self.env["spp.group.membership"].search(
+            [("individual", "=", self.individual_1.id), ("group", "=", self.group_1.id)],
+            limit=1,
+        )
+        self.assertTrue(membership, "fixture membership missing")
+        membership.write({"membership_type_ids": [(4, head_code.id)]})
+
+        response_item = self._search_by_nat_001(reference_id="test-ref-hh")
+
+        self.assertEqual(response_item.status, "succ")
+        record = response_item.data.reg_records[0]
+        self.assertIn("household_info", record, "person record lacks household_info")
+        info = record["household_info"]
+        self.assertEqual(info["household_size"], 2)
+        self.assertTrue(info["is_household_head"])
+
+    def test_person_without_group_has_no_household_info(self):
+        """A person with no active group membership carries no household
+        summary (field omitted, not zeroed)."""
+        self._create_test_individual(
+            {"family_name": "Solo", "given_name": "NoGroup"},
+            identifier_value="NAT-SOLO-1",
+        )
+        criteria = SearchCriteria(
+            reg_type="SOCIAL_REGISTRY",
+            query_type="idtype-value",
+            query={"type": self.test_id_type.namespace_uri, "value": "NAT-SOLO-1"},
+        )
+        search_req = SearchRequestItem(
+            reference_id="test-ref-solo",
+            timestamp=datetime.now(UTC),
+            search_criteria=criteria,
+        )
+        request = SearchRequest(transaction_id="txn-solo", search_request=[search_req])
+        self.env.user.write({"group_ids": [(4, self.env.ref("spp_registry.group_registry_viewer").id)]})
+
+        response_item = self.search_service.execute_search(request).search_response[0]
+
+        self.assertEqual(response_item.status, "succ")
+        record = response_item.data.reg_records[0]
+        self.assertNotIn("household_info", record)
+
     def test_search_by_identifier_success(self):
         """Test searching by identifier type and value."""
         # Create search request

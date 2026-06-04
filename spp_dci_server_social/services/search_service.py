@@ -13,7 +13,7 @@ from odoo.exceptions import AccessError, ValidationError
 from odoo.addons.spp_dci.schemas.common import Address, Identifier, Name
 from odoo.addons.spp_dci.schemas.constants import SearchStatusReasonCode
 from odoo.addons.spp_dci.schemas.group import Group, Member
-from odoo.addons.spp_dci.schemas.person import Person, ProgramEnrollment
+from odoo.addons.spp_dci.schemas.person import HouseholdInfo, Person, ProgramEnrollment
 from odoo.addons.spp_dci.schemas.search import (
     Pagination,
     SearchRequest,
@@ -622,6 +622,28 @@ class DCISocialSearchService:
             registration_date=partner.create_date if partner.create_date else None,
             last_updated=partner.write_date if partner.write_date else None,
             enrolled_programs=enrollments if enrollments else None,
+            household_info=self._build_household_info(partner),
+        )
+
+    def _build_household_info(self, partner) -> HouseholdInfo | None:
+        """Summarize the person's household (OpenSPP extension).
+
+        Uses the person's first active group membership. Returns None when
+        the person belongs to no active group, so the field is omitted from
+        the wire record entirely.
+        """
+        active = partner.individual_membership_ids.filtered(lambda m: not m.is_ended)
+        if not active:
+            return None
+        membership = active[0]
+        group_members = membership.group.group_membership_ids.filtered(lambda m: not m.is_ended)
+
+        head_code = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", "head")
+        is_head = bool(head_code) and head_code.id in membership.membership_type_ids.ids
+
+        return HouseholdInfo(
+            household_size=len(group_members) or None,
+            is_household_head=is_head,
         )
 
     def _to_dci_group(self, partner) -> Group:

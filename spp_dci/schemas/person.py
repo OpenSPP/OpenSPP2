@@ -53,6 +53,26 @@ class ProgramEnrollment(BaseModel):
     )
 
 
+class HouseholdInfo(BaseModel):
+    """Summary of the person's household (OpenSPP extension).
+
+    Carried inside the person record so one search answers household-level
+    questions (size, headship) without a second group query.
+    """
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    household_size: int | None = Field(
+        None,
+        ge=1,
+        description="Number of active members in the person's household",
+    )
+    is_household_head: bool | None = Field(
+        None,
+        description="Whether the person is the head of the household",
+    )
+
+
 class RelatedPerson(BaseModel):
     """DCI RelatedPerson schema - family relationship information."""
 
@@ -126,6 +146,10 @@ class Person(BaseModel):
     enrolled_programs: list[ProgramEnrollment] | None = Field(
         None,
         description="Active social protection programme enrollments",
+    )
+    household_info: HouseholdInfo | None = Field(
+        None,
+        description="Summary of the person's household (OpenSPP extension)",
     )
 
 
