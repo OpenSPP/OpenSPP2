@@ -24,7 +24,7 @@
                     <block title="Proxy Response" name="disability_proxy_block">
                         <setting
                             string="Allow self-report on CFM 5-17"
-                            help="When enabled, the proxy response flag can be unticked on CFM 5-17 assessments (subject to the minimum self-report age). Disabled by default."
+                            help="When enabled, the proxy response flag can be unticked on CFM 5-17 assessments (subject to the minimum self-report age)."
                         >
                             <field name="disability_allow_self_report_cfm" />
                             <div
@@ -38,12 +38,14 @@
                                 <field
                                     name="disability_self_report_min_age"
                                     class="oe_inline"
+                                    required="disability_allow_self_report_cfm"
+                                    placeholder="5-17"
                                 />
                             </div>
                         </setting>
                         <setting
                             string="Allow proxy report on WG-SS"
-                            help="When enabled (default), the proxy response flag can be ticked on adult WG-SS assessments. When disabled, WG-SS assessments are self-report only."
+                            help="When enabled, the proxy response flag can be ticked on adult WG-SS assessments. When disabled, WG-SS assessments are self-report only."
                         >
                             <field name="disability_allow_proxy_wg_ss" />
                         </setting>

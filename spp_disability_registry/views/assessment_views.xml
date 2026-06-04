@@ -238,6 +238,7 @@
                                     <field
                                         name="is_proxy_response"
                                         readonly="proxy_locked"
+                                        invisible="assessment_type == 'wg_ss' and proxy_locked"
                                     />
                                 </group>
                                 <group invisible="not is_proxy_response">

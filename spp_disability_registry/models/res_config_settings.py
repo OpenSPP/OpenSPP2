@@ -1,4 +1,5 @@
-from odoo import fields, models
+from odoo import _, fields, models
+from odoo.exceptions import ValidationError
 
 
 class ResConfigSettings(models.TransientModel):
@@ -19,14 +20,13 @@ class ResConfigSettings(models.TransientModel):
         string="Allow self-report on CFM 5-17",
         config_parameter="spp_disability_registry.allow_self_report_cfm_5_17",
         help="When enabled, the proxy response flag can be unticked on CFM 5-17 "
-        "assessments (subject to the minimum self-report age below). Disabled by "
-        "default — CFM 5-17 assessments are proxy responses.",
+        "assessments (subject to the minimum self-report age below).",
     )
     disability_self_report_min_age = fields.Integer(
         string="Minimum age for self-report (CFM 5-17)",
         config_parameter="spp_disability_registry.self_report_min_age",
-        help="Minimum age at assessment at which self-report is allowed on CFM 5-17 "
-        "(only applies when self-report is enabled). 0 means no minimum.",
+        help="Minimum age at assessment at which self-report is allowed on CFM 5-17. "
+        "Required when self-report is enabled; must be between 5 and 17.",
     )
     # NB: managed manually below (not via config_parameter). A config_parameter
     # Boolean defaulting to True cannot persist a False value: set_param(key, False)
@@ -36,8 +36,8 @@ class ResConfigSettings(models.TransientModel):
     disability_allow_proxy_wg_ss = fields.Boolean(
         string="Allow proxy report on WG-SS",
         default=True,
-        help="When enabled (default), the proxy response flag can be ticked on adult "
-        "WG-SS assessments. When disabled, WG-SS assessments are self-report only.",
+        help="When enabled, the proxy response flag can be ticked on adult WG-SS "
+        "assessments. When disabled, WG-SS assessments are self-report only.",
     )
 
     # === Approval ===
@@ -65,6 +65,12 @@ class ResConfigSettings(models.TransientModel):
         return res
 
     def set_values(self):
+        # When self-report on CFM 5-17 is enabled, a minimum age between 5 and 17
+        # must be provided.
+        if self.disability_allow_self_report_cfm and not (5 <= self.disability_self_report_min_age <= 17):
+            raise ValidationError(
+                _("Enter a minimum self-report age between 5 and 17 to allow self-report on CFM 5-17.")
+            )
         super().set_values()
         # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         icp = self.env["ir.config_parameter"].sudo()

@@ -421,6 +421,7 @@ class SppDisabilityAssessment(models.Model):
     proxy_respondent_id = fields.Many2one(
         "res.partner",
         string="Proxy Respondent",
+        domain="[('id', '!=', registrant_id)]",
         help="Person who provided responses on behalf of the registrant",
     )
     proxy_relationship = fields.Selection(
