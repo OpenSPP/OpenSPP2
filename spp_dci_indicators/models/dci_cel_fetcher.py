@@ -219,6 +219,12 @@ class DCICelFetcher(models.AbstractModel):
             "dr.dci.vision_severe": self._dr_vision_severe,
             "dr.dci.hearing_severe": self._dr_hearing_severe,
             "dr.dci.mobility_severe": self._dr_mobility_severe,
+            "sr.dci.is_registered": self._sr_is_registered,
+            "sr.dci.program_count": self._sr_program_count,
+            "sr.dci.has_programs": self._sr_has_programs,
+            "sr.dci.household_size": self._sr_household_size,
+            "sr.dci.is_head_of_household": self._sr_is_head_of_household,
+            "sr.dci.large_household": self._sr_large_household,
         }
 
     # ── CRVS handlers (identifier-based) ──────────────────────────────────────
@@ -234,6 +240,57 @@ class DCICelFetcher(models.AbstractModel):
 
     def _crvs_birth_verified(self, data_source, partner, id_type, id_value):
         return self._crvs_service(data_source).verify_birth(id_type, id_value) is not None
+
+    # ── SR handlers (identifier-based; one person record feeds all metrics) ────
+
+    # "more than 5 members" per the seeded dci.sr.large_household variable
+    _SR_LARGE_HOUSEHOLD_THRESHOLD = 5
+
+    def _sr_service(self, data_source):
+        from odoo.addons.spp_dci_client_sr.services import SRService
+
+        return SRService(self.env, data_source.code)
+
+    def _sr_person(self, data_source, id_type, id_value):
+        """Fetch the person record from the Social Registry, or None."""
+        return self._sr_service(data_source).search_person(id_type, id_value)
+
+    def _sr_is_registered(self, data_source, partner, id_type, id_value):
+        # Not found is a meaningful False, not missing data.
+        return self._sr_person(data_source, id_type, id_value) is not None
+
+    def _sr_program_count(self, data_source, partner, id_type, id_value):
+        person = self._sr_person(data_source, id_type, id_value)
+        if person is None:
+            return None
+        return len(person.get("enrolled_programs") or [])
+
+    def _sr_has_programs(self, data_source, partner, id_type, id_value):
+        person = self._sr_person(data_source, id_type, id_value)
+        if person is None:
+            return None
+        return bool(person.get("enrolled_programs"))
+
+    def _sr_household_size(self, data_source, partner, id_type, id_value):
+        person = self._sr_person(data_source, id_type, id_value)
+        if person is None:
+            return None
+        # No household summary -> size unknown, skip (no cache row).
+        return (person.get("household_info") or {}).get("household_size")
+
+    def _sr_is_head_of_household(self, data_source, partner, id_type, id_value):
+        person = self._sr_person(data_source, id_type, id_value)
+        if person is None:
+            return None
+        # Registered but household-less -> not a head.
+        return bool((person.get("household_info") or {}).get("is_household_head"))
+
+    def _sr_large_household(self, data_source, partner, id_type, id_value):
+        person = self._sr_person(data_source, id_type, id_value)
+        if person is None:
+            return None
+        size = (person.get("household_info") or {}).get("household_size") or 0
+        return size > self._SR_LARGE_HOUSEHOLD_THRESHOLD
 
     # ── DR handlers (partner-based; the service resolves the identifier) ───────
 
