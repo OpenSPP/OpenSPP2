@@ -321,26 +321,47 @@ class SppDisabilityAssessment(models.Model):
         string="How often does the child seem very sad or depressed?",
     )
 
-    # === Impairment Classification (DCI DO.DR.02) ===
+    # === Impairment Classification (DCI vocabularies) ===
+    # One row per impairment type, each with its own cause and severity.
+    impairment_line_ids = fields.One2many(
+        "spp.disability.impairment",
+        "assessment_id",
+        string="Impairment Classification",
+    )
+    # Assessment-level summaries derived from the lines, kept for the registrant
+    # propagation, list/badge decorations, search filters and CEL functions.
     impairment_type_ids = fields.Many2many(
         "spp.vocabulary.code",
         "spp_disability_assessment_impairment_type_rel",
         "assessment_id",
         "code_id",
         string="Impairment Types",
-        domain="[('vocabulary_id.namespace_uri', '=', 'urn:dci:cd:dr:01')]",
-    )
-    impairment_cause_id = fields.Many2one(
-        "spp.vocabulary.code",
-        string="Impairment Cause",
-        domain="[('vocabulary_id.namespace_uri', '=', 'urn:dci:cd:dr:03')]",
+        compute="_compute_impairment_summary",
+        store=True,
     )
     severity_level_id = fields.Many2one(
         "spp.vocabulary.code",
         string="Severity Level",
-        domain="[('vocabulary_id.namespace_uri', '=', 'urn:dci:cd:dr:02')]",
+        compute="_compute_impairment_summary",
+        store=True,
         tracking=True,
+        help="Overall severity: the most severe level across the impairment classification lines.",
     )
+
+    @api.depends(
+        "impairment_line_ids.impairment_type_id",
+        "impairment_line_ids.severity_level_id",
+        "impairment_line_ids.severity_sequence",
+    )
+    def _compute_impairment_summary(self):
+        for rec in self:
+            rec.impairment_type_ids = rec.impairment_line_ids.impairment_type_id
+            severe_lines = rec.impairment_line_ids.filtered("severity_level_id")
+            if severe_lines:
+                top = max(severe_lines, key=lambda line: line.severity_sequence or 0)
+                rec.severity_level_id = top.severity_level_id
+            else:
+                rec.severity_level_id = False
 
     # === Review Schedule (categorical) ===
     review_category = fields.Selection(

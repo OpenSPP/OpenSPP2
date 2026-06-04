@@ -281,15 +281,15 @@ class TestDisabilityAssessment(TransactionCase):
     # === Proxy Response Tests ===
 
     def test_proxy_flag_set_for_child(self):
-        """Test that proxy response flag is set for child assessments."""
+        """Proxy response flag is set automatically for child (CFM) assessments."""
         assessment = self.env["spp.disability.assessment"].create(
             {
                 "registrant_id": self.child_registrant.id,
                 "assessment_date": date.today(),
             }
         )
-        # Trigger onchange
-        assessment._onchange_assessment_type()
+        # is_proxy_response is computed from the (age-derived) assessment type.
+        self.assertIn(assessment.assessment_type, ("cfm_2_4", "cfm_5_17"))
         self.assertTrue(assessment.is_proxy_response)
 
     # === Date Validation Tests ===

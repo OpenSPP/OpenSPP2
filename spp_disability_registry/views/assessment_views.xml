@@ -130,11 +130,36 @@
                                 </group>
                             </group>
                             <group col="2">
-                                <group string="Impairment Classification">
+                                <group string="Classification Summary">
                                     <field
                                         name="impairment_type_ids"
                                         widget="many2many_tags"
-                                        options="{'color_field': 'color', 'no_create': True}"
+                                        readonly="1"
+                                    />
+                                    <field name="severity_level_id" readonly="1" />
+                                </group>
+                                <group string="Review Schedule">
+                                    <field name="review_category" />
+                                    <field name="next_review_date" />
+                                </group>
+                            </group>
+                        </page>
+
+                        <!-- Tab 2: Impairment Classification (one row per impairment type) -->
+                        <page name="impairment" string="Impairment Classification">
+                            <div class="alert alert-light mb-3" role="status">
+                                <strong>Impairment Classification</strong>
+                                <p class="mb-0">
+                                    Add one row per impairment type, each with its own cause
+                                    and severity. The overall severity (shown on the Overview
+                                    and the registrant) is the most severe level across the rows.
+                                </p>
+                            </div>
+                            <field name="impairment_line_ids">
+                                <list editable="bottom">
+                                    <field
+                                        name="impairment_type_id"
+                                        options="{'no_create': True}"
                                     />
                                     <field
                                         name="impairment_cause_id"
@@ -144,15 +169,11 @@
                                         name="severity_level_id"
                                         options="{'no_create': True}"
                                     />
-                                </group>
-                                <group string="Review Schedule">
-                                    <field name="review_category" />
-                                    <field name="next_review_date" />
-                                </group>
-                            </group>
+                                </list>
+                            </field>
                         </page>
 
-                        <!-- Tab 2: WG/CFM Assessment (form varies by assessment type) -->
+                        <!-- Tab 3: WG/CFM Assessment (form varies by assessment type) -->
                         <page name="wg_assessment" string="WG/CFM Assessment">
                             <!-- Respondent / proxy (OP#1053) -->
                             <field name="proxy_locked" invisible="1" />

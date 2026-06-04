@@ -39,10 +39,20 @@
         <field name="wg_selfcare">a_lot</field>
         <field name="wg_communicating">some</field>
         <field
-            name="impairment_type_ids"
-            eval="[Command.link(ref('code_disability_physical'))]"
+            name="impairment_line_ids"
+            eval="[
+                Command.create({
+                    'impairment_type_id': ref('code_disability_physical'),
+                    'impairment_cause_id': ref('code_cause_injury'),
+                    'severity_level_id': ref('code_severity_severe'),
+                }),
+                Command.create({
+                    'impairment_type_id': ref('code_disability_visual'),
+                    'impairment_cause_id': ref('code_cause_disease'),
+                    'severity_level_id': ref('code_severity_moderate'),
+                }),
+            ]"
         />
-        <field name="severity_level_id" ref="code_severity_severe" />
         <field name="review_category">mine</field>
         <field
             name="support_needs"
@@ -61,10 +71,15 @@
         <field name="wg_selfcare">none</field>
         <field name="wg_communicating">a_lot</field>
         <field
-            name="impairment_type_ids"
-            eval="[Command.link(ref('code_disability_hearing'))]"
+            name="impairment_line_ids"
+            eval="[
+                Command.create({
+                    'impairment_type_id': ref('code_disability_hearing'),
+                    'impairment_cause_id': ref('code_cause_congenital'),
+                    'severity_level_id': ref('code_severity_moderate'),
+                }),
+            ]"
         />
-        <field name="severity_level_id" ref="code_severity_moderate" />
         <field name="review_category">mip</field>
         <field name="is_proxy_response">True</field>
         <field name="proxy_relationship">parent</field>
