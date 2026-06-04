@@ -129,8 +129,20 @@ class SppDciServerEndpoint(models.Model):
             # JWKS at root level (/.well-known/jwks.json)
             routers.append(jwks_router)
 
-            # Registry operations under /social/registry prefix (SPDCI-compliant)
-            social_router = APIRouter(prefix="/social/registry", tags=["Social Registry"])
+            # SPDCI-compliant mount: the spec defines /registry/* relative to
+            # the deployment base URL; the registry type is discriminated by
+            # the message's reg_type, not by a URL segment.
+            registry_router = APIRouter(prefix="/registry", tags=["DCI Registry"])
+            registry_router.include_router(dci_search_router)
+            registry_router.include_router(dci_async_router)
+            registry_router.include_router(dci_callback_router)
+            registry_router.include_router(dci_bulk_upload_router)
+            registry_router.include_router(dci_receipt_router)
+            routers.append(registry_router)
+
+            # Legacy long-form mount kept for existing deployments that
+            # configured base URLs ending in /social.
+            social_router = APIRouter(prefix="/social/registry", tags=["Social Registry (legacy path)"])
             social_router.include_router(dci_search_router)
             social_router.include_router(dci_async_router)
             social_router.include_router(dci_callback_router)

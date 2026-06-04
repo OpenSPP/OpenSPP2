@@ -185,6 +185,33 @@ class TestSearchRouter(DCIServerCommon):
             "verified sender was not passed to the search service (consent bypass)",
         )
 
+    def test_sync_search_sender_lookup_survives_low_privilege_endpoint_user(self):
+        """The endpoint commonly runs as a low-privilege user (e.g. public)
+        with no read access to the sender registry - the verified-sender
+        lookup must not raise AccessError (live smoke test regression)."""
+        low_priv = self.env["res.users"].create(
+            {
+                "name": "DCI Endpoint Smoke",
+                "login": "dci_endpoint_smoke",
+                "group_ids": [(6, 0, [self.env.ref("base.group_public").id])],
+            }
+        )
+        env_low = self.env(user=low_priv)
+        envelope = self._build_envelope()
+        response = self._build_response(statuses=("succ",))
+        with patch("odoo.addons.spp_dci_server_social.services.search_service.DCISocialSearchService") as mock_cls:
+            mock_cls.return_value.execute_search.return_value = response
+            result = _run(
+                self.search_registry(
+                    envelope,
+                    env_low,
+                    _bearer_token="t",
+                    verified_sender_id=self.test_sender.sender_id,
+                    _rate_limit_check=None,
+                )
+            )
+        self.assertEqual(result.header.status, "succ")
+
     # --- service errors -------------------------------------------------------
 
     def test_search_service_exception_rejects_all_items(self):
