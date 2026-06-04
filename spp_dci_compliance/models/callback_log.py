@@ -392,33 +392,35 @@ class DCICallbackLog(models.Model):
             _logger.info("No old DCI callback logs to clean up")
             return 0
 
-        # Queue batches using job_worker
+        # Queue a single job; each batch re-queues the next one. Offset-based
+        # batches would skip records: every deletion shifts the survivors to
+        # lower offsets, so jobs at non-zero offsets miss part of the set.
         _logger.info("Queueing %d DCI callback logs for cleanup in batches of %d", total, batch_size)
-        for offset in range(0, total, batch_size):
-            self.with_delay(description=f"Cleanup DCI logs batch {offset // batch_size + 1}")._cleanup_batch(
-                cutoff, batch_size, offset
-            )
+        self.with_delay(description="Cleanup DCI logs")._cleanup_batch(cutoff, batch_size)
 
         return total
 
-    def _cleanup_batch(self, cutoff, limit, offset):
-        """Process one batch - each job runs in its own transaction.
+    def _cleanup_batch(self, cutoff, limit):
+        """Delete one batch and chain the next - each job runs in its own
+        transaction.
 
         Args:
             cutoff: Datetime cutoff for deletion
             limit: Max records to delete in this batch
-            offset: Offset for pagination
 
         Returns:
-            Number of records deleted
+            Number of records deleted by this batch
         """
-        old_logs = self.search([("create_date", "<", cutoff)], limit=limit, offset=offset)
-        if old_logs:
-            count = len(old_logs)
-            old_logs.unlink()
-            _logger.info("Cleaned up batch of %d DCI callback logs", count)
-            return count
-        return 0
+        old_logs = self.search([("create_date", "<", cutoff)], limit=limit)
+        if not old_logs:
+            return 0
+        count = len(old_logs)
+        old_logs.unlink()
+        _logger.info("Cleaned up batch of %d DCI callback logs", count)
+        if count == limit:
+            # More records may remain - chain the next batch.
+            self.with_delay(description="Cleanup DCI logs")._cleanup_batch(cutoff, limit)
+        return count
 
 
 class DCICallbackLogMixin(models.AbstractModel):

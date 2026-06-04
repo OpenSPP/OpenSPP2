@@ -3,6 +3,7 @@
 
 import hashlib
 import json
+from unittest.mock import patch
 
 from psycopg2 import IntegrityError
 
@@ -222,9 +223,47 @@ class TestDCICallbackLog(TransactionCase):
         # Verify it found 2 old logs
         self.assertEqual(total, 2)
 
-        # Verify jobs were queued (there should be 2 jobs for 2 records with batch_size=1)
-        jobs = self.env["queue.job"].search([("name", "like", "Cleanup DCI logs batch%")])
+        # Verify the cleanup job was queued (batches chain themselves)
+        jobs = self.env["queue.job"].search([("name", "like", "Cleanup DCI logs%")])
         self.assertGreaterEqual(len(jobs), 1)
+
+    def test_cleanup_deletes_all_old_logs_across_batches(self):
+        """Executing the queued cleanup work must delete ALL old logs.
+
+        Offset-based batching is the trap: each batch's deletions shift the
+        remaining rows to lower offsets, so a job running at a non-zero
+        offset skips part of the surviving records. Running the queued work
+        synchronously (with_delay patched to execute inline) must leave no
+        old log behind.
+        """
+        logs = self.CallbackLog
+        for i in range(4):
+            logs |= self.CallbackLog.log_callback(
+                transaction_id=f"txn-chain-{i}",
+                registry_type="sr",
+                callback_type="on_search",
+            )
+
+        self.env.cr.execute(
+            """
+            UPDATE spp_dci_callback_log
+            SET create_date = NOW() - INTERVAL '10 days'
+            WHERE id IN %s
+            """,
+            (tuple(logs.ids),),
+        )
+        self.CallbackLog.invalidate_model()
+
+        # Execute queued work inline so the whole batch sequence runs now.
+        with patch.object(type(self.CallbackLog), "with_delay", lambda records, **kw: records):
+            total = self.CallbackLog.cleanup_old_logs(days=7, batch_size=2)
+
+        self.assertEqual(total, 4)
+        survivors = self.CallbackLog.search([("transaction_id", "like", "txn-chain-%")])
+        self.assertFalse(
+            survivors,
+            f"cleanup left {len(survivors)} old logs behind: {survivors.mapped('transaction_id')}",
+        )
 
     def test_cleanup_batch_deletes_records(self):
         """Test that _cleanup_batch deletes old records."""
@@ -252,7 +291,7 @@ class TestDCICallbackLog(TransactionCase):
         from odoo import fields
 
         cutoff = fields.Datetime.subtract(fields.Datetime.now(), days=7)
-        deleted_count = self.CallbackLog._cleanup_batch(cutoff, limit=1000, offset=0)
+        deleted_count = self.CallbackLog._cleanup_batch(cutoff, limit=1000)
 
         # Verify record was deleted
         self.assertGreaterEqual(deleted_count, 1)

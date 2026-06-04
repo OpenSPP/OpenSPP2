@@ -279,6 +279,38 @@ class TestSRService(TransactionCase):
         self.assertEqual(result.partner_id, self.test_partner)
 
     @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
+    def test_sync_person_to_local_looks_up_partner_by_namespace_uri(self, mock_search):
+        """A namespace-URI identifier type must resolve the local partner via
+        id_type_id.namespace_uri (the callback router's fallback); an exact
+        code search cannot match the URN form."""
+        national_id_code = self.env.ref("spp_vocabulary.code_id_type_national_id")
+        self.assertTrue(
+            national_id_code.namespace_uri,
+            "seeded id-type code must carry a vocabulary namespace URI",
+        )
+        self.env["spp.registry.id"].create(
+            {
+                "partner_id": self.test_partner.id,
+                "id_type_id": national_id_code.id,
+                "value": "LOOKUP-URN-001",
+            }
+        )
+
+        mock_search.return_value = _sync_search_envelope(
+            reg_records=[
+                {
+                    "id": "EXT_LOOKUP_URN",
+                    "name": "Lookup Person URN",
+                }
+            ]
+        )
+
+        service = self._get_sr_service()
+        result = service.sync_person_to_local(national_id_code.namespace_uri, "LOOKUP-URN-001")
+        self.assertTrue(result)
+        self.assertEqual(result.partner_id, self.test_partner)
+
+    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
     def test_sync_person_not_found_raises(self, mock_search):
         """When the registry returns no records, sync raises UserError per docstring."""
         mock_search.return_value = _sync_search_envelope(reg_records=[])

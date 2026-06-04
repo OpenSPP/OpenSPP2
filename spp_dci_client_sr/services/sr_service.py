@@ -377,17 +377,25 @@ class SRService:
             # Try to find by identifier. The model is spp.registry.id;
             # earlier code referenced a non-existent 'spp.id', which
             # raised KeyError on every lookup-by-identifier call.
-            id_record = (
-                self.env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
-                .sudo()
-                .search(
+            RegistryId = self.env["spp.registry.id"].sudo()  # nosemgrep: odoo-sudo-without-context
+            id_record = RegistryId.search(
+                [
+                    ("id_type_id.code", "=", identifier_type),
+                    ("value", "=", identifier_value),
+                ],
+                limit=1,
+            )
+            if not id_record:
+                # The identifier type may be a namespace URI (urn:...) rather
+                # than a short code - fall back to the namespace match the
+                # callback router uses.
+                id_record = RegistryId.search(
                     [
-                        ("id_type_id.code", "=", identifier_type),
+                        ("id_type_id.namespace_uri", "ilike", identifier_type),
                         ("value", "=", identifier_value),
                     ],
                     limit=1,
                 )
-            )
             if id_record:
                 partner_id = id_record.partner_id.id
 

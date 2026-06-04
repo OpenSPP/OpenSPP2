@@ -190,7 +190,9 @@ class DCICelFetcher(models.AbstractModel):
     def _get_partner_identifier(self, partner):
         """Resolve a (identifier_type, identifier_value) for the partner from
         its spp.registry.id records, using the registry priority order."""
-        reg_ids = self.env["spp.registry.id"].search([("partner_id", "=", partner.id)])
+        # The One2many is prefetched across the whole browsed batch, so
+        # per-partner access here does not issue one query per partner.
+        reg_ids = partner.reg_ids
         for id_type in _IDENTIFIER_PRIORITY:
             for reg_id in reg_ids:
                 if reg_id.id_type_id.code == id_type and reg_id.value:
