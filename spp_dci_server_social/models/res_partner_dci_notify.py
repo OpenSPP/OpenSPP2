@@ -110,7 +110,7 @@ class ResPartnerDCINotify(models.Model):
                     "identifier_value": reg_id.value,
                 }
                 for reg_id in partner.reg_ids
-                if reg_id.value
+                if reg_id.value and reg_id.id_type_id
             ]
             payloads.append({"identifiers": identifiers})
         return payloads

@@ -607,7 +607,7 @@ class DCISocialSearchService:
                 enrolment_date=membership.enrollment_date.date() if membership.enrollment_date else None,
             )
             for membership in partner.program_membership_ids
-            if membership.state in ("enrolled", "paused")
+            if membership.state in ("enrolled", "paused") and membership.program_id
         ]
 
         return Person(
