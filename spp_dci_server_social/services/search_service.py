@@ -13,7 +13,7 @@ from odoo.exceptions import AccessError, ValidationError
 from odoo.addons.spp_dci.schemas.common import Address, Identifier, Name
 from odoo.addons.spp_dci.schemas.constants import SearchStatusReasonCode
 from odoo.addons.spp_dci.schemas.group import Group, Member
-from odoo.addons.spp_dci.schemas.person import Person
+from odoo.addons.spp_dci.schemas.person import Person, ProgramEnrollment
 from odoo.addons.spp_dci.schemas.search import (
     Pagination,
     SearchRequest,
@@ -597,6 +597,19 @@ class DCISocialSearchService:
         if partner.email:
             emails.append(partner.email)
 
+        # Active programme enrollments (SPDCI social profile). Paused
+        # memberships are still enrollments; draft/exited/not_eligible/
+        # duplicated are not.
+        enrollments = [
+            ProgramEnrollment(
+                programme_name=membership.program_id.name,
+                enrolment_status=membership.state,
+                enrolment_date=membership.enrollment_date.date() if membership.enrollment_date else None,
+            )
+            for membership in partner.program_membership_ids
+            if membership.state in ("enrolled", "paused")
+        ]
+
         return Person(
             identifier=identifiers,
             name=name,
@@ -608,6 +621,7 @@ class DCISocialSearchService:
             email=emails if emails else None,
             registration_date=partner.create_date if partner.create_date else None,
             last_updated=partner.write_date if partner.write_date else None,
+            enrolled_programs=enrollments if enrollments else None,
         )
 
     def _to_dci_group(self, partner) -> Group:

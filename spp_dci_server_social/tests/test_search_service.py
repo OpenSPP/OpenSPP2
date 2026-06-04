@@ -127,6 +127,65 @@ class TestDCISocialSearchService(DCISocialServerCommon):
             SearchStatusReasonCode.FILTER_INVALID.value,
         )
 
+    def _search_by_nat_001(self, reference_id="test-ref-prog"):
+        """Run an idtype-value search for the NAT-001 fixture individual."""
+        criteria = SearchCriteria(
+            reg_type="SOCIAL_REGISTRY",
+            query_type="idtype-value",
+            query={"type": self.test_id_type.namespace_uri, "value": "NAT-001"},
+        )
+        search_req = SearchRequestItem(
+            reference_id=reference_id,
+            timestamp=datetime.now(UTC),
+            search_criteria=criteria,
+        )
+        request = SearchRequest(transaction_id=f"txn-{reference_id}", search_request=[search_req])
+        self.env.user.write({"group_ids": [(4, self.env.ref("spp_registry.group_registry_viewer").id)]})
+        return self.search_service.execute_search(request).search_response[0]
+
+    def test_person_record_includes_enrolled_programs(self):
+        """The served person record must list active programme enrollments -
+        DCI clients derive sr.dci.program_count / has_programs from it."""
+        program = self.env["spp.program"].create({"name": "Cash Transfer Test", "target_type": "individual"})
+        self.env["spp.program.membership"].create(
+            {
+                "partner_id": self.individual_1.id,
+                "program_id": program.id,
+                "state": "enrolled",
+            }
+        )
+
+        response_item = self._search_by_nat_001()
+
+        self.assertEqual(response_item.status, "succ")
+        record = response_item.data.reg_records[0]
+        self.assertIn("enrolled_programs", record, "person record lacks enrolled_programs")
+        programs = record["enrolled_programs"]
+        self.assertEqual(len(programs), 1)
+        self.assertEqual(programs[0]["programme_name"], "Cash Transfer Test")
+        self.assertEqual(programs[0]["enrolment_status"], "enrolled")
+
+    def test_person_record_excludes_inactive_enrollments(self):
+        """Draft/exited memberships are not enrollments - they must not
+        appear in the served record."""
+        program = self.env["spp.program"].create({"name": "Exited Program Test", "target_type": "individual"})
+        self.env["spp.program.membership"].create(
+            {
+                "partner_id": self.individual_1.id,
+                "program_id": program.id,
+                "state": "exited",
+            }
+        )
+
+        response_item = self._search_by_nat_001(reference_id="test-ref-noprog")
+
+        self.assertEqual(response_item.status, "succ")
+        record = response_item.data.reg_records[0]
+        self.assertFalse(
+            record.get("enrolled_programs"),
+            f"inactive enrollment leaked into the record: {record.get('enrolled_programs')}",
+        )
+
     def test_search_by_identifier_success(self):
         """Test searching by identifier type and value."""
         # Create search request
