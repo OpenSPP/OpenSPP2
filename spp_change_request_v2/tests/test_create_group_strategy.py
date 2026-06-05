@@ -388,17 +388,28 @@ class TestCreateGroupStrategy(TransactionCase):
     def test_wizard_edit_new_member_updates_row(self):
         cr = self._make_cr(group_name="Edit-Wizard Group")
         detail = cr.get_detail()
-        # Seed a new-member row first.
-        wiz = self._make_wizard(detail, "new", given_name="Old", family_name="Name")
+        # Seed a new-member row first, with a phone (regression: editing a
+        # member that already has phone rows must not orphan them).
+        wiz = self._make_wizard(
+            detail,
+            "new",
+            given_name="Old",
+            family_name="Name",
+            phone_line_ids=[(0, 0, {"phone_no": "+63111", "is_primary": True})],
+        )
         wiz.action_add_close()
         row = detail.member_new_ids
         self.assertEqual(row.full_name, "NAME, Old")
+        self.assertEqual(row.phone_line_ids.phone_no, "+63111")
 
         # Open the wizard for that row in edit mode.
         open_action = row.action_open_edit_wizard()
         self.assertEqual(open_action["context"]["default_editing_member_new_id"], row.id)
+        # The edit context carries the existing phone rows.
+        self.assertTrue(open_action["context"]["default_phone_line_ids"])
 
-        # Recreate the wizard with the edit context as Odoo would.
+        # Recreate the wizard with the edit context as Odoo would (incl. a
+        # changed phone set).
         edit_wiz = self.env["spp.cr.detail.create_group.member.wizard"].create(
             {
                 "detail_id": detail.id,
@@ -406,15 +417,17 @@ class TestCreateGroupStrategy(TransactionCase):
                 "editing_member_new_id": row.id,
                 "given_name": "New",
                 "family_name": "Name",
+                "phone_line_ids": [(0, 0, {"phone_no": "+63222", "is_primary": True})],
             }
         )
         self.assertTrue(edit_wiz.is_editing)
         action = edit_wiz.action_add()
         # Edit branch should close the window in one shot.
         self.assertEqual(action["type"], "ir.actions.act_window_close")
-        # ...and only one row remains, with the updated name.
+        # ...and only one row remains, with the updated name and phone.
         self.assertEqual(len(detail.member_new_ids), 1)
         self.assertEqual(detail.member_new_ids.given_name, "New")
+        self.assertEqual(detail.member_new_ids.phone_line_ids.phone_no, "+63222")
 
     def test_wizard_existing_blocks_duplicate(self):
         cr = self._make_cr(group_name="Dedup-Wizard Group")
