@@ -77,12 +77,9 @@ class SPPCRDetailAddMember(models.Model):
     # Contact
     # ──────────────────────────────────────────────────────────────────────
     area_id = fields.Many2one("spp.area", string="Area", tracking=True)
-    address_line1 = fields.Char(string="Address Line 1", tracking=True)
-    address_line2 = fields.Char(string="Address Line 2", tracking=True)
-    city = fields.Char(string="City", tracking=True)
-    state_id = fields.Many2one("res.country.state", string="State/Province", tracking=True)
-    postal_code = fields.Char(string="Postal Code", tracking=True)
-    country_id = fields.Many2one("res.country", string="Country", tracking=True)
+    # The registry stores a single free-text address (res.partner.address), so the
+    # CR collects it the same way to map cleanly on apply (OP#871 QA round 1).
+    address = fields.Text(string="Address", tracking=True)
     email = fields.Char(string="Email", tracking=True)
 
     phone_line_ids = fields.One2many(

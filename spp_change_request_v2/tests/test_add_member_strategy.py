@@ -219,3 +219,18 @@ class TestAddMemberStrategy(TransactionCase):
         preview = cr.action_preview_changes()
         self.assertIn("_action", preview)
         self.assertEqual(preview["_action"], "create_member")
+        # The review banner header is sourced from the preview (OP#871 QA round 1).
+        self.assertIn("individual", (preview.get("_header") or "").lower())
+
+    def test_add_member_writes_single_address(self):
+        """The single Address field maps to the registry's res.partner.address
+        on apply, matching how the registry stores it (OP#871 QA round 1)."""
+        cr = self._make_cr(
+            given_name="Lola",
+            family_name="Reyes",
+            address="55 Aurora Blvd, Manila",
+        )
+        cr.approval_state = "approved"
+        cr.action_apply()
+        new_member = cr.get_detail().created_individual_id
+        self.assertEqual(new_member.address, "55 Aurora Blvd, Manila")

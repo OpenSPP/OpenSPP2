@@ -66,9 +66,11 @@ class SPPCRApplyAddMember(models.AbstractModel):
             return {}
         return {
             "_action": "create_member",
+            "_header": _("The following individual is to be added:"),
             "member_name": detail.member_name,
             "group": change_request.registrant_id.name,
             "role": detail.membership_type_id.display if detail.membership_type_id else None,
+            "address": detail.address,
             "phone_count": len(detail.phone_line_ids),
             "bank_count": len(detail.bank_line_ids),
             "id_doc_count": len(detail.id_doc_line_ids),
@@ -110,19 +112,15 @@ class SPPCRApplyAddMember(models.AbstractModel):
             "email": detail.email,
             "is_registrant": True,
             "is_group": False,
-            "street": detail.address_line1,
-            "street2": detail.address_line2,
-            "city": detail.city,
-            "state_id": detail.state_id.id if detail.state_id else False,
-            "zip": detail.postal_code,
-            "country_id": detail.country_id.id if detail.country_id else False,
         }
         if detail.gender_id:
             vals["gender_id"] = detail.gender_id.id
         # The following fields are added by spp_registry; guard so the module
         # remains importable without it on the path.
         for fname, value in [
+            ("address", detail.address),
             ("birth_place", detail.birth_place),
+            ("birthdate_not_exact", detail.is_approximate_birthdate),
             ("occupation_id", detail.occupation_id.id if detail.occupation_id else False),
             ("civil_status_id", detail.civil_status_id.id if detail.civil_status_id else False),
             ("income", detail.income),
