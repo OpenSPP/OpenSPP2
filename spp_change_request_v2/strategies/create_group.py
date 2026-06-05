@@ -32,7 +32,7 @@ class SPPCRApplyCreateGroup(models.AbstractModel):
         group = self._create_group(detail)
 
         # 2. Multi-value attachments tied to the group partner.
-        self._attach_phones(detail, group)
+        self._attach_phones(detail.phone_line_ids, group)
         self._attach_banks(detail, group)
         self._attach_id_docs(detail, group)
 
@@ -144,12 +144,14 @@ class SPPCRApplyCreateGroup(models.AbstractModel):
     # ──────────────────────────────────────────────────────────────────────
     # Sub-record attachers
     # ──────────────────────────────────────────────────────────────────────
-    def _attach_phones(self, detail, group):
+    def _attach_phones(self, phone_lines, partner):
+        """Create spp.phone.number records (the registry's Phone Numbers list)
+        on ``partner`` from the given phone rows."""
         SppPhone = self.env["spp.phone.number"]
-        for line in detail.phone_line_ids:
+        for line in phone_lines:
             SppPhone.create(
                 {
-                    "partner_id": group.id,
+                    "partner_id": partner.id,
                     "phone_no": line.phone_no,
                     "country_id": line.country_id.id if line.country_id else False,
                     "date_collected": fields.Date.today(),
@@ -197,6 +199,9 @@ class SPPCRApplyCreateGroup(models.AbstractModel):
             # Some downstream modules format the partner's name on the fly.
             if hasattr(individual, "name_change"):
                 individual.name_change()
+            # Create the individual's phone records (the registry's Phone
+            # Numbers list), the same way the group's phones are attached.
+            self._attach_phones(line.phone_line_ids, individual)
             self._create_membership(Membership, group, individual, line.membership_type_id, now)
 
     def _new_member_vals(self, line):
