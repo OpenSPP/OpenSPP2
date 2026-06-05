@@ -209,9 +209,14 @@ class SPPCRDetailCreateGroupPhone(models.Model):
 
     @api.constrains("detail_id", "member_new_id")
     def _check_one_parent(self):
+        # Only reject a row linked to more than one context. A row with no
+        # parent is harmless (an unreferenced orphan) and can occur transiently
+        # while Odoo rewrites a one2many, so it must not raise — requiring
+        # exactly one surfaced a confusing "parent" error to users editing a
+        # member's phone list.
         for rec in self:
-            if bool(rec.detail_id) == bool(rec.member_new_id):
-                raise ValidationError(_("Exactly one parent must be set on a phone-number row."))
+            if rec.detail_id and rec.member_new_id:
+                raise ValidationError(_("A phone-number row cannot belong to more than one record."))
 
 
 class SPPCRDetailCreateGroupBank(models.Model):
