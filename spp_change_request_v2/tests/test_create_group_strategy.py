@@ -429,6 +429,30 @@ class TestCreateGroupStrategy(TransactionCase):
         self.assertEqual(detail.member_new_ids.given_name, "New")
         self.assertEqual(detail.member_new_ids.phone_line_ids.phone_no, "+63222")
 
+    def test_wizard_new_phone_ignores_detail_context(self):
+        """Regression: the wizard is opened with a default_detail_id context for
+        the member row; that default must not leak onto the new phone rows
+        (the phone model also has a detail_id field), which would give them two
+        parents and raise on save (OP#876 QA round 1)."""
+        cr = self._make_cr(group_name="Ctx-Wizard Group")
+        detail = cr.get_detail()
+        Wizard = self.env["spp.cr.detail.create_group.member.wizard"].with_context(default_detail_id=detail.id)
+        wiz = Wizard.create(
+            {
+                "detail_id": detail.id,
+                "mode": "new",
+                "given_name": "Ctx",
+                "family_name": "Test",
+                "phone_line_ids": [(0, 0, {"phone_no": "+63111"})],
+            }
+        )
+        wiz.action_add_close()  # must not raise
+        phone = detail.member_new_ids.phone_line_ids
+        self.assertEqual(phone.phone_no, "+63111")
+        # The phone row belongs only to the member, not the group detail.
+        self.assertFalse(phone.detail_id)
+        self.assertEqual(phone.member_new_id, detail.member_new_ids)
+
     def test_wizard_existing_blocks_duplicate(self):
         cr = self._make_cr(group_name="Dedup-Wizard Group")
         detail = cr.get_detail()

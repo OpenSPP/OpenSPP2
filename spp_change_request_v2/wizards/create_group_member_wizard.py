@@ -142,8 +142,12 @@ class SPPCRCreateGroupMemberWizard(models.TransientModel):
 
         # mode == 'new'
         # Copy the wizard's transient phone lines onto the member_new row.
+        # detail_id is forced False: the wizard is opened with a
+        # default_detail_id context (for the member row), and the phone model
+        # also has a detail_id field, so that default would otherwise leak onto
+        # the phone rows and give them two parents (detail_id + member_new_id).
         phone_cmds = [
-            (0, 0, {"phone_no": pl.phone_no, "country_id": pl.country_id.id, "is_primary": pl.is_primary})
+            (0, 0, {"phone_no": pl.phone_no, "country_id": pl.country_id.id, "detail_id": False})
             for pl in self.phone_line_ids
             if pl.phone_no
         ]
