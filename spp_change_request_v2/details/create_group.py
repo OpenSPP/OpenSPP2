@@ -190,17 +190,28 @@ class SPPCRDetailCreateGroupPhone(models.Model):
     _description = "CR Detail: Create Group — Phone Number"
     _order = "is_primary desc, id"
 
+    # A phone row belongs to either the group detail or a new-member row
+    # (OP#876). Exactly one parent must be set — enforced by ``_check_one_parent``.
     detail_id = fields.Many2one(
         "spp.cr.detail.create_group",
-        required=True,
+        ondelete="cascade",
+    )
+    member_new_id = fields.Many2one(
+        "spp.cr.detail.create_group.member_new",
         ondelete="cascade",
     )
     phone_no = fields.Char(string="Phone Number", required=True)
     country_id = fields.Many2one("res.country", string="Country")
     is_primary = fields.Boolean(
         string="Primary",
-        help="The first primary phone is also written to the group's header phone field.",
+        help="The first primary phone is also written to the partner's header phone field.",
     )
+
+    @api.constrains("detail_id", "member_new_id")
+    def _check_one_parent(self):
+        for rec in self:
+            if bool(rec.detail_id) == bool(rec.member_new_id):
+                raise ValidationError(_("Exactly one parent must be set on a phone-number row."))
 
 
 class SPPCRDetailCreateGroupBank(models.Model):
@@ -328,7 +339,11 @@ class SPPCRDetailCreateGroupMemberNew(models.Model):
     area_id = fields.Many2one("spp.area", string="Area")
     address = fields.Text(string="Address")
     email = fields.Char(string="Email")
-    phone = fields.Char(string="Phone")
+    phone_line_ids = fields.One2many(
+        "spp.cr.detail.create_group.phone",
+        "member_new_id",
+        string="Phone Numbers",
+    )
     membership_type_id = fields.Many2one(
         "spp.vocabulary.code",
         string="Role",
@@ -401,7 +416,10 @@ class SPPCRDetailCreateGroupMemberNew(models.Model):
                 "default_area_id": self.area_id.id if self.area_id else False,
                 "default_address": self.address,
                 "default_email": self.email,
-                "default_phone": self.phone,
+                "default_phone_line_ids": [
+                    (0, 0, {"phone_no": p.phone_no, "country_id": p.country_id.id, "is_primary": p.is_primary})
+                    for p in self.phone_line_ids
+                ],
                 "default_membership_type_id": self.membership_type_id.id if self.membership_type_id else False,
             },
         }

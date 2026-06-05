@@ -161,7 +161,6 @@
                                     <field name="full_name" />
                                     <field name="birthdate" />
                                     <field name="gender_id" optional="hide" />
-                                    <field name="phone" optional="hide" />
                                     <field name="membership_type_id" />
                                     <field
                                         name="is_head"

@@ -65,9 +65,19 @@
                             </group>
                             <group>
                                 <field name="email" widget="email" />
-                                <field name="phone" />
                             </group>
                         </group>
+                        <separator string="Phone Numbers" />
+                        <field name="phone_line_ids">
+                            <list editable="bottom">
+                                <field name="phone_no" />
+                                <field
+                                    name="country_id"
+                                    options="{'no_create': True}"
+                                />
+                                <field name="is_primary" widget="boolean_toggle" />
+                            </list>
+                        </field>
                         <separator string="Role" />
                         <group>
                             <group>

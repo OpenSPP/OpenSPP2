@@ -123,7 +123,7 @@ class TestCreateGroupStrategy(TransactionCase):
                     {
                         "given_name": "Juan",
                         "family_name": "Dela Cruz",
-                        "phone": "+63987654321",
+                        "phone_line_ids": [(0, 0, {"phone_no": "+63987654321"})],
                         "membership_type_id": self.head_kind.id if self.head_kind else False,
                     },
                 ),
@@ -373,7 +373,7 @@ class TestCreateGroupStrategy(TransactionCase):
             "new",
             given_name="Wizard",
             family_name="Added",
-            phone="+639000",
+            phone_line_ids=[(0, 0, {"phone_no": "+639000", "is_primary": True})],
             membership_type_id=self.head_kind.id if self.head_kind else False,
         )
         wiz.action_add_close()
@@ -382,6 +382,8 @@ class TestCreateGroupStrategy(TransactionCase):
         self.assertEqual(row.given_name, "Wizard")
         self.assertEqual(row.family_name, "Added")
         self.assertEqual(row.full_name, "ADDED, Wizard")
+        # The wizard's phone line is persisted onto the member_new row.
+        self.assertEqual(row.phone_line_ids.phone_no, "+639000")
 
     def test_wizard_edit_new_member_updates_row(self):
         cr = self._make_cr(group_name="Edit-Wizard Group")
@@ -484,7 +486,10 @@ class TestCreateGroupStrategy(TransactionCase):
                         "income": 12345.0,
                         "address": "10 Rizal St, Cebu",
                         "email": "maria@example.com",
-                        "phone": "+63911",
+                        "phone_line_ids": [
+                            (0, 0, {"phone_no": "+63911", "is_primary": True}),
+                            (0, 0, {"phone_no": "+63922"}),
+                        ],
                         "occupation_id": occupation.id if occupation else False,
                         "civil_status_id": civil.id if civil else False,
                         "membership_type_id": self.head_kind.id if self.head_kind else False,
@@ -510,6 +515,9 @@ class TestCreateGroupStrategy(TransactionCase):
         self.assertEqual(individual.address, "10 Rizal St, Cebu")
         self.assertEqual(individual.email, "maria@example.com")
         self.assertEqual(individual.income, 12345.0)
+        # Multiple captured phone numbers are folded (primary first) into the
+        # partner's single header phone field.
+        self.assertEqual(individual.phone, "+63911, +63922")
         if occupation:
             self.assertEqual(individual.occupation_id, occupation)
         if civil:
