@@ -65,8 +65,7 @@ class TestCreateGroupStrategy(TransactionCase):
         cr = self._make_cr(
             group_name="New Household",
             group_type_id=self.group_kind.id if self.group_kind else False,
-            address_line1="123 Main St",
-            city="Manila",
+            address="123 Main St, Manila",
         )
 
         cr.approval_state = "approved"
@@ -79,8 +78,7 @@ class TestCreateGroupStrategy(TransactionCase):
         self.assertEqual(new_group.name, "New Household")
         self.assertTrue(new_group.is_registrant)
         self.assertTrue(new_group.is_group)
-        self.assertEqual(new_group.street, "123 Main St")
-        self.assertEqual(new_group.city, "Manila")
+        self.assertEqual(new_group.address, "123 Main St, Manila")
 
     # ──────────────────────────────────────────────────────────────────
     # Existing member becomes the head
@@ -195,7 +193,7 @@ class TestCreateGroupStrategy(TransactionCase):
     # Validation: group name still required
     # ──────────────────────────────────────────────────────────────────
     def test_create_group_without_name_fails(self):
-        cr = self._make_cr(city="Manila")
+        cr = self._make_cr(address="Manila")
         cr.approval_state = "approved"
         with self.assertRaises(UserError) as cm:
             cr.action_apply()
@@ -431,3 +429,88 @@ class TestCreateGroupStrategy(TransactionCase):
         wiz = self._make_wizard(detail, "new", given_name="Only")
         with self.assertRaises(UserError):
             wiz.action_add_close()
+
+    def test_wizard_blocks_second_head(self):
+        """A second Head added via the wizard is rejected (OP#876 QA round 1).
+
+        The parent-level @api.constrains doesn't fire on rows the wizard creates
+        directly, so the wizard guard + the per-row constraint must catch it.
+        """
+        if not self.head_kind:
+            self.skipTest("head membership-type code missing in vocabulary")
+        cr = self._make_cr(group_name="Wizard Two-Head Group")
+        detail = cr.get_detail()
+        # First head — existing individual.
+        self._make_wizard(
+            detail,
+            "existing",
+            individual_id=self.existing_head.id,
+            membership_type_id=self.head_kind.id,
+        ).action_add_close()
+        # Second head — new individual via wizard. Must be rejected.
+        second = self._make_wizard(
+            detail,
+            "new",
+            given_name="Second",
+            family_name="Head",
+            membership_type_id=self.head_kind.id,
+        )
+        with self.assertRaises(UserError):
+            second.action_add_close()
+
+    # ──────────────────────────────────────────────────────────────────
+    # New individual carries the full registry profile (OP#876 QA round 1)
+    # ──────────────────────────────────────────────────────────────────
+    def test_new_member_full_profile_written(self):
+        occupation = self.env["spp.vocabulary.code"].search(
+            [("vocabulary_id.namespace_uri", "=", "urn:ilo:isco-08")], limit=1
+        )
+        civil = self.env["spp.vocabulary.code"].search(
+            [("vocabulary_id.namespace_uri", "=", "urn:un:unsd:pop-census:marital-status")], limit=1
+        )
+        cr = self._make_cr(
+            group_name="Full-Profile Group",
+            member_new_ids=[
+                (
+                    0,
+                    0,
+                    {
+                        "given_name": "Maria",
+                        "family_name": "Cruz",
+                        "middle_name": "Santos",
+                        "birthdate": "1990-05-20",
+                        "is_approximate_birthdate": True,
+                        "birth_place": "Cebu",
+                        "income": 12345.0,
+                        "address": "10 Rizal St, Cebu",
+                        "email": "maria@example.com",
+                        "phone": "+63911",
+                        "occupation_id": occupation.id if occupation else False,
+                        "civil_status_id": civil.id if civil else False,
+                        "membership_type_id": self.head_kind.id if self.head_kind else False,
+                    },
+                ),
+            ],
+        )
+        cr.approval_state = "approved"
+        cr.action_apply()
+
+        detail = cr.get_detail()
+        # Middle name is captured on the CR row (res.partner has no native field;
+        # name_change() recomposes the partner name from given+family only).
+        self.assertEqual(detail.member_new_ids.middle_name, "Santos")
+
+        new_group = detail.created_group_id
+        membership = self.membership_model.search([("group", "=", new_group.id), ("status", "=", "active")])
+        individual = membership.individual
+        self.assertEqual(individual.given_name, "Maria")
+        self.assertEqual(individual.family_name, "Cruz")
+        self.assertEqual(individual.birth_place, "Cebu")
+        self.assertTrue(individual.birthdate_not_exact)
+        self.assertEqual(individual.address, "10 Rizal St, Cebu")
+        self.assertEqual(individual.email, "maria@example.com")
+        self.assertEqual(individual.income, 12345.0)
+        if occupation:
+            self.assertEqual(individual.occupation_id, occupation)
+        if civil:
+            self.assertEqual(individual.civil_status_id, civil)

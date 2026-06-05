@@ -42,16 +42,33 @@ class SPPCRCreateGroupMemberWizard(models.TransientModel):
     )
 
     # ──────────────────────────────────────────────────────────────────
-    # New-mode fields
+    # New-mode fields (mirror the registry individual overview — OP#876)
     # ──────────────────────────────────────────────────────────────────
     given_name = fields.Char()
     family_name = fields.Char()
+    middle_name = fields.Char()
     birthdate = fields.Date(string="Date of Birth")
+    is_approximate_birthdate = fields.Boolean(string="Approximate Birthdate")
+    birth_place = fields.Char(string="Birth Place")
+    occupation_id = fields.Many2one(
+        "spp.vocabulary.code",
+        string="Occupation",
+        domain="[('vocabulary_id.namespace_uri', '=', 'urn:ilo:isco-08')]",
+    )
     gender_id = fields.Many2one(
         "spp.vocabulary.code",
         string="Gender",
         domain="[('namespace_uri', '=', 'urn:iso:std:iso:5218')]",
     )
+    civil_status_id = fields.Many2one(
+        "spp.vocabulary.code",
+        string="Civil Status",
+        domain="[('vocabulary_id.namespace_uri', '=', 'urn:un:unsd:pop-census:marital-status')]",
+    )
+    income = fields.Float(string="Income")
+    area_id = fields.Many2one("spp.area", string="Area")
+    address = fields.Text(string="Address")
+    email = fields.Char(string="Email")
     phone = fields.Char()
 
     # ──────────────────────────────────────────────────────────────────
@@ -95,6 +112,15 @@ class SPPCRCreateGroupMemberWizard(models.TransientModel):
             if not self.given_name or not self.family_name:
                 raise UserError(_("Given name and family name are both required for a new individual."))
 
+        # Block a second Head of Household with a clear message (the model-level
+        # constraint on the member rows is the safety net).
+        if self.membership_type_id and self.membership_type_id.code == "head":
+            existing_heads, new_heads = self.detail_id._heads()
+            if self.editing_member_new_id:
+                new_heads = new_heads.filtered(lambda m: m.id != self.editing_member_new_id.id)
+            if existing_heads or new_heads:
+                raise UserError(_("This group already has a Head of Household. Only one member can be Head."))
+
     # ──────────────────────────────────────────────────────────────────
     # Persist the wizard's payload to the detail's O2M tables
     # ──────────────────────────────────────────────────────────────────
@@ -114,8 +140,17 @@ class SPPCRCreateGroupMemberWizard(models.TransientModel):
         vals = {
             "given_name": self.given_name,
             "family_name": self.family_name,
+            "middle_name": self.middle_name,
             "birthdate": self.birthdate,
+            "is_approximate_birthdate": self.is_approximate_birthdate,
+            "birth_place": self.birth_place,
+            "occupation_id": self.occupation_id.id if self.occupation_id else False,
             "gender_id": self.gender_id.id if self.gender_id else False,
+            "civil_status_id": self.civil_status_id.id if self.civil_status_id else False,
+            "income": self.income,
+            "area_id": self.area_id.id if self.area_id else False,
+            "address": self.address,
+            "email": self.email,
             "phone": self.phone,
             "membership_type_id": self.membership_type_id.id if self.membership_type_id else False,
         }

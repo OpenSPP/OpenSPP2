@@ -68,9 +68,10 @@ class SPPCRApplyCreateGroup(models.AbstractModel):
 
         return {
             "_action": "create_group",
+            "_header": _("The following group is to be added:"),
             "group_name": detail.group_name,
             "group_type": detail.group_type_id.display if detail.group_type_id else None,
-            "address": ", ".join(filter(None, [detail.address_line1, detail.city])),
+            "address": detail.address,
             "phone_count": len(detail.phone_line_ids),
             "bank_count": len(detail.bank_line_ids),
             "id_doc_count": len(detail.id_doc_line_ids),
@@ -130,12 +131,7 @@ class SPPCRApplyCreateGroup(models.AbstractModel):
             "name": detail.group_name,
             "is_registrant": True,
             "is_group": True,
-            "street": detail.address_line1,
-            "street2": detail.address_line2,
-            "city": detail.city,
-            "state_id": detail.state_id.id if detail.state_id else False,
-            "zip": detail.postal_code,
-            "country_id": detail.country_id.id if detail.country_id else False,
+            "address": detail.address,
             "phone": primary_phone,
             "email": detail.email,
         }
@@ -197,23 +193,43 @@ class SPPCRApplyCreateGroup(models.AbstractModel):
             self._create_membership(Membership, group, line.individual_id, line.membership_type_id, now)
 
         for line in detail.member_new_ids:
-            full_name = line.full_name or " ".join(filter(None, [line.given_name, line.family_name]))
-            individual_vals = {
-                "name": full_name,
-                "given_name": line.given_name,
-                "family_name": line.family_name,
-                "birthdate": line.birthdate,
-                "phone": line.phone,
-                "is_registrant": True,
-                "is_group": False,
-            }
-            if line.gender_id:
-                individual_vals["gender_id"] = line.gender_id.id
-            individual = Partner.create(individual_vals)
+            individual = Partner.create(self._new_member_vals(line))
             # Some downstream modules format the partner's name on the fly.
             if hasattr(individual, "name_change"):
                 individual.name_change()
             self._create_membership(Membership, group, individual, line.membership_type_id, now)
+
+    def _new_member_vals(self, line):
+        """Build res.partner vals for a new in-group individual from a member_new row.
+
+        Mirrors the registry's individual field set (OP#876 QA round 1). res.partner
+        has no native middle name, so the middle name is folded into the display name
+        only (full_name is "FAMILY, GIVEN MIDDLE").
+        """
+        full_name = line.full_name or " ".join(filter(None, [line.given_name, line.family_name]))
+        vals = {
+            "name": full_name,
+            "given_name": line.given_name,
+            "family_name": line.family_name,
+            "birthdate": line.birthdate,
+            "birthdate_not_exact": line.is_approximate_birthdate,
+            "birth_place": line.birth_place,
+            "income": line.income,
+            "address": line.address,
+            "email": line.email,
+            "phone": line.phone,
+            "is_registrant": True,
+            "is_group": False,
+        }
+        if line.gender_id:
+            vals["gender_id"] = line.gender_id.id
+        if line.occupation_id:
+            vals["occupation_id"] = line.occupation_id.id
+        if line.civil_status_id:
+            vals["civil_status_id"] = line.civil_status_id.id
+        if line.area_id and "area_id" in self.env["res.partner"]._fields:
+            vals["area_id"] = line.area_id.id
+        return vals
 
     def _create_membership(self, Membership, group, individual, membership_type, when):
         vals = {

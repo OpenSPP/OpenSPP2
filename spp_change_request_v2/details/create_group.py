@@ -1,6 +1,8 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Detail model + sub-models for the Create New Group CR (OP#876)."""
 
+from datetime import date
+
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
@@ -35,12 +37,9 @@ class SPPCRDetailCreateGroup(models.Model):
     # Group Contact Information
     # ──────────────────────────────────────────────────────────────────────
     area_id = fields.Many2one("spp.area", string="Area", tracking=True)
-    address_line1 = fields.Char(string="Address Line 1", tracking=True)
-    address_line2 = fields.Char(string="Address Line 2", tracking=True)
-    city = fields.Char(string="City", tracking=True)
-    state_id = fields.Many2one("res.country.state", string="State/Province", tracking=True)
-    postal_code = fields.Char(string="Postal Code", tracking=True)
-    country_id = fields.Many2one("res.country", string="Country", tracking=True)
+    # The registry stores a single free-text address (res.partner.address), so the
+    # CR collects it the same way to map cleanly on apply (OP#876 QA round 1).
+    address = fields.Text(string="Address", tracking=True)
     email = fields.Char(string="Email", tracking=True)
     phone_line_ids = fields.One2many(
         "spp.cr.detail.create_group.phone",
@@ -270,6 +269,15 @@ class SPPCRDetailCreateGroupMemberExisting(models.Model):
         for rec in self:
             rec.is_head = bool(rec.membership_type_id and rec.membership_type_id.code == "head")
 
+    @api.constrains("membership_type_id")
+    def _check_single_head(self):
+        # The parent's @api.constrains on the o2m only fires when the o2m is
+        # written through the parent. Rows added via the member wizard are
+        # created directly with detail_id set, bypassing it — so guard here too.
+        for rec in self:
+            if rec.is_head and rec.detail_id._head_count() > 1:
+                raise ValidationError(_("A group can have at most one Head of Household."))
+
 
 class SPPCRDetailCreateGroupMemberNew(models.Model):
     """New individual to create and attach to the new group."""
@@ -282,19 +290,44 @@ class SPPCRDetailCreateGroupMemberNew(models.Model):
         required=True,
         ondelete="cascade",
     )
+    # Names
     given_name = fields.Char(string="Given Name", required=True)
     family_name = fields.Char(string="Family Name", required=True)
+    middle_name = fields.Char(
+        string="Middle Name",
+        help="res.partner has no native middle name; on apply it is prepended to "
+        "the given name when composing the individual's display name.",
+    )
     full_name = fields.Char(
         string="Full Name",
         compute="_compute_full_name",
         store=True,
     )
+    # Demographics (mirrors the registry's individual overview — OP#876 QA round 1)
     birthdate = fields.Date(string="Date of Birth")
+    is_approximate_birthdate = fields.Boolean(string="Approximate Birthdate")
+    age = fields.Integer(string="Age", compute="_compute_age")
+    birth_place = fields.Char(string="Birth Place")
+    occupation_id = fields.Many2one(
+        "spp.vocabulary.code",
+        string="Occupation",
+        domain="[('vocabulary_id.namespace_uri', '=', 'urn:ilo:isco-08')]",
+    )
     gender_id = fields.Many2one(
         "spp.vocabulary.code",
         string="Gender",
         domain="[('namespace_uri', '=', 'urn:iso:std:iso:5218')]",
     )
+    civil_status_id = fields.Many2one(
+        "spp.vocabulary.code",
+        string="Civil Status",
+        domain="[('vocabulary_id.namespace_uri', '=', 'urn:un:unsd:pop-census:marital-status')]",
+    )
+    income = fields.Float(string="Income")
+    # Contact
+    area_id = fields.Many2one("spp.area", string="Area")
+    address = fields.Text(string="Address")
+    email = fields.Char(string="Email")
     phone = fields.Char(string="Phone")
     membership_type_id = fields.Many2one(
         "spp.vocabulary.code",
@@ -307,20 +340,40 @@ class SPPCRDetailCreateGroupMemberNew(models.Model):
         store=True,
     )
 
-    @api.depends("given_name", "family_name")
+    @api.depends("given_name", "family_name", "middle_name")
     def _compute_full_name(self):
         for rec in self:
             given = (rec.given_name or "").strip()
             family = (rec.family_name or "").strip()
-            if given and family:
-                rec.full_name = f"{family.upper()}, {given}"
+            middle = (rec.middle_name or "").strip()
+            first_part = " ".join(filter(None, [given, middle]))
+            if family and first_part:
+                rec.full_name = f"{family.upper()}, {first_part}"
             else:
-                rec.full_name = (given or family).upper() or False
+                rec.full_name = (first_part or family).upper() or False
+
+    @api.depends("birthdate")
+    def _compute_age(self):
+        today = date.today()
+        for rec in self:
+            if not rec.birthdate:
+                rec.age = 0
+                continue
+            bd = rec.birthdate
+            rec.age = max(today.year - bd.year - ((today.month, today.day) < (bd.month, bd.day)), 0)
 
     @api.depends("membership_type_id")
     def _compute_is_head(self):
         for rec in self:
             rec.is_head = bool(rec.membership_type_id and rec.membership_type_id.code == "head")
+
+    @api.constrains("membership_type_id")
+    def _check_single_head(self):
+        # See note on the existing-member model: wizard rows bypass the
+        # parent-level constraint, so enforce one-head at the row level too.
+        for rec in self:
+            if rec.is_head and rec.detail_id._head_count() > 1:
+                raise ValidationError(_("A group can have at most one Head of Household."))
 
     def action_open_edit_wizard(self):
         """Re-open the Add Member wizard pre-populated to edit this row."""
@@ -337,8 +390,17 @@ class SPPCRDetailCreateGroupMemberNew(models.Model):
                 "default_editing_member_new_id": self.id,
                 "default_given_name": self.given_name,
                 "default_family_name": self.family_name,
+                "default_middle_name": self.middle_name,
                 "default_birthdate": self.birthdate,
+                "default_is_approximate_birthdate": self.is_approximate_birthdate,
+                "default_birth_place": self.birth_place,
+                "default_occupation_id": self.occupation_id.id if self.occupation_id else False,
                 "default_gender_id": self.gender_id.id if self.gender_id else False,
+                "default_civil_status_id": self.civil_status_id.id if self.civil_status_id else False,
+                "default_income": self.income,
+                "default_area_id": self.area_id.id if self.area_id else False,
+                "default_address": self.address,
+                "default_email": self.email,
                 "default_phone": self.phone,
                 "default_membership_type_id": self.membership_type_id.id if self.membership_type_id else False,
             },
