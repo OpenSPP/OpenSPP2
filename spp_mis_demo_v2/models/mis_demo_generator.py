@@ -2745,8 +2745,7 @@ class SPPMISDemoGenerator(models.TransientModel):
             "proposed_changes": {
                 "group_name": "Ramos",
                 "head_name": "Maricel Ramos",
-                "address_line1": "123 Marriage Lane",
-                "city": "New Family City",
+                "address": "123 Marriage Lane, New Family City",
             },
         },
         # Phase 5.1 & 5.2: Add split_household CR (REJECTED)
@@ -3234,9 +3233,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 vals.update(
                     {
                         "group_name": proposed_changes.get("group_name", "New Household"),
-                        "address_line1": proposed_changes.get("address_line1", ""),
-                        "city": proposed_changes.get("city", ""),
-                        "postal_code": proposed_changes.get("postal_code", ""),
+                        "address": proposed_changes.get("address", ""),
                     }
                 )
                 head_name = proposed_changes.get("head_name", "").strip()

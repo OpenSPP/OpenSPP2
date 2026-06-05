@@ -89,8 +89,7 @@ class TestE2EWorkflows(TransactionCase):
         detail1.write(
             {
                 "group_name": "Dela Cruz Household",
-                "address_line1": "123 Mabini St",
-                "city": "Quezon City",
+                "address": "123 Mabini St, Quezon City",
                 "phone_line_ids": [(0, 0, {"phone_no": "+639123456789", "is_primary": True})],
                 "member_new_ids": [
                     (

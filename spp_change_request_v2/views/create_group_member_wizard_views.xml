@@ -26,24 +26,58 @@
                     </group>
 
                     <!-- New-mode body -->
-                    <group invisible="mode != 'new'">
+                    <div invisible="mode != 'new'">
                         <group>
-                            <field name="given_name" required="mode == 'new'" />
-                            <field name="family_name" required="mode == 'new'" />
-                            <field name="birthdate" />
+                            <group string="Name">
+                                <field name="given_name" required="mode == 'new'" />
+                                <field name="family_name" required="mode == 'new'" />
+                                <field name="middle_name" />
+                            </group>
                         </group>
+                        <separator string="Demographics" />
                         <group>
-                            <field
-                                name="gender_id"
-                                options="{'no_create': True, 'no_open': True}"
-                            />
-                            <field name="phone" />
-                            <field
-                                name="membership_type_id"
-                                options="{'no_create': True, 'no_open': True}"
-                            />
+                            <group>
+                                <field name="birthdate" />
+                                <field name="is_approximate_birthdate" />
+                                <field name="birth_place" />
+                            </group>
+                            <group>
+                                <field
+                                    name="occupation_id"
+                                    options="{'no_create': True, 'no_open': True}"
+                                />
+                                <field
+                                    name="gender_id"
+                                    options="{'no_create': True, 'no_open': True}"
+                                />
+                                <field
+                                    name="civil_status_id"
+                                    options="{'no_create': True, 'no_open': True}"
+                                />
+                                <field name="income" />
+                            </group>
                         </group>
-                    </group>
+                        <separator string="Contact Information" />
+                        <group>
+                            <group>
+                                <field name="area_id" options="{'no_create': True}" />
+                                <field name="address" />
+                            </group>
+                            <group>
+                                <field name="email" widget="email" />
+                                <field name="phone" />
+                            </group>
+                        </group>
+                        <separator string="Role" />
+                        <group>
+                            <group>
+                                <field
+                                    name="membership_type_id"
+                                    options="{'no_create': True, 'no_open': True}"
+                                />
+                            </group>
+                        </group>
+                    </div>
                 </sheet>
 
                 <footer>

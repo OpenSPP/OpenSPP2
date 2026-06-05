@@ -64,6 +64,13 @@
                             <field name="is_requires_registrant" />
                             <field name="is_requires_applicant" />
                         </group>
+                        <group
+                            string="Group Membership"
+                            invisible="target_type == 'individual'"
+                        >
+                            <field name="allow_empty_members" />
+                            <field name="requires_head" />
+                        </group>
                     </group>
                     <notebook>
                         <page string="Customization" name="customization">
