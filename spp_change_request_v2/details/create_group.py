@@ -214,9 +214,14 @@ class SPPCRDetailCreateGroupPhone(models.Model):
 
     @api.constrains("detail_id", "add_member_detail_id", "member_new_id")
     def _check_one_parent(self):
+        # Only reject a row linked to more than one context. A row with no
+        # parent is harmless (an unreferenced orphan) and can occur transiently
+        # while Odoo rewrites a one2many, so it must not raise — requiring
+        # exactly one surfaced a confusing "parent" error to users editing a
+        # member's phone list.
         for rec in self:
-            if sum(1 for p in (rec.detail_id, rec.add_member_detail_id, rec.member_new_id) if p) != 1:
-                raise ValidationError(_("Exactly one parent must be set on a phone-number row."))
+            if sum(1 for p in (rec.detail_id, rec.add_member_detail_id, rec.member_new_id) if p) > 1:
+                raise ValidationError(_("A phone-number row cannot belong to more than one record."))
 
 
 class SPPCRDetailCreateGroupBank(models.Model):
@@ -237,9 +242,11 @@ class SPPCRDetailCreateGroupBank(models.Model):
 
     @api.constrains("detail_id", "add_member_detail_id")
     def _check_one_parent(self):
+        # Only reject multi-parenting; a transient zero-parent state during a
+        # one2many rewrite is harmless (see the phone row note).
         for rec in self:
-            if bool(rec.detail_id) == bool(rec.add_member_detail_id):
-                raise ValidationError(_("Exactly one parent detail must be set on a bank-account row."))
+            if rec.detail_id and rec.add_member_detail_id:
+                raise ValidationError(_("A bank-account row cannot belong to more than one record."))
 
 
 class SPPCRDetailCreateGroupIdDoc(models.Model):
@@ -265,9 +272,11 @@ class SPPCRDetailCreateGroupIdDoc(models.Model):
 
     @api.constrains("detail_id", "add_member_detail_id")
     def _check_one_parent(self):
+        # Only reject multi-parenting; a transient zero-parent state during a
+        # one2many rewrite is harmless (see the phone row note).
         for rec in self:
-            if bool(rec.detail_id) == bool(rec.add_member_detail_id):
-                raise ValidationError(_("Exactly one parent detail must be set on an ID document row."))
+            if rec.detail_id and rec.add_member_detail_id:
+                raise ValidationError(_("An ID document row cannot belong to more than one record."))
 
 
 class SPPCRDetailCreateGroupMemberExisting(models.Model):
