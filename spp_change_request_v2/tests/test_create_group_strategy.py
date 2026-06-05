@@ -553,8 +553,12 @@ class TestCreateGroupStrategy(TransactionCase):
         self.assertEqual(individual.email, "maria@example.com")
         self.assertEqual(individual.income, 12345.0)
         # Multiple captured phone numbers are folded (in entry order) into the
-        # partner's single header phone field.
+        # partner's single header phone field...
         self.assertEqual(individual.phone, "+63911, +63922")
+        # ...and also created as proper phone records (the registry's Phone
+        # Numbers list), one per captured number.
+        phone_recs = self.env["spp.phone.number"].search([("partner_id", "=", individual.id)])
+        self.assertEqual(sorted(phone_recs.mapped("phone_no")), ["+63911", "+63922"])
         if occupation:
             self.assertEqual(individual.occupation_id, occupation)
         if civil:
