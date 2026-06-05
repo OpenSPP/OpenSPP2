@@ -190,14 +190,19 @@ class SPPCRDetailCreateGroupPhone(models.Model):
     _description = "CR Detail: Phone Number (Create Group / Add Member)"
     _order = "is_primary desc, id"
 
-    # OP#871: the same row shape is used by both Create Group and Add Member.
-    # Exactly one parent FK must be set — enforced by ``_check_one_parent``.
+    # The same row shape is reused by the group detail (Create Group), the Add
+    # Member detail, and a Create-Group new-member row. Exactly one parent FK
+    # must be set — enforced by ``_check_one_parent`` (OP#871/#876).
     detail_id = fields.Many2one(
         "spp.cr.detail.create_group",
         ondelete="cascade",
     )
     add_member_detail_id = fields.Many2one(
         "spp.cr.detail.add_member",
+        ondelete="cascade",
+    )
+    member_new_id = fields.Many2one(
+        "spp.cr.detail.create_group.member_new",
         ondelete="cascade",
     )
     phone_no = fields.Char(string="Phone Number", required=True)
@@ -207,11 +212,11 @@ class SPPCRDetailCreateGroupPhone(models.Model):
         help="The first primary phone is also written to the partner's header phone field.",
     )
 
-    @api.constrains("detail_id", "add_member_detail_id")
+    @api.constrains("detail_id", "add_member_detail_id", "member_new_id")
     def _check_one_parent(self):
         for rec in self:
-            if bool(rec.detail_id) == bool(rec.add_member_detail_id):
-                raise ValidationError(_("Exactly one parent detail must be set on a phone-number row."))
+            if sum(1 for p in (rec.detail_id, rec.add_member_detail_id, rec.member_new_id) if p) != 1:
+                raise ValidationError(_("Exactly one parent must be set on a phone-number row."))
 
 
 class SPPCRDetailCreateGroupBank(models.Model):
@@ -357,7 +362,11 @@ class SPPCRDetailCreateGroupMemberNew(models.Model):
     area_id = fields.Many2one("spp.area", string="Area")
     address = fields.Text(string="Address")
     email = fields.Char(string="Email")
-    phone = fields.Char(string="Phone")
+    phone_line_ids = fields.One2many(
+        "spp.cr.detail.create_group.phone",
+        "member_new_id",
+        string="Phone Numbers",
+    )
     membership_type_id = fields.Many2one(
         "spp.vocabulary.code",
         string="Role",
@@ -430,7 +439,10 @@ class SPPCRDetailCreateGroupMemberNew(models.Model):
                 "default_area_id": self.area_id.id if self.area_id else False,
                 "default_address": self.address,
                 "default_email": self.email,
-                "default_phone": self.phone,
+                "default_phone_line_ids": [
+                    (0, 0, {"phone_no": p.phone_no, "country_id": p.country_id.id, "is_primary": p.is_primary})
+                    for p in self.phone_line_ids
+                ],
                 "default_membership_type_id": self.membership_type_id.id if self.membership_type_id else False,
             },
         }

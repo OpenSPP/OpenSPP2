@@ -69,7 +69,11 @@ class SPPCRCreateGroupMemberWizard(models.TransientModel):
     area_id = fields.Many2one("spp.area", string="Area")
     address = fields.Text(string="Address")
     email = fields.Char(string="Email")
-    phone = fields.Char()
+    phone_line_ids = fields.One2many(
+        "spp.cr.detail.create_group.member.wizard.phone",
+        "wizard_id",
+        string="Phone Numbers",
+    )
 
     # ──────────────────────────────────────────────────────────────────
     # Both modes
@@ -137,6 +141,12 @@ class SPPCRCreateGroupMemberWizard(models.TransientModel):
             return
 
         # mode == 'new'
+        # Copy the wizard's transient phone lines onto the member_new row.
+        phone_cmds = [
+            (0, 0, {"phone_no": pl.phone_no, "country_id": pl.country_id.id, "is_primary": pl.is_primary})
+            for pl in self.phone_line_ids
+            if pl.phone_no
+        ]
         vals = {
             "given_name": self.given_name,
             "family_name": self.family_name,
@@ -151,13 +161,15 @@ class SPPCRCreateGroupMemberWizard(models.TransientModel):
             "area_id": self.area_id.id if self.area_id else False,
             "address": self.address,
             "email": self.email,
-            "phone": self.phone,
             "membership_type_id": self.membership_type_id.id if self.membership_type_id else False,
         }
         if self.editing_member_new_id:
+            # Replace the existing phone rows with the wizard's current set.
+            vals["phone_line_ids"] = [(5, 0, 0)] + phone_cmds
             self.editing_member_new_id.write(vals)
         else:
             vals["detail_id"] = self.detail_id.id
+            vals["phone_line_ids"] = phone_cmds
             self.env["spp.cr.detail.create_group.member_new"].create(vals)
 
     # ──────────────────────────────────────────────────────────────────
@@ -186,3 +198,25 @@ class SPPCRCreateGroupMemberWizard(models.TransientModel):
         self.ensure_one()
         self._persist()
         return {"type": "ir.actions.act_window_close"}
+
+
+class SPPCRCreateGroupMemberWizardPhone(models.TransientModel):
+    """Transient phone row for the Add Member wizard's editable list.
+
+    Persisted onto ``member_new.phone_line_ids`` when the wizard saves; on apply
+    the new individual's phone numbers are concatenated into the partner's
+    single header phone field.
+    """
+
+    _name = "spp.cr.detail.create_group.member.wizard.phone"
+    _description = "Create Group — Add Member Wizard Phone"
+    _order = "is_primary desc, id"
+
+    wizard_id = fields.Many2one(
+        "spp.cr.detail.create_group.member.wizard",
+        required=True,
+        ondelete="cascade",
+    )
+    phone_no = fields.Char(string="Phone Number", required=True)
+    country_id = fields.Many2one("res.country", string="Country")
+    is_primary = fields.Boolean(string="Primary")

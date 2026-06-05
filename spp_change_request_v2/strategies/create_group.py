@@ -207,6 +207,10 @@ class SPPCRApplyCreateGroup(models.AbstractModel):
         only (full_name is "FAMILY, GIVEN MIDDLE").
         """
         full_name = line.full_name or " ".join(filter(None, [line.given_name, line.family_name]))
+        # res.partner has a single header phone; fold the captured numbers
+        # (primary first) into it (OP#876 QA round 1).
+        phones = line.phone_line_ids.sorted(lambda p: (not p.is_primary, p.id))
+        phone = ", ".join(p.phone_no for p in phones if p.phone_no)
         vals = {
             "name": full_name,
             "given_name": line.given_name,
@@ -217,7 +221,7 @@ class SPPCRApplyCreateGroup(models.AbstractModel):
             "income": line.income,
             "address": line.address,
             "email": line.email,
-            "phone": line.phone,
+            "phone": phone,
             "is_registrant": True,
             "is_group": False,
         }
