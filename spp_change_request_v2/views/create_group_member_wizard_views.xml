@@ -75,7 +75,6 @@
                                     name="country_id"
                                     options="{'no_create': True}"
                                 />
-                                <field name="is_primary" widget="boolean_toggle" />
                             </list>
                         </field>
                         <separator string="Role" />
