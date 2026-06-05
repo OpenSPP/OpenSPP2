@@ -165,7 +165,11 @@ class SPPCRCreateGroupMemberWizard(models.TransientModel):
         }
         if self.editing_member_new_id:
             # Replace the existing phone rows with the wizard's current set.
-            vals["phone_line_ids"] = [(5, 0, 0)] + phone_cmds
+            # Delete (2) the old rows rather than clear (5): clearing a
+            # one2many only nulls the inverse FK, which would orphan the rows
+            # and trip the phone row's exactly-one-parent constraint.
+            delete_cmds = [(2, p.id, 0) for p in self.editing_member_new_id.phone_line_ids]
+            vals["phone_line_ids"] = delete_cmds + phone_cmds
             self.editing_member_new_id.write(vals)
         else:
             vals["detail_id"] = self.detail_id.id
