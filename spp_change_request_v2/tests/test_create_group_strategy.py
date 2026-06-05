@@ -500,7 +500,7 @@ class TestCreateGroupStrategy(TransactionCase):
                         "address": "10 Rizal St, Cebu",
                         "email": "maria@example.com",
                         "phone_line_ids": [
-                            (0, 0, {"phone_no": "+63911", "is_primary": True}),
+                            (0, 0, {"phone_no": "+63911"}),
                             (0, 0, {"phone_no": "+63922"}),
                         ],
                         "occupation_id": occupation.id if occupation else False,
@@ -528,7 +528,7 @@ class TestCreateGroupStrategy(TransactionCase):
         self.assertEqual(individual.address, "10 Rizal St, Cebu")
         self.assertEqual(individual.email, "maria@example.com")
         self.assertEqual(individual.income, 12345.0)
-        # Multiple captured phone numbers are folded (primary first) into the
+        # Multiple captured phone numbers are folded (in entry order) into the
         # partner's single header phone field.
         self.assertEqual(individual.phone, "+63911, +63922")
         if occupation:
