@@ -175,16 +175,16 @@
                             >Head</em> before applying.
                             </div>
 
-                            <!-- Head-of-household replacement (OP#871 QA round 1):
-                                 only surfaced when the group already has a head. -->
+                            <!-- Head-of-household replacement notice (OP#871 QA round 1):
+                                 shown only when Role is Head and the group already has one. -->
                             <field name="group_has_head" invisible="1" />
                             <field name="selected_role_is_head" invisible="1" />
                             <div
-                                class="alert alert-info"
+                                class="alert alert-warning"
                                 role="alert"
                                 invisible="not group_has_head or not selected_role_is_head"
                             >
-                                <i class="fa fa-info-circle me-2" />
+                                <i class="fa fa-exclamation-triangle me-2" />
                                 This group already has a Head of Household
                                 (<field
                                 name="current_head_name"
@@ -192,16 +192,9 @@
                                 nolabel="1"
                                 class="d-inline"
                             />).
-                                Enable <strong
-                            >Replace current Head of Household</strong> to make
-                                this new member the head instead — the current head loses the Head
-                                role when this change request is applied.
+                                Applying this change request will make this new member the Head and
+                                remove the Head role from the current head.
                             </div>
-                            <group
-                                invisible="not group_has_head or not selected_role_is_head"
-                            >
-                                <field name="replace_existing_head" />
-                            </group>
 
                             <separator string="Existing members (read-only)" />
                             <field

@@ -161,12 +161,11 @@ class TestAddMemberStrategy(TransactionCase):
         )
         self.assertIn(self.head_kind, old_membership.membership_type_ids)
 
-        # Add new member as head, confirming the replacement.
+        # Add new member as head — replacement happens automatically on apply.
         cr = self._make_cr(
             given_name="New",
             family_name="Head",
             membership_type_id=self.head_kind.id,
-            replace_existing_head=True,
         )
         cr.approval_state = "approved"
         cr.action_apply()
@@ -179,31 +178,8 @@ class TestAddMemberStrategy(TransactionCase):
         # Old head's membership had `head` removed.
         self.assertNotIn(self.head_kind, old_membership.membership_type_ids)
 
-    def test_head_replacement_requires_confirmation(self):
-        """Making the new member head while the group already has one is blocked
-        until 'Replace current Head of Household' is enabled (OP#871 QA round 1)."""
-        if not self.head_kind:
-            self.skipTest("head membership-type code not present in the vocabulary")
-        old_head = self.partner_model.create({"name": "Seated Head", "is_registrant": True, "is_group": False})
-        self.membership_model.create(
-            {
-                "group": self.group.id,
-                "individual": old_head.id,
-                "start_date": "2020-01-01",
-                "membership_type_ids": [Command.link(self.head_kind.id)],
-            }
-        )
-        # Head role picked but replacement NOT confirmed → blocked on apply.
-        cr = self._make_cr(given_name="No", family_name="Confirm", membership_type_id=self.head_kind.id)
-        self.assertTrue(cr.get_detail().group_has_head)
-        cr.approval_state = "approved"
-        with self.assertRaises(UserError) as cm:
-            cr.action_apply()
-        self.assertIn("already has a head of household", str(cm.exception).lower())
-
-    def test_replace_toggle_ignored_when_role_not_head(self):
-        """A stale replace toggle must not make a non-head member the head, nor
-        demote the existing head, when the picked role isn't Head (OP#871)."""
+    def test_non_head_role_leaves_existing_head(self):
+        """Adding a non-head member must not touch the group's existing head."""
         if not self.head_kind or not self.member_kind:
             self.skipTest("head/member membership-type codes not present")
         old_head = self.partner_model.create({"name": "Keep Head", "is_registrant": True, "is_group": False})
@@ -215,16 +191,13 @@ class TestAddMemberStrategy(TransactionCase):
                 "membership_type_ids": [Command.link(self.head_kind.id)],
             }
         )
-        cr = self._make_cr(
-            given_name="Plain",
-            family_name="Member",
-            membership_type_id=self.member_kind.id,
-            replace_existing_head=True,  # stale toggle, role is not head
-        )
-        self.assertFalse(cr.get_detail().selected_role_is_head)
+        cr = self._make_cr(given_name="Plain", family_name="Member", membership_type_id=self.member_kind.id)
+        detail = cr.get_detail()
+        self.assertTrue(detail.group_has_head)
+        self.assertFalse(detail.selected_role_is_head)  # drives the info banner visibility
         cr.approval_state = "approved"
         cr.action_apply()
-        new_member = cr.get_detail().created_individual_id
+        new_member = detail.created_individual_id
         new_membership = self.membership_model.search(
             [("group", "=", self.group.id), ("individual", "=", new_member.id)]
         )

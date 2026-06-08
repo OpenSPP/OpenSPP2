@@ -138,8 +138,9 @@ class SPPCRDetailAddMember(models.Model):
 
     # ──────────────────────────────────────────────────────────────────────
     # Head-of-household replacement (OP#871 QA round 1)
-    # When the target group already has a head, making this new member the head
-    # is an explicit, confirmed action rather than a silent auto-demotion.
+    # When the target group already has a head and this new member is given the
+    # Head role, an info banner warns that applying will replace the current
+    # head. The replacement then happens automatically on apply.
     # ──────────────────────────────────────────────────────────────────────
     group_has_head = fields.Boolean(
         compute="_compute_current_head",
@@ -148,11 +149,6 @@ class SPPCRDetailAddMember(models.Model):
     current_head_name = fields.Char(
         compute="_compute_current_head",
         string="Current Head of Household",
-    )
-    replace_existing_head = fields.Boolean(
-        string="Replace current Head of Household",
-        help="When set, applying this change request removes the Head role from "
-        "the group's current head and assigns it to this new member.",
     )
     selected_role_is_head = fields.Boolean(
         compute="_compute_selected_role_is_head",

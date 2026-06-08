@@ -92,17 +92,6 @@ class SPPCRApplyAddMember(models.AbstractModel):
                 )
             )
 
-        # Replacing an existing head must be explicitly confirmed.
-        if self._is_head_role(detail.membership_type_id) and detail.group_has_head and not detail.replace_existing_head:
-            head_suffix = f" ({detail.current_head_name})" if detail.current_head_name else ""
-            raise UserError(
-                _(
-                    "This group already has a Head of Household%s. Enable "
-                    "'Replace current Head of Household' to make this new member the head."
-                )
-                % head_suffix
-            )
-
     # ──────────────────────────────────────────────────────────────────────
     # Individual creation
     # ──────────────────────────────────────────────────────────────────────
@@ -208,8 +197,9 @@ class SPPCRApplyAddMember(models.AbstractModel):
         picking the Head role. "Demote" unlinks the ``head`` code from the
         existing membership's ``membership_type_ids``; other roles are kept.
         """
-        # Only when the new member is being made head AND the user confirmed.
-        if not (self._is_head_role(detail.membership_type_id) and detail.replace_existing_head):
+        # Only when the new member is being made head. Demotion is automatic on
+        # apply; the form warns the user beforehand via the info banner.
+        if not self._is_head_role(detail.membership_type_id):
             return
 
         head_code = self._head_code()
