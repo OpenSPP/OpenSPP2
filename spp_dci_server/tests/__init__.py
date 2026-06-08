@@ -12,6 +12,7 @@ from . import test_jwks_router
 from . import test_rate_limit_middleware
 from . import test_receipt
 from . import test_receipt_router
+from . import test_res_config_settings
 from . import test_search_router
 from . import test_sender_registry
 from . import test_server_key
