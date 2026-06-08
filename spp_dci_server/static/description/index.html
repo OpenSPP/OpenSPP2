@@ -450,6 +450,22 @@ is active</li>
 <p>Server signing keys are automatically generated and activated on
 installation. To manage keys manually, use the technical interface for
 <tt class="docutils literal">spp.dci.server.key</tt>.</p>
+<p><strong>Endpoint user (required for Social Registry search):</strong> The DCI FastAPI
+endpoint ships configured to run as the <strong>public user</strong>. Serving Social
+Registry searches additionally requires the endpoint’s user to hold the
+<tt class="docutils literal">spp_registry.group_registry_viewer</tt> group (the search is
+access-gated), so with the default public user SR searches are rejected
+with an access error. Assign a dedicated service user before going live:</p>
+<ol class="arabic simple" start="5">
+<li>Create a user (e.g. <em>DCI Endpoint Service</em>) and grant it <strong>Registry:
+Viewer</strong> (<tt class="docutils literal">spp_registry.group_registry_viewer</tt>).</li>
+<li>Open the DCI <tt class="docutils literal">fastapi.endpoint</tt> record (the <tt class="docutils literal">dci_api</tt> app, root
+path <tt class="docutils literal">/dci_api/v1</tt>) and set its <strong>User</strong> to that service account.</li>
+</ol>
+<p>Authentication of the <em>caller</em> is independent of this: requests are
+authenticated with a static bearer token (<tt class="docutils literal">dci.api_tokens</tt>) or an
+OAuth2 access token. The endpoint user only sets the Odoo permission
+context the search executes under.</p>
 </div>
 <div class="section" id="ui-location">
 <h1>UI Location</h1>
