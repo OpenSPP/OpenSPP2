@@ -100,13 +100,20 @@
                     name="invisible"
                 >state != 'assigned' or drims_type_id</attribute>
             </xpath>
+            <!-- Target the core buttons by their action XML ID rather than by
+                 data-hotkey / invisible-text matching, which breaks if core
+                 changes a hotkey or modifier. The done-state delivery "Print"
+                 and the "Return" buttons are both hidden for DRIMS pickings. -->
             <xpath
-                expr="//header/button[@data-hotkey='o' and contains(@invisible, 'done')]"
+                expr="//header/button[@name='%(stock.action_report_delivery)d']"
                 position="attributes"
             >
                 <attribute name="invisible">state != 'done' or drims_type_id</attribute>
             </xpath>
-            <xpath expr="//header/button[@data-hotkey='k']" position="attributes">
+            <xpath
+                expr="//header/button[@name='%(stock.act_stock_return_picking)d']"
+                position="attributes"
+            >
                 <attribute name="invisible">state != 'done' or drims_type_id</attribute>
             </xpath>
 

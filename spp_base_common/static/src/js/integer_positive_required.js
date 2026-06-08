@@ -43,11 +43,13 @@ export const integerPositiveRequiredField = {
         // 0, false (unset), or non-numeric — only valid when field is not
         // required. Evaluate the required modifier against the record's
         // eval context (it may be a dynamic expression like
-        // `drims_type == 'request_dispatch'`).
-        const required = evaluateBooleanExpr(
-            fieldInfo.required,
-            record.evalContextWithVirtualIds
-        );
+        // `drims_type == 'request_dispatch'`). `fieldInfo.required` is
+        // undefined for fields with no required modifier; guard against it
+        // so `evaluateBooleanExpr` is never handed `undefined` (which throws
+        // and crashes the form view).
+        const required = fieldInfo.required
+            ? evaluateBooleanExpr(fieldInfo.required, record.evalContextWithVirtualIds)
+            : false;
         return !required;
     },
 };

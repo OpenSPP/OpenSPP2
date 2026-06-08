@@ -292,10 +292,11 @@ class InspectionWizardLine(models.TransientModel):
     def _onchange_quantity_update_parent(self):
         """Keep the parent row qty in sync with the running sum of its children.
 
-        Also clamps the current child's quantity if the new value would push
-        the running total over the parent's ``quantity_expected``: the qty is
-        snapped to ``expected - sum(other_children)`` so the split totals
-        never exceed the donation line's received quantity.
+        No clamping while drafting: the operator can freely adjust split
+        quantities (e.g. rebalance 500/500 to 400/600 without having to lower
+        one row first). An over- or under-split total is rejected at confirm
+        time by ``action_confirm_inspection`` (mirrored client-side by the
+        ``can_confirm`` guard), so eager clamping here only gets in the way.
         """
         if not self.parent_line_id:
             return
@@ -303,10 +304,6 @@ class InspectionWizardLine(models.TransientModel):
             lambda line: line.parent_line_id == self.parent_line_id and line != self
         )
         others_sum = sum(siblings.mapped("quantity"))
-        expected = self.parent_line_id.quantity_expected
-        max_allowed = expected - others_sum
-        if self.quantity and self.quantity > max_allowed:
-            self.quantity = max(0.0, max_allowed)
         total = others_sum + (self.quantity or 0.0)
         self.parent_line_id.quantity = total
 
@@ -394,16 +391,23 @@ class InspectionWizardLine(models.TransientModel):
             raise UserError(_("Only split lines can be removed this way."))
         wizard_id = self.wizard_id.id
         root_line = self.parent_line_id
+
+        # Identify the children that will remain BEFORE unlinking. Reading the
+        # One2many after unlink can hit the still-cached unlinked record and
+        # raise MissingError when the lambda touches its fields.
+        remaining_children = root_line.wizard_id.line_ids.filtered(
+            lambda line: line.parent_line_id == root_line and line != self
+        )
+
         self.unlink()
 
-        remaining_children = root_line.wizard_id.line_ids.filtered(lambda line: line.parent_line_id == root_line)
         if not remaining_children:
             # Reset parent back to the full expected quantity and clear the
             # split flag so the row reverts to a normal (editable) row.
             root_line.quantity = root_line.quantity_expected
             root_line.has_splits = False
         else:
-            self._refresh_parent_quantity(root_line)
+            root_line.quantity = sum(remaining_children.mapped("quantity"))
 
         return {
             "type": "ir.actions.act_window",
@@ -412,9 +416,3 @@ class InspectionWizardLine(models.TransientModel):
             "view_mode": "form",
             "target": "new",
         }
-
-    @staticmethod
-    def _refresh_parent_quantity(parent):
-        """Recompute the parent qty as the sum of its child rows."""
-        children = parent.wizard_id.line_ids.filtered(lambda line: line.parent_line_id == parent)
-        parent.quantity = sum(children.mapped("quantity"))
