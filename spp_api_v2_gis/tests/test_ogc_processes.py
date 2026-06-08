@@ -50,7 +50,7 @@ class TestProcessRegistry(TransactionCase):
             }
         )
 
-        cls.indicator = cls.env["spp.statistic"].create(
+        cls.indicator = cls.env["spp.indicator"].create(
             {
                 "name": "proc_test_stat",
                 "label": "Process Test Stat",
@@ -545,7 +545,7 @@ class TestOGCProcessesHTTP(ApiV2HttpTestCase):
             }
         )
 
-        cls.test_indicator = cls.env["spp.statistic"].create(
+        cls.test_indicator = cls.env["spp.indicator"].create(
             {
                 "name": "http_proc_test_stat",
                 "label": "HTTP Process Test Stat",

@@ -77,7 +77,7 @@ class ProcessRegistry:
                 - categories_metadata: list of dicts with category info
         """
         # nosemgrep: odoo-sudo-without-context
-        Statistic = self.env["spp.statistic"].sudo()
+        Statistic = self.env["spp.indicator"].sudo()
         stats_by_category = Statistic.get_published_by_category("gis")
 
         variable_names = []
