@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- Disability Registry Configuration Parameters -->
+    <record id="config_starter_type" model="ir.config_parameter">
+        <field name="key">spp_starter.registry_type</field>
+        <field name="value">disability_registry</field>
+    </record>
+</odoo>
