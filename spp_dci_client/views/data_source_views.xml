@@ -121,6 +121,12 @@
                                 help="Authentication method to use with this data source"
                             />
                             <field
+                                name="bearer_token"
+                                widget="password"
+                                invisible="auth_type != 'bearer'"
+                                help="Static Bearer token sent as the Authorization header"
+                            />
+                            <field
                                 name="oauth2_token_url"
                                 widget="url"
                                 invisible="auth_type != 'oauth2'"
