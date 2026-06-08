@@ -161,11 +161,12 @@ class TestAddMemberStrategy(TransactionCase):
         )
         self.assertIn(self.head_kind, old_membership.membership_type_ids)
 
-        # Add new member as head.
+        # Add new member as head, confirming the replacement.
         cr = self._make_cr(
             given_name="New",
             family_name="Head",
             membership_type_id=self.head_kind.id,
+            replace_existing_head=True,
         )
         cr.approval_state = "approved"
         cr.action_apply()
@@ -177,6 +178,28 @@ class TestAddMemberStrategy(TransactionCase):
         self.assertIn(self.head_kind, new_membership.membership_type_ids)
         # Old head's membership had `head` removed.
         self.assertNotIn(self.head_kind, old_membership.membership_type_ids)
+
+    def test_head_replacement_requires_confirmation(self):
+        """Making the new member head while the group already has one is blocked
+        until 'Replace current Head of Household' is enabled (OP#871 QA round 1)."""
+        if not self.head_kind:
+            self.skipTest("head membership-type code not present in the vocabulary")
+        old_head = self.partner_model.create({"name": "Seated Head", "is_registrant": True, "is_group": False})
+        self.membership_model.create(
+            {
+                "group": self.group.id,
+                "individual": old_head.id,
+                "start_date": "2020-01-01",
+                "membership_type_ids": [Command.link(self.head_kind.id)],
+            }
+        )
+        # Head role picked but replacement NOT confirmed → blocked on apply.
+        cr = self._make_cr(given_name="No", family_name="Confirm", membership_type_id=self.head_kind.id)
+        self.assertTrue(cr.get_detail().group_has_head)
+        cr.approval_state = "approved"
+        with self.assertRaises(UserError) as cm:
+            cr.action_apply()
+        self.assertIn("already has a head of household", str(cm.exception).lower())
 
     # ──────────────────────────────────────────────────────────────────
     # Sub-record attachers

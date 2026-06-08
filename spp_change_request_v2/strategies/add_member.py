@@ -92,6 +92,17 @@ class SPPCRApplyAddMember(models.AbstractModel):
                 )
             )
 
+        # Replacing an existing head must be explicitly confirmed.
+        if self._is_head_role(detail.membership_type_id) and detail.group_has_head and not detail.replace_existing_head:
+            head_suffix = f" ({detail.current_head_name})" if detail.current_head_name else ""
+            raise UserError(
+                _(
+                    "This group already has a Head of Household%s. Enable "
+                    "'Replace current Head of Household' to make this new member the head."
+                )
+                % head_suffix
+            )
+
     # ──────────────────────────────────────────────────────────────────────
     # Individual creation
     # ──────────────────────────────────────────────────────────────────────
@@ -180,20 +191,29 @@ class SPPCRApplyAddMember(models.AbstractModel):
     def _is_head_role(self, code):
         return bool(code and code.code == HEAD_ROLE_CODE)
 
-    def _demote_existing_head_if_needed(self, detail, group):
-        """When the new member is being added as head, demote any existing
-        head on the group first so the at-most-one-head invariant holds.
+    def _head_code(self):
+        return self.env["spp.vocabulary.code"].search(
+            [
+                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:group-membership-type"),
+                ("code", "=", HEAD_ROLE_CODE),
+            ],
+            limit=1,
+        )
 
-        "Demote" means unlinking the ``head`` code from the existing
-        membership's ``membership_type_ids``. Other roles on the membership
-        are preserved; if the membership had only the head role, it ends up
-        with no roles (which is acceptable — the spec doesn't define a
-        downgrade target).
+    def _demote_existing_head_if_needed(self, detail, group):
+        """Demote the group's current head when the user confirmed replacement.
+
+        Only runs when ``replace_existing_head`` is set on the CR — making the
+        new member the head is an explicit action, not a silent side effect of
+        picking the Head role. "Demote" unlinks the ``head`` code from the
+        existing membership's ``membership_type_ids``; other roles are kept.
         """
-        if not self._is_head_role(detail.membership_type_id):
+        if not detail.replace_existing_head:
             return
 
-        head_code = detail.membership_type_id  # already resolved to "head"
+        head_code = self._head_code()
+        if not head_code:
+            return
         Membership = self.env["spp.group.membership"]
         existing_head_memberships = Membership.search(
             [
@@ -218,6 +238,9 @@ class SPPCRApplyAddMember(models.AbstractModel):
             "individual": individual.id,
             "start_date": fields.Datetime.now(),
         }
-        if detail.membership_type_id:
-            vals["membership_type_ids"] = [Command.link(detail.membership_type_id.id)]
+        # When the user confirmed the head replacement, the new member becomes
+        # the head regardless of the picked role; otherwise use the picked role.
+        role = self._head_code() if detail.replace_existing_head else detail.membership_type_id
+        if role:
+            vals["membership_type_ids"] = [Command.link(role.id)]
         self.env["spp.group.membership"].create(vals)
