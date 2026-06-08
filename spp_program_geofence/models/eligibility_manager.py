@@ -184,8 +184,8 @@ class GeofenceMembershipManager(models.Model):
         self.ensure_one()
         new_beneficiaries = self._find_eligible_registrants()
 
-        # Exclude already-enrolled beneficiaries
-        existing_partner_ids = set(self.program_id.program_membership_ids.partner_id.ids)
+        # Exclude already-enrolled beneficiaries (match base manager's exclusion source)
+        existing_partner_ids = set(self.program_id.get_beneficiaries().mapped("partner_id").ids)
         new_beneficiaries = new_beneficiaries.filtered(lambda r: r.id not in existing_partner_ids)
 
         ben_count = len(new_beneficiaries)
@@ -204,12 +204,12 @@ class GeofenceMembershipManager(models.Model):
         jobs = []
         for i in range(0, len(new_beneficiaries), self.IMPORT_CHUNK_SIZE):
             jobs.append(
-                self.delayable(channel="root_program.eligibility_manager")._import_registrants(
+                self.delayable(channel="eligibility_manager")._import_registrants(
                     new_beneficiaries[i : i + self.IMPORT_CHUNK_SIZE], state
                 )
             )
         main_job = group(*jobs)
-        main_job.on_done(self.delayable(channel="root_program.eligibility_manager").mark_import_as_done())
+        main_job.on_done(self.delayable(channel="eligibility_manager").mark_import_as_done())
         main_job.delay()
 
     def mark_import_as_done(self):
