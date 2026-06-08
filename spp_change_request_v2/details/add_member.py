@@ -154,6 +154,10 @@ class SPPCRDetailAddMember(models.Model):
         help="When set, applying this change request removes the Head role from "
         "the group's current head and assigns it to this new member.",
     )
+    selected_role_is_head = fields.Boolean(
+        compute="_compute_selected_role_is_head",
+        string="Selected Role Is Head",
+    )
 
     # ──────────────────────────────────────────────────────────────────────
     # Read-only context: existing members of the group (for the spec's
@@ -246,3 +250,8 @@ class SPPCRDetailAddMember(models.Model):
                 )
             rec.group_has_head = bool(head)
             rec.current_head_name = head.individual.name if head else False
+
+    @api.depends("membership_type_id")
+    def _compute_selected_role_is_head(self):
+        for rec in self:
+            rec.selected_role_is_head = bool(rec.membership_type_id and rec.membership_type_id.code == "head")

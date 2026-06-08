@@ -201,6 +201,38 @@ class TestAddMemberStrategy(TransactionCase):
             cr.action_apply()
         self.assertIn("already has a head of household", str(cm.exception).lower())
 
+    def test_replace_toggle_ignored_when_role_not_head(self):
+        """A stale replace toggle must not make a non-head member the head, nor
+        demote the existing head, when the picked role isn't Head (OP#871)."""
+        if not self.head_kind or not self.member_kind:
+            self.skipTest("head/member membership-type codes not present")
+        old_head = self.partner_model.create({"name": "Keep Head", "is_registrant": True, "is_group": False})
+        old_membership = self.membership_model.create(
+            {
+                "group": self.group.id,
+                "individual": old_head.id,
+                "start_date": "2020-01-01",
+                "membership_type_ids": [Command.link(self.head_kind.id)],
+            }
+        )
+        cr = self._make_cr(
+            given_name="Plain",
+            family_name="Member",
+            membership_type_id=self.member_kind.id,
+            replace_existing_head=True,  # stale toggle, role is not head
+        )
+        self.assertFalse(cr.get_detail().selected_role_is_head)
+        cr.approval_state = "approved"
+        cr.action_apply()
+        new_member = cr.get_detail().created_individual_id
+        new_membership = self.membership_model.search(
+            [("group", "=", self.group.id), ("individual", "=", new_member.id)]
+        )
+        self.assertIn(self.member_kind, new_membership.membership_type_ids)
+        self.assertNotIn(self.head_kind, new_membership.membership_type_ids)
+        # Existing head is untouched.
+        self.assertIn(self.head_kind, old_membership.membership_type_ids)
+
     # ──────────────────────────────────────────────────────────────────
     # Sub-record attachers
     # ──────────────────────────────────────────────────────────────────

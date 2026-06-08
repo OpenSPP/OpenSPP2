@@ -178,10 +178,11 @@
                             <!-- Head-of-household replacement (OP#871 QA round 1):
                                  only surfaced when the group already has a head. -->
                             <field name="group_has_head" invisible="1" />
+                            <field name="selected_role_is_head" invisible="1" />
                             <div
                                 class="alert alert-info"
                                 role="alert"
-                                invisible="not group_has_head"
+                                invisible="not group_has_head or not selected_role_is_head"
                             >
                                 <i class="fa fa-info-circle me-2" />
                                 This group already has a Head of Household
@@ -196,7 +197,9 @@
                                 this new member the head instead — the current head loses the Head
                                 role when this change request is applied.
                             </div>
-                            <group invisible="not group_has_head">
+                            <group
+                                invisible="not group_has_head or not selected_role_is_head"
+                            >
                                 <field name="replace_existing_head" />
                             </group>
 

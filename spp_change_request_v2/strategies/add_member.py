@@ -208,7 +208,8 @@ class SPPCRApplyAddMember(models.AbstractModel):
         picking the Head role. "Demote" unlinks the ``head`` code from the
         existing membership's ``membership_type_ids``; other roles are kept.
         """
-        if not detail.replace_existing_head:
+        # Only when the new member is being made head AND the user confirmed.
+        if not (self._is_head_role(detail.membership_type_id) and detail.replace_existing_head):
             return
 
         head_code = self._head_code()
@@ -238,9 +239,8 @@ class SPPCRApplyAddMember(models.AbstractModel):
             "individual": individual.id,
             "start_date": fields.Datetime.now(),
         }
-        # When the user confirmed the head replacement, the new member becomes
-        # the head regardless of the picked role; otherwise use the picked role.
-        role = self._head_code() if detail.replace_existing_head else detail.membership_type_id
-        if role:
-            vals["membership_type_ids"] = [Command.link(role.id)]
+        # The picked Role determines the new member's role; the replace toggle
+        # is only a confirmation that gates demoting the current head.
+        if detail.membership_type_id:
+            vals["membership_type_ids"] = [Command.link(detail.membership_type_id.id)]
         self.env["spp.group.membership"].create(vals)
