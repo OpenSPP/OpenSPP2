@@ -346,34 +346,42 @@ class InspectionWizardLine(models.TransientModel):
         # the running sum of children), mark the parent as split, and clear
         # any Condition / Action the operator may have set before deciding
         # to split — the parent row carries no decision; the children do.
+        # The first split divides the row into TWO empty parts (a split has
+        # to produce at least two pieces); each later "+ Add split" appends
+        # one more part.
         if not child_lines:
             root_line.quantity = 0
             root_line.condition_id = False
             root_line.disposition_id = False
             root_line.has_splits = True
+            splits_to_create = 2
+        else:
+            splits_to_create = 1
 
-        # Create the new split with qty=0 so the operator has to enter the
+        # Create each new split with qty=0 so the operator has to enter the
         # split amount explicitly. The "+ Add split" button is then hidden
         # in the UI while any child still has qty=0, forcing the operator
-        # to fill the new row before opening another. This avoids the
+        # to fill the new rows before opening another. This avoids the
         # "I added a split but forgot to set its quantity" footgun.
         self.env["spp.drims.inspection.wizard.line"].create(
-            {
-                "wizard_id": self.wizard_id.id,
-                "donation_line_id": root_line.donation_line_id.id,
-                "product_id": root_line.product_id.id,
-                "uom_id": root_line.uom_id.id,
-                "quantity_expected": root_line.quantity_expected,
-                "quantity": 0,
-                "parent_line_id": root_line.id,
-            }
+            [
+                {
+                    "wizard_id": self.wizard_id.id,
+                    "donation_line_id": root_line.donation_line_id.id,
+                    "product_id": root_line.product_id.id,
+                    "uom_id": root_line.uom_id.id,
+                    "quantity_expected": root_line.quantity_expected,
+                    "quantity": 0,
+                    "parent_line_id": root_line.id,
+                }
+                for _ in range(splits_to_create)
+            ]
         )
 
-        # Running total is unchanged because the new child contributes 0;
+        # Running total is unchanged because the new children contribute 0;
         # the parent still mirrors the sum of existing children.
         root_line.quantity = total_in_splits
-        # The new child has qty 0, so by definition the parent is not yet
-        # fully split.
+        # The new children have qty 0, so the parent is not yet fully split.
         root_line.is_fully_split = False
 
         return {

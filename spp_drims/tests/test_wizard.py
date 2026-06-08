@@ -396,25 +396,15 @@ class TestInspectionWizard(DrimsTestCommon):
         parent = wizard.line_ids[0]
 
         # Create a split via the real button so parent/child wiring is correct.
+        # The first split divides the row into two empty children.
         parent.action_add_split()
-        children = wizard.line_ids.filtered("is_split")
-        self.assertEqual(len(children), 1)
-        child_a = children[0]
+        children = wizard.line_ids.filtered("is_split").sorted(key=lambda line: line.id)
+        self.assertEqual(len(children), 2)
+        child_a, child_b = children[0], children[1]
 
-        # Deliberately make the totals not match expected.
+        # Deliberately make the totals not match expected (800 + 150 = 950 ≠ 1000).
         child_a.quantity = 800
-        InspectionLine = self.env["spp.drims.inspection.wizard.line"]
-        child_b = InspectionLine.create(
-            {
-                "wizard_id": wizard.id,
-                "donation_line_id": parent.donation_line_id.id,
-                "product_id": parent.product_id.id,
-                "uom_id": parent.uom_id.id,
-                "quantity_expected": parent.quantity_expected,
-                "quantity": 150,  # 800 + 150 = 950 ≠ 1000
-                "parent_line_id": parent.id,
-            }
-        )
+        child_b.quantity = 150
         self._set_inspection(child_a, self.condition_new, self.disposition_accept)
         self._set_inspection(child_b, self.condition_damaged, self.disposition_return)
 
@@ -462,27 +452,28 @@ class TestInspectionWizard(DrimsTestCommon):
         with self.assertRaises(UserError):
             donation.action_open_inspection_wizard()
 
-    def test_add_split_creates_child_line(self):
-        """OP#963: action_add_split creates a child with parent_line_id set
-        and starts the child at qty=0 (the operator must fill it explicitly)."""
+    def test_add_split_creates_two_child_lines(self):
+        """OP#963: the first action_add_split divides the row into two child
+        splits (parent + 2 children), each with parent_line_id set and starting
+        at qty=0 (the operator must fill them explicitly)."""
         donation = self._create_received_donation(quantity=1000)
         wizard = self._open_inspection_wizard(donation)
         parent = wizard.line_ids[0]
 
         parent.action_add_split()
-        self.assertEqual(len(wizard.line_ids), 2)
+        self.assertEqual(len(wizard.line_ids), 3)
 
         children = wizard.line_ids.filtered("is_split")
-        self.assertEqual(len(children), 1)
-        child = children[0]
-        self.assertEqual(child.parent_line_id, parent)
-        # New split children are created with qty 0 — the operator fills
-        # the row themselves.
-        self.assertEqual(child.quantity, 0)
+        self.assertEqual(len(children), 2)
+        for child in children:
+            self.assertEqual(child.parent_line_id, parent)
+            # New split children are created with qty 0 — the operator fills
+            # the rows themselves.
+            self.assertEqual(child.quantity, 0)
         # Parent qty mirrors the child running total (also 0).
         self.assertEqual(parent.quantity, 0)
         self.assertTrue(parent.has_splits)
-        # Parent is not yet "fully split" until the child is filled.
+        # Parent is not yet "fully split" until the children are filled.
         self.assertFalse(parent.is_fully_split)
 
     def test_add_split_subsequent_splits_are_also_zero(self):
@@ -493,13 +484,13 @@ class TestInspectionWizard(DrimsTestCommon):
         wizard = self._open_inspection_wizard(donation)
         parent = wizard.line_ids[0]
 
-        parent.action_add_split()
+        parent.action_add_split()  # first split -> two children
         children = wizard.line_ids.filtered("is_split")
         children[0].quantity = 700
 
-        parent.action_add_split()
+        parent.action_add_split()  # subsequent split -> one more child
         children = wizard.line_ids.filtered("is_split")
-        self.assertEqual(len(children), 2)
+        self.assertEqual(len(children), 3)
         new_child = children.sorted(key=lambda line: line.id)[-1]
         # New child starts at 0; running parent total stays at 700.
         self.assertEqual(new_child.quantity, 0)
@@ -529,10 +520,16 @@ class TestInspectionWizard(DrimsTestCommon):
 
         parent.action_add_split()
         children = wizard.line_ids.filtered("is_split")
-        self.assertEqual(len(children), 1)
-        children[0].action_remove_split()
+        self.assertEqual(len(children), 2)
 
-        # Parent is the only line left, back to expected qty.
+        # Removing one child leaves the parent split with the other.
+        children[0].action_remove_split()
+        remaining = wizard.line_ids.filtered("is_split")
+        self.assertEqual(len(remaining), 1)
+        self.assertTrue(parent.has_splits)
+
+        # Removing the last child reverts the parent to a normal row.
+        remaining.action_remove_split()
         self.assertEqual(len(wizard.line_ids), 1)
         self.assertEqual(parent.quantity, 1000)
         self.assertFalse(parent.has_splits)
@@ -561,22 +558,11 @@ class TestInspectionWizard(DrimsTestCommon):
         parent = wizard.line_ids[0]
 
         parent.action_add_split()
-        children = wizard.line_ids.filtered("is_split")
-        child_a = children[0]
+        children = wizard.line_ids.filtered("is_split").sorted(key=lambda line: line.id)
+        self.assertEqual(len(children), 2)
+        child_a, child_b = children[0], children[1]
         child_a.quantity = 700
-
-        InspectionLine = self.env["spp.drims.inspection.wizard.line"]
-        child_b = InspectionLine.create(
-            {
-                "wizard_id": wizard.id,
-                "donation_line_id": parent.donation_line_id.id,
-                "product_id": parent.product_id.id,
-                "uom_id": parent.uom_id.id,
-                "quantity_expected": parent.quantity_expected,
-                "quantity": 300,
-                "parent_line_id": parent.id,
-            }
-        )
+        child_b.quantity = 300
 
         # Parent has no condition/action; children do — Confirm must succeed.
         self._set_inspection(child_a, self.condition_new, self.disposition_accept)
@@ -599,22 +585,11 @@ class TestInspectionWizard(DrimsTestCommon):
         parent = wizard.line_ids[0]
 
         parent.action_add_split()
-        children = wizard.line_ids.filtered("is_split")
-        child_a = children[0]
+        children = wizard.line_ids.filtered("is_split").sorted(key=lambda line: line.id)
+        self.assertEqual(len(children), 2)
+        child_a, child_b = children[0], children[1]
         child_a.quantity = 800
-
-        InspectionLine = self.env["spp.drims.inspection.wizard.line"]
-        child_b = InspectionLine.create(
-            {
-                "wizard_id": wizard.id,
-                "donation_line_id": parent.donation_line_id.id,
-                "product_id": parent.product_id.id,
-                "uom_id": parent.uom_id.id,
-                "quantity_expected": parent.quantity_expected,
-                "quantity": 200,
-                "parent_line_id": parent.id,
-            }
-        )
+        child_b.quantity = 200
         self._set_inspection(child_a, self.condition_new, self.disposition_accept)
         self._set_inspection(child_b, self.condition_damaged, self.disposition_return)
 
