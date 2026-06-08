@@ -90,26 +90,50 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="fw-bold">Disability Status</div>
+                                        <!-- Severity comes from impairment classification; a
+                                             questionnaire-only disability has none, so fall back
+                                             to a plain "Identified" badge instead of a blank. -->
                                         <field
                                             name="disability_severity_id"
                                             widget="badge"
+                                            invisible="not disability_severity_id"
                                             decoration-info="disability_severity_id.code == 'mild'"
                                             decoration-warning="disability_severity_id.code == 'moderate'"
                                             decoration-danger="disability_severity_id.code in ('severe', 'profound')"
                                         />
+                                        <span
+                                            class="badge text-bg-primary"
+                                            invisible="disability_severity_id"
+                                        >Disability identified</span>
+                                        <div
+                                            class="small text-muted"
+                                            invisible="disability_severity_id"
+                                        >Severity not classified</div>
                                     </div>
                                     <div class="col-md-3">
                                         <div
                                             class="small text-muted"
                                         >Review Category</div>
-                                        <field name="disability_review_category" />
+                                        <field
+                                            name="disability_review_category"
+                                            invisible="not disability_review_category"
+                                        />
+                                        <span
+                                            class="text-muted"
+                                            invisible="disability_review_category"
+                                        >—</span>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="small text-muted">Next Review</div>
                                         <field
                                             name="disability_next_review"
+                                            invisible="not disability_next_review"
                                             decoration-danger="disability_next_review and disability_next_review &lt; context_today()"
                                         />
+                                        <span
+                                            class="text-muted"
+                                            invisible="disability_next_review"
+                                        >Not scheduled</span>
                                     </div>
                                 </div>
                             </div>

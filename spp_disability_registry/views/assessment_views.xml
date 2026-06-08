@@ -5,7 +5,10 @@
         <field name="name">spp.disability.assessment.form</field>
         <field name="model">spp.disability.assessment</field>
         <field name="arch" type="xml">
-            <form string="Disability Assessment">
+            <form
+                string="Disability Assessment"
+                readonly="approval_state not in ('draft', 'revision')"
+            >
                 <header>
                     <!-- Approve/Reject visibility follows the configured approval
                          workflow (can_approve/can_reject), so the configured
@@ -15,12 +18,17 @@
                     <field name="can_reject" invisible="1" />
                     <field name="has_approval_definition" invisible="1" />
                     <field name="questionnaire_complete" invisible="1" />
+                    <field name="assessment_complete" invisible="1" />
+                    <field name="cfg_display_impairment" invisible="1" />
+                    <field name="cfg_display_wg" invisible="1" />
+                    <field name="cfg_display_support" invisible="1" />
+                    <field name="cfg_support_show_devices" invisible="1" />
                     <button
                         name="action_submit_for_approval"
                         string="Submit"
                         type="object"
                         class="btn-primary"
-                        invisible="not can_submit or not has_approval_definition or not questionnaire_complete"
+                        invisible="not can_submit or not has_approval_definition or not assessment_complete"
                         groups="spp_disability_registry.group_disability_assessor"
                     />
                     <button
@@ -127,11 +135,11 @@
                         </div>
                     </div>
 
-                    <!-- Questionnaire incomplete: Submit is hidden until it can compute a result -->
+                    <!-- Assessment incomplete: Submit is hidden until required tabs are complete -->
                     <div
                         class="alert alert-info mb-3"
                         role="status"
-                        invisible="approval_state != 'draft' or not has_approval_definition or questionnaire_complete"
+                        invisible="approval_state != 'draft' or not has_approval_definition or assessment_complete"
                     >
                         <div class="d-flex align-items-center">
                             <i
@@ -139,11 +147,12 @@
                                 aria-hidden="true"
                             />
                             <div>
-                                <strong>Complete the questionnaire to submit</strong>
+                                <strong>Complete the required tabs to submit</strong>
                                 <p class="mb-0">
-                                    Answer all questions on the <b>WG/CFM Assessment</b>
-                                    tab that determine the disability result. The Submit
-                                    button appears once the questionnaire is complete.
+                                    Answer the impairment question on the <b
+                                >Impairment Classification</b> tab and, where required,
+                                    complete the <b>WG/CFM Assessment</b> questionnaire.
+                                    The Submit button appears once all required tabs are complete.
                                 </p>
                             </div>
                         </div>
@@ -182,18 +191,9 @@
                                         name="assessor_id"
                                         readonly="approval_state != 'draft'"
                                     />
-                                    <field name="has_disability" />
                                 </group>
                             </group>
                             <group col="2">
-                                <group string="Classification Summary">
-                                    <field
-                                        name="impairment_type_ids"
-                                        widget="many2many_tags"
-                                        readonly="1"
-                                    />
-                                    <field name="severity_level_id" readonly="1" />
-                                </group>
                                 <group string="Review Schedule">
                                     <field name="review_category" />
                                     <field name="next_review_date" />
@@ -202,16 +202,34 @@
                         </page>
 
                         <!-- Tab 2: Impairment Classification (one row per impairment type) -->
-                        <page name="impairment" string="Impairment Classification">
-                            <div class="alert alert-light mb-3" role="status">
+                        <page
+                            name="impairment"
+                            string="Impairment Classification"
+                            invisible="not cfg_display_impairment"
+                        >
+                            <group>
+                                <field
+                                    name="has_impairments_to_record"
+                                    widget="radio"
+                                    options="{'horizontal': true}"
+                                />
+                            </group>
+                            <div
+                                class="alert alert-light mb-3"
+                                role="status"
+                                invisible="has_impairments_to_record != 'yes'"
+                            >
                                 <strong>Impairment Classification</strong>
                                 <p class="mb-0">
                                     Add one row per impairment type, each with its own cause
-                                    and severity. The overall severity (shown on the Overview
-                                    and the registrant) is the most severe level across the rows.
+                                    and severity. The overall severity (shown on the registrant)
+                                    is the most severe level across the rows.
                                 </p>
                             </div>
-                            <field name="impairment_line_ids">
+                            <field
+                                name="impairment_line_ids"
+                                invisible="has_impairments_to_record != 'yes'"
+                            >
                                 <list editable="bottom">
                                     <field
                                         name="impairment_type_id"
@@ -230,7 +248,11 @@
                         </page>
 
                         <!-- Tab 3: WG/CFM Assessment (form varies by assessment type) -->
-                        <page name="wg_assessment" string="WG/CFM Assessment">
+                        <page
+                            name="wg_assessment"
+                            string="WG/CFM Assessment"
+                            invisible="not cfg_display_wg"
+                        >
                             <!-- Respondent / proxy (OP#1053) -->
                             <field name="proxy_locked" invisible="1" />
                             <group string="Respondent" col="2">
@@ -327,7 +349,7 @@
                                         <div class="mb-0">
                                             <div
                                                 class="fw-bold mb-1"
-                                            >Difficulty communicating (understanding or being understood)?</div>
+                                            >Difficulty communicating (understanding or being understood) in their usual language?</div>
                                             <field
                                                 name="wg_communicating"
                                                 widget="radio"
@@ -1065,8 +1087,43 @@
                             </div>
                         </page>
 
-                        <!-- Tab 3: Support Needs -->
-                        <page name="support" string="Support Needs">
+                        <!-- Tab 4: Support Needs -->
+                        <page
+                            name="support"
+                            string="Support Needs"
+                            invisible="not cfg_display_support"
+                        >
+                            <separator
+                                string="Assistive Devices"
+                                invisible="not cfg_support_show_devices"
+                            />
+                            <div
+                                class="alert alert-light mb-2"
+                                role="status"
+                                invisible="not cfg_support_show_devices"
+                            >
+                                <p class="mb-0">
+                                    Record assistive devices the registrant needs. These are
+                                    created on the registrant (status <em
+                                >Needed</em>) once the
+                                    assessment is approved.
+                                </p>
+                            </div>
+                            <field
+                                name="device_request_ids"
+                                invisible="not cfg_support_show_devices"
+                            >
+                                <list editable="bottom">
+                                    <field
+                                        name="device_type_id"
+                                        options="{'no_create': True}"
+                                    />
+                                    <field name="status" readonly="1" />
+                                    <field name="notes" optional="hide" />
+                                </list>
+                            </field>
+
+                            <separator string="Support Needs" />
                             <group>
                                 <field
                                     name="support_needs"

@@ -29,6 +29,16 @@ CFM_DIFFICULTY_LEVELS = [
     ("refused", "Refused"),
     ("dont_know", "Don't know"),
 ]
+# Same scale without "No difficulty" — used by the "without his/her equipment or
+# assistance" walking questions, where "no difficulty" unaided wouldn't warrant
+# the aid in the first place (BM reword).
+CFM_DIFFICULTY_LEVELS_NO_NONE = [
+    ("some", "Some difficulty"),
+    ("a_lot", "A lot of difficulty"),
+    ("cannot", "Cannot do at all"),
+    ("refused", "Refused"),
+    ("dont_know", "Don't know"),
+]
 # Behaviour-frequency scale used by CFM 2-4 CF16 (controlling behaviour).
 # Disability threshold is "a lot more".
 CFM_BEHAVIOR_LEVELS = [
@@ -169,7 +179,7 @@ class SppDisabilityAssessment(models.Model):
     wg_communicating = fields.Selection(
         WG_DIFFICULTY_LEVELS,
         string="Communicating",
-        help="Do you have difficulty communicating (understanding or being understood)?",
+        help="Do you have difficulty communicating (understanding or being understood) in their usual language?",
     )
 
     # === CFM 2-4 Responses (children aged 2-4, CF1-CF16) ===
@@ -206,7 +216,7 @@ class SppDisabilityAssessment(models.Model):
         string="Does the child use any equipment or receive assistance for walking?",
     )
     cfm24_walk_unaided = fields.Selection(  # CF8 (without equipment)
-        CFM_DIFFICULTY_LEVELS,
+        CFM_DIFFICULTY_LEVELS_NO_NONE,
         string="Without his/her equipment or assistance, does the child have difficulty walking?",
     )
     cfm24_walk_aided = fields.Selection(  # CF9 (with equipment) - concluding when equipment used
@@ -284,12 +294,12 @@ class SppDisabilityAssessment(models.Model):
         string="Does the child use any equipment or receive assistance for walking?",
     )
     cfm517_walk_unaided_100 = fields.Selection(  # CF8 (without equipment, 100)
-        CFM_DIFFICULTY_LEVELS,
+        CFM_DIFFICULTY_LEVELS_NO_NONE,
         string="Without his/her equipment or assistance, does the child have difficulty walking "
         "100 yards/meters on level ground?",
     )
     cfm517_walk_unaided_500 = fields.Selection(  # CF9 (without equipment, 500)
-        CFM_DIFFICULTY_LEVELS,
+        CFM_DIFFICULTY_LEVELS_NO_NONE,
         string="Without his/her equipment or assistance, does the child have difficulty walking "
         "500 yards/meters on level ground?",
     )
@@ -368,6 +378,13 @@ class SppDisabilityAssessment(models.Model):
     )
 
     # === Impairment Classification (DCI vocabularies) ===
+    # Gate question (OP#1068): "No" marks the tab complete with no lines;
+    # "Yes" reveals the list and requires at least one row before submission.
+    has_impairments_to_record = fields.Selection(
+        [("yes", "Yes"), ("no", "No")],
+        string="Does the registrant have any impairments or functional limitations to record?",
+        help="If Yes, classify each impairment below. If No, this tab is considered complete.",
+    )
     # One row per impairment type, each with its own cause and severity.
     impairment_line_ids = fields.One2many(
         "spp.disability.impairment",
@@ -431,6 +448,77 @@ class SppDisabilityAssessment(models.Model):
         string="Support Needs",
         help="Free-text description of support needs. Countries can extend with structured fields.",
     )
+    # Assistive-device requests (OP#1068). On approval each becomes a real
+    # spp.assistive.device (status "needed") on the registrant.
+    device_request_ids = fields.One2many(
+        "spp.disability.assessment.device.request",
+        "assessment_id",
+        string="Assistive Device Requests",
+    )
+
+    # === Assessment-tab configuration mirrors (OP#1068) ===
+    # Read from ir.config_parameter so the form (tab visibility) and the submit
+    # gate can react to the Disability Registry settings.
+    cfg_display_impairment = fields.Boolean(compute="_compute_tab_config")
+    cfg_display_wg = fields.Boolean(compute="_compute_tab_config")
+    cfg_display_support = fields.Boolean(compute="_compute_tab_config")
+    cfg_require_impairment = fields.Boolean(compute="_compute_tab_config")
+    cfg_require_wg = fields.Boolean(compute="_compute_tab_config")
+    cfg_require_support = fields.Boolean(compute="_compute_tab_config")
+    cfg_support_show_devices = fields.Boolean(compute="_compute_tab_config")
+
+    @api.depends_context("uid")
+    def _compute_tab_config(self):
+        # nosemgrep: odoo-sudo-without-context — read configuration parameters
+        icp = self.env["ir.config_parameter"].sudo()
+
+        def flag(key):
+            return icp.get_param("spp_disability_registry." + key, "True") == "True"
+
+        values = {
+            "cfg_display_impairment": flag("display_impairment"),
+            "cfg_display_wg": flag("display_wg"),
+            "cfg_display_support": flag("display_support"),
+            "cfg_require_impairment": flag("require_impairment"),
+            "cfg_require_wg": flag("require_wg"),
+            "cfg_require_support": flag("require_support"),
+            "cfg_support_show_devices": flag("support_show_devices"),
+        }
+        for rec in self:
+            rec.update(values)
+
+    # === Submission completeness (OP#1068) ===
+    impairment_tab_complete = fields.Boolean(
+        compute="_compute_assessment_complete",
+        help="Impairment tab complete: 'No' to the gate question, or 'Yes' with at least one row.",
+    )
+    assessment_complete = fields.Boolean(
+        compute="_compute_assessment_complete",
+        help="True when every displayed and required assessment tab is complete.",
+    )
+
+    @api.depends(
+        "has_impairments_to_record",
+        "impairment_line_ids",
+        "questionnaire_complete",
+        "cfg_display_impairment",
+        "cfg_display_wg",
+        "cfg_require_impairment",
+        "cfg_require_wg",
+    )
+    def _compute_assessment_complete(self):
+        for rec in self:
+            # Impairment tab: "No" → complete; "Yes" → at least one classified row.
+            rec.impairment_tab_complete = rec.has_impairments_to_record == "no" or (
+                rec.has_impairments_to_record == "yes" and bool(rec.impairment_line_ids)
+            )
+            checks = []
+            if rec.cfg_display_impairment and rec.cfg_require_impairment:
+                checks.append(rec.impairment_tab_complete)
+            if rec.cfg_display_wg and rec.cfg_require_wg:
+                checks.append(rec.questionnaire_complete)
+            # Support Needs has no content gate (OP#1068), so it never blocks.
+            rec.assessment_complete = all(checks)
 
     # === Proxy Response Tracking ===
     is_proxy_response = fields.Boolean(
@@ -722,14 +810,14 @@ class SppDisabilityAssessment(models.Model):
             rec.questionnaire_complete = bool(answers) and all(answers)
 
     def _check_can_submit(self):
-        """Require the questionnaire to be complete before submitting for approval."""
+        """Require every displayed + required tab to be complete before submitting."""
         super()._check_can_submit()
-        if not self.questionnaire_complete:
+        if not self.assessment_complete:
             raise UserError(
                 _(
-                    "Complete the WG/CFM questionnaire before submitting this assessment "
-                    "for approval — all questions that determine the disability result "
-                    "must be answered."
+                    "Complete all required assessment tabs before submitting for approval "
+                    "(answer the impairment question and, where required, the WG/CFM "
+                    "questionnaire that determines the disability result)."
                 )
             )
 
@@ -745,7 +833,33 @@ class SppDisabilityAssessment(models.Model):
     def _on_approve(self):
         res = super()._on_approve()
         self._sync_registrant_disability_status()
+        self._materialize_device_requests()
         return res
+
+    def _materialize_device_requests(self):
+        """On approval, turn each Support-Needs device request into a real
+        spp.assistive.device (status 'needed') on the registrant so it shows on
+        the Overview / registrant (OP#1068). Skips a device type that already
+        has a pending 'needed' record to avoid duplicates on re-approval.
+        """
+        Device = self.env["spp.assistive.device"]
+        for rec in self:
+            for req in rec.device_request_ids:
+                already = Device.search_count(
+                    [
+                        ("registrant_id", "=", rec.registrant_id.id),
+                        ("device_type_id", "=", req.device_type_id.id),
+                        ("status", "=", "needed"),
+                    ]
+                )
+                if not already:
+                    Device.create(
+                        {
+                            "registrant_id": rec.registrant_id.id,
+                            "device_type_id": req.device_type_id.id,
+                            "status": "needed",
+                        }
+                    )
 
     def _on_reject(self, reason):
         res = super()._on_reject(reason)

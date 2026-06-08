@@ -62,6 +62,63 @@
                             />
                         </setting>
                     </block>
+
+                    <block title="Assessment Tabs" name="disability_tabs_block">
+                        <setting
+                            string="Impairment Classification tab"
+                            help="Show this tab on the assessment, and whether it must be completed before an assessment can be submitted for approval."
+                        >
+                            <field name="disability_display_impairment" />
+                            <div class="mt8">
+                                <field
+                                    name="disability_require_impairment"
+                                    invisible="not disability_display_impairment"
+                                />
+                                <label
+                                    for="disability_require_impairment"
+                                    string="Required to submit"
+                                    invisible="not disability_display_impairment"
+                                />
+                            </div>
+                        </setting>
+                        <setting
+                            string="WG/CFM Assessment tab"
+                            help="Show the WG/CFM questionnaire tab, and whether the questionnaire must be complete before submission."
+                        >
+                            <field name="disability_display_wg" />
+                            <div class="mt8">
+                                <field
+                                    name="disability_require_wg"
+                                    invisible="not disability_display_wg"
+                                />
+                                <label
+                                    for="disability_require_wg"
+                                    string="Required to submit"
+                                    invisible="not disability_display_wg"
+                                />
+                            </div>
+                        </setting>
+                        <setting
+                            string="Support Needs tab"
+                            help="Show the Support Needs tab. (It has no mandatory content, so 'required' only keeps it visible for review.)"
+                        >
+                            <field name="disability_display_support" />
+                            <div class="mt8" invisible="not disability_display_support">
+                                <field name="disability_require_support" />
+                                <label
+                                    for="disability_require_support"
+                                    string="Required to submit"
+                                />
+                            </div>
+                            <div class="mt8" invisible="not disability_display_support">
+                                <field name="disability_support_show_devices" />
+                                <label
+                                    for="disability_support_show_devices"
+                                    string="Show Assistive Devices section"
+                                />
+                            </div>
+                        </setting>
+                    </block>
                 </app>
             </xpath>
         </field>

@@ -344,6 +344,75 @@ class TestDisabilityAssessment(TransactionCase):
         self.assertTrue(self.adult_registrant.has_disability)
         self.assertEqual(self.adult_registrant.current_disability_assessment_id, assessment)
 
+    # === OP#1068: tab config, impairment gate, device requests ===
+    def _full_wg(self):
+        return {
+            "wg_seeing": "none",
+            "wg_hearing": "none",
+            "wg_walking": "none",
+            "wg_remembering": "none",
+            "wg_selfcare": "none",
+            "wg_communicating": "none",
+        }
+
+    def test_assessment_complete_requires_impairment_answer(self):
+        """With the default config (impairment + WG required), a complete
+        questionnaire alone isn't enough — the impairment question must be
+        answered (OP#1068)."""
+        vals = {"registrant_id": self.adult_registrant.id, "assessment_date": date.today()}
+        vals.update(self._full_wg())
+        a = self.env["spp.disability.assessment"].create(vals)
+        self.assertTrue(a.questionnaire_complete)
+        self.assertFalse(a.assessment_complete)  # impairment question unanswered
+        # "No" → impairment tab complete → assessment complete (support never gates).
+        a.has_impairments_to_record = "no"
+        self.assertTrue(a.impairment_tab_complete)
+        self.assertTrue(a.assessment_complete)
+        # "Yes" with no rows → incomplete again.
+        a.has_impairments_to_record = "yes"
+        self.assertFalse(a.impairment_tab_complete)
+        self.assertFalse(a.assessment_complete)
+
+    def test_gate_is_config_driven(self):
+        """When WG/CFM is configured as not required, a blank questionnaire no
+        longer blocks completion (OP#1068)."""
+        icp = self.env["ir.config_parameter"].sudo()
+        icp.set_param("spp_disability_registry.require_wg", "False")
+        a = self.env["spp.disability.assessment"].create(
+            {
+                "registrant_id": self.adult_registrant.id,
+                "assessment_date": date.today(),
+                "has_impairments_to_record": "no",
+            }
+        )
+        a.invalidate_recordset()
+        self.assertFalse(a.questionnaire_complete)
+        self.assertFalse(a.cfg_require_wg)
+        self.assertTrue(a.assessment_complete)
+
+    def test_device_requests_materialize_on_approve(self):
+        """Support-Needs device requests become spp.assistive.device (status
+        'needed') on the registrant when the assessment is approved (OP#1068)."""
+        device_type = self.env["spp.vocabulary.code"].search(
+            [("vocabulary_id.namespace_uri", "=", "urn:dci:cd:dr:04")], limit=1
+        )
+        if not device_type:
+            self.skipTest("no assistive-device type vocabulary code present")
+        a = self.env["spp.disability.assessment"].create(
+            {
+                "registrant_id": self.adult_registrant.id,
+                "assessment_date": date.today(),
+                "device_request_ids": [(0, 0, {"device_type_id": device_type.id})],
+            }
+        )
+        Device = self.env["spp.assistive.device"]
+        self.assertFalse(Device.search_count([("registrant_id", "=", self.adult_registrant.id)]))
+        a.write({"approval_state": "pending"})
+        a._do_approve()
+        dev = Device.search([("registrant_id", "=", self.adult_registrant.id), ("device_type_id", "=", device_type.id)])
+        self.assertEqual(len(dev), 1)
+        self.assertEqual(dev.status, "needed")
+
     # === Date Validation Tests ===
 
     def test_future_assessment_date_rejected(self):

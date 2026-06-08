@@ -22,11 +22,13 @@ class ResConfigSettings(models.TransientModel):
         help="When enabled, the proxy response flag can be unticked on CFM 5-17 "
         "assessments (subject to the minimum self-report age below).",
     )
-    disability_self_report_min_age = fields.Integer(
+    # Char (not Integer) + managed manually so it is genuinely blank by default
+    # rather than showing "0" or a stale value (BM reword). Stored as a plain
+    # number string; readers parse it with int(value or 0).
+    disability_self_report_min_age = fields.Char(
         string="Minimum age for self-report (CFM 5-17)",
-        config_parameter="spp_disability_registry.self_report_min_age",
         help="Minimum age at assessment at which self-report is allowed on CFM 5-17. "
-        "Required when self-report is enabled; must be between 5 and 17.",
+        "Required when self-report is enabled; must be between 5 and 17. Blank by default.",
     )
     # NB: managed manually below (not via config_parameter). A config_parameter
     # Boolean defaulting to True cannot persist a False value: set_param(key, False)
@@ -55,26 +57,83 @@ class ResConfigSettings(models.TransientModel):
         "approval.",
     )
 
+    # === Assessment Tabs (OP#1068) ===
+    # Which of the three assessment tabs are displayed, and which are required
+    # before an assessment can be submitted for approval. All default to True.
+    disability_display_impairment = fields.Boolean(
+        string="Show Impairment Classification tab",
+        default=True,
+    )
+    disability_display_wg = fields.Boolean(
+        string="Show WG/CFM Assessment tab",
+        default=True,
+    )
+    disability_display_support = fields.Boolean(
+        string="Show Support Needs tab",
+        default=True,
+    )
+    disability_require_impairment = fields.Boolean(
+        string="Require Impairment Classification to submit",
+        default=True,
+    )
+    disability_require_wg = fields.Boolean(
+        string="Require WG/CFM Assessment to submit",
+        default=True,
+    )
+    disability_require_support = fields.Boolean(
+        string="Require Support Needs to submit",
+        default=True,
+    )
+    disability_support_show_devices = fields.Boolean(
+        string="Show Assistive Devices on Support Needs",
+        default=True,
+    )
+
+    # field name -> ir.config_parameter key, for default-True booleans that must
+    # round-trip a False value (a config_parameter boolean cannot — see the note
+    # on disability_allow_proxy_wg_ss above).
+    _DEFAULT_TRUE_PARAMS = {
+        "disability_allow_proxy_wg_ss": "spp_disability_registry.allow_proxy_wg_ss",
+        "disability_display_impairment": "spp_disability_registry.display_impairment",
+        "disability_display_wg": "spp_disability_registry.display_wg",
+        "disability_display_support": "spp_disability_registry.display_support",
+        "disability_require_impairment": "spp_disability_registry.require_impairment",
+        "disability_require_wg": "spp_disability_registry.require_wg",
+        "disability_require_support": "spp_disability_registry.require_support",
+        "disability_support_show_devices": "spp_disability_registry.support_show_devices",
+    }
+
     def get_values(self):
         res = super().get_values()
         # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         icp = self.env["ir.config_parameter"].sudo()
-        res["disability_allow_proxy_wg_ss"] = (
-            icp.get_param("spp_disability_registry.allow_proxy_wg_ss", "True") == "True"
-        )
+        for field_name, key in self._DEFAULT_TRUE_PARAMS.items():
+            res[field_name] = icp.get_param(key, "True") == "True"
+        # Blank by default (never "0"); stored only when self-report is enabled.
+        res["disability_self_report_min_age"] = icp.get_param("spp_disability_registry.self_report_min_age", "")
         return res
 
     def set_values(self):
         # When self-report on CFM 5-17 is enabled, a minimum age between 5 and 17
         # must be provided.
-        if self.disability_allow_self_report_cfm and not (5 <= self.disability_self_report_min_age <= 17):
-            raise ValidationError(
-                _("Enter a minimum self-report age between 5 and 17 to allow self-report on CFM 5-17.")
-            )
+        min_age = 0
+        if self.disability_allow_self_report_cfm:
+            try:
+                min_age = int(self.disability_self_report_min_age or 0)
+            except (TypeError, ValueError):
+                min_age = 0
+            if not (5 <= min_age <= 17):
+                raise ValidationError(
+                    _("Enter a minimum self-report age between 5 and 17 to allow self-report on CFM 5-17.")
+                )
         super().set_values()
         # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         icp = self.env["ir.config_parameter"].sudo()
+        for field_name, key in self._DEFAULT_TRUE_PARAMS.items():
+            icp.set_param(key, "True" if self[field_name] else "False")
+        # Store the validated age only while self-report is on; otherwise clear it
+        # so the field is blank by default next time.
         icp.set_param(
-            "spp_disability_registry.allow_proxy_wg_ss",
-            "True" if self.disability_allow_proxy_wg_ss else "False",
+            "spp_disability_registry.self_report_min_age",
+            str(min_age) if self.disability_allow_self_report_cfm else "",
         )
