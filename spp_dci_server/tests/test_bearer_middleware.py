@@ -9,12 +9,18 @@ do not silently regress.
 """
 
 import asyncio
+import os
+from datetime import datetime, timedelta
 
 from odoo.tests import tagged
 
 from fastapi import HTTPException
 
 from .common import DCIServerCommon
+
+# 48-char high-entropy secret so spp_api_v2's _validate_jwt_secret_strength
+# (>=32 chars, entropy >= 3.0) accepts it.
+_TEST_JWT_SECRET = "Zx9Kq2Lm7Pw4Rt6Yv1Nb8Hc3Jd5Fg0SaUeWiOqTzXyMnBvCr"
 
 
 def _run(coro):
@@ -191,3 +197,97 @@ class TestSecurityDefaults(DCIServerCommon):
                 safe_value,
                 f"{key} must default to {safe_value!r} (fail-closed)",
             )
+
+
+@tagged("post_install", "-at_install")
+class TestOAuth2BearerToken(DCIServerCommon):
+    """The bearer dependency also accepts OAuth2 access tokens (spp_api_v2
+    JWTs) so DCI callers can authenticate with client-credentials, not only
+    static tokens."""
+
+    def setUp(self):
+        super().setUp()
+        from odoo.addons.spp_dci_server.middleware import signature as sig_module
+
+        self.verify_bearer_token = sig_module.verify_bearer_token
+        sig_module._bearer_bypass_warning_logged = False
+        sig_module._empty_tokens_warning_logged = False
+        self.ICP = self.env["ir.config_parameter"].sudo()
+        # Sign with the secret the verifier will use (env var wins over param).
+        self.secret = os.environ.get("OPENSPP_JWT_SECRET") or _TEST_JWT_SECRET
+        if not os.environ.get("OPENSPP_JWT_SECRET"):
+            self.ICP.set_param("spp_api_v2.jwt_secret", self.secret)
+        self.client = self.env["spp.api.client"].create(
+            {
+                "name": "DCI OAuth Test Client",
+                "partner_id": self.test_partner.id,
+                "organization_type_id": self.org_type_government.id,
+            }
+        )
+
+    def _call(self, authorization=None):
+        return _run(self.verify_bearer_token(self.env, authorization))
+
+    def _mint_jwt(self, client_id=None, expires_in_hours=1, secret=None):
+        import jwt
+
+        now = datetime.utcnow()
+        payload = {
+            "iss": "openspp-api-v2",
+            "aud": "openspp",
+            "sub": client_id or self.client.client_id,
+            "client_id": client_id or self.client.client_id,
+            "iat": now,
+            "exp": now + timedelta(hours=expires_in_hours),
+            "scopes": [],
+        }
+        return jwt.encode(payload, secret or self.secret, algorithm="HS256")
+
+    def test_valid_oauth2_jwt_accepted(self):
+        """A valid OAuth2 JWT is accepted even with no static tokens and
+        dci.api_tokens_required=true."""
+        self.ICP.set_param("dci.api_tokens", "")
+        self.ICP.set_param("dci.api_tokens_required", "true")
+        token = self._mint_jwt()
+        self.assertEqual(self._call(f"Bearer {token}"), token)
+
+    def test_oauth2_jwt_accepted_alongside_nonmatching_static(self):
+        """A valid OAuth2 JWT is accepted even when a (non-matching) static
+        token list is configured."""
+        self.ICP.set_param("dci.api_tokens", "some-other-static-token")
+        token = self._mint_jwt()
+        self.assertEqual(self._call(f"Bearer {token}"), token)
+
+    def test_static_token_still_accepted(self):
+        """Regression: configured static tokens keep working."""
+        self.ICP.set_param("dci.api_tokens", "static-abc")
+        self.assertEqual(self._call("Bearer static-abc"), "static-abc")
+
+    def test_expired_oauth2_jwt_rejected(self):
+        self.ICP.set_param("dci.api_tokens", "")
+        token = self._mint_jwt(expires_in_hours=-1)
+        with self.assertRaises(HTTPException) as ctx:
+            self._call(f"Bearer {token}")
+        self.assertEqual(ctx.exception.status_code, 401)
+
+    def test_invalid_signature_jwt_rejected(self):
+        self.ICP.set_param("dci.api_tokens", "")
+        token = self._mint_jwt(secret="wrong-but-long-enough-secret-aB3dE6fH9jK2mN5pQ8rT1v")
+        with self.assertRaises(HTTPException) as ctx:
+            self._call(f"Bearer {token}")
+        self.assertEqual(ctx.exception.status_code, 401)
+
+    def test_oauth2_jwt_for_inactive_client_rejected(self):
+        self.ICP.set_param("dci.api_tokens", "")
+        self.client.active = False
+        token = self._mint_jwt()
+        with self.assertRaises(HTTPException) as ctx:
+            self._call(f"Bearer {token}")
+        self.assertEqual(ctx.exception.status_code, 401)
+
+    def test_oauth2_jwt_unknown_client_rejected(self):
+        self.ICP.set_param("dci.api_tokens", "")
+        token = self._mint_jwt(client_id="no-such-client-id")
+        with self.assertRaises(HTTPException) as ctx:
+            self._call(f"Bearer {token}")
+        self.assertEqual(ctx.exception.status_code, 401)

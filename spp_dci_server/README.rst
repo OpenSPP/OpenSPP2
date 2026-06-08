@@ -35,6 +35,10 @@ Key Capabilities
   ``/dci_api/v1`` with automatic OpenAPI documentation
 - **HTTP Signature Verification**: Validates inbound requests using
   Ed25519/RSA signatures against sender public keys
+- **Bearer Authentication**: Accepts either a static token (system
+  parameter ``dci.api_tokens``) or an OAuth2 client-credentials access
+  token (a JWT issued by ``spp_api_v2`` at ``POST /api_v2/oauth/token``,
+  validated against an active ``spp.api.client``)
 - **Async Transaction Processing**: Queues search, subscribe, and
   unsubscribe operations for background processing with automatic
   callbacks

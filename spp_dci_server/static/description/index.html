@@ -382,6 +382,10 @@ JWKS-based public key distribution.</p>
 <tt class="docutils literal">/dci_api/v1</tt> with automatic OpenAPI documentation</li>
 <li><strong>HTTP Signature Verification</strong>: Validates inbound requests using
 Ed25519/RSA signatures against sender public keys</li>
+<li><strong>Bearer Authentication</strong>: Accepts either a static token (system
+parameter <tt class="docutils literal">dci.api_tokens</tt>) or an OAuth2 client-credentials access
+token (a JWT issued by <tt class="docutils literal">spp_api_v2</tt> at <tt class="docutils literal">POST /api_v2/oauth/token</tt>,
+validated against an active <tt class="docutils literal">spp.api.client</tt>)</li>
 <li><strong>Async Transaction Processing</strong>: Queues search, subscribe, and
 unsubscribe operations for background processing with automatic
 callbacks</li>
