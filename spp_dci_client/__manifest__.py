@@ -2,7 +2,7 @@
 {
     "name": "OpenSPP DCI Client",
     "summary": "Base DCI client infrastructure with OAuth2 and data source management",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.0.1",
     "category": "OpenSPP/Integration",
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",

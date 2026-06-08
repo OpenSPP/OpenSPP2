@@ -48,7 +48,6 @@ class DCIDataSource(models.Model):
         [
             ("none", "None"),
             ("bearer", "Bearer Token"),
-            ("basic", "Basic Authentication"),
             ("oauth2", "OAuth2"),
         ],
         default="oauth2",
@@ -486,9 +485,6 @@ class DCIDataSource(models.Model):
             if not self.bearer_token:
                 raise UserError(_("Bearer token is not configured for this data source."))
             headers["Authorization"] = f"Bearer {self.bearer_token}"
-        elif self.auth_type == "basic":
-            # Basic auth would require username/password fields (not in current spec)
-            raise UserError(_("Basic authentication is not yet implemented."))
 
         return headers
 

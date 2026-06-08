@@ -142,19 +142,6 @@ class TestDataSourceOAuth(TransactionCase):
         )
         self.assertEqual(ds.get_headers()["Authorization"], "Bearer btok")
 
-    def test_get_headers_basic_not_implemented(self):
-        ds = self.DataSource.create(
-            {
-                "name": "Basic DS",
-                "code": "basic_ds",
-                "base_url": "https://dci.example.org/api",
-                "auth_type": "basic",
-                "our_sender_id": "openspp.test",
-            }
-        )
-        with self.assertRaises(UserError):
-            ds.get_headers()
-
     # --- test_connection -----------------------------------------------------
 
     def test_connection_success_activates(self):
