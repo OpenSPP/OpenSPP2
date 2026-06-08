@@ -5,7 +5,7 @@
 {
     "name": "OpenSPP Base (Common)",
     "category": "OpenSPP/Core",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.0.1",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -39,6 +39,8 @@
             "spp_base_common/static/src/js/filterable_radio_field.js",
             "spp_base_common/static/src/xml/filterable_radio_field.xml",
             "spp_base_common/static/src/js/integer_positive_required.js",
+            "spp_base_common/static/src/xml/pager_hide_single.xml",
+            "spp_base_common/static/src/scss/pager_hide_single.scss",
         ],
         "web._assets_primary_variables": [
             "spp_base_common/static/src/scss/colors.scss",

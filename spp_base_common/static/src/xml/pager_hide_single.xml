@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    Hide the form-view "1/1" pager when there's only one record to navigate.
+
+    The standard web.Pager renders the counter + chevrons even when
+    `total === 1`, leaving a disabled "1/1 < >" widget that confuses
+    users. We drop the entire <nav> with `t-if` and pair the change
+    with an `align-items: center` rule on the parent
+    `o_control_panel_navigation` (see pager_hide_single.scss) so the
+    sibling refresh button stays vertically centred without the
+    pager's old h-100 anchor. `1/1+` (updateTotal set) stays visible
+    because the count may still grow.
+
+    See OP#920.
+-->
+<templates xml:space="preserve">
+    <t
+        t-name="spp_base_common.PagerHideSingle"
+        t-inherit="web.Pager"
+        t-inherit-mode="extension"
+    >
+        <xpath expr="//nav[hasclass('o_pager')]" position="attributes">
+            <attribute name="t-if">props.total &gt; 1 or props.updateTotal</attribute>
+        </xpath>
+    </t>
+</templates>

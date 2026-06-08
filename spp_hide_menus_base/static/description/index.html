@@ -474,6 +474,16 @@ custom menus to auto-hide list</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.1</h1>
+<ul class="simple">
+<li>Keep hidden menus hidden after a module upgrade resets their
+<tt class="docutils literal">group_ids</tt> via XML. Re-applying now runs from <tt class="docutils literal">_register_hook</tt> so
+it covers every upgrade path (immediate, <tt class="docutils literal">base.module.upgrade</tt>
+wizard, and CLI <tt class="docutils literal"><span class="pre">-u</span></tt>), not just the immediate path handled by
+<tt class="docutils literal">next()</tt>.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

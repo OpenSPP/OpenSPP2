@@ -15,10 +15,11 @@
                     icon="fa-ticket"
                     invisible="is_group or not is_registrant"
                 >
-                    <div class="o_stat_info">
-                        <field name="grm_registrant_ticket_count" widget="statinfo" />
-                        <span class="o_stat_text">GRM Tickets</span>
-                    </div>
+                    <field
+                        name="grm_registrant_ticket_count"
+                        widget="statinfo"
+                        string="GRM Tickets"
+                    />
                 </button>
             </xpath>
 
@@ -77,10 +78,11 @@
                     icon="fa-ticket"
                     invisible="not is_group or not is_registrant"
                 >
-                    <div class="o_stat_info">
-                        <field name="grm_household_ticket_count" widget="statinfo" />
-                        <span class="o_stat_text">GRM Tickets</span>
-                    </div>
+                    <field
+                        name="grm_household_ticket_count"
+                        widget="statinfo"
+                        string="GRM Tickets"
+                    />
                 </button>
             </xpath>
 
@@ -118,6 +120,23 @@
                     </field>
                 </page>
             </xpath>
+        </field>
+    </record>
+
+    <!--
+        OP#1000: when spp_grm_registry is installed, its registrant + household
+        buttons replace the legacy single-button view from spp_grm. Hide the
+        legacy button on registrant forms so only the registry-specific buttons
+        remain. spp_grm's view on the base partner form (for plain partners)
+        is untouched.
+    -->
+    <record id="view_res_partner_form_hide_legacy_grm_button" model="ir.ui.view">
+        <field name="name">res.partner.form.hide-legacy-grm-button</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_grm.view_individuals_form_inherit_spp_grm" />
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <button name="action_view_grm_tickets" position="replace" />
         </field>
     </record>
 </odoo>

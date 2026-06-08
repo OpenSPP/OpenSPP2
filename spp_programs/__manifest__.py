@@ -4,7 +4,7 @@
     "name": "OpenSPP Programs",
     "summary": "Manage programs, cycles, beneficiary enrollment, entitlements (cash and in-kind), payments, and fund tracking for social protection.",
     "category": "OpenSPP/Core",
-    "version": "19.0.2.1.1",
+    "version": "19.0.2.1.3",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -27,6 +27,8 @@
         "spp_user_roles",
         "spp_base_common",
         "spp_approval",
+        "spp_hazard",
+        "spp_gis_report",
         # CEL core libraries for expression-based managers
         "spp_cel_domain",
         "spp_cel_widget",
@@ -39,6 +41,7 @@
         "security/program_security.xml",
         "security/ir.model.access.csv",
         "security/registrant_rule.xml",
+        "security/area_filter_rules.xml",
         # Data files
         "data/sequences.xml",
         "data/queue_data.xml",

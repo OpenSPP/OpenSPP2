@@ -536,6 +536,18 @@ matching conditions</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.1</h1>
+<ul class="simple">
+<li>fix(views): gate the “Helpdesk” top-level menu
+(<tt class="docutils literal">spp_grm_ticket_main_menu</tt>) on <tt class="docutils literal">group_grm_viewer</tt>. Previously the
+root menu had no <tt class="docutils literal">groups=</tt> attribute and was visible to every
+logged-in user; the OP#951 menu audit requires several roles to NOT
+see it (Registry Viewer, Global Finance, Global Program Manager,
+Program Viewer/Validator/Cycle Approver, Global Registrar, CR roles,
+Farm User/Manager).</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

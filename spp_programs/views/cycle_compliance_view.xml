@@ -18,6 +18,7 @@
                     class="btn-warning"
                     confirm="Filtering is a one-way action. Are you sure you want to apply compliance criteria?"
                     invisible="not allow_filter_compliance_criteria or compliance_criteria_applied"
+                    groups="spp_programs.group_programs_manager"
                 />
                 <field name="allow_filter_compliance_criteria" invisible="1" />
                 <field name="compliance_criteria_applied" invisible="1" />

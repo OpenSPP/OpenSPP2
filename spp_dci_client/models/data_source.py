@@ -200,6 +200,35 @@ class DCIDataSource(models.Model):
             elif not value:
                 record.oauth2_client_secret = False
 
+    @api.model
+    def _apply_secret_display(self, vals):
+        """Translate the masked oauth2_client_secret_display input into the real
+        oauth2_client_secret field.
+
+        The display field's compute depends on oauth2_client_secret while its
+        inverse writes it back - a self-referential cycle. During create/write
+        the display recomputes to the mask before the inverse reads it, so the
+        user-entered secret is lost and the OAuth2 constraint wrongly fails.
+        Handling the translation here, before super(), avoids that cycle.
+        """
+        if "oauth2_client_secret_display" not in vals:
+            return
+        value = vals.pop("oauth2_client_secret_display")
+        # An unchanged masked value means "keep the stored secret as-is".
+        if value == self._SECRET_MASK:
+            return
+        vals["oauth2_client_secret"] = value or False
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            self._apply_secret_display(vals)
+        return super().create(vals_list)
+
+    def write(self, vals):
+        self._apply_secret_display(vals)
+        return super().write(vals)
+
     @api.constrains("code")
     def _check_code_unique(self):
         """Ensure code is unique across all data sources."""

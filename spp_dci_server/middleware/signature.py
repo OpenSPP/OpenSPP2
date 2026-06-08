@@ -1,6 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """DCI API signature verification middleware and dependencies."""
 
+import hmac
 import logging
 import uuid
 from datetime import UTC, datetime
@@ -14,6 +15,32 @@ from odoo.addons.spp_dci.schemas import DCIEnvelope
 from fastapi import Depends, Header, HTTPException, status
 
 _logger = logging.getLogger(__name__)
+
+
+# Fail-closed defaults for every dev-mode flag the middleware honours.
+# Bypass flags default to "false" (no bypass); the new
+# ``dci.api_tokens_required`` defaults to "true" (required) so an empty
+# token list rejects all traffic rather than accepting any token.
+_SECURITY_FLAG_DEFAULTS = {
+    "dci.allow_unsigned_requests": "false",
+    "dci.bypass_bearer_auth": "false",
+    "dci.allow_http_callbacks": "false",
+    "dci.allow_internal_callback_ips": "false",
+    "dci.api_tokens_required": "true",
+}
+
+
+def _read_security_flag(env: Environment, key: str) -> str:
+    """Read a DCI security flag, applying the fail-closed in-code default.
+
+    Centralising the defaults makes the pinning tests in
+    ``test_bearer_middleware.TestSecurityDefaults`` straightforward and
+    keeps every call site honest about what "unset" means.
+    """
+    default = _SECURITY_FLAG_DEFAULTS[key]
+    # nosemgrep: odoo-sudo-without-context
+    value = env["ir.config_parameter"].sudo().get_param(key, default)
+    return (value or default).lower()
 
 
 class DCIHTTPException(HTTPException):
@@ -84,10 +111,7 @@ def _check_and_warn_dev_mode(env: Environment) -> bool:
     """
     global _dev_mode_warning_logged
 
-    allow_unsigned = (
-        # nosemgrep: odoo-sudo-without-context
-        env["ir.config_parameter"].sudo().get_param("dci.allow_unsigned_requests", "false").lower() == "true"
-    )
+    allow_unsigned = _read_security_flag(env, "dci.allow_unsigned_requests") == "true"
 
     if allow_unsigned and not _dev_mode_warning_logged:
         # Log CRITICAL warning once per session
@@ -218,6 +242,9 @@ async def verify_dci_signature(
 # Track if we've already logged the bearer auth bypass warning
 _bearer_bypass_warning_logged = False
 
+# Track if we've already logged the empty-tokens-but-not-required warning
+_empty_tokens_warning_logged = False
+
 
 async def verify_bearer_token(
     env: Annotated[Environment, Depends(odoo_env)],
@@ -242,8 +269,7 @@ async def verify_bearer_token(
     global _bearer_bypass_warning_logged
 
     # Check if bearer auth is bypassed (development mode)
-    # nosemgrep: odoo-sudo-without-context
-    bypass_bearer = env["ir.config_parameter"].sudo().get_param("dci.bypass_bearer_auth", "false").lower() == "true"
+    bypass_bearer = _read_security_flag(env, "dci.bypass_bearer_auth") == "true"
 
     if bypass_bearer:
         if not _bearer_bypass_warning_logged:
@@ -287,13 +313,26 @@ async def verify_bearer_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Get accepted tokens from config (comma-separated list)
-    # If no tokens configured, accept any non-empty token (for testing)
+    # Get accepted tokens from config (comma-separated list). An empty
+    # config used to mean "accept any non-empty token" - a fail-open
+    # default that exposed every bearer-authenticated route the moment
+    # the module was installed. The new behaviour is to reject when the
+    # list is empty unless the operator explicitly opts out via
+    # ``dci.api_tokens_required=false`` (mirrors the existing
+    # ``dci.bypass_bearer_auth`` pattern).
     # nosemgrep: odoo-sudo-without-context
     accepted_tokens_str = env["ir.config_parameter"].sudo().get_param("dci.api_tokens", "")
     if accepted_tokens_str:
         accepted_tokens = [t.strip() for t in accepted_tokens_str.split(",") if t.strip()]
-        if token not in accepted_tokens:
+        # Constant-time comparison against every configured token. Using
+        # ``token in accepted_tokens`` would short-circuit on the first
+        # mismatch and leak token-prefix information through response
+        # latency.
+        matched = False
+        for candidate in accepted_tokens:
+            if hmac.compare_digest(token, candidate):
+                matched = True
+        if not matched:
             _logger.warning("DCI request has invalid Bearer token")
             raise DCIHTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -302,9 +341,30 @@ async def verify_bearer_token(
                 headers={"WWW-Authenticate": "Bearer"},
             )
         _logger.debug("Bearer token validated against configured tokens")
-    else:
-        # No specific tokens configured - accept any token
-        # This is useful for testing but should be avoided in production
-        _logger.debug("Bearer token present, no specific tokens configured - accepting")
+        return token
 
+    # nosemgrep: odoo-timing-attack-password  # not a token compare; matches a config flag value
+    tokens_required = _read_security_flag(env, "dci.api_tokens_required") == "true"
+    if tokens_required:
+        _logger.warning(
+            "DCI request rejected: 'dci.api_tokens' is empty. "
+            "Configure the parameter or set 'dci.api_tokens_required=false' "
+            "for development."
+        )
+        raise DCIHTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            error_message="No accepted Bearer tokens configured",
+            error_code="err.auth.no_tokens_configured",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    global _empty_tokens_warning_logged
+    if not _empty_tokens_warning_logged:
+        _logger.critical(
+            "SECURITY WARNING: DCI Bearer token list is empty and "
+            "'dci.api_tokens_required' is 'false'. Any non-empty token is "
+            "being accepted. CONFIGURE 'dci.api_tokens' AND SET "
+            "'dci.api_tokens_required' TO 'true' IN PRODUCTION."
+        )
+        _empty_tokens_warning_logged = True
     return token

@@ -514,16 +514,19 @@ async def bulk_verify_identifiers(
             ]
         )
 
-        # Build lookup map from results
+        # Build lookup map from results. Per ADR-016, the matched
+        # spp.registry.id value *is* the external identifier; there is
+        # no separate partner-level "registry_id" field on res.partner,
+        # so we surface the matched reg_id's value (qualified by its
+        # vocabulary namespace) as the registry_id without exposing
+        # the underlying DB partner id.
         found_map = {}
         for reg_id in reg_ids:
-            if reg_id.partner_id and reg_id.id_type_id:
+            if reg_id.partner_id and reg_id.id_type_id and reg_id.value:
                 key = (reg_id.id_type_id.namespace_uri, reg_id.value)
-                # Only include if partner has external ID (never expose DB ID)
-                if reg_id.partner_id.spp_reg_id:
-                    found_map[key] = {
-                        "registry_id": reg_id.partner_id.spp_reg_id,
-                    }
+                found_map[key] = {
+                    "registry_id": f"{reg_id.id_type_id.namespace_uri}#{reg_id.value}",
+                }
 
         # Build response lists
         found = []
