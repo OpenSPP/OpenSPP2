@@ -2,7 +2,7 @@
 {
     "name": "OpenSPP DCI Indicators",
     "summary": "DCI data integration with CEL eligibility expressions",
-    "version": "19.0.1.0.1",
+    "version": "19.0.1.0.2",
     "category": "OpenSPP/Integration",
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -13,7 +13,7 @@
         "spp_dci_client_dr",
         "spp_dci_client_crvs",
         "spp_dci_client_ibr",
-        "spp_dci_client_sr",  # SRService for sr.dci.* fetch handlers
+        "spp_dci_client_sr",  # SRService for r.dci.sr.* fetch handlers
         "spp_cel_domain",  # Unified variable system
         "spp_studio",  # For variable label and UI fields
     ],

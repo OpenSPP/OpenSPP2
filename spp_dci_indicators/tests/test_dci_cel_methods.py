@@ -60,12 +60,12 @@ class TestDCICelMethods(TransactionCase):
     # ── resolver rewrite ─────────────────────────────────────────────────────
 
     def test_resolver_rewrites_severity_call(self):
-        out = self.Resolver.expand_expression("dr.dci.severity('Vision') >= 3", context_type="individual")
-        self.assertIn("metric('dr.dci.severity', me, arg='Vision')", out["expression"])
+        out = self.Resolver.expand_expression("r.dci.dr.severity('Vision') >= 3", context_type="individual")
+        self.assertIn("metric('r.dci.dr.severity', me, arg='Vision')", out["expression"])
 
     def test_resolver_rewrites_has_event_call(self):
-        out = self.Resolver.expand_expression("crvs.dci.has_event('death') == true", context_type="individual")
-        self.assertIn("metric('crvs.dci.has_event', me, arg='death')", out["expression"])
+        out = self.Resolver.expand_expression("r.dci.crvs.has_event('death') == true", context_type="individual")
+        self.assertIn("metric('r.dci.crvs.has_event', me, arg='death')", out["expression"])
 
     # ── materialization ──────────────────────────────────────────────────────
 
@@ -73,7 +73,7 @@ class TestDCICelMethods(TransactionCase):
         with patch(GET_STATUS, return_value={"functional_scores": {"Vision": 4, "Hearing": 1}}):
             n = self.Fetcher.sync_for_partners([self.partner.id], variables=self.sev_var)
         self.assertEqual(n, 3)  # Vision, Hearing, Mobility
-        rows = self.DV.search([("variable_name", "=", "dr.dci.severity"), ("subject_id", "=", self.partner.id)])
+        rows = self.DV.search([("variable_name", "=", "r.dci.dr.severity"), ("subject_id", "=", self.partner.id)])
         self.assertEqual(len(rows), 3)
 
     def test_materialize_has_event_one_row_per_event(self):
@@ -97,11 +97,11 @@ class TestDCICelMethods(TransactionCase):
     def test_e2e_severity_discriminates_by_arg(self):
         with patch(GET_STATUS, return_value={"functional_scores": {"Vision": 4, "Hearing": 1}}):
             self.Fetcher.sync_for_partners([self.partner.id], variables=self.sev_var)
-        self.assertIn(self.partner, self._match("dr.dci.severity('Vision') >= 3"))
-        self.assertNotIn(self.partner, self._match("dr.dci.severity('Hearing') >= 3"))
+        self.assertIn(self.partner, self._match("r.dci.dr.severity('Vision') >= 3"))
+        self.assertNotIn(self.partner, self._match("r.dci.dr.severity('Hearing') >= 3"))
 
     def test_e2e_has_event_death(self):
         with patch(VERIFY_BIRTH, return_value=None), patch(CHECK_DEATH, return_value=True):
             self.Fetcher.sync_for_partners([self.partner.id], variables=self.event_var)
-        self.assertIn(self.partner, self._match("crvs.dci.has_event('death') == true"))
-        self.assertNotIn(self.partner, self._match("crvs.dci.has_event('birth') == true"))
+        self.assertIn(self.partner, self._match("r.dci.crvs.has_event('death') == true"))
+        self.assertNotIn(self.partner, self._match("r.dci.crvs.has_event('birth') == true"))

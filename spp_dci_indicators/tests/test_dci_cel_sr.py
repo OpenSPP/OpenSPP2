@@ -1,7 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Tests for the SR (Social Registry) DCI fetch handlers.
 
-All six sr.dci.* metrics derive from a single person record returned by
+All six r.dci.sr.* metrics derive from a single person record returned by
 SRService.search_person (identifiers -> registration, enrolled_programs,
 household_info). The service is mocked here.
 
@@ -73,63 +73,63 @@ class TestDCICelSRHandlers(TransactionCase):
     # -- is_registered ---------------------------------------------------------
 
     def test_sr_is_registered_true(self):
-        result = self._fetch("sr.dci.is_registered", {"id": "EXT-1", "name": "SR Person"})
+        result = self._fetch("r.dci.sr.is_registered", {"id": "EXT-1", "name": "SR Person"})
         self.assertEqual(result, {self.partner.id: True})
 
     def test_sr_is_registered_false_when_not_found(self):
-        result = self._fetch("sr.dci.is_registered", None)
+        result = self._fetch("r.dci.sr.is_registered", None)
         self.assertEqual(result, {self.partner.id: False})
 
     # -- programmes ------------------------------------------------------------
 
     def test_sr_program_count(self):
         person = {"enrolled_programs": [{"programme_name": "A"}, {"programme_name": "B"}]}
-        result = self._fetch("sr.dci.program_count", person, value_type="number")
+        result = self._fetch("r.dci.sr.program_count", person, value_type="number")
         self.assertEqual(result, {self.partner.id: 2})
 
     def test_sr_program_count_zero_without_enrollments(self):
-        result = self._fetch("sr.dci.program_count", {"id": "EXT-1"}, value_type="number")
+        result = self._fetch("r.dci.sr.program_count", {"id": "EXT-1"}, value_type="number")
         self.assertEqual(result, {self.partner.id: 0})
 
     def test_sr_program_count_zero_when_not_found(self):
         """Not found in SR -> 0 programs (a value, so the cache stays complete)."""
-        result = self._fetch("sr.dci.program_count", None, value_type="number")
+        result = self._fetch("r.dci.sr.program_count", None, value_type="number")
         self.assertEqual(result, {self.partner.id: 0})
 
     def test_sr_has_programs(self):
         person = {"enrolled_programs": [{"programme_name": "A"}]}
-        self.assertEqual(self._fetch("sr.dci.has_programs", person), {self.partner.id: True})
-        self.assertEqual(self._fetch("sr.dci.has_programs", {"id": "X"}), {self.partner.id: False})
+        self.assertEqual(self._fetch("r.dci.sr.has_programs", person), {self.partner.id: True})
+        self.assertEqual(self._fetch("r.dci.sr.has_programs", {"id": "X"}), {self.partner.id: False})
 
     # -- household -------------------------------------------------------------
 
     def test_sr_household_size(self):
         person = {"household_info": {"household_size": 4, "is_household_head": False}}
-        result = self._fetch("sr.dci.household_size", person, value_type="number")
+        result = self._fetch("r.dci.sr.household_size", person, value_type="number")
         self.assertEqual(result, {self.partner.id: 4})
 
     def test_sr_household_size_zero_without_household(self):
         """Registered but household-less -> size 0 (complete cache)."""
-        result = self._fetch("sr.dci.household_size", {"id": "EXT-1"}, value_type="number")
+        result = self._fetch("r.dci.sr.household_size", {"id": "EXT-1"}, value_type="number")
         self.assertEqual(result, {self.partner.id: 0})
 
     def test_sr_is_head_of_household(self):
         person = {"household_info": {"household_size": 3, "is_household_head": True}}
-        self.assertEqual(self._fetch("sr.dci.is_head_of_household", person), {self.partner.id: True})
+        self.assertEqual(self._fetch("r.dci.sr.is_head_of_household", person), {self.partner.id: True})
 
     def test_sr_is_head_false_without_household(self):
-        result = self._fetch("sr.dci.is_head_of_household", {"id": "EXT-1"})
+        result = self._fetch("r.dci.sr.is_head_of_household", {"id": "EXT-1"})
         self.assertEqual(result, {self.partner.id: False})
 
     def test_sr_large_household_above_threshold(self):
         person = {"household_info": {"household_size": 6}}
-        self.assertEqual(self._fetch("sr.dci.large_household", person), {self.partner.id: True})
+        self.assertEqual(self._fetch("r.dci.sr.large_household", person), {self.partner.id: True})
 
     def test_sr_large_household_at_threshold_is_false(self):
         # The seeded variable documents "more than 5 members"
         person = {"household_info": {"household_size": 5}}
-        self.assertEqual(self._fetch("sr.dci.large_household", person), {self.partner.id: False})
+        self.assertEqual(self._fetch("r.dci.sr.large_household", person), {self.partner.id: False})
 
     def test_sr_large_household_false_without_household(self):
-        result = self._fetch("sr.dci.large_household", {"id": "EXT-1"})
+        result = self._fetch("r.dci.sr.large_household", {"id": "EXT-1"})
         self.assertEqual(result, {self.partner.id: False})

@@ -1,11 +1,11 @@
 """Let CEL authors reference DCI variables with their dotted accessor.
 
 The base resolver tokenizes with the CEL lexer and only matches single-identifier
-variable references; a dotted accessor like ``crvs.dci.is_alive`` would be
+variable references; a dotted accessor like ``r.dci.crvs.is_alive`` would be
 mis-read as field navigation on the query root. This override runs a pre-pass
 that rewrites any *registered cached-variable dotted accessor* into its
 ``metric('<accessor>', me)`` call before normal resolution, so users can write
-``crvs.dci.is_alive == true`` and it resolves against the value cache.
+``r.dci.crvs.is_alive == true`` and it resolves against the value cache.
 
 Only accessors that exactly match a registered ttl/manual variable are touched;
 ordinary navigation (``me.gender``, ``r.age``) matches no accessor and is left
@@ -39,7 +39,7 @@ class CelVariableResolverDCI(models.AbstractModel):
     @api.model
     def _expand_dci_methods(self, expression):
         """Rewrite parameterized DCI method calls into params-carrying metric()
-        calls: e.g. dr.dci.severity('Vision') -> metric('dr.dci.severity', me,
+        calls: e.g. r.dci.dr.severity('Vision') -> metric('r.dci.dr.severity', me,
         arg='Vision'). The named arg becomes the metric params (params_hash)."""
         from .dci_cel_fetcher import DCI_METHOD_ACCESSORS
 

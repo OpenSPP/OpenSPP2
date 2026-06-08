@@ -3,10 +3,10 @@
 usable in a real CEL expression.
 
 Chain exercised:
-  seeded variable (crvs.dci.is_alive, external, DCI-backed provider)
+  seeded variable (r.dci.crvs.is_alive, external, DCI-backed provider)
    -> precompute_variable -> fetcher -> CRVS check_death (mocked)
    -> cached in spp.data.value (keyed by cel_accessor)
-   -> compile_expression("crvs.dci.is_alive == true") filters partners.
+   -> compile_expression("r.dci.crvs.is_alive == true") filters partners.
 
 This nails both the name-vs-accessor cache keying and the value encoding the
 comparison SQL expects.
@@ -59,8 +59,8 @@ class TestDCICelEndToEnd(TransactionCase):
         return partner
 
     def test_variable_accessor_is_new_format(self):
-        """Guard: the seeded variable uses the <registry>.dci.<metric> accessor."""
-        self.assertEqual(self.var.cel_accessor, "crvs.dci.is_alive")
+        """Guard: the seeded variable uses the r.dci.<registry>.<metric> accessor."""
+        self.assertEqual(self.var.cel_accessor, "r.dci.crvs.is_alive")
 
     def test_fetch_caches_under_accessor_key(self):
         """precompute must write spp.data.value keyed by cel_accessor (not name)."""
@@ -68,7 +68,7 @@ class TestDCICelEndToEnd(TransactionCase):
             self.CacheMgr.precompute_variable("dci.crvs.is_alive", [self.alive.id])
 
         cached = self.env["spp.data.value"].search(
-            [("variable_name", "=", "crvs.dci.is_alive"), ("subject_id", "=", self.alive.id)]
+            [("variable_name", "=", "r.dci.crvs.is_alive"), ("subject_id", "=", self.alive.id)]
         )
         self.assertTrue(cached, "value should be cached under the cel_accessor key")
         # Booleans are stored as 1/0 so the metric comparison SQL can cast them.
@@ -85,7 +85,7 @@ class TestDCICelEndToEnd(TransactionCase):
             self.CacheMgr.precompute_variable("dci.crvs.is_alive", [self.dead.id])
 
         result = self.CelService.compile_expression(
-            "crvs.dci.is_alive == true",
+            "r.dci.crvs.is_alive == true",
             profile="registry_individuals",
             base_domain=[("id", "in", [self.alive.id, self.dead.id])],
             limit=0,
@@ -94,5 +94,5 @@ class TestDCICelEndToEnd(TransactionCase):
         self.assertTrue(result.get("valid"), result.get("error"))
 
         matched = self.env["res.partner"].search(result["domain"])
-        self.assertIn(self.alive, matched, "alive person should match crvs.dci.is_alive == true")
+        self.assertIn(self.alive, matched, "alive person should match r.dci.crvs.is_alive == true")
         self.assertNotIn(self.dead, matched, "dead person should not match")

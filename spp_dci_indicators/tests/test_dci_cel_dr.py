@@ -55,33 +55,33 @@ class TestDCICelDRHandlers(TransactionCase):
         )
 
     def test_dr_has_disability_true(self):
-        var = self._var("dr.dci.has_disability")
+        var = self._var("r.dci.dr.has_disability")
         with patch(GET_STATUS, return_value={"has_disability": True, "functional_scores": {}}):
             result = self.Fetcher.fetch_values(var, [self.partner.id])
         self.assertEqual(result, {self.partner.id: True})
 
     def test_dr_has_disability_false_when_no_record(self):
-        var = self._var("dr.dci.has_disability")
+        var = self._var("r.dci.dr.has_disability")
         with patch(GET_STATUS, return_value=None):
             result = self.Fetcher.fetch_values(var, [self.partner.id])
         self.assertEqual(result, {self.partner.id: False})
 
     def test_dr_assessed(self):
-        var = self._var("dr.dci.assessed")
+        var = self._var("r.dci.dr.assessed")
         with patch(GET_STATUS, return_value={"assessment_date": "2024-11-15"}):
             self.assertEqual(self.Fetcher.fetch_values(var, [self.partner.id]), {self.partner.id: True})
 
     def test_dr_vision_severe_true_at_threshold(self):
-        var = self._var("dr.dci.vision_severe")
+        var = self._var("r.dci.dr.vision_severe")
         with patch(GET_STATUS, return_value={"functional_scores": {"Vision": 3}}):
             self.assertEqual(self.Fetcher.fetch_values(var, [self.partner.id]), {self.partner.id: True})
 
     def test_dr_vision_severe_false_below_threshold(self):
-        var = self._var("dr.dci.vision_severe")
+        var = self._var("r.dci.dr.vision_severe")
         with patch(GET_STATUS, return_value={"functional_scores": {"Vision": 2}}):
             self.assertEqual(self.Fetcher.fetch_values(var, [self.partner.id]), {self.partner.id: False})
 
     def test_dr_mobility_severe(self):
-        var = self._var("dr.dci.mobility_severe")
+        var = self._var("r.dci.dr.mobility_severe")
         with patch(GET_STATUS, return_value={"functional_scores": {"Mobility": 4}}):
             self.assertEqual(self.Fetcher.fetch_values(var, [self.partner.id]), {self.partner.id: True})
