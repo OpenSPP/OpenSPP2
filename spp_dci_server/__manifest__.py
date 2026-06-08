@@ -1,7 +1,7 @@
 {  # pylint: disable=pointless-statement
     "name": "OpenSPP DCI Server",
     "summary": "DCI API server infrastructure with FastAPI routers",
-    "version": "19.0.2.0.2",
+    "version": "19.0.2.0.3",
     "category": "OpenSPP/Integration",
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",

@@ -484,10 +484,16 @@ Notifications triggered automatically on registrant changes.</p>
 </div>
 <div class="section" id="security">
 <h1>Security</h1>
-<p>No new access rules. Search requires
+<p>No new access rules. Search requires the
 <tt class="docutils literal">spp_registry.group_registry_viewer</tt> group (enforced in
 <tt class="docutils literal">DCISocialSearchService._process_search_item()</tt>). Inherits access
 control from <tt class="docutils literal">spp_registry</tt> and <tt class="docutils literal">spp_dci_server</tt>.</p>
+<p>Because the search runs under the DCI FastAPI endpoint’s user, that user
+must hold <tt class="docutils literal">spp_registry.group_registry_viewer</tt>. The endpoint ships as
+the public user, which lacks it, so Social Registry searches are
+rejected until a registry-viewer service user is assigned to the
+endpoint — see <strong>Endpoint user (required for Social Registry search)</strong>
+in the <tt class="docutils literal">spp_dci_server</tt> documentation.</p>
 </div>
 <div class="section" id="extension-points">
 <h1>Extension Points</h1>

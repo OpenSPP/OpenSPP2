@@ -2,7 +2,7 @@
 {
     "name": "OpenSPP DCI Server - Social Registry",
     "summary": "Expose Social Registry beneficiaries via DCI API",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "category": "OpenSPP/Integration",
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",

@@ -64,7 +64,9 @@ No standalone UI. Search functionality accessed via DCI API endpoints. Notificat
 
 ### Security
 
-No new access rules. Search requires `spp_registry.group_registry_viewer` group (enforced in `DCISocialSearchService._process_search_item()`). Inherits access control from `spp_registry` and `spp_dci_server`.
+No new access rules. Search requires the `spp_registry.group_registry_viewer` group (enforced in `DCISocialSearchService._process_search_item()`). Inherits access control from `spp_registry` and `spp_dci_server`.
+
+Because the search runs under the DCI FastAPI endpoint's user, that user must hold `spp_registry.group_registry_viewer`. The endpoint ships as the public user, which lacks it, so Social Registry searches are rejected until a registry-viewer service user is assigned to the endpoint — see **Endpoint user (required for Social Registry search)** in the `spp_dci_server` documentation.
 
 ### Extension Points
 
