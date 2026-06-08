@@ -508,22 +508,20 @@ class DCIDataSource(models.Model):
         try:
             headers = self.get_headers()
 
-            # Test connection with a simple request to base URL
-            # Most DCI APIs have a health or info endpoint at root
-            test_url = f"{self.base_url}/health"
+            # Probe the authenticated ping endpoint. A 200 confirms both
+            # reachability *and* that our credentials are accepted; a 401/403
+            # means we reached the server but auth is misconfigured (and falls
+            # through to the HTTPStatusError branch below).
+            test_url = f"{self.base_url}/registry/ping"
 
             with httpx.Client(verify=self.verify_ssl, timeout=self.timeout) as client:
                 response = client.get(test_url, headers=headers)
 
-                # Consider 200, 404, and 405 as "connection successful"
-                # (404/405 mean we reached the server, just wrong endpoint)
-                if response.status_code in (200, 404, 405):
+                if response.status_code == 200:
                     _logger.info(
-                        "Connection test successful for data source %s: HTTP %s",
+                        "Connection test successful for data source %s: HTTP 200",
                         self.code,
-                        response.status_code,
                     )
-                    # Update state to active and record test date
                     self.write(
                         {
                             "state": "active",
@@ -536,9 +534,40 @@ class DCIDataSource(models.Model):
                         "tag": "display_notification",
                         "params": {
                             "title": _("Connection Successful"),
-                            "message": _("Successfully connected to %s at %s (HTTP %s)")
-                            % (self.name, self.base_url, response.status_code),
+                            "message": _("Connected to %s at %s and credentials were accepted.")
+                            % (self.name, self.base_url),
                             "type": "success",
+                            "sticky": False,
+                        },
+                    }
+                elif response.status_code in (404, 405):
+                    # We reached the server, but it has no ping endpoint (e.g. a
+                    # non-OpenSPP DCI server). Treat as reachable, but make clear
+                    # the credentials were not verified.
+                    _logger.info(
+                        "Connection test reached data source %s but no ping endpoint (HTTP %s); "
+                        "credentials not verified",
+                        self.code,
+                        response.status_code,
+                    )
+                    self.write(
+                        {
+                            "state": "active",
+                            "last_test_date": fields.Datetime.now(),
+                            "last_error": False,
+                        }
+                    )
+                    return {
+                        "type": "ir.actions.client",
+                        "tag": "display_notification",
+                        "params": {
+                            "title": _("Server Reachable"),
+                            "message": _(
+                                "Reached %s at %s, but it has no ping endpoint (HTTP %s), "
+                                "so the credentials could not be verified."
+                            )
+                            % (self.name, self.base_url, response.status_code),
+                            "type": "warning",
                             "sticky": False,
                         },
                     }

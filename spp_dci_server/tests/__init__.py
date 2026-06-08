@@ -9,6 +9,7 @@ from . import test_callback_routers
 from . import test_consent_adapter
 from . import test_fastapi_endpoint_dci
 from . import test_jwks_router
+from . import test_ping_router
 from . import test_rate_limit_middleware
 from . import test_receipt
 from . import test_receipt_router

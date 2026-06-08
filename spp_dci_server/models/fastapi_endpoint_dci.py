@@ -118,6 +118,7 @@ class SppDciServerEndpoint(models.Model):
             from ..routers.bulk_upload import dci_bulk_upload_router
             from ..routers.callbacks import dci_callback_router
             from ..routers.jwks import jwks_router
+            from ..routers.ping import dci_ping_router
             from ..routers.receipt import dci_receipt_router
             from ..routers.registry_aliases import (
                 crvs_router,
@@ -138,6 +139,7 @@ class SppDciServerEndpoint(models.Model):
             registry_router.include_router(dci_callback_router)
             registry_router.include_router(dci_bulk_upload_router)
             registry_router.include_router(dci_receipt_router)
+            registry_router.include_router(dci_ping_router)
             routers.append(registry_router)
 
             # Legacy long-form mount kept for existing deployments that
@@ -148,6 +150,7 @@ class SppDciServerEndpoint(models.Model):
             social_router.include_router(dci_callback_router)
             social_router.include_router(dci_bulk_upload_router)
             social_router.include_router(dci_receipt_router)
+            social_router.include_router(dci_ping_router)
             routers.append(social_router)
 
             # Add SPDCI-compliant registry type endpoints (stub implementations)
