@@ -59,17 +59,17 @@ This module defines no model access rights (empty
 ``ir.model.access.csv``). It provides only security groups and record
 rules.
 
-+-----------------------+--------------------------------+----------------------+
-| Group                 | XML ID                         | Purpose              |
-+=======================+================================+======================+
-| Administrator         | ``group_spp_admin``            | Inherits all manager |
-|                       |                                | permissions from all |
-|                       |                                | domains              |
-+-----------------------+--------------------------------+----------------------+
-| Restricted: Self Only | ``group_access_restrict_self`` | Restricts users to   |
-|                       |                                | viewing only their   |
-|                       |                                | own record           |
-+-----------------------+--------------------------------+----------------------+
++----------------------+--------------------------------+----------------------+
+| Group                | XML ID                         | Purpose              |
++======================+================================+======================+
+| Administrator        | ``group_spp_admin``            | Inherits all manager |
+|                      |                                | permissions from all |
+|                      |                                | domains              |
++----------------------+--------------------------------+----------------------+
+| Restricted: Self     | ``group_access_restrict_self`` | Restricts users to   |
+| Only                 |                                | viewing only their   |
+|                      |                                | own record           |
++----------------------+--------------------------------+----------------------+
 
 Record rules:
 
