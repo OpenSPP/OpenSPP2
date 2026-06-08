@@ -398,12 +398,12 @@ bbox via ST_Intersects)</li>
 </div>
 <div class="section" id="api-endpoints">
 <h1>API Endpoints</h1>
-<p><strong>OGC API - Features (primary interface)</strong></p>
+<p><strong>OGC API - Features</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="53%" />
-<col width="10%" />
-<col width="37%" />
+<col width="51%" />
+<col width="19%" />
+<col width="31%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Endpoint</th>
@@ -429,25 +429,27 @@ bbox via ST_Intersects)</li>
 <td>Collection metadata</td>
 </tr>
 <tr><td><tt class="docutils literal"><span class="pre">/gis/ogc/collections/{id}/items</span></tt></td>
-<td>GET</td>
+<td>GET/POST</td>
 <td>Feature items (GeoJSON)</td>
 </tr>
 <tr><td><tt class="docutils literal"><span class="pre">/gis/ogc/collections/{id}/items/{fid}</span></tt></td>
-<td>GET</td>
-<td>Single feature</td>
+<td>GET/PUT/DELETE</td>
+<td>Single feature (CRUD for
+geofences)</td>
 </tr>
 <tr><td><tt class="docutils literal"><span class="pre">/gis/ogc/collections/{id}/qml</span></tt></td>
 <td>GET</td>
-<td>QGIS style file (extension)</td>
+<td>QGIS style file
+(extension)</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Additional endpoints</strong></p>
+<p><strong>OGC API - Processes</strong></p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="44%" />
-<col width="17%" />
-<col width="39%" />
+<col width="49%" />
+<col width="15%" />
+<col width="35%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Endpoint</th>
@@ -456,21 +458,54 @@ bbox via ST_Intersects)</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><tt class="docutils literal">/gis/query/statistics</tt></td>
+<tr><td><tt class="docutils literal">/gis/ogc/processes</tt></td>
+<td>GET</td>
+<td>List available processes</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">/gis/ogc/processes/{id}</span></tt></td>
+<td>GET</td>
+<td>Process description</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">/gis/ogc/processes/{id}/execution</span></tt></td>
 <td>POST</td>
-<td>Query stats for polygon</td>
+<td>Execute process
+(sync/async)</td>
 </tr>
-<tr><td><tt class="docutils literal">/gis/geofences</tt></td>
-<td>POST/GET</td>
-<td>Geofence management</td>
+<tr><td><tt class="docutils literal">/gis/ogc/jobs</tt></td>
+<td>GET</td>
+<td>List jobs</td>
 </tr>
-<tr><td><tt class="docutils literal"><span class="pre">/gis/geofences/{id}</span></tt></td>
+<tr><td><tt class="docutils literal"><span class="pre">/gis/ogc/jobs/{id}</span></tt></td>
 <td>GET/DELETE</td>
-<td>Single geofence</td>
+<td>Job status / dismiss</td>
 </tr>
+<tr><td><tt class="docutils literal"><span class="pre">/gis/ogc/jobs/{id}/results</span></tt></td>
+<td>GET</td>
+<td>Job results</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Utility endpoints</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="46%" />
+<col width="11%" />
+<col width="44%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Endpoint</th>
+<th class="head">Method</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
 <tr><td><tt class="docutils literal">/gis/export/geopackage</tt></td>
 <td>GET</td>
 <td>Export for offline use</td>
+</tr>
+<tr><td><tt class="docutils literal">/gis/statistics</tt></td>
+<td>GET</td>
+<td>List published statistics</td>
 </tr>
 </tbody>
 </table>
@@ -510,11 +545,11 @@ individual registrant records.</p>
 <li><strong>OGC collections/items</strong>: Return GeoJSON features organized by
 administrative area, with pre-computed aggregate values (counts,
 percentages). Each feature represents an <em>area</em>, not a person.</li>
-<li><strong>Spatial query statistics</strong> (<tt class="docutils literal">POST /gis/query/statistics</tt>): Accepts
-a GeoJSON polygon and returns configured aggregate statistics computed
-by <tt class="docutils literal">spp.analytics.service</tt>. Individual registrant IDs are computed
+<li><strong>Spatial query statistics</strong> (via OGC Processes): Accepts a GeoJSON
+polygon and returns configured aggregate statistics computed by
+<tt class="docutils literal">spp.analytics.service</tt>. Individual registrant IDs are computed
 internally for aggregation but are <strong>explicitly stripped</strong> from the
-response before it is sent (see <tt class="docutils literal">spatial_query.py</tt>).</li>
+response before it is sent.</li>
 <li><strong>Exports</strong> (GeoPackage/GeoJSON): Contain the same area-level
 aggregated layer data, not registrant-level records.</li>
 <li><strong>Geofences</strong>: Store only geometry and metadata — no registrant data.</li>
