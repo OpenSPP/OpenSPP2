@@ -134,7 +134,7 @@ class GeofenceMembershipManager(models.Model):
             return self.env["res.partner"].browse()
 
         combined = self._get_combined_geometry()
-        if combined is None:
+        if combined is None or combined.is_empty:
             return self.env["res.partner"].browse()
 
         combined_geojson = json.dumps(mapping(combined))

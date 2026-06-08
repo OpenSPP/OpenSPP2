@@ -48,5 +48,5 @@ class SPPCreateNewProgramWizGeofence(models.TransientModel):
         )
 
         return {
-            "eligibility_manager_ids": [(4, parent_mgr.id)],
+            "eligibility_manager_ids": [Command.link(parent_mgr.id)],
         }
