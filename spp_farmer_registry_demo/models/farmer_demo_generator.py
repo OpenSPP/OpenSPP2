@@ -1702,6 +1702,21 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             "auto_approve_entitlements": True,
         }
 
+        # Enable compliance verification at wizard time for programs that ship a
+        # compliance CEL rule. The base create wizard does NOT create a
+        # compliance manager — only `create_program_wizard_compliance` does, and
+        # only when `enable_compliance_verification` is set. Without this the
+        # programs show "no compliance defined" in the UI. See OP#915 round 7.
+        compliance_cel = program_def.get("compliance_cel_expression")
+        if compliance_cel:
+            wizard_vals.update(
+                {
+                    "enable_compliance_verification": True,
+                    "compliance_type": "spp.compliance.manager.default",
+                    "compliance_cel_expression": compliance_cel,
+                }
+            )
+
         wizard = self.env["spp.program.create.wizard"].create(wizard_vals)
 
         # Add cash entitlement item
@@ -1789,6 +1804,13 @@ class SPPFarmerDemoGenerator(models.TransientModel):
         # through the compliance workflow. See OP#915.
         self._configure_compliance_manager(program, program_def)
 
+        # Materialise the documented benefit formula on the cash entitlement
+        # manager. The wizard only seeds a single flat-amount line; programs
+        # that scale by a registrant metric (Input Subsidy per hectare,
+        # Livestock per head) need explicit base + multiplier lines so the
+        # disbursed amount actually matches the formula. See OP#915 round 7.
+        self._configure_entitlement_formula(program, program_def)
+
         # Wire approval definitions onto the cycle + entitlement managers so
         # cycles and entitlements created on this program enter the demo's
         # approval workflow. Without this the managers' `approval_definition_id`
@@ -1874,6 +1896,69 @@ class SPPFarmerDemoGenerator(models.TransientModel):
         except Exception as e:
             _logger.warning(
                 "Could not configure compliance manager (program_id=%s): %s",
+                program.id,
+                e,
+            )
+
+    def _configure_entitlement_formula(self, program, program_def):
+        """Rebuild the cash entitlement manager's line items from the program's
+        ``entitlement_items`` spec so the benefit actually follows the formula.
+
+        Each spec entry is ``{"amount": <float>, "multiplier_field": <res.partner
+        field name, optional>, "max_multiplier": <int, optional>}``. A line with
+        no multiplier contributes a flat ``amount`` (the base); a line with a
+        ``multiplier_field`` contributes ``amount * <field value>``. The cash
+        manager sums all lines per beneficiary, so ``base + (metric * rate)`` is
+        expressed as two lines.
+
+        ``multiplier_field`` accepts any ``res.partner`` field that resolves to a
+        number. The platform's picker UI only lists integer fields, but the
+        runtime calculation handles floats too, so we wire ``farm_size_hectares``
+        (a Float) here directly. Programs without an ``entitlement_items`` spec
+        keep the flat amount the wizard already seeded.
+        """
+        items_spec = program_def.get("entitlement_items")
+        if not items_spec:
+            return
+        try:
+            entitlement_manager = program.get_manager(program.MANAGER_ENTITLEMENT)
+            if not entitlement_manager or "entitlement_item_ids" not in entitlement_manager._fields:
+                return
+
+            ir_fields = self.env["ir.model.fields"]
+            # (5, 0, 0) clears the flat line the wizard created so the formula
+            # lines are the single source of truth.
+            commands = [(5, 0, 0)]
+            for spec in items_spec:
+                vals = {"amount": spec["amount"]}
+                field_name = spec.get("multiplier_field")
+                if field_name:
+                    field_rec = ir_fields.search(
+                        [("model", "=", "res.partner"), ("name", "=", field_name)],
+                        limit=1,
+                    )
+                    if not field_rec:
+                        _logger.warning(
+                            "Multiplier field res.partner.%s not found; "
+                            "entitlement line for program %s falls back to flat amount",
+                            field_name,
+                            program.id,
+                        )
+                    else:
+                        vals["multiplier_field"] = field_rec.id
+                    if spec.get("max_multiplier"):
+                        vals["max_multiplier"] = spec["max_multiplier"]
+                commands.append((0, 0, vals))
+
+            entitlement_manager.write({"entitlement_item_ids": commands})
+            _logger.info(
+                "Configured entitlement formula for program (program_id=%s): %d line(s)",
+                program.id,
+                len(items_spec),
+            )
+        except Exception as e:
+            _logger.warning(
+                "Could not configure entitlement formula (program_id=%s): %s",
                 program.id,
                 e,
             )

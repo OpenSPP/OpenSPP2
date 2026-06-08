@@ -507,7 +507,7 @@ class TestStoryChangeRequestDefinitions(TransactionCase):
 
     def test_cr_defs_have_valid_type_codes(self):
         """All CR type codes must be one of the known types."""
-        valid_types = {"update_farm_details", "manage_farm_activity"}
+        valid_types = {"update_farm_details", "manage_farm_activity", "manage_farm_asset"}
         for story_id, cr_def in self.wizard.STORY_CHANGE_REQUESTS.items():
             self.assertIn(
                 cr_def["type_code"],

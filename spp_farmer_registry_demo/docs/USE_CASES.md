@@ -22,8 +22,14 @@ validator chain.
 | `officer`            | `demo`   | Farm User + CR Requestor        | Farm data entry, CR submission                 |
 | `supervisor`         | `demo`   | Farm Manager                    | Program manager view, approvals                |
 | `viewer`             | `demo`   | Farm User                       | Read-only walkthroughs                         |
+| `program_manager`    | `demo`   | Program Manager + Farm User     | Cycle + entitlement approval (Scenario 9)      |
 | `cr_local_validator` | `demo`   | CR Local Validator (Tier-1)     | Local CR approval / revision-request scenarios |
 | `cr_hq_validator`    | `demo`   | CR HQ Validator (Tier-2)        | HQ-tier CR approval scenarios                  |
+
+> The `program_manager` account holds the **Program Manager** role (the group the demo's
+> cycle + entitlement approval definitions are assigned to) and carries **queue-job
+> manager** rights, which approving a cycle needs in order to enqueue the
+> entitlement-validation job. Use it for the Scenario 9 approval walk.
 
 ## Farm stories
 
@@ -583,7 +589,11 @@ workflow (a feature MIS demo lacks).
 2. The cycle enters state `to_approve` (not `draft`) because its cycle manager has
    `approval_definition_id` set
 3. Show the approval review record — assigned to `group_programs_manager`, SLA 3 days
-4. As Program Manager, approve the cycle → state moves to `approved`
+4. Log in as the `program_manager` demo user (Program Manager role) and approve the
+   cycle → state moves to `approved`. Approving a cycle enqueues the entitlement-
+   validation job; the `program_manager` account carries queue-job manager rights so the
+   job can be created — a plain Program Manager without those rights hits an access
+   error at this step.
 5. Generate entitlements → each entitlement enters `pending_validation` and follows the
    same approval flow
 
@@ -592,6 +602,8 @@ workflow (a feature MIS demo lacks).
 - Approval is opt-in per program manager; here every farmer demo program has it wired
 - Adding `manager.approval_definition_id` is the only knob — the rest is the standard
   `spp.approval.definition` framework
+- The cycle approver needs queue-job manager rights because cycle approval enqueues the
+  entitlement-validation job; the `program_manager` role bundles both
 
 ---
 
@@ -817,17 +829,17 @@ experience 25 years. Sits exactly at the smallholder boundary.
 
 #### 1. Input Subsidy Program (Group)
 
-| Field             | Value                                                                                                                                                                                                            |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Target            | Farm (Group)                                                                                                                                                                                                     |
-| CEL (Eligibility) | `r.is_group == true and is_smallholder and has_productive_land`                                                                                                                                                  |
-| CEL (Compliance)  | `has_productive_land == true and farm_size_hectares > 0`                                                                                                                                                         |
-| Constants         | `input_subsidy_base` = 100; `per_hectare_subsidy` = 50                                                                                                                                                           |
-| Entitlement       | ₱200 fixed per cycle. (Formula `base + (farm_size_hectares × per_hectare_subsidy)` is the design intent; the demo cycles use the program's flat fallback amount until the CEL-driven entitlement formula lands.) |
-| Cycle             | 30 days                                                                                                                                                                                                          |
-| Logic Pack        | `farmer_input_subsidy`                                                                                                                                                                                           |
-| Approval          | Cycle: Program Manager (3-day SLA); Entitlement: Program Manager (3-day SLA)                                                                                                                                     |
-| Compliance Note   | Re-checks productive land each cycle. A farm that abandons productive use becomes `non_compliant` for that cycle and gets no entitlement.                                                                        |
+| Field             | Value                                                                                                                                                                                                        |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Target            | Farm (Group)                                                                                                                                                                                                 |
+| CEL (Eligibility) | `r.is_group == true and is_smallholder and has_productive_land`                                                                                                                                              |
+| CEL (Compliance)  | `has_productive_land == true and farm_size_hectares > 0`                                                                                                                                                     |
+| Constants         | `input_subsidy_base` = 100; `per_hectare_subsidy` = 50                                                                                                                                                       |
+| Entitlement       | `base + (farm_size_hectares × per_hectare_subsidy)` — two cash lines: ₱100 base + ₱50 per hectare. A 2 ha farm receives 100 + (2 × 50) = ₱200 per cycle; the amount scales with the farm's actual hectarage. |
+| Cycle             | 30 days                                                                                                                                                                                                      |
+| Logic Pack        | `farmer_input_subsidy`                                                                                                                                                                                       |
+| Approval          | Cycle: Program Manager (3-day SLA); Entitlement: Program Manager (3-day SLA)                                                                                                                                 |
+| Compliance Note   | Re-checks productive land each cycle. A farm that abandons productive use becomes `non_compliant` for that cycle and gets no entitlement.                                                                    |
 
 #### 2. Equipment Grant Program (Group)
 
@@ -845,15 +857,15 @@ experience 25 years. Sits exactly at the smallholder boundary.
 
 #### 3. Livestock Support Program (Group)
 
-| Field       | Value                                                                                                                                                                                                     |
-| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Target      | Farm (Group)                                                                                                                                                                                              |
-| CEL         | `r.is_group == true and livestock_count > 0`                                                                                                                                                              |
-| Constants   | `livestock_base` = 75; `per_head_amount` = 10                                                                                                                                                             |
-| Entitlement | ₱275 fixed per cycle. (Formula `base + (livestock_count × per_head_amount)` is the design intent; the demo cycles use the program's flat fallback amount until the CEL-driven entitlement formula lands.) |
-| Cycle       | 30 days                                                                                                                                                                                                   |
-| Logic Pack  | `farmer_livestock_support`                                                                                                                                                                                |
-| Approval    | Cycle: Program Manager (3-day SLA); Entitlement: Program Manager (3-day SLA)                                                                                                                              |
+| Field       | Value                                                                                                                                                                                                       |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Target      | Farm (Group)                                                                                                                                                                                                |
+| CEL         | `r.is_group == true and livestock_count > 0`                                                                                                                                                                |
+| Constants   | `livestock_base` = 75; `per_head_amount` = 10                                                                                                                                                               |
+| Entitlement | `base + (total_livestock_heads × per_head_amount)` — two cash lines: ₱75 base + ₱10 per head. A 20-head farm receives 75 + (20 × 10) = ₱275 per cycle; the amount scales with the farm's actual head count. |
+| Cycle       | 30 days                                                                                                                                                                                                     |
+| Logic Pack  | `farmer_livestock_support`                                                                                                                                                                                  |
+| Approval    | Cycle: Program Manager (3-day SLA); Entitlement: Program Manager (3-day SLA)                                                                                                                                |
 
 #### 4. Climate Resilience Program (Group)
 

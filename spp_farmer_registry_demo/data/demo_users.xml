@@ -131,4 +131,36 @@
         <field name="company_id" ref="base.main_company" />
         <field name="active" eval="True" />
     </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+             PROGRAM CYCLE / ENTITLEMENT APPROVER
+             ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Program Manager - approves program cycles and entitlements.
+         The demo's cycle + entitlement approval definitions are assigned to
+         `spp_programs.group_programs_manager`, so the approver must hold the
+         Program Manager role. Approving a cycle enqueues the entitlement
+         validation job, which needs `queue.job` create rights — granted via
+         `job_worker.group_queue_job_manager` on the Program Manager role. The
+         Farm User role is added so this account can also browse the registry
+         and the farms it disburses to. Per OP#915 round 7. -->
+    <record
+        id="demo_user_program_manager"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field name="name">Program Manager</field>
+        <field name="login">program_manager</field>
+        <field name="email">program_manager@example.com</field>
+        <field name="password">demo</field>
+        <field
+            name="role_line_ids"
+            eval="[
+                (0, 0, {'role_id': ref('spp_user_roles.global_role_program_manager')}),
+                (0, 0, {'role_id': ref('spp_farmer_registry.global_role_farm_user')}),
+            ]"
+        />
+        <field name="company_id" ref="base.main_company" />
+        <field name="active" eval="True" />
+    </record>
 </odoo>

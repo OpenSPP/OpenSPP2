@@ -561,3 +561,113 @@ class TestDemoGeneratorGIS(TransactionCase):
         self.env["ir.config_parameter"].sudo().set_param("spp.farmer.demo.loaded", "True")
         wizard._compute_demo_already_loaded()
         self.assertTrue(wizard.demo_already_loaded)
+
+
+@tagged("post_install", "-at_install")
+class TestFarmerDemoProgramConfiguration(TransactionCase):
+    """Program managers wired by the demo generator (OP#915 round 7).
+
+    Covers compliance-manager creation and formula-based cash entitlement
+    line items, plus the cycle/entitlement approver demo user.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.env = cls.env(
+            context=dict(
+                cls.env.context,
+                tracking_disable=True,
+                mail_create_nolog=True,
+            )
+        )
+        cls.Generator = cls.env["spp.farmer.demo.generator"]
+
+    def _program_def(self, program_id):
+        from odoo.addons.spp_farmer_registry_demo.models.demo_programs import (
+            get_demo_program_by_id,
+        )
+
+        return get_demo_program_by_id(program_id)
+
+    def test_compliance_manager_created_with_cel(self):
+        """Programs that ship a compliance CEL get a compliance manager.
+
+        The base create wizard never makes one; the generator must enable
+        compliance verification so the manager exists and carries the rule.
+        """
+        wizard = self.Generator.create({"name": _unique("Compliance Test")})
+        program_def = self._program_def("input_subsidy")
+        program = wizard._create_program_via_wizard(program_def)
+
+        self.assertTrue(program, "Program should be created")
+        self.assertTrue(
+            program.compliance_manager_ids,
+            "A compliance manager should be created for a program with a compliance CEL",
+        )
+        concrete = program.compliance_manager_ids[0].manager_ref_id
+        self.assertEqual(
+            concrete.compliance_cel_expression,
+            program_def["compliance_cel_expression"],
+            "Compliance manager must carry the program's compliance CEL expression",
+        )
+
+    def test_entitlement_formula_lines_per_hectare(self):
+        """Input Subsidy entitlement = base line + per-hectare multiplier line."""
+        wizard = self.Generator.create({"name": _unique("Formula Test PH")})
+        program = wizard._create_program_via_wizard(self._program_def("input_subsidy"))
+
+        entitlement_manager = program.get_manager(program.MANAGER_ENTITLEMENT)
+        items = entitlement_manager.entitlement_item_ids
+        self.assertEqual(len(items), 2, "Input Subsidy should have a base + per-hectare line")
+
+        base = items.filtered(lambda i: not i.multiplier_field)
+        scaled = items.filtered(lambda i: i.multiplier_field)
+        self.assertEqual(base.amount, 100.0)
+        self.assertEqual(scaled.amount, 50.0)
+        self.assertEqual(
+            scaled.multiplier_field.name,
+            "farm_size_hectares",
+            "Per-hectare line must multiply by farm_size_hectares",
+        )
+
+    def test_entitlement_formula_lines_per_head(self):
+        """Livestock entitlement = base line + per-head multiplier line."""
+        wizard = self.Generator.create({"name": _unique("Formula Test Head")})
+        program = wizard._create_program_via_wizard(self._program_def("livestock_support"))
+
+        entitlement_manager = program.get_manager(program.MANAGER_ENTITLEMENT)
+        items = entitlement_manager.entitlement_item_ids
+        self.assertEqual(len(items), 2, "Livestock should have a base + per-head line")
+
+        scaled = items.filtered(lambda i: i.multiplier_field)
+        self.assertEqual(scaled.amount, 10.0)
+        self.assertEqual(
+            scaled.multiplier_field.name,
+            "total_livestock_heads",
+            "Per-head line must multiply by total_livestock_heads",
+        )
+
+    def test_flat_program_keeps_single_line(self):
+        """A program without an entitlement_items spec keeps its flat amount."""
+        wizard = self.Generator.create({"name": _unique("Flat Test")})
+        program = wizard._create_program_via_wizard(self._program_def("equipment_grant"))
+
+        entitlement_manager = program.get_manager(program.MANAGER_ENTITLEMENT)
+        items = entitlement_manager.entitlement_item_ids
+        self.assertEqual(len(items), 1, "Equipment Grant is a flat grant — one line")
+        self.assertFalse(items.multiplier_field, "Flat grant line has no multiplier")
+
+    def test_program_manager_demo_user_can_approve_and_enqueue(self):
+        """The Program Manager demo user holds the groups needed to approve a
+        cycle (program manager) and enqueue the entitlement-validation job
+        (queue.job create → queue job manager)."""
+        user = self.env.ref("spp_farmer_registry_demo.demo_user_program_manager")
+        self.assertTrue(
+            user.has_group("spp_programs.group_programs_manager"),
+            "Approver must be a Program Manager to satisfy the cycle approval definition",
+        )
+        self.assertTrue(
+            user.has_group("job_worker.group_queue_job_manager"),
+            "Approver must have queue job manager rights to enqueue entitlement validation",
+        )
