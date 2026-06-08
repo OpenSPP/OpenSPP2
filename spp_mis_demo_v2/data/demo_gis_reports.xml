@@ -33,7 +33,7 @@
         <field name="bucket_count">5</field>
         <field
             name="dimension_ids"
-            eval="[Command.link(ref('spp_metrics_services.dimension_gender'))]"
+            eval="[Command.link(ref('spp_metric_service.dimension_gender'))]"
         />
         <field name="member_expansion">expand</field>
         <field name="refresh_mode">scheduled</field>
@@ -66,7 +66,7 @@
         <field name="bucket_count">5</field>
         <field
             name="dimension_ids"
-            eval="[Command.link(ref('spp_metrics_services.dimension_gender'))]"
+            eval="[Command.link(ref('spp_metric_service.dimension_gender'))]"
         />
         <field name="member_expansion">expand</field>
         <field name="refresh_mode">scheduled</field>
@@ -99,7 +99,7 @@
         <field name="bucket_count">4</field>
         <field
             name="dimension_ids"
-            eval="[Command.link(ref('spp_metrics_services.dimension_age_group')), Command.link(ref('spp_metrics_services.dimension_gender'))]"
+            eval="[Command.link(ref('spp_metric_service.dimension_age_group')), Command.link(ref('spp_metric_service.dimension_gender'))]"
         />
         <field name="refresh_mode">scheduled</field>
         <field name="refresh_interval">weekly</field>

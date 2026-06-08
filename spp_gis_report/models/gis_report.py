@@ -859,7 +859,7 @@ class GISReport(models.Model):
         if not all_registrant_ids:
             return {}
 
-        cache_service = self.env["spp.metrics.dimension.cache"]
+        cache_service = self.env["spp.metric.dimension.cache"]
         dim_evaluations = {}
         for dimension in fallback_dims:
             dim_evaluations[dimension.name] = cache_service.evaluate_dimension_batch(dimension, all_registrant_ids)
@@ -928,7 +928,7 @@ class GISReport(models.Model):
         if not all_individual_ids:
             return {}
 
-        cache_service = self.env["spp.metrics.dimension.cache"]
+        cache_service = self.env["spp.metric.dimension.cache"]
         dim_evaluations = {}
         for dimension in fallback_dims:
             dim_evaluations[dimension.name] = cache_service.evaluate_dimension_batch(dimension, all_individual_ids)

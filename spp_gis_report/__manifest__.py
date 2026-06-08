@@ -10,7 +10,7 @@
     "depends": [
         "spp_area",
         "spp_gis",
-        "spp_metrics_services",
+        "spp_metric_service",
         "spp_registry",
         "spp_vocabulary",
         "spp_cel_domain",

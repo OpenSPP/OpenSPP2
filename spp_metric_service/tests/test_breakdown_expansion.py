@@ -12,7 +12,7 @@ class TestBreakdownExpansion(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.breakdown = cls.env["spp.metrics.breakdown"]
+        cls.breakdown = cls.env["spp.metric.breakdown"]
         cls.dim_model = cls.env["spp.demographic.dimension"]
 
         # Create a dimension that applies to individuals only

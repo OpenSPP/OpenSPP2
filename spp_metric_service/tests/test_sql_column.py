@@ -145,7 +145,7 @@ class TestDimensionSqlColumn(TransactionCase):
         self.assertIn("_dim1", join2_str)
 
     def test_cross_module_cel_call(self):
-        """Test to_sql_column works cross-module (spp_metrics_services calling spp_cel_domain)."""
+        """Test to_sql_column works cross-module (spp_metric_service calling spp_cel_domain)."""
         # This is the key cross-module integration test
         result = self.dim_age_group.to_sql_column("t", 5)
         self.assertIsNotNone(result)
