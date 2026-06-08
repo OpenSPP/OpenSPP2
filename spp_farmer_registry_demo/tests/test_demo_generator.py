@@ -671,3 +671,49 @@ class TestFarmerDemoProgramConfiguration(TransactionCase):
             user.has_group("job_worker.group_queue_job_manager"),
             "Approver must have queue job manager rights to enqueue entitlement validation",
         )
+
+    def test_full_program_build_completes_without_orphans(self):
+        """Building every demo program in one transaction must not abort.
+
+        Regression for OP#915 round 7: clearing the wizard's flat entitlement
+        line with a ``(5, 0, 0)`` command orphaned it (``entitlement_id`` set to
+        NULL) instead of deleting it, and the deferred write violated the
+        NOT-NULL constraint on the *next* program's flush — aborting the whole
+        demo. Single-program tests miss it because there is no later flush.
+        Build all programs and flush to prove the lines are deleted, not
+        orphaned.
+        """
+        from odoo.addons.spp_farmer_registry_demo.models.demo_programs import (
+            get_all_demo_programs,
+        )
+
+        wizard = self.Generator.create({"name": _unique("Full Program Build")})
+        program_map = wizard._create_demo_programs_via_wizard()
+        # Force pending writes to hit the DB; the orphan bug surfaced here.
+        self.env.flush_all()
+
+        expected = {p["name"] for p in get_all_demo_programs()}
+        self.assertEqual(set(program_map), expected, "Every demo program must be created")
+
+        # Input Subsidy keeps exactly its two formula lines, both linked.
+        input_subsidy = program_map["Input Subsidy Program"]
+        items = input_subsidy.get_manager(input_subsidy.MANAGER_ENTITLEMENT).entitlement_item_ids
+        self.assertEqual(len(items), 2)
+        self.assertTrue(all(item.entitlement_id for item in items))
+
+        # Equipment Grant has no formula spec, so its flat wizard line stays.
+        equipment = program_map["Equipment Grant Program"]
+        eq_items = equipment.get_manager(equipment.MANAGER_ENTITLEMENT).entitlement_item_ids
+        self.assertEqual(len(eq_items), 1)
+
+    def test_farm_user_can_read_program_cycles(self):
+        """A Farm User (registry officer) must be able to read spp.cycle.
+
+        The registrant form lists a registrant's entitlements with their
+        ``cycle_id`` column. The officer already has read on entitlements and
+        cycle memberships; without spp.cycle read too, opening any enrolled
+        farm raised 'not allowed to access Cycle'. OP#915 round 7.
+        """
+        officer = self.env.ref("spp_demo.demo_officer")
+        # Must not raise AccessError for a plain Farm User.
+        self.env["spp.cycle"].with_user(officer).search([], limit=1)

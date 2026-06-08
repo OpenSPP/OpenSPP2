@@ -1926,9 +1926,15 @@ class SPPFarmerDemoGenerator(models.TransientModel):
                 return
 
             ir_fields = self.env["ir.model.fields"]
-            # (5, 0, 0) clears the flat line the wizard created so the formula
-            # lines are the single source of truth.
-            commands = [(5, 0, 0)]
+            # DELETE the flat line(s) the wizard seeded so the formula lines are
+            # the single source of truth. `entitlement_id` is a required (NOT
+            # NULL) FK, so the lines must be unlinked (DELETE) — a `(5, 0, 0)`
+            # clear orphans them instead (UPDATE entitlement_id = NULL) and the
+            # deferred write violates the constraint on the next program's flush,
+            # aborting the whole demo transaction. See OP#915 round 7.
+            entitlement_manager.entitlement_item_ids.unlink()
+
+            commands = []
             for spec in items_spec:
                 vals = {"amount": spec["amount"]}
                 field_name = spec.get("multiplier_field")
