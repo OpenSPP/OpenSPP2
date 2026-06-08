@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <record id="vocab_land_use" model="spp.vocabulary">
+        <field name="name">Land Use</field>
+        <field name="namespace_uri">urn:openspp:vocab:land-use</field>
+        <field name="is_system">True</field>
+        <field name="domain">agriculture</field>
+        <field name="description">Types of land use for agricultural parcels</field>
+    </record>
+
+    <record id="code_land_use_cultivation" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_land_use" />
+        <field name="code">cultivation</field>
+        <field name="display">Cultivation</field>
+        <field name="definition">Land used for crop cultivation</field>
+        <field name="sequence">1</field>
+    </record>
+
+    <record id="code_land_use_livestock" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_land_use" />
+        <field name="code">livestock</field>
+        <field name="display">Livestock</field>
+        <field name="definition">Land used for raising livestock</field>
+        <field name="sequence">2</field>
+    </record>
+
+    <record id="code_land_use_aquaculture" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_land_use" />
+        <field name="code">aquaculture</field>
+        <field name="display">Aquaculture</field>
+        <field name="definition">Land used for aquaculture activities</field>
+        <field name="sequence">3</field>
+    </record>
+
+    <record id="code_land_use_mixed" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_land_use" />
+        <field name="code">mixed</field>
+        <field name="display">Mixed Use</field>
+        <field name="definition">Land used for multiple agricultural purposes</field>
+        <field name="sequence">4</field>
+    </record>
+
+    <record id="code_land_use_fallow" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_land_use" />
+        <field name="code">fallow</field>
+        <field name="display">Fallow</field>
+        <field name="definition">Land left uncultivated to restore fertility</field>
+        <field name="sequence">5</field>
+    </record>
+
+    <record id="code_land_use_leased_out" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_land_use" />
+        <field name="code">leased_out</field>
+        <field name="display">Leased Out</field>
+        <field name="definition">Land leased to another party</field>
+        <field name="sequence">6</field>
+    </record>
+
+    <record id="code_land_use_other" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_land_use" />
+        <field name="code">other</field>
+        <field name="display">Other</field>
+        <field name="definition">Other land use not covered by other categories</field>
+        <field name="sequence">99</field>
+    </record>
+</odoo>

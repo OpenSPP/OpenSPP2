@@ -17,7 +17,7 @@
         "spp_cel_domain",
         "spp_hazard",
         "spp_security",
-        "queue_job",
+        "job_worker",
     ],
     "external_dependencies": {
         "python": [

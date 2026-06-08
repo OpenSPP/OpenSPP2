@@ -204,8 +204,15 @@ class ChangeRequestService:
         # Get fields from the model
         model_fields = detail._fields
 
+        # Field types that are skipped entirely — check BEFORE reading the
+        # value so that computed fields of these types are never triggered.
+        _SKIP_FIELD_TYPES = {"many2many", "one2many", "binary"}
+
         for field_name, field in model_fields.items():
             if field_name.startswith("_") or field_name in DETAIL_SKIP_FIELDS:
+                continue
+
+            if field.type in _SKIP_FIELD_TYPES:
                 continue
 
             value = getattr(detail, field_name)
@@ -230,19 +237,10 @@ class ChangeRequestService:
                         }
                     else:
                         result[field_name] = value.name if hasattr(value, "name") else str(value.id)
-            elif field.type == "many2many":
-                # Skip many2many for now
-                continue
-            elif field.type == "one2many":
-                # Skip one2many for now
-                continue
             elif field.type == "date":
                 result[field_name] = value.isoformat() if value else None
             elif field.type == "datetime":
                 result[field_name] = value.isoformat() if value else None
-            elif field.type == "binary":
-                # Skip binary fields in API
-                continue
             else:
                 result[field_name] = value
 

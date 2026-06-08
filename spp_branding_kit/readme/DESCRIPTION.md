@@ -8,7 +8,8 @@ Replaces Odoo branding with OpenSPP branding across the platform. Adds `/openspp
 - Email signatures: replaces default Odoo signature with OpenSPP branding
 - Report customization: updates company report headers and footers with OpenSPP text
 - Post-install debranding: disables Odoo brand promotion messages, update notification crons, and theme store menu
-- Module filtering: adds "OpenSPP Apps" menu to filter and view OpenSPP-specific applications
+- Module filtering: adds "OpenSPP Apps" filter and menu to view OpenSPP-specific applications
+- Debug restriction: optionally restricts debug mode access to administrators only
 
 ### Key Models
 
@@ -25,8 +26,8 @@ This module does not introduce new models. It extends existing models:
 
 After installing:
 
-1. Open the **Settings** app
-2. Scroll to the **OpenSPP Branding** section (app card with OpenSPP icon)
+1. Open **Settings**
+2. Scroll to the **OpenSPP Branding** app card
 3. Configure **System Name** (default: "OpenSPP Platform")
 4. Set **Documentation URL** and **Support URL** for help links
 5. Toggle **Display OpenSPP Branding** to show/hide "Powered by OpenSPP"
@@ -35,13 +36,15 @@ After installing:
 
 Post-install hook automatically disables Odoo brand promotion, module update notifications, and theme store menu.
 
-### Menu Location
+### UI Location
 
-- **Apps > OpenSPP Apps** - View and filter OpenSPP-specific applications
+- **Apps > OpenSPP Apps** — filtered view of OpenSPP-specific applications
+- **Settings > OpenSPP Branding** — branding and telemetry configuration
+- **Settings > General Settings > About** — OpenSPP platform information card
 
 ### Security
 
-This module does not define security groups or access rights. Configuration access follows standard Odoo settings permissions (requires `base.group_system` - Settings access).
+This module does not define new security groups or access control entries. It extends existing models that already have ACLs. Configuration access requires `base.group_system` (Settings).
 
 ### Extension Points
 

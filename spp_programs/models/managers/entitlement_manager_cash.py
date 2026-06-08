@@ -156,13 +156,16 @@ class SppCashEntitlementManager(models.Model):
                 if addl_fields:
                     new_entitlements_to_create[beneficiary_id.id].update(addl_fields)
 
-        # Create entitlement records
+        # Create entitlement records in a single batch
+        vals_list = []
         for ent in new_entitlements_to_create:
             initial_amount = new_entitlements_to_create[ent]["initial_amount"]
             new_entitlements_to_create[ent]["initial_amount"] = self._check_subsidy(initial_amount)
             # Create non-zero entitlements only
             if new_entitlements_to_create[ent]["initial_amount"] > 0.0:
-                self.env["spp.entitlement"].create(new_entitlements_to_create[ent])
+                vals_list.append(new_entitlements_to_create[ent])
+        if vals_list:
+            self.env["spp.entitlement"].create(vals_list)
 
     def _get_addl_entitlement_fields(self, beneficiary_id):
         """
@@ -316,9 +319,16 @@ class SppCashEntitlementManager(models.Model):
         jobs = []
         for i in range(0, entitlements_count, self.MAX_ROW_JOB_QUEUE):
             # Needs to override
-            jobs.append(self.delayable()._validate_entitlements(cycle, entitlements[i : i + self.MAX_ROW_JOB_QUEUE]))
+            jobs.append(
+                self.delayable(channel="entitlement_approval")._validate_entitlements(
+                    cycle, entitlements[i : i + self.MAX_ROW_JOB_QUEUE]
+                )
+            )
         main_job = group(*jobs)
         main_job.on_done(self.delayable().mark_job_as_done(cycle, _("Entitlements Validated and Approved.")))
+        main_job.on_error(
+            self.delayable().mark_job_as_failed(cycle, _("Validation and approval of entitlements failed."))
+        )
         main_job.delay()
 
     def _validate_entitlements(self, cycle, entitlements):
@@ -406,13 +416,16 @@ class SppCashEntitlementManager(models.Model):
         entitlements.mapped("partner_id.property_account_payable_id")
         entitlements.mapped("journal_id.currency_id")
 
+        # Fetch fund balance once for the whole batch instead of per entitlement
+        fund_balance = self.check_fund_balance(entitlements[0].cycle_id.program_id.id)
+
         state_err = 0
         message = ""
         sw = 0
         for rec in entitlements:
             if rec.state in ("draft", "pending_validation"):
-                fund_balance = self.check_fund_balance(rec.cycle_id.program_id.id) - amt
-                if fund_balance >= rec.initial_amount:
+                remaining_balance = fund_balance - amt
+                if remaining_balance >= rec.initial_amount:
                     amt += rec.initial_amount
                     # Prepare journal entry (account.move) via account.payment
                     amount = rec.initial_amount
@@ -459,7 +472,7 @@ class SppCashEntitlementManager(models.Model):
                         + "is insufficient for the entitlement: %(entitlement)s"
                     ) % {
                         "program": rec.cycle_id.program_id.name,
-                        "fund": fund_balance,
+                        "fund": remaining_balance,
                         "entitlement": rec.code,
                     }
                     # Stop the process and return an error

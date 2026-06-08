@@ -17,7 +17,7 @@ class TestDemoStatistics(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.stat_model = cls.env["spp.statistic"]
+        cls.stat_model = cls.env["spp.indicator"]
 
         # Required statistics that should be in the database
         cls.required_stats = [

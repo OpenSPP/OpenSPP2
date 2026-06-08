@@ -1,892 +1,773 @@
-# OpenSPP MIS Demo V2 - Use Cases Guide
+# MIS Demo V2 — Use cases
 
-This document describes the different demo use cases available in the `spp_mis_demo_v2`
-module and how to use them effectively for sales demos, training, and testing.
+## Household stories
 
-## Table of Contents
+Each household is named by its family name. Programs that target groups enroll the
+household — not individual members. Max 2 group programs per household.
 
-1. [Overview](#overview)
-2. [Demo Programs](#demo-programs)
-3. [Demo Stories](#demo-stories)
-4. [Formula Library Demo](#formula-library-demo)
-5. [Use Cases by Audience](#use-cases-by-audience)
-6. [Demo Scenarios](#demo-scenarios)
-7. [Feature Demonstrations](#feature-demonstrations)
+### Story 1: HH1 — Payment failure, recovery, and compliance pass
 
----
+**Demonstration purpose:** Cash Transfer with a payment failure and successful
+reprocessing. Also demonstrates compliance passing — HH1 remains compliant each cycle,
+contrasting with HH2 who fails compliance and graduates.
 
-## Overview
+**Program(s) that the household is enrolled in:**
 
-The MIS Demo V2 module provides realistic demo data that showcases OpenSPP's
-capabilities for social protection program management. It follows the "Fixed Stories +
-Volume" architecture:
+| Program       | Reason for eligibility                         | Compliance                                                | Status   |
+| ------------- | ---------------------------------------------- | --------------------------------------------------------- | -------- |
+| Cash Transfer | income 4,000 < poverty_line 5,000, size 4 >= 2 | **Passed** — per_capita_income 1,000 < poverty_line 5,000 | Enrolled |
 
-- **Fixed Stories**: 8 named personas with predefined program journeys
-- **Volume Data**: Random enrollments for realistic dashboards
-- **Demo Programs**: 7 programs covering different social protection scenarios
+**Household journey:**
 
----
+1. Enrolled 100 days ago
+2. Payment #1 ($150) — paid
+3. Payment #2 ($150) — **failed** (bank issue)
+4. Payment #3 ($150) — paid (reprocessed)
+5. Compliance check passes each cycle (per_capita_income 1,000 < poverty_line 5,000)
 
-## Demo Programs
+**Existing change requests for the household:**
 
-### 1. Input Subsidy Program
+- `update_id` (approved) — Correct national ID number after data entry error
 
-| Attribute          | Value                                     |
-| ------------------ | ----------------------------------------- |
-| **Target Type**    | Households (Groups)                       |
-| **Entitlement**    | $200 per cycle                            |
-| **Cycle Duration** | 30 days                                   |
-| **Stories**        | Maria Santos, Ana Mendoza, Luis Fernandez |
-
-**Use Cases:**
-
-- Agricultural support programs
-- Seasonal subsidy disbursements
-- Farmer registration workflows
-- Graduation pathways (Maria Santos graduated after 3 payments)
-
-**Features Demonstrated:**
-
-- Group-based targeting
-- Multi-cycle payments
-- Program graduation
-- In-kind and cash entitlements
+**Geographical location:** Coastal area
 
 ---
 
-### 2. Cash Transfer Program
+### Story 2: HH2 — Graduation and partial exit
 
-| Attribute          | Value                      |
-| ------------------ | -------------------------- |
-| **Target Type**    | Households (Groups)        |
-| **Entitlement**    | $150 per cycle             |
-| **Cycle Duration** | 30 days                    |
-| **Stories**        | Juan Dela Cruz, Ahmed Said |
+**Demonstration purpose:** Complete program lifecycle — enrollment, payments, compliance
+failure triggering graduation from one program while remaining in another. Shows that
+exiting one program doesn't affect other enrollments. Primary story for demonstrating
+the compliance manager.
 
-**Use Cases:**
+**Program(s) that the household is enrolled in:**
 
-- Regular cash assistance
-- Payment failure and recovery workflows
-- GRM integration for payment issues
-- Bank transfer delivery mechanisms
+| Program               | Reason for eligibility            | Compliance                                                                    | Status                 |
+| --------------------- | --------------------------------- | ----------------------------------------------------------------------------- | ---------------------- |
+| Cash Transfer         | income 3,500 < 5,000, size 5 >= 2 | **Failed** — per_capita_income exceeded poverty_line after income improvement | **Exited** (graduated) |
+| Universal Child Grant | child_count 2 > 0                 | N/A (no compliance on this program)                                           | Enrolled               |
 
-**Features Demonstrated:**
+**Household journey:**
 
-- Payment processing
-- Failed payment handling (Juan Dela Cruz story)
-- Payment reconciliation
-- GRM ticket creation
+1. Enrolled in Cash Transfer 180 days ago (hh_total_income 3,500, per_capita 700)
+2. Also enrolled in Universal Child Grant
+3. 3 Cash Transfer payments of $150 (compliant — per_capita_income < poverty_line)
+4. Income improved → **compliance check fails** in cycle 4
+5. Marked `non_compliant` on cycle membership → no entitlement generated
+6. Non-compliance triggers graduation review → exited from Cash Transfer 30 days ago
+7. Still receiving Universal Child Grant (2 children x $50 = $100/month)
 
----
+**Individual dual enrollment:**
 
-### 3. Elderly Pension
+| Member        | Program         | Reason for eligibility |
+| ------------- | --------------- | ---------------------- |
+| HH2M1 (42, F) | Food Assistance | active registrant      |
 
-| Attribute          | Value          |
-| ------------------ | -------------- |
-| **Target Type**    | Individuals    |
-| **Entitlement**    | $100 per cycle |
-| **Cycle Duration** | 30 days        |
-| **Eligibility**    | Age 65+        |
-| **Stories**        | Rosa Garcia    |
+HH2M1 receives monthly food baskets individually. Continues after household Cash
+Transfer graduation.
 
-**Use Cases:**
+**Existing change requests for the household:**
 
-- Age-based eligibility verification
-- Individual targeting (not household)
-- Regular pension disbursements
-- Vulnerability assessments
+- `edit_individual` (approved) — HH2M1's phone/address update after moving
+- `edit_individual` (pending x2) — Conflict detection: two overlapping CRs for HH2M1
 
-**Features Demonstrated:**
-
-- Individual-level programs
-- Age-based eligibility criteria
-- Multi-program enrollment (Rosa is also in Food Assistance)
-- Monthly payment schedules
+**Geographical location:** Agricultural area
 
 ---
 
-### 4. Food Assistance
+### Story 3: HH3 — Multi-generational household
 
-| Attribute            | Value                         |
-| -------------------- | ----------------------------- |
-| **Target Type**      | Individuals                   |
-| **Entitlement Type** | In-kind (Food Basket)         |
-| **Cycle Duration**   | 30 days                       |
-| **Stories**          | Rosa Garcia, Fatima Al-Rahman |
+**Demonstration purpose:** Demonstrates a large multi-generational household with three
+generations living together — grandparents, parents, and children. Shows household
+composition complexity and how multiple individuals within a household can qualify for
+different individual-targeting programs (e.g., elderly members for pension).
 
-**Use Cases:**
+**Program(s) that the household is enrolled in:**
 
-- In-kind entitlement distribution
-- Food security programs
-- Warehouse/inventory management
-- Distribution point tracking
+Not enrolled in group programs via named stories. Volume-generated households with
+similar composition are enrolled based on blueprint eligibility flags.
 
-**Features Demonstrated:**
+**Demo points:**
 
-- In-kind entitlements (non-cash)
-- Item-based distribution
-- Multi-program beneficiaries
-- GRM-to-enrollment pathway (Fatima)
+- Multi-generational household structure (grandparents + parents + children)
+- Elderly head (72) and spouse (68) — both individually eligible for Elderly Social
+  Pension
+- child_count = 3 (under 18: HH3M6 - 14y, HH3M7 - 10y, HH3M8 - 6y; HH3M5 - 18y excluded)
+- Large household (8 members) for household composition analysis
 
----
-
-### 5. Livestock Improvement Program
-
-| Attribute            | Value                           |
-| -------------------- | ------------------------------- |
-| **Target Type**      | Households (Groups)             |
-| **Entitlement Type** | In-kind (Improved Breed Cattle) |
-| **Cycle Duration**   | 90 days (Quarterly)             |
-| **Stories**          | Pedro Reyes                     |
-
-**Use Cases:**
-
-- Agricultural development programs
-- High-value in-kind asset distribution
-- Cooperative/group leader support
-- Extension service integration
-
-**Features Demonstrated:**
-
-- Long cycle duration (quarterly)
-- High-value in-kind entitlements
-- Cooperative leadership identification
-- Farmer registry integration
+**Geographical location:** Agricultural area
 
 ---
 
-### 6. Child Support Grant
+### Story 4: HH4 — Emergency relief and transition
 
-| Attribute          | Value                    |
-| ------------------ | ------------------------ |
-| **Target Type**    | Households (Groups)      |
-| **Entitlement**    | $300 per cycle           |
-| **Cycle Duration** | 90 days (Quarterly)      |
-| **Eligibility**    | Households with children |
-| **Stories**        | Carlos & Elena Morales   |
+**Demonstration purpose:** Emergency response with fast-track enrollment, then
+transition to longer-term Cash Transfer support after stabilization. Shows how displaced
+families move through the system.
 
-**Use Cases:**
+**Program(s) that the household is enrolled in:**
 
-- Child-focused social protection
-- Household composition analysis
-- Quarterly disbursement schedules
-- Family support programs
+| Program          | Reason for eligibility                                 | Status   |
+| ---------------- | ------------------------------------------------------ | -------- |
+| Emergency Relief | dependency_ratio 5/2 = 2.5, displaced                  | Enrolled |
+| Cash Transfer    | income 2,000 < 5,000, size 7 >= 2 (post-stabilization) | Enrolled |
 
-**Features Demonstrated:**
+**Household journey:**
 
-- Household-based targeting
-- Child-dependent eligibility
-- Quarterly payment cycles
-- Higher payment amounts
+1. Typhoon displaces family → emergency registration 60 days ago
+2. Vulnerability assessment: very_high (displaced, lost assets, score 85)
+3. Emergency Relief enrolled (fast-track 15-day cycles)
+4. 2 emergency payments of $400 (Tier 2)
+5. 30 days later: stabilized, enrolled in Cash Transfer for longer-term support
+6. 1 Cash Transfer payment of $150
 
----
+**Individual dual enrollment:**
 
-### 7. Emergency Cash Transfer
+| Member        | Program         | Reason for eligibility |
+| ------------- | --------------- | ---------------------- |
+| HH4M1 (50, M) | Food Assistance | active registrant      |
 
-| Attribute          | Value                |
-| ------------------ | -------------------- |
-| **Target Type**    | Households (Groups)  |
-| **Entitlement**    | $500 per cycle       |
-| **Cycle Duration** | 15 days (Fast-track) |
-| **Priority**       | High                 |
-| **Stories**        | Ibrahim Hassan       |
+HH4M1 receives food baskets individually during the emergency period.
 
-**Use Cases:**
+**Existing change requests for the household:**
 
-- Emergency response programs
-- Displacement support
-- Rapid enrollment workflows
-- Crisis response
+- `edit_individual` (approved) — HH4M1's address update after relocation to temporary
+  shelter
 
-**Features Demonstrated:**
-
-- Fast-track enrollment
-- Short cycle duration
-- Higher payment amounts
-- Emergency prioritization
-- Displacement tracking
+**Geographical location:** Conflict-affected region — displacement zone
 
 ---
 
-## Demo Stories
+### Story 5: HH5 — Disability support
 
-### Maria Santos - The Success Story
+**Demonstration purpose:** Disability-focused support with per-member benefit
+calculation. Demonstrates disability assessment and the pending reassessment workflow.
 
-**Profile:**
+**Program(s) that the household is enrolled in:**
 
-- 45-year-old smallholder farmer
-- Household of 5 members
-- 2 hectares of farmland
+| Program            | Reason for eligibility                         | Status   |
+| ------------------ | ---------------------------------------------- | -------- |
+| Disability Support | has_disabled_member = true, disabled_count = 1 | Enrolled |
+
+**Household journey:**
+
+1. Enrolled 100 days ago
+2. Disability assessment completed for HH5M3
+3. 3 monthly payments of $175 each (base $100 + 1 disabled member x $75)
+
+**Existing change requests for the household:**
+
+- `edit_individual` (pending) — Disability reassessment for HH5M3 (updated medical
+  documentation)
+
+**Geographical location:** Urban
+
+---
+
+## Individual stories
+
+Individuals enrolled directly in individual-targeting programs.
+
+### Story 6: HH6M1 — Elder living alone
+
+**Demonstration purpose:** Individual-only enrollment with no household. Multi-program
+beneficiary receiving both cash (pension) and in-kind (food).
+
+**Profile:** 72-year-old widow, lives alone, high vulnerability.
+
+**Eligibility:**
+
+| Program                | Why Eligible                |
+| ---------------------- | --------------------------- |
+| Elderly Social Pension | age 72 >= retirement_age 65 |
+| Food Assistance        | active registrant           |
 
 **Journey:**
 
-1. Enrolled in Input Subsidy Program 150 days ago
-2. Received 3 monthly payments of $200 each
-3. Graduated from program 30 days ago
+1. Registered 200 days ago
+2. Vulnerability assessment: high (elderly, alone, low income)
+3. Enrolled in Elderly Social Pension 180 days ago
+4. 4 monthly pension payments of $100
+5. Enrolled in Food Assistance 175 days ago — receives monthly food baskets
 
-**Demo Points:**
+**Change request:**
 
-- Complete program lifecycle
-- Graduation pathway demonstration
-- Payment history tracking
-- Success metrics
+- `exit_registrant` (pending) — Graduated from food assistance program (pending
+  approval)
 
----
-
-### Juan Dela Cruz - Payment Issue Resolution
-
-**Profile:**
-
-- 38-year-old day laborer
-- Household of 4 members
-- Bank account holder
-
-**Journey:**
-
-1. Enrolled in Cash Transfer Program 100 days ago
-2. First payment ($150) - Successful
-3. Second payment ($150) - **Failed** (bank issue)
-4. GRM ticket filed for payment failure
-5. Payment reprocessed and successful
-
-**Demo Points:**
-
-- Payment failure handling
-- GRM integration
-- Payment recovery workflow
-- Bank reconciliation
+**Geographical location:** Elderly corridor
 
 ---
 
-### Rosa Garcia - Multi-Program Beneficiary
+## Rejection stories
 
-**Profile:**
+### Story 7: HH7M1 — Age rejection
 
-- 72-year-old widow
-- Lives alone
-- High vulnerability score
-
-**Journey:**
-
-1. Enrolled in Elderly Pension 180 days ago
-2. Received 4 monthly pension payments ($100 each)
-3. Also enrolled in Food Assistance 175 days ago
-4. Receives monthly food baskets
-
-**Demo Points:**
-
-- Multi-program enrollment
-- Individual targeting
-- Mixed entitlements (cash + in-kind)
-- Vulnerability assessment
+- 55-year-old woman
+- Applied for Elderly Social Pension → **rejected** (age 55 < retirement_age 65)
+- The only named story with an explicit rejection status in STORY_ENROLLMENTS
 
 ---
 
-### Pedro Reyes - Cooperative Leader
+## Dual enrolment
 
-**Profile:**
+### Story 8: HH2M1 — Dual enrollment (from HH2)
 
-- 55-year-old cattle farmer
-- Head of farming household
-- Local cooperative leader
+- Head of HH2 (enrolled in Cash Transfer graduated + Universal Child Grant)
+- Individually enrolled in Food Assistance 120 days ago
+- **Demo point:** Same person visible in both individual and household program contexts
 
-**Journey:**
+### Story 9: HH4M1 — Dual enrollment (from HH4)
 
-1. Enrolled in Livestock Improvement Program 300 days ago
-2. Received 2 improved breed cattle 150 days ago
-3. Active in extension services
-
-**Demo Points:**
-
-- In-kind asset distribution
-- Cooperative engagement
-- Extension service integration
-- Long-term program tracking
+- Head of HH4 (enrolled in Emergency Relief + Cash Transfer)
+- Individually enrolled in Food Assistance 50 days ago
+- **Demo point:** Displaced person receiving household emergency aid + individual food
+  support
 
 ---
 
-### Ana Mendoza - Modern Farmer
+## Demo scenarios
 
-**Profile:**
+### Scenario 1: Payment failure and recovery
 
-- 28-year-old young farmer
-- Tech-savvy, uses mobile app
-- Recent program enrollee
+Show HH1 household payment failure and recovery.
 
-**Journey:**
+1. Open HH1 household -> 4 members
+2. Show Cash Transfer enrollment
+3. Show payment history: paid -> **failed** -> paid (reprocessed)
+4. Show successful reprocessing of failed payment
 
-1. Enrolled in Input Subsidy Program 70 days ago
-2. Received inputs package 45 days ago
-3. Active program participant
+### Scenario 2: Program graduation via compliance failure
 
-**Demo Points:**
+Show HH2 household graduating from Cash Transfer after compliance failure.
 
-- Digital registration
-- GPS field mapping
-- Recent enrollment workflow
-- Young farmer demographics
+1. Open HH2 household -> 5 members
+2. Cash Transfer program -> show compliance manager (`per_capita_income < poverty_line`)
+3. Show cycle history: 3 cycles compliant, cycle 4 **non_compliant** (income improved)
+4. Show cycle 4 membership state: `non_compliant` — no entitlement generated
+5. Cash Transfer: **exited** (graduation triggered by compliance failure)
+6. Universal Child Grant: still **enrolled** (2 children x $50) — unaffected
+7. Open HH2M1 individually -> Food Assistance (dual enrollment continues)
 
----
+### Scenario 3: Multi-generational household
 
-### Carlos & Elena Morales - Family Unit
+Show HH3 household as a large multi-generational family.
 
-**Profile:**
+1. Open HH3 household -> 8 members (3 generations)
+2. Show household composition: grandparents (72, 68), parents (45, 42), children (18,
+   14, 10, 6)
+3. Show elderly members individually eligible for Elderly Social Pension
+4. Demonstrate household composition analysis
 
-- Married couple with 3 school-age children
-- Urban household
-- Middle vulnerability
+### Scenario 4: Emergency to long-term support
 
-**Journey:**
+Show HH4 displaced family transitioning from emergency to cash transfer.
 
-1. Enrolled in Child Support Grant 140 days ago
-2. Received 2 quarterly payments ($300 each)
-3. Children attending school
+1. Open HH4 household -> 7 members, displaced
+2. Show Emergency Relief enrollment (fast-track 15-day cycles)
+3. Show vulnerability assessment (score: very_high)
+4. Show $400 Tier 2 payments
+5. Show transition to Cash Transfer (30-day cycles, $150)
+6. Open HH4M1 individually -> Food Assistance
 
-**Demo Points:**
+### Scenario 5: Disability support
 
-- Household composition
-- Child-focused programs
-- Quarterly payment schedule
-- Education linkage
+Show HH5 family with disabled child and pending reassessment.
 
----
+1. Open HH5 household -> 3 members
+2. Show HH5M3's disability status
+3. Show Disability Support Grant: $175 (base $100 + 1 member x $75)
+4. Show 3 payment records
+5. Show pending disability reassessment CR
 
-### Ibrahim Hassan - Emergency Beneficiary
+### Scenario 6: Eligibility enforcement
 
-**Profile:**
+Show rejections working correctly.
 
-- 42-year-old displaced farmer
-- Recently relocated due to conflict
-- High vulnerability, urgent need
+1. HH7M1 -> rejected for Elderly Pension (age 55 < 65)
+2. HH8 household -> rejected for Cash Transfer (income 12,000 > 5,000)
+3. HH9 household -> rejected for Child Grant (0 children)
 
-**Journey:**
+### Scenario 7: Dual enrollment
 
-1. Fast-track enrolled in Emergency Cash Transfer 55 days ago
-2. Received 2 emergency payments ($500 each)
-3. Rapid assessment completed
+Show same person in individual + household programs.
 
-**Demo Points:**
+1. Open HH2M1 individual -> enrolled in Food Assistance
+2. Open HH2 household -> enrolled in Universal Child Grant, graduated from Cash Transfer
+3. Show both visible from HH2M1's profile
 
-- Emergency enrollment
-- Fast-track processing
-- High-value payments
-- Displacement tracking
+### Scenario 8: Change request lifecycle
 
----
+Show different CR types and states across 13 change requests.
 
-### Fatima Al-Rahman - Information Seeker
+1. Approved: HH1M1 `update_id` — corrected national ID
+2. Approved: HH2M1 `edit_individual` — phone/address update
+3. Pending (conflict): HH2M1 — two overlapping CRs
+4. Draft: HH10 `edit_group` — UI workflow demo
+5. Pending: HH6M1 `exit_registrant` — food assistance graduation (pending approval)
+6. Approved: HH11 `add_member` — newborn added
+7. Pending: HH11 `remove_member` — adult child moving out
+8. Pending: HH12 `transfer_member` — child to elderly relatives
+9. Approved: HH9 `change_hoh` — set HH9M2 as new head of household
+10. Draft: IND1 `create_group` — register new household
+11. Rejected: HH12 `split_household` — incomplete documentation
+12. Revision: IND2 `merge_registrants` — duplicate data quality
 
-**Profile:**
+### Scenario 9: Compliance manager overview
 
-- 35-year-old mother
-- Initial contact through GRM inquiry
-- Converted to beneficiary
+Show how compliance criteria work on Cash Transfer — contrasting a failure (HH2) with a
+pass (HH1) on the same program.
 
-**Journey:**
-
-1. Filed GRM information request 60 days ago
-2. Received program information
-3. Enrolled in Food Assistance 30 days ago
-
-**Demo Points:**
-
-- GRM-to-enrollment pathway
-- Information request handling
-- Proactive outreach
-- Service quality
-
----
-
-## Formula Library Demo
-
-The MIS Demo includes comprehensive formula library data demonstrating versioned,
-auditable business rules for eligibility, entitlements, and scoring.
-
-### Formula Categories
-
-| Category        | Subcategory   | Purpose                                |
-| --------------- | ------------- | -------------------------------------- |
-| **Eligibility** | Means Testing | PMT score thresholds                   |
-| **Eligibility** | Categorical   | Age, disability, household composition |
-| **Eligibility** | Geographic    | Urban/rural targeting                  |
-| **Entitlement** | Base Amounts  | Standard benefit calculations          |
-| **Entitlement** | Adjustments   | Family size, regional factors          |
-| **Scoring**     | Vulnerability | Risk assessment scoring                |
-| **Scoring**     | Priority      | Targeting prioritization               |
-
-### Demo Formulas
-
-#### PMT Eligibility (`PMT_ELIGIBLE`)
-
-| Attribute         | Value                              |
-| ----------------- | ---------------------------------- |
-| **Type**          | Boolean                            |
-| **Profile**       | Registry Groups                    |
-| **Used By**       | Cash Transfer, Child Support Grant |
-| **Test Coverage** | 4 test cases                       |
-
-**Expression (v1.0):**
-
-```cel
-household.pmt_score < 45.0 && household.member_count > 0
-```
-
-**Test Cases:** | Persona | PMT Score | Expected | Result |
-|---------|-----------|----------|--------| | Maria Santos | 38 | `true` | ✓ Eligible |
-| Rosa Garcia | 42 | `true` | ✓ Eligible | | Carlos Morales | 48 | `false` | ✗ Not
-eligible | | Ibrahim Hassan | 35 | `true` | ✓ Eligible |
+1. Open Cash Transfer program -> show compliance manager config
+2. Show CEL expression: `per_capita_income < poverty_line`
+3. Open HH2 cycle membership -> state: `non_compliant` (income improved)
+4. Contrast with HH1 cycle membership -> state: `enrolled` (compliant, per_capita 1,000
+   < 5,000)
+5. Show Conditional Child Grant -> also has compliance manager
+   (`per_capita_income < income_threshold`)
+6. **Key point:** Eligibility gates enrollment; compliance gates each cycle's payment
 
 ---
 
-#### Elderly Eligibility (`ELDERLY_ELIGIBLE`)
+## References
 
-| Attribute         | Value                |
-| ----------------- | -------------------- |
-| **Type**          | Boolean              |
-| **Profile**       | Registry Individuals |
-| **Used By**       | Elderly Pension      |
-| **Test Coverage** | 3 test cases         |
+### Constellation of included registrants
 
-**Expression:**
+Each household and individual has locale-specific names. The demo generator selects
+names based on the configured locale (`fil_PH`, `fr_TG`, `si_LK`).
 
-```cel
-individual.age >= 65 && !individual.receives_other_pension
-```
+#### Households used in stories
 
-**Test Cases:** | Persona | Age | Other Pension | Expected |
-|---------|-----|---------------|----------| | Rosa Garcia | 72 | No | `true` ✓ | |
-Maria Santos | 45 | No | `false` ✗ | | Pedro Reyes | 55 | No | `false` ✗ |
+| HH NN | Filipino      | Togolese        | Sri Lankan      |
+| ----- | ------------- | --------------- | --------------- |
+| HH1   | Dela Cruz     | Mensah          | Bandara         |
+| HH2   | Santos        | Koffi           | Perera          |
+| HH3   | Reyes         | Lawson          | Rathnayake      |
+| HH4   | Gutierrez     | Deku            | Kumara          |
+| HH5   | Martinez      | Koudawo         | Wickramasinghe  |
+| HH6M1 | Rosa Garcia   | Adzo Amegah     | Malini Silva    |
+| HH7M1 | Lorna Pascual | Ablavi Gbeassor | Priyanka Mendis |
+| HH8   | Castillo      | Agbodjan        | Weerasinghe     |
+| HH9   | Navarro       | Gbeho           | Amarasinghe     |
+| HH10  | Aquino        | Tetteh          | Herath          |
+| HH11  | Morales       | Agbeko          | Fernando        |
+| HH12  | Bautista      | Akakpo          | Gunasekara      |
+
+#### Household information
+
+##### Information about HH1
+
+| HH NN | Filipino  | Togolese | Sri Lankan |
+| ----- | --------- | -------- | ---------- |
+| HH1   | Dela Cruz | Mensah   | Bandara    |
+
+|            | Geographic location |
+| ---------- | ------------------- |
+| Filipino   | Calamba City        |
+| Togolese   | Tokoin              |
+| Sri Lankan | Moratuwa            |
+
+| Member ID | Role   | Age | Gender | Filipino | Togolese | Sri Lankan |
+| --------- | ------ | --- | ------ | -------- | -------- | ---------- |
+| HH1M1     | Head   | 38  | Male   | Juan     | Kofi     | Nimal      |
+| HH1M2     | Spouse | 35  | Female | Ana      | Akosua   | Kamani     |
+| HH1M3     | Child  | 12  | Male   | Paolo    | Yao      | Lahiru     |
+| HH1M4     | Child  | 8   | Female | Maria    | Ama      | Sanduni    |
+
+##### Information about HH2
+
+| HH NN | Filipino | Togolese | Sri Lankan |
+| ----- | -------- | -------- | ---------- |
+| HH2   | Santos   | Koffi    | Perera     |
+
+|            | Geographic location |
+| ---------- | ------------------- |
+| Filipino   | Santa Rosa City     |
+| Togolese   | Aflao Sagbado       |
+| Sri Lankan | Kolonnawa           |
+
+| Member ID | Role           | Age | Gender | Filipino | Togolese | Sri Lankan |
+| --------- | -------------- | --- | ------ | -------- | -------- | ---------- |
+| HH2M1     | Head           | 42  | Female | Maria    | Ama      | Kumari     |
+| HH2M2     | Spouse         | 44  | Male   | Ricardo  | Kokou    | Sunil      |
+| HH2M3     | Parent (elder) | 68  | Female | Lola     | Adjo     | Padma      |
+| HH2M4     | Child          | 14  | Female | Sofia    | Esi      | Nimali     |
+| HH2M5     | Child          | 10  | Male   | Miguel   | Kweku    | Kasun      |
+
+##### Information about HH3
+
+| HH NN | Filipino | Togolese | Sri Lankan |
+| ----- | -------- | -------- | ---------- |
+| HH3   | Reyes    | Lawson   | Rathnayake |
+
+|            | Geographic location |
+| ---------- | ------------------- |
+| Filipino   | San Pablo City      |
+| Togolese   | Kpalime             |
+| Sri Lankan | Kandy Four Gravets  |
+
+| Member ID | Role                    | Age | Gender | Filipino | Togolese | Sri Lankan |
+| --------- | ----------------------- | --- | ------ | -------- | -------- | ---------- |
+| HH3M1     | Head                    | 72  | Male   | Jose Sr  | Kwame    | Kamal      |
+| HH3M2     | Spouse                  | 68  | Female | Carmen   | Afia     | Ramya      |
+| HH3M3     | Adult (son)             | 45  | Male   | Miguel   | Kossi    | Ajith      |
+| HH3M4     | Adult (daughter-in-law) | 42  | Female | Teresa   | Ayoko    | Sanduni    |
+| HH3M5     | Child                   | 18  | Male   | Jose Jr  | Dela     | Pradeep    |
+| HH3M6     | Child                   | 14  | Female | Lucia    | Dzidzor  | Wasana     |
+| HH3M7     | Child                   | 10  | Male   | Antonio  | Kokou    | Ruwan      |
+| HH3M8     | Child                   | 6   | Female | Isabella | Ewoenam  | Nimali     |
+
+##### Information about HH4
+
+| HH NN | Filipino  | Togolese | Sri Lankan |
+| ----- | --------- | -------- | ---------- |
+| HH4   | Gutierrez | Deku     | Kumara     |
+
+|            | Geographic location |
+| ---------- | ------------------- |
+| Filipino   | Antipolo City       |
+| Togolese   | Sokode              |
+| Sri Lankan | Galle Four Gravets  |
+
+| Member ID | Role   | Age | Gender | Filipino | Togolese | Sri Lankan |
+| --------- | ------ | --- | ------ | -------- | -------- | ---------- |
+| HH4M1     | Head   | 50  | Male   | Ramon    | Kosi     | Asanka     |
+| HH4M2     | Spouse | 45  | Female | Elena    | Akua     | Chamari    |
+| HH4M3     | Child  | 18  | Male   | Marco    | Komla    | Dinesh     |
+| HH4M4     | Child  | 15  | Female | Isabella | Ablavi   | Nishadi    |
+| HH4M5     | Child  | 12  | Male   | Jose     | Kofi     | Tharindu   |
+| HH4M6     | Child  | 9   | Female | Sofia    | Ama      | Dilhani    |
+| HH4M7     | Child  | 5   | Male   | Miguel   | Edem     | Ravindu    |
+
+##### Information about HH5
+
+| HH NN | Filipino | Togolese | Sri Lankan     |
+| ----- | -------- | -------- | -------------- |
+| HH5   | Martinez | Koudawo  | Wickramasinghe |
+
+|            | Geographic location    |
+| ---------- | ---------------------- |
+| Filipino   | Makati City            |
+| Togolese   | Lome Commune           |
+| Sri Lankan | Dehiwala Mount Lavinia |
+
+| Member ID | Role   | Age | Gender | Filipino | Togolese | Sri Lankan | Notes                     |
+| --------- | ------ | --- | ------ | -------- | -------- | ---------- | ------------------------- |
+| HH5M1     | Head   | 48  | Male   | David    | Ata      | Sanjeewa   |                           |
+| HH5M2     | Spouse | 45  | Female | Sofia    | Ama      | Nisansala  |                           |
+| HH5M3     | Child  | 12  | Male   | Miguel   | Kofi     | Charitha   | Disabled (cerebral palsy) |
+
+##### Information about HH6
+
+| HH NN | Filipino    | Togolese    | Sri Lankan   |
+| ----- | ----------- | ----------- | ------------ |
+| HH6M1 | Rosa Garcia | Adzo Amegah | Malini Silva |
+
+|            | Geographic location |
+| ---------- | ------------------- |
+| Filipino   | Quezon City         |
+| Togolese   | Be                  |
+| Sri Lankan | Fort                |
+
+| Member ID | Role       | Age | Gender | Filipino    | Togolese    | Sri Lankan   |
+| --------- | ---------- | --- | ------ | ----------- | ----------- | ------------ |
+| HH6M1     | Individual | 72  | Female | Rosa Garcia | Adzo Amegah | Malini Silva |
+
+##### Information about HH7
+
+| HH NN | Filipino      | Togolese        | Sri Lankan      |
+| ----- | ------------- | --------------- | --------------- |
+| HH7M1 | Lorna Pascual | Ablavi Gbeassor | Priyanka Mendis |
+
+|            | Geographic location |
+| ---------- | ------------------- |
+| Filipino   | Pasig City          |
+| Togolese   | Nyekonakpoe         |
+| Sri Lankan | Pettah              |
+
+| Member ID | Role       | Age | Gender | Filipino      | Togolese        | Sri Lankan      |
+| --------- | ---------- | --- | ------ | ------------- | --------------- | --------------- |
+| HH7M1     | Individual | 55  | Female | Lorna Pascual | Ablavi Gbeassor | Priyanka Mendis |
+
+##### Information about HH8
+
+| HH NN | Filipino | Togolese | Sri Lankan  |
+| ----- | -------- | -------- | ----------- |
+| HH8   | Castillo | Agbodjan | Weerasinghe |
+
+|            | Geographic location |
+| ---------- | ------------------- |
+| Filipino   | Taguig City         |
+| Togolese   | Adidogome           |
+| Sri Lankan | Dehiwala            |
+
+| Member ID | Role   | Age | Gender | Filipino | Togolese | Sri Lankan |
+| --------- | ------ | --- | ------ | -------- | -------- | ---------- |
+| HH8M1     | Head   | 45  | Male   | Roberto  | Komla    | Ruwan      |
+| HH8M2     | Spouse | 40  | Female | Linda    | Adjoa    | Nilmini    |
+| HH8M3     | Child  | 14  | Male   | Paolo    | Messan   | Sampath    |
+
+##### Information about HH9
+
+| HH NN | Filipino | Togolese | Sri Lankan  |
+| ----- | -------- | -------- | ----------- |
+| HH9   | Navarro  | Gbeho    | Amarasinghe |
+
+|            | Geographic location |
+| ---------- | ------------------- |
+| Filipino   | Bacoor City         |
+| Togolese   | Baguida Centre      |
+| Sri Lankan | Hikkaduwa           |
+
+| Member ID | Role          | Age | Gender | Filipino | Togolese | Sri Lankan | Notes    |
+| --------- | ------------- | --- | ------ | -------- | -------- | ---------- | -------- |
+| HH9M1     | Head          | 52  | Male   | Ricardo  | Selom    | Ranjith    |          |
+| HH9M2     | Spouse        | 48  | Female | Lourdes  | Mawusi   | Champa     |          |
+| HH9M3     | Brother       | 46  | Male   | Eduardo  | Senyo    | Chandana   | Disabled |
+| HH9M4     | Sister-in-law | 44  | Female | Cristina | Ayele    | Nadeesha   |          |
+
+##### Information about HH10
+
+| HH NN | Filipino | Togolese | Sri Lankan |
+| ----- | -------- | -------- | ---------- |
+| HH10  | Aquino   | Tetteh   | Herath     |
+
+|            | Geographic location |
+| ---------- | ------------------- |
+| Filipino   | Manila              |
+| Togolese   | Kpalime Centre      |
+| Sri Lankan | Mount Lavinia       |
+
+| Member ID | Role  | Age | Gender | Filipino | Togolese | Sri Lankan |
+| --------- | ----- | --- | ------ | -------- | -------- | ---------- |
+| HH10M1    | Head  | 38  | Female | Rosario  | Adjoa    | Anoma      |
+| HH10M2    | Child | 15  | Male   | Daniel   | Messan   | Lahiru     |
+| HH10M3    | Child | 11  | Female | Angela   | Akossiwa | Hiruni     |
+| HH10M4    | Child | 7   | Male   | Rafael   | Edem     | Dinesh     |
+
+##### Information about HH11
+
+| HH NN | Filipino | Togolese | Sri Lankan |
+| ----- | -------- | -------- | ---------- |
+| HH11  | Morales  | Agbeko   | Fernando   |
+
+|            | Geographic location |
+| ---------- | ------------------- |
+| Filipino   | Dasmarinas          |
+| Togolese   | Tove                |
+| Sri Lankan | Galle Fort          |
+
+| Member ID | Role   | Age | Gender | Filipino | Togolese | Sri Lankan |
+| --------- | ------ | --- | ------ | -------- | -------- | ---------- |
+| HH11M1    | Head   | 45  | Male   | Carlos   | Kodjo    | Kasun      |
+| HH11M2    | Spouse | 42  | Female | Elena    | Esi      | Dilani     |
+| HH11M3    | Child  | 16  | Male   | Marco    | Komla    | Nuwan      |
+| HH11M4    | Child  | 12  | Female | Sofia    | Ablavi   | Nethmi     |
+| HH11M5    | Child  | 8   | Male   | Luis     | Koku     | Chamara    |
+
+##### Information about HH12
+
+| HH NN | Filipino | Togolese | Sri Lankan |
+| ----- | -------- | -------- | ---------- |
+| HH12  | Bautista | Akakpo   | Gunasekara |
+
+|            | Geographic location |
+| ---------- | ------------------- |
+| Filipino   | Commonwealth        |
+| Togolese   | Zio                 |
+| Sri Lankan | Gampaha             |
+
+| Member ID | Role   | Age | Gender | Filipino | Togolese | Sri Lankan |
+| --------- | ------ | --- | ------ | -------- | -------- | ---------- |
+| HH12M1    | Head   | 48  | Male   | Eduardo  | Mawuli   | Thilak     |
+| HH12M2    | Spouse | 44  | Female | Carmen   | Kafui    | Kusum      |
+| HH12M3    | Child  | 22  | Female | Patricia | Dede     | Gayani     |
+| HH12M4    | Child  | 19  | Male   | Fernando | Yaovi    | Ashan      |
+| HH12M5    | Child  | 16  | Female | Lucia    | Yawa     | Chathurika |
+| HH12M6    | Child  | 13  | Female | Rosalie  | Abla     | Ruwanthi   |
+| HH12M7    | Child  | 9   | Male   | Antonio  | Komi     | Mahesh     |
 
 ---
 
-#### Child Benefit Calculation (`CHILD_BENEFIT_CALC`)
+#### Individuals used in stories
 
-| Attribute   | Value                 |
-| ----------- | --------------------- |
-| **Type**    | Numeric               |
-| **Profile** | Registry Groups       |
-| **Used By** | Child Support Grant   |
-| **Return**  | Benefit amount in USD |
+| ID   | Filipino       | Togolese         | Sri Lankan          |
+| ---- | -------------- | ---------------- | ------------------- |
+| IND1 | Maricel Ramos  | Akossiwa Adjakly | Sanduni Karunaratne |
+| IND2 | Luis Fernandez | Messan Ameganvi  | Dinesh Rajapaksa    |
 
-**Expression:**
+#### Individual information
 
-```cel
-150.0 + (household.child_count * 50.0) * (household.is_rural ? 1.2 : 1.0)
-```
+##### Information about IND1
 
-**Test Cases:** | Persona | Children | Rural | Expected Amount |
-|---------|----------|-------|-----------------| | Maria Santos | 2 | Yes | $270 | |
-Carlos Morales | 3 | No | $300 | | Ana Mendoza | 1 | Yes | $210 |
+| ID   | Age | Gender | Filipino      | Togolese         | Sri Lankan          |
+| ---- | --- | ------ | ------------- | ---------------- | ------------------- |
+| IND1 | 35  | Female | Maricel Ramos | Akossiwa Adjakly | Sanduni Karunaratne |
 
----
+|            | Geographic location |
+| ---------- | ------------------- |
+| Filipino   | Poblacion           |
+| Togolese   | Ogou                |
+| Sri Lankan | Kalutara            |
 
-#### Vulnerability Score (`VULNERABILITY_SCORE`)
+##### Information about IND2
 
-| Attribute   | Value                    |
-| ----------- | ------------------------ |
-| **Type**    | Numeric                  |
-| **Profile** | Registry Groups          |
-| **Used By** | All programs (targeting) |
-| **Return**  | Score 0-100              |
+| ID   | Age | Gender | Filipino       | Togolese        | Sri Lankan       |
+| ---- | --- | ------ | -------------- | --------------- | ---------------- |
+| IND2 | 40  | Male   | Luis Fernandez | Messan Ameganvi | Dinesh Rajapaksa |
 
-**Expression:**
-
-```cel
-(household.is_female_headed ? 20 : 0) +
-(household.has_disabled_member ? 25 : 0) +
-(household.dependency_ratio > 0.5 ? 15 : 0) +
-min(40, (100 - household.pmt_score) * 0.5)
-```
-
-**Test Cases:** | Persona | Female-Headed | Disabled | Dep. Ratio | PMT | Score |
-|---------|---------------|----------|------------|-----|-------| | Rosa Garcia | No |
-No | 0.0 | 42 | 29 | | Maria Santos | Yes | No | 0.4 | 38 | 51 | | Ibrahim Hassan | No |
-Yes | 0.6 | 35 | 72 |
+|            | Geographic location |
+| ---------- | ------------------- |
+| Filipino   | Real                |
+| Togolese   | Lacs                |
+| Sri Lankan | Matara              |
 
 ---
 
-#### Emergency Priority (`EMERGENCY_PRIORITY`)
+### Configuration of included programs
 
-| Attribute   | Value                   |
-| ----------- | ----------------------- |
-| **Type**    | Numeric                 |
-| **Profile** | Registry Groups         |
-| **Used By** | Emergency Cash Transfer |
-| **Return**  | Priority score 0-100    |
+#### 1. Cash Transfer Program (Group)
 
-**Expression:**
+| Field             | Value                                                                                                                                                                                          |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Target            | Household (Group)                                                                                                                                                                              |
+| CEL (Eligibility) | `r.is_group == true and hh_total_income < poverty_line and hh_size >= 2`                                                                                                                       |
+| CEL (Compliance)  | `per_capita_income < poverty_line`                                                                                                                                                             |
+| Constants         | `poverty_line` = 5,000; `cash_transfer_amount` = 150                                                                                                                                           |
+| Entitlement       | $150/month                                                                                                                                                                                     |
+| Cycle             | 30 days                                                                                                                                                                                        |
+| Logic Pack        | `cash_transfer_basic`                                                                                                                                                                          |
+| Compliance Note   | Rechecks per-capita income each cycle. If household income improves above threshold, members are marked `non_compliant` for that cycle — no entitlement generated. Used as graduation trigger. |
 
-```cel
-vulnerability_score(household) * 0.6 +
-(household.is_displaced ? 30 : 0) +
-(household.days_since_registration < 30 ? 10 : 0)
-```
+#### 2. Universal Child Grant (Group)
 
----
+| Field       | Value                                        |
+| ----------- | -------------------------------------------- |
+| Target      | Household (Group)                            |
+| CEL         | `r.is_group == true and child_count > 0`     |
+| Constants   | `base_child_grant` = 50                      |
+| Entitlement | `base_child_grant * child_count` ($50/child) |
+| Cycle       | 30 days                                      |
+| Logic Pack  | `child_benefit`                              |
 
-### Formula Demo Scenarios
+#### 3. Conditional Child Grant (Group)
 
-#### Scenario 1: Eligibility Determination
+| Field             | Value                                                                                                                                                                                       |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Target            | Household (Group)                                                                                                                                                                           |
+| CEL (Eligibility) | `r.is_group == true and members.exists(m, age_years(m.birthdate) < 2)`                                                                                                                      |
+| CEL (Compliance)  | `per_capita_income < income_threshold`                                                                                                                                                      |
+| Constants         | `first_1000_days_grant` = 10; `income_threshold` = 2,000                                                                                                                                    |
+| Entitlement       | $10/month                                                                                                                                                                                   |
+| Cycle             | 30 days                                                                                                                                                                                     |
+| Logic Pack        | `child_benefit`                                                                                                                                                                             |
+| Compliance Note   | Income cap on child benefit. Households with a baby under 2 qualify, but per-capita income must stay below the threshold each cycle. Prevents high-income families from claiming the grant. |
 
-**Objective:** Show how formulas determine program eligibility
+#### 4. Elderly Social Pension (Individual)
 
-**Steps:**
+| Field       | Value                                                 |
+| ----------- | ----------------------------------------------------- |
+| Target      | Individual                                            |
+| CEL         | `r.is_group == false and age >= retirement_age`       |
+| Constants   | `retirement_age` = 65; `elderly_pension_amount` = 100 |
+| Entitlement | $100/month                                            |
+| Cycle       | 30 days                                               |
+| Logic Pack  | `social_pension`                                      |
 
-1. Navigate to **Formulas > Formulas** menu
-2. Open "PMT Eligibility" formula
-3. Click **Run All Tests** to show test execution
-4. Navigate to Cash Transfer Program
-5. Show how formula is referenced for eligibility
+#### 5. Emergency Relief Fund (Group)
 
-**Key Messages:**
+| Field       | Value                                                                                          |
+| ----------- | ---------------------------------------------------------------------------------------------- |
+| Target      | Household (Group)                                                                              |
+| CEL         | `r.is_group == true and (dependency_ratio >= 1.5 or (is_female_headed and elderly_count > 0))` |
+| Entitlement | Tiered: $500 (score >= 90), $400 (score >= 80), $300 (score >= 70)                             |
+| Cycle       | 15 days (fast-track)                                                                           |
+| Logic Pack  | `vulnerability_assessment`                                                                     |
 
-- Transparent, testable eligibility rules
-- Audit trail of all formula evaluations
-- Easy to understand business logic
+#### 6. Disability Support Grant (Group)
 
----
+| Field       | Value                                                             |
+| ----------- | ----------------------------------------------------------------- |
+| Target      | Household (Group)                                                 |
+| CEL         | `r.is_group == true and has_disabled_member`                      |
+| Constants   | `disability_grant_base` = 100; `disability_grant_per_member` = 75 |
+| Entitlement | $100 base + $75 per disabled member                               |
+| Cycle       | 30 days                                                           |
+| Logic Pack  | `disability_assistance`                                           |
 
-#### Scenario 2: Policy Change with Versioning
+#### 7. Food Assistance (Individual)
 
-**Objective:** Demonstrate formula versioning for policy changes
-
-**Story:** Government decides to expand Cash Transfer coverage by raising PMT threshold
-from 45 to 50.
-
-**Steps:**
-
-1. Open "PMT Eligibility" formula
-2. Show current active version (v1.0) with threshold 45
-3. Click **New Version** to create v1.1
-4. Update CEL expression: `household.pmt_score < 50.0 && ...`
-5. Run tests - Carlos Morales now becomes eligible
-6. Submit for review and approval
-7. Show version history with both versions
-8. Demonstrate impact: Carlos Morales enrollment
-
-**Key Messages:**
-
-- All policy changes are versioned
-- Before/after impact analysis
-- Approval workflow ensures governance
-- Complete audit history
-
----
-
-#### Scenario 3: Fairness Analysis
-
-**Objective:** Show bias detection in formulas
-
-**Steps:**
-
-1. Open "Vulnerability Score" formula
-2. Navigate to Fairness Analysis tab
-3. Run fairness analysis
-4. Review demographic breakdown
-5. Check for gender/age/region bias
-6. Show fairness score and alerts
-
-**Key Messages:**
-
-- Automated bias detection
-- Demographic equity analysis
-- Proactive fairness monitoring
+| Field       | Value                                          |
+| ----------- | ---------------------------------------------- |
+| Target      | Individual                                     |
+| CEL         | `r.is_registrant == true and r.active == true` |
+| Entitlement | In-kind (Food Basket)                          |
+| Cycle       | 30 days                                        |
+| Logic Pack  | None (simple inline CEL)                       |
 
 ---
 
-### Formula Integration Points
+### Overview of included change requests
 
-| Integration         | Description                       | Demo Location                  |
-| ------------------- | --------------------------------- | ------------------------------ |
-| Program Eligibility | Formulas determine who qualifies  | Cash Transfer, Elderly Pension |
-| Benefit Calculation | Formulas compute amounts          | Child Support Grant            |
-| Targeting Score     | Formulas prioritize beneficiaries | Emergency Cash Transfer        |
-| MIS Indicators      | Formulas referenced in metrics    | Dashboard indicators           |
+| #   | Type                     | Target     | Registrant | State    | Life Event                                        |
+| --- | ------------------------ | ---------- | ---------- | -------- | ------------------------------------------------- |
+| 1   | Edit individual          | Individual | HH2M1      | Applied  | Phone/address update after moving (auto-applied)  |
+| 2   | Edit individual          | Individual | HH2M1      | Pending  | Conflict CR #1 — overlaps with #3                 |
+| 3   | Edit individual          | Individual | HH2M1      | Pending  | Conflict CR #2 — overlaps with #2                 |
+| 4   | Edit group               | Group      | HH10       | Draft    | Draft CR for UI workflow demo                     |
+| 5   | Update ID                | Individual | HH1M1      | Approved | Correct national ID after data entry error        |
+| 6   | Exit registrant          | Individual | HH6M1      | Pending  | Graduated from food assistance (pending approval) |
+| 7   | Add member               | Group      | HH11       | Approved | Add newborn to Morales household                  |
+| 8   | Remove member            | Group      | HH11       | Pending  | Adult child moving out for university             |
+| 9   | Transfer member          | Group      | HH12       | Pending  | Transfer child to elderly relatives               |
+| 10  | Change head of household | Group      | HH9        | Approved | Set HH9M2 as new head of household                |
+| 11  | Create group             | Group      | IND1       | Draft    | Register new household                            |
+| 12  | Split household          | Group      | HH12       | Rejected | Incomplete documentation for property division    |
+| 13  | Merge registrants        | Individual | IND2       | Revision | Merge duplicate registrations from data quality   |
 
----
+**CR types covered:** edit_individual, edit_group, update_id, exit_registrant,
+add_member, remove_member, transfer_member, change_hoh, create_group, split_household,
+merge_registrants
 
-## Use Cases by Audience
+**CR states covered:** Draft, Pending, Approved, Applied (auto-applied on approval for
+some CR types), Rejected, Revision
 
-### For Sales Demos
-
-**Quick Demo (15 minutes):**
-
-1. Show dashboard with volume data (enrollments, programs)
-2. Navigate to Maria Santos - show complete program journey
-3. Show Juan Dela Cruz - demonstrate GRM integration
-4. Highlight multi-program enrollment (Rosa Garcia)
-
-**Comprehensive Demo (45 minutes):**
-
-1. Program creation and configuration
-2. Beneficiary enrollment workflow
-3. Cycle creation and entitlement generation
-4. Payment processing
-5. GRM ticket handling
-6. Reporting and analytics
-
-### For Training
-
-**Administrator Training:**
-
-- Use all 7 programs to explain different configurations
-- Demonstrate cycle management with different durations
-- Show entitlement manager configuration
-
-**Operator Training:**
-
-- Use volume data for practicing searches
-- Navigate between beneficiary records
-- Process mock payments
-
-**GRM Training:**
-
-- Use Juan Dela Cruz story for payment issues
-- Use Fatima Al-Rahman for information requests
-- Practice ticket creation and resolution
-
-### For Testing
-
-**Regression Testing:**
-
-- Volume enrollments provide diverse test data
-- Fixed stories ensure predictable test scenarios
-- Payment history enables payment workflow testing
-
-**Performance Testing:**
-
-- Generate high volume enrollments (500+)
-- Test search and filtering performance
-- Validate report generation speed
+**Note:** CR #1 state is "Applied" (not "Approved") because the edit_individual CR type
+auto-applies when all approval tiers are completed.
 
 ---
 
-## Demo Scenarios
+### Geographic distribution
 
-### Scenario 1: End-to-End Program Lifecycle
+Each story registrant is assigned to an administrative area appropriate to its locale
+from the demo area data.
 
-**Objective:** Show complete program journey from enrollment to graduation
-
-**Steps:**
-
-1. Open Maria Santos profile
-2. Show enrollment date (150 days ago)
-3. Navigate to payment history (3 payments)
-4. Show graduation date and exit status
-5. Demonstrate reporting on graduated beneficiaries
-
-**Key Messages:**
-
-- OpenSPP tracks complete beneficiary journeys
-- Programs can have graduation pathways
-- Historical data is preserved
-
----
-
-### Scenario 2: Payment Issue Resolution
-
-**Objective:** Demonstrate GRM integration for payment problems
-
-**Steps:**
-
-1. Open Juan Dela Cruz profile
-2. Show failed payment record
-3. Navigate to associated GRM ticket
-4. Show resolution steps
-5. Display successful reprocessed payment
-
-**Key Messages:**
-
-- Integrated grievance handling
-- Full audit trail
-- Automated payment retry
+| Character                        | HH    | Philippines (fil_PH) | Togo (fr_TG)   | Sri Lanka (si_LK)      |
+| -------------------------------- | ----- | -------------------- | -------------- | ---------------------- |
+| Coastal, payment hub             | HH1   | Calamba City         | Tokoin         | Moratuwa               |
+| Agricultural, family-focused     | HH2   | Santa Rosa City      | Aflao Sagbado  | Kolonnawa              |
+| Agricultural, multi-generational | HH3   | San Pablo City       | Kpalime        | Kandy Four Gravets     |
+| Displaced, emergency response    | HH4   | Antipolo City        | Sokode         | Galle Four Gravets     |
+| Urban, disability services       | HH5   | Makati City          | Lome Commune   | Dehiwala Mount Lavinia |
+| Elderly, aging population        | HH6M1 | Quezon City          | Be             | Fort                   |
+| Rejection demonstration          | HH7M1 | Pasig City           | Nyekonakpoe    | Pettah                 |
+| Background story                 | HH8   | Taguig City          | Adidogome      | Dehiwala               |
+| Extended family, disability      | HH9   | Bacoor City          | Baguida Centre | Hikkaduwa              |
+| Single mother, CR demo           | HH10  | Manila               | Kpalime Centre | Mount Lavinia          |
+| Family, add/remove member CR     | HH11  | Dasmarinas           | Tove           | Galle Fort             |
+| Large family, transfer/split CR  | HH12  | Commonwealth         | Zio            | Gampaha                |
+| Individual, create group CR      | IND1  | Poblacion            | Ogou           | Kalutara               |
+| Individual, merge CR             | IND2  | Real                 | Lacs           | Matara                 |
 
 ---
 
-### Scenario 3: Multi-Program Beneficiary
+### Overview
 
-**Objective:** Show beneficiaries in multiple programs
-
-**Steps:**
-
-1. Open Rosa Garcia profile
-2. Show Elderly Pension enrollment and payments
-3. Show Food Assistance enrollment
-4. Demonstrate consolidated beneficiary view
-
-**Key Messages:**
-
-- Beneficiaries can be in multiple programs
-- Unified beneficiary profile
-- Cross-program visibility
-
----
-
-### Scenario 4: Emergency Response
-
-**Objective:** Demonstrate rapid enrollment for emergencies
-
-**Steps:**
-
-1. Open Ibrahim Hassan profile
-2. Show fast enrollment date
-3. Display rapid payment schedule (15-day cycles)
-4. Show emergency priority flags
-
-**Key Messages:**
-
-- Fast-track enrollment capability
-- Emergency response readiness
-- Priority handling
-
----
-
-## Feature Demonstrations
-
-### Program Configuration
-
-| Feature              | Demo Program            | Story          |
-| -------------------- | ----------------------- | -------------- |
-| Cash entitlements    | Cash Transfer           | Juan Dela Cruz |
-| In-kind entitlements | Food Assistance         | Rosa Garcia    |
-| Quarterly cycles     | Child Support Grant     | Carlos Morales |
-| Fast-track cycles    | Emergency Cash Transfer | Ibrahim Hassan |
-| Group targeting      | Input Subsidy           | Maria Santos   |
-| Individual targeting | Elderly Pension         | Rosa Garcia    |
-
-### Workflow Features
-
-| Feature                 | Demo Program           | Story            |
-| ----------------------- | ---------------------- | ---------------- |
-| Program graduation      | Input Subsidy          | Maria Santos     |
-| Payment failure         | Cash Transfer          | Juan Dela Cruz   |
-| GRM integration         | Cash Transfer          | Juan Dela Cruz   |
-| Multi-program           | Elderly Pension + Food | Rosa Garcia      |
-| Pending application     | Input Subsidy          | Luis Fernandez   |
-| Rejected application    | Elderly Pension        | Mary Johnson     |
-| GRM payment issue       | Cash Transfer          | Juan Dela Cruz   |
-| GRM information request | Food Assistance        | Fatima Al-Rahman |
-
-### Reporting Features
-
-| Report                   | Data Source             |
-| ------------------------ | ----------------------- |
-| Enrollment statistics    | All programs            |
-| Payment summaries        | Cash programs           |
-| Program completion       | Maria Santos graduation |
-| Failed payments          | Juan Dela Cruz          |
-| Beneficiary demographics | Volume data             |
-
----
-
-## Event Data
-
-The MIS Demo generates event records that track beneficiary interactions with the
-system.
-
-### Event Types
-
-| Event Type               | Code                       | Purpose                                      |
-| ------------------------ | -------------------------- | -------------------------------------------- |
-| Training Session         | `training`                 | Agricultural and financial literacy training |
-| Extension Visit          | `extension_visit`          | Field visits by extension officers           |
-| Verification Visit       | `verification`             | Eligibility verification                     |
-| Vulnerability Assessment | `vulnerability_assessment` | Needs assessment for targeting               |
-
-### Story Events
-
-| Story          | Event                    | Days Back | Details                              |
-| -------------- | ------------------------ | --------- | ------------------------------------ |
-| Maria Santos   | Training                 | 145       | Agricultural Best Practices training |
-| Pedro Reyes    | Extension Visit          | 250       | Initial farm assessment              |
-| Pedro Reyes    | Extension Visit          | 200       | Follow-up visit                      |
-| Rosa Garcia    | Vulnerability Assessment | 195       | Score: High - elderly, lives alone   |
-| Ibrahim Hassan | Vulnerability Assessment | 58        | Score: Very High - displaced family  |
-| Ana Mendoza    | Verification             | 75        | Eligibility check - approved         |
-
-### Demo Scenario: Event-Driven Eligibility
-
-**Objective:** Show how events inform program eligibility
-
-**Steps:**
-
-1. Open Ibrahim Hassan profile
-2. Navigate to Events tab
-3. Show vulnerability assessment with "very_high" score
-4. Navigate to Emergency Cash Transfer enrollment
-5. Highlight quick enrollment (3 days after assessment)
-
-**Key Messages:**
-
-- Events capture field data collection
-- Assessments inform targeting decisions
-- Full audit trail of interactions
-
----
-
-## Change Requests
-
-The MIS Demo generates change request records at various workflow stages.
-
-### Story Change Requests
-
-| Story          | Request Type | State   | Description                             |
-| -------------- | ------------ | ------- | --------------------------------------- |
-| Ana Mendoza    | Info Update  | Applied | Phone number changed                    |
-| Rosa Garcia    | Info Update  | Pending | Address change - moved to care facility |
-| Carlos Morales | Info Update  | Draft   | Household size change - new baby        |
-
-### Demo Scenario: Change Request Workflow
-
-**Objective:** Show change request approval workflow
-
-**Steps:**
-
-1. Navigate to Change Requests list
-2. Show draft CR (Carlos Morales - household update)
-3. Show pending CR (Rosa Garcia - address change)
-4. Show applied CR (Ana Mendoza - phone update)
-5. Open Ana's profile to show updated phone number
-
-**Key Messages:**
-
-- Structured process for data changes
-- Multi-stage approval workflow
-- Complete audit trail
-- Data integrity protection
-
-### Change Request States
-
-| State     | Meaning                  | Demo Example   |
-| --------- | ------------------------ | -------------- |
-| Draft     | Initial submission       | Carlos Morales |
-| Pending   | Awaiting validation      | Rosa Garcia    |
-| Validated | Approved, ready to apply | N/A            |
-| Applied   | Changes committed        | Ana Mendoza    |
-| Rejected  | Denied with reason       | N/A            |
-
----
-
-## Appendix: Data Generation Order
-
-For optimal demo setup:
-
-1. **First:** Run `spp_demo_common` > "Generate Stories" to create demo personas
-2. **Second:** Run `spp_mis_demo_v2` > "Generate MIS Demo Data" with all options enabled
-3. **Third:** Run `spp_grm_demo` > "Generate GRM Demo Data" to create GRM tickets
-
-This ensures proper integration between modules and complete demo scenarios.
-
-### GRM Integration
-
-The GRM demo creates specific tickets for story personas that integrate with their MIS
-journeys:
-
-| Story            | GRM Ticket           | Links To                   |
-| ---------------- | -------------------- | -------------------------- |
-| Juan Dela Cruz   | Payment not received | Cash Transfer Program      |
-| Fatima Al-Rahman | Program inquiry      | Food Assistance enrollment |
-| Ibrahim Hassan   | Resettlement support | Emergency program          |
-| Ahmed Said       | Multiple tickets     | Cash Transfer Program      |
-
-See `spp_grm_demo/README.md` for full GRM demo documentation.
+| Metric                   | Count                                      |
+| ------------------------ | ------------------------------------------ |
+| Total programs included  | 7                                          |
+| Programs with compliance | 2 (Cash Transfer, Conditional Child Grant) |
+| Change requests          | 13 (11 types, 6 states)                    |
+| Demo scenarios           | 9                                          |
+| Locales                  | 3 (fil_PH, fr_TG, si_LK)                   |
+| Seeded volume            | ~680 households, ~2,100 individuals        |

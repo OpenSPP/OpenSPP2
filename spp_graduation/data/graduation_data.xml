@@ -6,8 +6,8 @@
         <field name="code">STANDARD</field>
         <field name="sequence">10</field>
         <field name="is_positive_exit" eval="True" />
-        <field name="is_requires_assessment" eval="True" />
-        <field name="is_requires_approval" eval="True" />
+        <field name="is_assessment_required" eval="True" />
+        <field name="is_approval_required" eval="True" />
         <field name="post_graduation_monitoring_months">12</field>
         <field
             name="description"
@@ -20,8 +20,8 @@
         <field name="code">EARLY</field>
         <field name="sequence">20</field>
         <field name="is_positive_exit" eval="True" />
-        <field name="is_requires_assessment" eval="True" />
-        <field name="is_requires_approval" eval="True" />
+        <field name="is_assessment_required" eval="True" />
+        <field name="is_approval_required" eval="True" />
         <field name="post_graduation_monitoring_months">18</field>
         <field
             name="description"
@@ -34,8 +34,8 @@
         <field name="code">ADMIN_EXIT</field>
         <field name="sequence">30</field>
         <field name="is_positive_exit" eval="False" />
-        <field name="is_requires_assessment" eval="False" />
-        <field name="is_requires_approval" eval="True" />
+        <field name="is_assessment_required" eval="False" />
+        <field name="is_approval_required" eval="True" />
         <field name="post_graduation_monitoring_months">0</field>
         <field
             name="description"

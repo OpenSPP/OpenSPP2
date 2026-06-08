@@ -5,6 +5,7 @@ from werkzeug.wrappers import Response
 
 from odoo import http
 from odoo.http import request
+from odoo.modules import get_manifest
 
 from odoo.addons.portal.controllers.web import Home
 
@@ -47,24 +48,27 @@ class OpenSPPHome(Home):
 class OpenSPPBrandingController(http.Controller):
     """Custom routes for OpenSPP branding"""
 
-    @http.route("/openspp/about", type="http", auth="public")
+    @http.route("/openspp/about", type="http", auth="user")
     def openspp_about(self, **kwargs):
         """Custom about page for OpenSPP"""
-        return json.dumps(
-            {
-                "title": "About OpenSPP",
-                "version": "1.0.0",
-                "system_name": get_param(request.env, "spp.system.name", "OpenSPP Platform"),
-                "documentation_url": get_param(request.env, "spp.documentation.url", "https://docs.openspp.org"),
-                "support_url": get_param(request.env, "spp.support.url", "https://openspp.org"),
-            }
-        )
+        manifest = get_manifest("spp_branding_kit")
+        payload = {
+            "title": "About OpenSPP",
+            "version": manifest.get("version", "0.0.0"),
+            "system_name": get_param(request.env, "spp.system.name", "OpenSPP Platform"),
+            "documentation_url": get_param(request.env, "spp.documentation.url", "https://docs.openspp.org"),
+            "support_url": get_param(request.env, "spp.support.url", "https://openspp.org"),
+        }
+        return Response(json.dumps(payload), content_type="application/json")
 
     @http.route("/web/webclient/version_info", type="jsonrpc", auth="none")
     def version_info(self):
         """Override version info to show OpenSPP branding"""
         return version_info_payload(request.env)
 
+    # csrf=False: This endpoint mimics Odoo's built-in telemetry route which receives
+    # unauthenticated machine-to-machine POST requests from the Odoo client library.
+    # CSRF protection does not apply to non-browser API endpoints.
     @http.route("/publisher-warranty", type="http", auth="none", csrf=False)
     def publisher_warranty(self, **kwargs):
         """Handle telemetry based on configuration"""

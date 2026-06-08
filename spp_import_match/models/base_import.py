@@ -5,9 +5,8 @@ from io import BytesIO, StringIO, TextIOWrapper
 from os.path import splitext
 
 from odoo import _, models
+from odoo.exceptions import UserError
 from odoo.models import fix_import_export_id_paths
-
-from odoo.addons.queue_job.exception import FailedJobError
 
 from .base import _import_match_local
 
@@ -67,10 +66,12 @@ class SPPBaseImport(models.TransientModel):
         overwrite_match = options.get("overwrite_match", False)
         _import_match_local.counts = None
 
+        # Set import match context early so both sync and async paths have it
+        if import_match_ids:
+            self = self.with_context(import_match_ids=import_match_ids, overwrite_match=overwrite_match)
+
         if dryrun or len(input_file_data) <= 100:
             _logger.info("Doing %s import", "dry-run" if dryrun else "normal")
-            if import_match_ids:
-                self = self.with_context(import_match_ids=import_match_ids, overwrite_match=overwrite_match)
             result = super().execute_import(fields, columns, options, dryrun=dryrun)
             counts = getattr(_import_match_local, "counts", None)
             if counts:
@@ -202,5 +203,5 @@ class SPPBaseImport(models.TransientModel):
         result = model_obj.load(fields, data)
         error_message = [message["message"] for message in result["messages"] if message["type"] == "error"]
         if error_message:
-            raise FailedJobError("\n".join(error_message))
+            raise UserError("\n".join(error_message))
         return result

@@ -1,4 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_spp_statistic_studio_admin,spp.statistic studio admin,spp_statistic.model_spp_statistic,spp_studio.group_studio_manager,1,1,1,1
-access_spp_metric_category_studio_admin,spp.metric.category studio admin,spp_metrics_core.model_spp_metric_category,spp_studio.group_studio_manager,1,1,1,1
-access_spp_statistic_context_studio_admin,spp.statistic.context studio admin,spp_statistic.model_spp_statistic_context,spp_studio.group_studio_manager,1,1,1,1

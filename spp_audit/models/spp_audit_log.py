@@ -2,6 +2,7 @@ import ast
 import logging
 
 from dateutil import tz
+from markupsafe import escape as html_escape
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
@@ -164,7 +165,7 @@ class SppAuditLog(models.Model):
             for line in rec._get_content():
                 row = ""
                 for item in line:
-                    row += f"<td>{item}</td>"
+                    row += f"<td>{html_escape(str(item))}</td>"
                 tbody += f"<tr>{row}</tr>"
             tbody = f"<tbody>{tbody}</tbody>"
             rec.data_html = f'<table class="o_list_view table table-condensed table-striped">{thead}{tbody}</table>'
@@ -206,7 +207,7 @@ class SppAuditLog(models.Model):
             for line in rec._parent_get_content():
                 row = ""
                 for item in line:
-                    row += f"<td>{item}</td>"
+                    row += f"<td>{html_escape(str(item))}</td>"
                 tbody += f"<tr>{row}</tr>"
             tbody = f"<tbody>{tbody}</tbody>"
             rec.parent_data_html = (

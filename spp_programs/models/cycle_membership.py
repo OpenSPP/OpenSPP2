@@ -1,6 +1,10 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+import logging
+
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
+
+_logger = logging.getLogger(__name__)
 
 
 class SPPCycleMembership(models.Model):
@@ -8,9 +12,27 @@ class SPPCycleMembership(models.Model):
     _description = "Cycle Membership"
     _order = "partner_id asc,id desc"
 
+    _unique_partner_cycle = models.Constraint(
+        "UNIQUE(partner_id, cycle_id)",
+        "Beneficiary must be unique per cycle.",
+    )
+
     partner_id = fields.Many2one("res.partner", "Registrant", help="A beneficiary", required=True, index=True)
     cycle_id = fields.Many2one("spp.cycle", "Cycle", help="A cycle", required=True, index=True)
+    program_id = fields.Many2one(
+        related="cycle_id.program_id",
+        string="Program",
+        store=True,
+        index=True,
+    )
     enrollment_date = fields.Date(default=lambda self: fields.Datetime.now())
+
+    compliance_criteria = fields.Char(
+        string="Compliance Criteria",
+        compute="_compute_compliance_criteria",
+        help="The compliance CEL expression from the program that this registrant failed to meet",
+    )
+
     state = fields.Selection(
         selection=[
             ("draft", "Draft"),
@@ -24,24 +46,20 @@ class SPPCycleMembership(models.Model):
         copy=False,
     )
 
-    @api.constrains("partner_id", "cycle_id")
-    def _check_unique_partner_per_cycle(self):
-        # Prefetch partner_id and cycle_id to avoid N+1 queries in loop
-        self.mapped("partner_id")
-        self.mapped("cycle_id")
-
-        for record in self:
-            if record.partner_id and record.cycle_id:
-                existing = self.search(
-                    [
-                        ("partner_id", "=", record.partner_id.id),
-                        ("cycle_id", "=", record.cycle_id.id),
-                        ("id", "!=", record.id),
-                    ],
-                    limit=1,
-                )
-                if existing:
-                    raise ValidationError(_("Beneficiary must be unique per cycle."))
+    def _compute_compliance_criteria(self):
+        """Show the compliance CEL expression from the program when non-compliant."""
+        for rec in self:
+            if rec.state == "non_compliant" and rec.cycle_id and rec.cycle_id.program_id:
+                program = rec.cycle_id.program_id
+                for wrapper in program.compliance_manager_ids:
+                    concrete = wrapper.manager_ref_id
+                    if hasattr(concrete, "compliance_cel_expression") and concrete.compliance_cel_expression:
+                        rec.compliance_criteria = concrete.compliance_cel_expression
+                        break
+                else:
+                    rec.compliance_criteria = False
+            else:
+                rec.compliance_criteria = False
 
     def _compute_display_name(self):
         res = super()._compute_display_name()
@@ -100,6 +118,73 @@ class SPPCycleMembership(models.Model):
                     "edit": False,
                 },
             }
+
+    @api.model
+    def bulk_create_memberships(self, vals_list, chunk_size=1000, skip_duplicates=False):
+        """Create cycle memberships in bulk with optional duplicate skipping.
+
+        :param vals_list: List of dicts with membership values
+        :param chunk_size: Number of records per batch (default 1000)
+        :param skip_duplicates: When True, use INSERT ... ON CONFLICT DO NOTHING
+            to silently skip duplicate (partner_id, cycle_id) pairs.
+            Returns the count of inserted rows.
+        :return: Recordset (skip_duplicates=False) or int count (skip_duplicates=True)
+        """
+        if not vals_list:
+            return 0 if skip_duplicates else self.env["spp.cycle.membership"]
+
+        if skip_duplicates:
+            return self._bulk_insert_on_conflict(vals_list, chunk_size)
+
+        return self.create(vals_list)
+
+    def _bulk_insert_on_conflict(self, vals_list, chunk_size=1000):
+        """Insert cycle memberships using raw SQL with ON CONFLICT DO NOTHING.
+
+        :param vals_list: List of dicts with at least partner_id, cycle_id, state
+        :param chunk_size: Number of records per SQL INSERT batch
+        :return: Total number of rows actually inserted
+        """
+        cr = self.env.cr
+        uid = self.env.uid
+        total_inserted = 0
+        today = fields.Date.today()
+
+        for i in range(0, len(vals_list), chunk_size):
+            batch = vals_list[i : i + chunk_size]
+            values = []
+            params = []
+            for v in batch:
+                values.append("(%s, %s, %s, %s, %s, %s, now(), now())")
+                params.extend(
+                    [
+                        v["partner_id"],
+                        v["cycle_id"],
+                        v.get("state", "draft"),
+                        v.get("enrollment_date", today),
+                        uid,
+                        uid,
+                    ]
+                )
+
+            sql = """
+                INSERT INTO spp_cycle_membership
+                    (partner_id, cycle_id, state, enrollment_date,
+                     create_uid, write_uid, create_date, write_date)
+                VALUES {}
+                ON CONFLICT (partner_id, cycle_id) DO NOTHING
+            """.format(  # noqa: S608  # nosec B608
+                ", ".join(values)
+            )
+            cr.execute(sql, params)
+            total_inserted += cr.rowcount
+
+        _logger.info(
+            "Bulk inserted %d cycle memberships (%d skipped as duplicates)",
+            total_inserted,
+            len(vals_list) - total_inserted,
+        )
+        return total_inserted
 
     def unlink(self):
         if not self:

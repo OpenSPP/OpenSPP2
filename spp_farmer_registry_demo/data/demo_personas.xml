@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    Farmer Registry Demo Personas V2
+
+    These personas EXTEND the MIS demo personas (spp_mis_demo_v2) with
+    farmer-specific fields. The base personas are already defined with
+    names like Maria Santos, Rosa Garcia, etc.
+
+    This file adds farmer-specific test data to those personas for
+    testing farm subsidy programs and eligibility logic.
+-->
+<odoo noupdate="1">
+    <!-- ═══════════════════════════════════════════════════════════════════════
+             FARMER-SPECIFIC PERSONA EXTENSIONS
+
+             These records extend the MIS personas with farm-specific fields
+             for testing farmer program eligibility and benefit calculations.
+             ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Maria Santos - Extended with Farm Data (Smallholder Rice Farmer) -->
+    <record id="persona_farmer_maria_santos" model="spp.studio.test.persona">
+        <field name="name">Maria Santos (Farmer)</field>
+        <field
+            name="description"
+        >FARMER EXTENSION: Maria Santos as a 2ha rice farmer. Extends MIS persona with farm-specific data. Eligible for Input Subsidy Program (smallholder with productive land). Expected benefit: 100 + (2.0 * 50) = 200</field>
+        <field name="category">eligible</field>
+        <field name="is_global" eval="True" />
+        <field name="sequence">210</field>
+        <field name="values">{
+    "name": "Maria Santos",
+    "age": 42,
+    "is_registrant": true,
+    "is_group": true,
+    "active": true,
+    "farm_type": "crop",
+    "farm_size_hectares": 2.0,
+    "farm_total_size": 2.0,
+    "farm_size_under_crops": 2.0,
+    "is_smallholder": true,
+    "has_productive_land": true,
+    "experience_years": 10,
+    "crop_count": 1,
+    "livestock_count": 0,
+    "aquaculture_count": 0,
+    "is_female_farmer": true
+}</field>
+    </record>
+
+    <!-- Juan Dela Cruz - Extended with Farm Data (Mixed Farm) -->
+    <record id="persona_farmer_juan_dela_cruz" model="spp.studio.test.persona">
+        <field name="name">Juan Dela Cruz (Farmer)</field>
+        <field
+            name="description"
+        >FARMER EXTENSION: Juan Dela Cruz as a 3ha mixed farmer. Has both crops and chickens. Eligible for Input Subsidy and Equipment Grant (experienced smallholder). Expected Input Subsidy: 100 + (3.0 * 50) = 250</field>
+        <field name="category">eligible</field>
+        <field name="is_global" eval="True" />
+        <field name="sequence">220</field>
+        <field name="values">{
+    "name": "Juan Dela Cruz",
+    "age": 45,
+    "is_registrant": true,
+    "is_group": true,
+    "active": true,
+    "farm_type": "mixed",
+    "farm_size_hectares": 3.0,
+    "farm_total_size": 3.0,
+    "farm_size_under_crops": 2.0,
+    "farm_size_under_livestock": 1.0,
+    "is_smallholder": true,
+    "has_productive_land": true,
+    "experience_years": 15,
+    "crop_count": 3,
+    "livestock_count": 50,
+    "aquaculture_count": 0,
+    "is_female_farmer": false
+}</field>
+    </record>
+
+    <!-- Rosa Garcia - Extended with Farm Data (Livestock Farm) -->
+    <record id="persona_farmer_rosa_garcia" model="spp.studio.test.persona">
+        <field name="name">Rosa Garcia (Farmer)</field>
+        <field
+            name="description"
+        >FARMER EXTENSION: Rosa Garcia as a female-headed livestock farm with 20 goats. Eligible for Livestock Support Program. Expected benefit: 75 + (20 * 10) = 275</field>
+        <field name="category">eligible</field>
+        <field name="is_global" eval="True" />
+        <field name="sequence">230</field>
+        <field name="values">{
+    "name": "Rosa Garcia",
+    "age": 67,
+    "is_registrant": true,
+    "is_group": true,
+    "active": true,
+    "farm_type": "mixed",
+    "farm_size_hectares": 1.0,
+    "farm_total_size": 1.0,
+    "farm_size_under_crops": 0.5,
+    "farm_size_under_livestock": 0.5,
+    "is_smallholder": true,
+    "has_productive_land": true,
+    "experience_years": 8,
+    "crop_count": 1,
+    "livestock_count": 20,
+    "aquaculture_count": 0,
+    "is_female_farmer": true
+}</field>
+    </record>
+
+    <!-- Amir Mangudadatu - Extended with Farm Data (Drought-Affected) -->
+    <record id="persona_farmer_ibrahim_hassan" model="spp.studio.test.persona">
+        <field name="name">Amir Mangudadatu (Farmer)</field>
+        <field
+            name="description"
+        >FARMER EXTENSION: Amir Mangudadatu as a drought-affected 4ha farmer with 1ha idle land. Eligible for Climate Resilience Program (smallholder with idle land). Expected benefit: 200 (fixed climate adaptation amount)</field>
+        <field name="category">eligible</field>
+        <field name="is_global" eval="True" />
+        <field name="sequence">240</field>
+        <field name="values">{
+    "name": "Amir Mangudadatu",
+    "age": 50,
+    "is_registrant": true,
+    "is_group": true,
+    "active": true,
+    "farm_type": "crop",
+    "farm_size_hectares": 4.0,
+    "farm_total_size": 4.0,
+    "farm_size_under_crops": 3.0,
+    "farm_size_idle": 1.0,
+    "is_smallholder": true,
+    "has_productive_land": true,
+    "experience_years": 20,
+    "crop_count": 1,
+    "livestock_count": 0,
+    "aquaculture_count": 0,
+    "is_female_farmer": false
+}</field>
+    </record>
+
+    <!-- Sofia Martinez - Extended with Farm Data (Organic Transition) -->
+    <record id="persona_farmer_sofia_martinez" model="spp.studio.test.persona">
+        <field name="name">Sofia Martinez (Farmer)</field>
+        <field
+            name="description"
+        >FARMER EXTENSION: Sofia Martinez as a female smallholder transitioning to organic farming. 2ha of vegetables and maize. Eligible for Input Subsidy. Expected benefit: 100 + (2.0 * 50) = 200</field>
+        <field name="category">eligible</field>
+        <field name="is_global" eval="True" />
+        <field name="sequence">250</field>
+        <field name="values">{
+    "name": "Sofia Martinez",
+    "age": 42,
+    "is_registrant": true,
+    "is_group": true,
+    "active": true,
+    "farm_type": "crop",
+    "farm_size_hectares": 2.0,
+    "farm_total_size": 2.0,
+    "farm_size_under_crops": 2.0,
+    "is_smallholder": true,
+    "has_productive_land": true,
+    "experience_years": 5,
+    "crop_count": 2,
+    "livestock_count": 0,
+    "aquaculture_count": 0,
+    "is_female_farmer": true
+}</field>
+    </record>
+
+    <!-- Ramon dela Cruz - New Persona (Aquaculture Farmer) -->
+    <record id="persona_farmer_chen_wei" model="spp.studio.test.persona">
+        <field name="name">Ramon dela Cruz (Aquaculture)</field>
+        <field
+            name="description"
+        >AQUACULTURE FARMER: Ramon dela Cruz operates a 0.5ha tilapia fishpond on leased land. Eligible for Aquaculture Support Program. Expected benefit: 250 (fixed aquaculture support amount)</field>
+        <field name="category">eligible</field>
+        <field name="is_global" eval="True" />
+        <field name="sequence">260</field>
+        <field name="values">{
+    "name": "Ramon dela Cruz",
+    "age": 35,
+    "is_registrant": true,
+    "is_group": true,
+    "active": true,
+    "farm_type": "aquaculture",
+    "farm_size_hectares": 0.5,
+    "farm_total_size": 0.5,
+    "farm_size_under_aquaculture": 0.5,
+    "is_smallholder": true,
+    "has_productive_land": true,
+    "experience_years": 7,
+    "crop_count": 0,
+    "livestock_count": 0,
+    "aquaculture_count": 1,
+    "is_female_farmer": false
+}</field>
+    </record>
+
+    <!-- Sittie Pangandaman - Extended with Farm Data -->
+    <record id="persona_farmer_fatima_al_rahman" model="spp.studio.test.persona">
+        <field name="name">Sittie Pangandaman (Farmer)</field>
+        <field
+            name="description"
+        >FARMER EXTENSION: Sittie Pangandaman as a female-headed 1.5ha crop farm. Experienced farmer (12 years). Eligible for Input Subsidy and Equipment Grant. Expected Input Subsidy: 100 + (1.5 * 50) = 175</field>
+        <field name="category">eligible</field>
+        <field name="is_global" eval="True" />
+        <field name="sequence">270</field>
+        <field name="values">{
+    "name": "Sittie Pangandaman",
+    "age": 32,
+    "is_registrant": true,
+    "is_group": true,
+    "active": true,
+    "farm_type": "crop",
+    "farm_size_hectares": 1.5,
+    "farm_total_size": 1.5,
+    "farm_size_under_crops": 1.5,
+    "is_smallholder": true,
+    "has_productive_land": true,
+    "experience_years": 12,
+    "crop_count": 2,
+    "livestock_count": 0,
+    "aquaculture_count": 0,
+    "is_female_farmer": true
+}</field>
+    </record>
+
+    <!-- Danilo Villanueva - Extended with Farm Data (Large Commercial Farm) -->
+    <record id="persona_farmer_ahmed_said" model="spp.studio.test.persona">
+        <field name="name">Danilo Villanueva (Farmer)</field>
+        <field
+            name="description"
+        >FARMER EXTENSION: Danilo Villanueva as a 5ha mixed commercial farm (at smallholder threshold). Very experienced (25 years). Has cattle and goats. May NOT qualify for smallholder programs depending on threshold configuration.</field>
+        <field name="category">edge</field>
+        <field name="is_global" eval="True" />
+        <field name="sequence">280</field>
+        <field name="values">{
+    "name": "Danilo Villanueva",
+    "age": 38,
+    "is_registrant": true,
+    "is_group": true,
+    "active": true,
+    "farm_type": "mixed",
+    "farm_size_hectares": 5.0,
+    "farm_total_size": 5.0,
+    "farm_size_under_crops": 3.0,
+    "farm_size_under_livestock": 2.0,
+    "is_smallholder": true,
+    "has_productive_land": true,
+    "experience_years": 25,
+    "crop_count": 2,
+    "livestock_count": 45,
+    "aquaculture_count": 0,
+    "is_female_farmer": false
+}</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+             INELIGIBLE/EDGE FARMER PERSONAS
+             ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Large Commercial Farm - Not Smallholder -->
+    <record id="persona_farmer_large_commercial" model="spp.studio.test.persona">
+        <field name="name">Large Commercial Farm</field>
+        <field
+            name="description"
+        >REJECTION CASE: 50ha commercial farm operation. NOT eligible for smallholder programs (is_smallholder = false). Demonstrates proper targeting exclusion for large farms.</field>
+        <field name="category">ineligible</field>
+        <field name="is_global" eval="True" />
+        <field name="sequence">300</field>
+        <field name="values">{
+    "name": "AgriCorp Holdings",
+    "is_registrant": true,
+    "is_group": true,
+    "active": true,
+    "farm_type": "crop",
+    "farm_size_hectares": 50.0,
+    "farm_total_size": 50.0,
+    "farm_size_under_crops": 45.0,
+    "farm_size_leased_out": 5.0,
+    "is_smallholder": false,
+    "has_productive_land": true,
+    "experience_years": 30,
+    "crop_count": 5,
+    "livestock_count": 0,
+    "aquaculture_count": 0
+}</field>
+    </record>
+
+    <!-- Farm with No Productive Land -->
+    <record id="persona_farmer_no_productive_land" model="spp.studio.test.persona">
+        <field name="name">Idle Land Farm</field>
+        <field
+            name="description"
+        >EDGE CASE: 3ha farm with ALL land idle/fallow. is_smallholder = true but has_productive_land = false. NOT eligible for Input Subsidy (requires productive land) but MAY qualify for Climate Resilience.</field>
+        <field name="category">edge</field>
+        <field name="is_global" eval="True" />
+        <field name="sequence">310</field>
+        <field name="values">{
+    "name": "Idle Land Farm",
+    "is_registrant": true,
+    "is_group": true,
+    "active": true,
+    "farm_type": "crop",
+    "farm_size_hectares": 3.0,
+    "farm_total_size": 3.0,
+    "farm_size_under_crops": 0.0,
+    "farm_size_idle": 3.0,
+    "is_smallholder": true,
+    "has_productive_land": false,
+    "experience_years": 5,
+    "crop_count": 0,
+    "livestock_count": 0,
+    "aquaculture_count": 0
+}</field>
+    </record>
+
+    <!-- New Farmer - No Experience -->
+    <record id="persona_farmer_new_farmer" model="spp.studio.test.persona">
+        <field name="name">New Farmer</field>
+        <field
+            name="description"
+        >EDGE CASE: 2ha smallholder who just started farming (1 year experience). Eligible for Input Subsidy but NOT Equipment Grant (requires 2+ years experience).</field>
+        <field name="category">edge</field>
+        <field name="is_global" eval="True" />
+        <field name="sequence">320</field>
+        <field name="values">{
+    "name": "New Farmer",
+    "is_registrant": true,
+    "is_group": true,
+    "active": true,
+    "farm_type": "crop",
+    "farm_size_hectares": 2.0,
+    "farm_total_size": 2.0,
+    "farm_size_under_crops": 2.0,
+    "is_smallholder": true,
+    "has_productive_land": true,
+    "experience_years": 1,
+    "crop_count": 1,
+    "livestock_count": 0,
+    "aquaculture_count": 0
+}</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+             FARM COOPERATIVE PERSONAS (GROUP HIERARCHY)
+
+             These personas represent cooperatives (groups of groups).
+             They demonstrate the spp_registry_group_hierarchy feature where
+             a cooperative contains multiple farm groups as members.
+             ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Nueva Ecija Rice Cooperative - Group of Groups -->
+    <record id="persona_cooperative_nueva_ecija" model="spp.studio.test.persona">
+        <field name="name">Nueva Ecija Rice Cooperative</field>
+        <field
+            name="description"
+        >FARM COOPERATIVE: A group of groups representing a rice farming cooperative in Nueva Ecija. Contains Maria Santos and Sofia Martinez farms as member groups. Demonstrates group hierarchy where a cooperative (group) has farms (groups) as members instead of individuals. Total combined area: 4.0 ha across 2 member farms.</field>
+        <field name="category">eligible</field>
+        <field name="is_global" eval="True" />
+        <field name="sequence">350</field>
+        <field name="values">{
+    "name": "Nueva Ecija Rice Cooperative",
+    "is_registrant": true,
+    "is_group": true,
+    "active": true,
+    "farm_type": "crop",
+    "farm_size_hectares": 4.0,
+    "farm_total_size": 4.0,
+    "farm_size_under_crops": 4.0,
+    "is_smallholder": true,
+    "has_productive_land": true,
+    "experience_years": 10,
+    "crop_count": 3,
+    "livestock_count": 0,
+    "aquaculture_count": 0,
+    "member_farm_count": 2,
+    "is_cooperative": true
+}</field>
+    </record>
+
+    <!-- BARMM Farmers Federation - Group of Groups -->
+    <record id="persona_cooperative_barmm" model="spp.studio.test.persona">
+        <field name="name">BARMM Farmers Federation</field>
+        <field
+            name="description"
+        >FARM COOPERATIVE: A federation of farms in BARMM (Bangsamoro Autonomous Region). Contains Amir Mangudadatu and Sittie Pangandaman farms as member groups. Demonstrates multi-level group hierarchy. Total combined area: 5.5 ha across 2 member farms. Mixed crop types.</field>
+        <field name="category">eligible</field>
+        <field name="is_global" eval="True" />
+        <field name="sequence">360</field>
+        <field name="values">{
+    "name": "BARMM Farmers Federation",
+    "is_registrant": true,
+    "is_group": true,
+    "active": true,
+    "farm_type": "mixed",
+    "farm_size_hectares": 5.5,
+    "farm_total_size": 5.5,
+    "farm_size_under_crops": 4.5,
+    "farm_size_idle": 1.0,
+    "is_smallholder": false,
+    "has_productive_land": true,
+    "experience_years": 16,
+    "crop_count": 3,
+    "livestock_count": 0,
+    "aquaculture_count": 0,
+    "member_farm_count": 2,
+    "is_cooperative": true
+}</field>
+    </record>
+</odoo>

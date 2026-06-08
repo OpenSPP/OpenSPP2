@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- ═══════════════════════════════════════════════════════════════════════
+             FARMER REGISTRY CONFIGURATION PARAMETERS
+             ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Smallholder Threshold
+             Maximum farm size (hectares) to qualify as a smallholder.
+             Varies by region (FAO recommendations):
+             - Sub-Saharan Africa: 2 ha
+             - South Asia: 2 ha
+             - Southeast Asia: 3 ha
+             - Latin America: 5-10 ha
+             Default: 5.0 (can be adjusted per deployment)
+        -->
+    <record id="config_smallholder_threshold" model="ir.config_parameter">
+        <field name="key">spp.farmer.smallholder_threshold</field>
+        <field name="value">5.0</field>
+    </record>
+</odoo>

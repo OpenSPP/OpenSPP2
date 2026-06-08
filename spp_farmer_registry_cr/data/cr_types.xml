@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- ════════════════════════════════════════════════════════════════════════ -->
+    <!-- FARMER REGISTRY CHANGE REQUEST TYPES -->
+    <!-- ════════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Update Farm Details -->
+    <record id="cr_type_update_farm_details" model="spp.change.request.type">
+        <field name="name">Update Farm Details</field>
+        <field name="code">update_farm_details</field>
+        <field
+            name="description"
+        >Update farm classification, size, and land tenure information</field>
+        <field name="target_type">group</field>
+        <field name="detail_model">spp.cr.detail.farm_details</field>
+        <field
+            name="detail_form_view_id"
+            ref="spp_farmer_registry_cr.spp_cr_detail_farm_details_form"
+        />
+        <field name="apply_strategy">custom</field>
+        <field name="apply_model">spp.cr.apply.update_farm_details</field>
+        <field name="icon">fa-tractor</field>
+        <field name="sequence">100</field>
+        <!-- Editability flags -->
+        <field name="is_studio_editable">True</field>
+        <field name="is_studio_cloneable">True</field>
+        <field name="is_system_type">True</field>
+        <field name="source_module">spp_farmer_registry_cr</field>
+    </record>
+
+    <!-- Field mappings for Update Farm Details -->
+    <record
+        id="cr_type_farm_details_mapping_farm_type"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_update_farm_details" />
+        <field name="source_field">farm_type_id</field>
+        <field name="target_field">farm_type_id</field>
+        <field name="sequence">10</field>
+    </record>
+    <record
+        id="cr_type_farm_details_mapping_holder_type"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_update_farm_details" />
+        <field name="source_field">holder_type_id</field>
+        <field name="target_field">holder_type_id</field>
+        <field name="sequence">20</field>
+    </record>
+    <record
+        id="cr_type_farm_details_mapping_land_tenure"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_update_farm_details" />
+        <field name="source_field">land_tenure_id</field>
+        <field name="target_field">land_tenure_id</field>
+        <field name="sequence">30</field>
+    </record>
+    <record
+        id="cr_type_farm_details_mapping_total_size"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_update_farm_details" />
+        <field name="source_field">farm_total_size</field>
+        <field name="target_field">farm_total_size</field>
+        <field name="sequence">50</field>
+    </record>
+    <record
+        id="cr_type_farm_details_mapping_under_crops"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_update_farm_details" />
+        <field name="source_field">farm_size_under_crops</field>
+        <field name="target_field">farm_size_under_crops</field>
+        <field name="sequence">60</field>
+    </record>
+    <record
+        id="cr_type_farm_details_mapping_under_livestock"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_update_farm_details" />
+        <field name="source_field">farm_size_under_livestock</field>
+        <field name="target_field">farm_size_under_livestock</field>
+        <field name="sequence">70</field>
+    </record>
+    <record
+        id="cr_type_farm_details_mapping_under_aquaculture"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_update_farm_details" />
+        <field name="source_field">farm_size_under_aquaculture</field>
+        <field name="target_field">farm_size_under_aquaculture</field>
+        <field name="sequence">80</field>
+    </record>
+    <record
+        id="cr_type_farm_details_mapping_leased_out"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_update_farm_details" />
+        <field name="source_field">farm_size_leased_out</field>
+        <field name="target_field">farm_size_leased_out</field>
+        <field name="sequence">90</field>
+    </record>
+    <record
+        id="cr_type_farm_details_mapping_idle"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_update_farm_details" />
+        <field name="source_field">farm_size_idle</field>
+        <field name="target_field">farm_size_idle</field>
+        <field name="sequence">100</field>
+    </record>
+    <record
+        id="cr_type_farm_details_mapping_experience"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_update_farm_details" />
+        <field name="source_field">experience_years</field>
+        <field name="target_field">experience_years</field>
+        <field name="sequence">110</field>
+    </record>
+
+    <!-- Manage Farm Activity (Add/Edit/Remove) -->
+    <record id="cr_type_manage_farm_activity" model="spp.change.request.type">
+        <field name="name">Manage Farm Activity</field>
+        <field name="code">manage_farm_activity</field>
+        <field
+            name="description"
+        >Add, edit, or remove crop, livestock, or aquaculture activities</field>
+        <field name="target_type">group</field>
+        <field name="detail_model">spp.cr.detail.manage_farm_activity</field>
+        <field
+            name="detail_form_view_id"
+            ref="spp_farmer_registry_cr.spp_cr_detail_manage_farm_activity_form"
+        />
+        <field name="apply_strategy">custom</field>
+        <field name="apply_model">spp.cr.apply.manage_farm_activity</field>
+        <field name="icon">fa-leaf</field>
+        <field name="sequence">110</field>
+        <!-- Activity operation availability -->
+        <field name="allow_activity_add">True</field>
+        <field name="allow_activity_update">True</field>
+        <field name="allow_activity_remove">True</field>
+        <!-- Editability flags -->
+        <field name="is_studio_editable">True</field>
+        <field name="is_studio_cloneable">True</field>
+        <field name="is_system_type">True</field>
+        <field name="source_module">spp_farmer_registry_cr</field>
+    </record>
+
+    <!-- Manage Farm Assets (Add/Edit/Remove) — disabled until fully tested
+    <record id="cr_type_manage_farm_asset" model="spp.change.request.type">
+        <field name="name">Manage Farm Assets</field>
+        <field name="code">manage_farm_asset</field>
+        <field name="description">Add, edit, or remove farm assets and machinery</field>
+        <field name="target_type">group</field>
+        <field name="detail_model">spp.cr.detail.manage_farm_asset</field>
+        <field name="detail_form_view_id" ref="spp_farmer_registry_cr.spp_cr_detail_manage_farm_asset_form"/>
+        <field name="apply_strategy">custom</field>
+        <field name="apply_model">spp.cr.apply.manage_farm_asset</field>
+        <field name="icon">fa-wrench</field>
+        <field name="sequence">130</field>
+        <field name="allow_asset_add">True</field>
+        <field name="allow_asset_update">True</field>
+        <field name="allow_asset_remove">True</field>
+        <field name="is_studio_editable">True</field>
+        <field name="is_studio_cloneable">True</field>
+        <field name="is_system_type">True</field>
+        <field name="source_module">spp_farmer_registry_cr</field>
+    </record>
+    -->
+
+    <!-- Manage Land Parcels (Add/Edit/Remove) — disabled until fully tested
+    <record id="cr_type_manage_land_parcel" model="spp.change.request.type">
+        <field name="name">Manage Land Parcels</field>
+        <field name="code">manage_land_parcel</field>
+        <field name="description">Add, edit, or remove land parcels for a farm</field>
+        <field name="target_type">group</field>
+        <field name="detail_model">spp.cr.detail.manage_land_parcel</field>
+        <field name="detail_form_view_id" ref="spp_farmer_registry_cr.spp_cr_detail_manage_land_parcel_form"/>
+        <field name="apply_strategy">custom</field>
+        <field name="apply_model">spp.cr.apply.manage_land_parcel</field>
+        <field name="icon">fa-map</field>
+        <field name="sequence">120</field>
+        <field name="allow_parcel_add">True</field>
+        <field name="allow_parcel_update">True</field>
+        <field name="allow_parcel_remove">True</field>
+        <field name="is_studio_editable">True</field>
+        <field name="is_studio_cloneable">True</field>
+        <field name="is_system_type">True</field>
+        <field name="source_module">spp_farmer_registry_cr</field>
+    </record>
+    -->
+</odoo>

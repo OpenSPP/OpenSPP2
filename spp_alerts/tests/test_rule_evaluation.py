@@ -97,9 +97,6 @@ class TestRuleEvaluation(AlertsTestCommon):
 
     def test_threshold_rule_creates_alerts(self):
         """Test that threshold rule creates alerts for matching records."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_threshold_rule(threshold_value=8.0, comparison="lt")
         count = rule._evaluate_rule()
 
@@ -111,9 +108,6 @@ class TestRuleEvaluation(AlertsTestCommon):
 
     def test_threshold_rule_gt_comparison(self):
         """Test greater-than comparison."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_threshold_rule(threshold_value=8.0, comparison="gt")
         count = rule._evaluate_rule()
 
@@ -122,9 +116,6 @@ class TestRuleEvaluation(AlertsTestCommon):
 
     def test_threshold_rule_eq_comparison(self):
         """Test equal comparison."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_threshold_rule(threshold_value=5.0, comparison="eq")
         count = rule._evaluate_rule()
 
@@ -133,9 +124,6 @@ class TestRuleEvaluation(AlertsTestCommon):
 
     def test_threshold_rule_lte_comparison(self):
         """Test less-than-or-equal comparison."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_threshold_rule(threshold_value=5.0, comparison="lte")
         count = rule._evaluate_rule()
 
@@ -144,9 +132,6 @@ class TestRuleEvaluation(AlertsTestCommon):
 
     def test_threshold_rule_gte_comparison(self):
         """Test greater-than-or-equal comparison."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_threshold_rule(threshold_value=5.0, comparison="gte")
         count = rule._evaluate_rule()
 
@@ -155,9 +140,6 @@ class TestRuleEvaluation(AlertsTestCommon):
 
     def test_threshold_alert_values(self):
         """Test that created alerts have correct field values."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_threshold_rule(threshold_value=2.0, comparison="lt")
         rule._evaluate_rule()
 
@@ -180,9 +162,6 @@ class TestRuleEvaluation(AlertsTestCommon):
 
         write_date is today (just created), so days_until=0 which is <= any positive days_before.
         """
-        if not self.alert_type_deadline or not self.field_write_date:
-            self.skipTest("Required alert type or field not found")
-
         # All 3 partners were just created, so write_date is today.
         # days_until = 0, which is <= 14
         rule = self._create_date_rule(days_before=14)
@@ -192,9 +171,6 @@ class TestRuleEvaluation(AlertsTestCommon):
 
     def test_date_rule_negative_window(self):
         """Test date rule with negative days_before only catches past dates."""
-        if not self.alert_type_deadline or not self.field_write_date:
-            self.skipTest("Required alert type or field not found")
-
         # write_date is today (days_until=0), -1 means only overdue (negative days_until)
         rule = self._create_date_rule(days_before=-1)
         count = rule._evaluate_rule()
@@ -208,9 +184,6 @@ class TestRuleEvaluation(AlertsTestCommon):
 
     def test_duplicate_prevention(self):
         """Test that running evaluation twice does not create duplicates."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_threshold_rule(threshold_value=8.0, comparison="lt")
 
         count1 = rule._evaluate_rule()
@@ -224,9 +197,6 @@ class TestRuleEvaluation(AlertsTestCommon):
 
     def test_duplicate_allows_after_resolve(self):
         """Test that resolved alerts allow new alerts for same record."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_threshold_rule(threshold_value=2.0, comparison="lt")
 
         # First run creates 1 alert (partner_low, color=1)
@@ -251,9 +221,6 @@ class TestRuleEvaluation(AlertsTestCommon):
 
     def test_cron_evaluate_rules(self):
         """Test that cron evaluates only active, configured rules."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         # Active rule with type — should be evaluated
         active_rule = self._create_threshold_rule(name="Active Rule", threshold_value=2.0)
 
@@ -278,14 +245,15 @@ class TestRuleEvaluation(AlertsTestCommon):
 
     def test_cron_continues_on_error(self):
         """Test that cron continues if one rule fails."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
-        # Rule with invalid domain — should fail gracefully
-        self._create_threshold_rule(
+        # Create rule with valid domain, then corrupt it via SQL to bypass constraint
+        bad_rule = self._create_threshold_rule(
             name="Bad Domain Rule",
-            domain_filter="INVALID DOMAIN",
         )
+        self.env.cr.execute(
+            "UPDATE spp_alert_rule SET domain_filter = %s WHERE id = %s",
+            ("INVALID DOMAIN", bad_rule.id),
+        )
+        bad_rule.invalidate_recordset(["domain_filter"])
 
         # Valid rule — should still succeed
         good_rule = self._create_threshold_rule(
@@ -304,9 +272,6 @@ class TestRuleEvaluation(AlertsTestCommon):
 
     def test_validation_threshold_without_field(self):
         """Test that threshold rule without monitored field raises error."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         with self.assertRaises(ValidationError):
             self.env["spp.alert.rule"].create(
                 {
@@ -320,9 +285,6 @@ class TestRuleEvaluation(AlertsTestCommon):
 
     def test_validation_date_without_field(self):
         """Test that date rule without date field raises error."""
-        if not self.alert_type_deadline:
-            self.skipTest("Alert type deadline not found")
-
         with self.assertRaises(ValidationError):
             self.env["spp.alert.rule"].create(
                 {
@@ -336,9 +298,6 @@ class TestRuleEvaluation(AlertsTestCommon):
 
     def test_validation_rule_type_without_model(self):
         """Test that rule type without model raises error."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         with self.assertRaises(ValidationError):
             self.env["spp.alert.rule"].create(
                 {
@@ -356,9 +315,6 @@ class TestRuleEvaluation(AlertsTestCommon):
 
     def test_action_evaluate_returns_notification(self):
         """Test that action_evaluate returns a notification action."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_threshold_rule(threshold_value=2.0)
         result = rule.action_evaluate()
 
@@ -368,9 +324,6 @@ class TestRuleEvaluation(AlertsTestCommon):
 
     def test_action_evaluate_no_type_raises(self):
         """Test that action_evaluate raises UserError when no rule_type."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self.env["spp.alert.rule"].create(
             {
                 "name": "No Type Rule",
@@ -382,11 +335,28 @@ class TestRuleEvaluation(AlertsTestCommon):
         with self.assertRaises(UserError):
             rule.action_evaluate()
 
+    def test_action_evaluate_no_model_raises(self):
+        """Test that action_evaluate raises UserError when model_id is not set."""
+        # Create rule without rule_type (bypasses constraint), then set rule_type via SQL
+        rule = self.env["spp.alert.rule"].create(
+            {
+                "name": "No Model Rule",
+                "alert_type_id": self.alert_type_threshold.id,
+                "priority": "medium",
+            }
+        )
+        # Set rule_type without model_id via SQL to bypass constraint
+        self.env.cr.execute(
+            "UPDATE spp_alert_rule SET rule_type = %s WHERE id = %s",
+            ("threshold", rule.id),
+        )
+        rule.invalidate_recordset(["rule_type"])
+
+        with self.assertRaises(UserError):
+            rule.action_evaluate()
+
     def test_rule_without_type_returns_zero(self):
         """Test that _evaluate_rule returns 0 when no rule_type."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self.env["spp.alert.rule"].create(
             {
                 "name": "No Type Rule",
@@ -400,19 +370,19 @@ class TestRuleEvaluation(AlertsTestCommon):
 
     def test_invalid_domain_returns_zero(self):
         """Test that invalid domain logs error and returns 0."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
+        # Create rule with valid domain, then corrupt it via SQL to bypass constraint
+        rule = self._create_threshold_rule()
+        self.env.cr.execute(
+            "UPDATE spp_alert_rule SET domain_filter = %s WHERE id = %s",
+            ("NOT A VALID DOMAIN", rule.id),
+        )
+        rule.invalidate_recordset(["domain_filter"])
 
-        rule = self._create_threshold_rule(domain_filter="NOT A VALID DOMAIN")
         count = rule._evaluate_rule()
-
         self.assertEqual(count, 0)
 
     def test_no_matching_records_returns_zero(self):
         """Test that rule returns 0 when no records match domain."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_threshold_rule(
             domain_filter='[("id", "=", -1)]',
             threshold_value=100.0,
@@ -423,9 +393,6 @@ class TestRuleEvaluation(AlertsTestCommon):
 
     def test_rule_propagates_company(self):
         """Test that company_id from rule is propagated to alerts."""
-        if not self.alert_type_threshold:
-            self.skipTest("Alert type threshold not found")
-
         rule = self._create_threshold_rule(
             threshold_value=2.0,
             company_id=self.company_main.id,
@@ -434,3 +401,92 @@ class TestRuleEvaluation(AlertsTestCommon):
 
         alert = self.env["spp.alert"].search([("rule_id", "=", rule.id)])
         self.assertEqual(alert.company_id, self.company_main)
+
+    def test_company_propagation_no_company_on_rule(self):
+        """Test that when rule has no company_id, alert gets default company from environment."""
+        rule = self._create_threshold_rule(
+            threshold_value=2.0,
+            company_id=False,
+        )
+        rule._evaluate_rule()
+
+        alert = self.env["spp.alert"].search([("rule_id", "=", rule.id)])
+        self.assertEqual(len(alert), 1)
+        # When rule has no company, the alert should get default company from environment
+        self.assertEqual(alert.company_id, self.env.company)
+
+    def test_get_existing_alert_keys_empty_ids(self):
+        """Test _get_existing_alert_keys with empty record_ids returns empty set."""
+        rule = self._create_threshold_rule()
+        result = rule._get_existing_alert_keys("res.partner", [])
+        self.assertEqual(result, set())
+
+    def test_prepare_alert_vals_threshold_includes_threshold_value(self):
+        """Test that threshold alerts include threshold_value in vals."""
+        rule = self._create_threshold_rule(threshold_value=5.0)
+        vals = rule._prepare_alert_vals(self.partner_low, "res.partner", current_value=1.0)
+
+        self.assertEqual(vals["current_value"], 1.0)
+        self.assertEqual(vals["threshold_value"], 5.0)
+
+    def test_prepare_alert_vals_date_excludes_threshold_value(self):
+        """Test that date alerts do NOT include threshold_value in vals."""
+        rule = self._create_date_rule()
+        vals = rule._prepare_alert_vals(self.partner_low, "res.partner", days_until=5)
+
+        self.assertNotIn("threshold_value", vals)
+        self.assertEqual(vals["days_until"], 5)
+
+    def test_res_name_on_rule_generated_alert(self):
+        """Test that alerts created by rule evaluation have correct res_name."""
+        rule = self._create_threshold_rule(threshold_value=2.0, comparison="lt")
+        rule._evaluate_rule()
+
+        alert = self.env["spp.alert"].search([("rule_id", "=", rule.id)])
+        self.assertEqual(len(alert), 1)
+        # res_name should be the display_name of the partner
+        self.assertEqual(alert.res_name, self.partner_low.display_name)
+
+    def test_evaluate_rule_model_not_found(self):
+        """Test that _evaluate_rule returns 0 when model no longer exists in registry."""
+        rule = self._create_threshold_rule()
+        # Corrupt model_name via SQL to simulate a model that was uninstalled
+        self.env.cr.execute(
+            "UPDATE ir_model SET model = %s WHERE id = %s",
+            ("nonexistent.model", self.partner_model.id),
+        )
+        rule.invalidate_recordset()
+        self.partner_model.invalidate_recordset()
+
+        count = rule._evaluate_rule()
+        self.assertEqual(count, 0)
+
+        # Restore the model name for other tests
+        self.env.cr.execute(
+            "UPDATE ir_model SET model = %s WHERE id = %s",
+            ("res.partner", self.partner_model.id),
+        )
+        self.partner_model.invalidate_recordset()
+
+    def test_date_rule_skips_empty_date_field(self):
+        """Test that date rule skips records where the date field is empty/False."""
+        # Get the date field on res.partner — use 'date' field
+        field_date = self.env["ir.model.fields"].search(
+            [("model_id", "=", self.partner_model.id), ("name", "=", "date")],
+            limit=1,
+        )
+        if not field_date:
+            # 'date' field may not exist on res.partner in all configurations
+            return
+
+        # Create a partner with no date value
+        partner_no_date = self.env["res.partner"].create({"name": "No Date Partner", "date": False})
+
+        rule = self._create_date_rule(
+            date_field_id=field_date.id,
+            days_before=30,
+            domain_filter=f'[("id", "=", {partner_no_date.id})]',
+        )
+        count = rule._evaluate_rule()
+        # Should skip the record because date is False
+        self.assertEqual(count, 0)

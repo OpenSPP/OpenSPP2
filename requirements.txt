@@ -8,11 +8,14 @@ faker
 fastapi>=0.110.0
 geojson
 httpx
+jsonschema
 jwcrypto
+jwcrypto>=1.5.6
 libhxl
 numpy>=1.22.2
 openpyxl
 parse-accept-language
+pyclamd
 pydantic
 pyjwt
 pyjwt>=2.4.0

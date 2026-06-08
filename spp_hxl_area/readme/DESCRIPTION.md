@@ -10,7 +10,7 @@ Import HXL-tagged field data and aggregate to area-level indicators for humanita
 - Track imports as batches with state machine (draft → mapped → processing → done)
 - Auto-sync indicators to `spp.data.value` for CEL expression access
 - Link imports to hazard incidents for disaster response tracking
-- Process imports asynchronously via queue_job
+- Process imports asynchronously via job_worker
 
 ### Key Models
 
@@ -56,4 +56,4 @@ After installing:
 
 ### Dependencies
 
-`spp_hxl`, `spp_area`, `spp_cel_domain`, `spp_hazard`, `spp_security`, `queue_job`
+`spp_hxl`, `spp_area`, `spp_cel_domain`, `spp_hazard`, `spp_security`, `job_worker`

@@ -2,7 +2,7 @@
 {
     "name": "OpenSPP Approval",
     "summary": "Standardized approval workflows with multi-tier sequencing and CEL rules",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.0.1",
     "license": "LGPL-3",
     "development_status": "Production/Stable",
     "author": "OpenSPP.org, OpenSPP Community",
@@ -36,4 +36,5 @@
     ],
     "installable": True,
     "application": False,
+    "maintainers": ["jeremi", "gonzalesedwin1123"],
 }

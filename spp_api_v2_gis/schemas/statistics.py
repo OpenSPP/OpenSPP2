@@ -4,7 +4,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class StatisticInfo(BaseModel):
+class IndicatorInfo(BaseModel):
     """Information about a single published statistic."""
 
     model_config = ConfigDict(
@@ -27,7 +27,7 @@ class StatisticInfo(BaseModel):
     unit: str | None = Field(default=None, description="Unit of measurement")
 
 
-class StatisticCategoryInfo(BaseModel):
+class IndicatorCategoryInfo(BaseModel):
     """Information about a category of statistics."""
 
     model_config = ConfigDict(
@@ -52,11 +52,11 @@ class StatisticCategoryInfo(BaseModel):
     code: str = Field(..., description="Category code (e.g., 'demographics')")
     name: str = Field(..., description="Display name (e.g., 'Demographics')")
     icon: str | None = Field(default=None, description="Font Awesome icon class")
-    statistics: list[StatisticInfo] = Field(..., description="Statistics in this category")
+    statistics: list[IndicatorInfo] = Field(..., description="Statistics in this category")
 
 
-class StatisticsListResponse(BaseModel):
+class IndicatorsListResponse(BaseModel):
     """Response listing all published statistics for a context."""
 
-    categories: list[StatisticCategoryInfo] = Field(..., description="Statistics organized by category")
+    categories: list[IndicatorCategoryInfo] = Field(..., description="Statistics organized by category")
     total_count: int = Field(..., description="Total number of statistics across all categories")

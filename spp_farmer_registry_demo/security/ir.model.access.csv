@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_farmer_demo_generator_admin,spp.farmer.demo.generator admin,model_spp_farmer_demo_generator,spp_security.group_spp_admin,1,1,1,1

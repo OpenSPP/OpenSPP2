@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Scoring Indicator Form View -->
+    <record id="view_spp_scoring_indicator_form" model="ir.ui.view">
+        <field name="name">spp.scoring.indicator.form</field>
+        <field name="model">spp.scoring.indicator</field>
+        <field name="arch" type="xml">
+            <form string="Scoring Indicator">
+                <sheet>
+                    <group col="2">
+                        <group name="basic" string="Basic Information">
+                            <field
+                                name="model_id"
+                                readonly="context.get('default_model_id')"
+                            />
+                            <field name="name" />
+                            <field name="code" />
+                            <field name="sequence" />
+                        </group>
+                        <group name="calculation" string="Calculation">
+                            <field name="calculation_type" />
+                            <field name="weight" />
+                            <field name="min_score" />
+                            <field name="max_score" />
+                        </group>
+                    </group>
+
+                    <group col="2">
+                        <group
+                            name="field_config"
+                            string="Field Configuration"
+                            invisible="calculation_type in ('formula', 'derived')"
+                        >
+                            <field name="source_model" />
+                            <field
+                                name="field_path"
+                                placeholder="e.g., household.roof_material"
+                            />
+                        </group>
+                        <group name="defaults" string="Default Handling">
+                            <field name="is_required" />
+                            <field name="default_value" />
+                            <field name="default_score" />
+                            <field
+                                name="invalid_value_ids"
+                                widget="many2many_tags"
+                                options="{'no_create': True}"
+                            />
+                        </group>
+                    </group>
+
+                    <group invisible="calculation_type != 'formula'">
+                        <field
+                            name="cel_expression"
+                            placeholder="CEL expression for calculating this indicator"
+                        />
+                    </group>
+
+                    <field
+                        name="description"
+                        placeholder="Description of what this indicator measures..."
+                    />
+
+                    <notebook invisible="calculation_type not in ('mapped', 'range')">
+                        <page string="Value Mappings" name="mappings">
+                            <field
+                                name="value_mapping_ids"
+                                context="{'default_indicator_id': id}"
+                            >
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle" />
+                                    <field
+                                        name="input_value"
+                                        invisible="parent.calculation_type == 'range'"
+                                    />
+                                    <field
+                                        name="range_min"
+                                        invisible="parent.calculation_type == 'mapped'"
+                                    />
+                                    <field
+                                        name="range_max"
+                                        invisible="parent.calculation_type == 'mapped'"
+                                    />
+                                    <field name="output_score" />
+                                    <field name="description" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Scoring Indicator List View -->
+    <record id="view_spp_scoring_indicator_list" model="ir.ui.view">
+        <field name="name">spp.scoring.indicator.list</field>
+        <field name="model">spp.scoring.indicator</field>
+        <field name="arch" type="xml">
+            <list string="Scoring Indicators">
+                <field name="sequence" widget="handle" />
+                <field name="code" />
+                <field name="name" />
+                <field name="model_id" />
+                <field name="field_path" />
+                <field name="calculation_type" />
+                <field name="weight" />
+                <field name="is_required" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Scoring Indicator Search View -->
+    <record id="view_spp_scoring_indicator_search" model="ir.ui.view">
+        <field name="name">spp.scoring.indicator.search</field>
+        <field name="model">spp.scoring.indicator</field>
+        <field name="arch" type="xml">
+            <search string="Search Indicators">
+                <field name="name" />
+                <field name="code" />
+                <field name="model_id" />
+                <filter
+                    name="required"
+                    string="Required"
+                    domain="[('is_required', '=', True)]"
+                />
+                <separator />
+                <filter
+                    name="group_model"
+                    string="Scoring Model"
+                    context="{'group_by': 'model_id'}"
+                />
+                <filter
+                    name="group_type"
+                    string="Calculation Type"
+                    context="{'group_by': 'calculation_type'}"
+                />
+            </search>
+        </field>
+    </record>
+
+    <!-- Scoring Indicator Action -->
+    <record id="action_spp_scoring_indicator" model="ir.actions.act_window">
+        <field name="name">Scoring Indicators</field>
+        <field name="res_model">spp.scoring.indicator</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Scoring Indicator
+            </p>
+            <p>
+                Indicators define individual components of a scoring model,
+                mapping registrant data to scores.
+            </p>
+        </field>
+    </record>
+</odoo>

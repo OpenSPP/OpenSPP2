@@ -7,24 +7,49 @@
         <field name="arch" type="xml">
             <form string="Load MIS Demo Data">
                 <sheet>
-                    <div class="alert alert-info" role="alert">
+                    <field name="mis_demo_loaded" invisible="1" />
+                    <field name="has_grm_demo" invisible="1" />
+                    <field name="has_case_demo" invisible="1" />
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="not mis_demo_loaded"
+                    >
+                        <p class="mb-0">
+                            <strong
+                        >MIS Demo Data has already been loaded for this company.</strong>
+                            Loading it again may create duplicate records.
+                        </p>
+                    </div>
+                    <div
+                        class="alert alert-info"
+                        role="alert"
+                        invisible="mis_demo_loaded"
+                    >
                         <p>
                             <strong>This will load comprehensive MIS demo data:</strong>
                         </p>
                         <ul>
                             <li
-                            >6 social protection programs (Child Grant, Pension, Emergency Relief, Cash Transfer, Disability Support, Food Assistance)</li>
+                            >7 social protection programs (Child Grant, Conditional Child Grant, Pension, Emergency Relief, Cash Transfer, Disability Support, Food Assistance)</li>
                             <li
                             >8 demo personas with full stories and payment history</li>
-                            <li>~500 enrollments across programs</li>
+                            <li
+                            >~730 deterministic households with ~2,500 members (country-aware names)</li>
+                            <li>Program enrollments based on household eligibility</li>
                             <li>Program cycles with entitlements</li>
                             <li>Logic Packs for eligibility rules</li>
                             <li>Change requests at various workflow stages</li>
-                            <li>GRM tickets and case records</li>
+                            <li invisible="not has_grm_demo">GRM tickets</li>
+                            <li invisible="not has_case_demo">Case records</li>
                             <li>Fairness analysis data</li>
                         </ul>
+                        <p class="mb-0">
+                            <em
+                            >Names are locale-aware and 100% reproducible per country selection.</em>
+                        </p>
                     </div>
-                    <group string="Geographic Data">
+                    <group string="Geographic Data" invisible="mis_demo_loaded">
                         <field name="load_geographic_data" />
                         <field
                             name="country_code"
@@ -38,8 +63,20 @@
                         string="Load Demo Data"
                         type="object"
                         class="btn-primary"
+                        invisible="mis_demo_loaded"
                     />
-                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                    <button
+                        string="Cancel"
+                        class="btn-secondary"
+                        special="cancel"
+                        invisible="mis_demo_loaded"
+                    />
+                    <button
+                        string="Close"
+                        class="btn-primary"
+                        special="cancel"
+                        invisible="not mis_demo_loaded"
+                    />
                 </footer>
             </form>
         </field>

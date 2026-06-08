@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Scoring Result Form View -->
+    <record id="view_spp_scoring_result_form" model="ir.ui.view">
+        <field name="name">spp.scoring.result.form</field>
+        <field name="model">spp.scoring.result</field>
+        <field name="arch" type="xml">
+            <form string="Scoring Result" create="false" edit="false">
+                <header>
+                    <button
+                        name="action_recalculate"
+                        string="Recalculate"
+                        type="object"
+                        class="btn-secondary"
+                        confirm="This will create a new scoring result. Continue?"
+                    />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="action_view_registrant"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-user"
+                        >
+                            <span>View Registrant</span>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="registrant_name" readonly="1" />
+                        </h1>
+                        <h2>
+                            Score: <field name="score" class="oe_inline" readonly="1" />
+                            - <field
+                            name="classification_label"
+                            class="oe_inline"
+                            readonly="1"
+                        />
+                        </h2>
+                    </div>
+
+                    <group col="2">
+                        <group name="score_info" string="Score Information">
+                            <field name="registrant_id" />
+                            <field name="model_id" />
+                            <field name="model_version" />
+                            <field name="score" />
+                            <field name="classification_code" />
+                            <field name="classification_label" />
+                            <field name="classification_color" widget="badge" />
+                        </group>
+                        <group name="metadata" string="Metadata">
+                            <field name="calculation_date" />
+                            <field name="calculated_by_id" />
+                            <field name="calculation_mode" />
+                            <field name="is_complete" />
+                        </group>
+                    </group>
+
+                    <group invisible="not error_messages">
+                        <field name="error_messages" readonly="1" />
+                    </group>
+
+                    <notebook>
+                        <page string="Score Breakdown" name="breakdown">
+                            <field name="detail_ids" readonly="1">
+                                <list>
+                                    <field name="sequence" invisible="1" />
+                                    <field name="indicator_code" />
+                                    <field name="indicator_name" />
+                                    <field name="field_value" />
+                                    <field name="indicator_score" />
+                                    <field name="weight" />
+                                    <field name="weighted_score" />
+                                    <field name="has_error" optional="hide" />
+                                    <field name="notes" optional="hide" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Raw Data" name="raw_data">
+                            <group>
+                                <field
+                                    name="inputs_snapshot"
+                                    readonly="1"
+                                    widget="text"
+                                />
+                            </group>
+                            <group>
+                                <field
+                                    name="breakdown_json"
+                                    readonly="1"
+                                    widget="text"
+                                />
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <!-- Scoring Result List View -->
+    <record id="view_spp_scoring_result_list" model="ir.ui.view">
+        <field name="name">spp.scoring.result.list</field>
+        <field name="model">spp.scoring.result</field>
+        <field name="arch" type="xml">
+            <list
+                string="Scoring Results"
+                create="false"
+                edit="false"
+                delete="false"
+                decoration-danger="not is_complete"
+                decoration-success="is_complete"
+            >
+                <field name="registrant_name" />
+                <field name="model_id" />
+                <field name="model_version" optional="hide" />
+                <field name="score" />
+                <field name="classification_label" />
+                <field name="classification_color" widget="badge" optional="show" />
+                <field name="calculation_date" />
+                <field name="calculation_mode" optional="show" />
+                <field name="is_complete" optional="hide" />
+                <field name="calculated_by_id" optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Scoring Result Search View -->
+    <record id="view_spp_scoring_result_search" model="ir.ui.view">
+        <field name="name">spp.scoring.result.search</field>
+        <field name="model">spp.scoring.result</field>
+        <field name="arch" type="xml">
+            <search string="Search Scoring Results">
+                <field name="registrant_id" />
+                <field name="registrant_name" />
+                <field name="model_id" />
+                <field name="classification_code" />
+                <field name="classification_label" />
+                <filter
+                    name="complete"
+                    string="Complete"
+                    domain="[('is_complete', '=', True)]"
+                />
+                <filter
+                    name="incomplete"
+                    string="Incomplete"
+                    domain="[('is_complete', '=', False)]"
+                />
+                <separator />
+                <filter
+                    name="today"
+                    string="Today"
+                    domain="[('calculation_date', '>=', (context_today()).strftime('%Y-%m-%d'))]"
+                />
+                <filter
+                    name="this_week"
+                    string="This Week"
+                    domain="[('calculation_date', '>=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"
+                />
+                <filter
+                    name="this_month"
+                    string="This Month"
+                    domain="[('calculation_date', '>=', (context_today() - datetime.timedelta(days=30)).strftime('%Y-%m-%d'))]"
+                />
+                <separator />
+                <filter
+                    name="group_model"
+                    string="Scoring Model"
+                    context="{'group_by': 'model_id'}"
+                />
+                <filter
+                    name="group_classification"
+                    string="Classification"
+                    context="{'group_by': 'classification_label'}"
+                />
+                <filter
+                    name="group_mode"
+                    string="Calculation Mode"
+                    context="{'group_by': 'calculation_mode'}"
+                />
+                <filter
+                    name="group_date"
+                    string="Calculation Date"
+                    context="{'group_by': 'calculation_date:day'}"
+                />
+            </search>
+        </field>
+    </record>
+
+    <!-- Scoring Result Action -->
+    <record id="action_spp_scoring_result" model="ir.actions.act_window">
+        <field name="name">Scoring Results</field>
+        <field name="res_model">spp.scoring.result</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_complete': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No scoring results yet
+            </p>
+            <p>
+                Scoring results are created when you run scoring calculations
+                on registrants using a scoring model.
+            </p>
+        </field>
+    </record>
+
+    <!-- Scoring Result Detail Form View (for popup) -->
+    <record id="view_spp_scoring_result_detail_form" model="ir.ui.view">
+        <field name="name">spp.scoring.result.detail.form</field>
+        <field name="model">spp.scoring.result.detail</field>
+        <field name="arch" type="xml">
+            <form string="Score Detail" create="false" edit="false">
+                <group>
+                    <field name="indicator_id" />
+                    <field name="field_value" />
+                    <field name="indicator_score" />
+                    <field name="weight" />
+                    <field name="weighted_score" />
+                    <field name="has_error" />
+                    <field name="notes" />
+                </group>
+            </form>
+        </field>
+    </record>
+</odoo>

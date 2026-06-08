@@ -7,6 +7,7 @@
         <field name="arch" type="xml">
             <list
                 decoration-info="status == 'alert'"
+                decoration-success="status == 'active'"
                 decoration-warning="status == 'recovery'"
                 decoration-muted="status == 'closed'"
             >
@@ -70,6 +71,13 @@
                     />
                 </header>
                 <sheet>
+                    <field name="is_ongoing" invisible="1" />
+                    <widget
+                        name="web_ribbon"
+                        title="Ongoing"
+                        bg_color="text-bg-warning"
+                        invisible="not is_ongoing"
+                    />
                     <div class="oe_button_box" name="button_box">
                         <button
                             name="action_view_impacts"
@@ -93,12 +101,6 @@
                             <field name="area_count" widget="statinfo" string="Areas" />
                         </button>
                     </div>
-                    <widget
-                        name="web_ribbon"
-                        title="Ongoing"
-                        bg_color="text-bg-warning"
-                        invisible="not is_ongoing"
-                    />
                     <div class="oe_title">
                         <label for="name" />
                         <h1>
@@ -108,6 +110,27 @@
                                 readonly="status == 'closed'"
                             />
                         </h1>
+                    </div>
+                    <div
+                        class="alert alert-info mb-3"
+                        invisible="status != 'alert'"
+                        role="status"
+                    >
+                        <i class="fa fa-info-circle me-2" title="Alert Phase" />
+                        <strong
+                    >Alert Phase</strong> - This incident is in alert status. Activate when response begins.
+                    </div>
+                    <div
+                        class="alert alert-warning mb-3"
+                        invisible="status != 'recovery'"
+                        role="status"
+                    >
+                        <i
+                        class="fa fa-exclamation-triangle me-2"
+                        title="Recovery Phase"
+                    />
+                        <strong
+                    >Recovery Phase</strong> - This incident is in recovery. Close when recovery is complete.
                     </div>
                     <group>
                         <group name="main_info">
@@ -135,9 +158,9 @@
                                 readonly="status == 'closed'"
                             />
                             <field name="end_date" readonly="status == 'closed'" />
-                            <field name="is_ongoing" invisible="1" />
                         </group>
                     </group>
+                    <group name="extension_section" invisible="1" />
                     <notebook>
                         <page string="Description" name="description">
                             <field
@@ -224,7 +247,7 @@
                                 invisible="impact_ids != []"
                             >No impacts recorded. Impacts track damage assessments linked to this incident.</p>
                             <field name="impact_ids" readonly="status == 'closed'">
-                                <list>
+                                <list editable="bottom" no_open="true">
                                     <field name="registrant_id" />
                                     <field name="impact_type_id" />
                                     <field name="damage_level" />
@@ -236,6 +259,36 @@
                                         decoration-success="verification_status == 'verified'"
                                         decoration-warning="verification_status == 'disputed'"
                                         decoration-muted="verification_status == 'closed'"
+                                    />
+                                    <field name="notes" optional="hide" />
+                                    <field name="create_date" column_invisible="1" />
+                                    <button
+                                        name="action_verify"
+                                        type="object"
+                                        string="Verify"
+                                        icon="fa-check"
+                                        invisible="not create_date or verification_status != 'reported'"
+                                    />
+                                    <button
+                                        name="action_dispute"
+                                        type="object"
+                                        string="Dispute"
+                                        icon="fa-exclamation-triangle"
+                                        invisible="not create_date or verification_status not in ('reported', 'verified')"
+                                    />
+                                    <button
+                                        name="action_close"
+                                        type="object"
+                                        string="Close"
+                                        icon="fa-times"
+                                        invisible="not create_date or verification_status == 'closed'"
+                                    />
+                                    <button
+                                        name="action_reset_to_reported"
+                                        type="object"
+                                        string="Reset"
+                                        icon="fa-undo"
+                                        invisible="not create_date or verification_status not in ('disputed', 'closed')"
                                     />
                                 </list>
                             </field>
@@ -258,6 +311,7 @@
                 <field name="category_id" />
                 <field name="cap_event" />
                 <field name="source" />
+                <separator />
                 <filter
                     name="alert"
                     string="Alert"
@@ -285,7 +339,7 @@
                     domain="[('is_ongoing', '=', True)]"
                 />
                 <separator />
-                <group>
+                <group name="groupby">
                     <filter
                         name="grp_status"
                         string="Status"
@@ -331,9 +385,11 @@
         <field name="name">Hazard Incidents</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">spp.hazard.incident</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">list,kanban,form</field>
         <field name="path">hazard-incidents</field>
-        <field name="context">{}</field>
+        <field
+            name="context"
+        >{'search_default_alert': 1, 'search_default_active': 1, 'search_default_recovery': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Record your first hazard incident

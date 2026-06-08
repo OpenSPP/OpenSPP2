@@ -392,6 +392,7 @@ class CelExecutor(models.AbstractModel):
         model: str,
         expr: str,
         limit: int = 50,
+        offset: int = 0,
         fields: list[str] | None = None,
         materialize_sql: bool = False,
     ) -> dict[str, Any]:
@@ -465,15 +466,23 @@ class CelExecutor(models.AbstractModel):
             preview_ids = []  # Count-only mode
         elif limit == 0:
             # Use the default from the method signature (50)
-            preview_recordset = self.env[model].search(final_domain, limit=50)
+            preview_recordset = self.env[model].search(final_domain, limit=50, offset=offset)
             preview_ids = preview_recordset.ids
         else:
-            preview_recordset = self.env[model].search(final_domain, limit=limit)
+            preview_recordset = self.env[model].search(final_domain, limit=limit, offset=offset)
             preview_ids = preview_recordset.ids
 
         # Read full record data if fields requested (for JSON-safe preview)
         if preview_ids and fields:
-            preview_data = preview_recordset.read(fields)
+            # Replace phone_number_ids with phone for reading, then enrich
+            read_fields = [f for f in fields if f != "phone_number_ids"]
+            preview_data = preview_recordset.read(read_fields)
+            if "phone_number_ids" in fields:
+                for rec_data in preview_data:
+                    rec_id = rec_data["id"]
+                    partner = preview_recordset.filtered(lambda r, rid=rec_id: r.id == rid)
+                    phones = partner.phone_number_ids.filtered(lambda p: not p.disabled).mapped("phone_no")
+                    rec_data["phone_numbers"] = phones
         # Enrich explanation with metrics info if any
         metrics_section = ""
         if metrics_info:
@@ -1093,7 +1102,9 @@ class CelExecutor(models.AbstractModel):
         allow_any_provider = self._allow_any_provider_fallback()
         # Provider resolution
         provider, return_type = self._metric_registry_info(p.metric)
-        params_hash = ""  # CEL V2: no params by default
+        # Parameterized metrics: hash the params so the cache lookup is keyed by
+        # them (must match how upsert_values hashed them on write). No params -> "".
+        params_hash = self.env["spp.data.value"]._hash_params(p.params) if getattr(p, "params", None) else ""
         # Preflight completeness/freshness
         status = self._metric_cache_status_sql(
             subject_model,
@@ -1360,6 +1371,10 @@ class CelExecutor(models.AbstractModel):
             *clause_args,
         )
         if isinstance(rhs, int | float):
+            # bool is a subclass of int. Postgres rejects `numeric = boolean`, so
+            # coerce a boolean RHS (true/false) to 1/0 for the numeric comparison.
+            # Boolean metric values are likewise stored as 1/0.
+            rhs_value = int(rhs) if isinstance(rhs, bool) else rhs
             # Handle both scalar numbers and {"value": number} objects
             # COALESCE extracts from object first, then tries scalar cast
             return SQL(
@@ -1373,7 +1388,7 @@ class CelExecutor(models.AbstractModel):
                     + num_ops[op]
                     + " %s",
                     *base_args,
-                    rhs,
+                    rhs_value,
                 ),
             )
         if isinstance(rhs, str):

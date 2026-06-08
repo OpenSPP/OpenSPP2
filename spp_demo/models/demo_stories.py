@@ -8,10 +8,26 @@ These stories provide predictable, documented personas for:
 - CI/Testing verification
 
 Each story demonstrates a specific workflow or feature set.
+Names are locale-aware: fil_PH (default), si_LK, fr_TG.
 """
+
+import copy
 
 # Reserved names that should not be used for random volume generation
 RESERVED_NAMES = [
+    # Household group names (family name only)
+    "Santos",
+    "Dela Cruz",
+    "Morales",
+    "Aquino",
+    "Reyes",
+    "Bautista",
+    "Pangilinan",
+    "Navarro",
+    "Gutierrez",
+    "Martinez",
+    "Castillo",
+    # Individual story names
     "Maria Santos",
     "Juan Dela Cruz",
     "Rosa Garcia",
@@ -19,22 +35,23 @@ RESERVED_NAMES = [
     "Ana Mendoza",
     "Carlos Morales",
     "Elena Morales",
-    "Ibrahim Hassan",
-    "Fatima Al-Rahman",
+    "Ramon Gutierrez",
+    "Teresa Villanueva",
     "Luis Fernandez",
-    "Mary Johnson",
-    "Ahmed Said",
-    "Grace Okonkwo",
-    "David Kim",
+    "Lorna Pascual",
+    "Roberto Castillo",
+    "Maricel Ramos",
+    "Eduardo Tan",
     # Additional household members
     "Marco Morales",
     "Sofia Morales",
     "Luis Morales",
-    # New household stories
-    "Amina Osman",
-    "Yusuf Osman",
-    "Layla Osman",
-    "Hassan Osman",
+    # Aquino household (amina_osman_household)
+    "Rosario Aquino",
+    "Daniel Aquino",
+    "Angela Aquino",
+    "Rafael Aquino",
+    # Reyes multigenerational household
     "Jose Reyes Sr",
     "Carmen Reyes",
     "Miguel Reyes",
@@ -43,19 +60,19 @@ RESERVED_NAMES = [
     "Lucia Reyes",
     "Antonio Reyes",
     "Isabella Reyes",
-    "Chen Wei",
-    "Chen Mei",
-    "Chen Ling",
-    "Chen Jun",
-    "Chen Xiao",
-    "Chen Yan",
-    "Chen Bo",
-    "Manuel Santos",
-    "Gloria Santos",
-    "James Nguyen",
-    "Linda Nguyen",
-    "Michael Nguyen",
-    "Sarah Nguyen",
+    "Eduardo Bautista",
+    "Carmen Bautista",
+    "Patricia Bautista",
+    "Fernando Bautista",
+    "Lucia Bautista",
+    "Rosalie Bautista",
+    "Antonio Bautista",
+    "Manuel Pangilinan",
+    "Gloria Pangilinan",
+    "Ricardo Navarro",
+    "Lourdes Navarro",
+    "Eduardo Navarro",
+    "Cristina Navarro",
     # Story 9 - Martinez household
     "David Martinez",
     "Sofia Martinez",
@@ -65,19 +82,19 @@ RESERVED_NAMES = [
     "Roberto Garcia",
     "Maria Garcia",
     "Carlos Garcia",
-    "Santos Family",
-    "Jose Santos",
-    "Ana Santos",
-    "Mia Santos",
-    "Cruz Family",
-    "Pedro Cruz",
-    "Teresa Cruz",
-    "Juan Cruz",
-    "Maria Cruz",
-    "Reyes Family",
-    "Ramon Reyes",
-    "Elena Reyes",
-    "Lucia Reyes",
+    "Tolentino Family",
+    "Jose Tolentino",
+    "Ana Tolentino",
+    "Mia Tolentino",
+    "Salazar Family",
+    "Pedro Salazar",
+    "Teresa Salazar",
+    "Juan Salazar",
+    "Maria Salazar",
+    "Mercado Family",
+    "Ramon Mercado",
+    "Elena Mercado",
+    "Lucia Mercado",
     "Ramos Family",
     "Antonio Ramos",
     "Rosa Ramos",
@@ -88,41 +105,42 @@ RESERVED_NAMES = [
 DEMO_STORIES = [
     {
         "id": "maria_santos",
-        "name": "Maria Santos",
-        "type": "farmer",
+        "name": "Santos",
+        "type": "household",
         "story_title": "The Success Story",
         "story_description": "Happy path from registration to graduation",
         "profile": {
-            "gender": "female",
-            "age": 42,
-            "education": "primary",
-            "farm_size": 2.5,
-            "farm_size_hectares": 2.5,  # CEL: Input Subsidy eligibility
-            "farm_type": "crop",
-            "main_crop": "rice",
-            "area_ref": "spp_demo.area_phl_ph1307404",
-            "area_kind": "municipality",
+            "head": {"name": "Maria Santos", "gender": "female", "age": 42},
+            "spouse": {"name": "Ricardo Santos", "gender": "male", "age": 44},
+            "children": [
+                {"name": "Sofia Santos", "gender": "female", "age": 14},
+                {"name": "Miguel Santos", "gender": "male", "age": 10},
+            ],
+            "adults": [
+                {"name": "Lola Santos", "gender": "female", "age": 68, "relation": "parent"},
+            ],
+            "district": "Northern District",
             "marital_status": "married",
             "household_size": 5,
         },
         "journey": [
-            {"action": "register", "days_back": 180},
-            {"action": "add_farm_details", "days_back": 175},
+            {"action": "register_household", "days_back": 180},
+            {"action": "add_household_members", "days_back": 175},
             {
                 "action": "verify_eligibility",
-                "program": "Input Subsidy Program",
-                "cel_check": "farm_size",
+                "program": "Cash Transfer Program",
+                "cel_check": "income",
                 "days_back": 152,
             },
-            {"action": "enroll_program", "program": "Input Subsidy Program", "days_back": 150},
+            {"action": "enroll_program", "program": "Cash Transfer Program", "days_back": 150},
             {"action": "create_event", "event_type": "training", "days_back": 145},
-            {"action": "create_payment", "amount": 200, "status": "paid", "days_back": 120},
-            {"action": "create_payment", "amount": 200, "status": "paid", "days_back": 90},
-            {"action": "create_payment", "amount": 200, "status": "paid", "days_back": 60},
+            {"action": "create_payment", "amount": 150, "status": "paid", "days_back": 120},
+            {"action": "create_payment", "amount": 150, "status": "paid", "days_back": 90},
+            {"action": "create_payment", "amount": 150, "status": "paid", "days_back": 60},
             {"action": "graduate_program", "days_back": 30},
         ],
         "demo_points": [
-            "Complete farmer profile with all details filled",
+            "Complete household profile with all members",
             "Program enrollment with full cycle",
             "Payment history showing successful disbursements",
             "Graduation status",
@@ -130,23 +148,23 @@ DEMO_STORIES = [
     },
     {
         "id": "juan_dela_cruz",
-        "name": "Juan Dela Cruz",
-        "type": "farmer",
+        "name": "Dela Cruz",
+        "type": "household",
         "story_title": "GRM Resolution",
         "story_description": "Demonstrate grievance handling workflow",
         "profile": {
-            "gender": "male",
-            "age": 38,
-            "education": "secondary",
-            "farm_size": 1.0,
-            "farm_size_hectares": 1.0,  # CEL: Farm size for eligibility
-            "farm_type": "mixed",
-            "main_crop": "vegetables",
+            "head": {"name": "Juan Dela Cruz", "gender": "male", "age": 38},
+            "spouse": {"name": "Ana Dela Cruz", "gender": "female", "age": 35},
+            "children": [
+                {"name": "Paolo Dela Cruz", "gender": "male", "age": 12},
+                {"name": "Maria Dela Cruz", "gender": "female", "age": 8},
+            ],
             "marital_status": "married",
             "household_size": 4,
         },
         "journey": [
-            {"action": "register", "days_back": 120},
+            {"action": "register_household", "days_back": 120},
+            {"action": "add_household_members", "days_back": 115},
             {"action": "enroll_program", "program": "Cash Transfer Program", "days_back": 100},
             {"action": "create_payment", "amount": 150, "status": "paid", "days_back": 70},
             {"action": "create_payment", "amount": 150, "status": "failed", "days_back": 40},
@@ -175,7 +193,7 @@ DEMO_STORIES = [
         "story_description": "Demonstrate targeting and multi-program enrollment",
         "profile": {
             "gender": "female",
-            "age": 67,
+            "age": 72,
             "education": "none",
             "marital_status": "widowed",
             "household_size": 1,
@@ -188,17 +206,17 @@ DEMO_STORIES = [
             {"action": "vulnerability_assessment", "score": "high", "days_back": 195},
             {
                 "action": "verify_eligibility",
-                "program": "Elderly Pension",
+                "program": "Elderly Social Pension",
                 "cel_check": "age_retirement",
                 "days_back": 182,
             },
-            {"action": "enroll_program", "program": "Elderly Pension", "days_back": 180},
+            {"action": "enroll_program", "program": "Elderly Social Pension", "days_back": 180},
             {"action": "enroll_program", "program": "Food Assistance", "days_back": 175},
             {
                 "action": "create_payment",
                 "amount": 100,
                 "status": "paid",
-                "program": "Elderly Pension",
+                "program": "Elderly Social Pension",
                 "days_back": 150,
             },
             {"action": "create_in_kind", "item": "Food Basket", "days_back": 150},
@@ -206,21 +224,21 @@ DEMO_STORIES = [
                 "action": "create_payment",
                 "amount": 100,
                 "status": "paid",
-                "program": "Elderly Pension",
+                "program": "Elderly Social Pension",
                 "days_back": 120,
             },
             {
                 "action": "create_payment",
                 "amount": 100,
                 "status": "paid",
-                "program": "Elderly Pension",
+                "program": "Elderly Social Pension",
                 "days_back": 90,
             },
             {
                 "action": "create_payment",
                 "amount": 100,
                 "status": "paid",
-                "program": "Elderly Pension",
+                "program": "Elderly Social Pension",
                 "days_back": 60,
             },
         ],
@@ -233,77 +251,56 @@ DEMO_STORIES = [
     {
         "id": "pedro_reyes",
         "name": "Pedro Reyes",
-        "type": "farmer",
-        "story_title": "Cooperative Leader",
-        "story_description": "Demonstrate farmer registry depth and group features",
+        "type": "individual",
+        "story_title": "Community Leader",
+        "story_description": "Demonstrate community engagement and extension visits",
         "profile": {
             "gender": "male",
             "age": 55,
             "education": "tertiary",
-            "farm_size": 8.0,
-            "farm_size_hectares": 8.0,  # CEL: Large livestock farm
-            "farm_type": "livestock",
-            "main_livestock": "dairy",
-            "area_ref": "spp_demo.area_phl_ph0403405",
-            "area_kind": "municipality",
+            "district": "Central District",
             "marital_status": "married",
             "household_size": 6,
-            "role": "cooperative_chairman",
+            "role": "community_leader",
         },
         "journey": [
             {"action": "register", "days_back": 365},
-            {"action": "add_farm_details", "comprehensive": True, "days_back": 360},
-            {"action": "register_cooperative_leader", "days_back": 350},
-            {"action": "enroll_program", "program": "Livestock Improvement Program", "days_back": 300},
             {"action": "create_event", "event_type": "extension_visit", "days_back": 250},
             {"action": "create_event", "event_type": "extension_visit", "days_back": 200},
-            {"action": "create_in_kind", "item": "Improved Breed Cattle", "quantity": 2, "days_back": 150},
         ],
         "demo_points": [
-            "Detailed farm profile (livestock, assets, land records)",
-            "Group/cooperative membership",
+            "Community leadership role",
             "Extension service history",
-            "In-kind entitlement",
         ],
     },
     {
         "id": "ana_mendoza",
         "name": "Ana Mendoza",
-        "type": "farmer",
-        "story_title": "Young Modern Farmer",
-        "story_description": "Demonstrate tech-savvy farmer profile",
+        "type": "individual",
+        "story_title": "Young Registrant",
+        "story_description": "Demonstrate digital registration and verification",
         "profile": {
             "gender": "female",
             "age": 28,
             "education": "university",
-            "farm_size": 3.0,
-            "farm_size_hectares": 3.0,  # CEL: Youth farmer eligibility
-            "farm_type": "crop",
-            "main_crop": "mixed_vegetables",
-            "area_ref": "spp_demo.area_phl_ph0405802",
-            "area_kind": "municipality",
+            "district": "Eastern District",
             "marital_status": "single",
             "household_size": 2,
             "registration_channel": "mobile_app",
-            "employment_status": "self_employed",  # CEL: Youth employment status
+            "employment_status": "self_employed",
         },
         "journey": [
             {"action": "register", "channel": "mobile_app", "days_back": 90},
-            {"action": "add_farm_details", "with_gps": True, "days_back": 85},
-            {"action": "apply_program", "program": "Input Subsidy Program", "days_back": 80},
             {"action": "verify_eligibility", "days_back": 75},
-            {"action": "enroll_program", "program": "Input Subsidy Program", "days_back": 70},
-            {"action": "create_in_kind", "item": "Inputs Package", "days_back": 45},
         ],
         "demo_points": [
-            "Modern farmer profile",
-            "GPS coordinates on farm",
             "Digital registration pathway",
+            "Verification workflow",
         ],
     },
     {
         "id": "carlos_elena_morales",
-        "name": "Carlos Morales",
+        "name": "Morales",
         "type": "household",
         "story_title": "Household Unit",
         "story_description": "Demonstrate household/group registration",
@@ -315,24 +312,21 @@ DEMO_STORIES = [
                 {"name": "Sofia Morales", "gender": "female", "age": 12},
                 {"name": "Luis Morales", "gender": "male", "age": 8},
             ],
-            "farm_size": 2.0,
-            "farm_size_hectares": 2.0,  # CEL: Household farm size
             "child_count": 3,  # CEL: Child benefit eligibility
-            "area_ref": "spp_demo.area_phl_ph0403428",
-            "area_kind": "municipality",
+            "district": "Southern District",
         },
         "journey": [
             {"action": "register_household", "days_back": 150},
             {"action": "add_household_members", "days_back": 145},
             {
                 "action": "verify_eligibility",
-                "program": "Child Support Grant",
+                "program": "Universal Child Grant",
                 "cel_check": "member_count",
                 "days_back": 142,
             },
-            {"action": "enroll_program", "program": "Child Support Grant", "days_back": 140},
-            {"action": "create_payment", "amount": 300, "status": "paid", "days_back": 100},
-            {"action": "create_payment", "amount": 300, "status": "paid", "days_back": 10},
+            {"action": "enroll_program", "program": "Universal Child Grant", "days_back": 140},
+            {"action": "create_payment", "amount": 150, "status": "paid", "days_back": 100},
+            {"action": "create_payment", "amount": 150, "status": "paid", "days_back": 10},
         ],
         "demo_points": [
             "Household with multiple members",
@@ -342,37 +336,36 @@ DEMO_STORIES = [
     },
     {
         "id": "amina_osman_household",
-        "name": "Amina Osman",
+        "name": "Aquino",
         "type": "household",
         "story_title": "Single-Parent Household",
         "story_description": "Widowed mother with children - vulnerable household",
         "profile": {
-            "head": {"name": "Amina Osman", "gender": "female", "age": 38},
+            "head": {"name": "Rosario Aquino", "gender": "female", "age": 38},
             "children": [
-                {"name": "Yusuf Osman", "gender": "male", "age": 15},
-                {"name": "Layla Osman", "gender": "female", "age": 11},
-                {"name": "Hassan Osman", "gender": "male", "age": 7},
+                {"name": "Daniel Aquino", "gender": "male", "age": 15},
+                {"name": "Angela Aquino", "gender": "female", "age": 11},
+                {"name": "Rafael Aquino", "gender": "male", "age": 7},
             ],
             "marital_status": "widowed",
             "vulnerability": ["single_parent", "low_income", "female_headed"],
             "vulnerability_score": 80,  # CEL: High vulnerability - single parent household
             "child_count": 3,  # CEL: Child benefit eligibility
-            "area_ref": "spp_demo.area_phl_ph1307602",
-            "area_kind": "municipality",
+            "district": "Western District",
         },
         "journey": [
             {"action": "register_household", "days_back": 180},
             {"action": "vulnerability_assessment", "score": "high", "days_back": 175},
             {
                 "action": "verify_eligibility",
-                "program": "Child Support Grant",
+                "program": "Universal Child Grant",
                 "cel_check": "member_count",
                 "days_back": 162,
             },
-            {"action": "enroll_program", "program": "Child Support Grant", "days_back": 160},
+            {"action": "enroll_program", "program": "Universal Child Grant", "days_back": 160},
             {"action": "enroll_program", "program": "Food Assistance", "days_back": 155},
-            {"action": "create_payment", "amount": 350, "status": "paid", "days_back": 120},
-            {"action": "create_payment", "amount": 350, "status": "paid", "days_back": 60},
+            {"action": "create_payment", "amount": 150, "status": "paid", "days_back": 120},
+            {"action": "create_payment", "amount": 150, "status": "paid", "days_back": 60},
         ],
         "demo_points": [
             "Female-headed household",
@@ -383,7 +376,7 @@ DEMO_STORIES = [
     },
     {
         "id": "jose_reyes_multigenerational",
-        "name": "Jose Reyes Sr",
+        "name": "Reyes",
         "type": "household",
         "story_title": "Multi-Generational Household",
         "story_description": "Three generations living together - grandparents, parents, children",
@@ -400,11 +393,8 @@ DEMO_STORIES = [
                 {"name": "Antonio Reyes", "gender": "male", "age": 10},
                 {"name": "Isabella Reyes", "gender": "female", "age": 6},
             ],
-            "farm_size": 5.0,
-            "farm_size_hectares": 5.0,  # CEL: Multi-generational household farm
             "child_count": 3,  # CEL: Children under 18 (excluding 18-year-old)
-            "area_ref": "spp_demo.area_phl_ph1307404",
-            "area_kind": "municipality",
+            "district": "Northern District",
             "vulnerability": ["elderly_members"],
         },
         "journey": [
@@ -412,44 +402,44 @@ DEMO_STORIES = [
             {"action": "add_household_members", "days_back": 360},
             {
                 "action": "verify_eligibility",
-                "program": "Elderly Pension",
+                "program": "Elderly Social Pension",
                 "cel_check": "age_retirement",
                 "days_back": 352,
             },
-            {"action": "enroll_program", "program": "Elderly Pension", "days_back": 350},
+            {"action": "enroll_program", "program": "Elderly Social Pension", "days_back": 350},
             {
                 "action": "verify_eligibility",
-                "program": "Child Support Grant",
+                "program": "Universal Child Grant",
                 "cel_check": "member_count",
                 "days_back": 342,
             },
-            {"action": "enroll_program", "program": "Child Support Grant", "days_back": 340},
+            {"action": "enroll_program", "program": "Universal Child Grant", "days_back": 340},
             {
                 "action": "create_payment",
                 "amount": 200,
                 "status": "paid",
-                "program": "Elderly Pension",
+                "program": "Elderly Social Pension",
                 "days_back": 300,
             },
             {
                 "action": "create_payment",
                 "amount": 400,
                 "status": "paid",
-                "program": "Child Support Grant",
+                "program": "Universal Child Grant",
                 "days_back": 290,
             },
             {
                 "action": "create_payment",
                 "amount": 200,
                 "status": "paid",
-                "program": "Elderly Pension",
+                "program": "Elderly Social Pension",
                 "days_back": 240,
             },
             {
                 "action": "create_payment",
                 "amount": 200,
                 "status": "paid",
-                "program": "Elderly Pension",
+                "program": "Elderly Social Pension",
                 "days_back": 180,
             },
         ],
@@ -462,82 +452,66 @@ DEMO_STORIES = [
     },
     {
         "id": "chen_large_family",
-        "name": "Chen Wei",
+        "name": "Bautista",
         "type": "household",
         "story_title": "Large Family",
         "story_description": "Large family with many children - demonstrates scale",
         "profile": {
-            "head": {"name": "Chen Wei", "gender": "male", "age": 48},
-            "spouse": {"name": "Chen Mei", "gender": "female", "age": 44},
+            "head": {"name": "Eduardo Bautista", "gender": "male", "age": 48},
+            "spouse": {"name": "Carmen Bautista", "gender": "female", "age": 44},
             "children": [
-                {"name": "Chen Ling", "gender": "female", "age": 22},
-                {"name": "Chen Jun", "gender": "male", "age": 19},
-                {"name": "Chen Xiao", "gender": "female", "age": 16},
-                {"name": "Chen Yan", "gender": "female", "age": 13},
-                {"name": "Chen Bo", "gender": "male", "age": 9},
+                {"name": "Patricia Bautista", "gender": "female", "age": 22},
+                {"name": "Fernando Bautista", "gender": "male", "age": 19},
+                {"name": "Lucia Bautista", "gender": "female", "age": 16},
+                {"name": "Rosalie Bautista", "gender": "female", "age": 13},
+                {"name": "Antonio Bautista", "gender": "male", "age": 9},
             ],
-            "farm_size": 4.5,
-            "farm_size_hectares": 4.5,  # CEL: Large family farm
-            "child_count": 3,  # CEL: Children under 18 (Xiao, Yan, Bo)
-            "farm_type": "crop",
-            "main_crop": "rice",
-            "area_ref": "spp_demo.area_phl_ph0405802",
-            "area_kind": "municipality",
+            "child_count": 3,  # CEL: Children under 18 (Lucia, Rosalie, Antonio)
+            "district": "Eastern District",
         },
         "journey": [
             {"action": "register_household", "days_back": 200},
             {"action": "add_household_members", "days_back": 195},
-            {"action": "add_farm_details", "days_back": 190},
             {
                 "action": "verify_eligibility",
-                "program": "Input Subsidy Program",
-                "cel_check": "farm_size",
-                "days_back": 182,
-            },
-            {"action": "enroll_program", "program": "Input Subsidy Program", "days_back": 180},
-            {
-                "action": "verify_eligibility",
-                "program": "Child Support Grant",
+                "program": "Universal Child Grant",
                 "cel_check": "member_count",
                 "days_back": 177,
             },
-            {"action": "enroll_program", "program": "Child Support Grant", "days_back": 175},
-            {"action": "create_in_kind", "item": "Inputs Package", "days_back": 150},
-            {"action": "create_payment", "amount": 450, "status": "paid", "days_back": 140},
-            {"action": "create_payment", "amount": 450, "status": "paid", "days_back": 80},
+            {"action": "enroll_program", "program": "Universal Child Grant", "days_back": 175},
+            {"action": "create_payment", "amount": 150, "status": "paid", "days_back": 140},
+            {"action": "create_payment", "amount": 150, "status": "paid", "days_back": 80},
         ],
         "demo_points": [
             "Large family (7 members)",
             "Mixed age children (some eligible, some not)",
-            "Farming household",
-            "Both in-kind and cash benefits",
+            "Cash benefits for children",
         ],
     },
     {
         "id": "manuel_gloria_elderly",
-        "name": "Manuel Santos",
+        "name": "Pangilinan",
         "type": "household",
         "story_title": "Elderly Couple",
         "story_description": "Elderly couple without dependents",
         "profile": {
-            "head": {"name": "Manuel Santos", "gender": "male", "age": 75},
-            "spouse": {"name": "Gloria Santos", "gender": "female", "age": 71},
+            "head": {"name": "Manuel Pangilinan", "gender": "male", "age": 75},
+            "spouse": {"name": "Gloria Pangilinan", "gender": "female", "age": 71},
             "vulnerability": ["elderly", "health_issues", "limited_mobility"],
             "vulnerability_score": 70,  # CEL: Elderly couple vulnerability
             "has_formal_pension": False,  # CEL: Elderly pension eligibility
-            "area_ref": "spp_demo.area_phl_ph0403405",
-            "area_kind": "municipality",
+            "district": "Central District",
         },
         "journey": [
             {"action": "register_household", "days_back": 250},
             {"action": "vulnerability_assessment", "score": "medium", "days_back": 245},
             {
                 "action": "verify_eligibility",
-                "program": "Elderly Pension",
+                "program": "Elderly Social Pension",
                 "cel_check": "age_retirement",
                 "days_back": 232,
             },
-            {"action": "enroll_program", "program": "Elderly Pension", "days_back": 230},
+            {"action": "enroll_program", "program": "Elderly Social Pension", "days_back": 230},
             {"action": "enroll_program", "program": "Food Assistance", "days_back": 220},
             {"action": "create_payment", "amount": 200, "status": "paid", "days_back": 200},
             {"action": "create_in_kind", "item": "Food Basket", "days_back": 195},
@@ -554,32 +528,28 @@ DEMO_STORIES = [
     },
     {
         "id": "nguyen_extended_family",
-        "name": "James Nguyen",
+        "name": "Navarro",
         "type": "household",
         "story_title": "Extended Family",
         "story_description": "Siblings and their families living together",
         "profile": {
-            "head": {"name": "James Nguyen", "gender": "male", "age": 52},
+            "head": {"name": "Ricardo Navarro", "gender": "male", "age": 52},
             "adults": [
-                {"name": "Linda Nguyen", "gender": "female", "age": 48, "relation": "spouse"},
+                {"name": "Lourdes Navarro", "gender": "female", "age": 48, "relation": "spouse"},
                 {
-                    "name": "Michael Nguyen",
+                    "name": "Eduardo Navarro",
                     "gender": "male",
                     "age": 46,
                     "relation": "brother",
                     "disability_status": "disabled",
                 },
-                {"name": "Sarah Nguyen", "gender": "female", "age": 44, "relation": "sister-in-law"},
+                {"name": "Cristina Navarro", "gender": "female", "age": 44, "relation": "sister-in-law"},
             ],
-            "farm_size": 6.0,
-            "farm_size_hectares": 6.0,  # CEL: Extended family farm
-            "farm_type": "mixed",
-            "area_ref": "spp_demo.area_phl_ph0403428",
-            "area_kind": "municipality",
+            "district": "Southern District",
             "vulnerability": ["disability"],
             "vulnerability_score": 65,  # CEL: Disability in household
             "disabled_count": 1,  # CEL: Member with disability
-            "notes": "Brother Michael has disability requiring care",
+            "notes": "Brother Eduardo has disability requiring care",
         },
         "journey": [
             {"action": "register_household", "days_back": 300},
@@ -600,34 +570,40 @@ DEMO_STORIES = [
     },
     {
         "id": "ibrahim_hassan",
-        "name": "Ibrahim Hassan",
-        "type": "individual",
-        "story_title": "Displaced Farmer",
+        "name": "Gutierrez",
+        "type": "household",
+        "story_title": "Displaced Family",
         "story_description": "Demonstrate emergency/vulnerability response",
         "profile": {
-            "gender": "male",
-            "age": 50,
-            "education": "primary",
+            "head": {"name": "Ramon Gutierrez", "gender": "male", "age": 50},
+            "spouse": {"name": "Elena Gutierrez", "gender": "female", "age": 45},
+            "children": [
+                {"name": "Marco Gutierrez", "gender": "male", "age": 18},
+                {"name": "Isabella Gutierrez", "gender": "female", "age": 15},
+                {"name": "Jose Gutierrez", "gender": "male", "age": 12},
+                {"name": "Sofia Gutierrez", "gender": "female", "age": 9},
+                {"name": "Miguel Gutierrez", "gender": "male", "age": 5},
+            ],
             "marital_status": "married",
             "household_size": 7,
             "status": "internally_displaced",
-            "previous_farm_size": 5.0,
             "vulnerability": ["displaced", "lost_assets"],
             "vulnerability_score": 85,  # CEL: Emergency relief - high vulnerability
             "displacement_status": "displaced",  # CEL: Emergency eligibility
         },
         "journey": [
-            {"action": "emergency_register", "days_back": 60},
+            {"action": "register_household", "days_back": 60},
+            {"action": "add_household_members", "days_back": 59},
             {"action": "vulnerability_assessment", "score": "very_high", "days_back": 58},
             {
                 "action": "verify_eligibility",
-                "program": "Emergency Cash Transfer",
+                "program": "Emergency Relief Fund",
                 "cel_check": "vulnerability_metric",
                 "days_back": 56,
             },
-            {"action": "enroll_program", "program": "Emergency Cash Transfer", "days_back": 55},
-            {"action": "create_payment", "amount": 500, "status": "paid", "days_back": 50},
-            {"action": "create_payment", "amount": 500, "status": "paid", "days_back": 35},
+            {"action": "enroll_program", "program": "Emergency Relief Fund", "days_back": 55},
+            {"action": "create_payment", "amount": 400, "status": "paid", "days_back": 50},
+            {"action": "create_payment", "amount": 400, "status": "paid", "days_back": 35},
             {
                 "action": "create_grm_ticket",
                 "title": "Request for resettlement support",
@@ -645,7 +621,7 @@ DEMO_STORIES = [
     },
     {
         "id": "fatima_al_rahman",
-        "name": "Fatima Al-Rahman",
+        "name": "Teresa Villanueva",
         "type": "individual",
         "story_title": "Information Seeker",
         "story_description": "Demonstrate GRM for inquiries (not complaints)",
@@ -676,7 +652,7 @@ DEMO_STORIES = [
     },
     {
         "id": "david_sofia_martinez",
-        "name": "David Martinez",
+        "name": "Martinez",
         "type": "household",
         "story_title": "Disability Support",
         "story_description": "Household with disabled child - demonstrates disability assistance",
@@ -686,12 +662,9 @@ DEMO_STORIES = [
             "children": [
                 {"name": "Miguel Martinez", "gender": "male", "age": 12, "disability_status": "disabled"},
             ],
-            "farm_size": 1.5,
-            "farm_size_hectares": 1.5,  # CEL: Small farm household
             "disabled_count": 1,  # CEL: Disability Support Grant eligibility
             "child_count": 1,
-            "area_ref": "spp_demo.area_phl_ph1307602",
-            "area_kind": "municipality",
+            "district": "Western District",
         },
         "journey": [
             {"action": "register_household", "days_back": 120},
@@ -722,42 +695,49 @@ BACKGROUND_STORIES = [
     {
         "id": "luis_fernandez",
         "name": "Luis Fernandez",
-        "type": "farmer",
+        "type": "individual",
         "story_title": "Pending Application",
         "story_description": "Shows application pipeline",
-        "profile": {"gender": "male", "age": 40, "farm_size": 1.5},
+        "profile": {"gender": "male", "age": 40},
         "journey": [
             {"action": "register", "days_back": 30},
-            {"action": "apply_program", "program": "Input Subsidy Program", "status": "pending", "days_back": 25},
         ],
     },
     {
         "id": "mary_johnson",
-        "name": "Mary Johnson",
+        "name": "Lorna Pascual",
         "type": "individual",
         "story_title": "Rejected Application",
         "story_description": "Shows eligibility rules",
-        "profile": {"gender": "female", "age": 32},
+        "profile": {"gender": "female", "age": 55},
         "journey": [
             {"action": "register", "days_back": 60},
             {
                 "action": "apply_program",
-                "program": "Elderly Pension",
+                "program": "Elderly Social Pension",
                 "status": "rejected",
-                "reason": "Age requirement not met",
+                "reason": "Age requirement not met (55 < 65)",
                 "days_back": 55,
             },
         ],
     },
     {
         "id": "ahmed_said",
-        "name": "Ahmed Said",
-        "type": "farmer",
+        "name": "Castillo",
+        "type": "household",
         "story_title": "Multiple GRM Tickets",
         "story_description": "Shows GRM history",
-        "profile": {"gender": "male", "age": 45, "farm_size": 2.0},
+        "profile": {
+            "head": {"name": "Roberto Castillo", "gender": "male", "age": 45},
+            "spouse": {"name": "Linda Castillo", "gender": "female", "age": 40},
+            "children": [
+                {"name": "Paolo Castillo", "gender": "male", "age": 14},
+            ],
+            "household_size": 3,
+        },
         "journey": [
-            {"action": "register", "days_back": 200},
+            {"action": "register_household", "days_back": 200},
+            {"action": "add_household_members", "days_back": 195},
             {"action": "enroll_program", "program": "Cash Transfer Program", "days_back": 180},
             {"action": "create_grm_ticket", "title": "Ticket 1", "days_back": 150},
             {"action": "create_grm_ticket", "title": "Ticket 2", "days_back": 100},
@@ -766,26 +746,24 @@ BACKGROUND_STORIES = [
     },
     {
         "id": "grace_okonkwo",
-        "name": "Grace Okonkwo",
-        "type": "farmer",
+        "name": "Maricel Ramos",
+        "type": "individual",
         "story_title": "Recently Registered",
         "story_description": "Shows new records",
-        "profile": {"gender": "female", "age": 35, "farm_size": 1.0},
+        "profile": {"gender": "female", "age": 35},
         "journey": [
             {"action": "register", "days_back": 5},
         ],
     },
     {
         "id": "david_kim",
-        "name": "David Kim",
-        "type": "farmer",
-        "story_title": "Contract Farmer",
-        "story_description": "Shows guaranteed market arrangement",
-        "profile": {"gender": "male", "age": 48, "farm_size": 4.0, "contract_farming": True},
+        "name": "Eduardo Tan",
+        "type": "individual",
+        "story_title": "Long-term Registrant",
+        "story_description": "Shows long registration history",
+        "profile": {"gender": "male", "age": 48},
         "journey": [
             {"action": "register", "days_back": 300},
-            {"action": "add_farm_details", "days_back": 295},
-            {"action": "register_contract", "buyer": "AgriCorp Ltd", "days_back": 250},
         ],
     },
 ]
@@ -823,15 +801,15 @@ TUTORIAL_STORIES = [
     },
     {
         "id": "tutorial_santos_family",
-        "name": "Santos Family",
+        "name": "Tolentino Family",
         "type": "household",
         "story_title": "Tutorial: Eligible (Low Income + Child Under 5)",
         "story_description": "Tutorial household meeting both criteria - ELIGIBLE",
         "profile": {
-            "head": {"name": "Jose Santos", "gender": "male", "age": 35, "income": 8000},
-            "spouse": {"name": "Ana Santos", "gender": "female", "age": 32},
+            "head": {"name": "Jose Tolentino", "gender": "male", "age": 35, "income": 8000},
+            "spouse": {"name": "Ana Tolentino", "gender": "female", "age": 32},
             "children": [
-                {"name": "Mia Santos", "gender": "female", "age": 4},  # Born ~2021, under 5
+                {"name": "Mia Tolentino", "gender": "female", "age": 4},  # Born ~2021, under 5
             ],
             "child_count": 1,
             "district": "Northern District",
@@ -847,16 +825,16 @@ TUTORIAL_STORIES = [
     },
     {
         "id": "tutorial_cruz_family",
-        "name": "Cruz Family",
+        "name": "Salazar Family",
         "type": "household",
         "story_title": "Tutorial: Not Eligible (Income Above Threshold)",
         "story_description": "Tutorial household with income above threshold - NOT ELIGIBLE",
         "profile": {
-            "head": {"name": "Pedro Cruz", "gender": "male", "age": 45, "income": 12000},
-            "spouse": {"name": "Teresa Cruz", "gender": "female", "age": 42},
+            "head": {"name": "Pedro Salazar", "gender": "male", "age": 45, "income": 12000},
+            "spouse": {"name": "Teresa Salazar", "gender": "female", "age": 42},
             "children": [
-                {"name": "Juan Cruz", "gender": "male", "age": 15},
-                {"name": "Maria Cruz", "gender": "female", "age": 10},
+                {"name": "Juan Salazar", "gender": "male", "age": 15},
+                {"name": "Maria Salazar", "gender": "female", "age": 10},
             ],
             "child_count": 2,
             "district": "Eastern District",
@@ -873,15 +851,15 @@ TUTORIAL_STORIES = [
     },
     {
         "id": "tutorial_reyes_family",
-        "name": "Reyes Family",
+        "name": "Mercado Family",
         "type": "household",
         "story_title": "Tutorial: Eligible (Low Income + Child Under 5)",
         "story_description": "Tutorial household meeting both criteria - ELIGIBLE",
         "profile": {
-            "head": {"name": "Ramon Reyes", "gender": "male", "age": 30, "income": 6000},
-            "spouse": {"name": "Elena Reyes", "gender": "female", "age": 28},
+            "head": {"name": "Ramon Mercado", "gender": "male", "age": 30, "income": 6000},
+            "spouse": {"name": "Elena Mercado", "gender": "female", "age": 28},
             "children": [
-                {"name": "Lucia Reyes", "gender": "female", "age": 2},  # Born ~2023, under 5
+                {"name": "Lucia Mercado", "gender": "female", "age": 2},  # Born ~2023, under 5
             ],
             "child_count": 1,
             "district": "Southern District",
@@ -922,6 +900,455 @@ TUTORIAL_STORIES = [
         ],
     },
 ]
+
+
+# ---------------------------------------------------------------------------
+# Locale-specific name overrides
+# ---------------------------------------------------------------------------
+# Each locale maps story_id → {"name": ..., "profile_names": {...}}
+# profile_names keys: "head", "spouse", "children" (list), "adults" (list)
+# fil_PH is the default — names are already in the story dicts above.
+
+LOCALE_NAMES = {
+    "fil_PH": {},  # Default locale — no overrides needed
+    # -----------------------------------------------------------------------
+    # Sri Lanka — Sinhalese names
+    # -----------------------------------------------------------------------
+    "si_LK": {
+        # DEMO_STORIES
+        "maria_santos": {
+            "name": "Perera",
+            "profile_names": {
+                "head": "Kumari Perera",
+                "spouse": "Sunil Perera",
+                "children": ["Nimali Perera", "Kasun Perera"],
+                "adults": ["Padma Perera"],
+            },
+        },
+        "juan_dela_cruz": {
+            "name": "Bandara",
+            "profile_names": {
+                "head": "Nimal Bandara",
+                "spouse": "Kamani Bandara",
+                "children": ["Lahiru Bandara", "Sanduni Bandara"],
+            },
+        },
+        "rosa_garcia": {"name": "Malini Silva"},
+        "pedro_reyes": {"name": "Saman Jayawardena"},
+        "ana_mendoza": {"name": "Sachini Dissanayake"},
+        "carlos_elena_morales": {
+            "name": "Fernando",
+            "profile_names": {
+                "head": "Kasun Fernando",
+                "spouse": "Dilani Fernando",
+                "children": ["Nuwan Fernando", "Nethmi Fernando", "Chamara Fernando"],
+            },
+        },
+        "amina_osman_household": {
+            "name": "Herath",
+            "profile_names": {
+                "head": "Anoma Herath",
+                "children": ["Lahiru Herath", "Hiruni Herath", "Dinesh Herath"],
+            },
+        },
+        "jose_reyes_multigenerational": {
+            "name": "Rathnayake",
+            "profile_names": {
+                "head": "Kamal Rathnayake",
+                "spouse": "Ramya Rathnayake",
+                "adults": ["Ajith Rathnayake", "Sanduni Rathnayake"],
+                "children": [
+                    "Pradeep Rathnayake",
+                    "Wasana Rathnayake",
+                    "Ruwan Rathnayake",
+                    "Nimali Rathnayake",
+                ],
+            },
+        },
+        "chen_large_family": {
+            "name": "Gunasekara",
+            "profile_names": {
+                "head": "Thilak Gunasekara",
+                "spouse": "Kusum Gunasekara",
+                "children": [
+                    "Gayani Gunasekara",
+                    "Ashan Gunasekara",
+                    "Chathurika Gunasekara",
+                    "Ruwanthi Gunasekara",
+                    "Mahesh Gunasekara",
+                ],
+            },
+        },
+        "manuel_gloria_elderly": {
+            "name": "Wijesinghe",
+            "profile_names": {
+                "head": "Sunil Wijesinghe",
+                "spouse": "Sirima Wijesinghe",
+            },
+        },
+        "nguyen_extended_family": {
+            "name": "Amarasinghe",
+            "profile_names": {
+                "head": "Ranjith Amarasinghe",
+                "adults": [
+                    "Champa Amarasinghe",
+                    "Chandana Amarasinghe",
+                    "Nadeesha Amarasinghe",
+                ],
+            },
+        },
+        "ibrahim_hassan": {
+            "name": "Kumara",
+            "profile_names": {
+                "head": "Asanka Kumara",
+                "spouse": "Chamari Kumara",
+                "children": [
+                    "Dinesh Kumara",
+                    "Nishadi Kumara",
+                    "Tharindu Kumara",
+                    "Dilhani Kumara",
+                    "Ravindu Kumara",
+                ],
+            },
+        },
+        "fatima_al_rahman": {"name": "Ishara Senanayake"},
+        "david_sofia_martinez": {
+            "name": "Wickramasinghe",
+            "profile_names": {
+                "head": "Sanjeewa Wickramasinghe",
+                "spouse": "Nisansala Wickramasinghe",
+                "children": ["Charitha Wickramasinghe"],
+            },
+        },
+        # BACKGROUND_STORIES
+        "luis_fernandez": {"name": "Dinesh Rajapaksa"},
+        "mary_johnson": {"name": "Priyanka Mendis"},
+        "ahmed_said": {
+            "name": "Weerasinghe",
+            "profile_names": {
+                "head": "Ruwan Weerasinghe",
+                "spouse": "Nilmini Weerasinghe",
+                "children": ["Sampath Weerasinghe"],
+            },
+        },
+        "grace_okonkwo": {"name": "Sanduni Karunaratne"},
+        "david_kim": {"name": "Mahesh Gamage"},
+        # TUTORIAL_STORIES
+        "tutorial_garcia_family": {
+            "name": "Pathirana Family",
+            "profile_names": {
+                "head": "Chaminda Pathirana",
+                "spouse": "Mala Pathirana",
+                "children": ["Kavinda Pathirana"],
+            },
+        },
+        "tutorial_santos_family": {
+            "name": "De Silva Family",
+            "profile_names": {
+                "head": "Rohan De Silva",
+                "spouse": "Dilini De Silva",
+                "children": ["Senuri De Silva"],
+            },
+        },
+        "tutorial_cruz_family": {
+            "name": "Cooray Family",
+            "profile_names": {
+                "head": "Upul Cooray",
+                "spouse": "Manel Cooray",
+                "children": ["Tharindu Cooray", "Rashmi Cooray"],
+            },
+        },
+        "tutorial_reyes_family": {
+            "name": "Gunawardena Family",
+            "profile_names": {
+                "head": "Sampath Gunawardena",
+                "spouse": "Harshani Gunawardena",
+                "children": ["Kaveesha Gunawardena"],
+            },
+        },
+        "tutorial_ramos_family": {
+            "name": "Senaratne Family",
+            "profile_names": {
+                "head": "Jagath Senaratne",
+                "spouse": "Priyadarshani Senaratne",
+                "children": ["Lakshan Senaratne", "Imalsha Senaratne"],
+            },
+        },
+    },
+    # -----------------------------------------------------------------------
+    # Togo — Ewe / French names
+    # -----------------------------------------------------------------------
+    "fr_TG": {
+        # DEMO_STORIES
+        "maria_santos": {
+            "name": "Koffi",
+            "profile_names": {
+                "head": "Ama Koffi",
+                "spouse": "Kokou Koffi",
+                "children": ["Esi Koffi", "Kweku Koffi"],
+                "adults": ["Adjo Koffi"],
+            },
+        },
+        "juan_dela_cruz": {
+            "name": "Mensah",
+            "profile_names": {
+                "head": "Kofi Mensah",
+                "spouse": "Akosua Mensah",
+                "children": ["Yao Mensah", "Ama Mensah"],
+            },
+        },
+        "rosa_garcia": {"name": "Adzo Amegah"},
+        "pedro_reyes": {"name": "Yao Dossou"},
+        "ana_mendoza": {"name": "Akua Ayivi"},
+        "carlos_elena_morales": {
+            "name": "Agbeko",
+            "profile_names": {
+                "head": "Kodjo Agbeko",
+                "spouse": "Esi Agbeko",
+                "children": ["Komla Agbeko", "Ablavi Agbeko", "Koku Agbeko"],
+            },
+        },
+        "amina_osman_household": {
+            "name": "Tetteh",
+            "profile_names": {
+                "head": "Adjoa Tetteh",
+                "children": ["Messan Tetteh", "Akossiwa Tetteh", "Edem Tetteh"],
+            },
+        },
+        "jose_reyes_multigenerational": {
+            "name": "Lawson",
+            "profile_names": {
+                "head": "Kwame Lawson",
+                "spouse": "Afia Lawson",
+                "adults": ["Kossi Lawson", "Ayoko Lawson"],
+                "children": [
+                    "Dela Lawson",
+                    "Dzidzor Lawson",
+                    "Kokou Lawson",
+                    "Ewoenam Lawson",
+                ],
+            },
+        },
+        "chen_large_family": {
+            "name": "Akakpo",
+            "profile_names": {
+                "head": "Mawuli Akakpo",
+                "spouse": "Kafui Akakpo",
+                "children": [
+                    "Dede Akakpo",
+                    "Yaovi Akakpo",
+                    "Yawa Akakpo",
+                    "Abla Akakpo",
+                    "Komi Akakpo",
+                ],
+            },
+        },
+        "manuel_gloria_elderly": {
+            "name": "Amouzou",
+            "profile_names": {
+                "head": "Atsu Amouzou",
+                "spouse": "Akpene Amouzou",
+            },
+        },
+        "nguyen_extended_family": {
+            "name": "Gbeho",
+            "profile_names": {
+                "head": "Selom Gbeho",
+                "adults": ["Mawusi Gbeho", "Senyo Gbeho", "Ayele Gbeho"],
+            },
+        },
+        "ibrahim_hassan": {
+            "name": "Deku",
+            "profile_names": {
+                "head": "Kosi Deku",
+                "spouse": "Akua Deku",
+                "children": [
+                    "Komla Deku",
+                    "Ablavi Deku",
+                    "Kofi Deku",
+                    "Ama Deku",
+                    "Edem Deku",
+                ],
+            },
+        },
+        "fatima_al_rahman": {"name": "Afia Sossou"},
+        "david_sofia_martinez": {
+            "name": "Koudawo",
+            "profile_names": {
+                "head": "Ata Koudawo",
+                "spouse": "Ama Koudawo",
+                "children": ["Kofi Koudawo"],
+            },
+        },
+        # BACKGROUND_STORIES
+        "luis_fernandez": {"name": "Messan Ameganvi"},
+        "mary_johnson": {"name": "Ablavi Gbeassor"},
+        "ahmed_said": {
+            "name": "Agbodjan",
+            "profile_names": {
+                "head": "Komla Agbodjan",
+                "spouse": "Adjoa Agbodjan",
+                "children": ["Messan Agbodjan"],
+            },
+        },
+        "grace_okonkwo": {"name": "Akossiwa Adjakly"},
+        "david_kim": {"name": "Yaovi Assignon"},
+        # TUTORIAL_STORIES
+        "tutorial_garcia_family": {
+            "name": "Famille Agbo",
+            "profile_names": {
+                "head": "Komi Agbo",
+                "spouse": "Dede Agbo",
+                "children": ["Edem Agbo"],
+            },
+        },
+        "tutorial_santos_family": {
+            "name": "Famille Sodji",
+            "profile_names": {
+                "head": "Kodjo Sodji",
+                "spouse": "Esi Sodji",
+                "children": ["Ewoenam Sodji"],
+            },
+        },
+        "tutorial_cruz_family": {
+            "name": "Famille Nyaku",
+            "profile_names": {
+                "head": "Kwame Nyaku",
+                "spouse": "Adjoa Nyaku",
+                "children": ["Yao Nyaku", "Dzidzor Nyaku"],
+            },
+        },
+        "tutorial_reyes_family": {
+            "name": "Famille Bamezon",
+            "profile_names": {
+                "head": "Kossi Bamezon",
+                "spouse": "Ayoko Bamezon",
+                "children": ["Kafui Bamezon"],
+            },
+        },
+        "tutorial_ramos_family": {
+            "name": "Famille Djossou",
+            "profile_names": {
+                "head": "Mawuli Djossou",
+                "spouse": "Abla Djossou",
+                "children": ["Dela Djossou", "Yawa Djossou"],
+            },
+        },
+    },
+}
+
+
+# ---------------------------------------------------------------------------
+# Localization helpers
+# ---------------------------------------------------------------------------
+
+
+def _apply_locale_to_story(story, locale_entry):
+    """Apply locale name overrides to a deep-copied story dict."""
+    story["name"] = locale_entry["name"]
+    profile = story.get("profile", {})
+    pnames = locale_entry.get("profile_names", {})
+
+    # Head of household
+    if "head" in pnames and "head" in profile:
+        profile["head"]["name"] = pnames["head"]
+
+    # Spouse
+    if "spouse" in pnames and "spouse" in profile:
+        profile["spouse"]["name"] = pnames["spouse"]
+
+    # Children (positional replacement)
+    if "children" in pnames and "children" in profile:
+        for idx, child_name in enumerate(pnames["children"]):
+            if idx < len(profile["children"]):
+                profile["children"][idx]["name"] = child_name
+
+    # Adults (positional replacement)
+    if "adults" in pnames and "adults" in profile:
+        for idx, adult_name in enumerate(pnames["adults"]):
+            if idx < len(profile["adults"]):
+                profile["adults"][idx]["name"] = adult_name
+
+    # Also update journey references that mention member names
+    # (e.g., disability_assessment member field)
+    if "children" in pnames:
+        for step in story.get("journey", []):
+            if "member" in step:
+                # Find matching child by position
+                orig_children = get_story_by_id(story["id"])
+                if orig_children:
+                    orig_profile = orig_children.get("profile", {})
+                    for idx, child in enumerate(orig_profile.get("children", [])):
+                        if child.get("name") == step["member"] and idx < len(pnames["children"]):
+                            step["member"] = pnames["children"][idx]
+                            break
+
+    return story
+
+
+def get_localized_stories(locale=None):
+    """Return all stories with names replaced for the given locale.
+
+    If locale is None or "fil_PH", returns the original stories unchanged.
+    Otherwise, deep-copies all stories and applies LOCALE_NAMES overrides.
+    Stories without locale overrides keep their original names.
+    """
+    all_stories = DEMO_STORIES + BACKGROUND_STORIES + TUTORIAL_STORIES
+    if not locale or locale == "fil_PH" or locale not in LOCALE_NAMES:
+        return all_stories
+
+    locale_map = LOCALE_NAMES[locale]
+    result = []
+    for story in all_stories:
+        if story["id"] in locale_map:
+            localized = copy.deepcopy(story)
+            _apply_locale_to_story(localized, locale_map[story["id"]])
+            result.append(localized)
+        else:
+            result.append(story)
+    return result
+
+
+def get_localized_reserved_names(locale=None):
+    """Return the RESERVED_NAMES list for the given locale.
+
+    Collects all character names from localized stories.
+    """
+    if not locale or locale == "fil_PH" or locale not in LOCALE_NAMES:
+        return RESERVED_NAMES
+
+    stories = get_localized_stories(locale)
+    names = []
+    for story in stories:
+        names.append(story["name"])
+        profile = story.get("profile", {})
+        if "head" in profile:
+            names.append(profile["head"]["name"])
+        if "spouse" in profile:
+            names.append(profile["spouse"]["name"])
+        for child in profile.get("children", []):
+            names.append(child["name"])
+        for adult in profile.get("adults", []):
+            names.append(adult["name"])
+    # Deduplicate while preserving order
+    seen = set()
+    unique = []
+    for n in names:
+        if n not in seen:
+            seen.add(n)
+            unique.append(n)
+    return unique
+
+
+def get_localized_name(story_id, locale=None):
+    """Get the localized primary name for a single story."""
+    if locale and locale != "fil_PH" and locale in LOCALE_NAMES:
+        locale_map = LOCALE_NAMES[locale]
+        if story_id in locale_map:
+            return locale_map[story_id]["name"]
+    # Fallback to original
+    story = get_story_by_id(story_id)
+    return story["name"] if story else None
 
 
 def get_all_stories():

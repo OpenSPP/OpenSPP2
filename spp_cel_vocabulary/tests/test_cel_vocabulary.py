@@ -13,6 +13,7 @@ Tests vocabulary-aware CEL functions including:
 ADR-016 Phase 3: CEL Integration for vocabulary-aware expressions.
 """
 
+from odoo.fields import Command
 from odoo.tests import TransactionCase, tagged
 
 from odoo.addons.spp_cel_domain.tests.common import CELTestDataMixin
@@ -64,12 +65,12 @@ class TestCelVocabularyFunctions(TransactionCase, CELTestDataMixin):
         existing_feminine = ConceptGroup.search([("name", "=", "feminine_gender")], limit=1)
         if existing_feminine:
             # Add our test codes to the existing group
-            existing_feminine.write({"code_ids": [(4, cls.code_female.id), (4, cls.code_babae.id)]})
+            existing_feminine.write({"code_ids": [Command.link(cls.code_female.id), Command.link(cls.code_babae.id)]})
             cls.group_feminine = existing_feminine
         else:
             cls.group_feminine = cls._create_test_concept_group(
                 name="feminine_gender",
-                display_name="Feminine Gender",
+                label="Feminine Gender",
                 cel_function="is_female",
                 codes=[cls.code_female, cls.code_babae],
                 description="Codes representing feminine gender identity",
@@ -78,12 +79,12 @@ class TestCelVocabularyFunctions(TransactionCase, CELTestDataMixin):
         existing_masculine = ConceptGroup.search([("name", "=", "masculine_gender")], limit=1)
         if existing_masculine:
             # Add our test code to the existing group
-            existing_masculine.write({"code_ids": [(4, cls.code_male.id)]})
+            existing_masculine.write({"code_ids": [Command.link(cls.code_male.id)]})
             cls.group_masculine = existing_masculine
         else:
             cls.group_masculine = cls._create_test_concept_group(
                 name="masculine_gender",
-                display_name="Masculine Gender",
+                label="Masculine Gender",
                 cel_function="is_male",
                 codes=[cls.code_male],
                 description="Codes representing masculine gender identity",
@@ -663,24 +664,24 @@ class TestCelVocabularyCursorHandling(TransactionCase, CELTestDataMixin):
 
         existing_feminine = ConceptGroup.search([("name", "=", "feminine_gender")], limit=1)
         if existing_feminine:
-            existing_feminine.write({"code_ids": [(4, cls.code_female.id)]})
+            existing_feminine.write({"code_ids": [Command.link(cls.code_female.id)]})
             cls.group_feminine = existing_feminine
         else:
             cls.group_feminine = cls._create_test_concept_group(
                 name="feminine_gender",
-                display_name="Feminine Gender",
+                label="Feminine Gender",
                 cel_function="is_female",
                 codes=[cls.code_female],
             )
 
         existing_masculine = ConceptGroup.search([("name", "=", "masculine_gender")], limit=1)
         if existing_masculine:
-            existing_masculine.write({"code_ids": [(4, cls.code_male.id)]})
+            existing_masculine.write({"code_ids": [Command.link(cls.code_male.id)]})
             cls.group_masculine = existing_masculine
         else:
             cls.group_masculine = cls._create_test_concept_group(
                 name="masculine_gender",
-                display_name="Masculine Gender",
+                label="Masculine Gender",
                 cel_function="is_male",
                 codes=[cls.code_male],
             )

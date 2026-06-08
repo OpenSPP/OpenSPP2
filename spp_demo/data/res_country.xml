@@ -1372,8 +1372,8 @@
         <field name="lat_max">21.3210</field>
         <field name="lon_min">116.9540</field>
         <field name="lon_max">126.6040</field>
-        <field name="faker_locale">en_US</field>
-        <field name="is_faker_locale_available">False</field>
+        <field name="faker_locale">fil_PH</field>
+        <field name="is_faker_locale_available">True</field>
     </record>
     <record id="base.pn" model="res.country">
         <field name="lat_min">-25.0800</field>
@@ -1652,8 +1652,8 @@
         <field name="lat_max">9.8345</field>
         <field name="lon_min">79.6952</field>
         <field name="lon_max">81.8813</field>
-        <field name="faker_locale">en_US</field>
-        <field name="is_faker_locale_available">False</field>
+        <field name="faker_locale">si_LK</field>
+        <field name="is_faker_locale_available">True</field>
     </record>
     <record id="base.sd" model="res.country">
         <field name="lat_min">8.6840</field>
@@ -1748,8 +1748,8 @@
         <field name="lat_max">11.1390</field>
         <field name="lon_min">-0.1470</field>
         <field name="lon_max">1.7790</field>
-        <field name="faker_locale">en_US</field>
-        <field name="is_faker_locale_available">False</field>
+        <field name="faker_locale">fr_TG</field>
+        <field name="is_faker_locale_available">True</field>
     </record>
     <record id="base.tk" model="res.country">
         <field name="lat_min">-9.5000</field>

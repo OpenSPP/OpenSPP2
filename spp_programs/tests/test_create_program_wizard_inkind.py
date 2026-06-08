@@ -39,7 +39,7 @@ class TestCreateProgramWiz(TransactionCase):
         )
         cls._program_create_wiz = cls.env["spp.program.create.wizard"].create(
             {
-                "name": "Program 1 [TEST]",
+                "name": "Program Inkind Wizard [TEST]",
                 "rrule_type": "monthly",
                 "eligibility_domain": "[]",
                 "cycle_duration": 1,
@@ -53,7 +53,7 @@ class TestCreateProgramWiz(TransactionCase):
 
         cls.program = cls.env["spp.program"].create(
             {
-                "name": cls._program_create_wiz.name,
+                "name": "Existing Inkind Program [TEST]",
                 "journal_id": cls.journal_id,
                 "target_type": cls._program_create_wiz.target_type,
             }
@@ -84,7 +84,7 @@ class TestCreateProgramWiz(TransactionCase):
     def test_01_check_required_fields(self):
         with self.assertRaisesRegex(
             UserError,
-            "Items are required in the In-kind entitlement manager",
+            "No items defined for the selected benefit type",
             msg="Missing entitlement items",
         ):
             self._program_create_wiz._check_required_fields()

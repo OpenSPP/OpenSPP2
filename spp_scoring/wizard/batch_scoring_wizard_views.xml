@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Batch Scoring Wizard Form View -->
+    <record id="view_spp_batch_scoring_wizard_form" model="ir.ui.view">
+        <field name="name">spp.batch.scoring.wizard.form</field>
+        <field name="model">spp.batch.scoring.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Batch Scoring">
+                <!-- Banner: explicit selection takes precedence over domain filter. -->
+                <div
+                    class="alert alert-info text-center"
+                    role="alert"
+                    invisible="state != 'draft' or registrant_count == 0"
+                >
+                    <strong>
+                    <field name="registrant_count" readonly="1" />
+                </strong>
+                    registrant(s) pre-selected. The domain filter below is
+                    ignored while specific registrants are listed.
+                </div>
+
+                <group invisible="state != 'draft'">
+                    <group string="Scoring Configuration">
+                        <field name="model_id" />
+                        <field name="is_fail_fast" />
+                        <field name="max_records" />
+                    </group>
+                    <group string="Domain Filter" invisible="registrant_count != 0">
+                        <field name="registrant_domain" />
+                    </group>
+                </group>
+
+                <!-- Selected registrants — embedded list keeps the wizard
+                     scannable when 80+ partners were pre-selected from a
+                     bulk list-view action. -->
+                <notebook invisible="state != 'draft' or registrant_count == 0">
+                    <page name="selected_registrants" string="Selected Registrants">
+                        <field
+                            name="registrant_ids"
+                            options="{'no_create': True, 'no_open': True}"
+                        >
+                            <list create="false" delete="true">
+                                <field name="name" />
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
+
+                <group invisible="state != 'done'">
+                    <group string="Results">
+                        <field name="result_count" />
+                        <field name="error_count" />
+                    </group>
+                </group>
+
+                <group invisible="state != 'done'">
+                    <field name="result_summary" readonly="1" />
+                </group>
+
+                <field name="state" invisible="1" />
+
+                <footer>
+                    <button
+                        name="action_run_batch_scoring"
+                        string="Run Batch Scoring"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'draft'"
+                    />
+                    <button
+                        name="action_view_results"
+                        string="View Results"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="state != 'done'"
+                    />
+                    <button string="Close" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Batch Scoring Wizard Action -->
+    <record id="action_spp_batch_scoring_wizard" model="ir.actions.act_window">
+        <field name="name">Batch Scoring</field>
+        <field name="res_model">spp.batch.scoring.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

@@ -9,39 +9,74 @@
             <!-- Add event aggregation fields after aggregate_filter -->
             <xpath expr="//field[@name='aggregate_filter']" position="after">
                 <!-- Event Aggregation Fields -->
-                <separator
-                    string="Event Aggregation"
+                <group
+                    name="event_agg_section"
                     invisible="aggregate_target != 'events'"
                     colspan="2"
-                />
-                <field
-                    name="event_agg_type_id"
+                >
+                    <separator string="Event Aggregation" colspan="2" />
+                    <field
+                        name="event_agg_type_id"
+                        options="{'no_create': True}"
+                        required="aggregate_target == 'events'"
+                        help="Event type to aggregate over"
+                    />
+                    <field
+                        name="event_agg_temporal"
+                        help="Time range for the aggregation"
+                    />
+                    <field
+                        name="event_agg_temporal_value"
+                        invisible="event_agg_temporal not in ('within_days', 'within_months')"
+                        required="event_agg_temporal in ('within_days', 'within_months')"
+                        help="Number of days or months"
+                    />
+                    <field
+                        name="event_agg_field"
+                        invisible="aggregate_type in ('count', 'exists')"
+                        required="aggregate_target == 'events' and aggregate_type in ('sum', 'avg', 'min', 'max')"
+                        placeholder="e.g., amount, score"
+                        help="Name of the data field in the event record to aggregate (e.g., 'amount', 'score')"
+                    />
+                    <field
+                        name="event_agg_states"
+                        widget="radio"
+                        help="Active Only: current events. All States: also includes superseded and expired events."
+                    />
+                    <span class="text-muted small" colspan="2">
+                        Use the Aggregate Filter field above to filter events (e.g., amount &gt; 100)
+                    </span>
+                </group>
+                <!-- Generated expression preview -->
+                <div
+                    name="event_agg_expression_preview"
                     invisible="aggregate_target != 'events'"
-                    options="{'no_create': True}"
-                    help="Event type to aggregate over"
-                />
-                <field
-                    name="event_agg_temporal"
-                    invisible="aggregate_target != 'events'"
-                    help="Time range for the aggregation"
-                />
-                <field
-                    name="event_agg_temporal_value"
-                    invisible="aggregate_target != 'events' or event_agg_temporal not in ('within_days', 'within_months')"
-                    help="Number of days or months"
-                />
-                <field
-                    name="event_agg_field"
-                    invisible="aggregate_target != 'events' or aggregate_type in ('count', 'exists')"
-                    placeholder="e.g., amount, score"
-                    help="JSON field name in event data to aggregate"
-                />
-                <field
-                    name="event_agg_states"
-                    invisible="aggregate_target != 'events'"
-                    widget="radio"
-                    help="Which event states to include"
-                />
+                    colspan="2"
+                    class="mt-2"
+                >
+                    <label
+                        for="cel_expression"
+                        string="Generated Expression"
+                        class="text-muted"
+                    />
+                    <div class="d-flex align-items-center">
+                        <field
+                            name="cel_expression"
+                            readonly="1"
+                            nolabel="1"
+                            style="font-family: monospace;"
+                            class="flex-grow-1"
+                            help="CEL expression generated from the event aggregation configuration above"
+                        />
+                    </div>
+                    <div
+                        invisible="cel_expression != cel_accessor"
+                        class="text-warning small mt-1"
+                    >
+                        <i class="fa fa-exclamation-triangle me-1" />
+                        Configuration incomplete. Select an event type to generate the expression.
+                    </div>
+                </div>
             </xpath>
         </field>
     </record>

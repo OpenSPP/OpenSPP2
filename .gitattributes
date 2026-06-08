@@ -1,1 +1,1 @@
-*.geojson filter=lfs diff=lfs merge=lfs -text
+# GeoJSON files are read at runtime by spp_demo, keep as regular files

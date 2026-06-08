@@ -14,6 +14,7 @@ Supported Functions:
 """
 
 import logging
+import re
 from datetime import date
 from typing import Any
 
@@ -423,34 +424,32 @@ class CelEventTranslator(models.AbstractModel):
         Returns:
             Tuple of (LeafDomain, explanation) - returns period string as constant
         """
-        from ...spp_cel_domain.models.cel_queryplan import LeafDomain
+        from odoo.addons.spp_cel_domain.models.cel_queryplan import LeafDomain
 
         func_name = node.func.name
         today = fields.Date.context_today(self)
 
-        period_str = None
+        # No-arg period functions map directly to event_funcs callables
+        no_arg_funcs = {
+            "this_year": event_funcs.this_year,
+            "last_year": event_funcs.last_year,
+            "this_quarter": event_funcs.this_quarter,
+            "last_quarter": event_funcs.last_quarter,
+            "this_month": event_funcs.this_month,
+            "last_month": event_funcs.last_month,
+        }
 
-        if func_name == "this_year":
-            period_str = event_funcs.this_year(today)
-        elif func_name == "last_year":
-            period_str = event_funcs.last_year(today)
-        elif func_name == "this_quarter":
-            period_str = event_funcs.this_quarter(today)
-        elif func_name == "last_quarter":
-            period_str = event_funcs.last_quarter(today)
-        elif func_name == "this_month":
-            period_str = event_funcs.this_month(today)
-        elif func_name == "last_month":
-            period_str = event_funcs.last_month(today)
+        if func_name in no_arg_funcs:
+            period_str = no_arg_funcs[func_name](today)
         elif func_name == "quarters_ago":
             n = self._eval_literal(node.args[0], ctx) if node.args else 0
             period_str = event_funcs.quarters_ago(int(n), today)
-        elif func_name == "months_ago":
+        else:  # months_ago
             n = self._eval_literal(node.args[0], ctx) if node.args else 0
             period_str = event_funcs.months_ago(int(n), today)
 
-        # Return as a LeafDomain that matches everything (period is a constant value)
-        # The period will be used by event functions via _eval_literal
+        # Return as a LeafDomain that matches everything (period is a constant value).
+        # The period will be used by event functions via _eval_literal.
         return LeafDomain(model, [("id", "!=", 0)]), f"{func_name}() = '{period_str}'"
 
     def _extract_event_parameters(self, node: P.Call, ctx: dict[str, Any], start_index: int = 1) -> dict[str, Any]:
@@ -516,8 +515,6 @@ class CelEventTranslator(models.AbstractModel):
             ):
                 _, explain = self._handle_period_function("", node, {}, ctx or {})
                 # Extract period string from explanation
-                import re
-
                 match = re.search(r"'([^']+)'", explain)
                 if match:
                     return match.group(1)

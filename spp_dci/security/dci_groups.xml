@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- Security group used by every spp_dci_* module to gate access to
+         raw DCI payloads, cached PII, and other sensitive callback data.
+         Place it on individual view fields and notebook pages with
+         groups="spp_dci.group_dci_admin" so operators can still navigate
+         the DCI menus without seeing the underlying personal data. -->
+    <record id="group_dci_admin" model="res.groups">
+        <field name="name">DCI Administrator</field>
+        <field name="implied_ids" eval="[Command.link(ref('base.group_system'))]" />
+        <field
+            name="comment"
+        >Grants visibility to raw DCI payloads, full identifiers, disability data, and other sensitive fields exposed by the DCI cache and log models. Members must already be system administrators.</field>
+    </record>
+</odoo>

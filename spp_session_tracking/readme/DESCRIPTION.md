@@ -26,7 +26,7 @@ After installing:
 
 1. Navigate to **Session Tracking > Configuration > Session Types**
 2. Review pre-configured session types (Training, Family Development Session, Group Meeting, Workshop)
-3. Add or modify session types and topics as needed
+3. Add or modify session types as needed; topics are managed within each session type form when topic tracking is enabled
 4. Adjust required attendance percentage per session type
 
 Four session types are pre-configured with sample topics for Family Development Sessions and Training Sessions.
@@ -36,16 +36,16 @@ Four session types are pre-configured with sample topics for Family Development 
 - **Menu**: Session Tracking > Sessions > All Sessions
 - **My Sessions**: Session Tracking > Sessions > My Sessions (filtered to current user as facilitator)
 - **Configuration**: Session Tracking > Configuration > Session Types (managers only)
-- **Views**: List, form, calendar (by date), kanban (grouped by state)
+- **Views**: List, form, calendar (by date), kanban (grouped by state), graph, pivot
 
 ### Security
 
 | Group                                          | Access                                |
 | ---------------------------------------------- | ------------------------------------- |
-| `spp_session_tracking.group_session_user`      | Read all sessions and session types/topics; write own facilitated sessions; read/write/create attendance (no delete) |
+| `spp_session_tracking.group_session_user`      | Read all sessions and session types/topics; create/write own facilitated or co-facilitated sessions; read/write/create attendance for own sessions (no delete) |
 | `spp_session_tracking.group_session_manager`   | Full CRUD on all sessions, types, topics, and attendance |
 
-The session user group can view all sessions but only edit sessions they facilitate (via record rule). The `spp_security.group_spp_admin` group implies manager access.
+The session user group can view all sessions but only edit sessions where they are the facilitator or co-facilitator (via record rules). Session creation requires manager access. The `spp_security.group_spp_admin` group implies manager access. Multi-company record rules ensure users only see sessions belonging to their company.
 
 ### Extension Points
 

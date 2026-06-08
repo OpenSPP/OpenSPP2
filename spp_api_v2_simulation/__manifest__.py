@@ -12,7 +12,7 @@
     "depends": [
         "spp_api_v2",
         "spp_simulation",
-        "spp_aggregation",
+        "spp_analytics",
     ],
     "data": [
         "security/ir.model.access.csv",

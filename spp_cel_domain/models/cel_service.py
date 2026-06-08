@@ -33,12 +33,18 @@ class CELService(models.AbstractModel):
     _description = "CEL Expression Service"
 
     @api.model
+    def check_search_access(self):
+        """Check if the current user has CEL search access."""
+        return self.env.user.has_group("spp_cel_registry_search.group_cel_search_user")
+
+    @api.model
     def compile_expression(
         self,
         expression,
         profile,
         base_domain=None,
         limit=0,
+        offset=0,
         fields=None,
         materialize_sql=False,
     ):
@@ -109,6 +115,7 @@ class CELService(models.AbstractModel):
                 root_model,
                 expanded_expression,
                 limit=limit,
+                offset=offset,
                 fields=fields,
                 materialize_sql=materialize_sql,
             )

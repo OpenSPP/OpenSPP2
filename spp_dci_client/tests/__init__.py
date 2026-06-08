@@ -4,3 +4,7 @@
 from . import test_data_source
 from . import test_client_service
 from . import test_outgoing_log_integration
+from . import test_errors
+from . import test_data_source_validators
+from . import test_data_source_http
+from . import test_client_convenience

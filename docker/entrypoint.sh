@@ -206,9 +206,11 @@ fi
 
 if envsubst < /etc/odoo/odoo.conf.template > /etc/odoo/odoo.conf; then
     log_info "Configuration file generated successfully at /etc/odoo/odoo.conf"
-    # Debug: show generated config (comment out in production)
-    log_info "Generated config:"
-    cat /etc/odoo/odoo.conf
+    # Show generated config only in dev mode (contains sensitive values)
+    if [ "${ODOO_DEV_MODE:-}" = "true" ]; then
+        log_info "Generated config (dev mode):"
+        cat /etc/odoo/odoo.conf
+    fi
 else
     log_error "Failed to generate configuration file"
     exit 1

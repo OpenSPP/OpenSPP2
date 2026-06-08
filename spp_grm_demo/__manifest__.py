@@ -3,7 +3,7 @@
 
 {
     "name": "OpenSPP GRM Demo Data",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "category": "OpenSPP/Monitoring",
     "summary": "Demo data generator for Grievance Redress Mechanism",
     "author": "OpenSPP.org",

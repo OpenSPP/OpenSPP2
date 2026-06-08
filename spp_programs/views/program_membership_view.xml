@@ -122,6 +122,14 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         bg_color="bg-danger"
                         invisible="state != 'not_eligible'"
                     />
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="state != 'duplicated'"
+                    >
+                        <strong>Duplicate Reason: </strong>
+                        <field name="duplicate_reason" nolabel="1" />
+                    </div>
                     <div class="oe_title mb24">
                         <label for="partner_id" string="Registrant:" />
                         <h1>
@@ -179,6 +187,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                                         name="phone_number_ids"
                                         nolabel="1"
                                         colspan="2"
+                                        widget="x2many_no_padding"
                                     >
                                         <list>
                                             <field
@@ -208,7 +217,12 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             </group>
                         </page>
                         <page string="Bank Details" name="banks">
-                            <field name="bank_ids" nolabel="1" colspan="2">
+                            <field
+                                name="bank_ids"
+                                nolabel="1"
+                                colspan="2"
+                                widget="x2many_no_padding"
+                            >
                                 <list editable="bottom">
                                     <field name="bank_id" />
                                     <field name="acc_number" />
@@ -218,7 +232,12 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             </field>
                         </page>
                         <page string="IDs" name="ids">
-                            <field name="reg_ids" nolabel="1" colspan="2">
+                            <field
+                                name="reg_ids"
+                                nolabel="1"
+                                colspan="2"
+                                widget="x2many_no_padding"
+                            >
                                 <list editable="bottom">
                                     <field name="id_type_id" />
                                     <field name="value" string="ID Number" />
@@ -228,7 +247,12 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         </page>
                         <page string="Relationships" name="relationships">
                             <group string="Registrant is related to:">
-                                <field name="related_1_ids" nolabel="1" colspan="2">
+                                <field
+                                    name="related_1_ids"
+                                    nolabel="1"
+                                    colspan="2"
+                                    widget="x2many_no_padding"
+                                >
                                     <list editable="bottom">
                                         <field
                                             name="source"
@@ -247,7 +271,12 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                                 </field>
                             </group>
                             <group string="Others Related to this Registrant:">
-                                <field name="related_2_ids" nolabel="1" colspan="2">
+                                <field
+                                    name="related_2_ids"
+                                    nolabel="1"
+                                    colspan="2"
+                                    widget="x2many_no_padding"
+                                >
                                     <list>
                                         <field
                                             name="destination"
@@ -276,6 +305,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                                     name="group_membership_ids"
                                     nolabel="1"
                                     colspan="2"
+                                    widget="x2many_no_padding"
                                 >
                                     <list>
                                         <field

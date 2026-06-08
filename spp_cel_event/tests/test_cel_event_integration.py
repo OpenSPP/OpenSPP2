@@ -206,12 +206,24 @@ class TestCelEventIntegration(TransactionCase):
         self.assertNotIn(self.registrant_middle.id, result["ids"])
         self.assertNotIn(self.registrant_rich.id, result["ids"])
 
-    def test_event_basic_field_access_function_style(self):
-        """Test event('type', 'field') > value pattern."""
-        # Note: This test assumes parser supports this syntax
-        # Currently the translator expects dot notation or would need parser updates
-        # Marking as documentation of intended behavior
-        pass
+    def test_event_value_compare_income_range(self):
+        """Test EventValueCompare with income in a range (between two thresholds)."""
+        from ..models.cel_event_queryplan import EventValueCompare
+
+        # Income > 500
+        plan = EventValueCompare(
+            event_type="household_survey",
+            field_name="income",
+            op=">",
+            rhs=500,
+        )
+
+        executor = self.env["spp.cel.executor"]
+        ids = executor._execute_plan("res.partner", plan)
+
+        self.assertNotIn(self.registrant_poor.id, ids)  # 300 < 500
+        self.assertIn(self.registrant_middle.id, ids)  # 800 > 500
+        self.assertIn(self.registrant_rich.id, ids)  # 2000 > 500
 
     def test_event_field_access_no_matching_event(self):
         """Test event field access when no event exists returns empty set."""
@@ -329,6 +341,30 @@ class TestCelEventIntegration(TransactionCase):
         self.assertIn(self.registrant_middle.id, ids)
         self.assertNotIn(self.registrant_rich.id, ids)  # 400 days ago
 
+    def test_event_within_months_filter(self):
+        """Test event with within_months temporal filter."""
+        from ..models.cel_event_queryplan import EventValueCompare
+
+        # Poor registrant survey is 30 days ago, within 3 months
+        # Middle registrant survey is 60 days ago, within 3 months
+        # Rich registrant survey is 400 days ago, NOT within 3 months
+        # Note: using 3 months instead of 2 to avoid boundary issues with
+        # PostgreSQL INTERVAL month arithmetic near the 60-day mark.
+        plan = EventValueCompare(
+            event_type="household_survey",
+            field_name="income",
+            op=">",
+            rhs=0,
+            within_months=3,
+        )
+
+        executor = self.env["spp.cel.executor"]
+        ids = executor._execute_plan("res.partner", plan)
+
+        self.assertIn(self.registrant_poor.id, ids)  # 30 days ago
+        self.assertIn(self.registrant_middle.id, ids)  # 60 days ago
+        self.assertNotIn(self.registrant_rich.id, ids)  # 400 days ago
+
     # ══════════════════════════════════════════════════════════════════════════════
     # Test event() with selection modes
     # ══════════════════════════════════════════════════════════════════════════════
@@ -417,6 +453,39 @@ class TestCelEventIntegration(TransactionCase):
 
         # Cleanup
         new_survey.unlink()
+
+    def test_event_select_latest_active_mode(self):
+        """Test event with select='latest_active' mode."""
+        from ..models.cel_event_queryplan import EventValueCompare
+
+        # Create a superseded (old) survey with high income
+        old_survey = self.env["spp.event.data"].create(
+            {
+                "partner_id": self.registrant_poor.id,
+                "event_type_id": self.survey_type.id,
+                "collection_date": date.today() - timedelta(days=200),
+                "state": "superseded",
+                "data_json": {"income": 5000},
+            }
+        )
+
+        # latest_active should only consider active events, picking the most recent
+        plan = EventValueCompare(
+            event_type="household_survey",
+            field_name="income",
+            op="<",
+            rhs=500,
+            select="latest_active",
+        )
+
+        executor = self.env["spp.cel.executor"]
+        ids = executor._execute_plan("res.partner", plan)
+
+        # Should match poor registrant (active survey has income=300)
+        self.assertIn(self.registrant_poor.id, ids)
+
+        # Cleanup
+        old_survey.unlink()
 
     # ══════════════════════════════════════════════════════════════════════════════
     # Test has_event() function
@@ -544,16 +613,80 @@ class TestCelEventIntegration(TransactionCase):
         self.assertIn(self.registrant_poor.id, ids)
 
     def test_events_sum_aggregation(self):
-        """Test events_sum() aggregation."""
-        # This would need numeric field to sum
-        # Skip for now as test data doesn't have good sum candidate
-        pass
+        """Test events_sum() aggregation over visit_number field."""
+        from ..models.cel_event_queryplan import EventsAggregate
+
+        # Sum of visit_number across all 10 visits = 1+2+...+10 = 55
+        plan = EventsAggregate(
+            event_type="field_visit",
+            field_name="visit_number",
+            agg="sum",
+            op=">=",
+            rhs=50,
+            states=["active"],
+        )
+
+        executor = self.env["spp.cel.executor"]
+        ids = executor._execute_plan("res.partner", plan)
+
+        self.assertIn(self.registrant_poor.id, ids)  # Sum = 55 >= 50
+        self.assertNotIn(self.registrant_middle.id, ids)  # No visits
 
     def test_events_avg_aggregation(self):
-        """Test events_avg() aggregation."""
-        # This would need numeric field to average
-        # Skip for now as test data doesn't have good avg candidate
-        pass
+        """Test events_avg() aggregation over visit_number field."""
+        from ..models.cel_event_queryplan import EventsAggregate
+
+        # Avg of visit_number across 10 visits = 55/10 = 5.5
+        plan = EventsAggregate(
+            event_type="field_visit",
+            field_name="visit_number",
+            agg="avg",
+            op=">=",
+            rhs=5,
+            states=["active"],
+        )
+
+        executor = self.env["spp.cel.executor"]
+        ids = executor._execute_plan("res.partner", plan)
+
+        self.assertIn(self.registrant_poor.id, ids)  # Avg = 5.5 >= 5
+        self.assertNotIn(self.registrant_middle.id, ids)  # No visits
+
+    def test_events_min_aggregation(self):
+        """Test events_min() aggregation over visit_number field."""
+        from ..models.cel_event_queryplan import EventsAggregate
+
+        plan = EventsAggregate(
+            event_type="field_visit",
+            field_name="visit_number",
+            agg="min",
+            op="==",
+            rhs=1,
+            states=["active"],
+        )
+
+        executor = self.env["spp.cel.executor"]
+        ids = executor._execute_plan("res.partner", plan)
+
+        self.assertIn(self.registrant_poor.id, ids)  # Min visit_number = 1
+
+    def test_events_max_aggregation(self):
+        """Test events_max() aggregation over visit_number field."""
+        from ..models.cel_event_queryplan import EventsAggregate
+
+        plan = EventsAggregate(
+            event_type="field_visit",
+            field_name="visit_number",
+            agg="max",
+            op="==",
+            rhs=10,
+            states=["active"],
+        )
+
+        executor = self.env["spp.cel.executor"]
+        ids = executor._execute_plan("res.partner", plan)
+
+        self.assertIn(self.registrant_poor.id, ids)  # Max visit_number = 10
 
     # ══════════════════════════════════════════════════════════════════════════════
     # Test SQL path vs Python path
@@ -847,9 +980,8 @@ class TestCelEventIntegration(TransactionCase):
 
     def test_cel_service_compilation_succeeds(self):
         """Test that CEL service can compile event expressions."""
-        # Note: This requires parser support for event() syntax
-        # Currently may not work without parser updates
-        # Keeping as documentation of intended behavior
+        # Tests basic CEL compilation only. event() syntax is parsed via the translator but
+        # the end-to-end compile_expression path for full event expressions is tested via executor plan tests above.
         expr = "true"  # Basic expression that should work
         result = self.cel_service.compile_expression(expr, self.profile)
 
@@ -859,6 +991,8 @@ class TestCelEventIntegration(TransactionCase):
 
     def test_cel_service_get_matching_ids(self):
         """Test get_matching_ids wrapper method."""
+        # Tests basic CEL compilation only. event() syntax is parsed via the translator but
+        # the end-to-end compile_expression path for full event expressions is tested via executor plan tests above.
         expr = "true"
         ids = self.cel_service.get_matching_ids(expr, self.profile)
 
@@ -964,3 +1098,163 @@ class TestCelEventIntegration(TransactionCase):
             get_states_for_select_mode("first"),
             ["active", "superseded", "expired"],
         )
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # Executor utility method tests
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def test_validate_field_name_valid(self):
+        """Test that valid field names pass validation."""
+        executor = self.env["spp.cel.executor"]
+        self.assertEqual(executor._validate_field_name("income"), "income")
+        self.assertEqual(executor._validate_field_name("total_amount"), "total_amount")
+        self.assertEqual(executor._validate_field_name("score2"), "score2")
+
+    def test_validate_field_name_empty(self):
+        """Test that empty field name raises ValueError."""
+        executor = self.env["spp.cel.executor"]
+        with self.assertRaises(ValueError):
+            executor._validate_field_name("")
+        with self.assertRaises(ValueError):
+            executor._validate_field_name(None)
+
+    def test_validate_field_name_invalid_chars(self):
+        """Test that field names with invalid characters raise ValueError."""
+        executor = self.env["spp.cel.executor"]
+        with self.assertRaises(ValueError):
+            executor._validate_field_name("field-name")
+        with self.assertRaises(ValueError):
+            executor._validate_field_name("field name")
+        with self.assertRaises(ValueError):
+            executor._validate_field_name("1field")
+
+    def test_validate_field_name_too_long(self):
+        """Test that field names exceeding 128 chars raise ValueError."""
+        executor = self.env["spp.cel.executor"]
+        long_name = "a" * 129
+        with self.assertRaises(ValueError):
+            executor._validate_field_name(long_name)
+        # 128 chars should be fine
+        result = executor._validate_field_name("a" * 128)
+        self.assertEqual(len(result), 128)
+
+    def test_warn_if_limit_reached_no_warning(self):
+        """Test that no warning is emitted below limit."""
+        executor = self.env["spp.cel.executor"]
+        # Should not raise or warn
+        executor._warn_if_limit_reached([1, 2, 3])
+
+    def test_warn_if_limit_reached_at_limit(self):
+        """Test that warning is emitted at MAX_QUERY_RESULTS."""
+        executor = self.env["spp.cel.executor"]
+        large_list = list(range(executor.MAX_QUERY_RESULTS))
+        with self.assertLogs("odoo.addons.spp_cel_event.models.cel_event_executor", level="WARNING") as log:
+            executor._warn_if_limit_reached(large_list)
+        self.assertTrue(any("result limit" in msg for msg in log.output))
+
+    def test_get_default_states_executor(self):
+        """Test executor's _get_default_states method."""
+        executor = self.env["spp.cel.executor"]
+        self.assertEqual(executor._get_default_states("active"), ["active"])
+        self.assertEqual(executor._get_default_states("latest_active"), ["active"])
+        self.assertEqual(executor._get_default_states("any"), ["active"])
+        self.assertEqual(executor._get_default_states("latest"), ["active", "superseded", "expired"])
+        self.assertEqual(executor._get_default_states("first"), ["active", "superseded", "expired"])
+        # Unknown mode defaults to active
+        self.assertEqual(executor._get_default_states("unknown"), ["active"])
+
+    def test_build_selection_sql_active_mode(self):
+        """Test _build_selection_sql for active/any modes (no wrapper)."""
+        from ..models.cel_event_queryplan import EventValueCompare
+
+        executor = self.env["spp.cel.executor"]
+        plan = EventValueCompare(
+            event_type="test",
+            field_name="income",
+            op=">",
+            rhs=500,
+            select="active",
+        )
+        order_clause, needs_wrapper = executor._build_selection_sql(plan)
+        self.assertEqual(order_clause, "")
+        self.assertFalse(needs_wrapper)
+
+    def test_build_selection_sql_latest_mode(self):
+        """Test _build_selection_sql for latest mode (needs wrapper)."""
+        from ..models.cel_event_queryplan import EventValueCompare
+
+        executor = self.env["spp.cel.executor"]
+        plan = EventValueCompare(
+            event_type="test",
+            field_name="income",
+            op=">",
+            rhs=500,
+            select="latest",
+        )
+        order_clause, needs_wrapper = executor._build_selection_sql(plan)
+        self.assertIn("DESC", order_clause)
+        self.assertTrue(needs_wrapper)
+
+    def test_build_selection_sql_first_mode(self):
+        """Test _build_selection_sql for first mode (ascending order)."""
+        from ..models.cel_event_queryplan import EventValueCompare
+
+        executor = self.env["spp.cel.executor"]
+        plan = EventValueCompare(
+            event_type="test",
+            field_name="income",
+            op=">",
+            rhs=500,
+            select="first",
+        )
+        order_clause, needs_wrapper = executor._build_selection_sql(plan)
+        self.assertIn("ASC", order_clause)
+        self.assertTrue(needs_wrapper)
+
+    def test_compare_value_string_fallback(self):
+        """Test _compare_value with string comparison fallback."""
+        executor = self.env["spp.cel.executor"]
+        self.assertTrue(executor._compare_value("hello", "==", "hello"))
+        self.assertTrue(executor._compare_value("hello", "!=", "world"))
+        self.assertFalse(executor._compare_value("hello", "==", "world"))
+        # Non-comparable operators fall back to False
+        self.assertFalse(executor._compare_value("hello", ">", "world"))
+
+    def test_compare_value_none(self):
+        """Test _compare_value with None values."""
+        executor = self.env["spp.cel.executor"]
+        self.assertTrue(executor._compare_value(None, "==", None))
+        self.assertTrue(executor._compare_value(None, "!=", "something"))
+        self.assertFalse(executor._compare_value(None, "==", "something"))
+
+    def test_compute_aggregation_dict_dispatch(self):
+        """Test _compute_aggregation with all aggregation types."""
+        executor = self.env["spp.cel.executor"]
+
+        # Create events with numeric data
+        events = self.env["spp.event.data"].create(
+            [
+                {
+                    "partner_id": self.registrant_poor.id,
+                    "event_type_id": self.visit_type.id,
+                    "event_type_code": "field_visit",
+                    "data_json": {"score": 10},
+                    "collection_date": date.today(),
+                },
+                {
+                    "partner_id": self.registrant_poor.id,
+                    "event_type_id": self.visit_type.id,
+                    "event_type_code": "field_visit",
+                    "data_json": {"score": 20},
+                    "collection_date": date.today(),
+                },
+            ]
+        )
+
+        self.assertEqual(executor._compute_aggregation(events, "sum", "score"), 30.0)
+        self.assertEqual(executor._compute_aggregation(events, "avg", "score"), 15.0)
+        self.assertEqual(executor._compute_aggregation(events, "min", "score"), 10.0)
+        self.assertEqual(executor._compute_aggregation(events, "max", "score"), 20.0)
+        self.assertEqual(executor._compute_aggregation(events, "count", None), 2)
+        # Unknown agg type returns 0
+        self.assertEqual(executor._compute_aggregation(events, "unknown_agg", "score"), 0)

@@ -1,5 +1,6 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
+from odoo import Command
 from odoo.tests.common import TransactionCase
 
 
@@ -77,5 +78,38 @@ class HazardTestCase(TransactionCase):
                 "name": "Property Damage",
                 "code": "PROPERTY_TEST",
                 "category": "physical",
+            }
+        )
+
+        # Create test users for security tests
+        base_group = Command.link(cls.env.ref("base.group_user").id)
+        cls.hazard_viewer = cls.env["res.users"].create(
+            {
+                "name": "Hazard Viewer",
+                "login": "hazard_viewer_test",
+                "group_ids": [
+                    base_group,
+                    Command.link(cls.env.ref("spp_hazard.group_hazard_viewer").id),
+                ],
+            }
+        )
+        cls.hazard_officer = cls.env["res.users"].create(
+            {
+                "name": "Hazard Officer",
+                "login": "hazard_officer_test",
+                "group_ids": [
+                    base_group,
+                    Command.link(cls.env.ref("spp_hazard.group_hazard_officer").id),
+                ],
+            }
+        )
+        cls.hazard_manager = cls.env["res.users"].create(
+            {
+                "name": "Hazard Manager",
+                "login": "hazard_manager_test",
+                "group_ids": [
+                    base_group,
+                    Command.link(cls.env.ref("spp_hazard.group_hazard_manager").id),
+                ],
             }
         )

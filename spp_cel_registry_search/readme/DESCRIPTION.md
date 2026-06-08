@@ -1,4 +1,4 @@
-Advanced search interface for the registry using CEL (Common Expression Language) expressions. Provides a dedicated portal where users can write CEL queries to filter registrants based on demographics, income, eligibility criteria, or custom data fields. Auto-installs when `spp_cel_widget` is present.
+Advanced search interface for the registry using CEL (Common Expression Language) expressions. Provides a dedicated portal where users can write CEL queries to filter registrants based on demographics, eligibility criteria, or custom data fields.
 
 ### Key Capabilities
 

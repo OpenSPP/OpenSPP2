@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- Default ClamAV Scanner Backend -->
+    <record id="av_scanner_backend_default" model="spp.av.scanner.backend">
+        <field name="name">Default ClamAV Scanner</field>
+        <field name="sequence">10</field>
+        <field name="backend_type">clamd_socket</field>
+        <field name="is_active" eval="False" />
+        <field name="clamd_socket_path">/var/run/clamav/clamd.sock</field>
+        <field name="clamd_host">localhost</field>
+        <field name="clamd_port">3310</field>
+        <field name="max_file_size_mb">100</field>
+        <field name="scan_timeout_seconds">60</field>
+    </record>
+</odoo>

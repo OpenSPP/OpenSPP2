@@ -3,5 +3,6 @@
 from . import (
     test_cel_event_functions,
     test_cel_event_integration,
+    test_cel_event_translator,
     test_cel_variable_event_agg,
 )

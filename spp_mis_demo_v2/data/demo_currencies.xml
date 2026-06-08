@@ -7,9 +7,21 @@
     for testing financial workflows.
 -->
 <odoo>
-    <!-- Activate Philippine Peso (PHP) using function call -->
+    <!-- Activate Philippine Peso (PHP) -->
     <function model="res.currency" name="write">
         <value eval="[ref('base.PHP')]" />
+        <value eval="{'active': True}" />
+    </function>
+
+    <!-- Activate Sri Lankan Rupee (LKR) -->
+    <function model="res.currency" name="write">
+        <value eval="[ref('base.LKR')]" />
+        <value eval="{'active': True}" />
+    </function>
+
+    <!-- Activate West African CFA Franc (XOF) -->
+    <function model="res.currency" name="write">
+        <value eval="[ref('base.XOF')]" />
         <value eval="{'active': True}" />
     </function>
 </odoo>

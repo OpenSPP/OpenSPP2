@@ -4,7 +4,7 @@
 {
     "name": "OpenSPP Case Management: Session Integration",
     "summary": "Link sessions and training attendance to cases",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "license": "LGPL-3",
     "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],

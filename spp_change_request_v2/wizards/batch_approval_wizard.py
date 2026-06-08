@@ -79,44 +79,60 @@ class SPPCRBatchApprovalWizard(models.TransientModel):
     )
 
     # ══════════════════════════════════════════════════════════════════════════
-    # DEFAULT
+    # CREATION
     # ══════════════════════════════════════════════════════════════════════════
 
     @api.model
-    def default_get(self, fields_list):
-        """Initialize wizard with selected change requests."""
-        res = super().default_get(fields_list)
+    def create_from_selection(self, action_type="approve"):
+        """Create and populate wizard from selected change requests.
 
-        active_ids = self.env.context.get("active_ids", [])
-        if active_ids and "line_ids" in fields_list:
-            crs = self.env["spp.change.request"].browse(active_ids)
-            # Prefetch all needed fields in a single query to avoid N+1
-            crs.read(["approval_state", "can_approve", "display_state"])
-            lines = []
-            for cr in crs:
-                can_process = cr.approval_state == "pending" and cr.can_approve
-                lines.append(
-                    Command.create(
-                        {
-                            "change_request_id": cr.id,
-                            "can_process": can_process,
-                            "error_message": "" if can_process else self._get_error_message(cr),
-                        }
-                    )
-                )
-            res["line_ids"] = lines
-
-        return res
-
-    def _get_error_message(self, cr):
-        """Get error message explaining why CR cannot be processed.
-
-        Note: Plain strings are used here instead of _() to avoid translation
-        context issues during default_get() in test scenarios.
+        Called by server actions to create a saved wizard record before
+        opening the form, so that One2many operations (delete lines, etc.)
+        work without 'Please save your changes first' errors.
         """
-        if cr.approval_state != "pending":
-            return f"Not pending approval (state: {cr.display_state})"
-        if not cr.can_approve:
+        active_ids = self.env.context.get("active_ids", [])
+        if not active_ids:
+            raise UserError(_("No change requests selected."))
+
+        crs = self.env["spp.change.request"].browse(active_ids)
+        crs.read(["approval_state", "can_approve", "display_state"])
+
+        lines = []
+        for change_request in crs:
+            can_process = change_request.approval_state == "pending" and change_request.can_approve
+            lines.append(
+                Command.create(
+                    {
+                        "change_request_id": change_request.id,
+                        "can_process": can_process,
+                        "error_message": "" if can_process else self._get_error_message(change_request),
+                    }
+                )
+            )
+
+        wizard = self.create(
+            {
+                "action_type": action_type,
+                "line_ids": lines,
+            }
+        )
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Batch Approval"),
+            "res_model": "spp.cr.batch.approval.wizard",
+            "res_id": wizard.id,
+            "view_mode": "form",
+            "view_id": self.env.ref("spp_change_request_v2.view_batch_approval_wizard_form").id,
+            "target": "new",
+        }
+
+    @staticmethod
+    def _get_error_message(change_request):
+        """Get error message explaining why CR cannot be processed."""
+        if change_request.approval_state != "pending":
+            return f"Not pending approval (state: {change_request.display_state})"
+        if not change_request.can_approve:
             return "You are not authorized to approve this request"
         return ""
 
@@ -310,11 +326,6 @@ class SPPCRBatchApprovalLine(models.TransientModel):
         default="pending",
     )
     result_message = fields.Char()
-
-    def action_remove_line(self):
-        """Remove this line from the batch wizard."""
-        self.ensure_one()
-        self.unlink()
 
     @api.depends("change_request_id")
     def _compute_document_count(self):

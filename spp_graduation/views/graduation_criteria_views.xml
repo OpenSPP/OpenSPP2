@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Graduation Criteria Search View -->
+    <record id="view_graduation_criteria_search" model="ir.ui.view">
+        <field name="name">spp.graduation.criteria.search</field>
+        <field name="model">spp.graduation.criteria</field>
+        <field name="arch" type="xml">
+            <search string="Graduation Criteria">
+                <field name="name" />
+                <field name="code" />
+                <field name="pathway_id" />
+                <separator />
+                <filter
+                    string="Required"
+                    name="required"
+                    domain="[('is_required', '=', True)]"
+                />
+                <filter
+                    string="Optional"
+                    name="optional"
+                    domain="[('is_required', '=', False)]"
+                />
+                <separator />
+                <filter
+                    string="Archived"
+                    name="archived"
+                    domain="[('active', '=', False)]"
+                />
+                <group>
+                    <filter
+                        string="Pathway"
+                        name="group_by_pathway"
+                        context="{'group_by': 'pathway_id'}"
+                    />
+                    <filter
+                        string="Assessment Method"
+                        name="group_by_method"
+                        context="{'group_by': 'assessment_method'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Graduation Criteria List View -->
+    <record id="view_graduation_criteria_tree" model="ir.ui.view">
+        <field name="name">spp.graduation.criteria.list</field>
+        <field name="model">spp.graduation.criteria</field>
+        <field name="arch" type="xml">
+            <list string="Graduation Criteria">
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="code" optional="show" />
+                <field name="pathway_id" />
+                <field name="assessment_method" />
+                <field name="weight" />
+                <field name="is_required" />
+                <field name="description" optional="hide" />
+                <field name="active" widget="boolean_toggle" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Graduation Criteria Form View -->
+    <record id="view_graduation_criteria_form" model="ir.ui.view">
+        <field name="name">spp.graduation.criteria.form</field>
+        <field name="model">spp.graduation.criteria</field>
+        <field name="arch" type="xml">
+            <form string="Graduation Criterion">
+                <sheet>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Criterion name..." />
+                        </h1>
+                    </div>
+                    <group col="2">
+                        <group name="main_info">
+                            <field name="code" />
+                            <field name="pathway_id" options="{'no_create': True}" />
+                            <field name="sequence" />
+                            <field name="active" invisible="1" />
+                        </group>
+                        <group name="scoring">
+                            <field name="assessment_method" />
+                            <field name="weight" />
+                            <field name="is_required" widget="boolean_toggle" />
+                        </group>
+                    </group>
+                    <group name="description_section" string="Description" col="2">
+                        <field
+                            name="description"
+                            nolabel="1"
+                            colspan="2"
+                            placeholder="Describe the criterion and how it is assessed..."
+                        />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Graduation Criteria Action -->
+    <record id="action_graduation_criteria" model="ir.actions.act_window">
+        <field name="name">Graduation Criteria</field>
+        <field name="res_model">spp.graduation.criteria</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_graduation_criteria_search" />
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Graduation Criterion
+            </p>
+            <p>
+                Define weighted criteria within a pathway, each with its own
+                assessment method (self-report, verification, computed, or
+                field observation) and a flag for whether it is required.
+            </p>
+        </field>
+    </record>
+</odoo>

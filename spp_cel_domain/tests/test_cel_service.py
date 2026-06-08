@@ -1,6 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Adversarial tests for CEL Service - designed to BREAK the service facade."""
 
+from odoo import fields
 from odoo.tests import TransactionCase, tagged
 
 
@@ -521,3 +522,80 @@ class TestCELFormulaValidation(TransactionCase):
         """Output type 'string' should be accepted."""
         result = self.service.validate_formula_expression('"hello"', "registry_groups", output_type="string")
         self.assertTrue(result["valid"], f"Error: {result.get('error')}")
+
+    # --- Offset / Pagination Tests ---
+
+    def test_compile_expression_offset_returns_different_records(self):
+        """compile_expression with offset should return different records."""
+        for i in range(5):
+            self.env["res.partner"].create({"name": f"OffsetSvcTest{i}", "is_registrant": True, "is_group": False})
+        result1 = self.service.compile_expression(
+            'r.name == "OffsetSvcTest0" || r.name == "OffsetSvcTest1" || '
+            'r.name == "OffsetSvcTest2" || r.name == "OffsetSvcTest3" || '
+            'r.name == "OffsetSvcTest4"',
+            "registry_individuals",
+            limit=2,
+            offset=0,
+            fields=["id", "name"],
+        )
+        result2 = self.service.compile_expression(
+            'r.name == "OffsetSvcTest0" || r.name == "OffsetSvcTest1" || '
+            'r.name == "OffsetSvcTest2" || r.name == "OffsetSvcTest3" || '
+            'r.name == "OffsetSvcTest4"',
+            "registry_individuals",
+            limit=2,
+            offset=2,
+            fields=["id", "name"],
+        )
+        self.assertTrue(result1["valid"], f"Error: {result1.get('error')}")
+        self.assertTrue(result2["valid"], f"Error: {result2.get('error')}")
+        ids1 = {r["id"] for r in result1.get("preview_records", [])}
+        ids2 = {r["id"] for r in result2.get("preview_records", [])}
+        self.assertFalse(ids1 & ids2, "Offset pages should not overlap")
+
+    def test_compile_expression_offset_beyond_results(self):
+        """compile_expression with offset beyond total should return empty."""
+        result = self.service.compile_expression("true", "registry_individuals", limit=10, offset=999999, fields=["id"])
+        self.assertTrue(result["valid"])
+        self.assertEqual(len(result.get("preview_records", [])), 0)
+
+    def test_compile_expression_phone_number_enrichment(self):
+        """compile_expression with phone_number_ids field should enrich results."""
+        partner = self.env["res.partner"].create({"name": "PhoneSvcTest99", "is_registrant": True, "is_group": False})
+        if "spp.phone.number" in self.env:
+            self.env["spp.phone.number"].create({"partner_id": partner.id, "phone_no": "+639171111111"})
+            self.env["spp.phone.number"].create({"partner_id": partner.id, "phone_no": "+639172222222"})
+        result = self.service.compile_expression(
+            'r.name == "PhoneSvcTest99"',
+            "registry_individuals",
+            limit=10,
+            fields=["id", "name", "phone_number_ids"],
+        )
+        self.assertTrue(result["valid"])
+        records = result.get("preview_records", [])
+        self.assertEqual(len(records), 1)
+        if "spp.phone.number" in self.env:
+            self.assertIn("phone_numbers", records[0])
+            self.assertEqual(len(records[0]["phone_numbers"]), 2)
+
+    def test_compile_expression_phone_excludes_disabled(self):
+        """Phone enrichment should exclude disabled phone numbers."""
+        partner = self.env["res.partner"].create(
+            {"name": "PhoneDisabledTest99", "is_registrant": True, "is_group": False}
+        )
+        if "spp.phone.number" in self.env:
+            self.env["spp.phone.number"].create({"partner_id": partner.id, "phone_no": "+639173333333"})
+            disabled_phone = self.env["spp.phone.number"].create(
+                {"partner_id": partner.id, "phone_no": "+639174444444"}
+            )
+            disabled_phone.disabled = fields.Datetime.now()
+        result = self.service.compile_expression(
+            'r.name == "PhoneDisabledTest99"',
+            "registry_individuals",
+            limit=10,
+            fields=["id", "phone_number_ids"],
+        )
+        records = result.get("preview_records", [])
+        if "spp.phone.number" in self.env and records:
+            self.assertEqual(len(records[0]["phone_numbers"]), 1)
+            self.assertEqual(records[0]["phone_numbers"], ["+639173333333"])

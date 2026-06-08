@@ -9,7 +9,7 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Alpha",
+    "development_status": "Beta",
     "maintainers": ["jeremi"],
     "depends": [
         "base",
@@ -18,8 +18,8 @@
         "spp_cel_domain",
         "spp_cel_widget",
         "spp_security",
-        "spp_aggregation",
-        "spp_metrics_core",
+        "spp_analytics",
+        "spp_metric",
     ],
     "data": [
         # Security

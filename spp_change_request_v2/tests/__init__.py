@@ -23,3 +23,5 @@ from . import test_stage_navigation
 from . import test_approval_hooks_and_audit
 from . import test_dynamic_approval
 from . import test_conflict_dynamic_approval
+from . import test_html_escaping
+from . import test_wizard_html_escaping

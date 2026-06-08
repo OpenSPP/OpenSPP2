@@ -22,7 +22,14 @@ import shutil
 import subprocess
 import sys
 import time
-import tomllib
+
+try:
+    import tomllib
+except ModuleNotFoundError:
+    try:
+        import tomli as tomllib
+    except ModuleNotFoundError:
+        tomllib = None
 from pathlib import Path
 
 try:
@@ -99,13 +106,15 @@ DEFAULT_CONFIG = {
 def load_config() -> dict:
     """Load config from ~/.spp.toml, returning defaults if not found."""
     config = DEFAULT_CONFIG.copy()
-    if CONFIG_PATH.exists():
+    if CONFIG_PATH.exists() and tomllib is not None:
         try:
             with open(CONFIG_PATH, "rb") as f:
                 user_config = tomllib.load(f)
                 config.update(user_config)
         except (tomllib.TOMLDecodeError, OSError) as e:
             warn(f"Could not load config from {CONFIG_PATH}: {e}")
+    elif CONFIG_PATH.exists() and tomllib is None:
+        warn("tomllib not available (Python < 3.11). Install 'tomli' or upgrade Python to load ~/.spp.toml config.")
     return config
 
 
@@ -132,7 +141,7 @@ DEMO_PROFILES = {
 }
 
 
-def run(cmd: str | list, check: bool = True, capture: bool = False, **kwargs) -> subprocess.CompletedProcess:
+def run(cmd, check: bool = True, capture: bool = False, **kwargs) -> subprocess.CompletedProcess:
     """Run a command with nice defaults."""
     if isinstance(cmd, str):
         kwargs.setdefault("shell", True)
@@ -296,6 +305,36 @@ def _find_running_odoo() -> tuple:
                 continue
 
     return None, None
+
+
+def _is_jobworker_running(profile: str) -> bool:
+    """Return True when the jobworker container is up under this profile.
+
+    `./spp restart` only restarts the Odoo service by default, but module
+    code that runs inside delayed jobs (async batch scoring, eligibility
+    checks, anything routed through job_worker.delay) lives in the
+    jobworker process. Without restarting the worker too, the developer
+    sees stale Python after Apps -> Upgrade. See OP#986.
+    """
+    result = run(
+        docker_compose("ps", "--format", "json", profile=profile),
+        capture=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        return False
+
+    for line in result.stdout.strip().split("\n"):
+        if not line:
+            continue
+        try:
+            container = json.loads(line)
+            if container.get("Service") == "jobworker" and container.get("State") == "running":
+                return True
+        except json.JSONDecodeError:
+            continue
+
+    return False
 
 
 # ============================================================================
@@ -736,8 +775,12 @@ def cmd_restart(args):
         print("Error: No Odoo container running. Start with './spp start' first.")
         sys.exit(1)
 
-    print(f"Restarting {service}...")
-    run(docker_compose("restart", service, "queue-worker", profile=profile))
+    services_to_restart = [service]
+    if _is_jobworker_running(profile):
+        services_to_restart.append("jobworker")
+
+    print(f"Restarting {', '.join(services_to_restart)}...")
+    run(docker_compose("restart", *services_to_restart, profile=profile))
     print("Done.")
 
     _show_url()
@@ -774,8 +817,8 @@ def cmd_resetdb(args):
     # Ensure db is running
     run(docker_compose("up", "-d", "db"))
 
-    # Stop Odoo but keep db
-    run(docker_compose("stop", "openspp", "openspp-dev"), check=False)
+    # Stop Odoo and job worker but keep db
+    run(docker_compose("stop", "openspp", "openspp-dev", "jobworker"), check=False)
 
     # Wait for db to be ready
     print("Waiting for database...")
@@ -1055,7 +1098,7 @@ def cmd_slow_queries(args):
         )
 
 
-def _show_url(open_browser: bool = False) -> str | None:
+def _show_url(open_browser: bool = False):
     """Get the running Odoo server URL."""
     service, profile = _find_running_odoo()
     if not service:

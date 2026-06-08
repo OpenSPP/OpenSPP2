@@ -1,7 +1,7 @@
 # pylint: disable=pointless-statement
 {
     "name": "OpenSPP Case Entitlements Integration",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "category": "OpenSPP/Monitoring",
     "summary": "Links cases to program entitlements for case-entitlement relationship management",
     "author": "OpenSPP.org",

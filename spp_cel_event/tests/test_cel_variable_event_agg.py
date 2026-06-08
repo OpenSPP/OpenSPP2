@@ -80,7 +80,7 @@ class TestCELVariableEventAggregation(TransactionCase):
                 "event_agg_type_id": self.event_type.id,
             }
         )
-        self.assertEqual(variable.cel_expression, "events_exists('payment')")
+        self.assertEqual(variable.cel_expression, "has_event('payment')")
 
     def test_event_sum_cel_expression(self):
         """Test CEL expression generation for event sum."""
@@ -220,8 +220,13 @@ class TestCELVariableEventAggregation(TransactionCase):
             variable.cel_expression,
         )
 
-    def test_event_with_custom_filter(self):
-        """Test CEL expression with custom aggregate_filter."""
+    def test_event_with_custom_filter_ignored(self):
+        """Test that aggregate_filter is not included in generated event expression.
+
+        The where_predicate feature is not implemented in the executor, so
+        aggregate_filter is intentionally excluded from the generated CEL
+        expression to avoid silently wrong results.
+        """
         variable = self.CELVariable.create(
             {
                 "name": "test_large_payments",
@@ -236,23 +241,25 @@ class TestCELVariableEventAggregation(TransactionCase):
                 "aggregate_filter": "e.amount > 1000",
             }
         )
-        self.assertIn("where='e.amount > 1000'", variable.cel_expression)
+        # where= should NOT be in the expression since where_predicate is not implemented
+        self.assertNotIn("where=", variable.cel_expression)
+        self.assertEqual(variable.cel_expression, "events_sum('payment', 'amount')")
 
-    def test_event_aggregation_without_type_uses_accessor(self):
-        """Test that missing event type returns cel_accessor."""
-        variable = self.CELVariable.create(
-            {
-                "name": "test_no_type",
-                "cel_accessor": "no_type_var",
-                "source_type": "aggregate",
-                "aggregate_target": "events",
-                "aggregate_type": "count",
-                "value_type": "number",
-                "category_id": self.category.id,
-                # No event_agg_type_id
-            }
-        )
-        self.assertEqual(variable.cel_expression, "no_type_var")
+    def test_event_aggregation_without_type_raises_validation(self):
+        """Test that missing event type raises ValidationError."""
+        with self.assertRaises(ValidationError):
+            self.CELVariable.create(
+                {
+                    "name": "test_no_type",
+                    "cel_accessor": "no_type_var",
+                    "source_type": "aggregate",
+                    "aggregate_target": "events",
+                    "aggregate_type": "count",
+                    "value_type": "number",
+                    "category_id": self.category.id,
+                    # No event_agg_type_id — constraint should reject this
+                }
+            )
 
     def test_onchange_aggregate_target_clears_event_fields(self):
         """Test that changing aggregate_target clears event-specific fields."""
@@ -312,3 +319,189 @@ class TestCELVariableEventAggregation(TransactionCase):
                     "event_agg_temporal_value": 0,  # Invalid - must be positive
                 }
             )
+
+    def test_sum_without_field_raises_validation(self):
+        """Test that sum aggregation without event_agg_field raises ValidationError."""
+        with self.assertRaises(ValidationError):
+            self.CELVariable.create(
+                {
+                    "name": "test_sum_no_field",
+                    "cel_accessor": "sum_no_field",
+                    "source_type": "aggregate",
+                    "aggregate_target": "events",
+                    "aggregate_type": "sum",
+                    "value_type": "money",
+                    "category_id": self.category.id,
+                    "event_agg_type_id": self.event_type.id,
+                    # No event_agg_field — constraint should reject
+                }
+            )
+
+    def test_avg_without_field_raises_validation(self):
+        """Test that avg aggregation without event_agg_field raises ValidationError."""
+        with self.assertRaises(ValidationError):
+            self.CELVariable.create(
+                {
+                    "name": "test_avg_no_field",
+                    "cel_accessor": "avg_no_field",
+                    "source_type": "aggregate",
+                    "aggregate_target": "events",
+                    "aggregate_type": "avg",
+                    "value_type": "number",
+                    "category_id": self.category.id,
+                    "event_agg_type_id": self.event_type.id,
+                    # No event_agg_field — constraint should reject
+                }
+            )
+
+    def test_has_event_with_temporal_filter(self):
+        """Test has_event expression with temporal filter."""
+        variable = self.CELVariable.create(
+            {
+                "name": "test_has_recent_payment",
+                "cel_accessor": "has_recent_payment",
+                "source_type": "aggregate",
+                "aggregate_target": "events",
+                "aggregate_type": "exists",
+                "value_type": "boolean",
+                "category_id": self.category.id,
+                "event_agg_type_id": self.event_type.id,
+                "event_agg_temporal": "within_days",
+                "event_agg_temporal_value": 30,
+            }
+        )
+        self.assertEqual(variable.cel_expression, "has_event('payment', within_days=30)")
+
+    def test_has_event_with_named_period(self):
+        """Test has_event expression with named period."""
+        variable = self.CELVariable.create(
+            {
+                "name": "test_has_payment_this_year",
+                "cel_accessor": "has_payment_year",
+                "source_type": "aggregate",
+                "aggregate_target": "events",
+                "aggregate_type": "exists",
+                "value_type": "boolean",
+                "category_id": self.category.id,
+                "event_agg_type_id": self.event_type.id,
+                "event_agg_temporal": "this_year",
+            }
+        )
+        self.assertEqual(variable.cel_expression, "has_event('payment', period=this_year())")
+
+    def test_has_event_with_all_states(self):
+        """Test has_event expression with all states filter."""
+        variable = self.CELVariable.create(
+            {
+                "name": "test_has_any_payment",
+                "cel_accessor": "has_any_payment",
+                "source_type": "aggregate",
+                "aggregate_target": "events",
+                "aggregate_type": "exists",
+                "value_type": "boolean",
+                "category_id": self.category.id,
+                "event_agg_type_id": self.event_type.id,
+                "event_agg_states": "all",
+            }
+        )
+        self.assertIn("states=['active', 'superseded', 'expired']", variable.cel_expression)
+        self.assertTrue(variable.cel_expression.startswith("has_event("))
+
+    def test_onchange_aggregate_type_clears_field(self):
+        """Test that switching to count/exists clears event_agg_field."""
+        variable = self.CELVariable.create(
+            {
+                "name": "test_type_switch",
+                "cel_accessor": "type_switch_var",
+                "source_type": "aggregate",
+                "aggregate_target": "events",
+                "aggregate_type": "sum",
+                "value_type": "money",
+                "category_id": self.category.id,
+                "event_agg_type_id": self.event_type.id,
+                "event_agg_field": "amount",
+            }
+        )
+        self.assertEqual(variable.event_agg_field, "amount")
+
+        # Simulate onchange to count
+        variable.aggregate_type = "count"
+        variable._onchange_aggregate_type_event()
+        self.assertFalse(variable.event_agg_field)
+
+    def test_onchange_temporal_resets_value(self):
+        """Test that switching temporal type resets the value."""
+        variable = self.CELVariable.create(
+            {
+                "name": "test_temporal_switch",
+                "cel_accessor": "temporal_switch_var",
+                "source_type": "aggregate",
+                "aggregate_target": "events",
+                "aggregate_type": "count",
+                "value_type": "number",
+                "category_id": self.category.id,
+                "event_agg_type_id": self.event_type.id,
+                "event_agg_temporal": "within_days",
+                "event_agg_temporal_value": 90,
+            }
+        )
+        self.assertEqual(variable.event_agg_temporal_value, 90)
+
+        # Simulate onchange to named period
+        variable.event_agg_temporal = "this_year"
+        variable._onchange_event_agg_temporal()
+        self.assertEqual(variable.event_agg_temporal_value, 0)
+
+    def test_event_min_cel_expression(self):
+        """Test CEL expression generation for event min."""
+        variable = self.CELVariable.create(
+            {
+                "name": "test_min_score",
+                "cel_accessor": "min_score",
+                "source_type": "aggregate",
+                "aggregate_target": "events",
+                "aggregate_type": "min",
+                "value_type": "number",
+                "category_id": self.category.id,
+                "event_agg_type_id": self.event_type.id,
+                "event_agg_field": "score",
+            }
+        )
+        self.assertEqual(variable.cel_expression, "events_min('payment', 'score')")
+
+    def test_event_max_cel_expression(self):
+        """Test CEL expression generation for event max."""
+        variable = self.CELVariable.create(
+            {
+                "name": "test_max_score",
+                "cel_accessor": "max_score",
+                "source_type": "aggregate",
+                "aggregate_target": "events",
+                "aggregate_type": "max",
+                "value_type": "number",
+                "category_id": self.category.id,
+                "event_agg_type_id": self.event_type.id,
+                "event_agg_field": "score",
+            }
+        )
+        self.assertEqual(variable.cel_expression, "events_max('payment', 'score')")
+
+    def test_event_this_month_temporal(self):
+        """Test CEL expression with this_month temporal filter."""
+        variable = self.CELVariable.create(
+            {
+                "name": "test_mtd_count",
+                "cel_accessor": "mtd_count",
+                "source_type": "aggregate",
+                "aggregate_target": "events",
+                "aggregate_type": "count",
+                "value_type": "number",
+                "category_id": self.category.id,
+                "event_agg_type_id": self.event_type.id,
+                "event_agg_temporal": "this_month",
+            }
+        )
+        self.assertEqual(
+            variable.cel_expression,
+            "events_count('payment', period=this_month())",
+        )

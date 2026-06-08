@@ -1,7 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Pydantic schemas for simulation and aggregation API."""
 
-from . import aggregation
+from . import analytics
 from . import simulation
 from .comparison import (
     ComparisonCreateRequest,
@@ -32,7 +32,7 @@ from .scenario import (
 )
 
 __all__ = [
-    "aggregation",
+    "analytics",
     "simulation",
     # Scenario schemas
     "EntitlementRuleSchema",

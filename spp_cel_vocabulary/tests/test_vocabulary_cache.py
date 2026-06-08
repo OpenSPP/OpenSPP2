@@ -10,6 +10,7 @@ Architecture tested:
 - Cache invalidation on concept group changes
 """
 
+from odoo.fields import Command
 from odoo.tests import TransactionCase, tagged
 
 from odoo.addons.spp_cel_domain.tests.common import CELTestDataMixin
@@ -45,7 +46,7 @@ class TestConceptGroupCache(TransactionCase, CELTestDataMixin):
         # Create concept group
         cls.group_feminine = cls._create_test_concept_group(
             name=f"test_feminine_{cls._test_id}",
-            display_name="Test Feminine Gender",
+            label="Test Feminine Gender",
             codes=[cls.code_female],
         )
 
@@ -94,7 +95,7 @@ class TestConceptGroupCache(TransactionCase, CELTestDataMixin):
         self.assertNotIn(self.code_male.uri, uri_set_before)
 
         # Add male code to feminine group
-        self.group_feminine.write({"code_ids": [(4, self.code_male.id)]})
+        self.group_feminine.write({"code_ids": [Command.link(self.code_male.id)]})
 
         # Cache should be invalidated - new lookup should include male
         uri_set_after = ConceptGroup._get_group_uris_cached(self.group_feminine.name)
@@ -107,7 +108,7 @@ class TestConceptGroupCache(TransactionCase, CELTestDataMixin):
         # Create a temporary group
         temp_group = self._create_test_concept_group(
             name=f"temp_group_{self._test_id}",
-            display_name="Temporary Group",
+            label="Temporary Group",
             codes=[self.code_female],
         )
 
@@ -155,23 +156,23 @@ class TestVocabularyCache(TransactionCase, CELTestDataMixin):
 
         existing_feminine = ConceptGroup.search([("name", "=", "feminine_gender")], limit=1)
         if existing_feminine:
-            existing_feminine.write({"code_ids": [(4, cls.code_female.id)]})
+            existing_feminine.write({"code_ids": [Command.link(cls.code_female.id)]})
             cls.group_feminine = existing_feminine
         else:
             cls.group_feminine = cls._create_test_concept_group(
                 name="feminine_gender",
-                display_name="Feminine Gender",
+                label="Feminine Gender",
                 codes=[cls.code_female],
             )
 
         existing_masculine = ConceptGroup.search([("name", "=", "masculine_gender")], limit=1)
         if existing_masculine:
-            existing_masculine.write({"code_ids": [(4, cls.code_male.id)]})
+            existing_masculine.write({"code_ids": [Command.link(cls.code_male.id)]})
             cls.group_masculine = existing_masculine
         else:
             cls.group_masculine = cls._create_test_concept_group(
                 name="masculine_gender",
-                display_name="Masculine Gender",
+                label="Masculine Gender",
                 codes=[cls.code_male],
             )
 
@@ -281,12 +282,12 @@ class TestInGroupCaching(TransactionCase, CELTestDataMixin):
 
         existing_feminine = ConceptGroup.search([("name", "=", "feminine_gender")], limit=1)
         if existing_feminine:
-            existing_feminine.write({"code_ids": [(4, cls.code_female.id)]})
+            existing_feminine.write({"code_ids": [Command.link(cls.code_female.id)]})
             cls.group_feminine = existing_feminine
         else:
             cls.group_feminine = cls._create_test_concept_group(
                 name="feminine_gender",
-                display_name="Feminine Gender",
+                label="Feminine Gender",
                 codes=[cls.code_female],
             )
 

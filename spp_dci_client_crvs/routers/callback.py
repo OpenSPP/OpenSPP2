@@ -77,8 +77,11 @@ async def receive_crvs_notification(
         )
 
         # Signature has been verified by verify_crvs_signature dependency
-        # Extract header and message
-        header = envelope.header.model_dump()
+        # Extract header and message. Use mode="json" so datetime fields
+        # serialize to ISO strings - the fallback _create_event_directly
+        # path json.dumps() this header into raw_data, which fails on raw
+        # datetime objects.
+        header = envelope.header.model_dump(mode="json")
         message = envelope.message
 
         sender_id = header.get("sender_id", "unknown")

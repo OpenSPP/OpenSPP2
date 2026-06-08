@@ -110,21 +110,23 @@ class TestResPartnerImportMatch(TransactionCase):
 
     def test_01_res_partner_change_email_by_name(self):
         """Change email based on given_name, family_name."""
-        self.create_matching_given_family_name()
+        import_match = self.create_matching_given_family_name()
         file_path = self.get_file_path_2()
         record = self._base_import_record("res.partner", file_path)
-        record.execute_import(["given_name", "family_name", "name", "email"], [], OPTIONS)
+        options = dict(OPTIONS, import_match_ids=[import_match.id], overwrite_match=True)
+        record.execute_import(["given_name", "family_name", "name", "email"], [], options)
 
         self._test_applicant.env.cache.invalidate()
         self.assertEqual(self._test_applicant.email, "rufinorenaud@gmail.com")
 
     def test_02_res_partner_change_email_by_group_name(self):
         """Change email based on name."""
-        self.create_matching_name()
+        import_match = self.create_matching_name()
         file_path = self.get_file_path_1()
         record = self._base_import_record("res.partner", file_path)
 
-        record.execute_import(["name", "email"], ["name", "email"], OPTIONS)
+        options = dict(OPTIONS, import_match_ids=[import_match.id], overwrite_match=True)
+        record.execute_import(["name", "email"], ["name", "email"], options)
         self._test_hh.env.cache.invalidate()
         self.assertEqual(self._test_hh.email, "renaudhh@gmail.com")
 

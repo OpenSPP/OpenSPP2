@@ -1,6 +1,6 @@
 {
     "name": "OpenSPP Studio",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.0.1",
     "category": "OpenSPP/Configuration",
     "summary": "No-code customization interface for OpenSPP",
     "author": "OpenSPP.org",
@@ -33,7 +33,6 @@
         "data/placement_zones.xml",
         "data/server_actions.xml",
         "data/audit_rules.xml",
-        "data/user_roles.xml",
         "data/variable_categories.xml",
         "data/standard_variables.xml",
         "data/default_personas.xml",
@@ -80,4 +79,5 @@
     "application": True,
     "auto_install": False,
     "sequence": 1,
+    "maintainers": ["jeremi", "gonzalesedwin1123"],
 }

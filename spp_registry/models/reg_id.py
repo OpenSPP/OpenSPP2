@@ -23,7 +23,7 @@ class SPPRegistrantID(models.Model):
     )
     available_id_type_ids = fields.Many2many("spp.vocabulary.code", compute="_compute_available_id_type_ids")
     id_type_id = fields.Many2one("spp.vocabulary.code", "ID Type", required=True)
-    value = fields.Char(size=100)
+    value = fields.Char(size=100, index=True)
 
     expiry_date = fields.Date()
     id_type_as_str = fields.Char(related="id_type_id.display")
@@ -90,17 +90,22 @@ class SPPRegistrantID(models.Model):
     def _compute_display_name(self):
         res = super()._compute_display_name()
         for rec in self:
-            name = ""
-            if rec.partner_id:
-                name = rec.partner_id.name
-            rec.display_name = name
+            id_type = rec.id_type_id.display_name or _("Unknown Type")
+            value = rec.value or ""
+            rec.display_name = f"{id_type} - {value}" if value else id_type
         return res
 
     @api.model
     def _name_search(self, name, domain=None, operator="ilike", limit=100, order=None):
         domain = domain or []
         if name:
-            domain = [("partner_id", operator, name)] + domain
+            domain = [
+                "|",
+                "|",
+                ("id_type_id.display", operator, name),
+                ("value", operator, name),
+                ("partner_id", operator, name),
+            ] + domain
         return self._search(domain, limit=limit, order=order)
 
     @api.depends("verification_method")
@@ -121,7 +126,7 @@ class SPPRegistrantID(models.Model):
                     raise ValidationError(
                         _(
                             "The provided %(id_type)s ID '%(value)s' is invalid.",
-                            id_type=rec.id_type_id.name,
+                            id_type=rec.id_type_id.display,
                             value=rec.value,
                         )
                     )

@@ -11,6 +11,7 @@
                     string="SPP Demo Data Generator Settings"
                     name="spp_demo_data_generator_settings"
                     logo="/spp_demo/static/description/icon.png"
+                    invisible="1"
                 >
                     <block title="Default Settings for Demo Data Generator">
                         <setting

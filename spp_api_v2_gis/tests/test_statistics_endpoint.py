@@ -49,7 +49,7 @@ class TestStatisticsEndpoint(TransactionCase):
         )
 
         # Create GIS-published statistics
-        cls.gis_stat_1 = cls.env["spp.statistic"].create(
+        cls.gis_stat_1 = cls.env["spp.indicator"].create(
             {
                 "name": "total_households_disc",
                 "label": "Total Households",
@@ -62,7 +62,7 @@ class TestStatisticsEndpoint(TransactionCase):
             }
         )
 
-        cls.gis_stat_2 = cls.env["spp.statistic"].create(
+        cls.gis_stat_2 = cls.env["spp.indicator"].create(
             {
                 "name": "pwd_members_disc",
                 "label": "Members with Disability",
@@ -76,7 +76,7 @@ class TestStatisticsEndpoint(TransactionCase):
         )
 
         # Non-GIS statistic (should not appear)
-        cls.non_gis_stat = cls.env["spp.statistic"].create(
+        cls.non_gis_stat = cls.env["spp.indicator"].create(
             {
                 "name": "dashboard_only_disc",
                 "label": "Dashboard Only",
@@ -89,7 +89,7 @@ class TestStatisticsEndpoint(TransactionCase):
 
     def test_get_published_by_category_returns_gis_stats(self):
         """Test that get_published_by_category returns GIS-published stats."""
-        Statistic = self.env["spp.statistic"]
+        Statistic = self.env["spp.indicator"]
         by_category = Statistic.get_published_by_category("gis")
 
         # Should include demographics and vulnerability categories
@@ -106,7 +106,7 @@ class TestStatisticsEndpoint(TransactionCase):
 
     def test_non_gis_stats_excluded(self):
         """Test that non-GIS statistics are excluded."""
-        Statistic = self.env["spp.statistic"]
+        Statistic = self.env["spp.indicator"]
         by_category = Statistic.get_published_by_category("gis")
 
         # Collect all stat names across categories
@@ -130,19 +130,19 @@ class TestStatisticsEndpoint(TransactionCase):
     def test_statistics_schema_validation(self):
         """Test that the Pydantic response schema works."""
         from ..schemas.statistics import (
-            StatisticCategoryInfo,
-            StatisticInfo,
-            StatisticsListResponse,
+            IndicatorCategoryInfo,
+            IndicatorInfo,
+            IndicatorsListResponse,
         )
 
-        response = StatisticsListResponse(
+        response = IndicatorsListResponse(
             categories=[
-                StatisticCategoryInfo(
+                IndicatorCategoryInfo(
                     code="demographics",
                     name="Demographics",
                     icon="fa-users",
                     statistics=[
-                        StatisticInfo(
+                        IndicatorInfo(
                             name="total_households",
                             label="Total Households",
                             description="Count of all households",
@@ -161,11 +161,11 @@ class TestStatisticsEndpoint(TransactionCase):
         self.assertEqual(response.total_count, 1)
 
     def test_statistic_info_schema(self):
-        """Test StatisticInfo schema with optional fields."""
-        from ..schemas.statistics import StatisticInfo
+        """Test IndicatorInfo schema with optional fields."""
+        from ..schemas.statistics import IndicatorInfo
 
         # Minimal
-        info = StatisticInfo(
+        info = IndicatorInfo(
             name="test",
             label="Test",
             format="count",
@@ -174,7 +174,7 @@ class TestStatisticsEndpoint(TransactionCase):
         self.assertIsNone(info.unit)
 
         # Full
-        info_full = StatisticInfo(
+        info_full = IndicatorInfo(
             name="test",
             label="Test",
             description="A test stat",
@@ -186,7 +186,7 @@ class TestStatisticsEndpoint(TransactionCase):
 
     def test_inactive_stats_excluded(self):
         """Test that inactive statistics are excluded from published list."""
-        Statistic = self.env["spp.statistic"]
+        Statistic = self.env["spp.indicator"]
 
         # Create an inactive GIS stat
         inactive_stat = Statistic.create(

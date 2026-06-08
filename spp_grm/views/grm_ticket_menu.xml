@@ -6,6 +6,7 @@
         name="Helpdesk"
         sequence="16"
         web_icon="spp_grm,static/description/OpenSPP-Helpdesk2-Icons.png"
+        groups="spp_grm.group_grm_viewer"
     />
 
     <menuitem

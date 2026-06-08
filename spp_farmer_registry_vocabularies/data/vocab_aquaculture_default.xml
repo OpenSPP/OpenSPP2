@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- FAO ASFIS (Aquatic Sciences and Fisheries Information System) Species List -->
+    <record id="vocab_aquaculture" model="spp.vocabulary">
+        <field name="name">Aquaculture Species (FAO ASFIS)</field>
+        <field name="namespace_uri">urn:fao:asfis:2024</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="is_hierarchical">False</field>
+        <field name="domain">agriculture</field>
+        <field
+            name="description"
+        >FAO ASFIS aquaculture species classification with 3-alpha codes</field>
+        <field
+            name="reference_url"
+        >https://www.fao.org/fishery/collection/asfis/en</field>
+    </record>
+
+    <!-- Common finfish species -->
+    <record id="code_aqua_til" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
+        <field name="code">TIL</field>
+        <field name="display">Nile tilapia</field>
+        <field name="definition">Oreochromis niloticus</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_32720</field>
+        <field name="sequence">1</field>
+    </record>
+
+    <record id="code_aqua_cco" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
+        <field name="code">CCO</field>
+        <field name="display">Common carp</field>
+        <field name="definition">Cyprinus carpio</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_1334</field>
+        <field name="sequence">2</field>
+    </record>
+
+    <record id="code_aqua_sal" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
+        <field name="code">SAL</field>
+        <field name="display">Atlantic salmon</field>
+        <field name="definition">Salmo salar</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_6756</field>
+        <field name="sequence">3</field>
+    </record>
+
+    <record id="code_aqua_ont" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
+        <field name="code">ONT</field>
+        <field name="display">Rainbow trout</field>
+        <field name="definition">Oncorhynchus mykiss</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_7983</field>
+        <field name="sequence">4</field>
+    </record>
+
+    <record id="code_aqua_cat" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
+        <field name="code">CAT</field>
+        <field name="display">Catfish</field>
+        <field name="definition">Clarias spp.</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_24616</field>
+        <field name="sequence">5</field>
+    </record>
+
+    <record id="code_aqua_mga" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
+        <field name="code">MGA</field>
+        <field name="display">Milkfish</field>
+        <field name="definition">Chanos chanos</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_4834</field>
+        <field name="sequence">6</field>
+    </record>
+
+    <record id="code_aqua_snk" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
+        <field name="code">SNK</field>
+        <field name="display">Snakehead</field>
+        <field name="definition">Channa spp.</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_24327</field>
+        <field name="sequence">7</field>
+    </record>
+
+    <record id="code_aqua_pan" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
+        <field name="code">PAN</field>
+        <field name="display">Pangasius</field>
+        <field name="definition">Pangasianodon hypophthalmus</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_24779</field>
+        <field name="sequence">8</field>
+    </record>
+
+    <!-- Crustaceans -->
+    <record id="code_aqua_pra" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
+        <field name="code">PRA</field>
+        <field name="display">Giant river prawn</field>
+        <field name="definition">Macrobrachium rosenbergii</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_5668</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="code_aqua_pen" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
+        <field name="code">PEN</field>
+        <field name="display">Whiteleg shrimp</field>
+        <field name="definition">Penaeus vannamei</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_5668</field>
+        <field name="sequence">11</field>
+    </record>
+
+    <record id="code_aqua_cra" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
+        <field name="code">CRA</field>
+        <field name="display">Red swamp crayfish</field>
+        <field name="definition">Procambarus clarkii</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_1950</field>
+        <field name="sequence">12</field>
+    </record>
+
+    <record id="code_aqua_scr" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
+        <field name="code">SCR</field>
+        <field name="display">Swimming crab</field>
+        <field name="definition">Portunus spp.</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_1942</field>
+        <field name="sequence">13</field>
+    </record>
+
+    <!-- Molluscs -->
+    <record id="code_aqua_oys" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
+        <field name="code">OYS</field>
+        <field name="display">Pacific oyster</field>
+        <field name="definition">Crassostrea gigas</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_5484</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="code_aqua_mus" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
+        <field name="code">MUS</field>
+        <field name="display">Blue mussel</field>
+        <field name="definition">Mytilus edulis</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_5010</field>
+        <field name="sequence">21</field>
+    </record>
+
+    <record id="code_aqua_cla" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
+        <field name="code">CLA</field>
+        <field name="display">Hard clam</field>
+        <field name="definition">Mercenaria mercenaria</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_1650</field>
+        <field name="sequence">22</field>
+    </record>
+
+    <record id="code_aqua_sca" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
+        <field name="code">SCA</field>
+        <field name="display">Scallop</field>
+        <field name="definition">Pecten spp.</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_6839</field>
+        <field name="sequence">23</field>
+    </record>
+
+    <record id="code_aqua_aba" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
+        <field name="code">ABA</field>
+        <field name="display">Abalone</field>
+        <field name="definition">Haliotis spp.</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_3475</field>
+        <field name="sequence">24</field>
+    </record>
+
+    <!-- Aquatic plants -->
+    <record id="code_aqua_sea" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
+        <field name="code">SEA</field>
+        <field name="display">Seaweed</field>
+        <field name="definition">Various algae species</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_14154</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="code_aqua_kel" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
+        <field name="code">KEL</field>
+        <field name="display">Kelp</field>
+        <field name="definition">Laminaria spp.</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_11954</field>
+        <field name="sequence">31</field>
+    </record>
+
+    <record id="code_aqua_nor" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_aquaculture" />
+        <field name="code">NOR</field>
+        <field name="display">Nori</field>
+        <field name="definition">Porphyra spp.</field>
+        <field name="reference_uri">http://aims.fao.org/aos/agrovoc/c_24790</field>
+        <field name="sequence">32</field>
+    </record>
+</odoo>

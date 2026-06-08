@@ -5,14 +5,12 @@ MIS Demo Generator V2
 Generates demo data for SP-MIS programs following the V2 architecture:
 1. Fixed Demo Programs - Predictable programs aligned with demo stories
 2. Story-based Enrollments - Enrolls demo personas with payment history
-3. Random Volume Data - Additional enrollments for realistic dashboards
+3. Deterministic Volume Data - Blueprint-based households for realistic dashboards
 """
 
 import datetime
 import logging
 import random
-
-from faker import Faker
 
 from odoo import Command, _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
@@ -65,7 +63,7 @@ class SPPMISDemoGenerator(models.TransientModel):
     create_demo_programs = fields.Boolean(
         string="Create Demo Programs",
         default=True,
-        help="Create the predefined demo programs (Input Subsidy, Cash Transfer, etc.)",
+        help="Create the predefined demo programs (Child Grant, Cash Transfer, etc.)",
     )
 
     # Story enrollment options
@@ -81,11 +79,11 @@ class SPPMISDemoGenerator(models.TransientModel):
         help="Create payment history for demo stories (entitlements and payments)",
     )
 
-    # Volume generation options
+    # Volume generation options (uses deterministic blueprints)
     generate_volume = fields.Boolean(
         string="Generate Volume Data",
         default=True,
-        help="Generate additional random enrollments for realistic dashboards",
+        help="Generate deterministic households from blueprints (~730 households, ~2500 members)",
     )
     volume_enrollments = fields.Integer(
         string="Random Enrollments",
@@ -93,11 +91,13 @@ class SPPMISDemoGenerator(models.TransientModel):
         help="Number of random program enrollments to generate",
     )
 
-    # Random group/household generation
+    # Random group/household generation (Luzon-style GIS volume demo).
+    # When enabled (e.g. by the "Volume (GIS)" demo mode), households are
+    # generated with random/faker data instead of the deterministic blueprints.
     generate_random_groups = fields.Boolean(
         string="Generate Random Groups",
-        default=True,
-        help="Generate random households/groups with members to supplement story data",
+        default=False,
+        help="Generate random households/groups with members instead of deterministic blueprints",
     )
     random_groups_count = fields.Integer(
         string="Number of Groups",
@@ -197,7 +197,8 @@ class SPPMISDemoGenerator(models.TransientModel):
         ],
         string="Country",
         default="phl",
-        help="Country for geographic data (areas and GIS shapes)",
+        required=True,
+        help="Determines locale, currency, and geographic data",
     )
 
     # Locale settings
@@ -205,7 +206,7 @@ class SPPMISDemoGenerator(models.TransientModel):
         "res.country",
         string="Locale Origin",
         default=lambda self: self.env.user.company_id.country_id or self.env.ref("base.us"),
-        help="Country for Faker locale",
+        help="Country for locale-specific name generation",
     )
 
     # State tracking
@@ -259,9 +260,6 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "enroll_demo_stories": True,
                 "create_story_payments": True,
                 "generate_volume": True,
-                "volume_enrollments": 50,
-                "generate_random_groups": True,
-                "random_groups_count": 20,
                 "create_cycles": True,
                 "cycles_per_program": 2,
                 "create_event_data": True,
@@ -283,9 +281,6 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "enroll_demo_stories": True,
                 "create_story_payments": True,
                 "generate_volume": True,
-                "volume_enrollments": 200,
-                "generate_random_groups": True,
-                "random_groups_count": 50,
                 "create_cycles": True,
                 "cycles_per_program": 3,
                 "create_event_data": True,
@@ -307,9 +302,6 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "enroll_demo_stories": True,
                 "create_story_payments": True,
                 "generate_volume": True,
-                "volume_enrollments": 5000,
-                "generate_random_groups": True,
-                "random_groups_count": 500,
                 "create_cycles": True,
                 "cycles_per_program": 3,
                 "create_event_data": True,
@@ -331,9 +323,6 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "enroll_demo_stories": True,
                 "create_story_payments": True,
                 "generate_volume": True,
-                "volume_enrollments": 500,
-                "generate_random_groups": True,
-                "random_groups_count": 100,
                 "create_cycles": True,
                 "cycles_per_program": 3,
                 "create_event_data": True,
@@ -379,6 +368,27 @@ class SPPMISDemoGenerator(models.TransientModel):
         for field_name, value in defaults.items():
             setattr(self, field_name, value)
 
+    # Country configuration mapping (keyed by country_code 3-letter ISO)
+    COUNTRY_CONFIG = {
+        "phl": {"xmlid": "base.ph", "locale": "fil_PH", "currency_xmlid": "base.PHP"},
+        "lka": {"xmlid": "base.lk", "locale": "si_LK", "currency_xmlid": "base.LKR"},
+        "tgo": {"xmlid": "base.tg", "locale": "fr_TG", "currency_xmlid": "base.XOF"},
+    }
+
+    def _get_country_config(self):
+        """Get country, locale, and currency based on selected country_code."""
+        config = self.COUNTRY_CONFIG.get(self.country_code, self.COUNTRY_CONFIG["phl"])
+        country = self.env.ref(config["xmlid"], raise_if_not_found=False)
+        currency = self.env.ref(config["currency_xmlid"], raise_if_not_found=False)
+        # Ensure currency is active
+        if currency and not currency.active:
+            currency.active = True
+        return {
+            "country": country,
+            "locale": config["locale"],
+            "currency": currency,
+        }
+
     def _install_logic_packs(self):
         """Install Logic Packs used by demo programs.
 
@@ -387,7 +397,7 @@ class SPPMISDemoGenerator(models.TransientModel):
         """
         from .demo_programs import get_demo_pack_codes
 
-        Pack = self.env["spp.studio.pack"].sudo()  # nosemgrep: odoo-sudo-without-context
+        Pack = self.env["spp.studio.pack"].sudo()
         installed = []
 
         for code in get_demo_pack_codes():
@@ -414,7 +424,7 @@ class SPPMISDemoGenerator(models.TransientModel):
         """
         # Test personas are loaded from demo_personas.xml
         # This method ensures they're created if module data wasn't loaded
-        Persona = self.env["spp.studio.test.persona"].sudo()  # nosemgrep: odoo-sudo-without-context
+        Persona = self.env["spp.studio.test.persona"].sudo()
 
         # Check if personas already exist
         existing = Persona.search([("name", "ilike", "Maria Santos")], limit=1)
@@ -469,160 +479,24 @@ class SPPMISDemoGenerator(models.TransientModel):
             "events_created": 0,
             "change_requests_created": 0,
             "missing_registrants": [],
-            "volume_skipped": 0,
         }
 
         try:
-            # Initialize Faker
-            faker_locale = self.locale_origin.faker_locale or "en_US"
-            fake = Faker(faker_locale)
-
-            created_data = {
-                "programs": [],
-                "enrollments": [],
-                "cycles": [],
-                "payments": [],
-                "events": [],
-                "change_requests": [],
-            }
-
-            # Step 0: Ensure security groups are assigned FIRST (ALWAYS)
-            # This is critical: menu visibility is cached at login time based on user groups.
-            # Groups must be assigned BEFORE any user logs in, otherwise the menu won't appear
-            # until the user logs out and back in (or cache is cleared).
-            self._ensure_demo_user_groups()
-
-            # Step 0.25: Install Logic Packs (if enabled)
-            if self.install_logic_packs:
-                _logger.info("Installing Logic Packs for demo programs...")
-                installed_packs = self._install_logic_packs()
-                stats["logic_packs_installed"] = len(installed_packs)
-
-            # Step 0.35: Create test personas (if enabled)
-            if self.include_test_personas:
-                _logger.info("Creating test personas for Logic Studio...")
-                self._create_test_personas()
-                stats["test_personas_created"] = True
-
-            # Step 0.4: Load geographic data (if enabled)
-            if self.load_geographic_data:
-                _logger.info(f"Loading geographic data for {self.country_code}...")
-                geo_result = self._load_geographic_data(stats)
-                if geo_result:
-                    stats["areas_loaded"] = geo_result.get("shapes_loaded", 0)
-
-            # Step 0.5: Ensure demo stories exist (auto-generate if needed)
-            stories_created = self._ensure_demo_stories_exist(stats)
-            if stories_created:
-                _logger.info("Auto-generated %d demo story registrants", stories_created)
-
-            # Step 0.75: Generate random groups/households
-            # For large volumes, defer to a background job that commits in chunks
-            if self.generate_random_groups and self.random_groups_count > 0:
-                try:
-                    from odoo.http import request as http_request
-
-                    has_ui = bool(http_request and http_request.env)
-                except Exception:
-                    has_ui = False
-                if self.random_groups_count > 500 and has_ui and hasattr(self, "with_delay"):
-                    _logger.info(
-                        "Dispatching %d random groups to background job (chunked)...",
-                        self.random_groups_count,
-                    )
-                    self._dispatch_volume_job(fake)
-                    # The background job handles groups, area assignment, coordinates,
-                    # GIS layers, and report refresh. Skip those steps here.
-                    self.state = "completed"
-                    return self._show_volume_dispatched_notification()
-                if self.random_groups_count > 500:
-                    # CLI/shell context: run chunked generation inline with commits
-                    _logger.info(
-                        "Generating %d random groups inline (chunked)...",
-                        self.random_groups_count,
-                    )
-                    locale = fake.locales[0] if fake.locales else "en_US"
-                    self._run_volume_generation_job(locale)
-                else:
-                    _logger.info("Generating %d random groups...", self.random_groups_count)
-                    self._generate_random_groups(fake, stats)
-
-            # Step 1: Create demo programs
-            if self.create_demo_programs:
-                _logger.info("Creating demo programs...")
-                programs_result = self._create_demo_programs(stats)
-                created_data["programs"] = programs_result
-
-            # Step 2: Enroll demo story personas
-            if self.enroll_demo_stories:
-                _logger.info("Enrolling demo story personas...")
-                story_result = self._enroll_demo_stories(stats)
-                created_data["enrollments"] = story_result.get("enrollments", [])
-                created_data["payments"] = story_result.get("payments", [])
-                created_data["batches"] = story_result.get("batches", [])
-
-            # Step 3: Generate volume data
-            if self.generate_volume and self.volume_enrollments > 0:
-                _logger.info("Generating %d random enrollments...", self.volume_enrollments)
-                volume_result = self._generate_volume_enrollments(fake, stats)
-                created_data["enrollments"].extend(volume_result)
-
-            # Step 4: Create cycles
-            if self.create_cycles:
-                _logger.info("Creating program cycles...")
-                created_data["cycles"] = self._create_program_cycles(fake, stats)
-
-            # Step 5: Create event data
-            if self.create_event_data:
-                _logger.info("Creating event data for demo stories...")
-                created_data["events"] = self._create_story_events(stats)
-
-            # Step 6: Create change requests
-            if self.create_change_requests:
-                _logger.info("Creating change requests for demo stories...")
-                created_data["change_requests"] = self._create_story_change_requests(stats)
-
-            # Step 7: Create fairness analysis demo data
-            if self.create_fairness_analysis:
-                _logger.info("Creating fairness analysis demo data...")
-                self._create_fairness_analysis_demo(stats)
-
-            # Step 8: Generate GRM demo data (if module installed)
-            if self.generate_grm_demo:
-                _logger.info("Generating GRM demo data...")
-                grm_result = self._generate_grm_demo(stats)
-                if grm_result:
-                    stats["grm_tickets_created"] = grm_result.get("tickets", 0)
-
-            # Step 9: Generate Case demo data (if module installed)
-            if self.generate_case_demo:
-                _logger.info("Generating Case demo data...")
-                case_result = self._generate_case_demo(stats)
-                if case_result:
-                    stats["cases_created"] = case_result.get("cases", 0)
-
-            # Step 10: Generate Claim 169 demo data (signing key, issuer, credentials)
-            if self.generate_claim169_demo:
-                _logger.info("Generating Claim 169 demo data...")
-                self._generate_claim169_demo(stats)
-
-            # Step 11: Assign areas and generate GPS coordinates (if geographic data loaded)
-            if self.load_geographic_data:
-                _logger.info("Assigning areas to registrants...")
-                self._assign_registrant_areas(stats)
-                _logger.info("Generating GPS coordinates for registrants...")
-                self._generate_coordinates(stats)
-
-            # Step 12: Ensure debug GIS layers are present (idempotent)
-            self._ensure_debug_gis_layers(stats)
-
-            # Step 13: Refresh GIS reports so map data is available immediately
-            self._refresh_gis_reports(stats)
-
-            # Step 13: Create PRISM API client with known credentials
-            self._create_prism_api_client(stats)
+            result = self._run_generation_steps(stats)
+            # When large-volume generation is dispatched to a background job,
+            # _run_generation_steps returns a client action (notification)
+            # instead of the (demo_locale, created_data) tuple. In that case
+            # the remaining steps run inside the background job.
+            if isinstance(result, dict):
+                self.state = "completed"
+                self.env.company.mis_demo_loaded = True
+                return result
+            demo_locale, created_data = result
 
             self.state = "completed"
+
+            # Mark company as having loaded MIS demo data
+            self.env.company.mis_demo_loaded = True
 
             # Return success notification with detailed summary
             return self._show_success_notification(stats)
@@ -631,6 +505,70 @@ class SPPMISDemoGenerator(models.TransientModel):
             _logger.error("Error generating MIS demo data: %s", e, exc_info=True)
             self.state = "draft"
             raise UserError(_("Error generating demo data: %s") % e) from e
+
+    def _generate_random_volume(self, stats):
+        """Generate households using random/faker data (Luzon-style GIS demo).
+
+        For large volumes the work is either dispatched to a background job
+        (in a UI/web context) or run inline in committed chunks (in a CLI/shell
+        context). Both large-volume paths also assign areas, generate GPS
+        coordinates, ensure GIS layers, and refresh reports.
+
+        Returns:
+            bool: True if the work was dispatched to a background job (in which
+            case the caller should stop and let the job finish the remaining
+            steps); False if generation ran synchronously.
+        """
+        from faker import Faker
+
+        faker_locale = self.locale_origin.faker_locale or "en_US"
+        fake = Faker(faker_locale)
+        try:
+            from odoo.http import request as http_request
+
+            has_ui = bool(http_request and http_request.env)
+        except Exception:
+            has_ui = False
+
+        if self.random_groups_count > 500 and has_ui and hasattr(self, "with_delay"):
+            # Large volume in a UI/web context: dispatch to a background job.
+            # The job handles group creation (chunked), area assignment,
+            # coordinate generation, GIS layers, and report refresh.
+            _logger.info(
+                "Dispatching %d random groups to background job (chunked)...",
+                self.random_groups_count,
+            )
+            self._dispatch_volume_job(fake)
+            return True
+
+        if self.random_groups_count > 500:
+            # CLI/shell context: run chunked generation inline with commits.
+            # The inline job creates households (and assigns areas/coordinates
+            # and refreshes GIS) in committed chunks; the remaining steps in
+            # _run_generation_steps (programs, enrollments, cycles) still run
+            # normally afterwards.
+            _logger.info(
+                "Generating %d random groups inline (chunked)...",
+                self.random_groups_count,
+            )
+            locale = fake.locales[0] if fake.locales else "en_US"
+            self._run_volume_generation_job(locale)
+            return False
+
+        _logger.info("Generating %d random groups...", self.random_groups_count)
+        self._generate_random_groups(fake, stats)
+        return False
+
+    def _enroll_blueprint_households(self, generator, volume_households, programs):
+        """Enroll deterministic blueprint households into the created programs."""
+        _logger.info("Enrolling blueprint households in programs...")
+        program_map = {}
+        for prog in programs:
+            for prog_def in demo_programs.get_all_demo_programs():
+                if prog_def["name"] == prog.name:
+                    program_map[prog_def["id"]] = prog
+                    break
+        generator.enroll_in_programs(volume_households, program_map)
 
     def _dispatch_volume_job(self, fake):
         """Dispatch large-volume generation as a background job.
@@ -655,6 +593,8 @@ class SPPMISDemoGenerator(models.TransientModel):
         Args:
             faker_locale: Locale string for Faker (e.g., "en_US")
         """
+        from faker import Faker
+
         CHUNK_SIZE = 500
         total = self.random_groups_count
         fake = Faker(faker_locale)
@@ -749,14 +689,179 @@ class SPPMISDemoGenerator(models.TransientModel):
             _logger.warning("Could not ensure debug GIS layers: %s", e)
             stats["debug_hh_points_layer_ready"] = False
 
+    def _run_generation_steps(self, stats):
+        """Execute all generation steps.
+
+        Returns either:
+        - (demo_locale, created_data) tuple for synchronous generation, or
+        - a client action dict when large-volume household generation has been
+          dispatched to a background job (the remaining steps then run inside
+          that job).
+        """
+        # Resolve country configuration (locale, currency)
+        country_cfg = self._get_country_config()
+        demo_locale = country_cfg["locale"]
+        # Store locale in context for use by story methods (locale-aware names)
+        self = self.with_context(demo_locale=demo_locale)
+
+        # Set company country and currency
+        if country_cfg["country"]:
+            self.env.company.write({"country_id": country_cfg["country"].id})
+        if country_cfg["currency"]:
+            self.env.company.write({"currency_id": country_cfg["currency"].id})
+
+        _logger.info(
+            "Country: %s, Locale: %s, Currency: %s",
+            self.country_code,
+            demo_locale,
+            country_cfg["currency"].name if country_cfg["currency"] else "N/A",
+        )
+
+        created_data = {
+            "programs": [],
+            "enrollments": [],
+            "cycles": [],
+            "payments": [],
+            "events": [],
+            "change_requests": [],
+        }
+
+        # Step 0: Ensure security groups are assigned FIRST (ALWAYS)
+        self._ensure_demo_user_groups()
+
+        # Step 0.25: Install Logic Packs (if enabled)
+        if self.install_logic_packs:
+            _logger.info("Installing Logic Packs for demo programs...")
+            installed_packs = self._install_logic_packs()
+            stats["logic_packs_installed"] = len(installed_packs)
+
+        # Step 0.35: Create test personas (if enabled)
+        if self.include_test_personas:
+            _logger.info("Creating test personas for Logic Studio...")
+            self._create_test_personas()
+            stats["test_personas_created"] = True
+
+        # Step 0.4: Load geographic data (if enabled)
+        if self.load_geographic_data:
+            _logger.info("Loading geographic data for %s...", self.country_code)
+            geo_result = self._load_geographic_data(stats)
+            if geo_result:
+                stats["areas_loaded"] = geo_result.get("shapes_loaded", 0)
+
+        # Step 0.5: Ensure demo stories exist (auto-generate if needed)
+        stories_created = self._ensure_demo_stories_exist(stats)
+        if stories_created:
+            _logger.info("Auto-generated %d demo story registrants", stories_created)
+
+        # Step 0.75: Generate households.
+        #
+        # Two strategies are supported:
+        #  1. Random/faker volume generation (Luzon-style GIS demo): when
+        #     ``generate_random_groups`` is enabled with a positive count. For
+        #     large volumes this can be dispatched to a background job.
+        #  2. Deterministic blueprint generation: the default, when only
+        #     ``generate_volume`` is enabled.
+        volume_households = []
+        generator = None
+        if self.generate_random_groups and self.random_groups_count > 0:
+            if self._generate_random_volume(stats):
+                # Dispatched to a background job; the remaining steps run there.
+                return self._show_volume_dispatched_notification()
+        elif self.generate_volume:
+            # Deterministic blueprint generation.
+            from .household_blueprints import HOUSEHOLD_BLUEPRINTS
+            from .seeded_volume_generator import SeededVolumeGenerator
+
+            _logger.info("Generating deterministic households from %d blueprints...", len(HOUSEHOLD_BLUEPRINTS))
+            generator = SeededVolumeGenerator(self.env, demo_locale, seed=42)
+            volume_households = generator.generate_all_households(HOUSEHOLD_BLUEPRINTS)
+            stats["random_groups_created"] = len(volume_households)
+            stats["random_individuals_created"] = sum(len(hh["members"]) for hh in volume_households)
+
+        # Step 1: Create demo programs
+        if self.create_demo_programs:
+            _logger.info("Creating demo programs...")
+            programs_result = self._create_demo_programs(stats)
+            created_data["programs"] = programs_result
+
+        # Step 2: Enroll demo story personas
+        if self.enroll_demo_stories:
+            _logger.info("Enrolling demo story personas...")
+            story_result = self._enroll_demo_stories(stats)
+            created_data["enrollments"] = story_result.get("enrollments", [])
+            created_data["payments"] = story_result.get("payments", [])
+            created_data["batches"] = story_result.get("batches", [])
+
+        # Step 3: Enroll blueprint households in programs
+        if self.generate_volume and volume_households and created_data["programs"]:
+            self._enroll_blueprint_households(generator, volume_households, created_data["programs"])
+
+        # Step 4: Create cycles
+        if self.create_cycles:
+            _logger.info("Creating program cycles...")
+            created_data["cycles"] = self._create_program_cycles(stats)
+
+        # Step 5: Create event data
+        if self.create_event_data:
+            _logger.info("Creating event data for demo stories...")
+            created_data["events"] = self._create_story_events(stats)
+
+        # Step 6: Create change requests
+        if self.create_change_requests:
+            _logger.info("Creating change requests for demo stories...")
+            created_data["change_requests"] = self._create_story_change_requests(stats)
+
+        # Step 7: Create fairness analysis demo data
+        if self.create_fairness_analysis:
+            _logger.info("Creating fairness analysis demo data...")
+            self._create_fairness_analysis_demo(stats)
+
+        # Step 8: Generate GRM demo data (if module installed)
+        if self.generate_grm_demo:
+            _logger.info("Generating GRM demo data...")
+            grm_result = self._generate_grm_demo(stats)
+            if grm_result:
+                stats["grm_tickets_created"] = grm_result.get("tickets", 0)
+
+        # Step 9: Generate Case demo data (if module installed)
+        if self.generate_case_demo:
+            _logger.info("Generating Case demo data...")
+            case_result = self._generate_case_demo(stats)
+            if case_result:
+                stats["cases_created"] = case_result.get("cases", 0)
+
+        # Step 10: Generate Claim 169 demo data (signing key, issuer, credentials)
+        if self.generate_claim169_demo:
+            _logger.info("Generating Claim 169 demo data...")
+            self._generate_claim169_demo(stats)
+
+        # Step 11: Assign areas and generate GPS coordinates (if geographic data loaded)
+        if self.load_geographic_data:
+            _logger.info("Assigning areas to registrants...")
+            self._assign_registrant_areas(stats)
+            _logger.info("Generating GPS coordinates for registrants...")
+            self._generate_coordinates(stats)
+
+        # Step 12: Ensure debug GIS layers are present (idempotent)
+        self._ensure_debug_gis_layers(stats)
+
+        # Step 13: Refresh GIS reports so map data is available immediately
+        self._refresh_gis_reports(stats)
+
+        # Step 14: Create PRISM API client with known credentials
+        self._create_prism_api_client(stats)
+
+        return demo_locale, created_data
+
     def _ensure_demo_stories_exist(self, stats):
         """Check if demo story registrants exist and create them if not."""
         try:
             # Import story data from spp_demo
             from odoo.addons.spp_demo.models import demo_stories
 
-            # Check if story registrants exist
-            stories = demo_stories.get_all_stories()
+            # Check if story registrants exist (locale-aware)
+            locale = self.env.context.get("demo_locale")
+            stories = demo_stories.get_localized_stories(locale)
             story_names = [s["name"] for s in stories]
 
             existing = self.env["res.partner"].search(
@@ -819,10 +924,7 @@ class SPPMISDemoGenerator(models.TransientModel):
 
             # Create members for existing groups that are missing them
             if groups_needing_members:
-                _logger.info(
-                    "Creating members for %d existing groups...",
-                    len(groups_needing_members),
-                )
+                _logger.info("Creating members for %d existing groups...", len(groups_needing_members))
                 for group, story in groups_needing_members:
                     try:
                         profile = story.get("profile", {})
@@ -831,12 +933,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                             (
                                 j
                                 for j in journey
-                                if j.get("action")
-                                in (
-                                    "register",
-                                    "register_household",
-                                    "emergency_register",
-                                )
+                                if j.get("action") in ("register", "register_household", "emergency_register")
                             ),
                             {"days_back": 90},
                         )
@@ -849,6 +946,8 @@ class SPPMISDemoGenerator(models.TransientModel):
                                 group.id,
                                 story.get("id", "unknown"),
                             )
+                            # Enrich with demographic data
+                            self._enrich_story_household(group, members, profile)
                     except Exception as e:
                         _logger.warning(
                             "Could not create members for group (story_id=%s): %s",
@@ -857,6 +956,11 @@ class SPPMISDemoGenerator(models.TransientModel):
                         )
 
             stats["stories_created"] = created_count
+
+            # Enrich ALL story registrants with demographic data
+            # (covers both newly created and pre-existing registrants)
+            self._enrich_all_story_registrants(stories)
+
             return created_count
 
         except ImportError:
@@ -948,11 +1052,7 @@ class SPPMISDemoGenerator(models.TransientModel):
             (registration_date, registrant.id),
         )
 
-        _logger.info(
-            "Created story registrant (partner_id=%s, story_id=%s)",
-            registrant.id,
-            story.get("id", "unknown"),
-        )
+        _logger.info("Created story registrant (partner_id=%s, story_id=%s)", registrant.id, story.get("id", "unknown"))
 
         # For households, create family members
         if is_group and "head" in profile:
@@ -960,10 +1060,137 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         return registrant
 
+    def _get_demographic_enricher(self):
+        """Build a fresh demographic enricher for the current generation run.
+
+        No caching: an enricher's internal `_bank_ids` / vocab / country
+        caches are populated against the current cursor at construction
+        time. A class-level cache survives TransactionCase savepoint
+        rollbacks between tests, so by the time a later test re-uses the
+        cached enricher its `_bank_ids` reference `res.bank` rows that
+        no longer exist — the next `res.partner.bank` insert then raises
+        a `res_partner_bank_bank_id_fkey` violation. `_ensure_banks` and
+        `_cache_vocab_ids` are idempotent (search-then-create), so
+        re-instantiating costs only a handful of SELECTs.
+        """
+        from .demographic_enricher import DemographicEnricher
+
+        locale = self.env.context.get("demo_locale", "fil_PH")
+        rng = random.Random(99)  # Separate seed from volume generation
+        return DemographicEnricher(self.env, locale, rng)
+
+    def _enrich_all_story_registrants(self, stories):
+        """Enrich all story registrants with demographic data if not already set.
+
+        Runs after all story registrants are created/ensured, so it covers
+        both newly created and pre-existing registrants.
+        """
+        try:
+            enricher = self._get_demographic_enricher()
+        except Exception as e:
+            _logger.warning("Could not initialize demographic enricher: %s", e)
+            return
+
+        _logger.info("Enriching %d story registrants with demographic data...", len(stories))
+
+        for story in stories:
+            story_name = story["name"]
+            story_type = story.get("type", "individual")
+            profile = story.get("profile", {})
+
+            registrant = self.env["res.partner"].search(
+                [("name", "=", story_name), ("is_registrant", "=", True)],
+                limit=1,
+            )
+            if not registrant:
+                continue
+
+            # Skip if already enriched (check for street as proxy)
+            if registrant.street:
+                continue
+
+            try:
+                if story_type == "household" and registrant.is_group:
+                    # Enrich the group
+                    enricher.enrich_group(registrant)
+
+                    # Enrich individual members
+                    memberships = self.env["spp.group.membership"].search([("group", "=", registrant.id)])
+                    all_member_defs = []
+                    head = profile.get("head", {})
+                    if head:
+                        all_member_defs.append(("head", head))
+                    spouse = profile.get("spouse", {})
+                    if spouse:
+                        all_member_defs.append(("spouse", spouse))
+                    for adult in profile.get("adults", []):
+                        all_member_defs.append(("adult", adult))
+                    for child in profile.get("children", []):
+                        all_member_defs.append(("child", child))
+
+                    for idx, membership in enumerate(memberships):
+                        member = membership.individual
+                        if member.street:
+                            continue  # Already enriched
+                        if idx < len(all_member_defs):
+                            role, member_def = all_member_defs[idx]
+                            age = member_def.get("age")
+                        else:
+                            role = "child"
+                            age = None
+                        enricher.enrich_individual(member, age=age, role=role)
+                else:
+                    # Individual story
+                    age = profile.get("age")
+                    enricher.enrich_individual(registrant, age=age, role="adult")
+
+            except Exception as e:
+                _logger.warning("Could not enrich story registrant %s: %s", story_name, e)
+
+    def _enrich_story_household(self, group, members, profile):
+        """Enrich a story household and its members with demographic data."""
+        try:
+            enricher = self._get_demographic_enricher()
+            enricher.enrich_group(group)
+
+            # Map members to roles from profile
+            all_member_defs = []
+            head = profile.get("head", {})
+            if head:
+                all_member_defs.append(("head", head))
+            spouse = profile.get("spouse", {})
+            if spouse:
+                all_member_defs.append(("spouse", spouse))
+            for adult in profile.get("adults", []):
+                all_member_defs.append(("adult", adult))
+            for child in profile.get("children", []):
+                all_member_defs.append(("child", child))
+
+            for idx, member in enumerate(members):
+                if idx < len(all_member_defs):
+                    role, member_def = all_member_defs[idx]
+                    age = member_def.get("age")
+                else:
+                    role = "child"
+                    age = None
+                enricher.enrich_individual(member, age=age, role=role)
+        except Exception as e:
+            _logger.warning("Story demographic enrichment failed: %s", e)
+
     def _create_household_members(self, group, profile, days_back):
         """Create household members for a group registrant."""
         registration_date = fields.Date.today() - datetime.timedelta(days=days_back)
         members_created = []
+
+        VocabCode = self.env["spp.vocabulary.code"]
+        type_ids_by_code = {}
+        for code in ("head", "spouse", "child", "other"):
+            rec = VocabCode.get_code("urn:openspp:vocab:group-membership-type", code)
+            type_ids_by_code[code] = rec.id if rec else False
+
+        def _membership_type_commands(code):
+            tid = type_ids_by_code.get(code)
+            return [Command.link(tid)] if tid else []
 
         # Create head of household
         head_data = profile.get("head", {})
@@ -971,15 +1198,11 @@ class SPPMISDemoGenerator(models.TransientModel):
             head = self._create_individual_member(head_data, registration_date)
             if head:
                 members_created.append(head)
-                # Add as head member
-                head_membership_type = self.env["spp.vocabulary.code"].get_code(
-                    "urn:openspp:vocab:group-membership-type", "head"
-                )
                 self.env["spp.group.membership"].create(
                     {
                         "group": group.id,
                         "individual": head.id,
-                        "membership_type_ids": [Command.link(head_membership_type.id)] if head_membership_type else [],
+                        "membership_type_ids": _membership_type_commands("head"),
                     }
                 )
 
@@ -993,6 +1216,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                     {
                         "group": group.id,
                         "individual": spouse.id,
+                        "membership_type_ids": _membership_type_commands("spouse"),
                     }
                 )
 
@@ -1005,6 +1229,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                     {
                         "group": group.id,
                         "individual": adult.id,
+                        "membership_type_ids": _membership_type_commands("other"),
                     }
                 )
 
@@ -1017,6 +1242,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                     {
                         "group": group.id,
                         "individual": child.id,
+                        "membership_type_ids": _membership_type_commands("child"),
                     }
                 )
 
@@ -1417,16 +1643,16 @@ class SPPMISDemoGenerator(models.TransientModel):
                 if program_def.get("cycle_duration"):
                     self._configure_cycle_manager(program, program_def)
 
-                # Configure compliance manager if compliance CEL expression specified
+                # Configure compliance manager (CEL expression)
                 if program_def.get("compliance_cel_expression"):
                     self._configure_compliance_manager(program, program_def)
 
+                # Configure program-level constant overrides
+                if program_def.get("program_constants"):
+                    self._configure_program_constants(program, program_def)
+
             except Exception as e:
-                _logger.error(
-                    "Error creating program (program_id=%s): %s",
-                    program_def.get("id", "unknown"),
-                    e,
-                )
+                _logger.error("Error creating program (program_id=%s): %s", program_def.get("id", "unknown"), e)
 
         return created_programs
 
@@ -1450,10 +1676,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                         "amount_per_individual_in_group": 0,
                     }
                 )
-                _logger.info(
-                    "Configured in-kind entitlement for program (program_id=%s)",
-                    program.id,
-                )
+                _logger.info("Configured in-kind entitlement for program (program_id=%s)", program.id)
             else:
                 # For cash programs - configure CEL formula if available
                 amount = program_def.get("entitlement_amount", 100)
@@ -1495,18 +1718,10 @@ class SPPMISDemoGenerator(models.TransientModel):
                                 entitlement_formula,
                             )
 
-                _logger.info(
-                    "Configured cash entitlement $%.2f for program (program_id=%s)",
-                    amount,
-                    program.id,
-                )
+                _logger.info("Configured cash entitlement $%.2f for program (program_id=%s)", amount, program.id)
 
         except Exception as e:
-            _logger.warning(
-                "Could not configure entitlement manager for program (program_id=%s): %s",
-                program.id,
-                e,
-            )
+            _logger.warning("Could not configure entitlement manager for program (program_id=%s): %s", program.id, e)
 
     def _configure_cycle_manager(self, program, program_def):
         """Configure the cycle manager for a program."""
@@ -1519,8 +1734,51 @@ class SPPMISDemoGenerator(models.TransientModel):
                     }
                 )
         except Exception as e:
+            _logger.warning("Could not configure cycle manager for program (program_id=%s): %s", program.id, e)
+
+    def _configure_eligibility_manager(self, program, program_def):
+        """Configure the eligibility manager with CEL expression.
+
+        Sets the eligibility mode to 'cel' and configures the CEL expression
+        for dynamic eligibility evaluation.
+
+        Note: Eligibility uses get_managers() (plural) not get_manager(),
+        because the program model routes MANAGER_ELIGIBILITY through get_managers.
+        """
+        try:
+            cel_expression = program_def.get("cel_expression")
+            if not cel_expression:
+                return
+
+            # Access eligibility managers via the wrapper (same pattern as compliance)
+            for wrapper in program.eligibility_manager_ids:
+                concrete = wrapper.manager_ref_id
+                if not concrete:
+                    continue
+
+                if "cel_expression" not in concrete._fields:
+                    _logger.info(
+                        "CEL expression not supported on eligibility manager for program (program_id=%s)",
+                        program.id,
+                    )
+                    continue
+
+                concrete.write(
+                    {
+                        "eligibility_mode": "cel",
+                        "cel_expression": cel_expression,
+                    }
+                )
+                _logger.info(
+                    "Configured CEL eligibility for program (program_id=%s): %s",
+                    program.id,
+                    cel_expression,
+                )
+                break
+
+        except Exception as e:
             _logger.warning(
-                "Could not configure cycle manager for program (program_id=%s): %s",
+                "Could not configure eligibility manager for program (program_id=%s): %s",
                 program.id,
                 e,
             )
@@ -1528,39 +1786,28 @@ class SPPMISDemoGenerator(models.TransientModel):
     def _configure_compliance_manager(self, program, program_def):
         """Configure the compliance manager with a CEL expression.
 
-        Sets the compliance CEL expression for ongoing beneficiary verification.
+        The default compliance manager is already created by _ensure_program_managers().
+        This method sets the CEL expression on it.
         """
         try:
-            compliance_manager = program.get_manager(program.MANAGER_COMPLIANCE)
-            if not compliance_manager:
-                _logger.warning(
-                    "No compliance manager found for program (program_id=%s)",
-                    program.id,
-                )
-                return
-
             cel_expression = program_def.get("compliance_cel_expression")
             if not cel_expression:
                 return
 
-            if "compliance_cel_expression" not in compliance_manager._fields:
-                _logger.info(
-                    "Compliance CEL not available for program (program_id=%s)",
-                    program.id,
-                )
-                return
-
-            compliance_manager.write(
-                {
-                    "compliance_cel_mode": "cel",
-                    "compliance_cel_expression": cel_expression,
-                }
-            )
-            _logger.info(
-                "Configured compliance CEL for program (program_id=%s): %s",
-                program.id,
-                cel_expression,
-            )
+            for wrapper in program.compliance_manager_ids:
+                concrete = wrapper.manager_ref_id
+                if hasattr(concrete, "compliance_cel_expression"):
+                    concrete.write(
+                        {
+                            "compliance_cel_expression": cel_expression,
+                        }
+                    )
+                    _logger.info(
+                        "Configured compliance CEL for program (program_id=%s): %s",
+                        program.id,
+                        cel_expression,
+                    )
+                    break
 
         except Exception as e:
             _logger.warning(
@@ -1569,51 +1816,52 @@ class SPPMISDemoGenerator(models.TransientModel):
                 e,
             )
 
-    def _configure_eligibility_manager(self, program, program_def):
-        """Configure the eligibility manager with CEL expression.
+    def _configure_program_constants(self, program, program_def):
+        """Configure program-level constant overrides via CEL Program Parameters.
 
-        Sets the eligibility mode to 'cel' and configures the CEL expression
-        for dynamic eligibility evaluation.
+        Creates spp.cel.program.parameter records that override default variable
+        values for a specific program (e.g., income_threshold=2000 for Conditional
+        Child Grant instead of the global default 5000).
         """
-        try:
-            eligibility_manager = program.get_manager(program.MANAGER_ELIGIBILITY)
-            if not eligibility_manager:
+        constants = program_def.get("program_constants", {})
+        if not constants:
+            return
+
+        CelVariable = self.env["spp.cel.variable"]
+        ProgramParam = self.env["spp.cel.program.parameter"]
+
+        for var_name, value in constants.items():
+            variable = CelVariable.search([("name", "=", var_name)], limit=1)
+            if not variable:
                 _logger.warning(
-                    "No eligibility manager found for program (program_id=%s)",
+                    "CEL variable '%s' not found, skipping constant override for program (program_id=%s)",
+                    var_name,
                     program.id,
                 )
-                return
+                continue
 
-            cel_expression = program_def.get("cel_expression")
-            if not cel_expression:
-                return
+            existing = ProgramParam.search(
+                [
+                    ("program_id", "=", program.id),
+                    ("variable_id", "=", variable.id),
+                ],
+                limit=1,
+            )
+            if existing:
+                continue
 
-            # Check if the model supports CEL mode (spp_programs CEL features)
-            if "eligibility_mode" not in eligibility_manager._fields:
-                _logger.info(
-                    "CEL mode not available (spp_programs CEL not configured) for program (program_id=%s)",
-                    program.id,
-                )
-                return
-
-            # Configure CEL eligibility
-            eligibility_manager.write(
+            ProgramParam.create(
                 {
-                    "eligibility_mode": "cel",
-                    "cel_expression": cel_expression,
+                    "program_id": program.id,
+                    "variable_id": variable.id,
+                    "value": str(value),
                 }
             )
             _logger.info(
-                "Configured CEL eligibility for program (program_id=%s): %s",
+                "Set program constant %s=%s for program (program_id=%s)",
+                var_name,
+                value,
                 program.id,
-                cel_expression,
-            )
-
-        except Exception as e:
-            _logger.warning(
-                "Could not configure eligibility manager for program (program_id=%s): %s",
-                program.id,
-                e,
             )
 
     def _configure_logic_studio(self, program, program_def):
@@ -1683,18 +1931,25 @@ class SPPMISDemoGenerator(models.TransientModel):
                     cel_expression,
                 )
 
-            # Configure program to use Logic Studio
-            program.write(
-                {
-                    "use_logic_eligibility": True,
-                    "logic_mode": "select",
-                    "logic_id": logic.id,
-                }
-            )
-            _logger.info(
-                "Configured program (program_id=%s) to use Logic Studio eligibility",
-                program.id,
-            )
+            # Try to link Logic Studio to program (fields may not exist)
+            logic_fields = {"use_logic_eligibility", "logic_mode", "logic_id"}
+            if logic_fields.issubset(set(program._fields)):
+                program.write(
+                    {
+                        "use_logic_eligibility": True,
+                        "logic_mode": "select",
+                        "logic_id": logic.id,
+                    }
+                )
+                _logger.info(
+                    "Configured program (program_id=%s) to use Logic Studio eligibility",
+                    program.id,
+                )
+
+            # Always set CEL on the eligibility manager as well, so the
+            # eligibility criteria is visible and functional even if Logic
+            # Studio integration fields are not available on the program model.
+            self._configure_eligibility_manager(program, program_def)
 
         except Exception as e:
             _logger.warning(
@@ -1792,11 +2047,12 @@ class SPPMISDemoGenerator(models.TransientModel):
         # Track payments by cycle for batch creation
         payments_by_cycle = {}
 
-        # Get demo stories from spp_demo
+        # Get demo stories from spp_demo (locale-aware)
         try:
             from odoo.addons.spp_demo.models import demo_stories
 
-            stories = demo_stories.get_all_stories()
+            locale = self.env.context.get("demo_locale")
+            stories = demo_stories.get_localized_stories(locale)
         except ImportError:
             _logger.warning("Could not import demo_stories from spp_demo")
             return result
@@ -1812,10 +2068,7 @@ class SPPMISDemoGenerator(models.TransientModel):
             )
 
             if not registrant:
-                _logger.warning(
-                    "Registrant not found for story (story_id=%s), skipping enrollment...",
-                    story_id,
-                )
+                _logger.warning("Registrant not found for story (story_id=%s), skipping enrollment...", story_id)
                 stats["missing_registrants"].append(story_name)
                 continue
 
@@ -1834,10 +2087,40 @@ class SPPMISDemoGenerator(models.TransientModel):
                     )
                     continue
 
+                # Determine enrollee: group (default) or individual head member
+                enrollee = registrant
+                if enrollment_def.get("enroll_individual") and registrant.is_group:
+                    # Find the head member of this group (by membership type)
+                    head_type = self.env["spp.vocabulary.code"].get_code(
+                        "urn:openspp:vocab:group-membership-type", "head"
+                    )
+                    domain = [("group", "=", registrant.id)]
+                    if head_type:
+                        domain.append(("membership_type_ids", "in", [head_type.id]))
+                    head_membership = self.env["spp.group.membership"].search(
+                        domain,
+                        limit=1,
+                    )
+                    if not head_membership:
+                        # Fallback: first member if no head type found
+                        head_membership = self.env["spp.group.membership"].search(
+                            [("group", "=", registrant.id)],
+                            limit=1,
+                            order="id",
+                        )
+                    if head_membership:
+                        enrollee = head_membership.individual
+                        _logger.info(
+                            "Individual enrollment: using head member %s (id=%s) from group %s",
+                            enrollee.name,
+                            enrollee.id,
+                            registrant.name,
+                        )
+
                 # Check if already enrolled
                 existing_membership = self.env["spp.program.membership"].search(
                     [
-                        ("partner_id", "=", registrant.id),
+                        ("partner_id", "=", enrollee.id),
                         ("program_id", "=", program.id),
                     ],
                     limit=1,
@@ -1855,14 +2138,14 @@ class SPPMISDemoGenerator(models.TransientModel):
                     continue
 
                 # Create enrollment
-                enrollment = self._create_story_enrollment(registrant, program, enrollment_def)
+                enrollment = self._create_story_enrollment(enrollee, program, enrollment_def)
                 if enrollment:
                     result["enrollments"].append(enrollment)
                     stats["enrollments_created"] += 1
                     _logger.info(
                         "Enrolled (membership_id=%s, partner_id=%s, program_id=%s, story_id=%s)",
                         enrollment.id,
-                        registrant.id,
+                        enrollee.id,
                         program.id,
                         story_id,
                     )
@@ -1870,21 +2153,22 @@ class SPPMISDemoGenerator(models.TransientModel):
                     # Create payment history if enabled and defined (cash programs)
                     if self.create_story_payments and enrollment_def.get("payments"):
                         payments, cycle = self._create_story_payments(
-                            registrant, program, enrollment, enrollment_def, stats
+                            enrollee, program, enrollment, enrollment_def, stats
                         )
                         result["payments"].extend(payments)
                         # Track payments by cycle for batch creation
                         if cycle and payments:
                             if cycle.id not in payments_by_cycle:
-                                payments_by_cycle[cycle.id] = {
-                                    "cycle": cycle,
-                                    "payments": [],
-                                }
+                                payments_by_cycle[cycle.id] = {"cycle": cycle, "payments": []}
                             payments_by_cycle[cycle.id]["payments"].extend(payments)
 
                     # Create in-kind entitlements if defined
                     if self.create_story_payments and enrollment_def.get("entitlements"):
-                        self._create_story_inkind_entitlements(registrant, program, enrollment, enrollment_def, stats)
+                        self._create_story_inkind_entitlements(enrollee, program, enrollment, enrollment_def, stats)
+
+                    # Mark cycle membership as non_compliant (compliance failure)
+                    if self.create_story_payments and enrollment_def.get("non_compliant_cycle"):
+                        self._mark_cycle_membership_non_compliant(enrollee, program, enrollment_def, stats)
 
         # Create payment batches for each cycle
         if payments_by_cycle:
@@ -1941,6 +2225,73 @@ class SPPMISDemoGenerator(models.TransientModel):
             _logger.error("Error creating enrollment: %s", e)
             return None
 
+    def _mark_cycle_membership_non_compliant(self, registrant, program, enrollment_def, stats):
+        """Mark an existing cycle membership as non_compliant for compliance failure demo.
+
+        Used when a story requires showing that a beneficiary passed eligibility
+        but failed compliance in a cycle (e.g., Santos income improved above threshold).
+        Updates the existing cycle membership state from 'enrolled' to 'non_compliant'.
+        """
+        try:
+            nc_def = enrollment_def.get("non_compliant_cycle")
+            if not nc_def:
+                return
+
+            # Find the cycle for this program (same cycle used for payments)
+            cycle = self._get_or_create_demo_cycle(program)
+            if not cycle:
+                _logger.warning(
+                    "No cycle found for non_compliant marking (program_id=%s)",
+                    program.id,
+                )
+                return
+
+            # Find existing cycle membership
+            cycle_membership = self.env["spp.cycle.membership"].search(
+                [
+                    ("partner_id", "=", registrant.id),
+                    ("cycle_id", "=", cycle.id),
+                ],
+                limit=1,
+            )
+
+            if cycle_membership:
+                cycle_membership.write({"state": "non_compliant"})
+                _logger.info(
+                    "Marked cycle membership as non_compliant (partner_id=%s, cycle_id=%s, membership_id=%s)",
+                    registrant.id,
+                    cycle.id,
+                    cycle_membership.id,
+                )
+            else:
+                # Create new cycle membership with non_compliant state
+                days_back = nc_def.get("days_back", 30)
+                enrollment_date = fields.Date.today() - datetime.timedelta(days=days_back)
+                self.env["spp.cycle.membership"].create(
+                    {
+                        "partner_id": registrant.id,
+                        "cycle_id": cycle.id,
+                        "state": "non_compliant",
+                        "enrollment_date": enrollment_date,
+                    }
+                )
+                _logger.info(
+                    "Created non_compliant cycle membership (partner_id=%s, cycle_id=%s)",
+                    registrant.id,
+                    cycle.id,
+                )
+
+            stats.setdefault("non_compliant_memberships", 0)
+            stats["non_compliant_memberships"] += 1
+
+        except Exception as e:
+            _logger.warning(
+                "Could not mark cycle membership as non_compliant (partner_id=%s, program_id=%s): %s",
+                registrant.id,
+                program.id,
+                e,
+            )
+
     def _create_story_payments(self, registrant, program, membership, enrollment_def, stats):
         """Create payment history for a story enrollment.
 
@@ -1967,10 +2318,7 @@ class SPPMISDemoGenerator(models.TransientModel):
             # Get the journal for entitlements
             journal = program.journal_id
             if not journal:
-                _logger.warning(
-                    "No journal configured for program (program_id=%s), skipping payments",
-                    program.id,
-                )
+                _logger.warning("No journal configured for program (program_id=%s), skipping payments", program.id)
                 return created_payments, cycle
 
             # Create cycle membership for the registrant (required before entitlements)
@@ -2095,11 +2443,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 )
 
             except Exception as e:
-                _logger.warning(
-                    "Could not create payment batch for cycle (cycle_id=%s): %s",
-                    cycle_id,
-                    e,
-                )
+                _logger.warning("Could not create payment batch for cycle (cycle_id=%s): %s", cycle_id, e)
 
         return created_batches
 
@@ -2242,147 +2586,37 @@ class SPPMISDemoGenerator(models.TransientModel):
         if existing_cycle:
             return existing_cycle
 
-        # Create a new cycle
+        # Create a new cycle — use today as start_date to satisfy the
+        # _check_dates constraint, then backdate via SQL for realistic demo data.
         try:
             today = fields.Date.today()
             cycle_vals = {
                 "name": f"{program.name} - Demo Cycle 1",
                 "program_id": program.id,
-                "start_date": today - datetime.timedelta(days=180),
+                "start_date": today,
                 "end_date": today + datetime.timedelta(days=30),
                 "sequence": 1,
                 "state": "approved",
             }
             cycle = self.env["spp.cycle"].create(cycle_vals)
+            # Backdate start_date for realistic payment history
+            past_start = today - datetime.timedelta(days=180)
+            self.env.cr.execute(
+                "UPDATE spp_cycle SET start_date = %s WHERE id = %s",
+                (past_start, cycle.id),
+            )
             return cycle
         except Exception as e:
             _logger.error("Could not create demo cycle: %s", e)
             return None
 
-    def _generate_volume_enrollments(self, fake, stats):
-        """Generate random volume enrollments with tracking."""
-        enrollments = []
+    def _create_program_cycles(self, stats):
+        """Create cycles with beneficiaries and entitlements for all programs.
 
-        # Get available programs
-        programs = self.env["spp.program"].search([("state", "=", "active")])
-        if not programs:
-            _logger.warning("No active programs found for volume generation")
-            return enrollments
-
-        # Separate programs by target type
-        group_programs = programs.filtered(lambda p: p.target_type == "group")
-        individual_programs = programs.filtered(lambda p: p.target_type == "individual")
-
-        # Get available registrants (excluding demo story names)
-        try:
-            from odoo.addons.spp_demo.models import demo_stories
-
-            reserved_names = demo_stories.RESERVED_NAMES
-        except ImportError:
-            reserved_names = []
-
-        # Get groups and individuals separately
-        groups = self.env["res.partner"].search(
-            [
-                ("is_registrant", "=", True),
-                ("is_group", "=", True),
-                ("name", "not in", reserved_names),
-            ],
-            limit=300,
-        )
-
-        individuals = self.env["res.partner"].search(
-            [
-                ("is_registrant", "=", True),
-                ("is_group", "=", False),
-                ("name", "not in", reserved_names),
-            ],
-            limit=300,
-        )
-
-        if not groups and not individuals:
-            _logger.warning("No registrants found for volume generation")
-            return enrollments
-
-        attempts = 0
-        max_attempts = self.volume_enrollments * 3  # Allow retries
-
-        while len(enrollments) < self.volume_enrollments and attempts < max_attempts:
-            attempts += 1
-
-            # Match program type to registrant type
-            use_group = random.choice([True, False])
-
-            if use_group and group_programs and groups:
-                program = random.choice(group_programs)
-                registrant = random.choice(groups)
-            elif not use_group and individual_programs and individuals:
-                program = random.choice(individual_programs)
-                registrant = random.choice(individuals)
-            else:
-                # Fallback
-                if group_programs and groups:
-                    program = random.choice(group_programs)
-                    registrant = random.choice(groups)
-                elif individual_programs and individuals:
-                    program = random.choice(individual_programs)
-                    registrant = random.choice(individuals)
-                else:
-                    continue
-
-            # Check if already enrolled
-            existing = self.env["spp.program.membership"].search(
-                [
-                    ("partner_id", "=", registrant.id),
-                    ("program_id", "=", program.id),
-                ],
-                limit=1,
-            )
-
-            if existing:
-                stats["volume_skipped"] += 1
-                continue
-
-            # Create enrollment
-            try:
-                enrollment_date = fake.date_between(start_date="-180d", end_date="-10d")
-                state = random.choices(
-                    ["draft", "enrolled", "paused", "exited"],
-                    weights=[10, 60, 10, 20],
-                    k=1,
-                )[0]
-
-                membership = self.env["spp.program.membership"].create(
-                    {
-                        "partner_id": registrant.id,
-                        "program_id": program.id,
-                        "state": state,
-                    }
-                )
-
-                if state in ("enrolled", "exited"):
-                    self.env.cr.execute(
-                        "UPDATE spp_program_membership SET enrollment_date = %s WHERE id = %s",
-                        (enrollment_date, membership.id),
-                    )
-
-                enrollments.append(membership)
-                stats["enrollments_created"] += 1
-
-            except Exception as e:
-                _logger.warning("Could not create volume enrollment: %s", e)
-                stats["volume_skipped"] += 1
-
-        _logger.info(
-            "Volume generation: %d created, %d skipped",
-            len(enrollments),
-            stats["volume_skipped"],
-        )
-
-        return enrollments
-
-    def _create_program_cycles(self, fake, stats):
-        """Create cycles for programs with enrolled beneficiaries."""
+        Uses direct record creation (same pattern as _create_story_payments)
+        because the full ORM workflow requires approval definitions and fund
+        balances that are not set up in demo data.
+        """
         cycles = []
         programs = self.env["spp.program"].search(
             [
@@ -2391,46 +2625,151 @@ class SPPMISDemoGenerator(models.TransientModel):
             ]
         )
 
+        today = fields.Date.today()
+
         for program in programs:
-            # Check if program already has cycles
-            existing_cycles = self.env["spp.cycle"].search_count([("program_id", "=", program.id)])
-            cycles_to_create = max(0, self.cycles_per_program - existing_cycles)
-
-            if cycles_to_create == 0:
-                _logger.info(
-                    "Program (program_id=%s) already has %d cycles",
-                    program.id,
-                    existing_cycles,
+            try:
+                # Get or reuse existing cycle (created by story payments)
+                cycle = self.env["spp.cycle"].search(
+                    [("program_id", "=", program.id)],
+                    limit=1,
+                    order="sequence desc",
                 )
-                continue
 
-            for _i in range(cycles_to_create):
-                try:
-                    # For demo purposes, ensure a cycle exists even if managers are not configured
-                    cycle = self._get_or_create_demo_cycle(program)
+                if not cycle:
+                    # Create cycle with today as start_date (_check_dates requires >= today)
+                    cycle = self.env["spp.cycle"].create(
+                        {
+                            "name": f"{program.name} - Demo Cycle 1",
+                            "program_id": program.id,
+                            "start_date": today,
+                            "end_date": today + datetime.timedelta(days=30),
+                            "sequence": 1,
+                            "state": "draft",
+                        }
+                    )
+                    stats["cycles_created"] += 1
 
-                    if cycle:
-                        cycles.append(cycle)
-                        stats["cycles_created"] += 1
-                        _logger.info(
-                            "Created cycle (cycle_id=%s) for program (program_id=%s)",
-                            cycle.id,
-                            program.id,
-                        )
+                # Get all enrolled program members not already in cycle
+                enrolled_members = self.env["spp.program.membership"].search(
+                    [
+                        ("program_id", "=", program.id),
+                        ("state", "=", "enrolled"),
+                    ]
+                )
+                existing_cycle_partner_ids = set(cycle.cycle_membership_ids.mapped("partner_id.id"))
+                _existing = existing_cycle_partner_ids  # bind for lambda
+                new_members = enrolled_members.filtered(lambda m, ex=_existing: m.partner_id.id not in ex)
 
-                        # Prepare entitlements
-                        cycle_manager = program.get_manager(program.MANAGER_CYCLE)
-                        if cycle_manager:
-                            cycle_manager.prepare_entitlements(cycle)
+                if not new_members:
+                    _logger.info("Program ID=%s: all %d members already in cycle", program.id, len(enrolled_members))
+                    cycles.append(cycle)
+                    continue
 
-                except Exception as e:
-                    _logger.warning(
-                        "Could not create cycle for program (program_id=%s): %s",
-                        program.id,
-                        e,
+                # Batch-create cycle memberships (use partner's registration date)
+                cm_vals = [
+                    {
+                        "cycle_id": cycle.id,
+                        "partner_id": m.partner_id.id,
+                        "enrollment_date": m.partner_id.registration_date or today,
+                        "state": "enrolled",
+                    }
+                    for m in new_members
+                ]
+                for i in range(0, len(cm_vals), 200):
+                    self.env["spp.cycle.membership"].create(cm_vals[i : i + 200])
+                stats["cycle_members_created"] = stats.get("cycle_members_created", 0) + len(cm_vals)
+
+                # Determine entitlement amount from entitlement manager config
+                base_amount = self._get_entitlement_amount(program)
+
+                # Batch-create entitlements in approved state (bypasses approval workflow)
+                ent_vals = [
+                    {
+                        "cycle_id": cycle.id,
+                        "partner_id": m.partner_id.id,
+                        "initial_amount": base_amount,
+                        "state": "approved",
+                        "is_cash_entitlement": True,
+                        "valid_from": cycle.start_date,
+                        "valid_until": cycle.end_date,
+                    }
+                    for m in new_members
+                ]
+                for i in range(0, len(ent_vals), 200):
+                    self.env["spp.entitlement"].create(ent_vals[i : i + 200])
+                stats["entitlements_created"] = stats.get("entitlements_created", 0) + len(ent_vals)
+
+                # Ensure cycle is in approved state
+                if cycle.state == "draft":
+                    cycle.write(
+                        {
+                            "state": "approved",
+                            "approved_date": fields.Datetime.now(),
+                            "approved_by": self.env.user.id,
+                        }
                     )
 
+                # Backdate start_date via SQL (bypass _check_dates ORM constraint)
+                backdated_start = today - datetime.timedelta(days=180)
+                self.env.cr.execute(
+                    "UPDATE spp_cycle SET start_date = %s WHERE id = %s",
+                    (backdated_start, cycle.id),
+                )
+                cycle.invalidate_recordset(["start_date"])
+
+                # Create program fund to cover entitlements (with 20% buffer)
+                total_entitlement_amount = base_amount * len(new_members)
+                self._create_program_fund(program, total_entitlement_amount * 1.2)
+
+                cycles.append(cycle)
+                _logger.info(
+                    "Cycle '%s': %d beneficiaries, %d entitlements for program '%s'",
+                    cycle.name,
+                    len(cm_vals),
+                    len(ent_vals),
+                    program.name,
+                )
+
+            except Exception as e:
+                _logger.warning("Could not create cycle for program ID=%s: %s", program.id, e)
+
         return cycles
+
+    def _create_program_fund(self, program, amount):
+        """Create a posted program fund entry to cover entitlements."""
+        try:
+            fund = self.env["spp.program.fund"].create(
+                {
+                    "name": f"Initial Fund - {program.name}",
+                    "program_id": program.id,
+                    "amount": amount,
+                    "date_posted": fields.Date.today(),
+                    "state": "draft",
+                }
+            )
+            fund.post_fund()
+            _logger.info(
+                "Created program fund: %s = %.2f for '%s'",
+                fund.name,
+                amount,
+                program.name,
+            )
+        except Exception as e:
+            _logger.warning("Could not create fund for program ID=%s: %s", program.id, e)
+
+    def _get_entitlement_amount(self, program):
+        """Get the entitlement amount from program's entitlement manager config."""
+        try:
+            ent_manager = program.get_manager(program.MANAGER_ENTITLEMENT)
+            if ent_manager and hasattr(ent_manager, "manager_ref_id"):
+                mgr_ref = ent_manager.manager_ref_id
+                if hasattr(mgr_ref, "amount_per_cycle") and mgr_ref.amount_per_cycle:
+                    return mgr_ref.amount_per_cycle
+        except Exception:
+            pass
+        # Fallback: sensible demo default
+        return 150.0
 
     # ══════════════════════════════════════════════════════════════
     # EVENT DATA GENERATION
@@ -2443,9 +2782,9 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "event_type_code": "training",
                 "days_back": 145,
                 "data": {
-                    "topic": "Agricultural Best Practices",
+                    "topic": "Financial Literacy and Livelihood Skills",
                     "duration_hours": 4,
-                    "trainer": "Agricultural Extension Office",
+                    "trainer": "Social Welfare Office",
                     "location": "Community Center",
                     "outcome": "Completed successfully",
                 },
@@ -2457,8 +2796,8 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "days_back": 250,
                 "data": {
                     "visit_type": "Initial Assessment",
-                    "findings": "Large dairy farm with 15 cattle. Good infrastructure.",
-                    "recommendations": "Consider improved breed cattle for higher yield.",
+                    "findings": "Large household with multiple dependents. Good living conditions.",
+                    "recommendations": "Consider additional livelihood support programs.",
                     "officer": "Extension Officer Martinez",
                 },
             },
@@ -2467,8 +2806,8 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "days_back": 200,
                 "data": {
                     "visit_type": "Follow-up",
-                    "findings": "Farm improvements implemented. Cattle health good.",
-                    "recommendations": "Continue current practices. Eligible for livestock program.",
+                    "findings": "Household conditions improved. Dependents well cared for.",
+                    "recommendations": "Continue current practices. Monitor progress.",
                     "officer": "Extension Officer Martinez",
                 },
             },
@@ -2507,9 +2846,9 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "days_back": 75,
                 "data": {
                     "verification_type": "Eligibility Check",
-                    "verified_items": ["farm_ownership", "residence", "income_level"],
+                    "verified_items": ["identity", "residence", "income_level"],
                     "result": "Eligible",
-                    "notes": "Young farmer with modern farming practices. GPS coordinates verified.",
+                    "notes": "Young beneficiary with verified documentation. GPS coordinates verified.",
                     "verifier": "Field Officer Chen",
                 },
             },
@@ -2568,47 +2907,52 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         event = self.env["spp.event.data"].create(event_vals)
         stats["events_created"] += 1
-        _logger.info(
-            "Created %s event (event_id=%s, partner_id=%s)",
-            event_type_code,
-            event.id,
-            registrant.id,
-        )
+        _logger.info("Created %s event (event_id=%s, partner_id=%s)", event_type_code, event.id, registrant.id)
 
         return event
 
     def _get_story_name(self, story_id):
-        """Convert story ID to registrant name.
+        """Convert story ID to registrant name (locale-aware).
 
         Looks up the correct registrant name for a story ID by:
-        1. Checking the demo_stories module for the canonical story name
+        1. Checking the demo_stories module for the localized story name
         2. Falling back to a mapping for CR-specific IDs that reference stories
         3. Using title-case conversion only as a last resort
         """
+        locale = self.env.context.get("demo_locale")
+
         # First, try to get the name from demo_stories (canonical source)
         try:
             from odoo.addons.spp_demo.models import demo_stories
 
-            story = demo_stories.get_story_by_id(story_id)
-            if story:
-                return story["name"]
+            name = demo_stories.get_localized_name(story_id, locale)
+            if name:
+                return name
         except ImportError:
             pass
 
         # Mapping for CR-specific IDs that reference existing stories
         # These are not actual story IDs but CR scenario identifiers
-        cr_id_mapping = {
-            "amina_osman_draft": "Amina Osman",
-            "chen_large_family_split": "Chen Wei",
-            "luis_fernandez_merge": "Luis Fernandez",
-            "maria_santos_conflict_1": "Maria Santos",
-            "maria_santos_conflict_2": "Maria Santos",
-            "carlos_elena_morales_remove": "Carlos Morales",
-            "grace_okonkwo_create_group": "Grace Okonkwo",
+        # Resolve via the base story ID to get locale-aware names
+        cr_id_to_story = {
+            "amina_osman_draft": "amina_osman_household",
+            "chen_large_family_split": "chen_large_family",
+            "luis_fernandez_merge": "luis_fernandez",
+            "maria_santos_conflict_1": "maria_santos",
+            "maria_santos_conflict_2": "maria_santos",
+            "carlos_elena_morales_remove": "carlos_elena_morales",
+            "grace_okonkwo_create_group": "grace_okonkwo",
         }
 
-        if story_id in cr_id_mapping:
-            return cr_id_mapping[story_id]
+        if story_id in cr_id_to_story:
+            try:
+                from odoo.addons.spp_demo.models import demo_stories
+
+                name = demo_stories.get_localized_name(cr_id_to_story[story_id], locale)
+                if name:
+                    return name
+            except ImportError:
+                pass
 
         # Last resort: title-case the ID (for truly unknown IDs)
         # Log a warning since this may indicate a missing story definition
@@ -2647,19 +2991,10 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "spp_demo.demo_viewer",
                 [
                     ("spp_registry", "group_registry_viewer"),  # Registry access
-                    (
-                        "spp_service_points",
-                        "group_service_points_viewer",
-                    ),  # Registrant form reads service points
-                    (
-                        "spp_vocabulary",
-                        "group_vocabulary_viewer",
-                    ),  # Vocabulary read access for forms
+                    ("spp_service_points", "group_service_points_viewer"),  # Registrant form reads service points
+                    ("spp_vocabulary", "group_vocabulary_viewer"),  # Vocabulary read access for forms
                     ("spp_programs", "group_programs_viewer"),
-                    (
-                        "spp_change_request_v2",
-                        "group_cr_user",
-                    ),  # Needs user to see menu
+                    ("spp_change_request_v2", "group_cr_user"),  # Needs user to see menu
                     ("spp_grm", "group_grm_viewer"),
                     ("spp_case_base", "group_case_viewer"),
                 ],
@@ -2670,10 +3005,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 [
                     ("spp_registry", "group_registry_officer"),  # Registry access
                     ("spp_service_points", "group_service_points_officer"),
-                    (
-                        "spp_vocabulary",
-                        "group_vocabulary_officer",
-                    ),  # Vocabulary for editing/creating
+                    ("spp_vocabulary", "group_vocabulary_officer"),  # Vocabulary for editing/creating
                     ("spp_programs", "group_programs_officer"),
                     ("spp_change_request_v2", "group_cr_user"),
                     ("spp_grm", "group_grm_officer"),
@@ -2684,10 +3016,7 @@ class SPPMISDemoGenerator(models.TransientModel):
             (
                 "spp_demo.demo_supervisor",
                 [
-                    (
-                        "spp_registry",
-                        "group_registry_officer",
-                    ),  # Registry access (officer level)
+                    ("spp_registry", "group_registry_officer"),  # Registry access (officer level)
                     ("spp_service_points", "group_service_points_officer"),
                     ("spp_vocabulary", "group_vocabulary_officer"),
                     ("spp_programs", "group_programs_officer"),
@@ -2701,23 +3030,14 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "spp_demo.demo_manager",
                 [
                     ("spp_registry", "group_registry_manager"),  # Registry access
-                    (
-                        "spp_registry_search",
-                        "group_registry_auditor",
-                    ),  # Browse-all audit access
+                    ("spp_registry_search", "group_registry_auditor"),  # Browse-all audit access
                     ("spp_service_points", "group_service_points_manager"),
-                    (
-                        "spp_vocabulary",
-                        "group_vocabulary_manager",
-                    ),  # Full vocabulary access
+                    ("spp_vocabulary", "group_vocabulary_manager"),  # Full vocabulary access
                     ("spp_programs", "group_programs_manager"),
                     ("spp_change_request_v2", "group_cr_manager"),
                     ("spp_grm", "group_grm_manager"),
                     ("spp_case_base", "group_case_manager"),
-                    (
-                        "spp_cel_domain",
-                        "group_cel_domain_manager",
-                    ),  # CEL Domain Manager access
+                    ("spp_cel_domain", "group_cel_domain_manager"),  # CEL Domain Manager access
                     ("spp_studio", "group_studio_manager"),  # Studio Manager access
                 ],
             ),
@@ -2829,6 +3149,8 @@ class SPPMISDemoGenerator(models.TransientModel):
             "supervisor": "spp_demo.demo_supervisor",
             "manager": "spp_demo.demo_manager",
             "admin": "spp_demo.demo_admin",
+            "cr_validator": "spp_mis_demo_v2.demo_user_cr_local_validator",
+            "cr_validator_hq": "spp_mis_demo_v2.demo_user_cr_hq_validator",
         }
         xmlid = user_map.get(role)
         if not xmlid:
@@ -2884,7 +3206,7 @@ class SPPMISDemoGenerator(models.TransientModel):
             "days_back": 5,
             "state": "draft",
             "description": "Keep one draft change request for UI workflow demo",
-            "registrant_name": "Amina Osman",
+            "registrant_name": "Aquino",
             "is_group": True,
             "proposed_changes": {
                 "address_line1": "123 Demo Street",
@@ -2903,8 +3225,8 @@ class SPPMISDemoGenerator(models.TransientModel):
         "rosa_garcia": {
             "type_code": "exit_registrant",
             "days_back": 7,
-            "state": "applied",
-            "description": "Graduated from assistance program (3-tier approval)",
+            "state": "pending",
+            "description": "Graduated from assistance program (pending approval)",
             "proposed_changes": {
                 "exit_reason": "other",
                 "remarks": "Graduated; no longer receiving benefits",
@@ -2921,7 +3243,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "given_name": "Baby Morales",
                 "family_name": "Morales",
                 "birthdate": fields.Date.today(),
-                "relationship_xmlid": "spp_registry.group_membership_kind_child",
+                "relationship_xmlid": "spp_mis_demo_v2.code_membership_type_child",
             },
         },
         # Phase 5.1: Add remove_member CR
@@ -2930,7 +3252,7 @@ class SPPMISDemoGenerator(models.TransientModel):
             "days_back": 8,
             "state": "pending",
             "description": "Adult child (16) moving out for university studies",
-            "registrant_name": "Carlos Morales",
+            "registrant_name": "Morales",
             "is_group": True,
             "proposed_changes": {
                 "member_name": "Teen Morales",
@@ -2942,10 +3264,10 @@ class SPPMISDemoGenerator(models.TransientModel):
             "type_code": "transfer_member",
             "days_back": 8,
             "state": "pending",
-            "description": "Transfer Chen Ling to elderly relatives for school",
+            "description": "Transfer Patricia Bautista to elderly relatives for school",
             "is_group": True,
             "proposed_changes": {
-                "member_name": "Chen Ling",
+                "member_name": "Patricia Bautista",
                 "target_group_story": "manuel_gloria_elderly",
                 "transfer_reason": "relocation",
             },
@@ -2955,10 +3277,10 @@ class SPPMISDemoGenerator(models.TransientModel):
             "days_back": 6,
             # Keep approved to match unit test expectations
             "state": "approved",
-            "description": "Set Linda Nguyen as new head of household (approved)",
+            "description": "Set Lourdes Navarro as new head of household (approved)",
             "is_group": True,
             "proposed_changes": {
-                "new_head_name": "Linda Nguyen",
+                "new_head_name": "Lourdes Navarro",
             },
         },
         # Phase 5.1: Add create_group CR
@@ -2967,11 +3289,11 @@ class SPPMISDemoGenerator(models.TransientModel):
             "days_back": 4,
             "state": "draft",
             "description": "Register new household after marriage",
-            "registrant_name": "Grace Okonkwo",
+            "registrant_name": "Maricel Ramos",
             "is_group": False,  # Creating from individual
             "proposed_changes": {
-                "group_name": "Okonkwo Household",
-                "head_name": "Grace Okonkwo",
+                "group_name": "Ramos",
+                "head_name": "Maricel Ramos",
                 "address_line1": "123 Marriage Lane",
                 "city": "New Family City",
             },
@@ -2983,17 +3305,17 @@ class SPPMISDemoGenerator(models.TransientModel):
             "days_back": 12,
             "state": "rejected",
             "description": "Split Chen household due to family separation",
-            "registrant_name": "Chen Wei",
+            "registrant_name": "Bautista",
             "is_group": True,
             "rejection_reason": "Incomplete documentation for property division",
             "proposed_changes": {
                 "split_reason": "separation",
-                "new_group_name": "Chen Family - Unit B",
-                "members_to_transfer": ["Chen Ling", "Chen Jun"],
+                "new_group_name": "Bautista B",
+                "members_to_transfer": ["Patricia Bautista", "Fernando Bautista"],
             },
         },
         # Phase 5.1 & 5.2: Add merge_registrants CR (REVISION)
-        # Uses luis_fernandez (pending farmer) for realistic duplicate detection demo
+        # Uses luis_fernandez for realistic duplicate detection demo
         "luis_fernandez_merge": {
             "type_code": "merge_registrants",
             "days_back": 9,
@@ -3033,33 +3355,135 @@ class SPPMISDemoGenerator(models.TransientModel):
             _logger.info("Creating CRs as demo_officer (user_id=%s)", demo_officer.id)
 
         for story_id, cr_def in self.STORY_CHANGE_REQUESTS.items():
-            registrant = self._ensure_story_registrant(story_id, cr_def)
+            # Localize CR definition for current locale
+            localized_def = self._localize_cr_def(story_id, cr_def)
+            registrant = self._ensure_story_registrant(story_id, localized_def)
 
             if not registrant:
                 _logger.warning("Registrant not found for change request (story_id=%s)", story_id)
                 continue
 
             try:
-                cr = self._create_single_change_request(registrant, cr_def, stats, demo_user=demo_officer)
+                cr = self._create_single_change_request(registrant, localized_def, stats, demo_user=demo_officer)
                 if cr:
                     created_crs.append(cr)
             except Exception as e:
-                _logger.error(
-                    "Error creating change request for story (story_id=%s): %s",
-                    story_id,
-                    e,
-                )
+                _logger.error("Error creating change request for story (story_id=%s): %s", story_id, e)
 
         return created_crs
+
+    def _localize_cr_def(self, story_id, cr_def):
+        """Localize CR definition names for the current locale.
+
+        Replaces hardcoded member names in proposed_changes with locale-aware
+        versions by looking up member names from the localized story profiles.
+        """
+        locale = self.env.context.get("demo_locale")
+        if not locale or locale == "fil_PH":
+            return cr_def
+
+        try:
+            from odoo.addons.spp_demo.models import demo_stories
+        except ImportError:
+            return cr_def
+
+        locale_map = demo_stories.LOCALE_NAMES.get(locale, {})
+        if not locale_map:
+            return cr_def
+
+        import copy as _copy
+
+        localized = _copy.deepcopy(cr_def)
+        changes = localized.get("proposed_changes", {})
+
+        # Map CR story_id to base story_id for profile lookups
+        cr_to_base = {
+            "amina_osman_draft": "amina_osman_household",
+            "chen_large_family_split": "chen_large_family",
+            "luis_fernandez_merge": "luis_fernandez",
+            "maria_santos_conflict_1": "maria_santos",
+            "maria_santos_conflict_2": "maria_santos",
+            "carlos_elena_morales_remove": "carlos_elena_morales",
+            "grace_okonkwo_create_group": "grace_okonkwo",
+        }
+        base_id = cr_to_base.get(story_id, story_id)
+        entry = locale_map.get(base_id, {})
+        pnames = entry.get("profile_names", {})
+        localized_name = entry.get("name", "")
+
+        # Localize member_name (transfer/remove member — matches child or adult)
+        if "member_name" in changes and pnames.get("children"):
+            # Find which child index matches the original name
+            orig_story = demo_stories.get_story_by_id(base_id)
+            if orig_story:
+                orig_children = orig_story.get("profile", {}).get("children", [])
+                for idx, child in enumerate(orig_children):
+                    if child["name"] == changes["member_name"] and idx < len(pnames["children"]):
+                        changes["member_name"] = pnames["children"][idx]
+                        break
+
+        # Localize new_head_name (change_hoh — matches adult)
+        if "new_head_name" in changes and pnames.get("adults"):
+            orig_story = demo_stories.get_story_by_id(base_id)
+            if orig_story:
+                orig_adults = orig_story.get("profile", {}).get("adults", [])
+                for idx, adult in enumerate(orig_adults):
+                    if adult["name"] == changes["new_head_name"] and idx < len(pnames["adults"]):
+                        changes["new_head_name"] = pnames["adults"][idx]
+                        break
+
+        # Localize head_name and group_name (create_group)
+        if "head_name" in changes and localized_name:
+            changes["head_name"] = localized_name
+        if "group_name" in changes and localized_name:
+            # Derive group name from localized surname
+            surname = localized_name.split()[-1] if localized_name else ""
+            changes["group_name"] = f"{surname} Household"
+
+        # Localize new_group_name (split_household)
+        if "new_group_name" in changes and localized_name:
+            surname = localized_name.split()[-1] if localized_name else ""
+            changes["new_group_name"] = f"{surname} Family - Unit B"
+
+        # Localize given_name / family_name (add_member — new baby)
+        if "family_name" in changes and localized_name:
+            surname = localized_name.split()[-1] if localized_name else ""
+            changes["family_name"] = surname
+            if "given_name" in changes:
+                changes["given_name"] = f"Baby {surname}"
+
+        # Localize primary_registrant / duplicate_registrant (merge)
+        if "primary_registrant" in changes and localized_name:
+            changes["primary_registrant"] = localized_name
+        if "duplicate_registrant" in changes and localized_name:
+            changes["duplicate_registrant"] = f"{localized_name} (Mobile)"
+
+        # Localize members_to_transfer list
+        if "members_to_transfer" in changes and pnames.get("children"):
+            orig_story = demo_stories.get_story_by_id(base_id)
+            if orig_story:
+                orig_children = orig_story.get("profile", {}).get("children", [])
+                localized_list = []
+                for orig_name in changes["members_to_transfer"]:
+                    found = False
+                    for idx, child in enumerate(orig_children):
+                        if child["name"] == orig_name and idx < len(pnames["children"]):
+                            localized_list.append(pnames["children"][idx])
+                            found = True
+                            break
+                    if not found:
+                        localized_list.append(orig_name)
+                changes["members_to_transfer"] = localized_list
+
+        return localized
 
     def _ensure_story_registrant(self, story_id, cr_def):
         """Ensure registrant exists for a story; create minimal if missing.
 
-        If cr_def contains 'registrant_name', use that instead of deriving from story_id.
-        This allows multiple CRs to target the same registrant (e.g., conflict detection).
+        Uses _get_story_name() for locale-aware name resolution.
         """
-        # Use explicit registrant_name if provided, otherwise derive from story_id
-        story_name = cr_def.get("registrant_name") or self._get_story_name(story_id)
+        # Always use locale-aware name resolution (handles CR-specific IDs too)
+        story_name = self._get_story_name(story_id)
 
         registrant = self.env["res.partner"].search(
             [("name", "=", story_name), ("is_registrant", "=", True)],
@@ -3118,10 +3542,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 # Use with_user() only for demo data generation to simulate
                 # different request owners; demo_user is a controlled user
                 # provided by the test/demo setup.
-                cr_model = cr_model.with_user(  # nosemgrep: odoo-with-user-unvalidated
-                    # Demo-only generator, demo_user is not user input.
-                    demo_user
-                )
+                cr_model = cr_model.with_user(demo_user)  # nosemgrep: odoo-with-user-unvalidated
             cr = cr_model.create(cr_vals)
 
             # Backdate the creation
@@ -3135,7 +3556,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 detail.write(detail_vals)
                 # Backdate detail creation for timeline consistency
                 self.env.cr.execute(
-                    f"UPDATE {detail._table} SET create_date = %s WHERE id = %s",  # nosec B608 — _table from Odoo model, not user input
+                    f"UPDATE {detail._table} SET create_date = %s WHERE id = %s",  # nosec B608
                     (request_date, detail.id),
                 )
 
@@ -3154,12 +3575,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 self._set_cr_state(cr, "revision", revision_notes=revision_notes)
 
             stats["change_requests_created"] += 1
-            _logger.info(
-                "Created %s change request (cr_id=%s, partner_id=%s)",
-                target_state,
-                cr.id,
-                registrant.id,
-            )
+            _logger.info("Created %s change request (cr_id=%s, partner_id=%s)", target_state, cr.id, registrant.id)
 
             return cr
 
@@ -3168,12 +3584,14 @@ class SPPMISDemoGenerator(models.TransientModel):
             return None
 
     def _set_cr_state(self, cr, target_state, apply=False, rejection_reason=None, revision_notes=None):
-        """Transition CR to target state using sudo for approval workflow access.
+        """Transition CR to target state using the proper approval workflow.
 
-        Uses sudo() because demo users don't have ACL access to spp.approval.definition.
-        The audit trail (create_uid, write_uid) still reflects who made the changes.
+        The approval system checks actual user group membership (not just ACL),
+        so we must use with_user() to switch to a user with the right role:
+        - Submit: demo_officer (requestor)
+        - Approve/Reject/Revision: demo_cr_validator (has CR validator group)
 
-        Falls back to direct write if approval workflow not configured.
+        Falls back to admin if demo validator user is not available.
 
         Args:
             cr: Change request record
@@ -3182,28 +3600,35 @@ class SPPMISDemoGenerator(models.TransientModel):
             rejection_reason: Reason for rejection (for rejected state)
             revision_notes: Notes for revision request (for revision state)
         """
+        # Get validator users for approval actions (approve, reject, revision)
+        # Multi-tier approvals need both local and HQ validators
+        local_validator = self._get_demo_user("cr_validator")
+        hq_validator = self._get_demo_user("cr_validator_hq")
+        # Fall back to admin if no validator users
+        fallback = self.env.ref("base.user_admin", raise_if_not_found=False)
+        local_validator = local_validator or fallback
+        hq_validator = hq_validator or fallback
+
         try:
             if target_state == "pending":
-                cr.sudo().action_submit_for_approval()  # nosemgrep: odoo-sudo-without-context
+                cr.sudo().action_submit_for_approval()
             elif target_state == "approved":
-                cr.sudo().action_submit_for_approval()  # nosemgrep: odoo-sudo-without-context
-                cr.sudo().action_approve()  # nosemgrep: odoo-sudo-without-context
+                cr.sudo().action_submit_for_approval()
+                # Approve all tiers — multi-tier requires each tier's validator
+                cr.with_user(local_validator).sudo().action_approve()
+                if cr.approval_state == "pending":
+                    # Still pending = more tiers, approve with HQ validator
+                    cr.with_user(hq_validator).sudo().action_approve()
             elif target_state == "rejected":
-                # Submit first, then reject
-                cr.sudo().action_submit_for_approval()  # nosemgrep: odoo-sudo-without-context
-                if hasattr(cr, "action_reject"):
-                    cr.sudo().action_reject()  # nosemgrep: odoo-sudo-without-context
-                # Set rejection reason if field exists
-                if rejection_reason and "rejection_reason" in cr._fields:
-                    cr.sudo().write({"rejection_reason": rejection_reason})  # nosemgrep: odoo-sudo-without-context
+                cr.sudo().action_submit_for_approval()
+                # Use _do_reject directly to bypass the wizard
+                cr.with_user(local_validator).sudo()._do_reject(rejection_reason or "Request rejected")
             elif target_state == "revision":
-                # Submit first, then request revision
-                cr.sudo().action_submit_for_approval()  # nosemgrep: odoo-sudo-without-context
-                if hasattr(cr, "action_request_revision"):
-                    cr.sudo().action_request_revision()  # nosemgrep: odoo-sudo-without-context
-                # Set revision notes if field exists
-                if revision_notes and "revision_notes" in cr._fields:
-                    cr.sudo().write({"revision_notes": revision_notes})  # nosemgrep: odoo-sudo-without-context
+                cr.sudo().action_submit_for_approval()
+                # Use _do_request_revision directly to bypass the wizard
+                cr.with_user(local_validator).sudo()._do_request_revision(
+                    revision_notes or "Please revise and resubmit"
+                )
         except Exception as e:
             # Don't fall back to direct state write for states that require approval reviews.
             # This would create an inconsistent state (approval_state=pending but no pending reviews).
@@ -3218,10 +3643,10 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         if apply:
             try:
-                cr.sudo().action_apply()  # nosemgrep: odoo-sudo-without-context
+                cr.with_user(hq_validator).sudo().action_apply()
             except Exception as e:
                 _logger.warning("Apply step failed, setting applied flags directly: %s", e)
-                cr.sudo().write(  # nosemgrep: odoo-sudo-without-context
+                cr.sudo().write(
                     {
                         "approval_state": "approved",
                         "is_applied": True,
@@ -3273,13 +3698,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                         "given_name": proposed_changes.get("given_name"),
                         "family_name": proposed_changes.get("family_name"),
                         "member_name": " ".join(
-                            filter(
-                                None,
-                                [
-                                    proposed_changes.get("given_name"),
-                                    proposed_changes.get("family_name"),
-                                ],
-                            )
+                            filter(None, [proposed_changes.get("given_name"), proposed_changes.get("family_name")])
                         ),
                         "birthdate": proposed_changes.get("birthdate"),
                         "relationship_id": relationship_id,
@@ -3307,11 +3726,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                     target_name = self._get_story_name(target_story)
                     # Search with ilike for case-insensitive match
                     target_group = self.env["res.partner"].search(
-                        [
-                            ("name", "ilike", target_name),
-                            ("is_group", "=", True),
-                            ("is_registrant", "=", True),
-                        ],
+                        [("name", "ilike", target_name), ("is_group", "=", True), ("is_registrant", "=", True)],
                         limit=1,
                     )
                 vals.update(
@@ -3395,18 +3810,13 @@ class SPPMISDemoGenerator(models.TransientModel):
 
                 if primary_name:
                     primary = self.env["res.partner"].search(
-                        [("name", "ilike", primary_name), ("is_registrant", "=", True)],
-                        limit=1,
+                        [("name", "ilike", primary_name), ("is_registrant", "=", True)], limit=1
                     )
                     primary_id = primary.id if primary else False
 
                 if duplicate_name:
                     duplicate = self.env["res.partner"].search(
-                        [
-                            ("name", "ilike", duplicate_name),
-                            ("is_registrant", "=", True),
-                        ],
-                        limit=1,
+                        [("name", "ilike", duplicate_name), ("is_registrant", "=", True)], limit=1
                     )
                     duplicate_id = duplicate.id if duplicate else False
 
@@ -3535,11 +3945,7 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         stats["fairness_analysis_created"] = created_count
         stats["fairness_snapshots_created"] = snapshot_count
-        _logger.info(
-            "Created %d fairness analysis records and %d snapshots",
-            created_count,
-            snapshot_count,
-        )
+        _logger.info("Created %d fairness analysis records and %d snapshots", created_count, snapshot_count)
 
     def _get_fairness_demo_data(self):
         """Get demo data structure for fairness analysis."""
@@ -3682,7 +4088,7 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         try:
             # Step 1: Ensure default key provider exists
-            ProviderRegistry = self.env["spp.key.provider.registry"].sudo()  # nosemgrep: odoo-sudo-without-context
+            ProviderRegistry = self.env["spp.key.provider.registry"].sudo()
             default_provider = ProviderRegistry.search([("is_default", "=", True)], limit=1)
             if not default_provider:
                 default_provider = ProviderRegistry.create(
@@ -3695,7 +4101,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 _logger.info("[spp.mis.demo] Created default key provider")
 
             # Step 2: Create Ed25519 signing key (if not exists)
-            AsymmetricKey = self.env["spp.asymmetric.key"].sudo()  # nosemgrep: odoo-sudo-without-context
+            AsymmetricKey = self.env["spp.asymmetric.key"].sudo()
             signing_key = AsymmetricKey.search(
                 [("name", "=", "Demo Claim 169 Signing Key")],
                 limit=1,
@@ -3715,7 +4121,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 _logger.info("[spp.mis.demo] Using existing signing key: %s", signing_key.kid)
 
             # Step 3: Create issuer configuration (if not exists)
-            IssuerConfig = self.env["spp.claim169.issuer.config"].sudo()  # nosemgrep: odoo-sudo-without-context
+            IssuerConfig = self.env["spp.claim169.issuer.config"].sudo()
             issuer = IssuerConfig.search(
                 [("name", "=", "Demo National ID")],
                 limit=1,
@@ -3731,9 +4137,9 @@ class SPPMISDemoGenerator(models.TransientModel):
                     }
                 )
                 result["issuer_created"] = True
-                _logger.info("[spp.mis.demo] Created issuer config ID %s", issuer.id)
+                _logger.info("[spp.mis.demo] Created issuer config ID=%s", issuer.id)
             else:
-                _logger.info("[spp.mis.demo] Using existing issuer config ID %s", issuer.id)
+                _logger.info("[spp.mis.demo] Using existing issuer config ID=%s", issuer.id)
 
             # Step 4: Generate credentials for demo story personas
             if self.generate_credentials_for_stories:
@@ -3763,7 +4169,8 @@ class SPPMISDemoGenerator(models.TransientModel):
         try:
             from odoo.addons.spp_demo.models import demo_stories
 
-            stories = demo_stories.get_all_stories()
+            locale = self.env.context.get("demo_locale")
+            stories = demo_stories.get_localized_stories(locale)
             story_names = [s["name"] for s in stories]
 
             # Find story partners
@@ -3778,7 +4185,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 _logger.warning("[spp.mis.demo] No demo story partners found for credentials")
                 return 0
 
-            Credential = self.env["spp.claim169.credential"].sudo()  # nosemgrep: odoo-sudo-without-context
+            Credential = self.env["spp.claim169.credential"].sudo()
             credentials_created = 0
 
             for partner in partners:
@@ -3792,7 +4199,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 )
                 if existing:
                     _logger.debug(
-                        "[spp.mis.demo] Credential already exists for %s",
+                        "[spp.mis.demo] Credential already exists for partner ID=%s",
                         partner.id,
                     )
                     continue
@@ -3815,9 +4222,9 @@ class SPPMISDemoGenerator(models.TransientModel):
                 credential.generate_credential()
                 credentials_created += 1
                 _logger.debug(
-                    "[spp.mis.demo] Generated credential for %s: %s",
+                    "[spp.mis.demo] Generated credential for partner ID=%s: %s",
                     partner.id,
-                    credential.id,
+                    credential.name,
                 )
 
             _logger.info(
@@ -3836,18 +4243,13 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         # Stories (auto-generated)
         if stats.get("stories_created", 0) > 0:
-            message_parts.append(
-                _(
-                    "Stories: %(count)s registrants auto-created",
-                    count=stats["stories_created"],
-                )
-            )
+            message_parts.append(_("Stories: %(count)s registrants auto-created", count=stats["stories_created"]))
 
-        # Random groups (auto-generated)
+        # Blueprint households (deterministic volume)
         if stats.get("random_groups_created", 0) > 0:
             message_parts.append(
                 _(
-                    "Random Groups: %(groups)s groups, %(individuals)s members created",
+                    "Blueprint Households: %(groups)s households, %(individuals)s members created",
                     groups=stats["random_groups_created"],
                     individuals=stats["random_individuals_created"],
                 )
@@ -3869,7 +4271,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 _(
                     "Enrollments: %(created)s created, %(skipped)s skipped",
                     created=stats["enrollments_created"],
-                    skipped=stats["enrollments_skipped"] + stats["volume_skipped"],
+                    skipped=stats["enrollments_skipped"],
                 )
             )
 
@@ -3883,7 +4285,14 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         # Cycles
         if self.create_cycles:
-            message_parts.append(_("Cycles: %(count)s created", count=stats["cycles_created"]))
+            cycle_msg = _("Cycles: %(count)s created", count=stats["cycles_created"])
+            if stats.get("cycle_members_created"):
+                cycle_msg += _(
+                    " (%(members)s beneficiaries, %(ents)s entitlements)",
+                    members=stats["cycle_members_created"],
+                    ents=stats.get("entitlements_created", 0),
+                )
+            message_parts.append(cycle_msg)
 
         # Events
         if self.create_event_data and stats["events_created"] > 0:
@@ -3891,20 +4300,12 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         # Change Requests
         if self.create_change_requests and stats["change_requests_created"] > 0:
-            message_parts.append(
-                _(
-                    "Change Requests: %(count)s created",
-                    count=stats["change_requests_created"],
-                )
-            )
+            message_parts.append(_("Change Requests: %(count)s created", count=stats["change_requests_created"]))
 
         # Fairness Analysis
         if self.create_fairness_analysis and stats.get("fairness_analysis_created", 0) > 0:
             message_parts.append(
-                _(
-                    "Fairness Analysis: %(count)s records created",
-                    count=stats["fairness_analysis_created"],
-                )
+                _("Fairness Analysis: %(count)s records created", count=stats["fairness_analysis_created"])
             )
 
         # GRM Tickets
@@ -3919,10 +4320,7 @@ class SPPMISDemoGenerator(models.TransientModel):
         if self.generate_claim169_demo:
             if stats.get("claim169_skipped"):
                 message_parts.append(
-                    _(
-                        "QR Credentials: skipped (%(reason)s)",
-                        reason=stats.get("claim169_skip_reason", "unknown"),
-                    )
+                    _("QR Credentials: skipped (%(reason)s)", reason=stats.get("claim169_skip_reason", "unknown"))
                 )
             else:
                 claim169_parts = []
@@ -3931,12 +4329,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 if stats.get("claim169_issuer_created"):
                     claim169_parts.append(_("issuer config"))
                 if stats.get("claim169_credentials_created", 0) > 0:
-                    claim169_parts.append(
-                        _(
-                            "%(count)s credentials",
-                            count=stats["claim169_credentials_created"],
-                        )
-                    )
+                    claim169_parts.append(_("%(count)s credentials", count=stats["claim169_credentials_created"]))
                 if claim169_parts:
                     message_parts.append(_("QR Credentials: %s created") % ", ".join(claim169_parts))
 
@@ -3947,10 +4340,7 @@ class SPPMISDemoGenerator(models.TransientModel):
         if stats["missing_registrants"]:
             message_parts.append("")
             message_parts.append(
-                _(
-                    "Warning: Missing registrants: %(names)s",
-                    names=", ".join(stats["missing_registrants"]),
-                )
+                _("Warning: Missing registrants: %(names)s", names=", ".join(stats["missing_registrants"]))
             )
             message_parts.append(_("Run 'Generate Stories' in spp_demo first."))
 
@@ -3966,7 +4356,7 @@ class SPPMISDemoGenerator(models.TransientModel):
         # Redirect to Programs list after loading demo data
         action = self.env.ref("spp_programs.action_program_list", raise_if_not_found=False)
         if action:
-            result = action.sudo().read()[0]  # nosemgrep: odoo-sudo-without-context
+            result = action.sudo().read()[0]
             result["target"] = "main"
             return result
 
@@ -4066,9 +4456,7 @@ class SPPMISDemoGenerator(models.TransientModel):
         # Copy population from weights CSV into spp_area.population
         if weights_by_area_id:
             pop_updates = [
-                (pop, area_id)
-                for area_id, pop in weights_by_area_id.items()
-                if area_id in municipalities._ids
+                (pop, area_id) for area_id, pop in weights_by_area_id.items() if area_id in municipalities._ids
             ]
             if pop_updates:
                 self.env.cr.executemany(
@@ -4113,13 +4501,91 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         self.env.invalidate_all()
 
+    # Locale-aware area assignments for story registrants.
+    # Each story gets a specific area per country for consistent demo scenarios.
+    # Keys: story_id -> {locale: area_xmlid}
+    STORY_AREA_MAP = {
+        "juan_dela_cruz": {
+            "fil_PH": "spp_demo.area_phl_calamba",
+            "fr_TG": "spp_demo.area_tgo_lome_tokoin",
+            "si_LK": "spp_demo.area_lka_moratuwa",
+        },
+        "maria_santos": {
+            "fil_PH": "spp_demo.area_phl_santa_rosa",
+            "fr_TG": "spp_demo.area_tgo_aflao",
+            "si_LK": "spp_demo.area_lka_kolonnawa",
+        },
+        "jose_reyes_multigenerational": {
+            "fil_PH": "spp_demo.area_phl_san_pablo",
+            "fr_TG": "spp_demo.area_tgo_kpalime",
+            "si_LK": "spp_demo.area_lka_kandy_ds",
+        },
+        "ibrahim_hassan": {
+            "fil_PH": "spp_demo.area_phl_antipolo",
+            "fr_TG": "spp_demo.area_tgo_sokode",
+            "si_LK": "spp_demo.area_lka_galle_ds",
+        },
+        "david_sofia_martinez": {
+            "fil_PH": "spp_demo.area_phl_makati",
+            "fr_TG": "spp_demo.area_tgo_lome",
+            "si_LK": "spp_demo.area_lka_dehiwala",
+        },
+        "rosa_garcia": {
+            "fil_PH": "spp_demo.area_phl_quezon_city",
+            "fr_TG": "spp_demo.area_tgo_lome_be",
+            "si_LK": "spp_demo.area_lka_colombo_fort",
+        },
+        "mary_johnson": {
+            "fil_PH": "spp_demo.area_phl_pasig",
+            "fr_TG": "spp_demo.area_tgo_lome_nyekonakpoe",
+            "si_LK": "spp_demo.area_lka_colombo_pettah",
+        },
+        "ahmed_said": {
+            "fil_PH": "spp_demo.area_phl_taguig",
+            "fr_TG": "spp_demo.area_tgo_lome_adidogome",
+            "si_LK": "spp_demo.area_lka_dehiwala_gn",
+        },
+        "nguyen_extended_family": {
+            "fil_PH": "spp_demo.area_phl_bacoor",
+            "fr_TG": "spp_demo.area_tgo_baguida_centre",
+            "si_LK": "spp_demo.area_lka_hikkaduwa",
+        },
+        "amina_osman_household": {
+            "fil_PH": "spp_demo.area_phl_manila",
+            "fr_TG": "spp_demo.area_tgo_kpalime_centre",
+            "si_LK": "spp_demo.area_lka_mount_lavinia_gn",
+        },
+        "carlos_elena_morales": {
+            "fil_PH": "spp_demo.area_phl_dasmarinas",
+            "fr_TG": "spp_demo.area_tgo_kpalime_tove",
+            "si_LK": "spp_demo.area_lka_galle_fort",
+        },
+        "chen_large_family": {
+            "fil_PH": "spp_demo.area_phl_qc_commonwealth",
+            "fr_TG": "spp_demo.area_tgo_zio",
+            "si_LK": "spp_demo.area_lka_gampaha",
+        },
+        "grace_okonkwo": {
+            "fil_PH": "spp_demo.area_phl_makati_poblacion",
+            "fr_TG": "spp_demo.area_tgo_ogou",
+            "si_LK": "spp_demo.area_lka_kalutara",
+        },
+        "luis_fernandez": {
+            "fil_PH": "spp_demo.area_phl_calamba_real",
+            "fr_TG": "spp_demo.area_tgo_lacs",
+            "si_LK": "spp_demo.area_lka_matara",
+        },
+    }
+
     def _assign_registrant_areas(self, stats):
         """Assign geographic areas to registrants.
 
         Strategy:
-        - Find the lowest (most specific) area level that has geo_polygon data
-        - For each group, assign one of those areas to area_id
-        - Individual members inherit area_id from their group
+        1. Find the lowest (most specific) area level that has geo_polygon data
+        2. Assign specific areas to story registrants (locale-aware)
+        3. Assign one of those areas (population-weighted when available) to each
+           remaining group
+        4. Individual members inherit area_id from their group
 
         Args:
             stats: Statistics dictionary to update
@@ -4136,29 +4602,46 @@ class SPPMISDemoGenerator(models.TransientModel):
         target_level = result[0] if result and result[0] is not None else None
 
         if target_level is None:
-            _logger.warning("[spp.mis.demo] No areas with GIS data found, skipping area assignment")
-            stats["areas_assigned"] = 0
-            return
+            # Fall back to any level 3 areas even without polygons
+            municipalities = Area.search([("area_level", "=", 3)])
+            if not municipalities:
+                _logger.warning("[spp.mis.demo] No areas with GIS data found, skipping area assignment")
+                stats["areas_assigned"] = 0
+                return
+            _logger.info(
+                "[spp.mis.demo] Found %d municipalities for area assignment (no GIS polygons)",
+                len(municipalities),
+            )
+        else:
+            municipalities = Area.search([("area_level", "=", target_level), ("geo_polygon", "!=", False)])
 
-        municipalities = Area.search([("area_level", "=", target_level), ("geo_polygon", "!=", False)])
+            if not municipalities:
+                _logger.warning("[spp.mis.demo] No areas with GIS data found at level %s", target_level)
+                stats["areas_assigned"] = 0
+                return
 
-        if not municipalities:
-            _logger.warning("[spp.mis.demo] No areas with GIS data found at level %s", target_level)
-            stats["areas_assigned"] = 0
-            return
+            _logger.info(
+                "[spp.mis.demo] Found %d areas with GIS data at level %d",
+                len(municipalities),
+                target_level,
+            )
 
-        _logger.info(
-            "[spp.mis.demo] Found %d areas with GIS data at level %d",
-            len(municipalities),
-            target_level,
+        # Step 1: Assign specific areas to story registrants
+        locale = self.env.context.get("demo_locale", "fil_PH")
+        story_assigned = self._assign_story_areas(locale)
+
+        # Step 2: Get all groups (households) without area_id
+        groups = Partner.search(
+            [
+                ("is_group", "=", True),
+                ("is_registrant", "=", True),
+                ("area_id", "=", False),
+            ]
         )
 
-        # Get all groups (households)
-        groups = Partner.search([("is_group", "=", True), ("is_registrant", "=", True)])
-
         if not groups:
-            _logger.warning("[spp.mis.demo] No groups found, skipping area assignment")
-            stats["areas_assigned"] = 0
+            _logger.info("[spp.mis.demo] All groups already have areas assigned")
+            stats["areas_assigned"] = story_assigned
             return
 
         # Check if population weights are available (spp_demo_phl_luzon installed)
@@ -4231,8 +4714,86 @@ class SPPMISDemoGenerator(models.TransientModel):
             # Invalidate ORM cache after raw SQL updates
             self.env.invalidate_all()
 
-        stats["areas_assigned"] = len(group_area_pairs)
-        _logger.info("[spp.mis.demo] Assigned areas to %d groups", len(group_area_pairs))
+        # Also assign areas to standalone individuals without area_id
+        # (registrants not attached to any group/household).
+        individuals = Partner.search(
+            [
+                ("is_group", "=", False),
+                ("is_registrant", "=", True),
+                ("area_id", "=", False),
+                ("individual_membership_ids", "=", False),
+            ]
+        )
+        for ind in individuals:
+            municipality = random.choice(municipalities)
+            ind.write({"area_id": municipality.id})
+
+        groups_assigned = story_assigned + len(group_area_pairs)
+        stats["areas_assigned"] = groups_assigned
+        _logger.info(
+            "[spp.mis.demo] Assigned areas to %d groups (%d story-specific)",
+            groups_assigned,
+            story_assigned,
+        )
+
+    def _assign_story_areas(self, locale):
+        """Assign locale-specific areas to story registrants.
+
+        Returns:
+            int: Number of stories assigned
+        """
+        assigned = 0
+
+        try:
+            from odoo.addons.spp_demo.models import demo_stories
+
+            stories = demo_stories.get_localized_stories(locale)
+        except ImportError:
+            return 0
+
+        Partner = self.env["res.partner"]
+
+        for story in stories:
+            story_id = story["id"]
+            story_name = story["name"]
+
+            area_map = self.STORY_AREA_MAP.get(story_id, {})
+            area_xmlid = area_map.get(locale)
+            if not area_xmlid:
+                continue
+
+            area = self.env.ref(area_xmlid, raise_if_not_found=False)
+            if not area:
+                _logger.warning("[spp.mis.demo] Area %s not found for story %s", area_xmlid, story_id)
+                continue
+
+            # Find the registrant
+            registrant = Partner.search(
+                [("name", "=", story_name), ("is_registrant", "=", True)],
+                limit=1,
+            )
+            if not registrant:
+                continue
+
+            # Assign area
+            registrant.write({"area_id": area.id})
+            assigned += 1
+
+            # If group, also assign to members
+            if registrant.is_group:
+                members = Partner.search([("group_membership_ids.group", "=", registrant.id)])
+                if members:
+                    members.write({"area_id": area.id})
+
+            _logger.debug(
+                "[spp.mis.demo] Assigned %s to story %s (%s)",
+                area.draft_name,
+                story_name,
+                story_id,
+            )
+
+        _logger.info("[spp.mis.demo] Assigned areas to %d story registrants", assigned)
+        return assigned
 
     def _generate_coordinates(self, stats):
         """Generate GPS coordinates for registrants.
@@ -4421,6 +4982,32 @@ class SPPMISDemoWizard(models.TransientModel):
     _name = "spp.mis.demo.wizard"
     _description = "MIS Demo Data Wizard"
     _inherit = "spp.mis.demo.generator"
+
+    mis_demo_loaded = fields.Boolean(
+        related="company_id.mis_demo_loaded",
+        string="Demo Already Loaded",
+    )
+    company_id = fields.Many2one(
+        "res.company",
+        default=lambda self: self.env.company,
+    )
+    has_grm_demo = fields.Boolean(compute="_compute_has_optional_demos")
+    has_case_demo = fields.Boolean(compute="_compute_has_optional_demos")
+
+    def _compute_has_optional_demos(self):
+        installed_names = set(
+            self.env["ir.module.module"]
+            .search(
+                [
+                    ("name", "in", ["spp_grm_demo", "spp_case_demo"]),
+                    ("state", "=", "installed"),
+                ]
+            )
+            .mapped("name")
+        )
+        for rec in self:
+            rec.has_grm_demo = "spp_grm_demo" in installed_names
+            rec.has_case_demo = "spp_case_demo" in installed_names
 
     def action_generate_demo_data(self):
         """Action to generate demo data from wizard."""

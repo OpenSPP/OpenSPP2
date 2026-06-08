@@ -14,6 +14,7 @@ Key scenarios tested:
 - The full is_female_headed pattern
 """
 
+from odoo.fields import Command
 from odoo.tests import TransactionCase, tagged
 
 from odoo.addons.spp_cel_domain.tests.common import CELTestDataMixin
@@ -61,14 +62,14 @@ class TestVocabularyInExists(TransactionCase, CELTestDataMixin):
             cls.group_feminine = cls.env["spp.vocabulary.concept.group"].create(
                 {
                     "name": "feminine_gender",
-                    "display_name": "Feminine Gender",
+                    "label": "Feminine Gender",
                     "cel_function": "is_female",
                 }
             )
         # Add our test code to the group
         cls.group_feminine.write(
             {
-                "code_ids": [(4, cls.code_female.id)],
+                "code_ids": [Command.link(cls.code_female.id)],
             }
         )
 
@@ -82,14 +83,14 @@ class TestVocabularyInExists(TransactionCase, CELTestDataMixin):
             cls.group_masculine = cls.env["spp.vocabulary.concept.group"].create(
                 {
                     "name": "masculine_gender",
-                    "display_name": "Masculine Gender",
+                    "label": "Masculine Gender",
                     "cel_function": "is_male",
                 }
             )
         # Add our test code to the group
         cls.group_masculine.write(
             {
-                "code_ids": [(4, cls.code_male.id)],
+                "code_ids": [Command.link(cls.code_male.id)],
             }
         )
 
@@ -368,14 +369,14 @@ class TestIsFemaleHeadedIntegration(TransactionCase, CELTestDataMixin):
             cls.group_feminine = cls.env["spp.vocabulary.concept.group"].create(
                 {
                     "name": "feminine_gender",
-                    "display_name": "Feminine Gender",
+                    "label": "Feminine Gender",
                     "cel_function": "is_female",
                 }
             )
         # Add our test code to the group
         cls.group_feminine.write(
             {
-                "code_ids": [(4, cls.code_female.id)],
+                "code_ids": [Command.link(cls.code_female.id)],
             }
         )
 
@@ -389,14 +390,14 @@ class TestIsFemaleHeadedIntegration(TransactionCase, CELTestDataMixin):
             cls.group_masculine = cls.env["spp.vocabulary.concept.group"].create(
                 {
                     "name": "masculine_gender",
-                    "display_name": "Masculine Gender",
+                    "label": "Masculine Gender",
                     "cel_function": "is_male",
                 }
             )
         # Add our test code to the group
         cls.group_masculine.write(
             {
-                "code_ids": [(4, cls.code_male.id)],
+                "code_ids": [Command.link(cls.code_male.id)],
             }
         )
 
@@ -435,7 +436,7 @@ class TestIsFemaleHeadedIntegration(TransactionCase, CELTestDataMixin):
             {
                 "group": cls.hh_female_head.id,
                 "individual": cls.female_head.id,
-                "membership_type_ids": [(6, 0, [cls.head_type.id])],
+                "membership_type_ids": [Command.set([cls.head_type.id])],
             }
         )
 
@@ -461,7 +462,7 @@ class TestIsFemaleHeadedIntegration(TransactionCase, CELTestDataMixin):
             {
                 "group": cls.hh_male_head.id,
                 "individual": cls.male_head.id,
-                "membership_type_ids": [(6, 0, [cls.head_type.id])],
+                "membership_type_ids": [Command.set([cls.head_type.id])],
             }
         )
 
@@ -560,7 +561,7 @@ class TestVocabularyTranslatorInheritance(TransactionCase):
         ) or cls.env["spp.vocabulary.concept.group"].create(
             {
                 "name": "feminine_gender",
-                "display_name": "Feminine Gender",
+                "label": "Feminine Gender",
             }
         )
 

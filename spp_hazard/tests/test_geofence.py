@@ -2,13 +2,10 @@
 """Tests for geofence extensions in spp_hazard."""
 
 import json
-import logging
 
 from odoo.tests import tagged
 
 from .common import HazardTestCase
-
-_logger = logging.getLogger(__name__)
 
 
 @tagged("post_install", "-at_install")

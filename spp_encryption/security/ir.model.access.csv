@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_encryption_provider_crypto_viewer,SPP Encryption Provider Crypto Viewer,spp_encryption.model_spp_encryption_provider,spp_encryption.group_crypto_viewer,1,0,0,0
+access_spp_encryption_provider_crypto_officer,SPP Encryption Provider Crypto Officer,spp_encryption.model_spp_encryption_provider,spp_encryption.group_crypto_officer,1,1,1,0
+access_spp_encryption_provider_crypto_manager,SPP Encryption Provider Crypto Manager,spp_encryption.model_spp_encryption_provider,spp_encryption.group_crypto_manager,1,1,1,1
+access_spp_encryption_provider_crypto_admin,SPP Encryption Provider Crypto Admin,spp_encryption.model_spp_encryption_provider,spp_encryption.group_crypto_admin,1,1,1,1

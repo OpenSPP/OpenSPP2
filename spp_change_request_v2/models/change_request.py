@@ -1,5 +1,7 @@
 import logging
 
+from markupsafe import escape as html_escape
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
@@ -378,11 +380,11 @@ class SPPChangeRequest(models.Model):
     @api.depends("name", "request_type_id", "registrant_id")
     def _compute_stage_banner_html(self):
         for rec in self:
-            cr_ref = rec.name or ""
-            cr_type = rec.request_type_id.name if rec.request_type_id else ""
+            cr_ref = html_escape(rec.name or "")
+            cr_type = html_escape(rec.request_type_id.name) if rec.request_type_id else ""
             html = f'<span class="fw-bold">{cr_ref}</span><span class="text-muted mx-2">|</span><span>{cr_type}</span>'
             if rec.registrant_id:
-                registrant = rec.registrant_id.name or ""
+                registrant = html_escape(rec.registrant_id.name or "")
                 html += (
                     f'<span class="text-muted mx-2">|</span>'
                     f'<i class="fa fa-user me-1 text-muted"></i>'
@@ -420,14 +422,11 @@ class SPPChangeRequest(models.Model):
             uploaded_types = rec.document_ids.mapped("document_type_id").filtered(lambda c: c)
             items = []
             for doc_type in required:
+                escaped_name = html_escape(doc_type.display_name)
                 if doc_type in uploaded_types:
-                    items.append(
-                        f'<li class="text-success"><i class="fa fa-check-circle me-1"></i>{doc_type.display_name}</li>'
-                    )
+                    items.append(f'<li class="text-success"><i class="fa fa-check-circle me-1"></i>{escaped_name}</li>')
                 else:
-                    items.append(
-                        f'<li class="text-danger"><i class="fa fa-times-circle me-1"></i>{doc_type.display_name}</li>'
-                    )
+                    items.append(f'<li class="text-danger"><i class="fa fa-times-circle me-1"></i>{escaped_name}</li>')
 
             rec.required_documents_html = (
                 '<div class="mb-3">'
@@ -506,8 +505,8 @@ class SPPChangeRequest(models.Model):
             html.append("<tbody>")
 
             for doc in rec.document_ids:
-                doc_name = doc.name or ""
-                doc_type = doc.document_type_id.display_name if doc.document_type_id else ""
+                doc_name = html_escape(doc.name or "")
+                doc_type = html_escape(doc.document_type_id.display_name) if doc.document_type_id else ""
                 uploaded = doc.create_date.strftime("%Y-%m-%d") if doc.create_date else ""
                 html.append(
                     f"<tr>"
@@ -539,19 +538,20 @@ class SPPChangeRequest(models.Model):
                 html_parts.append('<i class="fa fa-users fa-lg text-primary me-2"></i>')
             else:
                 html_parts.append('<i class="fa fa-user fa-lg text-primary me-2"></i>')
-            html_parts.append(f"<strong>{reg.name}</strong>")
+            html_parts.append(f"<strong>{html_escape(reg.name or '')}</strong>")
             html_parts.append("</div>")
 
             # ID badge
             if hasattr(reg, "spp_id") and reg.spp_id:
-                html_parts.append(f'<div class="mb-2"><span class="badge bg-secondary">ID: {reg.spp_id}</span></div>')
+                escaped_id = html_escape(reg.spp_id)
+                html_parts.append(f'<div class="mb-2"><span class="badge bg-secondary">ID: {escaped_id}</span></div>')
 
             # Address
             address_parts = []
             if reg.street:
-                address_parts.append(reg.street)
+                address_parts.append(html_escape(reg.street))
             if reg.city:
-                address_parts.append(reg.city)
+                address_parts.append(html_escape(reg.city))
             if address_parts:
                 html_parts.append(
                     f'<div class="text-muted small mb-2">'
@@ -711,10 +711,15 @@ class SPPChangeRequest(models.Model):
     # ══════════════════════════════════════════════════════════════════════════
 
     def get_detail(self):
-        """Get the detail record for this CR."""
+        """Get the detail record for this CR.
+
+        Uses with_prefetch() to isolate from _ensure_detail's sudo()
+        prefetch set — without this, non-stored computed fields can
+        trigger record-rule checks against the wrong user.
+        """
         self.ensure_one()
         if self.detail_res_model and self.detail_res_id:
-            return self.env[self.detail_res_model].browse(self.detail_res_id)
+            return self.env[self.detail_res_model].browse(self.detail_res_id).with_prefetch()
         return None
 
     def _ensure_detail(self):
@@ -1013,6 +1018,7 @@ class SPPChangeRequest(models.Model):
         action = "resubmitted" if old_state == "revision" else "submitted"
         self._create_audit_event("submitted", old_state, "pending")
         self._create_log(action)
+        self.stage = "review"
 
     def _on_request_revision(self, notes):
         super()._on_request_revision(notes)
@@ -1066,7 +1072,7 @@ class SPPChangeRequest(models.Model):
         action_label = action_labels.get(action, action.replace("_", " ").title())
         html_parts.append(
             f'<div class="mb-3 d-flex align-items-center">'
-            f'<span class="badge bg-primary me-2">{action_label}</span>'
+            f'<span class="badge bg-primary me-2">{html_escape(action_label)}</span>'
             f"</div>"
         )
 
@@ -1078,7 +1084,7 @@ class SPPChangeRequest(models.Model):
             for key, value in changes.items():
                 if key.startswith("_"):
                     continue
-                display_key = key.replace("_", " ").title()
+                display_key = html_escape(key.replace("_", " ").title())
 
                 # Handle dict with old/new structure
                 if isinstance(value, dict) and "new" in value:
@@ -1088,16 +1094,16 @@ class SPPChangeRequest(models.Model):
                     if old_val is None or old_val is False or old_val == "":
                         old_display = '<span class="text-muted">—</span>'
                     else:
-                        old_display = str(old_val)
+                        old_display = html_escape(str(old_val))
                     # Format new value
                     if new_val is None or new_val is False or new_val == "":
                         new_display = '<span class="text-muted">—</span>'
                     else:
-                        new_display = f"<strong>{new_val}</strong>"
+                        new_display = f"<strong>{html_escape(str(new_val))}</strong>"
                     display_value = f"{old_display} → {new_display}"
                 elif isinstance(value, list):
                     if value:
-                        display_value = "<br/>".join(str(v) for v in value)
+                        display_value = "<br/>".join(html_escape(str(v)) for v in value)
                     else:
                         display_value = '<span class="text-muted">Not set</span>'
                 elif value is None or value is False or value == "":
@@ -1107,7 +1113,7 @@ class SPPChangeRequest(models.Model):
                     # Only True reaches here (False caught above)
                     display_value = '<span class="badge text-bg-success">Yes</span>'
                 else:
-                    display_value = str(value)
+                    display_value = html_escape(str(value))
 
                 html_parts.append(f"<tr><td><strong>{display_key}</strong></td><td>{display_value}</td></tr>")
 
@@ -1147,17 +1153,21 @@ class SPPChangeRequest(models.Model):
             )
 
         action = changes.pop("_action", None)
+        header = changes.pop("_header", None)
 
         # Determine if this is a field-mapping type (has old/new dicts)
         has_comparison = any(isinstance(v, dict) and "old" in v and "new" in v for v in changes.values())
 
         if has_comparison:
-            return self._render_comparison_table(changes)
-        return self._render_action_summary(action, changes)
+            return self._render_comparison_table(changes, header=header)
+        return self._render_action_summary(action, changes, header=header)
 
-    def _render_comparison_table(self, changes):
+    def _render_comparison_table(self, changes, header=None):
         """Render a three-column comparison table for field-mapping CR types."""
-        html = ['<table class="table table-sm table-bordered mb-0" style="width:100%">']
+        html = []
+        if header:
+            html.append(f"<h4>{html_escape(header)}</h4>")
+        html.append('<table class="table table-sm table-bordered mb-0" style="width:100%">')
         html.append(
             "<thead><tr>"
             '<th class="bg-light"></th>'
@@ -1170,7 +1180,8 @@ class SPPChangeRequest(models.Model):
         for key, value in changes.items():
             if key.startswith("_"):
                 continue
-            display_key = key.replace("_", " ").title()
+            # Use key as-is if it contains spaces (human-readable), otherwise convert
+            display_key = html_escape(key if " " in key else key.replace("_", " ").title())
 
             if isinstance(value, dict) and "old" in value:
                 old_val = value.get("old")
@@ -1203,9 +1214,12 @@ class SPPChangeRequest(models.Model):
         html.append("</tbody></table>")
         return "".join(html)
 
-    def _render_action_summary(self, action, changes):
+    def _render_action_summary(self, action, changes, header=None):
         """Render a summary table for action-based CR types."""
         html = []
+
+        if header:
+            html.append(f"<h4>{html_escape(header)}</h4>")
 
         if not changes:
             html.append('<p class="text-muted mb-0"><i class="fa fa-info-circle me-2"></i>No details to display.</p>')
@@ -1218,7 +1232,7 @@ class SPPChangeRequest(models.Model):
         for key, value in changes.items():
             if key.startswith("_"):
                 continue
-            display_key = key.replace("_", " ").title()
+            display_key = html_escape(key if " " in key else key.replace("_", " ").title())
             display_value = self._format_review_value(value)
             html.append(f'<tr><td class="bg-light"><strong>{display_key}</strong></td><td>{display_value}</td></tr>')
 
@@ -1233,9 +1247,9 @@ class SPPChangeRequest(models.Model):
             return '<span class="badge text-bg-success">Yes</span>'
         if isinstance(value, list):
             if value:
-                return "<br/>".join(str(v) for v in value)
+                return "<br/>".join(html_escape(str(v)) for v in value)
             return '<span class="text-muted">—</span>'
-        return str(value)
+        return html_escape(str(value))
 
     def _capture_preview_snapshot(self):
         """Capture and store the preview HTML and JSON before applying changes."""
@@ -1510,29 +1524,63 @@ class SPPChangeRequest(models.Model):
     def action_open_stage_form(self):
         """Open the appropriate form view based on the current stage.
 
-        For draft/revision CRs: routes to the stage-specific form.
-        For other states: opens the main CR form (for validators/managers).
+        - **Draft / revision**: route by `stage` to the editable stage form
+          (details / documents / review).
+        - **Submitted+ (pending, approved, applied, rejected)**: always open
+          the review-stage form. That form already renders state-aware
+          headers (Approve/Reject for validators, Apply for managers,
+          Applied ribbon for completed, Start Over for rejected) and shows
+          the same Edit Details → Upload Documents → Review & Submit
+          breadcrumb. Without this, validators/managers (and demo-applied
+          CRs opened from the list) landed on the legacy main form view
+          which lacks the breadcrumb and the pager-hide treatment. See
+          OP#920 round-2.
         """
         self.ensure_one()
 
-        if self.approval_state not in ("draft", "revision"):
-            return {
-                "type": "ir.actions.act_window",
-                "name": self.name,
-                "res_model": "spp.change.request",
-                "res_id": self.id,
-                "view_mode": "form",
-                "views": [[False, "form"]],
-                "target": "current",
-            }
+        if self.approval_state in ("draft", "revision"):
+            if self.stage == "documents":
+                return self._action_open_documents_form()
+            if self.stage == "review":
+                return self._action_open_review_form()
+            return self.action_open_detail()
 
-        if self.stage == "documents":
-            return self._action_open_documents_form()
-        if self.stage == "review":
-            return self._action_open_review_form()
+        # pending / approved / applied / rejected
+        return self._action_open_review_form()
 
-        # Default: details stage
-        return self.action_open_detail()
+    def _action_open_review_form(self):
+        """Open the CR in the Review & Submit stage form view."""
+        self.ensure_one()
+        view = self.env.ref(
+            "spp_change_request_v2.spp_change_request_review_form",
+            raise_if_not_found=False,
+        )
+        return {
+            "type": "ir.actions.act_window",
+            "name": self.name,
+            "res_model": "spp.change.request",
+            "res_id": self.id,
+            "view_mode": "form",
+            "views": [[view.id if view else False, "form"]],
+            "target": "current",
+        }
+
+    def _action_open_documents_form(self):
+        """Open the CR in the Upload Documents stage form view."""
+        self.ensure_one()
+        view = self.env.ref(
+            "spp_change_request_v2.spp_change_request_documents_form",
+            raise_if_not_found=False,
+        )
+        return {
+            "type": "ir.actions.act_window",
+            "name": self.name,
+            "res_model": "spp.change.request",
+            "res_id": self.id,
+            "view_mode": "form",
+            "views": [[view.id if view else False, "form"]],
+            "target": "current",
+        }
 
     def action_goto_details(self):
         """Navigate to the details stage (replaces breadcrumb via client action)."""

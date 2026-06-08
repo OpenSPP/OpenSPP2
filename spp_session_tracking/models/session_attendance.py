@@ -9,12 +9,12 @@ class SessionAttendance(models.Model):
     _rec_name = "participant_id"
 
     session_id = fields.Many2one("spp.session", required=True, ondelete="cascade", string="Session")
-    participant_id = fields.Many2one("res.partner", required=True, string="Participant")
+    participant_id = fields.Many2one("res.partner", required=True, ondelete="restrict", string="Participant")
 
-    is_attended = fields.Boolean(default=False)
+    is_attended = fields.Boolean()
     attendance_time = fields.Datetime(string="Time of Attendance")
 
-    is_excused = fields.Boolean(default=False)
+    is_excused = fields.Boolean()
     excuse_reason = fields.Char()
 
     notes = fields.Text()

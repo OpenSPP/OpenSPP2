@@ -13,6 +13,7 @@ Covers gaps in:
 
 from unittest.mock import patch
 
+from odoo.fields import Command
 from odoo.tests import TransactionCase, tagged
 
 from odoo.addons.spp_cel_domain.tests.common import CELTestDataMixin
@@ -251,7 +252,7 @@ class TestHeadFunction(TransactionCase, CELTestDataMixin):
             {
                 "group": cls.group_partner.id,
                 "individual": cls.individual_partner.id,
-                "membership_type_ids": [(6, 0, [cls.head_code.id])],
+                "membership_type_ids": [Command.set([cls.head_code.id])],
             }
         )
 
@@ -368,11 +369,11 @@ class TestVocabularyCacheClear(TransactionCase, CELTestDataMixin):
         ConceptGroup = cls.env["spp.vocabulary.concept.group"]
         existing_feminine = ConceptGroup.search([("name", "=", "feminine_gender")], limit=1)
         if existing_feminine:
-            existing_feminine.write({"code_ids": [(4, cls.code_female.id)]})
+            existing_feminine.write({"code_ids": [Command.link(cls.code_female.id)]})
         else:
             cls._create_test_concept_group(
                 name="feminine_gender",
-                display_name="Feminine Gender",
+                label="Feminine Gender",
                 codes=[cls.code_female],
             )
 
@@ -455,7 +456,7 @@ class TestTranslatorErrorPaths(TransactionCase, CELTestDataMixin):
         # Create an empty concept group (no codes)
         cls.empty_group = cls._create_test_concept_group(
             name=f"empty_group_{cls._test_id}",
-            display_name="Empty Group",
+            label="Empty Group",
         )
 
         cls.translator = cls.env["spp.cel.translator"]
@@ -689,11 +690,11 @@ class TestTranslatorChangedLines(TransactionCase, CELTestDataMixin):
         ConceptGroup = cls.env["spp.vocabulary.concept.group"]
         cls.test_group = ConceptGroup.search([("name", "=", "feminine_gender")], limit=1)
         if cls.test_group:
-            cls.test_group.write({"code_ids": [(4, cls.code_female.id)]})
+            cls.test_group.write({"code_ids": [Command.link(cls.code_female.id)]})
         else:
             cls.test_group = cls._create_test_concept_group(
                 name="feminine_gender",
-                display_name="Feminine Gender",
+                label="Feminine Gender",
                 codes=[cls.code_female],
             )
 

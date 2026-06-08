@@ -7,7 +7,10 @@ import logging
 from odoo import _, fields
 from odoo.exceptions import UserError, ValidationError
 
+from odoo.addons.spp_dci.schemas.constants import RegistryType
 from odoo.addons.spp_dci_client.services import DCIClient
+
+from .dr_parsing import extract_disability_data, extract_functional_scores, unwrap_search_data
 
 _logger = logging.getLogger(__name__)
 
@@ -35,8 +38,8 @@ class DRService:
         # Get data source
         self.data_source = self.env["spp.dci.data.source"].get_by_code(data_source_code)
 
-        # Validate it's a DR registry
-        if self.data_source.registry_type != "DR":
+        # Validate it's a DR registry (canonical namespaced registry_type value)
+        if self.data_source.registry_type != RegistryType.DISABILITY_REGISTRY.value:
             msg = (
                 f"Data source '{data_source_code}' is not a Disability Registry "
                 f"(type: {self.data_source.registry_type})"
@@ -122,14 +125,11 @@ class DRService:
 
             # Extract first result
             search_response = message["search_response"][0]
-            if "data" not in search_response or not search_response["data"]:
+            records = unwrap_search_data(search_response.get("data"))
+            if not records:
                 return None
 
-            record_data = (
-                search_response["data"][0] if isinstance(search_response["data"], list) else search_response["data"]
-            )
-
-            # Extract disability information
+            record_data = records[0]
             disability_data = self._extract_disability_data(record_data)
 
             _logger.info(
@@ -207,14 +207,11 @@ class DRService:
 
             # Extract first result
             search_response = message["search_response"][0]
-            if "data" not in search_response or not search_response["data"]:
+            records = unwrap_search_data(search_response.get("data"))
+            if not records:
                 return None
 
-            record_data = (
-                search_response["data"][0] if isinstance(search_response["data"], list) else search_response["data"]
-            )
-
-            # Extract functional scores
+            record_data = records[0]
             scores = self._extract_functional_scores(record_data)
 
             _logger.info(
@@ -389,103 +386,29 @@ class DRService:
         return None
 
     def _extract_disability_data(self, record_data: dict) -> dict:
-        """Extract disability information from DCI record data.
+        """Extract disability information from a DCI v1.0.0 record.
+
+        Delegates to the stateless module-level helper in dr_parsing.
 
         Args:
-            record_data: DCI record data from search response
+            record_data: A single record dict from reg_records
 
         Returns:
             dict: Extracted disability data
         """
-        disability_data = {
-            "has_disability": False,
-            "disability_types": [],
-            "functional_scores": {},
-            "raw_data": record_data,
-        }
-
-        # Check for disability flag
-        if "has_disability" in record_data:
-            disability_data["has_disability"] = bool(record_data["has_disability"])
-        elif "is_pwd" in record_data:
-            disability_data["has_disability"] = bool(record_data["is_pwd"])
-
-        # Extract disability types
-        if "disability_types" in record_data:
-            types_data = record_data["disability_types"]
-            if isinstance(types_data, list):
-                disability_data["disability_types"] = types_data
-            elif isinstance(types_data, str):
-                # Handle comma-separated string
-                disability_data["disability_types"] = [t.strip() for t in types_data.split(",") if t.strip()]
-
-        # Extract functional scores
-        disability_data["functional_scores"] = self._extract_functional_scores(record_data)
-
-        # Extract assessment date
-        if "assessment_date" in record_data:
-            disability_data["assessment_date"] = record_data["assessment_date"]
-        elif "disability_assessment_date" in record_data:
-            disability_data["assessment_date"] = record_data["disability_assessment_date"]
-
-        # Extract source registry
-        if "source_registry" in record_data:
-            disability_data["source_registry"] = record_data["source_registry"]
-        elif "registry_name" in record_data:
-            disability_data["source_registry"] = record_data["registry_name"]
-
-        return disability_data
+        return extract_disability_data(record_data)
 
     def _extract_functional_scores(self, record_data: dict) -> dict:
-        """Extract functional assessment scores from record data.
+        """Return functional assessment scores from a DCI v1.0.0 record.
+
+        Delegates to the stateless module-level helper in dr_parsing.
+        The DCI v1.0.0 spec has no numeric functional scores, so this always
+        returns ``{}``.
 
         Args:
-            record_data: DCI record data
+            record_data: A single record dict from reg_records
 
         Returns:
-            dict: Functional scores by domain
-            Example: {'Vision': 3, 'Hearing': 1, 'Mobility': 4, ...}
+            dict: Always ``{}``
         """
-        scores = {}
-
-        # Try to extract from functional_scores field
-        if "functional_scores" in record_data:
-            scores_data = record_data["functional_scores"]
-            if isinstance(scores_data, dict):
-                scores = scores_data
-            elif isinstance(scores_data, str):
-                # Try to parse JSON string
-                try:
-                    scores = json.loads(scores_data)
-                except json.JSONDecodeError:
-                    _logger.warning("Failed to parse functional_scores JSON")
-
-        # Try to extract individual domain scores
-        functional_domains = [
-            "Vision",
-            "Hearing",
-            "Mobility",
-            "Cognition",
-            "SelfCare",
-            "Communication",
-        ]
-
-        for domain in functional_domains:
-            # Try various field name formats
-            for field_name in [
-                f"functional_{domain.lower()}",
-                f"{domain.lower()}_score",
-                domain.lower(),
-                domain,
-            ]:
-                if field_name in record_data and record_data[field_name]:
-                    try:
-                        scores[domain] = int(record_data[field_name])
-                    except (ValueError, TypeError):
-                        _logger.warning(
-                            "Invalid functional score for %s: %s",
-                            domain,
-                            record_data[field_name],
-                        )
-
-        return scores
+        return extract_functional_scores(record_data)

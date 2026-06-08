@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         CR DETAIL: FARM DETAILS VIEWS
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Form View -->
+    <record id="spp_cr_detail_farm_details_form" model="ir.ui.view">
+        <field name="name">spp.cr.detail.farm_details.form</field>
+        <field name="model">spp.cr.detail.farm_details</field>
+        <field name="arch" type="xml">
+            <form
+                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+            >
+                <header>
+                    <field name="is_cr_manager" invisible="1" />
+                    <button
+                        name="action_next_documents"
+                        string="Next: Upload Documents"
+                        type="object"
+                        class="btn-primary"
+                        icon="fa-arrow-right"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_skip_to_review"
+                        string="Review &amp; Submit"
+                        type="object"
+                        class="btn-success"
+                        icon="fa-check-circle"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_save_and_go_to_list"
+                        string="Save as Draft"
+                        type="object"
+                        class="btn-outline-secondary"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <field
+                        name="stage"
+                        widget="statusbar"
+                        statusbar_visible="details,documents,review"
+                    />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Update Farm Details</h1>
+                    </div>
+
+                    <group>
+                        <field
+                            name="registrant_id"
+                            readonly="1"
+                            options="{'no_open': True}"
+                        />
+                        <field name="change_request_id" invisible="1" />
+                    </group>
+
+                    <div class="alert alert-info" role="alert">
+                        <field name="approval_state" invisible="1" />
+                        Current information is displayed below. Update the fields you want to change.
+                    </div>
+
+                    <group string="Farm Classification">
+                        <group>
+                            <field
+                                name="farm_type_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field
+                                name="holder_type_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field
+                                name="land_tenure_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field
+                                name="data_source_id"
+                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                            />
+                            <field name="last_field_visit" />
+                        </group>
+                        <group string="Farm Size">
+                            <field name="farm_total_size" />
+                            <field name="experience_years" />
+                        </group>
+                    </group>
+
+                    <group string="Acreage Breakdown">
+                        <group>
+                            <field name="farm_size_under_crops" />
+                            <field name="farm_size_under_livestock" />
+                            <field name="farm_size_under_aquaculture" />
+                        </group>
+                        <group>
+                            <field name="farm_size_leased_out" />
+                            <field name="farm_size_idle" />
+                        </group>
+                    </group>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+</odoo>

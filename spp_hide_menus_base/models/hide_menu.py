@@ -40,6 +40,17 @@ class SppHideMenu(models.Model):
                 )
                 rec.state = "hide"
 
+    def _reapply_hide(self):
+        """Re-apply hiding when module upgrade reset group_ids via XML."""
+        try:
+            hide_group = self.env.ref("spp_hide_menus_base.group_hide_menus_user")
+        except ValueError:
+            hide_group = self.env.ref("spp_hide_menus_base.group_menu_visibility")
+        for rec in self:
+            if rec.menu_id and hide_group not in rec.menu_id.group_ids:
+                rec.default_group_ids = rec.menu_id.group_ids
+                rec.menu_id.write({"group_ids": [Command.set([hide_group.id])]})
+
     def show_menu(self):
         for rec in self:
             if rec.state == "hide" and rec.menu_id:

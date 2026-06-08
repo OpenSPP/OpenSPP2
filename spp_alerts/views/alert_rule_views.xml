@@ -5,7 +5,7 @@
         <field name="name">spp.alert.rule.list</field>
         <field name="model">spp.alert.rule</field>
         <field name="arch" type="xml">
-            <list string="Alert Rules">
+            <list string="Alert Rules" sample="1">
                 <field name="sequence" widget="handle" />
                 <field name="name" />
                 <field name="alert_type_id" />
@@ -37,28 +37,39 @@
                         string="Run Now"
                         class="btn-primary"
                         invisible="not rule_type or not model_id"
-                        groups="group_alerts_manager,base.group_system"
+                        groups="spp_alerts.group_alerts_manager,base.group_system"
                     />
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <widget
-                            name="web_ribbon"
-                            title="Archived"
-                            bg_color="text-bg-danger"
-                            invisible="active"
-                        />
+                        <button
+                            class="oe_stat_button"
+                            type="object"
+                            name="action_view_alerts"
+                            icon="fa-bell"
+                        >
+                            <field
+                                name="alert_count"
+                                widget="statinfo"
+                                string="Alerts"
+                            />
+                        </button>
                     </div>
-                    <group>
-                        <group>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
+                    <group name="rule_main">
+                        <group name="rule_basic">
                             <field name="name" placeholder="e.g., Low Stock Warning" />
-                            <field name="alert_type_id" />
+                            <field name="alert_type_id" options="{'no_create': True}" />
+                            <field name="priority" />
+                        </group>
+                        <group name="rule_config">
                             <field name="model_id" />
                             <field name="rule_type" />
-                            <field name="active" />
-                        </group>
-                        <group>
-                            <field name="priority" />
                             <field name="sequence" />
                             <field
                                 name="company_id"
@@ -66,17 +77,24 @@
                             />
                         </group>
                     </group>
+                    <separator string="Description" />
+                    <field
+                        name="description"
+                        nolabel="1"
+                        placeholder="Describe when this rule triggers and what it monitors..."
+                    />
+                    <group name="additional_description" invisible="1" />
                     <notebook>
                         <page
                             string="Evaluation"
                             name="evaluation"
                             invisible="not rule_type"
                         >
-                            <group>
-                                <group
-                                    string="Threshold Settings"
-                                    invisible="rule_type != 'threshold'"
-                                >
+                            <group
+                                string="Threshold Settings"
+                                invisible="rule_type != 'threshold'"
+                            >
+                                <group>
                                     <field
                                         name="monitored_field_id"
                                         required="rule_type == 'threshold'"
@@ -84,10 +102,12 @@
                                     <field name="comparison" />
                                     <field name="threshold_value" />
                                 </group>
-                                <group
-                                    string="Date Settings"
-                                    invisible="rule_type != 'date'"
-                                >
+                            </group>
+                            <group
+                                string="Date Settings"
+                                invisible="rule_type != 'date'"
+                            >
+                                <group>
                                     <field
                                         name="date_field_id"
                                         required="rule_type == 'date'"
@@ -95,21 +115,18 @@
                                     <field name="days_before" />
                                 </group>
                             </group>
+                            <group name="additional_evaluation" invisible="1" />
                             <separator string="Record Filter" />
+                            <field name="model_name" invisible="1" />
                             <field
                                 name="domain_filter"
-                                placeholder='[("active", "=", True)]'
+                                widget="domain"
+                                options="{'model': 'model_name'}"
                             />
-                        </page>
-                        <page string="Description" name="description">
-                            <field
-                                name="description"
-                                placeholder="Describe when this rule triggers and what it monitors..."
-                            />
-                            <group name="additional_description" invisible="1" />
                         </page>
                     </notebook>
                 </sheet>
+                <chatter />
             </form>
         </field>
     </record>
@@ -145,27 +162,28 @@
                     string="High Priority"
                     domain="[('priority', '=', 'high')]"
                 />
-                <separator />
-                <filter
-                    name="groupby_type"
-                    string="Alert Type"
-                    context="{'group_by': 'alert_type_id'}"
-                />
-                <filter
-                    name="groupby_model"
-                    string="Model"
-                    context="{'group_by': 'model_id'}"
-                />
-                <filter
-                    name="groupby_priority"
-                    string="Priority"
-                    context="{'group_by': 'priority'}"
-                />
-                <filter
-                    name="groupby_rule_type"
-                    string="Rule Type"
-                    context="{'group_by': 'rule_type'}"
-                />
+                <group name="groupby">
+                    <filter
+                        name="groupby_type"
+                        string="Alert Type"
+                        context="{'group_by': 'alert_type_id'}"
+                    />
+                    <filter
+                        name="groupby_model"
+                        string="Model"
+                        context="{'group_by': 'model_id'}"
+                    />
+                    <filter
+                        name="groupby_priority"
+                        string="Priority"
+                        context="{'group_by': 'priority'}"
+                    />
+                    <filter
+                        name="groupby_rule_type"
+                        string="Rule Type"
+                        context="{'group_by': 'rule_type'}"
+                    />
+                </group>
             </search>
         </field>
     </record>

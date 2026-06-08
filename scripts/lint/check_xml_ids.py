@@ -106,7 +106,7 @@ NAMING_RULES = {
     },
     "res.groups": {
         "patterns": [
-            r"^group_[a-z0-9_]+_(viewer|officer|manager|admin|supervisor|approver|rejector|user|worker|requestor|validator|distributor|generator|registrar|reset|get|post|auditor|runner|editor|validator_hq)$",
+            r"^group_[a-z0-9_]+_(viewer|officer|manager|admin|supervisor|approver|rejector|user|worker|requestor|validator|distributor|generator|registrar|reset|get|post|auditor|runner|editor|assessor|validator_hq)$",
             r"^group_[a-z0-9_]+_(read|write|create|delete|approve|reject)$",
             r"^group_[a-z0-9_]+_restrict_[a-z0-9_]+$",  # Technical restriction groups
             r"^group_spp_[a-z0-9_]+_(agent|validator|applicator|administrator|external_api|local_validator|hq_validator)$",  # noqa: E501 Module-specific roles

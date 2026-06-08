@@ -227,23 +227,44 @@ class HazardIncident(models.Model):
                 "recovery",
             )
 
-    @api.depends("area_ids")
+    @api.depends("area_ids", "incident_area_ids.area_id")
     def _compute_area_count(self):
-        """Compute the number of affected areas."""
+        """Compute the number of affected areas from both M2M and detail records."""
         for rec in self:
-            rec.area_count = len(rec.area_ids)
+            detail_areas = rec.incident_area_ids.mapped("area_id")
+            all_areas = rec.area_ids | detail_areas
+            rec.area_count = len(all_areas)
 
     @api.depends("impact_ids")
     def _compute_impact_count(self):
         """Compute the number of impact records."""
+        data = self.env["spp.hazard.impact"].read_group(
+            [("incident_id", "in", self.ids)],
+            ["incident_id"],
+            ["incident_id"],
+        )
+        mapped = {d["incident_id"][0]: d["incident_id_count"] for d in data}
         for rec in self:
-            rec.impact_count = len(rec.impact_ids)
+            rec.impact_count = mapped.get(rec.id, 0)
 
     @api.depends("impact_ids.registrant_id")
     def _compute_affected_registrant_count(self):
         """Compute the number of unique affected registrants."""
+        if not self.ids:
+            self.affected_registrant_count = 0
+            return
+        self.env.cr.execute(
+            """
+            SELECT incident_id, COUNT(DISTINCT registrant_id)
+            FROM spp_hazard_impact
+            WHERE incident_id IN %s
+            GROUP BY incident_id
+            """,
+            [tuple(self.ids)],
+        )
+        mapped = dict(self.env.cr.fetchall())
         for rec in self:
-            rec.affected_registrant_count = len(rec.impact_ids.mapped("registrant_id"))
+            rec.affected_registrant_count = mapped.get(rec.id, 0)
 
     def action_set_active(self):
         """Set incident status to active."""
@@ -255,11 +276,17 @@ class HazardIncident(models.Model):
 
     def action_close(self):
         """Close the incident."""
-        self.write(
-            {
-                "status": "closed",
-                "end_date": self.end_date or fields.Date.today(),
-            }
+        for rec in self:
+            rec.write(
+                {
+                    "status": "closed",
+                    "end_date": rec.end_date or fields.Date.today(),
+                }
+            )
+        _logger.info(
+            "Closed %d incident(s): %s",
+            len(self),
+            ", ".join(self.mapped("name")),
         )
 
     def action_view_impacts(self):
@@ -274,6 +301,12 @@ class HazardIncident(models.Model):
             "context": {"default_incident_id": self.id},
         }
 
+    def _get_all_area_ids(self):
+        """Get all affected area IDs from both M2M and detail records."""
+        self.ensure_one()
+        detail_areas = self.incident_area_ids.mapped("area_id")
+        return (self.area_ids | detail_areas).ids
+
     def action_view_areas(self):
         """Open a list view of affected areas."""
         self.ensure_one()
@@ -282,7 +315,7 @@ class HazardIncident(models.Model):
             "type": "ir.actions.act_window",
             "res_model": "spp.area",
             "view_mode": "list,form",
-            "domain": [("id", "in", self.area_ids.ids)],
+            "domain": [("id", "in", self._get_all_area_ids())],
         }
 
     def identify_potentially_affected_registrants(self):
@@ -293,14 +326,15 @@ class HazardIncident(models.Model):
         affected based on their location in the incident's geographic scope.
         """
         self.ensure_one()
-        if not self.area_ids:
+        all_area_ids = self._get_all_area_ids()
+        if not all_area_ids:
             return self.env["res.partner"].browse()
 
         # Find registrants in affected areas
         return self.env["res.partner"].search(
             [
                 ("is_registrant", "=", True),
-                ("area_id", "in", self.area_ids.ids),
+                ("area_id", "in", all_area_ids),
             ]
         )
 
@@ -604,6 +638,7 @@ class HazardIncidentArea(models.Model):
     _name = "spp.hazard.incident.area"
     _description = "Hazard Incident Area"
     _order = "incident_id, area_id"
+    _rec_name = "display_name"
 
     incident_id = fields.Many2one(
         "spp.hazard.incident",
@@ -637,10 +672,8 @@ class HazardIncidentArea(models.Model):
         "This area is already linked to this incident!",
     )
 
+    @api.depends("incident_id.name", "area_id.name")
     def _compute_display_name(self):
         """Compute a descriptive display name for the record."""
-        # Prefetch related records to avoid N+1 queries
-        self.mapped("incident_id")
-        self.mapped("area_id")
         for rec in self:
             rec.display_name = f"{rec.incident_id.name} - {rec.area_id.name}"

@@ -9,7 +9,7 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Beta",
+    "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],
     "depends": [
         "spp_cel_domain",
@@ -29,7 +29,7 @@
     "images": [],
     "application": False,
     "installable": True,
-    "auto_install": True,
+    "auto_install": ["spp_cel_domain", "spp_event_data", "spp_studio"],
     "post_init_hook": "post_init_hook",
     "summary": "Integrate event data with CEL expressions for eligibility and entitlement rules",
 }

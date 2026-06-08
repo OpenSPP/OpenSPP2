@@ -4,7 +4,7 @@
 
     This file creates:
     1. CEL variables that define the computation logic
-    2. Statistics (spp.statistic) that publish those variables to GIS/dashboards
+    2. Statistics (spp.indicator) that publish those variables to GIS/dashboards
 
     The separation allows the same underlying variable to be published
     to multiple contexts with different presentation settings.
@@ -75,14 +75,14 @@
          ═══════════════════════════════════════════════════════════════════════ -->
 
     <!-- Total Households -->
-    <record id="stat_total_households" model="spp.statistic">
+    <record id="stat_total_households" model="spp.indicator">
         <field name="name">total_households</field>
         <field name="label">Total Households</field>
         <field name="description">Count of household groups in the selected area</field>
         <field name="variable_id" ref="cel_var_total_households" />
         <field name="format">count</field>
         <field name="unit">households</field>
-        <field name="category_id" ref="spp_statistic.category_demographics" />
+        <field name="category_id" ref="spp_indicator.category_demographics" />
         <field name="sequence">10</field>
         <field name="is_published_gis" eval="True" />
         <field name="is_published_dashboard" eval="True" />
@@ -90,35 +90,35 @@
     </record>
 
     <!-- Total Members -->
-    <record id="stat_total_members" model="spp.statistic">
+    <record id="stat_total_members" model="spp.indicator">
         <field name="name">total_members</field>
         <field name="label">Total Members</field>
         <field name="description">Total count of individual household members</field>
         <field name="variable_id" ref="cel_var_total_members" />
         <field name="format">count</field>
         <field name="unit">people</field>
-        <field name="category_id" ref="spp_statistic.category_demographics" />
+        <field name="category_id" ref="spp_indicator.category_demographics" />
         <field name="sequence">15</field>
         <field name="is_published_gis" eval="True" />
         <field name="is_published_dashboard" eval="True" />
     </record>
 
     <!-- Members with Disability -->
-    <record id="stat_disabled_members" model="spp.statistic">
+    <record id="stat_disabled_members" model="spp.indicator">
         <field name="name">pwd_members</field>
         <field name="label">Members with Disability</field>
         <field name="description">Count of household members with a recorded disability</field>
         <field name="variable_id" ref="cel_var_disabled_members" />
         <field name="format">count</field>
         <field name="unit">people</field>
-        <field name="category_id" ref="spp_statistic.category_vulnerability" />
+        <field name="category_id" ref="spp_indicator.category_vulnerability" />
         <field name="sequence">50</field>
         <field name="is_published_gis" eval="True" />
         <field name="is_published_dashboard" eval="True" />
     </record>
 
     <!-- Program Enrollment -->
-    <record id="stat_enrolled_any_program" model="spp.statistic">
+    <record id="stat_enrolled_any_program" model="spp.indicator">
         <field name="name">enrolled_any_program</field>
         <field name="label">Enrolled (Any Program)</field>
         <field
@@ -127,7 +127,7 @@
         <field name="variable_id" ref="cel_var_enrolled_any_program" />
         <field name="format">count</field>
         <field name="unit">households</field>
-        <field name="category_id" ref="spp_statistic.category_programs" />
+        <field name="category_id" ref="spp_indicator.category_programs" />
         <field name="sequence">60</field>
         <field name="is_published_gis" eval="True" />
         <field name="is_published_dashboard" eval="True" />

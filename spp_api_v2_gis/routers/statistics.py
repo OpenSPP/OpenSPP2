@@ -16,9 +16,9 @@ from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..schemas.statistics import (
-    StatisticCategoryInfo,
-    StatisticInfo,
-    StatisticsListResponse,
+    IndicatorCategoryInfo,
+    IndicatorInfo,
+    IndicatorsListResponse,
 )
 from ..services.process_registry import ProcessRegistry
 
@@ -31,12 +31,12 @@ statistics_router = APIRouter(tags=["GIS"], prefix="/gis")
     "/statistics",
     summary="List published GIS statistics",
     description="Returns all statistics published for GIS context, grouped by category.",
-    response_model=StatisticsListResponse,
+    response_model=IndicatorsListResponse,
 )
 async def list_statistics(
     env: Annotated[Environment, Depends(odoo_env)],
     api_client: Annotated[dict, Depends(get_authenticated_client)],
-) -> StatisticsListResponse:
+) -> IndicatorsListResponse:
     """List all GIS-published statistics grouped by category.
 
     Used by the QGIS plugin to discover what statistics are available
@@ -59,7 +59,7 @@ async def list_statistics(
 
         for cat in categories_data:
             stat_items = [
-                StatisticInfo(
+                IndicatorInfo(
                     name=s["name"],
                     label=s["label"],
                     description=s.get("description"),
@@ -70,7 +70,7 @@ async def list_statistics(
             ]
 
             categories.append(
-                StatisticCategoryInfo(
+                IndicatorCategoryInfo(
                     code=cat["code"],
                     name=cat["name"],
                     icon=cat.get("icon"),
@@ -79,7 +79,7 @@ async def list_statistics(
             )
             total_count += len(stat_items)
 
-        return StatisticsListResponse(
+        return IndicatorsListResponse(
             categories=categories,
             total_count=total_count,
         )

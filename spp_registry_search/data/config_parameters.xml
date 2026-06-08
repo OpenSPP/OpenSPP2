@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="1">
+    <record id="search_mode_default" model="ir.config_parameter">
+        <field name="key">spp_registry_search.search_mode</field>
+        <field name="value">unified</field>
+    </record>
+    <record id="target_field_default" model="ir.config_parameter">
+        <field name="key">spp_registry_search.target_field</field>
+        <field name="value">name</field>
+    </record>
+    <record id="result_limit_default" model="ir.config_parameter">
+        <field name="key">spp_registry_search.result_limit</field>
+        <field name="value">50</field>
+    </record>
+    <record id="min_chars_default" model="ir.config_parameter">
+        <field name="key">spp_registry_search.min_chars</field>
+        <field name="value">3</field>
+    </record>
+</odoo>

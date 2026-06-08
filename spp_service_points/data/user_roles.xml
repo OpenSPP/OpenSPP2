@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+
+Role extensions: grant `group_service_points_viewer` to spp_user_roles registrar
+roles whose audited menu visibility should include "Service Point" (OP#951).
+
+System Admin sees the menu via `spp_security.group_spp_admin` → `group_service_points_manager`.
+-->
+<odoo noupdate="1">
+    <record id="spp_user_roles.global_role_registrar" model="res.users.role">
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_service_points_viewer'))]"
+        />
+    </record>
+    <record id="spp_user_roles.local_role_registrar" model="res.users.role">
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_service_points_viewer'))]"
+        />
+    </record>
+</odoo>

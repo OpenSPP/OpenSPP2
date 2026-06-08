@@ -193,6 +193,49 @@ class TestDataSource(TransactionCase):
         )
         self.assertEqual(ds.auth_type, "oauth2")
 
+    def test_oauth2_secret_set_via_display_field(self):
+        """Reproduce the UI save path: the form only exposes the masked
+        oauth2_client_secret_display field, never oauth2_client_secret. Creating
+        an OAuth2 source by setting only the display field must populate the
+        real secret and pass the OAuth2 constraint."""
+        ds = self.DataSource.create(
+            {
+                "name": "OpenCRVS Farajaland",
+                "code": "opencrvs_farajaland",
+                "base_url": "https://crvs.example.org/api",
+                "auth_type": "oauth2",
+                "oauth2_token_url": "https://auth.example.org/token",
+                "oauth2_client_id": "client123",
+                "oauth2_client_secret_display": "the-real-secret",
+                "our_sender_id": "openspp.example.org",
+            }
+        )
+        self.assertEqual(ds.oauth2_client_secret, "the-real-secret")
+        # The display value is masked once stored.
+        self.assertEqual(ds.oauth2_client_secret_display, self.DataSource._SECRET_MASK)
+
+    def test_oauth2_secret_set_via_display_field_on_write(self):
+        """Editing an existing OAuth2 source and entering the secret through the
+        masked display field must persist it."""
+        ds = self.DataSource.create(
+            {
+                "name": "OpenCRVS Farajaland",
+                "code": "opencrvs_farajaland_w",
+                "base_url": "https://crvs.example.org/api",
+                "auth_type": "none",
+                "our_sender_id": "openspp.example.org",
+            }
+        )
+        ds.write(
+            {
+                "auth_type": "oauth2",
+                "oauth2_token_url": "https://auth.example.org/token",
+                "oauth2_client_id": "client123",
+                "oauth2_client_secret_display": "written-secret",
+            }
+        )
+        self.assertEqual(ds.oauth2_client_secret, "written-secret")
+
     def test_sender_id_required_for_auth(self):
         """Test sender ID is required when auth_type is not 'none'"""
         # Should fail for basic auth without sender_id

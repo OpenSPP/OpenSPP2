@@ -39,6 +39,35 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         string="Entitlements"
                     />
                 </button>
+                <button
+                    name="action_view_cycle_memberships"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-refresh"
+                    invisible="not is_registrant or cycle_membership_count == 0"
+                    groups="spp_programs.group_programs_viewer"
+                >
+                    <field
+                        name="cycle_membership_count"
+                        widget="statinfo"
+                        string="Cycles"
+                    />
+                </button>
+                <button
+                    name="action_view_non_compliant_cycles"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-exclamation-triangle"
+                    invisible="not is_registrant or non_compliant_cycle_count == 0"
+                    groups="spp_programs.group_programs_viewer"
+                >
+                    <field
+                        name="non_compliant_cycle_count"
+                        widget="statinfo"
+                        string="Non-Compliant"
+                        class="text-danger"
+                    />
+                </button>
             </xpath>
 
             <!-- Programs Section in Individual Participation Tab -->
@@ -62,12 +91,14 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     nolabel="1"
                     readonly="1"
                     invisible="program_membership_count == 0"
+                    widget="x2many_no_padding"
                 >
                     <list
                         decoration-info="state == 'draft'"
                         decoration-muted="state in ('exited', 'not_eligible')"
                         decoration-warning="state == 'paused'"
                         decoration-success="state == 'enrolled'"
+                        decoration-danger="latest_cycle_state == 'non_compliant'"
                     >
                         <field name="program_id" />
                         <field name="state" widget="badge" />
@@ -94,6 +125,24 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             groups="spp_programs.group_programs_officer"
                             confirm="Are you sure you want to exit this registrant from the program?"
                         />
+                        <field
+                            name="latest_cycle_state"
+                            string="Latest Cycle Status"
+                            widget="badge"
+                            decoration-danger="latest_cycle_state == 'non_compliant'"
+                            decoration-success="latest_cycle_state == 'enrolled'"
+                            decoration-warning="latest_cycle_state == 'paused'"
+                            decoration-muted="latest_cycle_state in ('exited', 'not_eligible')"
+                            optional="show"
+                        />
+                        <button
+                            name="action_view_cycle_memberships"
+                            type="object"
+                            string="View Cycles"
+                            class="btn-link"
+                            icon="fa-list"
+                            groups="spp_programs.group_programs_viewer"
+                        />
                     </list>
                 </field>
                 <div invisible="program_membership_count != 0" class="text-muted small">
@@ -114,6 +163,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     nolabel="1"
                     readonly="1"
                     invisible="entitlements_count == 0"
+                    widget="x2many_no_padding"
                 >
                     <list
                         decoration-muted="state in ('cancelled', 'expired')"
@@ -141,6 +191,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     nolabel="1"
                     readonly="1"
                     invisible="inkind_entitlements_count == 0"
+                    widget="x2many_no_padding"
                 >
                     <list decoration-muted="state in ('cancelled', 'expired')">
                         <field name="cycle_id" />
@@ -182,12 +233,14 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     nolabel="1"
                     readonly="1"
                     invisible="program_membership_count == 0"
+                    widget="x2many_no_padding"
                 >
                     <list
                         decoration-info="state == 'draft'"
                         decoration-muted="state in ('exited', 'not_eligible')"
                         decoration-warning="state == 'paused'"
                         decoration-success="state == 'enrolled'"
+                        decoration-danger="latest_cycle_state == 'non_compliant'"
                     >
                         <field name="program_id" />
                         <field name="state" widget="badge" />
@@ -214,6 +267,24 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             groups="spp_programs.group_programs_officer"
                             confirm="Are you sure you want to exit this registrant from the program?"
                         />
+                        <field
+                            name="latest_cycle_state"
+                            string="Latest Cycle Status"
+                            widget="badge"
+                            decoration-danger="latest_cycle_state == 'non_compliant'"
+                            decoration-success="latest_cycle_state == 'enrolled'"
+                            decoration-warning="latest_cycle_state == 'paused'"
+                            decoration-muted="latest_cycle_state in ('exited', 'not_eligible')"
+                            optional="show"
+                        />
+                        <button
+                            name="action_view_cycle_memberships"
+                            type="object"
+                            string="View Cycles"
+                            class="btn-link"
+                            icon="fa-list"
+                            groups="spp_programs.group_programs_viewer"
+                        />
                     </list>
                 </field>
                 <div invisible="program_membership_count != 0" class="text-muted small">
@@ -237,6 +308,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     nolabel="1"
                     readonly="1"
                     invisible="entitlements_count == 0"
+                    widget="x2many_no_padding"
                 >
                     <list
                         decoration-muted="state in ('cancelled', 'expired')"
@@ -264,6 +336,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     nolabel="1"
                     readonly="1"
                     invisible="inkind_entitlements_count == 0"
+                    widget="x2many_no_padding"
                 >
                     <list decoration-muted="state in ('cancelled', 'expired')">
                         <field name="cycle_id" />

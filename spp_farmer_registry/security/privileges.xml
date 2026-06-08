@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Farmer Registry Privilege under Registry Category -->
+    <record id="privilege_farmer_registry" model="res.groups.privilege">
+        <field name="name">Farmer Registry</field>
+        <field name="category_id" ref="spp_security.category_spp_registry" />
+        <field
+            name="description"
+        >Access to farmer registry features (farm details, activities, seasons)</field>
+        <field name="sequence">30</field>
+    </record>
+</odoo>

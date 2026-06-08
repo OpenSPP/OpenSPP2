@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_cr_detail_assign_program_user,spp.cr.detail.assign_program user,model_spp_cr_detail_assign_program,spp_change_request_v2.group_cr_user,1,1,1,0
+access_spp_cr_detail_assign_program_validator,spp.cr.detail.assign_program validator,model_spp_cr_detail_assign_program,spp_change_request_v2.group_cr_validator,1,1,1,0
+access_spp_cr_detail_assign_program_validator_hq,spp.cr.detail.assign_program validator hq,model_spp_cr_detail_assign_program,spp_change_request_v2.group_cr_validator_hq,1,1,1,0
+access_spp_cr_detail_assign_program_manager,spp.cr.detail.assign_program manager,model_spp_cr_detail_assign_program,spp_change_request_v2.group_cr_manager,1,1,1,1

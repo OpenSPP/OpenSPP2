@@ -1,0 +1,27 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_scoring_model_viewer,spp.scoring.model viewer,model_spp_scoring_model,group_scoring_viewer,1,0,0,0
+access_spp_scoring_model_officer,spp.scoring.model officer,model_spp_scoring_model,group_scoring_officer,1,0,0,0
+access_spp_scoring_model_manager,spp.scoring.model manager,model_spp_scoring_model,group_scoring_manager,1,1,1,1
+access_spp_scoring_indicator_viewer,spp.scoring.indicator viewer,model_spp_scoring_indicator,group_scoring_viewer,1,0,0,0
+access_spp_scoring_indicator_officer,spp.scoring.indicator officer,model_spp_scoring_indicator,group_scoring_officer,1,0,0,0
+access_spp_scoring_indicator_manager,spp.scoring.indicator manager,model_spp_scoring_indicator,group_scoring_manager,1,1,1,1
+access_spp_scoring_value_mapping_viewer,spp.scoring.value_mapping viewer,model_spp_scoring_value_mapping,group_scoring_viewer,1,0,0,0
+access_spp_scoring_value_mapping_officer,spp.scoring.value_mapping officer,model_spp_scoring_value_mapping,group_scoring_officer,1,0,0,0
+access_spp_scoring_value_mapping_manager,spp.scoring.value_mapping manager,model_spp_scoring_value_mapping,group_scoring_manager,1,1,1,1
+access_spp_scoring_threshold_viewer,spp.scoring.threshold viewer,model_spp_scoring_threshold,group_scoring_viewer,1,0,0,0
+access_spp_scoring_threshold_officer,spp.scoring.threshold officer,model_spp_scoring_threshold,group_scoring_officer,1,0,0,0
+access_spp_scoring_threshold_manager,spp.scoring.threshold manager,model_spp_scoring_threshold,group_scoring_manager,1,1,1,1
+access_spp_scoring_result_viewer,spp.scoring.result viewer,model_spp_scoring_result,group_scoring_viewer,1,0,0,0
+access_spp_scoring_result_officer,spp.scoring.result officer,model_spp_scoring_result,group_scoring_officer,1,1,1,0
+access_spp_scoring_result_manager,spp.scoring.result manager,model_spp_scoring_result,group_scoring_manager,1,1,1,1
+access_spp_scoring_result_detail_viewer,spp.scoring.result.detail viewer,model_spp_scoring_result_detail,group_scoring_viewer,1,0,0,0
+access_spp_scoring_result_detail_officer,spp.scoring.result.detail officer,model_spp_scoring_result_detail,group_scoring_officer,1,1,1,0
+access_spp_scoring_result_detail_manager,spp.scoring.result.detail manager,model_spp_scoring_result_detail,group_scoring_manager,1,1,1,1
+access_spp_batch_scoring_wizard_officer,spp.batch.scoring.wizard officer,model_spp_batch_scoring_wizard,group_scoring_officer,1,1,1,1
+access_spp_batch_scoring_wizard_manager,spp.batch.scoring.wizard manager,model_spp_batch_scoring_wizard,group_scoring_manager,1,1,1,1
+access_spp_scoring_batch_job_viewer,spp.scoring.batch.job viewer,model_spp_scoring_batch_job,group_scoring_viewer,1,0,0,0
+access_spp_scoring_batch_job_officer,spp.scoring.batch.job officer,model_spp_scoring_batch_job,group_scoring_officer,1,1,1,0
+access_spp_scoring_batch_job_manager,spp.scoring.batch.job manager,model_spp_scoring_batch_job,group_scoring_manager,1,1,1,1
+access_spp_scoring_invalid_value_viewer,spp.scoring.invalid.value viewer,model_spp_scoring_invalid_value,group_scoring_viewer,1,0,0,0
+access_spp_scoring_invalid_value_manager,spp.scoring.invalid.value manager,model_spp_scoring_invalid_value,group_scoring_manager,1,1,1,1
+access_spp_scoring_invalid_value_config_admin,spp.scoring.invalid.value config admin,model_spp_scoring_invalid_value,group_scoring_config_admin,1,1,1,1

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- ═══════════════════════════════════════════════════════════════════════
+             FARMER DEMO PROGRAMS
+
+             These programs are created by the demo wizard. This file documents
+             the program specifications and can be used for manual setup if needed.
+             ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!--
+        DEMO PROGRAM SPECIFICATIONS:
+
+        1. Input Subsidy Program
+           - Target: Smallholder farmers
+           - Eligibility: is_smallholder && has_productive_land
+           - Benefit: input_subsidy_base + (farm_size_hectares * per_hectare_subsidy)
+           - Example: 100 + (2.0 * 50) = 200
+
+        2. Equipment Grant Program
+           - Target: Experienced smallholders
+           - Eligibility: is_smallholder && experience_years >= 2
+           - Benefit: equipment_grant_amount (fixed 500)
+
+        3. Livestock Support Program
+           - Target: Livestock farmers
+           - Eligibility: has_livestock && total_livestock_heads > 0
+           - Benefit: livestock_base_amount + (total_livestock_heads * per_head_amount)
+           - Example: 75 + (20 * 10) = 275
+
+        4. Irrigation Support Program
+           - Target: Crop farmers without irrigation
+           - Eligibility: has_crop_activities && !has_irrigation
+           - Benefit: irrigation_subsidy_amount (fixed 300)
+
+        5. Climate Resilience Program
+           - Target: Climate-vulnerable farms
+           - Eligibility: is_smallholder && is_climate_vulnerable
+           - Benefit: climate_adaptation_amount (fixed 200)
+        -->
+</odoo>

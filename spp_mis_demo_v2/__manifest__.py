@@ -4,7 +4,7 @@
     "name": "OpenSPP MIS Demo V2",
     "summary": "Demo Generator V2 for SP-MIS programs with fixed stories and volume generation",
     "category": "OpenSPP",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.0.1",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -22,20 +22,23 @@
         "spp_gis_report",
         # Registrant GPS coordinates for QGIS plugin demo
         "spp_registrant_gis",
-        # Statistics and aggregation for demo indicators
-        "spp_statistic",
-        "spp_aggregation",
+        # Indicators and analytics for demo indicators
+        "spp_indicator",
+        "spp_analytics",
         "spp_studio",
         # GIS API (used by QGIS plugin and PRISM frontend)
         "spp_api_v2_gis",
         # QR Credentials (Claim 169)
         "spp_claim_169",
+        # Banking (for bank account demo data)
+        "spp_banking",
         # Demo-specific extensions
     ],
-    "external_dependencies": {"python": ["faker", "requests"]},
+    "external_dependencies": {"python": ["requests"]},
     "post_init_hook": "post_init_hook",
     "data": [
         "security/ir.model.access.csv",
+        "data/vocabulary_group_membership_type.xml",
         "data/demo_currencies.xml",
         "data/demo_constants.xml",
         "data/demo_personas.xml",
