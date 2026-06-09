@@ -5,10 +5,10 @@ from datetime import date
 
 from odoo.exceptions import ValidationError
 
-from ..schemas.base import Reference
+from odoo.addons.spp_api_v2.schemas.base import Reference
 from ..schemas.program_membership import ProgramMembership
 from ..services.program_membership_service import ProgramMembershipService
-from .common import ApiV2TestCase
+from odoo.addons.spp_api_v2.tests.common import ApiV2TestCase
 
 
 class TestProgramMembershipService(ApiV2TestCase):

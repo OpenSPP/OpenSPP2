@@ -6,5 +6,3 @@ from . import group
 from . import individual
 from . import metadata
 from . import oauth
-from . import program
-from . import program_membership

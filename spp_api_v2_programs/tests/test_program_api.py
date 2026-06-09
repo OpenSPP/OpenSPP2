@@ -3,7 +3,7 @@
 
 import json
 
-from .common import ApiV2HttpTestCase
+from odoo.addons.spp_api_v2.tests.common import ApiV2HttpTestCase
 
 
 class TestProgramAPIEndpoints(ApiV2HttpTestCase):

@@ -2,7 +2,7 @@
 """Tests for ProgramService"""
 
 from ..services.program_service import ProgramService
-from .common import ApiV2TestCase
+from odoo.addons.spp_api_v2.tests.common import ApiV2TestCase
 
 
 class TestProgramService(ApiV2TestCase):

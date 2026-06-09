@@ -6,7 +6,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from .base import CodeableConcept, Identifier, Reference, ResourceMeta
+from odoo.addons.spp_api_v2.schemas.base import CodeableConcept, Identifier, Reference, ResourceMeta
 
 
 class ProgramMembership(BaseModel):

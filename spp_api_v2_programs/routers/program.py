@@ -20,9 +20,9 @@ from fastapi import (
     status,
 )
 
-from ..middleware.auth import get_authenticated_client
+from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
 from ..schemas.program import Program
-from ..schemas.search_result import SearchResult, create_search_result
+from odoo.addons.spp_api_v2.schemas.search_result import SearchResult, create_search_result
 from ..services.program_service import ProgramService
 
 _logger = logging.getLogger(__name__)

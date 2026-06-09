@@ -18,8 +18,6 @@ from ..services.consent_service import ConsentService
 from ..services.filter_service import FilterService
 from ..services.group_service import GroupService
 from ..services.individual_service import IndividualService
-from ..services.program_membership_service import ProgramMembershipService
-from ..services.program_service import ProgramService
 
 _logger = logging.getLogger(__name__)
 
@@ -27,11 +25,10 @@ _logger = logging.getLogger(__name__)
 # Router for filter metadata - mounted per resource
 individual_filter_router = APIRouter(tags=["Individual"], prefix="/Individual")
 group_filter_router = APIRouter(tags=["Group"], prefix="/Group")
-program_filter_router = APIRouter(tags=["Program"], prefix="/Program")
-program_membership_filter_router = APIRouter(tags=["ProgramMembership"], prefix="/ProgramMembership")
 
 
-# Service mapping for resource types
+# Service mapping for resource types. Companion modules (e.g. spp_api_v2_programs)
+# register their own resources into this dict at import time.
 RESOURCE_SERVICES = {
     "Individual": {
         "service_class": IndividualService,
@@ -44,18 +41,6 @@ RESOURCE_SERVICES = {
         "model": "res.partner",
         "base_domain": [("is_registrant", "=", True), ("is_group", "=", True)],
         "consent_type": "group",
-    },
-    "Program": {
-        "service_class": ProgramService,
-        "model": "spp.program",
-        "base_domain": [],
-        "consent_type": None,
-    },
-    "ProgramMembership": {
-        "service_class": ProgramMembershipService,
-        "model": "spp.program.membership",
-        "base_domain": [],
-        "consent_type": "program_membership",
     },
 }
 
@@ -299,46 +284,4 @@ group_filter_router.add_api_route(
     response_model_exclude_none=True,
     summary="Advanced Group Search",
     description="Search groups with complex filter conditions",
-)
-
-# Register endpoints for Program
-program_filter_router.add_api_route(
-    "/_filters",
-    _create_filter_metadata_endpoint("Program"),
-    methods=["GET"],
-    response_model=FilterMetadataResponse,
-    response_model_exclude_none=True,
-    summary="Get Program Filters",
-    description="Get available filters and presets for Program resource",
-)
-
-program_filter_router.add_api_route(
-    "/_search",
-    _create_search_endpoint("Program"),
-    methods=["POST"],
-    response_model=Bundle,
-    response_model_exclude_none=True,
-    summary="Advanced Program Search",
-    description="Search programs with complex filter conditions",
-)
-
-# Register endpoints for ProgramMembership
-program_membership_filter_router.add_api_route(
-    "/_filters",
-    _create_filter_metadata_endpoint("ProgramMembership"),
-    methods=["GET"],
-    response_model=FilterMetadataResponse,
-    response_model_exclude_none=True,
-    summary="Get ProgramMembership Filters",
-    description="Get available filters and presets for ProgramMembership resource",
-)
-
-program_membership_filter_router.add_api_route(
-    "/_search",
-    _create_search_endpoint("ProgramMembership"),
-    methods=["POST"],
-    response_model=Bundle,
-    response_model_exclude_none=True,
-    summary="Advanced ProgramMembership Search",
-    description="Search program memberships with complex filter conditions",
 )
