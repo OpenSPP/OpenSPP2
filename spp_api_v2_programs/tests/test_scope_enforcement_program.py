@@ -102,3 +102,39 @@ class TestScopeEnforcementProgramMembership(ApiV2HttpTestCase):
         data = json.loads(response.content)
         self.assertIn("Missing required scope", data["detail"])
         self.assertIn("program_membership:update", data["detail"])
+
+    def test_individual_scope_does_not_grant_program_membership_access(self):
+        """individual:create scope does not grant access to program_membership endpoints"""
+        # Create client with only individual:create scope
+        client = self.create_api_client(
+            name="Individual Create Only Client",
+            scopes=[{"resource": "individual", "action": "create"}],
+            require_consent=False,
+        )
+        token = self.generate_jwt_token(client)
+
+        # Try to create program membership
+        payload = {
+            "resourceType": "ProgramMembership",
+            "status": "enrolled",
+            "beneficiary": {
+                "reference": "Individual/urn:openspp:vocab:id-type#test_national_id|SCOPE-PM-001",
+            },
+            "program": {
+                "reference": "Program/urn:openspp:program|test-program",
+            },
+        }
+
+        response = self.url_open(
+            self.pm_url,
+            data=json.dumps(payload),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {token}",
+            },
+        )
+
+        self.assertEqual(response.status_code, 403)
+        data = json.loads(response.content)
+        self.assertIn("Missing required scope", data["detail"])
+        self.assertIn("program_membership:create", data["detail"])

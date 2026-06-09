@@ -47,9 +47,7 @@ def migrate(cr, version):
     # Update existing program memberships — only when the programs stack is
     # installed (the source-tracking extension now lives in
     # spp_source_tracking_programs; the table may be absent otherwise).
-    cr.execute(
-        "SELECT 1 FROM information_schema.tables WHERE table_name = 'spp_program_membership'"
-    )
+    cr.execute("SELECT 1 FROM information_schema.tables WHERE table_name = 'spp_program_membership'")
     if cr.fetchone():
         cr.execute(
             """

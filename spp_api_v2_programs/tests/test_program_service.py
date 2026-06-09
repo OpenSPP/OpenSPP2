@@ -1,8 +1,9 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Tests for ProgramService"""
 
-from ..services.program_service import ProgramService
 from odoo.addons.spp_api_v2.tests.common import ApiV2TestCase
+
+from ..services.program_service import ProgramService
 
 
 class TestProgramService(ApiV2TestCase):

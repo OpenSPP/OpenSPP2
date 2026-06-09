@@ -41,4 +41,3 @@ class TestStudioMixin(TransactionCase):
         self.assertIn("activated_date", fields)
         self.assertIn("deactivated_by_id", fields)
         self.assertIn("deactivated_date", fields)
-

@@ -78,7 +78,6 @@ class StudioMixin(models.AbstractModel):
         copy=False,
     )
 
-
     def action_activate(self):
         """Activate the configuration, making it available for use."""
         self.ensure_one()

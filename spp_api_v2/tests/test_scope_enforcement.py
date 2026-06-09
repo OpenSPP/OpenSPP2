@@ -492,14 +492,11 @@ class TestScopeIsolation(ApiV2HttpTestCase):
 
     def setUp(self):
         super().setUp()
-        # Create test data for all resource types
+        # Create test data for the resource types served by the base module.
+        # Program / program-membership isolation lives in spp_api_v2_programs
+        # (the program endpoints moved there in OP#1081).
         self.individual = self.create_test_individual(identifier_value="ISOLATION-IND-001")
         self.group = self.create_test_group(identifier_value="ISOLATION-GRP-001")
-        self.program = self.create_test_program(name="Isolation Test Program")
-        self.membership = self.create_test_membership(
-            partner=self.individual,
-            program=self.program,
-        )
 
     def test_individual_scope_does_not_grant_group_access(self):
         """individual:read scope does not grant access to group endpoints"""
@@ -538,42 +535,6 @@ class TestScopeIsolation(ApiV2HttpTestCase):
         data = json.loads(response.content)
         self.assertIn("Missing required scope", data["detail"])
         self.assertIn("individual:read", data["detail"])
-
-    def test_individual_scope_does_not_grant_program_membership_access(self):
-        """individual:create scope does not grant access to program_membership endpoints"""
-        # Create client with only individual:create scope
-        client = self.create_api_client(
-            name="Individual Create Only Client",
-            scopes=[{"resource": "individual", "action": "create"}],
-            require_consent=False,
-        )
-        token = self.generate_jwt_token(client)
-
-        # Try to create program membership
-        payload = {
-            "resourceType": "ProgramMembership",
-            "status": "enrolled",
-            "beneficiary": {
-                "reference": "Individual/urn:openspp:vocab:id-type#test_national_id|ISOLATION-IND-001",
-            },
-            "program": {
-                "reference": "Program/urn:openspp:program|isolation-test-program",
-            },
-        }
-
-        response = self.url_open(
-            "/api/v2/spp/ProgramMembership",
-            data=json.dumps(payload),
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {token}",
-            },
-        )
-
-        self.assertEqual(response.status_code, 403)
-        data = json.loads(response.content)
-        self.assertIn("Missing required scope", data["detail"])
-        self.assertIn("program_membership:create", data["detail"])
 
     def test_read_scope_does_not_grant_create_access(self):
         """individual:read scope does not grant create access"""
