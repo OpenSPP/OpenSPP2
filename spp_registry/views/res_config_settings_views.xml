@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Registry Settings section in the Settings app (mirrors Programs Settings) -->
+    <record id="res_config_settings_registry_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.registry</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="10" />
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app
+                    string="Registry Settings"
+                    name="registry_settings"
+                    logo="/spp_registry/static/description/icon.png"
+                >
+                    <block title="Registry Access Control" name="registry_access_block">
+                        <setting
+                            string="Restrict Registry Edits to Admin Only"
+                            help="Only administrators can add, modify, or remove registrants.
+                                  Other users can still view all registry data but cannot make changes."
+                        >
+                            <field name="is_registry_admin_only_crud" />
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Action that opens the Settings app focused on the Registry section -->
+    <record id="res_config_settings_menu_registry_action" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_id" ref="res_config_settings_registry_view_form" />
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="context">{'module': 'registry_settings'}</field>
+    </record>
+
+    <!-- "Registry" group under the Settings app — houses registry settings and
+         the relocated superuser configuration menus (e.g. API V2). -->
+    <menuitem
+        id="menu_registry_settings_root"
+        name="Registry"
+        parent="base.menu_administration"
+        sequence="50"
+        groups="spp_security.group_spp_admin,spp_registry.group_registry_config_admin"
+    />
+
+    <menuitem
+        id="menu_registry_settings_general"
+        name="General Settings"
+        parent="menu_registry_settings_root"
+        sequence="0"
+        action="res_config_settings_menu_registry_action"
+        groups="spp_security.group_spp_admin"
+    />
+</odoo>

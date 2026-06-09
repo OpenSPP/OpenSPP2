@@ -43,7 +43,6 @@
         "data/cel_constants.xml",
         "data/config_parameters.xml",
         "data/user_roles.xml",
-        "views/res_config_settings_views.xml",
         "views/farm_season_views.xml",
         "views/farm_details_views.xml",
         "views/farm_activity_views.xml",

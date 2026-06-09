@@ -12,3 +12,4 @@ from . import test_reg_id
 from . import test_membership_constraints
 from . import test_registrant_misc
 from . import test_group_aggregation
+from . import test_res_config_settings

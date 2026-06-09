@@ -138,7 +138,7 @@
         id="menu_spp_import_match"
         name="Import Match"
         action="action_spp_import_match"
-        parent="spp_registry.spp_configuration_menu_root"
+        parent="spp_registry.menu_registry_settings_root"
         sequence="1000"
         groups="spp_security.group_spp_admin"
     />

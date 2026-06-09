@@ -42,6 +42,7 @@
         "wizard/disable_registrant_view.xml",
         # Views - Base
         "views/main_view.xml",
+        "views/res_config_settings_views.xml",
         "views/reg_relationship_view.xml",
         "views/reg_id_view.xml",
         "views/id_types_view.xml",

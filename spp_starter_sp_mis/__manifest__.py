@@ -22,7 +22,6 @@
     ],
     "data": [
         "data/config_parameters.xml",
-        "views/res_config_settings_views.xml",
     ],
     "assets": {
         "web.assets_backend": [
