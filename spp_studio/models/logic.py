@@ -152,19 +152,28 @@ class Logic(models.Model):
     # LIFECYCLE (override state from parent for Studio governance workflow)
     # ═══════════════════════════════════════════════════════════════════════
 
-    # Override state field with Studio-specific values
-    # Parent has: draft, active, inactive
-    # Studio needs: draft, pending, published, archived
+    # Extend the shared spp.cel.expression.state with Studio's governance
+    # states. Parent (spp_cel_domain) has: draft, active, inactive.
+    # Studio adds: pending, published, archived.
+    #
+    # Use selection_add (NOT a full selection= override) so the base
+    # lifecycle values are preserved. Replacing the selection drops "active"
+    # /"inactive", which then breaks dependent modules whose data relies on
+    # them (e.g. spp_programs eligibility templates created with
+    # state="active") depending on module load order. selection_add unions
+    # the two sets, so the result is load-order independent. Studio's own
+    # views restrict the visible workflow states via statusbar_visible.
     state = fields.Selection(
-        selection=[
-            ("draft", "Draft"),
+        selection_add=[
             ("pending", "Pending Approval"),
             ("published", "Published"),
             ("archived", "Archived"),
         ],
-        string="Status",
-        default="draft",
-        required=True,
+        ondelete={
+            "pending": "set default",
+            "published": "set default",
+            "archived": "set default",
+        },
         tracking=True,
         help="Current lifecycle state of the logic (Studio governance workflow)",
     )

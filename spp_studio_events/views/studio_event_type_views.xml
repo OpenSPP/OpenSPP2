@@ -395,23 +395,6 @@
                             </field>
                             <field name="field_group_count" invisible="1" />
                         </page>
-                        <page name="programs" string="Programs">
-                            <field
-                                name="program_ids"
-                                nolabel="1"
-                                readonly="state == 'active'"
-                            >
-                                <list>
-                                    <field name="name" />
-                                    <field name="state" widget="badge" />
-                                </list>
-                            </field>
-                            <div class="alert alert-info" role="alert">
-                                <strong
-                            >Program Visibility:</strong> If programs are selected, this event type
-                                will only be visible in those programs. Leave empty for global visibility.
-                            </div>
-                        </page>
                         <page name="audit" string="Audit Trail">
                             <group>
                                 <group string="Created">
