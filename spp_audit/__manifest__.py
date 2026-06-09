@@ -15,7 +15,6 @@
         "mail",
         "spp_registry",
         "spp_security",
-        "spp_programs",
         "spp_service_points",
     ],
     "external_dependencies": {
