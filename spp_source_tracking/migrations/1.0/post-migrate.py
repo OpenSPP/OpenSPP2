@@ -44,20 +44,26 @@ def migrate(cr, version):
     reg_id_count = cr.rowcount
     _logger.info("Updated %s existing registry IDs with migration source tracking", reg_id_count)
 
-    # Update existing program memberships
+    # Update existing program memberships — only when the programs stack is
+    # installed (the source-tracking extension now lives in
+    # spp_source_tracking_programs; the table may be absent otherwise).
     cr.execute(
+        "SELECT 1 FROM information_schema.tables WHERE table_name = 'spp_program_membership'"
+    )
+    if cr.fetchone():
+        cr.execute(
+            """
+            UPDATE spp_program_membership
+            SET source_system = 'v1-migration',
+                collection_method = 'migration',
+                collection_date = create_date
+            WHERE source_system IS NULL
         """
-        UPDATE spp_program_membership
-        SET source_system = 'v1-migration',
-            collection_method = 'migration',
-            collection_date = create_date
-        WHERE source_system IS NULL
-    """
-    )
-    membership_count = cr.rowcount
-    _logger.info(
-        "Updated %s existing program memberships with migration source tracking",
-        membership_count,
-    )
+        )
+        membership_count = cr.rowcount
+        _logger.info(
+            "Updated %s existing program memberships with migration source tracking",
+            membership_count,
+        )
 
     _logger.info("Source tracking migration completed successfully")
