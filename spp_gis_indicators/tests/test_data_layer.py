@@ -35,7 +35,6 @@ class TestDataLayerIndicators(TransactionCase):
             {
                 "name": "test_pop",
                 "cel_accessor": "test_pop",
-                "label": "Test Population",
                 "value_type": "number",
                 "source_type": "constant",
             }
