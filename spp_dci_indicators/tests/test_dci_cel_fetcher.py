@@ -9,6 +9,8 @@ mocked - we exercise the fetch/routing/identifier logic, not real HTTP.
 
 from unittest.mock import patch
 
+from odoo import Command
+from odoo.exceptions import AccessError
 from odoo.tests import TransactionCase, tagged
 
 from odoo.addons.spp_dci.schemas.constants import RegistryType
@@ -150,6 +152,19 @@ class TestDCICelFetcher(TransactionCase):
 
     def test_sync_for_partners_empty_is_noop(self):
         self.assertEqual(self.Fetcher.sync_for_partners([]), 0)
+
+    def test_sync_for_partners_requires_cel_manager(self):
+        plain_user = self.env["res.users"].create(
+            {
+                "name": "DCI Sync Plain User",
+                "login": "dci_sync_plain_user@example.test",
+                "group_ids": [Command.set([self.env.ref("base.group_user").id])],
+            }
+        )
+        with self.assertRaises(AccessError):
+            self.Fetcher.with_user(plain_user).sync_for_partners(
+                [self.partner.id], variables=self.var_is_alive
+            )
 
     def test_dci_backed_variables_excludes_plain_providers(self):
         plain = self.env["spp.data.provider"].create({"name": "Plain", "code": "plain_excl_t"})

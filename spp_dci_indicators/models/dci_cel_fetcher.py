@@ -13,7 +13,8 @@ by its cel_accessor, following the r.dci.<registry>.<metric> convention.
 
 import logging
 
-from odoo import api, models
+from odoo import _, api, models
+from odoo.exceptions import AccessError
 
 _logger = logging.getLogger(__name__)
 
@@ -93,6 +94,12 @@ class DCICelFetcher(models.AbstractModel):
         )
 
     @api.model
+    def _check_dci_sync_access(self):
+        """Require CEL manager privileges before triggering outbound DCI sync."""
+        if not self.env.user.has_group("spp_cel_domain.group_cel_domain_manager"):
+            raise AccessError(_("Only CEL Domain Managers can sync DCI-backed CEL values."))
+
+    @api.model
     def sync_for_partners(self, partner_ids, variables=None):
         """Fetch + cache all DCI-backed variables for the given partners.
 
@@ -100,6 +107,7 @@ class DCICelFetcher(models.AbstractModel):
         manager's precompute path, which calls this fetcher and stores the result
         in spp.data.value.
         """
+        self._check_dci_sync_access()
         partner_ids = list(partner_ids or [])
         if not partner_ids:
             return 0
