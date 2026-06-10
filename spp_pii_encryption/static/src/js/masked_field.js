@@ -2,7 +2,7 @@
 
 import {registry} from "@web/core/registry";
 import {CharField} from "@web/views/fields/char/char_field";
-import {Component, useState} from "@odoo/owl";
+import {useState} from "@odoo/owl";
 import {useService} from "@web/core/utils/hooks";
 
 /**
@@ -69,11 +69,8 @@ export class MaskedCharField extends CharField {
         // # = show this character from the end
         // Other chars = literal
 
-        const valueChars = value.split("");
         const patternChars = pattern.split("");
         let result = "";
-        let valueIdx = 0;
-        const endIdx = value.length - 1;
 
         // Count # in pattern to know how many chars to show from end
         const hashCount = patternChars.filter((c) => c === "#").length;
@@ -83,7 +80,6 @@ export class MaskedCharField extends CharField {
             if (patternChar === "*") {
                 // Mask character
                 result += "•";
-                valueIdx++;
             } else if (patternChar === "#") {
                 // Show character from end
                 const showIdx = value.length - showFromEnd;
@@ -125,7 +121,7 @@ export class MaskedCharField extends CharField {
             }
 
             this.state.isRevealed = true;
-        } catch (error) {
+        } catch {
             this.notification.add("Failed to reveal value.", {
                 type: "danger",
             });
