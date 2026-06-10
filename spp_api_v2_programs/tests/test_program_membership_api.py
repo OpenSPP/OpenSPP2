@@ -304,51 +304,52 @@ class TestProgramMembershipAPIEndpoints(ApiV2HttpTestCase):
         self.assertEqual(response.status_code, 422)
 
     def test_update_program_membership_success(self):
-        """PUT /ProgramMembership/{id} updates membership"""
+        """PUT /ProgramMembership/{id} updates membership status"""
         url = f"{self.api_base_url}/urn:openspp:vocab:id-type%23test_national_id|ENROLL-001"
 
-        # Get current version
+        # Use the current representation as the update payload
         get_response = self.url_open(url, headers=self._get_headers())
-        current_data = json.loads(get_response.content)
-        version_id = current_data["meta"]["versionId"]
+        payload = json.loads(get_response.content)
+        payload["status"] = "paused"
 
-        # Update to paused status
-        payload = current_data.copy()
+        response = self.url_put(url, data=json.dumps(payload), headers=self._get_headers())
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertEqual(data["status"], "paused")
+        # Persisted on the record
+        self.membership.invalidate_recordset()
+        self.assertEqual(self.membership.state, "paused")
+
+    def test_update_program_membership_wrong_if_match_returns_409(self):
+        """PUT with a stale If-Match version returns 409 Conflict"""
+        url = f"{self.api_base_url}/urn:openspp:vocab:id-type%23test_national_id|ENROLL-001"
+
+        get_response = self.url_open(url, headers=self._get_headers())
+        payload = json.loads(get_response.content)
         payload["status"] = "paused"
 
         headers = self._get_headers()
-        headers["If-Match"] = f'"{version_id}"'
+        headers["If-Match"] = '"stale-version-0"'
 
-        response = self.url_open(
-            url,
-            data=json.dumps(payload),
-            headers=headers,
-        )
+        response = self.url_put(url, data=json.dumps(payload), headers=headers)
+        self.assertEqual(response.status_code, 409)
 
-        # Note: PUT method needs special handling in url_open
-        # For now, check that endpoint exists (200/405 acceptable)
-        self.assertIn(response.status_code, [200, 405])
+    def test_update_program_membership_not_found_returns_404(self):
+        """PUT to a non-existent membership returns 404"""
+        url = f"{self.api_base_url}/urn:openspp:vocab:id-type%23test_national_id|NONEXISTENT-PUT"
 
-    def test_update_program_membership_without_if_match_still_works(self):
-        """PUT without If-Match still works (optional optimistic locking)"""
-        url = f"{self.api_base_url}/urn:openspp:vocab:id-type%23test_national_id|ENROLL-001"
+        payload = {
+            "type": "ProgramMembership",
+            "program": {"reference": "Program/urn:openspp:program|test-enrollment-program"},
+            "beneficiary": {
+                "reference": "Individual/urn:openspp:vocab:id-type%23test_national_id|NONEXISTENT-PUT",
+            },
+            "status": "paused",
+        }
 
-        # Get current data
-        get_response = self.url_open(url, headers=self._get_headers())
-        current_data = json.loads(get_response.content)
-
-        # Update without If-Match header
-        payload = current_data.copy()
-        payload["status"] = "paused"
-
-        response = self.url_open(
-            url,
-            data=json.dumps(payload),
-            headers=self._get_headers(),
-        )
-
-        # Should still work (200/405 acceptable in test environment)
-        self.assertIn(response.status_code, [200, 405])
+        response = self.url_put(url, data=json.dumps(payload), headers=self._get_headers())
+        self.assertEqual(response.status_code, 404)
 
     def test_update_program_membership_no_scope(self):
         """PUT without update scope returns 403"""
@@ -373,14 +374,93 @@ class TestProgramMembershipAPIEndpoints(ApiV2HttpTestCase):
             "status": "paused",
         }
 
-        response = self.url_open(
+        response = self.url_put(
             url,
             data=json.dumps(payload),
             headers=self._get_headers(token=read_only_token),
         )
 
-        # 403 or 405 (method not allowed in test mode)
-        self.assertIn(response.status_code, [403, 405])
+        self.assertEqual(response.status_code, 403)
+
+    def test_create_program_membership_unknown_program_returns_422(self):
+        """POST referencing a non-existent program hits the create error path (422)"""
+        new_individual = self.create_test_individual(identifier_value="ERR-ENROLL-001")
+        self.create_consent(
+            registrant=new_individual,
+            grantee_partner=self.client.partner_id,
+            resource_type="all",
+            field_access="all",
+        )
+
+        payload = {
+            "type": "ProgramMembership",
+            "program": {"reference": "Program/urn:openspp:program|does-not-exist-program"},
+            "beneficiary": {
+                "reference": "Individual/urn:openspp:vocab:id-type%23test_national_id|ERR-ENROLL-001",
+            },
+            "status": "enrolled",
+        }
+
+        response = self.url_open(
+            self.api_base_url,
+            data=json.dumps(payload),
+            headers=self._get_headers(),
+        )
+
+        self.assertEqual(response.status_code, 422)
+
+    def test_update_program_membership_bad_identifier_returns_400(self):
+        """PUT with an identifier lacking the 'system|value' separator returns 400"""
+        url = f"{self.api_base_url}/no-pipe-identifier"
+
+        payload = {
+            "type": "ProgramMembership",
+            "program": {"reference": "Program/urn:openspp:program|test-enrollment-program"},
+            "beneficiary": {
+                "reference": "Individual/urn:openspp:vocab:id-type%23test_national_id|ENROLL-001",
+            },
+            "status": "paused",
+        }
+
+        response = self.url_put(url, data=json.dumps(payload), headers=self._get_headers())
+        self.assertEqual(response.status_code, 400)
+
+    def test_update_program_membership_unknown_program_returns_422(self):
+        """PUT whose payload references a non-existent program hits the update error path (422)"""
+        url = f"{self.api_base_url}/urn:openspp:vocab:id-type%23test_national_id|ENROLL-001"
+
+        payload = {
+            "type": "ProgramMembership",
+            "program": {"reference": "Program/urn:openspp:program|does-not-exist-program"},
+            "beneficiary": {
+                "reference": "Individual/urn:openspp:vocab:id-type%23test_national_id|ENROLL-001",
+            },
+            "status": "paused",
+        }
+
+        response = self.url_put(url, data=json.dumps(payload), headers=self._get_headers())
+        self.assertEqual(response.status_code, 422)
+
+    def test_search_program_memberships_prev_link(self):
+        """Search with a non-zero _offset builds a previous-page link"""
+        # Seed a few more memberships so paging is meaningful
+        for i in range(3):
+            ind = self.create_test_individual(identifier_value=f"PREV-{i}")
+            self.create_test_membership(partner=ind, program=self.program)
+            self.create_consent(
+                registrant=ind,
+                grantee_partner=self.client.partner_id,
+                resource_type="all",
+                field_access="all",
+            )
+
+        url = f"{self.api_base_url}?_count=2&_offset=2"
+        response = self.url_open(url, headers=self._get_headers())
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertIn("links", data)
+        self.assertIsNotNone(data["links"].get("prev"))
 
     def test_consent_filtering_applied(self):
         """Without consent, read returns 403 (same as individual endpoint pattern)"""
