@@ -8,6 +8,8 @@ from odoo.api import Environment
 from odoo.osv import expression
 
 from odoo.addons.fastapi.dependencies import odoo_env
+from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
+from odoo.addons.spp_api_v2.schemas.search_result import SearchResult, create_search_result
 
 from fastapi import (
     APIRouter,
@@ -20,9 +22,7 @@ from fastapi import (
     status,
 )
 
-from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
 from ..schemas.program import Program
-from odoo.addons.spp_api_v2.schemas.search_result import SearchResult, create_search_result
 from ..services.program_service import ProgramService
 
 _logger = logging.getLogger(__name__)

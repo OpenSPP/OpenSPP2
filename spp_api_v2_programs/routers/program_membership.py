@@ -7,6 +7,10 @@ from typing import Annotated
 from odoo.api import Environment
 
 from odoo.addons.fastapi.dependencies import odoo_env
+from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
+from odoo.addons.spp_api_v2.schemas.search_result import SearchResult, create_search_result
+from odoo.addons.spp_api_v2.services.consent_service import ConsentService
+from odoo.addons.spp_api_v2.utils.pagination import fetch_with_consent
 
 from fastapi import (
     APIRouter,
@@ -20,12 +24,8 @@ from fastapi import (
     status,
 )
 
-from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
 from ..schemas.program_membership import ProgramMembership
-from odoo.addons.spp_api_v2.schemas.search_result import SearchResult, create_search_result
-from odoo.addons.spp_api_v2.services.consent_service import ConsentService
 from ..services.program_membership_service import ProgramMembershipService
-from odoo.addons.spp_api_v2.utils.pagination import fetch_with_consent
 
 _logger = logging.getLogger(__name__)
 
