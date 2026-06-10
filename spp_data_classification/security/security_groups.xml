@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Data Classification Security Groups -->
+
+    <!-- Privileges -->
+    <record id="privilege_classification_admin" model="res.groups.privilege">
+        <field name="name">Administrator</field>
+        <field name="category_id" ref="spp_security.category_spp" />
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="privilege_classification_manager" model="res.groups.privilege">
+        <field name="name">Manager</field>
+        <field name="category_id" ref="spp_security.category_spp" />
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="privilege_pii_full_access_admin" model="res.groups.privilege">
+        <field name="name">Full Access (Admin)</field>
+        <field name="category_id" ref="spp_security.category_spp" />
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="privilege_pii_confidential_access_officer" model="res.groups.privilege">
+        <field name="name">Confidential Access (Officer)</field>
+        <field name="category_id" ref="spp_security.category_spp" />
+        <field name="sequence">40</field>
+    </record>
+
+    <!-- Classification Admin - Full control -->
+    <record id="group_classification_admin" model="res.groups">
+        <field name="name">Data Classification Admin</field>
+        <field name="privilege_id" ref="privilege_classification_admin" />
+        <field
+            name="comment"
+        >Full access to data classification configuration. Can create/edit classification levels, patterns, and field classifications.</field>
+        <field name="implied_ids" eval="[Command.link(ref('base.group_system'))]" />
+    </record>
+
+    <!-- Classification Manager - Can classify fields but not edit levels -->
+    <record id="group_classification_manager" model="res.groups">
+        <field name="name">Data Classification Manager</field>
+        <field name="privilege_id" ref="privilege_classification_manager" />
+        <field
+            name="comment"
+        >Can classify fields and view classification settings. Cannot modify classification levels or patterns.</field>
+        <field name="implied_ids" eval="[Command.link(ref('base.group_user'))]" />
+    </record>
+
+    <!-- PII Full Access - Can view unmasked PII data -->
+    <record id="group_pii_full_access_admin" model="res.groups">
+        <field name="name">PII Full Access</field>
+        <field name="privilege_id" ref="privilege_pii_full_access_admin" />
+        <field
+            name="comment"
+        >Can view unmasked PII data across all classification levels. Should be granted sparingly.</field>
+        <field name="implied_ids" eval="[Command.link(ref('base.group_user'))]" />
+    </record>
+
+    <!-- PII Restricted Access - Can view CONFIDENTIAL but not RESTRICTED -->
+    <record id="group_pii_confidential_access_officer" model="res.groups">
+        <field name="name">PII Confidential Access</field>
+        <field name="privilege_id" ref="privilege_pii_confidential_access_officer" />
+        <field
+            name="comment"
+        >Can view unmasked CONFIDENTIAL data. RESTRICTED data remains masked.</field>
+        <field name="implied_ids" eval="[Command.link(ref('base.group_user'))]" />
+    </record>
+</odoo>
