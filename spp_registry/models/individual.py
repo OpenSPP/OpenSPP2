@@ -135,9 +135,11 @@ class SPPIndividual(models.Model):
 
     def write(self, vals):
         """Override to recompute name and invalidate group metrics."""
-        # Recompute name if any name field changed (only for non-group individuals)
+        # Recompute name if a name part changed and no explicit name is being
+        # written (only for non-group individuals). An explicit name in vals
+        # is preserved.
         name_updates = {}
-        if self._name_fields & vals.keys() and not self.env.context.get("skip_name_format"):
+        if self._name_fields & vals.keys() and not vals.get("name") and not self.env.context.get("skip_name_format"):
             for rec in self.filtered(lambda r: not r.is_group):
                 name_updates[rec.id] = self._format_individual_name(
                     vals.get("family_name", rec.family_name),
@@ -197,9 +199,11 @@ class SPPIndividual(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        # Compute name from parts before create (injects into vals, no extra write)
+        # Compute name from parts before create (injects into vals, no extra write).
+        # An explicitly-provided name is preserved (e.g. demo stories set a
+        # human-friendly "Given Family" display name alongside the parts).
         for vals in vals_list:
-            if not vals.get("is_group") and self._name_fields & vals.keys():
+            if not vals.get("is_group") and self._name_fields & vals.keys() and not vals.get("name"):
                 vals["name"] = self._format_individual_name(
                     vals.get("family_name", ""),
                     vals.get("given_name", ""),
