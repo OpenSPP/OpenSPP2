@@ -248,35 +248,19 @@ class GisIndicatorLayer(models.Model):
                 rec.legend_html = ""
 
     def _get_indicator_values(self):
-        """Get indicator values from spp.hxl.area.indicator.
+        """Get area-level indicator values for this layer's variable/period/incident.
 
         Returns:
             list: List of float values
+
+        TODO(remove-hxl): The area-indicator data source (spp.hxl.area.indicator,
+        formerly provided by spp_hxl_area) has been removed. Until a replacement
+        source is wired in, no indicator data is available and this returns an empty
+        list, which disables indicator-driven break and color computation. See
+        internal plan remove-hxl-modules.md.
         """
         self.ensure_one()
-
-        if not self.variable_id:
-            return []
-
-        # Build domain for indicator search
-        domain = [
-            ("variable_id", "=", self.variable_id.id),
-        ]
-
-        if self.period_key:
-            domain.append(("period_key", "=", self.period_key))
-
-        if self.incident_id:
-            domain.append(("incident_id", "=", self.incident_id.id))
-
-        # Search indicators
-        Indicator = self.env["spp.hxl.area.indicator"]
-        indicators = Indicator.search(domain)
-
-        # Extract values
-        values = [ind.value for ind in indicators if ind.value is not False]
-
-        return values
+        return []
 
     @staticmethod
     def _compute_quantile_breaks(values, num_classes):
@@ -346,59 +330,11 @@ class GisIndicatorLayer(models.Model):
 
         Returns:
             dict: Mapping of area_id (int) to color (str)
+
+        TODO(remove-hxl): The area-indicator data source (spp.hxl.area.indicator,
+        formerly provided by spp_hxl_area) has been removed. Until a replacement
+        source is wired in, there is no per-area indicator data to colorize, so this
+        returns an empty mapping. See internal plan remove-hxl-modules.md.
         """
         self.ensure_one()
-
-        if not self.variable_id or not self.color_scale_id:
-            return {}
-
-        # Build domain for indicator search
-        domain = [
-            ("variable_id", "=", self.variable_id.id),
-            ("area_id", "in", area_ids),
-        ]
-
-        if self.period_key:
-            domain.append(("period_key", "=", self.period_key))
-
-        if self.incident_id:
-            domain.append(("incident_id", "=", self.incident_id.id))
-
-        # Search indicators
-        Indicator = self.env["spp.hxl.area.indicator"]
-        indicators = Indicator.search(domain)
-
-        if not indicators:
-            return {}
-
-        # Get breaks and colors
-        if not self.break_values:
-            return {}
-
-        breaks = json.loads(self.break_values)
-        colors = self.color_scale_id.get_colors()
-
-        if not colors:
-            return {}
-
-        # Build color mapping
-        color_map = {}
-        num_classes = len(breaks) + 1
-        num_colors = len(colors)
-
-        for ind in indicators:
-            if not ind.value and ind.value != 0:
-                continue
-            # Determine which class this value falls into
-            class_idx = 0
-            for i, break_val in enumerate(breaks):
-                if ind.value >= break_val:
-                    class_idx = i + 1
-                else:
-                    break
-
-            # Map class to color
-            color_idx = int((class_idx / max(num_classes - 1, 1)) * (num_colors - 1))
-            color_map[ind.area_id.id] = colors[color_idx]
-
-        return color_map
+        return {}
