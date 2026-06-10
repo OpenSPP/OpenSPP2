@@ -4,7 +4,7 @@
 import base64
 
 from odoo.tests.common import TransactionCase
-from odoo.tools import config
+from odoo.tools import config, mute_logger
 
 
 class TestEncryptedFieldMixin(TransactionCase):
@@ -126,3 +126,32 @@ class TestEncryptedFieldMixin(TransactionCase):
         # But both should decrypt to same value
         self.assertEqual(mixin._decrypt_value(encrypted1, "field_a"), plaintext)
         self.assertEqual(mixin._decrypt_value(encrypted2, "field_b"), plaintext)
+
+    def test_get_encrypted_fields_default_empty(self):
+        """With no configuration, the mixin reports no encrypted fields."""
+        self.assertEqual(self.Mixin._get_encrypted_fields(), [])
+
+    def test_get_index_type_defaults_to_exact(self):
+        """An unconfigured field defaults to the 'exact' index type."""
+        self.assertEqual(self.Mixin._get_index_type("national_id"), "exact")
+
+    def test_normalize_phonetic_and_passthrough(self):
+        """Phonetic normalization uses Soundex; unknown index types pass through."""
+        mixin = self.Mixin
+        self.assertEqual(
+            mixin._normalize_for_index("Smith", "phonetic"),
+            mixin._soundex("Smith"),
+        )
+        # An unrecognized index type returns the stripped value unchanged.
+        self.assertEqual(mixin._normalize_for_index("  abc  ", "unknown"), "abc")
+
+    def test_decrypt_invalid_returns_none(self):
+        """Decrypting non-decryptable data fails gracefully and returns None."""
+        with mute_logger("odoo.addons.spp_pii_encryption.models.encrypted_field_mixin"):
+            self.assertIsNone(self.Mixin._decrypt_value("not-valid-ciphertext", "national_id"))
+
+    def test_search_helpers_without_index_field(self):
+        """Search helpers return an empty recordset when the index column is absent."""
+        with mute_logger("odoo.addons.spp_pii_encryption.models.encrypted_field_mixin"):
+            self.assertFalse(self.Mixin.search_by_blind_index("national_id", "123"))
+            self.assertFalse(self.Mixin.search_by_partial("national_id", "0123"))
