@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- PII Encryption Security Groups -->
+
+    <!-- Privilege -->
+    <record id="privilege_encryption_admin" model="res.groups.privilege">
+        <field name="name">Administrator</field>
+        <field name="category_id" ref="spp_security.category_spp" />
+        <field name="sequence">10</field>
+    </record>
+
+    <!-- Encryption Admin - Key management -->
+    <record id="group_encryption_admin" model="res.groups">
+        <field name="name">Encryption Administrator</field>
+        <field name="privilege_id" ref="privilege_encryption_admin" />
+        <field
+            name="comment"
+        >Can manage encryption keys and rotate them. Highly privileged role.</field>
+        <field name="implied_ids" eval="[Command.link(ref('base.group_system'))]" />
+    </record>
+</odoo>
