@@ -84,6 +84,18 @@ class TestSearchServiceInternals(DCISocialServerCommon):
                 self.service._parse_predicate("r.broken ==")
         self.assertIn("bad syntax", str(ctx.exception))
 
+    def test_parse_predicate_rejects_sensitive_dci_method_metrics(self):
+        blocked = [
+            "dr.dci.severity('Vision') >= 3",
+            "crvs.dci.has_event('death') == true",
+            "metric('dr.dci.severity', me, arg='Vision') >= 3",
+            'metric("crvs.dci.has_event", me, arg="death") == true',
+        ]
+        for expression in blocked:
+            with self.assertRaises(ValueError) as ctx:
+                self.service._parse_predicate(expression)
+            self.assertIn("sensitive DCI metric", str(ctx.exception))
+
     # --- _to_dci_member ------------------------------------------------------
 
     def test_to_dci_member_with_identifier_and_demographics(self):

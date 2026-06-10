@@ -2,6 +2,7 @@
 """DCI Social Registry Search Service - Maps Odoo partners to DCI schemas."""
 
 import logging
+import re
 import uuid
 from datetime import UTC, datetime
 from typing import Any
@@ -33,6 +34,14 @@ _ACCEPTED_SOCIAL_REG_TYPES = {
     "social_registry",
     "social",
 }
+
+# Parameterized DCI CEL metrics that expose registry-derived facts which are
+# not safe for unauthorised external predicate filtering.  DCI Social Registry
+# search predicates are a caller-supplied oracle (including total_count), so
+# deny these sensitive metrics before compiling the expression.  Keep this
+# local instead of importing spp_dci_indicators: that addon is optional and is
+# not a dependency of the DCI Social Registry server.
+_DCI_PREDICATE_DENIED_METRICS = frozenset(("dr.dci.severity", "crvs.dci.has_event"))
 
 
 class DCISocialSearchService:
@@ -366,6 +375,8 @@ class DCISocialSearchService:
         if not expression or not expression.strip():
             return []
 
+        self._validate_external_predicate_expression(expression)
+
         # Use CEL service to compile expression to domain
         cel_service = self.env["spp.cel.service"]
 
@@ -386,6 +397,21 @@ class DCISocialSearchService:
             raise ValueError(f"Invalid predicate expression: {error_msg}")
 
         return result.get("domain", [])
+
+    def _validate_external_predicate_expression(self, expression: str) -> None:
+        """Reject sensitive DCI metrics in sender-supplied predicates.
+
+        DCI predicate searches return counts and pageable matches, so allowing
+        callers to filter on raw DCI indicator cache values can disclose the
+        value by repeated queries even when the value is not present in the
+        response schema.  Internal CEL use can still compile these metrics; this
+        guard only applies to external Social Registry predicate search.
+        """
+        for accessor in _DCI_PREDICATE_DENIED_METRICS:
+            method_pattern = rf"(?<![\w.]){re.escape(accessor)}\s*\("
+            metric_pattern = rf"(?<![\w.])metric\s*\(\s*(['\"]){re.escape(accessor)}\1"
+            if re.search(method_pattern, expression) or re.search(metric_pattern, expression):
+                raise ValueError(_("Predicate searches cannot filter on sensitive DCI metric '%s'.") % accessor)
 
     def _parse_expression(self, expression) -> list:
         """
