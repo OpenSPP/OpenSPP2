@@ -4506,72 +4506,72 @@ class SPPMISDemoGenerator(models.TransientModel):
     # Keys: story_id -> {locale: area_xmlid}
     STORY_AREA_MAP = {
         "juan_dela_cruz": {
-            "fil_PH": "spp_demo.area_phl_calamba",
+            "fil_PH": "spp_demo.area_phl_ph0403405",  # Calamba
             "fr_TG": "spp_demo.area_tgo_lome_tokoin",
             "si_LK": "spp_demo.area_lka_moratuwa",
         },
         "maria_santos": {
-            "fil_PH": "spp_demo.area_phl_santa_rosa",
+            "fil_PH": "spp_demo.area_phl_ph0403428",  # Santa Rosa
             "fr_TG": "spp_demo.area_tgo_aflao",
             "si_LK": "spp_demo.area_lka_kolonnawa",
         },
         "jose_reyes_multigenerational": {
-            "fil_PH": "spp_demo.area_phl_san_pablo",
+            "fil_PH": "spp_demo.area_phl_ph0403424",  # San Pablo
             "fr_TG": "spp_demo.area_tgo_kpalime",
             "si_LK": "spp_demo.area_lka_kandy_ds",
         },
         "ibrahim_hassan": {
-            "fil_PH": "spp_demo.area_phl_antipolo",
+            "fil_PH": "spp_demo.area_phl_ph0405802",  # Antipolo
             "fr_TG": "spp_demo.area_tgo_sokode",
             "si_LK": "spp_demo.area_lka_galle_ds",
         },
         "david_sofia_martinez": {
-            "fil_PH": "spp_demo.area_phl_makati",
+            "fil_PH": "spp_demo.area_phl_ph1307602",  # Makati
             "fr_TG": "spp_demo.area_tgo_lome",
             "si_LK": "spp_demo.area_lka_dehiwala",
         },
         "rosa_garcia": {
-            "fil_PH": "spp_demo.area_phl_quezon_city",
+            "fil_PH": "spp_demo.area_phl_ph1307404",  # Quezon City
             "fr_TG": "spp_demo.area_tgo_lome_be",
             "si_LK": "spp_demo.area_lka_colombo_fort",
         },
         "mary_johnson": {
-            "fil_PH": "spp_demo.area_phl_pasig",
+            "fil_PH": "spp_demo.area_phl_ph1307403",  # Pasig
             "fr_TG": "spp_demo.area_tgo_lome_nyekonakpoe",
             "si_LK": "spp_demo.area_lka_colombo_pettah",
         },
         "ahmed_said": {
-            "fil_PH": "spp_demo.area_phl_taguig",
+            "fil_PH": "spp_demo.area_phl_ph1307607",  # Taguig
             "fr_TG": "spp_demo.area_tgo_lome_adidogome",
             "si_LK": "spp_demo.area_lka_dehiwala_gn",
         },
         "nguyen_extended_family": {
-            "fil_PH": "spp_demo.area_phl_bacoor",
+            "fil_PH": "spp_demo.area_phl_ph0402103",  # Bacoor
             "fr_TG": "spp_demo.area_tgo_baguida_centre",
             "si_LK": "spp_demo.area_lka_hikkaduwa",
         },
         "amina_osman_household": {
-            "fil_PH": "spp_demo.area_phl_manila",
+            "fil_PH": "spp_demo.area_phl_ph1303901",  # City of Manila
             "fr_TG": "spp_demo.area_tgo_kpalime_centre",
             "si_LK": "spp_demo.area_lka_mount_lavinia_gn",
         },
         "carlos_elena_morales": {
-            "fil_PH": "spp_demo.area_phl_dasmarinas",
+            "fil_PH": "spp_demo.area_phl_ph0402106",  # Dasmariñas
             "fr_TG": "spp_demo.area_tgo_kpalime_tove",
             "si_LK": "spp_demo.area_lka_galle_fort",
         },
         "chen_large_family": {
-            "fil_PH": "spp_demo.area_phl_qc_commonwealth",
+            "fil_PH": "spp_demo.area_phl_ph1307404",  # Quezon City (Commonwealth brgy in curated data)
             "fr_TG": "spp_demo.area_tgo_zio",
             "si_LK": "spp_demo.area_lka_gampaha",
         },
         "grace_okonkwo": {
-            "fil_PH": "spp_demo.area_phl_makati_poblacion",
+            "fil_PH": "spp_demo.area_phl_ph1307602",  # Makati (Poblacion brgy in curated data)
             "fr_TG": "spp_demo.area_tgo_ogou",
             "si_LK": "spp_demo.area_lka_kalutara",
         },
         "luis_fernandez": {
-            "fil_PH": "spp_demo.area_phl_calamba_real",
+            "fil_PH": "spp_demo.area_phl_ph0403405",  # Calamba (Real brgy in curated data)
             "fr_TG": "spp_demo.area_tgo_lacs",
             "si_LK": "spp_demo.area_lka_matara",
         },
