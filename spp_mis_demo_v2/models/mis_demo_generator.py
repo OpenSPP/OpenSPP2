@@ -626,7 +626,9 @@ class SPPMISDemoGenerator(models.TransientModel):
             stats["random_individuals_created"] += chunk_stats["random_individuals_created"]
 
             # Commit this chunk so it's durable
-            self.env.cr.commit()  # pylint: disable=invalid-commit
+            # Skip commit in test mode to avoid breaking test isolation
+            if not config["test_enable"]:
+                self.env.cr.commit()  # pylint: disable=invalid-commit
 
             offset += chunk_count
             _logger.info(
