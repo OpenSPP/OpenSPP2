@@ -1187,18 +1187,9 @@ class CelTranslator(models.AbstractModel):
                             .search([("value", "=", right.capitalize())], limit=None)
                         )
                         if not direct and right.lower() in {"male", "female"}:
-                            code_defaults = {"male": "M", "female": "F"}
-                            direct = (
-                                self.env[comodel]  # nosemgrep: odoo-sudo-without-context
-                                .with_context(active_test=False)
-                                .sudo()
-                                .create(
-                                    {
-                                        "value": right.capitalize(),
-                                        "code": code_defaults[right.lower()],
-                                    }
-                                )
-                            )
+                            # Lookup-only: the gender label is seeded as module
+                            # data, never created here. Absent => match nothing.
+                            return [("id", "=", 0)]
                         if direct:
                             resolved_ids = direct.ids
                             if op in ("=", "=="):

@@ -27,3 +27,4 @@ from . import test_data_value
 from . import test_data_provider
 from . import test_multi_company
 from . import test_cel_relational_predicate
+from . import test_cel_smart_op_lookup
