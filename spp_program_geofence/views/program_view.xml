@@ -14,7 +14,7 @@
                     class="oe_stat_button"
                     icon="fa-map-marker"
                     name="action_open_geofences"
-                    invisible="not geofence_ids"
+                    invisible="geofence_count == 0"
                 >
                     <field name="geofence_count" widget="statinfo" string="Geofences" />
                 </button>
@@ -25,7 +25,7 @@
                 expr="//page[@name='configuration']//div[hasclass('card')][1]"
                 position="before"
             >
-                <div class="card mb-3 shadow-sm">
+                <div name="geofence_section" class="card mb-3 shadow-sm">
                     <div
                         class="card-header d-flex justify-content-between align-items-center py-2 bg-info-subtle"
                     >
@@ -46,7 +46,7 @@
                                 class="badge rounded-pill bg-success"
                                 invisible="not geofence_ids"
                             >
-                                <i class="fa fa-check me-1" />
+                                <i class="fa fa-check me-1" title="Configured" />
                                 <field
                                 name="geofence_count"
                                 class="d-inline"
@@ -54,7 +54,7 @@
                             </span>
                         </div>
                     </div>
-                    <div class="card-body py-3">
+                    <div name="geofence_card_body" class="card-body py-3">
                         <field
                             name="geofence_ids"
                             nolabel="1"

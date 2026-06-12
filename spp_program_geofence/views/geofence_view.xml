@@ -22,18 +22,17 @@
         <field name="arch" type="xml">
             <form string="Geofence">
                 <sheet>
-                    <div class="oe_title mb24">
-                        <label for="name" string="Name:" />
+                    <div class="oe_title mb-4">
                         <h1>
                             <field name="name" placeholder="Enter geofence name..." />
                         </h1>
                     </div>
-                    <group>
-                        <group>
+                    <group name="main_info" col="2">
+                        <group name="primary_fields">
                             <field name="geofence_type" />
                             <field name="created_from" readonly="1" />
                         </group>
-                        <group>
+                        <group name="secondary_fields">
                             <field
                                 name="area_sqkm"
                                 string="Area (sq km)"
@@ -46,11 +45,12 @@
                             />
                         </group>
                     </group>
-                    <group>
+                    <group name="tag_description_section">
                         <field name="tag_ids" widget="many2many_tags" colspan="2" />
                         <field name="description" colspan="2" />
                     </group>
-                    <notebook>
+                    <group name="extension_section" invisible="1" />
+                    <notebook name="geofence_tabs">
                         <page name="geometry" string="Geometry">
                             <field name="geometry" nolabel="1" />
                         </page>
@@ -103,10 +103,7 @@
     </record>
 
     <record id="gis_vector_layer_geofence" model="spp.gis.data.layer">
-        <field
-            name="geo_field_id"
-            ref="spp_gis.field_spp_gis_geofence__geometry"
-        />
+        <field name="geo_field_id" ref="spp_gis.field_spp_gis_geofence__geometry" />
         <field name="name">Geofence Polygons</field>
         <field eval="1" name="sequence" />
         <field name="view_id" ref="view_geofence_gis" />

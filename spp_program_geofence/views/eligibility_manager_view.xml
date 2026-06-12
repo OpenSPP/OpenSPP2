@@ -7,8 +7,7 @@
         <field name="arch" type="xml">
             <form string="Geofence Eligibility Manager">
                 <sheet>
-                    <div class="oe_title mb24">
-                        <label for="name" string="Name:" />
+                    <div class="oe_title mb-4">
                         <h1>
                             <field
                                 name="name"
@@ -24,29 +23,33 @@
                         role="alert"
                         invisible="program_geofence_ids"
                     >
-                        <i class="fa fa-exclamation-triangle me-2" />
+                        <i class="fa fa-exclamation-triangle me-2" title="Warning" />
                         No geofences configured on this program. Add geofences
                         on the program's <strong>Overview</strong> tab before
                         importing eligible registrants.
                     </div>
 
-                    <group string="Settings" col="4" colspan="4">
-                        <field
-                            name="include_area_fallback"
-                            widget="boolean_toggle"
-                            help="When enabled, registrants without GPS coordinates will be matched by their assigned administrative area if it overlaps the geofence. Disable to require precise GPS coordinates only."
-                        />
-                        <field
-                            name="fallback_area_type_id"
-                            invisible="not include_area_fallback"
-                            options="{'no_create': True}"
-                            help="Restrict area fallback to a specific administrative level (e.g. District). Leave empty to match all area types."
-                        />
+                    <group name="settings_section" col="2">
+                        <group name="settings_primary">
+                            <field
+                                name="include_area_fallback"
+                                widget="boolean_toggle"
+                                help="When enabled, registrants without GPS coordinates will be matched by their assigned administrative area if it overlaps the geofence. Disable to require precise GPS coordinates only."
+                            />
+                        </group>
+                        <group name="settings_secondary">
+                            <field
+                                name="fallback_area_type_id"
+                                invisible="not include_area_fallback"
+                                options="{'no_create': True}"
+                                help="Restrict area fallback to a specific administrative level (e.g. District). Leave empty to match all area types."
+                            />
+                        </group>
                     </group>
 
                     <group string="Program Geofences" colspan="4" col="1">
                         <div class="alert alert-info small py-2" role="alert">
-                            <i class="fa fa-info-circle me-2" />
+                            <i class="fa fa-info-circle me-2" title="Info" />
                             This manager checks whether registrants fall within
                             the program's geographic scope. Geofences are
                             configured on the program's
@@ -76,7 +79,7 @@
                             role="status"
                             invisible="preview_error or not program_geofence_ids"
                         >
-                            <i class="fa fa-map-marker me-2" />
+                            <i class="fa fa-map-marker me-2" title="Location match" />
                             <strong>
                             <field name="preview_count" class="oe_inline" />
                         </strong>
@@ -87,7 +90,7 @@
                             role="alert"
                             invisible="not preview_error"
                         >
-                            <i class="fa fa-exclamation-triangle me-2" />
+                            <i class="fa fa-exclamation-triangle me-2" title="Error" />
                             <field name="preview_error" nolabel="1" class="oe_inline" />
                         </div>
                     </group>
