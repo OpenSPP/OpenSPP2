@@ -2,6 +2,7 @@
 """Tests for geofence-based eligibility manager."""
 
 import json
+from unittest.mock import patch
 
 from odoo import Command, fields
 from odoo.tests import TransactionCase, tagged
@@ -526,3 +527,78 @@ class TestGeofenceEligibilityOfficer(TransactionCase):
             )
         )
         self.assertTrue(new_manager.id)
+
+
+@tagged("post_install", "-at_install")
+class TestGeofenceAsyncChannelRouting(TransactionCase):
+    """Test that _import_registrants_async passes identity_key and correct channels.
+
+    Mirrors the pattern in spp_programs/tests/test_concurrency.py.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.program = self.env["spp.program"].create(
+            {
+                "name": "Async Channel Test Program",
+                "target_type": "individual",
+            }
+        )
+        self.manager = self.env["spp.program.membership.manager.geofence"].create(
+            {
+                "name": "Async Channel Manager",
+                "program_id": self.program.id,
+            }
+        )
+
+    def test_import_registrants_async_uses_identity_key(self):
+        """_import_registrants_async must pass identity_key with 'import_reg_' to delayable."""
+        partners = self.env["res.partner"].create(
+            [{"name": f"Async Registrant {i}", "is_registrant": True} for i in range(3)]
+        )
+
+        delayable_calls = []
+        original_delayable = type(self.manager).delayable
+
+        def mock_delayable(self_inner, **kwargs):
+            delayable_calls.append(kwargs)
+            return original_delayable(self_inner, **kwargs)
+
+        with patch.object(type(self.manager), "delayable", mock_delayable):
+            try:
+                self.manager._import_registrants_async(partners, "draft")
+            except Exception:
+                pass
+
+        identity_keys = [c.get("identity_key", "") for c in delayable_calls]
+        has_import_key = any("import_reg_" in k for k in identity_keys)
+        self.assertTrue(
+            has_import_key,
+            f"Expected identity_key with 'import_reg_', got: {identity_keys}",
+        )
+
+    def test_import_registrants_async_on_done_uses_statistics_refresh(self):
+        """_import_registrants_async on_done job must use channel='statistics_refresh'."""
+        partners = self.env["res.partner"].create(
+            [{"name": f"Async Registrant SR {i}", "is_registrant": True} for i in range(3)]
+        )
+
+        delayable_calls = []
+        original_delayable = type(self.manager).delayable
+
+        def mock_delayable(self_inner, **kwargs):
+            delayable_calls.append(kwargs)
+            return original_delayable(self_inner, **kwargs)
+
+        with patch.object(type(self.manager), "delayable", mock_delayable):
+            try:
+                self.manager._import_registrants_async(partners, "draft")
+            except Exception:
+                pass
+
+        channels = [c.get("channel", "") for c in delayable_calls]
+        self.assertIn(
+            "statistics_refresh",
+            channels,
+            f"Expected 'statistics_refresh' channel for on_done job, got: {channels}",
+        )

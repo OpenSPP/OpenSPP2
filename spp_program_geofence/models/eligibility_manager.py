@@ -204,12 +204,13 @@ class GeofenceMembershipManager(models.Model):
         jobs = []
         for i in range(0, len(new_beneficiaries), self.IMPORT_CHUNK_SIZE):
             jobs.append(
-                self.delayable(channel="eligibility_manager")._import_registrants(
-                    new_beneficiaries[i : i + self.IMPORT_CHUNK_SIZE], state
-                )
+                self.delayable(
+                    channel="eligibility_manager",
+                    identity_key=f"import_reg_{program.id}_{i}",
+                )._import_registrants(new_beneficiaries[i : i + self.IMPORT_CHUNK_SIZE], state)
             )
         main_job = group(*jobs)
-        main_job.on_done(self.delayable(channel="eligibility_manager").mark_import_as_done())
+        main_job.on_done(self.delayable(channel="statistics_refresh").mark_import_as_done())
         main_job.delay()
 
     def mark_import_as_done(self):
