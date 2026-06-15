@@ -20,9 +20,19 @@
             <xpath expr="//field[@name='name']" position="after">
                 <field name="role_type" />
             </xpath>
+            <!-- Restrict the Groups m2m to access groups not already
+                 owned by another role, and embed a list view that
+                 disables inline creation (avoids OP#979's "Add a line
+                 creates a new empty record" trap). Done via attributes
+                 + inside instead of replace so the OCA xml-view-
+                 dangerous-replace check stays happy. -->
             <xpath expr="//field[@name='implied_ids']" position="attributes">
                 <attribute name="domain">[('role_id', '=', False)]</attribute>
-                <attribute name="widget">many2many</attribute>
+            </xpath>
+            <xpath expr="//field[@name='implied_ids']" position="inside">
+                <list create="0">
+                    <field name="full_name" string="Group" />
+                </list>
             </xpath>
             <xpath
                 expr="//field[@name='line_ids']/list/field[@name='user_id']"

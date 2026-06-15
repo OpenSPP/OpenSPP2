@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_data_provider_form_dci" model="ir.ui.view">
+        <field name="name">spp.data.provider.form.dci</field>
+        <field name="model">spp.data.provider</field>
+        <field name="inherit_id" ref="spp_cel_domain.view_data_provider_form" />
+        <field name="arch" type="xml">
+            <!-- DCI Integration as the first notebook tab -->
+            <xpath expr="//notebook/page[1]" position="before">
+                <page string="DCI Integration" name="dci_integration">
+                    <group string="Linked DCI Data Source">
+                        <field
+                            name="dci_data_source_id"
+                            options="{'no_create': True}"
+                            help="Select the DCI Data Source this provider fetches from"
+                        />
+                    </group>
+                    <field name="is_dci_backed" invisible="1" />
+                    <div
+                        class="alert alert-info"
+                        role="alert"
+                        invisible="not dci_data_source_id"
+                    >
+                        <strong>DCI-backed provider.</strong>
+                        Variable values for this provider are fetched via the DCI protocol
+                        using the linked Data Source. The Base URL, Authentication, and OAuth
+                        credentials below are ignored at runtime when DCI routing is active —
+                        configure those on the DCI Data Source instead.
+                    </div>
+                </page>
+            </xpath>
+
+            <!-- When DCI-backed, the provider's own connection settings are ignored -->
+            <xpath expr="//field[@name='base_url']" position="attributes">
+                <attribute name="readonly">dci_data_source_id != False</attribute>
+            </xpath>
+            <xpath expr="//field[@name='auth_type']" position="attributes">
+                <attribute name="readonly">dci_data_source_id != False</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

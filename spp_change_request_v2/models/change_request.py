@@ -1018,6 +1018,7 @@ class SPPChangeRequest(models.Model):
         action = "resubmitted" if old_state == "revision" else "submitted"
         self._create_audit_event("submitted", old_state, "pending")
         self._create_log(action)
+        self.stage = "review"
 
     def _on_request_revision(self, notes):
         super()._on_request_revision(notes)
@@ -1523,29 +1524,63 @@ class SPPChangeRequest(models.Model):
     def action_open_stage_form(self):
         """Open the appropriate form view based on the current stage.
 
-        For draft/revision CRs: routes to the stage-specific form.
-        For other states: opens the main CR form (for validators/managers).
+        - **Draft / revision**: route by `stage` to the editable stage form
+          (details / documents / review).
+        - **Submitted+ (pending, approved, applied, rejected)**: always open
+          the review-stage form. That form already renders state-aware
+          headers (Approve/Reject for validators, Apply for managers,
+          Applied ribbon for completed, Start Over for rejected) and shows
+          the same Edit Details → Upload Documents → Review & Submit
+          breadcrumb. Without this, validators/managers (and demo-applied
+          CRs opened from the list) landed on the legacy main form view
+          which lacks the breadcrumb and the pager-hide treatment. See
+          OP#920 round-2.
         """
         self.ensure_one()
 
-        if self.approval_state not in ("draft", "revision"):
-            return {
-                "type": "ir.actions.act_window",
-                "name": self.name,
-                "res_model": "spp.change.request",
-                "res_id": self.id,
-                "view_mode": "form",
-                "views": [[False, "form"]],
-                "target": "current",
-            }
+        if self.approval_state in ("draft", "revision"):
+            if self.stage == "documents":
+                return self._action_open_documents_form()
+            if self.stage == "review":
+                return self._action_open_review_form()
+            return self.action_open_detail()
 
-        if self.stage == "documents":
-            return self._action_open_documents_form()
-        if self.stage == "review":
-            return self._action_open_review_form()
+        # pending / approved / applied / rejected
+        return self._action_open_review_form()
 
-        # Default: details stage
-        return self.action_open_detail()
+    def _action_open_review_form(self):
+        """Open the CR in the Review & Submit stage form view."""
+        self.ensure_one()
+        view = self.env.ref(
+            "spp_change_request_v2.spp_change_request_review_form",
+            raise_if_not_found=False,
+        )
+        return {
+            "type": "ir.actions.act_window",
+            "name": self.name,
+            "res_model": "spp.change.request",
+            "res_id": self.id,
+            "view_mode": "form",
+            "views": [[view.id if view else False, "form"]],
+            "target": "current",
+        }
+
+    def _action_open_documents_form(self):
+        """Open the CR in the Upload Documents stage form view."""
+        self.ensure_one()
+        view = self.env.ref(
+            "spp_change_request_v2.spp_change_request_documents_form",
+            raise_if_not_found=False,
+        )
+        return {
+            "type": "ir.actions.act_window",
+            "name": self.name,
+            "res_model": "spp.change.request",
+            "res_id": self.id,
+            "view_mode": "form",
+            "views": [[view.id if view else False, "form"]],
+            "target": "current",
+        }
 
     def action_goto_details(self):
         """Navigate to the details stage (replaces breadcrumb via client action)."""

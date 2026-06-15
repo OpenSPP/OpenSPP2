@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+
+Area-based row-level filtering for change requests (OP#989).
+
+QA round 1 surfaced that the original `_prepare_domain` override on
+`spp.change.request` only caught `search_read` / `web_search_read`. The
+registrant picker on the CR form (a Many2one widget) calls `name_search` ->
+`_search` and bypasses the override. An ir.rule applies to every ORM read
+path automatically, including `name_search`, `search_count`, `read_group`,
+and related-field traversal.
+
+Mirrors the conditional domain pattern from `spp_area/security/rules.xml`
+so users without `center_area_ids` (global roles) are unaffected. The
+module now depends on `spp_area` directly so `user.center_area_ids`
+can be referenced without defensive guards.
+-->
+<odoo noupdate="1">
+    <record id="rule_spp_change_request_area_filter" model="ir.rule">
+        <field
+            name="name"
+        >Change Request: visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_change_request" />
+        <field
+            name="domain_force"
+        >[('registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+</odoo>

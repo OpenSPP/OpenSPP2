@@ -15,6 +15,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import Annotated
 
+from odoo import fields
 from odoo.api import Environment
 
 from odoo.addons.fastapi.dependencies import odoo_env
@@ -161,10 +162,12 @@ async def submit_receipt(
         status_reason_message = None
 
         if notification_log:
-            # Update the notification log with receipt information
+            # Update the notification log with receipt information.
+            # Odoo Datetime fields require a naive UTC datetime;
+            # datetime.now(UTC) is tz-aware and would be rejected.
             update_vals = {
                 "receipt_received": True,
-                "receipt_timestamp": datetime.now(UTC),
+                "receipt_timestamp": fields.Datetime.now(),
                 "receipt_transaction_id": receipt_request.transaction_id,
                 "status": "received",
             }

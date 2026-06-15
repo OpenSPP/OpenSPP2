@@ -25,7 +25,7 @@ class SPPPhoneNumber(models.Model):
         index=True,
         domain=[("is_registrant", "=", True)],
     )
-    phone_no = fields.Char("Phone Number", required=True)
+    phone_no = fields.Char("Phone Number", required=True, index=True)
     phone_sanitized = fields.Char(compute="_compute_phone_sanitized", store=True)
     date_collected = fields.Date(
         default=fields.Date.today,
@@ -33,6 +33,14 @@ class SPPPhoneNumber(models.Model):
     disabled = fields.Datetime("Date Disabled")
     disabled_by = fields.Many2one("res.users")
     country_id = fields.Many2one("res.country", "Country")
+
+    def init(self):
+        """Create trigram index for phone number ILIKE search."""
+        self.env.cr.execute("""
+            CREATE EXTENSION IF NOT EXISTS pg_trgm;
+            CREATE INDEX IF NOT EXISTS spp_phone_number_phone_no_trgm_idx
+                ON spp_phone_number USING gin (phone_no gin_trgm_ops);
+        """)
 
     @api.onchange("date_collected")
     def _check_date_collected(self):

@@ -284,6 +284,36 @@ def _find_running_odoo() -> tuple:
     return None, None
 
 
+def _is_jobworker_running(profile: str) -> bool:
+    """Return True when the jobworker container is up under this profile.
+
+    `./spp restart` only restarts the Odoo service by default, but module
+    code that runs inside delayed jobs (async batch scoring, eligibility
+    checks, anything routed through job_worker.delay) lives in the
+    jobworker process. Without restarting the worker too, the developer
+    sees stale Python after Apps -> Upgrade. See OP#986.
+    """
+    result = run(
+        docker_compose("ps", "--format", "json", profile=profile),
+        capture=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        return False
+
+    for line in result.stdout.strip().split("\n"):
+        if not line:
+            continue
+        try:
+            container = json.loads(line)
+            if container.get("Service") == "jobworker" and container.get("State") == "running":
+                return True
+        except json.JSONDecodeError:
+            continue
+
+    return False
+
+
 # ============================================================================
 # Commands
 # ============================================================================
@@ -697,8 +727,12 @@ def cmd_restart(args):
         print("Error: No Odoo container running. Start with './spp start' first.")
         sys.exit(1)
 
-    print(f"Restarting {service}...")
-    run(docker_compose("restart", service, profile=profile))
+    services_to_restart = [service]
+    if _is_jobworker_running(profile):
+        services_to_restart.append("jobworker")
+
+    print(f"Restarting {', '.join(services_to_restart)}...")
+    run(docker_compose("restart", *services_to_restart, profile=profile))
     print("Done.")
 
     _show_url()

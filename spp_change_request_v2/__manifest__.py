@@ -1,6 +1,6 @@
 {
     "name": "OpenSPP Change Request V2",
-    "version": "19.0.2.0.3",
+    "version": "19.0.2.0.7",
     "sequence": 50,
     "category": "OpenSPP",
     "summary": "Configuration-driven change request system with UX improvements, conflict detection and duplicate prevention",
@@ -13,9 +13,11 @@
         "mail",
         "spp_base_common",
         "spp_registry",
+        "spp_area",
         "spp_security",
         "spp_approval",
         "spp_event_data",
+        "spp_hazard",
         "spp_dms",
         "spp_vocabulary",
     ],
@@ -24,6 +26,7 @@
         "security/privileges.xml",
         "security/groups.xml",
         "security/rules.xml",
+        "security/area_filter_rules.xml",
         "security/ir.model.access.csv",
         # Views (loaded before data that references them)
         "views/dms_file_views.xml",

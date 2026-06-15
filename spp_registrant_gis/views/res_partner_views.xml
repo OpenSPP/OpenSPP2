@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <!-- Add coordinates field to Individual Profile tab -->
+    <!-- Add coordinates field to Individual Profile tab.
+         Location renders AFTER Financial Information so the profile order
+         is: Contact → Phones → Financial → Location (#942 item 1). -->
     <record id="view_individuals_form_gis" model="ir.ui.view">
         <field name="name">spp_registrant_gis.view_individuals_form_gis</field>
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="spp_registry.view_individuals_form" />
         <field name="arch" type="xml">
-            <!-- Add GPS coordinates after phone numbers section -->
             <xpath
-                expr="//page[@name='profile']//group[@name='phone_section']"
+                expr="//page[@name='profile']//group[@name='financial_section']"
                 position="after"
             >
                 <separator string="Location" />
@@ -19,15 +20,15 @@
         </field>
     </record>
 
-    <!-- Add coordinates field to Group Profile tab -->
+    <!-- Add coordinates field to Group Profile tab.
+         Same ordering as the individual form. -->
     <record id="view_groups_form_gis" model="ir.ui.view">
         <field name="name">spp_registrant_gis.view_groups_form_gis</field>
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="spp_registry.view_individuals_form" />
         <field name="arch" type="xml">
-            <!-- Add GPS coordinates after phone numbers section -->
             <xpath
-                expr="//page[@name='group_profile']//group[@name='group_phone_section']"
+                expr="//page[@name='group_profile']//group[@name='group_financial_section']"
                 position="after"
             >
                 <separator string="Location" />

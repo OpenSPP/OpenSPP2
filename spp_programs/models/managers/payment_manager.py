@@ -71,9 +71,20 @@ class BasePaymentManager(models.AbstractModel):
         :return:
         """
         self.ensure_one()
-        cycle.is_locked = False
-        cycle.locked_reason = None
-        cycle.message_post(body=msg)
+        cycle.write({"is_locked": False, "locked_reason": False})
+        try:
+            cycle.message_post(body=msg)
+        except Exception:
+            _logger.exception("Failed to post completion chatter on cycle %s", cycle.id)
+
+    def mark_job_as_failed(self, cycle, msg):
+        """Run via on_error() when the async payment pipeline fails."""
+        self.ensure_one()
+        cycle.write({"is_locked": False, "locked_reason": False})
+        try:
+            cycle.message_post(body=msg)
+        except Exception:
+            _logger.exception("Failed to post failure chatter on cycle %s", cycle.id)
 
 
 class DefaultFilePaymentManager(models.Model):
@@ -329,6 +340,7 @@ class DefaultFilePaymentManager(models.Model):
         ]
         main_job = group(*jobs)
         main_job.on_done(self.delayable().mark_job_as_done(cycle, _("Prepared payments.")))
+        main_job.on_error(self.delayable().mark_job_as_failed(cycle, _("Preparing payments failed.")))
         main_job.delay()
 
     def send_payments(self, batches):
@@ -443,6 +455,7 @@ class DefaultFilePaymentManager(models.Model):
         ]
         main_job = group(*jobs)
         main_job.on_done(self.delayable().mark_job_as_done(cycle, _("Send payments completed.")))
+        main_job.on_error(self.delayable().mark_job_as_failed(cycle, _("Sending payments failed.")))
         main_job.delay()
 
     @api.model

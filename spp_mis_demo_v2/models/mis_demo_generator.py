@@ -784,19 +784,23 @@ class SPPMISDemoGenerator(models.TransientModel):
         return registrant
 
     def _get_demographic_enricher(self):
-        """Get or create the demographic enricher for story registrants.
+        """Build a fresh demographic enricher for the current generation run.
 
-        Uses a class-level cache since Odoo model instances don't support
-        arbitrary attribute assignment.
+        No caching: an enricher's internal `_bank_ids` / vocab / country
+        caches are populated against the current cursor at construction
+        time. A class-level cache survives TransactionCase savepoint
+        rollbacks between tests, so by the time a later test re-uses the
+        cached enricher its `_bank_ids` reference `res.bank` rows that
+        no longer exist — the next `res.partner.bank` insert then raises
+        a `res_partner_bank_bank_id_fkey` violation. `_ensure_banks` and
+        `_cache_vocab_ids` are idempotent (search-then-create), so
+        re-instantiating costs only a handful of SELECTs.
         """
-        cache_key = "_demo_enricher_cache"
-        if not hasattr(type(self), cache_key) or getattr(type(self), cache_key) is None:
-            from .demographic_enricher import DemographicEnricher
+        from .demographic_enricher import DemographicEnricher
 
-            locale = self.env.context.get("demo_locale", "fil_PH")
-            rng = random.Random(99)  # Separate seed from volume generation
-            setattr(type(self), cache_key, DemographicEnricher(self.env, locale, rng))
-        return getattr(type(self), cache_key)
+        locale = self.env.context.get("demo_locale", "fil_PH")
+        rng = random.Random(99)  # Separate seed from volume generation
+        return DemographicEnricher(self.env, locale, rng)
 
     def _enrich_all_story_registrants(self, stories):
         """Enrich all story registrants with demographic data if not already set.
@@ -901,21 +905,27 @@ class SPPMISDemoGenerator(models.TransientModel):
         registration_date = fields.Date.today() - datetime.timedelta(days=days_back)
         members_created = []
 
+        VocabCode = self.env["spp.vocabulary.code"]
+        type_ids_by_code = {}
+        for code in ("head", "spouse", "child", "other"):
+            rec = VocabCode.get_code("urn:openspp:vocab:group-membership-type", code)
+            type_ids_by_code[code] = rec.id if rec else False
+
+        def _membership_type_commands(code):
+            tid = type_ids_by_code.get(code)
+            return [Command.link(tid)] if tid else []
+
         # Create head of household
         head_data = profile.get("head", {})
         if head_data:
             head = self._create_individual_member(head_data, registration_date)
             if head:
                 members_created.append(head)
-                # Add as head member
-                head_membership_type = self.env["spp.vocabulary.code"].get_code(
-                    "urn:openspp:vocab:group-membership-type", "head"
-                )
                 self.env["spp.group.membership"].create(
                     {
                         "group": group.id,
                         "individual": head.id,
-                        "membership_type_ids": [Command.link(head_membership_type.id)] if head_membership_type else [],
+                        "membership_type_ids": _membership_type_commands("head"),
                     }
                 )
 
@@ -929,6 +939,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                     {
                         "group": group.id,
                         "individual": spouse.id,
+                        "membership_type_ids": _membership_type_commands("spouse"),
                     }
                 )
 
@@ -941,6 +952,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                     {
                         "group": group.id,
                         "individual": adult.id,
+                        "membership_type_ids": _membership_type_commands("other"),
                     }
                 )
 
@@ -953,6 +965,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                     {
                         "group": group.id,
                         "individual": child.id,
+                        "membership_type_ids": _membership_type_commands("child"),
                     }
                 )
 
@@ -2683,7 +2696,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "given_name": "Baby Morales",
                 "family_name": "Morales",
                 "birthdate": fields.Date.today(),
-                "relationship_xmlid": "spp_registry.group_membership_kind_child",
+                "relationship_xmlid": "spp_mis_demo_v2.code_membership_type_child",
             },
         },
         # Phase 5.1: Add remove_member CR

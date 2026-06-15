@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="res_config_settings_registry_search_view_form" model="ir.ui.view">
+        <field
+            name="name"
+        >res.config.settings.view.form.inherit.spp.registry.search</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app string="Registry Search" name="spp_registry_search">
+                    <block title="Search Behavior">
+                        <setting
+                            string="Search Mode"
+                            help="Controls how the registry search portal queries registrant data."
+                        >
+                            <field name="registry_search_mode" />
+                        </setting>
+                        <setting
+                            string="Default Search Field"
+                            help="Default field for targeted search. Users can change this per-search."
+                            invisible="registry_search_mode != 'targeted'"
+                        >
+                            <field name="registry_search_target_field" />
+                        </setting>
+                    </block>
+                    <block title="Search Limits">
+                        <setting
+                            string="Maximum Search Results"
+                            help="Maximum number of results returned per search (10-200)."
+                        >
+                            <field name="registry_search_result_limit" />
+                        </setting>
+                        <setting
+                            string="Minimum Search Characters"
+                            help="Minimum characters required before search triggers (1-10)."
+                        >
+                            <field name="registry_search_min_chars" />
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

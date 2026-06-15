@@ -2,7 +2,7 @@
 <odoo>
     <!-- User Group -->
     <record id="group_spp_graduation_user" model="res.groups">
-        <field name="name">User</field>
+        <field name="name">Graduation User</field>
         <field name="privilege_id" ref="privilege_graduation_user" />
         <field
             name="comment"
@@ -12,7 +12,7 @@
 
     <!-- Manager Group -->
     <record id="group_spp_graduation_manager" model="res.groups">
-        <field name="name">Manager</field>
+        <field name="name">Graduation Manager</field>
         <field name="privilege_id" ref="privilege_graduation_manager" />
         <field
             name="comment"

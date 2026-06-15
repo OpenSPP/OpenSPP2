@@ -312,20 +312,20 @@ Log in as **Admin** or **Manager**.
 
 **3.6 Search and Grouping**
 
-+-------+------------------------------+------------------------------+
-| Step  | Action                       | Expected Result              |
-+=======+==============================+==============================+
-| 3.6.1 | Type in search bar, select   | Filters by name              |
-|       | "Name" search                |                              |
-+-------+------------------------------+------------------------------+
-| 3.6.2 | Type in search bar, select   | Filters by code              |
-|       | "Code" search                |                              |
-+-------+------------------------------+------------------------------+
-| 3.6.3 | Use Filters > Active /       | Filters correctly            |
-|       | Inactive                     |                              |
-+-------+------------------------------+------------------------------+
-| 3.6.4 | Use Group By > Parent        | Categories grouped by parent |
-+-------+------------------------------+------------------------------+
++-------+-------------------------------+------------------------------+
+| Step  | Action                        | Expected Result              |
++=======+===============================+==============================+
+| 3.6.1 | Type in search bar, select    | Filters by name              |
+|       | "Name" search                 |                              |
++-------+-------------------------------+------------------------------+
+| 3.6.2 | Type in search bar, select    | Filters by code              |
+|       | "Code" search                 |                              |
++-------+-------------------------------+------------------------------+
+| 3.6.3 | Use Filters > Active /        | Filters correctly            |
+|       | Inactive                      |                              |
++-------+-------------------------------+------------------------------+
+| 3.6.4 | Use Group By > Parent         | Categories grouped by parent |
++-------+-------------------------------+------------------------------+
 
 --------------
 
@@ -365,18 +365,18 @@ Log in as **Admin** or **Manager**.
 
 **4.2 Create an Impact Type**
 
-+-------+------------------------------+------------------------------+
-| Step  | Action                       | Expected Result              |
-+=======+==============================+==============================+
-| 4.2.1 | Click **New**                | Form opens                   |
-+-------+------------------------------+------------------------------+
-| 4.2.2 | Enter Name:                  | Fields accept input          |
-|       | ``Water Contamination``,     |                              |
-|       | Code: ``WATER_CONTAM``,      |                              |
-|       | Category: Health             |                              |
-+-------+------------------------------+------------------------------+
-| 4.2.3 | Save                         | Record saves successfully    |
-+-------+------------------------------+------------------------------+
++-------+----------------------------------+---------------------------+
+| Step  | Action                           | Expected Result           |
++=======+==================================+===========================+
+| 4.2.1 | Click **New**                    | Form opens                |
++-------+----------------------------------+---------------------------+
+| 4.2.2 | Enter Name:                      | Fields accept input       |
+|       | ``Water Contamination``, Code:   |                           |
+|       | ``WATER_CONTAM``, Category:      |                           |
+|       | Health                           |                           |
++-------+----------------------------------+---------------------------+
+| 4.2.3 | Save                             | Record saves successfully |
++-------+----------------------------------+---------------------------+
 
 **4.3 Reorder via Drag**
 
@@ -594,17 +594,17 @@ Use the incident created in 5.2 (starts as "Active").
 
 **5.8 Stat Buttons**
 
-+-------+------------------------------+------------------------------+
-| Step  | Action                       | Expected Result              |
-+=======+==============================+==============================+
-| 5.8.1 | Click "Affected" stat button | Opens Impact Records list    |
-|       |                              | filtered to this incident    |
-+-------+------------------------------+------------------------------+
-| 5.8.2 | Click browser back           | Returns to incident form     |
-+-------+------------------------------+------------------------------+
-| 5.8.3 | Click "Areas" stat button    | Opens Area list filtered to  |
-|       |                              | linked areas                 |
-+-------+------------------------------+------------------------------+
++-------+------------------------------+-------------------------------+
+| Step  | Action                       | Expected Result               |
++=======+==============================+===============================+
+| 5.8.1 | Click "Affected" stat button | Opens Impact Records list     |
+|       |                              | filtered to this incident     |
++-------+------------------------------+-------------------------------+
+| 5.8.2 | Click browser back           | Returns to incident form      |
++-------+------------------------------+-------------------------------+
+| 5.8.3 | Click "Areas" stat button    | Opens Area list filtered to   |
+|       |                              | linked areas                  |
++-------+------------------------------+-------------------------------+
 
 **5.9 Search and Filters (Incident List)**
 
@@ -645,25 +645,24 @@ Use the incident created in 5.2 (starts as "Active").
 
 **5.10 List View Decorations**
 
-+--------+------------------------------+------------------------------+
-| Step   | Action                       | Expected Result              |
-+========+==============================+==============================+
-| 5.10.1 | Check row coloring           | Alert rows: blue tint.       |
-|        |                              | Recovery rows: yellow tint.  |
-|        |                              | Closed rows: grey/muted.     |
-|        |                              | Active rows: default (no     |
-|        |                              | special coloring)            |
-+--------+------------------------------+------------------------------+
-| 5.10.2 | Check Status column badges   | Alert: blue badge. Active:   |
-|        |                              | green badge. Recovery:       |
-|        |                              | yellow badge. Closed: grey   |
-|        |                              | badge                        |
-+--------+------------------------------+------------------------------+
-| 5.10.3 | Check columns visible        | Name, Code, Category, Start  |
-|        |                              | Date, End Date (optional),   |
-|        |                              | Status, Severity, Areas,     |
-|        |                              | Affected                     |
-+--------+------------------------------+------------------------------+
++--------+----------------------------+--------------------------------+
+| Step   | Action                     | Expected Result                |
++========+============================+================================+
+| 5.10.1 | Check row coloring         | Alert rows: blue tint.         |
+|        |                            | Recovery rows: yellow tint.    |
+|        |                            | Closed rows: grey/muted.       |
+|        |                            | Active rows: default (no       |
+|        |                            | special coloring)              |
++--------+----------------------------+--------------------------------+
+| 5.10.2 | Check Status column badges | Alert: blue badge. Active:     |
+|        |                            | green badge. Recovery: yellow  |
+|        |                            | badge. Closed: grey badge      |
++--------+----------------------------+--------------------------------+
+| 5.10.3 | Check columns visible      | Name, Code, Category, Start    |
+|        |                            | Date, End Date (optional),     |
+|        |                            | Status, Severity, Areas,       |
+|        |                            | Affected                       |
++--------+----------------------------+--------------------------------+
 
 --------------
 
@@ -833,22 +832,22 @@ Using the impact created in 6.1 (starts as "Reported"):
 
 **6.7 Impact List Decorations**
 
-+-------+------------------------------+------------------------------+
-| Step  | Action                       | Expected Result              |
-+=======+==============================+==============================+
-| 6.7.1 | Check row coloring           | Reported: blue. Verified:    |
-|       |                              | green. Disputed: yellow.     |
-|       |                              | Closed: grey/muted           |
-+-------+------------------------------+------------------------------+
-| 6.7.2 | Verification Status badges   | Same color coding as rows    |
-+-------+------------------------------+------------------------------+
-| 6.7.3 | Damage Level column          | Shows as badge widget        |
-|       |                              | (neutral color)              |
-+-------+------------------------------+------------------------------+
-| 6.7.4 | Optional columns             | "Verified By" and "Verified  |
-|       |                              | Date" available under column |
-|       |                              | options (hidden by default)  |
-+-------+------------------------------+------------------------------+
++-------+----------------------------+---------------------------------+
+| Step  | Action                     | Expected Result                 |
++=======+============================+=================================+
+| 6.7.1 | Check row coloring         | Reported: blue. Verified:       |
+|       |                            | green. Disputed: yellow.        |
+|       |                            | Closed: grey/muted              |
++-------+----------------------------+---------------------------------+
+| 6.7.2 | Verification Status badges | Same color coding as rows       |
++-------+----------------------------+---------------------------------+
+| 6.7.3 | Damage Level column        | Shows as badge widget (neutral  |
+|       |                            | color)                          |
++-------+----------------------------+---------------------------------+
+| 6.7.4 | Optional columns           | "Verified By" and "Verified     |
+|       |                            | Date" available under column    |
+|       |                            | options (hidden by default)     |
++-------+----------------------------+---------------------------------+
 
 --------------
 
@@ -1186,6 +1185,28 @@ encounter unexpected behavior, please report it as a new issue.
 
 Changelog
 =========
+
+19.0.2.0.2
+~~~~~~~~~~
+
+- fix(security): grant ``group_hazard_viewer`` to spp_user_roles roles
+  (Registry Viewer, Program Manager, Global/Local Registrar) that the
+  OP#951 menu audit identifies as needing read-only Hazard menu access.
+  Other affected roles defined outside this module (program/CR/farm
+  roles) are wired in their own modules.
+- fix(views): gate the "Hazard and Emergency" top-level menu
+  (``hazard_main_menu_root``) on ``group_hazard_viewer``. Previously the
+  root menu had no ``groups=`` attribute and was visible to every
+  logged-in user; the OP#951 audit requires several roles to NOT see it
+  (Global Finance, Global Support, Global Support Manager, Local
+  Support).
+
+19.0.2.0.1
+~~~~~~~~~~
+
+- fix(views): apply ``spp_registry.x2many_no_padding`` widget to the
+  hazard impacts list on registrant forms, and hide the table when empty
+  (showing a muted info line instead) (#943).
 
 19.0.2.0.0
 ~~~~~~~~~~

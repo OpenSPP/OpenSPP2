@@ -230,6 +230,9 @@ class SPPInKindEntitlementManager(models.Model):
             )
         main_job = group(*jobs)
         main_job.on_done(self.delayable().mark_job_as_done(cycle, _("Entitlements Set to Pending Validation.")))
+        main_job.on_error(
+            self.delayable().mark_job_as_failed(cycle, _("Setting entitlements to pending validation failed."))
+        )
         main_job.delay()
 
     def _set_pending_validation_entitlements(self, cycle, offset=0, limit=None):
@@ -332,6 +335,9 @@ class SPPInKindEntitlementManager(models.Model):
             )
         main_job = group(*jobs)
         main_job.on_done(self.delayable().mark_job_as_done(cycle, _("Entitlements Validated and Approved.")))
+        main_job.on_error(
+            self.delayable().mark_job_as_failed(cycle, _("Validation and approval of entitlements failed."))
+        )
         main_job.delay()
 
     def _validate_entitlements(self, cycle, offset=0, limit=None):

@@ -101,15 +101,14 @@ class RegistryViewHistory(models.Model):
 
     def _cleanup_old_records(self, max_records=50):
         """Remove oldest records beyond max_records per user."""
-        user_records = self.search(
+        to_delete = self.search(
             [
                 ("user_id", "=", self.env.uid),
             ],
             order="view_date desc",
+            offset=max_records,
         )
-
-        if len(user_records) > max_records:
-            to_delete = user_records[max_records:]
+        if to_delete:
             to_delete.unlink()
 
     @api.model

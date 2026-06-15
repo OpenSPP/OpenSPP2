@@ -24,6 +24,7 @@ from . import test_group_api
 from . import test_group_service
 from . import test_individual_api
 from . import test_individual_service
+from . import test_ir_http_patch
 from . import test_jwt_secret_validation
 from . import test_metadata
 from . import test_oauth

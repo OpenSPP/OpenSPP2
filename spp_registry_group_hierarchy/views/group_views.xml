@@ -63,7 +63,7 @@
                                 />
                             </h1>
                             <div class="o_row">
-                                <label for="membership_type_ids" string="Role:" />
+                                <label for="membership_type_ids" string="Group Role:" />
                                 <field
                                     name="membership_type_ids"
                                     widget="many2many_tags"

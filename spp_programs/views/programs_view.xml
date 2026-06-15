@@ -99,7 +99,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         icon="fa-download"
                         class="btn-secondary"
                         invisible="state != 'active'"
-                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_officer,spp_programs.group_programs_validator"
+                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_officer"
                     />
                     <button
                         name="enroll_eligible_registrants"
@@ -108,7 +108,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         icon="fa-user-plus"
                         class="btn-primary"
                         invisible="state != 'active'"
-                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_officer,spp_programs.group_programs_validator"
+                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_officer"
                     />
                     <button
                         name="verify_eligibility"
@@ -116,7 +116,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         string="Verify Eligibility"
                         icon="fa-check-circle"
                         invisible="state != 'active'"
-                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_officer,spp_programs.group_programs_validator"
+                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_officer"
                     />
                     <button
                         name="create_new_cycle"
@@ -124,7 +124,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         string="New Cycle"
                         icon="fa-plus-circle"
                         invisible="state != 'active' or is_one_time_distribution"
-                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_officer,spp_programs.group_programs_validator"
+                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_officer"
                     />
                     <button
                         name="deduplicate_beneficiaries"
@@ -173,13 +173,22 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     class="fa fa-spinner fa-spin"
                     title="Loading"
                 /> Operation in progress:
-                    <field name="locked_reason" class="fw-bold" />
+                    <field name="locked_reason" class="fw-bold" readonly="1" />
                     <button
-                    name="refresh_page"
+                    name="action_refresh_record"
                     type="object"
                     class="btn btn-sm btn-warning ms-2"
                     icon="fa-refresh"
                     string="Refresh"
+                />
+                    <button
+                    name="action_force_unlock"
+                    type="object"
+                    class="btn btn-sm btn-danger ms-2"
+                    icon="fa-unlock"
+                    string="Force Unlock"
+                    confirm="Force-clear the lock? Use only when the async operation has actually stopped and the lock is stuck."
+                    groups="base.group_system"
                 />
                 </div>
 

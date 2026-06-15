@@ -497,3 +497,51 @@ class TestAsyncDispatchUsesIdRanges(TransactionCase):
             # Verify the states param was converted from string to tuple
             call_params = mock_ranges.call_args[0][3]
             self.assertIsInstance(call_params[1], tuple)
+
+    def test_enroll_eligible_async_handles_none_state(self):
+        """_enroll_eligible_registrants_async must handle state=None.
+
+        The UI "Enroll Eligible" button calls enroll_eligible_registrants() with no
+        argument. When the program has >= MIN_ROW_JOB_QUEUE beneficiaries, the async
+        path runs with state=None — it must not crash on `tuple(None)`.
+        """
+        partners = self.env["res.partner"].create(
+            [{"name": f"Registrant {i}", "is_registrant": True} for i in range(5)]
+        )
+        self.env["spp.program.membership"].create(
+            [
+                {
+                    "partner_id": p.id,
+                    "program_id": self.program.id,
+                    "state": "draft",
+                }
+                for p in partners
+            ]
+        )
+
+        manager = self.env["spp.program.manager.default"].create(
+            {
+                "name": "Test Manager",
+                "program_id": self.program.id,
+            }
+        )
+
+        with patch(
+            "odoo.addons.spp_programs.models.managers.program_manager.compute_id_ranges",
+            return_value=[(1, 5)],
+        ) as mock_ranges:
+            with patch.object(type(manager), "delayable", return_value=manager):
+                try:
+                    manager._enroll_eligible_registrants_async(None, 5)
+                except TypeError as e:
+                    self.fail(f"async dispatch must accept state=None, got TypeError: {e}")
+                except Exception:  # pylint: disable=except-pass
+                    pass
+
+            mock_ranges.assert_called_once()
+            # When states is None, the where clause must omit "state IN %s" and
+            # params must contain only the program id (no states tuple).
+            where_clause = mock_ranges.call_args[0][2]
+            call_params = mock_ranges.call_args[0][3]
+            self.assertNotIn("state IN", where_clause)
+            self.assertEqual(call_params, (self.program.id,))
