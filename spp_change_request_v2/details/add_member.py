@@ -137,25 +137,6 @@ class SPPCRDetailAddMember(models.Model):
     )
 
     # ──────────────────────────────────────────────────────────────────────
-    # Head-of-household replacement (OP#871 QA round 1)
-    # When the target group already has a head and this new member is given the
-    # Head role, an info banner warns that applying will replace the current
-    # head. The replacement then happens automatically on apply.
-    # ──────────────────────────────────────────────────────────────────────
-    group_has_head = fields.Boolean(
-        compute="_compute_current_head",
-        string="Group Already Has a Head",
-    )
-    current_head_name = fields.Char(
-        compute="_compute_current_head",
-        string="Current Head of Household",
-    )
-    selected_role_is_head = fields.Boolean(
-        compute="_compute_selected_role_is_head",
-        string="Selected Role Is Head",
-    )
-
-    # ──────────────────────────────────────────────────────────────────────
     # Read-only context: existing members of the group (for the spec's
     # "display a table with all members" requirement). Computed, not stored.
     # ──────────────────────────────────────────────────────────────────────
@@ -221,33 +202,3 @@ class SPPCRDetailAddMember(models.Model):
                 rec.existing_membership_ids = Membership.search([("group", "=", group.id), ("status", "=", "active")])
             else:
                 rec.existing_membership_ids = Membership.browse([])
-
-    @api.depends("change_request_id", "change_request_id.registrant_id")
-    def _compute_current_head(self):
-        Membership = self.env["spp.group.membership"]
-        head_code = self.env["spp.vocabulary.code"].search(
-            [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:group-membership-type"),
-                ("code", "=", "head"),
-            ],
-            limit=1,
-        )
-        for rec in self:
-            head = Membership.browse()
-            group = rec.change_request_id.registrant_id
-            if group and group.is_group and head_code:
-                head = Membership.search(
-                    [
-                        ("group", "=", group.id),
-                        ("status", "=", "active"),
-                        ("membership_type_ids", "=", head_code.id),
-                    ],
-                    limit=1,
-                )
-            rec.group_has_head = bool(head)
-            rec.current_head_name = head.individual.name if head else False
-
-    @api.depends("membership_type_id")
-    def _compute_selected_role_is_head(self):
-        for rec in self:
-            rec.selected_role_is_head = bool(rec.membership_type_id and rec.membership_type_id.code == "head")

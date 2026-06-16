@@ -161,7 +161,7 @@ class TestAddMemberStrategy(TransactionCase):
         )
         self.assertIn(self.head_kind, old_membership.membership_type_ids)
 
-        # Add new member as head — replacement happens automatically on apply.
+        # Add new member as head.
         cr = self._make_cr(
             given_name="New",
             family_name="Head",
@@ -177,34 +177,6 @@ class TestAddMemberStrategy(TransactionCase):
         self.assertIn(self.head_kind, new_membership.membership_type_ids)
         # Old head's membership had `head` removed.
         self.assertNotIn(self.head_kind, old_membership.membership_type_ids)
-
-    def test_non_head_role_leaves_existing_head(self):
-        """Adding a non-head member must not touch the group's existing head."""
-        if not self.head_kind or not self.member_kind:
-            self.skipTest("head/member membership-type codes not present")
-        old_head = self.partner_model.create({"name": "Keep Head", "is_registrant": True, "is_group": False})
-        old_membership = self.membership_model.create(
-            {
-                "group": self.group.id,
-                "individual": old_head.id,
-                "start_date": "2020-01-01",
-                "membership_type_ids": [Command.link(self.head_kind.id)],
-            }
-        )
-        cr = self._make_cr(given_name="Plain", family_name="Member", membership_type_id=self.member_kind.id)
-        detail = cr.get_detail()
-        self.assertTrue(detail.group_has_head)
-        self.assertFalse(detail.selected_role_is_head)  # drives the info banner visibility
-        cr.approval_state = "approved"
-        cr.action_apply()
-        new_member = detail.created_individual_id
-        new_membership = self.membership_model.search(
-            [("group", "=", self.group.id), ("individual", "=", new_member.id)]
-        )
-        self.assertIn(self.member_kind, new_membership.membership_type_ids)
-        self.assertNotIn(self.head_kind, new_membership.membership_type_ids)
-        # Existing head is untouched.
-        self.assertIn(self.head_kind, old_membership.membership_type_ids)
 
     # ──────────────────────────────────────────────────────────────────
     # Sub-record attachers

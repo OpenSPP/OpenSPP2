@@ -180,31 +180,20 @@ class SPPCRApplyAddMember(models.AbstractModel):
     def _is_head_role(self, code):
         return bool(code and code.code == HEAD_ROLE_CODE)
 
-    def _head_code(self):
-        return self.env["spp.vocabulary.code"].search(
-            [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:group-membership-type"),
-                ("code", "=", HEAD_ROLE_CODE),
-            ],
-            limit=1,
-        )
-
     def _demote_existing_head_if_needed(self, detail, group):
-        """Demote the group's current head when the user confirmed replacement.
+        """When the new member is being added as head, demote any existing
+        head on the group first so the at-most-one-head invariant holds.
 
-        Only runs when ``replace_existing_head`` is set on the CR — making the
-        new member the head is an explicit action, not a silent side effect of
-        picking the Head role. "Demote" unlinks the ``head`` code from the
-        existing membership's ``membership_type_ids``; other roles are kept.
+        "Demote" means unlinking the ``head`` code from the existing
+        membership's ``membership_type_ids``. Other roles on the membership
+        are preserved; if the membership had only the head role, it ends up
+        with no roles (which is acceptable — the spec doesn't define a
+        downgrade target).
         """
-        # Only when the new member is being made head. Demotion is automatic on
-        # apply; the form warns the user beforehand via the info banner.
         if not self._is_head_role(detail.membership_type_id):
             return
 
-        head_code = self._head_code()
-        if not head_code:
-            return
+        head_code = detail.membership_type_id  # already resolved to "head"
         Membership = self.env["spp.group.membership"]
         existing_head_memberships = Membership.search(
             [
@@ -229,8 +218,6 @@ class SPPCRApplyAddMember(models.AbstractModel):
             "individual": individual.id,
             "start_date": fields.Datetime.now(),
         }
-        # The picked Role determines the new member's role; the replace toggle
-        # is only a confirmation that gates demoting the current head.
         if detail.membership_type_id:
             vals["membership_type_ids"] = [Command.link(detail.membership_type_id.id)]
         self.env["spp.group.membership"].create(vals)
