@@ -223,10 +223,13 @@
                                 <field name="assessment_date" />
                                 <field name="assessment_type" />
                                 <field
-                                    name="impairment_type_ids"
-                                    widget="many2many_tags"
+                                    name="has_disability"
+                                    string="Disability according to WG/CFM"
                                 />
-                                <field name="severity_level_id" widget="badge" />
+                                <field
+                                    name="impairment_severity_display"
+                                    string="Impairments"
+                                />
                                 <field
                                     name="approval_state"
                                     widget="badge"

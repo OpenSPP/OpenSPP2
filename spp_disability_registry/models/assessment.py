@@ -1,6 +1,7 @@
 import logging
 
 from dateutil.relativedelta import relativedelta
+from markupsafe import Markup
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
@@ -410,6 +411,28 @@ class SppDisabilityAssessment(models.Model):
         tracking=True,
         help="Overall severity: the most severe level across the impairment classification lines.",
     )
+    # Per-line "Type — Severity" rendering for the registrant overview table (OP#1068):
+    # each impairment type shows its own severity on a separate line.
+    impairment_severity_display = fields.Html(
+        string="Impairments",
+        compute="_compute_impairment_severity_display",
+        help="Each classified impairment type with its severity, one per line.",
+    )
+
+    @api.depends(
+        "impairment_line_ids.impairment_type_id",
+        "impairment_line_ids.severity_level_id",
+    )
+    def _compute_impairment_severity_display(self):
+        for rec in self:
+            rows = []
+            for line in rec.impairment_line_ids:
+                label = line.impairment_type_id.display or line.impairment_type_id.code or ""
+                severity = line.severity_level_id.display or line.severity_level_id.code or ""
+                text = f"{label} — {severity}" if severity else label
+                if text:
+                    rows.append(Markup("<div>%s</div>") % text)
+            rec.impairment_severity_display = Markup("").join(rows) if rows else False
 
     @api.depends(
         "impairment_line_ids.impairment_type_id",
@@ -466,6 +489,9 @@ class SppDisabilityAssessment(models.Model):
     cfg_require_wg = fields.Boolean(compute="_compute_tab_config")
     cfg_require_support = fields.Boolean(compute="_compute_tab_config")
     cfg_support_show_devices = fields.Boolean(compute="_compute_tab_config")
+    cfg_display_review = fields.Boolean(compute="_compute_tab_config")
+    cfg_require_review = fields.Boolean(compute="_compute_tab_config")
+    cfg_require_proxy_details = fields.Boolean(compute="_compute_tab_config")
 
     @api.depends_context("uid")
     def _compute_tab_config(self):
@@ -483,6 +509,9 @@ class SppDisabilityAssessment(models.Model):
             "cfg_require_wg": flag("require_wg"),
             "cfg_require_support": flag("require_support"),
             "cfg_support_show_devices": flag("support_show_devices"),
+            "cfg_display_review": flag("display_review"),
+            "cfg_require_review": flag("require_review"),
+            "cfg_require_proxy_details": flag("require_proxy_details"),
         }
         for rec in self:
             rec.update(values)
@@ -501,10 +530,17 @@ class SppDisabilityAssessment(models.Model):
         "has_impairments_to_record",
         "impairment_line_ids",
         "questionnaire_complete",
+        "review_category",
+        "is_proxy_response",
+        "proxy_respondent_id",
+        "proxy_relationship",
         "cfg_display_impairment",
         "cfg_display_wg",
+        "cfg_display_review",
         "cfg_require_impairment",
         "cfg_require_wg",
+        "cfg_require_review",
+        "cfg_require_proxy_details",
     )
     def _compute_assessment_complete(self):
         for rec in self:
@@ -517,6 +553,13 @@ class SppDisabilityAssessment(models.Model):
                 checks.append(rec.impairment_tab_complete)
             if rec.cfg_display_wg and rec.cfg_require_wg:
                 checks.append(rec.questionnaire_complete)
+            # Review schedule: when shown and required, a review category must be set (OP#1068).
+            if rec.cfg_display_review and rec.cfg_require_review:
+                checks.append(bool(rec.review_category))
+            # Proxy details: when a proxy responded and details are required, the
+            # respondent and their relationship must be recorded (OP#1053).
+            if rec.cfg_require_proxy_details and rec.is_proxy_response:
+                checks.append(bool(rec.proxy_respondent_id) and bool(rec.proxy_relationship))
             # Support Needs has no content gate (OP#1068), so it never blocks.
             rec.assessment_complete = all(checks)
 
@@ -815,9 +858,10 @@ class SppDisabilityAssessment(models.Model):
         if not self.assessment_complete:
             raise UserError(
                 _(
-                    "Complete all required assessment tabs before submitting for approval "
-                    "(answer the impairment question and, where required, the WG/CFM "
-                    "questionnaire that determines the disability result)."
+                    "Complete all required parts of the assessment before submitting for "
+                    "approval: the impairment question, the WG/CFM questionnaire, the review "
+                    "schedule, and - when a proxy responded - the proxy respondent and "
+                    "relationship (whichever are required in the Disability Registry settings)."
                 )
             )
 

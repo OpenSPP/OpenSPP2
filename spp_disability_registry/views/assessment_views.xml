@@ -23,6 +23,7 @@
                     <field name="cfg_display_wg" invisible="1" />
                     <field name="cfg_display_support" invisible="1" />
                     <field name="cfg_support_show_devices" invisible="1" />
+                    <field name="cfg_display_review" invisible="1" />
                     <button
                         name="action_submit_for_approval"
                         string="Submit"
@@ -194,7 +195,10 @@
                                 </group>
                             </group>
                             <group col="2">
-                                <group string="Review Schedule">
+                                <group
+                                    string="Review Schedule"
+                                    invisible="not cfg_display_review"
+                                >
                                     <field name="review_category" />
                                     <field name="next_review_date" />
                                 </group>

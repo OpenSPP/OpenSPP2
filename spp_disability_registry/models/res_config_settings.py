@@ -41,6 +41,14 @@ class ResConfigSettings(models.TransientModel):
         help="When enabled, the proxy response flag can be ticked on adult WG-SS "
         "assessments. When disabled, WG-SS assessments are self-report only.",
     )
+    # When enabled, recording who responded is required before an assessment that
+    # uses a proxy response can be submitted for approval (OP#1053).
+    disability_require_proxy_details = fields.Boolean(
+        string="Require proxy details on proxy responses",
+        default=True,
+        help="When enabled, an assessment answered by a proxy cannot be submitted "
+        "until the proxy respondent and relationship are recorded.",
+    )
 
     # === Approval ===
     # The approval workflow applied to disability assessments. Create the workflow in
@@ -88,19 +96,29 @@ class ResConfigSettings(models.TransientModel):
         string="Show Assistive Devices on Support Needs",
         default=True,
     )
+    disability_display_review = fields.Boolean(
+        string="Show Review Schedule",
+        default=True,
+    )
+    disability_require_review = fields.Boolean(
+        string="Require Review Schedule to submit",
+        default=True,
+    )
 
     # field name -> ir.config_parameter key, for default-True booleans that must
     # round-trip a False value (a config_parameter boolean cannot — see the note
     # on disability_allow_proxy_wg_ss above).
     _DEFAULT_TRUE_PARAMS = {
         "disability_allow_proxy_wg_ss": "spp_disability_registry.allow_proxy_wg_ss",
+        "disability_require_proxy_details": "spp_disability_registry.require_proxy_details",
         "disability_display_impairment": "spp_disability_registry.display_impairment",
         "disability_display_wg": "spp_disability_registry.display_wg",
         "disability_display_support": "spp_disability_registry.display_support",
+        "disability_display_review": "spp_disability_registry.display_review",
         "disability_require_impairment": "spp_disability_registry.require_impairment",
         "disability_require_wg": "spp_disability_registry.require_wg",
         "disability_require_support": "spp_disability_registry.require_support",
-        "disability_support_show_devices": "spp_disability_registry.support_show_devices",
+        "disability_require_review": "spp_disability_registry.require_review",
     }
 
     def get_values(self):

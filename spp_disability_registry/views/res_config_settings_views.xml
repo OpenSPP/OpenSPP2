@@ -49,6 +49,12 @@
                         >
                             <field name="disability_allow_proxy_wg_ss" />
                         </setting>
+                        <setting
+                            string="Require proxy details on proxy responses"
+                            help="When enabled, an assessment answered by a proxy cannot be submitted until the proxy respondent and relationship are recorded."
+                        >
+                            <field name="disability_require_proxy_details" />
+                        </setting>
                     </block>
 
                     <block title="Approval" name="disability_approval_block">
@@ -115,6 +121,19 @@
                                 <label
                                     for="disability_support_show_devices"
                                     string="Show Assistive Devices section"
+                                />
+                            </div>
+                        </setting>
+                        <setting
+                            string="Review Schedule"
+                            help="Show the Review Schedule section on the assessment, and whether a review category must be set before submission."
+                        >
+                            <field name="disability_display_review" />
+                            <div class="mt8" invisible="not disability_display_review">
+                                <field name="disability_require_review" />
+                                <label
+                                    for="disability_require_review"
+                                    string="Required to submit"
                                 />
                             </div>
                         </setting>

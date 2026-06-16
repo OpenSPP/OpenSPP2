@@ -362,6 +362,9 @@ class TestDisabilityAssessment(TransactionCase):
         vals = {"registrant_id": self.adult_registrant.id, "assessment_date": date.today()}
         vals.update(self._full_wg())
         a = self.env["spp.disability.assessment"].create(vals)
+        # Review schedule is required by default (OP#1068); set it so this test
+        # isolates the impairment-answer gate.
+        a.review_category = "mie"
         self.assertTrue(a.questionnaire_complete)
         self.assertFalse(a.assessment_complete)  # impairment question unanswered
         # "No" → impairment tab complete → assessment complete (support never gates).
@@ -383,12 +386,85 @@ class TestDisabilityAssessment(TransactionCase):
                 "registrant_id": self.adult_registrant.id,
                 "assessment_date": date.today(),
                 "has_impairments_to_record": "no",
+                # Review schedule is required by default (OP#1068); set it so the
+                # WG config gate is the only variable under test.
+                "review_category": "mie",
             }
         )
         a.invalidate_recordset()
         self.assertFalse(a.questionnaire_complete)
         self.assertFalse(a.cfg_require_wg)
         self.assertTrue(a.assessment_complete)
+
+    def test_review_schedule_gates_submission(self):
+        """Review schedule is required by default (OP#1068): a complete WG +
+        impairment answer is not enough until a review category is set, and
+        disabling the requirement removes the gate."""
+        vals = {
+            "registrant_id": self.adult_registrant.id,
+            "assessment_date": date.today(),
+            "has_impairments_to_record": "no",
+        }
+        vals.update(self._full_wg())
+        a = self.env["spp.disability.assessment"].create(vals)
+        # impairment + WG satisfied, but review category missing -> blocked
+        self.assertFalse(a.assessment_complete)
+        a.review_category = "mie"
+        self.assertTrue(a.assessment_complete)
+        # When review is not required, a missing category no longer blocks.
+        a.review_category = False
+        self.env["ir.config_parameter"].sudo().set_param("spp_disability_registry.require_review", "False")
+        a.invalidate_recordset()
+        self.assertFalse(a.cfg_require_review)
+        self.assertTrue(a.assessment_complete)
+
+    def test_proxy_details_required_when_proxy(self):
+        """When a proxy responded and proxy details are required (default),
+        the assessment cannot be completed until the respondent and the
+        relationship are recorded (OP#1053)."""
+        vals = {
+            "registrant_id": self.adult_registrant.id,
+            "assessment_date": date.today(),
+            "has_impairments_to_record": "no",
+            "review_category": "mie",
+        }
+        vals.update(self._full_wg())
+        a = self.env["spp.disability.assessment"].create(vals)
+        self.assertTrue(a.assessment_complete)  # baseline complete, no proxy in use
+        # Mark as a proxy response -> proxy details now required to complete.
+        a.is_proxy_response = True
+        self.assertTrue(a.cfg_require_proxy_details)
+        self.assertFalse(a.assessment_complete)
+        a.proxy_respondent_id = self.child_registrant.id
+        a.proxy_relationship = "parent"
+        self.assertTrue(a.assessment_complete)
+
+    def test_impairment_severity_display(self):
+        """Each impairment line renders its type with its own severity on a
+        separate line in the overview display (OP#1068)."""
+        imp_types = self.env["spp.vocabulary.code"].search(
+            [("vocabulary_id.namespace_uri", "=", "urn:dci:cd:dr:01")], limit=2
+        )
+        severities = self.env["spp.vocabulary.code"].search(
+            [("vocabulary_id.namespace_uri", "=", "urn:dci:cd:dr:02")], limit=2
+        )
+        self.assertTrue(len(imp_types) >= 2 and len(severities) >= 2, "need 2 impairment types + 2 severities")
+        a = self.env["spp.disability.assessment"].create(
+            {
+                "registrant_id": self.adult_registrant.id,
+                "assessment_date": date.today(),
+                "has_impairments_to_record": "yes",
+                "impairment_line_ids": [
+                    (0, 0, {"impairment_type_id": imp_types[0].id, "severity_level_id": severities[0].id}),
+                    (0, 0, {"impairment_type_id": imp_types[1].id, "severity_level_id": severities[1].id}),
+                ],
+            }
+        )
+        html = str(a.impairment_severity_display or "")
+        for code in (imp_types[0], imp_types[1], severities[0], severities[1]):
+            self.assertIn(code.display, html)
+        # One <div> per impairment line -> two separate lines.
+        self.assertEqual(html.count("<div>"), 2)
 
     def test_device_requests_materialize_on_approve(self):
         """Support-Needs device requests become spp.assistive.device (status
