@@ -135,6 +135,13 @@ class SPPCRDetailAddMember(models.Model):
         string="Has Membership Roles",
         help="True when the urn:openspp:vocab:group-membership-type vocabulary has any active code.",
     )
+    allowed_role_ids = fields.Many2many(
+        "spp.vocabulary.code",
+        string="Allowed Roles",
+        compute="_compute_allowed_role_ids",
+        help="Roles selectable for the new member; the Head role is excluded when "
+        "the group already has a Head of Household (OP#871).",
+    )
 
     # ──────────────────────────────────────────────────────────────────────
     # Read-only context: existing members of the group (for the spec's
@@ -202,3 +209,28 @@ class SPPCRDetailAddMember(models.Model):
                 rec.existing_membership_ids = Membership.search([("group", "=", group.id), ("status", "=", "active")])
             else:
                 rec.existing_membership_ids = Membership.browse([])
+
+    @api.depends("change_request_id", "change_request_id.registrant_id")
+    def _compute_allowed_role_ids(self):
+        """Restrict the Role selection: a group can have only one Head, so the
+        Head role is removed from the options when the target group already has
+        an active Head of Household (OP#871)."""
+        Code = self.env["spp.vocabulary.code"]
+        Membership = self.env["spp.group.membership"]
+        all_roles = Code.search([("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:group-membership-type")])
+        for rec in self:
+            roles = all_roles
+            group = rec.change_request_id.registrant_id
+            if group and group.is_group:
+                group_has_head = bool(
+                    Membership.search_count(
+                        [
+                            ("group", "=", group.id),
+                            ("status", "=", "active"),
+                            ("membership_type_ids.code", "=", "head"),
+                        ]
+                    )
+                )
+                if group_has_head:
+                    roles = all_roles.filtered(lambda r: r.code != "head")
+            rec.allowed_role_ids = roles

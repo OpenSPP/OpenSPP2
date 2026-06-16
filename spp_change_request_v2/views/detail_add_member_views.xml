@@ -12,6 +12,7 @@
                     <field name="is_cr_manager" invisible="1" />
                     <field name="type_requires_head" invisible="1" />
                     <field name="roles_available" invisible="1" />
+                    <field name="allowed_role_ids" invisible="1" />
                     <button
                         name="action_next_documents"
                         string="Next: Upload Documents"
@@ -160,6 +161,7 @@
                                     <field
                                         name="membership_type_id"
                                         options="{'no_create': True, 'no_open': True}"
+                                        domain="[('id', 'in', allowed_role_ids)]"
                                         required="type_requires_head"
                                     />
                                 </group>

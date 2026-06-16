@@ -263,6 +263,35 @@ class TestAddMemberStrategy(TransactionCase):
         self.assertIn("Occupation", html)
         self.assertNotIn("phone_count", html)
 
+    def test_allowed_roles_excludes_head_when_group_has_head(self):
+        """OP#871: the Head role is removed from the Role options when the group
+        already has an active Head of Household; otherwise all roles are allowed."""
+        # Group without a head -> Head is selectable.
+        no_head_codes = set(
+            self._make_cr(given_name="A", family_name="B").get_detail().allowed_role_ids.mapped("code")
+        )
+        self.assertIn("head", no_head_codes)
+
+        # Group with an active head -> Head removed; every other role preserved.
+        head_indiv = self.partner_model.create({"name": "Head Person", "is_registrant": True, "is_group": False})
+        group_with_head = self.partner_model.create(
+            {"name": "Group With Head", "is_registrant": True, "is_group": True}
+        )
+        self.membership_model.create(
+            {
+                "group": group_with_head.id,
+                "individual": head_indiv.id,
+                "membership_type_ids": [Command.link(self.head_kind.id)],
+            }
+        )
+        with_head_codes = set(
+            self._make_cr(registrant=group_with_head, given_name="C", family_name="D")
+            .get_detail()
+            .allowed_role_ids.mapped("code")
+        )
+        self.assertNotIn("head", with_head_codes)
+        self.assertEqual(with_head_codes, no_head_codes - {"head"})
+
     def test_add_member_writes_single_address(self):
         """The single Address field maps to the registry's res.partner.address
         on apply, matching how the registry stores it (OP#871 QA round 1)."""
