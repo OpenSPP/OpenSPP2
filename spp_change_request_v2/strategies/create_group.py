@@ -66,18 +66,104 @@ class SPPCRApplyCreateGroup(models.AbstractModel):
         elif new_heads:
             head_label = new_heads[0].full_name
 
+        location = None
+        if detail.latitude or detail.longitude:
+            location = f"{detail.latitude}, {detail.longitude}"
+
+        # One2many lines are shown as separate tables on the review page (OP#876).
+        # preview() supplies them via the generic "_tables" contract:
+        # each entry is {title, columns, rows} with rows as lists of cell strings.
+        tables = []
+        phone_rows = [
+            [p.phone_no or "", p.country_id.display_name or "", _("Yes") if p.is_primary else ""]
+            for p in detail.phone_line_ids
+        ]
+        if phone_rows:
+            tables.append(
+                {"title": _("Phone Numbers"), "columns": [_("Number"), _("Country"), _("Primary")], "rows": phone_rows}
+            )
+        bank_rows = [
+            [b.acc_number or "", b.acc_holder_name or "", b.bank_id.display_name or ""] for b in detail.bank_line_ids
+        ]
+        if bank_rows:
+            tables.append(
+                {
+                    "title": _("Bank Accounts"),
+                    "columns": [_("Account Number"), _("Account Holder"), _("Bank")],
+                    "rows": bank_rows,
+                }
+            )
+        id_doc_rows = [
+            [d.id_type_id.display_name or "", d.value or "", str(d.expiry_date) if d.expiry_date else ""]
+            for d in detail.id_doc_line_ids
+        ]
+        if id_doc_rows:
+            tables.append(
+                {
+                    "title": _("ID Documents"),
+                    "columns": [_("Type"), _("Number"), _("Expiry Date")],
+                    "rows": id_doc_rows,
+                }
+            )
+
+        # Existing members: a simple Name + Role table.
+        existing_rows = [
+            [m.individual_id.name or "", m.membership_type_id.display or ""] for m in detail.member_existing_ids
+        ]
+        if existing_rows:
+            tables.append({"title": _("Existing Members"), "columns": [_("Name"), _("Role")], "rows": existing_rows})
+
+        # New members: one labelled detail block each (full individual record plus
+        # that member's own phone numbers), via the generic "_sections" contract.
+        sections = []
+        for m in detail.member_new_ids:
+            title = _("New member: %s") % (m.full_name or "")
+            if m.membership_type_id:
+                title = f"{title} ({m.membership_type_id.display})"
+            member_phone_rows = [
+                [p.phone_no or "", p.country_id.display_name or "", _("Yes") if p.is_primary else ""]
+                for p in m.phone_line_ids
+            ]
+            member_tables = []
+            if member_phone_rows:
+                member_tables.append(
+                    {
+                        "title": _("Phone Numbers"),
+                        "columns": [_("Number"), _("Country"), _("Primary")],
+                        "rows": member_phone_rows,
+                    }
+                )
+            sections.append(
+                {
+                    "title": title,
+                    "fields": [
+                        [_("Role"), m.membership_type_id.display or ""],
+                        [_("Date of Birth"), str(m.birthdate) if m.birthdate else ""],
+                        [_("Gender"), m.gender_id.display_name or ""],
+                        [_("Civil Status"), m.civil_status_id.display_name or ""],
+                        [_("Occupation"), m.occupation_id.display_name or ""],
+                        [_("Birth Place"), m.birth_place or ""],
+                        [_("Income"), str(m.income) if m.income else ""],
+                        [_("Area"), m.area_id.display_name or ""],
+                        [_("Address"), m.address or ""],
+                        [_("Email"), m.email or ""],
+                    ],
+                    "tables": member_tables,
+                }
+            )
+
         return {
             "_action": "create_group",
             "_header": _("The following group is to be added:"),
             "group_name": detail.group_name,
             "group_type": detail.group_type_id.display if detail.group_type_id else None,
+            "area": detail.area_id.display_name if detail.area_id else None,
             "address": detail.address,
-            "phone_count": len(detail.phone_line_ids),
-            "bank_count": len(detail.bank_line_ids),
-            "id_doc_count": len(detail.id_doc_line_ids),
-            "existing_member_count": len(detail.member_existing_ids),
-            "new_member_count": len(detail.member_new_ids),
+            "email": detail.email,
+            "location": location,
             "head_of_household": head_label,
+            "_tables": tables,
+            "_sections": sections,
         }
 
     # ──────────────────────────────────────────────────────────────────────
