@@ -64,16 +64,65 @@ class SPPCRApplyAddMember(models.AbstractModel):
         detail = change_request.get_detail()
         if not detail:
             return {}
+
+        location = None
+        if detail.latitude or detail.longitude:
+            location = f"{detail.latitude}, {detail.longitude}"
+
+        # One2many lines render as their own tables on the review page, via the
+        # generic "_tables" contract shared with Create Group (OP#871).
+        tables = []
+        phone_rows = [
+            [p.phone_no or "", p.country_id.display_name or "", _("Yes") if p.is_primary else ""]
+            for p in detail.phone_line_ids
+        ]
+        if phone_rows:
+            tables.append(
+                {"title": _("Phone Numbers"), "columns": [_("Number"), _("Country"), _("Primary")], "rows": phone_rows}
+            )
+        bank_rows = [
+            [b.acc_number or "", b.acc_holder_name or "", b.bank_id.display_name or ""] for b in detail.bank_line_ids
+        ]
+        if bank_rows:
+            tables.append(
+                {
+                    "title": _("Bank Accounts"),
+                    "columns": [_("Account Number"), _("Account Holder"), _("Bank")],
+                    "rows": bank_rows,
+                }
+            )
+        id_doc_rows = [
+            [d.id_type_id.display_name or "", d.value or "", str(d.expiry_date) if d.expiry_date else ""]
+            for d in detail.id_doc_line_ids
+        ]
+        if id_doc_rows:
+            tables.append(
+                {
+                    "title": _("ID Documents"),
+                    "columns": [_("Type"), _("Number"), _("Expiry Date")],
+                    "rows": id_doc_rows,
+                }
+            )
+
+        # Show every individual field even when empty (QA #871) — empty values
+        # render as a "-" placeholder through the action-summary formatter.
         return {
             "_action": "create_member",
             "_header": _("The following individual is to be added:"),
-            "member_name": detail.member_name,
-            "group": change_request.registrant_id.name,
-            "role": detail.membership_type_id.display if detail.membership_type_id else None,
-            "address": detail.address,
-            "phone_count": len(detail.phone_line_ids),
-            "bank_count": len(detail.bank_line_ids),
-            "id_doc_count": len(detail.id_doc_line_ids),
+            _("Group"): change_request.registrant_id.name,
+            _("Name"): detail.member_name,
+            _("Role"): detail.membership_type_id.display if detail.membership_type_id else None,
+            _("Date of Birth"): str(detail.birthdate) if detail.birthdate else None,
+            _("Gender"): detail.gender_id.display_name if detail.gender_id else None,
+            _("Civil Status"): detail.civil_status_id.display_name if detail.civil_status_id else None,
+            _("Occupation"): detail.occupation_id.display_name if detail.occupation_id else None,
+            _("Birth Place"): detail.birth_place or None,
+            _("Income"): detail.income or None,
+            _("Area"): detail.area_id.display_name if detail.area_id else None,
+            _("Address"): detail.address or None,
+            _("Email"): detail.email or None,
+            _("Location"): location,
+            "_tables": tables,
         }
 
     # ──────────────────────────────────────────────────────────────────────

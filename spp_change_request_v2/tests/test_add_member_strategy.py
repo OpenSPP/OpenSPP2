@@ -222,6 +222,47 @@ class TestAddMemberStrategy(TransactionCase):
         # The review banner header is sourced from the preview (OP#871 QA round 1).
         self.assertIn("individual", (preview.get("_header") or "").lower())
 
+    def test_preview_shows_fields_and_tables(self):
+        """OP#871: the review preview shows the added individual's fields (even
+        when empty) and renders phones/bank/ID docs as tables, not counts."""
+        id_type = self.env["spp.vocabulary.code"].search(
+            [("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:id-type")], limit=1
+        )
+        cr = self._make_cr(
+            given_name="Maria",
+            family_name="Santos",
+            birthdate="1995-03-12",
+            email="maria@example.com",
+            phone_line_ids=[(0, 0, {"phone_no": "+63900000001", "is_primary": True})],
+            bank_line_ids=[(0, 0, {"acc_number": "ACCT-22"})],
+            id_doc_line_ids=([(0, 0, {"id_type_id": id_type.id, "value": "DOC-3"})] if id_type else []),
+        )
+        preview = cr.action_preview_changes()
+
+        # Counts are replaced by actual data.
+        for removed in ("phone_count", "bank_count", "id_doc_count"):
+            self.assertNotIn(removed, preview)
+
+        # Individual fields present, including ones left empty (render as "-" later).
+        self.assertEqual(preview["Name"], "SANTOS, Maria")
+        self.assertEqual(preview["Date of Birth"], "1995-03-12")
+        self.assertEqual(preview["Email"], "maria@example.com")
+        self.assertIn("Occupation", preview)
+        self.assertIn("Civil Status", preview)
+
+        titles = [t["title"] for t in preview["_tables"]]
+        self.assertIn("Phone Numbers", titles)
+        self.assertIn("Bank Accounts", titles)
+        phones = next(t for t in preview["_tables"] if t["title"] == "Phone Numbers")
+        self.assertIn("+63900000001", phones["rows"][0])
+
+        # Rendered review HTML shows the data + field labels, no leaked count keys.
+        html = cr._generate_review_comparison_html()
+        self.assertIn("Maria", html)
+        self.assertIn("+63900000001", html)
+        self.assertIn("Occupation", html)
+        self.assertNotIn("phone_count", html)
+
     def test_add_member_writes_single_address(self):
         """The single Address field maps to the registry's res.partner.address
         on apply, matching how the registry stores it (OP#871 QA round 1)."""
