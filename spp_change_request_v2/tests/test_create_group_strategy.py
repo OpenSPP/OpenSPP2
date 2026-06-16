@@ -327,10 +327,132 @@ class TestCreateGroupStrategy(TransactionCase):
         preview = cr.action_preview_changes()
         self.assertEqual(preview["_action"], "create_group")
         self.assertEqual(preview["group_name"], "Preview Group")
-        self.assertEqual(preview["new_member_count"], 1)
-        self.assertEqual(preview["bank_count"], 1)
+        # The new member is now a "_sections" detail block, not a count (OP#876).
+        self.assertNotIn("new_member_count", preview)
+        self.assertEqual(len(preview["_sections"]), 1)
+        # The bank line is now surfaced as a "_tables" entry, not a count (OP#876).
+        self.assertNotIn("bank_count", preview)
+        bank_tables = [t for t in preview["_tables"] if t["title"] == "Bank Accounts"]
+        self.assertEqual(len(bank_tables), 1)
+        self.assertEqual(len(bank_tables[0]["rows"]), 1)
+        self.assertIn("12-34-56", bank_tables[0]["rows"][0])
         if self.head_kind:
             self.assertEqual(preview["head_of_household"], "PERSON, Head")
+
+    def test_preview_one2many_as_tables_and_scalars(self):
+        """OP#876: phones / banks / ID docs are surfaced as `_tables` (actual
+        data, not counts), and the previously-missing scalar fields are added."""
+        id_type = self.env["spp.vocabulary.code"].search(
+            [("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:id-type")], limit=1
+        )
+        cr = self._make_cr(
+            group_name="Tables Group",
+            address="12 Rizal St",
+            email="group@example.com",
+            phone_line_ids=[
+                (0, 0, {"phone_no": "+63911111111", "is_primary": True}),
+                (0, 0, {"phone_no": "+63922222222"}),
+            ],
+            bank_line_ids=[(0, 0, {"acc_number": "ACC-1", "acc_holder_name": "Jane"})],
+            id_doc_line_ids=([(0, 0, {"id_type_id": id_type.id, "value": "ID-9"})] if id_type else []),
+        )
+        preview = cr.action_preview_changes()
+
+        # Previously-missing scalar fields are now surfaced.
+        self.assertEqual(preview["email"], "group@example.com")
+        self.assertEqual(preview["address"], "12 Rizal St")
+        self.assertIn("area", preview)
+
+        # Counts are replaced by the generic `_tables` contract.
+        for removed in ("phone_count", "bank_count", "id_doc_count"):
+            self.assertNotIn(removed, preview)
+
+        titles = [t["title"] for t in preview["_tables"]]
+        self.assertIn("Phone Numbers", titles)
+        self.assertIn("Bank Accounts", titles)
+        phones = next(t for t in preview["_tables"] if t["title"] == "Phone Numbers")
+        self.assertEqual(phones["columns"], ["Number", "Country", "Primary"])
+        self.assertEqual(len(phones["rows"]), 2)
+        self.assertIn("+63911111111", phones["rows"][0])
+        if id_type:
+            self.assertIn("ID Documents", titles)
+
+    def test_preview_members_table_and_sections(self):
+        """OP#876: existing members render as a Name/Role table; new members
+        render as per-member detail sections (with their own phones)."""
+        existing = self.partner_model.create({"name": "Existing Member A", "is_registrant": True, "is_group": False})
+        cr = self._make_cr(
+            group_name="Members Group",
+            member_existing_ids=[
+                (
+                    0,
+                    0,
+                    {
+                        "individual_id": existing.id,
+                        "membership_type_id": self.member_kind.id if self.member_kind else False,
+                    },
+                )
+            ],
+            member_new_ids=[
+                (
+                    0,
+                    0,
+                    {
+                        "given_name": "Nina",
+                        "family_name": "Cruz",
+                        "birthdate": "2000-05-05",
+                        "membership_type_id": self.head_kind.id if self.head_kind else False,
+                        "phone_line_ids": [(0, 0, {"phone_no": "+63999999999", "is_primary": True})],
+                    },
+                )
+            ],
+        )
+        preview = cr.action_preview_changes()
+
+        # Counts are gone.
+        self.assertNotIn("existing_member_count", preview)
+        self.assertNotIn("new_member_count", preview)
+
+        # Existing members -> a Name/Role table.
+        existing_tbl = [t for t in preview["_tables"] if t["title"] == "Existing Members"]
+        self.assertEqual(len(existing_tbl), 1)
+        self.assertIn("Existing Member A", existing_tbl[0]["rows"][0])
+
+        # New members -> a per-member detail section with fields + own phones.
+        self.assertEqual(len(preview["_sections"]), 1)
+        sec = preview["_sections"][0]
+        self.assertIn("Nina", sec["title"])
+        labels = [f[0] for f in sec["fields"]]
+        self.assertIn("Date of Birth", labels)
+        self.assertIn("Gender", labels)
+        self.assertTrue(any(t["title"] == "Phone Numbers" for t in sec["tables"]))
+        self.assertIn("+63999999999", sec["tables"][0]["rows"][0])
+
+        # The rendered review HTML surfaces the member data.
+        html = cr._generate_review_comparison_html()
+        self.assertIn("Existing Members", html)
+        self.assertIn("Existing Member A", html)
+        self.assertIn("Nina", html)
+        self.assertIn("+63999999999", html)
+
+    def test_review_comparison_html_renders_tables(self):
+        """The review page HTML shows the actual phone / bank rows as tables,
+        not a bare count (OP#876)."""
+        cr = self._make_cr(
+            group_name="HTML Group",
+            email="g@example.com",
+            phone_line_ids=[(0, 0, {"phone_no": "+63900000000", "is_primary": True})],
+            bank_line_ids=[(0, 0, {"acc_number": "BANK-777"})],
+        )
+        html = cr._generate_review_comparison_html()
+        self.assertIn("Phone Numbers", html)
+        self.assertIn("+63900000000", html)
+        self.assertIn("Bank Accounts", html)
+        self.assertIn("BANK-777", html)
+        self.assertIn("g@example.com", html)
+        # Raw count keys must not leak into the review output.
+        self.assertNotIn("phone_count", html)
+        self.assertNotIn("bank_count", html)
 
     # ──────────────────────────────────────────────────────────────────
     # Wizard flow (OP#876 round 2): Add Member wizard, both modes
