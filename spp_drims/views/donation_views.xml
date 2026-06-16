@@ -49,8 +49,8 @@
                         invisible="state != 'announced'"
                     />
                     <button
-                        name="action_inspect"
-                        string="Mark Inspected"
+                        name="action_open_inspection_wizard"
+                        string="Inspect Items"
                         type="object"
                         class="btn-primary"
                         invisible="state != 'received'"
@@ -60,7 +60,7 @@
                         string="Stock Items"
                         type="object"
                         class="btn-success"
-                        invisible="state != 'inspected'"
+                        invisible="state != 'inspected' or not has_acceptable_items"
                         confirm="This will add items to warehouse inventory. Continue?"
                     />
                     <button
@@ -71,6 +71,7 @@
                         invisible="state != 'inspected'"
                         confirm="Reject this donation? Items will not be added to inventory."
                     />
+                    <field name="has_acceptable_items" invisible="1" />
                     <button
                         name="action_cancel"
                         string="Cancel"
@@ -79,13 +80,26 @@
                         invisible="state in ('stocked', 'rejected', 'cancelled')"
                         confirm="Cancel this donation? Any pending transfers will be cancelled."
                     />
-                    <field
-                        name="state_id"
-                        widget="statusbar"
-                        options="{'clickable': '1'}"
-                    />
+                    <!--
+                        OP#960: render state as a read-only indicator.
+                        All transitions go through the header buttons
+                        (Mark Received / Inspect Items / Stock Items /
+                        Reject / Cancel) which run the proper validation;
+                        a clickable statusbar would let users bypass that.
+                    -->
+                    <field name="state_id" widget="statusbar" />
                 </header>
                 <sheet>
+                    <div
+                        class="alert alert-info"
+                        role="alert"
+                        invisible="state != 'inspected' or has_acceptable_items"
+                    >
+                        <strong>Nothing to Stock.</strong>
+                        Every line on this donation was marked for return, disposal, or quarantine
+                        during inspection, so no items will enter inventory.
+                        Click <strong>Reject</strong> to close this donation.
+                    </div>
                     <div class="oe_button_box" name="button_box">
                         <button
                             name="action_view_pickings"
@@ -152,10 +166,28 @@
                                         string="Pledged"
                                         readonly="parent.state != 'announced'"
                                     />
+                                    <!--
+                                        OP#962: `quantity_received` is editable
+                                        only in the `received` state — never
+                                        during `announced`. Allowing edits at
+                                        announce-time let pre-entered values
+                                        silently flow through
+                                        `action_mark_received()` (which only
+                                        auto-copies pledged→received for lines
+                                        where quantity_received == 0), driving
+                                        the stock picking with values the user
+                                        hadn't necessarily confirmed.
+
+                                        Note: edits in the `received` state
+                                        after the picking exists still don't
+                                        update the picking — that picking-sync
+                                        question is out of scope here and
+                                        should be tracked separately.
+                                    -->
                                     <field
                                         name="quantity_received"
                                         string="Received"
-                                        readonly="parent.state not in ('announced', 'received')"
+                                        readonly="parent.state != 'received'"
                                     />
                                     <field
                                         name="receipt_variance"
@@ -181,8 +213,8 @@
                                         optional="hide"
                                         options="{'no_create': True}"
                                     />
-                                    <field name="lot_number" optional="hide" />
-                                    <field name="expiry_date" optional="hide" />
+                                    <field name="lot_number" optional="show" />
+                                    <field name="expiry_date" optional="show" />
                                 </list>
                             </field>
                         </page>
@@ -455,8 +487,8 @@
                 <field name="unit_value" />
                 <field name="value" />
                 <field name="condition_id" optional="show" />
-                <field name="lot_number" optional="hide" />
-                <field name="expiry_date" optional="hide" />
+                <field name="lot_number" optional="show" />
+                <field name="expiry_date" optional="show" />
             </list>
         </field>
     </record>

@@ -155,12 +155,20 @@
         <field name="display">Submitted</field>
         <field name="sequence">20</field>
     </record>
-    <record id="code_drims_request_approved" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_drims_request_state" />
-        <field name="code">approved</field>
-        <field name="display">Approved</field>
-        <field name="sequence">30</field>
-    </record>
+    <!--
+        OP#969: relabel `approved` so the post-approval queue is obvious.
+        Wrapped in noupdate=0 so the renamed `display` propagates on every
+        module upgrade (the outer odoo element has noupdate=1, which would
+        otherwise skip the rewrite on already-installed databases).
+    -->
+    <data noupdate="0">
+        <record id="code_drims_request_approved" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_drims_request_state" />
+            <field name="code">approved</field>
+            <field name="display">Ready for Allocation</field>
+            <field name="sequence">30</field>
+        </record>
+    </data>
     <record id="code_drims_request_rejected" model="spp.vocabulary.code">
         <field name="vocabulary_id" ref="vocab_drims_request_state" />
         <field name="code">rejected</field>
@@ -173,12 +181,15 @@
         <field name="display">Fulfilled</field>
         <field name="sequence">50</field>
     </record>
-    <record id="code_drims_request_allocated" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_drims_request_state" />
-        <field name="code">allocated</field>
-        <field name="display">Allocated</field>
-        <field name="sequence">35</field>
-    </record>
+    <!-- OP#969: relabel `allocated` — see note on `approved` above. -->
+    <data noupdate="0">
+        <record id="code_drims_request_allocated" model="spp.vocabulary.code">
+            <field name="vocabulary_id" ref="vocab_drims_request_state" />
+            <field name="code">allocated</field>
+            <field name="display">Ready for Dispatch</field>
+            <field name="sequence">35</field>
+        </record>
+    </data>
     <record id="code_drims_request_dispatched" model="spp.vocabulary.code">
         <field name="vocabulary_id" ref="vocab_drims_request_state" />
         <field name="code">dispatched</field>

@@ -668,3 +668,416 @@ class TestDrimsDonation(DrimsTestCommon):
         # Should fail
         with self.assertRaises(UserError):
             donation.action_cancel()
+
+    # ---------- OP#961: lot/serial assignment on action_stock ----------
+
+    def _make_tracked_product(self, tracking, name="Tracked Item"):
+        return self.env["product.product"].create(
+            {
+                "name": name,
+                "type": "consu",
+                "is_storable": True,
+                "tracking": tracking,
+                "standard_price": 50.0,
+            }
+        )
+
+    def _make_donation(self, line_vals):
+        return self.env["spp.drims.donation"].create(
+            {
+                "incident_id": self.incident.id,
+                "warehouse_id": self.warehouse.id,
+                "donor_name": "Test Donor",
+                "line_ids": [(0, 0, vals) for vals in line_vals],
+            }
+        )
+
+    def test_action_stock_creates_lot_for_lot_tracked_product(self):
+        """Lot-tracked product validates and a stock.lot is created from lot_number."""
+        product = self._make_tracked_product("lot", "Rice 25kg (lot)")
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": product.id,
+                    "quantity_pledged": 10,
+                    "uom_id": product.uom_id.id,
+                    "lot_number": "LOT-RICE-001",
+                }
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        donation.action_stock()
+        self.assertEqual(donation.state, "stocked")
+        lot = self.env["stock.lot"].search(
+            [("name", "=", "LOT-RICE-001"), ("product_id", "=", product.id)],
+            limit=1,
+        )
+        self.assertTrue(lot, "expected a stock.lot named LOT-RICE-001 to be created")
+
+    def test_action_stock_sets_expiry_when_provided(self):
+        """expiry_date on the donation line propagates to stock.lot.expiration_date."""
+        if "expiration_date" not in self.env["stock.lot"]._fields:
+            self.skipTest("product_expiry module not installed")
+        product = self._make_tracked_product("lot", "Vaccine (lot)")
+        expiry = date.today() + timedelta(days=180)
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": product.id,
+                    "quantity_pledged": 5,
+                    "uom_id": product.uom_id.id,
+                    "lot_number": "LOT-VAC-2026",
+                    "expiry_date": expiry,
+                }
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        donation.action_stock()
+        lot = self.env["stock.lot"].search(
+            [("name", "=", "LOT-VAC-2026"), ("product_id", "=", product.id)],
+            limit=1,
+        )
+        self.assertTrue(lot)
+        # expiration_date may be Date or Datetime depending on product_expiry version
+        stored = lot.expiration_date
+        if hasattr(stored, "date"):
+            stored = stored.date()
+        self.assertEqual(stored, expiry)
+
+    def test_action_stock_reuses_existing_lot(self):
+        """A stock.lot with the same name + product is reused, not duplicated."""
+        product = self._make_tracked_product("lot", "Rice 25kg (existing lot)")
+        existing = self.env["stock.lot"].create(
+            {
+                "name": "LOT-RICE-EXISTING",
+                "product_id": product.id,
+                "company_id": self.env.company.id,
+            }
+        )
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": product.id,
+                    "quantity_pledged": 3,
+                    "uom_id": product.uom_id.id,
+                    "lot_number": "LOT-RICE-EXISTING",
+                }
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        donation.action_stock()
+        lots = self.env["stock.lot"].search([("name", "=", "LOT-RICE-EXISTING"), ("product_id", "=", product.id)])
+        self.assertEqual(len(lots), 1)
+        self.assertEqual(lots, existing)
+
+    def test_action_stock_serial_qty_one_succeeds(self):
+        """Serial-tracked product with quantity 1 and lot_number validates."""
+        product = self._make_tracked_product("serial", "Generator (serial)")
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": product.id,
+                    "quantity_pledged": 1,
+                    "uom_id": product.uom_id.id,
+                    "lot_number": "SN-GEN-001",
+                }
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        donation.action_stock()
+        self.assertEqual(donation.state, "stocked")
+
+    def test_action_stock_serial_qty_gt_one_raises(self):
+        """Serial product with quantity > 1 raises UserError (one serial per unit)."""
+        product = self._make_tracked_product("serial", "Generator multi")
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": product.id,
+                    "quantity_pledged": 3,
+                    "uom_id": product.uom_id.id,
+                    "lot_number": "SN-GEN-002",
+                }
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        with self.assertRaises(UserError):
+            donation.action_stock()
+
+    def test_action_stock_missing_lot_number_raises(self):
+        """Tracked product without lot_number raises a friendly UserError."""
+        product = self._make_tracked_product("lot", "Rice missing lot")
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": product.id,
+                    "quantity_pledged": 2,
+                    "uom_id": product.uom_id.id,
+                    # lot_number intentionally omitted
+                }
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        with self.assertRaises(UserError):
+            donation.action_stock()
+
+    def test_action_stock_untracked_product_unaffected(self):
+        """Untracked products continue to validate without any lot handling."""
+        # self.product has tracking='none' by default
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 25,
+                    "uom_id": self.product.uom_id.id,
+                }
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        donation.action_stock()
+        self.assertEqual(donation.state, "stocked")
+
+    # ---------- OP#1030: non-accept dispositions excluded from stocking ----------
+
+    def _disposition(self, code):
+        return self.env["spp.vocabulary.code"].search(
+            [
+                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:item-dispositions"),
+                ("code", "=", code),
+            ],
+            limit=1,
+        )
+
+    def _qty_in_warehouse(self, product, warehouse):
+        return sum(
+            self.env["stock.quant"]
+            .search(
+                [
+                    ("product_id", "=", product.id),
+                    ("location_id", "child_of", warehouse.lot_stock_id.id),
+                ]
+            )
+            .mapped("quantity")
+        )
+
+    def test_action_stock_excludes_return_disposition(self):
+        """OP#1030: lines with disposition=return are cancelled, not stocked."""
+        disposition_return = self._disposition("return")
+        if not disposition_return:
+            self.skipTest("return disposition vocab code missing")
+
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 200,
+                    "uom_id": self.product.uom_id.id,
+                }
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        donation.line_ids[0].disposition_id = disposition_return
+
+        result = donation.action_stock()
+        self.assertEqual(donation.state, "stocked")
+        # Nothing should land in the warehouse.
+        self.assertEqual(self._qty_in_warehouse(self.product, self.warehouse), 0.0)
+        # The picking should end up cancelled because every move was excluded.
+        for picking in donation.picking_ids:
+            self.assertEqual(picking.state, "cancel")
+        # A user-visible warning is returned.
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertEqual(result["tag"], "display_notification")
+        self.assertIn("excluded", result["params"]["message"].lower())
+
+    def test_action_stock_excludes_dispose_disposition(self):
+        """OP#1030: lines with disposition=dispose are cancelled too."""
+        disposition_dispose = self._disposition("dispose")
+        if not disposition_dispose:
+            self.skipTest("dispose disposition vocab code missing")
+
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 100,
+                    "uom_id": self.product.uom_id.id,
+                }
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        donation.line_ids[0].disposition_id = disposition_dispose
+
+        donation.action_stock()
+        self.assertEqual(self._qty_in_warehouse(self.product, self.warehouse), 0.0)
+
+    def test_action_stock_mixed_dispositions_only_accepted_stocks(self):
+        """OP#1030: in a mixed donation, only accepted lines reach the warehouse."""
+        disposition_accept = self._disposition("accept")
+        disposition_return = self._disposition("return")
+        if not (disposition_accept and disposition_return):
+            self.skipTest("required disposition codes missing")
+
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 800,
+                    "uom_id": self.product.uom_id.id,
+                },
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 200,
+                    "uom_id": self.product.uom_id.id,
+                },
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        donation.line_ids[0].disposition_id = disposition_accept
+        donation.line_ids[1].disposition_id = disposition_return
+
+        result = donation.action_stock()
+        self.assertEqual(donation.state, "stocked")
+        # Only the 800 accepted units land in the warehouse.
+        self.assertEqual(self._qty_in_warehouse(self.product, self.warehouse), 800.0)
+        # Warning lists the 200 excluded units.
+        self.assertIsNotNone(result)
+        self.assertIn("200", result["params"]["message"])
+
+    def test_action_stock_mixed_dispositions_partial_receive_only_stocks_accept(self):
+        """OP#1030 regression: even when Odoo merges the receipt moves and
+        when received qty differs from pledged, only the accepted received
+        quantity should land in the warehouse.
+
+        Reproduces the bug screenshot scenario:
+        - Donation has 2 lines of the same product
+        - Line 1: pledged 500, received 200, Accept
+        - Line 2: pledged 300, received 300, Return to Donor
+        - Expected: only 200 (Accept line's received qty) reaches the warehouse.
+        """
+        disposition_accept = self._disposition("accept")
+        disposition_return = self._disposition("return")
+        if not (disposition_accept and disposition_return):
+            self.skipTest("required disposition codes missing")
+
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 500,
+                    "uom_id": self.product.uom_id.id,
+                },
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 300,
+                    "uom_id": self.product.uom_id.id,
+                },
+            ]
+        )
+        donation.action_mark_received()
+        # Simulate the OP#964 scenario: line 1's received is reduced after
+        # receipt (e.g. the actual delivery was short of the pledged amount).
+        donation.line_ids[0].quantity_received = 200
+        donation.action_inspect()
+        donation.line_ids[0].disposition_id = disposition_accept
+        donation.line_ids[1].disposition_id = disposition_return
+
+        result = donation.action_stock()
+        self.assertEqual(donation.state, "stocked")
+        self.assertEqual(self._qty_in_warehouse(self.product, self.warehouse), 200.0)
+        self.assertIsNotNone(result)
+        self.assertIn("300", result["params"]["message"])
+
+    def test_has_acceptable_items_all_non_accept(self):
+        """When every line is non-accept (return / dispose / quarantine) the
+        ``has_acceptable_items`` flag drops to False so the form hides the
+        Stock button and surfaces the "Nothing to Stock" info alert."""
+        disposition_return = self._disposition("return")
+        disposition_dispose = self._disposition("dispose")
+        if not (disposition_return and disposition_dispose):
+            self.skipTest("non-accept disposition vocab codes missing")
+
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 100,
+                    "uom_id": self.product.uom_id.id,
+                },
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 100,
+                    "uom_id": self.product.uom_id.id,
+                },
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        donation.line_ids[0].disposition_id = disposition_return
+        donation.line_ids[1].disposition_id = disposition_dispose
+
+        self.assertFalse(
+            donation.has_acceptable_items,
+            "every line is non-accept — Stock button should be hidden",
+        )
+
+    def test_has_acceptable_items_mixed(self):
+        """One accept line is enough to keep Stock available."""
+        disposition_accept = self._disposition("accept")
+        disposition_return = self._disposition("return")
+        if not (disposition_accept and disposition_return):
+            self.skipTest("required disposition codes missing")
+
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 100,
+                    "uom_id": self.product.uom_id.id,
+                },
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 50,
+                    "uom_id": self.product.uom_id.id,
+                },
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        donation.line_ids[0].disposition_id = disposition_accept
+        donation.line_ids[1].disposition_id = disposition_return
+
+        self.assertTrue(donation.has_acceptable_items)
+
+    def test_action_stock_all_accept_unchanged(self):
+        """OP#1030: regression — full-accept flow still stocks everything."""
+        disposition_accept = self._disposition("accept")
+        if not disposition_accept:
+            self.skipTest("accept disposition vocab code missing")
+
+        donation = self._make_donation(
+            [
+                {
+                    "product_id": self.product.id,
+                    "quantity_pledged": 500,
+                    "uom_id": self.product.uom_id.id,
+                }
+            ]
+        )
+        donation.action_mark_received()
+        donation.action_inspect()
+        donation.line_ids[0].disposition_id = disposition_accept
+
+        result = donation.action_stock()
+        self.assertIsNone(result, "no excluded units → no notification")
+        self.assertEqual(self._qty_in_warehouse(self.product, self.warehouse), 500.0)
