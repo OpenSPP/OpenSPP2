@@ -394,7 +394,13 @@ class SppCashEntitlementManager(models.Model):
         :return state_err: Integer number of errors
         :return message: String description of the errors
         """
-        amt = 0.0
+        if not entitlements:
+            return (0, "")
+
+        # Track approved amount and fund balance per program so a mixed-program
+        # recordset is evaluated against each entitlement's own program fund.
+        amt_by_program = {}
+        fund_balance_by_program = {}
         # Odoo 19's account.payment expects an "outstanding" account; ensure one exists for the company
         company = self.env.company
         if not company.transfer_account_id:
@@ -416,17 +422,18 @@ class SppCashEntitlementManager(models.Model):
         entitlements.mapped("partner_id.property_account_payable_id")
         entitlements.mapped("journal_id.currency_id")
 
-        # Fetch fund balance once for the whole batch instead of per entitlement
-        fund_balance = self.check_fund_balance(entitlements[0].cycle_id.program_id.id)
-
         state_err = 0
         message = ""
         sw = 0
         for rec in entitlements:
             if rec.state in ("draft", "pending_validation"):
-                remaining_balance = fund_balance - amt
+                prog_id = rec.cycle_id.program_id.id
+                # Fetch each program's balance once and reuse it across the batch.
+                if prog_id not in fund_balance_by_program:
+                    fund_balance_by_program[prog_id] = self.check_fund_balance(prog_id)
+                remaining_balance = fund_balance_by_program[prog_id] - amt_by_program.get(prog_id, 0.0)
                 if remaining_balance >= rec.initial_amount:
-                    amt += rec.initial_amount
+                    amt_by_program[prog_id] = amt_by_program.get(prog_id, 0.0) + rec.initial_amount
                     # Prepare journal entry (account.move) via account.payment
                     amount = rec.initial_amount
                     new_service_fee = None

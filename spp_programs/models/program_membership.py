@@ -413,6 +413,13 @@ class SPPProgramMembership(models.Model):
             raising IntegrityError. Returns the count of inserted rows.
         :return: Recordset (skip_duplicates=False) or int count (skip_duplicates=True)
         """
+        # This is a public (RPC-callable) method. The skip_duplicates path uses
+        # raw SQL and the ORM path runs through sudo(), both of which bypass the
+        # ORM's ACL checks. Enforce model-level create access explicitly so a
+        # low-privileged user cannot use it to create memberships they could not
+        # create through the ORM.
+        self.check_access("create")
+
         if not vals_list:
             return 0 if skip_duplicates else self.env["spp.program.membership"]
 

@@ -5,7 +5,7 @@
 import logging
 from uuid import uuid4
 
-from odoo import _, api, fields, models
+from odoo import Command, _, api, fields, models
 from odoo.exceptions import ValidationError
 
 from odoo.addons.job_worker.delay import group
@@ -267,6 +267,10 @@ class DefaultFilePaymentManager(models.Model):
                         }
                     )
                     batch_payments.write({"batch_id": curr_batch.id})
+                    # payment_ids is an independent Many2many (not the inverse of
+                    # batch_id), so it must be populated explicitly or the batch
+                    # would display/iterate zero payments.
+                    curr_batch.payment_ids = [Command.set(batch_payments.ids)]
                     if not batches:
                         batches = curr_batch
                     else:
