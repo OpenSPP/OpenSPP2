@@ -1424,10 +1424,12 @@ class SPPMISDemoGenerator(models.TransientModel):
             if program[field]:
                 continue
             for mgr_obj, def_mgr_obj in mapping.items():
-                # Create the concrete manager implementation and link via wrapper
+                # Create the concrete manager implementation and link via
+                # wrapper. Each concrete model's default_get() supplies a
+                # method-specific name; we don't pass "Default" anymore —
+                # see #941 round 2 / item 3.
                 def_mgr = self.env[def_mgr_obj].create(
                     {
-                        "name": "Default",
                         "program_id": program.id,
                     }
                 )

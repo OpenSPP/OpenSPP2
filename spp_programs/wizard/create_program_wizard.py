@@ -438,8 +438,9 @@ class SPPCreateNewProgramWiz(models.TransientModel):
         }
 
     def _get_default_eligibility_manager_val(self, program_id):
+        # Concrete model's default_get supplies a method-specific name —
+        # see #941 round 2 / item 3.
         return {
-            "name": "Default",
             "program_id": program_id,
             "admin_area_ids": self.admin_area_ids,
             "eligibility_domain": self.eligibility_domain,
@@ -480,8 +481,9 @@ class SPPCreateNewProgramWiz(models.TransientModel):
         }
 
     def get_cycle_manager_default_val(self, program_id):
+        # Concrete model's default_get supplies a method-specific name —
+        # see #941 round 2 / item 3.
         return {
-            "name": "Default",
             "program_id": program_id,
             "auto_approve_entitlements": self.auto_approve_entitlements,
             "cycle_duration": self.cycle_duration,
@@ -649,11 +651,12 @@ class SPPCreateNewProgramWiz(models.TransientModel):
 
     def _get_program_manager(self, program_id):
         """Create the Program Manager which handles enrollment and cycle creation."""
-        # Add a new record to default program manager model
+        # Add a new record to default program manager model. default_get on
+        # the concrete model supplies a method-specific name — see #941
+        # round 2 / item 3.
         def_mgr_obj = "spp.program.manager.default"
         def_mgr = self.env[def_mgr_obj].create(
             {
-                "name": "Default",
                 "program_id": program_id,
             }
         )

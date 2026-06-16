@@ -33,6 +33,14 @@ class SPPInKindEntitlementManager(models.Model):
     IS_CASH_ENTITLEMENT = False
 
     @api.model
+    def default_get(self, fields_list):
+        """Default the manager name to its method-specific label."""
+        res = super().default_get(fields_list)
+        if "name" in fields_list:
+            res.setdefault("name", _("In-kind Entitlement"))
+        return res
+
+    @api.model
     def _default_warehouse_id(self):
         return self.env["stock.warehouse"].search([("company_id", "=", self.env.company.id)], limit=1)
 

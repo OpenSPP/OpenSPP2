@@ -67,6 +67,10 @@ class SPPProgramMembership(models.Model):
 
     last_deduplication = fields.Date("Last Deduplication Date")
     exit_date = fields.Date()
+    exit_reason = fields.Char(
+        string="Exit Reason",
+        help="Free-text reason recorded when a beneficiary exits a program (e.g. 'Graduated', 'Opted out', 'Moved').",
+    )
 
     registrant_id = fields.Integer(string="Registrant ID", related="partner_id.id")
 
@@ -136,9 +140,6 @@ class SPPProgramMembership(models.Model):
                 ("cycle_id.program_id", "=", self.program_id.id),
             ],
         }
-
-    # TODO: Implement exit reasons
-    # exit_reason_id = fields.Many2one("Exit Reason") Default: Completed, Opt-Out, Other
 
     # TODO: Implement not eligible reasons
     # Default: "Missing data", "Does not match the criterias", "Duplicate", "Other"
@@ -387,16 +388,22 @@ class SPPProgramMembership(models.Model):
         self.write({"state": "enrolled"})
 
     def action_exit(self):
-        """Exit the registrant from the program."""
+        """Open a wizard prompting for an exit reason.
+
+        The actual state / exit_date / exit_reason write happens inside
+        the wizard so every exit event captures a reason for audit.
+        """
         self.ensure_one()
         if self.state not in ("enrolled", "paused"):
             raise UserError(_("Only enrolled or paused memberships can be exited."))
-        self.write(
-            {
-                "state": "exited",
-                "exit_date": fields.Date.today(),
-            }
-        )
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Exit Program"),
+            "res_model": "spp.program.membership.exit.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {"default_membership_id": self.id},
+        }
 
     @api.model
     def bulk_create_memberships(self, vals_list, chunk_size=1000, skip_duplicates=False):

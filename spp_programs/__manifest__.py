@@ -4,7 +4,7 @@
     "name": "OpenSPP Programs",
     "summary": "Manage programs, cycles, beneficiary enrollment, entitlements (cash and in-kind), payments, and fund tracking for social protection.",
     "category": "OpenSPP/Core",
-    "version": "19.0.2.1.3",
+    "version": "19.0.2.2.0",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -112,6 +112,7 @@
         "wizard/create_program_wizard_compliance_views.xml",
         "wizard/create_program_wizard_cel_views.xml",
         "wizard/enrollment_wizard_views.xml",
+        "wizard/exit_membership_wizard.xml",
         "wizard/prepare_entitlement_confirm_wizard.xml",
     ],
     "assets": {
