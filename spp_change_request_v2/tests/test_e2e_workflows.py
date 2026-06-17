@@ -384,13 +384,11 @@ class TestE2EWorkflows(TransactionCase):
             }
         )
         detail1 = cr1.get_detail()
-        detail1.write(
-            {
-                "new_head_membership_id": spouse_mem.id,
-                "reason": "deceased",
-                "effective_date": fields.Date.today(),
-            }
-        )
+        detail1.reason = "deceased"
+        # Original head steps down; spouse is promoted to head. Step the current
+        # head down first to avoid a transient two-heads state.
+        detail1.member_line_ids.filtered(lambda r: r.individual_id == head).new_role_id = self.spouse_kind
+        detail1.member_line_ids.filtered(lambda r: r.individual_id == spouse).new_role_id = self.head_kind
         self._approve_and_apply(cr1)
 
         # Verify spouse is now head

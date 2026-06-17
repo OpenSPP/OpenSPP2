@@ -392,10 +392,36 @@ class SPPChangeRequest(models.Model):
                 )
             rec.stage_banner_html = html
 
-    @api.depends("document_ids", "document_ids.document_type_id", "request_type_id.required_document_ids")
+    def _get_effective_required_document_ids(self):
+        """Return the document types required for this request.
+
+        When the request type defines per-reason document rules (OP#873) and the
+        request's detail exposes a matching reason, that rule's documents take
+        precedence over the flat ``required_document_ids`` list. A configured
+        rule with no documents means nothing is required for that reason."""
+        self.ensure_one()
+        empty = self.env["spp.vocabulary.code"]
+        rt = self.request_type_id
+        if not rt:
+            return empty
+        reason_rules = rt.reason_document_ids
+        if reason_rules:
+            detail = self.get_detail()
+            reason = detail.reason if detail and "reason" in detail._fields else False
+            if reason:
+                rule = reason_rules.filtered(lambda r: r.reason == reason)
+                return rule[:1].required_document_ids if rule else empty
+        return rt.required_document_ids
+
+    @api.depends(
+        "document_ids",
+        "document_ids.document_type_id",
+        "request_type_id.required_document_ids",
+        "request_type_id.reason_document_ids",
+    )
     def _compute_missing_required_documents(self):
         for rec in self:
-            required = rec.request_type_id.required_document_ids if rec.request_type_id else None
+            required = rec._get_effective_required_document_ids() if rec.request_type_id else None
             if not required:
                 rec.missing_required_document_ids = self.env["spp.vocabulary.code"]
                 rec.documents_complete = True
@@ -405,10 +431,15 @@ class SPPChangeRequest(models.Model):
             rec.missing_required_document_ids = missing
             rec.documents_complete = not bool(missing)
 
-    @api.depends("document_ids", "document_ids.document_type_id", "request_type_id.required_document_ids")
+    @api.depends(
+        "document_ids",
+        "document_ids.document_type_id",
+        "request_type_id.required_document_ids",
+        "request_type_id.reason_document_ids",
+    )
     def _compute_required_documents_html(self):
         for rec in self:
-            required = rec.request_type_id.required_document_ids if rec.request_type_id else None
+            required = rec._get_effective_required_document_ids() if rec.request_type_id else None
             if not required:
                 rec.required_documents_html = (
                     '<div class="alert alert-info mb-3 py-2">'
