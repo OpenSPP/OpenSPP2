@@ -89,11 +89,17 @@
         <field
             name="comment"
         >Full access to DRIMS including configuration and deletion.</field>
+        <!-- OP#974: Manager gets stock access directly (for dispatch/process)
+             rather than inheriting Warehouse Staff's scoped rules. Manager ACLs
+             + manager-all record rules already grant full DRIMS visibility;
+             alert-resolve / donation-process buttons are gated to warehouse OR
+             manager. -->
         <field
             name="implied_ids"
             eval="[
             Command.link(ref('group_drims_officer')),
             Command.link(ref('group_drims_approver')),
+            Command.link(ref('stock.group_stock_user')),
         ]"
         />
     </record>
@@ -112,10 +118,13 @@
         <field
             name="comment"
         >Can receive donations, manage inventory, and process dispatches.</field>
+        <!-- OP#974: inherit Viewer (read) only, not Officer — Warehouse Staff
+             must NOT get blanket create on requests. Stock access stays for
+             dispatch/process. Targeted create/write comes from ACLs + rules. -->
         <field
             name="implied_ids"
             eval="[
-            Command.link(ref('group_drims_officer')),
+            Command.link(ref('group_drims_viewer')),
             Command.link(ref('stock.group_stock_user')),
         ]"
         />
@@ -133,7 +142,9 @@
         <field
             name="comment"
         >Can create requests and confirm deliveries in assigned areas.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_drims_officer'))]" />
+        <!-- OP#974: inherit Viewer (read) only. Request create + return create
+             are granted by targeted ACLs; donations stay read-only. -->
+        <field name="implied_ids" eval="[Command.link(ref('group_drims_viewer'))]" />
     </record>
 
     <!-- District Coordinator: Specialized for district-level coordination -->
@@ -148,7 +159,9 @@
         <field
             name="comment"
         >Can coordinate requests and distributions within assigned districts.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_drims_officer'))]" />
+        <!-- OP#974: inherit Viewer (read) only. Request create is granted by a
+             targeted ACL; donations/returns/alerts stay read-only. -->
+        <field name="implied_ids" eval="[Command.link(ref('group_drims_viewer'))]" />
     </record>
 
     <!-- Link Manager to SPP Admin -->
