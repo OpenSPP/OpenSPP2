@@ -57,13 +57,10 @@ class SppScoringInvalidValue(models.Model):
         ),
     )
 
-    _sql_constraints = [
-        (
-            "spp_scoring_invalid_value_name_uniq",
-            "unique(name)",
-            "An invalid-value entry with this string already exists.",
-        ),
-    ]
+    _name_uniq = models.Constraint(
+        "unique(name)",
+        "An invalid-value entry with this string already exists.",
+    )
 
     @api.constrains("name", "match_type")
     def _check_regex_compiles(self):
