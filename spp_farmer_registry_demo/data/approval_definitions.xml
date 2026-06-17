@@ -12,15 +12,25 @@
     managers (a gap to be fixed in MIS via a separate ticket).
 -->
 <odoo noupdate="1">
-    <!-- Cycle approval — Program Manager -->
+    <!-- Cycle approval — Cycle Approver.
+         Cycle approval is gated on the Cycle Approver functional role, which is
+         the group the "Approve Cycle" button is shown to and the role purpose-
+         built for this in spp_programs. A Program Manager is intentionally NOT
+         a Cycle Approver in the program group hierarchy, so cycle approval must
+         route through this group for the dedicated approver to approve (OP#915).
+         The xmlid is kept stable because farmer_demo_generator wires it onto
+         each program's cycle manager by id. -->
     <record
         id="approval_definition_farmer_cycle_manager"
         model="spp.approval.definition"
     >
-        <field name="name">Farmer: Cycle Approval - Program Manager</field>
+        <field name="name">Farmer: Cycle Approval - Cycle Approver</field>
         <field name="model_id" ref="spp_programs.model_spp_cycle" />
         <field name="approval_type">group</field>
-        <field name="approval_group_id" ref="spp_programs.group_programs_manager" />
+        <field
+            name="approval_group_id"
+            ref="spp_programs.group_programs_cycle_approver"
+        />
         <field name="is_require_comment">False</field>
         <field name="notify_on_submit">True</field>
         <field name="sla_days">3</field>

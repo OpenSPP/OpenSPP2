@@ -163,4 +163,46 @@
         <field name="company_id" ref="base.main_company" />
         <field name="active" eval="True" />
     </record>
+
+    <!-- Cycle Approver - approves program cycles.
+         The demo's cycle approval definition routes through
+         `spp_programs.group_programs_cycle_approver` (the functional role
+         purpose-built for cycle approval — the "Approve Cycle" button is gated
+         to it), so the approver holds the Program Cycle Approver role. That
+         role also carries queue-job manager rights, so approving a cycle (which
+         enqueues entitlement validation) does not hit an access error. The Farm
+         User role is added so this account can browse the registry. Per OP#915:
+         QA needs a dedicated cycle approver, distinct from the Program Manager
+         (a Program Manager is not a Cycle Approver and cannot approve cycles). -->
+    <record
+        id="demo_user_cycle_approver"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field name="name">Cycle Approver</field>
+        <field name="login">cycle_approver</field>
+        <field name="email">cycle_approver@example.com</field>
+        <field name="password">demo</field>
+        <field
+            name="role_line_ids"
+            eval="[
+                (0, 0, {'role_id': ref('spp_programs.global_role_program_cycle_approver')}),
+                (0, 0, {'role_id': ref('spp_farmer_registry.global_role_farm_user')}),
+            ]"
+        />
+        <field name="company_id" ref="base.main_company" />
+        <field name="active" eval="True" />
+    </record>
+
+    <!-- Keep the demo loader (SPP Admin) able to approve cycles cleanly. The
+         cycle approval definition routes through the Cycle Approver group, so
+         grant that group to SPP Admin. Without this, "Load Farmer Demo" would
+         log a spurious "Could not approve cycle" traceback for every cycle
+         before falling back to a forced approval. Per OP#915. -->
+    <record id="spp_security.group_spp_admin" model="res.groups">
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('spp_programs.group_programs_cycle_approver'))]"
+        />
+    </record>
 </odoo>

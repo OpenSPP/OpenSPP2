@@ -717,3 +717,45 @@ class TestFarmerDemoProgramConfiguration(TransactionCase):
         officer = self.env.ref("spp_demo.demo_officer")
         # Must not raise AccessError for a plain Farm User.
         self.env["spp.cycle"].with_user(officer).search([], limit=1)
+
+
+@tagged("post_install", "-at_install")
+class TestCycleApproverDemoUser(TransactionCase):
+    """OP#915: the demo must ship a user who can actually approve program cycles.
+
+    Cycle approval is gated on the Cycle Approver functional role (the group the
+    "Approve Cycle" button is shown to). A Program Manager is intentionally NOT a
+    Cycle Approver, so the demo provides a dedicated `cycle_approver` user and
+    routes the cycle approval definition through that group.
+    """
+
+    def test_cycle_approval_definition_uses_cycle_approver_group(self):
+        definition = self.env.ref("spp_farmer_registry_demo.approval_definition_farmer_cycle_manager")
+        self.assertEqual(definition.approval_type, "group")
+        self.assertEqual(
+            definition.approval_group_id,
+            self.env.ref("spp_programs.group_programs_cycle_approver"),
+            "Cycle approval must route through the Cycle Approver group so the dedicated approver can approve cycles.",
+        )
+
+    def test_cycle_approver_user_is_in_cycle_approver_group(self):
+        user = self.env.ref("spp_farmer_registry_demo.demo_user_cycle_approver")
+        self.assertTrue(
+            user.has_group("spp_programs.group_programs_cycle_approver"),
+            "The demo cycle approver must hold the Cycle Approver group so the "
+            "Approve Cycle button is shown and approval is authorized.",
+        )
+        # The role also carries queue-job manager rights so approving a cycle
+        # (which enqueues entitlement validation) does not hit an access error.
+        self.assertTrue(user.has_group("job_worker.group_queue_job_manager"))
+
+    def test_admin_can_approve_cycles_for_clean_demo_load(self):
+        """SPP Admin (the demo loader) must be in the Cycle Approver group so
+        Load Farmer Demo approves cycles without falling back to a forced state
+        write (which logs a spurious traceback)."""
+        admin_group = self.env.ref("spp_security.group_spp_admin")
+        self.assertIn(
+            self.env.ref("spp_programs.group_programs_cycle_approver"),
+            admin_group.implied_ids,
+            "SPP Admin must imply the Cycle Approver group for clean demo loading.",
+        )
