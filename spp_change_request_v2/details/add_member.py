@@ -1,13 +1,10 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Detail model for the Add Member CR (OP#871).
 
-Adds a single new individual to an existing group. The detail captures the
-spec-mandated field set (names, demographics, contact, location, financials,
-ID docs, role) and reuses the per-line phone/bank/id_doc sub-models that
-already exist for Create Group (see OP#876).
+The first page searches for an existing individual registrant and adds them to
+the group with a role. (The earlier create-a-new-individual flow was replaced
+per the updated #871 spec — Add Member now selects an existing member.)
 """
-
-from datetime import date
 
 from odoo import api, fields, models
 
@@ -20,97 +17,19 @@ class SPPCRDetailAddMember(models.Model):
     _inherit = ["spp.cr.detail.base", "mail.thread"]
 
     # ──────────────────────────────────────────────────────────────────────
-    # Names
+    # Member to add (existing individual)
     # ──────────────────────────────────────────────────────────────────────
-    given_name = fields.Char(string="Given Name", tracking=True, required=False)
-    family_name = fields.Char(string="Family Name", tracking=True, required=False)
-    middle_name = fields.Char(
-        string="Middle Name",
+    individual_id = fields.Many2one(
+        "res.partner",
+        string="Member",
         tracking=True,
-        help="Stored on the CR. On apply, prepended to the given name when "
-        "composing the partner's display name (res.partner has no native "
-        "middle_name field).",
+        help="Search for an existing individual registrant to add to the group.",
     )
-    member_name = fields.Char(
-        string="Full Name",
-        compute="_compute_member_name",
-        store=True,
-        help="Auto-computed: FAMILY, GIVEN MIDDLE. Read-only.",
-    )
-
-    # ──────────────────────────────────────────────────────────────────────
-    # Demographics
-    # ──────────────────────────────────────────────────────────────────────
-    birthdate = fields.Date(string="Date of Birth", tracking=True)
-    is_approximate_birthdate = fields.Boolean(
-        string="Approximate Birthdate",
-        help="Flag the birthdate as approximate; downstream stats may exclude "
-        "approximate records or treat them with reduced precision.",
-    )
-    age = fields.Integer(
-        string="Age",
-        compute="_compute_age",
-        help="Auto-computed from Date of Birth.",
-    )
-    birth_place = fields.Char(string="Birth Place", tracking=True)
-    occupation_id = fields.Many2one(
-        "spp.vocabulary.code",
-        string="Occupation",
-        domain="[('vocabulary_id.namespace_uri', '=', 'urn:ilo:isco-08')]",
-        tracking=True,
-    )
-    gender_id = fields.Many2one(
-        "spp.vocabulary.code",
-        string="Gender",
-        domain="[('namespace_uri', '=', 'urn:iso:std:iso:5218')]",
-        tracking=True,
-    )
-    civil_status_id = fields.Many2one(
-        "spp.vocabulary.code",
-        string="Civil Status",
-        domain="[('vocabulary_id.namespace_uri', '=', 'urn:un:unsd:pop-census:marital-status')]",
-        tracking=True,
-    )
-    income = fields.Float(string="Income", tracking=True)
-
-    # ──────────────────────────────────────────────────────────────────────
-    # Contact
-    # ──────────────────────────────────────────────────────────────────────
-    area_id = fields.Many2one("spp.area", string="Area", tracking=True)
-    # The registry stores a single free-text address (res.partner.address), so the
-    # CR collects it the same way to map cleanly on apply (OP#871 QA round 1).
-    address = fields.Text(string="Address", tracking=True)
-    email = fields.Char(string="Email", tracking=True)
-
-    phone_line_ids = fields.One2many(
-        "spp.cr.detail.create_group.phone",
-        "add_member_detail_id",
-        string="Phone Numbers",
-    )
-
-    # ──────────────────────────────────────────────────────────────────────
-    # Location
-    # ──────────────────────────────────────────────────────────────────────
-    latitude = fields.Float(string="Latitude", digits=(13, 10), tracking=True)
-    longitude = fields.Float(string="Longitude", digits=(13, 10), tracking=True)
-
-    # ──────────────────────────────────────────────────────────────────────
-    # Financial
-    # ──────────────────────────────────────────────────────────────────────
-    bank_line_ids = fields.One2many(
-        "spp.cr.detail.create_group.bank",
-        "add_member_detail_id",
-        string="Bank Accounts",
-    )
-
-    # ──────────────────────────────────────────────────────────────────────
-    # Identity Documents
-    # ──────────────────────────────────────────────────────────────────────
-    id_doc_line_ids = fields.One2many(
-        "spp.cr.detail.create_group.id_doc",
-        "add_member_detail_id",
-        string="Identity Documents",
-    )
+    # Domain string (computed) restricting the picker to existing individual
+    # registrants who are not already active members of the group. A computed
+    # domain is used instead of a materialised Many2many so the picker scales
+    # with a large registry (mirrors spp.change.request.registrant_domain).
+    individual_domain = fields.Char(compute="_compute_individual_domain")
 
     # ──────────────────────────────────────────────────────────────────────
     # Role (per-member, single row)
@@ -144,8 +63,7 @@ class SPPCRDetailAddMember(models.Model):
     )
 
     # ──────────────────────────────────────────────────────────────────────
-    # Read-only context: existing members of the group (for the spec's
-    # "display a table with all members" requirement). Computed, not stored.
+    # Read-only context: existing members of the group
     # ──────────────────────────────────────────────────────────────────────
     existing_membership_ids = fields.Many2many(
         "spp.group.membership",
@@ -153,42 +71,27 @@ class SPPCRDetailAddMember(models.Model):
         compute="_compute_existing_memberships",
     )
 
-    # Reference to created individual (set after apply).
-    created_individual_id = fields.Many2one(
-        "res.partner",
-        string="Created Individual",
-        readonly=True,
-    )
-
     # ──────────────────────────────────────────────────────────────────────
     # Computes
     # ──────────────────────────────────────────────────────────────────────
-    @api.depends("given_name", "family_name", "middle_name")
-    def _compute_member_name(self):
-        for rec in self:
-            given = (rec.given_name or "").strip()
-            family = (rec.family_name or "").strip()
-            middle = (rec.middle_name or "").strip()
-            first_part = " ".join(filter(None, [given, middle]))
-            if family and first_part:
-                rec.member_name = f"{family.upper()}, {first_part}".strip()
-            elif family:
-                rec.member_name = family.upper()
-            elif first_part:
-                rec.member_name = first_part.upper()
-            else:
-                rec.member_name = False
+    def _active_member_individual_ids(self, group):
+        """ids of individuals who are active members of the group."""
+        if not group or not group.is_group:
+            return []
+        memberships = self.env["spp.group.membership"].search([("group", "=", group.id), ("status", "=", "active")])
+        return memberships.mapped("individual").ids
 
-    @api.depends("birthdate")
-    def _compute_age(self):
-        today = date.today()
+    @api.depends("change_request_id", "change_request_id.registrant_id")
+    def _compute_individual_domain(self):
         for rec in self:
-            if not rec.birthdate:
-                rec.age = 0
-                continue
-            bd = rec.birthdate
-            years = today.year - bd.year - ((today.month, today.day) < (bd.month, bd.day))
-            rec.age = max(years, 0)
+            member_ids = rec._active_member_individual_ids(rec.change_request_id.registrant_id)
+            rec.individual_domain = str(
+                [
+                    ("is_registrant", "=", True),
+                    ("is_group", "=", False),
+                    ("id", "not in", member_ids),
+                ]
+            )
 
     @api.depends_context("uid")
     def _compute_roles_available(self):

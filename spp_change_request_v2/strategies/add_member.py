@@ -1,5 +1,10 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
-"""Apply strategy for the Add Member CR (OP#871)."""
+"""Apply strategy for the Add Member CR (OP#871).
+
+Adds an existing individual registrant to the group with a role. (The earlier
+create-a-new-individual flow was replaced per the updated #871 spec — the first
+page now searches for an existing member.)
+"""
 
 import logging
 
@@ -7,8 +12,6 @@ from odoo import Command, _, fields, models
 from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
-
-HEAD_ROLE_CODE = "head"
 
 
 class SPPCRApplyAddMember(models.AbstractModel):
@@ -30,28 +33,20 @@ class SPPCRApplyAddMember(models.AbstractModel):
         if not detail:
             raise UserError(_("No detail record found."))
 
-        self._validate(detail)
+        self._validate(detail, group)
 
-        # 1. Individual itself.
-        individual = self._create_individual(detail)
-
-        # 2. Multi-value attachments tied to the new individual.
-        self._attach_phones(detail, individual)
-        self._attach_banks(detail, individual)
-        self._attach_id_docs(detail, individual)
-
-        # 3. If the new member is being added as head and one already exists,
-        #    demote it first so the group invariant holds (single active head).
-        self._demote_existing_head_if_needed(detail, group)
-
-        # 4. Membership row.
-        self._create_membership(detail, group, individual)
-
-        detail.write({"created_individual_id": individual.id})
+        vals = {
+            "group": group.id,
+            "individual": detail.individual_id.id,
+            "start_date": fields.Datetime.now(),
+        }
+        if detail.membership_type_id:
+            vals["membership_type_ids"] = [Command.link(detail.membership_type_id.id)]
+        self.env["spp.group.membership"].create(vals)
 
         _logger.info(
-            "Added member partner_id=%s to group partner_id=%s via CR %s",
-            individual.id,
+            "Added existing member partner_id=%s to group partner_id=%s via CR %s",
+            detail.individual_id.id,
             group.id,
             change_request.name,
         )
@@ -64,73 +59,57 @@ class SPPCRApplyAddMember(models.AbstractModel):
         detail = change_request.get_detail()
         if not detail:
             return {}
+        individual = detail.individual_id
 
-        location = None
-        if detail.latitude or detail.longitude:
-            location = f"{detail.latitude}, {detail.longitude}"
+        def field_val(name):
+            """Read a field off the selected individual, guarding for registry
+            fields that may be absent without spp_registry on the path."""
+            if not individual or name not in individual._fields:
+                return None
+            return individual[name] or None
 
-        # One2many lines render as their own tables on the review page, via the
-        # generic "_tables" contract shared with Create Group (OP#871).
-        tables = []
-        phone_rows = [
-            [p.phone_no or "", p.country_id.display_name or "", _("Yes") if p.is_primary else ""]
-            for p in detail.phone_line_ids
-        ]
-        if phone_rows:
-            tables.append(
-                {"title": _("Phone Numbers"), "columns": [_("Number"), _("Country"), _("Primary")], "rows": phone_rows}
-            )
-        bank_rows = [
-            [b.acc_number or "", b.acc_holder_name or "", b.bank_id.display_name or ""] for b in detail.bank_line_ids
-        ]
-        if bank_rows:
-            tables.append(
-                {
-                    "title": _("Bank Accounts"),
-                    "columns": [_("Account Number"), _("Account Holder"), _("Bank")],
-                    "rows": bank_rows,
-                }
-            )
-        id_doc_rows = [
-            [d.id_type_id.display_name or "", d.value or "", str(d.expiry_date) if d.expiry_date else ""]
-            for d in detail.id_doc_line_ids
-        ]
-        if id_doc_rows:
-            tables.append(
-                {
-                    "title": _("ID Documents"),
-                    "columns": [_("Type"), _("Number"), _("Expiry Date")],
-                    "rows": id_doc_rows,
-                }
-            )
+        gender = field_val("gender_id")
+        civil_status = field_val("civil_status_id")
+        occupation = field_val("occupation_id")
+        area = field_val("area_id")
+        birthdate = field_val("birthdate")
 
-        # Show every individual field even when empty (QA #871) — empty values
-        # render as a "-" placeholder through the action-summary formatter.
+        # The review page shows who is being added; empty fields render as a
+        # "-" placeholder through the action-summary formatter.
         return {
-            "_action": "create_member",
-            "_header": _("The following individual is to be added:"),
-            _("Group"): change_request.registrant_id.name,
-            _("Name"): detail.member_name,
+            "_action": "add_member",
+            "_header": _("The following individual is to be added to the group:"),
+            _("Group"): change_request.registrant_id.display_name,
+            _("Name"): individual.display_name if individual else None,
             _("Role"): detail.membership_type_id.display if detail.membership_type_id else None,
-            _("Date of Birth"): str(detail.birthdate) if detail.birthdate else None,
-            _("Gender"): detail.gender_id.display_name if detail.gender_id else None,
-            _("Civil Status"): detail.civil_status_id.display_name if detail.civil_status_id else None,
-            _("Occupation"): detail.occupation_id.display_name if detail.occupation_id else None,
-            _("Birth Place"): detail.birth_place or None,
-            _("Income"): detail.income or None,
-            _("Area"): detail.area_id.display_name if detail.area_id else None,
-            _("Address"): detail.address or None,
-            _("Email"): detail.email or None,
-            _("Location"): location,
-            "_tables": tables,
+            _("Date of Birth"): str(birthdate) if birthdate else None,
+            _("Gender"): gender.display_name if gender else None,
+            _("Civil Status"): civil_status.display_name if civil_status else None,
+            _("Occupation"): occupation.display_name if occupation else None,
+            _("Area"): area.display_name if area else None,
+            _("Address"): field_val("address"),
+            _("Email"): individual.email if individual else None,
         }
 
     # ──────────────────────────────────────────────────────────────────────
     # Validation
     # ──────────────────────────────────────────────────────────────────────
-    def _validate(self, detail):
-        if not detail.given_name or not detail.family_name:
-            raise UserError(_("Given name and family name are both required."))
+    def _validate(self, detail, group):
+        individual = detail.individual_id
+        if not individual:
+            raise UserError(_("Select an individual to add to the group."))
+        if individual.is_group:
+            raise UserError(_("Only individuals can be added as group members."))
+
+        already_member = self.env["spp.group.membership"].search_count(
+            [
+                ("group", "=", group.id),
+                ("individual", "=", individual.id),
+                ("status", "=", "active"),
+            ]
+        )
+        if already_member:
+            raise UserError(_("%s is already an active member of this group.") % individual.display_name)
 
         cr_type = detail.change_request_id.request_type_id
         if cr_type.requires_head and not detail.membership_type_id:
@@ -140,133 +119,3 @@ class SPPCRApplyAddMember(models.AbstractModel):
                     "Pick a role for the new member before applying."
                 )
             )
-
-    # ──────────────────────────────────────────────────────────────────────
-    # Individual creation
-    # ──────────────────────────────────────────────────────────────────────
-    def _create_individual(self, detail):
-        primary_phone = False
-        if detail.phone_line_ids:
-            primary = detail.phone_line_ids.filtered(lambda p: p.is_primary)[:1]
-            chosen = primary or detail.phone_line_ids[:1]
-            primary_phone = chosen.phone_no
-
-        Partner = self.env["res.partner"]
-        vals = {
-            "name": detail.member_name,
-            "given_name": detail.given_name,
-            "family_name": detail.family_name,
-            "birthdate": detail.birthdate,
-            "phone": primary_phone,
-            "email": detail.email,
-            "is_registrant": True,
-            "is_group": False,
-        }
-        if detail.gender_id:
-            vals["gender_id"] = detail.gender_id.id
-        # The following fields are added by spp_registry; guard so the module
-        # remains importable without it on the path.
-        for fname, value in [
-            ("address", detail.address),
-            ("birth_place", detail.birth_place),
-            ("birthdate_not_exact", detail.is_approximate_birthdate),
-            ("occupation_id", detail.occupation_id.id if detail.occupation_id else False),
-            ("civil_status_id", detail.civil_status_id.id if detail.civil_status_id else False),
-            ("income", detail.income),
-            ("area_id", detail.area_id.id if detail.area_id else False),
-        ]:
-            if fname in Partner._fields:
-                vals[fname] = value
-
-        individual = Partner.create(vals)
-        if hasattr(individual, "name_change"):
-            individual.name_change()
-        return individual
-
-    # ──────────────────────────────────────────────────────────────────────
-    # Sub-record attachers (same shape as create_group strategy)
-    # ──────────────────────────────────────────────────────────────────────
-    def _attach_phones(self, detail, individual):
-        SppPhone = self.env["spp.phone.number"]
-        for line in detail.phone_line_ids:
-            SppPhone.create(
-                {
-                    "partner_id": individual.id,
-                    "phone_no": line.phone_no,
-                    "country_id": line.country_id.id if line.country_id else False,
-                    "date_collected": fields.Date.today(),
-                }
-            )
-
-    def _attach_banks(self, detail, individual):
-        Bank = self.env["res.partner.bank"]
-        for line in detail.bank_line_ids:
-            vals = {
-                "partner_id": individual.id,
-                "acc_number": line.acc_number,
-            }
-            if line.acc_holder_name:
-                vals["acc_holder_name"] = line.acc_holder_name
-            if line.bank_id:
-                vals["bank_id"] = line.bank_id.id
-            Bank.create(vals)
-
-    def _attach_id_docs(self, detail, individual):
-        RegId = self.env["spp.registry.id"]
-        for line in detail.id_doc_line_ids:
-            RegId.create(
-                {
-                    "partner_id": individual.id,
-                    "id_type_id": line.id_type_id.id,
-                    "value": line.value,
-                    "expiry_date": line.expiry_date,
-                }
-            )
-
-    # ──────────────────────────────────────────────────────────────────────
-    # Membership + head handling
-    # ──────────────────────────────────────────────────────────────────────
-    def _is_head_role(self, code):
-        return bool(code and code.code == HEAD_ROLE_CODE)
-
-    def _demote_existing_head_if_needed(self, detail, group):
-        """When the new member is being added as head, demote any existing
-        head on the group first so the at-most-one-head invariant holds.
-
-        "Demote" means unlinking the ``head`` code from the existing
-        membership's ``membership_type_ids``. Other roles on the membership
-        are preserved; if the membership had only the head role, it ends up
-        with no roles (which is acceptable — the spec doesn't define a
-        downgrade target).
-        """
-        if not self._is_head_role(detail.membership_type_id):
-            return
-
-        head_code = detail.membership_type_id  # already resolved to "head"
-        Membership = self.env["spp.group.membership"]
-        existing_head_memberships = Membership.search(
-            [
-                ("group", "=", group.id),
-                ("status", "=", "active"),
-                ("membership_type_ids", "=", head_code.id),
-            ]
-        )
-        for m in existing_head_memberships:
-            m.membership_type_ids = [Command.unlink(head_code.id)]
-            _logger.info(
-                "Demoted existing head individual partner_id=%s on group partner_id=%s "
-                "(role removed from membership %s)",
-                m.individual.id,
-                group.id,
-                m.id,
-            )
-
-    def _create_membership(self, detail, group, individual):
-        vals = {
-            "group": group.id,
-            "individual": individual.id,
-            "start_date": fields.Datetime.now(),
-        }
-        if detail.membership_type_id:
-            vals["membership_type_ids"] = [Command.link(detail.membership_type_id.id)]
-        self.env["spp.group.membership"].create(vals)
