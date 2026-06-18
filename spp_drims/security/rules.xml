@@ -20,11 +20,15 @@
         <field name="perm_unlink" eval="0" />
     </record>
 
-    <!-- District Coordinators: See requests for their assigned areas -->
+    <!-- District Coordinators: See requests in their assigned areas, plus their
+         own (OP#974: an own-record fallback so a coordinator without area
+         assignments — or whose requests fall outside them — is not locked out). -->
     <record id="rule_request_coordinator_scope" model="ir.rule">
         <field name="name">DRIMS Request: Coordinator Scope</field>
         <field name="model_id" ref="model_spp_drims_request" />
         <field name="domain_force">[
+                '|',
+                ('create_uid', '=', user.id),
                 ('destination_area_id', 'child_of', user.drims_area_ids.ids)
             ]</field>
         <field name="groups" eval="[(4, ref('group_drims_coordinator_supervisor'))]" />
@@ -86,6 +90,41 @@
         <field name="perm_write" eval="1" />
         <field name="perm_create" eval="1" />
         <field name="perm_unlink" eval="1" />
+    </record>
+
+    <!-- Field Officers: read own donations or donations for their assigned
+         warehouses (OP#974 — Field Officer donations are read-only; without a
+         rule they would otherwise see every donation). -->
+    <record id="rule_donation_field_officer_scope" model="ir.rule">
+        <field name="name">DRIMS Donation: Field Officer Scope</field>
+        <field name="model_id" ref="model_spp_drims_donation" />
+        <field name="domain_force">[
+                '|',
+                ('create_uid', '=', user.id),
+                ('warehouse_id', 'in', user.drims_warehouse_ids.ids)
+            ]</field>
+        <field name="groups" eval="[(4, ref('group_drims_field_officer'))]" />
+        <field name="perm_read" eval="1" />
+        <field name="perm_write" eval="0" />
+        <field name="perm_create" eval="0" />
+        <field name="perm_unlink" eval="0" />
+    </record>
+
+    <!-- District Coordinators: read own donations or donations whose warehouse
+         is within their assigned areas (OP#974). -->
+    <record id="rule_donation_coordinator_scope" model="ir.rule">
+        <field name="name">DRIMS Donation: Coordinator Scope</field>
+        <field name="model_id" ref="model_spp_drims_donation" />
+        <field name="domain_force">[
+                '|',
+                ('create_uid', '=', user.id),
+                ('warehouse_id.area_id', 'child_of', user.drims_area_ids.ids)
+            ]</field>
+        <field name="groups" eval="[(4, ref('group_drims_coordinator_supervisor'))]" />
+        <field name="perm_read" eval="1" />
+        <field name="perm_write" eval="0" />
+        <field name="perm_create" eval="0" />
+        <field name="perm_unlink" eval="0" />
     </record>
 
     <!-- Request Template Rules: User-owned or shared -->
