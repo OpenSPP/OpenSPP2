@@ -65,6 +65,7 @@
                     type="object"
                     class="btn-secondary"
                     invisible="drims_type != 'request_dispatch' or state != 'done' or drims_return_id != False"
+                    groups="spp_drims.group_drims_warehouse_worker,spp_drims.group_drims_field_officer,spp_drims.group_drims_manager"
                 />
                 <!-- Print Waybill button (GAP-DIS-002) -->
                 <button
@@ -180,12 +181,16 @@
                             <field name="date_arrived" readonly="1" />
                         </group>
                         <group>
+                            <!-- OP#974: departure is a Warehouse/Manager action;
+                                 delivery confirmation (POD) also allows Field
+                                 Officers, who confirm deliveries in the field. -->
                             <button
                                 name="action_confirm_departure"
                                 type="object"
                                 string="Confirm Departure"
                                 class="btn-primary"
                                 invisible="date_departed != False"
+                                groups="spp_drims.group_drims_warehouse_worker,spp_drims.group_drims_manager"
                             />
                             <button
                                 name="action_confirm_pod"
@@ -193,6 +198,7 @@
                                 string="Confirm Delivery"
                                 class="btn-primary"
                                 invisible="is_pod_confirmed == True"
+                                groups="spp_drims.group_drims_warehouse_worker,spp_drims.group_drims_field_officer,spp_drims.group_drims_manager"
                             />
                         </group>
                     </group>

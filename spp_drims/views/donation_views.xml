@@ -41,12 +41,17 @@
         <field name="arch" type="xml">
             <form string="Donation">
                 <header>
+                    <!-- OP#974: processing donations (receive / inspect / stock /
+                         reject / cancel) is restricted to Warehouse + Manager.
+                         Officers may create and view donations but not process
+                         them. -->
                     <button
                         name="action_mark_received"
                         string="Mark Received"
                         type="object"
                         class="btn-primary"
                         invisible="state != 'announced'"
+                        groups="spp_drims.group_drims_warehouse_worker,spp_drims.group_drims_manager"
                     />
                     <button
                         name="action_open_inspection_wizard"
@@ -54,6 +59,7 @@
                         type="object"
                         class="btn-primary"
                         invisible="state != 'received'"
+                        groups="spp_drims.group_drims_warehouse_worker,spp_drims.group_drims_manager"
                     />
                     <button
                         name="action_stock"
@@ -62,6 +68,7 @@
                         class="btn-success"
                         invisible="state != 'inspected' or not has_acceptable_items"
                         confirm="This will add items to warehouse inventory. Continue?"
+                        groups="spp_drims.group_drims_warehouse_worker,spp_drims.group_drims_manager"
                     />
                     <button
                         name="action_reject"
@@ -70,6 +77,7 @@
                         class="btn-outline-danger"
                         invisible="state != 'inspected'"
                         confirm="Reject this donation? Items will not be added to inventory."
+                        groups="spp_drims.group_drims_warehouse_worker,spp_drims.group_drims_manager"
                     />
                     <field name="has_acceptable_items" invisible="1" />
                     <button
@@ -79,6 +87,7 @@
                         class="btn-secondary"
                         invisible="state in ('stocked', 'rejected', 'cancelled')"
                         confirm="Cancel this donation? Any pending transfers will be cancelled."
+                        groups="spp_drims.group_drims_warehouse_worker,spp_drims.group_drims_manager"
                     />
                     <!--
                         OP#960: render state as a read-only indicator.

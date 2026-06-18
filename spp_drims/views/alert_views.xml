@@ -65,6 +65,8 @@
         <field name="arch" type="xml">
             <form string="Alert">
                 <header>
+                    <!-- OP#974: acknowledge is for Officer/Field Officer/Warehouse/
+                         Manager; resolve is restricted to Warehouse + Manager. -->
                     <button
                         name="action_acknowledge"
                         type="object"
@@ -72,6 +74,7 @@
                         class="btn-primary"
                         invisible="state != 'active'"
                         data-hotkey="a"
+                        groups="spp_drims.group_drims_officer,spp_drims.group_drims_field_officer,spp_drims.group_drims_warehouse_worker,spp_drims.group_drims_manager"
                     />
                     <button
                         name="action_resolve"
@@ -80,6 +83,7 @@
                         class="btn-success"
                         invisible="state == 'resolved'"
                         data-hotkey="r"
+                        groups="spp_drims.group_drims_warehouse_worker,spp_drims.group_drims_manager"
                     />
                     <field
                         name="state"
