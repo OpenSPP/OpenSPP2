@@ -34,10 +34,18 @@
         <field
             name="comment"
         >Can view donations, requests, and dispatches but cannot modify.</field>
+        <!-- OP#974 Phase 2: dispatches are stock.picking records and the DRIMS
+             dispatch form inherits the full stock picking form, so viewing a
+             dispatch requires Inventory (stock) access. Grant stock user at the
+             Viewer level so every DRIMS role (all imply Viewer) can see the
+             Dispatches menu, list and form. Warehouse/Manager also hold it
+             directly. Action buttons (POD/departure/create-return) are gated by
+             group separately (Phase 4). -->
         <field
             name="implied_ids"
             eval="[
             Command.link(ref('group_drims_read')),
+            Command.link(ref('stock.group_stock_user')),
         ]"
         />
     </record>
