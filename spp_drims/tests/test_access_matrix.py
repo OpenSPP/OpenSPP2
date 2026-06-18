@@ -168,3 +168,22 @@ class TestDrimsAccessMatrix(DrimsTestCommon):
         self.assertIn(in_area, visible, "should see requests in assigned area")
         self.assertIn(own_outside, visible, "should see own requests even outside assigned area")
         self.assertNotIn(other_area, visible, "should not see unrelated out-of-area requests")
+
+    # ──────────────────────────────────────────────────────────────────
+    # DRIMS Dashboard (hazard incidents) — Manager may create
+    # ──────────────────────────────────────────────────────────────────
+    def test_manager_can_create_incidents_others_cannot(self):
+        """The DRIMS Dashboard is a kanban of hazard incidents; the DRIMS Manager
+        may create them (implies Hazard Officer), other DRIMS roles may not."""
+        Incident = self.env["spp.hazard.incident"]
+        vals = {
+            "name": "Access Matrix Incident",
+            "code": "AM-INC-1",
+            "category_id": self.hazard_category.id,
+            "start_date": "2024-02-01",
+            "status": "active",
+        }
+        incident = Incident.with_user(self.u_manager).create(vals)
+        self.assertTrue(incident.exists())
+        with self.assertRaises(AccessError, msg="Officer must not create incidents"):
+            Incident.with_user(self.u_officer).create(dict(vals, code="AM-INC-2"))

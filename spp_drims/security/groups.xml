@@ -101,13 +101,16 @@
              rather than inheriting Warehouse Staff's scoped rules. Manager ACLs
              + manager-all record rules already grant full DRIMS visibility;
              alert-resolve / donation-process buttons are gated to warehouse OR
-             manager. -->
+             manager. Hazard Officer is implied so the Manager can create and
+             manage incidents from the DRIMS Dashboard (incidents drive the
+             donation/request flow). -->
         <field
             name="implied_ids"
             eval="[
             Command.link(ref('group_drims_officer')),
             Command.link(ref('group_drims_approver')),
             Command.link(ref('stock.group_stock_user')),
+            Command.link(ref('spp_hazard.group_hazard_officer')),
         ]"
         />
     </record>
