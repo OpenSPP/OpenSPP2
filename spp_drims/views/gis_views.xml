@@ -106,12 +106,19 @@
         <field name="act_window_id" ref="action_drims_operations_map" />
     </record>
 
-    <!-- Menu entry for Operations Map -->
+    <!-- Menu entry for Operations Map.
+         OP#974: the GIS map framework (get_gis_layers) reads ir.ui.view via the
+         ORM as the acting user, which OpenSPP restricts to admin/programs groups.
+         No DRIMS role can satisfy that, so the map only works for admins; gate
+         the menu to SPP Admin rather than exposing a broken entry to DRIMS roles.
+         (Making the map work for non-admin roles is a spp_gis framework change,
+         tracked separately.) -->
     <menuitem
         id="menu_drims_operations_map"
         name="Operations Map"
         parent="spp_drims.menu_drims_monitoring"
         action="action_drims_operations_map"
+        groups="spp_security.group_spp_admin"
         sequence="50"
     />
 </odoo>
