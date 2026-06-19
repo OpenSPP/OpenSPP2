@@ -4,7 +4,7 @@
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ChangeRequestType(BaseModel):
@@ -29,8 +29,7 @@ class ChangeRequestMeta(BaseModel):
     last_updated: datetime | None = Field(None, alias="lastUpdated")
     source: str | None = Field(None, description="Source system URI")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class ChangeRequestCreate(BaseModel):
@@ -70,9 +69,9 @@ class ChangeRequestCreate(BaseModel):
     description: str | None = None
     notes: str | None = None
 
-    class Config:
-        populate_by_name = True
-        json_schema_extra = {
+    model_config = ConfigDict(
+        populate_by_name=True,
+        json_schema_extra={
             "example": {
                 "type": "ChangeRequest",
                 "requestType": {"code": "edit_individual"},
@@ -86,7 +85,8 @@ class ChangeRequestCreate(BaseModel):
                     "phone": "+639171234567",
                 },
             }
-        }
+        },
+    )
 
 
 class ChangeRequestResponse(BaseModel):
@@ -137,8 +137,7 @@ class ChangeRequestResponse(BaseModel):
     # Metadata
     meta: ChangeRequestMeta | None = None
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class ChangeRequestUpdate(BaseModel):
@@ -149,8 +148,8 @@ class ChangeRequestUpdate(BaseModel):
         description="Type-specific detail fields to update",
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "detail": {
                     "given_name": "Maria Elena",
@@ -158,6 +157,7 @@ class ChangeRequestUpdate(BaseModel):
                 }
             }
         }
+    )
 
 
 class ApproveActionData(BaseModel):
@@ -206,8 +206,7 @@ class ChangeRequestTypeInfo(BaseModel):
     )
     requires_applicant: bool = Field(False, alias="requiresApplicant", description="Whether an applicant is required")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class ChangeRequestTypeSchema(BaseModel):
@@ -226,5 +225,4 @@ class ChangeRequestTypeSchema(BaseModel):
         default_factory=list, alias="requiredDocuments", description="Documents that must be attached"
     )
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)

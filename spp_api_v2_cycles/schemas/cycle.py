@@ -4,7 +4,7 @@
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from odoo.addons.spp_api_v2.schemas.base import Period, Reference, ResourceMeta
 
@@ -18,8 +18,7 @@ class CycleStatistics(BaseModel):
     total_amount: float | None = Field(None, alias="totalAmount", description="Total amount allocated")
     currency: str | None = Field(None, description="Currency code")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class Cycle(BaseModel):
@@ -63,9 +62,9 @@ class Cycle(BaseModel):
     # Metadata
     meta: ResourceMeta | None = None
 
-    class Config:
-        populate_by_name = True
-        json_schema_extra = {
+    model_config = ConfigDict(
+        populate_by_name=True,
+        json_schema_extra={
             "example": {
                 "type": "Cycle",
                 "identifier": "4Ps-2024-Q1",
@@ -87,4 +86,5 @@ class Cycle(BaseModel):
                     "currency": "PHP",
                 },
             }
-        }
+        },
+    )
