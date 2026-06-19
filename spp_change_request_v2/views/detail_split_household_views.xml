@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <!-- Split Household Detail Form View -->
+    <!-- Split Household Detail Form View (OP#877 redesign) -->
     <record id="spp_cr_detail_split_household_form" model="ir.ui.view">
         <field name="name">spp.cr.detail.split_household.form</field>
         <field name="model">spp.cr.detail.split_household</field>
@@ -61,132 +61,130 @@
                         </button>
                     </div>
 
+                    <!-- Source household (prefilled) + reason, no section headers. -->
                     <group>
-                        <group string="Source Household">
-                            <field
-                                name="source_group_id"
-                                required="1"
-                                options="{'no_create': True, 'no_open': True}"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            />
-                            <field name="source_group_name" invisible="1" />
-                            <field name="available_member_ids" invisible="1" />
-                            <field name="members_to_split_ids" invisible="1" />
-                        </group>
-                        <group string="Split Details">
-                            <field
-                                name="split_reason"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            />
-                            <field
-                                name="effective_date"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            />
-                        </group>
-                    </group>
-
-                    <group string="Members to Move to New Household" colspan="2">
-                        <p class="text-muted" colspan="2">
-                            Select individuals to move from the source household to create a new household.
-                            The household head cannot be moved.
-                        </p>
                         <field
-                            name="registrant_member_to_split_ids"
-                            widget="many2many_tags"
-                            domain="[('id', 'in', available_member_ids)]"
-                            options="{'no_create': True}"
-                            required="1"
-                            nolabel="1"
-                            colspan="2"
-                            readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            name="source_group_id"
+                            options="{'no_create': True, 'no_open': True}"
+                            readonly="1"
                         />
+                        <field name="split_reason" />
+                        <field name="change_request_id" invisible="1" />
+                        <field name="available_member_ids" invisible="1" />
                     </group>
 
+                    <!-- New household information (same fields as Create Group). -->
                     <group string="New Household Information">
                         <group>
-                            <field
-                                name="new_head_individual_id"
-                                string="New Head of Household"
-                                domain="[('id', 'in', registrant_member_to_split_ids)]"
-                                options="{'no_create': True}"
-                                required="1"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            />
-                            <field name="new_head_membership_id" invisible="1" />
-                            <field
-                                name="new_group_name"
-                                required="1"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            />
+                            <field name="new_group_name" required="1" />
                             <field
                                 name="new_group_type_id"
                                 options="{'no_create': True, 'no_open': True}"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
+                            <field name="new_area_id" options="{'no_create': True}" />
                         </group>
                         <group>
-                            <field
-                                name="copy_address"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            />
+                            <field name="new_email" widget="email" />
+                            <field name="new_latitude" />
+                            <field name="new_longitude" />
                         </group>
+                        <field name="new_address" colspan="2" />
+                    </group>
+                    <group>
+                        <field name="new_phone_line_ids" string="Phone Numbers">
+                            <list editable="bottom">
+                                <field name="phone_no" />
+                                <field
+                                    name="country_id"
+                                    options="{'no_create': True}"
+                                />
+                                <field name="is_primary" widget="boolean_toggle" />
+                            </list>
+                        </field>
+                        <field name="new_bank_line_ids" string="Bank Accounts">
+                            <list editable="bottom">
+                                <field name="acc_number" />
+                                <field name="acc_holder_name" />
+                                <field name="bank_id" options="{'no_create': True}" />
+                            </list>
+                        </field>
+                        <field name="new_id_doc_line_ids" string="Identity Documents">
+                            <list editable="bottom">
+                                <field
+                                    name="id_type_id"
+                                    options="{'no_create': True}"
+                                />
+                                <field name="value" />
+                                <field name="expiry_date" />
+                            </list>
+                        </field>
                     </group>
 
-                    <group>
-                        <group string="Address">
-                            <field
-                                name="address_line1"
-                                force_save="1"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            />
-                            <field
-                                name="address_line2"
-                                force_save="1"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            />
-                            <field
-                                name="city"
-                                force_save="1"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            />
-                        </group>
-                        <group string="Location">
-                            <field
-                                name="state_id"
-                                options="{'no_create': True, 'no_open': True}"
-                                force_save="1"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            />
-                            <field
-                                name="postal_code"
-                                force_save="1"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            />
-                            <field
-                                name="country_id"
-                                options="{'no_create': True, 'no_open': True}"
-                                force_save="1"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            />
-                        </group>
-                        <group string="Contact">
-                            <field
-                                name="phone"
-                                force_save="1"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            />
-                            <field
-                                name="email"
-                                force_save="1"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            />
-                        </group>
+                    <!-- Members to move: table + Edit Member Information modal. -->
+                    <separator string="Members to Move to New Household" />
+                    <div class="text-muted mb-2">
+                        Only members that are not head of the source household can be moved.
+                        Click a row to open the member, set their role, and edit their information.
+                    </div>
+                    <field name="member_line_ids" nolabel="1">
+                        <list>
+                            <field name="individual_id" />
+                            <field name="membership_type_id" string="Role" />
+                        </list>
+                        <form string="Member to Move">
+                            <group>
+                                <field
+                                    name="individual_id"
+                                    domain="[('id', 'in', parent.available_member_ids)]"
+                                    options="{'no_create': True, 'no_open': True}"
+                                    required="1"
+                                />
+                                <field
+                                    name="membership_type_id"
+                                    string="Role"
+                                    options="{'no_create': True, 'no_open': True}"
+                                />
+                            </group>
+                            <separator string="Member Information" />
+                            <group>
+                                <group>
+                                    <field name="family_name" />
+                                    <field name="given_name" />
+                                    <field name="middle_name" />
+                                    <field name="birthdate" />
+                                    <field name="birth_place" />
+                                </group>
+                                <group>
+                                    <field
+                                        name="gender_id"
+                                        options="{'no_create': True, 'no_open': True}"
+                                    />
+                                    <field
+                                        name="civil_status_id"
+                                        options="{'no_create': True, 'no_open': True}"
+                                    />
+                                    <field
+                                        name="occupation_id"
+                                        options="{'no_create': True, 'no_open': True}"
+                                    />
+                                    <field name="income" widget="monetary" />
+                                </group>
+                            </group>
+                        </form>
+                    </field>
+
+                    <group string="Additional Information">
+                        <field
+                            name="remarks"
+                            placeholder="Enter any additional notes..."
+                        />
                     </group>
 
                     <group invisible="1">
                         <field name="created_group_id" />
                     </group>
                 </sheet>
+                <chatter />
             </form>
         </field>
     </record>

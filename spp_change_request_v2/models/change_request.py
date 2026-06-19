@@ -407,7 +407,13 @@ class SPPChangeRequest(models.Model):
         reason_rules = rt.reason_document_ids
         if reason_rules:
             detail = self.get_detail()
-            reason = detail.reason if detail and "reason" in detail._fields else False
+            # The reason lives on `reason` (Change HoH) or `split_reason` (Split).
+            reason = False
+            if detail:
+                for rfield in ("reason", "split_reason"):
+                    if rfield in detail._fields and detail[rfield]:
+                        reason = detail[rfield]
+                        break
             if reason:
                 rule = reason_rules.filtered(lambda r: r.reason == reason)
                 return rule[:1].required_document_ids if rule else empty

@@ -363,10 +363,12 @@ class SPPChangeRequestType(models.Model):
     @api.depends("detail_model")
     def _compute_supports_reason_documents(self):
         """A CR type supports reason-driven documents only when its detail model
-        has a 'reason' field (e.g. Change Head of Household)."""
+        exposes a reason field (e.g. Change Head of Household's ``reason`` or
+        Split Household's ``split_reason``)."""
         for rec in self:
+            model = self.env[rec.detail_model] if (rec.detail_model and rec.detail_model in self.env) else None
             rec.supports_reason_documents = bool(
-                rec.detail_model and rec.detail_model in self.env and "reason" in self.env[rec.detail_model]._fields
+                model and ("reason" in model._fields or "split_reason" in model._fields)
             )
 
     @api.depends("detail_model")
@@ -550,11 +552,12 @@ class SPPChangeRequestType(models.Model):
 
 
 class SPPCRTypeReasonDocument(models.Model):
-    """Maps a request reason to the set of documents required for it (OP#873).
+    """Maps a request reason to the set of documents required for it (OP#873/#877).
 
     Configured on a change request type; consumed by
     spp.change.request._get_effective_required_document_ids(). The reason values
-    mirror spp.cr.detail.change_hoh.reason."""
+    union the reasons of the CR types that expose a reason (Change HoH, Split
+    Household); only the values relevant to a given type's reason will match."""
 
     _name = "spp.cr.type.reason.document"
     _description = "CR Type: Required Documents by Reason"
@@ -568,10 +571,17 @@ class SPPCRTypeReasonDocument(models.Model):
     )
     reason = fields.Selection(
         [
+            # Change Head of Household reasons
             ("deceased", "Head Deceased"),
             ("incapacitated", "Head Incapacitated"),
             ("left_household", "Head Left Household"),
             ("age_change", "Age-based Change"),
+            # Split Household reasons
+            ("marriage", "Marriage"),
+            ("separation", "Separation/Divorce"),
+            ("independence", "Member Independence"),
+            ("relocation", "Relocation"),
+            # Shared
             ("correction", "Data Correction"),
             ("other", "Other"),
         ],

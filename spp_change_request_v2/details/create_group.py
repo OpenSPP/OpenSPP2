@@ -205,6 +205,10 @@ class SPPCRDetailCreateGroupPhone(models.Model):
         "spp.cr.detail.create_group.member_new",
         ondelete="cascade",
     )
+    split_household_detail_id = fields.Many2one(
+        "spp.cr.detail.split_household",
+        ondelete="cascade",
+    )
     phone_no = fields.Char(string="Phone Number", required=True)
     country_id = fields.Many2one("res.country", string="Country")
     is_primary = fields.Boolean(
@@ -212,7 +216,7 @@ class SPPCRDetailCreateGroupPhone(models.Model):
         help="The first primary phone is also written to the partner's header phone field.",
     )
 
-    @api.constrains("detail_id", "add_member_detail_id", "member_new_id")
+    @api.constrains("detail_id", "add_member_detail_id", "member_new_id", "split_household_detail_id")
     def _check_one_parent(self):
         # Only reject a row linked to more than one context. A row with no
         # parent is harmless (an unreferenced orphan) and can occur transiently
@@ -220,7 +224,8 @@ class SPPCRDetailCreateGroupPhone(models.Model):
         # exactly one surfaced a confusing "parent" error to users editing a
         # member's phone list.
         for rec in self:
-            if sum(1 for p in (rec.detail_id, rec.add_member_detail_id, rec.member_new_id) if p) > 1:
+            parents = (rec.detail_id, rec.add_member_detail_id, rec.member_new_id, rec.split_household_detail_id)
+            if sum(1 for p in parents if p) > 1:
                 raise ValidationError(_("A phone-number row cannot belong to more than one record."))
 
 
@@ -236,16 +241,21 @@ class SPPCRDetailCreateGroupBank(models.Model):
         "spp.cr.detail.add_member",
         ondelete="cascade",
     )
+    split_household_detail_id = fields.Many2one(
+        "spp.cr.detail.split_household",
+        ondelete="cascade",
+    )
     acc_number = fields.Char(string="Account Number", required=True)
     acc_holder_name = fields.Char(string="Account Holder")
     bank_id = fields.Many2one("res.bank", string="Bank")
 
-    @api.constrains("detail_id", "add_member_detail_id")
+    @api.constrains("detail_id", "add_member_detail_id", "split_household_detail_id")
     def _check_one_parent(self):
         # Only reject multi-parenting; a transient zero-parent state during a
         # one2many rewrite is harmless (see the phone row note).
         for rec in self:
-            if rec.detail_id and rec.add_member_detail_id:
+            parents = (rec.detail_id, rec.add_member_detail_id, rec.split_household_detail_id)
+            if sum(1 for p in parents if p) > 1:
                 raise ValidationError(_("A bank-account row cannot belong to more than one record."))
 
 
@@ -261,6 +271,10 @@ class SPPCRDetailCreateGroupIdDoc(models.Model):
         "spp.cr.detail.add_member",
         ondelete="cascade",
     )
+    split_household_detail_id = fields.Many2one(
+        "spp.cr.detail.split_household",
+        ondelete="cascade",
+    )
     id_type_id = fields.Many2one(
         "spp.vocabulary.code",
         string="ID Type",
@@ -270,12 +284,13 @@ class SPPCRDetailCreateGroupIdDoc(models.Model):
     value = fields.Char(string="Value", required=True)
     expiry_date = fields.Date(string="Expiry Date")
 
-    @api.constrains("detail_id", "add_member_detail_id")
+    @api.constrains("detail_id", "add_member_detail_id", "split_household_detail_id")
     def _check_one_parent(self):
         # Only reject multi-parenting; a transient zero-parent state during a
         # one2many rewrite is harmless (see the phone row note).
         for rec in self:
-            if rec.detail_id and rec.add_member_detail_id:
+            parents = (rec.detail_id, rec.add_member_detail_id, rec.split_household_detail_id)
+            if sum(1 for p in parents if p) > 1:
                 raise ValidationError(_("An ID document row cannot belong to more than one record."))
 
 
