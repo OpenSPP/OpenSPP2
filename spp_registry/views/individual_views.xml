@@ -81,7 +81,7 @@
                 <filter
                     string="Disabled"
                     name="disabled"
-                    domain="[('disabled', '=', True)]"
+                    domain="[('disabled', '!=', False)]"
                 />
                 <separator />
                 <filter

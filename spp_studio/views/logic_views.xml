@@ -55,7 +55,7 @@
                 <field name="usage_count" />
                 <field name="version" />
                 <templates>
-                    <t t-name="kanban-box">
+                    <t t-name="card">
                         <div
                             t-attf-class="oe_kanban_card oe_kanban_global_click #{record.expression_type.raw_value == 'filter' ? 'oe_kanban_color_1' : record.expression_type.raw_value == 'formula' ? 'oe_kanban_color_2' : record.expression_type.raw_value == 'scoring' ? 'oe_kanban_color_4' : 'oe_kanban_color_0'}"
                         >
@@ -660,7 +660,12 @@
         >[('namespace_uri', '=', 'urn:openspp:vocab:logic-tags')]</field>
         <field
             name="context"
-        >{'default_vocabulary_id': ref('spp_studio.vocab_logic_tags')}</field>
+            eval="{'default_vocabulary_id': ref('spp_studio.vocab_logic_tags')}"
+        />
+        <!-- eval so ref() resolves to an id at load: the web client cannot
+             evaluate ref() in a stored context string (raises "Can not evaluate
+             python expression" when opening the Studio app). -->
+
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Create tags to organize your logic

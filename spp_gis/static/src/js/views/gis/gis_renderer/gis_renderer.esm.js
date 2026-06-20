@@ -99,7 +99,14 @@ export class GisRenderer extends Component {
 
         onPatched(() => {
             this.setupFeatureCollection();
-            this.map.getSource(this.sourceId).setData(this.featureCollection);
+            // The source only exists once the map style has loaded and
+            // setupSourceAndLayer() has run. On Odoo 19 onPatched can fire
+            // before that, so getSource() returns undefined and .setData()
+            // throws. Guard like the cross-model update below (line ~453).
+            const source = this.map && this.map.getSource(this.sourceId);
+            if (source) {
+                source.setData(this.featureCollection);
+            }
         });
     }
 

@@ -77,7 +77,14 @@ class SppAuditLog(models.Model):
     def _compute_name(self):
         for rec in self:
             if rec.model_id and rec.res_id:
-                record = rec.env[rec.model_id.model].browse(rec.res_id).exists()
+                # Audit metadata (the record's name) must render even when the
+                # audited record is outside the viewer's row-level (e.g.
+                # area-scoped) access; otherwise an out-of-scope record raises
+                # AccessError and breaks the whole audit-log view. Scope is
+                # limited to display_name; who may open the Audit Log is governed
+                # by this model's own ACL.
+                # nosemgrep: odoo-sudo-without-context -- audit metadata, see above
+                record = rec.env[rec.model_id.model].sudo().browse(rec.res_id).exists()
                 if record:
                     rec.name = record.display_name
                 else:
