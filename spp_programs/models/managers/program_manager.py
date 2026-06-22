@@ -100,6 +100,14 @@ class DefaultProgramManager(models.Model):
     _inherit = ["spp.base.program.manager", "spp.manager.source.mixin"]
     _description = "Default Program Manager"
 
+    @api.model
+    def default_get(self, fields_list):
+        """Default the manager name to its method-specific label."""
+        res = super().default_get(fields_list)
+        if "name" in fields_list:
+            res.setdefault("name", _("Default Program Manager"))
+        return res
+
     number_of_cycles = fields.Integer(default=1)
     copy_last_cycle_on_new_cycle = fields.Boolean(string="Copy previous cycle", default=True)
 

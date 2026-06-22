@@ -4,7 +4,7 @@ import itertools
 import logging
 from datetime import date
 
-from odoo import Command, api, fields, models
+from odoo import Command, _, api, fields, models
 
 _logger = logging.getLogger(__name__)
 
@@ -52,6 +52,14 @@ class DefaultDeduplication(models.Model):
 
     _capability_individual = True
     _capability_group = True
+
+    @api.model
+    def default_get(self, fields_list):
+        """Default the manager name to its method-specific label."""
+        res = super().default_get(fields_list)
+        if "name" in fields_list:
+            res.setdefault("name", _("Default Deduplication"))
+        return res
 
     def deduplicate_beneficiaries(self, states):
         for rec in self:

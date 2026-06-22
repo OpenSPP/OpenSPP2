@@ -15,12 +15,16 @@ from .constants import (
     VOCAB_DONATION_STATES,
     VOCAB_DONOR_TYPES,
     VOCAB_DRIMS_TYPES,
-    VOCAB_ITEM_CONDITIONS,
-    VOCAB_ITEM_DISPOSITIONS,
     VOCAB_RESTRICTIONS,
 )
 
 _logger = logging.getLogger(__name__)
+
+# Donation-line disposition codes that should NOT be stocked. Moves for these
+# get cancelled by `_exclude_non_accept_moves`, and if every line lands in
+# this set the donation has nothing left to stock — only Reject makes sense.
+NON_ACCEPT_DISPOSITIONS = ("return", "dispose", "quarantine")
+
 
 # Valid state transitions: {from_state: [allowed_to_states]}
 DONATION_STATE_TRANSITIONS = {
@@ -138,6 +142,9 @@ class DrimsDonation(models.Model):
         compute="_compute_totals",
         store=True,
     )
+    has_acceptable_items = fields.Boolean(
+        compute="_compute_has_acceptable_items",
+    )
 
     # Stock
     picking_ids = fields.One2many(
@@ -224,6 +231,19 @@ class DrimsDonation(models.Model):
         for rec in self:
             rec.total_value = sum(rec.line_ids.mapped("value"))
             rec.line_count = len(rec.line_ids)
+
+    @api.depends("line_ids.disposition_id", "line_ids.quantity_received")
+    def _compute_has_acceptable_items(self):
+        # A line counts as "acceptable" (i.e. something the warehouse would
+        # stock) when it has a received qty > 0 and its disposition isn't one
+        # of the non-accept dispositions cancelled by `_exclude_non_accept_moves`.
+        # Lines with no disposition yet are treated as acceptable so the
+        # Stock button stays available while inspection is still in progress.
+        for rec in self:
+            rec.has_acceptable_items = any(
+                line.quantity_received > 0 and (line.disposition_id.code or "") not in NON_ACCEPT_DISPOSITIONS
+                for line in rec.line_ids
+            )
 
     @api.depends("picking_ids")
     def _compute_picking_count(self):
@@ -362,13 +382,10 @@ class DrimsDonation(models.Model):
     def action_open_inspection_wizard(self):
         """Open the inspection wizard with pre-created records.
 
-        This method creates the wizard and all line records BEFORE opening
-        the wizard form. This is the standard Odoo pattern for wizards with
-        interactive One2many fields - it ensures all records have database IDs
-        so that buttons on lines work properly.
-
-        All items default to 'New/Accept' status. Users can click 'Edit' on
-        any row to modify condition/disposition for exceptions.
+        Wizard and line records are created before the form opens so each row
+        has a real database id (needed for inline buttons like "+ Add split").
+        Lines are created with no condition / no action — the operator must
+        explicitly set both per row (OP#963).
 
         Returns:
             dict: Action to open the wizard form.
@@ -381,43 +398,29 @@ class DrimsDonation(models.Model):
         if self.state != DONATION_STATE_RECEIVED:
             raise UserError(_("Only received donations can be inspected."))
 
-        # Get default condition (new) and disposition (accept)
-        condition_new = self.env["spp.vocabulary.code"].search(
-            [
-                ("vocabulary_id.namespace_uri", "=", VOCAB_ITEM_CONDITIONS),
-                ("code", "=", "new"),
-            ],
-            limit=1,
-        )
-        disposition_accept = self.env["spp.vocabulary.code"].search(
-            [
-                ("vocabulary_id.namespace_uri", "=", VOCAB_ITEM_DISPOSITIONS),
-                ("code", "=", "accept"),
-            ],
-            limit=1,
-        )
-
-        # Create the wizard record first
         wizard = self.env["spp.drims.inspection.wizard"].create(
             {
                 "donation_id": self.id,
             }
         )
 
-        # Create all line records with default values (New/Accept)
+        # OP#964: fall back to quantity_pledged when quantity_received is 0
+        # so wizard lines never open with an expected of 0 — that happens
+        # when a donation line is added after the donation was marked
+        # received (so action_mark_received didn't copy pledged → received
+        # for it), and would otherwise force the user into a quantity
+        # mismatch they cannot resolve.
         line_vals = []
         for donation_line in self.line_ids:
+            expected_qty = donation_line.quantity_received or donation_line.quantity_pledged
             line_vals.append(
                 {
                     "wizard_id": wizard.id,
                     "donation_line_id": donation_line.id,
                     "product_id": donation_line.product_id.id,
                     "uom_id": donation_line.uom_id.id,
-                    "quantity_expected": donation_line.quantity_received,
-                    "quantity": donation_line.quantity_received,
-                    "condition_id": condition_new.id if condition_new else False,
-                    "disposition_id": disposition_accept.id if disposition_accept else False,
-                    "is_inspected": True,  # Default to inspected (New/Accept)
+                    "quantity_expected": expected_qty,
+                    "quantity": expected_qty,
                 }
             )
 
@@ -439,11 +442,27 @@ class DrimsDonation(models.Model):
 
         This action:
         1. Transitions the donation from 'inspected' to 'stocked' state
-        2. Validates all pending stock pickings (assigns and confirms moves)
-        3. Items become available in warehouse inventory
+        2. **Cancels moves for non-accept dispositions** (OP#1030) so units
+           marked ``return``, ``dispose``, or ``quarantine`` during inspection
+           never enter usable inventory. Those donation lines must be handled
+           through a separate return / disposal flow.
+        3. Validates the remaining moves on the pending pickings
+        4. For lot/serial-tracked products, creates stock.lot records from
+           the donation line's ``lot_number`` (+ ``expiry_date`` if the
+           ``product_expiry`` module is installed) and attaches them to
+           the picking's move lines so ``button_validate()`` succeeds
+        5. Items become available in warehouse inventory
+
+        Returns:
+            dict | None: a display_notification action summarising excluded
+            non-accept units, or ``None`` when everything was accepted.
 
         Raises:
             UserError: If donation is not in 'inspected' state.
+            UserError: If a tracked product line has no ``lot_number`` set.
+            UserError: If a serial-tracked product line has quantity > 1
+                (each serial must be unique; the donation line must be
+                split so quantity == 1).
         """
         stocked_state = self.env["spp.vocabulary.code"].search(
             [
@@ -452,16 +471,180 @@ class DrimsDonation(models.Model):
             ],
             limit=1,
         )
+        Lot = self.env["stock.lot"]
+        has_expiration = "expiration_date" in Lot._fields
+        excluded_summary = []
         for rec in self:
             if rec.state != DONATION_STATE_INSPECTED:
                 raise UserError(_("Only inspected donations can be marked as stocked."))
             rec.state_id = stocked_state
             # Validate the picking to complete the receipt
             for picking in rec.picking_ids.filtered(lambda p: p.state not in ("done", "cancel")):
+                excluded_summary.extend(rec._exclude_non_accept_moves(picking))
+                # If every move was excluded, just cancel the picking — there
+                # is nothing left to validate.
+                remaining = picking.move_ids.filtered(lambda m: m.state != "cancel")
+                if not remaining:
+                    picking.action_cancel()
+                    continue
                 picking.action_assign()
-                for move in picking.move_ids:
+                rec._assign_lots_to_picking(picking, Lot, has_expiration)
+                for move in remaining:
                     move.quantity = move.product_uom_qty
                 picking.button_validate()
+
+        if excluded_summary:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("Damaged / non-accept units excluded"),
+                    "message": "\n".join(excluded_summary),
+                    "type": "warning",
+                    "sticky": True,
+                    # Close the action chain so the underlying donation form
+                    # re-reads (state badge, picking smart button, etc.).
+                    # Without ``next``, display_notification returns without
+                    # refreshing the record.
+                    "next": {"type": "ir.actions.act_window_close"},
+                },
+            }
+        return None
+
+    def _exclude_non_accept_moves(self, picking):
+        """Reduce moves to only the accept portion of each product (OP#1030).
+
+        Per-move ``drims_donation_line_id`` is unreliable: when a donation
+        has multiple lines for the same product, Odoo's standard move-merge
+        logic can collapse them into a single move with one line reference,
+        losing the per-line disposition link. Instead, we sum
+        ``quantity_received`` of accept vs non-accept donation lines per
+        product, then walk the picking's moves for that product, keeping
+        them up to the per-product accept total and cancelling/reducing
+        the excess.
+
+        Works whether or not Odoo merged moves: with merge, one move per
+        product gets reduced; without merge, accept moves stay intact and
+        non-accept moves get cancelled.
+
+        Returns a list of human-readable summary lines for each excluded
+        donation line so the caller can roll them into a single
+        notification.
+        """
+        self.ensure_one()
+
+        accept_qty_by_product = {}
+        non_accept_by_product = {}
+        for line in self.line_ids:
+            if line.quantity_received <= 0:
+                continue
+            disposition_code = line.disposition_id.code or ""
+            if disposition_code in NON_ACCEPT_DISPOSITIONS:
+                non_accept_by_product.setdefault(line.product_id.id, []).append(line)
+            else:
+                accept_qty_by_product[line.product_id.id] = (
+                    accept_qty_by_product.get(line.product_id.id, 0.0) + line.quantity_received
+                )
+
+        if not non_accept_by_product:
+            return []
+
+        moves_by_product = {}
+        for move in picking.move_ids:
+            if move.state in ("done", "cancel"):
+                continue
+            moves_by_product.setdefault(move.product_id.id, []).append(move)
+
+        excluded = []
+        for product_id, non_accept_lines in non_accept_by_product.items():
+            for line in non_accept_lines:
+                excluded.append(self._format_excluded_line(line))
+
+            accept_qty = accept_qty_by_product.get(product_id, 0.0)
+            remaining_to_keep = accept_qty
+            for move in moves_by_product.get(product_id, []):
+                if remaining_to_keep <= 0:
+                    move._action_cancel()
+                elif move.product_uom_qty <= remaining_to_keep + 0.001:
+                    remaining_to_keep -= move.product_uom_qty
+                else:
+                    move.product_uom_qty = remaining_to_keep
+                    remaining_to_keep = 0.0
+        return excluded
+
+    def _format_excluded_line(self, line):
+        return _(
+            "%(qty)s %(uom)s of %(product)s — disposition %(disposition)s "
+            "(excluded from usable stock; handle via the appropriate "
+            "return / disposal flow)."
+        ) % {
+            "qty": line.quantity_received,
+            "uom": line.uom_id.name,
+            "product": line.product_id.display_name,
+            "disposition": line.disposition_id.display,
+        }
+
+    def _assign_lots_to_picking(self, picking, Lot, has_expiration):
+        """Create + attach stock.lot for tracked-product moves on the picking.
+
+        For each move whose product is tracked by lot or serial, the
+        corresponding donation line (via ``drims_donation_line_id``)
+        carries the lot number and (optionally) the expiry date. This
+        method finds or creates the ``stock.lot`` and attaches it to the
+        move's move lines so the picking validates without Odoo's
+        "lot/serial required" UserError.
+        """
+        self.ensure_one()
+        for move in picking.move_ids:
+            tracking = move.product_id.tracking
+            if tracking == "none":
+                continue
+            line = move.drims_donation_line_id
+            if not line or not line.lot_number:
+                raise UserError(
+                    _(
+                        "Product %(product)s on donation %(donation)s requires a "
+                        "lot/serial number. Please fill the Lot/Batch field on "
+                        "the donation line before stocking."
+                    )
+                    % {
+                        "product": move.product_id.display_name,
+                        "donation": self.reference,
+                    }
+                )
+            if tracking == "serial" and move.product_uom_qty > 1:
+                raise UserError(
+                    _(
+                        "Product %(product)s is serial-tracked but the donation "
+                        "line provides one serial number for %(qty)s units. Each "
+                        "serial must be unique — split the donation line into "
+                        "%(qty)s separate lines (quantity 1 each)."
+                    )
+                    % {
+                        "product": move.product_id.display_name,
+                        "qty": int(move.product_uom_qty),
+                    }
+                )
+            lot = Lot.search(
+                [
+                    ("name", "=", line.lot_number),
+                    ("product_id", "=", move.product_id.id),
+                    ("company_id", "=", picking.company_id.id),
+                ],
+                limit=1,
+            )
+            if not lot:
+                lot_vals = {
+                    "name": line.lot_number,
+                    "product_id": move.product_id.id,
+                    "company_id": picking.company_id.id,
+                }
+                if has_expiration and line.expiry_date:
+                    lot_vals["expiration_date"] = line.expiry_date
+                lot = Lot.create(lot_vals)
+            for ml in move.move_line_ids:
+                if not ml.lot_id:
+                    ml.lot_id = lot.id
 
     def _change_state_and_cancel_pickings(self, new_state_code):
         """Helper to transition state and cancel pending pickings.

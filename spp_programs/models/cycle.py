@@ -610,6 +610,27 @@ class SPPCycle(models.Model):
         self.ensure_one()
         return self.cycle_approval_definition_id
 
+    def _notify_thread_by_email(self, message, recipients_data, **kwargs):
+        """Suppress outgoing email when the parent program has email
+        notifications disabled. Chatter logging and in-app notifications are
+        unaffected — only the email dispatch is short-circuited."""
+        self.ensure_one()
+        if self.program_id and not self.program_id._should_send_email_notifications():
+            return
+        return super()._notify_thread_by_email(message, recipients_data, **kwargs)
+
+    def _create_approval_activity(self, definition, review):
+        """Gate the approver-email path on the parent program's toggle.
+
+        spp.approval.mixin schedules a mail.activity for each approver on
+        submit; the activity dispatch sends email through the assignee's
+        notification preferences. Skip the scheduling entirely when the
+        program has email notifications turned off."""
+        self.ensure_one()
+        if self.program_id and not self.program_id._should_send_email_notifications():
+            return
+        return super()._create_approval_activity(definition, review)
+
     @api.onchange("start_date")
     def on_start_date_change(self):
         self.program_id.get_manager(constants.MANAGER_CYCLE).on_start_date_change(self)

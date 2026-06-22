@@ -103,6 +103,8 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         <field name="program_id" />
                         <field name="state" widget="badge" />
                         <field name="enrollment_date" />
+                        <field name="exit_date" optional="show" />
+                        <field name="exit_reason" optional="show" />
                         <button
                             name="action_pause"
                             type="object"
@@ -245,6 +247,8 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         <field name="program_id" />
                         <field name="state" widget="badge" />
                         <field name="enrollment_date" />
+                        <field name="exit_date" optional="show" />
+                        <field name="exit_reason" optional="show" />
                         <button
                             name="action_pause"
                             type="object"

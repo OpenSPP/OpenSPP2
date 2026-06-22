@@ -162,10 +162,20 @@ class TestProgramMembership(TransactionCase):
         with self.assertRaisesRegex(UserError, "Only paused memberships can be resumed"):
             membership.action_resume()
 
+    def _confirm_exit(self, membership, reason="Tested exit"):
+        """Drive the exit-membership wizard end-to-end — action_exit now
+        opens a wizard that owns the state / exit_date / exit_reason write."""
+        action = membership.action_exit()
+        self.assertEqual(action.get("res_model"), "spp.program.membership.exit.wizard")
+        wizard = (
+            self.env[action["res_model"]].with_context(**(action.get("context") or {})).create({"exit_reason": reason})
+        )
+        wizard.action_confirm_exit()
+
     def test_11_action_exit_from_enrolled(self):
-        """action_exit() transitions an enrolled membership to 'exited' and sets exit_date."""
+        """The exit wizard transitions an enrolled membership to 'exited' and sets exit_date / exit_reason."""
         membership = self._create_membership(state="enrolled")
-        membership.action_exit()
+        self._confirm_exit(membership, reason="Graduated")
 
         self.assertEqual(membership.state, "exited")
         self.assertEqual(
@@ -173,11 +183,12 @@ class TestProgramMembership(TransactionCase):
             fields.Date.today(),
             "exit_date should be set to today when exiting.",
         )
+        self.assertEqual(membership.exit_reason, "Graduated")
 
     def test_12_action_exit_from_paused(self):
-        """action_exit() transitions a paused membership to 'exited'."""
+        """The exit wizard transitions a paused membership to 'exited'."""
         membership = self._create_membership(state="paused")
-        membership.action_exit()
+        self._confirm_exit(membership)
 
         self.assertEqual(membership.state, "exited")
         self.assertIsNotNone(membership.exit_date)
@@ -230,10 +241,11 @@ class TestProgramMembership(TransactionCase):
         membership.action_resume()
         self.assertEqual(membership.state, "enrolled")
 
-        # enrolled → exited
-        membership.action_exit()
+        # enrolled → exited (via wizard, which captures an exit_reason)
+        self._confirm_exit(membership, reason="Lifecycle test")
         self.assertEqual(membership.state, "exited")
         self.assertIsNotNone(membership.exit_date)
+        self.assertEqual(membership.exit_reason, "Lifecycle test")
 
     # ------------------------------------------------------------------
     # registrant_id field
