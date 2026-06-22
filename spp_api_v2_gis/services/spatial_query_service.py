@@ -720,7 +720,9 @@ class SpatialQueryService:
                 return "AND false", []
 
             domain = result.get("domain", [])
-            # nosemgrep: odoo-sudo-without-context
+            # sudo: population filters must count partners across the whole
+            # population regardless of the caller's record rules; read-only.
+            # nosemgrep: odoo-sudo-without-context,odoo-sudo-on-sensitive-models
             Partner = self.env["res.partner"].sudo()
             matching_ids = Partner.search(domain).ids
             if not matching_ids:

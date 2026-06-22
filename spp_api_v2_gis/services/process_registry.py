@@ -142,7 +142,9 @@ class ProcessRegistry:
     def _build_population_filter_input(self):
         """Build population_filter input with dynamic enum from programs and expressions."""
         # TODO: Replace program ID with code field (see gis-analytics-enrichment.md Task 1)
-        # nosemgrep: odoo-sudo-without-context
+        # sudo: builds the API input enum from all program codes; read-only,
+        # and the API routers enforce authorization before reaching this builder.
+        # nosemgrep: odoo-sudo-without-context,odoo-sudo-on-sensitive-models
         Program = self.env["spp.program"].sudo()
         programs = Program.search([])
         program_ids = [p.id for p in programs]

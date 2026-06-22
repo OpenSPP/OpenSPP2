@@ -1,5 +1,7 @@
 import logging
 
+from psycopg2 import sql
+
 from . import controllers
 from . import models
 from . import wizards
@@ -44,10 +46,10 @@ def _migrate_boolean_disaggregation(env):
         if bool_field not in existing_columns:
             continue
 
-        # Find reports with this boolean set
-        cr.execute(
-            f"SELECT id FROM spp_gis_report WHERE {bool_field} = true"  # nosec B608
-        )
+        # Find reports with this boolean set. bool_field is a trusted column
+        # name from _BOOL_TO_DIMENSION; quote it safely via psycopg2.sql.
+        query = sql.SQL("SELECT id FROM spp_gis_report WHERE {col} = true").format(col=sql.Identifier(bool_field))
+        cr.execute(query)
         report_ids = [row[0] for row in cr.fetchall()]
         if not report_ids:
             continue

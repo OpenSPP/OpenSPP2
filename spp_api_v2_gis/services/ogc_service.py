@@ -9,6 +9,8 @@ import json
 import logging
 import re
 
+from psycopg2 import sql
+
 from odoo.exceptions import MissingError
 
 from .catalog_service import CatalogService
@@ -561,18 +563,23 @@ class OGCService:
             table_name = self.env[layer.model_name]._table
             column_name = layer.geo_field_id.name
 
-            # Use parameterized identifiers via format (safe: values come from model metadata)
-            self.env.cr.execute(
-                f"""
+            # Identifiers come from model metadata; quote them safely via
+            # psycopg2.sql to avoid any SQL injection risk.
+            query = sql.SQL(
+                """
                 SELECT
-                    ST_XMin(ST_Extent({column_name})),
-                    ST_YMin(ST_Extent({column_name})),
-                    ST_XMax(ST_Extent({column_name})),
-                    ST_YMax(ST_Extent({column_name}))
-                FROM {table_name}
-                WHERE {column_name} IS NOT NULL
-                """,
+                    ST_XMin(ST_Extent({col})),
+                    ST_YMin(ST_Extent({col})),
+                    ST_XMax(ST_Extent({col})),
+                    ST_YMax(ST_Extent({col}))
+                FROM {table}
+                WHERE {col} IS NOT NULL
+                """
+            ).format(
+                col=sql.Identifier(column_name),
+                table=sql.Identifier(table_name),
             )
+            self.env.cr.execute(query)
             row = self.env.cr.fetchone()
             if row and row[0] is not None:
                 return [row[0], row[1], row[2], row[3]]
@@ -1016,13 +1023,13 @@ class OGCService:
         """
         if "spp.program" not in self.env or "geofence_ids" not in self.env["spp.program"]._fields:
             return
-        # nosemgrep: odoo-sudo-without-context
-        programs = (
-            self.env["spp.program"]
-            .sudo()
-            .with_context(active_test=False)
-            .search([("geofence_ids", "in", geofence.ids)], limit=5)
-        )
+        # sudo: deletion-integrity check must see every program (incl. archived
+        # and those outside the caller's record rules) that references the
+        # geofence, otherwise a referenced geofence could be wrongly deleted.
+        program_model = self.env[
+            "spp.program"
+        ].sudo()  # nosemgrep: odoo-sudo-without-context,odoo-sudo-on-sensitive-models
+        programs = program_model.with_context(active_test=False).search([("geofence_ids", "in", geofence.ids)], limit=5)
         if programs:
             names = ", ".join(programs.mapped("name")[:5])
             raise ValueError(f"Cannot delete geofence: referenced by program(s): {names}")

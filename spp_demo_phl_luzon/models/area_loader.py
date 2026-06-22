@@ -9,7 +9,8 @@ have been loaded first (provides the area_type_id references).
 
 import json
 import logging
-import xml.etree.ElementTree as ET
+
+from lxml import etree
 
 from odoo import api, models
 from odoo.tools.convert import convert_file
@@ -84,7 +85,9 @@ class DemoLuzonAreaLoader(models.TransientModel):
         constraint on spp_area.code).
         """
         xml_path = file_path("spp_demo_phl_luzon/data/areas_luzon.xml")
-        tree = ET.parse(xml_path)  # noqa: S314
+        # Harden against XXE: disable entity resolution and network access.
+        parser = etree.XMLParser(resolve_entities=False, no_network=True)
+        tree = etree.parse(xml_path, parser=parser)  # nosec B320 — bundled module data, restricted parser (no entities, no network)
         root = tree.getroot()
 
         # Collect (xml_id, code) pairs from the XML

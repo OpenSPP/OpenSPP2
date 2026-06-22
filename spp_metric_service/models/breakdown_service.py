@@ -116,7 +116,10 @@ class BreakdownService(models.AbstractModel):
         :returns: Deduplicated list of individual partner IDs
         :rtype: list
         """
-        Partner = self.env["res.partner"].sudo()  # nosemgrep: odoo-sudo-without-context
+        # sudo: aggregate breakdown metrics must expand groups to their members
+        # across all registrants regardless of the caller's record rules.
+        # Read-only (no writes); callers are authorized at the service entry point.
+        Partner = self.env["res.partner"].sudo()  # nosemgrep: odoo-sudo-without-context,odoo-sudo-on-sensitive-models
         records = Partner.browse(registrant_ids).exists()
 
         group_ids = records.filtered("is_group").ids
@@ -127,10 +130,12 @@ class BreakdownService(models.AbstractModel):
 
         # Expand groups via active memberships
         Membership = self.env["spp.group.membership"].sudo()  # nosemgrep: odoo-sudo-without-context
-        memberships = Membership.search([
-            ("group", "in", group_ids),
-            ("is_ended", "=", False),
-        ])
+        memberships = Membership.search(
+            [
+                ("group", "in", group_ids),
+                ("is_ended", "=", False),
+            ]
+        )
 
         for membership in memberships:
             individual_ids.add(membership.individual.id)
