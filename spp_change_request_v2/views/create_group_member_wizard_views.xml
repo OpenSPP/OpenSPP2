@@ -54,9 +54,21 @@
                                     name="civil_status_id"
                                     options="{'no_create': True, 'no_open': True}"
                                 />
+                            </group>
+                        </group>
+                        <separator string="Financial Information" />
+                        <group>
+                            <group>
                                 <field name="income" />
                             </group>
                         </group>
+                        <field name="bank_line_ids">
+                            <list editable="bottom">
+                                <field name="bank_id" options="{'no_create': True}" />
+                                <field name="acc_number" />
+                                <field name="acc_holder_name" />
+                            </list>
+                        </field>
                         <separator string="Contact Information" />
                         <group>
                             <group>

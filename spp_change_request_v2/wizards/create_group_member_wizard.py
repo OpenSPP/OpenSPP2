@@ -74,6 +74,11 @@ class SPPCRCreateGroupMemberWizard(models.TransientModel):
         "wizard_id",
         string="Phone Numbers",
     )
+    bank_line_ids = fields.One2many(
+        "spp.cr.detail.create_group.member.wizard.bank",
+        "wizard_id",
+        string="Bank Accounts",
+    )
 
     # ──────────────────────────────────────────────────────────────────
     # Both modes
@@ -151,6 +156,22 @@ class SPPCRCreateGroupMemberWizard(models.TransientModel):
             for pl in self.phone_line_ids
             if pl.phone_no
         ]
+        # Same two-parent guard as phones: force detail_id False so the default
+        # context detail_id does not leak onto the bank rows.
+        bank_cmds = [
+            (
+                0,
+                0,
+                {
+                    "acc_number": bl.acc_number,
+                    "acc_holder_name": bl.acc_holder_name,
+                    "bank_id": bl.bank_id.id,
+                    "detail_id": False,
+                },
+            )
+            for bl in self.bank_line_ids
+            if bl.acc_number
+        ]
         vals = {
             "given_name": self.given_name,
             "family_name": self.family_name,
@@ -168,16 +189,19 @@ class SPPCRCreateGroupMemberWizard(models.TransientModel):
             "membership_type_id": self.membership_type_id.id if self.membership_type_id else False,
         }
         if self.editing_member_new_id:
-            # Replace the existing phone rows with the wizard's current set.
+            # Replace the existing phone/bank rows with the wizard's current set.
             # Delete (2) the old rows rather than clear (5): clearing a
             # one2many only nulls the inverse FK, which would orphan the rows
-            # and trip the phone row's exactly-one-parent constraint.
-            delete_cmds = [(2, p.id, 0) for p in self.editing_member_new_id.phone_line_ids]
-            vals["phone_line_ids"] = delete_cmds + phone_cmds
+            # and trip the row's exactly-one-parent constraint.
+            delete_phone = [(2, p.id, 0) for p in self.editing_member_new_id.phone_line_ids]
+            delete_bank = [(2, b.id, 0) for b in self.editing_member_new_id.bank_line_ids]
+            vals["phone_line_ids"] = delete_phone + phone_cmds
+            vals["bank_line_ids"] = delete_bank + bank_cmds
             self.editing_member_new_id.write(vals)
         else:
             vals["detail_id"] = self.detail_id.id
             vals["phone_line_ids"] = phone_cmds
+            vals["bank_line_ids"] = bank_cmds
             self.env["spp.cr.detail.create_group.member_new"].create(vals)
 
     # ──────────────────────────────────────────────────────────────────
@@ -228,3 +252,22 @@ class SPPCRCreateGroupMemberWizardPhone(models.TransientModel):
     phone_no = fields.Char(string="Phone Number", required=True)
     country_id = fields.Many2one("res.country", string="Country")
     is_primary = fields.Boolean(string="Primary")
+
+
+class SPPCRCreateGroupMemberWizardBank(models.TransientModel):
+    """Transient bank-account row for the Add Member wizard's editable list.
+
+    Persisted onto ``member_new.bank_line_ids`` when the wizard saves; on apply
+    each becomes a res.partner.bank on the new individual (OP#876)."""
+
+    _name = "spp.cr.detail.create_group.member.wizard.bank"
+    _description = "Create Group — Add Member Wizard Bank"
+
+    wizard_id = fields.Many2one(
+        "spp.cr.detail.create_group.member.wizard",
+        required=True,
+        ondelete="cascade",
+    )
+    acc_number = fields.Char(string="Account Number", required=True)
+    acc_holder_name = fields.Char(string="Account Holder")
+    bank_id = fields.Many2one("res.bank", string="Bank")

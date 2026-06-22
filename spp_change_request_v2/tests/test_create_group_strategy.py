@@ -435,6 +435,43 @@ class TestCreateGroupStrategy(TransactionCase):
         self.assertIn("Nina", html)
         self.assertIn("+63999999999", html)
 
+    def test_new_member_bank_accounts_flow_through(self):
+        """OP#876: a new member's Financial Information bank accounts are applied
+        to the created individual and shown in the review (not just the group's)."""
+        cr = self._make_cr(
+            group_name="Member Bank Group",
+            member_new_ids=[
+                (
+                    0,
+                    0,
+                    {
+                        "given_name": "Bea",
+                        "family_name": "Reyes",
+                        "membership_type_id": self.head_kind.id if self.head_kind else False,
+                        "bank_line_ids": [
+                            (0, 0, {"acc_number": "MEMBER-ACC-1", "acc_holder_name": "Bea Reyes"}),
+                        ],
+                    },
+                )
+            ],
+        )
+
+        # Review: the new member's section carries a Bank Accounts table.
+        preview = cr.action_preview_changes()
+        sec = preview["_sections"][0]
+        bank_tbl = [t for t in sec["tables"] if t["title"] == "Bank Accounts"]
+        self.assertEqual(len(bank_tbl), 1)
+        self.assertIn("MEMBER-ACC-1", bank_tbl[0]["rows"][0])
+
+        # Apply: the bank account is created on the new individual.
+        cr.approval_state = "approved"
+        cr.action_apply()
+        new_group = cr.get_detail().created_group_id
+        membership = self.membership_model.search([("group", "=", new_group.id), ("status", "=", "active")])
+        individual = membership.individual
+        banks = self.env["res.partner.bank"].search([("partner_id", "=", individual.id)])
+        self.assertIn("MEMBER-ACC-1", banks.mapped("acc_number"))
+
     def test_review_comparison_html_renders_tables(self):
         """The review page HTML shows the actual phone / bank rows as tables,
         not a bare count (OP#876)."""

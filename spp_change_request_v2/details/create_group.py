@@ -245,16 +245,20 @@ class SPPCRDetailCreateGroupBank(models.Model):
         "spp.cr.detail.split_household",
         ondelete="cascade",
     )
+    member_new_id = fields.Many2one(
+        "spp.cr.detail.create_group.member_new",
+        ondelete="cascade",
+    )
     acc_number = fields.Char(string="Account Number", required=True)
     acc_holder_name = fields.Char(string="Account Holder")
     bank_id = fields.Many2one("res.bank", string="Bank")
 
-    @api.constrains("detail_id", "add_member_detail_id", "split_household_detail_id")
+    @api.constrains("detail_id", "add_member_detail_id", "split_household_detail_id", "member_new_id")
     def _check_one_parent(self):
         # Only reject multi-parenting; a transient zero-parent state during a
         # one2many rewrite is harmless (see the phone row note).
         for rec in self:
-            parents = (rec.detail_id, rec.add_member_detail_id, rec.split_household_detail_id)
+            parents = (rec.detail_id, rec.add_member_detail_id, rec.split_household_detail_id, rec.member_new_id)
             if sum(1 for p in parents if p) > 1:
                 raise ValidationError(_("A bank-account row cannot belong to more than one record."))
 
@@ -391,6 +395,11 @@ class SPPCRDetailCreateGroupMemberNew(models.Model):
         "member_new_id",
         string="Phone Numbers",
     )
+    bank_line_ids = fields.One2many(
+        "spp.cr.detail.create_group.bank",
+        "member_new_id",
+        string="Bank Accounts",
+    )
     membership_type_id = fields.Many2one(
         "spp.vocabulary.code",
         string="Role",
@@ -466,6 +475,10 @@ class SPPCRDetailCreateGroupMemberNew(models.Model):
                 "default_phone_line_ids": [
                     (0, 0, {"phone_no": p.phone_no, "country_id": p.country_id.id, "is_primary": p.is_primary})
                     for p in self.phone_line_ids
+                ],
+                "default_bank_line_ids": [
+                    (0, 0, {"acc_number": b.acc_number, "acc_holder_name": b.acc_holder_name, "bank_id": b.bank_id.id})
+                    for b in self.bank_line_ids
                 ],
                 "default_membership_type_id": self.membership_type_id.id if self.membership_type_id else False,
             },

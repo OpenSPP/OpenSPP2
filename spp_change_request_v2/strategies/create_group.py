@@ -33,7 +33,7 @@ class SPPCRApplyCreateGroup(models.AbstractModel):
 
         # 2. Multi-value attachments tied to the group partner.
         self._attach_phones(detail.phone_line_ids, group)
-        self._attach_banks(detail, group)
+        self._attach_banks(detail.bank_line_ids, group)
         self._attach_id_docs(detail, group)
 
         # 3. Members (existing + new). Each line carries its own role, the
@@ -124,6 +124,9 @@ class SPPCRApplyCreateGroup(models.AbstractModel):
                 [p.phone_no or "", p.country_id.display_name or "", _("Yes") if p.is_primary else ""]
                 for p in m.phone_line_ids
             ]
+            member_bank_rows = [
+                [b.bank_id.display_name or "", b.acc_number or "", b.acc_holder_name or ""] for b in m.bank_line_ids
+            ]
             member_tables = []
             if member_phone_rows:
                 member_tables.append(
@@ -131,6 +134,14 @@ class SPPCRApplyCreateGroup(models.AbstractModel):
                         "title": _("Phone Numbers"),
                         "columns": [_("Number"), _("Country"), _("Primary")],
                         "rows": member_phone_rows,
+                    }
+                )
+            if member_bank_rows:
+                member_tables.append(
+                    {
+                        "title": _("Bank Accounts"),
+                        "columns": [_("Bank"), _("Account Number"), _("Account Holder")],
+                        "rows": member_bank_rows,
                     }
                 )
             sections.append(
@@ -244,11 +255,11 @@ class SPPCRApplyCreateGroup(models.AbstractModel):
                 }
             )
 
-    def _attach_banks(self, detail, group):
+    def _attach_banks(self, bank_lines, partner):
         Bank = self.env["res.partner.bank"]
-        for line in detail.bank_line_ids:
+        for line in bank_lines:
             vals = {
-                "partner_id": group.id,
+                "partner_id": partner.id,
                 "acc_number": line.acc_number,
             }
             if line.acc_holder_name:
@@ -285,9 +296,10 @@ class SPPCRApplyCreateGroup(models.AbstractModel):
             # Some downstream modules format the partner's name on the fly.
             if hasattr(individual, "name_change"):
                 individual.name_change()
-            # Create the individual's phone records (the registry's Phone
-            # Numbers list), the same way the group's phones are attached.
+            # Create the individual's phone + bank records (the registry's
+            # Phone Numbers / Financial lists), the same way the group's are.
             self._attach_phones(line.phone_line_ids, individual)
+            self._attach_banks(line.bank_line_ids, individual)
             self._create_membership(Membership, group, individual, line.membership_type_id, now)
 
     def _new_member_vals(self, line):
