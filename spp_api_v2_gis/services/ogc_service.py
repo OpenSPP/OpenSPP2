@@ -839,7 +839,7 @@ class OGCService:
         """
         # nosemgrep: odoo-sudo-without-context
         geofence = (
-            # nosemgrep: odoo-sudo-without-context  (OGC API runs in system context; authorization enforced at the router)
+            # nosemgrep: odoo-sudo-without-context  (system-context read; auth at router)
             self.env["spp.gis.geofence"].sudo().search([("uuid", "=", feature_id), ("active", "=", True)], limit=1)
         )
         if not geofence:
@@ -956,7 +956,7 @@ class OGCService:
         """
         # nosemgrep: odoo-sudo-without-context
         geofence = (
-            # nosemgrep: odoo-sudo-without-context  (OGC API runs in system context; authorization enforced at the router)
+            # nosemgrep: odoo-sudo-without-context  (system-context read; auth at router)
             self.env["spp.gis.geofence"].sudo().search([("uuid", "=", feature_id), ("active", "=", True)], limit=1)
         )
         if not geofence:
@@ -1003,7 +1003,7 @@ class OGCService:
         """
         # nosemgrep: odoo-sudo-without-context
         geofence = (
-            # nosemgrep: odoo-sudo-without-context  (OGC API runs in system context; authorization enforced at the router)
+            # nosemgrep: odoo-sudo-without-context  (system-context read; auth at router)
             self.env["spp.gis.geofence"].sudo().search([("uuid", "=", feature_id), ("active", "=", True)], limit=1)
         )
         if not geofence:
@@ -1180,7 +1180,7 @@ class OGCService:
             domain.append(("cap_event", "=ilike", event))
 
         if severity:
-            # nosemgrep: odoo-sudo-without-context  (OGC API runs in system context; authorization enforced at the router)
+            # nosemgrep: odoo-sudo-without-context  (system-context read; auth at router)
             VocabCode = self.env["spp.vocabulary.code"].sudo()
             severity_code = VocabCode.get_code("urn:oasis:names:tc:cap:severity", severity)
             if severity_code:
@@ -1340,7 +1340,7 @@ class OGCService:
         if source_alert_id:
             # nosemgrep: odoo-sudo-without-context
             existing = (
-                # nosemgrep: odoo-sudo-without-context  (OGC API runs in system context; authorization enforced at the router)
+                # nosemgrep: odoo-sudo-without-context  (system-context read; auth at router)
                 self.env["spp.hazard.incident"].sudo().search([("source_alert_id", "=", source_alert_id)], limit=1)
             )
             if existing:
