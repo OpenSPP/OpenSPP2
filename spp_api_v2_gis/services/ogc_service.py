@@ -1026,9 +1026,8 @@ class OGCService:
         # sudo: deletion-integrity check must see every program (incl. archived
         # and those outside the caller's record rules) that references the
         # geofence, otherwise a referenced geofence could be wrongly deleted.
-        program_model = self.env[
-            "spp.program"
-        ].sudo()  # nosemgrep: odoo-sudo-without-context,odoo-sudo-on-sensitive-models
+        # nosemgrep: odoo-sudo-without-context,odoo-sudo-on-sensitive-models
+        program_model = self.env["spp.program"].sudo()
         programs = program_model.with_context(active_test=False).search([("geofence_ids", "in", geofence.ids)], limit=5)
         if programs:
             names = ", ".join(programs.mapped("name")[:5])
