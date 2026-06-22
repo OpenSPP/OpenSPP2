@@ -31,6 +31,23 @@ class StockWarehouse(models.Model):
         string="GPS Location",
         help="Geographic location of the warehouse for GIS mapping",
     )
+    # OP#959: warehouse tier per docs/DATA_MODEL.md:185-195
+    # central — strategic stockpile (national / regional hub)
+    # regional — provincial / district distribution centre
+    # mobile — temporary / field-deployed warehouse near the incident
+    tier = fields.Selection(
+        selection=[
+            ("central", "Central"),
+            ("regional", "Regional"),
+            ("mobile", "Mobile"),
+        ],
+        string="Warehouse Tier",
+        help=(
+            "Operational tier of this warehouse: Central (strategic stockpile), "
+            "Regional (provincial / district hub), or Mobile (field-deployed)."
+        ),
+        index=True,
+    )
 
     # Contact
     emergency_contact = fields.Char(string="Emergency Contact")

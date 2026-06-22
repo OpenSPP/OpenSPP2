@@ -322,12 +322,23 @@ class BaseCycleManager(models.AbstractModel):
         :return:
         """
         self.ensure_one()
-        cycle.is_locked = False
-        cycle.locked_reason = None
-        cycle.message_post(body=msg)
+        cycle.write({"is_locked": False, "locked_reason": False})
+        try:
+            cycle.message_post(body=msg)
+        except Exception:
+            _logger.exception("Failed to post completion chatter on cycle %s", cycle.id)
 
         # Refresh statistics after bulk operations
         cycle.refresh_statistics()
+
+    def mark_import_as_failed(self, cycle, msg):
+        """Run via on_error() when async beneficiary import fails."""
+        self.ensure_one()
+        cycle.write({"is_locked": False, "locked_reason": False})
+        try:
+            cycle.message_post(body=msg)
+        except Exception:
+            _logger.exception("Failed to post failure chatter on cycle %s", cycle.id)
 
     def mark_prepare_entitlement_as_done(self, cycle, msg):
         """Complete the preparation of entitlements.
@@ -340,12 +351,23 @@ class BaseCycleManager(models.AbstractModel):
         :return:
         """
         self.ensure_one()
-        cycle.is_locked = False
-        cycle.locked_reason = None
-        cycle.message_post(body=msg)
+        cycle.write({"is_locked": False, "locked_reason": False})
+        try:
+            cycle.message_post(body=msg)
+        except Exception:
+            _logger.exception("Failed to post completion chatter on cycle %s", cycle.id)
 
         # Update Statistics
         cycle._compute_entitlements_count()
+
+    def mark_prepare_entitlement_as_failed(self, cycle, msg):
+        """Run via on_error() when async entitlement preparation fails."""
+        self.ensure_one()
+        cycle.write({"is_locked": False, "locked_reason": False})
+        try:
+            cycle.message_post(body=msg)
+        except Exception:
+            _logger.exception("Failed to post failure chatter on cycle %s", cycle.id)
 
     def mark_check_eligibility_as_done(self, cycle):
         """Complete the enrollment of eligible beneficiaries.
@@ -356,12 +378,24 @@ class BaseCycleManager(models.AbstractModel):
         :param cycle: A recordset of cycle
         :return:
         """
-        cycle.is_locked = False
-        cycle.locked_reason = None
-        cycle.message_post(body=_("Eligibility check finished."))
+        self.ensure_one()
+        cycle.write({"is_locked": False, "locked_reason": False})
+        try:
+            cycle.message_post(body=_("Eligibility check finished."))
+        except Exception:
+            _logger.exception("Failed to post completion chatter on cycle %s", cycle.id)
 
         # Compute Statistics
         cycle._compute_members_count()
+
+    def mark_check_eligibility_as_failed(self, cycle):
+        """Run via on_error() when async eligibility check fails."""
+        self.ensure_one()
+        cycle.write({"is_locked": False, "locked_reason": False})
+        try:
+            cycle.message_post(body=_("Eligibility check failed."))
+        except Exception:
+            _logger.exception("Failed to post failure chatter on cycle %s", cycle.id)
 
 
 class DefaultCycleManager(models.Model):
@@ -372,6 +406,14 @@ class DefaultCycleManager(models.Model):
         "spp.manager.source.mixin",
     ]
     _description = "Default Cycle Manager"
+
+    @api.model
+    def default_get(self, fields_list):
+        """Default the manager name to its method-specific label."""
+        res = super().default_get(fields_list)
+        if "name" in fields_list:
+            res.setdefault("name", _("Default Cycle Schedule"))
+        return res
 
     cycle_duration = fields.Integer(default=1, required=True, string="Recurrence")
     approver_group_id = fields.Many2one(
@@ -535,6 +577,7 @@ class DefaultCycleManager(models.Model):
             )
         main_job = group(*jobs)
         main_job.on_done(self.delayable(channel="statistics_refresh").mark_check_eligibility_as_done(cycle))
+        main_job.on_error(self.delayable(channel="statistics_refresh").mark_check_eligibility_as_failed(cycle))
         main_job.delay()
 
     def _check_eligibility(
@@ -622,6 +665,11 @@ class DefaultCycleManager(models.Model):
         main_job.on_done(
             self.delayable(channel="statistics_refresh").mark_prepare_entitlement_as_done(
                 cycle, _("Entitlement Ready.")
+            )
+        )
+        main_job.on_error(
+            self.delayable(channel="statistics_refresh").mark_prepare_entitlement_as_failed(
+                cycle, _("Entitlement preparation failed.")
             )
         )
         main_job.delay()
@@ -869,6 +917,9 @@ class DefaultCycleManager(models.Model):
         main_job = group(*jobs)
         main_job.on_done(
             self.delayable(channel="statistics_refresh").mark_import_as_done(cycle, _("Beneficiary import finished."))
+        )
+        main_job.on_error(
+            self.delayable(channel="statistics_refresh").mark_import_as_failed(cycle, _("Beneficiary import failed."))
         )
         main_job.delay()
 

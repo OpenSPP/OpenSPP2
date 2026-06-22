@@ -1,0 +1,193 @@
+# Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+"""Tests for the DCI bearer-token middleware.
+
+The bearer-token dependency previously accepted *any* non-empty token when
+``dci.api_tokens`` was unset. These tests pin the new fail-closed default
+(``dci.api_tokens_required`` defaults to ``'true'``) and the explicit
+opt-out path, plus regression tests for the existing behaviours so they
+do not silently regress.
+"""
+
+import asyncio
+
+from odoo.tests import tagged
+
+from fastapi import HTTPException
+
+from .common import DCIServerCommon
+
+
+def _run(coro):
+    loop = asyncio.new_event_loop()
+    try:
+        return loop.run_until_complete(coro)
+    finally:
+        loop.close()
+
+
+@tagged("post_install", "-at_install")
+class TestBearerTokenAuth(DCIServerCommon):
+    def setUp(self):
+        super().setUp()
+        from odoo.addons.spp_dci_server.middleware import signature as sig_module
+
+        self.sig_module = sig_module
+        self.verify_bearer_token = sig_module.verify_bearer_token
+
+        # Reset the "warning already logged" guards between tests so each
+        # case exercises a fresh logger path.
+        sig_module._bearer_bypass_warning_logged = False
+        sig_module._empty_tokens_warning_logged = False
+
+        self.ICP = self.env["ir.config_parameter"].sudo()
+
+    def _call(self, authorization=None):
+        return _run(self.verify_bearer_token(self.env, authorization))
+
+    # --- Fail-closed default --------------------------------------------------
+
+    def test_empty_api_tokens_rejects_by_default(self):
+        """With dci.api_tokens unset and no explicit opt-out, the bearer
+        dependency must reject all tokens. This was the security hole the
+        previous implementation left wide open."""
+        self.ICP.set_param("dci.api_tokens", "")
+        self.ICP.set_param("dci.api_tokens_required", "")  # default == required
+
+        with self.assertRaises(HTTPException) as ctx:
+            self._call("Bearer anything-goes")
+        self.assertEqual(ctx.exception.status_code, 401)
+
+    def test_empty_api_tokens_required_explicit_true_rejects(self):
+        self.ICP.set_param("dci.api_tokens", "")
+        self.ICP.set_param("dci.api_tokens_required", "true")
+
+        with self.assertRaises(HTTPException) as ctx:
+            self._call("Bearer anything-goes")
+        self.assertEqual(ctx.exception.status_code, 401)
+
+    # --- Explicit opt-out -----------------------------------------------------
+
+    def test_explicit_opt_out_accepts_any_token(self):
+        """Setting dci.api_tokens_required=false preserves the legacy
+        accept-any-non-empty-token behaviour for development."""
+        self.ICP.set_param("dci.api_tokens", "")
+        self.ICP.set_param("dci.api_tokens_required", "false")
+
+        token = self._call("Bearer dev-token-123")
+        self.assertEqual(token, "dev-token-123")
+
+    # --- Configured token list (regression) -----------------------------------
+
+    def test_configured_tokens_accept_match(self):
+        self.ICP.set_param("dci.api_tokens", "alpha,beta")
+
+        self.assertEqual(self._call("Bearer alpha"), "alpha")
+        self.assertEqual(self._call("Bearer beta"), "beta")
+
+    def test_configured_tokens_reject_non_match(self):
+        self.ICP.set_param("dci.api_tokens", "alpha,beta")
+
+        with self.assertRaises(HTTPException) as ctx:
+            self._call("Bearer gamma")
+        self.assertEqual(ctx.exception.status_code, 401)
+
+    def test_token_comparison_is_constant_time(self):
+        """The compare loop must call hmac.compare_digest once per
+        configured candidate (no short-circuit on match). A short-circuit
+        would leak the accepted token via response-time side channels."""
+        import hmac as hmac_module
+        from unittest.mock import patch
+
+        self.ICP.set_param("dci.api_tokens", "alpha,beta,gamma")
+
+        with patch(
+            "odoo.addons.spp_dci_server.middleware.signature.hmac.compare_digest",
+            wraps=hmac_module.compare_digest,
+        ) as compare:
+            self.assertEqual(self._call("Bearer alpha"), "alpha")
+        self.assertEqual(
+            compare.call_count,
+            3,
+            "constant-time loop must compare against every configured token",
+        )
+
+    # --- Bypass flag (regression) ---------------------------------------------
+
+    def test_bypass_bearer_auth_returns_dev_bypass(self):
+        """When the operator explicitly disables bearer auth, the helper
+        returns the well-known 'development-bypass' sentinel."""
+        self.ICP.set_param("dci.bypass_bearer_auth", "true")
+        try:
+            token = self._call(None)
+            self.assertEqual(token, "development-bypass")
+        finally:
+            self.ICP.set_param("dci.bypass_bearer_auth", "false")
+
+    # --- Header parsing (regression) ------------------------------------------
+
+    def test_missing_authorization_header_rejects(self):
+        with self.assertRaises(HTTPException) as ctx:
+            self._call(None)
+        self.assertEqual(ctx.exception.status_code, 401)
+
+    def test_non_bearer_prefix_rejects(self):
+        with self.assertRaises(HTTPException) as ctx:
+            self._call("Basic dXNlcjpwYXNz")
+        self.assertEqual(ctx.exception.status_code, 401)
+
+    def test_empty_bearer_token_rejects(self):
+        with self.assertRaises(HTTPException) as ctx:
+            self._call("Bearer ")
+        self.assertEqual(ctx.exception.status_code, 401)
+
+
+@tagged("post_install", "-at_install")
+class TestSecurityDefaults(DCIServerCommon):
+    """Pin the fail-closed defaults for every dev-mode bypass flag.
+
+    These flags read ``ir.config_parameter`` with ``"false"`` as the
+    fallback. If someone later flips that fallback to ``"true"``, the
+    middleware would silently start accepting unsigned / unauthenticated
+    traffic without anyone noticing - so the defaults are tested
+    explicitly here.
+    """
+
+    SECURITY_FLAGS = [
+        "dci.allow_unsigned_requests",
+        "dci.bypass_bearer_auth",
+        "dci.allow_http_callbacks",
+        "dci.allow_internal_callback_ips",
+        "dci.api_tokens_required",  # new flag introduced with the fix
+    ]
+
+    def setUp(self):
+        super().setUp()
+        self.ICP = self.env["ir.config_parameter"].sudo()
+
+    def test_security_flags_default_to_fail_closed(self):
+        """Each security flag, when unset, must resolve to its safe value.
+
+        For the bypass flags ('allow_unsigned_requests',
+        'bypass_bearer_auth', 'allow_http_callbacks',
+        'allow_internal_callback_ips') the safe default is 'false'.
+        For 'api_tokens_required' the safe default is 'true' (required).
+        """
+        expected = {
+            "dci.allow_unsigned_requests": "false",
+            "dci.bypass_bearer_auth": "false",
+            "dci.allow_http_callbacks": "false",
+            "dci.allow_internal_callback_ips": "false",
+            "dci.api_tokens_required": "true",
+        }
+        for key, safe_value in expected.items():
+            # Clear so we read the in-code default.
+            self.ICP.set_param(key, "")
+            from odoo.addons.spp_dci_server.middleware.signature import (
+                _read_security_flag,
+            )
+
+            self.assertEqual(
+                _read_security_flag(self.env, key),
+                safe_value,
+                f"{key} must default to {safe_value!r} (fail-closed)",
+            )

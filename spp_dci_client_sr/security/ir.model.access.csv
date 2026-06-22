@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_dci_sr_sender_viewer,spp.dci.sr.sender viewer,model_spp_dci_sr_sender,spp_registry.group_registry_viewer,1,0,0,0
+access_spp_dci_sr_sender_officer,spp.dci.sr.sender officer,model_spp_dci_sr_sender,spp_registry.group_registry_officer,1,0,0,0
+access_spp_dci_sr_sender_manager,spp.dci.sr.sender manager,model_spp_dci_sr_sender,spp_registry.group_registry_manager,1,1,1,1
+access_spp_dci_sr_record_viewer,spp.dci.sr.record viewer,model_spp_dci_sr_record,spp_registry.group_registry_viewer,1,0,0,0
+access_spp_dci_sr_record_officer,spp.dci.sr.record officer,model_spp_dci_sr_record,spp_registry.group_registry_officer,1,1,0,0
+access_spp_dci_sr_record_manager,spp.dci.sr.record manager,model_spp_dci_sr_record,spp_registry.group_registry_manager,1,1,1,1

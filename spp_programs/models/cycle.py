@@ -610,6 +610,27 @@ class SPPCycle(models.Model):
         self.ensure_one()
         return self.cycle_approval_definition_id
 
+    def _notify_thread_by_email(self, message, recipients_data, **kwargs):
+        """Suppress outgoing email when the parent program has email
+        notifications disabled. Chatter logging and in-app notifications are
+        unaffected — only the email dispatch is short-circuited."""
+        self.ensure_one()
+        if self.program_id and not self.program_id._should_send_email_notifications():
+            return
+        return super()._notify_thread_by_email(message, recipients_data, **kwargs)
+
+    def _create_approval_activity(self, definition, review):
+        """Gate the approver-email path on the parent program's toggle.
+
+        spp.approval.mixin schedules a mail.activity for each approver on
+        submit; the activity dispatch sends email through the assignee's
+        notification preferences. Skip the scheduling entirely when the
+        program has email notifications turned off."""
+        self.ensure_one()
+        if self.program_id and not self.program_id._should_send_email_notifications():
+            return
+        return super()._create_approval_activity(definition, review)
+
     @api.onchange("start_date")
     def on_start_date_change(self):
         self.program_id.get_manager(constants.MANAGER_CYCLE).on_start_date_change(self)
@@ -1061,6 +1082,27 @@ class SPPCycle(models.Model):
         jobs = self.env["queue.job"].search([("model_name", "like", self._name)])
         related_jobs = jobs.filtered(lambda r: self in r.args[0])
         return [("id", "in", related_jobs.ids)]
+
+    def action_force_unlock(self):
+        """Manager-only escape hatch: clear a stuck "Operation in progress" lock.
+
+        Use when an async pipeline (entitlement processing, payment prep, etc.)
+        died without firing its on_done/on_error callback — for example after
+        a hard server restart or before this fix was deployed. Posts an audit
+        line to chatter so admins can see who unstuck the cycle.
+        """
+        for rec in self:
+            if not rec.is_locked:
+                continue
+            previous_reason = rec.locked_reason
+            rec.write({"is_locked": False, "locked_reason": False})
+            rec.message_post(
+                body=_(
+                    "Lock manually cleared by %(user)s. Previous reason: %(reason)s",
+                    user=self.env.user.display_name,
+                    reason=previous_reason or _("(none)"),
+                )
+            )
 
     def unlink(self):
         # Admin also not able to delete the cycle bcz of beneficiaries mapped

@@ -816,8 +816,8 @@ visible</td>
 <table border="1" class="docutils">
 <colgroup>
 <col width="10%" />
-<col width="45%" />
-<col width="45%" />
+<col width="46%" />
+<col width="44%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Step</th>
@@ -910,8 +910,8 @@ linked to any impact record</td>
 <table border="1" class="docutils">
 <colgroup>
 <col width="10%" />
-<col width="45%" />
-<col width="45%" />
+<col width="50%" />
+<col width="40%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Step</th>
@@ -926,9 +926,9 @@ linked to any impact record</td>
 </tr>
 <tr><td>4.2.2</td>
 <td>Enter Name:
-<tt class="docutils literal">Water Contamination</tt>,
-Code: <tt class="docutils literal">WATER_CONTAM</tt>,
-Category: Health</td>
+<tt class="docutils literal">Water Contamination</tt>, Code:
+<tt class="docutils literal">WATER_CONTAM</tt>, Category:
+Health</td>
 <td>Fields accept input</td>
 </tr>
 <tr><td>4.2.3</td>
@@ -1346,8 +1346,8 @@ linked to this incident!”</td>
 <table border="1" class="docutils">
 <colgroup>
 <col width="10%" />
-<col width="45%" />
-<col width="45%" />
+<col width="44%" />
+<col width="46%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Step</th>
@@ -1447,8 +1447,8 @@ rows)</td>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
-<col width="44%" />
-<col width="44%" />
+<col width="41%" />
+<col width="47%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Step</th>
@@ -1468,9 +1468,8 @@ special coloring)</td>
 <tr><td>5.10.2</td>
 <td>Check Status column badges</td>
 <td>Alert: blue badge. Active:
-green badge. Recovery:
-yellow badge. Closed: grey
-badge</td>
+green badge. Recovery: yellow
+badge. Closed: grey badge</td>
 </tr>
 <tr><td>5.10.3</td>
 <td>Check columns visible</td>
@@ -1788,8 +1787,8 @@ Status</td>
 <table border="1" class="docutils">
 <colgroup>
 <col width="10%" />
-<col width="45%" />
-<col width="45%" />
+<col width="41%" />
+<col width="49%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Step</th>
@@ -1810,8 +1809,8 @@ Closed: grey/muted</td>
 </tr>
 <tr><td>6.7.3</td>
 <td>Damage Level column</td>
-<td>Shows as badge widget
-(neutral color)</td>
+<td>Shows as badge widget (neutral
+color)</td>
 </tr>
 <tr><td>6.7.4</td>
 <td>Optional columns</td>
@@ -2455,6 +2454,30 @@ the text label</td>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.2</h1>
+<ul class="simple">
+<li>fix(security): grant <tt class="docutils literal">group_hazard_viewer</tt> to spp_user_roles roles
+(Registry Viewer, Program Manager, Global/Local Registrar) that the
+OP#951 menu audit identifies as needing read-only Hazard menu access.
+Other affected roles defined outside this module (program/CR/farm
+roles) are wired in their own modules.</li>
+<li>fix(views): gate the “Hazard and Emergency” top-level menu
+(<tt class="docutils literal">hazard_main_menu_root</tt>) on <tt class="docutils literal">group_hazard_viewer</tt>. Previously the
+root menu had no <tt class="docutils literal">groups=</tt> attribute and was visible to every
+logged-in user; the OP#951 audit requires several roles to NOT see it
+(Global Finance, Global Support, Global Support Manager, Local
+Support).</li>
+</ul>
+</div>
+<div class="section" id="section-2">
+<h1>19.0.2.0.1</h1>
+<ul class="simple">
+<li>fix(views): apply <tt class="docutils literal">spp_registry.x2many_no_padding</tt> widget to the
+hazard impacts list on registrant forms, and hide the table when empty
+(showing a muted info line instead) (#943).</li>
+</ul>
+</div>
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

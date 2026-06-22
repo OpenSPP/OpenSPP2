@@ -26,6 +26,9 @@
         "spp_land_record",
         "spp_irrigation",
         "spp_gis",
+        # OP#951 menu audit — roles get hazard / GIS reports menu access
+        "spp_hazard",
+        "spp_gis_report",
     ],
     "excludes": [
         "spp_base_farmer_registry",  # V1 module - incompatible _inherits definitions

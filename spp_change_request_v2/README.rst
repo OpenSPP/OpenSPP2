@@ -752,22 +752,22 @@ Methods available for override on detail models (all inherited from
 Related fields available on all detail models (from
 ``spp.cr.detail.base``):
 
-+----------------------------+-----------+------------------------------------------------------------+
-| Field                      | Type      | Source                                                     |
-+============================+===========+============================================================+
-| ``change_request_id``      | Many2one  | Direct link to parent CR                                   |
-+----------------------------+-----------+------------------------------------------------------------+
-| ``registrant_id``          | Many2one  | ``change_request_id.registrant_id``                        |
-+----------------------------+-----------+------------------------------------------------------------+
-| ``approval_state``         | Selection | ``change_request_id.approval_state``                       |
-+----------------------------+-----------+------------------------------------------------------------+
-| ``is_applied``             | Boolean   | ``change_request_id.is_applied``                           |
-+----------------------------+-----------+------------------------------------------------------------+
-| ``use_dynamic_approval``   | Boolean   | ``change_request_id.request_type_id.use_dynamic_approval`` |
-+----------------------------+-----------+------------------------------------------------------------+
-| ``field_to_modify``        | Selection | Dynamic field selector (populated by                       |
-|                            |           | ``_get_field_to_modify_selection``)                        |
-+----------------------------+-----------+------------------------------------------------------------+
++--------------------------+-----------+------------------------------------------------------------+
+| Field                    | Type      | Source                                                     |
++==========================+===========+============================================================+
+| ``change_request_id``    | Many2one  | Direct link to parent CR                                   |
++--------------------------+-----------+------------------------------------------------------------+
+| ``registrant_id``        | Many2one  | ``change_request_id.registrant_id``                        |
++--------------------------+-----------+------------------------------------------------------------+
+| ``approval_state``       | Selection | ``change_request_id.approval_state``                       |
++--------------------------+-----------+------------------------------------------------------------+
+| ``is_applied``           | Boolean   | ``change_request_id.is_applied``                           |
++--------------------------+-----------+------------------------------------------------------------+
+| ``use_dynamic_approval`` | Boolean   | ``change_request_id.request_type_id.use_dynamic_approval`` |
++--------------------------+-----------+------------------------------------------------------------+
+| ``field_to_modify``      | Selection | Dynamic field selector (populated by                       |
+|                          |           | ``_get_field_to_modify_selection``)                        |
++--------------------------+-----------+------------------------------------------------------------+
 
 CR Type Fields Reference
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -852,6 +852,43 @@ Before declaring a new CR type complete:
 
 Changelog
 =========
+
+19.0.2.0.7
+~~~~~~~~~~
+
+- fix(security): align CR Requestor / CR Local Validator / CR HQ
+  Validator roles with the OP#951 menu audit — replace the
+  ``spp_registry.group_registry_read`` (Tier-3, no menu) link with
+  ``spp_registry.group_registry_viewer`` so these roles see the Registry
+  menu; add ``spp_hazard.group_hazard_viewer`` so they retain Hazard
+  visibility once the menu root is gated. Adds ``spp_hazard`` to module
+  dependencies.
+
+19.0.2.0.6
+~~~~~~~~~~
+
+- fix(views): route post-submit CRs (pending / approved / applied /
+  rejected) through the stage review form when opened from the list,
+  matching the Edit Details → Upload Documents → Review & Submit
+  breadcrumb workflow used for fresh CRs (#920 round-2). Demo-generated
+  CRs in "Applied" state previously landed on the legacy main form view
+  from the list — now they open in ``spp_change_request_review_form``
+  like manually-created CRs. Adds the missing
+  ``_action_open_review_form`` / ``_action_open_documents_form`` helpers
+  and wires ``action="action_open_stage_form" type="object"`` on the CR
+  list so row-click goes through the stage router.
+
+19.0.2.0.5
+~~~~~~~~~~
+
+- fix(security): add a global ``ir.rule`` on ``spp.change.request`` that
+  filters by ``registrant_id.area_id`` against the user's
+  ``center_area_ids`` (OP#989 round-2). The earlier ``_prepare_domain``
+  override only caught ``search_read`` / ``web_search_read`` and missed
+  the registrant Many2one picker (which uses ``name_search`` →
+  ``_search``), so users could still select out-of-area registrants. The
+  conditional domain is a no-op for users with no center areas (global
+  roles).
 
 19.0.2.0.3
 ~~~~~~~~~~

@@ -1,0 +1,106 @@
+/* Disabled-looking "All units" badge in the inspection wizard list */
+.o_drims_btn_disabled {
+    opacity: 0.38 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+}
+
+/* Indent split sub-rows and prefix them with an arrow so the parent/child
+   relationship is obvious. */
+.o_drims_inspection_list .o_data_row.o_is_split td:first-child {
+    padding-left: 2rem;
+    position: relative;
+}
+.o_drims_inspection_list .o_data_row.o_is_split td:first-child::before {
+    content: "\21B3"; /* unicode rightwards arrow with hook = ↳ */
+    color: #888;
+    margin-right: 0.4rem;
+    font-weight: bold;
+}
+
+/* Left-align the Expected + Qty columns (default for floats is right-aligned,
+   but the "X / Y" progress display + per-line numbers read more naturally
+   left-aligned). */
+.o_drims_inspection_list th[data-name="quantity_expected"],
+.o_drims_inspection_list th[data-name="quantity_expected"] *,
+.o_drims_inspection_list td.o_data_cell[name="quantity_expected"],
+.o_drims_inspection_list td.o_data_cell[name="quantity_expected"] *,
+.o_drims_inspection_list td[name="quantity_expected"],
+.o_drims_inspection_list td[name="quantity_expected"] *,
+.o_drims_inspection_list th[data-name="quantity"],
+.o_drims_inspection_list th[data-name="quantity"] *,
+.o_drims_inspection_list td.o_data_cell[name="quantity"],
+.o_drims_inspection_list td.o_data_cell[name="quantity"] *,
+.o_drims_inspection_list td[name="quantity"],
+.o_drims_inspection_list td[name="quantity"] * {
+    text-align: left !important;
+    justify-content: flex-start !important;
+}
+
+/* Always show a dropdown caret on the Condition + Action cells so it's
+   obvious they're editable dropdowns even when not focused. */
+.o_drims_inspection_list td.o_data_cell[name="condition_id"]:not(.o_field_empty)::after,
+.o_drims_inspection_list
+    td.o_data_cell[name="disposition_id"]:not(.o_field_empty)::after {
+    content: "\f078"; /* fa-chevron-down */
+    font-family: "FontAwesome";
+    color: #888;
+    margin-left: 0.4rem;
+    font-size: 0.7em;
+    vertical-align: middle;
+}
+.o_drims_inspection_list td.o_data_cell[name="condition_id"],
+.o_drims_inspection_list td.o_data_cell[name="disposition_id"] {
+    padding-right: 0.4rem;
+}
+/* When the cell is empty, render a faint chevron + "Select…" hint so the
+   affordance is visible even before the operator has picked a value. */
+.o_drims_inspection_list td.o_data_cell[name="condition_id"].o_field_empty,
+.o_drims_inspection_list td.o_data_cell[name="disposition_id"].o_field_empty {
+    color: #888;
+}
+.o_drims_inspection_list td.o_data_cell[name="condition_id"].o_field_empty::after,
+.o_drims_inspection_list td.o_data_cell[name="disposition_id"].o_field_empty::after {
+    content: "Select \f078";
+    font-family: sans-serif, "FontAwesome";
+    color: #888;
+    font-size: 0.85em;
+    font-style: italic;
+}
+
+/* On split parent rows the Condition / Action cells are read-only — there's
+   no dropdown to open, so hide the chevron and the "Select" hint. */
+.o_drims_inspection_list
+    .o_data_row.o_split_parent
+    td.o_data_cell[name="condition_id"]::after,
+.o_drims_inspection_list
+    .o_data_row.o_split_parent
+    td.o_data_cell[name="disposition_id"]::after {
+    content: "" !important;
+    display: none !important;
+}
+
+/* Hide the Expected value on split child rows — the parent already shows
+   the expected total, repeating it on every child is noise. Keep the cell
+   itself so column widths don't shift. */
+.o_drims_inspection_list .o_data_row.o_is_split td[name="quantity_expected"],
+.o_drims_inspection_list .o_data_row.o_is_split td[name="quantity_expected"] * {
+    color: transparent !important;
+}
+
+/* Hide the "+ Add split" button on fully-split parent rows.
+   We piggy-back on the widget's own rendering: when the split total matches
+   the expected, the X portion is rendered with class="text-success". Use
+   :has() to select rows where that's true. This bypasses the
+   parent.quantity reactivity issue entirely. */
+.o_drims_inspection_list
+    tr:has(td[name="quantity"] span.text-success)
+    button[name="action_add_split"] {
+    display: none !important;
+}
+
+/* Hide "+ Add split" on parent rows that already have a 0-qty child
+   pending — the operator must fill the new split before opening another. */
+.o_drims_inspection_list tr.o_split_parent_has_zero button[name="action_add_split"] {
+    display: none !important;
+}

@@ -33,7 +33,16 @@
                         <!-- Additional summary fields -->
                     </group>
                 </group>
-                <field name="event_data_ids" readonly="1" nolabel="1">
+                <div invisible="event_data_count != 0" class="text-muted small">
+                    No events recorded yet.
+                </div>
+                <field
+                    name="event_data_ids"
+                    readonly="1"
+                    nolabel="1"
+                    widget="x2many_no_padding"
+                    invisible="event_data_count == 0"
+                >
                     <list>
                         <field name="name" />
                         <field name="event_type_id" />
@@ -84,7 +93,16 @@
                         <!-- Additional summary fields -->
                     </group>
                 </group>
-                <field name="event_data_ids" readonly="1" nolabel="1">
+                <div invisible="event_data_count != 0" class="text-muted small">
+                    No events recorded yet.
+                </div>
+                <field
+                    name="event_data_ids"
+                    readonly="1"
+                    nolabel="1"
+                    widget="x2many_no_padding"
+                    invisible="event_data_count == 0"
+                >
                     <list>
                         <field name="name" />
                         <field name="event_type_id" />

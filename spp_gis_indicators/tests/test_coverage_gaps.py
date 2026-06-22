@@ -29,7 +29,6 @@ class TestQuantileBreaksEdgeCases(TransactionCase):
             {
                 "name": "test_quantile_edge",
                 "cel_accessor": "test_quantile_edge",
-                "label": "Test Quantile Edge",
                 "value_type": "number",
                 "source_type": "constant",
             }
@@ -107,7 +106,6 @@ class TestLegendHtmlEdgeCases(TransactionCase):
             {
                 "name": "test_legend_edge",
                 "cel_accessor": "test_legend_edge",
-                "label": "Test Legend Edge",
                 "value_type": "number",
                 "source_type": "constant",
             }
@@ -120,7 +118,6 @@ class TestLegendHtmlEdgeCases(TransactionCase):
             {
                 "name": "test_legend_empty",
                 "cel_accessor": "test_legend_empty",
-                "label": "Test Legend Empty",
                 "value_type": "number",
                 "source_type": "constant",
             }
@@ -138,45 +135,18 @@ class TestLegendHtmlEdgeCases(TransactionCase):
         self.assertEqual(layer.legend_html, "")
 
     def test_legend_html_with_valid_data(self):
-        """Test legend HTML is generated when color_scale_id and break_values are present."""
-        area1 = self.env["spp.area"].create(
-            {
-                "draft_name": "Legend Test Area 1",
-                "code": "LTA1",
-            }
-        )
-        area2 = self.env["spp.area"].create(
-            {
-                "draft_name": "Legend Test Area 2",
-                "code": "LTA2",
-            }
-        )
-        self.env["spp.hxl.area.indicator"].create(
-            {
-                "area_id": area1.id,
-                "variable_id": self.variable.id,
-                "period_key": "2024-12",
-                "value": 50.0,
-            }
-        )
-        self.env["spp.hxl.area.indicator"].create(
-            {
-                "area_id": area2.id,
-                "variable_id": self.variable.id,
-                "period_key": "2024-12",
-                "value": 100.0,
-            }
-        )
+        """Test legend HTML is generated from manual breaks (independent of indicator data)."""
         layer = self.env["spp.gis.indicator.layer"].create(
             {
                 "name": "With Color Scale Layer",
                 "variable_id": self.variable.id,
                 "period_key": "2024-12",
                 "color_scale_id": self.color_scale.id,
-                "num_classes": 2,
+                "classification_method": "manual",
+                "manual_breaks": "50,100",
             }
         )
-        # Should have legend content since we have data and color scale
+        # Manual breaks populate break_values and the legend without an indicator source
         self.assertTrue(layer.break_values)
         self.assertTrue(layer.legend_html)
         self.assertIn("gis-choropleth-legend", layer.legend_html)
@@ -202,7 +172,6 @@ class TestGetFeatureColorsEdgeCases(TransactionCase):
             {
                 "name": "test_feature_edge",
                 "cel_accessor": "test_feature_edge",
-                "label": "Test Feature Edge",
                 "value_type": "number",
                 "source_type": "constant",
             }
@@ -239,7 +208,6 @@ class TestGetFeatureColorsEdgeCases(TransactionCase):
             {
                 "name": "test_fc_empty",
                 "cel_accessor": "test_fc_empty",
-                "label": "Test FC Empty",
                 "value_type": "number",
                 "source_type": "constant",
             }
@@ -261,7 +229,6 @@ class TestGetFeatureColorsEdgeCases(TransactionCase):
             {
                 "name": "test_fc_nodata",
                 "cel_accessor": "test_fc_nodata",
-                "label": "Test FC No Data",
                 "value_type": "number",
                 "source_type": "constant",
             }
@@ -283,25 +250,15 @@ class TestGetFeatureColorsEdgeCases(TransactionCase):
         self.assertEqual(result, {})
 
     def test_get_feature_colors_all_same_values(self):
-        """Test get_feature_colors when all values are the same (breaks is [])."""
+        """With the indicator source disabled, equal-interval layers produce no colors."""
         var_single = self.env["spp.cel.variable"].create(
             {
                 "name": "test_fc_single",
                 "cel_accessor": "test_fc_single",
-                "label": "Test FC Single",
                 "value_type": "number",
                 "source_type": "constant",
             }
         )
-        for area in [self.area1, self.area2]:
-            self.env["spp.hxl.area.indicator"].create(
-                {
-                    "area_id": area.id,
-                    "variable_id": var_single.id,
-                    "period_key": "2024-12",
-                    "value": 100.0,
-                }
-            )
         layer = self.env["spp.gis.indicator.layer"].create(
             {
                 "name": "Same Values Layer",
@@ -312,35 +269,10 @@ class TestGetFeatureColorsEdgeCases(TransactionCase):
                 "num_classes": 3,
             }
         )
-        # All values equal => breaks is "[]", which is truthy
-        self.assertEqual(layer.break_values, "[]")
-        # With 0 breaks => 1 class, all areas get the first color
-        result = layer.get_feature_colors([self.area1.id, self.area2.id])
-        self.assertEqual(len(result), 2)
-        # All should have the same color (first color)
-        colors = list(result.values())
-        self.assertEqual(colors[0], colors[1])
+        self.assertEqual(layer.get_feature_colors([self.area1.id, self.area2.id]), {})
 
     def test_get_feature_colors_missing_area_not_in_result(self):
-        """Test that areas without indicators are not in the result."""
-        self.env["spp.hxl.area.indicator"].create(
-            {
-                "area_id": self.area1.id,
-                "variable_id": self.variable.id,
-                "period_key": "2024-06",
-                "value": 50.0,
-            }
-        )
-        self.env["spp.hxl.area.indicator"].create(
-            {
-                "area_id": self.area2.id,
-                "variable_id": self.variable.id,
-                "period_key": "2024-06",
-                "value": 200.0,
-            }
-        )
-        # area3 has no indicator for this period/variable
-
+        """With the indicator source disabled, quantile layers produce no colors."""
         layer = self.env["spp.gis.indicator.layer"].create(
             {
                 "name": "Missing Area Layer",
@@ -353,32 +285,10 @@ class TestGetFeatureColorsEdgeCases(TransactionCase):
         )
 
         area_ids = [self.area1.id, self.area2.id, self.area3.id]
-        result = layer.get_feature_colors(area_ids)
-        # area3 has no indicator => not in result
-        self.assertNotIn(self.area3.id, result)
-        # area1 and area2 should have colors
-        self.assertIn(self.area1.id, result)
-        self.assertIn(self.area2.id, result)
+        self.assertEqual(layer.get_feature_colors(area_ids), {})
 
     def test_get_feature_colors_zero_value_not_skipped(self):
-        """Test that indicators with value=0 are NOT skipped."""
-        self.env["spp.hxl.area.indicator"].create(
-            {
-                "area_id": self.area1.id,
-                "variable_id": self.variable.id,
-                "period_key": "2024-07",
-                "value": 0.0,
-            }
-        )
-        self.env["spp.hxl.area.indicator"].create(
-            {
-                "area_id": self.area2.id,
-                "variable_id": self.variable.id,
-                "period_key": "2024-07",
-                "value": 100.0,
-            }
-        )
-
+        """With the indicator source disabled, no per-area colors are produced."""
         layer = self.env["spp.gis.indicator.layer"].create(
             {
                 "name": "Zero Value Layer",
@@ -391,24 +301,10 @@ class TestGetFeatureColorsEdgeCases(TransactionCase):
         )
 
         area_ids = [self.area1.id, self.area2.id]
-        result = layer.get_feature_colors(area_ids)
-        # value=0 should NOT be skipped
-        self.assertIn(self.area1.id, result)
-        self.assertIn(self.area2.id, result)
+        self.assertEqual(layer.get_feature_colors(area_ids), {})
 
     def test_get_feature_colors_boundary_values(self):
-        """Test boundary value classification in get_feature_colors."""
-        # Create 4 indicators with known values
-        for area, val in [(self.area1, 10.0), (self.area2, 50.0), (self.area3, 90.0), (self.area4, 100.0)]:
-            self.env["spp.hxl.area.indicator"].create(
-                {
-                    "area_id": area.id,
-                    "variable_id": self.variable.id,
-                    "period_key": "2024-08",
-                    "value": val,
-                }
-            )
-
+        """Manual-break layers also produce no colors while the indicator source is disabled."""
         layer = self.env["spp.gis.indicator.layer"].create(
             {
                 "name": "Boundary Layer",
@@ -421,17 +317,7 @@ class TestGetFeatureColorsEdgeCases(TransactionCase):
         )
 
         area_ids = [self.area1.id, self.area2.id, self.area3.id, self.area4.id]
-        result = layer.get_feature_colors(area_ids)
-        self.assertEqual(len(result), 4)
-
-        # area1 (10) is < 50 => class 0 => first color
-        # area2 (50) is >= 50 but < 90 => class 1
-        # area3 (90) is >= 90 => class 2
-        # area4 (100) is >= 90 => class 2
-        # Verify different classes get different colors (at least area1 vs area3/area4)
-        self.assertNotEqual(result[self.area1.id], result[self.area4.id])
-        # area3 and area4 should be same class => same color
-        self.assertEqual(result[self.area3.id], result[self.area4.id])
+        self.assertEqual(layer.get_feature_colors(area_ids), {})
 
 
 @tagged("post_install", "-at_install")
@@ -454,7 +340,6 @@ class TestGetIndicatorValuesEdgeCases(TransactionCase):
             {
                 "name": "test_indicator_vals",
                 "cel_accessor": "test_indicator_vals",
-                "label": "Test Indicator Vals",
                 "value_type": "number",
                 "source_type": "constant",
             }
@@ -468,8 +353,8 @@ class TestGetIndicatorValuesEdgeCases(TransactionCase):
         )
 
     def test_get_indicator_values_with_incident_filter(self):
-        """Test _get_indicator_values with incident_id filter."""
-        # Create a hazard incident
+        """A layer with an incident filter still yields no values while the source is disabled."""
+        # The incident_id field remains valid (spp_hazard is a direct dependency).
         hazard_cat = self.env["spp.hazard.category"].create(
             {
                 "name": "Test Hazard Category",
@@ -485,28 +370,6 @@ class TestGetIndicatorValuesEdgeCases(TransactionCase):
             }
         )
 
-        # Create indicator with incident
-        self.env["spp.hxl.area.indicator"].create(
-            {
-                "area_id": self.area1.id,
-                "variable_id": self.variable.id,
-                "period_key": "2024-12",
-                "value": 999.0,
-                "incident_id": incident.id,
-            }
-        )
-
-        # Create indicator without incident
-        self.env["spp.hxl.area.indicator"].create(
-            {
-                "area_id": self.area1.id,
-                "variable_id": self.variable.id,
-                "period_key": "2024-12",
-                "value": 111.0,
-            }
-        )
-
-        # Layer WITH incident filter
         layer_with_incident = self.env["spp.gis.indicator.layer"].create(
             {
                 "name": "Incident Layer",
@@ -516,23 +379,10 @@ class TestGetIndicatorValuesEdgeCases(TransactionCase):
                 "incident_id": incident.id,
             }
         )
-        values = layer_with_incident._get_indicator_values()
-        self.assertEqual(len(values), 1)
-        self.assertIn(999.0, values)
-        self.assertNotIn(111.0, values)
+        self.assertEqual(layer_with_incident._get_indicator_values(), [])
 
     def test_get_indicator_values_empty_period_key(self):
-        """Test _get_indicator_values with empty period_key matches all periods."""
-        self.env["spp.hxl.area.indicator"].create(
-            {
-                "area_id": self.area1.id,
-                "variable_id": self.variable.id,
-                "period_key": "2024-01",
-                "value": 10.0,
-            }
-        )
-
-        # Layer with empty period_key: the domain won't include period_key filter
+        """A layer with an empty period_key still yields no values while the source is disabled."""
         layer = self.env["spp.gis.indicator.layer"].create(
             {
                 "name": "No Period Layer",
@@ -541,9 +391,7 @@ class TestGetIndicatorValuesEdgeCases(TransactionCase):
                 "color_scale_id": self.color_scale.id,
             }
         )
-        values = layer._get_indicator_values()
-        # Should find the indicator since no period_key filter
-        self.assertIn(10.0, values)
+        self.assertEqual(layer._get_indicator_values(), [])
 
 
 @tagged("post_install", "-at_install")
@@ -566,7 +414,6 @@ class TestComputeBreakValuesEdgeCases(TransactionCase):
             {
                 "name": "test_break_edge",
                 "cel_accessor": "test_break_edge",
-                "label": "Test Break Edge",
                 "value_type": "number",
                 "source_type": "constant",
             }
@@ -601,36 +448,12 @@ class TestComputeBreakValuesEdgeCases(TransactionCase):
         self.assertEqual(layer.break_values, "")
 
     def test_break_values_unknown_classification_fallback(self):
-        """Test _compute_break_values with data falls back to empty breaks for unknown method."""
-        # Create indicators so values list is non-empty (use different areas to avoid unique constraint)
-        area1 = self.env["spp.area"].create(
-            {
-                "draft_name": "Break Fallback Area 1",
-                "code": "BFA1",
-            }
-        )
-        area2 = self.env["spp.area"].create(
-            {
-                "draft_name": "Break Fallback Area 2",
-                "code": "BFA2",
-            }
-        )
-        self.env["spp.hxl.area.indicator"].create(
-            {
-                "area_id": area1.id,
-                "variable_id": self.variable.id,
-                "period_key": "2024-12",
-                "value": 50.0,
-            }
-        )
-        self.env["spp.hxl.area.indicator"].create(
-            {
-                "area_id": area2.id,
-                "variable_id": self.variable.id,
-                "period_key": "2024-12",
-                "value": 100.0,
-            }
-        )
+        """With the indicator source disabled, the no-data guard yields empty break_values.
+
+        The classification method is irrelevant here: _get_indicator_values() returns no
+        data, so _compute_break_values short-circuits to "" before any classification
+        (including an unsupported method) is applied.
+        """
         layer = self.env["spp.gis.indicator.layer"].create(
             {
                 "name": "Fallback Layer",
@@ -641,8 +464,7 @@ class TestComputeBreakValuesEdgeCases(TransactionCase):
                 "num_classes": 2,
             }
         )
-        # Forcefully set classification_method to an unsupported value via SQL
-        # to test the else branch in _compute_break_values
+        # Forcefully set classification_method to an unsupported value via SQL.
         self.env.cr.execute(
             "UPDATE spp_gis_indicator_layer SET classification_method = %s WHERE id = %s",
             ("unknown_method", layer.id),
@@ -650,7 +472,7 @@ class TestComputeBreakValuesEdgeCases(TransactionCase):
         layer.invalidate_recordset()
         # Re-trigger compute
         layer._compute_break_values()
-        self.assertEqual(layer.break_values, "[]")
+        self.assertEqual(layer.break_values, "")
 
 
 @tagged("post_install", "-at_install")
@@ -745,7 +567,6 @@ class TestGetChoroplethConfigEdgeCases(TransactionCase):
             {
                 "name": "test_choropleth_cfg",
                 "cel_accessor": "test_choropleth_cfg",
-                "label": "Test Choropleth Config",
                 "value_type": "number",
                 "source_type": "constant",
             }
@@ -942,7 +763,6 @@ class TestDataLayerMethodsDirect(TransactionCase):
             {
                 "name": "test_direct_dl",
                 "cel_accessor": "test_direct_dl",
-                "label": "Test Direct DL",
                 "value_type": "number",
                 "source_type": "constant",
             }
@@ -1035,7 +855,6 @@ class TestGetFeatureColorsNoneValue(TransactionCase):
             {
                 "name": "test_none_val",
                 "cel_accessor": "test_none_val",
-                "label": "Test None Val",
                 "value_type": "number",
                 "source_type": "constant",
             }
@@ -1046,24 +865,7 @@ class TestGetFeatureColorsNoneValue(TransactionCase):
         cls.area3 = cls.env["spp.area"].create({"draft_name": "None Val Area 3", "code": "NVA3"})
 
     def test_get_feature_colors_with_zero_and_positive(self):
-        """Test get_feature_colors includes both zero and positive values."""
-        self.env["spp.hxl.area.indicator"].create(
-            {
-                "area_id": self.area1.id,
-                "variable_id": self.variable.id,
-                "period_key": "2024-none",
-                "value": 50.0,
-            }
-        )
-        self.env["spp.hxl.area.indicator"].create(
-            {
-                "area_id": self.area2.id,
-                "variable_id": self.variable.id,
-                "period_key": "2024-none",
-                "value": 0.0,
-            }
-        )
-
+        """With the indicator source disabled, no per-area colors are produced."""
         layer = self.env["spp.gis.indicator.layer"].create(
             {
                 "name": "Zero Pos Test Layer",
@@ -1076,9 +878,4 @@ class TestGetFeatureColorsNoneValue(TransactionCase):
         )
 
         area_ids = [self.area1.id, self.area2.id, self.area3.id]
-        result = layer.get_feature_colors(area_ids)
-        # area1 (50.0) and area2 (0.0) should have colors
-        self.assertIn(self.area1.id, result)
-        self.assertIn(self.area2.id, result)
-        # area3 has no indicator data
-        self.assertNotIn(self.area3.id, result)
+        self.assertEqual(layer.get_feature_colors(area_ids), {})

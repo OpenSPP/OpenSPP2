@@ -44,6 +44,24 @@
                     decoration-success="approval_state == 'approved'"
                     decoration-danger="approval_state == 'rejected'"
                 />
+                <!--
+                    OP#969: Fulfillment State column (post-approval lanes).
+                    Displays the relabeled vocab codes ("Approved · Ready
+                    for Allocation", "Allocated · Ready for Dispatch", etc.)
+                    so the list-level filter results are self-explanatory
+                    and the lane progression is visible at a glance.
+                    Optional="show" so it appears by default but users can
+                    hide it via the column-toggle if they don't need it.
+                -->
+                <field
+                    name="state_id"
+                    string="Fulfillment State"
+                    widget="badge"
+                    optional="show"
+                    decoration-info="state in ('draft', 'submitted', 'approved')"
+                    decoration-success="state in ('allocated', 'dispatched', 'delivered', 'fulfilled')"
+                    decoration-danger="state in ('rejected', 'cancelled')"
+                />
                 <field
                     name="sla_status"
                     widget="badge"
@@ -107,13 +125,12 @@
                         groups="spp_drims.group_drims_approver"
                     />
                     <button
-                        name="action_reject"
+                        name="action_open_reject_wizard"
                         string="Reject"
                         type="object"
                         class="btn-outline-danger"
                         invisible="approval_state != 'pending'"
                         groups="spp_drims.group_drims_approver"
-                        confirm="Reject this request? This action cannot be undone."
                     />
 
                     <!-- Revision Actions -->
@@ -141,7 +158,7 @@
                         string="Allocate Stock"
                         type="object"
                         class="btn-primary"
-                        invisible="approval_state != 'approved' or state == 'allocated'"
+                        invisible="approval_state != 'approved' or state in ('dispatched', 'delivered', 'fulfilled')"
                         data-hotkey="l"
                     />
                     <button
@@ -198,6 +215,16 @@
                         invisible="not is_life_threatening"
                     />
 
+                    <!-- Rejection reason banner (OP#966) -->
+                    <div
+                        class="alert alert-danger"
+                        role="alert"
+                        invisible="approval_state != 'rejected'"
+                    >
+                        <strong>Rejection reason:</strong>
+                        <field name="rejection_reason" readonly="1" nolabel="1" />
+                    </div>
+
                     <!-- Title -->
                     <div class="oe_title">
                         <h1>
@@ -240,10 +267,7 @@
                             <field
                                 name="priority_id"
                                 readonly="approval_state not in ('draft', 'revision')"
-                                widget="badge"
-                                decoration-danger="priority_id.code == 'critical'"
-                                decoration-warning="priority_id.code == 'high'"
-                                decoration-info="priority_id.code == 'medium'"
+                                options="{'no_create': True}"
                             />
                             <field
                                 name="is_life_threatening"
@@ -451,6 +475,15 @@
                         icon="fa-tasks"
                         enable_counters="1"
                     />
+                    <!-- OP#969: surface the fulfillment-state lanes so users
+                         can pivot between approval state and post-approval
+                         progress without re-filtering. -->
+                    <field
+                        name="state_id"
+                        select="multi"
+                        icon="fa-truck"
+                        enable_counters="1"
+                    />
                     <field
                         name="priority_id"
                         select="multi"
@@ -510,6 +543,23 @@
                     name="rejected"
                     string="Rejected"
                     domain="[('approval_state', '=', 'rejected')]"
+                />
+                <!--
+                    OP#969: post-approval queue filters so warehouse staff
+                    can pull "what's next for me?" without scanning the
+                    list. Ready for Allocation = approved but not yet
+                    moved into allocated state. Ready for Dispatch =
+                    allocated but not yet dispatched.
+                -->
+                <filter
+                    name="ready_for_allocation"
+                    string="Ready for Allocation"
+                    domain="[('approval_state', '=', 'approved'), ('state', 'not in', ['allocated', 'dispatched', 'delivered', 'fulfilled'])]"
+                />
+                <filter
+                    name="ready_for_dispatch"
+                    string="Ready for Dispatch"
+                    domain="[('state', '=', 'allocated')]"
                 />
                 <separator />
 
@@ -584,6 +634,14 @@
                         name="group_state"
                         string="Approval Status"
                         context="{'group_by': 'approval_state'}"
+                    />
+                    <!-- OP#969: also group by fulfillment state so post-approval
+                         lanes (Approved → Allocated → Dispatched → Delivered)
+                         are visible at a glance. -->
+                    <filter
+                        name="group_fulfillment_state"
+                        string="Fulfillment State"
+                        context="{'group_by': 'state_id'}"
                     />
                     <filter
                         name="group_date_needed"

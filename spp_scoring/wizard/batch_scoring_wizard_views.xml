@@ -6,17 +6,45 @@
         <field name="model">spp.batch.scoring.wizard</field>
         <field name="arch" type="xml">
             <form string="Batch Scoring">
+                <!-- Banner: explicit selection takes precedence over domain filter. -->
+                <div
+                    class="alert alert-info text-center"
+                    role="alert"
+                    invisible="state != 'draft' or registrant_count == 0"
+                >
+                    <strong>
+                    <field name="registrant_count" readonly="1" />
+                </strong>
+                    registrant(s) pre-selected. The domain filter below is
+                    ignored while specific registrants are listed.
+                </div>
+
                 <group invisible="state != 'draft'">
                     <group string="Scoring Configuration">
                         <field name="model_id" />
                         <field name="is_fail_fast" />
                         <field name="max_records" />
                     </group>
-                    <group string="Registrant Selection">
+                    <group string="Domain Filter" invisible="registrant_count != 0">
                         <field name="registrant_domain" />
-                        <field name="registrant_ids" widget="many2many_tags" />
                     </group>
                 </group>
+
+                <!-- Selected registrants — embedded list keeps the wizard
+                     scannable when 80+ partners were pre-selected from a
+                     bulk list-view action. -->
+                <notebook invisible="state != 'draft' or registrant_count == 0">
+                    <page name="selected_registrants" string="Selected Registrants">
+                        <field
+                            name="registrant_ids"
+                            options="{'no_create': True, 'no_open': True}"
+                        >
+                            <list create="false" delete="true">
+                                <field name="name" />
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
 
                 <group invisible="state != 'done'">
                     <group string="Results">

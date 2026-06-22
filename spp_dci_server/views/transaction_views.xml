@@ -99,14 +99,22 @@
                     </group>
 
                     <notebook>
-                        <page string="Request Payload" name="request">
+                        <page
+                            string="Request Payload"
+                            name="request"
+                            groups="spp_dci.group_dci_admin"
+                        >
                             <field
                                 name="request_payload"
                                 widget="ace"
                                 options="{'mode': 'javascript'}"
                             />
                         </page>
-                        <page string="Response Payload" name="response">
+                        <page
+                            string="Response Payload"
+                            name="response"
+                            groups="spp_dci.group_dci_admin"
+                        >
                             <field
                                 name="response_payload"
                                 widget="ace"

@@ -64,6 +64,7 @@ Replaces the technical manager configuration with intuitive sections.
                             </div>
                         </div>
                         <div class="card-body py-3">
+                            <field name="eligibility_manager_count" invisible="1" />
                             <group invisible="not eligibility_configured">
                                 <group>
                                     <field
@@ -74,15 +75,31 @@ Replaces the technical manager configuration with intuitive sections.
                                 </group>
                                 <group>
                                     <field
-                                        name="eligibility_manager_summary"
-                                        string="Details"
+                                        name="eligibility_manager_display"
+                                        string="Eligibility Method"
                                         readonly="1"
                                     />
                                 </group>
                             </group>
-                            <separator string="Eligibility Method" />
+                            <!-- Single-manager detail (full width) -->
+                            <group invisible="eligibility_manager_count != 1" col="1">
+                                <field
+                                    name="eligibility_manager_detail"
+                                    widget="text"
+                                    readonly="1"
+                                    nolabel="1"
+                                    colspan="2"
+                                    placeholder="No eligibility rule configured yet — click Edit above."
+                                />
+                            </group>
+                            <!-- Multi-manager list (0 or 2+ managers) -->
+                            <separator
+                                string="Eligibility Method"
+                                invisible="eligibility_manager_count == 1"
+                            />
                             <field
                                 name="eligibility_manager_ids"
+                                invisible="eligibility_manager_count == 1"
                                 readonly="state == 'ended' or not can_edit_configuration"
                                 context="{'default_program_id': id}"
                                 nolabel="1"
@@ -147,6 +164,7 @@ Replaces the technical manager configuration with intuitive sections.
                             </div>
                         </div>
                         <div class="card-body py-3">
+                            <field name="entitlement_manager_count" invisible="1" />
                             <group invisible="not entitlement_configured">
                                 <group>
                                     <field
@@ -157,15 +175,31 @@ Replaces the technical manager configuration with intuitive sections.
                                 </group>
                                 <group>
                                     <field
-                                        name="entitlement_manager_summary"
-                                        string="Details"
+                                        name="entitlement_manager_display"
+                                        string="Entitlement Type"
                                         readonly="1"
                                     />
                                 </group>
                             </group>
-                            <separator string="Entitlement Type" />
+                            <!-- Single-manager detail (full width) -->
+                            <group invisible="entitlement_manager_count != 1" col="1">
+                                <field
+                                    name="entitlement_manager_detail"
+                                    widget="text"
+                                    readonly="1"
+                                    nolabel="1"
+                                    colspan="2"
+                                    placeholder="No entitlement configured yet — click Edit above."
+                                />
+                            </group>
+                            <!-- Multi-manager list (0 or 2+ managers) -->
+                            <separator
+                                string="Entitlement Type"
+                                invisible="entitlement_manager_count == 1"
+                            />
                             <field
                                 name="entitlement_manager_ids"
+                                invisible="entitlement_manager_count == 1"
                                 readonly="state == 'ended' or not can_edit_configuration"
                                 context="{'default_program_id': id}"
                                 nolabel="1"
@@ -230,18 +264,35 @@ Replaces the technical manager configuration with intuitive sections.
                             </div>
                         </div>
                         <div class="card-body py-3">
+                            <field name="cycle_manager_count" invisible="1" />
                             <group invisible="not cycle_configured">
                                 <group>
                                     <field
-                                        name="cycle_manager_summary"
+                                        name="cycle_manager_display"
                                         string="Schedule"
                                         readonly="1"
                                     />
                                 </group>
                             </group>
-                            <separator string="Schedule Type" />
+                            <!-- Single-manager detail (full width) -->
+                            <group invisible="cycle_manager_count != 1" col="1">
+                                <field
+                                    name="cycle_manager_detail"
+                                    widget="text"
+                                    readonly="1"
+                                    nolabel="1"
+                                    colspan="2"
+                                    placeholder="No schedule configured yet — click Edit above."
+                                />
+                            </group>
+                            <!-- Multi-manager list (0 or 2+ managers) -->
+                            <separator
+                                string="Schedule Type"
+                                invisible="cycle_manager_count == 1"
+                            />
                             <field
                                 name="cycle_manager_ids"
+                                invisible="cycle_manager_count == 1"
                                 readonly="state == 'ended' or not can_edit_configuration"
                                 context="{'default_program_id': id}"
                                 nolabel="1"
@@ -289,6 +340,16 @@ Replaces the technical manager configuration with intuitive sections.
                                 >
                                     <i class="fa fa-check me-1" />Configured
                                 </span>
+                                <!-- Zero-state: offer Add when compliance isn't set up.
+                                     Compliance is optional, so the empty state shows an
+                                     explicit Add button instead of the generic list. -->
+                                <button
+                                    name="action_add_compliance_manager"
+                                    type="object"
+                                    class="btn btn-sm btn-primary"
+                                    invisible="compliance_manager_count != 0 or not can_edit_configuration"
+                                    icon="fa-plus"
+                                >Add</button>
                                 <button
                                     name="action_configure_compliance"
                                     type="object"
@@ -306,6 +367,17 @@ Replaces the technical manager configuration with intuitive sections.
                             </div>
                         </div>
                         <div class="card-body py-3">
+                            <field name="compliance_manager_count" invisible="1" />
+                            <!-- Zero-state informational block (compliance is optional) -->
+                            <div
+                                class="text-muted py-3"
+                                invisible="compliance_manager_count != 0"
+                            >
+                                <i class="fa fa-info-circle me-2" />
+                                No compliance criteria configured. Compliance is optional — click
+                                <b
+                            >Add</b> above to define ongoing conditions beneficiaries must meet.
+                            </div>
                             <group invisible="not compliance_configured">
                                 <group>
                                     <field
@@ -316,15 +388,31 @@ Replaces the technical manager configuration with intuitive sections.
                                 </group>
                                 <group>
                                     <field
-                                        name="compliance_manager_summary"
+                                        name="compliance_manager_display"
                                         string="Criteria"
                                         readonly="1"
                                     />
                                 </group>
                             </group>
-                            <separator string="Compliance Method" />
+                            <!-- Single-manager detail (full width) -->
+                            <group invisible="compliance_manager_count != 1" col="1">
+                                <field
+                                    name="compliance_manager_detail"
+                                    widget="text"
+                                    readonly="1"
+                                    nolabel="1"
+                                    colspan="2"
+                                    placeholder="No compliance rule configured yet — click Edit above."
+                                />
+                            </group>
+                            <!-- Multi-manager list (2+ managers only — zero-state handled above) -->
+                            <separator
+                                string="Compliance Method"
+                                invisible="compliance_manager_count &lt;= 1"
+                            />
                             <field
                                 name="compliance_manager_ids"
+                                invisible="compliance_manager_count &lt;= 1"
                                 readonly="state == 'ended' or not can_edit_configuration"
                                 context="{'default_program_id': id}"
                                 nolabel="1"
@@ -372,6 +460,15 @@ Replaces the technical manager configuration with intuitive sections.
                                 >
                                     <i class="fa fa-check me-1" />Configured
                                 </span>
+                                <!-- Zero-state: offer Add when payment isn't set up.
+                                     Mirrors the Compliance pattern (#952). -->
+                                <button
+                                    name="action_add_payment_manager"
+                                    type="object"
+                                    class="btn btn-sm btn-primary"
+                                    invisible="payment_manager_count != 0 or not can_edit_configuration"
+                                    icon="fa-plus"
+                                >Add</button>
                                 <button
                                     name="action_configure_payment"
                                     type="object"
@@ -389,18 +486,44 @@ Replaces the technical manager configuration with intuitive sections.
                             </div>
                         </div>
                         <div class="card-body py-3">
+                            <field name="payment_manager_count" invisible="1" />
+                            <!-- Zero-state informational block -->
+                            <div
+                                class="text-muted py-3"
+                                invisible="payment_manager_count != 0"
+                            >
+                                <i class="fa fa-info-circle me-2" />
+                                No payment processing configured. Click <b
+                            >Add</b> above to define how payments are made.
+                            </div>
                             <group invisible="not payment_configured">
                                 <group>
                                     <field
-                                        name="payment_manager_summary"
+                                        name="payment_manager_display"
                                         string="Settings"
                                         readonly="1"
                                     />
                                 </group>
                             </group>
-                            <separator string="Payment Method" />
+                            <!-- Single-manager detail (full width) -->
+                            <group invisible="payment_manager_count != 1" col="1">
+                                <field
+                                    name="payment_manager_detail"
+                                    widget="text"
+                                    readonly="1"
+                                    nolabel="1"
+                                    colspan="2"
+                                    placeholder="No payment processing configured yet — click Edit above."
+                                />
+                            </group>
+                            <!-- Multi-manager list (2+ managers only — zero-state handled above) -->
+                            <separator
+                                string="Payment Method"
+                                invisible="payment_manager_count &lt;= 1"
+                            />
                             <field
                                 name="payment_manager_ids"
+                                invisible="payment_manager_count &lt;= 1"
                                 readonly="state == 'ended' or not can_edit_configuration"
                                 context="{'default_program_id': id}"
                                 nolabel="1"
@@ -468,6 +591,23 @@ Replaces the technical manager configuration with intuitive sections.
                         <group string="Notifications">
                             <div class="mb-2 text-muted small" colspan="2">
                                 Send SMS or other notifications to beneficiaries.
+                            </div>
+                            <field name="has_outgoing_mail_server" invisible="1" />
+                            <field
+                                name="send_email_notifications"
+                                string="Email notifications"
+                                readonly="not has_outgoing_mail_server or state == 'ended' or not can_edit_configuration"
+                            />
+                            <div
+                                class="text-muted small"
+                                colspan="2"
+                                invisible="has_outgoing_mail_server"
+                            >
+                                <i class="fa fa-info-circle me-1" />
+                                No outgoing mail server is configured. Ask your administrator to set one up under
+                                <b
+                            >Settings → Technical → Email → Outgoing Mail Servers</b> before enabling email
+                                notifications.
                             </div>
                             <field
                                 name="notification_manager_summary"

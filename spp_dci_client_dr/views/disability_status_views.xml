@@ -7,8 +7,12 @@
         <field name="arch" type="xml">
             <list string="Disability Status">
                 <field name="partner_id" />
-                <field name="has_disability" />
-                <field name="disability_types" optional="show" />
+                <field name="has_disability" groups="spp_dci.group_dci_admin" />
+                <field
+                    name="disability_types"
+                    optional="show"
+                    groups="spp_dci.group_dci_admin"
+                />
                 <field name="assessment_date" optional="show" />
                 <field name="source_registry" optional="hide" />
                 <field
@@ -73,7 +77,10 @@
                                 name="partner_id"
                                 options="{'no_create': True, 'no_open': True}"
                             />
-                            <field name="has_disability" />
+                            <field
+                                name="has_disability"
+                                groups="spp_dci.group_dci_admin"
+                            />
                             <field name="source_registry" />
                         </group>
                         <group name="sync_info">
@@ -83,13 +90,21 @@
                         </group>
                     </group>
                     <notebook>
-                        <page string="Disability Information" name="disability_info">
+                        <page
+                            string="Disability Information"
+                            name="disability_info"
+                            groups="spp_dci.group_dci_admin"
+                        >
                             <group>
                                 <field name="disability_types" />
                                 <field name="functional_scores" />
                             </group>
                         </page>
-                        <page string="Raw Data" name="raw_data">
+                        <page
+                            string="Raw Data"
+                            name="raw_data"
+                            groups="spp_dci.group_dci_admin"
+                        >
                             <field
                                 name="raw_data"
                                 widget="ace"

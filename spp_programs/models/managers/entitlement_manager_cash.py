@@ -39,6 +39,14 @@ class SppCashEntitlementManager(models.Model):
     # Set to True so that the UI will display the payment management components
     IS_CASH_ENTITLEMENT = True
 
+    @api.model
+    def default_get(self, fields_list):
+        """Default the manager name to its method-specific label."""
+        res = super().default_get(fields_list)
+        if "name" in fields_list:
+            res.setdefault("name", _("Cash Entitlement"))
+        return res
+
     # Cash Entitlement Manager
     is_evaluate_one_item = fields.Boolean(default=False)
     entitlement_item_ids = fields.One2many(
@@ -326,6 +334,9 @@ class SppCashEntitlementManager(models.Model):
             )
         main_job = group(*jobs)
         main_job.on_done(self.delayable().mark_job_as_done(cycle, _("Entitlements Validated and Approved.")))
+        main_job.on_error(
+            self.delayable().mark_job_as_failed(cycle, _("Validation and approval of entitlements failed."))
+        )
         main_job.delay()
 
     def _validate_entitlements(self, cycle, entitlements):

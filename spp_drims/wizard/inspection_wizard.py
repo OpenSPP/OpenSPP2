@@ -2,11 +2,11 @@
 """
 DRIMS Donation Inspection Wizard (DON-002)
 
-Batch Accept with Exceptions design:
-- Main wizard shows readonly list of items
-- "Accept All as New" button for 90% of cases (one-click)
-- "Edit" button per row opens popup to modify individual items
-- Supports splitting items with mixed conditions
+Inline-editable single-screen flow:
+- Operator sets Condition and Action directly on each row.
+- "+ Add split" creates a child row under the parent product for mixed conditions.
+- Parent qty mirrors the running sum of child rows; the parent itself carries no
+  condition / action — those live on the children.
 """
 
 import logging
@@ -25,7 +25,7 @@ _logger = logging.getLogger(__name__)
 
 
 class InspectionWizard(models.TransientModel):
-    """Main inspection wizard - shows items and allows batch accept or per-item edit."""
+    """Main inspection wizard - inline editing on every row."""
 
     _name = "spp.drims.inspection.wizard"
     _description = "Donation Inspection Wizard"
@@ -49,80 +49,18 @@ class InspectionWizard(models.TransientModel):
         string="Inspection Notes",
         help="General notes about the inspection",
     )
-    is_valid = fields.Boolean(
-        string="Is Valid",
-        compute="_compute_is_valid",
+    # The QtySplitProgressField widget pushes both of these from the
+    # editable list whenever any row's qty / condition / disposition
+    # changes. They drive the Confirm-button gate in the view.
+    # See ``_syncWizardCanConfirm`` in the JS widget.
+    can_confirm = fields.Boolean(
+        string="Can Confirm",
+        default=True,
     )
-
-    @api.depends("line_ids.is_inspected", "line_ids.quantity", "line_ids.quantity_expected")
-    def _compute_is_valid(self):
-        """Check if all items are inspected and quantities match."""
-        for wizard in self:
-            if not wizard.line_ids:
-                wizard.is_valid = False
-                continue
-
-            # Check all lines are inspected
-            all_inspected = all(line.is_inspected for line in wizard.line_ids)
-            if not all_inspected:
-                wizard.is_valid = False
-                continue
-
-            # Check quantities match per product
-            products = {}
-            for line in wizard.line_ids:
-                product_id = line.product_id.id
-                if product_id not in products:
-                    products[product_id] = {
-                        "expected": line.quantity_expected,
-                        "total": 0.0,
-                    }
-                products[product_id]["total"] += line.quantity
-
-            quantities_match = all(abs(data["expected"] - data["total"]) < 0.001 for data in products.values())
-            wizard.is_valid = quantities_match
-
-    def action_accept_all(self):
-        """Accept all items as New/Accept - one click for simple cases."""
-        self.ensure_one()
-
-        # Get default condition (new) and disposition (accept)
-        condition_new = self.env["spp.vocabulary.code"].search(
-            [
-                ("vocabulary_id.namespace_uri", "=", VOCAB_ITEM_CONDITIONS),
-                ("code", "=", "new"),
-            ],
-            limit=1,
-        )
-        disposition_accept = self.env["spp.vocabulary.code"].search(
-            [
-                ("vocabulary_id.namespace_uri", "=", VOCAB_ITEM_DISPOSITIONS),
-                ("code", "=", "accept"),
-            ],
-            limit=1,
-        )
-
-        if not condition_new or not disposition_accept:
-            raise UserError(_("Vocabulary codes for 'new' condition or 'accept' disposition not found."))
-
-        # Mark all lines as inspected with default values
-        for line in self.line_ids:
-            line.write(
-                {
-                    "condition_id": condition_new.id,
-                    "disposition_id": disposition_accept.id,
-                    "is_inspected": True,
-                }
-            )
-
-        # Return to same wizard (refreshed)
-        return {
-            "type": "ir.actions.act_window",
-            "res_model": self._name,
-            "res_id": self.id,
-            "view_mode": "form",
-            "target": "new",
-        }
+    confirm_message = fields.Text(
+        string="Confirm Blocker",
+        help="Human-readable reason(s) why Confirm Inspection is currently disabled.",
+    )
 
     def action_confirm_inspection(self):
         """Confirm inspection and create/update donation lines."""
@@ -131,41 +69,59 @@ class InspectionWizard(models.TransientModel):
         if not self.line_ids:
             raise UserError(_("No items to inspect."))
 
-        # Validate all items are inspected
-        uninspected = self.line_ids.filtered(lambda line: not line.is_inspected)
+        # Parent rows carry no condition/action; only validate the rows
+        # the operator actually filled in.
+        lines_to_check = self.line_ids.filtered(lambda line: not line.has_splits)
+        uninspected = lines_to_check.filtered(lambda line: not line.is_inspected)
         if uninspected:
             raise UserError(
                 _("Please inspect all items first. Uninspected: %s")
                 % ", ".join(uninspected.mapped("product_id.display_name"))
             )
 
-        # Validate quantities per product
-        products = {}
+        # Group by the original donation line. Two separate donation lines for
+        # the same product are independent (each has its own donation_line_id),
+        # so they must not be lumped together as if they were splits of each
+        # other. Splits of a single donation line share the same
+        # ``donation_line_id`` via ``action_add_split``.
+        # Parent rows are skipped here — their qty mirrors their children's
+        # running total and including them would double-count.
+        lines_by_donation = {}
         for line in self.line_ids:
-            product_id = line.product_id.id
-            if product_id not in products:
-                products[product_id] = {
+            if line.has_splits:
+                continue
+            key = line.donation_line_id.id
+            if key not in lines_by_donation:
+                lines_by_donation[key] = {
                     "name": line.product_id.display_name,
                     "expected": line.quantity_expected,
                     "total": 0.0,
                     "lines": [],
                 }
-            products[product_id]["total"] += line.quantity
-            products[product_id]["lines"].append(line)
+            lines_by_donation[key]["total"] += line.quantity
+            lines_by_donation[key]["lines"].append(line)
 
-        for _product_id, data in products.items():
+        # OP#964: only enforce equality when the user has split a donation
+        # line into multiple wizard lines. A single line is treated as the
+        # user reporting the final received quantity, and
+        # ``quantity_received`` on the donation line will be overwritten to
+        # match below.
+        for data in lines_by_donation.values():
+            if len(data["lines"]) <= 1:
+                continue
             diff = abs(data["expected"] - data["total"])
             if diff > 0.001:
                 raise UserError(
                     _(
-                        "Product %(product)s: Total inspected (%(total)s) must equal "
-                        "expected (%(expected)s). Difference: %(diff)s"
+                        "Product %(product)s: split quantities total %(total)s but "
+                        "received quantity is %(expected)s. Splits must sum to the "
+                        "received quantity. Adjust splits or change the Received "
+                        "quantity on the donation line first."
                     )
                     % {
                         "product": data["name"],
                         "total": data["total"],
                         "expected": data["expected"],
-                        "diff": diff,
                     }
                 )
 
@@ -175,12 +131,10 @@ class InspectionWizard(models.TransientModel):
             len(self.line_ids),
         )
 
-        # Process each product group
         DonationLine = self.env["spp.drims.donation.line"]
-        for _product_id, data in products.items():
+        for data in lines_by_donation.values():
             lines = data["lines"]
 
-            # First line updates the original donation line
             first_line = lines[0]
             original_donation_line = first_line.donation_line_id
             original_donation_line.write(
@@ -192,7 +146,6 @@ class InspectionWizard(models.TransientModel):
                 }
             )
 
-            # Additional lines create new donation lines (splits)
             for line in lines[1:]:
                 if line.quantity <= 0:
                     continue
@@ -212,7 +165,6 @@ class InspectionWizard(models.TransientModel):
                     }
                 )
 
-        # Transition donation to inspected state
         inspected_state = self.env["spp.vocabulary.code"].search(
             [
                 ("vocabulary_id.namespace_uri", "=", VOCAB_DONATION_STATES),
@@ -232,10 +184,14 @@ class InspectionWizard(models.TransientModel):
 
 
 class InspectionWizardLine(models.TransientModel):
-    """Line in the inspection wizard - one per item/condition combination."""
+    """Line in the inspection wizard."""
 
     _name = "spp.drims.inspection.wizard.line"
     _description = "Inspection Wizard Line"
+    # Sort so each donation line's rows stay grouped together, with the
+    # parent row first (parent_line_id IS NULL) and its split children
+    # immediately below it (ordered by creation id).
+    _order = "donation_line_id, parent_line_id NULLS FIRST, id"
 
     wizard_id = fields.Many2one(
         "spp.drims.inspection.wizard",
@@ -247,6 +203,11 @@ class InspectionWizardLine(models.TransientModel):
         "spp.drims.donation.line",
         string="Donation Line",
         required=True,
+    )
+    parent_line_id = fields.Many2one(
+        "spp.drims.inspection.wizard.line",
+        string="Parent Line",
+        ondelete="cascade",
     )
     product_id = fields.Many2one(
         "product.product",
@@ -281,141 +242,80 @@ class InspectionWizardLine(models.TransientModel):
     )
     is_inspected = fields.Boolean(
         string="Inspected",
+        compute="_compute_is_inspected",
+        help="True once both Condition and Action are filled.",
+    )
+    is_split = fields.Boolean(
+        string="Is Split Line",
+        compute="_compute_is_split",
+        store=True,
+    )
+    # ``has_splits`` is a plain Boolean (no compute) because Odoo 19's
+    # editable-One2many reactivity does not reliably propagate cross-record
+    # depends like ``wizard_id.line_ids.parent_line_id``. action_add_split /
+    # action_remove_split write to this field explicitly, which keeps the
+    # readonly + visibility logic in the view reactive without round-tripping
+    # through a slow compute.
+    has_splits = fields.Boolean(
+        string="Has Split Lines",
         default=False,
-        help="Whether this item has been inspected",
     )
-    condition_display = fields.Char(
-        string="Status",
-        compute="_compute_condition_display",
+    # Set by both ``action_add_split`` and the OWL widget's useEffect after
+    # the running split total catches up to (or exceeds) ``quantity_expected``.
+    # Drives the "+ Add split" button visibility on the parent row.
+    is_fully_split = fields.Boolean(
+        string="Is Fully Split",
+        default=False,
+    )
+    can_mark_all_units = fields.Boolean(
+        string="Can Mark All Units",
+        compute="_compute_can_mark_all_units",
     )
 
-    @api.depends("is_inspected", "condition_id", "disposition_id")
-    def _compute_condition_display(self):
-        """Compute display string for condition/disposition."""
+    @api.depends("parent_line_id")
+    def _compute_is_split(self):
         for line in self:
-            if not line.is_inspected:
-                line.condition_display = _("Not inspected")
-            elif line.condition_id and line.disposition_id:
-                line.condition_display = f"{line.condition_id.display} / {line.disposition_id.display}"
-            else:
-                line.condition_display = _("Incomplete")
+            line.is_split = bool(line.parent_line_id)
 
-    def action_edit_item(self):
-        """Open popup to edit this item."""
-        self.ensure_one()
-        return {
-            "type": "ir.actions.act_window",
-            "name": _("Inspect Item: %s") % self.product_id.display_name,
-            "res_model": "spp.drims.inspection.item.wizard",
-            "view_mode": "form",
-            "target": "new",
-            "context": {
-                "default_inspection_line_id": self.id,
-                "default_wizard_id": self.wizard_id.id,
-                "default_product_id": self.product_id.id,
-                "default_uom_id": self.uom_id.id,
-                "default_quantity_expected": self.quantity_expected,
-                "default_quantity": self.quantity,
-                "default_condition_id": self.condition_id.id if self.condition_id else False,
-                "default_disposition_id": self.disposition_id.id if self.disposition_id else False,
-                "default_notes": self.notes or "",
-            },
-        }
+    @api.depends("condition_id", "disposition_id")
+    def _compute_can_mark_all_units(self):
+        for line in self:
+            line.can_mark_all_units = bool(line.condition_id and line.disposition_id)
 
+    @api.depends("condition_id", "disposition_id")
+    def _compute_is_inspected(self):
+        """A row is inspected once both Condition and Action are filled."""
+        for line in self:
+            line.is_inspected = bool(line.condition_id and line.disposition_id)
 
-class InspectionItemWizard(models.TransientModel):
-    """Popup wizard to edit a single inspection item."""
+    @api.onchange("quantity")
+    def _onchange_quantity_update_parent(self):
+        """Keep the parent row qty in sync with the running sum of its children.
 
-    _name = "spp.drims.inspection.item.wizard"
-    _description = "Inspect Item Wizard"
-
-    inspection_line_id = fields.Many2one(
-        "spp.drims.inspection.wizard.line",
-        string="Inspection Line",
-        required=True,
-    )
-    wizard_id = fields.Many2one(
-        "spp.drims.inspection.wizard",
-        string="Main Wizard",
-        required=True,
-    )
-    product_id = fields.Many2one(
-        "product.product",
-        string="Product",
-        readonly=True,
-    )
-    uom_id = fields.Many2one(
-        "uom.uom",
-        string="Unit",
-        readonly=True,
-    )
-    quantity_expected = fields.Float(
-        string="Expected Quantity",
-        readonly=True,
-    )
-    quantity = fields.Float(
-        string="Quantity",
-        required=True,
-        help="Quantity in this condition. Reduce if splitting.",
-    )
-    condition_id = fields.Many2one(
-        "spp.vocabulary.code",
-        string="Condition",
-        required=True,
-        domain=f"[('vocabulary_id.namespace_uri', '=', '{VOCAB_ITEM_CONDITIONS}')]",
-    )
-    disposition_id = fields.Many2one(
-        "spp.vocabulary.code",
-        string="Disposition",
-        required=True,
-        domain=f"[('vocabulary_id.namespace_uri', '=', '{VOCAB_ITEM_DISPOSITIONS}')]",
-    )
-    notes = fields.Char(
-        string="Notes",
-        help="Notes about this item (e.g., 'water damaged', 'expired batch')",
-    )
-    remaining_qty = fields.Float(
-        string="Remaining to Allocate",
-        compute="_compute_remaining_qty",
-        help="Quantity not yet allocated (for splitting)",
-    )
-    show_split_warning = fields.Boolean(
-        compute="_compute_remaining_qty",
-    )
-
-    @api.depends("quantity", "quantity_expected")
-    def _compute_remaining_qty(self):
-        """Compute remaining quantity for this product."""
-        InspectionLine = self.env["spp.drims.inspection.wizard.line"]
-        for item in self:
-            # Sum all lines for this product in the main wizard
-            other_lines = InspectionLine.browse()
-            for line in item.wizard_id.line_ids:
-                if line.product_id == item.product_id and line.id != item.inspection_line_id.id:
-                    other_lines |= line
-            other_total = sum(other_lines.mapped("quantity"))
-            item.remaining_qty = item.quantity_expected - item.quantity - other_total
-            item.show_split_warning = item.remaining_qty > 0.001
-
-    def action_save(self):
-        """Save changes and return to main wizard."""
-        self.ensure_one()
-
-        if self.quantity < 0:
-            raise UserError(_("Quantity cannot be negative."))
-
-        # Update the inspection line
-        self.inspection_line_id.write(
-            {
-                "quantity": self.quantity,
-                "condition_id": self.condition_id.id,
-                "disposition_id": self.disposition_id.id,
-                "notes": self.notes,
-                "is_inspected": True,
-            }
+        No clamping while drafting: the operator can freely adjust split
+        quantities (e.g. rebalance 500/500 to 400/600 without having to lower
+        one row first). An over- or under-split total is rejected at confirm
+        time by ``action_confirm_inspection`` (mirrored client-side by the
+        ``can_confirm`` guard), so eager clamping here only gets in the way.
+        """
+        if not self.parent_line_id:
+            return
+        siblings = self.wizard_id.line_ids.filtered(
+            lambda line: line.parent_line_id == self.parent_line_id and line != self
         )
+        others_sum = sum(siblings.mapped("quantity"))
+        total = others_sum + (self.quantity or 0.0)
+        self.parent_line_id.quantity = total
 
-        # Return to main wizard
+    def action_all_units(self):
+        """No-op handler for the visual "All units" badge in the list view.
+
+        The button is a visual indicator that Condition and Action are set —
+        clicking it just refreshes the wizard so any pending onchange values
+        are persisted. ``is_inspected`` is already flipped automatically via
+        ``_onchange_mark_inspected``.
+        """
+        self.ensure_one()
         return {
             "type": "ir.actions.act_window",
             "res_model": "spp.drims.inspection.wizard",
@@ -424,39 +324,103 @@ class InspectionItemWizard(models.TransientModel):
             "target": "new",
         }
 
-    def action_save_and_split(self):
-        """Save changes and create a new line for remaining quantity."""
+    def action_add_split(self):
+        """Create a new split child line under this row and reopen the wizard."""
         self.ensure_one()
 
-        if self.quantity < 0:
-            raise UserError(_("Quantity cannot be negative."))
+        # If the operator clicks "+ Add split" on a line that is itself a child,
+        # treat the parent as the root for the new split.
+        root_line = self.parent_line_id or self
 
-        if self.remaining_qty <= 0:
-            raise UserError(_("No remaining quantity to split. Adjust the quantity first."))
+        # Sum only the existing children — never the parent. On the very first
+        # split the parent's qty still mirrors the full expected qty, so adding
+        # it would double-count and leave 0 remaining.
+        child_lines = self.wizard_id.line_ids.filtered(lambda line: line.parent_line_id == root_line)
+        total_in_splits = sum(child_lines.mapped("quantity"))
+        remaining = root_line.quantity_expected - total_in_splits
 
-        # Update current line
-        self.inspection_line_id.write(
-            {
-                "quantity": self.quantity,
-                "condition_id": self.condition_id.id,
-                "disposition_id": self.disposition_id.id,
-                "notes": self.notes,
-                "is_inspected": True,
-            }
+        if remaining <= 0:
+            raise UserError(_("No remaining quantity to split. Reduce one of the existing split quantities first."))
+
+        # First split: reset the parent qty to 0 (it will be kept in sync as
+        # the running sum of children), mark the parent as split, and clear
+        # any Condition / Action the operator may have set before deciding
+        # to split — the parent row carries no decision; the children do.
+        # The first split divides the row into TWO empty parts (a split has
+        # to produce at least two pieces); each later "+ Add split" appends
+        # one more part.
+        if not child_lines:
+            root_line.quantity = 0
+            root_line.condition_id = False
+            root_line.disposition_id = False
+            root_line.has_splits = True
+            splits_to_create = 2
+        else:
+            splits_to_create = 1
+
+        # Create each new split with qty=0 so the operator has to enter the
+        # split amount explicitly. The "+ Add split" button is then hidden
+        # in the UI while any child still has qty=0, forcing the operator
+        # to fill the new rows before opening another. This avoids the
+        # "I added a split but forgot to set its quantity" footgun.
+        self.env["spp.drims.inspection.wizard.line"].create(
+            [
+                {
+                    "wizard_id": self.wizard_id.id,
+                    "donation_line_id": root_line.donation_line_id.id,
+                    "product_id": root_line.product_id.id,
+                    "uom_id": root_line.uom_id.id,
+                    "quantity_expected": root_line.quantity_expected,
+                    "quantity": 0,
+                    "parent_line_id": root_line.id,
+                }
+                for _ in range(splits_to_create)
+            ]
         )
 
-        # Create new line for remaining quantity
-        new_line = self.env["spp.drims.inspection.wizard.line"].create(
-            {
-                "wizard_id": self.wizard_id.id,
-                "donation_line_id": self.inspection_line_id.donation_line_id.id,
-                "product_id": self.product_id.id,
-                "uom_id": self.uom_id.id,
-                "quantity_expected": self.quantity_expected,
-                "quantity": self.remaining_qty,
-                "is_inspected": False,  # New split needs to be inspected
-            }
+        # Running total is unchanged because the new children contribute 0;
+        # the parent still mirrors the sum of existing children.
+        root_line.quantity = total_in_splits
+        # The new children have qty 0, so the parent is not yet fully split.
+        root_line.is_fully_split = False
+
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": "spp.drims.inspection.wizard",
+            "res_id": self.wizard_id.id,
+            "view_mode": "form",
+            "target": "new",
+        }
+
+    def action_remove_split(self):
+        """Remove a split child line and refresh the wizard."""
+        self.ensure_one()
+        if not self.is_split:
+            raise UserError(_("Only split lines can be removed this way."))
+        wizard_id = self.wizard_id.id
+        root_line = self.parent_line_id
+
+        # Identify the children that will remain BEFORE unlinking. Reading the
+        # One2many after unlink can hit the still-cached unlinked record and
+        # raise MissingError when the lambda touches its fields.
+        remaining_children = root_line.wizard_id.line_ids.filtered(
+            lambda line: line.parent_line_id == root_line and line != self
         )
 
-        # Open edit popup for the new split
-        return new_line.action_edit_item()
+        self.unlink()
+
+        if not remaining_children:
+            # Reset parent back to the full expected quantity and clear the
+            # split flag so the row reverts to a normal (editable) row.
+            root_line.quantity = root_line.quantity_expected
+            root_line.has_splits = False
+        else:
+            root_line.quantity = sum(remaining_children.mapped("quantity"))
+
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": "spp.drims.inspection.wizard",
+            "res_id": wizard_id,
+            "view_mode": "form",
+            "target": "new",
+        }

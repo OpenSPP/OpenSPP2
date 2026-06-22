@@ -13,9 +13,9 @@
             >
                 <field name="name" />
                 <field name="event_type" />
-                <field name="person_id" />
+                <field name="person_id" groups="spp_dci.group_dci_admin" />
                 <field name="identifier_type" />
-                <field name="identifier_value" />
+                <field name="identifier_value" groups="spp_dci.group_dci_admin" />
                 <field name="event_date" />
                 <field name="received_date" />
                 <field
@@ -81,11 +81,14 @@
                         <group>
                             <field name="event_type" />
                             <field name="event_date" />
-                            <field name="person_id" />
+                            <field name="person_id" groups="spp_dci.group_dci_admin" />
                         </group>
                         <group>
                             <field name="identifier_type" />
-                            <field name="identifier_value" />
+                            <field
+                                name="identifier_value"
+                                groups="spp_dci.group_dci_admin"
+                            />
                             <field name="received_date" />
                         </group>
                     </group>
@@ -103,7 +106,11 @@
                         </group>
                     </group>
                     <notebook>
-                        <page string="Raw Data" name="raw_data">
+                        <page
+                            string="Raw Data"
+                            name="raw_data"
+                            groups="spp_dci.group_dci_admin"
+                        >
                             <field
                                 name="raw_data"
                                 widget="ace"

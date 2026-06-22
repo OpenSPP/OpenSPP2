@@ -71,9 +71,20 @@ class BasePaymentManager(models.AbstractModel):
         :return:
         """
         self.ensure_one()
-        cycle.is_locked = False
-        cycle.locked_reason = None
-        cycle.message_post(body=msg)
+        cycle.write({"is_locked": False, "locked_reason": False})
+        try:
+            cycle.message_post(body=msg)
+        except Exception:
+            _logger.exception("Failed to post completion chatter on cycle %s", cycle.id)
+
+    def mark_job_as_failed(self, cycle, msg):
+        """Run via on_error() when the async payment pipeline fails."""
+        self.ensure_one()
+        cycle.write({"is_locked": False, "locked_reason": False})
+        try:
+            cycle.message_post(body=msg)
+        except Exception:
+            _logger.exception("Failed to post failure chatter on cycle %s", cycle.id)
 
 
 class DefaultFilePaymentManager(models.Model):
@@ -83,6 +94,57 @@ class DefaultFilePaymentManager(models.Model):
 
     MAX_PAYMENTS_FOR_SYNC_PREPARE = 200
     MAX_BATCHES_FOR_SYNC_SEND = 50
+
+    @api.model
+    def default_get(self, fields_list):
+        """Default the manager name to its method-specific label."""
+        res = super().default_get(fields_list)
+        if "name" in fields_list:
+            res.setdefault("name", _("Default Payment"))
+        return res
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Auto-create the default batch tag when needed.
+
+        The `batch_tag_ids` constraint requires at least one tag when
+        `create_batch=True` (the default). The legacy flow relied on
+        the user toggling `create_batch` in the form to fire the
+        onchange that creates the tag — that doesn't fire on the form's
+        initial open, so the program form's `+ Add` button used to
+        pre-create the tag itself (#952). Pre-creation leaves an
+        orphan batch tag in the DB if the user dismisses the dialog
+        with `X` (#953). Doing it here means the tag is only created
+        atomically with the manager record on Save.
+        """
+        for vals in vals_list:
+            if not vals.get("create_batch", True) or vals.get("batch_tag_ids"):
+                continue
+            program_id = vals.get("program_id") or self.env.context.get("default_program_id")
+            if not program_id:
+                continue
+            program = self.env["spp.program"].browse(program_id)
+            tag_name = f"Default {program.name}"
+            BatchTag = self.env["spp.payment.batch.tag"].sudo()  # nosemgrep: odoo-sudo-without-context
+            tag = BatchTag.search(
+                [
+                    ("name", "=", tag_name),
+                    ("order", "=", 1),
+                    ("max_batch_size", "=", 500),
+                ],
+                limit=1,
+            )
+            if not tag:
+                tag = BatchTag.create(
+                    {
+                        "name": tag_name,
+                        "order": 1,
+                        "domain": [],
+                        "max_batch_size": 500,
+                    }
+                )
+            vals["batch_tag_ids"] = [(4, tag.id)]
+        return super().create(vals_list)
 
     currency_id = fields.Many2one("res.currency", related="program_id.journal_id.currency_id", readonly=True)
 
@@ -278,6 +340,7 @@ class DefaultFilePaymentManager(models.Model):
         ]
         main_job = group(*jobs)
         main_job.on_done(self.delayable().mark_job_as_done(cycle, _("Prepared payments.")))
+        main_job.on_error(self.delayable().mark_job_as_failed(cycle, _("Preparing payments failed.")))
         main_job.delay()
 
     def send_payments(self, batches):
@@ -392,6 +455,7 @@ class DefaultFilePaymentManager(models.Model):
         ]
         main_job = group(*jobs)
         main_job.on_done(self.delayable().mark_job_as_done(cycle, _("Send payments completed.")))
+        main_job.on_error(self.delayable().mark_job_as_failed(cycle, _("Sending payments failed.")))
         main_job.delay()
 
     @api.model

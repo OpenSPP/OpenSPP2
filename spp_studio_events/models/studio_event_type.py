@@ -723,7 +723,7 @@ class StudioEventType(models.Model):
             "type": "ir.actions.act_window",
             "name": _("Events: %(name)s", name=self.name),
             "res_model": "spp.event.data",
-            "view_mode": "tree,form",
+            "view_mode": "list,form",
             "domain": [("event_type_id", "=", self.spp_event_type_id.id)],
             "context": {"default_event_type_id": self.spp_event_type_id.id},
         }

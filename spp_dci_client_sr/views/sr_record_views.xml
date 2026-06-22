@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_sr_record_tree" model="ir.ui.view">
+        <field name="name">spp.dci.sr.record.tree</field>
+        <field name="model">spp.dci.sr.record</field>
+        <field name="arch" type="xml">
+            <list string="SR Records">
+                <field name="partner_id" />
+                <field
+                    name="sr_name"
+                    optional="show"
+                    groups="spp_dci.group_dci_admin"
+                />
+                <field name="external_id" optional="hide" />
+                <field name="program_count" />
+                <field name="household_id" optional="show" />
+                <field name="source_registry" />
+                <field
+                    name="state"
+                    decoration-success="state == 'synced'"
+                    decoration-warning="state == 'stale'"
+                    decoration-danger="state == 'error'"
+                    widget="badge"
+                />
+                <field name="last_sync_date" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_sr_record_form" model="ir.ui.view">
+        <field name="name">spp.dci.sr.record.form</field>
+        <field name="model">spp.dci.sr.record</field>
+        <field name="arch" type="xml">
+            <form string="SR Record">
+                <header>
+                    <button
+                        name="refresh_from_sr"
+                        string="Refresh from SR"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="state == 'error'"
+                    />
+                    <button
+                        name="action_retry_sync"
+                        string="Retry Sync"
+                        type="object"
+                        class="btn-warning"
+                        invisible="state != 'error'"
+                    />
+                    <button
+                        name="action_mark_stale"
+                        string="Mark as Stale"
+                        type="object"
+                        invisible="state != 'synced'"
+                    />
+                    <field name="state" widget="statusbar" statusbar_visible="synced" />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="toggle_active"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-archive"
+                        >
+                            <field
+                                name="active"
+                                widget="boolean_button"
+                                options="{&quot;terminology&quot;: &quot;archive&quot;}"
+                            />
+                        </button>
+                    </div>
+                    <group>
+                        <group name="person_info">
+                            <field name="partner_id" options="{'no_create': True}" />
+                            <field name="external_id" />
+                            <field name="identifier_type" />
+                            <field
+                                name="identifier_value"
+                                groups="spp_dci.group_dci_admin"
+                            />
+                        </group>
+                        <group name="sync_info">
+                            <field name="source_registry" />
+                            <field name="last_sync_date" />
+                            <field name="synced_by" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="SR Data" name="sr_data">
+                            <group>
+                                <group
+                                    name="demographics"
+                                    groups="spp_dci.group_dci_admin"
+                                >
+                                    <field name="sr_name" />
+                                    <field name="sr_birth_date" />
+                                    <field name="sr_gender" />
+                                </group>
+                                <group name="household">
+                                    <field name="household_id" />
+                                    <field name="household_size" />
+                                    <field name="is_head_of_household" />
+                                </group>
+                            </group>
+                            <group string="Address" groups="spp_dci.group_dci_admin">
+                                <field name="sr_address" nolabel="1" colspan="2" />
+                            </group>
+                        </page>
+                        <page string="Program Enrollment" name="programs">
+                            <field name="program_count" invisible="1" />
+                            <field
+                                name="enrolled_programs"
+                                widget="ace"
+                                options="{'mode': 'javascript'}"
+                                groups="spp_dci.group_dci_admin"
+                            />
+                        </page>
+                        <page
+                            string="Raw Data"
+                            name="raw_data"
+                            groups="spp_dci.group_dci_admin"
+                        >
+                            <field
+                                name="raw_data"
+                                widget="ace"
+                                options="{'mode': 'javascript'}"
+                            />
+                        </page>
+                        <page
+                            string="Error Details"
+                            name="error_details"
+                            invisible="not error_message"
+                        >
+                            <field name="error_message" />
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_sr_record_search" model="ir.ui.view">
+        <field name="name">spp.dci.sr.record.search</field>
+        <field name="model">spp.dci.sr.record</field>
+        <field name="arch" type="xml">
+            <search string="SR Records">
+                <field name="partner_id" />
+                <field name="external_id" />
+                <field name="household_id" />
+                <field name="source_registry" />
+                <separator />
+                <filter
+                    string="Synced"
+                    name="filter_synced"
+                    domain="[('state', '=', 'synced')]"
+                />
+                <filter
+                    string="Stale"
+                    name="filter_stale"
+                    domain="[('state', '=', 'stale')]"
+                />
+                <filter
+                    string="Error"
+                    name="filter_error"
+                    domain="[('state', '=', 'error')]"
+                />
+                <separator />
+                <filter
+                    string="Head of Household"
+                    name="filter_hoh"
+                    domain="[('is_head_of_household', '=', True)]"
+                />
+                <filter
+                    string="Has Programs"
+                    name="filter_has_programs"
+                    domain="[('program_count', '>', 0)]"
+                />
+                <separator />
+                <filter
+                    string="Archived"
+                    name="filter_archived"
+                    domain="[('active', '=', False)]"
+                />
+                <separator />
+                <filter
+                    string="Status"
+                    name="group_state"
+                    context="{'group_by': 'state'}"
+                />
+                <filter
+                    string="Source Registry"
+                    name="group_source"
+                    context="{'group_by': 'source_registry'}"
+                />
+                <filter
+                    string="Household"
+                    name="group_household"
+                    context="{'group_by': 'household_id'}"
+                />
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_sr_record" model="ir.actions.act_window">
+        <field name="name">SR Records</field>
+        <field name="res_model">spp.dci.sr.record</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_filter_synced': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No SR records found
+            </p>
+            <p>
+                SR records are created when syncing data from external
+                Social Registries via DCI API.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem
+        id="menu_sr_record"
+        name="SR Records"
+        parent="spp_dci_client.menu_spp_dci_activity"
+        action="action_sr_record"
+        sequence="50"
+    />
+</odoo>

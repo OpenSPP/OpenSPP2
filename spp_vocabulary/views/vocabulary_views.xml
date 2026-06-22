@@ -11,9 +11,15 @@
                 <field name="domain" optional="show" />
                 <field name="version" optional="hide" />
                 <field name="code_count" string="Codes" />
-                <field name="is_system" widget="boolean_toggle" />
+                <!-- Read-only in the list: system status is set by the
+                     module's data files, not user-toggleable; and
+                     archiving a vocabulary should go through the form
+                     (where it's already gated to non-system vocabs).
+                     Conditional readonly per row would be ideal here but
+                     is not in scope for this round — see OP#954. -->
+                <field name="is_system" widget="boolean_toggle" readonly="1" />
                 <field name="is_hierarchical" optional="hide" />
-                <field name="active" widget="boolean_toggle" />
+                <field name="active" widget="boolean_toggle" readonly="1" />
             </list>
         </field>
     </record>
@@ -58,12 +64,18 @@
                         bg_color="text-bg-warning"
                         invisible="not is_system"
                     />
+                    <!-- Hidden: needed by readonly expressions on identifying
+                         fields below. SYSTEM vocabularies are loaded via XML
+                         (modules + data files) and aren't user-toggleable —
+                         see OP#954. -->
+                    <field name="is_system" invisible="1" />
                     <div class="oe_title">
                         <h1>
                             <field
                                 name="name"
                                 placeholder="Vocabulary Name"
                                 required="1"
+                                readonly="is_system"
                             />
                         </h1>
                     </div>
@@ -72,14 +84,24 @@
                         <page string="Details" name="details">
                             <group name="details_section">
                                 <group name="basic_info" string="Basic Information">
-                                    <field name="namespace_uri" required="1" />
-                                    <field name="domain" required="1" />
-                                    <field name="version" />
+                                    <field
+                                        name="namespace_uri"
+                                        required="1"
+                                        readonly="is_system"
+                                    />
+                                    <field
+                                        name="domain"
+                                        required="1"
+                                        readonly="is_system"
+                                    />
+                                    <field name="version" readonly="is_system" />
                                 </group>
                                 <group name="settings" string="Settings">
-                                    <field name="is_system" />
-                                    <field name="is_hierarchical" />
-                                    <field name="active" />
+                                    <field
+                                        name="is_hierarchical"
+                                        readonly="is_system"
+                                    />
+                                    <field name="active" readonly="is_system" />
                                 </group>
                             </group>
                             <group name="reference_section" string="Reference">
@@ -87,6 +109,7 @@
                                     name="reference_url"
                                     widget="url"
                                     placeholder="https://..."
+                                    readonly="is_system"
                                 />
                             </group>
                             <separator string="Description" />
@@ -95,17 +118,20 @@
                                 nolabel="1"
                                 placeholder="Description of this vocabulary..."
                                 class="oe_inline"
+                                readonly="is_system"
                             />
                             <!-- Extension point for additional details -->
                             <group name="details_extension" invisible="1" />
                         </page>
 
                         <page string="Codes" name="codes">
+                            <!-- Non-system vocabulary: full editable list,
+                                 admins can add / delete / edit any column. -->
                             <field
                                 name="code_ids"
                                 nolabel="1"
                                 context="{'default_vocabulary_id': id}"
-                                readonly="is_system"
+                                invisible="is_system"
                             >
                                 <list editable="bottom" default_order="sequence,code">
                                     <field name="sequence" widget="handle" />
@@ -117,6 +143,80 @@
                                         optional="hide"
                                         invisible="not parent.is_hierarchical"
                                         domain="[('vocabulary_id', '=', parent.id)]"
+                                    />
+                                    <field
+                                        name="deprecated"
+                                        widget="boolean_toggle"
+                                        optional="hide"
+                                    />
+                                    <field name="active" widget="boolean_toggle" />
+                                </list>
+                            </field>
+
+                            <!-- SYSTEM vocabulary: codes are loaded via XML
+                                 by modules / data files. The embedded list
+                                 disables inline create/delete because that
+                                 path can't pre-set is_local=True; use the
+                                 explicit "Add Manual Code" button below
+                                 instead. Identifying columns
+                                 (code/display/definition/parent_id) are
+                                 readonly for system codes; manual codes
+                                 (`is_local=True`) keep them editable inline.
+                                 Operational toggles (sequence, deprecated,
+                                 active) stay editable for all rows so admins
+                                 can still archive, deprecate, or reorder a
+                                 system code. Deletion goes through the code
+                                 form (backend blocks system-code deletion,
+                                 allows manual). See OP#954 — matches the
+                                 allowed_fields set in the Python guard at
+                                 models/vocabulary_code.py:279. -->
+                            <div invisible="not is_system">
+                                <button
+                                    name="action_add_manual_code"
+                                    string="Add Manual Code"
+                                    type="object"
+                                    icon="fa-plus"
+                                    class="btn-primary mb-2"
+                                />
+                            </div>
+                            <field
+                                name="code_ids"
+                                nolabel="1"
+                                invisible="not is_system"
+                            >
+                                <list
+                                    editable="bottom"
+                                    default_order="sequence,code"
+                                    create="false"
+                                    delete="false"
+                                >
+                                    <field name="is_local" column_invisible="1" />
+                                    <field name="sequence" widget="handle" />
+                                    <field
+                                        name="code_source"
+                                        widget="badge"
+                                        decoration-success="code_source == 'manual'"
+                                        decoration-info="code_source == 'system'"
+                                    />
+                                    <field
+                                        name="code"
+                                        readonly="parent.is_system and not is_local"
+                                    />
+                                    <field
+                                        name="display"
+                                        readonly="parent.is_system and not is_local"
+                                    />
+                                    <field
+                                        name="definition"
+                                        optional="hide"
+                                        readonly="parent.is_system and not is_local"
+                                    />
+                                    <field
+                                        name="parent_id"
+                                        optional="hide"
+                                        invisible="not parent.is_hierarchical"
+                                        domain="[('vocabulary_id', '=', parent.id)]"
+                                        readonly="parent.is_system and not is_local"
                                     />
                                     <field
                                         name="deprecated"

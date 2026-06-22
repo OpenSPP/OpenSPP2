@@ -13,6 +13,8 @@
                 decoration-warning="display_state == 'revision'"
                 create="0"
                 sample="1"
+                action="action_open_stage_form"
+                type="object"
             >
                 <field name="name" decoration-bf="1" />
                 <field name="request_type_id" />

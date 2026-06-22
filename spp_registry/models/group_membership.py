@@ -27,9 +27,29 @@ class SPPGroupMembership(models.Model):
     )
     membership_type_ids = fields.Many2many(
         "spp.vocabulary.code",
-        string="Membership Types",
+        string="Group Role",
         domain="[('namespace_uri', '=', 'urn:openspp:vocab:group-membership-type')]",
     )
+    # True when the group-membership-type vocabulary has at least one code.
+    # Drives column_invisible on the standalone Group Membership tree view
+    # (the embedded lists on the registrant forms read this from
+    # `parent.has_group_membership_type_codes` on res.partner instead).
+    has_group_membership_type_codes = fields.Boolean(
+        compute="_compute_has_group_membership_type_codes",
+    )
+
+    def _compute_has_group_membership_type_codes(self):
+        has_codes = bool(
+            self.env["spp.vocabulary.code"]  # nosemgrep: odoo-sudo-without-context
+            .sudo()
+            .search_count(
+                [("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:group-membership-type")],
+                limit=1,
+            )
+        )
+        for rec in self:
+            rec.has_group_membership_type_codes = has_codes
+
     start_date = fields.Datetime(default=lambda self: fields.Datetime.now())
     ended_date = fields.Datetime()
     status = fields.Selection(

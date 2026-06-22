@@ -14,7 +14,13 @@
             </xpath>
             <xpath expr="//div[@name='group_members_section']" position="inside">
                 <separator string="Group Members" />
-                <field name="group_membership_ids" readonly="disabled" nolabel="1">
+                <field name="has_group_membership_type_codes" invisible="1" />
+                <field
+                    name="group_membership_ids"
+                    readonly="disabled"
+                    nolabel="1"
+                    widget="x2many_no_padding"
+                >
                     <list editable="top" default_order='status asc,ended_date asc'>
                         <button
                             name="open_individual_form"
@@ -34,9 +40,10 @@
                         <field name="individual_gender" string="Sex" />
                         <field
                             name="membership_type_ids"
-                            string="Membership Types"
+                            string="Group Role"
                             widget="many2many_tags"
                             options="{'no_open':True, 'no_create_edit':True, 'no_create':True, 'no_quick_create':True}"
+                            column_invisible="not parent.has_group_membership_type_codes"
                         />
                         <field name="start_date" />
                         <field name="ended_date" string="End date" />

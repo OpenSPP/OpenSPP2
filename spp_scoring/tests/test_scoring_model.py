@@ -212,3 +212,130 @@ class TestScoringModel(TransactionCase):
                     "cel_expression": False,
                 }
             )
+
+    # ─── threshold gap / overlap detection (#835 r3) ──────────────────
+
+    def _model_with_one_indicator(self, code):
+        model = self.ScoringModel.create({"name": code, "code": code, "expected_total_weight": 1.0})
+        self.ScoringIndicator.create(
+            {
+                "model_id": model.id,
+                "name": "Indicator",
+                "code": f"{code}_IND",
+                "weight": 1.0,
+                "calculation_type": "direct",
+                "field_path": "id",
+            }
+        )
+        return model
+
+    def test_threshold_gap_blocks_activation(self):
+        """Gap between thresholds (e.g. 0–20 / 21–40) blocks activation."""
+        model = self._model_with_one_indicator("GAP_MODEL")
+        self.ScoringThreshold.create(
+            {
+                "model_id": model.id,
+                "name": "Low",
+                "min_score": 0,
+                "max_score": 20,
+                "classification_code": "LOW",
+                "classification_label": "Low",
+            }
+        )
+        self.ScoringThreshold.create(
+            {
+                "model_id": model.id,
+                "name": "High",
+                "min_score": 21,
+                "max_score": 40,
+                "classification_code": "HIGH",
+                "classification_label": "High",
+            }
+        )
+        with self.assertRaises(ValidationError) as ctx:
+            model.action_activate()
+        self.assertIn("Gap detected", str(ctx.exception))
+
+    def test_threshold_overlap_blocks_activation(self):
+        """Shared boundary thresholds (e.g. 0–20 / 20–40) blocks activation.
+
+        matches_score uses inclusive bounds on both ends, so the shared value
+        at the boundary belongs to both thresholds — that's a real overlap.
+        """
+        model = self._model_with_one_indicator("OVL_MODEL")
+        self.ScoringThreshold.create(
+            {
+                "model_id": model.id,
+                "name": "Low",
+                "min_score": 0,
+                "max_score": 20,
+                "classification_code": "LOW",
+                "classification_label": "Low",
+            }
+        )
+        self.ScoringThreshold.create(
+            {
+                "model_id": model.id,
+                "name": "High",
+                "min_score": 20,
+                "max_score": 40,
+                "classification_code": "HIGH",
+                "classification_label": "High",
+            }
+        )
+        with self.assertRaises(ValidationError) as ctx:
+            model.action_activate()
+        self.assertIn("Overlap detected", str(ctx.exception))
+
+    def test_threshold_contiguous_passes(self):
+        """Properly contiguous thresholds (0–20 / 20.01–40) activate cleanly."""
+        model = self._model_with_one_indicator("OK_MODEL")
+        self.ScoringThreshold.create(
+            {
+                "model_id": model.id,
+                "name": "Low",
+                "min_score": 0,
+                "max_score": 20,
+                "classification_code": "LOW",
+                "classification_label": "Low",
+            }
+        )
+        self.ScoringThreshold.create(
+            {
+                "model_id": model.id,
+                "name": "High",
+                "min_score": 20.01,
+                "max_score": 40,
+                "classification_code": "HIGH",
+                "classification_label": "High",
+            }
+        )
+        model.action_activate()
+        self.assertTrue(model.is_active)
+
+    # ─── copy=True on indicator_ids / threshold_ids ──────────────────
+
+    def test_copy_duplicates_indicators_and_thresholds(self):
+        """Copying a scoring model now duplicates its indicators + thresholds
+        instead of leaving the copy empty (#839)."""
+        model = self._model_with_one_indicator("COPY_SRC")
+        self.ScoringThreshold.create(
+            {
+                "model_id": model.id,
+                "name": "Low",
+                "min_score": 0,
+                "max_score": 100,
+                "classification_code": "LOW",
+                "classification_label": "Low",
+            }
+        )
+
+        clone = model.copy()
+        self.assertEqual(len(clone.indicator_ids), 1)
+        self.assertEqual(len(clone.threshold_ids), 1)
+        # Copied indicator/threshold must point at the new model
+        self.assertEqual(clone.indicator_ids[0].model_id, clone)
+        self.assertEqual(clone.threshold_ids[0].model_id, clone)
+        # Source model unchanged
+        self.assertEqual(len(model.indicator_ids), 1)
+        self.assertEqual(len(model.threshold_ids), 1)

@@ -254,6 +254,45 @@ Dependencies
 Changelog
 =========
 
+19.0.2.1.3
+~~~~~~~~~~
+
+- fix(security): align Program Viewer / Validator / Cycle Approver roles
+  with the OP#951 menu audit — Program Viewer additionally gets
+  ``group_registry_viewer`` + ``group_approval_viewer`` (read-only
+  Registry + Approvals access); all three program roles get
+  ``group_hazard_viewer`` + ``group_gis_report_user`` so they retain
+  Hazard / GIS Reports visibility once those menu roots are gated. Adds
+  ``spp_hazard`` and ``spp_gis_report`` to module dependencies.
+- fix(security): hide the Registry top-level menu for Global Program
+  Cycle Approver per the OP#951 audit. Swap Tier-2
+  ``spp_registry.group_registry_viewer`` (which gates the Registry menu)
+  for Tier-3 ``spp_registry.group_registry_write`` (ACL-only, no menu).
+  ``group_registry_write`` transitively implies ``group_registry_read``,
+  so the role keeps read+write access to registrant data via Programs
+  cross-references — only the dedicated top-level menu disappears.
+
+19.0.2.1.2
+~~~~~~~~~~
+
+- fix(security): add global ``ir.rule`` records on
+  ``spp.program.membership`` and ``spp.cycle.membership`` that filter by
+  ``partner_id.area_id`` against the user's ``center_area_ids`` (OP#989
+  round-2). The earlier Python ``_prepare_domain`` override on program
+  memberships only caught ``search_read`` / ``web_search_read`` and
+  missed counts (``search_count``, ``read_group``), dropdowns
+  (``name_search``), and related-field traversal — and cycle memberships
+  had no filter at all. Both rules use a conditional domain that's a
+  no-op for users with no center areas (global roles).
+
+19.0.2.1.1
+~~~~~~~~~~
+
+- fix(views): apply ``spp_registry.x2many_no_padding`` widget to the
+  Programs and Entitlements lists on registrant forms and to Program
+  Membership inline lines — removes the four empty placeholder rows Odoo
+  19 inserts on inline list-in-form views (#943).
+
 19.0.2.0.11
 ~~~~~~~~~~~
 

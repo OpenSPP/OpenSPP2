@@ -73,8 +73,11 @@ class SppProgram(models.Model):
             return {"eligible": True, "score": None, "classification": None}
 
         # Get or calculate score
+        # max_age_days=0 means "always recalculate" (no cache);
+        # max_age_days>0 means "reuse if fresher than N days";
+        # max_age_days not set means "always recalculate" (same as 0).
         engine = self.env["spp.scoring.engine"]
-        max_age = self.score_max_age_days if self.score_max_age_days > 0 else None
+        max_age = self.score_max_age_days or 0
 
         score_result = engine.get_or_calculate_score(
             registrant,
@@ -88,6 +91,17 @@ class SppProgram(models.Model):
             "classification": score_result.classification_code,
             "reason": None,
         }
+
+        # Incomplete result (strict-mode required-indicator failure) ⇒
+        # the registrant's current data does not satisfy the model's
+        # required indicators. Reject explicitly so the caller surfaces
+        # the underlying failure instead of an opaque score-out-of-range
+        # error. See OP#838.
+        if not score_result.is_complete:
+            result["reason"] = _("Score incomplete — required data missing: %s") % (
+                score_result.error_messages or _("see scoring result for details")
+            )
+            return result
 
         # Check classification-based eligibility
         if self.eligibility_classifications:
@@ -132,29 +146,55 @@ class SppProgram(models.Model):
                 )
 
     def _post_enrollment_hook(self, partner):
-        """Calculate score after enrollment if configured."""
+        """Calculate score after enrollment and record it on membership."""
         super()._post_enrollment_hook(partner)
 
-        if self.is_auto_score_on_enrollment and self.scoring_model_id:
+        if not self.scoring_model_id:
+            return
+
+        score_result = None
+
+        if self.is_auto_score_on_enrollment:
             engine = self.env["spp.scoring.engine"]
             try:
-                engine.calculate_score(
+                score_result = engine.calculate_score(
                     partner,
                     self.scoring_model_id,
                     mode="automatic",
                 )
             except (ValidationError, UserError) as e:
-                # Expected errors from scoring validation - log and continue
                 _logger.warning(
                     "Score calculation failed for registrant_id=%s: %s",
                     partner.id,
                     str(e),
                 )
             except Exception:
-                # Unexpected errors - log type only to avoid PII exposure
                 _logger.exception(
                     "Unexpected error calculating score for registrant_id=%s",
                     partner.id,
+                )
+
+        # If no auto-score, use existing latest score
+        if not score_result:
+            Result = self.env["spp.scoring.result"]
+            score_result = Result.get_latest_score(partner, self.scoring_model_id)
+
+        # Record enrollment score on membership
+        if score_result:
+            membership = self.env["spp.program.membership"].search(
+                [
+                    ("partner_id", "=", partner.id),
+                    ("program_id", "=", self.id),
+                    ("state", "=", "enrolled"),
+                ],
+                limit=1,
+            )
+            if membership:
+                membership.write(
+                    {
+                        "enrollment_score": score_result.score,
+                        "enrollment_classification": score_result.classification_code,
+                    }
                 )
 
 
