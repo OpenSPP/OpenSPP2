@@ -1857,9 +1857,7 @@ class GISReport(models.Model):
 
         # Build threshold lookup for enriching bucket info with ranges
         sorted_thresholds = self.threshold_ids.sorted("sequence")
-        threshold_ranges = {
-            i: (t.min_value, t.max_value) for i, t in enumerate(sorted_thresholds)
-        }
+        threshold_ranges = {i: (t.min_value, t.max_value) for i, t in enumerate(sorted_thresholds)}
 
         # Build features
         features = []

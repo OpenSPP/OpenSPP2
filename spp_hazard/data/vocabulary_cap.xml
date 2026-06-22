@@ -11,8 +11,12 @@
         <field name="version">1.2</field>
         <field name="is_system">True</field>
         <field name="domain">core</field>
-        <field name="reference_url">https://docs.oasis-open.org/emergency/cap/v1.2/</field>
-        <field name="description">Severity values from the Common Alerting Protocol (CAP) v1.2 standard.</field>
+        <field
+            name="reference_url"
+        >https://docs.oasis-open.org/emergency/cap/v1.2/</field>
+        <field
+            name="description"
+        >Severity values from the Common Alerting Protocol (CAP) v1.2 standard.</field>
     </record>
 
     <record id="code_cap_severity_extreme" model="spp.vocabulary.code">
@@ -58,8 +62,12 @@
         <field name="version">1.2</field>
         <field name="is_system">True</field>
         <field name="domain">core</field>
-        <field name="reference_url">https://docs.oasis-open.org/emergency/cap/v1.2/</field>
-        <field name="description">Urgency values from the Common Alerting Protocol (CAP) v1.2 standard.</field>
+        <field
+            name="reference_url"
+        >https://docs.oasis-open.org/emergency/cap/v1.2/</field>
+        <field
+            name="description"
+        >Urgency values from the Common Alerting Protocol (CAP) v1.2 standard.</field>
     </record>
 
     <record id="code_cap_urgency_immediate" model="spp.vocabulary.code">
@@ -73,14 +81,18 @@
         <field name="vocabulary_id" ref="vocab_cap_urgency" />
         <field name="code">expected</field>
         <field name="display">Expected</field>
-        <field name="definition">Responsive action should be taken soon (within next hour)</field>
+        <field
+            name="definition"
+        >Responsive action should be taken soon (within next hour)</field>
         <field name="sequence">2</field>
     </record>
     <record id="code_cap_urgency_future" model="spp.vocabulary.code">
         <field name="vocabulary_id" ref="vocab_cap_urgency" />
         <field name="code">future</field>
         <field name="display">Future</field>
-        <field name="definition">Responsive action should be taken in the near future</field>
+        <field
+            name="definition"
+        >Responsive action should be taken in the near future</field>
         <field name="sequence">3</field>
     </record>
     <record id="code_cap_urgency_past" model="spp.vocabulary.code">
@@ -105,8 +117,12 @@
         <field name="version">1.2</field>
         <field name="is_system">True</field>
         <field name="domain">core</field>
-        <field name="reference_url">https://docs.oasis-open.org/emergency/cap/v1.2/</field>
-        <field name="description">Certainty values from the Common Alerting Protocol (CAP) v1.2 standard.</field>
+        <field
+            name="reference_url"
+        >https://docs.oasis-open.org/emergency/cap/v1.2/</field>
+        <field
+            name="description"
+        >Certainty values from the Common Alerting Protocol (CAP) v1.2 standard.</field>
     </record>
 
     <record id="code_cap_certainty_observed" model="spp.vocabulary.code">
@@ -152,15 +168,21 @@
         <field name="version">1.2</field>
         <field name="is_system">True</field>
         <field name="domain">core</field>
-        <field name="reference_url">https://docs.oasis-open.org/emergency/cap/v1.2/</field>
-        <field name="description">Message type values from the Common Alerting Protocol (CAP) v1.2 standard.</field>
+        <field
+            name="reference_url"
+        >https://docs.oasis-open.org/emergency/cap/v1.2/</field>
+        <field
+            name="description"
+        >Message type values from the Common Alerting Protocol (CAP) v1.2 standard.</field>
     </record>
 
     <record id="code_cap_msg_type_alert" model="spp.vocabulary.code">
         <field name="vocabulary_id" ref="vocab_cap_msg_type" />
         <field name="code">alert</field>
         <field name="display">Alert</field>
-        <field name="definition">Initial information requiring attention by targeted recipients</field>
+        <field
+            name="definition"
+        >Initial information requiring attention by targeted recipients</field>
         <field name="sequence">1</field>
     </record>
     <record id="code_cap_msg_type_update" model="spp.vocabulary.code">

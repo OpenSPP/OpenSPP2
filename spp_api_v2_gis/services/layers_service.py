@@ -503,9 +503,7 @@ class LayersService:
 
         # Look up threshold range for the bucket
         sorted_thresholds = report.threshold_ids.sorted("sequence")
-        threshold_ranges = {
-            i: (t.min_value, t.max_value) for i, t in enumerate(sorted_thresholds)
-        }
+        threshold_ranges = {i: (t.min_value, t.max_value) for i, t in enumerate(sorted_thresholds)}
         bucket_range = threshold_ranges.get(data.bucket_index, (None, None))
 
         properties = {

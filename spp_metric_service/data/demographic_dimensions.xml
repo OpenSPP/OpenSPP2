@@ -60,7 +60,9 @@
     <record id="dimension_age_group" model="spp.demographic.dimension">
         <field name="name">age_group</field>
         <field name="label">Age Group</field>
-        <field name="description">Age group based on birth date (UNICEF/WHO-aligned)</field>
+        <field
+            name="description"
+        >Age group based on birth date (UNICEF/WHO-aligned)</field>
         <field name="sequence">50</field>
         <field name="dimension_type">expression</field>
         <field
