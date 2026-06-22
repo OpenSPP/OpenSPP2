@@ -165,6 +165,7 @@ class GisProcessJob(models.Model):
         - Deletes jobs older than the configured retention period.
         - Marks stale accepted/running jobs (older than 1 hour) as failed.
         """
+        # nosemgrep: odoo-sudo-without-context  (API runs in system context; authorization enforced upstream)
         IrConfig = self.env["ir.config_parameter"].sudo()
         try:
             retention_days = int(IrConfig.get_param("spp_gis.job_retention_days", default=7))

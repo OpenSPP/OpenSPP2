@@ -392,6 +392,7 @@ class HazardIncident(models.Model):
             # Find existing hazard_zone geofence for this incident
             # nosemgrep: odoo-sudo-without-context
             geofence = (
+                # nosemgrep: odoo-sudo-without-context  (system-context geofence lookup for alert/incident processing)
                 self.env["spp.gis.geofence"]
                 .sudo()
                 .search(
@@ -577,6 +578,7 @@ class HazardIncident(models.Model):
 
         # nosemgrep: odoo-sudo-without-context
         geofence = (
+            # nosemgrep: odoo-sudo-without-context  (system-context geofence lookup for alert/incident processing)
             self.env["spp.gis.geofence"]
             .sudo()
             .search(

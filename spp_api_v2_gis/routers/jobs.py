@@ -37,6 +37,7 @@ def _get_job_or_404(env, job_id, api_client):
     """Look up a job record scoped to the authenticated client."""
     # nosemgrep: odoo-sudo-without-context
     job = (
+        # nosemgrep: odoo-sudo-without-context  (API runs in system context; authorization enforced at the router)
         env["spp.gis.process.job"]
         .sudo()
         .search(

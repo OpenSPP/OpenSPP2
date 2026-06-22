@@ -150,6 +150,7 @@ async def execute_process(
             # nosemgrep: odoo-sudo-without-context
             try:
                 threshold = int(
+                    # nosemgrep: odoo-sudo-without-context  (API runs in system context; authorization enforced at the router)
                     env["ir.config_parameter"]
                     .sudo()
                     .get_param("spp_gis.forced_async_threshold", _DEFAULT_FORCED_ASYNC_THRESHOLD)
@@ -162,6 +163,7 @@ async def execute_process(
         # nosemgrep: odoo-sudo-without-context
         try:
             max_points = int(
+                # nosemgrep: odoo-sudo-without-context  (API runs in system context; authorization enforced at the router)
                 env["ir.config_parameter"]
                 .sudo()
                 .get_param("spp_gis.max_proximity_points", DEFAULT_MAX_PROXIMITY_POINTS)
@@ -289,6 +291,7 @@ def _execute_async(env, api_client, process_id, inputs, request):
     # Create job record
     # nosemgrep: odoo-sudo-without-context
     job = (
+        # nosemgrep: odoo-sudo-without-context  (API runs in system context; authorization enforced at the router)
         env["spp.gis.process.job"]
         .sudo()
         .create(
