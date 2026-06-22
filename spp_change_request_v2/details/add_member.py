@@ -6,7 +6,8 @@ the group with a role. (The earlier create-a-new-individual flow was replaced
 per the updated #871 spec — Add Member now selects an existing member.)
 """
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 
 
 class SPPCRDetailAddMember(models.Model):
@@ -15,6 +16,20 @@ class SPPCRDetailAddMember(models.Model):
     _name = "spp.cr.detail.add_member"
     _description = "CR Detail: Add Group Member"
     _inherit = ["spp.cr.detail.base", "mail.thread"]
+
+    # ──────────────────────────────────────────────────────────────────────
+    # Target group identity (helps distinguish same-named groups — OP#871)
+    # ──────────────────────────────────────────────────────────────────────
+    registrant_registration_date = fields.Date(
+        related="change_request_id.registrant_id.registration_date",
+        string="Group Registration Date",
+        readonly=True,
+    )
+    registrant_id_display = fields.Char(
+        string="Group ID(s)",
+        compute="_compute_registrant_id_display",
+        help="The target group's registry ID type(s) and value(s).",
+    )
 
     # ──────────────────────────────────────────────────────────────────────
     # Member to add (existing individual)
@@ -53,13 +68,6 @@ class SPPCRDetailAddMember(models.Model):
         compute="_compute_roles_available",
         string="Has Membership Roles",
         help="True when the urn:openspp:vocab:group-membership-type vocabulary has any active code.",
-    )
-    allowed_role_ids = fields.Many2many(
-        "spp.vocabulary.code",
-        string="Allowed Roles",
-        compute="_compute_allowed_role_ids",
-        help="Roles selectable for the new member; the Head role is excluded when "
-        "the group already has a Head of Household (OP#871).",
     )
 
     # ──────────────────────────────────────────────────────────────────────
@@ -113,27 +121,47 @@ class SPPCRDetailAddMember(models.Model):
             else:
                 rec.existing_membership_ids = Membership.browse([])
 
-    @api.depends("change_request_id", "change_request_id.registrant_id")
-    def _compute_allowed_role_ids(self):
-        """Restrict the Role selection: a group can have only one Head, so the
-        Head role is removed from the options when the target group already has
-        an active Head of Household (OP#871)."""
-        Code = self.env["spp.vocabulary.code"]
-        Membership = self.env["spp.group.membership"]
-        all_roles = Code.search([("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:group-membership-type")])
+    @api.depends("change_request_id.registrant_id.reg_ids")
+    def _compute_registrant_id_display(self):
+        """Render the target group's registry IDs as 'Type: value; ...' so a
+        group can be told apart from others with the same name (OP#871)."""
         for rec in self:
-            roles = all_roles
             group = rec.change_request_id.registrant_id
-            if group and group.is_group:
-                group_has_head = bool(
-                    Membership.search_count(
-                        [
-                            ("group", "=", group.id),
-                            ("status", "=", "active"),
-                            ("membership_type_ids.code", "=", "head"),
-                        ]
-                    )
-                )
-                if group_has_head:
-                    roles = all_roles.filtered(lambda r: r.code != "head")
-            rec.allowed_role_ids = roles
+            ids = group.reg_ids if group and "reg_ids" in group._fields else False
+            rec.registrant_id_display = (
+                "; ".join(f"{i.id_type_as_str or ''}: {i.value or ''}".strip(": ") for i in ids) if ids else False
+            )
+
+    @api.constrains("membership_type_id")
+    def _check_single_head(self):
+        """A group can have at most one Head of Household. Reject choosing the
+        Head role when the target group already has an active head — at save /
+        submit time, not just on apply (OP#871, uniform with the other CRs)."""
+        for rec in self:
+            role = rec.membership_type_id
+            group = rec.change_request_id.registrant_id
+            if not role or role.code != "head" or not group or not group.is_group:
+                continue
+            group_has_head = self.env["spp.group.membership"].search_count(
+                [
+                    ("group", "=", group.id),
+                    ("status", "=", "active"),
+                    ("membership_type_ids.code", "=", "head"),
+                ]
+            )
+            if group_has_head:
+                raise ValidationError(_("This group already has a Head of Household. Only one member can be Head."))
+
+
+class SPPGroupMembership(models.Model):
+    """Expose the member's registration date for the Add Member CR's
+    Current Members table (OP#871) — membership start_date is the join date,
+    not the individual's registration date, so they are shown separately."""
+
+    _inherit = "spp.group.membership"
+
+    individual_registration_date = fields.Date(
+        related="individual.registration_date",
+        string="Registration Date",
+        readonly=True,
+    )

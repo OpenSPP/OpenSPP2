@@ -119,3 +119,19 @@ class SPPCRApplyAddMember(models.AbstractModel):
                     "Pick a role for the new member before applying."
                 )
             )
+
+        # OP#871: the Head role is offered for all groups; if the target group
+        # already has an active Head of Household, adding another as Head is
+        # rejected here (a validation error, for uniformity with the other CRs)
+        # rather than silently hidden from the picker.
+        role = detail.membership_type_id
+        if role and role.code == "head":
+            group_has_head = self.env["spp.group.membership"].search_count(
+                [
+                    ("group", "=", group.id),
+                    ("status", "=", "active"),
+                    ("membership_type_ids.code", "=", "head"),
+                ]
+            )
+            if group_has_head:
+                raise UserError(_("This group already has a Head of Household. Only one member can be Head."))

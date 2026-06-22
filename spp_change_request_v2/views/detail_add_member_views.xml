@@ -12,7 +12,6 @@
                     <field name="is_cr_manager" invisible="1" />
                     <field name="type_requires_head" invisible="1" />
                     <field name="roles_available" invisible="1" />
-                    <field name="allowed_role_ids" invisible="1" />
                     <field name="individual_domain" invisible="1" />
                     <button
                         name="action_next_documents"
@@ -67,6 +66,12 @@
                             readonly="1"
                             options="{'no_open': True}"
                         />
+                        <field
+                            name="registrant_id_display"
+                            string="Group ID(s)"
+                            readonly="1"
+                        />
+                        <field name="registrant_registration_date" readonly="1" />
                         <field name="change_request_id" invisible="1" />
                     </group>
 
@@ -76,12 +81,13 @@
                             domain="individual_domain"
                             options="{'no_create': True, 'no_quick_create': True}"
                             placeholder="Search for an existing individual..."
+                            required="1"
                         />
                         <field
                             name="membership_type_id"
                             string="Role"
                             options="{'no_create': True, 'no_open': True}"
-                            domain="[('id', 'in', allowed_role_ids)]"
+                            domain="[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:group-membership-type')]"
                             required="type_requires_head"
                             invisible="not roles_available"
                         />
@@ -92,7 +98,11 @@
                         <list create="0" edit="0" delete="0" no_open="1">
                             <field name="individual" />
                             <field name="membership_type_ids" widget="many2many_tags" />
-                            <field name="start_date" />
+                            <field
+                                name="individual_registration_date"
+                                string="Registration Date"
+                            />
+                            <field name="start_date" string="Joined" />
                         </list>
                     </field>
                 </sheet>

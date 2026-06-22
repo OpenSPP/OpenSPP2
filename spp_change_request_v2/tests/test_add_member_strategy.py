@@ -6,7 +6,7 @@ the group with a role (the create-a-new-individual flow was replaced).
 """
 
 from odoo import Command
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tests import TransactionCase
 
 from .common import get_or_create_cr_type
@@ -135,20 +135,42 @@ class TestAddMemberStrategy(TransactionCase):
         # The already-member candidate id is in the excluded list.
         self.assertIn(str(self.candidate.id), domain)
 
-    def test_allowed_roles_excludes_head_when_group_has_head(self):
-        """The Head role is removed from the options when the group already has
-        an active Head of Household; otherwise all roles are allowed (OP#871)."""
-        no_head_codes = set(self._make_cr().get_detail().allowed_role_ids.mapped("code"))
-        if self.head_kind:
-            self.assertIn("head", no_head_codes)
-
+    def test_adding_head_when_group_has_head_raises(self):
+        """OP#871: the Head role is no longer hidden; choosing Head for a group
+        that already has an active head raises a validation error at save/submit
+        time (a model constraint, uniform with the other CRs)."""
+        if not self.head_kind:
+            self.skipTest("head membership-type code not present")
         group_with_head = self.partner_model.create(
             {"name": "Group With Head", "is_registrant": True, "is_group": True}
         )
         self._add_existing_head(group_with_head)
-        with_head_codes = set(self._make_cr(registrant=group_with_head).get_detail().allowed_role_ids.mapped("code"))
-        self.assertNotIn("head", with_head_codes)
-        self.assertEqual(with_head_codes, no_head_codes - {"head"})
+        candidate = self.partner_model.create({"name": "Wannabe Head", "is_registrant": True, "is_group": False})
+
+        # The constraint fires when the detail is written (i.e. on submit), not
+        # only on apply.
+        with self.assertRaises(ValidationError) as cm:
+            self._make_cr(
+                registrant=group_with_head,
+                individual_id=candidate.id,
+                membership_type_id=self.head_kind.id,
+            )
+        self.assertIn("head", str(cm.exception).lower())
+
+    def test_adding_head_when_group_has_no_head_is_allowed(self):
+        """Choosing Head is fine when the group has no active head."""
+        if not self.head_kind:
+            self.skipTest("head membership-type code not present")
+        headless = self.partner_model.create({"name": "Headless Group", "is_registrant": True, "is_group": True})
+        candidate = self.partner_model.create({"name": "New Head", "is_registrant": True, "is_group": False})
+        cr = self._make_cr(
+            registrant=headless,
+            individual_id=candidate.id,
+            membership_type_id=self.head_kind.id,
+        )
+        cr.approval_state = "approved"
+        cr.action_apply()
+        self.assertTrue(cr.is_applied)
 
     # ──────────────────────────────────────────────────────────────────
     # Preview / review page
