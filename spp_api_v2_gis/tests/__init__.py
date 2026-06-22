@@ -12,5 +12,6 @@ from . import test_statistics_endpoint
 from . import test_batch_query
 from . import test_proximity_query
 from . import test_ogc_geofence_crud
+from . import test_ogc_crud_http
 from . import test_ogc_incidents
 from . import test_population_filter
