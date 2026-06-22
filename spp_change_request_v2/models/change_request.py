@@ -407,10 +407,11 @@ class SPPChangeRequest(models.Model):
         reason_rules = rt.reason_document_ids
         if reason_rules:
             detail = self.get_detail()
-            # The reason lives on `reason` (Change HoH) or `split_reason` (Split).
+            # The reason lives on `reason` (Change HoH), `split_reason` (Split)
+            # or `end_reason` (Remove Member).
             reason = False
             if detail:
-                for rfield in ("reason", "split_reason"):
+                for rfield in ("reason", "split_reason", "end_reason"):
                     if rfield in detail._fields and detail[rfield]:
                         reason = detail[rfield]
                         break

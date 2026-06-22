@@ -363,12 +363,13 @@ class SPPChangeRequestType(models.Model):
     @api.depends("detail_model")
     def _compute_supports_reason_documents(self):
         """A CR type supports reason-driven documents only when its detail model
-        exposes a reason field (e.g. Change Head of Household's ``reason`` or
-        Split Household's ``split_reason``)."""
+        exposes a reason field (Change HoH's ``reason``, Split Household's
+        ``split_reason`` or Remove Member's ``end_reason``)."""
         for rec in self:
             model = self.env[rec.detail_model] if (rec.detail_model and rec.detail_model in self.env) else None
             rec.supports_reason_documents = bool(
-                model and ("reason" in model._fields or "split_reason" in model._fields)
+                model
+                and ("reason" in model._fields or "split_reason" in model._fields or "end_reason" in model._fields)
             )
 
     @api.depends("detail_model")
@@ -581,6 +582,8 @@ class SPPCRTypeReasonDocument(models.Model):
             ("separation", "Separation/Divorce"),
             ("independence", "Member Independence"),
             ("relocation", "Relocation"),
+            # Remove Member reasons (deceased / left_household shared above)
+            ("migrated", "Migrated"),
             # Shared
             ("correction", "Data Correction"),
             ("other", "Other"),

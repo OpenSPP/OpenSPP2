@@ -663,7 +663,6 @@ class TestE2EWorkflows(TransactionCase):
         detail3.write(
             {
                 "membership_id": member_mem.id,
-                "end_date": fields.Date.today(),
                 "end_reason": "left_household",
             }
         )
