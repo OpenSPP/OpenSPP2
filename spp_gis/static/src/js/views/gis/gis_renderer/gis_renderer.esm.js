@@ -130,7 +130,8 @@ export class GisRenderer extends Component {
         try {
             domainArray = typeof domain === "string" ? JSON.parse(domain) : domain;
         } catch {
-            return true; // Invalid domain, show all records
+            // Invalid domain, show all records
+            return true;
         }
 
         if (!Array.isArray(domainArray) || domainArray.length === 0) return true;
@@ -139,40 +140,40 @@ export class GisRenderer extends Component {
             if (!Array.isArray(condition) || condition.length !== 3) continue;
 
             const [field, operator, expected] = condition;
-            const actual = values[field];
-
-            let match = false;
-            switch (operator) {
-                case "=":
-                    match = actual === expected;
-                    break;
-                case "!=":
-                    match = actual !== expected;
-                    break;
-                case "<":
-                    match = actual < expected;
-                    break;
-                case ">":
-                    match = actual > expected;
-                    break;
-                case "<=":
-                    match = actual <= expected;
-                    break;
-                case ">=":
-                    match = actual >= expected;
-                    break;
-                case "in":
-                    match = Array.isArray(expected) && expected.includes(actual);
-                    break;
-                case "not in":
-                    match = !Array.isArray(expected) || !expected.includes(actual);
-                    break;
-                default:
-                    match = true;
-            }
-            if (!match) return false;
+            if (!this._matchesCondition(values[field], operator, expected))
+                return false;
         }
         return true;
+    }
+
+    /**
+     * Evaluate a single domain condition operator.
+     * @param {*} actual - Record value for the field
+     * @param {String} operator - Domain operator
+     * @param {*} expected - Expected value
+     * @returns {Boolean} True if the value satisfies the operator
+     */
+    _matchesCondition(actual, operator, expected) {
+        switch (operator) {
+            case "=":
+                return actual === expected;
+            case "!=":
+                return actual !== expected;
+            case "<":
+                return actual < expected;
+            case ">":
+                return actual > expected;
+            case "<=":
+                return actual <= expected;
+            case ">=":
+                return actual >= expected;
+            case "in":
+                return Array.isArray(expected) && expected.includes(actual);
+            case "not in":
+                return !Array.isArray(expected) || !expected.includes(actual);
+            default:
+                return true;
+        }
     }
 
     /**
@@ -576,11 +577,12 @@ export class GisRenderer extends Component {
             {
                 type: "image",
                 url: layer.image_url,
+                // Corners: top-left, top-right, bottom-right, bottom-left
                 coordinates: [
-                    [layer.x_min, layer.y_max], // Top-left
-                    [layer.x_max, layer.y_max], // Top-right
-                    [layer.x_max, layer.y_min], // Bottom-right
-                    [layer.x_min, layer.y_min], // Bottom-left
+                    [layer.x_min, layer.y_max],
+                    [layer.x_max, layer.y_max],
+                    [layer.x_max, layer.y_min],
+                    [layer.x_min, layer.y_min],
                 ],
             },
         ]);
@@ -666,8 +668,9 @@ export class GisRenderer extends Component {
                 return layer.begin_color || "#3388ff";
             }
 
-            // Build step expression
-            const steps = [colors[0]]; // Default color for values below first break
+            // Build step expression.
+            // colors[0] is the default color for values below the first break.
+            const steps = [colors[0]];
             breaks.forEach((breakValue, index) => {
                 steps.push(breakValue);
                 steps.push(colors[Math.min(index + 1, colors.length - 1)]);
@@ -982,11 +985,12 @@ export class GisRenderer extends Component {
                 if (source) {
                     source.updateImage({
                         url: layer.image_url,
+                        // Corners: top-left, top-right, bottom-right, bottom-left
                         coordinates: [
-                            [layer.x_min, layer.y_max], // Top-left
-                            [layer.x_max, layer.y_max], // Top-right
-                            [layer.x_max, layer.y_min], // Bottom-right
-                            [layer.x_min, layer.y_min], // Bottom-left
+                            [layer.x_min, layer.y_max],
+                            [layer.x_max, layer.y_max],
+                            [layer.x_max, layer.y_min],
+                            [layer.x_min, layer.y_min],
                         ],
                     });
                     this.map.setLayoutProperty(sourceId, "visibility", visibility);
@@ -1030,93 +1034,126 @@ export class GisRenderer extends Component {
                 continue;
             }
 
-            const config = layer.choropleth_config;
-            const legendDiv = document.createElement("div");
-            legendDiv.className = "choropleth-legend";
-
-            // Title
-            const titleDiv = document.createElement("div");
-            titleDiv.className = "choropleth-legend-title";
-            titleDiv.textContent =
-                config.legend_title || config.field_label || layer.name;
-            legendDiv.appendChild(titleDiv);
-
-            const colors = config.color_ramp || ["#00ff00", "#ff0000"];
-            const minValue = config.min_value || 0;
-            const maxValue = config.max_value || 100;
-
-            if (config.classification === "linear" || colors.length <= 3) {
-                // Render gradient legend
-                const gradientDiv = document.createElement("div");
-                gradientDiv.className = "choropleth-legend-gradient";
-                gradientDiv.style.background = `linear-gradient(to right, ${colors.join(", ")})`;
-                legendDiv.appendChild(gradientDiv);
-
-                const labelsDiv = document.createElement("div");
-                labelsDiv.className = "choropleth-legend-labels";
-
-                const minLabel = document.createElement("span");
-                minLabel.textContent = this._formatLegendValue(minValue);
-                labelsDiv.appendChild(minLabel);
-
-                const maxLabel = document.createElement("span");
-                maxLabel.textContent = this._formatLegendValue(maxValue);
-                labelsDiv.appendChild(maxLabel);
-
-                legendDiv.appendChild(labelsDiv);
-            } else {
-                // Render step legend for manual breaks or quantile
-                const stepsDiv = document.createElement("div");
-                stepsDiv.className = "choropleth-legend-steps";
-
-                let breaks = [];
-                if (config.classification === "manual" && config.manual_breaks) {
-                    breaks = config.manual_breaks
-                        .split(",")
-                        .map((b) => parseFloat(b.trim()))
-                        .filter((b) => !isNaN(b));
-                } else {
-                    // Generate breaks for quantile/equal-interval
-                    const classCount = config.class_count || 5;
-                    const stepSize = (maxValue - minValue) / classCount;
-                    for (let i = 0; i < classCount; i++) {
-                        breaks.push(minValue + stepSize * i);
-                    }
-                }
-
-                // Create step items
-                for (let i = 0; i <= breaks.length; i++) {
-                    const stepDiv = document.createElement("div");
-                    stepDiv.className = "choropleth-legend-step";
-
-                    const colorDiv = document.createElement("div");
-                    colorDiv.className = "choropleth-legend-step-color";
-                    const colorIndex = Math.min(i, colors.length - 1);
-                    colorDiv.style.backgroundColor = colors[colorIndex];
-                    stepDiv.appendChild(colorDiv);
-
-                    const labelDiv = document.createElement("div");
-                    labelDiv.className = "choropleth-legend-step-label";
-
-                    let rangeText = "";
-                    if (i === 0) {
-                        rangeText = `< ${this._formatLegendValue(breaks[0] || maxValue)}`;
-                    } else if (i === breaks.length) {
-                        rangeText = `≥ ${this._formatLegendValue(breaks[i - 1])}`;
-                    } else {
-                        rangeText = `${this._formatLegendValue(breaks[i - 1])} - ${this._formatLegendValue(breaks[i])}`;
-                    }
-                    labelDiv.textContent = rangeText;
-                    stepDiv.appendChild(labelDiv);
-
-                    stepsDiv.appendChild(stepDiv);
-                }
-
-                legendDiv.appendChild(stepsDiv);
-            }
-
-            legendContainer.appendChild(legendDiv);
+            this._renderModelChoroplethLegend(legendContainer, layer);
         }
+    }
+
+    /**
+     * Render the legend for a single model-based choropleth layer.
+     * @param {HTMLElement} legendContainer - Container to append the legend to
+     * @param {Object} layer - Layer with a choropleth_config
+     */
+    _renderModelChoroplethLegend(legendContainer, layer) {
+        const config = layer.choropleth_config;
+        const legendDiv = document.createElement("div");
+        legendDiv.className = "choropleth-legend";
+
+        // Title
+        const titleDiv = document.createElement("div");
+        titleDiv.className = "choropleth-legend-title";
+        titleDiv.textContent = config.legend_title || config.field_label || layer.name;
+        legendDiv.appendChild(titleDiv);
+
+        const colors = config.color_ramp || ["#00ff00", "#ff0000"];
+        const minValue = config.min_value || 0;
+        const maxValue = config.max_value || 100;
+
+        if (config.classification === "linear" || colors.length <= 3) {
+            this._buildGradientLegend(legendDiv, colors, minValue, maxValue);
+        } else {
+            this._buildStepLegend(legendDiv, config, colors, minValue, maxValue);
+        }
+
+        legendContainer.appendChild(legendDiv);
+    }
+
+    /**
+     * Append a gradient (linear) legend to the legend element.
+     */
+    _buildGradientLegend(legendDiv, colors, minValue, maxValue) {
+        const gradientDiv = document.createElement("div");
+        gradientDiv.className = "choropleth-legend-gradient";
+        gradientDiv.style.background = `linear-gradient(to right, ${colors.join(", ")})`;
+        legendDiv.appendChild(gradientDiv);
+
+        const labelsDiv = document.createElement("div");
+        labelsDiv.className = "choropleth-legend-labels";
+
+        const minLabel = document.createElement("span");
+        minLabel.textContent = this._formatLegendValue(minValue);
+        labelsDiv.appendChild(minLabel);
+
+        const maxLabel = document.createElement("span");
+        maxLabel.textContent = this._formatLegendValue(maxValue);
+        labelsDiv.appendChild(maxLabel);
+
+        legendDiv.appendChild(labelsDiv);
+    }
+
+    /**
+     * Compute the break values for a step legend.
+     * @returns {Array<Number>} Break values
+     */
+    _computeLegendBreaks(config, minValue, maxValue) {
+        if (config.classification === "manual" && config.manual_breaks) {
+            return config.manual_breaks
+                .split(",")
+                .map((b) => parseFloat(b.trim()))
+                .filter((b) => !isNaN(b));
+        }
+        // Generate breaks for quantile/equal-interval
+        const breaks = [];
+        const classCount = config.class_count || 5;
+        const stepSize = (maxValue - minValue) / classCount;
+        for (let i = 0; i < classCount; i++) {
+            breaks.push(minValue + stepSize * i);
+        }
+        return breaks;
+    }
+
+    /**
+     * Append a step legend (manual breaks or quantile) to the legend element.
+     */
+    _buildStepLegend(legendDiv, config, colors, minValue, maxValue) {
+        const stepsDiv = document.createElement("div");
+        stepsDiv.className = "choropleth-legend-steps";
+
+        const breaks = this._computeLegendBreaks(config, minValue, maxValue);
+
+        // Create step items
+        for (let i = 0; i <= breaks.length; i++) {
+            const stepDiv = document.createElement("div");
+            stepDiv.className = "choropleth-legend-step";
+
+            const colorDiv = document.createElement("div");
+            colorDiv.className = "choropleth-legend-step-color";
+            const colorIndex = Math.min(i, colors.length - 1);
+            colorDiv.style.backgroundColor = colors[colorIndex];
+            stepDiv.appendChild(colorDiv);
+
+            const labelDiv = document.createElement("div");
+            labelDiv.className = "choropleth-legend-step-label";
+            labelDiv.textContent = this._formatStepRange(i, breaks, maxValue);
+            stepDiv.appendChild(labelDiv);
+
+            stepsDiv.appendChild(stepDiv);
+        }
+
+        legendDiv.appendChild(stepsDiv);
+    }
+
+    /**
+     * Format the range label for step `i` of a step legend.
+     * @returns {String} Human-readable range label
+     */
+    _formatStepRange(i, breaks, maxValue) {
+        if (i === 0) {
+            return `< ${this._formatLegendValue(breaks[0] || maxValue)}`;
+        }
+        if (i === breaks.length) {
+            return `≥ ${this._formatLegendValue(breaks[i - 1])}`;
+        }
+        return `${this._formatLegendValue(breaks[i - 1])} - ${this._formatLegendValue(breaks[i])}`;
     }
 
     /**

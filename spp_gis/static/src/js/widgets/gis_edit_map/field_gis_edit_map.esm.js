@@ -190,7 +190,7 @@ export class FieldGisEditMap extends Component {
                     });
                 }
             },
-            delete(e) {
+            delete() {
                 self.props.record.update({[self.props.name]: null});
             },
         };
@@ -356,7 +356,7 @@ export class FieldGisEditMap extends Component {
     addDrawCustomModes() {
         const customMode = {};
         const self = this;
-        customMode.onTrash = function (state) {
+        customMode.onTrash = function () {
             self.props.record.update({[self.props.name]: null});
         };
 
