@@ -24,6 +24,13 @@
         # Security
         "security/ir.model.access.csv",
     ],
+    # Loaded programmatically (not at install): areas_luzon.xml via the area
+    # loader's pre-link + convert_file step, population_weights.csv via
+    # DemoPopulationWeights. Declared here so oca-checks knows they are used.
+    "oca_data_manual": [
+        "data/areas_luzon.xml",
+        "data/population_weights.csv",
+    ],
     "assets": {},
     "demo": [],
     "images": [],
