@@ -710,8 +710,6 @@ class TestLayersService(TransactionCase):
             LayersService(self.env).get_feature_by_id(str(self.data_layer.id), "not-int", layer_type="layer")
 
 
-
-
 @tagged("post_install", "-at_install")
 class TestBboxFeatureFilter(TransactionCase):
     """Test Python-level bbox filtering of GeoJSON features."""
