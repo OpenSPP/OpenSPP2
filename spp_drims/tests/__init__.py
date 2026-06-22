@@ -7,6 +7,7 @@ from . import test_approval
 from . import test_coordination
 from . import test_donation
 from . import test_incident
+from . import test_incident_area_severity
 from . import test_personnel
 from . import test_request
 from . import test_request_from_template_wizard
