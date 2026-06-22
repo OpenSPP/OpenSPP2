@@ -105,10 +105,7 @@
                     <field name="irrigation_asset_ids">
                         <list editable="bottom">
                             <field name="name" />
-                            <field
-                                name="asset_type_id"
-                                options="{'no_create': True}"
-                            />
+                            <field name="asset_type_id" options="{'no_create': True}" />
                             <field name="total_capacity" />
                             <field
                                 name="irrigation_source_ids"

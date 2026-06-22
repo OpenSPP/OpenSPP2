@@ -488,6 +488,25 @@ output.</p>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.0</h1>
+<ul class="simple">
+<li>feat(demo): add GIS + irrigation scenario (FM4) with reservoir + canal
+network seed; FM4’s idle hectare is now narratively explained as the
+downstream consequence of reduced reservoir capacity</li>
+<li>feat(demo): seed farm assets (hand tractor on FM1, water pump on FM8)
+and a <tt class="docutils literal">manage_farm_asset</tt> change request in the CR lifecycle</li>
+<li>feat(demo): add a closed prior-year farm season alongside the active
+one to demonstrate the <tt class="docutils literal">draft → active → closed</tt> state machine</li>
+<li>chore(deps): declare <tt class="docutils literal">spp_gis</tt>, <tt class="docutils literal">spp_land_record</tt>,
+<tt class="docutils literal">spp_irrigation</tt>, <tt class="docutils literal">spp_farmer_registry_vocabularies</tt> explicitly —
+these were used at runtime but never listed</li>
+<li>docs(demo): add Scenario 10 (GIS + irrigation walk for FM4); document
+AGROVOC species selection (rice / tilapia) in Scenario 1; add
+farm-season state-machine sub-step; refresh FM1/FM4/FM8 farm story
+tables and the CR overview</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
