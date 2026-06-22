@@ -1,8 +1,8 @@
 ---
 name: openspp-ui
 description:
-  OpenSPP UI design patterns for Odoo 19 views. Use when creating or modifying forms, lists, kanban, dashboards, or
-  search views in spp_* modules.
+  OpenSPP UI design patterns for Odoo 19 views. Use when creating or modifying forms,
+  lists, kanban, dashboards, or search views in spp_* modules.
 ---
 
 # OpenSPP UI Design
@@ -45,28 +45,38 @@ Use consistently across all modules:
 
 ```xml
 <form>
-    <header>
-        <button name="action_submit" string="Submit" type="object"
-                class="btn-primary" invisible="state != 'draft'"/>
-        <field name="state" widget="statusbar"
-               statusbar_visible="draft,pending,approved"/>
-    </header>
-    <sheet>
-        <widget name="web_ribbon" title="Approved"
-                invisible="state != 'approved'" bg_color="text-bg-success"/>
-        <div class="oe_button_box" name="button_box"/>
-        <div class="oe_title">
-            <h1><field name="name" placeholder="Name"/></h1>
-        </div>
-        <group col="2">
-            <group name="left_section">...</group>
-            <group name="right_section">...</group>
-        </group>
-        <notebook>
-            <page name="details" string="Details">...</page>
-        </notebook>
-    </sheet>
-    <chatter/>
+  <header>
+    <button
+      name="action_submit"
+      string="Submit"
+      type="object"
+      class="btn-primary"
+      invisible="state != 'draft'"
+    />
+    <field name="state" widget="statusbar" statusbar_visible="draft,pending,approved" />
+  </header>
+  <sheet>
+    <widget
+      name="web_ribbon"
+      title="Approved"
+      invisible="state != 'approved'"
+      bg_color="text-bg-success"
+    />
+    <div class="oe_button_box" name="button_box" />
+    <div class="oe_title">
+      <h1>
+        <field name="name" placeholder="Name" />
+      </h1>
+    </div>
+    <group col="2">
+      <group name="left_section">...</group>
+      <group name="right_section">...</group>
+    </group>
+    <notebook>
+      <page name="details" string="Details">...</page>
+    </notebook>
+  </sheet>
+  <chatter />
 </form>
 ```
 

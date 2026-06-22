@@ -6,22 +6,34 @@ Social protection platform built on Odoo 19. ~90 modules (`spp_*`).
 
 All principles are in `docs/principles/`:
 
-- [naming-conventions.md](docs/principles/naming-conventions.md) - Module, model, field, security group naming
-- [access-rights.md](docs/principles/access-rights.md) - Three-tier security architecture
-- [module-architecture.md](docs/principles/module-architecture.md) - Module organization and extension patterns
-- [module-visibility.md](docs/principles/module-visibility.md) - application, auto_install, and category settings
-- [api-design.md](docs/principles/api-design.md) - External identifiers, never expose DB IDs
-- [performance-scalability.md](docs/principles/performance-scalability.md) - Batch processing with queue_job
+- [naming-conventions.md](docs/principles/naming-conventions.md) - Module, model, field,
+  security group naming
+- [access-rights.md](docs/principles/access-rights.md) - Three-tier security
+  architecture
+- [module-architecture.md](docs/principles/module-architecture.md) - Module organization
+  and extension patterns
+- [module-visibility.md](docs/principles/module-visibility.md) - application,
+  auto_install, and category settings
+- [api-design.md](docs/principles/api-design.md) - External identifiers, never expose DB
+  IDs
+- [performance-scalability.md](docs/principles/performance-scalability.md) - Batch
+  processing with queue_job
 - [testing.md](docs/principles/testing.md) - Coverage targets (85%+ for core)
-- [approval-workflows.md](docs/principles/approval-workflows.md) - State machines and mixins
-- [error-handling.md](docs/principles/error-handling.md) - Exceptions, logging, no PII in logs
-- [audit-compliance.md](docs/principles/audit-compliance.md) - Audit trails, data integrity
-- [ui-design.md](docs/principles/ui-design.md) - Form layouts, tabs, multi-column patterns
+- [approval-workflows.md](docs/principles/approval-workflows.md) - State machines and
+  mixins
+- [error-handling.md](docs/principles/error-handling.md) - Exceptions, logging, no PII
+  in logs
+- [audit-compliance.md](docs/principles/audit-compliance.md) - Audit trails, data
+  integrity
+- [ui-design.md](docs/principles/ui-design.md) - Form layouts, tabs, multi-column
+  patterns
 - [pretty-urls.md](docs/principles/pretty-urls.md) - User-friendly URL paths for actions
-- [odoo19-compatibility.md](docs/principles/odoo19-compatibility.md) - Odoo 19 gotchas (constraints, views, Command API)
-- [consent-data-sharing.md](docs/principles/consent-data-sharing.md) - Consent management, notice boundaries, data
-  sharing
-- [module-descriptions.md](docs/principles/module-descriptions.md) - Writing readme/DESCRIPTION.md files for modules
+- [odoo19-compatibility.md](docs/principles/odoo19-compatibility.md) - Odoo 19 gotchas
+  (constraints, views, Command API)
+- [consent-data-sharing.md](docs/principles/consent-data-sharing.md) - Consent
+  management, notice boundaries, data sharing
+- [module-descriptions.md](docs/principles/module-descriptions.md) - Writing
+  readme/DESCRIPTION.md files for modules
 
 ## Architecture
 
@@ -48,7 +60,8 @@ Layer 1: FOUNDATION (spp_registry, spp_security, spp_area)
 When auditing or modifying a module:
 
 - [ ] Naming follows `spp_*` / `spp.*` conventions
-- [ ] `application` and `auto_install` set correctly per [module-visibility](docs/principles/module-visibility.md)
+- [ ] `application` and `auto_install` set correctly per
+      [module-visibility](docs/principles/module-visibility.md)
 - [ ] `ir.model.access.csv` exists and complete
 - [ ] No `print()` - use `_logger`
 - [ ] No bare `except:` clauses
@@ -58,9 +71,10 @@ When auditing or modifying a module:
 
 ## Bug Fixing Approach
 
-When fixing issues: first write a failing test that reproduces the bug, then fix it. Fix problems at the source (e.g.,
-correct XML/ACL definitions) rather than working around them in tests or code. If a root fix isn't possible, document
-why and propose alternatives.
+When fixing issues: first write a failing test that reproduces the bug, then fix it. Fix
+problems at the source (e.g., correct XML/ACL definitions) rather than working around
+them in tests or code. If a root fix isn't possible, document why and propose
+alternatives.
 
 ## Known Pitfalls (from recurring issues)
 
@@ -70,28 +84,35 @@ why and propose alternatives.
 - When tests fail with `AccessError`, fix the ACL, don't bypass with `sudo()`
 - Tests must run with appropriate user context (officer, manager), not just admin
 - After security changes, **always re-run affected tests** - they often break
-- Related models need ACLs too (e.g., if `spp.program` has ACL, `spp.program.membership` likely needs one)
+- Related models need ACLs too (e.g., if `spp.program` has ACL, `spp.program.membership`
+  likely needs one)
 
 ### Demo Data
 
 - Demo data must create **complete, consistent records** - check all required relations
-- Approval states must match approval records (e.g., `approval_state='pending'` requires pending review records)
-- Use `with_context(tracking_disable=True)` when creating demo data to avoid sending notifications
+- Approval states must match approval records (e.g., `approval_state='pending'` requires
+  pending review records)
+- Use `with_context(tracking_disable=True)` when creating demo data to avoid sending
+  notifications
 - Test demo data generation with dedicated tests that verify all expected records exist
 
 ### Views and XML
 
 - XPath must use `hasclass('classname')` not `@class='classname'` (Odoo 19)
 - Always use `Command.create()` not `(0, 0, {...})` tuples for relational writes
-- When updating views, verify the correct view is being displayed (not cached old version)
+- When updating views, verify the correct view is being displayed (not cached old
+  version)
 - Search views: check `<filter>` and `<group>` syntax against Odoo 19 docs
 
 ### Tests
 
 - **NEVER remove or weaken existing tests** without explicit approval
-- After subagent implementations, verify: "Can you confirm no tests were removed or weakened?"
-- When fixing security, tests often need user context updates - fix tests, don't skip them
-- If tests cannot run due to install issues, fix the install, don't mark tests as skipped
+- After subagent implementations, verify: "Can you confirm no tests were removed or
+  weakened?"
+- When fixing security, tests often need user context updates - fix tests, don't skip
+  them
+- If tests cannot run due to install issues, fix the install, don't mark tests as
+  skipped
 
 ### State Machines and Approvals
 
@@ -103,7 +124,8 @@ why and propose alternatives.
 ### Self-Improvement
 
 - After every correction or mistake, propose an update to this Known Pitfalls section
-- After every PR, consider whether patterns or pitfalls were discovered that should be documented here
+- After every PR, consider whether patterns or pitfalls were discovered that should be
+  documented here
 
 ## Running OpenSPP Locally
 
@@ -149,7 +171,8 @@ docker compose --profile ui down -v
 ./spp t <module_name>
 ```
 
-This creates an isolated test environment and cleans up automatically. Supports parallel runs across multiple clones.
+This creates an isolated test environment and cleans up automatically. Supports parallel
+runs across multiple clones.
 
 **Alternative** (direct script):
 
@@ -197,7 +220,8 @@ pre-commit run prettier --files <changed_files>
 ./.Codex/scripts/fix-lint.sh --lint-only spp_api  # Run linters only, no AI
 ```
 
-When linters suggest fixes, verify the suggestion is correct before applying. Some automated fixes may:
+When linters suggest fixes, verify the suggestion is correct before applying. Some
+automated fixes may:
 
 - Use wrong syntax for Odoo 19
 - Remove intentional patterns
@@ -209,7 +233,8 @@ Before marking any task complete:
 
 1. **Run tests**: `./spp t <module>`
 2. **Run linters**: `pre-commit run --files <changed_files>`
-3. **Run security audit** (if security changed): `./.Codex/scripts/audit-security.sh <module>`
+3. **Run security audit** (if security changed):
+   `./.Codex/scripts/audit-security.sh <module>`
 4. **Verify no tests were removed**: `/verify-tests` or compare test count before/after
 5. **Check demo data** (if modified): Verify records are created correctly
 6. **Test in UI** (for UX changes): Confirm the correct view is displayed

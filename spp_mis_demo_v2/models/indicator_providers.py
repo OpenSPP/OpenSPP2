@@ -36,10 +36,7 @@ _logger = logging.getLogger(__name__)
 
 DEBUG_HH_POINTS_LAYER_NAME = "HH Points (Debug)"
 DEBUG_HH_POINTS_LAYER_DOMAIN = (
-    "[('is_registrant', '=', True), "
-    "('is_group', '=', True), "
-    "('coordinates', '!=', False), "
-    "('active', '=', True)]"
+    "[('is_registrant', '=', True), ('is_group', '=', True), ('coordinates', '!=', False), ('active', '=', True)]"
 )
 
 # Standard variables from spp_studio to activate (module.xml_id format)
@@ -171,16 +168,12 @@ def _ensure_household_points_debug_layer(env):
         limit=1,
     )
     if not coordinates_field:
-        _logger.info(
-            "[spp.mis.demo] Skipping HH debug layer: res.partner.coordinates not available"
-        )
+        _logger.info("[spp.mis.demo] Skipping HH debug layer: res.partner.coordinates not available")
         return False
 
     view = _find_debug_layer_view(env)
     if not view:
-        _logger.info(
-            "[spp.mis.demo] Skipping HH debug layer: no GIS view found for geofence/area"
-        )
+        _logger.info("[spp.mis.demo] Skipping HH debug layer: no GIS view found for geofence/area")
         return False
 
     layer_model = env["spp.gis.data.layer"]

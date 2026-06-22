@@ -60,9 +60,7 @@ COD_AB_URL = (
 
 # Population projection dataset (admin 3)
 # This dataset may have multiple resources; we look for the CSV
-POP_DATASET_URL = (
-    "https://data.humdata.org/dataset/a8fa512a-0a12-4753-ba46-b722eaac6d66"
-)
+POP_DATASET_URL = "https://data.humdata.org/dataset/a8fa512a-0a12-4753-ba46-b722eaac6d66"
 
 CACHE_DIR = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "openspp" / "geodata"
 
@@ -128,7 +126,7 @@ def download_with_cache(url, filename, cache_dir, no_cache=False):
             downloaded += len(chunk)
             if total:
                 pct = downloaded * 100 // total
-                print(f"\r  Progress: {pct}% ({downloaded // (1024*1024)}MB / {total // (1024*1024)}MB)", end="")
+                print(f"\r  Progress: {pct}% ({downloaded // (1024 * 1024)}MB / {total // (1024 * 1024)}MB)", end="")
     print()
     _logger.info("Saved to %s", cached_path)
     return cached_path
@@ -522,7 +520,9 @@ def try_download_population_data(cache_dir, no_cache=False):
         if not pcode_col or not pop_col:
             _logger.warning(
                 "Could not identify columns. pcode=%s, pop=%s. Available: %s",
-                pcode_col, pop_col, list(df.columns),
+                pcode_col,
+                pop_col,
+                list(df.columns),
             )
             return None
 
@@ -642,7 +642,9 @@ def _generate_base_tier(project_root, gdfs):
 
     # Areas XML
     xml_content = build_areas_xml(
-        gdfs[1], gdfs[2], gdfs[3],
+        gdfs[1],
+        gdfs[2],
+        gdfs[3],
         module_name="spp_demo",
         xml_id_prefix="area_phl",
     )
@@ -675,7 +677,9 @@ def _generate_luzon_tier(project_root, gdfs, pop_data):
 
     # Areas XML
     xml_content = build_areas_xml(
-        gdfs[1], gdfs[2], gdfs[3],
+        gdfs[1],
+        gdfs[2],
+        gdfs[3],
         module_name="spp_demo_phl_luzon",
         xml_id_prefix="area_luzon",
     )

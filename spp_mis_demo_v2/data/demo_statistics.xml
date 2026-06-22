@@ -107,7 +107,9 @@
     <record id="stat_disabled_members" model="spp.indicator">
         <field name="name">pwd_members</field>
         <field name="label">Members with Disability</field>
-        <field name="description">Count of household members with a recorded disability</field>
+        <field
+            name="description"
+        >Count of household members with a recorded disability</field>
         <field name="variable_id" ref="cel_var_disabled_members" />
         <field name="format">count</field>
         <field name="unit">people</field>
