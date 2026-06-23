@@ -100,17 +100,22 @@ class TestLayersService(TransactionCase):
             }
         )
 
-        # Create data layer if geo field exists
+        # Create data layer if the geo field and a GIS view are available.
         cls.geo_field = cls.env["ir.model.fields"].search(
-            [("model", "=", "spp.area"), ("name", "=", "polygon")],
+            [("model", "=", "spp.area"), ("name", "=", "geo_polygon")],
             limit=1,
         )
-        if cls.geo_field:
+        cls.gis_view = cls.env["ir.ui.view"].search(
+            [("model", "=", "spp.area"), ("type", "=", "gis")],
+            limit=1,
+        )
+        if cls.geo_field and cls.gis_view:
             cls.data_layer = cls.env["spp.gis.data.layer"].create(
                 {
                     "name": "Test Areas Layer",
                     "model_name": "spp.area",
                     "geo_field_id": cls.geo_field.id,
+                    "view_id": cls.gis_view.id,
                     "geo_repr": "basic",
                     "domain": "[('level', '=', 2)]",
                 }
