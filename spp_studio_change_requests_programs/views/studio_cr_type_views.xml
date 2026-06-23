@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Re-add the program-scoping field to the change request type form.
+         The base view (spp_studio_change_requests) no longer references
+         program_ids so it can load without spp_programs; this companion
+         injects it back when both the change-requests module and the
+         programs companion are present (OP#1083). -->
+    <record id="view_studio_cr_type_form_programs" model="ir.ui.view">
+        <field name="name">spp.studio.change.request.type.form.programs</field>
+        <field name="model">spp.studio.change.request.type</field>
+        <field
+            name="inherit_id"
+            ref="spp_studio_change_requests.view_studio_cr_type_form"
+        />
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='technical']/group" position="inside">
+                <group string="Programs">
+                    <field name="program_ids" widget="many2many_tags" nolabel="1" />
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

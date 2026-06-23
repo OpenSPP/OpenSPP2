@@ -1,902 +1,1034 @@
-# OpenSPP Farmer Registry Demo - Use Cases Guide
+# Farmer Registry Demo — Use cases
 
-This document describes the demo use cases for the `spp_farmer_registry_demo` module.
-The demo is set in the **Philippines** context, showcasing farmer registry and
-agricultural subsidy programs for smallholder farmers.
+> **Locale note:** The reference data shipped with this demo is coded against `ph_PH`
+> (Philippine names, currency, area codes, bank list, place names). The structure of the
+> use cases — stories, scenarios, roles, geographic dimension — is locale-agnostic and
+> can be re-keyed to any country profile by swapping the persona names in
+> `farmer_blueprints.py`, the area codes / GPS in the `STORY_FARMS` table, and the bank
+> list referenced in the demo generator. Place names in the prose below ("Cabanatuan",
+> "Cotabato City", etc.) are illustrative; the underlying steps apply to any equivalent
+> regional centre / rural area pair.
 
-## Table of Contents
+## Demo users
 
-1. [Overview](#overview)
-2. [Philippines Context](#philippines-context)
-3. [Demo Programs](#demo-programs)
-4. [Demo Stories](#demo-stories)
-5. [Logic Packs](#logic-packs)
-6. [Use Cases by Audience](#use-cases-by-audience)
-7. [Demo Scenarios](#demo-scenarios)
-8. [Feature Demonstrations](#feature-demonstrations)
+The demo install seeds the following user accounts. All passwords are `demo` unless
+noted otherwise. Use these to exercise role-gated views, approval flows, and the CR
+validator chain.
 
----
+| Login                | Password | Role(s)                         | Used in scenarios                              |
+| -------------------- | -------- | ------------------------------- | ---------------------------------------------- |
+| `admin`              | `admin`  | System Administrator (built-in) | Any — full access                              |
+| `manager`            | `demo`   | Farm Manager + CR Requestor     | Program lifecycle, CR submission, dashboards   |
+| `officer`            | `demo`   | Farm User + CR Requestor        | Farm data entry, CR submission                 |
+| `supervisor`         | `demo`   | Farm Manager                    | Program manager view, approvals                |
+| `viewer`             | `demo`   | Farm User                       | Read-only walkthroughs                         |
+| `program_manager`    | `demo`   | Program Manager + Farm User     | Cycle + entitlement approval (Scenario 9)      |
+| `cr_local_validator` | `demo`   | CR Local Validator (Tier-1)     | Local CR approval / revision-request scenarios |
+| `cr_hq_validator`    | `demo`   | CR HQ Validator (Tier-2)        | HQ-tier CR approval scenarios                  |
 
-## Overview
+> The `program_manager` account holds the **Program Manager** role (the group the demo's
+> cycle + entitlement approval definitions are assigned to) and carries **queue-job
+> manager** rights, which approving a cycle needs in order to enqueue the
+> entitlement-validation job. Use it for the Scenario 9 approval walk.
 
-The Farmer Registry Demo module provides realistic demo data that showcases OpenSPP's
-capabilities for agricultural program management. It follows the "Fixed Stories +
-Volume" architecture:
+## Farm stories
 
-- **Fixed Stories**: 8 named farmer personas with predefined farm profiles and program
-  journeys
-- **GIS Data**: GPS coordinates and land parcel polygons across 8 Philippine provinces
-- **Farm Cooperatives**: 2 cooperative personas demonstrating group hierarchy (group of
-  groups)
-- **Edge Cases**: 3 additional personas for testing eligibility boundaries
-- **Volume Data**: Random farm registrations with GIS coordinates for realistic map
-  views
-- **Demo Programs**: 5 programs covering different agricultural subsidy scenarios
-- **Logic Packs**: Pre-built CEL eligibility and benefit calculation rules
+Each farm is named by its family name and identified by an FM-code (FM1–FM8). Programs
+that target groups enroll the farm — not individual members. Multi-program enrollment is
+allowed when the farm satisfies more than one program's CEL.
 
----
+### Story 1: FM1 — Smallholder rice farmer, full lifecycle to graduation
 
-## Philippines Context
+**Demonstration purpose:** End-to-end Input Subsidy lifecycle — enrolled, paid through
+three cycles, then graduated. Contrasts with FM2 who stays multi-enrolled and FM3 who
+continues active. Primary story for "graduation after target met".
 
-The demo simulates a **Department of Agriculture (DA)** farmer support initiative in the
-Philippines, targeting smallholder farmers across multiple provinces.
+**Program(s) the farm is enrolled in:**
 
-### Setting
+| Program       | Reason for eligibility                        | Compliance                                           | Status                 |
+| ------------- | --------------------------------------------- | ---------------------------------------------------- | ---------------------- |
+| Input Subsidy | smallholder (2.0 ha ≤ 5), has productive land | **Passed** each cycle — productive land share ≥ 50 % | **Exited** (graduated) |
 
-| Attribute             | Value                                                    |
-| --------------------- | -------------------------------------------------------- |
-| **Country**           | Philippines                                              |
-| **Agency**            | Department of Agriculture (DA)                           |
-| **Target Population** | Smallholder farmers (≤5 hectares)                        |
-| **Registry System**   | Registry System for Basic Sectors in Agriculture (RSBSA) |
-| **Currency**          | Philippine Peso (PHP)                                    |
+**Farm journey:**
 
-### Agricultural Context
+1. Enrolled in Input Subsidy 150 days ago (rice, 2.0 ha, Cabanatuan area)
+2. Payment #1 (₱200) — paid 120 days ago
+3. Payment #2 (₱200) — paid 90 days ago
+4. Payment #3 (₱200) — paid 60 days ago
+5. Compliance pass each cycle (productive land = 100 % of total)
+6. **Graduated 30 days ago** — target met, exited program
 
-- **Major crops**: Rice (palay), corn, coconut, sugarcane, vegetables
-- **Livestock**: Carabao (water buffalo), goats, chickens, swine
-- **Aquaculture**: Tilapia, milkfish (bangus), shrimp
-- **Farm sizes**: Typically 0.5-5 hectares for smallholders
-- **Seasons**: Wet season (June-November), Dry season (December-May)
+**Existing change requests for the farm:**
 
-### Regions Represented
+- `update_farm_details` (approved) — Farm expanded to 3.0 ha after acquiring adjacent
+  parcel
 
-| Persona            | Province      | Region                       |
-| ------------------ | ------------- | ---------------------------- |
-| Maria Santos       | Nueva Ecija   | Central Luzon (Region III)   |
-| Juan Dela Cruz     | Pangasinan    | Ilocos Region (Region I)     |
-| Rosa Garcia        | Bukidnon      | Northern Mindanao (Region X) |
-| Amir Mangudadatu   | Maguindanao   | BARMM                        |
-| Sofia Martinez     | Laguna        | CALABARZON (Region IV-A)     |
-| Ramon dela Cruz    | Pampanga      | Central Luzon (Region III)   |
-| Sittie Pangandaman | Lanao del Sur | BARMM                        |
-| Danilo Villanueva  | Davao del Sur | Davao Region (Region XI)     |
+**Farm assets:** 1 hand tractor (machinery, operational) attached to the main land
+parcel.
 
----
+**Activity vocabulary:** Rice cultivation references the FAO ICC 1.1 crop code `0116`
+(Rice, paddy) — the same standard used by national agricultural censuses.
 
-## Demo Programs
-
-### 1. Input Subsidy Program
-
-| Attribute           | Value                                                            |
-| ------------------- | ---------------------------------------------------------------- |
-| **Target Type**     | Households (Groups)                                              |
-| **Eligibility**     | Smallholder (≤5 ha) with productive land                         |
-| **Benefit Formula** | Base amount + (farm hectares x per-hectare rate)                 |
-| **Example**         | PHP 5,000 + (2.0 ha x PHP 2,500) = PHP 10,000                    |
-| **Stories**         | Maria Santos, Juan Dela Cruz, Sofia Martinez, Sittie Pangandaman |
-
-**Use Cases:**
-
-- Rice and corn seed subsidy distribution
-- Fertilizer assistance for smallholders
-- Seasonal input support (wet/dry season)
-- Per-hectare scaling of benefits
-
-**Features Demonstrated:**
-
-- CEL-based eligibility evaluation
-- Formula-based benefit calculation
-- Group-based targeting
-- Farm size-proportional entitlements
+**Geographical location:** Inland rice plains — Cabanatuan, Nueva Ecija
 
 ---
 
-### 2. Equipment Grant Program
+### Story 2: FM2 — Multi-program mixed farmer
 
-| Attribute       | Value                                        |
-| --------------- | -------------------------------------------- |
-| **Target Type** | Households (Groups)                          |
-| **Eligibility** | Smallholder with 2+ years farming experience |
-| **Benefit**     | Fixed grant amount                           |
-| **Stories**     | Juan Dela Cruz, Sittie Pangandaman           |
+**Demonstration purpose:** A farm that satisfies more than one program's CEL
+simultaneously. Demonstrates concurrent enrollment, separate cycle/payment streams, and
+multi-CR sequencing on the same farm. Primary story for "multi-program coordination".
 
-**Use Cases:**
+**Program(s) the farm is enrolled in:**
 
-- Farm mechanization support (hand tractors, threshers)
-- Post-harvest equipment grants
-- Experience-based eligibility filtering
-- One-time asset distribution
+| Program           | Reason for eligibility                                        | Compliance                                   | Status   |
+| ----------------- | ------------------------------------------------------------- | -------------------------------------------- | -------- |
+| Input Subsidy     | smallholder (3.0 ha), has productive land (rice + vegetables) | **Passed** — productive land = 67 % of total | Enrolled |
+| Livestock Support | livestock_count = 50 (chickens) > 0                           | N/A (no compliance on this program)          | Enrolled |
 
-**Features Demonstrated:**
+**Farm journey:**
 
-- Multi-criteria eligibility (size AND experience)
-- Fixed-amount entitlements
-- Edge case: new farmers excluded (experience < 2 years)
+1. Enrolled in Input Subsidy 100 days ago (mixed farm: 1.5 ha rice + 0.5 ha vegetables +
+   50 chickens)
+2. Payment #1 — Input Subsidy ₱200 — paid 70 days ago
+3. Payment #2 — Input Subsidy ₱200 — paid 40 days ago
+4. Payment #3 — Input Subsidy ₱200 — paid in the current cycle
+5. Enrolled in Livestock Support 80 days ago (chickens = 50 heads)
+6. Payment #1 — Livestock Support ₱275 — paid 50 days ago
+7. Payment #2 — Livestock Support ₱275 — paid 20 days ago
+8. Payment #3 — Livestock Support ₱275 — paid in the current cycle
+9. Both enrollments still active
 
----
+**Existing change requests for the farm:**
 
-### 3. Livestock Support Program
+- `update_farm_details` (applied) — Expanded to 4.0 ha, added livestock area
+- `manage_farm_activity` (pending) — Register new chicken-rearing activity (50 heads,
+  subsistence)
 
-| Attribute           | Value                                           |
-| ------------------- | ----------------------------------------------- |
-| **Target Type**     | Households (Groups)                             |
-| **Eligibility**     | Farms with livestock activities                 |
-| **Benefit Formula** | Base amount + (livestock count x per-head rate) |
-| **Example**         | PHP 3,750 + (20 heads x PHP 500) = PHP 13,750   |
-| **Stories**         | Rosa Garcia, Juan Dela Cruz, Danilo Villanueva  |
-
-**Use Cases:**
-
-- Livestock dispersal programs (carabao, goat)
-- Animal health and veterinary support
-- Per-head benefit scaling
-- Mixed farm support
-
-**Features Demonstrated:**
-
-- Activity-based eligibility (livestock count > 0)
-- Per-head benefit calculation
-- Cross-activity farms (crops + livestock)
+**Geographical location:** Inland mixed farming — San Pablo City, Laguna
 
 ---
 
-### 4. Climate Resilience Program
+### Story 3: FM3 — Senior livestock farmer, gender + age diversity
 
-| Attribute       | Value                             |
-| --------------- | --------------------------------- |
-| **Target Type** | Households (Groups)               |
-| **Eligibility** | Smallholder with idle/fallow land |
-| **Benefit**     | Fixed climate adaptation amount   |
-| **Stories**     | Amir Mangudadatu                  |
+**Demonstration purpose:** A senior female farmer whose primary income is livestock.
+Demonstrates non-cash-crop targeting and the per-head benefit formula. Contrasts with
+FM1's flat per-hectare payment.
 
-**Use Cases:**
+**Program(s) the farm is enrolled in:**
 
-- Drought-affected farmer support
-- Climate adaptation assistance
-- Fallow land rehabilitation
-- Emergency agricultural response
+| Program           | Reason for eligibility           | Compliance                          | Status   |
+| ----------------- | -------------------------------- | ----------------------------------- | -------- |
+| Livestock Support | livestock_count = 20 (goats) > 0 | N/A (no compliance on this program) | Enrolled |
 
-**Features Demonstrated:**
+**Farm journey:**
 
-- Climate vulnerability targeting
-- Idle land as eligibility indicator
-- Fixed emergency-style benefits
-- BARMM conflict/climate overlap scenarios
+1. Enrolled in Livestock Support 120 days ago (mixed farm: 0.5 ha crops + 20 goats, 1.0
+   ha total)
+2. Payment #1 — ₱275 (livestock_base 75 + 20 heads × ₱10) — paid 90 days ago
+3. Payment #2 — ₱275 — paid 60 days ago
+4. Payment #3 — ₱275 — paid 30 days ago
+5. Active enrollment, not yet graduated
 
----
+**Existing change requests for the farm:**
 
-### 5. Aquaculture Support Program
+- `update_farm_details` (approved) — Land tenure transferred to owner after inheritance
 
-| Attribute       | Value                             |
-| --------------- | --------------------------------- |
-| **Target Type** | Households (Groups)               |
-| **Eligibility** | Farms with aquaculture activities |
-| **Benefit**     | Fixed aquaculture support amount  |
-| **Stories**     | Ramon dela Cruz                   |
-
-**Use Cases:**
-
-- Fishpond development support
-- Fingerling and feed subsidy
-- Aquaculture-specific targeting
-- Non-crop farming support
-
-**Features Demonstrated:**
-
-- Aquaculture activity detection
-- Farm type differentiation
-- Support for non-traditional farming
+**Geographical location:** Inland plateau, livestock area — Lipa City, Batangas
 
 ---
 
-## Demo Stories
+### Story 4: FM4 — Climate-vulnerable farmer with idle land
 
-### Maria Santos - The Rice Farmer
+**Demonstration purpose:** A farmer whose declared idle land triggers Climate Resilience
+eligibility. Demonstrates the program's targeting logic (`farm_size_idle > 0`) and BARMM
+conflict-affected context. Contrasts with FM1/FM2 who satisfy productive-land programs
+only.
 
-**Profile:**
+**Program(s) the farm is enrolled in:**
 
-- 42-year-old female rice farmer
-- 2 hectares in Nueva Ecija (rice granary of the Philippines)
-- 10 years farming experience
-- Smallholder, all land under crops
+| Program            | Reason for eligibility                            | Compliance                          | Status   |
+| ------------------ | ------------------------------------------------- | ----------------------------------- | -------- |
+| Climate Resilience | smallholder (4.0 ha), farm_size_idle = 1.0 ha > 0 | N/A (no compliance on this program) | Enrolled |
 
-**Farm Data:**
+**Farm journey:**
 
-| Attribute   | Value        |
-| ----------- | ------------ |
-| Farm Type   | Crop         |
-| Total Size  | 2.0 ha       |
-| Under Crops | 2.0 ha       |
-| Crops       | Rice (palay) |
-| Livestock   | None         |
+1. Enrolled in Climate Resilience 55 days ago (vulnerability: very_high; 3.0 ha rice +
+   1.0 ha idle/fallow)
+2. Payment #1 — ₱200 — paid 50 days ago
+3. Payment #2 — ₱200 — paid 35 days ago
+4. Active enrollment
 
-**Program Eligibility:**
+**Existing change requests for the farm:**
 
-- Input Subsidy: Eligible (smallholder + productive land)
-- Equipment Grant: Eligible (10 years experience)
-- Livestock Support: Not eligible (no livestock)
+- `update_farm_details` (rejected) — Request to reclassify productive area (1.5 ha
+  crops, 2.5 ha idle); rejected pending field verification
 
-**Demo Points:**
+**Irrigation infrastructure** (anchors Scenario 10):
 
-- Typical Filipino rice farmer profile
-- Female farmer representation
-- Multi-program eligibility
-- Productive smallholder success story
+| Asset                         | Type      | Capacity             | Status                               | Network role                         |
+| ----------------------------- | --------- | -------------------- | ------------------------------------ | ------------------------------------ |
+| Cotabato Irrigation Reservoir | Reservoir | 5 000 m³ effective   | Reduced (design ≈ 15 000 m³, silted) | Source for the canal branch          |
+| Cotabato Main Canal Branch    | Canal     | 300 m³ flow capacity | Carrying reduced flow                | Sourced by the reservoir; serves FM4 |
 
----
+The reduced upstream capacity is the narrative explanation for FM4's 1 ha of idle/fallow
+land — it's not random non-cultivation, it's the downstream consequence of a degraded
+irrigation network.
 
-### Juan Dela Cruz - The Mixed Farmer
+**Land parcel:** A polygon (≈ 4 ha total area, of which 1 ha idle) is plotted at
+Cotabato City and exportable as GeoJSON via `spp.land.record.get_geojson()`.
 
-**Profile:**
-
-- 45-year-old male mixed farmer
-- 3 hectares in Pangasinan
-- 15 years experience, crops + chickens
-- Experienced and diversified
-
-**Farm Data:**
-
-| Attribute       | Value                  |
-| --------------- | ---------------------- |
-| Farm Type       | Mixed                  |
-| Total Size      | 3.0 ha                 |
-| Under Crops     | 2.0 ha                 |
-| Under Livestock | 1.0 ha                 |
-| Crops           | Rice, corn, vegetables |
-| Livestock       | 50 chickens            |
-
-**Program Eligibility:**
-
-- Input Subsidy: Eligible
-- Equipment Grant: Eligible (15 years)
-- Livestock Support: Eligible (50 heads)
-
-**Demo Points:**
-
-- Diversified farm operations
-- Eligible for multiple programs simultaneously
-- Highest combined benefit potential
-- Demonstrates cross-program coordination
+**Geographical location:** Inland BARMM — Cotabato City, Maguindanao
 
 ---
 
-### Rosa Garcia - The Livestock Farmer
+### Story 5: FM5 — Young female farmer, organic transition
 
-**Profile:**
+**Demonstration purpose:** Young female farmer in the highlands transitioning toward
+organic agriculture. Demonstrates the diversity dimension and Logic Pack–driven
+eligibility for early-career smallholders.
 
-- 67-year-old female farmer
-- 1 hectare in Bukidnon, Mindanao
-- 8 years experience, goat farming
-- Female-headed household
+**Program(s) the farm is enrolled in:**
 
-**Farm Data:**
+| Program       | Reason for eligibility                    | Compliance                                    | Status   |
+| ------------- | ----------------------------------------- | --------------------------------------------- | -------- |
+| Input Subsidy | smallholder (2.0 ha), has productive land | **Passed** — productive land = 100 % of total | Enrolled |
 
-| Attribute       | Value      |
-| --------------- | ---------- |
-| Farm Type       | Mixed      |
-| Total Size      | 1.0 ha     |
-| Under Crops     | 0.5 ha     |
-| Under Livestock | 0.5 ha     |
-| Crops           | Vegetables |
-| Livestock       | 20 goats   |
+**Farm journey:**
 
-**Program Eligibility:**
+1. Enrolled in Input Subsidy 70 days ago (vegetables + maize, 2.0 ha)
+2. Payment #1 — ₱200 — paid 45 days ago
+3. Payment #2 — ₱200 — paid in the current cycle
+4. Payment #3 — ₱200 — paid in the current cycle
+5. Active enrollment
 
-- Input Subsidy: Eligible
-- Equipment Grant: Eligible (8 years)
-- Livestock Support: Eligible (20 heads)
+**Existing change requests for the farm:**
 
-**Demo Points:**
+- `manage_farm_activity` (draft) — Register organic vegetable cultivation (commercial,
+  0.5 ha)
 
-- Senior female farmer
-- Livestock-focused livelihood
-- Small but productive farm
-- Multi-program beneficiary
+**Geographical location:** Mountain valley highlands — La Trinidad, Benguet
 
 ---
 
-### Amir Mangudadatu - The Climate-Affected Farmer
+### Story 6: FM6 — Aquaculture, non-crop farming
 
-**Profile:**
+**Demonstration purpose:** Demonstrates that the registry handles non-crop farming. The
+farm is enrolled in Aquaculture Support — a program that targets a single field
+(`aquaculture_count > 0`) ignored by every other program.
 
-- 50-year-old male crop farmer
-- 4 hectares in Maguindanao (BARMM)
-- 20 years experience, drought-affected
-- 1 hectare idle/fallow land
+**Program(s) the farm is enrolled in:**
 
-**Farm Data:**
+| Program             | Reason for eligibility          | Compliance                          | Status   |
+| ------------------- | ------------------------------- | ----------------------------------- | -------- |
+| Aquaculture Support | aquaculture_count > 0 (tilapia) | N/A (no compliance on this program) | Enrolled |
 
-| Attribute   | Value  |
-| ----------- | ------ |
-| Farm Type   | Crop   |
-| Total Size  | 4.0 ha |
-| Under Crops | 3.0 ha |
-| Idle/Fallow | 1.0 ha |
-| Crops       | Rice   |
-| Livestock   | None   |
+**Farm journey:**
 
-**Program Eligibility:**
+1. Enrolled in Aquaculture Support 90 days ago (0.5 ha tilapia fishpond)
+2. Payment #1 — ₱250 — paid 60 days ago
+3. Payment #2 — ₱250 — paid 30 days ago
+4. Active enrollment
 
-- Input Subsidy: Eligible
-- Equipment Grant: Eligible (20 years)
-- Climate Resilience: Eligible (idle land > 0)
+**Existing change requests for the farm:**
 
-**Demo Points:**
+- `manage_farm_activity` (pending) — Update tilapia production (3,500 kg current, 4,000
+  kg expected)
 
-- Climate vulnerability scenario
-- BARMM conflict-affected context
-- Idle land as climate impact indicator
-- Emergency program targeting
+**Geographical location:** Inland fishpond area — Dagupan, Pangasinan
 
 ---
 
-### Sofia Martinez - The Organic Transition Farmer
+### Story 7: FM7 — Equipment Grant + Input Subsidy stack
 
-**Profile:**
+**Demonstration purpose:** Young but experienced female farmer in BARMM. Qualifies for
+both Input Subsidy and Equipment Grant (12 years' experience clears the
+`experience_years >= 2` threshold). Demonstrates BARMM women in agriculture.
 
-- 42-year-old female farmer
-- 2 hectares in Laguna (CALABARZON)
-- 5 years experience, transitioning to organic
-- Growing vegetables and maize
+**Program(s) the farm is enrolled in:**
 
-**Farm Data:**
+| Program         | Reason for eligibility                    | Compliance                                                | Status   |
+| --------------- | ----------------------------------------- | --------------------------------------------------------- | -------- |
+| Input Subsidy   | smallholder (1.5 ha), has productive land | **Passed** — productive land = 100 % of total             | Enrolled |
+| Equipment Grant | smallholder, experience_years 12 ≥ 2      | **Passed** — still smallholder, still has productive land | Enrolled |
 
-| Attribute   | Value             |
-| ----------- | ----------------- |
-| Farm Type   | Crop              |
-| Total Size  | 2.0 ha            |
-| Under Crops | 2.0 ha            |
-| Crops       | Vegetables, maize |
-| Livestock   | None              |
+**Farm journey:**
 
-**Program Eligibility:**
+1. Enrolled in Input Subsidy 130 days ago (rice + vegetables, 1.5 ha)
+2. Payment #1 — Input Subsidy ₱200 — paid 100 days ago
+3. Payment #2 — Input Subsidy ₱200 — paid 70 days ago
+4. Payment #3 — Input Subsidy ₱200 — paid in the current cycle
+5. Enrolled in Equipment Grant 60 days ago
+6. Payment #1 — Equipment Grant ₱500 — paid 30 days ago
+7. Both enrollments active
 
-- Input Subsidy: Eligible
-- Equipment Grant: Eligible (5 years)
-- Livestock Support: Not eligible
+**Existing change requests for the farm:**
 
-**Demo Points:**
+- `manage_farm_activity` (approved) — Register new maize cultivation for dry season
+  (commercial, 0.8 ha)
 
-- Organic farming transition
-- Near-urban agriculture (Laguna)
-- Young female farmer
-- Crop diversification
+**Geographical location:** Inland BARMM — Marawi, Lanao del Sur
 
 ---
 
-### Ramon dela Cruz - The Aquaculture Farmer
+### Story 8: FM8 — Threshold edge case at the smallholder boundary
 
-**Profile:**
+**Demonstration purpose:** Boundary-condition testing. The farm sits at the smallholder
+threshold (5.0 ha) with deep diversification. Demonstrates that the eligibility CEL
+evaluates correctly at the exact boundary and that highly experienced farmers (25 years)
+still qualify when other criteria fit.
 
-- 35-year-old male aquaculture farmer
-- 0.5 hectare fishpond in Pampanga
-- 7 years experience, tilapia farming
-- Leased land
+**Program(s) the farm is enrolled in:**
 
-**Farm Data:**
+| Program           | Reason for eligibility                          | Compliance                          | Status   |
+| ----------------- | ----------------------------------------------- | ----------------------------------- | -------- |
+| Livestock Support | livestock_count = 45 (15 cattle + 30 goats) > 0 | N/A (no compliance on this program) | Enrolled |
 
-| Attribute         | Value                |
-| ----------------- | -------------------- |
-| Farm Type         | Aquaculture          |
-| Total Size        | 0.5 ha               |
-| Under Aquaculture | 0.5 ha               |
-| Aquaculture       | 1 fishpond (tilapia) |
-| Crops             | None                 |
+**Farm journey:**
 
-**Program Eligibility:**
+1. Enrolled in Livestock Support 180 days ago (3.0 ha crops + 2.0 ha livestock; 15
+   cattle + 30 goats)
+2. Payment #1 — ₱275 — paid 150 days ago
+3. Payment #2 — ₱275 — paid 120 days ago
+4. Payment #3 — ₱275 — paid in the current cycle
+5. Active enrollment, sitting exactly at smallholder boundary
 
-- Aquaculture Support: Eligible
-- Input Subsidy: Not eligible (no crops)
-- Livestock Support: Not eligible
+**Existing change requests for the farm:**
 
-**Demo Points:**
+- `update_farm_details` (revision) — Update experience years (claimed 20) and land
+  breakdown; revision requested for supporting documents
+- `manage_farm_asset` (pending) — Register additional water pump for irrigation
+  expansion
 
-- Non-crop farming representation
-- Aquaculture-specific programs
-- Small-scale fishpond operations
-- Central Luzon aquaculture belt
+**Farm assets:** 1 water pump (machinery, operational) attached to the main land parcel.
 
----
-
-### Sittie Pangandaman - The Experienced Female Farmer
-
-**Profile:**
-
-- 32-year-old female farmer
-- 1.5 hectares in Lanao del Sur (BARMM)
-- 12 years experience
-- Female-headed household
-
-**Farm Data:**
-
-| Attribute   | Value            |
-| ----------- | ---------------- |
-| Farm Type   | Crop             |
-| Total Size  | 1.5 ha           |
-| Under Crops | 1.5 ha           |
-| Crops       | Rice, vegetables |
-| Livestock   | None             |
-
-**Program Eligibility:**
-
-- Input Subsidy: Eligible
-- Equipment Grant: Eligible (12 years)
-- Livestock Support: Not eligible
-
-**Demo Points:**
-
-- Young but experienced farmer
-- BARMM women in agriculture
-- Multiple crop types
-- Female farmer empowerment
+**Geographical location:** Inland highland plateau — Malaybalay, Bukidnon
 
 ---
 
-### Danilo Villanueva - The Commercial-Edge Farmer
+## Edge case stories
 
-**Profile:**
+These three farms exist to demonstrate eligibility _rejection_ paths. They are
+referenced by the rejection demo scenario; they are not enrolled in any program.
 
-- 38-year-old male mixed farmer
-- 5 hectares in Davao del Sur (at smallholder threshold)
-- 25 years experience, cattle and goats
-- Edge case for program eligibility
+### Story 9: EC1 — Large commercial farm
 
-**Farm Data:**
+**Demonstration purpose:** A 50 ha commercial operation. Fails the `is_smallholder`
+check (smallholder threshold = 5 ha) so it's rejected from Input Subsidy, Equipment
+Grant, and Climate Resilience. Demonstrates targeting exclusion at the upper bound.
 
-| Attribute       | Value                     |
-| --------------- | ------------------------- |
-| Farm Type       | Mixed                     |
-| Total Size      | 5.0 ha                    |
-| Under Crops     | 3.0 ha                    |
-| Under Livestock | 2.0 ha                    |
-| Crops           | Coconut, cacao            |
-| Livestock       | 45 heads (cattle + goats) |
-
-**Program Eligibility:**
-
-- Input Subsidy: Eligible (at 5 ha threshold)
-- Equipment Grant: Eligible (25 years)
-- Livestock Support: Eligible (45 heads)
-
-**Demo Points:**
-
-- Threshold/edge case testing
-- Large smallholder at boundary
-- Highly diversified farm
-- Davao agricultural economy
+**Geographical location:** Background story — outside the smallholder envelope.
 
 ---
 
-## Farm Cooperative Personas (Group Hierarchy)
+### Story 10: EC2 — Idle-land farm with no productive land
 
-Farm Cooperatives demonstrate the **group hierarchy** feature where a cooperative
-(group) contains individual farms (groups) as members — a group of groups.
+**Demonstration purpose:** A 3 ha farm where every hectare is idle. Fails
+`has_productive_land` (Input Subsidy compliance also fails on the same field).
+Demonstrates the difference between _having land_ and _having productive land_. Eligible
+only for Climate Resilience because that program's CEL keys on `farm_size_idle > 0`.
 
-### Nueva Ecija Rice Cooperative
-
-**Profile:**
-
-- Rice farming cooperative in Nueva Ecija, Central Luzon
-- Contains 2 member farms: Maria Santos + Sofia Martinez
-- Combined area: 4.0 hectares
-- All members are rice/crop farmers
-
-**Hierarchy:**
-
-```
-Nueva Ecija Rice Cooperative (Group)
-├── Maria Santos Farm (Group) ─── 2.0 ha rice
-└── Sofia Martinez Farm (Group) ── 2.0 ha vegetables, maize
-```
-
-**Demo Points:**
-
-- Group of groups hierarchy
-- Cooperative-level aggregated data (combined hectares, member count)
-- Cooperative registration and management
-- Member farm listing within cooperative view
+**Geographical location:** Background story — climate-affected zone.
 
 ---
 
-### BARMM Farmers Federation
+### Story 11: EC3 — New farmer, less than two years' experience
 
-**Profile:**
+**Demonstration purpose:** A 2 ha farm with one year of experience. Eligible for Input
+Subsidy (the CEL ignores experience) but rejected from Equipment Grant (requires
+`experience_years >= 2`). Demonstrates the experience-based threshold.
 
-- Federation of farms in Bangsamoro Autonomous Region (BARMM)
-- Contains 2 member farms: Amir Mangudadatu + Sittie Pangandaman
-- Combined area: 5.5 hectares (including 1 ha idle)
-- Mixed crop types across members
-
-**Hierarchy:**
-
-```
-BARMM Farmers Federation (Group)
-├── Amir Mangudadatu Farm (Group) ──── 4.0 ha (3.0 crops + 1.0 idle)
-└── Sittie Pangandaman Farm (Group) ── 1.5 ha crops
-```
-
-**Demo Points:**
-
-- Regional farmer federation
-- BARMM-specific cooperative structures
-- Federation exceeds smallholder threshold (5.5 ha combined) even though individual
-  members qualify
-- Climate-affected member (Ibrahim) within a broader federation
+**Geographical location:** Background story — eligible-with-caveats.
 
 ---
 
-## Edge Case Personas
+## Cooperative stories
 
-### AgriCorp Holdings - Large Commercial Farm
+Cooperatives in the demo are _groups of farms_ — true group-of-groups hierarchy. They
+demonstrate that the registry supports federation structures and aggregated metrics over
+member farms.
 
-| Attribute       | Value                                  |
-| --------------- | -------------------------------------- |
-| Farm Size       | 50 ha                                  |
-| Is Smallholder  | No                                     |
-| Expected Result | Rejected from all smallholder programs |
+### Story 12: COOP1 — Nueva Ecija Rice Cooperative
 
-**Demo Point:** Demonstrates proper targeting exclusion for large commercial operations.
+**Demonstration purpose:** A two-farm rice cooperative spanning Central Luzon.
+Aggregated farm size = 4.0 ha; combined eligibility behaves as the union of member-farm
+CELs. Demonstrates the group-of-groups data model and cooperative-level reporting
+(combined hectarage, member count).
 
----
+**Member farms:** FM1 (Maria Santos, Nueva Ecija) + FM5 (Sofia Martinez, Benguet).
 
-### Idle Land Farm - No Productive Land
-
-| Attribute           | Value                                                        |
-| ------------------- | ------------------------------------------------------------ |
-| Farm Size           | 3 ha (all idle/fallow)                                       |
-| Has Productive Land | No                                                           |
-| Expected Result     | Rejected from Input Subsidy, eligible for Climate Resilience |
-
-**Demo Point:** Tests edge case where land exists but isn't productive.
+**Geographical location:** Central Luzon (Nueva Ecija, Benguet).
 
 ---
 
-### New Farmer - No Experience
+### Story 13: COOP2 — BARMM Farmers Federation
 
-| Attribute       | Value                                                     |
-| --------------- | --------------------------------------------------------- |
-| Farm Size       | 2 ha                                                      |
-| Experience      | 1 year                                                    |
-| Expected Result | Eligible for Input Subsidy, rejected from Equipment Grant |
+**Demonstration purpose:** A regional federation pooling two BARMM smallholder farms.
+Combined size 5.5 ha — _exceeds_ the smallholder threshold individually. Demonstrates
+that program eligibility is computed per _member_ farm, not on the federation aggregate
+(so each member is still treated as a smallholder).
 
-**Demo Point:** Tests experience-based eligibility threshold.
+**Member farms:** FM4 (Amir Mangudadatu, Maguindanao) + FM7 (Sittie Pangandaman, Lanao
+del Sur).
 
----
-
-## Logic Packs
-
-Pre-built logic packages using CEL expressions for program eligibility and benefit
-calculations.
-
-### Pack 1: Input Subsidy Program
-
-| Item                      | Type    | CEL Expression                                                    |
-| ------------------------- | ------- | ----------------------------------------------------------------- |
-| Smallholder Eligibility   | Filter  | `is_smallholder && has_productive_land`                           |
-| Input Subsidy Calculation | Formula | `input_subsidy_base + (farm_size_hectares * per_hectare_subsidy)` |
-
-### Pack 2: Equipment Grant Program
-
-| Item                           | Type    | CEL Expression                            |
-| ------------------------------ | ------- | ----------------------------------------- |
-| Experienced Farmer Eligibility | Filter  | `is_smallholder && experience_years >= 2` |
-| Equipment Grant Amount         | Formula | `equipment_grant_amount`                  |
-
-### Pack 3: Livestock Support Program
-
-| Item                          | Type    | CEL Expression                                         |
-| ----------------------------- | ------- | ------------------------------------------------------ |
-| Livestock Farmer Eligibility  | Filter  | `livestock_count > 0`                                  |
-| Livestock Support Calculation | Formula | `livestock_base + (livestock_count * per_head_amount)` |
-
-### Pack 4: Climate Resilience Program
-
-| Item                              | Type    | CEL Expression                         |
-| --------------------------------- | ------- | -------------------------------------- |
-| Climate Vulnerability Eligibility | Filter  | `is_smallholder && farm_size_idle > 0` |
-| Climate Adaptation Amount         | Formula | `climate_adaptation_amount`            |
-
-### Pack 5: Aquaculture Support Program
-
-| Item                           | Type    | CEL Expression               |
-| ------------------------------ | ------- | ---------------------------- |
-| Aquaculture Farmer Eligibility | Filter  | `aquaculture_count > 0`      |
-| Aquaculture Support Amount     | Formula | `aquaculture_support_amount` |
+**Geographical location:** BARMM (Maguindanao, Lanao del Sur).
 
 ---
 
-## Use Cases by Audience
+## Demo scenarios
 
-### For Sales Demos
+### Scenario 1: New enrollment
 
-**Quick Demo (15 minutes):**
+Walk through enrolling a previously unregistered smallholder.
 
-1. Show farmer registry dashboard with farm statistics
-2. Navigate to Maria Santos - show farm profile and eligibility
-3. Show Juan Dela Cruz - demonstrate multi-program eligibility
-4. Highlight aquaculture support (Ramon dela Cruz) for non-crop farming
+1. Open **Settings → Vocabularies → Manage Vocabularies** and confirm the FAO-aligned
+   vocabularies are loaded — `urn:fao:icc:1.1` (crops), `urn:fao:livestock:2020`
+   (livestock), `urn:fao:asfis:2024` (aquaculture). These back the species pickers used
+   in step 5 below.
+2. Open **Registry → Configuration → Seasons**. The list shows three points of the
+   `spp.farm.season` state machine: a `closed` prior-year season, an `active`
+   current-year season, and (optionally) a `draft` future season the user can transition
+   by hand. Activities can only be entered against an active season.
+3. Open **Registry → Browse All (Audit) → All Groups → New**, set `is_group=true` and
+   `is_farm=true`
+4. Add the head member and key fields (farm_total_size, farm_size_under_crops,
+   experience_years)
+5. Add a crop activity for the new farm. The species picker is backed by the FAO ICC 1.1
+   vocabulary — pick `0116` Rice, paddy (matching FM1) or `0115` Maize, white (matching
+   FM4). For aquaculture, the picker uses FAO ASFIS — pick `TIL` Tilapia (matching FM6).
+6. From the new farm's form, click the **Enroll in Program** action button → in the
+   wizard, pick **Input Subsidy** and confirm. This creates a `spp.program.membership`
+   record for the farm, initially in a pending state pending eligibility evaluation.
+7. Open **Programs → Programs → Input Subsidy** and click the **Verify Eligibility**
+   button on the program form. This re-evaluates the CEL for every membership currently
+   in `enrolled` / `not_eligible` state — including the new one we just added.
+8. The new farm flips from its pending state to `enrolled` because the CEL
+   (`is_smallholder and has_productive_land`) now matches the facts we set in steps 3–5.
+9. Open the program's **Cycles** tab → the new farm appears in the next cycle with the
+   first scheduled payment.
 
-**Comprehensive Demo (45 minutes):**
+> **Why two steps and not one?** `Verify Eligibility` operates only on registrants
+> already linked to the program via a `spp.program.membership` row. It will not scan the
+> global registrant table for new matches — that path is **Enroll Eligible**, which
+> requires the program to already have beneficiaries to consider. The clean workflow for
+> a single new farm is therefore _enroll into program → verify eligibility_.
 
-1. Farm registration workflow
-2. Farm details and activity management
-3. Agricultural season setup
-4. Program eligibility evaluation using Logic Packs
-5. Benefit calculation demonstration
-6. Change request for farm data updates
-7. Dashboard and reporting
+**Key messages:**
 
-### For Training
-
-**Registry Officer Training:**
-
-- Use all 8 personas to explain farm registration
-- Demonstrate farm details entry (classification, acreage, experience)
-- Practice adding farm activities (crops, livestock, aquaculture)
-- Create agricultural seasons
-
-**Program Officer Training:**
-
-- Use Logic Packs to explain eligibility rules
-- Walk through benefit calculations with concrete examples
-- Demonstrate edge cases (large farm rejection, new farmer exclusion)
-- Practice multi-program enrollment
-
-**Change Request Training:**
-
-- Submit farm detail updates via change request
-- Add new farm activities through CR workflow
-- Practice approval/rejection workflows
-
-### For Testing
-
-**Eligibility Testing:**
-
-- 8 eligible personas with known expected results
-- 3 edge case personas for boundary testing
-- Each Logic Pack has clear input/output expectations
-
-**Regression Testing:**
-
-- Fixed personas ensure consistent test data
-- CEL expressions can be validated against expected outcomes
-- Farm data provides diverse test scenarios
+- Eligibility is data-driven; changing the farm's facts changes the verdict
+- The CEL evaluates on demand (Verify Eligibility) and at every cycle creation
+- Activity classification uses FAO standards (ICC 1.1 / livestock 2020 / ASFIS)
+  end-to-end — no free-text species fields, no national-only codes
 
 ---
 
-## Demo Scenarios
+### Scenario 2: Multi-program coordination
 
-### Scenario 1: Farm Registration and Program Enrollment
+Show how a single farm fans out into two programs.
 
-**Objective:** Show end-to-end farmer registration to program enrollment
+1. Open the FM2 farm record (**Registry → Browse All (Audit) → All Groups → FM2**) →
+   scroll to the **Program Enrollments** section to see two memberships (Input Subsidy
+   - Livestock Support)
+2. Open **Programs → Programs → Input Subsidy** → click the **Cycles** smart button in
+   the button box → see FM2 in cycle 4
+3. Open **Programs → Programs → Livestock Support** → click the **Cycles** smart button
+   → see FM2 in cycle 3 with a different payment amount
+4. Show that the two payment streams are independent (separate batches, separate
+   journals)
 
-**Steps:**
+**Key messages:**
 
-1. Open farmer registry list view
-2. Create new farm registration (or open Maria Santos)
-3. Fill in farm details (type, size, classification)
-4. Add farm activities (crops grown, livestock held)
-5. Navigate to programs and check eligibility
-6. Enroll in Input Subsidy Program
-7. Show calculated benefit amount
-
-**Key Messages:**
-
-- Streamlined farm registration process
-- Automatic eligibility determination
-- Transparent benefit calculation
+- Multi-program is a property of _fact pattern_, not configuration
+- Each program owns its own cycle/entitlement workflow
 
 ---
 
-### Scenario 2: Multi-Program Eligibility
+### Scenario 3: Compliance failure and graduation
 
-**Objective:** Demonstrate how one farmer can qualify for multiple programs
+Use FM1 to demonstrate that a smallholder who keeps their productive land remains
+compliant; contrast with a hypothetical farm that abandons its productive land.
 
-**Steps:**
+1. Open **Programs → Programs → Input Subsidy** → **Configuration** tab → scroll to the
+   **Compliance Method** section (cards layout) or the **Compliance Manager** separator
+   block → open the linked manager record to show the CEL
+   `has_productive_land == true and farm_size_hectares > 0`
+2. Open FM1 (**Registry → Browse All (Audit) → All Groups → FM1**) → in the **Program
+   Enrollments** section, click the Input Subsidy row → cycle membership history shows
+   `enrolled` for cycles 1–3, then `graduated`
+3. Open a hypothetical FM-NULL with `farm_size_under_crops = 0` post-cycle → state
+   `non_compliant` for that cycle, no entitlement generated
 
-1. Open Juan Dela Cruz profile
-2. Show farm data: 3 ha mixed farm, 15 years experience, 50 chickens
-3. Check Input Subsidy eligibility: smallholder + productive land = eligible
-4. Check Equipment Grant eligibility: smallholder + 15 years = eligible
-5. Check Livestock Support eligibility: 50 livestock heads = eligible
-6. Show consolidated benefit summary
+**Key messages:**
 
-**Key Messages:**
-
-- Holistic farmer support
-- Multiple program coordination
-- No duplicate registration needed
-
----
-
-### Scenario 3: Eligibility Edge Cases
-
-**Objective:** Show how the system correctly handles boundary conditions
-
-**Steps:**
-
-1. Open "New Farmer" persona (1 year experience)
-2. Show Input Subsidy: eligible (smallholder + productive land)
-3. Show Equipment Grant: rejected (experience < 2 years)
-4. Open "AgriCorp Holdings" (50 ha)
-5. Show all programs: rejected (not smallholder)
-6. Open "Idle Land Farm" (all fallow)
-7. Show Input Subsidy: rejected (no productive land)
-8. Show Climate Resilience: eligible (idle land > 0)
-
-**Key Messages:**
-
-- Transparent and auditable eligibility rules
-- Proper targeting prevents leakage
-- Edge cases handled correctly
+- Eligibility gates _enrollment_; compliance gates _each cycle's payment_
+- Compliance can fire on any field reachable from CEL; here we use the productive-land
+  share
 
 ---
 
-### Scenario 4: Agricultural Season Management
+### Scenario 4: Aquaculture targeting
 
-**Objective:** Demonstrate seasonal farm activity tracking
+Demonstrate that the system handles non-crop farming.
 
-**Steps:**
+1. Open the FM6 farm (**Registry → Browse All (Audit) → All Groups → FM6**) → Activities
+   tab → 0.5 ha tilapia fishpond
+2. Open **Programs → Programs → Aquaculture Support** → **Configuration** tab → scroll
+   to the **Eligibility Method / Eligibility Manager** block → CEL
+   `aquaculture_count > 0`
+3. Back on the program form, click the **Cycles** smart button → FM6 in cycle 4 with
+   payment ₱250
+4. From FM1 (rice), use **Enroll in Program → Aquaculture Support**. The resulting
+   `spp.program.membership` row goes to `not_eligible`, not `enrolled`, because the CEL
+   evaluates `aquaculture_count == 0` for FM1. (`Verify Eligibility` on the program form
+   re-evaluates the same membership and keeps it `not_eligible`.)
 
-1. Navigate to Seasons configuration
-2. Create a new wet season (June-November)
-3. Open a farm and add seasonal activities
-4. Show activity types: planting, harvesting, inputs applied
-5. Close season and review summary
+**Key messages:**
 
-**Key Messages:**
-
-- Temporal tracking of farm activities
-- Season-based program cycles
-- Historical data for trend analysis
-
----
-
-### Scenario 5: Farm Data Change Request
-
-**Objective:** Show the change request workflow for farm updates
-
-**Steps:**
-
-1. Open a farmer profile
-2. Submit a change request to update farm size
-3. Show the CR workflow (draft → pending → validated → applied)
-4. Verify updated farm details after approval
-5. Show audit trail of the change
-
-**Key Messages:**
-
-- Data integrity through approval workflows
-- Complete audit trail
-- Controlled updates to farm records
+- Programs can target specific livelihood types via CEL
+- The same farm record carries multiple livelihoods (mixed farms enroll into multiple
+  programs, single-livelihood farms into one)
 
 ---
 
-### Scenario 6: Farm Cooperative (Group Hierarchy)
+### Scenario 5: Climate Resilience for idle land
 
-**Objective:** Demonstrate group of groups hierarchy for farmer cooperatives
+Show how `farm_size_idle` becomes a positive signal for climate-vulnerable households.
 
-**Steps:**
+1. Open **Programs → Programs → Climate Resilience** → **Configuration** tab → scroll to
+   the **Eligibility Method / Eligibility Manager** block → CEL
+   `is_smallholder and farm_size_idle > 0`
+2. Open FM4 (**Registry → Browse All (Audit) → All Groups → FM4**) → 3 ha rice + 1 ha
+   idle = 4 ha total → matches CEL
+3. Back on the program form, click the **Cycles** smart button → 2 paid payments (₱200
+   each)
+4. Contrast with EC1 (50 ha, idle) → fails `is_smallholder` even though
+   `farm_size_idle > 0`
 
-1. Open the Nueva Ecija Rice Cooperative profile
-2. Show it is a group with `allow_all_member_type` enabled
-3. Navigate to the Members tab — show member farms (Maria Santos, Sofia Martinez)
-4. Click into Maria Santos farm — show it is itself a group with individual members
-5. Return to cooperative level — show aggregated data (combined hectares)
-6. Open BARMM Farmers Federation — show federation-level view
-7. Demonstrate that the federation exceeds smallholder threshold (5.5 ha) while
-   individual members qualify
+**Key messages:**
 
-**Key Messages:**
-
-- Cooperatives are represented as groups containing farm groups
-- Multi-level hierarchy: Cooperative → Farm → Individual members
-- Aggregated statistics at cooperative level
-- Individual farm eligibility preserved within cooperative structure
-
----
-
-### Scenario 7: GIS Farm Mapping
-
-**Objective:** Demonstrate geospatial visualization of farm locations and land parcels
-
-**Steps:**
-
-1. Navigate to the GIS Map view of the farmer registry
-2. View all 8 story farms plotted on the Philippine map
-3. Zoom into the Nueva Ecija cluster (Maria Santos + Sofia Martinez area)
-4. Click a farm marker to see farm details (name, size, type)
-5. View the land parcel polygon for Santos Farm (2 ha rice paddy)
-6. Zoom out to see the geographic distribution across Luzon, Visayas, and Mindanao
-7. Compare BARMM farms (Mangudadatu, Pangandaman) vs Luzon farms
-8. Navigate to a farm's Land Records tab to view parcel boundaries and land use
-
-**Key Messages:**
-
-- Every farm has GPS coordinates and land parcel boundaries
-- Map view for geographic planning and disaster response
-- Land use classification on each parcel
-- Spatial queries possible (e.g., "find all farms within 50km of a typhoon path")
-
-**Geographic Coverage:**
-
-| Persona            | Region            | Province      | Coordinates       |
-| ------------------ | ----------------- | ------------- | ----------------- |
-| Maria Santos       | Central Luzon     | Nueva Ecija   | 15.59°N, 120.97°E |
-| Juan Dela Cruz     | Southern Luzon    | Laguna        | 14.27°N, 121.41°E |
-| Rosa Garcia        | Southern Luzon    | Batangas      | 13.76°N, 121.06°E |
-| Sofia Martinez     | Cordillera        | Benguet       | 16.40°N, 120.60°E |
-| Ramon dela Cruz    | Ilocos            | Pangasinan    | 16.02°N, 120.22°E |
-| Amir Mangudadatu   | BARMM             | Maguindanao   | 7.05°N, 124.85°E  |
-| Sittie Pangandaman | BARMM             | Lanao del Sur | 7.90°N, 124.29°E  |
-| Danilo Villanueva  | Northern Mindanao | Bukidnon      | 8.05°N, 125.05°E  |
+- Idle land isn't always a negative — Climate Resilience treats it as a vulnerability
+  signal
+- CEL composition (AND) eliminates large commercial farms from a program targeting
+  smallholders
 
 ---
 
-## Feature Demonstrations
+### Scenario 6: Eligibility rejection paths
 
-### Farm Registry Features
+Show that the engine correctly excludes farms that look eligible at a glance.
 
-| Feature           | Demo Persona                 | Description                              |
-| ----------------- | ---------------------------- | ---------------------------------------- |
-| Crop farming      | Maria Santos                 | Pure rice farming profile                |
-| Mixed farming     | Juan Dela Cruz               | Crops + livestock combination            |
-| Aquaculture       | Ramon dela Cruz              | Fishpond operations                      |
-| Female farmers    | Maria, Rosa, Sofia, Sittie   | Gender-disaggregated data                |
-| Climate impact    | Amir Mangudadatu             | Idle/fallow land tracking                |
-| Edge threshold    | Danilo Villanueva            | At 5 ha smallholder boundary             |
-| Farm cooperative  | Nueva Ecija Rice Cooperative | Group of groups hierarchy                |
-| Farmer federation | BARMM Farmers Federation     | Regional multi-farm federation           |
-| GIS mapping       | All 8 personas               | GPS coordinates across 8 provinces       |
-| Land parcels      | All 8 personas               | Land records with polygon boundaries     |
-| Land use          | All 8 personas               | Cultivation, pasture, aquaculture, mixed |
+1. EC1 (50 ha commercial) → rejected from Input Subsidy / Equipment Grant / Climate
+   Resilience (fails `is_smallholder`)
+2. EC2 (3 ha all idle) → rejected from Input Subsidy (fails `has_productive_land`)
+3. EC3 (2 ha, 1 year experience) → eligible for Input Subsidy; rejected from Equipment
+   Grant (fails `experience_years >= 2`)
 
-### Program Features
+**Key messages:**
 
-| Feature           | Demo Program        | Demo Persona               |
-| ----------------- | ------------------- | -------------------------- |
-| CEL eligibility   | Input Subsidy       | All personas               |
-| Formula benefits  | Input Subsidy       | Maria Santos (per-hectare) |
-| Fixed benefits    | Equipment Grant     | Juan Dela Cruz             |
-| Per-head scaling  | Livestock Support   | Rosa Garcia (20 goats)     |
-| Activity-based    | Aquaculture Support | Ramon dela Cruz            |
-| Climate targeting | Climate Resilience  | Amir Mangudadatu           |
-
-### Change Request Features
-
-| Feature              | CR Type          | Description                        |
-| -------------------- | ---------------- | ---------------------------------- |
-| Update farm details  | Farm Details CR  | Change farm size, classification   |
-| Add farm activity    | Farm Activity CR | Add new crop or livestock activity |
-| Update farm activity | Farm Activity CR | Modify existing activity details   |
+- Each program's CEL is independent — rejecting one doesn't reject all
+- Edge cases drive the test matrix; volume seeding produces farms across the same
+  boundaries
 
 ---
 
-## Appendix: Data Generation Order
+### Scenario 7: Cooperative as group of groups
 
-For optimal demo setup:
+Demonstrate the group-of-groups data model.
 
-1. **First:** Install `spp_farmer_registry_demo` module (installs all dependencies)
-2. **Second:** Run the Farmer Demo Wizard to generate demo data
-3. **Third:** Verify farm registrations and program enrollments
+1. Open COOP1 — Nueva Ecija Rice Cooperative (**Registry → Browse All (Audit) → All
+   Groups → COOP1**) → see member farms FM1 + FM5
+2. Show aggregated metrics — combined 4.0 ha, 2 member farms
+3. Open FM1 → see cooperative membership (FM1 belongs to COOP1)
+4. From **Programs → Programs → Input Subsidy**, run **Verify Eligibility** —
+   eligibility is computed per member farm; the cooperative itself is not a program
+   target
 
-### Prerequisites
+**Key messages:**
 
-The following modules are auto-installed as dependencies:
+- Cooperatives are organisational records; programs target the underlying farms
+- Federations can pool farms from different provinces/regions; the registry preserves
+  the geographic data of each member
 
-- `spp_starter_farmer_registry` - Core farmer registry modules
-- `spp_farmer_registry_cr` - Change request types for farm data
-- `spp_demo` - Demo infrastructure
-- `spp_studio` - Logic Studio for Logic Packs
-- `spp_registry_group_hierarchy` - Group hierarchy support
+---
+
+### Scenario 8: Change request lifecycle
+
+Walk through the 10 demo CRs to show every CR state. Open them from **Change Requests →
+All Requests**, then use the search filter to narrow by registrant (e.g. type the farm's
+name in the search bar) to see per-farm CRs.
+
+1. Approved: FM1 `update_farm_details` — farm expanded after acquisition
+2. Applied: FM2 `update_farm_details` — added livestock area, applied automatically
+3. Pending: FM2 `manage_farm_activity` — register chicken activity (awaiting validator)
+4. Approved: FM3 `update_farm_details` — land tenure transfer
+5. Draft: FM5 `manage_farm_activity` — register organic crop (UI workflow stage)
+6. Pending: FM6 `manage_farm_activity` — update tilapia yield
+7. Rejected: FM4 `update_farm_details` — reclassify idle land, rejected pending
+   verification
+8. Approved: FM7 `manage_farm_activity` — register dry-season maize
+9. Revision: FM8 `update_farm_details` — experience claim flagged for documentation
+10. Pending: FM8 `manage_farm_asset` — register additional water pump for irrigation
+    expansion
+
+**Key messages:**
+
+- The demo covers 6 CR states (Draft, Pending, Approved, Applied, Rejected, Revision)
+- Three CR types in scope (`update_farm_details`, `manage_farm_activity`,
+  `manage_farm_asset`); the remaining type shipped by `spp_farmer_registry_cr`
+  (`manage_land_parcel`) is wired but not seeded by the demo
+
+---
+
+### Scenario 9: Approval workflow on cycles + entitlements
+
+Demonstrate that demo programs route cycles and entitlements through the approval
+workflow (a feature MIS demo lacks).
+
+1. Open **Programs → Programs → Input Subsidy** → click the **New Cycle** button in the
+   header
+2. The cycle enters state `to_approve` (not `draft`) because its cycle manager has
+   `approval_definition_id` set
+3. Show the approval review record — assigned to `group_programs_manager`, SLA 3 days
+4. Log in as the `program_manager` demo user (Program Manager role) and approve the
+   cycle → state moves to `approved`. Approving a cycle enqueues the entitlement-
+   validation job; the `program_manager` account carries queue-job manager rights so the
+   job can be created — a plain Program Manager without those rights hits an access
+   error at this step.
+5. Generate entitlements → each entitlement enters `pending_validation` and follows the
+   same approval flow
+
+**Key messages:**
+
+- Approval is opt-in per program manager; here every farmer demo program has it wired
+- Adding `manager.approval_definition_id` is the only knob — the rest is the standard
+  `spp.approval.definition` framework
+- The cycle approver needs queue-job manager rights because cycle approval enqueues the
+  entitlement-validation job; the `program_manager` role bundles both
+
+---
+
+### Scenario 10: GIS + irrigation walk for FM4
+
+Anchor the GIS, land-record, and irrigation modules in a single coherent flow. The
+narrative hook: FM4's 1 ha of idle/fallow land is the **downstream consequence of
+reduced reservoir capacity**, not random non-cultivation.
+
+> **Note:** `spp_gis`, `spp_land_record`, and `spp_irrigation` don't ship top-level
+> menus. Land records live on the farm form (the **Land Parcels** smart button + **Land
+> Parcels** notebook tab); irrigation assets live on the **Irrigation** notebook tab.
+> The GIS map widget is rendered in the **Profile → Location** group via
+> `spp_registrant_gis`. To get the broader GIS configuration menus (Color Scales,
+> Indicator Layers), install `spp_gis_indicators` — those ship menus under **Settings →
+> GIS Configuration**.
+
+1. Open FM4 — Mangudadatu Farm (**Registry → Browse All (Audit) → All Groups → FM4
+   Mangudadatu Farm**) → **Profile** tab → **Location** section. The GIS map widget
+   shows the farm's land-parcel polygon plotted at Cotabato City — ≈ 4 ha total area, of
+   which 1 ha is the idle/fallow strip. (Map tiles require a tile-provider API key — see
+   the wizard prerequisite note. Without the key, the latitude/longitude fields still
+   display the correct values.)
+2. On the FM4 form, click the **Land Parcels** smart button (icon `fa-map`, label "Land
+   Parcels") in the button row — or open the **Land Parcels** tab in the notebook for
+   the inline list. The single record shows the parcel polygon and exports as GeoJSON
+   via the action menu (`spp.land.record.get_geojson()`).
+3. On the FM4 form, open the **Irrigation** tab in the notebook (added by
+   `spp_irrigation` as an inline editable list of `irrigation_asset_ids`). Two assets
+   are linked into a network:
+   - **Cotabato Irrigation Reservoir** (type=reservoir) — effective capacity 5 000 m³;
+     design ≈ 15 000 m³ (silted, hence the reduced flow)
+   - **Cotabato Main Canal Branch** (type=canal) — fed by the reservoir, 300 m³ flow
+     capacity
+4. Open the reservoir record → see `irrigation_destination_ids` lists the canal. Open
+   the canal → `irrigation_source_ids` lists the reservoir. The source-to-destination
+   network is the same model used to map nation-scale infrastructure.
+5. Returning to the registrant list with the search filter `farm_size_idle > 0` (under
+   **Registry → Browse All (Audit) → All Groups**, apply the filter), FM4 appears
+   alongside other idle-land farms (mostly the seeded volume blueprints
+   `Drought-affected (idle land)` and `Flood-affected female farmer`). This is how a
+   ministry planner would target a climate intervention region.
+6. Close the loop with Scenario 5 — Climate Resilience already enrolls FM4 because of
+   `farm_size_idle > 0`, but **Scenario 10 explains why the idle hectare exists**. The
+   two scenarios together make the case that targeting and infrastructure analysis
+   belong in the same registry.
+
+**Key messages:**
+
+- The geographic dimension is not just a label — `spp_gis` + `spp_land_record` +
+  `spp_irrigation` + `spp_area` compose into a queryable spatial layer
+- Compound insight: idle land + degraded irrigation network = a ministry-actionable
+  intervention map, not just two unrelated facts
+- GeoJSON export is the integration boundary for partners that already operate their own
+  GIS stack
+
+---
+
+## References
+
+### Constellation of included registrants
+
+The farmer demo currently supports a single locale (`fil_PH`). Locale-specific name
+pools live in `seeded_farm_generator.py`; the per-story names below are the actual
+values written by `farmer_demo_generator.py`.
+
+#### Farms used in stories
+
+| Code  | Filipino name                | Story angle                       |
+| ----- | ---------------------------- | --------------------------------- |
+| FM1   | Santos                       | Smallholder graduation            |
+| FM2   | Dela Cruz                    | Multi-program mixed               |
+| FM3   | Garcia                       | Senior livestock                  |
+| FM4   | Mangudadatu                  | Climate Resilience / idle land    |
+| FM5   | Martinez                     | Young female / organic transition |
+| FM6   | Dela Cruz (fishpond)         | Aquaculture                       |
+| FM7   | Pangandaman                  | Multi-program (Input + Equipment) |
+| FM8   | Villanueva                   | Smallholder boundary edge case    |
+| EC1   | (volume-generated)           | Large commercial — rejection      |
+| EC2   | (volume-generated)           | Idle-only — rejection             |
+| EC3   | (volume-generated)           | Inexperienced — partial rejection |
+| COOP1 | Nueva Ecija Rice Cooperative | Cooperative (FM1 + FM5)           |
+| COOP2 | BARMM Farmers Federation     | Federation (FM4 + FM7)            |
+
+#### Farm information
+
+##### Information about FM1
+
+| Code | Filipino |
+| ---- | -------- |
+| FM1  | Santos   |
+
+|          | Geographic location          |
+| -------- | ---------------------------- |
+| Filipino | Cabanatuan City, Nueva Ecija |
+
+| Member ID | Role | Age | Gender | Filipino     |
+| --------- | ---- | --- | ------ | ------------ |
+| FM1M1     | Head | 42  | Female | Maria Santos |
+
+**Farm facts:** 2.0 ha rice; experience 10 years; productive land 100 %.
+
+##### Information about FM2
+
+| Code | Filipino  |
+| ---- | --------- |
+| FM2  | Dela Cruz |
+
+|          | Geographic location    |
+| -------- | ---------------------- |
+| Filipino | San Pablo City, Laguna |
+
+| Member ID | Role | Age | Gender | Filipino       |
+| --------- | ---- | --- | ------ | -------------- |
+| FM2M1     | Head | 45  | Male   | Juan Dela Cruz |
+
+**Farm facts:** 3.0 ha mixed (1.5 rice + 0.5 vegetables + 50 chickens on 1.0 ha
+livestock); experience 15 years.
+
+##### Information about FM3
+
+| Code | Filipino |
+| ---- | -------- |
+| FM3  | Garcia   |
+
+|          | Geographic location |
+| -------- | ------------------- |
+| Filipino | Lipa City, Batangas |
+
+| Member ID | Role | Age | Gender | Filipino    |
+| --------- | ---- | --- | ------ | ----------- |
+| FM3M1     | Head | 67  | Female | Rosa Garcia |
+
+**Farm facts:** 1.0 ha mixed (0.5 ha crops + 0.5 ha livestock with 20 goats); experience
+5 years.
+
+##### Information about FM4
+
+| Code | Filipino    |
+| ---- | ----------- |
+| FM4  | Mangudadatu |
+
+|          | Geographic location                |
+| -------- | ---------------------------------- |
+| Filipino | Cotabato City, Maguindanao (BARMM) |
+
+| Member ID | Role | Age | Gender | Filipino         |
+| --------- | ---- | --- | ------ | ---------------- |
+| FM4M1     | Head | 50  | Male   | Amir Mangudadatu |
+
+**Farm facts:** 4.0 ha total (3.0 ha rice + 1.0 ha idle/fallow); experience 20 years;
+vulnerability `very_high`.
+
+##### Information about FM5
+
+| Code | Filipino |
+| ---- | -------- |
+| FM5  | Martinez |
+
+|          | Geographic location              |
+| -------- | -------------------------------- |
+| Filipino | La Trinidad, Benguet (highlands) |
+
+| Member ID | Role | Age | Gender | Filipino       |
+| --------- | ---- | --- | ------ | -------------- |
+| FM5M1     | Head | 42  | Female | Sofia Martinez |
+
+**Farm facts:** 2.0 ha vegetables + maize; experience 5 years; organic transition in
+progress.
+
+##### Information about FM6
+
+| Code | Filipino  |
+| ---- | --------- |
+| FM6  | Dela Cruz |
+
+|          | Geographic location |
+| -------- | ------------------- |
+| Filipino | Dagupan, Pangasinan |
+
+| Member ID | Role | Age | Gender | Filipino        |
+| --------- | ---- | --- | ------ | --------------- |
+| FM6M1     | Head | 35  | Male   | Ramon dela Cruz |
+
+**Farm facts:** 0.5 ha tilapia fishpond; experience 7 years.
+
+##### Information about FM7
+
+| Code | Filipino    |
+| ---- | ----------- |
+| FM7  | Pangandaman |
+
+|          | Geographic location           |
+| -------- | ----------------------------- |
+| Filipino | Marawi, Lanao del Sur (BARMM) |
+
+| Member ID | Role | Age | Gender | Filipino           |
+| --------- | ---- | --- | ------ | ------------------ |
+| FM7M1     | Head | 32  | Female | Sittie Pangandaman |
+
+**Farm facts:** 1.5 ha rice + vegetables; experience 12 years.
+
+##### Information about FM8
+
+| Code | Filipino   |
+| ---- | ---------- |
+| FM8  | Villanueva |
+
+|          | Geographic location  |
+| -------- | -------------------- |
+| Filipino | Malaybalay, Bukidnon |
+
+| Member ID | Role | Age | Gender | Filipino          |
+| --------- | ---- | --- | ------ | ----------------- |
+| FM8M1     | Head | 38  | Male   | Danilo Villanueva |
+
+**Farm facts:** 5.0 ha mixed (3.0 ha crops + 2.0 ha livestock; 15 cattle + 30 goats);
+experience 25 years. Sits exactly at the smallholder boundary.
+
+---
+
+### Configuration of included programs
+
+#### 1. Input Subsidy Program (Group)
+
+| Field             | Value                                                                                                                                                                                                        |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Target            | Farm (Group)                                                                                                                                                                                                 |
+| CEL (Eligibility) | `r.is_group == true and is_smallholder and has_productive_land`                                                                                                                                              |
+| CEL (Compliance)  | `has_productive_land == true and farm_size_hectares > 0`                                                                                                                                                     |
+| Constants         | `input_subsidy_base` = 100; `per_hectare_subsidy` = 50                                                                                                                                                       |
+| Entitlement       | `base + (farm_size_hectares × per_hectare_subsidy)` — two cash lines: ₱100 base + ₱50 per hectare. A 2 ha farm receives 100 + (2 × 50) = ₱200 per cycle; the amount scales with the farm's actual hectarage. |
+| Cycle             | 30 days                                                                                                                                                                                                      |
+| Logic Pack        | `farmer_input_subsidy`                                                                                                                                                                                       |
+| Approval          | Cycle: Program Manager (3-day SLA); Entitlement: Program Manager (3-day SLA)                                                                                                                                 |
+| Compliance Note   | Re-checks productive land each cycle. A farm that abandons productive use becomes `non_compliant` for that cycle and gets no entitlement.                                                                    |
+
+#### 2. Equipment Grant Program (Group)
+
+| Field             | Value                                                                                                                              |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Target            | Farm (Group)                                                                                                                       |
+| CEL (Eligibility) | `r.is_group == true and is_smallholder and experience_years >= 2`                                                                  |
+| CEL (Compliance)  | `is_smallholder == true and has_productive_land == true`                                                                           |
+| Constants         | `equipment_grant_amount` = 500                                                                                                     |
+| Entitlement       | ₱500 fixed                                                                                                                         |
+| Cycle             | 30 days                                                                                                                            |
+| Logic Pack        | `farmer_equipment_grant`                                                                                                           |
+| Approval          | Cycle: Program Manager (3-day SLA); Entitlement: Program Manager (3-day SLA)                                                       |
+| Compliance Note   | A recipient who grows past the smallholder threshold or stops actively farming fails compliance and stops receiving disbursements. |
+
+#### 3. Livestock Support Program (Group)
+
+| Field       | Value                                                                                                                                                                                                       |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Target      | Farm (Group)                                                                                                                                                                                                |
+| CEL         | `r.is_group == true and livestock_count > 0`                                                                                                                                                                |
+| Constants   | `livestock_base` = 75; `per_head_amount` = 10                                                                                                                                                               |
+| Entitlement | `base + (total_livestock_heads × per_head_amount)` — two cash lines: ₱75 base + ₱10 per head. A 20-head farm receives 75 + (20 × 10) = ₱275 per cycle; the amount scales with the farm's actual head count. |
+| Cycle       | 30 days                                                                                                                                                                                                     |
+| Logic Pack  | `farmer_livestock_support`                                                                                                                                                                                  |
+| Approval    | Cycle: Program Manager (3-day SLA); Entitlement: Program Manager (3-day SLA)                                                                                                                                |
+
+#### 4. Climate Resilience Program (Group)
+
+| Field       | Value                                                                        |
+| ----------- | ---------------------------------------------------------------------------- |
+| Target      | Farm (Group)                                                                 |
+| CEL         | `r.is_group == true and is_smallholder and farm_size_idle > 0`               |
+| Constants   | `climate_adaptation_amount` = 200                                            |
+| Entitlement | ₱200 fixed                                                                   |
+| Cycle       | 30 days                                                                      |
+| Logic Pack  | `farmer_climate_resilience`                                                  |
+| Approval    | Cycle: Program Manager (3-day SLA); Entitlement: Program Manager (3-day SLA) |
+
+#### 5. Aquaculture Support Program (Group)
+
+| Field       | Value                                                                        |
+| ----------- | ---------------------------------------------------------------------------- |
+| Target      | Farm (Group)                                                                 |
+| CEL         | `r.is_group == true and aquaculture_count > 0`                               |
+| Constants   | `aquaculture_amount` = 250                                                   |
+| Entitlement | ₱250 fixed                                                                   |
+| Cycle       | 30 days                                                                      |
+| Logic Pack  | `farmer_aquaculture_support`                                                 |
+| Approval    | Cycle: Program Manager (3-day SLA); Entitlement: Program Manager (3-day SLA) |
+
+---
+
+### Overview of included change requests
+
+| #   | Type                 | Target | Registrant | State    | Life event                                               |
+| --- | -------------------- | ------ | ---------- | -------- | -------------------------------------------------------- |
+| 1   | Update farm details  | Farm   | FM1        | Approved | Farm expanded to 3.0 ha after acquiring adjacent parcel  |
+| 2   | Update farm details  | Farm   | FM2        | Applied  | Expanded to 4.0 ha, added livestock area                 |
+| 3   | Manage farm activity | Farm   | FM2        | Pending  | Register new chicken-rearing activity (50 heads)         |
+| 4   | Update farm details  | Farm   | FM3        | Approved | Land tenure transferred to owner after inheritance       |
+| 5   | Manage farm activity | Farm   | FM5        | Draft    | Register organic vegetable cultivation (commercial)      |
+| 6   | Manage farm activity | Farm   | FM6        | Pending  | Update tilapia production (3,500 kg current)             |
+| 7   | Update farm details  | Farm   | FM4        | Rejected | Reclassify productive area; rejected pending field check |
+| 8   | Manage farm activity | Farm   | FM7        | Approved | Register dry-season maize cultivation                    |
+| 9   | Update farm details  | Farm   | FM8        | Revision | Experience claim flagged for supporting documents        |
+| 10  | Manage farm asset    | Farm   | FM8        | Pending  | Register additional water pump for irrigation expansion  |
+
+**CR types covered:** `update_farm_details`, `manage_farm_activity`,
+`manage_farm_asset`. The remaining type shipped by `spp_farmer_registry_cr`
+(`manage_land_parcel`) is wired into the module but not seeded by the demo today.
+
+**CR states covered:** Draft, Pending, Approved, Applied (auto-applied on approval for
+some CR types), Rejected, Revision.
+
+---
+
+### Geographic distribution
+
+Each story farm is assigned to an administrative area appropriate to its locale from the
+demo area data.
+
+| Character                               | Code  | Filipino location            |
+| --------------------------------------- | ----- | ---------------------------- |
+| Inland rice plains                      | FM1   | Cabanatuan City, Nueva Ecija |
+| Inland mixed farming                    | FM2   | San Pablo City, Laguna       |
+| Inland plateau, livestock area          | FM3   | Lipa City, Batangas          |
+| Inland BARMM, conflict-affected         | FM4   | Cotabato City, Maguindanao   |
+| Mountain valley highlands               | FM5   | La Trinidad, Benguet         |
+| Inland fishpond area                    | FM6   | Dagupan, Pangasinan          |
+| Inland BARMM, women-in-agriculture      | FM7   | Marawi, Lanao del Sur        |
+| Inland highland plateau, threshold edge | FM8   | Malaybalay, Bukidnon         |
+| Cooperative — Central Luzon             | COOP1 | Nueva Ecija + Benguet        |
+| Cooperative — BARMM federation          | COOP2 | Maguindanao + Lanao del Sur  |
+
+---
+
+### Seeded volume blueprints
+
+In addition to the named stories, `seeded_farm_generator.py` produces ~730 volume farms
+across 21 deterministic blueprints. Counts and shapes are seed-stable (`seed=42`).
+
+| Blueprint                              | Count | Zone       | Type        | Size (ha) | Experience | Head gender | Members |
+| -------------------------------------- | ----- | ---------- | ----------- | --------- | ---------- | ----------- | ------- |
+| Small female rice farmer               | 40    | rural      | crop        | 1.0–2.0   | 5–15       | F           | 2       |
+| Small male rice farmer                 | 45    | rural      | crop        | 1.0–3.0   | 3–20       | M           | 3       |
+| Small maize farmer                     | 35    | rural      | crop        | 1.0–2.5   | 4–18       | M           | 2       |
+| Small female vegetable farmer          | 30    | peri-urban | crop        | 0.5–1.5   | 2–12       | F           | 2       |
+| Rice + vegetable farmer                | 35    | rural      | crop        | 2.0–4.0   | 8–25       | M           | 4       |
+| Highland crop farmer (Cordillera)      | 25    | rural      | crop        | 1.0–2.0   | 5–20       | M           | 3       |
+| Mixed rice + chicken                   | 35    | rural      | mixed       | 2.0–3.5   | 5–20       | M           | 3       |
+| Mixed maize + goat                     | 30    | rural      | mixed       | 1.5–3.0   | 4–18       | M           | 2       |
+| Female-headed mixed rice + cattle      | 30    | rural      | mixed       | 2.0–4.0   | 8–22       | F           | 3       |
+| Mixed vegetable + chicken (peri-urban) | 35    | peri-urban | mixed       | 1.0–2.0   | 3–15       | F           | 2       |
+| Goat farmer                            | 30    | rural      | livestock   | 1.0–2.5   | 5–20       | M           | 2       |
+| Cattle rancher                         | 25    | rural      | livestock   | 3.0–6.0   | 10–30      | M           | 3       |
+| Female chicken farmer                  | 35    | peri-urban | livestock   | 0.5–1.5   | 2–12       | F           | 1       |
+| Fishpond farmer (tilapia)              | 30    | rural      | aquaculture | 0.5–2.0   | 3–15       | M           | 2       |
+| Mixed fishpond + rice                  | 25    | rural      | mixed       | 1.0–3.0   | 5–18       | M           | 3       |
+| Large commercial crop                  | 25    | rural      | crop        | 5.0–10.0  | 15–35      | M           | 4       |
+| Large mixed commercial                 | 25    | rural      | mixed       | 5.0–8.0   | 12–30      | M           | 3       |
+| Drought-affected (idle land)           | 30    | rural      | crop        | 2.0–4.0   | 8–25       | M           | 3       |
+| Flood-affected female farmer           | 25    | rural      | crop        | 1.0–2.5   | 5–18       | F           | 2       |
+| Young farmer (< 3 years' experience)   | 40    | rural      | crop        | 0.5–2.0   | 0–3        | any         | 1       |
+| Elderly farmer (20+ years' experience) | 30    | rural      | crop        | 1.0–3.0   | 20–40      | M           | 2       |
+
+**Total blueprints:** 21. **Total farms:** ~730. **Estimated members:** ~1,500.
+
+---
+
+### Irrigation infrastructure
+
+The demo seeds two `spp.irrigation.asset` records for FM4, linked into a
+source-to-destination network. They anchor Scenario 10 (GIS + irrigation walk).
+
+| Asset                         | Type      | Capacity             | farm_id | Source(s)                     | Destination(s)             |
+| ----------------------------- | --------- | -------------------- | ------- | ----------------------------- | -------------------------- |
+| Cotabato Irrigation Reservoir | Reservoir | 5 000 m³ effective   | FM4     | —                             | Cotabato Main Canal Branch |
+| Cotabato Main Canal Branch    | Canal     | 300 m³ flow capacity | FM4     | Cotabato Irrigation Reservoir | —                          |
+
+The reservoir sits a few hundred metres N-W of FM4's parcel; both assets carry GeoJSON
+polygons used by the GIS view.
+
+---
+
+### Farm assets
+
+The demo seeds two `spp.farm.asset` machinery records to surface the asset model
+alongside the farm-asset CR type.
+
+| Farm | Machinery type | Quantity | Status      | Linked land parcel |
+| ---- | -------------- | -------- | ----------- | ------------------ |
+| FM1  | Hand Tractor   | 1        | Operational | FM1 main parcel    |
+| FM8  | Water Pump     | 1        | Operational | FM8 main parcel    |
+
+A third record is implied by the FM8 `manage_farm_asset` CR (pending) — registering a
+second water pump.
+
+---
+
+### Farm seasons
+
+The demo seeds the `spp.farm.season` state machine across both terminal points so
+reviewers see all states at a glance.
+
+| Season name                   | Date range                | State  |
+| ----------------------------- | ------------------------- | ------ |
+| Growing Season {prior year}   | Jan 1 – Dec 31 prior year | Closed |
+| Growing Season {current year} | Jan 1 – Dec 31 current    | Active |
+
+The `draft` state is reachable by creating a future season manually in the UI; the demo
+doesn't seed one to avoid introducing year-specific assumptions.
+
+---
+
+### Overview
+
+| Metric                   | Count                                                                  |
+| ------------------------ | ---------------------------------------------------------------------- |
+| Story farms              | 8 (FM1–FM8)                                                            |
+| Edge-case stories        | 3 (EC1–EC3)                                                            |
+| Cooperative stories      | 2 (COOP1, COOP2)                                                       |
+| Total programs included  | 5                                                                      |
+| Programs with compliance | 2 (Input Subsidy, Equipment Grant)                                     |
+| Change requests          | 10 (3 types, 6 states)                                                 |
+| Demo scenarios           | 10                                                                     |
+| Irrigation assets        | 2 (reservoir + canal, network linked, anchored on FM4)                 |
+| Farm assets              | 2 machinery records seeded (FM1 hand tractor, FM8 water pump)          |
+| Farm seasons             | 2 (closed prior year + active current year)                            |
+| Locales                  | 1 (`fil_PH`)                                                           |
+| Seeded volume            | ~730 farms, ~1,500 individuals                                         |
+| Approval definitions     | Cycle + Entitlement (Program Manager, 3-day SLA) on every demo program |

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Program / cycle audit rules — split from spp_audit (OP#1085).
+         Program Rule is created first so the manager rules below can resolve
+         it as their parent_rule_name. -->
+
+    <!-- Program Rule -->
+    <function model="spp.audit.rule" name="create_rules">
+        <value name="rule_name">Program Rule</value>
+        <value name="model">spp.program</value>
+        <value
+            name="fields_to_log"
+            eval="['name', 'eligible_beneficiaries_count', 'has_members']"
+        />
+    </function>
+
+    <!-- Cycle Rule -->
+    <function model="spp.audit.rule" name="create_rules">
+        <value name="rule_name">Cycle Rule</value>
+        <value name="model">spp.cycle</value>
+        <value name="fields_to_log" eval="['name', 'start_date', 'end_date']" />
+    </function>
+
+    <!-- Default Eligibility Manager Rule -->
+    <function model="spp.audit.rule" name="create_rules">
+        <value name="rule_name">Default Eligibility Manager Rule</value>
+        <value name="model">spp.program.membership.manager.default</value>
+        <value
+            name="fields_to_log"
+            eval="['eligibility_domain', 'admin_area_ids', 'create_date', 'display_name', 'program_id']"
+        />
+        <value name="view_logs" eval="False" />
+        <value name="parent_rule_name">Program Rule</value>
+        <value name="connecting_field_name">program_id</value>
+    </function>
+
+    <!-- Deduplication Manager Rule -->
+    <function model="spp.audit.rule" name="create_rules">
+        <value name="rule_name">Deduplication Manager Rule</value>
+        <value name="model">spp.deduplication.manager.default</value>
+        <value name="fields_to_log" eval="['name']" />
+        <value name="view_logs" eval="False" />
+        <value name="parent_rule_name">Program Rule</value>
+        <value name="connecting_field_name">program_id</value>
+    </function>
+
+    <!-- Notification Manager Rule -->
+    <function model="spp.audit.rule" name="create_rules">
+        <value name="rule_name">Notification Manager Rule</value>
+        <value name="model">spp.program.notification.manager.sms</value>
+        <value name="fields_to_log" eval="['name']" />
+        <value name="view_logs" eval="False" />
+        <value name="parent_rule_name">Program Rule</value>
+        <value name="connecting_field_name">program_id</value>
+    </function>
+
+    <!-- Program Manager Rule -->
+    <function model="spp.audit.rule" name="create_rules">
+        <value name="rule_name">Program Manager Rule</value>
+        <value name="model">spp.program.manager.default</value>
+        <value
+            name="fields_to_log"
+            eval="['copy_last_cycle_on_new_cycle', 'create_date', 'number_of_cycles', 'program_id', 'write_uid']"
+        />
+        <value name="view_logs" eval="False" />
+        <value name="parent_rule_name">Program Rule</value>
+        <value name="connecting_field_name">program_id</value>
+    </function>
+
+    <!-- Cycle Manager Rule -->
+    <function model="spp.audit.rule" name="create_rules">
+        <value name="rule_name">Cycle Manager Rule</value>
+        <value name="model">spp.cycle.manager.default</value>
+        <value
+            name="fields_to_log"
+            eval="['approver_group_id', 'auto_approve_entitlements', 'byday', 'calendar_event_ids', 'cycle_duration', 'day', 'end_type', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun', 'month_by', 'rrule', 'until', 'weekday']"
+        />
+        <value name="view_logs" eval="False" />
+        <value name="parent_rule_name">Program Rule</value>
+        <value name="connecting_field_name">program_id</value>
+    </function>
+
+    <!-- Entitlement Manager Rule -->
+    <function model="spp.audit.rule" name="create_rules">
+        <value name="rule_name">Entitlement Manager Rule</value>
+        <value name="model">spp.program.entitlement.manager.default</value>
+        <value name="fields_to_log" eval="['name']" />
+        <value name="view_logs" eval="False" />
+        <value name="parent_rule_name">Program Rule</value>
+        <value name="connecting_field_name">program_id</value>
+    </function>
+
+    <!-- Payment Manager Rule -->
+    <function model="spp.audit.rule" name="create_rules">
+        <value name="rule_name">Payment Manager Rule</value>
+        <value name="model">spp.program.payment.manager.default</value>
+        <value name="fields_to_log" eval="['name']" />
+        <value name="view_logs" eval="False" />
+        <value name="parent_rule_name">Program Rule</value>
+        <value name="connecting_field_name">program_id</value>
+    </function>
+
+    <!-- Cash Entitlement Manager Rule -->
+    <function model="spp.audit.rule" name="create_rules">
+        <value name="rule_name">Cash Entitlement Manager Rule</value>
+        <value name="model">spp.program.entitlement.manager.cash</value>
+        <value name="fields_to_log" eval="['name']" />
+        <value name="view_logs" eval="False" />
+        <value name="parent_rule_name">Program Rule</value>
+        <value name="connecting_field_name">program_id</value>
+    </function>
+
+    <!-- Basket Entitlement Manager Rule -->
+    <function model="spp.audit.rule" name="create_rules">
+        <value name="rule_name">Basket Entitlement Manager Rule</value>
+        <value name="model">spp.program.entitlement.manager.basket</value>
+        <value
+            name="fields_to_log"
+            eval="['name', 'basket_product_ids', 'entitlement_basket_id', 'entitlement_item_ids', 'entitlement_validation_group_id', 'manage_inventory', 'max_multiplier', 'multiplier_field', 'program_id']"
+        />
+        <value name="view_logs" eval="False" />
+        <value name="parent_rule_name">Program Rule</value>
+        <value name="connecting_field_name">program_id</value>
+    </function>
+</odoo>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    Seed service-type vocabulary codes for the farmer demo.
+
+    The Service Types vocabulary (`urn:openspp:vocab:service-types`) is
+    defined by spp_service_points but ships empty. The demo install needs
+    concrete codes to assign to the seeded service points so the form
+    shows realistic Service Types tags.
+
+    The vocabulary is non-system (is_system=False), so writing new codes
+    through XML is allowed without any vocabulary-protection bypass.
+-->
+<odoo noupdate="1">
+    <record id="service_type_crop_collection" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_service_points.vocab_service_types" />
+        <field name="code">crop_collection</field>
+        <field name="display">Crop Collection</field>
+        <field
+            name="definition"
+        >Drop-off / weighing center where farmers deliver harvested produce.</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="service_type_input_supply" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_service_points.vocab_service_types" />
+        <field name="code">input_supply</field>
+        <field name="display">Input Supply</field>
+        <field
+            name="definition"
+        >Seeds, fertilizer, pesticides, and other production-input retail.</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="service_type_cash_disbursement" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_service_points.vocab_service_types" />
+        <field name="code">cash_disbursement</field>
+        <field name="display">Cash Disbursement</field>
+        <field
+            name="definition"
+        >Bank branch or agent where beneficiaries collect cash entitlements.</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="service_type_veterinary" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_service_points.vocab_service_types" />
+        <field name="code">veterinary</field>
+        <field name="display">Veterinary Services</field>
+        <field
+            name="definition"
+        >Animal health clinic — vaccination, diagnosis, livestock treatment.</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <record id="service_type_extension" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_service_points.vocab_service_types" />
+        <field name="code">extension_services</field>
+        <field name="display">Extension Services</field>
+        <field
+            name="definition"
+        >Agricultural advisory / extension office — agronomy guidance, training, demo plots.</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <record id="service_type_equipment_rental" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_service_points.vocab_service_types" />
+        <field name="code">equipment_rental</field>
+        <field name="display">Equipment Rental</field>
+        <field name="definition">Hand tractor / thresher / harvester rental hub.</field>
+        <field name="sequence">60</field>
+    </record>
+</odoo>

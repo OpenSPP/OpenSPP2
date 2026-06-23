@@ -11,7 +11,7 @@
     "license": "LGPL-3",
     "development_status": "Production/Stable",
     "maintainers": ["OpenSPP"],
-    "depends": ["base", "spp_security", "spp_registry", "spp_programs"],
+    "depends": ["base", "spp_security", "spp_registry"],
     "data": [
         "security/ir.model.access.csv",
         "views/merge_provenance_views.xml",

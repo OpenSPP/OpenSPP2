@@ -34,10 +34,6 @@ from . import test_openapi_polymorphic
 from . import test_organization_type_security
 from . import test_pagination
 from . import test_patch_api
-from . import test_program_api
-from . import test_program_membership_api
-from . import test_program_membership_service
-from . import test_program_service
 from . import test_scope_enforcement
 from . import test_schema_builder
 from . import test_search_service

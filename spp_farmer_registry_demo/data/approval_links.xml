@@ -67,9 +67,15 @@
     </record>
     -->
 
-    <!-- Manage Farm Assets — disabled until CR type is enabled
-    <record id="spp_farmer_registry_cr.cr_type_manage_farm_asset" model="spp.change.request.type">
-        <field name="approval_definition_id" ref="spp_farmer_registry_cr.approval_def_farmer_cr_local_to_hq" />
+    <!-- Manage Farm Assets — same local→HQ tiered approval as the other
+         farmer CR types (OP#915 round 6). -->
+    <record
+        id="spp_farmer_registry_cr.cr_type_manage_farm_asset"
+        model="spp.change.request.type"
+    >
+        <field
+            name="approval_definition_id"
+            ref="spp_farmer_registry_cr.approval_def_farmer_cr_local_to_hq"
+        />
     </record>
-    -->
 </odoo>
