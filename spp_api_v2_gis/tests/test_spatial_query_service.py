@@ -348,6 +348,50 @@ class TestSpatialQueryService(TransactionCase):
         self.assertIn("suppression_precedence_stat", result["statistics"])
         self.assertEqual(result["statistics"]["suppression_precedence_stat"], "<10")
 
+    def test_get_empty_statistics(self):
+        """The empty-statistics structure is an empty dict."""
+        from ..services.spatial_query_service import SpatialQueryService
+
+        self.assertEqual(SpatialQueryService(self.env)._get_empty_statistics(), {})
+
+    def test_build_filter_clauses(self):
+        """SQL filter clauses are built from the is_group / disabled keys."""
+        from ..services.spatial_query_service import SpatialQueryService
+
+        service = SpatialQueryService(self.env)
+
+        self.assertEqual(service._build_filter_clauses({}), ("", []))
+
+        where, params = service._build_filter_clauses({"is_group": True})
+        self.assertIn("p.is_group = %s", where)
+        self.assertEqual(params, [True])
+
+        where, _params = service._build_filter_clauses({"disabled": True})
+        self.assertIn("p.disabled IS NOT NULL", where)
+
+        where, _params = service._build_filter_clauses({"disabled": False})
+        self.assertIn("p.disabled IS NULL", where)
+
+        where, params = service._build_filter_clauses({"is_group": False, "disabled": True})
+        self.assertIn("p.is_group = %s", where)
+        self.assertIn("p.disabled IS NOT NULL", where)
+        self.assertEqual(params, [False])
+
+    def test_resolve_individuals_to_groups_empty(self):
+        """An empty individual list resolves to no groups."""
+        from ..services.spatial_query_service import SpatialQueryService
+
+        self.assertEqual(SpatialQueryService(self.env)._resolve_individuals_to_groups([]), [])
+
+    def test_resolve_individuals_to_groups(self):
+        """Individuals resolve to the groups whose membership contains them."""
+        if "spp.group.membership" not in self.env:
+            self.skipTest("spp.group.membership not available")
+        from ..services.spatial_query_service import SpatialQueryService
+
+        group_ids = SpatialQueryService(self.env)._resolve_individuals_to_groups([self.member_adult_male.id])
+        self.assertIn(self.group.id, group_ids)
+
 
 class TestSpatialQueryServicePublicUser(TransactionCase):
     """Tests for spatial query service running as public user.

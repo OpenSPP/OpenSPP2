@@ -255,6 +255,27 @@ class TestGisProcessJobModel(TransactionCase):
         self.assertFalse(job.started_at)
         self.assertFalse(job.finished_at)
 
+    def test_batch_progress_callback_none_for_non_batch(self):
+        """No progress callback is produced when geometry is not a list."""
+        job = self._create_job()
+        self.assertIsNone(job._make_batch_progress_callback({"geometry": {"type": "Polygon"}}))
+        self.assertIsNone(job._make_batch_progress_callback({}))
+
+    def test_batch_progress_callback_writes_throttled_progress(self):
+        """The batch callback writes progress only when the percentage changes."""
+        job = self._create_job()
+        callback = job._make_batch_progress_callback({"geometry": [1, 2, 3, 4]})
+        self.assertTrue(callable(callback))
+
+        callback(2)  # 2/4 -> 50%
+        self.assertEqual(job.progress, 50)
+
+        callback(2)  # same percentage -> throttled, no change
+        self.assertEqual(job.progress, 50)
+
+        callback(4)  # 4/4 -> 100%
+        self.assertEqual(job.progress, 100)
+
     def test_dismiss_accepted_job(self):
         """Dismissing an accepted job sets status to dismissed."""
         job = self._create_job()
