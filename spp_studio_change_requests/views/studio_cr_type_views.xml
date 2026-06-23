@@ -258,13 +258,6 @@
                                     />
                                     <field name="detail_model_id" readonly="1" />
                                 </group>
-                                <group string="Programs">
-                                    <field
-                                        name="program_ids"
-                                        widget="many2many_tags"
-                                        nolabel="1"
-                                    />
-                                </group>
                             </group>
                         </page>
 

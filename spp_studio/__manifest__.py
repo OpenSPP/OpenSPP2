@@ -14,7 +14,6 @@
         "spp_security",
         "spp_registry",
         "spp_base_common",
-        "spp_programs",
         "spp_user_roles",
         "spp_custom_field",
         "spp_cel_domain",  # Unified variable system

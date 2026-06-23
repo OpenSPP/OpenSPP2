@@ -29,15 +29,11 @@ class SppApiV2Endpoint(models.Model):
             from ..routers.filter import (
                 group_filter_router,
                 individual_filter_router,
-                program_filter_router,
-                program_membership_filter_router,
             )
             from ..routers.group import group_router
             from ..routers.individual import individual_router
             from ..routers.metadata import metadata_router
             from ..routers.oauth import oauth_router
-            from ..routers.program import program_router
-            from ..routers.program_membership import program_membership_router
 
             routers.extend(
                 [
@@ -49,10 +45,6 @@ class SppApiV2Endpoint(models.Model):
                     group_filter_router,
                     batch_router,
                     bulk_router,
-                    program_router,
-                    program_filter_router,
-                    program_membership_router,
-                    program_membership_filter_router,
                     consent_router,
                 ]
             )

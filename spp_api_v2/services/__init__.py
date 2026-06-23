@@ -6,7 +6,5 @@ from . import consent_service
 from . import filter_service
 from . import group_service
 from . import individual_service
-from . import program_membership_service
-from . import program_service
 from . import schema_builder
 from . import search_service
