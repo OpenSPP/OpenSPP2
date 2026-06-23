@@ -3,7 +3,7 @@
     "name": "OpenSPP Farmer Registry Demo",
     "summary": "Demo generator for Farmer Registry with fixed stories and volume generation",
     "category": "OpenSPP",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.1.0",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -25,16 +25,29 @@
         "spp_area",
         # Programs (explicitly used for cycles, entitlements, payments)
         "spp_programs",
+        # GIS / land / irrigation — used by Scenario 10 (FM4 GIS+irrigation walk)
+        "spp_gis",
+        "spp_land_record",
+        "spp_irrigation",
+        # Registrant GIS — adds the Location/coordinates group on the Profile
+        # tab; our view inherits move it to the end of the tab.
+        "spp_registrant_gis",
+        # FAO vocabularies — surface AGROVOC species selection in scenarios
+        "spp_farmer_registry_vocabularies",
     ],
     "external_dependencies": {},
     "data": [
         "security/ir.model.access.csv",
         "data/demo_users.xml",
+        "data/approval_definitions.xml",
         "data/approval_links.xml",
         "data/demo_personas.xml",
         "data/demo_programs.xml",
         "data/logic_packs.xml",
+        "data/disable_group_types.xml",
+        "data/service_types.xml",
         "views/farmer_demo_wizard_view.xml",
+        "views/group_form_overrides.xml",
     ],
     "assets": {},
     "demo": [],

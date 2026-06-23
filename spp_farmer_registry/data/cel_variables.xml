@@ -7,7 +7,11 @@
     - Benefit calculations (farm_size_hectares * per_hectare_rate)
     - Program targeting (crop_count, livestock_count)
 -->
-<odoo noupdate="1">
+<!-- noupdate="0" so the activity-count CEL variable fix from OP#915 lands
+     on existing installs. Variables in this file are flagged is_system=True
+     and shouldn't be hand-edited; if an admin did override one, they'll get
+     the system definition back on the next upgrade. -->
+<odoo noupdate="0">
     <!-- ═══════════════════════════════════════════════════════════════════════
              FIELD VARIABLES - Direct field access from spp.farm.details
              ═══════════════════════════════════════════════════════════════════════ -->
@@ -78,6 +82,23 @@
              AGGREGATE VARIABLES - Activity Counts
              ═══════════════════════════════════════════════════════════════════════ -->
 
+    <!-- The five activity-count / livestock-sum variables below were
+         originally declared with `source_type="aggregate"` and an
+         `aggregate_target` pointing at non-existent inverse names like
+         `farm_aquaculture_activities` (the real o2m field is
+         `farm_aquaculture_act_ids`). On top of that, the CEL framework's
+         `aggregate_target` field is a Selection limited to
+         members/enrollments/entitlements, so even with the right name
+         the lookup wouldn't have worked. Net effect: every variable
+         resolved to 0 for every farm, so the demo programs' CELs (e.g.
+         `aquaculture_count > 0`) returned 0 matches even though seeded
+         enrollments existed. See OP#915.
+
+         The fix: each variable now reads from the corresponding stored
+         Integer compute on `spp.farm` (already maintained by
+         `_compute_activity_counts` / `_compute_total_livestock_heads`).
+         No new model fields, no aggregate framework needed. -->
+
     <record id="var_crop_count" model="spp.cel.variable">
         <field name="name">crop_count</field>
         <field name="label">Number of Crop Activities</field>
@@ -86,15 +107,13 @@
         >Count of crop cultivation activities on the farm</field>
         <field name="category_id" ref="variable_category_farm_activity" />
         <field name="value_type">number</field>
-        <field name="source_type">aggregate</field>
-        <field name="aggregate_type">count</field>
-        <field name="aggregate_target">farm_crop_activities</field>
-        <field name="aggregate_filter">true</field>
+        <field name="source_type">field</field>
+        <field name="source_model">res.partner</field>
+        <field name="source_field">crop_activity_count</field>
         <field name="cel_accessor">crop_count</field>
         <field name="applies_to">group</field>
         <field name="is_system">True</field>
-        <field name="cache_strategy">ttl</field>
-        <field name="cache_ttl_seconds">86400</field>
+        <field name="cache_strategy">none</field>
     </record>
 
     <record id="var_livestock_count" model="spp.cel.variable">
@@ -105,15 +124,13 @@
         >Count of livestock rearing activities on the farm</field>
         <field name="category_id" ref="variable_category_farm_activity" />
         <field name="value_type">number</field>
-        <field name="source_type">aggregate</field>
-        <field name="aggregate_type">count</field>
-        <field name="aggregate_target">farm_livestock_activities</field>
-        <field name="aggregate_filter">true</field>
+        <field name="source_type">field</field>
+        <field name="source_model">res.partner</field>
+        <field name="source_field">livestock_activity_count</field>
         <field name="cel_accessor">livestock_count</field>
         <field name="applies_to">group</field>
         <field name="is_system">True</field>
-        <field name="cache_strategy">ttl</field>
-        <field name="cache_ttl_seconds">86400</field>
+        <field name="cache_strategy">none</field>
     </record>
 
     <record id="var_aquaculture_count" model="spp.cel.variable">
@@ -122,15 +139,13 @@
         <field name="description">Count of aquaculture activities on the farm</field>
         <field name="category_id" ref="variable_category_farm_activity" />
         <field name="value_type">number</field>
-        <field name="source_type">aggregate</field>
-        <field name="aggregate_type">count</field>
-        <field name="aggregate_target">farm_aquaculture_activities</field>
-        <field name="aggregate_filter">true</field>
+        <field name="source_type">field</field>
+        <field name="source_model">res.partner</field>
+        <field name="source_field">aquaculture_activity_count</field>
         <field name="cel_accessor">aquaculture_count</field>
         <field name="applies_to">group</field>
         <field name="is_system">True</field>
-        <field name="cache_strategy">ttl</field>
-        <field name="cache_ttl_seconds">86400</field>
+        <field name="cache_strategy">none</field>
     </record>
 
     <record id="var_land_parcel_count" model="spp.cel.variable">
@@ -139,34 +154,31 @@
         <field name="description">Count of registered land parcels for the farm</field>
         <field name="category_id" ref="variable_category_farm" />
         <field name="value_type">number</field>
-        <field name="source_type">aggregate</field>
-        <field name="aggregate_type">count</field>
-        <field name="aggregate_target">land_parcels</field>
-        <field name="aggregate_filter">true</field>
+        <field name="source_type">field</field>
+        <field name="source_model">res.partner</field>
+        <field name="source_field">land_parcel_count</field>
         <field name="cel_accessor">land_parcel_count</field>
         <field name="applies_to">group</field>
         <field name="is_system">True</field>
-        <field name="cache_strategy">ttl</field>
-        <field name="cache_ttl_seconds">86400</field>
+        <field name="cache_strategy">none</field>
     </record>
 
-    <!-- Total livestock heads (sum of quantities) -->
+    <!-- Total livestock heads (sum of quantities) — backed by the stored
+         `total_livestock_heads` compute on spp.farm, which sums
+         farm_livestock_act_ids.quantity. -->
     <record id="var_total_livestock_heads" model="spp.cel.variable">
         <field name="name">total_livestock_heads</field>
         <field name="label">Total Livestock Heads</field>
         <field name="description">Sum of all livestock across all activities</field>
         <field name="category_id" ref="variable_category_farm_activity" />
         <field name="value_type">number</field>
-        <field name="source_type">aggregate</field>
-        <field name="aggregate_type">sum</field>
-        <field name="aggregate_target">farm_livestock_activities</field>
-        <field name="aggregate_field">quantity</field>
-        <field name="aggregate_filter">true</field>
+        <field name="source_type">field</field>
+        <field name="source_model">res.partner</field>
+        <field name="source_field">total_livestock_heads</field>
         <field name="cel_accessor">total_livestock_heads</field>
         <field name="applies_to">group</field>
         <field name="is_system">True</field>
-        <field name="cache_strategy">ttl</field>
-        <field name="cache_ttl_seconds">86400</field>
+        <field name="cache_strategy">none</field>
     </record>
 
     <!-- ═══════════════════════════════════════════════════════════════════════
