@@ -16,6 +16,7 @@ import {loadCSS, loadJS} from "@web/core/assets";
 import {LayersPanel} from "../layers_panel/layers_panel.esm";
 import {RelationalModel} from "@web/model/relational_model/relational_model";
 import {dataLayersStore} from "../../../data_layers_store.esm";
+import {osmFallbackStyle} from "../../../osm_fallback_style.esm";
 import {parseXML} from "@web/core/utils/xml";
 import {rasterLayersStore} from "../../../raster_layers_store.esm";
 import {registry} from "@web/core/registry";
@@ -468,27 +469,7 @@ export class GisRenderer extends Component {
     getMapStyle(layer) {
         if (!this.mapTilerKey) {
             // Fallback: OSM raster tiles (no API key required)
-            return {
-                version: 8,
-                sources: {
-                    osm: {
-                        type: "raster",
-                        tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-                        tileSize: 256,
-                        attribution:
-                            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                    },
-                },
-                layers: [
-                    {
-                        id: "osm-tiles",
-                        type: "raster",
-                        source: "osm",
-                        minzoom: 0,
-                        maxzoom: 19,
-                    },
-                ],
-            };
+            return osmFallbackStyle();
         }
 
         let mapStyle = maptilersdk.MapStyle.STREETS;

@@ -3,6 +3,7 @@
 import {Component, onMounted, onPatched, onWillStart} from "@odoo/owl";
 
 import {loadCSS, loadJS} from "@web/core/assets";
+import {osmFallbackStyle} from "../../osm_fallback_style.esm";
 import {registry} from "@web/core/registry";
 import {rpc} from "@web/core/network/rpc";
 import {standardFieldProps} from "@web/views/fields/standard_field_props";
@@ -78,27 +79,7 @@ export class FieldGisEditMap extends Component {
             return maptilersdk.MapStyle.STREETS;
         }
         // Fallback: OSM raster tiles (no API key required)
-        return {
-            version: 8,
-            sources: {
-                osm: {
-                    type: "raster",
-                    tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-                    tileSize: 256,
-                    attribution:
-                        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                },
-            },
-            layers: [
-                {
-                    id: "osm-tiles",
-                    type: "raster",
-                    source: "osm",
-                    minzoom: 0,
-                    maxzoom: 19,
-                },
-            ],
-        };
+        return osmFallbackStyle();
     }
 
     renderMap() {
