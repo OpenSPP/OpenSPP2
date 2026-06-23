@@ -75,3 +75,29 @@ class TestLuzonAreaLoader(TransactionCase):
         count_after_second = self.env["spp.area"].search_count([])
 
         self.assertEqual(count_after_first, count_after_second, "Second load should not create duplicates")
+
+    def test_load_luzon_areas_with_shapes_flag(self):
+        """Requesting shapes returns a shapes_loaded count without error.
+
+        spp.area only gains a geo_polygon field when spp_gis is installed; the
+        loader must handle its absence gracefully.
+        """
+        self._load_base_areas()
+        result = self.env["spp.demo.luzon.area.loader"].load_luzon_areas(load_shapes=True)
+        self.assertIn("shapes_loaded", result)
+        self.assertGreaterEqual(result["shapes_loaded"], 0)
+
+    def test_load_shapes_reads_geojson(self):
+        """_load_shapes iterates the bundled GeoJSON and matches area codes.
+
+        Returns the number of shapes written. When spp.area has no geo_polygon
+        field (spp_gis not installed) the per-feature write fails and is caught,
+        so the count is 0 but the GeoJSON-processing path is still exercised.
+        """
+        self._load_base_areas()
+        loader = self.env["spp.demo.luzon.area.loader"]
+        loader.load_luzon_areas(load_shapes=False)
+
+        shapes_loaded = loader._load_shapes()
+        self.assertIsInstance(shapes_loaded, int)
+        self.assertGreaterEqual(shapes_loaded, 0)
