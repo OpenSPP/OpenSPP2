@@ -279,16 +279,18 @@ class StockPicking(models.Model):
                 if not picking.beneficiary_count or picking.beneficiary_count <= 0:
                     raise UserError(
                         _(
-                            "Please enter the number of beneficiaries served for dispatch %s. "
-                            "This is required for DRIMS distribution tracking."
+                            "Please enter the number of beneficiaries served for "
+                            "dispatch %s under the DRIMS tab. This is required for "
+                            "DRIMS distribution tracking."
                         )
                         % picking.name
                     )
                 if not picking.beneficiary_area_id:
                     raise UserError(
                         _(
-                            "Please select the distribution area for dispatch %s. "
-                            "This is required for DRIMS geographic reporting."
+                            "Please select the distribution area for dispatch %s "
+                            "under the DRIMS tab. This is required for DRIMS "
+                            "geographic reporting."
                         )
                         % picking.name
                     )

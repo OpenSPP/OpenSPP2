@@ -407,6 +407,14 @@ class DefaultCycleManager(models.Model):
     ]
     _description = "Default Cycle Manager"
 
+    @api.model
+    def default_get(self, fields_list):
+        """Default the manager name to its method-specific label."""
+        res = super().default_get(fields_list)
+        if "name" in fields_list:
+            res.setdefault("name", _("Default Cycle Schedule"))
+        return res
+
     cycle_duration = fields.Integer(default=1, required=True, string="Recurrence")
     approver_group_id = fields.Many2one(
         comodel_name="res.groups",

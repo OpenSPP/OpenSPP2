@@ -25,7 +25,7 @@ class ManagerMixin(models.AbstractModel):
     def _selection_manager_ref_id(self):
         return []
 
-    def open_manager_form(self, readonly=False):
+    def open_manager_form(self, readonly=False, title=None):
         self.ensure_one()
         if self.manager_ref_id:
             # Get the res_model and res_id from the manager_ref_id (reference field)
@@ -52,6 +52,11 @@ class ManagerMixin(models.AbstractModel):
                         "flags": {"mode": "readonly" if readonly else "edit"},
                     }
                 )
+                # Override the dialog title so the banner label (e.g. "Who
+                # Qualifies?") shows in the modal header instead of the model's
+                # _description ("Odoo" when unset).
+                if title:
+                    action["name"] = title
                 return action
 
         return {

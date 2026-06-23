@@ -133,6 +133,68 @@ class TestDrimsWizard(DrimsTestCommon):
         self.assertEqual(action["target"], "new")
         self.assertIn("default_request_ids", action["context"])
 
+    # ---------- OP#966: single-record reject wizard ----------
+
+    def test_action_open_reject_wizard_returns_act_window(self):
+        """OP#966: action_open_reject_wizard returns the wizard action."""
+        request = self._create_pending_request()
+        action = request.action_open_reject_wizard()
+        self.assertEqual(action["type"], "ir.actions.act_window")
+        self.assertEqual(action["res_model"], "spp.drims.request.reject.wizard")
+        self.assertEqual(action["target"], "new")
+        self.assertEqual(action["context"]["default_request_id"], request.id)
+
+    def test_action_open_reject_wizard_only_pending(self):
+        """OP#966: opening the wizard on a non-pending request raises."""
+        request = self.env["spp.drims.request"].create(
+            {
+                "incident_id": self.incident.id,
+                "destination_area_id": self.area.id,
+                "date_needed": self.future_date,
+                "line_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "product_id": self.product.id,
+                            "quantity_requested": 10,
+                            "uom_id": self.product.uom_id.id,
+                        },
+                    )
+                ],
+            }
+        )
+        # Still in draft, never submitted
+        with self.assertRaises(UserError):
+            request.action_open_reject_wizard()
+
+    def test_request_reject_wizard_writes_reason_and_rejects(self):
+        """OP#966: the wizard writes rejection_reason and rejects the request."""
+        request = self._create_pending_request()
+        wizard = self.env["spp.drims.request.reject.wizard"].create(
+            {
+                "request_id": request.id,
+                "reason": "Out of scope for this funding cycle",
+            }
+        )
+        wizard.action_reject()
+        self.assertEqual(request.approval_state, "rejected")
+        self.assertEqual(request.rejection_reason, "Out of scope for this funding cycle")
+
+    def test_request_reject_wizard_blank_reason_raises(self):
+        """OP#966: whitespace-only reason raises UserError."""
+        request = self._create_pending_request()
+        wizard = self.env["spp.drims.request.reject.wizard"].create(
+            {
+                "request_id": request.id,
+                "reason": "   ",
+            }
+        )
+        with self.assertRaises(UserError):
+            wizard.action_reject()
+        # Request stays pending
+        self.assertEqual(request.approval_state, "pending")
+
 
 @tagged("post_install", "-at_install")
 class TestInspectionWizard(DrimsTestCommon):
@@ -226,161 +288,150 @@ class TestInspectionWizard(DrimsTestCommon):
         wizard_id = action["res_id"]
         return self.env["spp.drims.inspection.wizard"].browse(wizard_id)
 
-    def test_inspection_wizard_defaults_to_accepted(self):
-        """Test wizard pre-creates lines with New/Accept defaults."""
+    def _set_inspection(self, line, condition=None, disposition=None):
+        """Helper: write Condition + Action; ``is_inspected`` is computed."""
+        vals = {}
+        if condition is not None:
+            vals["condition_id"] = condition.id
+        if disposition is not None:
+            vals["disposition_id"] = disposition.id
+        line.write(vals)
+
+    def test_inspection_wizard_no_pre_fill(self):
+        """OP#963: wizard lines open blank — operator must set both fields."""
+        donation = self._create_received_donation(quantity=1000)
+        wizard = self._open_inspection_wizard(donation)
+
+        self.assertEqual(len(wizard.line_ids), 1)
+        line = wizard.line_ids[0]
+        self.assertFalse(line.condition_id)
+        self.assertFalse(line.disposition_id)
+        self.assertFalse(line.is_inspected)
+        with self.assertRaises(UserError):
+            wizard.action_confirm_inspection()
+
+    def test_is_inspected_tracks_both_fields(self):
+        """OP#963: is_inspected is True only when both Condition and Action are set."""
+        if not self.condition_new or not self.disposition_accept:
+            self.skipTest("Required vocabulary codes not found")
+
+        donation = self._create_received_donation(quantity=100)
+        wizard = self._open_inspection_wizard(donation)
+        line = wizard.line_ids[0]
+
+        line.condition_id = self.condition_new
+        self.assertFalse(line.is_inspected, "needs both fields")
+
+        line.disposition_id = self.disposition_accept
+        self.assertTrue(line.is_inspected)
+
+    def test_can_mark_all_units_toggles_with_both_fields(self):
+        """OP#963: badge enable/disable mirrors condition+action presence."""
+        if not self.condition_new or not self.disposition_accept:
+            self.skipTest("Required vocabulary codes not found")
+
+        donation = self._create_received_donation(quantity=100)
+        wizard = self._open_inspection_wizard(donation)
+        line = wizard.line_ids[0]
+
+        self.assertFalse(line.can_mark_all_units)
+        line.condition_id = self.condition_new
+        self.assertFalse(line.can_mark_all_units)
+        line.disposition_id = self.disposition_accept
+        self.assertTrue(line.can_mark_all_units)
+
+    def test_inspection_confirm_full_acceptance(self):
+        """OP#963: filling Condition + Action on every row makes the wizard
+        valid and confirming writes the chosen values to the donation lines.
+        """
         if not self.condition_new or not self.disposition_accept:
             self.skipTest("Required vocabulary codes not found")
 
         donation = self._create_received_donation(quantity=1000)
         wizard = self._open_inspection_wizard(donation)
+        line = wizard.line_ids[0]
 
-        # Lines should be pre-created with defaults (New/Accept, already inspected)
-        self.assertEqual(len(wizard.line_ids), 1)
-        self.assertTrue(wizard.line_ids[0].is_inspected)
-        self.assertEqual(wizard.line_ids[0].condition_id, self.condition_new)
-        self.assertEqual(wizard.line_ids[0].disposition_id, self.disposition_accept)
-        self.assertTrue(wizard.is_valid)
+        self._set_inspection(line, self.condition_new, self.disposition_accept)
 
-        # Can confirm immediately without any additional action
         wizard.action_confirm_inspection()
         self.assertEqual(donation.state, "inspected")
         self.assertEqual(donation.line_ids[0].condition_id, self.condition_new)
-
-    def test_inspection_wizard_edit_item(self):
-        """Test Edit button opens popup wizard for individual item."""
-        donation = self._create_received_donation(quantity=500)
-        wizard = self._open_inspection_wizard(donation)
-
-        # Click Edit on first line
-        line = wizard.line_ids[0]
-        action = line.action_edit_item()
-
-        self.assertEqual(action["res_model"], "spp.drims.inspection.item.wizard")
-        self.assertEqual(action["target"], "new")
-        self.assertEqual(action["context"]["default_quantity"], 500)
-        self.assertEqual(action["context"]["default_quantity_expected"], 500)
-
-    def test_inspection_item_wizard_save(self):
-        """Test item popup Save action updates the main wizard line."""
-        if not self.condition_damaged or not self.disposition_return:
-            self.skipTest("Required vocabulary codes not found")
-
-        donation = self._create_received_donation(quantity=100)
-        wizard = self._open_inspection_wizard(donation)
-
-        line = wizard.line_ids[0]
-        # Line starts inspected with defaults, we change it to damaged
-        self.assertTrue(line.is_inspected)
-
-        # Create item wizard and save with different condition
-        item_wizard = self.env["spp.drims.inspection.item.wizard"].create(
-            {
-                "inspection_line_id": line.id,
-                "wizard_id": wizard.id,
-                "product_id": self.product.id,
-                "uom_id": self.product.uom_id.id,
-                "quantity_expected": 100,
-                "quantity": 100,
-                "condition_id": self.condition_damaged.id,
-                "disposition_id": self.disposition_return.id,
-                "notes": "All items damaged",
-            }
-        )
-        item_wizard.action_save()
-
-        # Line should be updated with new condition
-        self.assertTrue(line.is_inspected)
-        self.assertEqual(line.condition_id, self.condition_damaged)
-        self.assertEqual(line.disposition_id, self.disposition_return)
-        self.assertEqual(line.notes, "All items damaged")
-
-    def test_inspection_item_wizard_split(self):
-        """Test Save & Add Split creates a new line for remaining quantity."""
-        if not self.condition_new or not self.disposition_accept:
-            self.skipTest("Required vocabulary codes not found")
-
-        donation = self._create_received_donation(quantity=1000)
-        wizard = self._open_inspection_wizard(donation)
-
-        line = wizard.line_ids[0]
-        self.assertEqual(len(wizard.line_ids), 1)
-
-        # Create item wizard with reduced quantity and split
-        item_wizard = self.env["spp.drims.inspection.item.wizard"].create(
-            {
-                "inspection_line_id": line.id,
-                "wizard_id": wizard.id,
-                "product_id": self.product.id,
-                "uom_id": self.product.uom_id.id,
-                "quantity_expected": 1000,
-                "quantity": 800,  # Only 800, remaining 200
-                "condition_id": self.condition_new.id,
-                "disposition_id": self.disposition_accept.id,
-            }
-        )
-
-        # Should show remaining qty
-        self.assertEqual(item_wizard.remaining_qty, 200)
-        self.assertTrue(item_wizard.show_split_warning)
-
-        # Save and split
-        action = item_wizard.action_save_and_split()
-
-        # Should have 2 lines now
-        self.assertEqual(len(wizard.line_ids), 2)
-        # First line is inspected with 800
-        self.assertTrue(line.is_inspected)
-        self.assertEqual(line.quantity, 800)
-        # New line has remaining 200, not yet inspected
-        new_line = wizard.line_ids.filtered(lambda ln: ln.id != line.id)
-        self.assertEqual(new_line.quantity, 200)
-        self.assertFalse(new_line.is_inspected)
-
-        # Action should open popup for new line
-        self.assertEqual(action["res_model"], "spp.drims.inspection.item.wizard")
+        self.assertEqual(donation.line_ids[0].disposition_id, self.disposition_accept)
 
     def test_inspection_wizard_validation_uninspected(self):
-        """Test validation fails if items are not inspected."""
+        """Confirm refuses to advance when any row is missing its decision."""
         donation = self._create_received_donation(quantity=100)
         wizard = self._open_inspection_wizard(donation)
 
-        # Lines start as inspected, manually mark as not inspected
-        wizard.line_ids[0].write({"is_inspected": False})
-
-        # Not inspected
-        self.assertFalse(wizard.is_valid)
-
-        # Should fail confirmation
         with self.assertRaises(UserError) as cm:
             wizard.action_confirm_inspection()
         self.assertIn("inspect all items", str(cm.exception))
 
-    def test_inspection_wizard_validation_quantity_mismatch(self):
-        """Test validation fails if quantities don't match."""
+    def test_inspection_wizard_single_line_quantity_overrides_received(self):
+        """OP#964: a single inspection line is treated as the user reporting
+        the final received quantity.
+        """
         if not self.condition_new or not self.disposition_accept:
             self.skipTest("Required vocabulary codes not found")
 
         donation = self._create_received_donation(quantity=1000)
         wizard = self._open_inspection_wizard(donation)
+        line = wizard.line_ids[0]
+        self._set_inspection(line, self.condition_new, self.disposition_accept)
+        line.quantity = 800
 
-        # Manually change quantity to create mismatch
-        wizard.line_ids[0].write(
-            {
-                "quantity": 800,  # Less than expected 1000
-            }
-        )
+        wizard.action_confirm_inspection()
+        self.assertEqual(donation.state, "inspected")
+        self.assertEqual(donation.line_ids[0].quantity_received, 800)
 
-        # is_valid should be False
-        self.assertFalse(wizard.is_valid)
+    def test_inspection_wizard_split_mismatch_still_raises(self):
+        """OP#964: split quantities must still sum to expected."""
+        if not self.condition_new or not self.condition_damaged:
+            self.skipTest("Required vocabulary codes not found")
+        if not self.disposition_accept or not self.disposition_return:
+            self.skipTest("Required vocabulary codes not found")
 
-        # Should fail confirmation
+        donation = self._create_received_donation(quantity=1000)
+        wizard = self._open_inspection_wizard(donation)
+        parent = wizard.line_ids[0]
+
+        # Create a split via the real button so parent/child wiring is correct.
+        # The first split divides the row into two empty children.
+        parent.action_add_split()
+        children = wizard.line_ids.filtered("is_split").sorted(key=lambda line: line.id)
+        self.assertEqual(len(children), 2)
+        child_a, child_b = children[0], children[1]
+
+        # Deliberately make the totals not match expected (800 + 150 = 950 ≠ 1000).
+        child_a.quantity = 800
+        child_b.quantity = 150
+        self._set_inspection(child_a, self.condition_new, self.disposition_accept)
+        self._set_inspection(child_b, self.condition_damaged, self.disposition_return)
+
         with self.assertRaises(UserError) as cm:
             wizard.action_confirm_inspection()
-        self.assertIn("must equal", str(cm.exception))
+        self.assertIn("Splits must sum", str(cm.exception))
+
+    def test_inspection_wizard_quantity_received_zero_uses_pledged(self):
+        """OP#964: fall back to quantity_pledged when quantity_received is 0."""
+        if not self.condition_new or not self.disposition_accept:
+            self.skipTest("Required vocabulary codes not found")
+
+        donation = self._create_received_donation(quantity=500)
+        donation.line_ids[0].quantity_received = 0
+
+        wizard = self._open_inspection_wizard(donation)
+        line = wizard.line_ids[0]
+        self.assertEqual(line.quantity_expected, 500)
+
+        self._set_inspection(line, self.condition_new, self.disposition_accept)
+
+        wizard.action_confirm_inspection()
+        self.assertEqual(donation.state, "inspected")
+        self.assertEqual(donation.line_ids[0].quantity_received, 500)
 
     def test_inspection_wizard_only_received_donations(self):
         """Test that only received donations can be inspected."""
-        # Create a donation without marking as received
         donation = self.env["spp.drims.donation"].create(
             {
                 "incident_id": self.incident.id,
@@ -398,73 +449,153 @@ class TestInspectionWizard(DrimsTestCommon):
                 ],
             }
         )
-
-        # Should raise error when trying to open inspection wizard
         with self.assertRaises(UserError):
             donation.action_open_inspection_wizard()
 
-    def test_inspection_wizard_condition_display(self):
-        """Test condition_display computed field."""
-        if not self.condition_new or not self.disposition_accept:
-            self.skipTest("Required vocabulary codes not found")
-
-        donation = self._create_received_donation(quantity=100)
+    def test_add_split_creates_two_child_lines(self):
+        """OP#963: the first action_add_split divides the row into two child
+        splits (parent + 2 children), each with parent_line_id set and starting
+        at qty=0 (the operator must fill them explicitly)."""
+        donation = self._create_received_donation(quantity=1000)
         wizard = self._open_inspection_wizard(donation)
+        parent = wizard.line_ids[0]
 
-        line = wizard.line_ids[0]
+        parent.action_add_split()
+        self.assertEqual(len(wizard.line_ids), 3)
 
-        # Starts inspected with defaults
-        self.assertIn(self.condition_new.display, line.condition_display)
-        self.assertIn(self.disposition_accept.display, line.condition_display)
+        children = wizard.line_ids.filtered("is_split")
+        self.assertEqual(len(children), 2)
+        for child in children:
+            self.assertEqual(child.parent_line_id, parent)
+            # New split children are created with qty 0 — the operator fills
+            # the rows themselves.
+            self.assertEqual(child.quantity, 0)
+        # Parent qty mirrors the child running total (also 0).
+        self.assertEqual(parent.quantity, 0)
+        self.assertTrue(parent.has_splits)
+        # Parent is not yet "fully split" until the children are filled.
+        self.assertFalse(parent.is_fully_split)
 
-        # After marking as not inspected
-        line.write({"is_inspected": False})
-        self.assertEqual(line.condition_display, "Not inspected")
+    def test_add_split_subsequent_splits_are_also_zero(self):
+        """OP#963: every new split starts at qty=0; the running parent total
+        stays at the existing children sum.
+        """
+        donation = self._create_received_donation(quantity=1000)
+        wizard = self._open_inspection_wizard(donation)
+        parent = wizard.line_ids[0]
 
-    def test_inspection_confirms_and_creates_splits(self):
-        """Test full flow: inspect with splits and confirm."""
+        parent.action_add_split()  # first split -> two children
+        children = wizard.line_ids.filtered("is_split")
+        children[0].quantity = 700
+
+        parent.action_add_split()  # subsequent split -> one more child
+        children = wizard.line_ids.filtered("is_split")
+        self.assertEqual(len(children), 3)
+        new_child = children.sorted(key=lambda line: line.id)[-1]
+        # New child starts at 0; running parent total stays at 700.
+        self.assertEqual(new_child.quantity, 0)
+
+    def test_add_split_blocks_when_nothing_remaining(self):
+        """OP#963: once children already cover the full expected qty,
+        further adds raise (defence-in-depth — the UI hides the button
+        whenever the running total matches expected).
+        """
+        donation = self._create_received_donation(quantity=1000)
+        wizard = self._open_inspection_wizard(donation)
+        parent = wizard.line_ids[0]
+
+        parent.action_add_split()
+        children = wizard.line_ids.filtered("is_split")
+        # Manually fill the child so the running total reaches expected.
+        children[0].quantity = 1000
+        with self.assertRaises(UserError) as cm:
+            parent.action_add_split()
+        self.assertIn("No remaining quantity to split", str(cm.exception))
+
+    def test_remove_split_resets_parent_qty(self):
+        """OP#963: removing the last child resets parent.quantity to expected."""
+        donation = self._create_received_donation(quantity=1000)
+        wizard = self._open_inspection_wizard(donation)
+        parent = wizard.line_ids[0]
+
+        parent.action_add_split()
+        children = wizard.line_ids.filtered("is_split")
+        self.assertEqual(len(children), 2)
+
+        # Removing one child leaves the parent split with the other.
+        children[0].action_remove_split()
+        remaining = wizard.line_ids.filtered("is_split")
+        self.assertEqual(len(remaining), 1)
+        self.assertTrue(parent.has_splits)
+
+        # Removing the last child reverts the parent to a normal row.
+        remaining.action_remove_split()
+        self.assertEqual(len(wizard.line_ids), 1)
+        self.assertEqual(parent.quantity, 1000)
+        self.assertFalse(parent.has_splits)
+
+    def test_has_splits_true_when_child_exists(self):
+        """OP#963: ``has_splits`` flips True on the parent once a child exists."""
+        donation = self._create_received_donation(quantity=500)
+        wizard = self._open_inspection_wizard(donation)
+        parent = wizard.line_ids[0]
+
+        self.assertFalse(parent.has_splits)
+        parent.action_add_split()
+        self.assertTrue(parent.has_splits)
+
+    def test_confirm_ignores_parent_row_when_splits_exist(self):
+        """OP#963: the parent row carries no condition/action — Confirm must
+        still gate on the children, not on the parent.
+        """
         if not self.condition_new or not self.condition_damaged:
             self.skipTest("Required vocabulary codes not found")
         if not self.disposition_accept or not self.disposition_return:
             self.skipTest("Required vocabulary codes not found")
 
         donation = self._create_received_donation(quantity=1000)
-        original_line = donation.line_ids[0]
-
         wizard = self._open_inspection_wizard(donation)
+        parent = wizard.line_ids[0]
 
-        # Change first line: 800 good (already defaults to New/Accept)
-        wizard.line_ids[0].write(
-            {
-                "quantity": 800,
-            }
-        )
+        parent.action_add_split()
+        children = wizard.line_ids.filtered("is_split").sorted(key=lambda line: line.id)
+        self.assertEqual(len(children), 2)
+        child_a, child_b = children[0], children[1]
+        child_a.quantity = 700
+        child_b.quantity = 300
 
-        # Add second line: 200 damaged
-        self.env["spp.drims.inspection.wizard.line"].create(
-            {
-                "wizard_id": wizard.id,
-                "donation_line_id": original_line.id,
-                "product_id": self.product.id,
-                "uom_id": self.product.uom_id.id,
-                "quantity_expected": 1000,
-                "quantity": 200,
-                "condition_id": self.condition_damaged.id,
-                "disposition_id": self.disposition_return.id,
-                "is_inspected": True,
-            }
-        )
-
-        # Validation should pass
-        self.assertTrue(wizard.is_valid)
-
-        # Confirm
+        # Parent has no condition/action; children do — Confirm must succeed.
+        self._set_inspection(child_a, self.condition_new, self.disposition_accept)
+        self._set_inspection(child_b, self.condition_damaged, self.disposition_return)
+        self.assertFalse(parent.is_inspected)
         wizard.action_confirm_inspection()
-
-        # Donation should be inspected
         self.assertEqual(donation.state, "inspected")
 
-        # Should have 2 lines now
+    def test_inspection_confirms_and_creates_splits(self):
+        """OP#963: full split flow via action_add_split produces both donation
+        lines downstream of confirm.
+        """
+        if not self.condition_new or not self.condition_damaged:
+            self.skipTest("Required vocabulary codes not found")
+        if not self.disposition_accept or not self.disposition_return:
+            self.skipTest("Required vocabulary codes not found")
+
+        donation = self._create_received_donation(quantity=1000)
+        wizard = self._open_inspection_wizard(donation)
+        parent = wizard.line_ids[0]
+
+        parent.action_add_split()
+        children = wizard.line_ids.filtered("is_split").sorted(key=lambda line: line.id)
+        self.assertEqual(len(children), 2)
+        child_a, child_b = children[0], children[1]
+        child_a.quantity = 800
+        child_b.quantity = 200
+        self._set_inspection(child_a, self.condition_new, self.disposition_accept)
+        self._set_inspection(child_b, self.condition_damaged, self.disposition_return)
+
+        wizard.action_confirm_inspection()
+        self.assertEqual(donation.state, "inspected")
+
         self.assertEqual(len(donation.line_ids), 2)
         lines = donation.line_ids.sorted("quantity_received", reverse=True)
         self.assertEqual(lines[0].quantity_received, 800)
@@ -473,7 +604,7 @@ class TestInspectionWizard(DrimsTestCommon):
         self.assertEqual(lines[1].condition_id, self.condition_damaged)
 
     def test_inspection_notes_appended(self):
-        """Test that inspection notes are appended to donation notes."""
+        """Inspection notes are appended to donation notes."""
         if not self.condition_new or not self.disposition_accept:
             self.skipTest("Required vocabulary codes not found")
 
@@ -481,7 +612,7 @@ class TestInspectionWizard(DrimsTestCommon):
         donation.notes = "Original notes"
 
         wizard = self._open_inspection_wizard(donation)
-        # Lines already default to inspected/accepted
+        self._set_inspection(wizard.line_ids[0], self.condition_new, self.disposition_accept)
         wizard.notes = "Inspection completed successfully"
 
         wizard.action_confirm_inspection()

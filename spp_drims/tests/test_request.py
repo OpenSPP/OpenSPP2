@@ -368,7 +368,11 @@ class TestDrimsRequest(DrimsTestCommon):
             request.action_allocate()
 
     def test_allocate_with_warehouse(self):
-        """Test allocation workflow with source warehouse (GAP-REQ-001/002)."""
+        """Test allocation workflow with source warehouse (GAP-REQ-001/002).
+
+        OP#1032: the warehouse must also have stock — without stock,
+        `action_allocate` now refuses to advance the request state.
+        """
         request = self.env["spp.drims.request"].create(
             {
                 "incident_id": self.incident.id,
@@ -390,9 +394,51 @@ class TestDrimsRequest(DrimsTestCommon):
         )
         request.action_submit()
         request.action_approve()
-        # Now allocation should work
+        # Seed stock so the allocation actually has something to grab.
+        self.env["stock.quant"].create(
+            {
+                "product_id": self.product.id,
+                "location_id": self.warehouse.lot_stock_id.id,
+                "quantity": 25.0,
+            }
+        )
         request.action_allocate()
         self.assertEqual(request.state, "allocated")
+        self.assertGreater(request.total_allocated, 0)
+
+    def test_allocate_blocked_when_warehouse_has_no_stock(self):
+        """OP#1032: action_allocate refuses to advance the request state
+        when the source warehouse has zero available stock for every
+        requested line. Previously the request silently advanced to
+        Ready for Dispatch with 0 allocated.
+        """
+        request = self.env["spp.drims.request"].create(
+            {
+                "incident_id": self.incident.id,
+                "destination_area_id": self.area.id,
+                "date_needed": self.future_date,
+                "source_warehouse_id": self.warehouse.id,
+                "line_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "product_id": self.product.id,
+                            "quantity_requested": 10,
+                            "uom_id": self.product.uom_id.id,
+                        },
+                    )
+                ],
+            }
+        )
+        request.action_submit()
+        request.action_approve()
+        # No stock seeded — allocation should raise and the state should
+        # stay at approved (Ready for Allocation).
+        with self.assertRaises(UserError):
+            request.action_allocate()
+        self.assertEqual(request.state, "approved")
+        self.assertEqual(request.total_allocated, 0)
 
     def test_create_dispatch_not_allocated(self):
         """Test that dispatch requires allocated state (GAP-REQ-003)."""
@@ -516,3 +562,92 @@ class TestDrimsRequest(DrimsTestCommon):
         # No lines allocated - should fail
         with self.assertRaises(UserError):
             request.action_create_dispatch()
+
+    # ---------- OP#1033: partial dispatches ----------
+
+    def _setup_allocated_request(self, requested=5000, allocated=2000):
+        """Build a request in ``allocated`` state with the given line numbers."""
+        request = self.env["spp.drims.request"].create(
+            {
+                "incident_id": self.incident.id,
+                "destination_area_id": self.area.id,
+                "date_needed": self.future_date,
+                "source_warehouse_id": self.warehouse.id,
+                "line_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "product_id": self.product.id,
+                            "quantity_requested": requested,
+                            "uom_id": self.product.uom_id.id,
+                        },
+                    )
+                ],
+            }
+        )
+        request.action_submit()
+        request.action_approve()
+        request.line_ids[0].quantity_allocated = allocated
+        allocated_state = self.env["spp.vocabulary.code"].search(
+            [
+                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:request-states"),
+                ("code", "=", "allocated"),
+            ],
+            limit=1,
+        )
+        if allocated_state:
+            request.state_id = allocated_state
+        return request
+
+    def test_partial_dispatch_keeps_state_allocated(self):
+        """OP#1033: dispatching less than requested stays at allocated."""
+        request = self._setup_allocated_request(requested=5000, allocated=2000)
+
+        request.action_create_dispatch()
+
+        self.assertEqual(request.state, "allocated")
+        self.assertEqual(request.line_ids[0].quantity_dispatched, 2000)
+        self.assertEqual(request.picking_count, 1)
+
+    def test_second_dispatch_after_top_up_advances_to_dispatched(self):
+        """OP#1033: a second Create Dispatch after extra allocation
+        creates a new picking and flips the state to dispatched.
+        """
+        request = self._setup_allocated_request(requested=5000, allocated=2000)
+        request.action_create_dispatch()
+        self.assertEqual(request.state, "allocated")
+
+        # Operator allocates the remaining 3000 and dispatches again.
+        request.line_ids[0].quantity_allocated = 5000
+        request.action_create_dispatch()
+
+        self.assertEqual(request.state, "dispatched")
+        self.assertEqual(request.line_ids[0].quantity_dispatched, 5000)
+        self.assertEqual(request.picking_count, 2)
+        # Both pickings remain linked to the request.
+        for picking in request.picking_ids:
+            self.assertEqual(picking.drims_request_id, request)
+
+    def test_second_dispatch_picking_only_covers_remainder(self):
+        """OP#1033: the second picking moves only the newly-allocated qty."""
+        request = self._setup_allocated_request(requested=5000, allocated=2000)
+        request.action_create_dispatch()
+        first_picking = request.picking_ids[0]
+        self.assertEqual(first_picking.move_ids[0].product_uom_qty, 2000)
+
+        request.line_ids[0].quantity_allocated = 5000
+        request.action_create_dispatch()
+        second_picking = request.picking_ids - first_picking
+        self.assertEqual(len(second_picking), 1)
+        self.assertEqual(second_picking.move_ids[0].product_uom_qty, 3000)
+
+    def test_dispatch_blocked_when_nothing_remaining(self):
+        """OP#1033: clicking Create Dispatch with no remainder raises."""
+        request = self._setup_allocated_request(requested=5000, allocated=2000)
+        request.action_create_dispatch()
+
+        # No further allocation happened — the second call has nothing to do.
+        with self.assertRaises(UserError) as cm:
+            request.action_create_dispatch()
+        self.assertIn("Nothing left to dispatch", str(cm.exception))
