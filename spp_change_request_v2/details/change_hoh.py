@@ -77,8 +77,12 @@ class SPPCRDetailChangeHOH(models.Model):
         return details
 
     def _seed_member_lines(self):
-        """Populate one editable role line per active group member, defaulting
-        each member's new role to their current role."""
+        """Populate one editable role line per active group member.
+
+        The New Role is left blank (NOT prefilled with the current role): the
+        user only fills the row(s) they want to change — typically setting one
+        member's New Role to Head. A blank New Role means "no change"; the
+        previous head is demoted automatically on apply (OP#873 QA)."""
         self.ensure_one()
         group = self.change_request_id.registrant_id
         if not group or not group.is_group:
@@ -95,7 +99,7 @@ class SPPCRDetailChangeHOH(models.Model):
                         "individual_id": membership.individual.id,
                         "membership_id": membership.id,
                         "old_role_display": ", ".join(current_roles.mapped("display")),
-                        "new_role_id": current_roles[:1].id if current_roles else False,
+                        "new_role_id": False,
                     },
                 )
             )
@@ -123,9 +127,19 @@ class SPPCRDetailChangeHOHMember(models.Model):
     )
 
     @api.constrains("new_role_id")
-    def _check_single_head(self):
-        """A group can have at most one Head of Household."""
+    def _check_head_assignment(self):
+        """Validate the Head assignment at save/submit (OP#873 QA):
+        - at most one member may be set to Head;
+        - the current Head of Household cannot be reassigned Head (a Change HoH
+          must hand the role to a different member)."""
         head = self.env["spp.vocabulary.code"].get_code(ROLE_NAMESPACE, HEAD_ROLE_CODE)
+        if not head:
+            return
         for detail in self.mapped("detail_id"):
-            if head and len(detail.member_line_ids.filtered(lambda r: r.new_role_id == head)) > 1:
+            head_lines = detail.member_line_ids.filtered(lambda r: r.new_role_id == head)
+            if len(head_lines) > 1:
                 raise ValidationError(_("A group can have at most one Head of Household."))
+            if head_lines and detail.current_head_id and head_lines.individual_id == detail.current_head_id:
+                raise ValidationError(
+                    _("The current Head of Household cannot be set as Head again. Designate a different member.")
+                )

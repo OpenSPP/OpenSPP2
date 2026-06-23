@@ -68,20 +68,19 @@ class TestChangeHOHStrategy(TransactionCase):
     # Seeding
     # ──────────────────────────────────────────────────────────────────
     def test_member_lines_seeded_from_active_members(self):
-        """One role line is seeded per active member, defaulting each member's
-        new role to their current role."""
+        """One role line is seeded per active member; the Current Role is shown
+        but the New Role is left BLANK (not prefilled) — OP#873 QA."""
         detail = self._make_cr().get_detail()
         self.assertEqual(len(detail.member_line_ids), 2)
         self.assertEqual(
             set(detail.member_line_ids.mapped("individual_id")),
             {self.current_head, self.member},
         )
+        # New Role is blank for every seeded line.
+        self.assertFalse(any(detail.member_line_ids.mapped("new_role_id")))
         if self.head_kind:
             head_line = self._line_for(detail, self.current_head)
-            self.assertEqual(head_line.new_role_id, self.head_kind)
             self.assertEqual(head_line.old_role_display, self.head_kind.display)
-        member_line = self._line_for(detail, self.member)
-        self.assertEqual(member_line.new_role_id, self.spouse_kind)
 
     def test_change_hoh_on_individual_fails(self):
         cr = self._make_cr(registrant=self.current_head)  # an individual, not a group
@@ -93,14 +92,15 @@ class TestChangeHOHStrategy(TransactionCase):
     # ──────────────────────────────────────────────────────────────────
     # Apply
     # ──────────────────────────────────────────────────────────────────
-    def test_apply_transfers_head(self):
+    def test_apply_follows_new_role_blank_clears(self):
+        """OP#873 QA: the CR follows the New Role column exactly. Designating the
+        new head (and leaving the outgoing head blank) hands over the role; a
+        blank New Role clears that member's roles entirely."""
         if not self.head_kind:
             self.skipTest("head membership-type code not present in the vocabulary")
         cr = self._make_cr()
         detail = cr.get_detail()
-        # Step down the current head first to avoid a transient two-heads state,
-        # then promote the other member.
-        self._line_for(detail, self.current_head).new_role_id = self.spouse_kind
+        # Only the new head is designated; the current head's row stays blank.
         self._line_for(detail, self.member).new_role_id = self.head_kind
 
         cr.approval_state = "approved"
@@ -109,16 +109,25 @@ class TestChangeHOHStrategy(TransactionCase):
         self.assertTrue(cr.is_applied)
         self.member_membership.invalidate_recordset()
         self.head_membership.invalidate_recordset()
+        # New head holds Head; the previous head's blank row cleared all roles.
         self.assertIn(self.head_kind, self.member_membership.membership_type_ids)
-        self.assertNotIn(self.head_kind, self.head_membership.membership_type_ids)
-        self.assertIn(self.spouse_kind, self.head_membership.membership_type_ids)
+        self.assertFalse(self.head_membership.membership_type_ids)
+        # Exactly one active head remains in the group.
+        heads = self.membership_model.search(
+            [
+                ("group", "=", self.group.id),
+                ("status", "=", "active"),
+                ("membership_type_ids", "in", self.head_kind.ids),
+            ]
+        )
+        self.assertEqual(len(heads), 1)
 
     def test_apply_requires_a_head(self):
         if not self.head_kind:
             self.skipTest("head membership-type code not present in the vocabulary")
         cr = self._make_cr()
         detail = cr.get_detail()
-        # Nobody assigned the head role.
+        # Nobody assigned the head role (all set to a non-head role).
         detail.member_line_ids.write({"new_role_id": self.spouse_kind.id})
         cr.approval_state = "approved"
         with self.assertRaises(UserError) as cm:
@@ -126,22 +135,54 @@ class TestChangeHOHStrategy(TransactionCase):
         self.assertIn("head", str(cm.exception).lower())
 
     def test_two_heads_blocked_by_constraint(self):
+        """Designating two (non-current-head) members as Head is rejected."""
+        if not self.head_kind:
+            self.skipTest("head membership-type code not present in the vocabulary")
+        # A second non-head member so we can set two heads without touching the
+        # current head (which has its own dedicated validation).
+        member2 = self.partner_model.create({"name": "Member Three", "is_registrant": True, "is_group": False})
+        self.membership_model.create(
+            {"group": self.group.id, "individual": member2.id, "start_date": fields.Datetime.now()}
+        )
+        detail = self._make_cr().get_detail()
+        self._line_for(detail, self.member).new_role_id = self.head_kind
+        with self.assertRaises(ValidationError):
+            self._line_for(detail, member2).new_role_id = self.head_kind
+
+    def test_current_head_cannot_be_set_as_head(self):
+        """The current Head of Household may not be reassigned Head in this CR."""
         if not self.head_kind:
             self.skipTest("head membership-type code not present in the vocabulary")
         detail = self._make_cr().get_detail()
-        # current_head's line is already Head; promoting the member too -> 2 heads.
-        with self.assertRaises(ValidationError):
-            self._line_for(detail, self.member).new_role_id = self.head_kind
+        with self.assertRaises(ValidationError) as cm:
+            self._line_for(detail, self.current_head).new_role_id = self.head_kind
+        self.assertIn("current head", str(cm.exception).lower())
 
     def test_all_reasons_apply(self):
         if not self.head_kind:
             self.skipTest("head membership-type code not present in the vocabulary")
         for reason in ("deceased", "incapacitated", "left_household", "age_change", "correction", "other"):
-            cr = self._make_cr()
+            # Fresh group + head + member each iteration (applying changes the
+            # head, so reusing one group would make the next iteration try to
+            # re-assign the now-current head).
+            grp = self.partner_model.create({"name": f"G {reason}", "is_registrant": True, "is_group": True})
+            head = self.partner_model.create({"name": f"Head {reason}", "is_registrant": True, "is_group": False})
+            new_head = self.partner_model.create({"name": f"New {reason}", "is_registrant": True, "is_group": False})
+            self.membership_model.create(
+                {
+                    "group": grp.id,
+                    "individual": head.id,
+                    "start_date": fields.Datetime.now(),
+                    "membership_type_ids": [Command.link(self.head_kind.id)],
+                }
+            )
+            self.membership_model.create(
+                {"group": grp.id, "individual": new_head.id, "start_date": fields.Datetime.now()}
+            )
+            cr = self._make_cr(registrant=grp)
             detail = cr.get_detail()
             detail.reason = reason
-            self._line_for(detail, self.current_head).new_role_id = self.spouse_kind
-            self._line_for(detail, self.member).new_role_id = self.head_kind
+            self._line_for(detail, new_head).new_role_id = self.head_kind
             cr.approval_state = "approved"
             cr.action_apply()
             self.assertTrue(cr.is_applied, f"Failed for reason: {reason}")

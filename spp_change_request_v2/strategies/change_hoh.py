@@ -17,9 +17,10 @@ class SPPCRApplyChangeHOH(models.AbstractModel):
     _description = "CR Apply: Change Head of Household"
 
     def apply(self, change_request):
-        """Apply the per-member role assignments. The member assigned the Head
-        role becomes the new head of household; every other member's role is set
-        to their chosen new role."""
+        """Apply the per-member role assignments. Each member's role is set to
+        exactly their New Role; a blank New Role means the member ends up with
+        NO role (OP#873 QA). The member assigned Head becomes the new head; the
+        current head may not be reassigned Head and only one Head is allowed."""
         group = change_request.registrant_id
         if not group.is_group:
             raise UserError(_("Registrant must be a group."))
@@ -43,17 +44,20 @@ class SPPCRApplyChangeHOH(models.AbstractModel):
 
         head_lines = lines.filtered(lambda r: r.new_role_id == head_kind)
         if not head_lines:
-            raise UserError(_("You must designate one member as the Head of Household."))
+            raise UserError(_("You must designate one member as the new Head of Household."))
         if len(head_lines) > 1:
-            raise UserError(_("Only one member can be the Head of Household."))
+            raise UserError(_("A group can have at most one Head of Household."))
+        if detail.current_head_id and head_lines.individual_id == detail.current_head_id:
+            raise UserError(
+                _("The current Head of Household cannot be set as Head again. Designate a different member.")
+            )
 
         Membership = self.env["spp.group.membership"]
-        for line in lines:
-            if not line.new_role_id:
-                continue
+
+        def active_membership(line):
             membership = line.membership_id
             if not membership or membership.status != "active":
-                # Membership may have changed since the lines were seeded; re-find it.
+                # Membership may have changed since the lines were seeded.
                 membership = Membership.search(
                     [
                         ("group", "=", group.id),
@@ -62,9 +66,19 @@ class SPPCRApplyChangeHOH(models.AbstractModel):
                     ],
                     limit=1,
                 )
+            return membership
+
+        # The CR follows the New Role column exactly: every member's roles become
+        # [New Role] or [] when blank. Process the new head LAST so the group
+        # never transiently holds two heads (rejected by the registry constraint
+        # at flush) while the outgoing head's row is being cleared.
+        ordered = lines.sorted(key=lambda r: 1 if r.new_role_id == head_kind else 0)
+        for line in ordered:
+            membership = active_membership(line)
             if not membership:
                 continue
-            membership.write({"membership_type_ids": [Command.set(line.new_role_id.ids)]})
+            role_ids = line.new_role_id.ids if line.new_role_id else []
+            membership.write({"membership_type_ids": [Command.set(role_ids)]})
 
         _logger.info(
             "Applied head-of-household role changes for group partner_id=%s via CR %s (new head partner_id=%s)",
