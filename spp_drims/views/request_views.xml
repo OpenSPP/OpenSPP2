@@ -335,6 +335,19 @@
                         />
                     </group>
 
+                    <!-- Allocation: the source warehouse can be set here before
+                         clicking "Allocate Stock" (it is optional — the wizard
+                         can also pick it). It is not editable once dispatch has
+                         started. OP#1079. -->
+                    <group string="Allocation" invisible="approval_state != 'approved'">
+                        <field
+                            name="source_warehouse_id"
+                            options="{'no_create': True, 'no_open': True}"
+                            readonly="state in ('dispatched', 'delivered', 'fulfilled')"
+                            help="Optional. Leave empty and pick a warehouse in the Allocate Stock wizard, which shows where stock is available."
+                        />
+                    </group>
+
                     <!-- Revision Needed Banner -->
                     <div
                         class="alert alert-warning"

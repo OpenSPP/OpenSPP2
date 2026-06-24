@@ -27,8 +27,9 @@ class DrimsAllocationPreviewWizard(models.TransientModel):
     warehouse_id = fields.Many2one(
         "stock.warehouse",
         string="Source Warehouse",
-        required=True,
         domain="[('is_drims_warehouse', '=', True)]",
+        help="Warehouse to allocate from. Leave empty to see which warehouses "
+        "currently hold stock for the requested items, then pick one.",
     )
     line_ids = fields.One2many(
         "spp.drims.allocation.preview.wizard.line",
@@ -73,41 +74,55 @@ class DrimsAllocationPreviewWizard(models.TransientModel):
             wizard.total_available = sum(wizard.line_ids.mapped("available_qty"))
             wizard.total_to_allocate = sum(wizard.line_ids.mapped("quantity_to_allocate"))
 
-    @api.depends("warehouse_id", "line_ids.shortfall")
+    @api.depends("warehouse_id", "request_id", "line_ids.shortfall", "has_shortfall")
     def _compute_alternative_warehouses(self):
-        """Find warehouses that have stock for items with shortfall."""
+        """Suggest DRIMS warehouses that hold stock for the requested items.
+
+        OP#1079 — the suggestion depends on whether a source warehouse has
+        been picked yet:
+
+        * No warehouse selected (scenario 1): list every DRIMS warehouse that
+          currently has stock for any requested item, so the user can choose
+          where to allocate from before committing.
+        * Warehouse selected but some items short (scenario 3): list the OTHER
+          warehouses that hold stock for the short items.
+        * Warehouse selected and stock sufficient (scenario 2): nothing to
+          suggest.
+        """
         for wizard in self:
+            if not wizard.warehouse_id:
+                products = wizard.request_id.line_ids.mapped("product_id")
+                wizard.alternative_warehouse_ids = wizard._warehouses_with_stock(products)
+                continue
+
             if not wizard.has_shortfall:
                 wizard.alternative_warehouse_ids = False
                 continue
 
             shortfall_products = wizard.line_ids.filtered(lambda line: line.shortfall > 0).mapped("product_id")
-
-            if not shortfall_products:
-                wizard.alternative_warehouse_ids = False
-                continue
-
-            # Find other DRIMS warehouses with stock
-            other_warehouses = self.env["stock.warehouse"].search(
-                [
-                    ("is_drims_warehouse", "=", True),
-                    ("id", "!=", wizard.warehouse_id.id),
-                ]
+            wizard.alternative_warehouse_ids = wizard._warehouses_with_stock(
+                shortfall_products, exclude=wizard.warehouse_id
             )
 
-            alternatives = self.env["stock.warehouse"]
-            for wh in other_warehouses:
-                quants = self.env["stock.quant"].search(
-                    [
-                        ("product_id", "in", shortfall_products.ids),
-                        ("location_id", "child_of", wh.lot_stock_id.id),
-                        ("quantity", ">", 0),
-                    ]
-                )
-                if quants:
-                    alternatives |= wh
+    def _warehouses_with_stock(self, products, exclude=None):
+        """Return DRIMS warehouses with net available stock for any ``products``.
 
-            wizard.alternative_warehouse_ids = alternatives
+        Availability is the same net figure the wizard would actually be able
+        to allocate (physical on-hand minus reservations and pending DRIMS
+        allocations — see ``_get_available_quantity``), so a warehouse is only
+        suggested when picking it would genuinely help.
+        """
+        self.ensure_one()
+        if not products:
+            return self.env["stock.warehouse"]
+        domain = [("is_drims_warehouse", "=", True)]
+        if exclude:
+            domain.append(("id", "!=", exclude.id))
+        result = self.env["stock.warehouse"]
+        for wh in self.env["stock.warehouse"].search(domain):
+            if any(self._get_available_quantity(product, wh) > 0 for product in products):
+                result |= wh
+        return result
 
     @api.model
     def default_get(self, fields_list):
@@ -130,9 +145,16 @@ class DrimsAllocationPreviewWizard(models.TransientModel):
 
     @api.onchange("warehouse_id")
     def _onchange_warehouse_id(self):
-        """Recalculate available quantities when warehouse changes."""
+        """Recalculate available quantities when the warehouse changes.
+
+        When the warehouse is cleared, drop the lines too — otherwise stale
+        availability from the previous warehouse lingers (e.g. "Total
+        Available 500" with no warehouse selected). OP#1079.
+        """
         if self.warehouse_id and self.request_id:
             self._populate_lines()
+        else:
+            self.line_ids = [Command.clear()]
 
     def _populate_lines(self):
         """Populate allocation lines from request lines."""
@@ -154,8 +176,9 @@ class DrimsAllocationPreviewWizard(models.TransientModel):
             lines.append(
                 Command.create(
                     {
+                        # product_id is a stored related field off
+                        # request_line_id, so it is derived server-side.
                         "request_line_id": request_line.id,
-                        "product_id": request_line.product_id.id,
                         "quantity_requested": remaining,
                         "available_qty": available,
                         "quantity_to_allocate": to_allocate,
@@ -199,6 +222,12 @@ class DrimsAllocationPreviewWizard(models.TransientModel):
     def action_confirm_allocation(self):
         """Apply the previewed allocation."""
         self.ensure_one()
+
+        # OP#1079: the source warehouse is optional when opening the wizard so
+        # the user can first see where stock is available, but allocating from
+        # nowhere is meaningless — require it at confirm time.
+        if not self.warehouse_id:
+            raise UserError(_("Please select a source warehouse to allocate from."))
 
         if not self.line_ids:
             raise UserError(_("No items to allocate."))
@@ -292,10 +321,18 @@ class DrimsAllocationPreviewWizardLine(models.TransientModel):
         string="Request Line",
         required=True,
     )
+    # Derived from the request line so it never has to be supplied by the web
+    # client. When the source warehouse is changed the lines are recreated via
+    # onchange as new client-side records; if product_id were a required input
+    # the readonly column would be omitted from the save payload and the
+    # record would fail to persist ("Missing required value for Product").
+    # As a stored related field the server fills it from request_line_id.
     product_id = fields.Many2one(
         "product.product",
+        related="request_line_id.product_id",
         string="Product",
-        required=True,
+        store=True,
+        readonly=True,
     )
     uom_id = fields.Many2one(
         related="product_id.uom_id",

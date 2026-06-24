@@ -2,7 +2,7 @@
 from datetime import date, timedelta
 
 from odoo.exceptions import UserError
-from odoo.tests.common import tagged
+from odoo.tests.common import Form, tagged
 
 from .common import DrimsTestCommon
 
@@ -352,6 +352,160 @@ class TestDrimsAllocationPreviewWizard(DrimsTestCommon):
             wizard_2.action_confirm_allocation()
         # request.quantity_allocated must NOT have been bumped up.
         self.assertEqual(request.line_ids[0].quantity_allocated, 1000.0)
+
+    def test_no_warehouse_lists_warehouses_with_stock(self):
+        """OP#1079 scenario 1: the wizard can be opened without a source
+        warehouse; it then lists the DRIMS warehouses that hold stock for the
+        requested items so the user can choose where to allocate from. No
+        allocation lines are populated until a warehouse is picked.
+        """
+        # Stock only in warehouse2.
+        self.env["stock.quant"].create(
+            {
+                "product_id": self.stockable_product.id,
+                "location_id": self.warehouse2.lot_stock_id.id,
+                "quantity": 150.0,
+            }
+        )
+        request = self._create_request_with_lines([(self.stockable_product, 100)])
+
+        wizard = self.env["spp.drims.allocation.preview.wizard"].create(
+            {
+                "request_id": request.id,
+            }
+        )
+
+        self.assertFalse(wizard.warehouse_id)
+        # No warehouse → no lines yet.
+        self.assertFalse(wizard.line_ids)
+        # The warehouse that holds stock is suggested; the empty one is not.
+        self.assertIn(self.warehouse2, wizard.alternative_warehouse_ids)
+        self.assertNotIn(self.warehouse, wizard.alternative_warehouse_ids)
+
+    def test_confirm_without_warehouse_raises(self):
+        """OP#1079: a source warehouse is optional to open the wizard but
+        required to confirm — allocating from nowhere must be rejected.
+        """
+        request = self._create_request_with_lines([(self.stockable_product, 100)])
+        wizard = self.env["spp.drims.allocation.preview.wizard"].create(
+            {
+                "request_id": request.id,
+            }
+        )
+        with self.assertRaises(UserError):
+            wizard.action_confirm_allocation()
+
+    def test_warehouse_picked_in_wizard_writes_back_to_request(self):
+        """OP#1079 scenario 1/3: a warehouse chosen inside the wizard (when the
+        request had none set) is written back to the request on confirm.
+        """
+        self.env["stock.quant"].create(
+            {
+                "product_id": self.stockable_product.id,
+                "location_id": self.warehouse2.lot_stock_id.id,
+                "quantity": 100.0,
+            }
+        )
+        request = self._create_request_with_lines([(self.stockable_product, 100)])
+        self.assertFalse(request.source_warehouse_id)
+
+        # Open with no warehouse, then pick warehouse2 in the wizard.
+        wizard = self.env["spp.drims.allocation.preview.wizard"].create(
+            {
+                "request_id": request.id,
+            }
+        )
+        wizard.warehouse_id = self.warehouse2
+        wizard._populate_lines()
+        wizard.action_confirm_allocation()
+
+        self.assertEqual(request.source_warehouse_id, self.warehouse2)
+        self.assertEqual(request.line_ids[0].quantity_allocated, 100.0)
+
+    def test_clearing_warehouse_clears_lines(self):
+        """OP#1079: clearing the source warehouse must drop the allocation
+        lines, otherwise stale availability from the previous warehouse lingers
+        (e.g. a non-zero "Total Available" with no warehouse selected) and the
+        form would try to persist orphaned lines on Confirm.
+        """
+        self.env["stock.quant"].create(
+            {
+                "product_id": self.stockable_product.id,
+                "location_id": self.warehouse.lot_stock_id.id,
+                "quantity": 200.0,
+            }
+        )
+        request = self._create_request_with_lines([(self.stockable_product, 100)])
+        wizard = self.env["spp.drims.allocation.preview.wizard"].create(
+            {
+                "request_id": request.id,
+                "warehouse_id": self.warehouse.id,
+            }
+        )
+        wizard._populate_lines()
+        self.assertTrue(wizard.line_ids)
+        self.assertEqual(wizard.total_available, 200.0)
+
+        # Clear the warehouse — lines and availability must reset to nothing.
+        wizard.warehouse_id = False
+        wizard._onchange_warehouse_id()
+        self.assertFalse(wizard.line_ids)
+        self.assertEqual(wizard.total_available, 0.0)
+
+    def test_no_alternatives_when_warehouse_has_enough(self):
+        """OP#1079 scenario 2: with a warehouse selected and stock sufficient,
+        no alternative warehouses are suggested.
+        """
+        self.env["stock.quant"].create(
+            {
+                "product_id": self.stockable_product.id,
+                "location_id": self.warehouse.lot_stock_id.id,
+                "quantity": 200.0,
+            }
+        )
+        request = self._create_request_with_lines([(self.stockable_product, 100)])
+        wizard = self.env["spp.drims.allocation.preview.wizard"].create(
+            {
+                "request_id": request.id,
+                "warehouse_id": self.warehouse.id,
+            }
+        )
+        wizard._populate_lines()
+
+        self.assertFalse(wizard.has_shortfall)
+        self.assertFalse(wizard.alternative_warehouse_ids)
+
+    def test_change_warehouse_in_form_then_confirm(self):
+        """OP#1079 UI regression: open the wizard via Form, set/change the
+        source warehouse — which recreates the allocation lines through the
+        onchange as new client-side records — then save and confirm. This used
+        to fail with "Missing required value for Product" because product_id
+        was a required readonly column omitted from the save payload; it is now
+        a stored related field derived from request_line_id.
+        """
+        self.env["stock.quant"].create(
+            {
+                "product_id": self.stockable_product.id,
+                "location_id": self.warehouse2.lot_stock_id.id,
+                "quantity": 200.0,
+            }
+        )
+        request = self._create_request_with_lines([(self.stockable_product, 100)])
+
+        # request_id is readonly; seed it the way the action does (via default).
+        wizard_form = Form(self.env["spp.drims.allocation.preview.wizard"].with_context(default_request_id=request.id))
+        # Picking the warehouse fires the onchange that (re)builds the lines.
+        wizard_form.warehouse_id = self.warehouse2
+        wizard = wizard_form.save()
+
+        # Lines persisted with product_id derived from the request line.
+        self.assertTrue(wizard.line_ids)
+        self.assertEqual(wizard.line_ids[0].product_id, self.stockable_product)
+
+        result = wizard.action_confirm_allocation()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertEqual(request.source_warehouse_id, self.warehouse2)
+        self.assertEqual(request.line_ids[0].quantity_allocated, 100.0)
 
     def test_empty_allocation_error(self):
         """Test that confirming allocation with no items raises error."""

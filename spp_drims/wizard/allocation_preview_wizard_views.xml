@@ -19,7 +19,11 @@
 
                     <group>
                         <group>
-                            <field name="warehouse_id" options="{'no_create': True}" />
+                            <field
+                                name="warehouse_id"
+                                options="{'no_create': True}"
+                                placeholder="Pick a warehouse to allocate from..."
+                            />
                         </group>
                         <group>
                             <field name="total_requested" />
@@ -27,6 +31,20 @@
                             <field name="total_to_allocate" />
                         </group>
                     </group>
+
+                    <!-- No warehouse picked yet: prompt to choose one. The
+                         warehouses that hold stock are listed below (OP#1079
+                         scenario 1). -->
+                    <div
+                        class="alert alert-info"
+                        role="status"
+                        invisible="warehouse_id"
+                    >
+                        <strong
+                    >Select a source warehouse</strong> to preview availability.
+                        The warehouses that currently hold stock for the requested items
+                        are listed below.
+                    </div>
 
                     <!-- Warning for shortfall -->
                     <div
@@ -38,8 +56,10 @@
                         Consider using an alternative warehouse or accepting partial allocation.
                     </div>
 
-                    <!-- Alternative warehouses suggestion -->
-                    <group invisible="not has_shortfall">
+                    <!-- Warehouses with stock: shown when no warehouse is
+                         selected (where to allocate from) or when the selected
+                         warehouse is short (where else to look) — OP#1079. -->
+                    <group invisible="warehouse_id and not has_shortfall">
                         <field
                             name="alternative_warehouse_ids"
                             widget="many2many_tags"
@@ -51,7 +71,7 @@
                     <notebook>
                         <page string="Allocation Lines" name="lines">
                             <field name="line_ids">
-                                <list editable="bottom">
+                                <list editable="bottom" create="0" delete="0">
                                     <field name="product_id" readonly="1" />
                                     <field name="uom_id" readonly="1" />
                                     <field name="quantity_requested" />
