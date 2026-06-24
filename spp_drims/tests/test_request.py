@@ -651,3 +651,70 @@ class TestDrimsRequest(DrimsTestCommon):
         with self.assertRaises(UserError) as cm:
             request.action_create_dispatch()
         self.assertIn("Nothing left to dispatch", str(cm.exception))
+
+
+@tagged("post_install", "-at_install")
+class TestDrimsRequestUIFields(DrimsTestCommon):
+    """OP#1075: destination-type selector + allocation shortfall indicators."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.future_date = date.today() + timedelta(days=30)
+
+    def _request(self, qty_req=50, qty_alloc=0, approval_state=None):
+        req = self.env["spp.drims.request"].create(
+            {
+                "incident_id": self.incident.id,
+                "destination_area_id": self.area.id,
+                "date_needed": self.future_date,
+                "priority_id": self.priority_routine.id,
+                "line_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "product_id": self.product.id,
+                            "quantity_requested": qty_req,
+                            "uom_id": self.product.uom_id.id,
+                        },
+                    )
+                ],
+            }
+        )
+        if qty_alloc:
+            req.line_ids.quantity_allocated = qty_alloc
+        if approval_state:
+            req.approval_state = approval_state
+        return req
+
+    def test_destination_type_defaults_to_warehouse(self):
+        req = self._request()
+        self.assertEqual(req.destination_type, "warehouse")
+
+    def test_is_fully_allocated(self):
+        # Nothing allocated yet.
+        req = self._request(qty_req=50, qty_alloc=0)
+        self.assertFalse(req.is_fully_allocated)
+        # Partially allocated.
+        req.line_ids.quantity_allocated = 20
+        req.invalidate_recordset(["is_fully_allocated"])
+        self.assertFalse(req.is_fully_allocated)
+        # Fully allocated.
+        req.line_ids.quantity_allocated = 50
+        req.invalidate_recordset(["is_fully_allocated"])
+        self.assertTrue(req.is_fully_allocated)
+
+    def test_line_allocation_short_only_after_approval(self):
+        # Draft with 0 allocated -> not flagged (allocation hasn't started).
+        req = self._request(qty_req=50, qty_alloc=0)
+        self.assertFalse(req.line_ids.is_allocation_short)
+        # Approved but under-allocated -> flagged.
+        req.approval_state = "approved"
+        req.line_ids.quantity_allocated = 20
+        req.line_ids.invalidate_recordset(["is_allocation_short"])
+        self.assertTrue(req.line_ids.is_allocation_short)
+        # Approved and fully allocated -> not flagged.
+        req.line_ids.quantity_allocated = 50
+        req.line_ids.invalidate_recordset(["is_allocation_short"])
+        self.assertFalse(req.line_ids.is_allocation_short)

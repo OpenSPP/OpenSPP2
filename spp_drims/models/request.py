@@ -51,6 +51,17 @@ class DrimsRequest(models.Model):
         tracking=True,
         index=True,
     )
+    # OP#1075: choose whether the destination is a warehouse or a service point;
+    # the matching field is shown conditionally in the form.
+    destination_type = fields.Selection(
+        [
+            ("warehouse", "Warehouse"),
+            ("service_point", "Service Point"),
+        ],
+        string="Destination Type",
+        default="warehouse",
+        tracking=True,
+    )
     service_point_id = fields.Many2one(
         "spp.service.point",
         string="Service Point",
@@ -219,6 +230,20 @@ class DrimsRequest(models.Model):
         compute="_compute_fulfillment_progress",
         store=True,
     )
+    # OP#1075: True when every requested line is fully allocated. Drives the
+    # shortfall flag and disables the Allocate Stock button once nothing remains.
+    is_fully_allocated = fields.Boolean(
+        string="Fully Allocated",
+        compute="_compute_is_fully_allocated",
+    )
+
+    @api.depends("line_ids.quantity_requested", "line_ids.quantity_allocated")
+    def _compute_is_fully_allocated(self):
+        for rec in self:
+            lines = rec.line_ids
+            rec.is_fully_allocated = bool(lines) and all(
+                line.quantity_allocated >= line.quantity_requested for line in lines
+            )
 
     # Stock
     picking_ids = fields.One2many(

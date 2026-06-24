@@ -40,6 +40,20 @@ class DrimsRequestLine(models.Model):
         default=0.0,
         help="Quantity allocated from warehouse stock",
     )
+    # OP#1075: flag a line where, after the request is approved, less has been
+    # allocated than requested — used to show the shortfall in red on the form.
+    is_allocation_short = fields.Boolean(
+        string="Allocation Short",
+        compute="_compute_is_allocation_short",
+    )
+
+    @api.depends("quantity_requested", "quantity_allocated", "request_id.approval_state")
+    def _compute_is_allocation_short(self):
+        for line in self:
+            line.is_allocation_short = (
+                line.request_id.approval_state == "approved" and line.quantity_allocated < line.quantity_requested
+            )
+
     quantity_dispatched = fields.Float(
         string="Quantity Dispatched",
         default=0.0,
