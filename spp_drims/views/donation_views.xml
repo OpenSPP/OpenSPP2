@@ -180,9 +180,17 @@
                                 -->
                                 <list editable="bottom">
                                     <field name="sequence" widget="handle" />
+                                    <!--
+                                        OP#1108: a product added inline here must
+                                        be a storable Good, otherwise it never
+                                        tracks in inventory / shows in Stock on
+                                        Hand. The context defaults make any
+                                        quick-created product storable.
+                                    -->
                                     <field
                                         name="product_id"
                                         options="{'no_create_edit': True}"
+                                        context="{'default_type': 'consu', 'default_is_storable': True}"
                                         readonly="parent.state != 'draft'"
                                     />
                                     <field
@@ -531,7 +539,10 @@
             <list editable="bottom">
                 <field name="donation_id" readonly="1" />
                 <field name="sequence" widget="handle" />
-                <field name="product_id" />
+                <field
+                    name="product_id"
+                    context="{'default_type': 'consu', 'default_is_storable': True}"
+                />
                 <field name="quantity" />
                 <field name="uom_id" />
                 <field name="unit_value" />
@@ -553,7 +564,10 @@
                     <group>
                         <group name="product_info">
                             <field name="donation_id" />
-                            <field name="product_id" />
+                            <field
+                                name="product_id"
+                                context="{'default_type': 'consu', 'default_is_storable': True}"
+                            />
                             <field name="sequence" />
                         </group>
                         <group name="quantity_info">

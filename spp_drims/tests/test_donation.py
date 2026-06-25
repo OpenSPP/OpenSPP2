@@ -1264,3 +1264,15 @@ class TestDrimsDonationOP1076(DrimsTestCommon):
         donation.action_mark_announced()
         with self.assertRaises(ValidationError):
             donation.line_ids[0].unlink()
+
+    # ---------- OP#1108: inline-created products are storable ----------
+
+    def test_1108_inline_product_defaults_to_storable(self):
+        """A product quick-created from a donation line carries the field's
+        context defaults (default_type / default_is_storable), so it is a
+        storable Good and can be tracked in inventory / Stock on Hand."""
+        product_model = self.env["product.product"].with_context(default_type="consu", default_is_storable=True)
+        pid, _name = product_model.name_create("QA Inline Donated Item 1108")
+        product = self.env["product.product"].browse(pid)
+        self.assertEqual(product.type, "consu")
+        self.assertTrue(product.is_storable)
