@@ -7,6 +7,7 @@ from odoo.exceptions import UserError, ValidationError
 from .constants import (
     DONATION_STATE_ANNOUNCED,
     DONATION_STATE_CANCELLED,
+    DONATION_STATE_DRAFT,
     DONATION_STATE_INSPECTED,
     DONATION_STATE_RECEIVED,
     DONATION_STATE_REJECTED,
@@ -28,6 +29,7 @@ NON_ACCEPT_DISPOSITIONS = ("return", "dispose", "quarantine")
 
 # Valid state transitions: {from_state: [allowed_to_states]}
 DONATION_STATE_TRANSITIONS = {
+    DONATION_STATE_DRAFT: [DONATION_STATE_ANNOUNCED, DONATION_STATE_CANCELLED],
     DONATION_STATE_ANNOUNCED: [DONATION_STATE_RECEIVED, DONATION_STATE_CANCELLED],
     DONATION_STATE_RECEIVED: [DONATION_STATE_INSPECTED, DONATION_STATE_CANCELLED],
     DONATION_STATE_INSPECTED: [
@@ -68,11 +70,15 @@ class DrimsDonation(models.Model):
         required=True,
         tracking=True,
         index=True,
+        # OP#1076: a donation cannot be attached to a closed incident.
+        domain="[('status', '!=', 'closed')]",
     )
     donor_id = fields.Many2one(
         "res.partner",
         string="Donor",
         tracking=True,
+        # OP#1076: only DRIMS organisations whose role is "Donor".
+        domain="[('is_drims_organization', '=', True), ('drims_organization_role_id.code', '=', 'donor')]",
     )
     donor_name = fields.Char(
         string="Donor Name",
@@ -145,6 +151,19 @@ class DrimsDonation(models.Model):
     has_acceptable_items = fields.Boolean(
         compute="_compute_has_acceptable_items",
     )
+    # OP#1076: the line-table "Expiry Date" column is only shown when the
+    # optional product_expiry module is installed.
+    product_expiry_installed = fields.Boolean(
+        compute="_compute_product_expiry_installed",
+    )
+    # OP#1076: lines whose inspection disposition excludes them from stock
+    # (return/dispose/quarantine) — surfaced in a separate "Items Not Accepted
+    # for Stock" table once the donation has been inspected.
+    non_accepted_line_ids = fields.One2many(
+        "spp.drims.donation.line",
+        compute="_compute_non_accepted_line_ids",
+        string="Items Not Accepted for Stock",
+    )
 
     # Stock
     picking_ids = fields.One2many(
@@ -210,12 +229,32 @@ class DrimsDonation(models.Model):
         self._invalidate_incident_kpi_cache(self)
         return result
 
+    @api.constrains("incident_id")
+    def _check_incident_not_closed(self):
+        """OP#1076: a donation cannot be recorded against a closed incident."""
+        for rec in self:
+            if rec.incident_id.status == "closed":
+                raise ValidationError(
+                    _("Incident '%s' is closed — donations cannot be recorded against it.")
+                    % rec.incident_id.display_name
+                )
+
+    @api.constrains("line_ids", "state")
+    def _check_has_lines(self):
+        """OP#1076: at least one donation item is required (from draft onward).
+
+        Cancelled donations are exempt so an empty draft can still be cancelled.
+        """
+        for rec in self:
+            if rec.state != DONATION_STATE_CANCELLED and not rec.line_ids:
+                raise ValidationError(_("Add at least one item before saving the donation."))
+
     @api.model
     def _get_default_state(self):
         return self.env["spp.vocabulary.code"].search(
             [
                 ("vocabulary_id.namespace_uri", "=", VOCAB_DONATION_STATES),
-                ("code", "=", DONATION_STATE_ANNOUNCED),
+                ("code", "=", DONATION_STATE_DRAFT),
             ],
             limit=1,
         )
@@ -245,6 +284,21 @@ class DrimsDonation(models.Model):
                 for line in rec.line_ids
             )
 
+    def _compute_product_expiry_installed(self):
+        # product_expiry adds ``expiration_date`` to stock.lot; checking the
+        # field registry avoids querying ir.module.module (and the sudo that
+        # would require), and matches how action_stock detects it.
+        installed = "expiration_date" in self.env["stock.lot"]._fields
+        for rec in self:
+            rec.product_expiry_installed = installed
+
+    @api.depends("line_ids.disposition_id")
+    def _compute_non_accepted_line_ids(self):
+        for rec in self:
+            rec.non_accepted_line_ids = rec.line_ids.filtered(
+                lambda line: (line.disposition_id.code or "") in NON_ACCEPT_DISPOSITIONS
+            )
+
     @api.depends("picking_ids")
     def _compute_picking_count(self):
         for rec in self:
@@ -260,17 +314,44 @@ class DrimsDonation(models.Model):
         self._invalidate_incident_kpi_cache(records)
         return records
 
+    def action_mark_announced(self):
+        """Mark a draft donation as announced (OP#1076).
+
+        Moves the donation from 'draft' to 'announced'. Only from this point
+        is the "Mark Received" action available and are the Received/Variance
+        columns shown for manual entry.
+        """
+        announced_state = self.env["spp.vocabulary.code"].search(
+            [
+                ("vocabulary_id.namespace_uri", "=", VOCAB_DONATION_STATES),
+                ("code", "=", DONATION_STATE_ANNOUNCED),
+            ],
+            limit=1,
+        )
+        for rec in self:
+            if rec.state != DONATION_STATE_DRAFT:
+                raise UserError(_("Only draft donations can be marked as announced."))
+            if not rec.line_ids:
+                raise UserError(_("Add at least one item before announcing the donation."))
+            rec.state_id = announced_state
+
     def action_mark_received(self):
         """Mark donation as received and create stock picking.
 
         This action:
         1. Updates the donation state to 'received'
         2. Sets the date_received to today
-        3. Sets quantity_received = quantity_pledged for all lines without received qty
-        4. Creates a stock.picking (incoming) for receiving items into warehouse
+        3. Creates a stock.picking (incoming) for receiving items into warehouse
+
+        OP#1076: received quantities are entered MANUALLY on the announced
+        donation (the Received column), not auto-copied from the pledged
+        quantity. At least one line must have a received quantity > 0 before
+        the donation can be marked received.
 
         Raises:
-            UserError: If no incoming picking type found for the warehouse.
+            UserError: If the donation is not announced, if no received
+                quantity has been entered, or if no incoming picking type is
+                found for the warehouse.
         """
         received_state = self.env["spp.vocabulary.code"].search(
             [
@@ -287,12 +368,14 @@ class DrimsDonation(models.Model):
             limit=1,
         )
         for rec in self:
+            if rec.state != DONATION_STATE_ANNOUNCED:
+                raise UserError(_("Only announced donations can be marked as received."))
+            if not any(line.quantity_received > 0 for line in rec.line_ids):
+                raise UserError(
+                    _("Enter the received quantity on at least one item before marking the donation received.")
+                )
             rec.state_id = received_state
             rec.date_received = fields.Date.context_today(self)
-            # Mark all lines as received with pledged quantity
-            for line in rec.line_ids:
-                if line.quantity_received == 0:
-                    line.quantity_received = line.quantity_pledged
             # Create stock picking for receipt
             rec._create_receipt_picking(drims_type)
 

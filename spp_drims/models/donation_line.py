@@ -1,5 +1,6 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 
 
 class DrimsDonationLine(models.Model):
@@ -22,16 +23,13 @@ class DrimsDonationLine(models.Model):
         string="Product",
         required=True,
     )
-    description = fields.Char(
-        string="Description",
-        help="Additional description if product not found",
-    )
 
     # Quantities
+    # OP#1076: no default — the pledged quantity must be entered explicitly
+    # (enforced by _check_quantity_pledged) so it is never silently saved as 0.
     quantity_pledged = fields.Float(
         string="Quantity Pledged",
         required=True,
-        default=1.0,
         help="Original quantity announced by donor",
     )
     quantity_received = fields.Float(
@@ -112,17 +110,18 @@ class DrimsDonationLine(models.Model):
         for line in self:
             line.value = line.quantity * line.unit_value
 
+    @api.constrains("quantity_pledged")
+    def _check_quantity_pledged(self):
+        """OP#1076: the pledged quantity must be a positive number."""
+        for line in self:
+            if line.quantity_pledged <= 0:
+                raise ValidationError(_("Pledged quantity must be greater than zero."))
+
     @api.onchange("product_id")
     def _onchange_product_id(self):
         if self.product_id:
             self.uom_id = self.product_id.uom_id
             self.unit_value = self.product_id.standard_price
-
-    def action_mark_received(self):
-        """Mark line as received with pledged quantity."""
-        for line in self:
-            if line.quantity_received == 0:
-                line.quantity_received = line.quantity_pledged
 
     @api.model_create_multi
     def create(self, vals_list):

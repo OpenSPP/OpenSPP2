@@ -25,6 +25,9 @@ class TestDrimsIncident(DrimsTestCommon):
                 "incident_id": self.incident.id,
                 "warehouse_id": self.warehouse.id,
                 "donor_name": "Test Donor",
+                "line_ids": [
+                    (0, 0, {"product_id": self.product.id, "quantity_pledged": 10, "uom_id": self.product.uom_id.id})
+                ],
             }
         )
         self.incident.invalidate_recordset()

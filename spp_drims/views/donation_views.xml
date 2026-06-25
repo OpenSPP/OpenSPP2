@@ -42,6 +42,13 @@
             <form string="Donation">
                 <header>
                     <button
+                        name="action_mark_announced"
+                        string="Mark Announced"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'draft'"
+                    />
+                    <button
                         name="action_mark_received"
                         string="Mark Received"
                         type="object"
@@ -72,9 +79,10 @@
                         confirm="Reject this donation? Items will not be added to inventory."
                     />
                     <field name="has_acceptable_items" invisible="1" />
+                    <field name="product_expiry_installed" invisible="1" />
                     <button
                         name="action_cancel"
-                        string="Cancel"
+                        string="Cancel Donation"
                         type="object"
                         class="btn-secondary"
                         invisible="state in ('stocked', 'rejected', 'cancelled')"
@@ -150,50 +158,44 @@
                     <notebook>
                         <page string="Donation Items" name="items">
                             <field name="line_ids">
+                                <!--
+                                    OP#1076: columns appear progressively with the
+                                    donation lifecycle.
+                                    - draft: product, Pledged (entered here)
+                                    - announced: + Received (manual, mandatory) + Variance
+                                    - inspected/stocked: + Condition + Action (from inspection)
+                                    "Expiry Date" only when the product_expiry module
+                                    is installed.
+                                -->
                                 <list editable="bottom">
                                     <field name="sequence" widget="handle" />
                                     <field
                                         name="product_id"
                                         options="{'no_create_edit': True}"
-                                        readonly="parent.state != 'announced'"
-                                    />
-                                    <field
-                                        name="description"
-                                        readonly="parent.state != 'announced'"
+                                        readonly="parent.state != 'draft'"
                                     />
                                     <field
                                         name="quantity_pledged"
                                         string="Pledged"
-                                        readonly="parent.state != 'announced'"
+                                        readonly="parent.state != 'draft'"
                                     />
                                     <!--
-                                        OP#962: `quantity_received` is editable
-                                        only in the `received` state — never
-                                        during `announced`. Allowing edits at
-                                        announce-time let pre-entered values
-                                        silently flow through
-                                        `action_mark_received()` (which only
-                                        auto-copies pledged→received for lines
-                                        where quantity_received == 0), driving
-                                        the stock picking with values the user
-                                        hadn't necessarily confirmed.
-
-                                        Note: edits in the `received` state
-                                        after the picking exists still don't
-                                        update the picking — that picking-sync
-                                        question is out of scope here and
-                                        should be tracked separately.
+                                        OP#1076: Received is entered MANUALLY on the
+                                        announced donation (no auto-copy from Pledged)
+                                        and is mandatory before "Mark Received".
                                     -->
                                     <field
                                         name="quantity_received"
                                         string="Received"
-                                        readonly="parent.state != 'received'"
+                                        column_invisible="parent.state == 'draft'"
+                                        readonly="parent.state != 'announced'"
+                                        required="parent.state == 'announced'"
                                     />
                                     <field
                                         name="receipt_variance"
                                         string="Variance"
+                                        column_invisible="parent.state == 'draft'"
                                         decoration-danger="receipt_variance &lt; 0"
-                                        optional="show"
                                     />
                                     <field name="quantity" invisible="1" />
                                     <field
@@ -204,17 +206,50 @@
                                     <field name="value" />
                                     <field
                                         name="condition_id"
-                                        optional="show"
-                                        options="{'no_create': True}"
-                                        readonly="parent.state != 'inspected'"
+                                        string="Condition"
+                                        column_invisible="parent.state not in ('inspected', 'stocked')"
+                                        readonly="1"
                                     />
                                     <field
                                         name="disposition_id"
-                                        optional="hide"
-                                        options="{'no_create': True}"
+                                        string="Action"
+                                        column_invisible="parent.state not in ('inspected', 'stocked')"
+                                        readonly="1"
                                     />
                                     <field name="lot_number" optional="show" />
-                                    <field name="expiry_date" optional="show" />
+                                    <field
+                                        name="expiry_date"
+                                        column_invisible="not parent.product_expiry_installed or parent.state == 'draft'"
+                                    />
+                                </list>
+                            </field>
+                            <!--
+                                OP#1076: once inspected, any items whose
+                                disposition excludes them from stock (return /
+                                dispose / quarantine) are listed separately so
+                                it is clear what will NOT enter inventory.
+                            -->
+                            <separator
+                                string="Items Not Accepted for Stock"
+                                invisible="state not in ('inspected', 'stocked') or not non_accepted_line_ids"
+                            />
+                            <field
+                                name="non_accepted_line_ids"
+                                readonly="1"
+                                invisible="state not in ('inspected', 'stocked') or not non_accepted_line_ids"
+                            >
+                                <list>
+                                    <field name="product_id" />
+                                    <field name="quantity_pledged" string="Pledged" />
+                                    <field name="quantity_received" string="Received" />
+                                    <field
+                                        name="receipt_variance"
+                                        string="Variance"
+                                        decoration-danger="receipt_variance &lt; 0"
+                                    />
+                                    <field name="uom_id" />
+                                    <field name="condition_id" string="Condition" />
+                                    <field name="disposition_id" string="Action" />
                                 </list>
                             </field>
                         </page>
@@ -265,6 +300,11 @@
                 <field name="donor_name" />
                 <field name="warehouse_id" />
                 <separator />
+                <filter
+                    name="draft"
+                    string="Draft"
+                    domain="[('state', '=', 'draft')]"
+                />
                 <filter
                     name="announced"
                     string="Announced"
@@ -481,7 +521,6 @@
                 <field name="donation_id" readonly="1" />
                 <field name="sequence" widget="handle" />
                 <field name="product_id" />
-                <field name="description" />
                 <field name="quantity" />
                 <field name="uom_id" />
                 <field name="unit_value" />
@@ -504,7 +543,6 @@
                         <group name="product_info">
                             <field name="donation_id" />
                             <field name="product_id" />
-                            <field name="description" />
                             <field name="sequence" />
                         </group>
                         <group name="quantity_info">

@@ -32,6 +32,7 @@ STATE_DISPATCHED = "dispatched"
 STATE_DELIVERED = "delivered"
 
 # Donation state codes
+DONATION_STATE_DRAFT = "draft"
 DONATION_STATE_ANNOUNCED = "announced"
 DONATION_STATE_RECEIVED = "received"
 DONATION_STATE_INSPECTED = "inspected"
