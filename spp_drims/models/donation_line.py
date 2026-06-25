@@ -131,9 +131,23 @@ class DrimsDonationLine(models.Model):
                 product = self.env["product.product"].browse(vals["product_id"])
                 vals["uom_id"] = product.uom_id.id
         records = super().create(vals_list)
+        # OP#1055: items can only be added while the donation is in draft. The
+        # inspection wizard creates split rows on a received donation and opts
+        # out via the allow_donation_line_create context.
+        if not self.env.context.get("allow_donation_line_create"):
+            for line in records:
+                if line.donation_id.state and line.donation_id.state != "draft":
+                    raise ValidationError(_("Items can only be added while the donation is in draft."))
         # Invalidate KPI cache for affected incidents
         self._invalidate_incident_kpi_cache(records)
         return records
+
+    def unlink(self):
+        # OP#1055: items can only be removed while the donation is in draft.
+        for line in self:
+            if line.donation_id.state and line.donation_id.state != "draft":
+                raise ValidationError(_("Items can only be removed while the donation is in draft."))
+        return super().unlink()
 
     def write(self, vals):
         result = super().write(vals)

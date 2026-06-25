@@ -1229,3 +1229,38 @@ class TestDrimsDonationOP1076(DrimsTestCommon):
         self.assertFalse(donation.non_accepted_line_ids)
         donation.line_ids[0].disposition_id = disposition_return
         self.assertIn(donation.line_ids[0], donation.non_accepted_line_ids)
+
+    # ---------- OP#1055: items can only be added/removed in draft ----------
+
+    def test_1055_can_add_and_remove_lines_in_draft(self):
+        donation = self._draft_donation()
+        line = self.env["spp.drims.donation.line"].create(
+            {
+                "donation_id": donation.id,
+                "product_id": self.product.id,
+                "quantity_pledged": 5,
+                "uom_id": self.product.uom_id.id,
+            }
+        )
+        self.assertIn(line, donation.line_ids)
+        line.unlink()
+        self.assertNotIn(line, donation.line_ids)
+
+    def test_1055_cannot_add_line_after_draft(self):
+        donation = self._draft_donation()
+        donation.action_mark_announced()
+        with self.assertRaises(ValidationError):
+            self.env["spp.drims.donation.line"].create(
+                {
+                    "donation_id": donation.id,
+                    "product_id": self.product.id,
+                    "quantity_pledged": 5,
+                    "uom_id": self.product.uom_id.id,
+                }
+            )
+
+    def test_1055_cannot_remove_line_after_draft(self):
+        donation = self._draft_donation()
+        donation.action_mark_announced()
+        with self.assertRaises(ValidationError):
+            donation.line_ids[0].unlink()

@@ -157,7 +157,18 @@
                     </group>
                     <notebook>
                         <page string="Donation Items" name="items">
-                            <field name="line_ids">
+                            <!--
+                                OP#1055: items can only be added/edited while the
+                                donation is in draft (then only Received is edited
+                                while announced). Making the field read-only from
+                                'received' onward removes the "Add a line" row that
+                                otherwise let users create empty, product-less lines
+                                on an already-received donation.
+                            -->
+                            <field
+                                name="line_ids"
+                                readonly="state not in ('draft', 'announced')"
+                            >
                                 <!--
                                     OP#1076: columns appear progressively with the
                                     donation lifecycle.
