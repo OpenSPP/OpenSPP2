@@ -156,6 +156,62 @@ class TestSearchRouter(DCIServerCommon):
             )
         self.assertEqual(ctx.exception.status_code, 400)
 
+    # --- consent wiring -------------------------------------------------------
+
+    def test_sync_search_passes_verified_sender_to_service(self):
+        """The sync path must resolve the verified sender registry entry and
+        hand it to the search service - otherwise the consent adapter sees no
+        sender and silently disengages consent filtering."""
+        envelope = self._build_envelope()
+        response = self._build_response(statuses=("succ",))
+        with patch("odoo.addons.spp_dci_server_social.services.search_service.DCISocialSearchService") as mock_cls:
+            mock_cls.return_value.execute_search.return_value = response
+            _run(
+                self.search_registry(
+                    envelope,
+                    self.env,
+                    _bearer_token="t",
+                    verified_sender_id=self.test_sender.sender_id,
+                    _rate_limit_check=None,
+                )
+            )
+        args, kwargs = mock_cls.call_args
+        passed_sender = kwargs.get("sender_registry")
+        if passed_sender is None and len(args) > 1:
+            passed_sender = args[1]
+        self.assertEqual(
+            passed_sender,
+            self.test_sender,
+            "verified sender was not passed to the search service (consent bypass)",
+        )
+
+    def test_sync_search_sender_lookup_survives_low_privilege_endpoint_user(self):
+        """The endpoint commonly runs as a low-privilege user (e.g. public)
+        with no read access to the sender registry - the verified-sender
+        lookup must not raise AccessError (live smoke test regression)."""
+        low_priv = self.env["res.users"].create(
+            {
+                "name": "DCI Endpoint Smoke",
+                "login": "dci_endpoint_smoke",
+                "group_ids": [(6, 0, [self.env.ref("base.group_public").id])],
+            }
+        )
+        env_low = self.env(user=low_priv)
+        envelope = self._build_envelope()
+        response = self._build_response(statuses=("succ",))
+        with patch("odoo.addons.spp_dci_server_social.services.search_service.DCISocialSearchService") as mock_cls:
+            mock_cls.return_value.execute_search.return_value = response
+            result = _run(
+                self.search_registry(
+                    envelope,
+                    env_low,
+                    _bearer_token="t",
+                    verified_sender_id=self.test_sender.sender_id,
+                    _rate_limit_check=None,
+                )
+            )
+        self.assertEqual(result.header.status, "succ")
+
     # --- service errors -------------------------------------------------------
 
     def test_search_service_exception_rejects_all_items(self):

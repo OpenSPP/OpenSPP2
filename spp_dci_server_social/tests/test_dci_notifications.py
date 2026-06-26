@@ -131,6 +131,50 @@ class TestDCINotifications(DCISocialServerCommon):
             self.assertEqual(args[0], "delete")
             self.assertIn(individual_id, args[1])
 
+    def test_delete_notification_payload_has_no_db_ids(self):
+        """Delete notifications must carry external identifiers, never raw
+        Odoo database ids (api-design principle: never expose DB IDs)."""
+        individual = self._create_test_individual(
+            {
+                "family_name": "DeleteLeak",
+                "given_name": "NoDbId",
+            },
+        )
+        self.env.cr.postcommit.clear()
+
+        Subscription = type(self.env["spp.dci.subscription"])
+        Partner = self.Partner.__class__
+        with (
+            patch.object(Subscription, "notify_event") as mock_notify,
+            patch.object(Partner, "with_delay", lambda records, **kw: records),
+        ):
+            individual.unlink()
+            self.env.cr.postcommit.run()
+
+        mock_notify.assert_called_once()
+        event_type, records, reg_type = mock_notify.call_args[0]
+        self.assertEqual(event_type, "delete")
+        for record in records:
+            self.assertNotIn("id", record, f"delete payload leaks raw DB id: {record}")
+            self.assertIn("identifiers", record)
+
+    def test_delete_payload_snapshots_identifiers(self):
+        """The identifier snapshot helper captures external identifiers from a
+        live registrant (before unlink), keyed the way subscribers expect."""
+        individual = self._create_test_individual(
+            {
+                "family_name": "DeleteSnap",
+                "given_name": "WithIds",
+            },
+            identifier_value="DEL-SNAP-001",
+        )
+        payloads = individual._dci_delete_payloads()
+        self.assertEqual(len(payloads), 1)
+        identifiers = payloads[0]["identifiers"]
+        self.assertTrue(identifiers, "no identifiers captured from reg_ids")
+        self.assertIn("DEL-SNAP-001", [i["identifier_value"] for i in identifiers])
+        self.assertNotIn("id", payloads[0])
+
     def test_non_registrant_no_notification(self):
         """Test that changes to non-registrants don't trigger notifications."""
         # Create a non-registrant partner
@@ -197,17 +241,18 @@ class TestDCINotifications(DCISocialServerCommon):
             self.assertEqual(args[2], "SOCIAL_REGISTRY")  # reg_type
 
     def test_execute_notification_delete_with_ids_only(self):
-        """Test that delete notifications work with just IDs (no records)."""
+        """A legacy delete job queued without identifier payloads must still
+        notify - with an empty identifier list, never the raw DB id."""
         with patch.object(self.env["spp.dci.subscription"].__class__, "notify_event") as mock_notify:
             partner = self.Partner.browse(self.individual_1.id)
-            # Simulate delete notification where records no longer exist
+            # Simulate a legacy queued job (no payloads argument serialized)
             partner._execute_dci_notification("delete", [99999])  # Non-existent ID
 
             # Verify notify_event was still called
             mock_notify.assert_called_once()
             args = mock_notify.call_args[0]
             self.assertEqual(args[0], "delete")
-            self.assertEqual(args[1], [{"id": 99999}])
+            self.assertEqual(args[1], [{"identifiers": []}])
 
     def test_multiple_writes_same_transaction(self):
         """Test that multiple writes in same transaction are handled."""

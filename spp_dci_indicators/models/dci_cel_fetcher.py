@@ -8,7 +8,7 @@ Data Source, and return the computed metric values keyed by subject id.
 The result is consumed by the cache manager override (see
 data_cache_manager_dci.py), which stores the values in spp.data.value, so all
 CEL consumers read them uniformly. The metric a variable represents is keyed
-by its cel_accessor, following the <registry>.dci.<metric> convention.
+by its cel_accessor, following the r.dci.<registry>.<metric> convention.
 """
 
 import logging
@@ -23,10 +23,10 @@ _IDENTIFIER_PRIORITY = ["UIN", "DRN", "NATIONAL_ID", "NID", "BRN"]
 
 # Parameterized DCI methods: cel_accessor -> the enumerated argument set + value
 # type. Each (subject, arg) is cached as a separate spp.data.value row keyed by
-# params (params_hash), e.g. dr.dci.severity('Vision') or crvs.dci.has_event('death').
+# params (params_hash), e.g. r.dci.dr.severity('Vision') or r.dci.crvs.has_event('death').
 DCI_METHOD_ACCESSORS = {
-    "dr.dci.severity": {"args": ["Vision", "Hearing", "Mobility"], "value_type": "number"},
-    "crvs.dci.has_event": {"args": ["birth", "death"], "value_type": "boolean"},
+    "r.dci.dr.severity": {"args": ["Vision", "Hearing", "Mobility"], "value_type": "number"},
+    "r.dci.crvs.has_event": {"args": ["birth", "death"], "value_type": "boolean"},
 }
 
 
@@ -159,10 +159,10 @@ class DCICelFetcher(models.AbstractModel):
     def _compute_method_values(self, accessor, data_source, partner, id_type, id_value):
         """Return [(params, value), ...] for each enumerated argument of a method."""
         args = DCI_METHOD_ACCESSORS[accessor]["args"]
-        if accessor == "dr.dci.severity":
+        if accessor == "r.dci.dr.severity":
             scores = self._dr_status(data_source, partner).get("functional_scores") or {}
             return [({"arg": t}, scores.get(t) or 0) for t in args]
-        if accessor == "crvs.dci.has_event":
+        if accessor == "r.dci.crvs.has_event":
             svc = self._crvs_service(data_source)
             out = []
             for event in args:
@@ -208,17 +208,23 @@ class DCICelFetcher(models.AbstractModel):
         """Map a variable's cel_accessor to a handler computing its value.
 
         Handlers receive (self, data_source, id_type, id_value) and return the
-        metric value (or None to skip). Keyed by the <registry>.dci.<metric>
+        metric value (or None to skip). Keyed by the r.dci.<registry>.<metric>
         accessor convention.
         """
         return {
-            "crvs.dci.is_alive": self._crvs_is_alive,
-            "crvs.dci.birth_verified": self._crvs_birth_verified,
-            "dr.dci.has_disability": self._dr_has_disability,
-            "dr.dci.assessed": self._dr_assessed,
-            "dr.dci.vision_severe": self._dr_vision_severe,
-            "dr.dci.hearing_severe": self._dr_hearing_severe,
-            "dr.dci.mobility_severe": self._dr_mobility_severe,
+            "r.dci.crvs.is_alive": self._crvs_is_alive,
+            "r.dci.crvs.birth_verified": self._crvs_birth_verified,
+            "r.dci.dr.has_disability": self._dr_has_disability,
+            "r.dci.dr.assessed": self._dr_assessed,
+            "r.dci.dr.vision_severe": self._dr_vision_severe,
+            "r.dci.dr.hearing_severe": self._dr_hearing_severe,
+            "r.dci.dr.mobility_severe": self._dr_mobility_severe,
+            "r.dci.sr.is_registered": self._sr_is_registered,
+            "r.dci.sr.program_count": self._sr_program_count,
+            "r.dci.sr.has_programs": self._sr_has_programs,
+            "r.dci.sr.household_size": self._sr_household_size,
+            "r.dci.sr.is_head_of_household": self._sr_is_head_of_household,
+            "r.dci.sr.large_household": self._sr_large_household,
         }
 
     # ── CRVS handlers (identifier-based) ──────────────────────────────────────
@@ -234,6 +240,50 @@ class DCICelFetcher(models.AbstractModel):
 
     def _crvs_birth_verified(self, data_source, partner, id_type, id_value):
         return self._crvs_service(data_source).verify_birth(id_type, id_value) is not None
+
+    # ── SR handlers (identifier-based; one person record feeds all metrics) ────
+
+    # "more than 5 members" per the seeded dci.sr.large_household variable
+    _SR_LARGE_HOUSEHOLD_THRESHOLD = 5
+
+    def _sr_service(self, data_source):
+        from odoo.addons.spp_dci_client_sr.services import SRService
+
+        return SRService(self.env, data_source.code)
+
+    def _sr_person(self, data_source, id_type, id_value):
+        """Fetch the person record from the Social Registry, or None."""
+        return self._sr_service(data_source).search_person(id_type, id_value)
+
+    # Every SR handler returns a value for every queried person - the CEL
+    # SQL fast path requires a complete cache (a row per candidate), so a
+    # person not found in the SR yields the semantic defaults (no programs,
+    # no household) rather than a missing row.
+
+    def _sr_is_registered(self, data_source, partner, id_type, id_value):
+        return self._sr_person(data_source, id_type, id_value) is not None
+
+    def _sr_program_count(self, data_source, partner, id_type, id_value):
+        person = self._sr_person(data_source, id_type, id_value) or {}
+        return len(person.get("enrolled_programs") or [])
+
+    def _sr_has_programs(self, data_source, partner, id_type, id_value):
+        person = self._sr_person(data_source, id_type, id_value) or {}
+        return bool(person.get("enrolled_programs"))
+
+    def _sr_household_size(self, data_source, partner, id_type, id_value):
+        person = self._sr_person(data_source, id_type, id_value) or {}
+        # Not registered or household-less -> size 0.
+        return (person.get("household_info") or {}).get("household_size") or 0
+
+    def _sr_is_head_of_household(self, data_source, partner, id_type, id_value):
+        person = self._sr_person(data_source, id_type, id_value) or {}
+        return bool((person.get("household_info") or {}).get("is_household_head"))
+
+    def _sr_large_household(self, data_source, partner, id_type, id_value):
+        person = self._sr_person(data_source, id_type, id_value) or {}
+        size = (person.get("household_info") or {}).get("household_size") or 0
+        return size > self._SR_LARGE_HOUSEHOLD_THRESHOLD
 
     # ── DR handlers (partner-based; the service resolves the identifier) ───────
 

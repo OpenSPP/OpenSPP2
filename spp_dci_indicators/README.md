@@ -11,7 +11,7 @@ DCI Data Source (connection: URL, OAuth2, registry type)
       ▲ linked via the "DCI Integration" tab
 Data Provider (becomes "DCI-backed")
       ▲ External Source on the variable
-Studio Variable (e.g. crvs.dci.is_alive)
+Studio Variable (e.g. r.dci.crvs.is_alive)
       │
       │  Sync DCI Values (action / cron) — real DCI calls, results cached
       ▼
@@ -29,42 +29,42 @@ variable's TTL.
 
 ```python
 # Check if person is alive (no death record in CRVS)
-crvs.dci.is_alive == true
+r.dci.crvs.is_alive == true
 
 # Check if birth was registered
-crvs.dci.birth_verified == true
+r.dci.crvs.birth_verified == true
 
 # Parameterized: check for a specific CRVS event
-crvs.dci.has_event('death') == true
+r.dci.crvs.has_event('death') == true
 
 # Check disability status
-dr.dci.has_disability == true
+r.dci.dr.has_disability == true
 
 # Parameterized: functional severity score for a disability type
-dr.dci.severity('Vision') >= 3
+r.dci.dr.severity('Vision') >= 3
 
 # Combined eligibility criteria
-crvs.dci.is_alive == true and dr.dci.has_disability == true and age_years(me.birthdate) >= 18
+r.dci.crvs.is_alive == true and r.dci.dr.has_disability == true and age_years(me.birthdate) >= 18
 ```
 
 ## Available variables
 
-| Accessor                                                      | Type   | Meaning                         |
-| ------------------------------------------------------------- | ------ | ------------------------------- |
-| `crvs.dci.is_alive`                                           | bool   | no death event recorded in CRVS |
-| `crvs.dci.birth_verified`                                     | bool   | birth registration exists       |
-| `crvs.dci.has_event('birth'\|'death')`                        | bool   | parameterized event check       |
-| `dr.dci.has_disability`                                       | bool   | disability registered in DR     |
-| `dr.dci.assessed`                                             | bool   | functional assessment exists    |
-| `dr.dci.vision_severe` / `hearing_severe` / `mobility_severe` | bool   | functional score ≥ 3            |
-| `dr.dci.severity('Vision'\|'Hearing'\|'Mobility')`            | number | functional score (0–4)          |
+| Accessor                                                        | Type   | Meaning                         |
+| --------------------------------------------------------------- | ------ | ------------------------------- |
+| `r.dci.crvs.is_alive`                                           | bool   | no death event recorded in CRVS |
+| `r.dci.crvs.birth_verified`                                     | bool   | birth registration exists       |
+| `r.dci.crvs.has_event('birth'\|'death')`                        | bool   | parameterized event check       |
+| `r.dci.dr.has_disability`                                       | bool   | disability registered in DR     |
+| `r.dci.dr.assessed`                                             | bool   | functional assessment exists    |
+| `r.dci.dr.vision_severe` / `hearing_severe` / `mobility_severe` | bool   | functional score ≥ 3            |
+| `r.dci.dr.severity('Vision'\|'Hearing'\|'Mobility')`            | number | functional score (0–4)          |
 
 Parameterized methods take arguments from a **fixed, pre-synced set**: each (person,
 argument) pair is cached as its own row, keyed by the argument (`params_hash`).
 Arbitrary/dynamic arguments are not supported.
 
 > **Planned, not yet wired:** IBR and Social Registry variables, and
-> `crvs.dci.is_married` (no outbound CRVS marriage query). The corresponding variable
+> `r.dci.crvs.is_married` (no outbound CRVS marriage query). The corresponding variable
 > records exist but return no data until their fetch handlers are implemented.
 
 ## Setup

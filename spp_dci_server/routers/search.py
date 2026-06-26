@@ -105,7 +105,13 @@ async def search_registry(
                 DCISocialSearchService,
             )
 
-            search_service = DCISocialSearchService(env)
+            # Hand the verified sender to the service so consent filtering
+            # engages - the consent adapter disengages when sender is None.
+            # sudo: technical lookup of an already-verified sender id; the
+            # endpoint user (often public) has no read access to the registry.
+            SenderRegistry = env["spp.dci.sender.registry"].sudo()  # nosemgrep: odoo-sudo-without-context
+            sender_registry = SenderRegistry.get_by_sender_id(verified_sender_id)
+            search_service = DCISocialSearchService(env, sender_registry=sender_registry or None)
             search_response = search_service.execute_search(search_request)
             _logger.info(
                 "DCI search completed - transaction_id: %s, items: %d",

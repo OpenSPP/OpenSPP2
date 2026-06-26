@@ -5,6 +5,7 @@ from . import test_cel_area_helpers
 from . import test_cel_caching
 from . import test_cel_exceptions
 from . import test_cel_field_aggregations
+from . import test_cel_metric_conjunction
 from . import test_cel_functions
 from . import test_cel_parser
 from . import test_cel_security

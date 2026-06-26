@@ -424,7 +424,7 @@ class CelExecutor(models.AbstractModel):
                     expr,
                 )
                 exec_self = self.with_context(cel_mode="preview", cel_request_id=request_id)
-                ids = exec_self._execute_plan(model, plan, metrics_info)
+                ids = exec_self._execute_plan(model, plan, metrics_info, as_root=True)
                 # If a fast-path domain override was provided in metrics_info, use it instead of materializing ids
                 override_domain: list[Any] | None = None
                 for mi in metrics_info:
@@ -709,7 +709,13 @@ class CelExecutor(models.AbstractModel):
         return [domain]
 
     # Execute
-    def _execute_plan(self, model: str, plan: Any, metrics_info: list[dict[str, Any]] | None = None) -> list[int]:  # noqa: C901
+    def _execute_plan(
+        self,
+        model: str,
+        plan: Any,
+        metrics_info: list[dict[str, Any]] | None = None,
+        as_root: bool = False,
+    ) -> list[int]:  # noqa: C901
         if isinstance(plan, LeafDomain):
             return self.env[plan.model].search(plan.domain).ids
         if isinstance(plan, AND):
@@ -744,7 +750,7 @@ class CelExecutor(models.AbstractModel):
         if isinstance(plan, CountThrough):
             return self._exec_count(plan)
         if isinstance(plan, MetricCompare):
-            return self._exec_metric(model, plan, metrics_info)
+            return self._exec_metric(model, plan, metrics_info, as_root=as_root)
         if isinstance(plan, CoverageRequire):
             # Only support gating on MetricCompare results for now
             if not isinstance(plan.node, MetricCompare):
@@ -1071,10 +1077,16 @@ class CelExecutor(models.AbstractModel):
         model: str,
         p: MetricCompare,
         metrics_info: list[dict[str, Any]] | None = None,
+        as_root: bool = False,
     ) -> list[int]:
         """Evaluate metric comparison and return matching subject IDs for current model.
 
         Uses openspp.metrics service with mode=fallback.
+
+        ``as_root`` is True only when this comparison IS the whole plan: in
+        that case the fresh-cache SQL shortcut may return no ids and stash an
+        ``override_domain`` for the caller. Composed inside and/or/not, the
+        ids must be materialized so set composition stays correct.
         """
         # Check metrics availability
         self._check_metrics_available(p.metric)
@@ -1139,13 +1151,19 @@ class CelExecutor(models.AbstractModel):
                         "metric": p.metric,
                         "period_key": period_key,
                         "path": path,
-                        "override_domain": domain,
                     }
                 )
+                if as_root:
+                    mi["override_domain"] = domain
                 metrics_info.append(mi)
-            # We return [] and let compile_and_preview use override_domain to avoid
-            # materializing ids into a huge 'in' list
-            return []
+            if as_root:
+                # The comparison is the whole plan: return [] and let
+                # compile_and_preview use override_domain to avoid
+                # materializing ids into a huge 'in' list.
+                return []
+            # Composed inside and/or/not: materialize the matching ids so
+            # set composition (intersection/union) stays correct.
+            return self.env[subject_model].search(self._and_domains(base_dom, domain)).ids
         # Preview mode behavior when not fresh
         cel_mode = self.env.context.get("cel_mode")
         preview_cache_only_mode = cel_mode == "preview" and preview_cache_only

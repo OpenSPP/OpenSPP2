@@ -31,7 +31,7 @@ class TestDCIIndicatorData(TransactionCase):
         self.assertTrue(var, "dci.dr.has_disability should exist")
         self.assertEqual(var.value_type, "boolean")
         self.assertEqual(var.source_type, "external")
-        self.assertEqual(var.cel_accessor, "dr.dci.has_disability")
+        self.assertEqual(var.cel_accessor, "r.dci.dr.has_disability")
         self.assertEqual(var.applies_to, "individual")
         self.assertTrue(var.is_system)
 
@@ -77,7 +77,7 @@ class TestDCIIndicatorData(TransactionCase):
         variables = Variable.search([("category_id", "=", category.id)])
 
         # 5 DR + 3 CRVS + 3 IBR + 6 SR + 2 parameterized methods
-        # (dr.dci.severity, crvs.dci.has_event) = 19 variables
+        # (r.dci.dr.severity, r.dci.crvs.has_event) = 19 variables
         self.assertEqual(len(variables), 19, "Should have 19 DCI variables")
 
     def test_dci_variables_have_labels(self):

@@ -35,6 +35,10 @@ Key Capabilities
   ``/dci_api/v1`` with automatic OpenAPI documentation
 - **HTTP Signature Verification**: Validates inbound requests using
   Ed25519/RSA signatures against sender public keys
+- **Bearer Authentication**: Accepts either a static token (system
+  parameter ``dci.api_tokens``) or an OAuth2 client-credentials access
+  token (a JWT issued by ``spp_api_v2`` at ``POST /api_v2/oauth/token``,
+  validated against an active ``spp.api.client``)
 - **Async Transaction Processing**: Queues search, subscribe, and
   unsubscribe operations for background processing with automatic
   callbacks
@@ -85,6 +89,23 @@ After installing:
 Server signing keys are automatically generated and activated on
 installation. To manage keys manually, use the technical interface for
 ``spp.dci.server.key``.
+
+**Endpoint user (required for Social Registry search):** The DCI FastAPI
+endpoint ships configured to run as the **public user**. Serving Social
+Registry searches additionally requires the endpoint's user to hold the
+``spp_registry.group_registry_viewer`` group (the search is
+access-gated), so with the default public user SR searches are rejected
+with an access error. Assign a dedicated service user before going live:
+
+5. Create a user (e.g. *DCI Endpoint Service*) and grant it **Registry:
+   Viewer** (``spp_registry.group_registry_viewer``).
+6. Open the DCI ``fastapi.endpoint`` record (the ``dci_api`` app, root
+   path ``/dci_api/v1``) and set its **User** to that service account.
+
+Authentication of the *caller* is independent of this: requests are
+authenticated with a static bearer token (``dci.api_tokens``) or an
+OAuth2 access token. The endpoint user only sets the Odoo permission
+context the search executes under.
 
 UI Location
 ~~~~~~~~~~~

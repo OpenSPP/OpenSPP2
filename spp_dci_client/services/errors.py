@@ -6,7 +6,7 @@ from odoo.exceptions import UserError
 # HTTP error code to user message mapping
 HTTP_ERROR_MESSAGES = {
     400: _("The request was invalid. Please check your data and try again."),
-    401: _("Authentication failed. Please verify the OAuth2 credentials in Data Source settings."),
+    401: _("Authentication failed. Please verify the credentials in Data Source settings."),
     403: _("Access denied. The external registry rejected our request."),
     404: _("The requested resource was not found on the external registry."),
     500: _("The external registry encountered an error. Please try again later."),
@@ -30,7 +30,11 @@ def format_http_error(status_code: int, technical_detail: str = None) -> str:
 
     # Add helpful next steps
     if status_code == 401:
-        user_msg += _("\n\nPlease check:\n• OAuth2 Token URL\n• Client ID and Secret\n• OAuth2 Scope")
+        user_msg += _(
+            "\n\nPlease check:\n"
+            "• Bearer Token (must match the server's allow-list), or\n"
+            "• OAuth2 Token URL, Client ID, Secret and Scope"
+        )
     elif status_code in (500, 502, 503):
         user_msg += _("\n\nIf the problem persists, contact the registry administrator.")
 

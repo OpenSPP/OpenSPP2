@@ -47,7 +47,7 @@ class TestDCICelFetcher(TransactionCase):
             {
                 "name": "zz_test.crvs.is_alive",
                 "label": "DCI: Is Alive",
-                "cel_accessor": "crvs.dci.is_alive",
+                "cel_accessor": "r.dci.crvs.is_alive",
                 "source_type": "external",
                 "value_type": "boolean",
                 "external_provider_id": cls.provider.id,
@@ -79,7 +79,7 @@ class TestDCICelFetcher(TransactionCase):
             {
                 "name": "zz_test.crvs.birth_verified",
                 "label": "DCI: Birth Verified",
-                "cel_accessor": "crvs.dci.birth_verified",
+                "cel_accessor": "r.dci.crvs.birth_verified",
                 "source_type": "external",
                 "value_type": "boolean",
                 "external_provider_id": self.provider.id,
@@ -101,7 +101,7 @@ class TestDCICelFetcher(TransactionCase):
             {
                 "name": "zz_test.crvs.unknown",
                 "label": "Unknown",
-                "cel_accessor": "crvs.dci.not_a_metric",
+                "cel_accessor": "r.dci.crvs.not_a_metric",
                 "source_type": "external",
                 "value_type": "boolean",
                 "external_provider_id": self.provider.id,
@@ -143,7 +143,7 @@ class TestDCICelFetcher(TransactionCase):
             count = self.Fetcher.sync_for_partners([self.partner.id], variables=self.var_is_alive)
         self.assertGreaterEqual(count, 1)
         cached = self.env["spp.data.value"].search(
-            [("variable_name", "=", "crvs.dci.is_alive"), ("subject_id", "=", self.partner.id)]
+            [("variable_name", "=", "r.dci.crvs.is_alive"), ("subject_id", "=", self.partner.id)]
         )
         self.assertTrue(cached)
         self.assertEqual(cached.value_json, {"value": 1})

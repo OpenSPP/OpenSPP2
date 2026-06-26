@@ -13,7 +13,7 @@ from odoo.exceptions import AccessError, ValidationError
 from odoo.addons.spp_dci.schemas.common import Address, Identifier, Name
 from odoo.addons.spp_dci.schemas.constants import SearchStatusReasonCode
 from odoo.addons.spp_dci.schemas.group import Group, Member
-from odoo.addons.spp_dci.schemas.person import Person
+from odoo.addons.spp_dci.schemas.person import HouseholdInfo, Person, ProgramEnrollment
 from odoo.addons.spp_dci.schemas.search import (
     Pagination,
     SearchRequest,
@@ -25,6 +25,14 @@ from odoo.addons.spp_dci.schemas.search import (
 from odoo.addons.spp_dci.services import DCIErrorMessages
 
 _logger = logging.getLogger(__name__)
+
+# Accepted spellings of the Social Registry type (compared lowercase): the
+# SPDCI namespaced value sent by DCI clients, plus legacy bare forms.
+_ACCEPTED_SOCIAL_REG_TYPES = {
+    "ns:org:registrytype:social",
+    "social_registry",
+    "social",
+}
 
 
 class DCISocialSearchService:
@@ -138,11 +146,11 @@ class DCISocialSearchService:
         """
         criteria = search_req.search_criteria
 
-        # Default reg_type to SOCIAL_REGISTRY if not provided (optional per SPDCI spec)
-        reg_type = criteria.reg_type or "SOCIAL_REGISTRY"
-
-        # Validate registry type
-        if reg_type != "SOCIAL_REGISTRY":
+        # reg_type is optional per the SPDCI spec (defaults to social);
+        # accept both the namespaced spelling DCI clients send
+        # (ns:org:RegistryType:Social) and the legacy bare form.
+        reg_type = criteria.reg_type
+        if reg_type and str(reg_type).strip().lower() not in _ACCEPTED_SOCIAL_REG_TYPES:
             return SearchResponseItem(
                 reference_id=search_req.reference_id,
                 timestamp=datetime.now(UTC),
@@ -289,11 +297,17 @@ class DCISocialSearchService:
                 id_type = query.type
                 id_value = query.value
 
-            # Match by identifier type and value
-            # Note: Assuming id_type is a namespace URI
+            if not id_type or not id_value:
+                raise ValueError("idtype-value query requires both 'type' and 'value'")
+
+            # Match the identifier type by namespace URI or by the short
+            # vocabulary code - DCI clients resolve identifiers from their
+            # local registrant IDs as short codes (UIN, NATIONAL_ID, ...).
             domain.extend(
                 [
+                    "|",
                     ("reg_ids.id_type_id.namespace_uri", "=", id_type),
+                    ("reg_ids.id_type_id.code", "=", id_type),
                     ("reg_ids.value", "=", id_value),
                 ]
             )
@@ -583,6 +597,19 @@ class DCISocialSearchService:
         if partner.email:
             emails.append(partner.email)
 
+        # Active programme enrollments (SPDCI social profile). Paused
+        # memberships are still enrollments; draft/exited/not_eligible/
+        # duplicated are not.
+        enrollments = [
+            ProgramEnrollment(
+                programme_name=membership.program_id.name,
+                enrolment_status=membership.state,
+                enrolment_date=membership.enrollment_date.date() if membership.enrollment_date else None,
+            )
+            for membership in partner.program_membership_ids
+            if membership.state in ("enrolled", "paused") and membership.program_id
+        ]
+
         return Person(
             identifier=identifiers,
             name=name,
@@ -594,6 +621,29 @@ class DCISocialSearchService:
             email=emails if emails else None,
             registration_date=partner.create_date if partner.create_date else None,
             last_updated=partner.write_date if partner.write_date else None,
+            enrolled_programs=enrollments if enrollments else None,
+            household_info=self._build_household_info(partner),
+        )
+
+    def _build_household_info(self, partner) -> HouseholdInfo | None:
+        """Summarize the person's household (OpenSPP extension).
+
+        Uses the person's first active group membership. Returns None when
+        the person belongs to no active group, so the field is omitted from
+        the wire record entirely.
+        """
+        active = partner.individual_membership_ids.filtered(lambda m: not m.is_ended)
+        if not active:
+            return None
+        membership = active[0]
+        group_members = membership.group.group_membership_ids.filtered(lambda m: not m.is_ended)
+
+        head_code = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", "head")
+        is_head = bool(head_code) and head_code.id in membership.membership_type_ids.ids
+
+        return HouseholdInfo(
+            household_size=len(group_members) or None,
+            is_household_head=is_head,
         )
 
     def _to_dci_group(self, partner) -> Group:

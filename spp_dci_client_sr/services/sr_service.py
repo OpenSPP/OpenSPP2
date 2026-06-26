@@ -69,7 +69,6 @@ class SRService:
             self.client.search(
                 query_type="idtype-value",
                 query_value="test:connection-check",
-                registry_type="ns:registry_type:social_registry",
             )
             return True
         except Exception as e:
@@ -104,7 +103,6 @@ class SRService:
                 response = self.client.search_async(
                     query_type="idtype-value",
                     query_value=query_value,
-                    registry_type="ns:registry_type:social_registry",
                 )
                 correlation_id = response.get("message", {}).get("correlation_id")
                 return {"correlation_id": correlation_id} if correlation_id else None
@@ -112,7 +110,6 @@ class SRService:
                 response = self.client.search(
                     query_type="idtype-value",
                     query_value=query_value,
-                    registry_type="ns:registry_type:social_registry",
                 )
 
             # Extract search results
@@ -160,7 +157,6 @@ class SRService:
                 response = self.client.search_async(
                     query_type="idtype-value",
                     query_value=f"HHID:{household_id}",
-                    registry_type="ns:registry_type:social_registry",
                     reg_sub_type="group",
                 )
                 correlation_id = response.get("message", {}).get("correlation_id")
@@ -169,7 +165,6 @@ class SRService:
                 response = self.client.search(
                     query_type="idtype-value",
                     query_value=f"HHID:{household_id}",
-                    registry_type="ns:registry_type:social_registry",
                     reg_sub_type="group",
                 )
 

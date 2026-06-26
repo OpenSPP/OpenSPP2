@@ -311,6 +311,32 @@ class TestSRService(TransactionCase):
         self.assertEqual(result.partner_id, self.test_partner)
 
     @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
+    def test_search_person_uses_data_source_registry_type(self, mock_search):
+        """The service must not override the registry type - the client
+        derives it from the data source (namespaced per SPDCI). A hardcoded
+        ad-hoc value made every search get rejected by compliant servers."""
+        mock_search.return_value = _sync_search_envelope(reg_records=[])
+        service = self._get_sr_service()
+        service.search_person("UIN", "RT-001")
+        kwargs = mock_search.call_args.kwargs
+        self.assertIsNone(
+            kwargs.get("registry_type"),
+            f"search_person must not override registry_type, got {kwargs.get('registry_type')!r}",
+        )
+
+    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
+    def test_search_household_uses_data_source_registry_type(self, mock_search):
+        """Same contract for household search."""
+        mock_search.return_value = _sync_search_envelope(reg_records=[])
+        service = self._get_sr_service()
+        service.search_household("HH-RT-002")
+        kwargs = mock_search.call_args.kwargs
+        self.assertIsNone(
+            kwargs.get("registry_type"),
+            f"search_household must not override registry_type, got {kwargs.get('registry_type')!r}",
+        )
+
+    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
     def test_sync_person_not_found_raises(self, mock_search):
         """When the registry returns no records, sync raises UserError per docstring."""
         mock_search.return_value = _sync_search_envelope(reg_records=[])

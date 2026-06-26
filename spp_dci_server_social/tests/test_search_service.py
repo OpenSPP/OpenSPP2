@@ -8,6 +8,7 @@ from unittest.mock import patch
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests import tagged
 
+from odoo.addons.spp_dci.schemas.constants import SearchStatusReasonCode
 from odoo.addons.spp_dci.schemas.search import (
     PaginationRequest,
     SearchCriteria,
@@ -47,6 +48,191 @@ class TestDCISocialSearchService(DCISocialServerCommon):
 
         service.set_sender(self.test_sender)
         self.assertEqual(service.sender, self.test_sender)
+
+    def test_search_accepts_namespaced_reg_type(self):
+        """The DCI client sends the namespaced RegistryType value from its data
+        source (ns:org:RegistryType:Social) - the service must accept it, not
+        only the bare legacy form."""
+        criteria = SearchCriteria(
+            reg_type="ns:org:RegistryType:Social",
+            query_type="idtype-value",
+            query={"type": self.test_id_type.namespace_uri, "value": "NAT-001"},
+        )
+        search_req = SearchRequestItem(
+            reference_id="test-ref-ns",
+            timestamp=datetime.now(UTC),
+            search_criteria=criteria,
+        )
+        request = SearchRequest(transaction_id="test-txn-ns", search_request=[search_req])
+        self.env.user.write({"group_ids": [(4, self.env.ref("spp_registry.group_registry_viewer").id)]})
+
+        response = self.search_service.execute_search(request)
+
+        response_item = response.search_response[0]
+        self.assertEqual(
+            response_item.status,
+            "succ",
+            f"namespaced reg_type rejected: {response_item.status_reason_message}",
+        )
+
+    def test_search_by_identifier_short_code(self):
+        """idtype-value must also match the vocabulary code, not only the
+        namespace URI - DCI clients resolve identifiers from their local
+        registrant IDs as short codes (UIN, NATIONAL_ID, ...)."""
+        criteria = SearchCriteria(
+            reg_type="SOCIAL_REGISTRY",
+            query_type="idtype-value",
+            query={"type": self.test_id_type.code, "value": "NAT-001"},
+        )
+        search_req = SearchRequestItem(
+            reference_id="test-ref-code",
+            timestamp=datetime.now(UTC),
+            search_criteria=criteria,
+        )
+        request = SearchRequest(transaction_id="test-txn-code", search_request=[search_req])
+        self.env.user.write({"group_ids": [(4, self.env.ref("spp_registry.group_registry_viewer").id)]})
+
+        response = self.search_service.execute_search(request)
+
+        response_item = response.search_response[0]
+        self.assertEqual(response_item.status, "succ")
+        self.assertEqual(
+            len(response_item.data.reg_records),
+            1,
+            "short-code identifier type did not match any record",
+        )
+
+    def test_search_by_identifier_missing_value_rejected(self):
+        """A malformed idtype-value query (missing value) must be rejected
+        with FILTER_INVALID instead of silently matching nothing."""
+        criteria = SearchCriteria(
+            reg_type="SOCIAL_REGISTRY",
+            query_type="idtype-value",
+            query={"type": self.test_id_type.namespace_uri},
+        )
+        search_req = SearchRequestItem(
+            reference_id="test-ref-noval",
+            timestamp=datetime.now(UTC),
+            search_criteria=criteria,
+        )
+        request = SearchRequest(transaction_id="test-txn-noval", search_request=[search_req])
+        self.env.user.write({"group_ids": [(4, self.env.ref("spp_registry.group_registry_viewer").id)]})
+
+        response = self.search_service.execute_search(request)
+
+        response_item = response.search_response[0]
+        self.assertEqual(response_item.status, "rjct")
+        self.assertEqual(
+            response_item.status_reason_code,
+            SearchStatusReasonCode.FILTER_INVALID.value,
+        )
+
+    def _search_by_nat_001(self, reference_id="test-ref-prog"):
+        """Run an idtype-value search for the NAT-001 fixture individual."""
+        criteria = SearchCriteria(
+            reg_type="SOCIAL_REGISTRY",
+            query_type="idtype-value",
+            query={"type": self.test_id_type.namespace_uri, "value": "NAT-001"},
+        )
+        search_req = SearchRequestItem(
+            reference_id=reference_id,
+            timestamp=datetime.now(UTC),
+            search_criteria=criteria,
+        )
+        request = SearchRequest(transaction_id=f"txn-{reference_id}", search_request=[search_req])
+        self.env.user.write({"group_ids": [(4, self.env.ref("spp_registry.group_registry_viewer").id)]})
+        return self.search_service.execute_search(request).search_response[0]
+
+    def test_person_record_includes_enrolled_programs(self):
+        """The served person record must list active programme enrollments -
+        DCI clients derive sr.dci.program_count / has_programs from it."""
+        program = self.env["spp.program"].create({"name": "Cash Transfer Test", "target_type": "individual"})
+        self.env["spp.program.membership"].create(
+            {
+                "partner_id": self.individual_1.id,
+                "program_id": program.id,
+                "state": "enrolled",
+            }
+        )
+
+        response_item = self._search_by_nat_001()
+
+        self.assertEqual(response_item.status, "succ")
+        record = response_item.data.reg_records[0]
+        self.assertIn("enrolled_programs", record, "person record lacks enrolled_programs")
+        programs = record["enrolled_programs"]
+        self.assertEqual(len(programs), 1)
+        self.assertEqual(programs[0]["programme_name"], "Cash Transfer Test")
+        self.assertEqual(programs[0]["enrolment_status"], "enrolled")
+
+    def test_person_record_excludes_inactive_enrollments(self):
+        """Draft/exited memberships are not enrollments - they must not
+        appear in the served record."""
+        program = self.env["spp.program"].create({"name": "Exited Program Test", "target_type": "individual"})
+        self.env["spp.program.membership"].create(
+            {
+                "partner_id": self.individual_1.id,
+                "program_id": program.id,
+                "state": "exited",
+            }
+        )
+
+        response_item = self._search_by_nat_001(reference_id="test-ref-noprog")
+
+        self.assertEqual(response_item.status, "succ")
+        record = response_item.data.reg_records[0]
+        self.assertFalse(
+            record.get("enrolled_programs"),
+            f"inactive enrollment leaked into the record: {record.get('enrolled_programs')}",
+        )
+
+    def test_person_record_includes_household_info(self):
+        """The served person record must carry a household summary - DCI
+        clients derive sr.dci.household_size / is_head_of_household /
+        large_household from it (one search covers all variables)."""
+        head_code = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", "head")
+        self.assertTrue(head_code, "seeded head membership-type code missing")
+        membership = self.env["spp.group.membership"].search(
+            [("individual", "=", self.individual_1.id), ("group", "=", self.group_1.id)],
+            limit=1,
+        )
+        self.assertTrue(membership, "fixture membership missing")
+        membership.write({"membership_type_ids": [(4, head_code.id)]})
+
+        response_item = self._search_by_nat_001(reference_id="test-ref-hh")
+
+        self.assertEqual(response_item.status, "succ")
+        record = response_item.data.reg_records[0]
+        self.assertIn("household_info", record, "person record lacks household_info")
+        info = record["household_info"]
+        self.assertEqual(info["household_size"], 2)
+        self.assertTrue(info["is_household_head"])
+
+    def test_person_without_group_has_no_household_info(self):
+        """A person with no active group membership carries no household
+        summary (field omitted, not zeroed)."""
+        self._create_test_individual(
+            {"family_name": "Solo", "given_name": "NoGroup"},
+            identifier_value="NAT-SOLO-1",
+        )
+        criteria = SearchCriteria(
+            reg_type="SOCIAL_REGISTRY",
+            query_type="idtype-value",
+            query={"type": self.test_id_type.namespace_uri, "value": "NAT-SOLO-1"},
+        )
+        search_req = SearchRequestItem(
+            reference_id="test-ref-solo",
+            timestamp=datetime.now(UTC),
+            search_criteria=criteria,
+        )
+        request = SearchRequest(transaction_id="txn-solo", search_request=[search_req])
+        self.env.user.write({"group_ids": [(4, self.env.ref("spp_registry.group_registry_viewer").id)]})
+
+        response_item = self.search_service.execute_search(request).search_response[0]
+
+        self.assertEqual(response_item.status, "succ")
+        record = response_item.data.reg_records[0]
+        self.assertNotIn("household_info", record)
 
     def test_search_by_identifier_success(self):
         """Test searching by identifier type and value."""

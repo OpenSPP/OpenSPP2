@@ -383,13 +383,13 @@ scales to full populations.</p>
 Integration</strong> tab, making the provider “DCI-backed”</li>
 <li>Fetch and cache registry values per registrant via the <strong>Sync DCI
 Values</strong> action (or the disabled-by-default daily cron)</li>
-<li>Query Civil Registration via <tt class="docutils literal">crvs.dci.is_alive</tt>,
-<tt class="docutils literal">crvs.dci.birth_verified</tt>, and the parameterized
-<tt class="docutils literal"><span class="pre">crvs.dci.has_event('birth'|'death')</span></tt></li>
-<li>Query the Disability Registry via <tt class="docutils literal">dr.dci.has_disability</tt>,
-<tt class="docutils literal">dr.dci.assessed</tt>,
-<tt class="docutils literal">dr.dci.vision_severe</tt>/<tt class="docutils literal">hearing_severe</tt>/<tt class="docutils literal">mobility_severe</tt>, and
-the parameterized <tt class="docutils literal"><span class="pre">dr.dci.severity('Vision'|'Hearing'|'Mobility')</span></tt></li>
+<li>Query Civil Registration via <tt class="docutils literal">r.dci.crvs.is_alive</tt>,
+<tt class="docutils literal">r.dci.crvs.birth_verified</tt>, and the parameterized
+<tt class="docutils literal"><span class="pre">r.dci.crvs.has_event('birth'|'death')</span></tt></li>
+<li>Query the Disability Registry via <tt class="docutils literal">r.dci.dr.has_disability</tt>,
+<tt class="docutils literal">r.dci.dr.assessed</tt>,
+<tt class="docutils literal">r.dci.dr.vision_severe</tt>/<tt class="docutils literal">hearing_severe</tt>/<tt class="docutils literal">mobility_severe</tt>, and
+the parameterized <tt class="docutils literal"><span class="pre">r.dci.dr.severity('Vision'|'Hearing'|'Mobility')</span></tt></li>
 <li>Parameterized methods cache one value per (registrant, argument),
 keyed via <tt class="docutils literal">params_hash</tt>; arguments come from a fixed, pre-synced set</li>
 </ul>
@@ -458,23 +458,23 @@ CEL cache (<tt class="docutils literal">spp.data.value</tt>) and the DCI client 
 (<tt class="docutils literal">_dci_metric_handlers</tt> for simple metrics, <tt class="docutils literal">DCI_METHOD_ACCESSORS</tt>
 + <tt class="docutils literal">_compute_method_values</tt> for parameterized ones)</li>
 <li>Create the matching <tt class="docutils literal">spp.cel.variable</tt> record (external source type,
-<tt class="docutils literal">ttl</tt> cache strategy, <tt class="docutils literal"><span class="pre">&lt;registry&gt;.dci.&lt;metric&gt;</span></tt> accessor)</li>
+<tt class="docutils literal">ttl</tt> cache strategy, <tt class="docutils literal"><span class="pre">r.dci.&lt;registry&gt;.&lt;metric&gt;</span></tt> accessor)</li>
 </ul>
 </div>
 <div class="section" id="cel-expression-examples">
 <h1>CEL Expression Examples</h1>
 <pre class="code python literal-block">
 <span class="c1"># Vital statistics verification</span><span class="w">
-</span><span class="n">crvs</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">is_alive</span> <span class="o">==</span> <span class="n">true</span> <span class="ow">and</span> <span class="n">crvs</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">birth_verified</span> <span class="o">==</span> <span class="n">true</span><span class="w">
+</span><span class="n">r</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">crvs</span><span class="o">.</span><span class="n">is_alive</span> <span class="o">==</span> <span class="n">true</span> <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">crvs</span><span class="o">.</span><span class="n">birth_verified</span> <span class="o">==</span> <span class="n">true</span><span class="w">
 
 </span><span class="c1"># Parameterized event check</span><span class="w">
-</span><span class="n">crvs</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">has_event</span><span class="p">(</span><span class="s1">'death'</span><span class="p">)</span> <span class="o">==</span> <span class="n">true</span><span class="w">
+</span><span class="n">r</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">crvs</span><span class="o">.</span><span class="n">has_event</span><span class="p">(</span><span class="s1">'death'</span><span class="p">)</span> <span class="o">==</span> <span class="n">true</span><span class="w">
 
 </span><span class="c1"># Disability-based eligibility</span><span class="w">
-</span><span class="n">dr</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">has_disability</span> <span class="o">==</span> <span class="n">true</span> <span class="ow">and</span> <span class="n">dr</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">severity</span><span class="p">(</span><span class="s1">'Mobility'</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="w">
+</span><span class="n">r</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">dr</span><span class="o">.</span><span class="n">has_disability</span> <span class="o">==</span> <span class="n">true</span> <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">dr</span><span class="o">.</span><span class="n">severity</span><span class="p">(</span><span class="s1">'Mobility'</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="w">
 
 </span><span class="c1"># Multi-registry combined criteria</span><span class="w">
-</span><span class="n">crvs</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">is_alive</span> <span class="o">==</span> <span class="n">true</span> <span class="ow">and</span> <span class="n">dr</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">has_disability</span> <span class="o">==</span> <span class="n">true</span> <span class="ow">and</span> <span class="n">age_years</span><span class="p">(</span><span class="n">me</span><span class="o">.</span><span class="n">birthdate</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">18</span>
+</span><span class="n">r</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">crvs</span><span class="o">.</span><span class="n">is_alive</span> <span class="o">==</span> <span class="n">true</span> <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">dr</span><span class="o">.</span><span class="n">has_disability</span> <span class="o">==</span> <span class="n">true</span> <span class="ow">and</span> <span class="n">age_years</span><span class="p">(</span><span class="n">me</span><span class="o">.</span><span class="n">birthdate</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">18</span>
 </pre>
 </div>
 <div class="section" id="dependencies">
