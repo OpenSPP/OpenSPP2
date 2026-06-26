@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <record id="ir_cron_gis_job_cleanup" model="ir.cron">
+        <field name="name">GIS: Process Job Cleanup</field>
+        <field name="model_id" ref="model_spp_gis_process_job" />
+        <field name="state">code</field>
+        <field name="code">model.cron_cleanup_jobs()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active">True</field>
+    </record>
+</odoo>

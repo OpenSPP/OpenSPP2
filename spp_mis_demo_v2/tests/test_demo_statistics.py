@@ -23,17 +23,12 @@ class TestDemoStatistics(TransactionCase):
         cls.required_stats = [
             "total_households",
             "total_members",
-            "children_under_5",
-            "children_under_18",
-            "elderly_60_plus",
-            "female_members",
-            "male_members",
-            "disabled_members",
+            "pwd_members",
             "enrolled_any_program",
         ]
 
     def test_all_demo_statistics_exist(self):
-        """Verify all 9 demo statistics are in the database."""
+        """Verify all demo statistics are in the database."""
         for stat_name in self.required_stats:
             with self.subTest(statistic=stat_name):
                 stat = self.stat_model.search([("name", "=", stat_name)], limit=1)
@@ -72,7 +67,7 @@ class TestDemoStatistics(TransactionCase):
     def test_statistics_have_valid_cel_accessors(self):
         """Verify statistics have variables with valid CEL accessors for aggregation."""
         # Test a subset of statistics
-        test_stats = ["total_households", "total_members", "children_under_5"]
+        test_stats = ["total_households", "total_members"]
 
         for stat_name in test_stats:
             with self.subTest(statistic=stat_name):
@@ -96,13 +91,8 @@ class TestDemoStatistics(TransactionCase):
             "demographics": [
                 "total_households",
                 "total_members",
-                "children_under_5",
-                "children_under_18",
-                "elderly_60_plus",
-                "female_members",
-                "male_members",
             ],
-            "vulnerability": ["disabled_members"],
+            "vulnerability": ["pwd_members"],
             "programs": ["enrolled_any_program"],
         }
 

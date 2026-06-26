@@ -34,6 +34,11 @@ from odoo import SUPERUSER_ID, api
 
 _logger = logging.getLogger(__name__)
 
+DEBUG_HH_POINTS_LAYER_NAME = "HH Points (Debug)"
+DEBUG_HH_POINTS_LAYER_DOMAIN = (
+    "[('is_registrant', '=', True), ('is_group', '=', True), ('coordinates', '!=', False), ('active', '=', True)]"
+)
+
 # Standard variables from spp_studio to activate (module.xml_id format)
 STANDARD_VARIABLES = [
     # Demographics (computed)
@@ -128,6 +133,89 @@ def _activate_variables(env, xml_ids, source_name):
     return activated, skipped, errors
 
 
+def _find_debug_layer_view(env):
+    """Find the most useful GIS view for debug household points."""
+    view_model = env["ir.ui.view"]
+
+    # Prefer geofence map when available (best fit for geofence query debugging)
+    geofence_view = view_model.search(
+        [
+            ("model", "=", "spp.gis.geofence"),
+            ("type", "=", "gis"),
+        ],
+        limit=1,
+    )
+    if geofence_view:
+        return geofence_view
+
+    # Fallback to the standard area map
+    return view_model.search(
+        [
+            ("model", "=", "spp.area"),
+            ("type", "=", "gis"),
+        ],
+        limit=1,
+    )
+
+
+def _ensure_household_points_debug_layer(env):
+    """Create/update the HH points debug GIS layer (hidden on startup)."""
+    coordinates_field = env["ir.model.fields"].search(
+        [
+            ("model", "=", "res.partner"),
+            ("name", "=", "coordinates"),
+        ],
+        limit=1,
+    )
+    if not coordinates_field:
+        _logger.info("[spp.mis.demo] Skipping HH debug layer: res.partner.coordinates not available")
+        return False
+
+    view = _find_debug_layer_view(env)
+    if not view:
+        _logger.info("[spp.mis.demo] Skipping HH debug layer: no GIS view found for geofence/area")
+        return False
+
+    layer_model = env["spp.gis.data.layer"]
+    layer = layer_model.search(
+        [
+            ("name", "=", DEBUG_HH_POINTS_LAYER_NAME),
+            ("geo_field_id", "=", coordinates_field.id),
+            ("view_id", "=", view.id),
+        ],
+        limit=1,
+    )
+
+    vals = {
+        "name": DEBUG_HH_POINTS_LAYER_NAME,
+        "geo_field_id": coordinates_field.id,
+        "view_id": view.id,
+        "geo_repr": "basic",
+        "active_on_startup": False,
+        "layer_opacity": 0.9,
+        "begin_color": "#0057B8",
+        "sequence": 25,
+        "domain": DEBUG_HH_POINTS_LAYER_DOMAIN,
+    }
+
+    if layer:
+        layer.write(vals)
+        _logger.info(
+            "[spp.mis.demo] Updated HH debug layer '%s' on view %s",
+            layer.name,
+            view.display_name,
+        )
+        return layer
+
+    layer = layer_model.create(vals)
+    _logger.info(
+        "[spp.mis.demo] Created HH debug layer '%s' on view %s",
+        layer.name,
+        view.display_name,
+    )
+    return layer
+
+
 def post_init_hook(env_or_cr, registry=None):
     """Post-initialization hook for demo module.
 
@@ -162,3 +250,5 @@ def post_init_hook(env_or_cr, registry=None):
         total_skipped,
         total_errors,
     )
+
+    _ensure_household_points_debug_layer(env)

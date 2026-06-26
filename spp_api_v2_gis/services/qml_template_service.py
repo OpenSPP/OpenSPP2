@@ -138,8 +138,8 @@ class QMLTemplateService:
         for threshold in thresholds:
             threshold_defs.append(
                 {
-                    "lower": threshold.min_value if threshold.min_value is not None else 0,
-                    "upper": threshold.max_value if threshold.max_value is not None else 999999,
+                    "lower": threshold.min_value if threshold.min_value else 0,
+                    "upper": threshold.max_value if threshold.max_value else 999999,
                     "label": threshold.label or f"Class {len(threshold_defs) + 1}",
                     "color": threshold.color or "#808080",
                 }
@@ -252,9 +252,10 @@ class QMLTemplateService:
 
             color_rgb = self._hex_to_rgb(color_hex)
 
+            label_with_range = f"{label} ({lower:.1f} - {upper:.1f})"
             ranges_xml.append(
                 f'      <range symbol="{idx}" lower="{lower}" upper="{upper}" '
-                f'label="{self._escape_xml(label)}" render="true"/>'
+                f'label="{self._escape_xml(label_with_range)}" render="true"/>'
             )
 
             symbols_xml.append(

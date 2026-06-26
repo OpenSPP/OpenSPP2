@@ -3,6 +3,7 @@
 
 import json
 import logging
+from datetime import UTC, datetime
 
 from odoo.addons.spp_analytics.services import build_explicit_scope
 
@@ -30,7 +31,15 @@ class SpatialQueryService:
         """
         self.env = env
 
-    def query_statistics_batch(self, geometries, filters=None, variables=None):
+    def query_statistics_batch(
+        self,
+        geometries,
+        filters=None,
+        variables=None,
+        group_by=None,
+        on_progress=None,
+        population_filter=None,
+    ):
         """Execute spatial query for multiple geometries.
 
         Queries each geometry individually and computes an aggregate summary.
@@ -39,6 +48,7 @@ class SpatialQueryService:
             geometries: List of dicts with 'id' and 'geometry' keys
             filters: Additional filters for registrants (dict)
             variables: List of statistic names to compute
+            on_progress: Optional callback(completed_count) called after each geometry
 
         Returns:
             dict: Batch results with per-geometry results and summary
@@ -47,6 +57,7 @@ class SpatialQueryService:
         """
         results = []
         all_registrant_ids = set()
+        geometries_failed = 0
 
         for item in geometries:
             geometry_id = item["id"]
@@ -57,6 +68,8 @@ class SpatialQueryService:
                     geometry=geometry,
                     filters=filters,
                     variables=variables,
+                    group_by=group_by,
+                    population_filter=population_filter,
                 )
                 # Collect registrant IDs for deduplication in summary
                 registrant_ids = result.pop("registrant_ids", [])
@@ -69,6 +82,7 @@ class SpatialQueryService:
                         "query_method": result["query_method"],
                         "areas_matched": result["areas_matched"],
                         "statistics": result["statistics"],
+                        "breakdown": result.get("breakdown"),
                         "access_level": result.get("access_level"),
                         "from_cache": result.get("from_cache", False),
                         "computed_at": result.get("computed_at"),
@@ -76,6 +90,7 @@ class SpatialQueryService:
                 )
             except Exception as e:
                 _logger.warning("Batch query failed for geometry '%s': %s", geometry_id, e)
+                geometries_failed += 1
                 results.append(
                     {
                         "id": geometry_id,
@@ -83,21 +98,29 @@ class SpatialQueryService:
                         "query_method": "error",
                         "areas_matched": 0,
                         "statistics": {},
+                        "breakdown": None,
                         "access_level": None,
                         "from_cache": False,
                         "computed_at": None,
                     }
                 )
 
+            if on_progress:
+                on_progress(len(results))
+
         # Compute summary by aggregating unique registrants with metadata
         summary_stats_with_metadata = {"statistics": {}}
         if all_registrant_ids:
-            summary_stats_with_metadata = self._compute_statistics(list(all_registrant_ids), variables or [])
+            summary_stats_with_metadata = self._compute_statistics(
+                list(all_registrant_ids), variables or [], group_by=group_by
+            )
 
         summary = {
             "total_count": len(all_registrant_ids),
             "geometries_queried": len(geometries),
+            "geometries_failed": geometries_failed,
             "statistics": summary_stats_with_metadata.get("statistics", {}),
+            "breakdown": summary_stats_with_metadata.get("breakdown"),
             "access_level": summary_stats_with_metadata.get("access_level"),
             "from_cache": summary_stats_with_metadata.get("from_cache", False),
             "computed_at": summary_stats_with_metadata.get("computed_at"),
@@ -108,7 +131,7 @@ class SpatialQueryService:
             "summary": summary,
         }
 
-    def query_statistics(self, geometry, filters=None, variables=None):
+    def query_statistics(self, geometry, filters=None, variables=None, group_by=None, population_filter=None):
         """Execute spatial query for statistics within polygon.
 
         Args:
@@ -134,14 +157,14 @@ class SpatialQueryService:
 
         # Try coordinate-based query first (preferred method)
         try:
-            result = self._query_by_coordinates(geometry_json, filters)
+            result = self._query_by_coordinates(geometry_json, filters, population_filter=population_filter)
             if result["total_count"] > 0:
                 _logger.info(
                     "Spatial query using coordinates: %s registrants found",
                     result["total_count"],
                 )
                 # Compute statistics for the matched registrants with metadata
-                stats_with_metadata = self._compute_statistics(result["registrant_ids"], variables)
+                stats_with_metadata = self._compute_statistics(result["registrant_ids"], variables, group_by=group_by)
                 result.update(stats_with_metadata)
                 return result
         except Exception as e:
@@ -151,18 +174,18 @@ class SpatialQueryService:
             )
 
         # Fall back to area-based query
-        result = self._query_by_area(geometry_json, filters)
+        result = self._query_by_area(geometry_json, filters, population_filter=population_filter)
         _logger.info(
             f"Spatial query using area fallback: {result['total_count']} registrants in {result['areas_matched']} areas"
         )
 
         # Compute statistics for the matched registrants with metadata
-        stats_with_metadata = self._compute_statistics(result["registrant_ids"], variables)
+        stats_with_metadata = self._compute_statistics(result["registrant_ids"], variables, group_by=group_by)
         result.update(stats_with_metadata)
 
         return result
 
-    def _query_by_coordinates(self, geometry_json, filters):
+    def _query_by_coordinates(self, geometry_json, filters, population_filter=None):
         """Query registrants by coordinates using ST_Intersects.
 
         This is the preferred method when registrants have coordinate data.
@@ -176,11 +199,11 @@ class SpatialQueryService:
         """
         # Build WHERE clause from filters
         where_clauses = ["p.is_registrant = true"]
-        params = [geometry_json]
+        filter_params = []
 
         if filters.get("is_group") is not None:
             where_clauses.append("p.is_group = %s")
-            params.append(filters["is_group"])
+            filter_params.append(filters["is_group"])
 
         if filters.get("disabled") is not None:
             if filters["disabled"]:
@@ -189,6 +212,8 @@ class SpatialQueryService:
                 where_clauses.append("p.disabled IS NULL")
 
         where_clause = " AND ".join(where_clauses)
+
+        pop_where, pop_params = self._build_population_filter_sql(population_filter)
 
         # Query using ST_Intersects with coordinates
         # Note: This assumes res.partner has a 'coordinates' GeoPointField
@@ -206,11 +231,11 @@ class SpatialQueryService:
               AND ST_Intersects(
                   p.coordinates,
                   ST_SetSRID(ST_GeomFromGeoJSON(%s), 4326)
-              )
+              ){pop_where}
         """  # nosec B608 - SQL clauses built from hardcoded fragments, data uses %s params
 
-        # Add geometry parameter at the beginning
-        params = [geometry_json] + params[1:]
+        # Params ordered to match SQL: filter params, geometry, population filter
+        params = filter_params + [geometry_json] + pop_params
 
         self.env.cr.execute(query, params)
         registrant_ids = [row[0] for row in self.env.cr.fetchall()]
@@ -222,7 +247,7 @@ class SpatialQueryService:
             "registrant_ids": registrant_ids,
         }
 
-    def _query_by_area(self, geometry_json, filters):
+    def _query_by_area(self, geometry_json, filters, population_filter=None):
         """Query registrants by area intersection (fallback method).
 
         This method finds areas that intersect the query polygon,
@@ -277,6 +302,10 @@ class SpatialQueryService:
 
         extra_where = (" AND " + " AND ".join(extra_clauses)) if extra_clauses else ""
 
+        pop_where, pop_params = self._build_population_filter_sql(population_filter)
+        extra_where += pop_where
+        extra_params += pop_params
+
         # Query registrants: those directly in matched areas PLUS
         # individuals whose group (household) is in a matched area.
         # Individuals often lack area_id; they inherit it from their group.
@@ -312,12 +341,13 @@ class SpatialQueryService:
             "registrant_ids": registrant_ids,
         }
 
-    def _compute_statistics(self, registrant_ids, variables):
+    def _compute_statistics(self, registrant_ids, variables, group_by=None):
         """Compute statistics using the unified aggregation engine only.
 
         Args:
             registrant_ids: List of registrant IDs
             variables: List of statistic names to compute
+            group_by: Optional list of dimension names for demographic breakdown
 
         Returns:
             dict: Statistics with metadata (statistics, access_level, from_cache, computed_at)
@@ -327,15 +357,15 @@ class SpatialQueryService:
                 "statistics": self._get_empty_statistics(),
                 "access_level": None,
                 "from_cache": False,
-                "computed_at": None,
+                "computed_at": datetime.now(UTC).isoformat(),
             }
 
         if "spp.analytics.service" not in self.env:
             raise RuntimeError("spp.analytics.service is required for GIS statistics queries.")
 
-        return self._compute_via_aggregation_service(registrant_ids, variables)
+        return self._compute_via_aggregation_service(registrant_ids, variables, group_by=group_by)
 
-    def _compute_via_aggregation_service(self, registrant_ids, variables):
+    def _compute_via_aggregation_service(self, registrant_ids, variables, group_by=None):
         """Compute statistics using AggregationService.
 
         Delegates to the unified aggregation service for statistics computation
@@ -344,6 +374,7 @@ class SpatialQueryService:
         Args:
             registrant_ids: List of registrant IDs
             variables: List of statistic names to compute (or None for GIS defaults)
+            group_by: Optional list of dimension names for demographic breakdown
 
         Returns:
             dict: Statistics with metadata (statistics, access_level, from_cache, computed_at)
@@ -362,13 +393,19 @@ class SpatialQueryService:
             Statistic = self.env["spp.indicator"].sudo()
             gis_stats = Statistic.get_published_for_context("gis")
             statistics_to_compute = [stat.name for stat in gis_stats] if gis_stats else None
+            _logger.info(
+                "No variables requested, falling back to GIS-published: %r",
+                statistics_to_compute,
+            )
+        else:
+            _logger.info("Computing requested variables: %r", statistics_to_compute)
 
         if not statistics_to_compute:
             return {
                 "statistics": {},
                 "access_level": None,
                 "from_cache": False,
-                "computed_at": None,
+                "computed_at": datetime.now(UTC).isoformat(),
             }
 
         # Call AggregationService (no sudo - let service determine access level from calling user)
@@ -376,6 +413,7 @@ class SpatialQueryService:
         result = aggregation_service.compute_aggregation(
             scope=scope,
             statistics=statistics_to_compute,
+            group_by=group_by,
             context="gis",
             use_cache=False,  # Spatial queries are dynamic, don't cache
         )
@@ -447,12 +485,22 @@ class SpatialQueryService:
         # Return statistics with metadata
         return {
             "statistics": result,
+            "breakdown": agg_result.get("breakdown"),
             "access_level": agg_result.get("access_level"),
             "from_cache": agg_result.get("from_cache", False),
             "computed_at": agg_result.get("computed_at"),
         }
 
-    def query_proximity(self, reference_points, radius_km, relation="within", filters=None, variables=None):
+    def query_proximity(
+        self,
+        reference_points,
+        radius_km,
+        relation="within",
+        filters=None,
+        variables=None,
+        group_by=None,
+        population_filter=None,
+    ):
         """Query registrants by proximity to reference points.
 
         Uses a temp table with pre-buffered geometries and ST_Intersects
@@ -485,7 +533,13 @@ class SpatialQueryService:
 
         # Try coordinate-based query first
         try:
-            result = self._proximity_by_coordinates(reference_points, radius_meters, relation, filters)
+            result = self._proximity_by_coordinates(
+                reference_points,
+                radius_meters,
+                relation,
+                filters,
+                population_filter=population_filter,
+            )
             if result["total_count"] > 0:
                 _logger.info(
                     "Proximity query (%s, %.1f km) using coordinates: %s registrants found",
@@ -494,7 +548,7 @@ class SpatialQueryService:
                     result["total_count"],
                 )
                 registrant_ids = result["registrant_ids"]
-                stats_with_metadata = self._compute_statistics(registrant_ids, variables)
+                stats_with_metadata = self._compute_statistics(registrant_ids, variables, group_by=group_by)
                 result.update(stats_with_metadata)
                 result["reference_points_count"] = len(reference_points)
                 result["radius_km"] = radius_km
@@ -507,7 +561,13 @@ class SpatialQueryService:
             )
 
         # Fall back to area-based query
-        result = self._proximity_by_area(reference_points, radius_meters, relation, filters)
+        result = self._proximity_by_area(
+            reference_points,
+            radius_meters,
+            relation,
+            filters,
+            population_filter=population_filter,
+        )
         _logger.info(
             "Proximity query (%s, %.1f km) using area fallback: %s registrants in %s areas",
             relation,
@@ -516,7 +576,7 @@ class SpatialQueryService:
             result["areas_matched"],
         )
         registrant_ids = result["registrant_ids"]
-        stats_with_metadata = self._compute_statistics(registrant_ids, variables)
+        stats_with_metadata = self._compute_statistics(registrant_ids, variables, group_by=group_by)
         result.update(stats_with_metadata)
         result["reference_points_count"] = len(reference_points)
         result["radius_km"] = radius_km
@@ -594,7 +654,157 @@ class SpatialQueryService:
         extra_where = (" AND " + " AND ".join(extra_clauses)) if extra_clauses else ""
         return extra_where, extra_params
 
-    def _proximity_by_coordinates(self, reference_points, radius_meters, relation, filters):
+    def _build_population_filter_sql(self, population_filter):
+        """Build SQL clause from population_filter input.
+
+        Args:
+            population_filter: Dict with optional keys: program, cel_expression, mode
+
+        Returns:
+            tuple: (sql_clause, params) where sql_clause is a string like
+                   "AND p.id IN (...)" and params is a list of query parameters.
+                   Returns ("", []) if no filter is active.
+        """
+        if not population_filter:
+            return "", []
+
+        # TODO: Replace program ID with code field (see gis-analytics-enrichment.md Task 1)
+        program_id = population_filter.get("program")
+        cel_expression_code = population_filter.get("cel_expression")
+        mode = population_filter.get("mode", "and")
+
+        if mode not in ("and", "or", "gap"):
+            raise ValueError(f"Invalid population_filter mode: {mode!r}. Must be 'and', 'or', or 'gap'.")
+
+        if program_id is not None and not isinstance(program_id, int):
+            raise ValueError("population_filter.program must be an integer")
+
+        program_sql = ""
+        program_params = []
+        cel_sql = ""
+        cel_params = []
+
+        # Build program filter subquery
+        if program_id:
+            program_sql = """
+                SELECT pm.partner_id FROM spp_program_membership pm
+                WHERE pm.program_id = %s AND pm.state = 'enrolled'
+            """
+            program_params = [program_id]
+
+        # Build CEL expression filter subquery
+        if cel_expression_code:
+            # nosemgrep: odoo-sudo-without-context
+            Expression = self.env["spp.cel.expression"].sudo()
+            expression = Expression.search([("code", "=", cel_expression_code)], limit=1)
+            if not expression:
+                _logger.warning("Population filter: expression '%s' not found", cel_expression_code)
+                return "AND false", []
+
+            # Use the correct profile based on the expression's context_type
+            context_type = expression.context_type or "group"
+            profile = "registry_individuals" if context_type == "individual" else "registry_groups"
+
+            cel_service = self.env["spp.cel.service"]
+            result = cel_service.compile_expression(
+                expression.cel_expression,
+                profile=profile,
+                limit=0,
+            )
+            if not result.get("valid"):
+                _logger.warning(
+                    "Population filter: CEL expression '%s' failed to compile: %s",
+                    cel_expression_code,
+                    result.get("error"),
+                )
+                return "AND false", []
+
+            domain = result.get("domain", [])
+            # sudo: population filters must count partners across the whole
+            # population regardless of the caller's record rules; read-only.
+            # nosemgrep: odoo-sudo-without-context,odoo-sudo-on-sensitive-models
+            Partner = self.env["res.partner"].sudo()
+            matching_ids = Partner.search(domain).ids
+            if not matching_ids:
+                return "AND false", []
+
+            # For individual-context expressions, resolve to group IDs.
+            # The spatial query operates on groups (they have coordinates/area_id),
+            # so we find groups that contain matching individuals.
+            if context_type == "individual":
+                matching_ids = self._resolve_individuals_to_groups(matching_ids)
+                if not matching_ids:
+                    return "AND false", []
+
+            if len(matching_ids) > 10000:
+                _logger.warning(
+                    "Population filter: CEL expression '%s' matched %d registrants. "
+                    "Consider using SQL subquery optimization for large result sets.",
+                    cel_expression_code,
+                    len(matching_ids),
+                )
+
+            cel_sql = "SELECT unnest(%s::int[])"
+            cel_params = [list(matching_ids)]
+
+        # Combine based on mode
+        if program_sql and cel_sql:
+            if mode == "and":
+                return (
+                    "AND p.id IN (" + program_sql + ") AND p.id IN (" + cel_sql + ")",
+                    program_params + cel_params,
+                )
+            elif mode == "or":
+                return (
+                    "AND (p.id IN (" + program_sql + ") OR p.id IN (" + cel_sql + "))",
+                    program_params + cel_params,
+                )
+            elif mode == "gap":
+                return (
+                    "AND p.id IN (" + cel_sql + ") AND p.id NOT IN (" + program_sql + ")",
+                    cel_params + program_params,
+                )
+        elif program_sql:
+            return "AND p.id IN (" + program_sql + ")", program_params
+        elif cel_sql:
+            return "AND p.id IN (" + cel_sql + ")", cel_params
+
+        return "", []
+
+    def _resolve_individuals_to_groups(self, individual_ids):
+        """Resolve individual partner IDs to their group (household) IDs.
+
+        The spatial query operates on groups (they have coordinates/area_id).
+        For individual-context CEL expressions, we need to find which groups
+        contain the matching individuals.
+
+        Args:
+            individual_ids: List of individual partner IDs
+
+        Returns:
+            list: Group partner IDs that contain at least one matching individual
+        """
+        if not individual_ids:
+            return []
+
+        self.env.cr.execute(
+            """
+            SELECT DISTINCT gm."group"
+            FROM spp_group_membership gm
+            WHERE gm.individual = ANY(%s)
+              AND gm.is_ended = false
+            """,
+            [list(individual_ids)],
+        )
+        group_ids = [row[0] for row in self.env.cr.fetchall()]
+        _logger.info(
+            "Resolved %d individuals to %d groups for population filter",
+            len(individual_ids),
+            len(group_ids),
+        )
+        return group_ids
+
+    def _proximity_by_coordinates(self, reference_points, radius_meters, relation, filters, population_filter=None):
         """Query registrants by coordinate proximity to reference points.
 
         Args:
@@ -613,6 +823,10 @@ class SpatialQueryService:
         self._create_proximity_temp_table(reference_points, radius_meters)
 
         extra_where, extra_params = self._build_filter_clauses(filters)
+
+        pop_where, pop_params = self._build_population_filter_sql(population_filter)
+        extra_where += pop_where
+        extra_params += pop_params
 
         if relation == "within":
             # Find registrants whose coordinates intersect any buffer
@@ -655,7 +869,7 @@ class SpatialQueryService:
             "registrant_ids": registrant_ids,
         }
 
-    def _proximity_by_area(self, reference_points, radius_meters, relation, filters):
+    def _proximity_by_area(self, reference_points, radius_meters, relation, filters, population_filter=None):
         """Query registrants by area proximity (fallback when coordinates unavailable).
 
         Uses ST_Intersects between area polygons and buffered reference points
@@ -707,6 +921,10 @@ class SpatialQueryService:
 
         area_tuple = tuple(area_ids)
         extra_where, extra_params = self._build_filter_clauses(filters)
+
+        pop_where, pop_params = self._build_population_filter_sql(population_filter)
+        extra_where += pop_where
+        extra_params += pop_params
 
         # Reuse the same registrant lookup as _query_by_area (includes group membership)
         registrants_query = f"""

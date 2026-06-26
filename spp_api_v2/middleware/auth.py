@@ -10,13 +10,24 @@ from odoo.api import Environment
 from odoo.addons.fastapi.dependencies import odoo_env
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import OAuth2
 
 _logger = logging.getLogger(__name__)
 
-# HTTP Bearer scheme for extracting token from Authorization header
-# auto_error=False allows us to handle authentication errors with proper status codes
-security = HTTPBearer(auto_error=False)
+# OAuth2 Client Credentials scheme.
+# This produces an "oauth2" entry in the OpenAPI securitySchemes with the
+# clientCredentials flow pointing at our token endpoint, so API consumers
+# (Swagger UI, QGIS, etc.) can discover how to authenticate.
+# auto_error=False allows us to handle authentication errors with proper status codes.
+security = OAuth2(
+    flows={
+        "clientCredentials": {
+            "tokenUrl": "oauth/token",
+            "scopes": {},
+        },
+    },
+    auto_error=False,
+)
 
 # Cache for JWT secret validation results, keyed by hash of the secret.
 # Avoids recomputing Shannon entropy on every API request.
@@ -24,7 +35,7 @@ _validated_jwt_secrets: set[str] = set()
 
 
 def get_authenticated_client(
-    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)],
+    token: Annotated[str | None, Depends(security)],
     env: Annotated[Environment, Depends(odoo_env)],
 ):
     """
@@ -39,14 +50,17 @@ def get_authenticated_client(
     Raises:
         HTTPException: If token is invalid, expired, or client not found
     """
-    if not credentials:
+    if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing Authorization header",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    token = credentials.credentials
+    # OAuth2 dependency returns the full Authorization header value
+    # (e.g. "Bearer eyJ..."). Strip the scheme prefix to get the raw JWT.
+    if token.lower().startswith("bearer "):
+        token = token[7:]
 
     try:
         # Decode and validate JWT
@@ -91,7 +105,7 @@ def get_authenticated_client(
 
 
 def get_current_client(
-    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
+    token: Annotated[str | None, Depends(security)],
     env: Annotated[Environment, Depends(odoo_env)],
 ) -> dict:
     """
@@ -103,7 +117,7 @@ def get_current_client(
     Returns:
         dict: {"env": Environment, "client": spp.api.client record}
     """
-    client = get_authenticated_client(credentials, env)
+    client = get_authenticated_client(token, env)
     return {"env": env, "client": client}
 
 

@@ -253,13 +253,13 @@ class TestBatchSpatialQuerySchemas(TransactionCase):
                 }
             ],
             filters={"is_group": True},
-            variables=["children_under_5"],
+            variables=["total_households"],
         )
 
         self.assertEqual(len(request.geometries), 1)
         self.assertEqual(request.geometries[0].id, "zone_1")
         self.assertEqual(request.filters, {"is_group": True})
-        self.assertEqual(request.variables, ["children_under_5"])
+        self.assertEqual(request.variables, ["total_households"])
 
     def test_batch_request_requires_geometries(self):
         """Test that BatchSpatialQueryRequest requires at least one geometry."""
