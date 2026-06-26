@@ -96,6 +96,8 @@ class DCICelFetcher(models.AbstractModel):
     @api.model
     def _check_dci_sync_access(self):
         """Require CEL manager privileges before triggering outbound DCI sync."""
+        if self.env.su:
+            return  # System/cron (e.g. the scheduled sync) runs in superuser mode
         if not self.env.user.has_group("spp_cel_domain.group_cel_domain_manager"):
             raise AccessError(_("Only CEL Domain Managers can sync DCI-backed CEL values."))
 

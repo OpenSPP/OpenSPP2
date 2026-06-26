@@ -162,9 +162,45 @@ class TestDCICelFetcher(TransactionCase):
             }
         )
         with self.assertRaises(AccessError):
-            self.Fetcher.with_user(plain_user).sync_for_partners(
-                [self.partner.id], variables=self.var_is_alive
+            self.Fetcher.with_user(plain_user).sync_for_partners([self.partner.id], variables=self.var_is_alive)
+
+    def test_check_dci_sync_access_allows_cel_manager(self):
+        manager = self.env["res.users"].create(
+            {
+                "name": "DCI Sync CEL Manager",
+                "login": "dci_sync_cel_manager@example.test",
+                "group_ids": [
+                    Command.set(
+                        [
+                            self.env.ref("base.group_user").id,
+                            self.env.ref("spp_cel_domain.group_cel_domain_manager").id,
+                        ]
+                    )
+                ],
+            }
+        )
+        # A CEL Domain Manager must pass the access gate (no AccessError raised).
+        self.Fetcher.with_user(manager)._check_dci_sync_access()
+
+    def test_sync_for_partners_allows_superuser_for_cron(self):
+        """The scheduled cron runs in superuser mode (user_id=base.user_root).
+        A user without the CEL manager group must still sync when in su mode,
+        otherwise the cron would fail its own access check."""
+        plain_user = self.env["res.users"].create(
+            {
+                "name": "DCI Sync Cron User",
+                "login": "dci_sync_cron_user@example.test",
+                "group_ids": [Command.set([self.env.ref("base.group_user").id])],
+            }
+        )
+        self.assertFalse(plain_user.has_group("spp_cel_domain.group_cel_domain_manager"))
+        with patch(CHECK_DEATH, return_value=False):
+            count = (
+                self.Fetcher.with_user(plain_user)
+                .sudo()
+                .sync_for_partners([self.partner.id], variables=self.var_is_alive)
             )
+        self.assertGreaterEqual(count, 1)
 
     def test_dci_backed_variables_excludes_plain_providers(self):
         plain = self.env["spp.data.provider"].create({"name": "Plain", "code": "plain_excl_t"})
