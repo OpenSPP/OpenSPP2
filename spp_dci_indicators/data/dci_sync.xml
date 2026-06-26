@@ -7,6 +7,10 @@
         <field name="binding_model_id" ref="base.model_res_partner" />
         <field name="binding_view_types">list,form</field>
         <field name="state">code</field>
+        <field
+            name="group_ids"
+            eval="[Command.link(ref('spp_cel_domain.group_cel_domain_manager'))]"
+        />
         <field name="code">
 if records:
     count = env["spp.dci.cel.fetcher"].sync_for_partners(records.ids)
@@ -28,6 +32,7 @@ if records:
         <field name="name">DCI: Sync CEL metrics</field>
         <field name="model_id" ref="base.model_res_partner" />
         <field name="state">code</field>
+        <field name="user_id" ref="base.user_root" />
         <field
             name="code"
         >env["spp.dci.cel.fetcher"].cron_sync_all_registrants()</field>

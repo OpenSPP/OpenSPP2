@@ -1,5 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_spp_data_value_user,spp.data.value user,model_spp_data_value,base.group_user,1,0,0,0
+access_spp_data_value_user,spp.data.value base user disabled,model_spp_data_value,base.group_user,0,0,0,0
 access_cel_rule_wizard_manager,access_cel_rule_wizard_manager,model_spp_cel_rule_wizard,spp_cel_domain.group_cel_domain_manager,1,1,1,0
 access_cel_rule_wizard_metric_manager,access_cel_rule_wizard_metric_manager,model_spp_cel_rule_wizard_metric,spp_cel_domain.group_cel_domain_manager,1,0,1,1
 access_cel_variable_category_viewer,access_cel_variable_category_viewer,model_spp_cel_variable_category,spp_cel_domain.group_cel_domain_viewer,1,0,0,0
