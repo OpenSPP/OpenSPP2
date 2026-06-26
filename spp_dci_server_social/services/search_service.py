@@ -35,13 +35,36 @@ _ACCEPTED_SOCIAL_REG_TYPES = {
     "social",
 }
 
-# Parameterized DCI CEL metrics that expose registry-derived facts which are
-# not safe for unauthorised external predicate filtering.  DCI Social Registry
-# search predicates are a caller-supplied oracle (including total_count), so
-# deny these sensitive metrics before compiling the expression.  Keep this
-# local instead of importing spp_dci_indicators: that addon is optional and is
-# not a dependency of the DCI Social Registry server.
-_DCI_PREDICATE_DENIED_METRICS = frozenset(("r.dci.dr.severity", "r.dci.crvs.has_event"))
+# DCI CEL metrics that expose registry-derived facts which are not safe for
+# unauthorised external predicate filtering.  DCI Social Registry search
+# predicates are a caller-supplied oracle (including total_count), so a boolean
+# metric like r.dci.crvs.is_alive == false discloses the value one query at a
+# time even though it never appears in the response schema.  Deny these
+# sensitive metrics before compiling the expression.
+#
+# Scope: disability (r.dci.dr.*) and vital/civil-status (r.dci.crvs.*)
+# accessors -- the private-data tier this guard protects.  Lower-risk Social
+# Registry / inter-registry metrics (r.dci.sr.*, r.dci.ibr.*) are intentionally
+# left filterable.
+#
+# Keep this list local instead of importing spp_dci_indicators: that addon is
+# optional and is not a dependency of the DCI Social Registry server.
+_DCI_PREDICATE_DENIED_METRICS = frozenset(
+    (
+        # Disability registry (functional severity + disability flags)
+        "r.dci.dr.severity",
+        "r.dci.dr.has_disability",
+        "r.dci.dr.assessed",
+        "r.dci.dr.vision_severe",
+        "r.dci.dr.hearing_severe",
+        "r.dci.dr.mobility_severe",
+        # CRVS (vital events / civil status)
+        "r.dci.crvs.has_event",
+        "r.dci.crvs.is_alive",
+        "r.dci.crvs.birth_verified",
+        "r.dci.crvs.is_married",
+    )
+)
 
 
 class DCISocialSearchService:
@@ -408,13 +431,15 @@ class DCISocialSearchService:
         guard only applies to external Social Registry predicate search.
         """
         for accessor in _DCI_PREDICATE_DENIED_METRICS:
-            # CEL ignores whitespace around member-selection dots, so
-            # `r . dci . dr . severity(...)` is equivalent to the bare form and
-            # must not slip past the accessor-call check.
+            # Match the accessor as a dotted member path in any spelling that
+            # resolves to the metric: bare (r.dci.dr.has_disability), called
+            # (r.dci.dr.severity('Vision')), or quoted inside metric('...').
+            # CEL ignores whitespace around member-selection dots, so allow it
+            # (`r . dci . dr . severity`).  The boundaries reject a denied name
+            # that is only a prefix/substring of a longer identifier
+            # (r.dci.dr.severity_score, my_r.dci..., r.dci.crvs.is_alive_x).
             accessor_pattern = r"\s*\.\s*".join(map(re.escape, accessor.split(".")))
-            method_pattern = rf"(?<![\w.]){accessor_pattern}\s*\("
-            metric_pattern = rf"(?<![\w.])metric\s*\(\s*(['\"]){re.escape(accessor)}\1"
-            if re.search(method_pattern, expression) or re.search(metric_pattern, expression):
+            if re.search(rf"(?<![\w.]){accessor_pattern}(?![\w.])", expression):
                 raise ValueError(_("Predicate searches cannot filter on sensitive DCI metric '%s'.") % accessor)
 
     def _parse_expression(self, expression) -> list:

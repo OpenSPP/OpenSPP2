@@ -86,16 +86,43 @@ class TestSearchServiceInternals(DCISocialServerCommon):
 
     def test_parse_predicate_rejects_sensitive_dci_method_metrics(self):
         blocked = [
+            # Parameterized methods (accessor-call + metric() forms, incl. spaced dots)
             "r.dci.dr.severity('Vision') >= 3",
             "r . dci . dr . severity('Vision') >= 3",
             "r.dci.crvs.has_event('death') == true",
             "metric('r.dci.dr.severity', me, arg='Vision') >= 3",
             'metric("r.dci.crvs.has_event", me, arg="death") == true',
+            # Non-parameterized disability flags (boolean oracles)
+            "r.dci.dr.has_disability == true",
+            "r.dci.dr.vision_severe == true",
+            "metric('r.dci.dr.mobility_severe', me) == true",
+            # Non-parameterized CRVS vital/civil status (boolean oracles)
+            "r.dci.crvs.is_alive == false",
+            "r.dci.crvs.is_married == true",
+            "metric('r.dci.crvs.birth_verified', me) == true",
         ]
         for expression in blocked:
+            # Through _parse_predicate so the test also pins that the guard is
+            # wired in ahead of CEL compilation (it raises before the compiler).
             with self.assertRaises(ValueError) as ctx:
                 self.service._parse_predicate(expression)
             self.assertIn("sensitive DCI metric", str(ctx.exception))
+
+    def test_validate_external_predicate_allows_benign_and_lower_risk_metrics(self):
+        # The guard must not over-match: benign registry predicates, identifiers
+        # that merely contain a denied name as a substring, and the intentionally
+        # allowed lower-risk SR/IBR metrics all pass validation untouched.
+        allowed = [
+            "r.gender == 'female'",
+            "age_years(r.birthdate) >= 18",
+            "r.dci.dr.severity_score >= 3",  # not a call, different accessor
+            "my_r.dci.dr.severity('Vision') >= 3",  # prefixed identifier
+            "r.dci.sr.household_size >= 5",
+            "r.dci.ibr.has_duplicate == true",
+        ]
+        for expression in allowed:
+            # Should not raise.
+            self.service._validate_external_predicate_expression(expression)
 
     # --- _to_dci_member ------------------------------------------------------
 
