@@ -41,7 +41,7 @@ _ACCEPTED_SOCIAL_REG_TYPES = {
 # deny these sensitive metrics before compiling the expression.  Keep this
 # local instead of importing spp_dci_indicators: that addon is optional and is
 # not a dependency of the DCI Social Registry server.
-_DCI_PREDICATE_DENIED_METRICS = frozenset(("dr.dci.severity", "crvs.dci.has_event"))
+_DCI_PREDICATE_DENIED_METRICS = frozenset(("r.dci.dr.severity", "r.dci.crvs.has_event"))
 
 
 class DCISocialSearchService:
@@ -408,7 +408,11 @@ class DCISocialSearchService:
         guard only applies to external Social Registry predicate search.
         """
         for accessor in _DCI_PREDICATE_DENIED_METRICS:
-            method_pattern = rf"(?<![\w.]){re.escape(accessor)}\s*\("
+            # CEL ignores whitespace around member-selection dots, so
+            # `r . dci . dr . severity(...)` is equivalent to the bare form and
+            # must not slip past the accessor-call check.
+            accessor_pattern = r"\s*\.\s*".join(map(re.escape, accessor.split(".")))
+            method_pattern = rf"(?<![\w.]){accessor_pattern}\s*\("
             metric_pattern = rf"(?<![\w.])metric\s*\(\s*(['\"]){re.escape(accessor)}\1"
             if re.search(method_pattern, expression) or re.search(metric_pattern, expression):
                 raise ValueError(_("Predicate searches cannot filter on sensitive DCI metric '%s'.") % accessor)

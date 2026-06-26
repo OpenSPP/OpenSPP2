@@ -86,10 +86,11 @@ class TestSearchServiceInternals(DCISocialServerCommon):
 
     def test_parse_predicate_rejects_sensitive_dci_method_metrics(self):
         blocked = [
-            "dr.dci.severity('Vision') >= 3",
-            "crvs.dci.has_event('death') == true",
-            "metric('dr.dci.severity', me, arg='Vision') >= 3",
-            'metric("crvs.dci.has_event", me, arg="death") == true',
+            "r.dci.dr.severity('Vision') >= 3",
+            "r . dci . dr . severity('Vision') >= 3",
+            "r.dci.crvs.has_event('death') == true",
+            "metric('r.dci.dr.severity', me, arg='Vision') >= 3",
+            'metric("r.dci.crvs.has_event", me, arg="death") == true',
         ]
         for expression in blocked:
             with self.assertRaises(ValueError) as ctx:
