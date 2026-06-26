@@ -2,6 +2,7 @@
 """DCI Social Registry Search Service - Maps Odoo partners to DCI schemas."""
 
 import logging
+import re
 import uuid
 from datetime import UTC, datetime
 from typing import Any
@@ -33,6 +34,37 @@ _ACCEPTED_SOCIAL_REG_TYPES = {
     "social_registry",
     "social",
 }
+
+# DCI CEL metrics that expose registry-derived facts which are not safe for
+# unauthorised external predicate filtering.  DCI Social Registry search
+# predicates are a caller-supplied oracle (including total_count), so a boolean
+# metric like r.dci.crvs.is_alive == false discloses the value one query at a
+# time even though it never appears in the response schema.  Deny these
+# sensitive metrics before compiling the expression.
+#
+# Scope: disability (r.dci.dr.*) and vital/civil-status (r.dci.crvs.*)
+# accessors -- the private-data tier this guard protects.  Lower-risk Social
+# Registry / inter-registry metrics (r.dci.sr.*, r.dci.ibr.*) are intentionally
+# left filterable.
+#
+# Keep this list local instead of importing spp_dci_indicators: that addon is
+# optional and is not a dependency of the DCI Social Registry server.
+_DCI_PREDICATE_DENIED_METRICS = frozenset(
+    (
+        # Disability registry (functional severity + disability flags)
+        "r.dci.dr.severity",
+        "r.dci.dr.has_disability",
+        "r.dci.dr.assessed",
+        "r.dci.dr.vision_severe",
+        "r.dci.dr.hearing_severe",
+        "r.dci.dr.mobility_severe",
+        # CRVS (vital events / civil status)
+        "r.dci.crvs.has_event",
+        "r.dci.crvs.is_alive",
+        "r.dci.crvs.birth_verified",
+        "r.dci.crvs.is_married",
+    )
+)
 
 
 class DCISocialSearchService:
@@ -366,6 +398,8 @@ class DCISocialSearchService:
         if not expression or not expression.strip():
             return []
 
+        self._validate_external_predicate_expression(expression)
+
         # Use CEL service to compile expression to domain
         cel_service = self.env["spp.cel.service"]
 
@@ -386,6 +420,27 @@ class DCISocialSearchService:
             raise ValueError(f"Invalid predicate expression: {error_msg}")
 
         return result.get("domain", [])
+
+    def _validate_external_predicate_expression(self, expression: str) -> None:
+        """Reject sensitive DCI metrics in sender-supplied predicates.
+
+        DCI predicate searches return counts and pageable matches, so allowing
+        callers to filter on raw DCI indicator cache values can disclose the
+        value by repeated queries even when the value is not present in the
+        response schema.  Internal CEL use can still compile these metrics; this
+        guard only applies to external Social Registry predicate search.
+        """
+        for accessor in _DCI_PREDICATE_DENIED_METRICS:
+            # Match the accessor as a dotted member path in any spelling that
+            # resolves to the metric: bare (r.dci.dr.has_disability), called
+            # (r.dci.dr.severity('Vision')), or quoted inside metric('...').
+            # CEL ignores whitespace around member-selection dots, so allow it
+            # (`r . dci . dr . severity`).  The boundaries reject a denied name
+            # that is only a prefix/substring of a longer identifier
+            # (r.dci.dr.severity_score, my_r.dci..., r.dci.crvs.is_alive_x).
+            accessor_pattern = r"\s*\.\s*".join(map(re.escape, accessor.split(".")))
+            if re.search(rf"(?<![\w.]){accessor_pattern}(?![\w.])", expression):
+                raise ValueError(_("Predicate searches cannot filter on sensitive DCI metric '%s'.") % accessor)
 
     def _parse_expression(self, expression) -> list:
         """
