@@ -13,6 +13,7 @@ from .constants import (
     DONATION_STATE_REJECTED,
     DONATION_STATE_STOCKED,
     DRIMS_TYPE_DONATION_RECEIPT,
+    NON_ACCEPT_DISPOSITIONS,
     VOCAB_DONATION_STATES,
     VOCAB_DONOR_TYPES,
     VOCAB_DRIMS_TYPES,
@@ -20,11 +21,6 @@ from .constants import (
 )
 
 _logger = logging.getLogger(__name__)
-
-# Donation-line disposition codes that should NOT be stocked. Moves for these
-# get cancelled by `_exclude_non_accept_moves`, and if every line lands in
-# this set the donation has nothing left to stock — only Reject makes sense.
-NON_ACCEPT_DISPOSITIONS = ("return", "dispose", "quarantine")
 
 
 # Valid state transitions: {from_state: [allowed_to_states]}
@@ -561,6 +557,14 @@ class DrimsDonation(models.Model):
             if rec.state != DONATION_STATE_INSPECTED:
                 raise UserError(_("Only inspected donations can be marked as stocked."))
             rec.state_id = stocked_state
+            # OP#1058: items excluded from stock (non-accept disposition) now
+            # need a follow-up disposal — mark them Pending so they surface in
+            # the "Non-Accepted Items" tracking list.
+            rec.line_ids.filtered(
+                lambda line: (line.disposition_id.code or "") in NON_ACCEPT_DISPOSITIONS
+                and line.quantity_received > 0
+                and not line.disposal_state
+            ).write({"disposal_state": "pending"})
             # Validate the picking to complete the receipt
             for picking in rec.picking_ids.filtered(lambda p: p.state not in ("done", "cancel")):
                 excluded_summary.extend(rec._exclude_non_accept_moves(picking))

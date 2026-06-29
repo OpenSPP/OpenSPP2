@@ -2,6 +2,8 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
+from .constants import NON_ACCEPT_DISPOSITIONS
+
 
 class DrimsDonationLine(models.Model):
     _name = "spp.drims.donation.line"
@@ -79,6 +81,33 @@ class DrimsDonationLine(models.Model):
 
     notes = fields.Text(string="Notes")
 
+    # OP#1058: follow-up tracking for items excluded from stock (a non-accept
+    # disposition). Seeded to "pending" when the donation is stocked, then
+    # resolved once the return / disposal / quarantine has been actioned.
+    is_non_accept = fields.Boolean(
+        string="Non-Accept",
+        compute="_compute_is_non_accept",
+        store=True,
+        help="The disposition (Return / Dispose / Quarantine) excludes this item from stock.",
+    )
+    disposal_state = fields.Selection(
+        [("pending", "Pending"), ("resolved", "Resolved")],
+        string="Disposal Status",
+        copy=False,
+        help="Follow-up status for an item excluded from stock.",
+    )
+    disposal_date = fields.Date(string="Resolved On", copy=False)
+    disposal_user_id = fields.Many2one("res.users", string="Resolved By", copy=False)
+    disposal_notes = fields.Text(
+        string="Disposal Notes",
+        help="What was done with the excluded item (returned to donor, disposed, quarantine outcome, ...).",
+    )
+
+    @api.depends("disposition_id")
+    def _compute_is_non_accept(self):
+        for line in self:
+            line.is_non_accept = (line.disposition_id.code or "") in NON_ACCEPT_DISPOSITIONS
+
     # Variance (GAP-DON-003)
     receipt_variance = fields.Float(
         string="Variance",
@@ -116,6 +145,35 @@ class DrimsDonationLine(models.Model):
         for line in self:
             if line.quantity_pledged <= 0:
                 raise ValidationError(_("Pledged quantity must be greater than zero."))
+
+    def action_mark_disposal_resolved(self):
+        """OP#1058: record that an excluded item has been handled.
+
+        Sets the line to resolved with who/when, and posts an audit note on
+        the donation so there is an accountability trail.
+        """
+        today = fields.Date.context_today(self)
+        for line in self:
+            if line.disposal_state != "pending":
+                continue
+            line.write(
+                {
+                    "disposal_state": "resolved",
+                    "disposal_date": today,
+                    "disposal_user_id": self.env.user.id,
+                }
+            )
+            line.donation_id.message_post(
+                body=_("Non-accepted item resolved: %(product)s — %(qty)s %(uom)s, %(action)s.%(notes)s")
+                % {
+                    "product": line.product_id.display_name,
+                    "qty": line.quantity_received or line.quantity,
+                    "uom": line.uom_id.name or "",
+                    "action": line.disposition_id.display_name or _("non-accept"),
+                    "notes": (f" {line.disposal_notes}") if line.disposal_notes else "",
+                }
+            )
+        return True
 
     @api.onchange("product_id")
     def _onchange_product_id(self):

@@ -269,6 +269,22 @@
                                     <field name="uom_id" />
                                     <field name="condition_id" string="Condition" />
                                     <field name="disposition_id" string="Action" />
+                                    <!-- OP#1058: follow-up disposal tracking -->
+                                    <field
+                                        name="disposal_state"
+                                        string="Disposal"
+                                        widget="badge"
+                                        decoration-warning="disposal_state == 'pending'"
+                                        decoration-success="disposal_state == 'resolved'"
+                                    />
+                                    <field name="disposal_date" optional="show" />
+                                    <button
+                                        name="action_mark_disposal_resolved"
+                                        type="object"
+                                        string="Mark Resolved"
+                                        icon="fa-check"
+                                        invisible="disposal_state != 'pending'"
+                                    />
                                 </list>
                             </field>
                         </page>
@@ -595,6 +611,109 @@
                     </group>
                 </sheet>
             </form>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         OP#1058: Non-Accepted Items tracking (Return / Dispose / Quarantine)
+         ══════════════════════════════════════════════════════════════════════════ -->
+    <record id="view_drims_non_accepted_line_list" model="ir.ui.view">
+        <field name="name">spp.drims.donation.line.non.accepted.list</field>
+        <field name="model">spp.drims.donation.line</field>
+        <field name="arch" type="xml">
+            <list
+                string="Non-Accepted Items"
+                editable="bottom"
+                create="0"
+                delete="0"
+                decoration-warning="disposal_state == 'pending'"
+                decoration-muted="disposal_state == 'resolved'"
+            >
+                <field name="donation_id" readonly="1" />
+                <field name="product_id" readonly="1" />
+                <field name="quantity_received" string="Quantity" readonly="1" />
+                <field name="uom_id" readonly="1" groups="uom.group_uom" />
+                <field name="condition_id" string="Condition" readonly="1" />
+                <field name="disposition_id" string="Action" readonly="1" />
+                <field
+                    name="disposal_state"
+                    string="Status"
+                    widget="badge"
+                    decoration-warning="disposal_state == 'pending'"
+                    decoration-success="disposal_state == 'resolved'"
+                />
+                <field
+                    name="disposal_notes"
+                    placeholder="What was done with this item..."
+                />
+                <field name="disposal_date" readonly="1" optional="show" />
+                <field name="disposal_user_id" readonly="1" optional="show" />
+                <button
+                    name="action_mark_disposal_resolved"
+                    type="object"
+                    string="Mark Resolved"
+                    icon="fa-check"
+                    invisible="disposal_state != 'pending'"
+                />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_drims_non_accepted_line_search" model="ir.ui.view">
+        <field name="name">spp.drims.donation.line.non.accepted.search</field>
+        <field name="model">spp.drims.donation.line</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="donation_id" />
+                <field name="product_id" />
+                <field name="disposition_id" string="Action" />
+                <filter
+                    name="pending"
+                    string="Pending"
+                    domain="[('disposal_state', '=', 'pending')]"
+                />
+                <filter
+                    name="resolved"
+                    string="Resolved"
+                    domain="[('disposal_state', '=', 'resolved')]"
+                />
+                <separator />
+                <!-- Group By -->
+                <group>
+                    <filter
+                        name="group_action"
+                        string="Action"
+                        context="{'group_by': 'disposition_id'}"
+                    />
+                    <filter
+                        name="group_status"
+                        string="Status"
+                        context="{'group_by': 'disposal_state'}"
+                    />
+                    <filter
+                        name="group_donation"
+                        string="Donation"
+                        context="{'group_by': 'donation_id'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_drims_non_accepted_items" model="ir.actions.act_window">
+        <field name="name">Non-Accepted Items</field>
+        <field name="res_model">spp.drims.donation.line</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_drims_non_accepted_line_list" />
+        <field name="search_view_id" ref="view_drims_non_accepted_line_search" />
+        <field name="domain">[('disposal_state', '!=', False)]</field>
+        <field name="context">{'search_default_pending': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Nothing to follow up</p>
+            <p>
+                Items excluded from stock during inspection (Return, Dispose or
+                Quarantine) appear here so their handling can be recorded and audited.
+            </p>
         </field>
     </record>
 </odoo>

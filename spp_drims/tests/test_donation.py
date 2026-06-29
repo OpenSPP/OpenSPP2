@@ -1276,3 +1276,59 @@ class TestDrimsDonationOP1076(DrimsTestCommon):
         product = self.env["product.product"].browse(pid)
         self.assertEqual(product.type, "consu")
         self.assertTrue(product.is_storable)
+
+    # ---------- OP#1058: non-accepted items follow-up tracking ----------
+
+    def _disposition(self, code):
+        return self.env["spp.vocabulary.code"].search(
+            [
+                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:item-dispositions"),
+                ("code", "=", code),
+            ],
+            limit=1,
+        )
+
+    def test_1058_excluded_item_pending_after_stock(self):
+        """Stocking flags non-accept items as Pending disposal; accepted ones aren't."""
+        disp_accept = self._disposition("accept")
+        disp_return = self._disposition("return")
+        if not (disp_accept and disp_return):
+            self.skipTest("required disposition codes missing")
+        donation = self._draft_donation(
+            line_ids=[
+                (0, 0, {"product_id": self.product.id, "quantity_pledged": 100, "uom_id": self.product.uom_id.id}),
+                (0, 0, {"product_id": self.product.id, "quantity_pledged": 40, "uom_id": self.product.uom_id.id}),
+            ]
+        )
+        self._receive_donation(donation)
+        donation.action_inspect()
+        donation.line_ids[0].disposition_id = disp_accept
+        donation.line_ids[1].disposition_id = disp_return
+        donation.action_stock()
+
+        self.assertEqual(donation.state, "stocked")
+        self.assertFalse(donation.line_ids[0].disposal_state, "accepted line needs no disposal")
+        self.assertEqual(donation.line_ids[1].disposal_state, "pending")
+        self.assertTrue(donation.line_ids[1].is_non_accept)
+
+    def test_1058_mark_resolved_records_and_audits(self):
+        """Resolving a non-accept item records who/when and posts an audit note."""
+        disp_return = self._disposition("return")
+        if not disp_return:
+            self.skipTest("return disposition code missing")
+        donation = self._draft_donation()
+        self._receive_donation(donation)
+        donation.action_inspect()
+        donation.line_ids[0].disposition_id = disp_return
+        donation.action_stock()
+        line = donation.line_ids[0]
+        self.assertEqual(line.disposal_state, "pending")
+
+        messages_before = len(donation.message_ids)
+        line.disposal_notes = "Returned to donor on truck #5"
+        line.action_mark_disposal_resolved()
+
+        self.assertEqual(line.disposal_state, "resolved")
+        self.assertEqual(line.disposal_date, date.today())
+        self.assertEqual(line.disposal_user_id, self.env.user)
+        self.assertGreater(len(donation.message_ids), messages_before, "an audit note should be posted")
