@@ -269,15 +269,21 @@ class TestDCISubscriptionNotifications(DCIServerCommon):
             }
         )
 
-        # Patch with_delay at the model class level to avoid read-only attribute error
-        with patch.object(type(self.Subscription), "with_delay") as mock_delay:
-            mock_job = MagicMock()
-            mock_delay.return_value = mock_job
+        # notify_event now scopes per subscription: it queues a job only when the
+        # subscription's sender is eligible AND records can be built. The generic
+        # layer builds no records (registry modules do), so stub those hooks to
+        # verify the matching/queueing orchestration.
+        with (
+            patch.object(type(self.Subscription), "with_delay") as mock_delay,
+            patch.object(type(self.Subscription), "_eligible_partner_ids", return_value=[1]),
+            patch.object(type(self.Subscription), "_build_notification_records", return_value=[{"id": "rec-001"}]),
+        ):
+            mock_delay.return_value = MagicMock()
 
             # Trigger notification
             self.Subscription.notify_event(
                 event_type="registration",
-                records=[{"id": "rec-001", "name": "Test"}],
+                partner_ids=[1],
                 reg_type="SOCIAL_REGISTRY",
             )
 
@@ -302,7 +308,7 @@ class TestDCISubscriptionNotifications(DCIServerCommon):
             # Trigger notification
             self.Subscription.notify_event(
                 event_type="registration",
-                records=[{"id": "rec-001"}],
+                partner_ids=[1],
                 reg_type="SOCIAL_REGISTRY",
             )
 

@@ -302,6 +302,7 @@ async def subscribe(
                             "event_type": event_type,
                             "reg_type": reg_type,
                             "filter_expression": filter_expression,
+                            "filter_type": req_item.subscribe_criteria.filter_type,
                             "original_message_id": envelope.header.message_id,
                             "original_transaction_id": sub_request.transaction_id,
                             "state": "pending",

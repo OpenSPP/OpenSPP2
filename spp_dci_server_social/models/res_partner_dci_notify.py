@@ -95,13 +95,19 @@ class ResPartnerDCINotify(models.Model):
         return result
 
     def _dci_delete_payloads(self):
-        """Snapshot external identifiers for delete notifications.
+        """Snapshot external identifiers + per-subscription eligibility for delete.
 
         Returns one payload dict per registrant in ``self`` containing the
         registrant's external identifiers (namespace URI preferred, falling
-        back to the vocabulary code). Raw database ids are deliberately not
-        included (api-design principle: never expose DB IDs).
+        back to the vocabulary code) and the ids of the delete subscriptions
+        whose sender is allowed to be told about this registrant (consent +
+        filter), computed now while the record still exists. Raw database ids
+        are deliberately not included (api-design principle: never expose DB IDs).
         """
+        delete_subs = self.env["spp.dci.subscription"]
+        if "spp.dci.subscription" in self.env:
+            delete_subs = delete_subs._matching_subscriptions("delete", "SOCIAL_REGISTRY")
+
         payloads = []
         for partner in self:
             identifiers = [
@@ -112,7 +118,17 @@ class ResPartnerDCINotify(models.Model):
                 for reg_id in partner.reg_ids
                 if reg_id.value and reg_id.id_type_id
             ]
-            payloads.append({"identifiers": identifiers})
+            eligible_subscription_ids = [
+                sub.id
+                for sub in delete_subs
+                if sub._consent_allows_partner(partner.id) and sub._partner_matches_filter(partner.id)
+            ]
+            payloads.append(
+                {
+                    "identifiers": identifiers,
+                    "eligible_subscription_ids": eligible_subscription_ids,
+                }
+            )
         return payloads
 
     def _schedule_dci_notification(self, event_type, partner_ids, payloads=None):
@@ -239,47 +255,19 @@ class ResPartnerDCINotify(models.Model):
             return
         Subscription = self.env["spp.dci.subscription"]
 
-        # For delete events the records are gone - use the identifier
-        # payloads snapshotted in unlink(). Jobs queued before this field
-        # existed carry no payloads; emit empty identifier lists rather
-        # than leaking raw database ids.
+        # notify_event scopes delivery per subscription: each matching
+        # subscription only receives records its sender is permitted to see
+        # (consent/legal-basis) and that match its filter, with the payload
+        # built using that subscription's sender context. The record building
+        # and filter evaluation live in the per-subscription hooks
+        # (see dci_subscription_social.py), so this method only hands off the
+        # affected partner ids (create/update) or the eligibility-scoped
+        # identifier payloads snapshotted at unlink (delete).
         if event_type == "delete":
-            records = payloads if payloads is not None else [{"identifiers": []} for _ in partner_ids]
-            Subscription.notify_event(event_type, records, "SOCIAL_REGISTRY")
+            # Jobs queued before eligibility snapshotting carry no payloads;
+            # emit nothing rather than leaking to unscoped subscribers.
+            delete_payloads = payloads if payloads is not None else []
+            Subscription.notify_event(event_type, partner_ids, "SOCIAL_REGISTRY", delete_payloads=delete_payloads)
             return
 
-        # For create/update, fetch current partner data and convert to DCI format
-        partners = self.env["res.partner"].browse(partner_ids).exists()
-        if not partners:
-            _logger.warning("No partners found for notification IDs: %s", partner_ids)
-            return
-
-        # Import search service to convert to DCI format
-        try:
-            from ..services.search_service import DCISocialSearchService
-
-            search_service = DCISocialSearchService(self.env)
-
-            records = []
-            for partner in partners:
-                try:
-                    if partner.is_group:
-                        dci_record = search_service._to_dci_group(partner)
-                    else:
-                        dci_record = search_service._to_dci_person(partner)
-                    # Convert to dict
-                    records.append(dci_record.model_dump(mode="json", by_alias=True, exclude_none=True))
-                except Exception as e:
-                    _logger.warning(
-                        "Failed to convert partner %d to DCI format: %s",
-                        partner.id,
-                        str(e),
-                    )
-
-            if records:
-                Subscription.notify_event(event_type, records, "SOCIAL_REGISTRY")
-
-        except ImportError:
-            _logger.error("DCISocialSearchService not available for notification conversion")
-        except Exception as e:
-            _logger.exception("Error executing DCI notification: %s", str(e))
+        Subscription.notify_event(event_type, partner_ids, "SOCIAL_REGISTRY")
