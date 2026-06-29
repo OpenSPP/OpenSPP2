@@ -9,8 +9,8 @@ fastapi>=0.110.0
 geojson
 httpx
 jsonschema
-jwcrypto
-jwcrypto>=1.5.6
+jwcrypto>=1.5.8
+jwcrypto>=1.5.8>=1.5.6
 numpy>=1.22.2
 openpyxl
 parse-accept-language
