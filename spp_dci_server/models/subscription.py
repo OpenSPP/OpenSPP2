@@ -232,24 +232,34 @@ class DCISubscription(models.Model):
             return True
         return adapter.can_access_registrant(partner_id)
 
-    def _partner_matches_filter(self, partner_id: int) -> bool:
-        """Whether a partner matches this subscription's filter_expression.
+    def _filter_matching_partners(self, partner_ids: list) -> list:
+        """Subset of partner_ids matching this subscription's filter_expression.
 
-        Base policy: no filter -> match; a filter that this (generic) layer
-        cannot evaluate -> NO match (fail closed). Registry modules override
-        this to actually evaluate their filter shape.
+        Base policy: no filter -> all; a filter that this (generic) layer cannot
+        evaluate -> none (fail closed). Registry modules override this to
+        evaluate their filter shape in a single batched query (avoiding an
+        O(partners x subscriptions) per-record query pattern).
         """
         self.ensure_one()
-        return not self.filter_expression
+        if not self.filter_expression:
+            return list(partner_ids or [])
+        return []
+
+    def _partner_matches_filter(self, partner_id: int) -> bool:
+        """Whether a single partner matches this subscription's filter."""
+        self.ensure_one()
+        return bool(self._filter_matching_partners([partner_id]))
 
     def _eligible_partner_ids(self, partner_ids: list) -> list:
-        """Subset of partner_ids this subscription is allowed to be told about."""
+        """Subset of partner_ids this subscription is allowed to be told about.
+
+        Applies consent per record, then the filter in a single batch.
+        """
         self.ensure_one()
-        return [
-            pid
-            for pid in (partner_ids or [])
-            if self._consent_allows_partner(pid) and self._partner_matches_filter(pid)
-        ]
+        if not partner_ids:
+            return []
+        consented = [pid for pid in partner_ids if self._consent_allows_partner(pid)]
+        return self._filter_matching_partners(consented)
 
     def _build_notification_records(self, partner_ids: list) -> list:
         """Build the DCI record payloads for partner_ids (registry-specific).

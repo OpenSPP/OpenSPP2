@@ -21,20 +21,22 @@ _SOCIAL = "SOCIAL_REGISTRY"
 class DCISubscriptionSocial(models.Model):
     _inherit = "spp.dci.subscription"
 
-    def _partner_matches_filter(self, partner_id):
-        """Evaluate the subscription's filter_expression against a registrant.
+    def _filter_matching_partners(self, partner_ids):
+        """Evaluate the subscription's filter_expression against registrants in batch.
 
-        No filter -> match. Otherwise the stored filter (with its filter_type
+        No filter -> all. Otherwise the stored filter (with its filter_type
         discriminator) is compiled to a domain via the Social Registry search
-        service and tested against the partner. Any parse/eval failure is
-        treated as NON-matching (fail closed) so an unparseable filter never
-        widens delivery.
+        service and intersected with partner_ids in a single query. Any
+        parse/eval failure is treated as matching NOTHING (fail closed) so an
+        unparseable filter never widens delivery.
         """
         self.ensure_one()
         if self.reg_type != _SOCIAL:
-            return super()._partner_matches_filter(partner_id)
+            return super()._filter_matching_partners(partner_ids)
         if not self.filter_expression:
-            return True
+            return list(partner_ids or [])
+        if not partner_ids:
+            return []
         try:
             from ..services.search_service import DCISocialSearchService
 
@@ -48,14 +50,14 @@ class DCISubscriptionSocial(models.Model):
             # consent/authorization is enforced separately by _consent_allows_partner.
             # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context
             Partner = self.env["res.partner"].sudo()
-            return bool(Partner.search_count([("id", "=", partner_id)] + domain))
+            return Partner.search([("id", "in", list(partner_ids))] + domain).ids
         except Exception as e:
             _logger.warning(
-                "Subscription %s: could not evaluate filter, dropping record (fail-closed): %s",
+                "Subscription %s: could not evaluate filter, dropping records (fail-closed): %s",
                 self.subscription_code,
                 e,
             )
-            return False
+            return []
 
     def _build_notification_records(self, partner_ids):
         """Build DCI records for partner_ids using this subscription's sender.
