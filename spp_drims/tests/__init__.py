@@ -15,4 +15,5 @@ from . import test_return
 from . import test_return_wizard
 from . import test_stock
 from . import test_template
+from . import test_user_roles
 from . import test_wizard

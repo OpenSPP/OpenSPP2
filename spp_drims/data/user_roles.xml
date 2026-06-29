@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!--
+        OP#974: predefined DRIMS user roles, one role per DRIMS group (1:1).
+
+        Each role bundles base.group_user + exactly one DRIMS res.groups; the
+        group's own implied_ids chain grants everything that role needs. Roles
+        (not raw groups) are the unit assigned to users, so a role can later
+        gain more groups in one place without touching every user.
+    -->
+    <record id="role_drims_viewer" model="res.users.role">
+        <field name="name">DRIMS Viewer</field>
+        <field name="role_type">global</field>
+        <field
+            name="comment"
+        >Read-only access to DRIMS donations, requests, dispatches and alerts.</field>
+        <field
+            name="implied_ids"
+            eval="[
+                Command.link(ref('base.group_user')),
+                Command.link(ref('spp_drims.group_drims_viewer')),
+            ]"
+        />
+    </record>
+
+    <record id="role_drims_officer" model="res.users.role">
+        <field name="name">DRIMS Officer</field>
+        <field name="role_type">global</field>
+        <field
+            name="comment"
+        >Create and view donations and requests; acknowledge alerts.</field>
+        <field
+            name="implied_ids"
+            eval="[
+                Command.link(ref('base.group_user')),
+                Command.link(ref('spp_drims.group_drims_officer')),
+            ]"
+        />
+    </record>
+
+    <record id="role_drims_warehouse_worker" model="res.users.role">
+        <field name="name">DRIMS Warehouse Staff</field>
+        <field name="role_type">global</field>
+        <field
+            name="comment"
+        >Receive/process donations, manage inventory and dispatches within assigned warehouses.</field>
+        <field
+            name="implied_ids"
+            eval="[
+                Command.link(ref('base.group_user')),
+                Command.link(ref('spp_drims.group_drims_warehouse_worker')),
+            ]"
+        />
+    </record>
+
+    <record id="role_drims_field_officer" model="res.users.role">
+        <field name="name">DRIMS Field Officer</field>
+        <field name="role_type">global</field>
+        <field
+            name="comment"
+        >Create requests and confirm deliveries within assigned areas.</field>
+        <field
+            name="implied_ids"
+            eval="[
+                Command.link(ref('base.group_user')),
+                Command.link(ref('spp_drims.group_drims_field_officer')),
+            ]"
+        />
+    </record>
+
+    <record id="role_drims_coordinator_supervisor" model="res.users.role">
+        <field name="name">DRIMS District Coordinator</field>
+        <field name="role_type">global</field>
+        <field
+            name="comment"
+        >Coordinate requests and distributions within assigned districts.</field>
+        <field
+            name="implied_ids"
+            eval="[
+                Command.link(ref('base.group_user')),
+                Command.link(ref('spp_drims.group_drims_coordinator_supervisor')),
+            ]"
+        />
+    </record>
+
+    <record id="role_drims_approver" model="res.users.role">
+        <field name="name">DRIMS Request Approver</field>
+        <field name="role_type">global</field>
+        <field name="comment">Approve or reject emergency supply requests.</field>
+        <field
+            name="implied_ids"
+            eval="[
+                Command.link(ref('base.group_user')),
+                Command.link(ref('spp_drims.group_drims_approver')),
+            ]"
+        />
+    </record>
+
+    <record id="role_drims_manager" model="res.users.role">
+        <field name="name">DRIMS Manager</field>
+        <field name="role_type">global</field>
+        <field
+            name="comment"
+        >Full DRIMS access including configuration and deletion.</field>
+        <field
+            name="implied_ids"
+            eval="[
+                Command.link(ref('base.group_user')),
+                Command.link(ref('spp_drims.group_drims_manager')),
+            ]"
+        />
+    </record>
+</odoo>

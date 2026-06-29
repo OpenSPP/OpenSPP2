@@ -28,6 +28,7 @@
         "spp_approval",
         "spp_cel_domain",
         "spp_audit",
+        "spp_user_roles",
         "job_worker",
     ],
     "data": [
@@ -45,6 +46,7 @@
         "data/config_defaults.xml",
         "data/gis_report_templates.xml",
         "data/approval_definitions.xml",
+        "data/user_roles.xml",
         # Reports (before views, as views may reference report actions)
         "report/waybill_template.xml",
         "views/dashboard_views.xml",
