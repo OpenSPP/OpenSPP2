@@ -8,6 +8,7 @@ from . import test_cel_field_aggregations
 from . import test_cel_metric_conjunction
 from . import test_cel_functions
 from . import test_cel_parser
+from . import test_cel_predicate_guard
 from . import test_cel_security
 from . import test_cel_service
 from . import test_cel_sql_generation
