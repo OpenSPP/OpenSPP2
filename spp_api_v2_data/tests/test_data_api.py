@@ -741,13 +741,92 @@ class TestDataAPIEndpoints(TransactionCase):
         assert len(result.items) == 1
 
     async def test_pull_values_no_results(self):
-        """Test GET /Data/pull with no matching values."""
+        """Test GET /Data/pull with a valid pullable variable but no cached rows."""
         from ..routers.data import pull_values
 
+        # school_attendance is an ordinary external-provider variable (pullable);
+        # no values were cached for it in this test, so the result is empty.
         result = await pull_values(
             env=self.env,
             api_client=self.api_client,
-            variable="nonexistent_variable",
+            variable="school_attendance",
+            subject_external_ids="EDU-001",
+            period_key="current",
+            _count=100,
+        )
+
+        assert result.total == 0
+        assert len(result.items) == 0
+
+    async def test_pull_values_rejects_unknown_variable(self):
+        """Unknown variable names are rejected (fail-closed), so orphaned cache
+        rows from a deleted/de-provisioned variable cannot be pulled."""
+        from ..routers.data import pull_values
+
+        with self.assertRaises(HTTPException) as cm:
+            await pull_values(
+                env=self.env,
+                api_client=self.api_client,
+                variable="nonexistent_variable",
+                subject_external_ids="EDU-001",
+                period_key="current",
+                _count=100,
+            )
+
+        assert cm.exception.status_code == status.HTTP_403_FORBIDDEN
+
+    async def test_pull_values_rejects_non_pullable_variable(self):
+        """A non-external variable (e.g. computed/scoring) must not be pullable
+        through the generic data API, even if its values are cached."""
+        from ..routers.data import pull_values
+
+        # computed_var has source_type='computed' -> not pullable. Even with a
+        # cached row present, the request is refused before any value is read.
+        self.env["spp.data.value"].create(
+            {
+                "variable_name": "computed_var",
+                "subject_id": self.partner1.id,
+                "period_key": "current",
+                "value_json": {"value": 1},
+                "value_type": "number",
+                "source_type": "computed",
+            }
+        )
+
+        with self.assertRaises(HTTPException) as cm:
+            await pull_values(
+                env=self.env,
+                api_client=self.api_client,
+                variable="computed_var",
+                subject_external_ids="EDU-001",
+                period_key="current",
+                _count=100,
+            )
+
+        assert cm.exception.status_code == status.HTTP_403_FORBIDDEN
+
+    async def test_pull_values_company_isolation(self):
+        """Cached values from another company must not be returned."""
+        from ..routers.data import pull_values
+
+        other_company = self.env["res.company"].create({"name": "Other Co"})
+        # A cached value for the same variable+subject but a different company.
+        self.env["spp.data.value"].create(
+            {
+                "company_id": other_company.id,
+                "variable_name": "school_attendance",
+                "subject_id": self.partner1.id,
+                "period_key": "current",
+                "value_json": {"value": 0.95},
+                "value_type": "number",
+                "source_type": "external",
+            }
+        )
+
+        result = await pull_values(
+            env=self.env,  # request runs in the default company
+            api_client=self.api_client,
+            variable="school_attendance",
             subject_external_ids="EDU-001",
             period_key="current",
             _count=100,
@@ -1167,13 +1246,13 @@ class TestDataAPIEndpoints(TransactionCase):
             _last_id=None,
         )
 
-        assert result.total >= 3
-        assert len(result.items) >= 3
-        # Check our test variables are in the list
+        # Only ordinary external-provider variables are exchanged via the data
+        # API; computed/scoring/aggregate variables are no longer enumerated.
         accessors = [v.cel_accessor for v in result.items]
         assert "school_attendance" in accessors
         assert "vaccination_status" in accessors
-        assert "computed_var" in accessors
+        assert "computed_var" not in accessors
+        assert all(v.source_type == "external" for v in result.items)
 
     async def test_list_variables_filter_by_provider(self):
         """Test GET /Data/variables?provider_code filters by provider."""

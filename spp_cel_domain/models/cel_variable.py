@@ -420,6 +420,21 @@ class CELVariable(models.Model):
 
         return self.cel_accessor
 
+    def is_data_api_pullable(self):
+        """Whether this variable's cached values may be exposed through the
+        generic external Data API (``/Data/pull`` and ``/Data/variables``).
+
+        The Data API is the push/pull channel for ordinary external-provider
+        data, so only variables backed by an external provider are pullable.
+        Computed/scoring/aggregate variables (e.g. PMT scores) are internal and
+        must not be retrievable through this channel. The DCI indicators module
+        further excludes DCI-backed providers (inter-registry data has its own
+        consent/provider boundary) by overriding this method. Callers default to
+        deny when a requested name resolves to no variable (fail closed).
+        """
+        self.ensure_one()
+        return bool(self.source_type == "external" and self.external_provider_id)
+
     # ═══════════════════════════════════════════════════════════════════════
     # CONSTRAINTS
     # ═══════════════════════════════════════════════════════════════════════

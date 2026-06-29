@@ -304,6 +304,21 @@ async def pull_values(
             detail="At least one subject_external_id is required",
         )
 
+    # Only ordinary external-provider variables may be pulled through this
+    # generic API. Resolve the requested name against the variable definitions
+    # by cel_accessor (the key DCI/cache rows are stored under); deny if it
+    # resolves to nothing (fail closed: orphan cache rows from a deleted or
+    # de-provisioned variable stay sensitive) or if ANY match is not pullable
+    # (e.g. DCI-backed inter-registry data or scoring/PMT values). A uniform
+    # 403 avoids signalling whether a denied name is sensitive or unknown.
+    Variable = env["spp.cel.variable"].sudo()  # nosemgrep: odoo-sudo-without-context
+    matched_variables = Variable.search([("cel_accessor", "=", variable)])
+    if not matched_variables or not all(v.is_data_api_pullable() for v in matched_variables):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Variable is not available through the data API",
+        )
+
     # Resolve to internal IDs
     subject_id_map = {}  # internal_id -> external_id
     for ext_id in external_ids:
@@ -317,6 +332,7 @@ async def pull_values(
     # Query cached values
     DataValue = env["spp.data.value"].sudo()  # nosemgrep: odoo-sudo-without-context
     domain = [
+        ("company_id", "=", env.company.id),
         ("variable_name", "=", variable),
         ("subject_id", "in", list(subject_id_map.keys())),
         ("period_key", "=", period_key or "current"),
@@ -425,7 +441,15 @@ async def list_variables(
         )
 
     Variable = env["spp.cel.variable"].sudo()  # nosemgrep: odoo-sudo-without-context
-    domain = [("active", "=", True)]
+    # Only ordinary external-provider variables are exchanged through the data
+    # API. Restrict to those so computed/scoring/aggregate variables are not
+    # enumerated; DCI-backed (inter-registry) variables are dropped below via
+    # is_data_api_pullable(), so their accessors are not disclosed either.
+    domain = [
+        ("active", "=", True),
+        ("source_type", "=", "external"),
+        ("external_provider_id", "!=", False),
+    ]
 
     if provider_code:
         Provider = env["spp.data.provider"].sudo()  # nosemgrep: odoo-sudo-without-context
@@ -457,6 +481,7 @@ async def list_variables(
             provider_code=v.external_provider_id.code if v.external_provider_id else None,
         )
         for v in variables
+        if v.is_data_api_pullable()
     ]
 
     return VariablesListResponse(total=total, items=items)
