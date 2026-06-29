@@ -130,14 +130,16 @@ class TestSeededFarmGeneratorNames(TransactionCase):
         self.assertTrue(name.endswith(" Farm"), f"Expected 'X Farm', got '{name}'")
 
     def test_generate_farm_name_uses_filipino_surnames(self):
-        """Farm names should use a Filipino last name."""
+        """Farm names are owner-style ("{given} {family} Farm") and use a
+        Filipino last name as the family component (OP#1114)."""
         from odoo.addons.spp_farmer_registry_demo.models.seeded_farm_generator import (
             _FILIPINO_LAST_NAMES,
         )
 
         gen = self._make_generator()
         name = gen._generate_farm_name()
-        surname = name.replace(" Farm", "")
+        # Default descriptor is "Farm"; the family name is the token before it.
+        surname = name.replace(" Farm", "").split()[-1]
         self.assertIn(surname, _FILIPINO_LAST_NAMES)
 
     def test_generate_farm_name_avoids_reserved(self):

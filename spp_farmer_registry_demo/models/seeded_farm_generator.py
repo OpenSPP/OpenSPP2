@@ -340,6 +340,18 @@ _FARM_TYPE_SPECIALISED_POINTS = {
     ],
 }
 
+# OP#1114: realistic, owner-style farm-name descriptors per farm type. Farms
+# are named "{given} {family} {descriptor}" (e.g. "Maria Santos Farm",
+# "Amir Mangudadatu Fishpond"). The first entry is the primary word; the rest
+# break collisions with another realistic word instead of a numeric suffix.
+_FARM_NAME_DESCRIPTORS = {
+    "crop": ["Farm", "Rice Farm", "Family Farm", "Agri Farm", "Farmstead"],
+    "livestock": ["Poultry Farm", "Livestock Farm", "Ranch", "Family Farm", "Farmstead"],
+    "aquaculture": ["Fishpond", "Aquafarm", "Fisheries", "Fish Farm"],
+    "mixed": ["Integrated Farm", "Agri Farm", "Family Farm", "Farm"],
+}
+_DEFAULT_FARM_DESCRIPTORS = ["Farm", "Family Farm", "Farmstead", "Agri Farm"]
+
 
 class SeededFarmGenerator:
     """Deterministic farm/member generator using seeded RNG.
@@ -357,6 +369,11 @@ class SeededFarmGenerator:
         self._vocab_cache = {}
         self._species_cache = {}
         self._head_type_id = None
+
+        # OP#1114: names already handed out this run, so the ~730 farms drawn
+        # from an 86-surname pool don't end up with duplicate farm names (and,
+        # because registry IDs are derived from the name, duplicate IDs).
+        self._used_names = set()
 
         # Reserved story farm names (avoid collisions)
         self._reserved_names = {
@@ -417,7 +434,7 @@ class SeededFarmGenerator:
 
         for bp in blueprints:
             for i in range(bp["count"]):
-                farm_name = self._generate_farm_name()
+                farm_name = self._generate_farm_name(bp.get("farm_type"), bp.get("head_gender"))
                 size = round(self.rng.uniform(*bp["size_range"]), 1)
                 experience = self.rng.randint(*bp["experience_range"])
                 area_id, gps = self._pick_area_and_gps(bp["zone"], area_id_by_code)
@@ -760,7 +777,10 @@ class SeededFarmGenerator:
                         {
                             "partner_id": group.id,
                             "id_type_id": id_type_ids[kind],
-                            "value": _make_value(kind, group.name or f"G{group.id}"),
+                            # OP#1114: salt with the partner id as well as the
+                            # name so the value is unique even if two partners
+                            # ever share a name (it stays deterministic per run).
+                            "value": _make_value(kind, f"{group.name or 'G'}|{group.id}"),
                             "status": "valid",
                             "verification_method": "self_declared",
                         }
@@ -776,7 +796,9 @@ class SeededFarmGenerator:
                         {
                             "partner_id": individual.id,
                             "id_type_id": id_type_ids[kind],
-                            "value": _make_value(kind, individual.name or f"I{individual.id}"),
+                            # OP#1114: include the partner id so members who
+                            # happen to share a name still get distinct IDs.
+                            "value": _make_value(kind, f"{individual.name or 'I'}|{individual.id}"),
                             "status": "valid",
                             "verification_method": "self_declared",
                         }
@@ -815,15 +837,47 @@ class SeededFarmGenerator:
     # Internal: Farm name generation
     # =========================================================================
 
-    def _generate_farm_name(self):
-        """Generate a farm name from seeded RNG + Filipino name pool."""
-        max_attempts = 20
-        for _ in range(max_attempts):
-            family_name = self.rng.choice(_FILIPINO_LAST_NAMES)
-            farm_name = f"{family_name} Farm"
-            if farm_name not in self._reserved_names:
-                return farm_name
-        return farm_name
+    def _generate_farm_name(self, farm_type=None, head_gender=None):
+        """Generate a unique, realistic owner-style farm name (OP#1114).
+
+        Names read like "Maria Santos Farm" or "Amir Mangudadatu Fishpond":
+        a generated owner (given + family name) plus a farm-type descriptor.
+        The 86-surname pool alone is far smaller than the ~730 farms, so the
+        given name widens the space; any residual collision is resolved by
+        rotating the realistic descriptor pool (then re-rolling the owner) —
+        never a bare numeric suffix.
+        """
+        descriptors = _FARM_NAME_DESCRIPTORS.get(farm_type, _DEFAULT_FARM_DESCRIPTORS)
+        if head_gender == "female":
+            given_pool = _FILIPINO_FEMALE_FIRST_NAMES
+        elif head_gender == "male":
+            given_pool = _FILIPINO_MALE_FIRST_NAMES
+        else:
+            given_pool = _FILIPINO_MALE_FIRST_NAMES + _FILIPINO_FEMALE_FIRST_NAMES
+
+        given = self.rng.choice(given_pool)
+        family = self.rng.choice(_FILIPINO_LAST_NAMES)
+        for _ in range(30):
+            owner = f"{given} {family}"
+            for descriptor in descriptors:
+                name = f"{owner} {descriptor}"
+                if name not in self._reserved_names and name not in self._used_names:
+                    self._used_names.add(name)
+                    return name
+            # Whole descriptor pool taken for this owner — re-roll the owner.
+            given = self.rng.choice(given_pool)
+            family = self.rng.choice(_FILIPINO_LAST_NAMES)
+
+        # Exhausted realistic combinations (practically unreachable) — guarantee
+        # a unique value so demo generation never fails.
+        base = f"{given} {family} {descriptors[0]}"
+        name = base
+        suffix = 2
+        while name in self._reserved_names or name in self._used_names:
+            name = f"{base} {suffix}"
+            suffix += 1
+        self._used_names.add(name)
+        return name
 
     def _generate_member_name(self, gender):
         """Generate a (given_name, family_name) tuple from Filipino name pools."""
