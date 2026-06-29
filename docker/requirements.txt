@@ -36,7 +36,7 @@ python-stdnum>=1.18
 phonenumbers>=8.13.0
 
 # AWS integration (for spp_key_management AWS KMS provider - optional but included)
-boto3>=1.35.12
+boto3>=1.43.36
 
 # -----------------------------------------------------------------------------
 # CI/Testing tools (pre-installed to avoid per-job pip install)
