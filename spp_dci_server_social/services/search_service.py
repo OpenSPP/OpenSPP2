@@ -547,6 +547,14 @@ class DCISocialSearchService:
 
         field = attribute_map.get(attribute, attribute)
 
+        # Default-deny: an expression search is the same caller-supplied oracle
+        # as a predicate search, so it must not filter on attributes outside the
+        # safe person-field allowlist (e.g. disability_severity_id, has_disability).
+        # The resolved Odoo field is checked, so DCI aliases (surname, sex, ...)
+        # that map onto allowed fields are still accepted.
+        if field not in _PREDICATE_ALLOWED_FIELDS:
+            raise ValueError(_("Search cannot filter on attribute '%s'.") % attribute)
+
         # Map DCI operators to Odoo operators
         operator_map = {
             "=": "=",

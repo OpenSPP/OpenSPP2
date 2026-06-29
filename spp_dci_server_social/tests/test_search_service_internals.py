@@ -41,9 +41,22 @@ class TestSearchServiceInternals(DCISocialServerCommon):
             field, _op, _val = self.service._condition_to_domain(dci_attr, "=", "x")
             self.assertEqual(field, odoo_field)
 
-    def test_condition_unknown_attribute_passthrough(self):
-        field, _, _ = self.service._condition_to_domain("custom_field", "=", "x")
-        self.assertEqual(field, "custom_field")
+    def test_condition_unknown_attribute_rejected(self):
+        # Default-deny: an attribute outside the safe person-field allowlist is
+        # rejected (previously it passed through as a raw field name, which let
+        # expression searches oracle sensitive partner fields).
+        with self.assertRaises(ValueError):
+            self.service._condition_to_domain("custom_field", "=", "x")
+
+    def test_condition_rejects_sensitive_partner_fields(self):
+        for attribute in (
+            "disability_severity_id",
+            "has_disability",
+            "disability_review_category",
+            "has_unmet_device_need",
+        ):
+            with self.assertRaises(ValueError):
+                self.service._condition_to_domain(attribute, "=", "x")
 
     def test_condition_operator_mapping(self):
         cases = {"==": "=", "contains": "ilike", "like": "ilike", ">=": ">="}

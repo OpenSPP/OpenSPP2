@@ -713,6 +713,36 @@ class TestDCISocialSearchService(DCISocialServerCommon):
         # Should return at least our test individuals
         self.assertGreaterEqual(response_item.pagination.total_count, 3)
 
+    def test_search_expression_rejects_sensitive_field(self):
+        """An expression-type search must not oracle sensitive partner fields.
+
+        The structured expression path is the same caller-supplied oracle as a
+        CEL predicate; filtering on a disability field must be rejected rather
+        than disclosed via total_count/pagination.
+        """
+        criteria = SearchCriteria(
+            reg_type="SOCIAL_REGISTRY",
+            reg_event_type="ACTIVE",
+            query_type="expression",
+            query={"seq": [{"attribute": "disability_severity_id", "operator": "=", "value": 5}]},
+        )
+        search_req = SearchRequestItem(
+            reference_id="test-ref-010e",
+            timestamp=datetime.now(UTC),
+            search_criteria=criteria,
+        )
+        request = SearchRequest(
+            transaction_id="test-txn-010e",
+            search_request=[search_req],
+        )
+        self.env.user.write({"group_ids": [(4, self.env.ref("spp_registry.group_registry_viewer").id)]})
+
+        response = self.search_service.execute_search(request)
+
+        response_item = response.search_response[0]
+        self.assertEqual(response_item.status, "rjct")
+        self.assertEqual(response_item.status_reason_code, "rjct.filter.invalid")
+
     def test_search_cursor_pagination(self):
         """Test cursor-based pagination for efficient large dataset traversal."""
         # First request without cursor
