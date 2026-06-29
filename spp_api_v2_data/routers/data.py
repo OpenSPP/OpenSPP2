@@ -351,7 +351,9 @@ async def pull_values(
                 value=value,
                 period_key=rec.period_key,
                 recorded_at=rec.recorded_at,
-                expires_at=rec.expires_at,
+                # Odoo returns False (not None) for an unset Datetime; a value
+                # cached without a TTL must serialize as null, not crash.
+                expires_at=rec.expires_at or None,
                 is_stale=rec.is_stale,
                 source_type=rec.source_type,
             )
@@ -442,25 +444,21 @@ async def list_variables(
 
     Variable = env["spp.cel.variable"].sudo()  # nosemgrep: odoo-sudo-without-context
     # Only ordinary external-provider variables are exchanged through the data
-    # API. Restrict to those so computed/scoring/aggregate variables are not
-    # enumerated; DCI-backed (inter-registry) variables are dropped below via
-    # is_data_api_pullable(), so their accessors are not disclosed either.
-    domain = [
-        ("active", "=", True),
-        ("source_type", "=", "external"),
-        ("external_provider_id", "!=", False),
-    ]
+    # API. The pullable domain (extended by the DCI module to drop DCI-backed
+    # providers) filters at the DB level, so total/pagination stay consistent;
+    # computed/scoring/aggregate and DCI accessors are never enumerated.
+    domain = Variable._get_data_api_pullable_domain()
 
     if provider_code:
         Provider = env["spp.data.provider"].sudo()  # nosemgrep: odoo-sudo-without-context
         provider = Provider.search([("code", "=", provider_code)], limit=1)
         if provider:
-            domain.append(("external_provider_id", "=", provider.id))
+            domain = domain + [("external_provider_id", "=", provider.id)]
         else:
             return VariablesListResponse(total=0, items=[])
 
     if source_type:
-        domain.append(("source_type", "=", source_type))
+        domain = domain + [("source_type", "=", source_type)]
 
     # Apply cursor-based pagination
     if _last_id is not None:
@@ -473,7 +471,8 @@ async def list_variables(
         VariableInfo(
             name=v.name,
             cel_accessor=v.cel_accessor,
-            description=v.description or None,
+            # description is contributed by spp_studio; tolerate its absence.
+            description=getattr(v, "description", None) or None,
             value_type=v.value_type or "number",
             source_type=v.source_type or "computed",
             cache_strategy=v.cache_strategy or "none",
@@ -481,7 +480,6 @@ async def list_variables(
             provider_code=v.external_provider_id.code if v.external_provider_id else None,
         )
         for v in variables
-        if v.is_data_api_pullable()
     ]
 
     return VariablesListResponse(total=total, items=items)

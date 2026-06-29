@@ -435,6 +435,21 @@ class CELVariable(models.Model):
         self.ensure_one()
         return bool(self.source_type == "external" and self.external_provider_id)
 
+    @api.model
+    def _get_data_api_pullable_domain(self):
+        """Search domain selecting variables pullable through the Data API.
+
+        The DB-level counterpart of ``is_data_api_pullable`` (kept in sync with
+        it), so ``/Data/variables`` can filter, count and paginate correctly in
+        a single query. The DCI indicators module extends this to also exclude
+        DCI-backed providers.
+        """
+        return [
+            ("active", "=", True),
+            ("source_type", "=", "external"),
+            ("external_provider_id", "!=", False),
+        ]
+
     # ═══════════════════════════════════════════════════════════════════════
     # CONSTRAINTS
     # ═══════════════════════════════════════════════════════════════════════

@@ -38,3 +38,14 @@ class TestDataApiPullable(TransactionCase):
     def test_scoring_is_not_pullable(self):
         # Scoring values (e.g. PMT) land in the same cache but must not be pulled.
         self.assertFalse(self._var("pa_scoring", "scoring", provider=False).is_data_api_pullable())
+
+    def test_pullable_domain_selects_only_external_provider(self):
+        Variable = self.env["spp.cel.variable"]
+        ext = self._var("pa_dom_ext", "external")
+        computed = self._var("pa_dom_computed", "computed", provider=False)
+        scoring = self._var("pa_dom_scoring", "scoring", provider=False)
+
+        matched = Variable.search(Variable._get_data_api_pullable_domain())
+        self.assertIn(ext, matched)
+        self.assertNotIn(computed, matched)
+        self.assertNotIn(scoring, matched)

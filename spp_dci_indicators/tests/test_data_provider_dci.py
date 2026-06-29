@@ -90,3 +90,10 @@ class TestDataProviderDCI(TransactionCase):
 
         self.assertFalse(dci_var.is_data_api_pullable())
         self.assertTrue(ordinary_var.is_data_api_pullable())
+
+        # The DB-level pullable domain must exclude DCI-backed variables too, so
+        # /Data/variables counts and paginates over the same set.
+        Variable = self.env["spp.cel.variable"]
+        matched = Variable.search(Variable._get_data_api_pullable_domain())
+        self.assertIn(ordinary_var, matched)
+        self.assertNotIn(dci_var, matched)
