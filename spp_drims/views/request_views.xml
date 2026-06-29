@@ -247,6 +247,10 @@
 
                     <!-- Request Details + Priority and Dates -->
                     <group>
+                        <!-- OP#1075: Request Details follows the ticket spec —
+                             Incident, Humanitarian Cluster, Affected Population,
+                             Justification, Requested by (contact fields are not
+                             part of the spec). -->
                         <group string="Request Details">
                             <field
                                 name="incident_id"
@@ -263,18 +267,15 @@
                                 readonly="approval_state not in ('draft', 'revision')"
                             />
                             <field
+                                name="justification"
+                                placeholder="Explain why this request is needed and how it will help the affected population..."
+                                readonly="approval_state not in ('draft', 'revision')"
+                            />
+                            <field
                                 name="requester_id"
                                 string="Requested by"
                                 readonly="approval_state not in ('draft', 'revision')"
                                 options="{'no_create': True, 'no_open': True}"
-                            />
-                            <field
-                                name="contact_name"
-                                readonly="approval_state not in ('draft', 'revision')"
-                            />
-                            <field
-                                name="contact_phone"
-                                readonly="approval_state not in ('draft', 'revision')"
                             />
                         </group>
                         <group string="Priority and Dates">
@@ -322,17 +323,6 @@
                                 options="{'no_create': True, 'no_open': True}"
                             />
                         </group>
-                    </group>
-
-                    <!-- Justification -->
-                    <group string="Justification" col="2">
-                        <field
-                            name="justification"
-                            nolabel="1"
-                            colspan="2"
-                            placeholder="Explain why this request is needed and how it will help the affected population..."
-                            readonly="approval_state not in ('draft', 'revision')"
-                        />
                     </group>
 
                     <!-- Allocation: the source warehouse can be set here before
