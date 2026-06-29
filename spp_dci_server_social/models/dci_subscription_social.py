@@ -37,13 +37,39 @@ class DCISubscriptionSocial(models.Model):
             return list(partner_ids or [])
         if not partner_ids:
             return []
+
+        try:
+            raw_filter = json.loads(self.filter_expression)
+        except Exception as e:
+            _logger.warning(
+                "Subscription %s: unparseable filter, dropping records (fail-closed): %s",
+                self.subscription_code,
+                e,
+            )
+            return []
+
+        # The SPDCI "match all" wildcard means no real filter -> deliver all
+        # (consent still gates non-bypass senders).
+        if self._is_match_all_filter(raw_filter):
+            return list(partner_ids)
+
+        # A real filter needs its discriminator to be interpreted correctly.
+        # Missing/unknown filter_type must NOT be guessed: defaulting to
+        # "expression" silently collapses an idtype-value filter to "all
+        # registrants" (over-delivery). Fail closed instead.
+        query_type = (self.filter_type or "").strip().lower()
+        if query_type not in ("idtype-value", "expression", "predicate"):
+            _logger.warning(
+                "Subscription %s: filter present but filter_type is %r; dropping records (fail-closed)",
+                self.subscription_code,
+                self.filter_type,
+            )
+            return []
+
         try:
             from ..services.search_service import DCISocialSearchService
 
-            criteria = SimpleNamespace(
-                query_type=self.filter_type or "expression",
-                query=json.loads(self.filter_expression),
-            )
+            criteria = SimpleNamespace(query_type=query_type, query=raw_filter)
             service = DCISocialSearchService(self.env, self.sender_id)
             domain = service._build_domain(criteria)
             # sudo: matching the sender's declared filter against the registry;
@@ -58,6 +84,11 @@ class DCISubscriptionSocial(models.Model):
                 e,
             )
             return []
+
+    @staticmethod
+    def _is_match_all_filter(raw_filter):
+        """SPDCI clients use {"type": "*", "value": "*"} to mean 'all events'."""
+        return isinstance(raw_filter, dict) and raw_filter.get("type") == "*" and raw_filter.get("value") == "*"
 
     def _build_notification_records(self, partner_ids):
         """Build DCI records for partner_ids using this subscription's sender.

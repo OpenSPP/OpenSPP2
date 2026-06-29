@@ -365,6 +365,25 @@ class TestDCINotificationScoping(DCISocialServerCommon):
         sub = self._sub(filter_type="expression", filter_expression="{ not valid json")
         self.assertFalse(sub._partner_matches_filter(self.subject.id))
 
+    def test_real_filter_without_filter_type_fails_closed(self):
+        """A specific idtype-value filter stored WITHOUT filter_type must not be
+        guessed as 'expression' (which would collapse to 'all registrants' and
+        over-deliver). Missing discriminator on a real filter -> match nothing."""
+        self.test_sender.write({"legal_basis": "legal_obligation"})
+        sub = self._sub(
+            filter_type=False,  # discriminator dropped, as the DCI client does
+            filter_expression=json.dumps({"type": "NATIONAL_ID", "value": "SOMEONE-ELSE"}),
+        )
+        self.assertEqual(sub._filter_matching_partners([self.subject.id]), [])
+        self.assertFalse(sub._partner_matches_filter(self.subject.id))
+
+    def test_wildcard_filter_matches_all(self):
+        """The SPDCI {"type":"*","value":"*"} wildcard (sent without filter_type)
+        means 'subscribe to all' and must match (consent gates separately)."""
+        self.test_sender.write({"legal_basis": "legal_obligation"})
+        sub = self._sub(filter_type=False, filter_expression=json.dumps({"type": "*", "value": "*"}))
+        self.assertEqual(sub._filter_matching_partners([self.subject.id]), [self.subject.id])
+
     def test_no_filter_matches(self):
         self.test_sender.write({"legal_basis": "legal_obligation"})
         sub = self._sub()
