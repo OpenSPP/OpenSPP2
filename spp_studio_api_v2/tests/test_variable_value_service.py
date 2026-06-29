@@ -25,12 +25,18 @@ class TestVariableValueService(TransactionCase):
             }
         )
 
-        # Create test variable with unique name
+        # The Studio variable-values endpoint only exposes API-pullable
+        # (ordinary external-provider) variables, so the fixture variable is
+        # external-provider to exercise the "value is returned" path.
+        self.provider = self.env["spp.data.provider"].create(
+            {"name": f"Edu {self._test_id}", "code": f"edu_{self._test_id}"}
+        )
         self.test_variable = self.env["spp.cel.variable"].create(
             {
                 "name": self._var_name,
                 "cel_accessor": self._var_name,
-                "source_type": "field",
+                "source_type": "external",
+                "external_provider_id": self.provider.id,
                 "value_type": "number",
                 "state": "active",
                 "applies_to": "both",
@@ -133,6 +139,81 @@ class TestVariableValueService(TransactionCase):
         self.assertIn(partner2.id, result)
         self.assertEqual(result[self.test_partner.id][self._var_name]["value"], 42)
         self.assertEqual(result[partner2.id][self._var_name]["value"], 100)
+
+    def _cache_value(self, variable_name, partner_id, value=7, source_type="external", company=None):
+        self.env["spp.data.value"].create(
+            {
+                "company_id": (company or self.env.company).id,
+                "variable_name": variable_name,
+                "subject_model": "res.partner",
+                "subject_id": partner_id,
+                "period_key": "current",
+                "value_json": {"value": value},
+                "value_type": "number",
+                "source_type": source_type,
+                "recorded_at": fields.Datetime.now(),
+            }
+        )
+
+    def test_excludes_non_pullable_variable_values(self):
+        """A non-external (e.g. scoring/computed) variable's cached value must
+        not be returned, even when '*'/None requests all values."""
+        scoring_accessor = f"{self._var_name}_score"
+        self.env["spp.cel.variable"].create(
+            {
+                "name": scoring_accessor,
+                "cel_accessor": scoring_accessor,
+                "source_type": "scoring",
+                "value_type": "number",
+                "state": "active",
+                "applies_to": "both",
+            }
+        )
+        self._cache_value(scoring_accessor, self.test_partner.id, value=99, source_type="scoring")
+
+        from ..services.variable_value_service import VariableValueService
+
+        result = VariableValueService(self.env).get_values_for_subject(
+            self.test_partner.id, variable_names=None, period_key="current"
+        )
+        self.assertIn(self._var_name, result)  # external-provider -> allowed
+        self.assertNotIn(scoring_accessor, result)  # scoring -> excluded
+
+        # Even an explicit request for the sensitive variable returns nothing.
+        explicit = VariableValueService(self.env).get_values_for_subject(
+            self.test_partner.id, variable_names=[scoring_accessor], period_key="current"
+        )
+        self.assertEqual(explicit, {})
+
+    def test_empty_allowlist_returns_nothing(self):
+        """When no variable is API-pullable, the endpoint returns nothing.
+
+        Locks in the fail-closed contract: an empty allowlist must produce
+        `("variable_name", "in", [])` (match nothing), never match-all.
+        """
+        from unittest.mock import patch
+
+        from ..services.variable_value_service import VariableValueService
+
+        service = VariableValueService(self.env)
+        with patch.object(VariableValueService, "_data_api_pullable_accessors", return_value=[]):
+            result = service.get_values_for_subject(
+                self.test_partner.id, variable_names=None, period_key="current"
+            )
+        self.assertEqual(result, {})
+
+    def test_company_isolation(self):
+        """Cached values from another company must not be returned."""
+        other = self.env["res.company"].create({"name": f"Other {self._test_id}"})
+        self._cache_value(self._var_name, self.test_partner.id, value=500, company=other)
+
+        from ..services.variable_value_service import VariableValueService
+
+        result = VariableValueService(self.env).get_values_for_subject(
+            self.test_partner.id, variable_names=[self._var_name], period_key="current"
+        )
+        # Only the current company's value (42 from setUp), never the other's 500.
+        self.assertEqual(result[self._var_name]["value"], 42)
 
     def test_get_available_variables(self):
         """Test listing available variables."""
@@ -328,6 +409,21 @@ class TestVariableValueServiceEdgeCases(TransactionCase):
             }
         )
 
+        # Back the cached value with a pullable (external-provider) variable so
+        # the endpoint returns it (the allowlist excludes non-external vars).
+        provider = self.env["spp.data.provider"].create({"name": f"P {unique_id}", "code": f"p_{unique_id}"})
+        self.env["spp.cel.variable"].create(
+            {
+                "name": var_name,
+                "cel_accessor": var_name,
+                "source_type": "external",
+                "external_provider_id": provider.id,
+                "value_type": "number",
+                "state": "active",
+                "applies_to": "both",
+            }
+        )
+
         # Create data value with non-standard value_json
         self.env["spp.data.value"].create(
             {
@@ -366,6 +462,20 @@ class TestVariableValueServiceEdgeCases(TransactionCase):
             {
                 "name": f"Test Partner {unique_id}",
                 "is_registrant": True,
+            }
+        )
+
+        # Back the cached value with a pullable (external-provider) variable.
+        provider = self.env["spp.data.provider"].create({"name": f"P {unique_id}", "code": f"p_{unique_id}"})
+        self.env["spp.cel.variable"].create(
+            {
+                "name": var_name,
+                "cel_accessor": var_name,
+                "source_type": "external",
+                "external_provider_id": provider.id,
+                "value_type": "number",
+                "state": "active",
+                "applies_to": "both",
             }
         )
 

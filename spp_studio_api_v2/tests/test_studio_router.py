@@ -62,32 +62,60 @@ class TestStudioRouterEndpoints(ApiV2TestCase, HttpCase):
                 }
             )
 
+        # The Studio variable-values endpoint only exposes API-pullable
+        # (ordinary external-provider) variables, so the fixture variables are
+        # external-provider; otherwise their cached values are filtered out.
+        cls.value_provider = cls.env["spp.data.provider"].search([("code", "=", "studio_test_provider")], limit=1)
+        if not cls.value_provider:
+            cls.value_provider = cls.env["spp.data.provider"].create(
+                {"name": "Studio Test Provider", "code": "studio_test_provider"}
+            )
+
         # Get or create CEL variable (avoid unique constraint on cel_accessor)
         cls.cel_variable = cls.env["spp.cel.variable"].search(
             [("cel_accessor", "=", "age"), ("applies_to", "=", "individual")], limit=1
         )
+        _age_vals = {
+            "source_type": "external",
+            "external_provider_id": cls.value_provider.id,
+            "state": "active",
+            "category_id": cls.variable_category.id,
+        }
         if not cls.cel_variable:
             cls.cel_variable = cls.env["spp.cel.variable"].create(
                 {
                     "name": "Age",
                     "cel_accessor": "age",
-                    "source_type": "field",
                     "value_type": "number",
-                    "state": "active",
                     "applies_to": "individual",
-                    "source_model": "res.partner",
-                    "source_field": "age",
                     "period_granularity": "current",
                     "supports_historical": False,
-                    "category_id": cls.variable_category.id,
+                    **_age_vals,
                 }
             )
         else:
-            # Update existing variable to use the test category
-            cls.cel_variable.write(
+            # Update existing variable to the pullable (external-provider) shape.
+            cls.cel_variable.write(_age_vals)
+
+        # 'income' fixture used by the variable-filter tests (also pullable).
+        # spp_studio seeds non-external 'income' variables (standard_variables.xml),
+        # so make the existing ones pullable rather than skipping when present.
+        _income_vals = {
+            "source_type": "external",
+            "external_provider_id": cls.value_provider.id,
+            "state": "active",
+        }
+        income_vars = cls.env["spp.cel.variable"].search([("cel_accessor", "=", "income")])
+        if income_vars:
+            income_vars.write(_income_vals)
+        else:
+            cls.env["spp.cel.variable"].create(
                 {
-                    "category_id": cls.variable_category.id,
-                    "state": "active",
+                    "name": "Income",
+                    "cel_accessor": "income",
+                    "value_type": "number",
+                    "applies_to": "both",
+                    **_income_vals,
                 }
             )
 
@@ -845,8 +873,9 @@ class TestStudioVariablesFunctional(TestStudioRouterEndpoints):
         self.assertIsNotNone(var_item)
         self.assertIn("Age", var_item["label"])  # May be "Age" or "Age (Years)"
         self.assertEqual(var_item["valueType"], "number")
-        # sourceType may be "field" or "computed" depending on demo data
-        self.assertIn(var_item["sourceType"], ["field", "computed"])
+        # sourceType may be "field"/"computed" (demo data) or "external" (the
+        # pullable fixture this suite uses for the subject-values endpoint).
+        self.assertIn(var_item["sourceType"], ["field", "computed", "external"])
         self.assertIn(var_item["appliesTo"], ["individual", "both"])
         self.assertIn(
             var_item["periodGranularity"],
