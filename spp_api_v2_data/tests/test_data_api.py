@@ -741,13 +741,15 @@ class TestDataAPIEndpoints(TransactionCase):
         assert len(result.items) == 1
 
     async def test_pull_values_no_results(self):
-        """Test GET /Data/pull with no matching values."""
+        """Test GET /Data/pull with a valid pullable variable but no cached rows."""
         from ..routers.data import pull_values
 
+        # school_attendance is an ordinary external-provider variable (pullable);
+        # no values were cached for it in this test, so the result is empty.
         result = await pull_values(
             env=self.env,
             api_client=self.api_client,
-            variable="nonexistent_variable",
+            variable="school_attendance",
             subject_external_ids="EDU-001",
             period_key="current",
             _count=100,
@@ -1167,13 +1169,13 @@ class TestDataAPIEndpoints(TransactionCase):
             _last_id=None,
         )
 
-        assert result.total >= 3
-        assert len(result.items) >= 3
-        # Check our test variables are in the list
+        # Only ordinary external-provider variables are exchanged via the data
+        # API; computed/scoring/aggregate variables are no longer enumerated.
         accessors = [v.cel_accessor for v in result.items]
         assert "school_attendance" in accessors
         assert "vaccination_status" in accessors
-        assert "computed_var" in accessors
+        assert "computed_var" not in accessors
+        assert all(v.source_type == "external" for v in result.items)
 
     async def test_list_variables_filter_by_provider(self):
         """Test GET /Data/variables?provider_code filters by provider."""
