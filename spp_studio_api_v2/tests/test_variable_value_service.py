@@ -197,9 +197,7 @@ class TestVariableValueService(TransactionCase):
 
         service = VariableValueService(self.env)
         with patch.object(VariableValueService, "_data_api_pullable_accessors", return_value=[]):
-            result = service.get_values_for_subject(
-                self.test_partner.id, variable_names=None, period_key="current"
-            )
+            result = service.get_values_for_subject(self.test_partner.id, variable_names=None, period_key="current")
         self.assertEqual(result, {})
 
     def test_company_isolation(self):
