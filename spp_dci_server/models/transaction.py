@@ -210,6 +210,23 @@ class DCITransaction(models.Model):
         self.ensure_one()
         self.state = "processing"
 
+        # Fail closed: a search with no resolved (or no longer active) sender
+        # would disengage consent filtering (DCIConsentAdapter has no sender)
+        # and return unscoped PII. A Many2one still dereferences a deactivated
+        # record, and this job runs asynchronously, so the sender may have been
+        # deactivated after the transaction was created -- check active too.
+        # Every caller that reaches this sink (sync search is guarded at the
+        # route; async/bulk reach here) must have an active sender resolved.
+        if not self.sender_id or not self.sender_id.active:
+            self.state = "rejected"
+            self.error_code = SearchStatusReasonCode.SEARCH_CRITERIA_INVALID.value
+            self.error_message = "No active registered sender resolved for this transaction; search refused."
+            _logger.warning(
+                "DCI async search refused: transaction %s has no resolved sender",
+                self.transaction_id,
+            )
+            return
+
         try:
             # Parse request
             request_data = json.loads(self.request_payload)

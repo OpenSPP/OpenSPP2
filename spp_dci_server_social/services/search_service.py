@@ -218,8 +218,20 @@ class DCISocialSearchService:
         # Apply consent filtering if available
         domain = self._apply_consent_filter(domain)
 
-        # Get pagination parameters
+        # Get pagination parameters. Cap page_size so a single request cannot
+        # pull/enumerate the whole registry (the schema only enforces > 0).
         page_size = criteria.pagination.page_size if criteria.pagination else 20
+        # nosemgrep: odoo-sudo-without-context
+        config = self.env["ir.config_parameter"].sudo()
+        try:
+            max_page_size = int(config.get_param("dci.max_page_size", 100))
+        except (TypeError, ValueError):
+            max_page_size = 100
+        # A non-positive value is a misconfiguration, not "no limit": fall back
+        # to the default so the cap can never be silently disabled.
+        if max_page_size <= 0:
+            max_page_size = 100
+        page_size = min(page_size, max_page_size)
         page_number = criteria.pagination.page_number if criteria.pagination else 1
 
         # OpenSPP extension: cursor-based pagination

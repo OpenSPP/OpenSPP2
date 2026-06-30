@@ -86,6 +86,23 @@ class TestSignatureMiddleware(DCIServerCommon):
         self.assertEqual(exc.status_code, 401, "Should return 401 Unauthorized")
         self.assertIn("unknown sender", exc.detail.lower())
 
+    def test_verify_inactive_sender_rejected(self):
+        """A deactivated sender must not authenticate, even with a valid
+        signature (the registry lookup requires active=True)."""
+        self.test_sender.active = False
+        envelope_data = self.create_signed_envelope(
+            sender_id=self.test_sender_id,
+            receiver_id="registry.test.gov",
+            action="search",
+        )
+
+        import asyncio
+
+        with self.assertRaises(HTTPException) as context:
+            asyncio.run(self._verify_signature(envelope_data))
+
+        self.assertEqual(context.exception.status_code, 401, "Inactive sender should be rejected")
+
     def test_verify_invalid_signature(self):
         """Test that bad signature returns 401 Unauthorized."""
         # Create a properly signed envelope
