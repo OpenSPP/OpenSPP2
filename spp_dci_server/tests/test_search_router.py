@@ -83,7 +83,10 @@ class TestSearchRouter(DCIServerCommon):
             search_response=items,
         )
 
-    def _call(self, envelope, search_response, sender_id="external.test.gov"):
+    def _call(self, envelope, search_response, sender_id=None):
+        # Default to the active test sender so the route's fail-closed sender
+        # resolution passes; tests probing rejection pass an explicit bad id.
+        sender_id = sender_id or self.test_sender.sender_id
         with patch(
             "odoo.addons.spp_dci_server_social.services.search_service.DCISocialSearchService"
         ) as mock_service_cls:
@@ -212,6 +215,40 @@ class TestSearchRouter(DCIServerCommon):
             )
         self.assertEqual(result.header.status, "succ")
 
+    def test_unresolved_sender_is_rejected(self):
+        """A verified sender_id that does not resolve to an active registry
+        record must be rejected (403), never run with sender=None (which would
+        disengage consent filtering and return unscoped PII)."""
+        envelope = self._build_envelope()
+        with self.assertRaises(HTTPException) as ctx:
+            _run(
+                self.search_registry(
+                    envelope,
+                    self.env,
+                    _bearer_token="t",
+                    verified_sender_id="ghost-sender-not-registered",
+                    _rate_limit_check=None,
+                )
+            )
+        self.assertEqual(ctx.exception.status_code, 403)
+
+    def test_inactive_sender_is_rejected(self):
+        """A deactivated sender (which can still pass signature lookup if that
+        lookup omits the active filter) must not get data via the search path."""
+        self.test_sender.active = False
+        envelope = self._build_envelope()
+        with self.assertRaises(HTTPException) as ctx:
+            _run(
+                self.search_registry(
+                    envelope,
+                    self.env,
+                    _bearer_token="t",
+                    verified_sender_id=self.test_sender.sender_id,
+                    _rate_limit_check=None,
+                )
+            )
+        self.assertEqual(ctx.exception.status_code, 403)
+
     # --- service errors -------------------------------------------------------
 
     def test_search_service_exception_rejects_all_items(self):
@@ -225,7 +262,7 @@ class TestSearchRouter(DCIServerCommon):
                     envelope,
                     self.env,
                     _bearer_token="t",
-                    verified_sender_id="s",
+                    verified_sender_id=self.test_sender.sender_id,
                     _rate_limit_check=None,
                 )
             )
@@ -251,7 +288,7 @@ class TestSearchRouter(DCIServerCommon):
                     envelope,
                     self.env,
                     _bearer_token="t",
-                    verified_sender_id="s",
+                    verified_sender_id=self.test_sender.sender_id,
                     _rate_limit_check=None,
                 )
             )
@@ -291,7 +328,7 @@ class TestSearchRouter(DCIServerCommon):
                         envelope,
                         self.env,
                         _bearer_token="t",
-                        verified_sender_id="s",
+                        verified_sender_id=self.test_sender.sender_id,
                         _rate_limit_check=None,
                     )
                 )
@@ -320,7 +357,7 @@ class TestSearchRouter(DCIServerCommon):
                         envelope,
                         self.env,
                         _bearer_token="t",
-                        verified_sender_id="s",
+                        verified_sender_id=self.test_sender.sender_id,
                         _rate_limit_check=None,
                     )
                 )

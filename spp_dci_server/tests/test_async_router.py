@@ -135,6 +135,44 @@ class TestAsyncSearch(_AsyncRouterCommon):
                 self._call(envelope)
         self.assertEqual(ctx.exception.status_code, 500)
 
+    def test_unresolved_sender_rejected(self):
+        """A verified sender that doesn't resolve to an active registry record
+        must be rejected (403), not queued with sender_id=False (which would run
+        the background search unscoped and leak unscoped PII to the callback)."""
+        envelope = self._build_envelope()
+        with self.assertRaises(HTTPException) as ctx:
+            _run(
+                self.async_router.async_search(
+                    envelope,
+                    self.env,
+                    _bearer_token="t",
+                    verified_sender_id="ghost.sender.unregistered",
+                    _rate_limit_check=None,
+                    response=Response(),
+                )
+            )
+        self.assertEqual(ctx.exception.status_code, 403)
+
+    def test_process_async_search_without_sender_is_refused(self):
+        """The shared async sink must refuse a transaction with no resolved
+        sender rather than run a consent-disengaged (unscoped) search. This
+        protects every caller of the sink (async + bulk)."""
+        txn = self.Transaction.sudo().create(
+            {
+                "transaction_id": f"txn-nosender-{uuid.uuid4()}",
+                "message_id": f"msg-{uuid.uuid4()}",
+                "correlation_id": str(uuid.uuid4()),
+                "action": "search",
+                "reg_type": "SOCIAL_REGISTRY",
+                "sender_id": False,
+                "request_payload": json.dumps({"message": {"transaction_id": "t", "search_request": []}}),
+                "state": "received",
+            }
+        )
+        txn.process_async_search()
+        self.assertEqual(txn.state, "rejected")
+        self.assertIn("sender", (txn.error_message or "").lower())
+
 
 # =============================================================================
 # /subscribe

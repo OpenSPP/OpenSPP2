@@ -177,12 +177,18 @@ async def verify_dci_signature(
                     error_code="err.signature.missing",
                 )
 
-        # Look up sender in registry
+        # Look up sender in registry. Require an ACTIVE record: a deactivated
+        # sender must not authenticate (and downstream consent resolution also
+        # requires active, so accepting an inactive sender here would desync).
         # nosemgrep: odoo-sudo-without-context
-        sender_registry = env["spp.dci.sender.registry"].sudo().search([("sender_id", "=", sender_id)], limit=1)
+        sender_registry = (
+            env["spp.dci.sender.registry"]
+            .sudo()
+            .search([("sender_id", "=", sender_id), ("active", "=", True)], limit=1)
+        )
 
         if not sender_registry:
-            _logger.warning("Unknown sender_id in DCI request: %s", sender_id)
+            _logger.warning("Unknown sender_id (inactive or unregistered) in DCI request: %s", sender_id)
             raise DCIHTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 error_message=f"Unknown sender_id: {sender_id}",
