@@ -520,6 +520,34 @@ class TestDCISocialSearchService(DCISocialServerCommon):
         self.assertEqual(item.pagination.page_size, 1)
         self.assertGreaterEqual(item.pagination.total_count, 3)
 
+    def test_search_non_positive_cap_falls_back_to_default(self):
+        """A non-positive dci.max_page_size (0 or negative) must NOT disable the
+        cap. Such a misconfiguration should fall back to the default (100), not
+        leave page_size unbounded at whatever the client requested."""
+        self.env["ir.config_parameter"].sudo().set_param("dci.max_page_size", "0")
+        criteria = SearchCriteria(
+            reg_type="SOCIAL_REGISTRY",
+            reg_event_type="ACTIVE",
+            query_type="expression",
+            query={"seq": []},  # match all registrants
+            pagination=PaginationRequest(page_size=1000, page_number=1),
+        )
+        search_req = SearchRequestItem(
+            reference_id="test-ref-cap0",
+            timestamp=datetime.now(UTC),
+            search_criteria=criteria,
+        )
+        request = SearchRequest(transaction_id="test-txn-cap0", search_request=[search_req])
+        self.env.user.write({"group_ids": [(4, self.env.ref("spp_registry.group_registry_viewer").id)]})
+
+        response = self.search_service.execute_search(request)
+
+        item = response.search_response[0]
+        self.assertEqual(item.status, "succ")
+        # The client asked for 1000; a 0 cap must clamp to the default 100,
+        # never honor the unbounded request.
+        self.assertEqual(item.pagination.page_size, 100)
+
     def test_search_pagination_second_page(self):
         """Test retrieving second page of results."""
         criteria = SearchCriteria(

@@ -227,8 +227,11 @@ class DCISocialSearchService:
             max_page_size = int(config.get_param("dci.max_page_size", 100))
         except (TypeError, ValueError):
             max_page_size = 100
-        if max_page_size > 0:
-            page_size = min(page_size, max_page_size)
+        # A non-positive value is a misconfiguration, not "no limit": fall back
+        # to the default so the cap can never be silently disabled.
+        if max_page_size <= 0:
+            max_page_size = 100
+        page_size = min(page_size, max_page_size)
         page_number = criteria.pagination.page_number if criteria.pagination else 1
 
         # OpenSPP extension: cursor-based pagination
