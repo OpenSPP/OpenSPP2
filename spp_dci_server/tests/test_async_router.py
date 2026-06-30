@@ -173,6 +173,26 @@ class TestAsyncSearch(_AsyncRouterCommon):
         self.assertEqual(txn.state, "rejected")
         self.assertIn("sender", (txn.error_message or "").lower())
 
+    def test_process_async_search_with_inactive_sender_is_refused(self):
+        """A sender deactivated after the transaction was created must also be
+        refused: a Many2one still dereferences the deactivated record, so a
+        plain truthiness check would let the unscoped search through."""
+        txn = self.Transaction.sudo().create(
+            {
+                "transaction_id": f"txn-inactive-{uuid.uuid4()}",
+                "message_id": f"msg-{uuid.uuid4()}",
+                "correlation_id": str(uuid.uuid4()),
+                "action": "search",
+                "reg_type": "SOCIAL_REGISTRY",
+                "sender_id": self.test_sender.id,
+                "request_payload": json.dumps({"message": {"transaction_id": "t", "search_request": []}}),
+                "state": "received",
+            }
+        )
+        self.test_sender.active = False
+        txn.process_async_search()
+        self.assertEqual(txn.state, "rejected")
+
 
 # =============================================================================
 # /subscribe
