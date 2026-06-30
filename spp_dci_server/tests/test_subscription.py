@@ -269,15 +269,21 @@ class TestDCISubscriptionNotifications(DCIServerCommon):
             }
         )
 
-        # Patch with_delay at the model class level to avoid read-only attribute error
-        with patch.object(type(self.Subscription), "with_delay") as mock_delay:
-            mock_job = MagicMock()
-            mock_delay.return_value = mock_job
+        # notify_event now scopes per subscription: it queues a job only when the
+        # subscription's sender is eligible AND records can be built. The generic
+        # layer builds no records (registry modules do), so stub those hooks to
+        # verify the matching/queueing orchestration.
+        with (
+            patch.object(type(self.Subscription), "with_delay") as mock_delay,
+            patch.object(type(self.Subscription), "_eligible_partner_ids", return_value=[1]),
+            patch.object(type(self.Subscription), "_build_notification_records", return_value=[{"id": "rec-001"}]),
+        ):
+            mock_delay.return_value = MagicMock()
 
             # Trigger notification
             self.Subscription.notify_event(
                 event_type="registration",
-                records=[{"id": "rec-001", "name": "Test"}],
+                partner_ids=[1],
                 reg_type="SOCIAL_REGISTRY",
             )
 
@@ -302,12 +308,72 @@ class TestDCISubscriptionNotifications(DCIServerCommon):
             # Trigger notification
             self.Subscription.notify_event(
                 event_type="registration",
-                records=[{"id": "rec-001"}],
+                partner_ids=[1],
                 reg_type="SOCIAL_REGISTRY",
             )
 
             # Should not have been called for inactive subscription
             mock_delay.assert_not_called()
+
+    def _make_sub(self, **vals):
+        base = {
+            "sender_id": self.test_sender.id,
+            "event_type": "update",
+            "reg_type": "SOCIAL_REGISTRY",
+            "state": "active",
+        }
+        base.update(vals)
+        return self.Subscription.create(base)
+
+    def test_filter_matching_partners_base_policy(self):
+        """Generic layer: no filter -> all; an (unparseable here) filter -> none."""
+        self.assertEqual(self._make_sub()._filter_matching_partners([1, 2]), [1, 2])
+        # A present filter cannot be evaluated by the generic layer -> fail closed.
+        self.assertEqual(self._make_sub(filter_expression="{}")._filter_matching_partners([1, 2]), [])
+
+    def test_partner_matches_filter_wrapper(self):
+        self.assertTrue(self._make_sub()._partner_matches_filter(1))
+        self.assertFalse(self._make_sub(filter_expression="{}")._partner_matches_filter(1))
+
+    def test_consent_allows_partner_with_legal_basis_bypass(self):
+        self.test_sender.write({"legal_basis": "legal_obligation"})
+        # Bypass short-circuits before any per-registrant consent lookup.
+        self.assertTrue(self._make_sub()._consent_allows_partner(999999))
+
+    def test_eligible_partner_ids_consent_then_filter(self):
+        self.test_sender.write({"legal_basis": "legal_obligation"})
+        self.assertEqual(self._make_sub()._eligible_partner_ids([1, 2, 3]), [1, 2, 3])
+        # Present-but-unevaluable filter drops everything even with consent.
+        self.assertEqual(self._make_sub(filter_expression="{}")._eligible_partner_ids([1, 2, 3]), [])
+
+    def test_delete_records_for_scopes_by_eligibility(self):
+        sub = self._make_sub(event_type="delete")
+        payloads = [
+            {"identifiers": [{"identifier_value": "A"}], "eligible_subscription_ids": [sub.id]},
+            {"identifiers": [{"identifier_value": "B"}], "eligible_subscription_ids": [sub.id + 999]},
+        ]
+        self.assertEqual(sub._delete_records_for(payloads), [{"identifiers": [{"identifier_value": "A"}]}])
+
+    def test_notify_event_delete_scoped_to_eligible(self):
+        sub = self._make_sub(event_type="delete")
+        with patch.object(type(self.Subscription), "with_delay") as mock_delay:
+            mock_delay.return_value = MagicMock()
+            self.Subscription.notify_event(
+                "delete",
+                [],
+                "SOCIAL_REGISTRY",
+                delete_payloads=[{"identifiers": [], "eligible_subscription_ids": [sub.id]}],
+            )
+            mock_delay.assert_called()
+
+        with patch.object(type(self.Subscription), "with_delay") as mock_delay_none:
+            self.Subscription.notify_event(
+                "delete",
+                [],
+                "SOCIAL_REGISTRY",
+                delete_payloads=[{"identifiers": [], "eligible_subscription_ids": [sub.id + 999]}],
+            )
+            mock_delay_none.assert_not_called()
 
     def test_build_notification_structure(self):
         """Test notification envelope structure."""
