@@ -14,6 +14,7 @@
     ],
     "data": [
         "security/ir.model.access.csv",
+        "security/rules.xml",
         "views/detail_assign_program_views.xml",
         "data/cr_types.xml",
     ],

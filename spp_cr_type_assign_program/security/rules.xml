@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="1">
+    <!--
+        Record rules for the assign-program detail model.
+
+        A detail model is a separate table and does NOT inherit the parent
+        spp.change.request record rules, so without these an authenticated
+        group_cr_user could read/write assign-program details of change
+        requests they do not own (via RPC). These mirror the parent CR rules
+        (spp_change_request_v2/security/rules.xml): users are scoped to their
+        own / related CRs; validators and managers retain full access.
+    -->
+
+    <!-- Users: only details of CRs they created or that target their own partner -->
+    <record id="rule_cr_detail_assign_program_user" model="ir.rule">
+        <field name="name">CR Detail (assign_program): User Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_assign_program" />
+        <field name="domain_force">[
+            '|',
+            ('change_request_id.create_uid', '=', user.id),
+            ('change_request_id.registrant_id', 'in', user.partner_id.ids)
+        ]</field>
+        <field
+            name="groups"
+            eval="[Command.link(ref('spp_change_request_v2.group_cr_user'))]"
+        />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <!-- Validators: all details -->
+    <record id="rule_cr_detail_assign_program_validator" model="ir.rule">
+        <field name="name">CR Detail (assign_program): Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_assign_program" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field
+            name="groups"
+            eval="[Command.link(ref('spp_change_request_v2.group_cr_validator'))]"
+        />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <!-- HQ Validators: all details -->
+    <record id="rule_cr_detail_assign_program_validator_hq" model="ir.rule">
+        <field name="name">CR Detail (assign_program): HQ Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_assign_program" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field
+            name="groups"
+            eval="[Command.link(ref('spp_change_request_v2.group_cr_validator_hq'))]"
+        />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <!-- Managers: full access -->
+    <record id="rule_cr_detail_assign_program_manager" model="ir.rule">
+        <field name="name">CR Detail (assign_program): Manager Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_assign_program" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field
+            name="groups"
+            eval="[Command.link(ref('spp_change_request_v2.group_cr_manager'))]"
+        />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+</odoo>

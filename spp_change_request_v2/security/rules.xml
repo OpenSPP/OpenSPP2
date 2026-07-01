@@ -53,4 +53,542 @@
         <field name="perm_create" eval="True" />
         <field name="perm_unlink" eval="True" />
     </record>
+
+    <!--
+        Detail-model record rules.
+
+        Detail models are separate tables and do NOT inherit the parent
+        spp.change.request record rules above. Without these, a group_cr_user
+        could read/write detail rows of change requests they do not own (via
+        RPC). Each concrete detail model mirrors the parent CR scope: users are
+        limited to their own / related CRs; validators and managers see all.
+    -->
+
+    <record id="rule_cr_detail_add_member_user" model="ir.rule">
+        <field name="name">CR Detail (add_member): User Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_add_member" />
+        <field name="domain_force">[
+            '|',
+            ('change_request_id.create_uid', '=', user.id),
+            ('change_request_id.registrant_id', 'in', user.partner_id.ids)
+        ]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_user'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_add_member_validator" model="ir.rule">
+        <field name="name">CR Detail (add_member): Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_add_member" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_validator'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_add_member_validator_hq" model="ir.rule">
+        <field name="name">CR Detail (add_member): HQ Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_add_member" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_validator_hq'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_add_member_manager" model="ir.rule">
+        <field name="name">CR Detail (add_member): Manager Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_add_member" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_manager'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_edit_individual_user" model="ir.rule">
+        <field name="name">CR Detail (edit_individual): User Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_edit_individual" />
+        <field name="domain_force">[
+            '|',
+            ('change_request_id.create_uid', '=', user.id),
+            ('change_request_id.registrant_id', 'in', user.partner_id.ids)
+        ]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_user'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_edit_individual_validator" model="ir.rule">
+        <field name="name">CR Detail (edit_individual): Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_edit_individual" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_validator'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_edit_individual_validator_hq" model="ir.rule">
+        <field name="name">CR Detail (edit_individual): HQ Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_edit_individual" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_validator_hq'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_edit_individual_manager" model="ir.rule">
+        <field name="name">CR Detail (edit_individual): Manager Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_edit_individual" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_manager'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_edit_group_user" model="ir.rule">
+        <field name="name">CR Detail (edit_group): User Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_edit_group" />
+        <field name="domain_force">[
+            '|',
+            ('change_request_id.create_uid', '=', user.id),
+            ('change_request_id.registrant_id', 'in', user.partner_id.ids)
+        ]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_user'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_edit_group_validator" model="ir.rule">
+        <field name="name">CR Detail (edit_group): Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_edit_group" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_validator'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_edit_group_validator_hq" model="ir.rule">
+        <field name="name">CR Detail (edit_group): HQ Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_edit_group" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_validator_hq'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_edit_group_manager" model="ir.rule">
+        <field name="name">CR Detail (edit_group): Manager Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_edit_group" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_manager'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_remove_member_user" model="ir.rule">
+        <field name="name">CR Detail (remove_member): User Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_remove_member" />
+        <field name="domain_force">[
+            '|',
+            ('change_request_id.create_uid', '=', user.id),
+            ('change_request_id.registrant_id', 'in', user.partner_id.ids)
+        ]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_user'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_remove_member_validator" model="ir.rule">
+        <field name="name">CR Detail (remove_member): Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_remove_member" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_validator'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_remove_member_validator_hq" model="ir.rule">
+        <field name="name">CR Detail (remove_member): HQ Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_remove_member" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_validator_hq'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_remove_member_manager" model="ir.rule">
+        <field name="name">CR Detail (remove_member): Manager Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_remove_member" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_manager'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_change_hoh_user" model="ir.rule">
+        <field name="name">CR Detail (change_hoh): User Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_change_hoh" />
+        <field name="domain_force">[
+            '|',
+            ('change_request_id.create_uid', '=', user.id),
+            ('change_request_id.registrant_id', 'in', user.partner_id.ids)
+        ]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_user'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_change_hoh_validator" model="ir.rule">
+        <field name="name">CR Detail (change_hoh): Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_change_hoh" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_validator'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_change_hoh_validator_hq" model="ir.rule">
+        <field name="name">CR Detail (change_hoh): HQ Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_change_hoh" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_validator_hq'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_change_hoh_manager" model="ir.rule">
+        <field name="name">CR Detail (change_hoh): Manager Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_change_hoh" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_manager'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_exit_registrant_user" model="ir.rule">
+        <field name="name">CR Detail (exit_registrant): User Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_exit_registrant" />
+        <field name="domain_force">[
+            '|',
+            ('change_request_id.create_uid', '=', user.id),
+            ('change_request_id.registrant_id', 'in', user.partner_id.ids)
+        ]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_user'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_exit_registrant_validator" model="ir.rule">
+        <field name="name">CR Detail (exit_registrant): Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_exit_registrant" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_validator'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_exit_registrant_validator_hq" model="ir.rule">
+        <field name="name">CR Detail (exit_registrant): HQ Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_exit_registrant" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_validator_hq'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_exit_registrant_manager" model="ir.rule">
+        <field name="name">CR Detail (exit_registrant): Manager Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_exit_registrant" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_manager'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_transfer_member_user" model="ir.rule">
+        <field name="name">CR Detail (transfer_member): User Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_transfer_member" />
+        <field name="domain_force">[
+            '|',
+            ('change_request_id.create_uid', '=', user.id),
+            ('change_request_id.registrant_id', 'in', user.partner_id.ids)
+        ]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_user'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_transfer_member_validator" model="ir.rule">
+        <field name="name">CR Detail (transfer_member): Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_transfer_member" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_validator'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_transfer_member_validator_hq" model="ir.rule">
+        <field name="name">CR Detail (transfer_member): HQ Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_transfer_member" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_validator_hq'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_transfer_member_manager" model="ir.rule">
+        <field name="name">CR Detail (transfer_member): Manager Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_transfer_member" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_manager'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_update_id_user" model="ir.rule">
+        <field name="name">CR Detail (update_id): User Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_update_id" />
+        <field name="domain_force">[
+            '|',
+            ('change_request_id.create_uid', '=', user.id),
+            ('change_request_id.registrant_id', 'in', user.partner_id.ids)
+        ]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_user'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_update_id_validator" model="ir.rule">
+        <field name="name">CR Detail (update_id): Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_update_id" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_validator'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_update_id_validator_hq" model="ir.rule">
+        <field name="name">CR Detail (update_id): HQ Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_update_id" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_validator_hq'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_update_id_manager" model="ir.rule">
+        <field name="name">CR Detail (update_id): Manager Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_update_id" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_manager'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_create_group_user" model="ir.rule">
+        <field name="name">CR Detail (create_group): User Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_create_group" />
+        <field name="domain_force">[
+            '|',
+            ('change_request_id.create_uid', '=', user.id),
+            ('change_request_id.registrant_id', 'in', user.partner_id.ids)
+        ]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_user'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_create_group_validator" model="ir.rule">
+        <field name="name">CR Detail (create_group): Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_create_group" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_validator'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_create_group_validator_hq" model="ir.rule">
+        <field name="name">CR Detail (create_group): HQ Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_create_group" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_validator_hq'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_create_group_manager" model="ir.rule">
+        <field name="name">CR Detail (create_group): Manager Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_create_group" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_manager'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_merge_registrants_user" model="ir.rule">
+        <field name="name">CR Detail (merge_registrants): User Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_merge_registrants" />
+        <field name="domain_force">[
+            '|',
+            ('change_request_id.create_uid', '=', user.id),
+            ('change_request_id.registrant_id', 'in', user.partner_id.ids)
+        ]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_user'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_merge_registrants_validator" model="ir.rule">
+        <field name="name">CR Detail (merge_registrants): Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_merge_registrants" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_validator'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_merge_registrants_validator_hq" model="ir.rule">
+        <field name="name">CR Detail (merge_registrants): HQ Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_merge_registrants" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_validator_hq'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_merge_registrants_manager" model="ir.rule">
+        <field name="name">CR Detail (merge_registrants): Manager Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_merge_registrants" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_manager'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_split_household_user" model="ir.rule">
+        <field name="name">CR Detail (split_household): User Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_split_household" />
+        <field name="domain_force">[
+            '|',
+            ('change_request_id.create_uid', '=', user.id),
+            ('change_request_id.registrant_id', 'in', user.partner_id.ids)
+        ]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_user'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_split_household_validator" model="ir.rule">
+        <field name="name">CR Detail (split_household): Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_split_household" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_validator'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_split_household_validator_hq" model="ir.rule">
+        <field name="name">CR Detail (split_household): HQ Validator Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_split_household" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_validator_hq'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_cr_detail_split_household_manager" model="ir.rule">
+        <field name="name">CR Detail (split_household): Manager Access</field>
+        <field name="model_id" ref="model_spp_cr_detail_split_household" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_cr_manager'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
 </odoo>
