@@ -44,12 +44,17 @@
         <field name="arch" type="xml">
             <form string="Hazard Incident">
                 <header>
+                    <!-- OP#974: incident lifecycle transitions are write actions.
+                         Gate them to users who can write incidents so the form
+                         presents read-only elsewhere (e.g. the DRIMS Overview,
+                         where most roles hold read-only access to incidents). -->
                     <button
                         name="action_set_active"
                         type="object"
                         string="Set Active"
                         invisible="status not in ('alert', 'recovery')"
                         class="btn-primary"
+                        groups="group_hazard_write"
                     />
                     <button
                         name="action_set_recovery"
@@ -57,6 +62,7 @@
                         string="Start Recovery"
                         invisible="status != 'active'"
                         class="btn-primary"
+                        groups="group_hazard_write"
                     />
                     <button
                         name="action_close"
@@ -64,6 +70,7 @@
                         string="Close Incident"
                         invisible="status in ('closed',)"
                         class="btn-secondary"
+                        groups="group_hazard_write"
                     />
                     <field
                         name="status"
