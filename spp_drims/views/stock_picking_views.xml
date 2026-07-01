@@ -57,15 +57,31 @@
                 </button>
             </xpath>
 
+            <!-- OP#974: hide the native stock "Validate" button on DRIMS
+                 pickings for roles that may not dispatch (only Warehouse
+                 Staff / Manager may). Scoped to drims_type_id so native
+                 (non-DRIMS) transfers are unaffected. -->
+            <xpath
+                expr="//header/button[@name='button_validate']"
+                position="attributes"
+            >
+                <attribute
+                    name="invisible"
+                    add="drims_type_id and not drims_user_can_dispatch"
+                    separator="or"
+                />
+            </xpath>
+
             <!-- Add Create Return button in header for completed dispatches -->
             <xpath expr="//header" position="inside">
+                <field name="drims_user_can_dispatch" invisible="1" />
                 <button
                     name="action_create_drims_return"
                     string="Create Return"
                     type="object"
                     class="btn-secondary"
                     invisible="drims_type != 'request_dispatch' or state != 'done' or drims_return_id != False"
-                    groups="spp_drims.group_drims_warehouse_worker,spp_drims.group_drims_field_officer,spp_drims.group_drims_manager"
+                    groups="spp_drims.group_drims_warehouse_worker,spp_drims.group_drims_manager"
                 />
                 <!-- Print Waybill button (GAP-DIS-002) -->
                 <button

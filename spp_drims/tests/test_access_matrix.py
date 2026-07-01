@@ -138,6 +138,51 @@ class TestDrimsAccessMatrix(DrimsTestCommon):
             with self.assertRaises(AccessError, msg=f"{user.login} must not write alerts"):
                 alert.with_user(user).write({"title": "nope"})
 
+    def test_warehouse_donation_create_scoped_to_assigned_warehouse(self):
+        """OP#974 r2 (W2): warehouse staff create donations only for their
+        assigned warehouse, not for warehouses outside their assignment."""
+        self.Donation.with_user(self.u_warehouse).create(self._donation_vals(self.warehouse))
+        with self.assertRaises(AccessError, msg="warehouse must not create donations for other warehouses"):
+            self.Donation.with_user(self.u_warehouse).create(self._donation_vals(self.warehouse2))
+
+    def test_warehouse_request_scope_by_area(self):
+        """OP#974 r2 (W3): warehouse staff see requests in their warehouse's
+        area, not requests for other areas."""
+        self.warehouse.area_id = self.area
+        in_area = self.Request.create(self._request_vals(self.area))
+        out_area = self.Request.create(self._request_vals(self.area2))
+        visible = self.Request.with_user(self.u_warehouse).search([("id", "in", (in_area + out_area).ids)])
+        self.assertIn(in_area, visible, "warehouse must see requests in its area")
+        self.assertNotIn(out_area, visible, "warehouse must not see requests outside its area")
+
+    def test_warehouse_sees_global_and_in_scope_alerts(self):
+        """OP#974 r2 (W5): warehouse staff see alerts for their warehouse AND
+        global alerts (no warehouse_id) — the scope rule no longer hides
+        warehouse-less alerts, which made the list look empty."""
+        if not self.alert_type:
+            self.skipTest("alert type vocabulary code not present")
+        global_alert = self.Alert.create({"alert_type_id": self.alert_type.id, "title": "Global", "priority": "medium"})
+        in_wh = self.Alert.create(
+            {
+                "alert_type_id": self.alert_type.id,
+                "title": "In WH",
+                "priority": "medium",
+                "warehouse_id": self.warehouse.id,
+            }
+        )
+        out_wh = self.Alert.create(
+            {
+                "alert_type_id": self.alert_type.id,
+                "title": "Other WH",
+                "priority": "medium",
+                "warehouse_id": self.warehouse2.id,
+            }
+        )
+        visible = self.Alert.with_user(self.u_warehouse).search([("id", "in", (global_alert + in_wh + out_wh).ids)])
+        self.assertIn(global_alert, visible, "warehouse must see global (no-warehouse) alerts")
+        self.assertIn(in_wh, visible, "warehouse must see its own warehouse's alerts")
+        self.assertNotIn(out_wh, visible, "warehouse must not see other warehouses' alerts")
+
     def test_only_manager_can_delete(self):
         """Deletion is Manager-only; an Officer cannot unlink a donation."""
         d1 = self.Donation.create(self._donation_vals())

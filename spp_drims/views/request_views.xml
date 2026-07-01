@@ -152,13 +152,17 @@
                         confirm="This will clear review history and return to draft. Continue?"
                     />
 
-                    <!-- Fulfillment Actions (GAP-REQ-002, GAP-REQ-003, GAP-DIS-001) -->
+                    <!-- Fulfillment Actions (GAP-REQ-002, GAP-REQ-003, GAP-DIS-001)
+                         OP#974: allocating stock and creating dispatches is for
+                         Warehouse Staff + Manager only (others may not allocate
+                         or create dispatches per the role spec). -->
                     <button
                         name="action_open_allocation_wizard"
                         string="Allocate Stock"
                         type="object"
                         class="btn-primary"
-                        invisible="approval_state != 'approved' or state in ('dispatched', 'delivered', 'fulfilled')"
+                        invisible="approval_state != 'approved' or state in ('dispatched', 'delivered', 'fulfilled') or allocation_pct >= 100"
+                        groups="spp_drims.group_drims_warehouse_worker,spp_drims.group_drims_manager"
                         data-hotkey="l"
                     />
                     <button
@@ -167,6 +171,7 @@
                         type="object"
                         class="btn-primary"
                         invisible="state != 'allocated'"
+                        groups="spp_drims.group_drims_warehouse_worker,spp_drims.group_drims_manager"
                         data-hotkey="d"
                     />
 
@@ -241,22 +246,22 @@
                             <field
                                 name="incident_id"
                                 readonly="approval_state not in ('draft', 'revision')"
-                                options="{'no_create': True}"
+                                options="{'no_create': True, 'no_open': True}"
                             />
                             <field
                                 name="cluster_id"
                                 readonly="approval_state not in ('draft', 'revision')"
-                                options="{'no_create': True}"
+                                options="{'no_create': True, 'no_open': True}"
                             />
                             <field
                                 name="destination_area_id"
                                 readonly="approval_state not in ('draft', 'revision')"
-                                options="{'no_create': True}"
+                                options="{'no_create': True, 'no_open': True}"
                             />
                             <field
                                 name="service_point_id"
                                 readonly="approval_state not in ('draft', 'revision')"
-                                options="{'no_create': True}"
+                                options="{'no_create': True, 'no_open': True}"
                             />
                             <field
                                 name="affected_population"
@@ -267,7 +272,7 @@
                             <field
                                 name="priority_id"
                                 readonly="approval_state not in ('draft', 'revision')"
-                                options="{'no_create': True}"
+                                options="{'no_create': True, 'no_open': True}"
                             />
                             <field
                                 name="is_life_threatening"
@@ -306,12 +311,12 @@
                         <group>
                             <field
                                 name="source_warehouse_id"
-                                options="{'no_create': True}"
+                                options="{'no_create': True, 'no_open': True}"
                                 required="approval_state == 'approved' and state not in ('allocated', 'dispatched', 'delivered')"
                             />
                             <field
                                 name="destination_warehouse_id"
-                                options="{'no_create': True}"
+                                options="{'no_create': True, 'no_open': True}"
                             />
                             <field name="state" string="Status" readonly="1" />
                         </group>

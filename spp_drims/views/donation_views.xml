@@ -132,16 +132,25 @@
                     </div>
                     <group>
                         <group name="donor_info">
-                            <field name="incident_id" options="{'no_create': True}" />
-                            <field name="donor_id" options="{'no_create_edit': True}" />
+                            <field
+                                name="incident_id"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
+                            <field
+                                name="donor_id"
+                                options="{'no_create_edit': True, 'no_open': True}"
+                            />
                             <field name="donor_name" invisible="donor_id" />
                             <field
                                 name="source_type_id"
-                                options="{'no_create': True}"
+                                options="{'no_create': True, 'no_open': True}"
                             />
                         </group>
                         <group name="logistics_info">
-                            <field name="warehouse_id" options="{'no_create': True}" />
+                            <field
+                                name="warehouse_id"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
                             <field name="date_announced" />
                             <field name="date_expected" />
                             <field name="date_received" readonly="1" />

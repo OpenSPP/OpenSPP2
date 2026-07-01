@@ -22,6 +22,21 @@ class StockPicking(models.Model):
         related="drims_type_id.code",
         store=True,
     )
+    # OP#974: only Warehouse Staff / Manager may validate (dispatch) DRIMS
+    # transfers. Drives hiding the native stock "Validate" button on DRIMS
+    # pickings for read-only roles (which hold stock.group_stock_user only so
+    # the Dispatches list opens).
+    drims_user_can_dispatch = fields.Boolean(
+        compute="_compute_drims_user_can_dispatch",
+    )
+
+    @api.depends_context("uid")
+    def _compute_drims_user_can_dispatch(self):
+        can = self.env.user.has_group("spp_drims.group_drims_warehouse_worker") or self.env.user.has_group(
+            "spp_drims.group_drims_manager"
+        )
+        for rec in self:
+            rec.drims_user_can_dispatch = can
 
     # Link to DRIMS records
     drims_donation_id = fields.Many2one(

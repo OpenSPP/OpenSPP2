@@ -62,9 +62,26 @@
         <field name="perm_unlink" eval="1" />
     </record>
 
+    <!-- OP#974 r2 (W3): Warehouse Staff only see requests whose destination
+         area falls within the area(s) of their assigned warehouses, instead
+         of every request. (Warehouse staff cannot create/approve requests.) -->
+    <record id="rule_request_warehouse_scope" model="ir.rule">
+        <field name="name">DRIMS Request: Warehouse Scope</field>
+        <field name="model_id" ref="model_spp_drims_request" />
+        <field name="domain_force">[
+                ('destination_area_id', 'child_of', user.drims_warehouse_ids.area_id.ids)
+            ]</field>
+        <field name="groups" eval="[(4, ref('group_drims_warehouse_worker'))]" />
+        <field name="perm_read" eval="1" />
+        <field name="perm_write" eval="0" />
+        <field name="perm_create" eval="0" />
+        <field name="perm_unlink" eval="0" />
+    </record>
+
     <!-- Donation Rules: Warehouse-based access -->
 
     <!-- Warehouse Staff: See donations for their assigned warehouses -->
+    <!-- Read/write: own records OR assigned warehouses (create handled below). -->
     <record id="rule_donation_warehouse_scope" model="ir.rule">
         <field name="name">DRIMS Donation: Warehouse Scope</field>
         <field name="model_id" ref="model_spp_drims_donation" />
@@ -76,6 +93,23 @@
         <field name="groups" eval="[(4, ref('group_drims_warehouse_worker'))]" />
         <field name="perm_read" eval="1" />
         <field name="perm_write" eval="1" />
+        <field name="perm_create" eval="0" />
+        <field name="perm_unlink" eval="0" />
+    </record>
+
+    <!-- OP#974 r2 (W2): on CREATE the donation's warehouse must be one of the
+         user's assigned warehouses. A separate create-only rule (no
+         create_uid fallback) prevents warehouse staff from recording
+         donations for warehouses outside their assignment. -->
+    <record id="rule_donation_warehouse_create_scope" model="ir.rule">
+        <field name="name">DRIMS Donation: Warehouse Create Scope</field>
+        <field name="model_id" ref="model_spp_drims_donation" />
+        <field name="domain_force">[
+                ('warehouse_id', 'in', user.drims_warehouse_ids.ids)
+            ]</field>
+        <field name="groups" eval="[(4, ref('group_drims_warehouse_worker'))]" />
+        <field name="perm_read" eval="0" />
+        <field name="perm_write" eval="0" />
         <field name="perm_create" eval="1" />
         <field name="perm_unlink" eval="0" />
     </record>
@@ -198,7 +232,8 @@
         <field name="name">DRIMS Alert: Field Officer Scope</field>
         <field name="model_id" ref="model_spp_drims_alert" />
         <field name="domain_force">[
-                '|',
+                '|', '|',
+                ('warehouse_id', '=', False),
                 ('warehouse_id', 'in', user.drims_warehouse_ids.ids),
                 ('request_id.destination_area_id', 'child_of', user.drims_area_ids.ids)
             ]</field>
@@ -214,7 +249,8 @@
         <field name="name">DRIMS Alert: Coordinator Scope</field>
         <field name="model_id" ref="model_spp_drims_alert" />
         <field name="domain_force">[
-                '|',
+                '|', '|',
+                ('warehouse_id', '=', False),
                 ('warehouse_id', 'in', user.drims_warehouse_ids.ids),
                 ('request_id.destination_area_id', 'child_of', user.drims_area_ids.ids)
             ]</field>
@@ -229,7 +265,11 @@
     <record id="rule_alert_warehouse_scope" model="ir.rule">
         <field name="name">DRIMS Alert: Warehouse Staff Scope</field>
         <field name="model_id" ref="model_spp_drims_alert" />
+        <!-- OP#974 r2: also surface global alerts (no warehouse) so the list
+             is not empty when an alert is not tied to a warehouse. -->
         <field name="domain_force">[
+                '|',
+                ('warehouse_id', '=', False),
                 ('warehouse_id', 'in', user.drims_warehouse_ids.ids)
             ]</field>
         <field name="groups" eval="[(4, ref('group_drims_warehouse_worker'))]" />

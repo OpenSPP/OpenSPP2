@@ -82,11 +82,15 @@
     <!-- INVENTORY -->
     <!-- ============================================ -->
 
+    <!-- OP#974: inventory management (Stock On Hand, Warehouses) is for
+         Warehouse Staff + Manager only. Read-only roles must not reach the
+         Stock-On-Hand create UI or the warehouse management form. -->
     <menuitem
         id="menu_drims_stock_on_hand"
         name="Stock On Hand"
         parent="menu_drims_inventory"
         action="action_drims_stock_quant"
+        groups="group_drims_warehouse_worker,group_drims_manager"
         sequence="10"
     />
 
@@ -95,6 +99,7 @@
         name="Warehouses"
         parent="menu_drims_inventory"
         action="action_drims_warehouse"
+        groups="group_drims_warehouse_worker,group_drims_manager"
         sequence="20"
     />
 

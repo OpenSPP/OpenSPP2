@@ -224,13 +224,19 @@ class DrimsAllocationPreviewWizard(models.TransientModel):
             len(self.line_ids.filtered(lambda line: line.quantity_to_allocate > 0)),
         )
 
+        # OP#974: Warehouse Staff hold read-only ACL on requests/lines. Allocation
+        # is a controlled workflow they are allowed to run (Allocate Stock button
+        # is gated to Warehouse Staff / Manager), so apply these system-driven
+        # writes with elevated rights rather than granting blanket write access.
+        request_sudo = self.request_id.sudo()  # nosemgrep: odoo-sudo-without-context
+
         # Update request source warehouse
-        self.request_id.source_warehouse_id = self.warehouse_id
+        request_sudo.source_warehouse_id = self.warehouse_id
 
         # Apply allocations to request lines
         for line in self.line_ids:
             if line.quantity_to_allocate > 0:
-                line.request_line_id.quantity_allocated = (
+                line.request_line_id.sudo().quantity_allocated = (  # nosemgrep: odoo-sudo-without-context
                     line.request_line_id.quantity_allocated + line.quantity_to_allocate
                 )
 
@@ -247,7 +253,7 @@ class DrimsAllocationPreviewWizard(models.TransientModel):
             limit=1,
         )
         if allocated_state:
-            self.request_id.state_id = allocated_state
+            request_sudo.state_id = allocated_state
 
         return {
             "type": "ir.actions.client",

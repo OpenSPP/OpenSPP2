@@ -711,7 +711,12 @@ class DrimsRequest(models.Model):
                     "drims_request_line_id": line.id,
                 }
             )
-            line.quantity_dispatched = line.quantity_dispatched + qty_remaining
+            # OP#974: Warehouse Staff hold read-only ACL on requests/lines. The
+            # dispatch workflow advances the tracking quantity on their behalf,
+            # so write this controlled field with elevated rights.
+            line.sudo().quantity_dispatched = (  # nosemgrep: odoo-sudo-without-context
+                line.quantity_dispatched + qty_remaining
+            )
 
         # Confirm the picking
         picking.action_confirm()
@@ -719,7 +724,8 @@ class DrimsRequest(models.Model):
         # Only advance to ``dispatched`` once every line is fully dispatched
         # against its requested quantity. Otherwise the request stays at
         # ``allocated`` so the user can allocate more and dispatch again.
-        if all(line.quantity_dispatched >= line.quantity_requested for line in self.line_ids):
+        # nosemgrep: odoo-sudo-without-context
+        if all(line.quantity_dispatched >= line.quantity_requested for line in self.sudo().line_ids):
             dispatched_state = self.env["spp.vocabulary.code"].search(
                 [
                     (
@@ -732,7 +738,8 @@ class DrimsRequest(models.Model):
                 limit=1,
             )
             if dispatched_state:
-                self.state_id = dispatched_state
+                # OP#974: state transition on behalf of read-only Warehouse Staff.
+                self.sudo().state_id = dispatched_state  # nosemgrep: odoo-sudo-without-context
 
         # Open the picking form
         return {

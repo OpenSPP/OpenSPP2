@@ -2,7 +2,7 @@
 from datetime import date, timedelta
 
 from odoo.exceptions import UserError
-from odoo.tests.common import tagged
+from odoo.tests.common import new_test_user, tagged
 
 from .common import DrimsTestCommon
 
@@ -63,6 +63,17 @@ class TestDrimsAllocationPreviewWizard(DrimsTestCommon):
         if "is_storable" in cls.env["product.product"]._fields:
             product_vals["is_storable"] = True
         cls.stockable_product = cls.env["product.product"].create(product_vals)
+
+        # OP#974 (#14): a Warehouse Staff user (read-only on requests) scoped to
+        # the base warehouse, used to prove the allocate/dispatch workflow runs
+        # for them despite the read-only request ACL.
+        cls.warehouse_user = new_test_user(
+            cls.env,
+            login="drims_wh_dispatch_t",
+            groups="base.group_user,spp_drims.group_drims_warehouse_worker",
+        )
+        cls.warehouse.area_id = cls.area
+        cls.warehouse_user.drims_warehouse_ids = cls.warehouse
 
     def _create_request_with_lines(self, products_quantities):
         """Helper to create a request with specified products and quantities."""
@@ -352,6 +363,41 @@ class TestDrimsAllocationPreviewWizard(DrimsTestCommon):
             wizard_2.action_confirm_allocation()
         # request.quantity_allocated must NOT have been bumped up.
         self.assertEqual(request.line_ids[0].quantity_allocated, 1000.0)
+
+    def test_warehouse_staff_can_allocate_and_dispatch(self):
+        """OP#974 (#14): Warehouse Staff hold read-only ACL on requests/lines,
+        but Allocate Stock + Create Dispatch are gated to them. The controlled
+        state/quantity writes run with elevated rights, so a warehouse user can
+        complete both steps without an AccessError.
+        """
+        self.env["stock.quant"].create(
+            {
+                "product_id": self.stockable_product.id,
+                "location_id": self.warehouse.lot_stock_id.id,
+                "quantity": 100.0,
+            }
+        )
+        request = self._create_request_with_lines([(self.stockable_product, 100)])
+
+        # Allocate as the warehouse user — previously raised AccessError because
+        # the wizard wrote request.state_id / line.quantity_allocated directly.
+        wizard = (
+            self.env["spp.drims.allocation.preview.wizard"]
+            .with_user(self.warehouse_user)
+            .create({"request_id": request.id, "warehouse_id": self.warehouse.id})
+        )
+        wizard._populate_lines()
+        wizard.action_confirm_allocation()
+
+        self.assertEqual(request.line_ids[0].quantity_allocated, 100.0)
+        if self.state_allocated:
+            self.assertEqual(request.state_id, self.state_allocated)
+
+        # Create the dispatch as the same warehouse user.
+        request.with_user(self.warehouse_user).action_create_dispatch()
+        picking = self.env["stock.picking"].search([("drims_request_id", "=", request.id)])
+        self.assertTrue(picking, "warehouse staff should be able to create a dispatch picking")
+        self.assertEqual(request.line_ids[0].quantity_dispatched, 100.0)
 
     def test_empty_allocation_error(self):
         """Test that confirming allocation with no items raises error."""
