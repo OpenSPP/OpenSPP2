@@ -84,6 +84,7 @@
                             type="object"
                             class="oe_stat_button"
                             icon="fa-users"
+                            groups="spp_hazard.group_hazard_read,spp_registry.group_registry_viewer,spp_security.group_spp_admin"
                         >
                             <field
                                 name="affected_registrant_count"
@@ -241,7 +242,11 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="Impacts" name="impacts">
+                        <page
+                            string="Impacts"
+                            name="impacts"
+                            groups="spp_hazard.group_hazard_read,spp_registry.group_registry_viewer,spp_security.group_spp_admin"
+                        >
                             <p
                                 class="text-muted"
                                 invisible="impact_ids != []"

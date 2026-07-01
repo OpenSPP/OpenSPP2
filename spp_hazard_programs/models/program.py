@@ -84,8 +84,12 @@ class SppProgram(models.Model):
             # Build domain for qualifying damage levels
             damage_domain = rec._get_damage_level_domain()
 
-            # Count unique registrants with qualifying impacts
-            impacts = self.env["spp.hazard.impact"].search(
+            # Count unique registrants with qualifying impacts.
+            # sudo: emergency-program eligibility must consider all qualifying
+            # impacts regardless of the viewing user's hazard access; impact rows
+            # are not exposed, only the aggregate count.
+            impact_sudo = self.env["spp.hazard.impact"].sudo()  # nosemgrep: odoo-sudo-without-context
+            impacts = impact_sudo.search(
                 [
                     ("incident_id", "in", rec.target_incident_ids.ids),
                     ("verification_status", "=", "verified"),
@@ -123,8 +127,11 @@ class SppProgram(models.Model):
 
         damage_domain = self._get_damage_level_domain()
 
-        # Find qualifying impacts
-        impacts = self.env["spp.hazard.impact"].search(
+        # Find qualifying impacts.
+        # sudo: eligibility must consider all qualifying impacts regardless of the
+        # viewing user's hazard access; only the resulting registrants are returned.
+        impact_sudo = self.env["spp.hazard.impact"].sudo()  # nosemgrep: odoo-sudo-without-context
+        impacts = impact_sudo.search(
             [
                 ("incident_id", "in", self.target_incident_ids.ids),
                 ("verification_status", "=", "verified"),
