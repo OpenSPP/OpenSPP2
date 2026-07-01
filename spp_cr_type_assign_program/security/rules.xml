@@ -74,4 +74,25 @@
         <field name="perm_create" eval="True" />
         <field name="perm_unlink" eval="True" />
     </record>
+
+    <!--
+        Mirror the parent CR area filter onto the assign_program detail. Global rule
+        (no groups) so it ANDs with the ownership rules above; area-scoped officers
+        cannot reach details of CRs whose registrant is outside their center area,
+        while users without center areas are unaffected (empty domain).
+    -->
+    <record id="rule_cr_detail_assign_program_area_filter" model="ir.rule">
+        <field
+            name="name"
+        >CR Detail (assign_program): visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_cr_detail_assign_program" />
+        <field
+            name="domain_force"
+        >[('change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
 </odoo>

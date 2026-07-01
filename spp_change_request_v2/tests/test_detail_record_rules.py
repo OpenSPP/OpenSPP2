@@ -64,23 +64,88 @@ class TestDetailRecordRules(CRTestCase):
     # Completeness: every concrete detail model must be scoped
     # ------------------------------------------------------------------
 
-    def test_every_concrete_detail_model_has_user_rule(self):
-        """Guard against a detail model shipping without an ownership rule."""
+    def test_every_concrete_detail_model_is_fully_scoped(self):
+        """Guard against a detail model shipping without complete ownership rules.
+
+        Asserts, for every concrete ``spp.cr.detail.*`` model, that ``group_cr_user``
+        is scoped on EVERY operation the ACL grants it (read/write/create) — a rule
+        missing only ``perm_write`` would still leave a tamper path — and that the
+        higher roles each retain a permissive rule (else the group hierarchy would
+        cage them behind the restrictive user rule).
+        """
         models = self.env["ir.model"].search([("model", "=like", "spp.cr.detail.%")])
         self.assertTrue(models, "expected at least one spp.cr.detail.* model")
         Rule = self.env["ir.rule"]
-        unscoped = []
+        higher_roles = [
+            ("validator", self.validator_group),
+            ("validator_hq", self.env.ref("spp_change_request_v2.group_cr_validator_hq")),
+            ("manager", self.env.ref("spp_change_request_v2.group_cr_manager")),
+        ]
+        problems = []
         for model in models:
             if self.env[model.model]._abstract:
                 continue
             rules = Rule.search([("model_id", "=", model.id)])
-            user_rules = rules.filtered(lambda r: self.user_group in r.groups and r.perm_read)
-            if not user_rules:
-                unscoped.append(model.model)
-        self.assertFalse(
-            unscoped,
-            "detail models missing a group_cr_user ir.rule (ownership bypass): %s" % ", ".join(unscoped),
+
+            def grants(group, perm, _rules=rules):
+                return any(group in r.groups and getattr(r, perm) for r in _rules)
+
+            for perm in ("perm_read", "perm_write", "perm_create"):
+                if not grants(self.user_group, perm):
+                    problems.append(f"{model.model}: group_cr_user missing {perm} rule (bypass)")
+            for label, group in higher_roles:
+                if not grants(group, "perm_read"):
+                    problems.append(f"{model.model}: {label} missing read rule (would be caged)")
+            # A global (no-group) read rule mirrors the parent CR area filter.
+            if not any(not r.groups and r.perm_read for r in rules):
+                problems.append(f"{model.model}: missing global area-filter rule")
+        self.assertFalse(problems, "detail model rule gaps:\n  " + "\n  ".join(problems))
+
+    # ------------------------------------------------------------------
+    # Functional: area scoping (mirrors the parent CR area filter)
+    # ------------------------------------------------------------------
+
+    def test_area_filter_scopes_detail_by_registrant_area(self):
+        """An area-scoped user cannot reach details of out-of-area CRs they own.
+
+        Ownership is held constant (the area user creates both CRs while
+        unrestricted), so this isolates the area dimension: once the user is
+        restricted to area_1, only the in-area detail remains readable.
+        """
+        Area = self.env["spp.area"]
+        area_1 = Area.create({"draft_name": "CR Detail Area 1"})
+        area_2 = Area.create({"draft_name": "CR Detail Area 2"})
+        reg_in = self.Partner.create(
+            {"name": "Reg In Area", "is_registrant": True, "is_group": False, "area_id": area_1.id}
         )
+        reg_out = self.Partner.create(
+            {"name": "Reg Out Area", "is_registrant": True, "is_group": False, "area_id": area_2.id}
+        )
+        # user_a has no center areas yet -> unrestricted create; owns both CRs.
+        cr_in = self.CR.with_user(self.user_a).create(
+            {"request_type_id": self.edit_type.id, "registrant_id": reg_in.id}
+        )
+        cr_out = self.CR.with_user(self.user_a).create(
+            {"request_type_id": self.edit_type.id, "registrant_id": reg_out.id}
+        )
+        detail_in = cr_in.with_user(self.user_a).get_detail()
+        detail_out = cr_out.with_user(self.user_a).get_detail()
+
+        # Unrestricted (no center areas): both readable — global roles unaffected.
+        self.assertTrue(detail_out.with_user(self.user_a).read(["change_request_id"]))
+
+        # Restrict user_a to area_1 (center_area_ids is a stored computed field;
+        # write it directly, after creation, to isolate the area dimension).
+        self.user_a.sudo().center_area_ids = [(6, 0, [area_1.id])]
+        self.assertEqual(self.user_a.center_area_ids, area_1)
+        # ir.rule evaluates and caches its domain per (model, mode); the earlier
+        # unrestricted read cached an empty domain, so drop the cache to pick up
+        # the new center-area scope (a real role change invalidates this too).
+        self.env.registry.clear_cache()
+
+        self.assertTrue(detail_in.with_user(self.user_a).read(["change_request_id"]))
+        with self.assertRaises(AccessError):
+            detail_out.with_user(self.user_a).read(["change_request_id"])
 
     # ------------------------------------------------------------------
     # Functional: cross-user isolation (edit_individual as a representative)
