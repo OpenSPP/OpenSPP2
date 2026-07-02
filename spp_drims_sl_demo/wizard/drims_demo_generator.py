@@ -49,19 +49,6 @@ def _simplify_geometry(geometry, tolerance=0.001):
     return mapping(simplified)
 
 
-# Severity is stored as a CAP vocabulary code (spp.vocabulary.code). The demo
-# scenarios describe severity with the legacy 1-5 scale, mapped here to the
-# equivalent CAP severity code.
-CAP_SEVERITY_NS = "urn:oasis:names:tc:cap:severity"
-_LEGACY_SEVERITY_TO_CAP = {
-    "5": "extreme",
-    "4": "severe",
-    "3": "moderate",
-    "2": "minor",
-    "1": "unknown",
-}
-
-
 class DrimsDemoGenerator(models.TransientModel):
     _name = "spp.drims.demo.generator"
     _description = "DRIMS Demo Data Generator"
@@ -666,13 +653,6 @@ class DrimsDemoGenerator(models.TransientModel):
                 )
                 _logger.debug("Added GPS coordinates to warehouse %s", wh_name)
 
-    def _resolve_severity(self, legacy_value):
-        """Resolve a legacy 1-5 severity string to a CAP severity vocab code."""
-        code = _LEGACY_SEVERITY_TO_CAP.get(legacy_value)
-        if not code:
-            return self.env["spp.vocabulary.code"]
-        return self.env["spp.vocabulary.code"].get_code(CAP_SEVERITY_NS, code)
-
     def _generate_incidents(self):
         """Generate demo hazard incidents."""
         Incident = self.env["spp.hazard.incident"]
@@ -812,7 +792,7 @@ class DrimsDemoGenerator(models.TransientModel):
                         area_details.append(
                             {
                                 "area_id": area.id,
-                                "severity_override_id": self._resolve_severity(area_info.get("severity")).id,
+                                "severity_override": area_info.get("severity"),
                                 "affected_population_estimate": area_info.get("population", 0),
                                 "notes": f"Affected area in {scenario['name']}",
                             }
@@ -825,7 +805,7 @@ class DrimsDemoGenerator(models.TransientModel):
                 "name": scenario["name"],
                 "code": scenario["code"],
                 "category_id": scenario["category_id"],
-                "severity_id": self._resolve_severity(scenario.get("severity", "3")).id,
+                "severity": scenario.get("severity", "3"),
                 "start_date": scenario["start_date"],
                 "description": scenario.get("description", ""),
                 "status": "active",

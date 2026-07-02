@@ -35,7 +35,6 @@ proxy_mode = ${PROXY_MODE}
 # =============================================================================
 workers = ${ODOO_WORKERS}
 max_cron_threads = ${ODOO_CRON_THREADS}
-db_maxconn = ${ODOO_DB_MAXCONN}
 
 # Memory limits (in bytes)
 # Default: 2.5GB hard, 2GB soft

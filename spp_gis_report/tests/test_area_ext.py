@@ -817,12 +817,8 @@ class TestAreaGetGISLayers(TransactionCase):
         self.assertEqual(len(report_layer["report_legend"]), 2)
         self.assertEqual(report_layer["report_legend"][0]["color"], "#00ff00")
         self.assertEqual(report_layer["report_legend"][0]["label"], "Low")
-        self.assertEqual(report_layer["report_legend"][0]["min_value"], 0)
-        self.assertEqual(report_layer["report_legend"][0]["max_value"], 50)
         self.assertEqual(report_layer["report_legend"][1]["color"], "#ff0000")
         self.assertEqual(report_layer["report_legend"][1]["label"], "High")
-        self.assertEqual(report_layer["report_legend"][1]["min_value"], 50)
-        self.assertEqual(report_layer["report_legend"][1]["max_value"], 100)
         self.assertEqual(report_layer["report_legend_title"], "Report With Legend")
 
     def test_05_shapely_geometry_converted_to_geojson(self):

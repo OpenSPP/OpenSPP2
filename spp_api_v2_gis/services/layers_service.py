@@ -379,20 +379,20 @@ class LayersService:
                 geo_value = getattr(record, geo_field_name)
                 if geo_value:
                     try:
-                        # GeoField returns Shapely geometry objects
-                        if hasattr(geo_value, "__geo_interface__"):
-                            feature["geometry"] = geo_value.__geo_interface__
-                        else:
-                            # Fallback for string values (GeoJSON or WKT)
-                            try:
-                                feature["geometry"] = json.loads(geo_value)
-                            except (json.JSONDecodeError, TypeError):
-                                from shapely import wkt
+                        # Try parsing as JSON first (GeoJSON format)
+                        geometry = json.loads(geo_value)
+                        feature["geometry"] = geometry
+                    except (json.JSONDecodeError, TypeError):
+                        # Try parsing as WKT
+                        try:
+                            from shapely import wkt
 
-                                shape = wkt.loads(geo_value)
-                                feature["geometry"] = shape.__geo_interface__
-                    except Exception as e:
-                        _logger.warning("Failed to parse geometry: %s", e)
+                            shape = wkt.loads(geo_value)
+                            feature["geometry"] = shape.__geo_interface__
+                        except ImportError:
+                            _logger.warning("shapely not available for WKT parsing")
+                        except Exception as e:
+                            _logger.warning("Failed to parse geometry: %s", e)
 
             features.append(feature)
 
@@ -500,12 +500,6 @@ class LayersService:
 
         # Build properties
         has_data = data.raw_value is not None
-
-        # Look up threshold range for the bucket
-        sorted_thresholds = report.threshold_ids.sorted("sequence")
-        threshold_ranges = {i: (t.min_value, t.max_value) for i, t in enumerate(sorted_thresholds)}
-        bucket_range = threshold_ranges.get(data.bucket_index, (None, None))
-
         properties = {
             "area_id": data.area_id.id,
             "area_code": data.area_code,
@@ -516,13 +510,6 @@ class LayersService:
             "normalized_value": data.normalized_value,
             "display_value": data.display_value if has_data else "No Data",
             "record_count": data.record_count,
-            "bucket": {
-                "index": data.bucket_index,
-                "color": data.bucket_color,
-                "label": data.bucket_label,
-                "min_value": bucket_range[0],
-                "max_value": bucket_range[1],
-            },
         }
 
         # Build geometry
@@ -594,20 +581,15 @@ class LayersService:
             geo_value = getattr(record, geo_field_name)
             if geo_value:
                 try:
-                    # GeoField returns Shapely geometry objects
-                    if hasattr(geo_value, "__geo_interface__"):
-                        geometry = geo_value.__geo_interface__
-                    else:
-                        # Fallback for string values (GeoJSON or WKT)
-                        try:
-                            geometry = json.loads(geo_value)
-                        except (json.JSONDecodeError, TypeError):
-                            from shapely import wkt
+                    geometry = json.loads(geo_value)
+                except (json.JSONDecodeError, TypeError):
+                    try:
+                        from shapely import wkt
 
-                            shape = wkt.loads(geo_value)
-                            geometry = shape.__geo_interface__
-                except Exception as e:
-                    _logger.warning("Failed to parse geometry: %s", e)
+                        shape = wkt.loads(geo_value)
+                        geometry = shape.__geo_interface__
+                    except (ImportError, Exception) as e:
+                        _logger.warning("Failed to parse geometry: %s", e)
 
         # nosemgrep: odoo-expose-database-id
         return {

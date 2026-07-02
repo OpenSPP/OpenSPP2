@@ -327,13 +327,16 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             >
                                 <group name="disaggregation_group">
                                     <field
-                                        name="dimension_ids"
-                                        widget="many2many_tags"
-                                        string="Dimensions"
+                                        name="disaggregate_by_gender"
+                                        string="By Gender"
                                     />
                                     <field
-                                        name="member_expansion"
-                                        invisible="source_model != 'res.partner'"
+                                        name="disaggregate_by_age"
+                                        string="By Age Group"
+                                    />
+                                    <field
+                                        name="disaggregate_by_disability"
+                                        string="By Disability Status"
                                     />
                                 </group>
                                 <group name="disaggregation_tags_group">

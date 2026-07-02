@@ -69,19 +69,17 @@ class TestDemoAreaLoader(TransactionCase):
         final_count = self.area_model.search_count([])
         self.assertGreater(final_count, initial_count, "Areas should be created for Philippines")
 
-        # Verify specific areas exist (PSA/HDX p-codes)
-        ncr = self.area_model.search([("code", "=", "PH13")], limit=1)
+        # Verify specific areas exist
+        ncr = self.area_model.search([("code", "=", "PH-00")], limit=1)
         self.assertTrue(ncr, "NCR region should exist")
 
-        quezon_city = self.area_model.search([("code", "=", "PH1307404")], limit=1)
+        quezon_city = self.area_model.search([("code", "=", "PH-00-74")], limit=1)
         self.assertTrue(quezon_city, "Quezon City should exist")
 
-        # Verify area hierarchy: Quezon City -> Metro Manila district -> NCR
-        district = self.area_model.search([("code", "=", "PH13074")], limit=1)
-        if district and ncr:
-            self.assertEqual(district.parent_id.id, ncr.id, "Metro Manila district should be child of NCR")
-        if quezon_city and district:
-            self.assertEqual(quezon_city.parent_id.id, district.id, "Quezon City should be child of its district")
+        # Verify area hierarchy
+        metro_manila = self.area_model.search([("code", "=", "PH-00-MM")], limit=1)
+        if metro_manila and ncr:
+            self.assertEqual(metro_manila.parent_id.id, ncr.id, "Metro Manila should be child of NCR")
 
     def test_load_lka_areas(self):
         """Test loading Sri Lanka area data."""

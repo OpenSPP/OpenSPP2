@@ -134,7 +134,6 @@ DRY_RUN = False
 # Demo profiles available
 DEMO_PROFILES = {
     "mis": "spp_mis_demo_v2",
-    "misluzon": "spp_mis_demo_v2,spp_demo_phl_luzon",
     "drims": "spp_drims_sl_demo",
     "base": "spp_base",
     "grm": "spp_grm_demo",
@@ -253,28 +252,6 @@ def _confirm(prompt: str, default: bool = False) -> bool:
     return response in ("y", "yes")
 
 
-def _stable_port(path: str = None, base: int = 18000, range_size: int = 1000) -> int:
-    """Compute a stable port number from the project path.
-
-    Uses a hash of the absolute path so each worktree gets a deterministic,
-    unique-ish port in the range [base, base + range_size).
-    Override via ODOO_HOST_PORT env var or stable_port in ~/.spp.toml.
-    """
-    import hashlib
-
-    env_port = os.environ.get("ODOO_HOST_PORT")
-    if env_port and env_port != "0":
-        return int(env_port)
-
-    config_port = CONFIG.get("stable_port")
-    if config_port:
-        return int(config_port)
-
-    path = path or str(PROJECT_ROOT)
-    digest = hashlib.md5(path.encode()).hexdigest()  # nosec B324 -- not for security
-    return base + (int(digest, 16) % range_size)
-
-
 def _validate_db_name(name: str) -> bool:
     """Validate database name to prevent SQL injection."""
     # PostgreSQL identifiers: alphanumeric, underscore, must start with letter/underscore
@@ -371,7 +348,6 @@ def _wait_for_odoo_ready(profile: str, timeout: int = 300):
     """
     service = "openspp-dev" if profile == "dev" else "openspp"
     print("Waiting for Odoo to be ready...")
-    print(f"  Follow logs in another terminal: ./spp l -f {service}")
 
     for i in range(timeout):
         # Check for CRITICAL errors in logs (initialization failures)
@@ -482,7 +458,6 @@ def _wait_for_module_installed(profile: str, module_name: str, timeout: int = 60
     """
     service = "openspp-dev" if profile == "dev" else "openspp"
     print(f"Waiting for module '{module_name}' to be installed...")
-    print(f"  Follow logs in another terminal: ./spp l -f {service}")
 
     start_time = time.time()
 
@@ -499,9 +474,8 @@ def _wait_for_module_installed(profile: str, module_name: str, timeout: int = 60
         # Note: Odoo logs "Modules loaded." (capital M) and "Registry loaded in X.XXXs"
         logs_lower = logs.lower()
         if "registry loaded in" in logs_lower and "modules loaded" in logs_lower:
-            # For comma-separated module lists, check the last module (installed last)
-            check_module = module_name.split(",")[-1].strip()
-            state = _get_module_state(profile, check_module)
+            # Verify the module is actually installed now
+            state = _get_module_state(profile, module_name)
             if state == "installed":
                 return True, None
             elif state in ("to install", "to upgrade"):
@@ -542,7 +516,6 @@ def _show_recent_logs(profile: str, lines: int = 50):
 DEMO_GENERATOR_MODES = {
     "mis": "complete",
     "spp_mis_demo_v2": "complete",
-    "misluzon": "volume",
     "drims": "complete",
     "spp_drims_sl_demo": "complete",
     "grm": "complete",
@@ -561,10 +534,6 @@ def _run_demo_generator(profile: str, demo_key: str, timeout: int = 600):
     service = "openspp-dev" if profile == "dev" else "openspp"
     generator_mode = DEMO_GENERATOR_MODES.get(demo_key, "complete")
 
-    # Volume mode generates thousands of groups inline; needs more time
-    if generator_mode == "volume":
-        timeout = max(timeout, 1800)
-
     print("\n" + _color("1;34", "Phase 3: Generating demo data..."))
     print(f"Running demo generator (mode: {generator_mode})...")
 
@@ -573,7 +542,6 @@ def _run_demo_generator(profile: str, demo_key: str, timeout: int = 600):
 generator = env['spp.mis.demo.generator'].create({{'name': 'CLI Demo', 'demo_mode': '{generator_mode}'}})
 generator._onchange_demo_mode()
 generator.action_generate()
-env.cr.commit()
 print('DEMO_GENERATION_COMPLETE')
 """
 
@@ -616,17 +584,6 @@ def cmd_start(args):
     env = os.environ.copy()
     demo_modules = None
 
-    # Set slow query threshold if specified
-    slow_queries = getattr(args, "slow_queries", None)
-    if slow_queries is not None:
-        env["PG_LOG_MIN_DURATION"] = slow_queries
-        threshold = int(slow_queries)
-        if threshold == 0:
-            info("Slow query logging: all queries (threshold=0ms)")
-        else:
-            info(f"Slow query logging: threshold={threshold}ms")
-        info("View with: ./spp slow-queries  or  ./spp sq -f")
-
     # Set demo modules if specified
     if args.demo:
         demo_key = args.demo.lower().replace("-", "").replace("_", "")
@@ -647,12 +604,6 @@ def cmd_start(args):
     # Check if Docker image needs rebuilding (unless --no-build)
     if not getattr(args, "no_build", False):
         _check_image_freshness(profile, auto_rebuild=args.yes)
-
-    # Assign stable port for dev profile (deterministic per worktree path)
-    if profile == "dev":
-        port = _stable_port()
-        env["ODOO_HOST_PORT"] = str(port)
-        info(f"Using stable port {port} (from path hash)")
 
     # Enable auto-reload for dev profile by default (disable with --no-watch)
     if profile == "dev" and not args.no_watch:
@@ -727,6 +678,7 @@ def cmd_start(args):
 
     # Show URL
     if profile == "dev":
+        print("\nGetting dynamic port...")
         _show_url()
     else:
         print("\nOdoo available at: http://localhost:8069")
@@ -1000,104 +952,6 @@ def cmd_sql(args):
         run(docker_compose("exec", "db", "psql", "-U", "odoo", "-d", db_name))
 
 
-def _parse_slow_query_line(line: str) -> tuple:
-    """Parse a PostgreSQL slow query log line.
-
-    Returns (duration_ms, statement) or (None, None) if not a slow query line.
-    Expected format from log_line_prefix '%m [%p] %d ':
-      2026-03-17 12:00:00.123 UTC [42] openspp LOG:  duration: 1234.567 ms  statement: SELECT ...
-    """
-    match = re.search(r"duration:\s+([\d.]+)\s+ms\s+statement:\s+(.*)", line)
-    if match:
-        return float(match.group(1)), match.group(2)
-    return None, None
-
-
-def cmd_slow_queries(args):
-    """Extract and display slow queries from PostgreSQL logs."""
-    if IS_REMOTE:
-        print("Error: 'slow-queries' not supported in Claude Code web environment")
-        sys.exit(1)
-
-    # Follow mode: stream slow queries in real-time
-    if args.follow:
-        threshold = args.threshold
-        info(f"Following slow queries{f' (>{threshold}ms)' if threshold else ''}... (Ctrl+C to stop)")
-        cmd = docker_compose("logs", "-f", "--tail", "0", "db")
-        try:
-            proc = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                text=True,
-                cwd=PROJECT_ROOT,
-            )
-            for line in proc.stdout:
-                duration, statement = _parse_slow_query_line(line)
-                if duration is not None:
-                    if threshold and duration < threshold:
-                        continue
-                    color_code = "31" if duration >= 1000 else "33" if duration >= 500 else "32"
-                    print(f"{_color(color_code, f'{duration:>10.1f}ms')}  {statement.strip()}")
-        except KeyboardInterrupt:
-            proc.terminate()
-            print()
-        return
-
-    # Batch mode: extract from recent logs
-    tail = args.tail or 5000  # scan more lines to find enough slow queries
-    cmd = docker_compose("logs", "--tail", str(tail), "db")
-    result = run(cmd, capture=True, check=False)
-
-    if result.returncode != 0:
-        error("Could not read db logs. Is the db container running?")
-        sys.exit(1)
-
-    queries = []
-    for line in result.stdout.splitlines():
-        duration, statement = _parse_slow_query_line(line)
-        if duration is not None:
-            threshold = args.threshold
-            if threshold and duration < threshold:
-                continue
-            queries.append((duration, statement.strip()))
-
-    if not queries:
-        info("No slow queries found in recent logs.")
-        if not args.threshold:
-            info("Current threshold is set in docker/postgresql.conf (default: 500ms)")
-            info("Use './spp start --slow-queries=0' to log all queries")
-        return
-
-    # Sort by duration if requested
-    if args.sort:
-        queries.sort(key=lambda q: q[0], reverse=True)
-
-    # Limit output
-    limit = args.limit or 50
-    shown = queries[-limit:] if not args.sort else queries[:limit]
-
-    print(f"\n{'Duration':>12}  Statement")
-    print(f"{'--------':>12}  ---------")
-    for duration, statement in shown:
-        color_code = "31" if duration >= 1000 else "33" if duration >= 500 else "32"
-        # Truncate long statements for readability
-        max_len = 120
-        display = statement if len(statement) <= max_len else statement[:max_len] + "..."
-        print(f"{_color(color_code, f'{duration:>10.1f}ms')}  {display}")
-
-    total = len(queries)
-    if total > limit:
-        print(f"\n  ... {total - limit} more queries not shown (use --limit to see more)")
-
-    print(f"\n  Total: {total} slow queries")
-    if queries:
-        durations = [q[0] for q in queries]
-        print(
-            f"  Min: {min(durations):.1f}ms  Max: {max(durations):.1f}ms  Avg: {sum(durations) / len(durations):.1f}ms"
-        )
-
-
 def _show_url(open_browser: bool = False):
     """Get the running Odoo server URL."""
     service, profile = _find_running_odoo()
@@ -1113,14 +967,36 @@ def _show_url(open_browser: bool = False):
             _open_browser(url)
         return url
 
-    # Dev profile uses stable port from path hash
-    port = _stable_port()
-    url = f"http://localhost:{port}"
-    print(f"Odoo URL: {url}")
-    print("Credentials: admin / admin")
-    if open_browser:
-        _open_browser(url)
-    return url
+    # Dev profile uses dynamic port - need to look it up
+    result = run(
+        docker_compose("ps", "--format", "json", profile="dev"),
+        capture=True,
+        check=False,
+    )
+
+    if result.returncode != 0:
+        return None
+
+    try:
+        for line in result.stdout.strip().split("\n"):
+            if not line:
+                continue
+            container = json.loads(line)
+            if container.get("Service") == "openspp-dev":
+                for publisher in container.get("Publishers", []):
+                    if publisher.get("TargetPort") == 8069:
+                        port = publisher.get("PublishedPort")
+                        if port:
+                            url = f"http://localhost:{port}"
+                            print(f"Odoo URL: {url}")
+                            print("Credentials: admin / admin")
+                            if open_browser:
+                                _open_browser(url)
+                            return url
+    except (json.JSONDecodeError, KeyError):
+        pass
+
+    return None
 
 
 def _open_browser(url: str):
@@ -1227,7 +1103,6 @@ def cmd_help(_args):
     print("  logs, l            View container logs")
     print("  shell, sh          Open Odoo shell")
     print("  sql                Open PostgreSQL shell or run SQL")
-    print("  slow-queries, sq   Show slow PostgreSQL queries")
     print("  url                Show dev server URL")
     print("  lint               Run linters on changed files")
     print("  status, st         Show running services")
@@ -1247,10 +1122,6 @@ def cmd_help(_args):
     print("  ./spp r                            # Restart Odoo container")
     print("  ./spp u spp_programs               # Update a module")
     print("  ./spp l -f                         # Follow Odoo logs")
-    print("  ./spp start --slow-queries         # Log all SQL queries")
-    print("  ./spp start --slow-queries=200     # Log queries > 200ms")
-    print("  ./spp sq -f                        # Follow slow queries live")
-    print("  ./spp sq --sort                    # Show slowest queries first")
     print("  ./spp url --open                   # Open in browser")
     print("")
     print("Chaining: Commands can be chained (options apply to preceding command):")
@@ -1400,8 +1271,6 @@ COMMANDS = {
     "shell": cmd_shell,
     "sh": cmd_shell,
     "sql": cmd_sql,
-    "slow-queries": cmd_slow_queries,
-    "sq": cmd_slow_queries,
     "url": cmd_url,
     "lint": cmd_lint,
     "status": cmd_status,
@@ -1421,7 +1290,6 @@ ALIASES = {
     "b": "build",
     "l": "logs",
     "sh": "shell",
-    "sq": "slow-queries",
     "st": "status",
 }
 
@@ -1436,7 +1304,6 @@ MAIN_COMMANDS = [
     ("build", "Build Docker images"),
     ("logs", "View container logs"),
     ("shell", "Open shell"),
-    ("slow-queries", "Show slow PostgreSQL queries"),
     ("url", "Show dev URL"),
     ("lint", "Run linters"),
     ("status", "Show service status"),
@@ -1509,14 +1376,6 @@ def build_parser():
         action="store_true",
         help="Also start PRISM frontend on port 3000 (requires prism-app repo)",
     )
-    p.add_argument(
-        "--slow-queries",
-        nargs="?",
-        const="0",
-        default=None,
-        metavar="MS",
-        help="Set PostgreSQL slow query threshold in ms (default config: 500ms, --slow-queries alone logs all)",
-    )
 
     # stop
     p = subparsers.add_parser("stop", help="Stop all services")
@@ -1578,14 +1437,6 @@ def build_parser():
         help="Database name",
     )
     p.add_argument("--file", "-f", help="SQL file to execute")
-
-    # slow-queries
-    p = subparsers.add_parser("slow-queries", help="Show slow PostgreSQL queries")
-    p.add_argument("--follow", "-f", action="store_true", help="Follow slow queries in real-time")
-    p.add_argument("--tail", type=int, default=5000, help="Number of log lines to scan (default: 5000)")
-    p.add_argument("--threshold", type=float, metavar="MS", help="Only show queries slower than MS milliseconds")
-    p.add_argument("--sort", "-s", action="store_true", help="Sort by duration (slowest first)")
-    p.add_argument("--limit", "-n", type=int, default=50, help="Max queries to show (default: 50)")
 
     # url
     p = subparsers.add_parser("url", help="Show dev URL")

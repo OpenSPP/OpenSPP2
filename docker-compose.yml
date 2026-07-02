@@ -5,7 +5,7 @@
 # Services:
 #   db          - PostgreSQL database (shared by all)
 #   openspp     - Web server for UI/E2E (fixed port 8069)
-#   openspp-dev - Dev server (stable port per worktree via spp CLI)
+#   openspp-dev - Dev server (dynamic port)
 #   test        - Unit test runner
 #   e2e-runner  - Playwright E2E runner
 #   prism       - PRISM frontend on port 3000 (optional)
@@ -14,15 +14,15 @@
 # Building any of them updates the shared image.
 #
 # Profiles:
-#   dev   - Development with stable port per worktree (set ODOO_HOST_PORT or use spp CLI)
+#   dev   - Development with dynamic port (avoids port conflicts)
 #   ui    - Launch web interface on fixed port 8069
 #   e2e   - Full E2E testing environment with Playwright
 #   prism - PRISM frontend (WFP crisis data visualization)
 #
 # Usage:
-#   # Launch for development (spp CLI assigns stable port automatically)
-#   ./spp start
-#   # Or manually: ODOO_HOST_PORT=18042 docker compose --profile dev up -d
+#   # Launch for development (dynamic port - check output for assigned port)
+#   docker compose --profile dev up -d
+#   docker compose --profile dev ps  # Shows assigned port
 #
 #   # Launch UI on fixed port 8069
 #   docker compose --profile ui up -d
@@ -47,19 +47,12 @@ services:
   db:
     image: postgis/postgis:18-3.6-alpine
     platform: linux/amd64 # Use Rosetta 2 on Apple Silicon
-    command:
-      - postgres
-      - -c
-      - config_file=/etc/postgresql/postgresql.conf
-      - -c
-      - log_min_duration_statement=${PG_LOG_MIN_DURATION:-500}
     environment:
       POSTGRES_USER: odoo
       POSTGRES_PASSWORD: odoo
       POSTGRES_DB: openspp
     volumes:
       - postgres_data:/var/lib/postgresql
-      - ./docker/postgresql.conf:/etc/postgresql/postgresql.conf:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U odoo -d postgres"]
       interval: 5s
@@ -97,7 +90,6 @@ services:
       # Performance settings (minimal for local dev/testing)
       ODOO_WORKERS: "0"
       ODOO_CRON_THREADS: "0"
-      ODOO_DB_MAXCONN: "128"
 
       # Modules to initialize (configurable via env)
       # For E2E: ODOO_INIT_MODULES=spp_mis_demo_v2
@@ -152,7 +144,6 @@ services:
       # Performance settings (minimal for local dev/testing)
       ODOO_WORKERS: "0"
       ODOO_CRON_THREADS: "0"
-      ODOO_DB_MAXCONN: "128"
 
       # Modules to initialize (configurable via env)
       ODOO_INIT_MODULES: "${ODOO_INIT_MODULES:-spp_base}"
@@ -164,7 +155,7 @@ services:
       # Disable proxy mode for local
       PROXY_MODE: "False"
     ports:
-      - "${ODOO_HOST_PORT:-0}:8069" # Stable port via spp CLI, or random if unset
+      - "8069" # Dynamic host port - check with `docker compose ps`
     volumes:
       - .:/mnt/extra-addons/openspp:ro,z
       - odoo_data:/var/lib/odoo
@@ -287,7 +278,6 @@ services:
       REACT_APP_OPENSPP_API_URL: /api/v2/spp
       REACT_APP_OPENSPP_CLIENT_ID: ${OPENSPP_CLIENT_ID:-prism}
       REACT_APP_OPENSPP_CLIENT_SECRET: ${OPENSPP_CLIENT_SECRET:-prism-secret}
-      VITE_PROXY_TARGET: http://openspp:8069
     networks:
       - openspp
 

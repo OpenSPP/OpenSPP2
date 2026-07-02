@@ -100,19 +100,23 @@ class GISReportController(http.Controller):
             for report in reports:
                 admin_levels = report.data_ids.mapped("area_level") if report.data_ids else []
 
-                report_data = {
-                    "code": report.code,
-                    "name": report.name,
-                    "category": report.category_id.name if report.category_id else None,
-                    "last_refresh": (report.last_refresh.isoformat() if report.last_refresh else None),
-                    "admin_levels_available": sorted(set(admin_levels)),
-                    "has_disaggregation": bool(report.dimension_ids) or bool(report.disaggregate_by_tag_ids),
-                }
-                if report.dimension_ids:
-                    report_data["disaggregation_dimensions"] = [
-                        {"name": d.name, "label": d.label} for d in report.dimension_ids
-                    ]
-                report_list.append(report_data)
+                report_list.append(
+                    {
+                        "code": report.code,
+                        "name": report.name,
+                        "category": report.category_id.name if report.category_id else None,
+                        "last_refresh": (report.last_refresh.isoformat() if report.last_refresh else None),
+                        "admin_levels_available": sorted(set(admin_levels)),
+                        "has_disaggregation": any(
+                            [
+                                report.disaggregate_by_gender,
+                                report.disaggregate_by_age,
+                                report.disaggregate_by_disability,
+                                report.disaggregate_by_tag_ids,
+                            ]
+                        ),
+                    }
+                )
 
             return self._json_response({"reports": report_list})
 
