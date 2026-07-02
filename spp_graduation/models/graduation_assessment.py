@@ -1,7 +1,7 @@
 from dateutil.relativedelta import relativedelta
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 
 
 class GraduationAssessment(models.Model):
@@ -136,6 +136,23 @@ class GraduationAssessment(models.Model):
             else:
                 rec.monitoring_end_date = False
 
+    # Fields only a graduation manager may set — they record the approval
+    # outcome and must never be writable by the assessor via RPC.
+    _MANAGER_ONLY_FIELDS = ("approved_by_id", "approved_date", "graduation_date")
+
+    def _is_graduation_manager(self):
+        """True for graduation managers and for superuser/sudo (system) contexts.
+
+        Approve/reject/reset are manager-only. The superuser/sudo exemption keeps
+        programmatic and system flows working; real end users are always checked
+        against the manager group.
+        """
+        return self.env.su or self.env.user.has_group("spp_graduation.group_spp_graduation_manager")
+
+    def _ensure_graduation_manager(self):
+        if not self._is_graduation_manager():
+            raise AccessError(_("Only graduation managers can approve, reject, or reset graduation assessments."))
+
     def action_submit(self):
         for rec in self:
             if rec.state != "draft":
@@ -143,6 +160,7 @@ class GraduationAssessment(models.Model):
             rec.state = "submitted"
 
     def action_approve(self):
+        self._ensure_graduation_manager()
         for rec in self:
             if rec.state != "submitted":
                 raise UserError(_("Only submitted assessments can be approved."))
@@ -157,16 +175,55 @@ class GraduationAssessment(models.Model):
                 rec.graduation_date = fields.Date.today()
 
     def action_reject(self):
+        self._ensure_graduation_manager()
         for rec in self:
             if rec.state != "submitted":
                 raise UserError(_("Only submitted assessments can be rejected."))
             rec.state = "rejected"
 
     def action_reset_draft(self):
+        self._ensure_graduation_manager()
         for rec in self:
             if rec.state not in ("submitted", "rejected"):
                 raise UserError(_("Only submitted or rejected assessments can be reset to draft."))
             rec.state = "draft"
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        # A non-manager may only create draft assessments and may not preset the
+        # approval outcome fields (blocks create({'state':'approved', ...})).
+        if not self._is_graduation_manager():
+            for vals in vals_list:
+                forbidden = [f for f in self._MANAGER_ONLY_FIELDS if vals.get(f)]
+                if forbidden:
+                    raise AccessError(
+                        _("Only graduation managers can set assessment approval fields: %s.") % ", ".join(forbidden)
+                    )
+                if vals.get("state", "draft") != "draft":
+                    raise AccessError(_("Only graduation managers can create an assessment in a non-draft state."))
+        return super().create(vals_list)
+
+    def write(self, vals):
+        # Enforce the approval boundary at the ORM so it cannot be bypassed via
+        # RPC (the view button groups are UI-only). Non-managers may not set the
+        # manager-only outcome fields, and may only move state draft -> submitted.
+        if not self._is_graduation_manager():
+            forbidden = [f for f in self._MANAGER_ONLY_FIELDS if f in vals]
+            if forbidden:
+                raise AccessError(
+                    _("Only graduation managers can set assessment approval fields: %s.") % ", ".join(forbidden)
+                )
+            if "state" in vals:
+                new_state = vals["state"]
+                for rec in self:
+                    if new_state != rec.state and (rec.state, new_state) != ("draft", "submitted"):
+                        raise AccessError(
+                            _(
+                                "Only graduation managers can change an assessment's state; "
+                                "you may only submit a draft for approval."
+                            )
+                        )
+        return super().write(vals)
 
 
 class GraduationCriteriaResponse(models.Model):
