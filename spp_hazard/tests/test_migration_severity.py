@@ -72,9 +72,7 @@ class TestSeverityMigration(TransactionCase):
     def test_02_backfills_area_severity_override(self):
         self._add_legacy_columns()
         incident = self._make_incident("MIG-AREA-1")
-        area_link = self.env["spp.hazard.incident.area"].create(
-            {"incident_id": incident.id, "area_id": self.area.id}
-        )
+        area_link = self.env["spp.hazard.incident.area"].create({"incident_id": incident.id, "area_id": self.area.id})
         self.env.cr.execute(
             "UPDATE spp_hazard_incident_area SET severity_override = %s WHERE id = %s", ("5", area_link.id)
         )
