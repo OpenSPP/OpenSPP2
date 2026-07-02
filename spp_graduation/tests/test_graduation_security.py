@@ -265,3 +265,35 @@ class TestGraduationSecurity(TransactionCase):
         self.assertEqual(assessment.state, "approved")
         self.assertEqual(assessment.approved_by_id, self.manager)
         self.assertTrue(assessment.graduation_date)
+
+    def test_user_can_edit_own_draft_content(self):
+        """The guard must not over-block: a user can still edit non-workflow
+        content on their own draft assessment."""
+        pathway = self.env["spp.graduation.pathway"].create({"name": "Test Pathway"})
+        assessment = (
+            self.env["spp.graduation.assessment"]
+            .with_user(self.user)
+            .create({"pathway_id": pathway.id, "partner_id": self.beneficiary.id})
+        )
+        assessment.write({"recommendation": "graduate", "recommendation_notes": "ready"})
+        self.assertEqual(assessment.recommendation, "graduate")
+
+    def test_user_cannot_unsubmit_own_assessment(self):
+        """A user may only move draft -> submitted; un-submitting is manager-only."""
+        assessment = self._submitted_assessment_owned_by_user()
+        with self.assertRaises(AccessError):
+            assessment.write({"state": "draft"})
+        self.assertEqual(assessment.state, "submitted")
+
+    def test_user_cannot_create_assessment_for_another_assessor(self):
+        """A user cannot create an assessment attributed to a different assessor
+        (record-rule protection; documents the boundary)."""
+        pathway = self.env["spp.graduation.pathway"].create({"name": "Test Pathway"})
+        with self.assertRaises(AccessError):
+            self.env["spp.graduation.assessment"].with_user(self.user).create(
+                {
+                    "pathway_id": pathway.id,
+                    "partner_id": self.beneficiary.id,
+                    "assessor_id": self.manager.id,
+                }
+            )
