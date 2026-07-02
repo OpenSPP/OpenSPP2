@@ -35,13 +35,13 @@
         >Read access to GIS layers, reports catalog, and spatial statistics queries.</field>
     </record>
 
-    <!-- GIS All Scope - Full GIS access including geofences -->
+    <!-- GIS All Scope - Full GIS access including geofences and incidents -->
     <record id="demo_api_client_qgis_scope_gis_all" model="spp.api.client.scope">
         <field name="client_id" ref="demo_api_client_qgis" />
         <field name="resource">gis</field>
         <field name="action">all</field>
         <field
             name="description"
-        >Full GIS access including creating and managing geofences.</field>
+        >Full GIS access including creating and managing geofences and incidents.</field>
     </record>
 </odoo>

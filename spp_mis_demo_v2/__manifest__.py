@@ -4,7 +4,7 @@
     "name": "OpenSPP MIS Demo V2",
     "summary": "Demo Generator V2 for SP-MIS programs with fixed stories and volume generation",
     "category": "OpenSPP",
-    "version": "19.0.2.0.1",
+    "version": "19.0.2.1.0",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -34,7 +34,7 @@
         "spp_banking",
         # Demo-specific extensions
     ],
-    "external_dependencies": {"python": ["requests"]},
+    "external_dependencies": {"python": ["requests", "faker"]},
     "post_init_hook": "post_init_hook",
     "data": [
         "security/ir.model.access.csv",
