@@ -131,9 +131,11 @@ class ApprovalMixin(models.AbstractModel):
     # Reset-to-draft is intentionally open to any record editor (state-gated
     # only, no approver-group restriction) — see action_reset_to_draft. This
     # field is the authoritative view gate so buttons never rely on a hardcoded
-    # security group that could diverge from the workflow (OP#1066).
+    # security group that could diverge from the workflow (OP#1066). It gets its
+    # own state-only compute (not the heavier approver-resolving permissions
+    # compute) so consumers that override that method still get a valid value.
     can_reset = fields.Boolean(
-        compute="_compute_approval_permissions",
+        compute="_compute_can_reset",
     )
 
     # Optimistic locking
@@ -193,13 +195,22 @@ class ApprovalMixin(models.AbstractModel):
             else:
                 record.pending_since = False
 
+    @api.depends("approval_state")
+    def _compute_can_reset(self):
+        """Reset-to-draft applies to rejected/revision records only.
+
+        State-based and intentionally open to record editors (no approver-group
+        check) — see action_reset_to_draft. Kept separate from
+        _compute_approval_permissions so consumers that override that method
+        still get a valid can_reset value (OP#1066).
+        """
+        for record in self:
+            record.can_reset = record.approval_state in ("rejected", "revision")
+
     def _compute_approval_permissions(self):
         """Compute whether current user can submit/approve/reject."""
         for record in self:
             record.can_submit = record.approval_state == "draft"
-            # Reset-to-draft mirrors action_reset_to_draft's state guard and is
-            # intentionally open to record editors (no approver-group check).
-            record.can_reset = record.approval_state in ("rejected", "revision")
             record.can_approve = False
             record.can_reject = False
             _logger.warning(

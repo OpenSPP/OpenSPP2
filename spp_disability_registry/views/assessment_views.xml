@@ -16,6 +16,7 @@
                     <field name="can_submit" invisible="1" />
                     <field name="can_approve" invisible="1" />
                     <field name="can_reject" invisible="1" />
+                    <field name="can_reset" invisible="1" />
                     <field name="has_approval_definition" invisible="1" />
                     <field name="questionnaire_complete" invisible="1" />
                     <field name="assessment_complete" invisible="1" />
@@ -30,7 +31,6 @@
                         type="object"
                         class="btn-primary"
                         invisible="not can_submit or not has_approval_definition or not assessment_complete"
-                        groups="spp_disability_registry.group_disability_assessor"
                     />
                     <button
                         name="action_approve"
@@ -50,8 +50,7 @@
                         name="action_reset_to_draft"
                         string="Reset to Draft"
                         type="object"
-                        invisible="approval_state not in ('rejected', 'revision')"
-                        groups="spp_disability_registry.group_disability_assessor"
+                        invisible="not can_reset"
                     />
                     <field
                         name="approval_state"

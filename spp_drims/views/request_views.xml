@@ -95,6 +95,10 @@
         <field name="arch" type="xml">
             <form>
                 <header>
+                    <!-- OP#1066: gate approver buttons on the workflow-computed
+                         permissions, not a hardcoded security group. -->
+                    <field name="can_approve" invisible="1" />
+                    <field name="can_reject" invisible="1" />
                     <!-- Draft Actions -->
                     <button
                         name="action_submit"
@@ -111,8 +115,7 @@
                         string="Approve"
                         type="object"
                         class="btn-success"
-                        invisible="approval_state != 'pending'"
-                        groups="spp_drims.group_drims_approver"
+                        invisible="approval_state != 'pending' or not can_approve"
                         confirm="Approve this request? Items will be ready for allocation."
                         data-hotkey="a"
                     />
@@ -121,16 +124,14 @@
                         string="Request Changes"
                         type="object"
                         class="btn-secondary"
-                        invisible="approval_state != 'pending'"
-                        groups="spp_drims.group_drims_approver"
+                        invisible="approval_state != 'pending' or not can_reject"
                     />
                     <button
                         name="action_open_reject_wizard"
                         string="Reject"
                         type="object"
                         class="btn-outline-danger"
-                        invisible="approval_state != 'pending'"
-                        groups="spp_drims.group_drims_approver"
+                        invisible="approval_state != 'pending' or not can_reject"
                     />
 
                     <!-- Revision Actions -->

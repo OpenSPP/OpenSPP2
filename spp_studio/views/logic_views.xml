@@ -171,6 +171,11 @@
                         widget="statusbar"
                         statusbar_visible="draft,pending,published,archived"
                     />
+                    <!-- OP#1066: gate Approve/Reject on the workflow-computed
+                         permissions (configured approver group), not a hardcoded
+                         security group. -->
+                    <field name="can_approve" invisible="1" />
+                    <field name="can_reject" invisible="1" />
 
                     <!-- Action buttons -->
                     <button
@@ -195,8 +200,7 @@
                         string="Approve"
                         type="object"
                         class="btn-success"
-                        invisible="state != 'pending'"
-                        groups="spp_studio.group_studio_manager"
+                        invisible="state != 'pending' or not can_approve"
                     />
                     <!-- Reject button (when governance enabled and pending) -->
                     <button
@@ -204,8 +208,7 @@
                         string="Reject"
                         type="object"
                         class="btn-warning"
-                        invisible="state != 'pending'"
-                        groups="spp_studio.group_studio_manager"
+                        invisible="state != 'pending' or not can_reject"
                         confirm="Reject this logic and return to draft?"
                     />
                     <button
