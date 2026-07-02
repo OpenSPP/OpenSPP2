@@ -122,8 +122,9 @@ class BreakdownService(models.AbstractModel):
         Partner = self.env["res.partner"].sudo()  # nosemgrep: odoo-sudo-without-context,odoo-sudo-on-sensitive-models
         records = Partner.browse(registrant_ids).exists()
 
-        group_ids = records.filtered("is_group").ids
-        individual_ids = set(records.filtered(lambda r: not r.is_group).ids)
+        groups = records.filtered("is_group")
+        group_ids = groups.ids
+        individual_ids = set((records - groups).ids)
 
         if not group_ids:
             return list(individual_ids)
@@ -137,7 +138,6 @@ class BreakdownService(models.AbstractModel):
             ]
         )
 
-        for membership in memberships:
-            individual_ids.add(membership.individual.id)
+        individual_ids.update(memberships.individual.ids)
 
         return list(individual_ids)

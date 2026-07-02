@@ -189,7 +189,7 @@ class DemographicDimension(models.Model):
             # Odoo recordset (Many2one). Empty recordset means the field is unset.
             if not value:
                 return self.default_value or "unknown"
-            if hasattr(value, "code") and value.code:
+            if "code" in value._fields and value.code:
                 key = str(value.code)
             else:
                 key = value.display_name or str(value.id)
@@ -266,6 +266,9 @@ class DemographicDimension(models.Model):
         :param raw_value: The raw dimension value (typically a code string)
         :returns: display_name or None if not found
         """
+        if not raw_value:
+            return None
+
         # Only handle simple field paths (one segment, no dotted traversal
         # like "gender_id.code" where the user explicitly chose a sub-field)
         if "." in self.field_path:
