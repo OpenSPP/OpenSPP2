@@ -176,13 +176,17 @@ class DCIDataSource(models.Model):
         help="Last connection error message",
     )
 
-    # OAuth2 token cache fields (transient storage)
+    # OAuth2 token cache fields (transient storage). Restricted to system
+    # administrators: the cached access token is a credential and must not be
+    # readable by ordinary internal users (who have read on this model).
     _oauth2_access_token = fields.Char(
         string="Cached Access Token",
+        groups="base.group_system",
         help="Cached OAuth2 access token (internal use only)",
     )
     _oauth2_token_expires_at = fields.Datetime(
         string="Token Expiry",
+        groups="base.group_system",
         help="Cached token expiration timestamp (internal use only)",
     )
 
@@ -321,8 +325,12 @@ class DCIDataSource(models.Model):
         )
         _logger.info("Cleared OAuth2 token cache for data source: %s", self.code)
 
-    def get_oauth2_token(self, force_refresh=False):
+    def _get_oauth2_token(self, force_refresh=False):
         """Get or refresh OAuth2 access token.
+
+        Internal (underscore-prefixed) so it is NOT callable over RPC: it mints a
+        token from the administrator-only OAuth2 client secret, so it must only be
+        reachable from trusted server-side code (e.g. the DCIClient service).
 
         Args:
             force_refresh: If True, skip cache and fetch a new token
@@ -338,24 +346,27 @@ class DCIDataSource(models.Model):
         if self.auth_type != "oauth2":
             raise UserError(_("This data source does not use OAuth2 authentication."))
 
+        # sudo(): the OAuth2 client secret and the token cache fields are
+        # restricted to administrators. This method is internal and only reached
+        # from trusted server-side code, so reading/writing them via sudo is safe.
+        sudo_self = self.sudo()  # nosemgrep: odoo-sudo-without-context
+
         # Check if cached token is still valid (with 60 second buffer)
         now = fields.Datetime.now()
-        if not force_refresh and self._oauth2_access_token and self._oauth2_token_expires_at:
-            expiry_with_buffer = self._oauth2_token_expires_at - timedelta(seconds=60)
+        if not force_refresh and sudo_self._oauth2_access_token and sudo_self._oauth2_token_expires_at:
+            expiry_with_buffer = sudo_self._oauth2_token_expires_at - timedelta(seconds=60)
             if now < expiry_with_buffer:
                 _logger.info(
                     "Using cached OAuth2 token for data source: %s (expires at %s)",
                     self.code,
-                    self._oauth2_token_expires_at,
+                    sudo_self._oauth2_token_expires_at,
                 )
-                return self._oauth2_access_token
+                return sudo_self._oauth2_access_token
 
         # Request new token
         _logger.info("Requesting new OAuth2 token for data source: %s", self.code)
 
         try:
-            # Use sudo() to access OAuth2 credentials which are restricted to administrators
-            sudo_self = self.sudo()  # nosemgrep: odoo-sudo-without-context
             token_data = {
                 "grant_type": "client_credentials",
                 "client_id": sudo_self.oauth2_client_id,
@@ -446,8 +457,12 @@ class DCIDataSource(models.Model):
             # Show generic user-friendly message
             raise UserError(_("An unexpected error occurred. Please contact your administrator.")) from e
 
-    def get_headers(self, force_refresh_token=False):
+    def _get_headers(self, force_refresh_token=False):
         """Get HTTP headers for API requests including authentication.
+
+        Internal (underscore-prefixed) so it is NOT callable over RPC: it returns
+        an Authorization header carrying credentials minted from administrator-only
+        fields. Call it only from trusted server-side code (e.g. DCIClient).
 
         Args:
             force_refresh_token: If True, force refresh OAuth2 token (skip cache)
@@ -474,7 +489,7 @@ class DCIDataSource(models.Model):
 
         if self.auth_type == "oauth2":
             _logger.info("Fetching OAuth2 token for data source %s", self.code)
-            token = self.get_oauth2_token(force_refresh=force_refresh_token)
+            token = self._get_oauth2_token(force_refresh=force_refresh_token)
             headers["Authorization"] = f"Bearer {token}"
             _logger.info(
                 "Added OAuth2 Authorization header for data source %s (token length: %d)",
@@ -499,10 +514,15 @@ class DCIDataSource(models.Model):
         """
         self.ensure_one()
 
+        # Testing a connection mints/uses the data source's administrator-only
+        # credentials and makes an outbound call, so require management (write)
+        # access on the record — a read-only user must not trigger it.
+        self.check_access("write")
+
         _logger.info("Testing connection to data source: %s (%s)", self.name, self.code)
 
         try:
-            headers = self.get_headers()
+            headers = self._get_headers()
 
             # Probe the authenticated ping endpoint. A 200 confirms both
             # reachability *and* that our credentials are accepted; a 401/403

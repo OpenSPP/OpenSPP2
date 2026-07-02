@@ -211,7 +211,7 @@ class TestClientMakeRequest(TransactionCase):
             "message": {"q": 1},
         }
         # Avoid auth HTTP in get_headers
-        p = patch.object(type(self.ds), "get_headers", return_value={"Content-Type": "application/json"})
+        p = patch.object(type(self.ds), "_get_headers", return_value={"Content-Type": "application/json"})
         p.start()
         self.addCleanup(p.stop)
 

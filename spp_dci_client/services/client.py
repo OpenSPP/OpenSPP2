@@ -956,8 +956,10 @@ class DCIClient:
         """
         url = f"{self.data_source.base_url.rstrip('/')}{endpoint}"
 
-        # Get headers from data source (includes auth)
-        headers = self.data_source.get_headers()
+        # Get headers from data source (includes auth). Internal method — the
+        # DCIClient service is the trusted server-side entry point for outbound
+        # DCI calls (get_headers/get_oauth2_token are not RPC-exposed).
+        headers = self.data_source._get_headers()
 
         # Track timing and result for outgoing log
         start_time = time.monotonic()
