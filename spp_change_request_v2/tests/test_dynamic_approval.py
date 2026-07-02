@@ -1185,6 +1185,16 @@ class TestDynamicApproval(TransactionCase):
         with self.assertRaises(UserError):
             cr.write({"detail_res_id": substitute.id})
 
+    def test_no_op_write_of_unset_protected_field_is_allowed(self):
+        """Regression (false-positive lockout): writing None to a protected source
+        field that is already unset must not raise post-submit. Odoo stores unset
+        fields as False while a JSON-RPC payload may send None for the same field;
+        the freeze must treat them as equal (no change), not lock the user out."""
+        _cr, detail = self._submit_dynamic_cr(selected="phone")
+        self.assertFalse(detail.birthdate)  # a protected (mapped) field, unset
+        # None vs the stored False is a no-op, not a change — must not raise.
+        detail.write({"birthdate": None})
+
     def test_can_change_selection_while_draft(self):
         """The freeze must not over-block: while still in draft the user can
         freely change the selected field (which re-routes on submission)."""
