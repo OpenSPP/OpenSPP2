@@ -15,7 +15,7 @@ from .common import (
     Place,
     AdditionalAttribute,
 )
-from .person import Person, RelatedPerson, DisabilityInfo
+from .person import HouseholdInfo, Person, ProgramEnrollment, RelatedPerson, DisabilityInfo
 from .group import Group, Member
 from .search import (
     SearchCriteria,
@@ -76,6 +76,8 @@ __all__ = [
     "AdditionalAttribute",
     # Person
     "Person",
+    "ProgramEnrollment",
+    "HouseholdInfo",
     "RelatedPerson",
     "DisabilityInfo",
     # Group

@@ -184,7 +184,7 @@ class TestMailThreadPosting(TransactionCase):
 
     def test_is_post_to_thread_default_false(self):
         """Test that is_post_to_thread defaults to False."""
-        model = self.env["ir.model"].search([("model", "=", "spp.program")], limit=1)
+        model = self.env["ir.model"].search([("model", "=", "res.users")], limit=1)
         # Delete any existing rule for this model to avoid uniqueness constraint
         existing_rule = self.env["spp.audit.rule"].search([("model_id", "=", model.id)], limit=1)
         if existing_rule:
@@ -249,7 +249,7 @@ class TestSelfProtection(TransactionCase):
                 "OPENSPP_AUDIT_FILE_PATH": self.temp_dir,
             },
         ):
-            model = self.env["ir.model"].search([("model", "=", "spp.cycle")], limit=1)
+            model = self.env["ir.model"].search([("model", "=", "res.users")], limit=1)
             # Delete any existing rule for this model to avoid uniqueness constraint
             existing_rule = self.env["spp.audit.rule"].search([("model_id", "=", model.id)], limit=1)
             if existing_rule:
@@ -289,7 +289,7 @@ class TestSelfProtection(TransactionCase):
                 "OPENSPP_AUDIT_FILE_PATH": self.temp_dir,
             },
         ):
-            model = self.env["ir.model"].search([("model", "=", "spp.cycle")], limit=1)
+            model = self.env["ir.model"].search([("model", "=", "res.users")], limit=1)
             # Delete any existing rule for this model to avoid uniqueness constraint
             existing_rule = self.env["spp.audit.rule"].search([("model_id", "=", model.id)], limit=1)
             if existing_rule:

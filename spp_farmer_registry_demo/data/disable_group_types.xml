@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    Deactivate the `household` and `family` codes from the Group Type
+    vocabulary (urn:openspp:vocab:group-type) for the farmer-registry demo
+    install, per OP#915 QA round-3: a farmer-only registry should only
+    expose `Farm` and `Cooperative` as choices when creating a new group.
+
+    We toggle the `active` flag rather than removing the codes. The codes
+    themselves live in another module's data files; the system-vocabulary
+    write guard explicitly allows updating `active` even on system codes.
+-->
+<odoo noupdate="1">
+    <function model="spp.vocabulary.code" name="write">
+        <function
+            model="spp.vocabulary.code"
+            name="search"
+            eval="[[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:group-type'), ('code', 'in', ['household', 'family'])]]"
+        />
+        <value eval="{'active': False}" />
+    </function>
+</odoo>

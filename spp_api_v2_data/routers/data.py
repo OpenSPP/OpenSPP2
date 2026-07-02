@@ -304,6 +304,21 @@ async def pull_values(
             detail="At least one subject_external_id is required",
         )
 
+    # Only ordinary external-provider variables may be pulled through this
+    # generic API. Resolve the requested name against the variable definitions
+    # by cel_accessor (the key DCI/cache rows are stored under); deny if it
+    # resolves to nothing (fail closed: orphan cache rows from a deleted or
+    # de-provisioned variable stay sensitive) or if ANY match is not pullable
+    # (e.g. DCI-backed inter-registry data or scoring/PMT values). A uniform
+    # 403 avoids signalling whether a denied name is sensitive or unknown.
+    Variable = env["spp.cel.variable"].sudo()  # nosemgrep: odoo-sudo-without-context
+    matched_variables = Variable.search([("cel_accessor", "=", variable)])
+    if not matched_variables or not all(v.is_data_api_pullable() for v in matched_variables):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Variable is not available through the data API",
+        )
+
     # Resolve to internal IDs
     subject_id_map = {}  # internal_id -> external_id
     for ext_id in external_ids:
@@ -317,6 +332,7 @@ async def pull_values(
     # Query cached values
     DataValue = env["spp.data.value"].sudo()  # nosemgrep: odoo-sudo-without-context
     domain = [
+        ("company_id", "=", env.company.id),
         ("variable_name", "=", variable),
         ("subject_id", "in", list(subject_id_map.keys())),
         ("period_key", "=", period_key or "current"),
@@ -335,7 +351,9 @@ async def pull_values(
                 value=value,
                 period_key=rec.period_key,
                 recorded_at=rec.recorded_at,
-                expires_at=rec.expires_at,
+                # Odoo returns False (not None) for an unset Datetime; a value
+                # cached without a TTL must serialize as null, not crash.
+                expires_at=rec.expires_at or None,
                 is_stale=rec.is_stale,
                 source_type=rec.source_type,
             )
@@ -425,18 +443,22 @@ async def list_variables(
         )
 
     Variable = env["spp.cel.variable"].sudo()  # nosemgrep: odoo-sudo-without-context
-    domain = [("active", "=", True)]
+    # Only ordinary external-provider variables are exchanged through the data
+    # API. The pullable domain (extended by the DCI module to drop DCI-backed
+    # providers) filters at the DB level, so total/pagination stay consistent;
+    # computed/scoring/aggregate and DCI accessors are never enumerated.
+    domain = Variable._get_data_api_pullable_domain()
 
     if provider_code:
         Provider = env["spp.data.provider"].sudo()  # nosemgrep: odoo-sudo-without-context
         provider = Provider.search([("code", "=", provider_code)], limit=1)
         if provider:
-            domain.append(("external_provider_id", "=", provider.id))
+            domain = domain + [("external_provider_id", "=", provider.id)]
         else:
             return VariablesListResponse(total=0, items=[])
 
     if source_type:
-        domain.append(("source_type", "=", source_type))
+        domain = domain + [("source_type", "=", source_type)]
 
     # Apply cursor-based pagination
     if _last_id is not None:
@@ -449,7 +471,8 @@ async def list_variables(
         VariableInfo(
             name=v.name,
             cel_accessor=v.cel_accessor,
-            description=v.description or None,
+            # description is contributed by spp_studio; tolerate its absence.
+            description=getattr(v, "description", None) or None,
             value_type=v.value_type or "number",
             source_type=v.source_type or "computed",
             cache_strategy=v.cache_strategy or "none",

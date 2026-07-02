@@ -9,6 +9,7 @@ This test suite validates the deferred resolution architecture where:
 """
 
 import logging
+import unittest
 
 from odoo.tests import TransactionCase, tagged
 
@@ -486,6 +487,12 @@ class TestDeferredResolutionProgramOverrides(TransactionCase, CELTestDataMixin):
     def setUpClass(cls):
         """Set up test data."""
         super().setUpClass()
+        # Program-specific overrides require spp_programs (the
+        # spp.cel.program.parameter model lives there, surfaced via
+        # spp_studio_programs). When spp_studio is installed without programs,
+        # skip the whole class instead of erroring in setUpClass.
+        if "spp.cel.program.parameter" not in cls.env:
+            raise unittest.SkipTest("spp.cel.program.parameter not available (spp_programs not installed)")
         cls._test_id = cls._get_unique_test_id()
         cls.LogicVariable = cls.env["spp.cel.variable"]
         cls.LogicVariableResolver = cls.env["spp.cel.variable.resolver"]

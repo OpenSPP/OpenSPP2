@@ -3,7 +3,7 @@
 
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from odoo.addons.spp_api_v2.schemas.base import Reference, ResourceMeta
 
@@ -36,9 +36,9 @@ class UnitOfMeasure(BaseModel):
     # Metadata
     meta: ResourceMeta | None = None
 
-    class Config:
-        populate_by_name = True
-        json_schema_extra = {
+    model_config = ConfigDict(
+        populate_by_name=True,
+        json_schema_extra={
             "example": {
                 "resourceType": "UnitOfMeasure",
                 "identifier": "kg",
@@ -50,4 +50,5 @@ class UnitOfMeasure(BaseModel):
                 },
                 "factor": 1.0,
             }
-        }
+        },
+    )

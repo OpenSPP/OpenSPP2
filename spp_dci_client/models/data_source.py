@@ -48,7 +48,6 @@ class DCIDataSource(models.Model):
         [
             ("none", "None"),
             ("bearer", "Bearer Token"),
-            ("basic", "Basic Authentication"),
             ("oauth2", "OAuth2"),
         ],
         default="oauth2",
@@ -199,6 +198,35 @@ class DCIDataSource(models.Model):
                 record.oauth2_client_secret = value
             elif not value:
                 record.oauth2_client_secret = False
+
+    @api.model
+    def _apply_secret_display(self, vals):
+        """Translate the masked oauth2_client_secret_display input into the real
+        oauth2_client_secret field.
+
+        The display field's compute depends on oauth2_client_secret while its
+        inverse writes it back - a self-referential cycle. During create/write
+        the display recomputes to the mask before the inverse reads it, so the
+        user-entered secret is lost and the OAuth2 constraint wrongly fails.
+        Handling the translation here, before super(), avoids that cycle.
+        """
+        if "oauth2_client_secret_display" not in vals:
+            return
+        value = vals.pop("oauth2_client_secret_display")
+        # An unchanged masked value means "keep the stored secret as-is".
+        if value == self._SECRET_MASK:
+            return
+        vals["oauth2_client_secret"] = value or False
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            self._apply_secret_display(vals)
+        return super().create(vals_list)
+
+    def write(self, vals):
+        self._apply_secret_display(vals)
+        return super().write(vals)
 
     @api.constrains("code")
     def _check_code_unique(self):
@@ -457,9 +485,6 @@ class DCIDataSource(models.Model):
             if not self.bearer_token:
                 raise UserError(_("Bearer token is not configured for this data source."))
             headers["Authorization"] = f"Bearer {self.bearer_token}"
-        elif self.auth_type == "basic":
-            # Basic auth would require username/password fields (not in current spec)
-            raise UserError(_("Basic authentication is not yet implemented."))
 
         return headers
 
@@ -479,22 +504,20 @@ class DCIDataSource(models.Model):
         try:
             headers = self.get_headers()
 
-            # Test connection with a simple request to base URL
-            # Most DCI APIs have a health or info endpoint at root
-            test_url = f"{self.base_url}/health"
+            # Probe the authenticated ping endpoint. A 200 confirms both
+            # reachability *and* that our credentials are accepted; a 401/403
+            # means we reached the server but auth is misconfigured (and falls
+            # through to the HTTPStatusError branch below).
+            test_url = f"{self.base_url}/registry/ping"
 
             with httpx.Client(verify=self.verify_ssl, timeout=self.timeout) as client:
                 response = client.get(test_url, headers=headers)
 
-                # Consider 200, 404, and 405 as "connection successful"
-                # (404/405 mean we reached the server, just wrong endpoint)
-                if response.status_code in (200, 404, 405):
+                if response.status_code == 200:
                     _logger.info(
-                        "Connection test successful for data source %s: HTTP %s",
+                        "Connection test successful for data source %s: HTTP 200",
                         self.code,
-                        response.status_code,
                     )
-                    # Update state to active and record test date
                     self.write(
                         {
                             "state": "active",
@@ -507,9 +530,40 @@ class DCIDataSource(models.Model):
                         "tag": "display_notification",
                         "params": {
                             "title": _("Connection Successful"),
-                            "message": _("Successfully connected to %s at %s (HTTP %s)")
-                            % (self.name, self.base_url, response.status_code),
+                            "message": _("Connected to %s at %s and credentials were accepted.")
+                            % (self.name, self.base_url),
                             "type": "success",
+                            "sticky": False,
+                        },
+                    }
+                elif response.status_code in (404, 405):
+                    # We reached the server, but it has no ping endpoint (e.g. a
+                    # non-OpenSPP DCI server). Treat as reachable, but make clear
+                    # the credentials were not verified.
+                    _logger.info(
+                        "Connection test reached data source %s but no ping endpoint (HTTP %s); "
+                        "credentials not verified",
+                        self.code,
+                        response.status_code,
+                    )
+                    self.write(
+                        {
+                            "state": "active",
+                            "last_test_date": fields.Datetime.now(),
+                            "last_error": False,
+                        }
+                    )
+                    return {
+                        "type": "ir.actions.client",
+                        "tag": "display_notification",
+                        "params": {
+                            "title": _("Server Reachable"),
+                            "message": _(
+                                "Reached %s at %s, but it has no ping endpoint (HTTP %s), "
+                                "so the credentials could not be verified."
+                            )
+                            % (self.name, self.base_url, response.status_code),
+                            "type": "warning",
                             "sticky": False,
                         },
                     }

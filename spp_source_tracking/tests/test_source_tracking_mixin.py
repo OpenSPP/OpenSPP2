@@ -17,8 +17,12 @@ class TestSourceTrackingMixin(TransactionCase):
         cls.RegistryId = cls.env["spp.registry.id"]
         cls.VocabularyCode = cls.env["spp.vocabulary.code"]
         cls.Vocabulary = cls.env["spp.vocabulary"]
-        cls.Program = cls.env["spp.program"]
-        cls.Membership = cls.env["spp.program.membership"]
+        # spp.program lives in spp_programs; the program-membership source
+        # tracking now lives in the spp_source_tracking_programs companion.
+        cls.has_programs = "spp.program" in cls.env
+        if cls.has_programs:
+            cls.Program = cls.env["spp.program"]
+            cls.Membership = cls.env["spp.program.membership"]
 
         # Create a vocabulary for ID types (id_type_id expects spp.vocabulary.code)
         cls.test_vocab = cls.Vocabulary.create(
@@ -36,13 +40,14 @@ class TestSourceTrackingMixin(TransactionCase):
             }
         )
 
-        # Create a test program with unique name
-        cls.program = cls.Program.create(
-            {
-                "name": f"Test Program {uuid.uuid4().hex[:8]}",
-                "target_type": "individual",
-            }
-        )
+        # Create a test program with unique name (only when programs installed)
+        if cls.has_programs:
+            cls.program = cls.Program.create(
+                {
+                    "name": f"Test Program {uuid.uuid4().hex[:8]}",
+                    "target_type": "individual",
+                }
+            )
 
     def test_create_sets_default_source_system(self):
         """Test that create sets default source_system to 'odoo-ui'."""
@@ -189,6 +194,8 @@ class TestSourceTrackingMixin(TransactionCase):
 
     def test_program_membership_has_source_tracking(self):
         """Test that spp.program.membership inherits source tracking mixin."""
+        if not self.has_programs:
+            self.skipTest("spp.program not installed (see spp_source_tracking_programs)")
         partner = self.Partner.create(
             {
                 "name": "Test Partner",

@@ -6,6 +6,7 @@ from typing import Any
 
 from odoo import api, fields, models
 from odoo.fields import Domain
+from odoo.tools.sql import SQL
 
 from ..exceptions import CELMetricsUnavailableError, CELValidationError
 from ..services import cel_parser as P
@@ -873,13 +874,18 @@ class CelTranslator(models.AbstractModel):
                         subject_var = a1.name
                     elif isinstance(a1, P.Attr) and isinstance(a1.obj, P.Ident):
                         subject_var = a1.obj.name
+            # Named call arguments become metric params (keyed via params_hash),
+            # e.g. metric('dr.dci.severity', me, arg='Vision').
+            params = None
+            if getattr(cmp.left, "kwargs", None):
+                params = {k: self._eval_literal(v, ctx) for k, v in cmp.left.kwargs.items()}
             rhs = self._eval_literal(cmp.right, ctx)
             op = {"EQ": "==", "NE": "!=", "GT": ">", "GE": ">=", "LT": "<", "LE": "<="}[cmp.op]
             plan = MetricCompare(
                 metric=metric_name,
                 subject_var=subject_var,
                 period_key=period_key,
-                params=None,
+                params=params,
                 op=op,
                 rhs=rhs,
             )
@@ -1181,18 +1187,9 @@ class CelTranslator(models.AbstractModel):
                             .search([("value", "=", right.capitalize())], limit=None)
                         )
                         if not direct and right.lower() in {"male", "female"}:
-                            code_defaults = {"male": "M", "female": "F"}
-                            direct = (
-                                self.env[comodel]  # nosemgrep: odoo-sudo-without-context
-                                .with_context(active_test=False)
-                                .sudo()
-                                .create(
-                                    {
-                                        "value": right.capitalize(),
-                                        "code": code_defaults[right.lower()],
-                                    }
-                                )
-                            )
+                            # Lookup-only: the gender label is seeded as module
+                            # data, never created here. Absent => match nothing.
+                            return [("id", "=", 0)]
                         if direct:
                             resolved_ids = direct.ids
                             if op in ("=", "=="):
@@ -1389,6 +1386,284 @@ class CelTranslator(models.AbstractModel):
     def invalidate_cache(self):
         """Invalidate the translation cache. Call when profiles or system settings change."""
         invalidate_translation_cache()
+
+    # =========================================================================
+    # CEL → SQL CASE WHEN (value expression compiler)
+    # =========================================================================
+
+    @api.model
+    def to_sql_case(self, expression: str, model: str, alias: str, cfg: dict[str, Any] | None = None) -> SQL | None:
+        """Compile a CEL expression to a SQL value expression.
+
+        Unlike translate() which produces Odoo domain filters (for WHERE clauses),
+        this produces a SQL expression that returns a value (for SELECT columns).
+        Primarily used for CASE WHEN expressions from CEL ternaries.
+
+        Args:
+            expression: CEL expression string
+            model: Odoo model name (e.g., "res.partner")
+            alias: SQL table alias (e.g., "ind")
+            cfg: Optional configuration dictionary
+
+        Returns:
+            SQL object representing the value expression, or None if the
+            expression cannot be compiled to SQL (caller should fall back
+            to Python evaluation).
+        """
+        try:
+            ast = P.parse(expression)
+            return self._ast_to_sql_expr(ast, model, alias, cfg or {}, {})
+        except (NotImplementedError, CELValidationError):
+            return None
+        except (SyntaxError, ValueError, KeyError, AttributeError) as e:
+            _logger.warning("CEL to SQL compilation failed for '%s': %s", expression[:80], e)
+            return None
+
+    def _ast_to_sql_expr(  # noqa: C901
+        self,
+        node: Any,
+        model: str,
+        alias: str,
+        cfg: dict[str, Any],
+        ctx: dict[str, Any],
+    ) -> SQL | None:
+        """Recursively compile a CEL AST node to a SQL expression.
+
+        Returns SQL for supported nodes, None for unsupported ones.
+        """
+        # --- Ternary -> CASE with multiple WHEN clauses ---
+        if isinstance(node, P.Ternary):
+            return self._ternary_to_case_sql(node, model, alias, cfg, ctx)
+
+        # --- Literals ---
+        if isinstance(node, P.Literal):
+            if node.value is None:
+                return SQL("NULL")
+            if isinstance(node.value, bool):
+                return SQL("TRUE") if node.value else SQL("FALSE")
+            if isinstance(node.value, str):
+                return SQL("%s", node.value)
+            if isinstance(node.value, int | float):
+                return SQL("%s", node.value)
+            return None
+
+        # --- Compare ---
+        if isinstance(node, P.Compare):
+            return self._compare_to_sql(node, model, alias, cfg, ctx)
+
+        # --- Ident / Attr -> column reference ---
+        if isinstance(node, P.Ident):
+            if node.name == "r":
+                # "r" alone doesn't make sense as a value expression
+                return None
+            # CEL reserved words that are values
+            if node.name == "null":
+                return SQL("NULL")
+            if node.name == "true":
+                return SQL("TRUE")
+            if node.name == "false":
+                return SQL("FALSE")
+            # Plain field name
+            field_name = self._normalize_field_name(model, node.name)
+            return SQL("%s.%s", SQL.identifier(alias), SQL.identifier(field_name))
+
+        if isinstance(node, P.Attr):
+            return self._attr_to_sql_column(node, model, alias, cfg, ctx)
+
+        # --- Boolean connectives ---
+        if isinstance(node, P.And):
+            left = self._ast_to_sql_expr(node.left, model, alias, cfg, ctx)
+            right = self._ast_to_sql_expr(node.right, model, alias, cfg, ctx)
+            if left is None or right is None:
+                return None
+            return SQL("(%s AND %s)", left, right)
+
+        if isinstance(node, P.Or):
+            left = self._ast_to_sql_expr(node.left, model, alias, cfg, ctx)
+            right = self._ast_to_sql_expr(node.right, model, alias, cfg, ctx)
+            if left is None or right is None:
+                return None
+            return SQL("(%s OR %s)", left, right)
+
+        if isinstance(node, P.Not):
+            expr = self._ast_to_sql_expr(node.expr, model, alias, cfg, ctx)
+            if expr is None:
+                return None
+            return SQL("NOT (%s)", expr)
+
+        # --- Unsupported: BinOp, Neg, InOp, Call ---
+        return None
+
+    def _ternary_to_case_sql(
+        self,
+        node: P.Ternary,
+        model: str,
+        alias: str,
+        cfg: dict[str, Any],
+        ctx: dict[str, Any],
+    ) -> SQL | None:
+        """Flatten a chain of nested Ternary nodes into a single CASE expression.
+
+        CEL: a ? x : b ? y : c ? z : w
+        SQL: CASE WHEN a THEN x WHEN b THEN y WHEN c THEN z ELSE w END
+
+        This avoids nested CASE WHEN that causes SQL type mismatch issues.
+        """
+        when_clauses = []
+        current = node
+
+        while isinstance(current, P.Ternary):
+            cond_sql = self._ast_to_sql_expr(current.condition, model, alias, cfg, ctx)
+            then_sql = self._ast_to_sql_expr(current.true_expr, model, alias, cfg, ctx)
+            if cond_sql is None or then_sql is None:
+                return None
+            when_clauses.append((cond_sql, then_sql))
+            current = current.false_expr
+
+        # The final false_expr is the ELSE value
+        else_sql = self._ast_to_sql_expr(current, model, alias, cfg, ctx)
+        if else_sql is None:
+            return None
+
+        # Build: CASE WHEN c1 THEN v1 WHEN c2 THEN v2 ... ELSE vn END
+        parts = [SQL("CASE")]
+        for cond, then in when_clauses:
+            parts.append(SQL("WHEN %s THEN %s", cond, then))
+        parts.append(SQL("ELSE %s END", else_sql))
+
+        return SQL(" ").join(parts)
+
+    def _compare_to_sql(
+        self,
+        cmp: P.Compare,
+        model: str,
+        alias: str,
+        cfg: dict[str, Any],
+        ctx: dict[str, Any],
+    ) -> SQL | None:
+        """Compile a Compare AST node to a SQL boolean expression."""
+        from .cel_sql_builder import SQLBuilder
+
+        builder = SQLBuilder(self.env)
+        opmap = {"EQ": "=", "NE": "!=", "GT": ">", "GE": ">=", "LT": "<", "LE": "<="}
+
+        # --- age_years(r.field) <op> N -> date arithmetic ---
+        if (
+            isinstance(cmp.left, P.Call)
+            and isinstance(cmp.left.func, P.Ident)
+            and cmp.left.func.name == "age_years"
+            and cmp.left.args
+        ):
+            return self._age_years_compare_to_sql(cmp, model, alias, cfg, ctx, opmap)
+
+        # --- null comparisons: field == null / field != null ---
+        right_is_null = (isinstance(cmp.right, P.Literal) and cmp.right.value is None) or (
+            isinstance(cmp.right, P.Ident) and cmp.right.name == "null"
+        )
+        left_is_null = (isinstance(cmp.left, P.Literal) and cmp.left.value is None) or (
+            isinstance(cmp.left, P.Ident) and cmp.left.name == "null"
+        )
+
+        if right_is_null:
+            left_sql = self._ast_to_sql_expr(cmp.left, model, alias, cfg, ctx)
+            if left_sql is None:
+                return None
+            if cmp.op == "EQ":
+                return SQL("%s IS NULL", left_sql)
+            elif cmp.op == "NE":
+                return SQL("%s IS NOT NULL", left_sql)
+            return None
+
+        if left_is_null:
+            right_sql = self._ast_to_sql_expr(cmp.right, model, alias, cfg, ctx)
+            if right_sql is None:
+                return None
+            if cmp.op == "EQ":
+                return SQL("%s IS NULL", right_sql)
+            elif cmp.op == "NE":
+                return SQL("%s IS NOT NULL", right_sql)
+            return None
+
+        # --- general comparison: left <op> right ---
+        sql_op = opmap.get(cmp.op)
+        if sql_op is None:
+            return None
+
+        left_sql = self._ast_to_sql_expr(cmp.left, model, alias, cfg, ctx)
+        right_sql = self._ast_to_sql_expr(cmp.right, model, alias, cfg, ctx)
+        if left_sql is None or right_sql is None:
+            return None
+
+        return builder.comparison(left_sql, sql_op, right_sql)
+
+    def _age_years_compare_to_sql(
+        self,
+        cmp: P.Compare,
+        model: str,
+        alias: str,
+        cfg: dict[str, Any],
+        ctx: dict[str, Any],
+        opmap: dict[str, str],
+    ) -> SQL | None:
+        """Compile age_years(r.field) <op> N to date arithmetic SQL.
+
+        age_years(r.birthdate) < 18 becomes:
+            r.birthdate > CURRENT_DATE - INTERVAL '18 years'
+
+        The operator inversion matches _cmp_to_leaf() logic.
+        """
+        # Resolve the field being passed to age_years()
+        field_arg = cmp.left.args[0]
+        field_sql = self._ast_to_sql_expr(field_arg, model, alias, cfg, ctx)
+        if field_sql is None:
+            return None
+
+        # The right side must be a numeric literal
+        if not isinstance(cmp.right, P.Literal) or not isinstance(cmp.right.value, int | float):
+            return None
+
+        n = int(cmp.right.value)
+        interval_n = SQL("CURRENT_DATE - INTERVAL %s", f"{n} years")
+
+        op = cmp.op
+        if op == "LT":
+            # age < n => birthdate > cutoff (younger than n)
+            return SQL("%s > %s", field_sql, interval_n)
+        elif op == "LE":
+            # age <= n => birthdate >= cutoff
+            return SQL("%s >= %s", field_sql, interval_n)
+        elif op == "GT":
+            # age > n => birthdate < cutoff (older than n)
+            return SQL("%s < %s", field_sql, interval_n)
+        elif op == "GE":
+            # age >= n => birthdate <= cutoff
+            return SQL("%s <= %s", field_sql, interval_n)
+        elif op == "EQ":
+            # age == n => birthdate in (cutoff_{n+1}, cutoff_n]
+            interval_n1 = SQL("CURRENT_DATE - INTERVAL %s", f"{n + 1} years")
+            return SQL("(%s > %s AND %s <= %s)", field_sql, interval_n1, field_sql, interval_n)
+        elif op == "NE":
+            # age != n => birthdate <= cutoff_{n+1} OR birthdate > cutoff_n
+            interval_n1 = SQL("CURRENT_DATE - INTERVAL %s", f"{n + 1} years")
+            return SQL("(%s <= %s OR %s > %s)", field_sql, interval_n1, field_sql, interval_n)
+
+        return None
+
+    def _attr_to_sql_column(
+        self,
+        node: P.Attr,
+        model: str,
+        alias: str,
+        cfg: dict[str, Any],
+        ctx: dict[str, Any],
+    ) -> SQL | None:
+        """Compile an Attr node (e.g., r.birthdate) to a SQL column reference."""
+        if isinstance(node.obj, P.Ident) and node.obj.name == "r":
+            field_name = self._normalize_field_name(model, node.name)
+            return SQL("%s.%s", SQL.identifier(alias), SQL.identifier(field_name))
+
+        # Nested attr (e.g., r.gender_id.code) - not supported in value context
+        return None
 
     def _negate_leaf(self, plan):
         if not isinstance(plan, LeafDomain):

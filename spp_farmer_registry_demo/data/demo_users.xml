@@ -12,12 +12,19 @@
              ROLE OVERRIDES FOR SPP_DEMO USERS
              ═══════════════════════════════════════════════════════════════════════ -->
 
-    <!-- Demo Manager - Farm Manager, CR Requestor -->
+    <!-- Manager - Farm Manager, CR Requestor.
+         Renames the upstream spp_demo.demo_manager record + adds farmer
+         roles. Per OP#915 QA — no "Demo" prefix on user display name or
+         login. xmlid reference is preserved so existing code that does
+         env.ref("spp_demo.demo_manager") keeps working. -->
     <record
         id="spp_demo.demo_manager"
         model="res.users"
         context="{'no_reset_password': True}"
     >
+        <field name="name">Manager</field>
+        <field name="login">manager</field>
+        <field name="email">manager@example.com</field>
         <field
             name="role_line_ids"
             eval="[
@@ -27,12 +34,15 @@
         />
     </record>
 
-    <!-- Demo Officer - Farm User, CR Requestor -->
+    <!-- Officer - Farm User, CR Requestor -->
     <record
         id="spp_demo.demo_officer"
         model="res.users"
         context="{'no_reset_password': True}"
     >
+        <field name="name">Officer</field>
+        <field name="login">officer</field>
+        <field name="email">officer@example.com</field>
         <field
             name="role_line_ids"
             eval="[
@@ -42,12 +52,15 @@
         />
     </record>
 
-    <!-- Demo Supervisor - Farm Manager -->
+    <!-- Supervisor - Farm Manager -->
     <record
         id="spp_demo.demo_supervisor"
         model="res.users"
         context="{'no_reset_password': True}"
     >
+        <field name="name">Supervisor</field>
+        <field name="login">supervisor</field>
+        <field name="email">supervisor@example.com</field>
         <field
             name="role_line_ids"
             eval="[
@@ -56,12 +69,15 @@
         />
     </record>
 
-    <!-- Demo Viewer - Farm User -->
+    <!-- Viewer - Farm User -->
     <record
         id="spp_demo.demo_viewer"
         model="res.users"
         context="{'no_reset_password': True}"
     >
+        <field name="name">Viewer</field>
+        <field name="login">viewer</field>
+        <field name="email">viewer@example.com</field>
         <field
             name="role_line_ids"
             eval="[
@@ -80,9 +96,9 @@
         model="res.users"
         context="{'no_reset_password': True}"
     >
-        <field name="name">Demo CR Local Validator</field>
-        <field name="login">demo_cr_local_validator</field>
-        <field name="email">demo_cr_local_validator@demo.spp</field>
+        <field name="name">CR Local Validator</field>
+        <field name="login">cr_local_validator</field>
+        <field name="email">cr_local_validator@example.com</field>
         <field name="password">demo</field>
         <field
             name="role_line_ids"
@@ -101,9 +117,9 @@
         model="res.users"
         context="{'no_reset_password': True}"
     >
-        <field name="name">Demo CR HQ Validator</field>
-        <field name="login">demo_cr_hq_validator</field>
-        <field name="email">demo_cr_hq_validator@demo.spp</field>
+        <field name="name">CR HQ Validator</field>
+        <field name="login">cr_hq_validator</field>
+        <field name="email">cr_hq_validator@example.com</field>
         <field name="password">demo</field>
         <field
             name="role_line_ids"
@@ -114,5 +130,79 @@
         />
         <field name="company_id" ref="base.main_company" />
         <field name="active" eval="True" />
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+             PROGRAM CYCLE / ENTITLEMENT APPROVER
+             ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Program Manager - approves program cycles and entitlements.
+         The demo's cycle + entitlement approval definitions are assigned to
+         `spp_programs.group_programs_manager`, so the approver must hold the
+         Program Manager role. Approving a cycle enqueues the entitlement
+         validation job, which needs `queue.job` create rights — granted via
+         `job_worker.group_queue_job_manager` on the Program Manager role. The
+         Farm User role is added so this account can also browse the registry
+         and the farms it disburses to. Per OP#915 round 7. -->
+    <record
+        id="demo_user_program_manager"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field name="name">Program Manager</field>
+        <field name="login">program_manager</field>
+        <field name="email">program_manager@example.com</field>
+        <field name="password">demo</field>
+        <field
+            name="role_line_ids"
+            eval="[
+                (0, 0, {'role_id': ref('spp_user_roles.global_role_program_manager')}),
+                (0, 0, {'role_id': ref('spp_farmer_registry.global_role_farm_user')}),
+            ]"
+        />
+        <field name="company_id" ref="base.main_company" />
+        <field name="active" eval="True" />
+    </record>
+
+    <!-- Cycle Approver - approves program cycles.
+         The demo's cycle approval definition routes through
+         `spp_programs.group_programs_cycle_approver` (the functional role
+         purpose-built for cycle approval — the "Approve Cycle" button is gated
+         to it), so the approver holds the Program Cycle Approver role. That
+         role also carries queue-job manager rights, so approving a cycle (which
+         enqueues entitlement validation) does not hit an access error. The Farm
+         User role is added so this account can browse the registry. Per OP#915:
+         QA needs a dedicated cycle approver, distinct from the Program Manager
+         (a Program Manager is not a Cycle Approver and cannot approve cycles). -->
+    <record
+        id="demo_user_cycle_approver"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field name="name">Cycle Approver</field>
+        <field name="login">cycle_approver</field>
+        <field name="email">cycle_approver@example.com</field>
+        <field name="password">demo</field>
+        <field
+            name="role_line_ids"
+            eval="[
+                (0, 0, {'role_id': ref('spp_programs.global_role_program_cycle_approver')}),
+                (0, 0, {'role_id': ref('spp_farmer_registry.global_role_farm_user')}),
+            ]"
+        />
+        <field name="company_id" ref="base.main_company" />
+        <field name="active" eval="True" />
+    </record>
+
+    <!-- Keep the demo loader (SPP Admin) able to approve cycles cleanly. The
+         cycle approval definition routes through the Cycle Approver group, so
+         grant that group to SPP Admin. Without this, "Load Farmer Demo" would
+         log a spurious "Could not approve cycle" traceback for every cycle
+         before falling back to a forced approval. Per OP#915. -->
+    <record id="spp_security.group_spp_admin" model="res.groups">
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('spp_programs.group_programs_cycle_approver'))]"
+        />
     </record>
 </odoo>

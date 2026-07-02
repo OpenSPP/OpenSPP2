@@ -1,0 +1,525 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils: https://docutils.sourceforge.io/" />
+<title>OpenSPP DCI Indicators</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 9511 2024-01-13 09:50:07Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+Despite the name, some widely supported CSS2 features are used.
+
+See https://docutils.sourceforge.io/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+.subscript {
+  vertical-align: sub;
+  font-size: smaller }
+
+.superscript {
+  vertical-align: super;
+  font-size: smaller }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+object[type="image/svg+xml"], object[type="application/x-shockwave-flash"] {
+  overflow: hidden;
+}
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title, .code .error {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left, object.align-left, table.align-left {
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right, object.align-right, table.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+img.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+table.align-center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: inherit }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+.align-top    {
+  vertical-align: top }
+
+.align-middle {
+  vertical-align: middle }
+
+.align-bottom {
+  vertical-align: bottom }
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block, pre.math, pre.code {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+pre.code .ln { color: gray; } /* line numbers */
+pre.code, code { background-color: #eeeeee }
+pre.code .comment, code .comment { color: #5C6576 }
+pre.code .keyword, code .keyword { color: #3B0D06; font-weight: bold }
+pre.code .literal.string, code .literal.string { color: #0C5404 }
+pre.code .name.builtin, code .name.builtin { color: #352B84 }
+pre.code .deleted, code .deleted { background-color: #DEB0A1}
+pre.code .inserted, code .inserted { background-color: #A3D289}
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic, pre.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+/* "booktabs" style (no vertical lines) */
+table.docutils.booktabs {
+  border: 0px;
+  border-top: 2px solid;
+  border-bottom: 2px solid;
+  border-collapse: collapse;
+}
+table.docutils.booktabs * {
+  border: 0px;
+}
+table.docutils.booktabs th {
+  border-bottom: thin solid;
+  text-align: left;
+}
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="openspp-dci-indicators">
+<h1 class="title">OpenSPP DCI Indicators</h1>
+
+<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! This file is generated by oca-gen-addon-readme !!
+!! changes will be overwritten.                   !!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! source digest: sha256:0604a32bf5aa6150fe254a3bcb0435a26e71a307533aff9239239d217d2b2cfd
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Alpha" src="https://img.shields.io/badge/maturity-Alpha-red.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_dci_indicators"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p>Connects OpenSPP’s CEL eligibility/indicator engine to external
+DCI-compliant registries (CRVS, Disability Registry). Registry data is
+fetched over the DCI protocol at sync time, cached locally with a TTL,
+and becomes usable in any CEL expression. CEL evaluation compiles to SQL
+over the cache and never calls a registry per record, so eligibility
+scales to full populations.</p>
+<div class="section" id="key-capabilities">
+<h1>Key Capabilities</h1>
+<ul class="simple">
+<li>Link a CEL Data Provider to a DCI Data Source via the <strong>DCI
+Integration</strong> tab, making the provider “DCI-backed”</li>
+<li>Fetch and cache registry values per registrant via the <strong>Sync DCI
+Values</strong> action (or the disabled-by-default daily cron)</li>
+<li>Query Civil Registration via <tt class="docutils literal">r.dci.crvs.is_alive</tt>,
+<tt class="docutils literal">r.dci.crvs.birth_verified</tt>, and the parameterized
+<tt class="docutils literal"><span class="pre">r.dci.crvs.has_event('birth'|'death')</span></tt></li>
+<li>Query the Disability Registry via <tt class="docutils literal">r.dci.dr.has_disability</tt>,
+<tt class="docutils literal">r.dci.dr.assessed</tt>,
+<tt class="docutils literal">r.dci.dr.vision_severe</tt>/<tt class="docutils literal">hearing_severe</tt>/<tt class="docutils literal">mobility_severe</tt>, and
+the parameterized <tt class="docutils literal"><span class="pre">r.dci.dr.severity('Vision'|'Hearing'|'Mobility')</span></tt></li>
+<li>Parameterized methods cache one value per (registrant, argument),
+keyed via <tt class="docutils literal">params_hash</tt>; arguments come from a fixed, pre-synced set</li>
+</ul>
+</div>
+<div class="section" id="key-models">
+<h1>Key Models</h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="45%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Model</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><tt class="docutils literal">spp.data.provider</tt></td>
+<td>Extended with <tt class="docutils literal">dci_data_source_id</tt>
+/ <tt class="docutils literal">is_dci_backed</tt> (the bridge)</td>
+</tr>
+<tr><td><tt class="docutils literal">spp.dci.cel.fetcher</tt></td>
+<td>Outbound fetch per metric; sync
+entry points</td>
+</tr>
+<tr><td><tt class="docutils literal">spp.data.cache.manager</tt></td>
+<td>Extended to route DCI-backed
+variables through the fetcher</td>
+</tr>
+<tr><td><tt class="docutils literal">spp.cel.variable.resolver</tt></td>
+<td>Extended to resolve <tt class="docutils literal">*.dci.*</tt>
+accessors and method calls</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="configuration">
+<h1>Configuration</h1>
+<ol class="arabic simple">
+<li>Configure a DCI Data Source (Settings → Technical → DCI → Data
+Sources) and test the connection</li>
+<li>Link a Data Provider to it via the <strong>DCI Integration</strong> tab</li>
+<li>Point the DCI variables (Studio → Variables → External Source) at
+that provider</li>
+<li>Sync: select registrants → <strong>Action ▸ Sync DCI Values</strong> (registrants
+need an identifier the registry recognizes)</li>
+</ol>
+</div>
+<div class="section" id="data">
+<h1>Data</h1>
+<p>Creates a <strong>DCI Integration</strong> variable category and the predefined
+variables. Working today: the CRVS and DR variables listed above.
+Present but not yet wired (no fetch handlers): <tt class="docutils literal">dci.crvs.is_married</tt>,
+the IBR variables (<tt class="docutils literal">dci.ibr.*</tt>) and Social Registry variables
+(<tt class="docutils literal">dci.sr.*</tt>).</p>
+</div>
+<div class="section" id="security">
+<h1>Security</h1>
+<p>No access control rules defined in this module. Access inherits from the
+CEL cache (<tt class="docutils literal">spp.data.value</tt>) and the DCI client modules.</p>
+</div>
+<div class="section" id="extension-points">
+<h1>Extension Points</h1>
+<ul class="simple">
+<li>Add a fetch handler in <tt class="docutils literal">spp.dci.cel.fetcher</tt>
+(<tt class="docutils literal">_dci_metric_handlers</tt> for simple metrics, <tt class="docutils literal">DCI_METHOD_ACCESSORS</tt>
++ <tt class="docutils literal">_compute_method_values</tt> for parameterized ones)</li>
+<li>Create the matching <tt class="docutils literal">spp.cel.variable</tt> record (external source type,
+<tt class="docutils literal">ttl</tt> cache strategy, <tt class="docutils literal"><span class="pre">r.dci.&lt;registry&gt;.&lt;metric&gt;</span></tt> accessor)</li>
+</ul>
+</div>
+<div class="section" id="cel-expression-examples">
+<h1>CEL Expression Examples</h1>
+<pre class="code python literal-block">
+<span class="c1"># Vital statistics verification</span><span class="w">
+</span><span class="n">r</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">crvs</span><span class="o">.</span><span class="n">is_alive</span> <span class="o">==</span> <span class="n">true</span> <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">crvs</span><span class="o">.</span><span class="n">birth_verified</span> <span class="o">==</span> <span class="n">true</span><span class="w">
+
+</span><span class="c1"># Parameterized event check</span><span class="w">
+</span><span class="n">r</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">crvs</span><span class="o">.</span><span class="n">has_event</span><span class="p">(</span><span class="s1">'death'</span><span class="p">)</span> <span class="o">==</span> <span class="n">true</span><span class="w">
+
+</span><span class="c1"># Disability-based eligibility</span><span class="w">
+</span><span class="n">r</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">dr</span><span class="o">.</span><span class="n">has_disability</span> <span class="o">==</span> <span class="n">true</span> <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">dr</span><span class="o">.</span><span class="n">severity</span><span class="p">(</span><span class="s1">'Mobility'</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="w">
+
+</span><span class="c1"># Multi-registry combined criteria</span><span class="w">
+</span><span class="n">r</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">crvs</span><span class="o">.</span><span class="n">is_alive</span> <span class="o">==</span> <span class="n">true</span> <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">dci</span><span class="o">.</span><span class="n">dr</span><span class="o">.</span><span class="n">has_disability</span> <span class="o">==</span> <span class="n">true</span> <span class="ow">and</span> <span class="n">age_years</span><span class="p">(</span><span class="n">me</span><span class="o">.</span><span class="n">birthdate</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">18</span>
+</pre>
+</div>
+<div class="section" id="dependencies">
+<h1>Dependencies</h1>
+<p><tt class="docutils literal">spp_dci_client</tt>, <tt class="docutils literal">spp_dci_client_crvs</tt>, <tt class="docutils literal">spp_dci_client_dr</tt>,
+<tt class="docutils literal">spp_dci_client_ibr</tt>, <tt class="docutils literal">spp_cel_domain</tt>, <tt class="docutils literal">spp_studio</tt></p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">This is an alpha version, the data model and design can change at any time without warning.
+Only for development or testing purpose, do not use in production.</p>
+</div>
+<p><strong>Table of contents</strong></p>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#bug-tracker" id="toc-entry-1">Bug Tracker</a></li>
+<li><a class="reference internal" href="#credits" id="toc-entry-2">Credits</a><ul>
+<li><a class="reference internal" href="#authors" id="toc-entry-3">Authors</a></li>
+<li><a class="reference internal" href="#maintainers" id="toc-entry-4">Maintainers</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="bug-tracker">
+<h2><a class="toc-backref" href="#toc-entry-1">Bug Tracker</a></h2>
+<p>Bugs are tracked on <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/issues">GitHub Issues</a>.
+In case of trouble, please check there if your issue has already been reported.
+If you spotted it first, help us to smash it by providing a detailed and welcomed
+<a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/issues/new?body=module:%20spp_dci_indicators%0Aversion:%2019.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**">feedback</a>.</p>
+<p>Do not contact contributors directly about support or help with technical issues.</p>
+</div>
+<div class="section" id="credits">
+<h2><a class="toc-backref" href="#toc-entry-2">Credits</a></h2>
+<div class="section" id="authors">
+<h3><a class="toc-backref" href="#toc-entry-3">Authors</a></h3>
+<ul class="simple">
+<li>OpenSPP.org</li>
+</ul>
+</div>
+<div class="section" id="maintainers">
+<h3><a class="toc-backref" href="#toc-entry-4">Maintainers</a></h3>
+<p>This module is part of the <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_dci_indicators">OpenSPP/OpenSPP2</a> project on GitHub.</p>
+<p>You are welcome to contribute.</p>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

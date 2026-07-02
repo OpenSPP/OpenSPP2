@@ -57,8 +57,8 @@ class TestSearchService(ApiV2TestCase):
         self.assertEqual(total, 2)
         self.assertEqual(len(records), 2)
         names = [r.name for r in records]
-        self.assertIn("JOHNSON, ALICE", names)
-        self.assertIn("BROWN, ALICE", names)
+        self.assertIn("Alice Johnson", names)
+        self.assertIn("Alice Brown", names)
 
     def test_parse_identifier_param(self):
         """identifier=system|value creates proper domain"""
@@ -224,7 +224,7 @@ class TestSearchService(ApiV2TestCase):
         # Should find Alice Johnson and Alice Brown (both female)
         self.assertEqual(total, 2)
         for record in records:
-            self.assertIn("ALICE", record.name)
+            self.assertIn("Alice", record.name)
             self.assertEqual(record.gender_id, self.gender_female)
 
 

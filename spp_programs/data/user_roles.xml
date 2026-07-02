@@ -42,6 +42,7 @@
                 Command.link(ref('spp_registry.group_registry_write')),
                 Command.link(ref('spp_cel_domain.group_cel_domain_viewer')),
                 Command.link(ref('spp_approval.group_approval_approver')),
+                Command.link(ref('job_worker.group_queue_job_manager')),
             ]"
         />
     </record>
@@ -109,6 +110,7 @@
                 Command.link(ref('spp_programs.group_programs_viewer')),
                 Command.link(ref('spp_registry.group_registry_write')),
                 Command.link(ref('spp_approval.group_approval_approver')),
+                Command.link(ref('job_worker.group_queue_job_manager')),
                 Command.link(ref('spp_hazard.group_hazard_viewer')),
                 Command.link(ref('spp_gis_report.group_gis_report_user')),
             ]"

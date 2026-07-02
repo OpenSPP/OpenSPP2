@@ -99,13 +99,31 @@ async def search_registry(
             len(search_request.search_request),
         )
 
+        # Resolve the authenticated sender to an ACTIVE registered sender record
+        # before returning any data. The consent adapter disengages (no filtering)
+        # when sender is None, so we must fail closed here rather than run a
+        # consent-bearing search with sender=None and leak unscoped PII.
+        # sudo: technical lookup of an already-verified sender id; the endpoint
+        # user (often public) has no read access to the registry.
+        SenderRegistry = env["spp.dci.sender.registry"].sudo()  # nosemgrep: odoo-sudo-without-context
+        sender_registry = SenderRegistry.get_by_sender_id(verified_sender_id)
+        if not sender_registry:
+            _logger.warning(
+                "DCI search rejected: sender %s is not an active registered sender",
+                verified_sender_id,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Sender is not an active registered DCI sender",
+            )
+
         # Execute search using DCISocialSearchService
         try:
             from odoo.addons.spp_dci_server_social.services.search_service import (
                 DCISocialSearchService,
             )
 
-            search_service = DCISocialSearchService(env)
+            search_service = DCISocialSearchService(env, sender_registry=sender_registry)
             search_response = search_service.execute_search(search_request)
             _logger.info(
                 "DCI search completed - transaction_id: %s, items: %d",
@@ -158,8 +176,10 @@ async def search_registry(
         completed_count = sum(1 for item in response_items if item.status == "succ")
         rejected_count = sum(1 for item in response_items if item.status == "rjct")
 
-        # Set overall status based on results
-        # Note: For success, omit status_reason_code/message per SPDCI spec
+        # Set overall status based on results. SPDCI v1.0.0 restricts the
+        # envelope status to rcvd/pdng/succ/rjct, so partial-success is
+        # surfaced as ``succ`` with a status_reason_message; per-item
+        # statuses in search_response carry the per-item detail.
         if completed_count == total_count:
             overall_status = "succ"
             status_reason_code = None
@@ -170,8 +190,7 @@ async def search_registry(
             status_reason_code = MsgHeaderStatusReasonCode.ERRORS_TOO_MANY.value
             status_reason_message = "All search requests failed"
         else:
-            overall_status = "part"
-            # For partial success, omit reason code per SPDCI spec
+            overall_status = "succ"
             status_reason_code = None
             status_reason_message = f"{completed_count}/{total_count} search requests completed"
 

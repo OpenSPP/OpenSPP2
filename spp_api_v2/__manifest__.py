@@ -18,7 +18,6 @@
         "spp_registry",
         "spp_consent",
         "spp_vocabulary",
-        "spp_programs",
         "spp_source_tracking",
     ],
     "data": [
@@ -30,8 +29,6 @@
         "data/api_path_data.xml",
         "data/filter_config_individual.xml",
         "data/filter_config_group.xml",
-        "data/filter_config_program.xml",
-        "data/filter_config_program_membership.xml",
         "wizards/show_secret_wizard_views.xml",
         "views/api_client_views.xml",
         "views/api_extension_views.xml",

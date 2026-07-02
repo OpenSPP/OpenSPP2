@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Manual trigger: sync DCI values for selected registrants -->
+    <record id="action_sync_dci_values" model="ir.actions.server">
+        <field name="name">Sync DCI Values</field>
+        <field name="model_id" ref="base.model_res_partner" />
+        <field name="binding_model_id" ref="base.model_res_partner" />
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field
+            name="group_ids"
+            eval="[Command.link(ref('spp_cel_domain.group_cel_domain_manager'))]"
+        />
+        <field name="code">
+if records:
+    count = env["spp.dci.cel.fetcher"].sync_for_partners(records.ids)
+    action = {
+        "type": "ir.actions.client",
+        "tag": "display_notification",
+        "params": {
+            "title": "DCI Sync",
+            "message": "Cached %d DCI value(s) for %d registrant(s)." % (count, len(records)),
+            "type": "success",
+            "sticky": False,
+        },
+    }
+        </field>
+    </record>
+
+    <!-- Scheduled sync of all registrants (disabled by default; operators enable) -->
+    <record id="cron_sync_dci_values" model="ir.cron">
+        <field name="name">DCI: Sync CEL metrics</field>
+        <field name="model_id" ref="base.model_res_partner" />
+        <field name="state">code</field>
+        <field name="user_id" ref="base.user_root" />
+        <field
+            name="code"
+        >env["spp.dci.cel.fetcher"].cron_sync_all_registrants()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="False" />
+    </record>
+</odoo>

@@ -147,9 +147,9 @@ class TestCRVSService(CRVSClientCommon):
         with self.assertRaises(UserError):
             service.unsubscribe_events(subscription_codes=["sub-001"])
 
-    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
+    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search_by_id_opencrvs")
     def test_verify_birth(self, mock_search):
-        """Test verify_birth method."""
+        """Test verify_birth method uses the OpenCRVS search format."""
         mock_search.return_value = {
             "message": {
                 "search_response": [
@@ -168,16 +168,17 @@ class TestCRVSService(CRVSClientCommon):
         service = self._get_service()
         result = service.verify_birth("UIN", "12345678")
 
-        # Should call search with correct parameters
+        # Should call the OpenCRVS search with the birth event type
         mock_search.assert_called_once()
         call_kwargs = mock_search.call_args[1]
-        self.assertEqual(call_kwargs["query_type"], "idtype-value")
-        self.assertIn("12345678", call_kwargs["query_value"])
+        self.assertEqual(call_kwargs["identifier_type"], "UIN")
+        self.assertEqual(call_kwargs["identifier_value"], "12345678")
+        self.assertEqual(call_kwargs["event_type"], "birth")
 
         # Should return birth data
         self.assertIsNotNone(result)
 
-    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
+    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search_by_id_opencrvs")
     def test_verify_birth_not_found(self, mock_search):
         """Test verify_birth when no records found."""
         mock_search.return_value = {"message": {"search_response": []}}
@@ -187,9 +188,9 @@ class TestCRVSService(CRVSClientCommon):
 
         self.assertIsNone(result)
 
-    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
+    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search_by_id_opencrvs")
     def test_check_death(self, mock_search):
-        """Test check_death method."""
+        """Test check_death method uses the OpenCRVS search format."""
         mock_search.return_value = {
             "message": {
                 "search_response": [
@@ -207,10 +208,14 @@ class TestCRVSService(CRVSClientCommon):
         service = self._get_service()
         result = service.check_death("UIN", "12345678")
 
+        # Should call the OpenCRVS search with the death event type
+        call_kwargs = mock_search.call_args[1]
+        self.assertEqual(call_kwargs["event_type"], "death")
+
         # Should return True (deceased)
         self.assertTrue(result)
 
-    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search")
+    @patch("odoo.addons.spp_dci_client.services.client.DCIClient.search_by_id_opencrvs")
     def test_check_death_alive(self, mock_search):
         """Test check_death when no death record."""
         mock_search.return_value = {"message": {"search_response": []}}

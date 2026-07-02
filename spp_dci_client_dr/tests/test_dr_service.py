@@ -6,6 +6,8 @@ from unittest.mock import MagicMock, patch
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import TransactionCase, tagged
 
+from odoo.addons.spp_dci.schemas.constants import RegistryType
+
 
 @tagged("post_install", "-at_install")
 class TestDRService(TransactionCase):
@@ -75,7 +77,7 @@ class TestDRService(TransactionCase):
             {
                 "name": "Test DR Registry",
                 "code": "dr_test",
-                "registry_type": "DR",
+                "registry_type": RegistryType.DISABILITY_REGISTRY.value,
                 "base_url": "https://dr.test.gov/api/v1",
                 "auth_type": "none",
                 "active": True,
@@ -124,7 +126,7 @@ class TestDRService(TransactionCase):
             {
                 "name": "Wrong Registry",
                 "code": "wrong_test",
-                "registry_type": "SOCIAL_REGISTRY",  # Not DR
+                "registry_type": RegistryType.SOCIAL_REGISTRY.value,  # Not DR
                 "base_url": "https://wrong.test.gov/api/v1",
                 "auth_type": "none",
                 "active": True,

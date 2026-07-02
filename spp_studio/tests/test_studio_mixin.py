@@ -41,9 +41,3 @@ class TestStudioMixin(TransactionCase):
         self.assertIn("activated_date", fields)
         self.assertIn("deactivated_by_id", fields)
         self.assertIn("deactivated_date", fields)
-
-    def test_program_ids_field(self):
-        """Test program_ids field for program-specific configurations."""
-        self.assertIn("program_ids", self.StudioField._fields)
-        field = self.StudioField._fields["program_ids"]
-        self.assertEqual(field.type, "many2many")

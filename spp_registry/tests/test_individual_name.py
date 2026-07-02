@@ -152,6 +152,26 @@ class TestCreateAppliesFormattedName(RegistryCommon):
         rec = self.Partner.create({"is_registrant": True, "addl_name": "Marie"})
         self.assertEqual(rec.name, "MARIE")
 
+    def test_create_explicit_name_with_parts_preserved(self):
+        """Explicit ``name`` alongside name parts → the explicit name wins.
+
+        The demo story generator deliberately sets a human-friendly display
+        ``name`` ("Rosa Garcia") together with given/family parts; that
+        explicit name must not be reformatted to "GARCIA, ROSA". The parts
+        are still stored as given.
+        """
+        rec = self.Partner.create(
+            {
+                "is_registrant": True,
+                "name": "Rosa Garcia",
+                "given_name": "Rosa",
+                "family_name": "Garcia",
+            }
+        )
+        self.assertEqual(rec.name, "Rosa Garcia")
+        self.assertEqual(rec.given_name, "Rosa")
+        self.assertEqual(rec.family_name, "Garcia")
+
 
 @tagged("post_install", "-at_install")
 class TestWriteAppliesFormattedName(RegistryCommon):
@@ -178,6 +198,13 @@ class TestWriteAppliesFormattedName(RegistryCommon):
     def test_write_addl_name_reformats(self):
         self.rec.write({"addl_name": "Marie"})
         self.assertEqual(self.rec.name, "DOE, JANE MARIE")
+
+    def test_write_explicit_name_with_parts_preserved(self):
+        """Writing an explicit ``name`` together with a name part keeps the
+        explicit name; the part still updates underneath."""
+        self.rec.write({"name": "Custom Display", "family_name": "Smith"})
+        self.assertEqual(self.rec.name, "Custom Display")
+        self.assertEqual(self.rec.family_name, "Smith")
 
     def test_write_non_name_field_does_not_reformat(self):
         """Writing ``email`` (not in ``_name_fields``) leaves ``name`` alone."""

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Re-add the program-scoping page to the event type form.
+         The base view (spp_studio_events) no longer references program_ids
+         so it can load without spp_programs; this companion injects the
+         Programs page back when both the events module and the programs
+         companion are present (OP#1083). -->
+    <record id="view_studio_event_type_form_programs" model="ir.ui.view">
+        <field name="name">spp.studio.event.type.form.programs</field>
+        <field name="model">spp.studio.event.type</field>
+        <field name="inherit_id" ref="spp_studio_events.view_studio_event_type_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='audit']" position="before">
+                <page name="programs" string="Programs">
+                    <field name="program_ids" nolabel="1" readonly="state == 'active'">
+                        <list>
+                            <field name="name" />
+                            <field name="state" widget="badge" />
+                        </list>
+                    </field>
+                    <div class="alert alert-info" role="alert">
+                        <strong
+                    >Program Visibility:</strong> If programs are selected, this event type
+                        will only be visible in those programs. Leave empty for global visibility.
+                    </div>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

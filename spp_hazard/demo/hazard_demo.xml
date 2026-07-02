@@ -156,7 +156,7 @@
         <field name="category_id" ref="category_typhoon" />
         <field name="start_date">2024-11-15</field>
         <field name="status">recovery</field>
-        <field name="severity">4</field>
+        <field name="severity_id" ref="code_cap_severity_extreme" />
         <field
             name="description"
         ><![CDATA[
@@ -172,7 +172,7 @@
         <field name="start_date">2024-10-01</field>
         <field name="end_date">2024-10-15</field>
         <field name="status">closed</field>
-        <field name="severity">3</field>
+        <field name="severity_id" ref="code_cap_severity_severe" />
         <field
             name="description"
         ><![CDATA[
@@ -187,7 +187,7 @@
         <field name="category_id" ref="category_drought" />
         <field name="start_date">2024-03-01</field>
         <field name="status">active</field>
-        <field name="severity">3</field>
+        <field name="severity_id" ref="code_cap_severity_severe" />
         <field
             name="description"
         ><![CDATA[

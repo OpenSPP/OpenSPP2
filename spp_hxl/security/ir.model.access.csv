@@ -1,9 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_spp_hxl_tag_user,spp.hxl.tag user,model_spp_hxl_tag,base.group_user,1,0,0,0
-access_spp_hxl_tag_manager,spp.hxl.tag manager,model_spp_hxl_tag,spp_security.group_spp_admin,1,1,1,1
-access_spp_hxl_attribute_user,spp.hxl.attribute user,model_spp_hxl_attribute,base.group_user,1,0,0,0
-access_spp_hxl_attribute_manager,spp.hxl.attribute manager,model_spp_hxl_attribute,spp_security.group_spp_admin,1,1,1,1
-access_spp_hxl_export_profile_user,spp.hxl.export.profile user,model_spp_hxl_export_profile,base.group_user,1,0,0,0
-access_spp_hxl_export_profile_manager,spp.hxl.export.profile manager,model_spp_hxl_export_profile,spp_security.group_spp_admin,1,1,1,1
-access_spp_hxl_export_profile_column_user,spp.hxl.export.profile.column user,model_spp_hxl_export_profile_column,base.group_user,1,0,0,0
-access_spp_hxl_export_profile_column_manager,spp.hxl.export.profile.column manager,model_spp_hxl_export_profile_column,spp_security.group_spp_admin,1,1,1,1

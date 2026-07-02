@@ -166,14 +166,35 @@ class DrimsAllocationPreviewWizard(models.TransientModel):
         self.line_ids = [Command.clear()] + lines
 
     def _get_available_quantity(self, product, warehouse):
-        """Get available quantity for a product in a warehouse."""
+        """Net available quantity of ``product`` in ``warehouse``.
+
+        Equals physical on-hand (minus stock.quant reservations) minus the
+        DRIMS allocations that have been committed but not yet dispatched.
+        Without this subtraction the wizard would happily over-allocate:
+        physical stock isn't touched at allocation time, only at dispatch,
+        so the same warehouse stock would appear "available" on every
+        wizard re-open even though prior allocations had already consumed
+        it logically (OP#1033 round 2).
+        """
         quants = self.env["stock.quant"].search(
             [
                 ("product_id", "=", product.id),
                 ("location_id", "child_of", warehouse.lot_stock_id.id),
             ]
         )
-        return sum(q.quantity - q.reserved_quantity for q in quants)
+        physical = sum(q.quantity - q.reserved_quantity for q in quants)
+
+        # Pending DRIMS allocations against this warehouse for this product
+        # — anything allocated but not yet dispatched is a logical reservation
+        # we should not promise again.
+        pending_lines = self.env["spp.drims.request.line"].search(
+            [
+                ("product_id", "=", product.id),
+                ("request_id.source_warehouse_id", "=", warehouse.id),
+            ]
+        )
+        pending = sum(max(0.0, line.quantity_allocated - line.quantity_dispatched) for line in pending_lines)
+        return max(0.0, physical - pending)
 
     def action_confirm_allocation(self):
         """Apply the previewed allocation."""
@@ -181,6 +202,20 @@ class DrimsAllocationPreviewWizard(models.TransientModel):
 
         if not self.line_ids:
             raise UserError(_("No items to allocate."))
+
+        # OP#1032: refuse to confirm an empty allocation. Without this guard
+        # a user could pick a warehouse with zero available stock, the
+        # wizard would show 0 across all lines, and confirming would still
+        # advance the request to Ready for Dispatch with 0 allocated.
+        total_to_allocate = sum(self.line_ids.mapped("quantity_to_allocate"))
+        if total_to_allocate <= 0:
+            raise UserError(
+                _(
+                    "No stock available in the selected warehouse. "
+                    "Please ensure the source warehouse has sufficient items "
+                    "before allocating."
+                )
+            )
 
         _logger.info(
             "Applying allocation for request %s from warehouse %s with %d lines",

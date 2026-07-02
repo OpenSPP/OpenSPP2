@@ -100,10 +100,10 @@ class TestQMLTemplateService(TransactionCase):
         self.assertIn("<symbols>", qml)
         self.assertIn("<layerOpacity>0.7</layerOpacity>", qml)
 
-        # Verify ranges are present
-        self.assertIn('label="Low"', qml)
-        self.assertIn('label="Medium"', qml)
-        self.assertIn('label="High"', qml)
+        # Verify ranges are present (labels include numeric ranges)
+        self.assertIn('label="Low (0.0 - 10.0)"', qml)
+        self.assertIn('label="Medium (10.0 - 50.0)"', qml)
+        self.assertIn("High (50.0 - 999999.0)", qml)
 
         # Verify colors are present (converted to RGB)
         self.assertIn("68,1,84,255", qml)  # #440154
@@ -354,9 +354,10 @@ class TestQMLTemplateService(TransactionCase):
         # Per-level QML should have different threshold ranges than global
         # Global has lower="0" upper="10" for Low bucket
         # Per-level should have ranges within the 2.0-6.0 range
-        self.assertIn('label="Low"', qml_level)
-        self.assertIn('label="Medium"', qml_level)
-        self.assertIn('label="High"', qml_level)
+        # Labels include numeric ranges from the recomputed per-level thresholds
+        self.assertIn("Low (", qml_level)
+        self.assertIn("Medium (", qml_level)
+        self.assertIn("High (", qml_level)
         # The per-level thresholds should NOT use the global 0-10 range
         self.assertNotIn('lower="0" upper="10"', qml_level)
 

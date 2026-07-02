@@ -67,6 +67,10 @@ class SPPProgramMembership(models.Model):
 
     last_deduplication = fields.Date("Last Deduplication Date")
     exit_date = fields.Date()
+    exit_reason = fields.Char(
+        string="Exit Reason",
+        help="Free-text reason recorded when a beneficiary exits a program (e.g. 'Graduated', 'Opted out', 'Moved').",
+    )
 
     registrant_id = fields.Integer(string="Registrant ID", related="partner_id.id")
 
@@ -137,9 +141,6 @@ class SPPProgramMembership(models.Model):
             ],
         }
 
-    # TODO: Implement exit reasons
-    # exit_reason_id = fields.Many2one("Exit Reason") Default: Completed, Opt-Out, Other
-
     # TODO: Implement not eligible reasons
     # Default: "Missing data", "Does not match the criterias", "Duplicate", "Other"
     # not_eligible_reason_id = fields.Many2one("Not Eligible Reason")
@@ -164,12 +165,26 @@ class SPPProgramMembership(models.Model):
 
     @api.depends("state")
     def _compute_enrolled_date(self):
-        # Prefetch state to avoid N+1 queries in loop (if not already loaded)
         self.mapped("state")
+
+        # The compute can re-fire after the field has already been persisted
+        # (re-write of `state`, ORM-level flushes, etc.). Reading `rec.enrollment_date`
+        # in-cache returns the "to_compute" sentinel (False) so we can't rely on it
+        # to detect a prior value — peek at the persisted row instead. Demo
+        # generators and migration scripts may have intentionally backdated this.
+        persisted = {}
+        existing_ids = [rec.id for rec in self if isinstance(rec.id, int)]
+        if existing_ids:
+            self.env.cr.execute(
+                "SELECT id, enrollment_date FROM spp_program_membership WHERE id IN %s",
+                (tuple(existing_ids),),
+            )
+            persisted = dict(self.env.cr.fetchall())
 
         for rec in self:
             if rec.state == "enrolled":
-                rec.enrollment_date = fields.Datetime.now()
+                prior = persisted.get(rec.id)
+                rec.enrollment_date = prior or fields.Datetime.now()
 
     @api.model
     def _get_view(self, view_id=None, view_type="form", **options):
@@ -387,16 +402,22 @@ class SPPProgramMembership(models.Model):
         self.write({"state": "enrolled"})
 
     def action_exit(self):
-        """Exit the registrant from the program."""
+        """Open a wizard prompting for an exit reason.
+
+        The actual state / exit_date / exit_reason write happens inside
+        the wizard so every exit event captures a reason for audit.
+        """
         self.ensure_one()
         if self.state not in ("enrolled", "paused"):
             raise UserError(_("Only enrolled or paused memberships can be exited."))
-        self.write(
-            {
-                "state": "exited",
-                "exit_date": fields.Date.today(),
-            }
-        )
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Exit Program"),
+            "res_model": "spp.program.membership.exit.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {"default_membership_id": self.id},
+        }
 
     @api.model
     def bulk_create_memberships(self, vals_list, chunk_size=1000, skip_duplicates=False):
@@ -413,6 +434,13 @@ class SPPProgramMembership(models.Model):
             raising IntegrityError. Returns the count of inserted rows.
         :return: Recordset (skip_duplicates=False) or int count (skip_duplicates=True)
         """
+        # This is a public (RPC-callable) method. The skip_duplicates path uses
+        # raw SQL and the ORM path runs through sudo(), both of which bypass the
+        # ORM's ACL checks. Enforce model-level create access explicitly so a
+        # low-privileged user cannot use it to create memberships they could not
+        # create through the ORM.
+        self.check_access("create")
+
         if not vals_list:
             return 0 if skip_duplicates else self.env["spp.program.membership"]
 
