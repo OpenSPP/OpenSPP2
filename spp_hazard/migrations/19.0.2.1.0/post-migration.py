@@ -89,7 +89,9 @@ def migrate(cr, version):
             new_col,
         )
 
-        cr.execute(
+        # Safe: identifiers come from the TARGETS constant and are composed
+        # with psycopg2.sql.Identifier; no external input reaches the query.
+        cr.execute(  # pylint: disable=sql-injection
             sql.SQL(
                 """
                 SELECT DISTINCT t.{legacy}
