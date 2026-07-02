@@ -157,6 +157,12 @@ class DemoLuzonAreaLoader(models.TransientModel):
         features = geojson_data.get("features", [])
         shapes_loaded = 0
 
+        # Batch-fetch all referenced areas once; a per-feature search would
+        # issue hundreds of queries for Luzon's administrative areas.
+        codes = [f.get("properties", {}).get("code") for f in features]
+        codes = [c for c in codes if c]
+        areas_by_code = {area.code: area for area in self.env["spp.area"].search([("code", "in", codes)])}
+
         for feature in features:
             properties = feature.get("properties", {})
             geometry = feature.get("geometry")
@@ -165,7 +171,7 @@ class DemoLuzonAreaLoader(models.TransientModel):
             if not code or not geometry:
                 continue
 
-            area = self.env["spp.area"].search([("code", "=", code)], limit=1)
+            area = areas_by_code.get(code)
             if not area:
                 continue
 
