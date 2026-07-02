@@ -3,7 +3,6 @@
 
 import logging
 
-from odoo import fields
 from odoo.exceptions import MissingError
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
@@ -100,22 +99,17 @@ class TestLayersService(TransactionCase):
             }
         )
 
-        # Create data layer if the geo field and a GIS view are available.
+        # Create data layer if geo field exists
         cls.geo_field = cls.env["ir.model.fields"].search(
-            [("model", "=", "spp.area"), ("name", "=", "geo_polygon")],
+            [("model", "=", "spp.area"), ("name", "=", "polygon")],
             limit=1,
         )
-        cls.gis_view = cls.env["ir.ui.view"].search(
-            [("model", "=", "spp.area"), ("type", "=", "gis")],
-            limit=1,
-        )
-        if cls.geo_field and cls.gis_view:
+        if cls.geo_field:
             cls.data_layer = cls.env["spp.gis.data.layer"].create(
                 {
                     "name": "Test Areas Layer",
                     "model_name": "spp.area",
                     "geo_field_id": cls.geo_field.id,
-                    "view_id": cls.gis_view.id,
                     "geo_repr": "basic",
                     "domain": "[('level', '=', 2)]",
                 }
@@ -527,192 +521,6 @@ class TestLayersService(TransactionCase):
         count = service.get_feature_count("test_layers_report", "report")
         self.assertIsInstance(count, int)
         self.assertGreaterEqual(count, 0)
-
-    # ------------------------------------------------------------------
-    # Module-level coordinate/bbox helpers
-    # ------------------------------------------------------------------
-    def test_extract_all_coordinates_geometry_types(self):
-        """Coordinates are extracted from every supported geometry type."""
-        from ..services.layers_service import _extract_all_coordinates
-
-        self.assertEqual(_extract_all_coordinates({"type": "Point", "coordinates": [1, 2]}), [[1, 2]])
-        self.assertEqual(
-            _extract_all_coordinates({"type": "MultiPoint", "coordinates": [[1, 2], [3, 4]]}),
-            [[1, 2], [3, 4]],
-        )
-        self.assertEqual(
-            _extract_all_coordinates({"type": "LineString", "coordinates": [[1, 2], [3, 4]]}),
-            [[1, 2], [3, 4]],
-        )
-        polygon = {"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 0]]]}
-        self.assertEqual(len(_extract_all_coordinates(polygon)), 4)
-        multilinestring = {"type": "MultiLineString", "coordinates": [[[0, 0], [1, 1]], [[2, 2], [3, 3]]]}
-        self.assertEqual(len(_extract_all_coordinates(multilinestring)), 4)
-        multipolygon = {
-            "type": "MultiPolygon",
-            "coordinates": [[[[0, 0], [1, 0], [0, 0]]], [[[2, 2], [3, 2], [2, 2]]]],
-        }
-        self.assertEqual(len(_extract_all_coordinates(multipolygon)), 6)
-
-    def test_extract_all_coordinates_empty_or_unknown(self):
-        """Empty coordinates or unknown geometry types yield an empty list."""
-        from ..services.layers_service import _extract_all_coordinates
-
-        self.assertEqual(_extract_all_coordinates({"type": "Point", "coordinates": None}), [])
-        self.assertEqual(_extract_all_coordinates({"type": "GeometryCollection", "coordinates": [[1, 2]]}), [])
-
-    def test_bbox_to_geojson(self):
-        """A bbox is converted to a closed GeoJSON polygon ring."""
-        from ..services.layers_service import LayersService
-
-        geometry = LayersService(self.env)._bbox_to_geojson([0, 1, 2, 3])
-        self.assertEqual(geometry["type"], "Polygon")
-        ring = geometry["coordinates"][0]
-        self.assertEqual(len(ring), 5)
-        self.assertEqual(ring[0], [0, 1])
-        self.assertEqual(ring[0], ring[-1])
-
-    # ------------------------------------------------------------------
-    # Feature count / feature-by-id
-    # ------------------------------------------------------------------
-    def _make_report_data(self, **overrides):
-        vals = {
-            "report_id": self.report.id,
-            "area_id": self.child_area1.id,
-            "area_code": self.child_area1.code,
-            "area_name": "Test Child Area 1",
-            "area_level": 2,
-            "raw_value": 5.0,
-            "normalized_value": 0.5,
-            "display_value": "5",
-            "record_count": 5,
-            "bucket_index": 0,
-            "bucket_color": "#440154",
-            "bucket_label": "Low",
-            "computed_at": fields.Datetime.now(),
-        }
-        vals.update(overrides)
-        return self.env["spp.gis.report.data"].create(vals)
-
-    def test_get_feature_count_report(self):
-        """Report feature count honours the optional admin-level filter."""
-        from ..services.layers_service import LayersService
-
-        data = self._make_report_data()
-        service = LayersService(self.env)
-        self.assertEqual(service.get_feature_count("test_layers_report", layer_type="report"), 1)
-        # area_level is related to area_id.area_level; use the record's actual value.
-        self.assertEqual(
-            service.get_feature_count("test_layers_report", layer_type="report", admin_level=data.area_level), 1
-        )
-        self.assertEqual(
-            service.get_feature_count("test_layers_report", layer_type="report", admin_level=data.area_level + 99), 0
-        )
-
-    def test_get_feature_count_report_not_found(self):
-        from ..services.layers_service import LayersService
-
-        with self.assertRaises(MissingError):
-            LayersService(self.env).get_feature_count("nonexistent", layer_type="report")
-
-    def test_get_feature_count_layer(self):
-        if not self.data_layer:
-            self.skipTest("No geo field available on spp.area")
-        from ..services.layers_service import LayersService
-
-        count = LayersService(self.env).get_feature_count(str(self.data_layer.id), layer_type="layer")
-        self.assertIsInstance(count, int)
-
-    def test_get_feature_count_layer_invalid_id(self):
-        from ..services.layers_service import LayersService
-
-        with self.assertRaises(ValueError):
-            LayersService(self.env).get_feature_count("not-an-int", layer_type="layer")
-
-    def test_get_feature_count_layer_not_found(self):
-        from ..services.layers_service import LayersService
-
-        with self.assertRaises(MissingError):
-            LayersService(self.env).get_feature_count("999999", layer_type="layer")
-
-    def test_get_feature_count_invalid_type(self):
-        from ..services.layers_service import LayersService
-
-        with self.assertRaises(ValueError):
-            LayersService(self.env).get_feature_count("x", layer_type="bogus")
-
-    def test_get_feature_by_id_invalid_type(self):
-        from ..services.layers_service import LayersService
-
-        with self.assertRaises(ValueError):
-            LayersService(self.env).get_feature_by_id("x", "y", layer_type="bogus")
-
-    def test_get_report_feature_by_id(self):
-        """A report feature is returned with properties and bucket range."""
-        from ..services.layers_service import LayersService
-
-        self._make_report_data()
-        feature = LayersService(self.env).get_feature_by_id(
-            "test_layers_report", self.child_area1.code, layer_type="report"
-        )
-        self.assertEqual(feature["type"], "Feature")
-        self.assertEqual(feature["id"], self.child_area1.code)
-        self.assertEqual(feature["properties"]["area_code"], self.child_area1.code)
-        self.assertTrue(feature["properties"]["has_data"])
-        self.assertEqual(feature["properties"]["bucket"]["index"], 0)
-        self.assertEqual(feature["properties"]["bucket"]["min_value"], 0)
-
-    def test_get_report_feature_by_id_report_not_found(self):
-        from ..services.layers_service import LayersService
-
-        with self.assertRaises(MissingError):
-            LayersService(self.env).get_feature_by_id("nonexistent", "x", layer_type="report")
-
-    def test_get_report_feature_by_id_feature_not_found(self):
-        from ..services.layers_service import LayersService
-
-        with self.assertRaises(MissingError):
-            LayersService(self.env).get_feature_by_id("test_layers_report", "no_such_area", layer_type="report")
-
-    def test_get_layer_feature_by_id_success(self):
-        if not self.data_layer:
-            self.skipTest("No geo field available on spp.area")
-        from ..services.layers_service import LayersService
-
-        feature = LayersService(self.env).get_feature_by_id(
-            str(self.data_layer.id), str(self.child_area1.id), layer_type="layer"
-        )
-        self.assertEqual(feature["type"], "Feature")
-        self.assertEqual(feature["id"], self.child_area1.id)
-        self.assertEqual(feature["properties"]["id"], self.child_area1.id)
-
-    def test_get_layer_feature_by_id_layer_not_found(self):
-        from ..services.layers_service import LayersService
-
-        with self.assertRaises(MissingError):
-            LayersService(self.env).get_feature_by_id("999999", "1", layer_type="layer")
-
-    def test_get_layer_feature_by_id_invalid_layer_id(self):
-        from ..services.layers_service import LayersService
-
-        with self.assertRaises(ValueError):
-            LayersService(self.env).get_feature_by_id("not-int", "1", layer_type="layer")
-
-    def test_get_layer_feature_by_id_feature_not_found(self):
-        if not self.data_layer:
-            self.skipTest("No geo field available on spp.area")
-        from ..services.layers_service import LayersService
-
-        with self.assertRaises(MissingError):
-            LayersService(self.env).get_feature_by_id(str(self.data_layer.id), "999999", layer_type="layer")
-
-    def test_get_layer_feature_by_id_invalid_feature_id(self):
-        if not self.data_layer:
-            self.skipTest("No geo field available on spp.area")
-        from ..services.layers_service import LayersService
-
-        with self.assertRaises(MissingError):
-            LayersService(self.env).get_feature_by_id(str(self.data_layer.id), "not-int", layer_type="layer")
 
 
 @tagged("post_install", "-at_install")

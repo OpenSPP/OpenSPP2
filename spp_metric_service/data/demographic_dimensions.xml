@@ -7,8 +7,8 @@
         <field name="description">Gender identity from ISO 5218 vocabulary</field>
         <field name="sequence">10</field>
         <field name="dimension_type">field</field>
-        <field name="field_path">gender_id.code</field>
-        <field name="applies_to">individuals</field>
+        <field name="field_path">gender_id</field>
+        <field name="applies_to">all</field>
         <field
             name="value_labels_json"
         >{"0": "Not Known", "1": "Male", "2": "Female", "9": "Not Applicable"}</field>
@@ -56,27 +56,23 @@
         >{"true": "Group/Household", "false": "Individual"}</field>
     </record>
 
-    <!-- Age Group Dimension (UNICEF/WHO-aligned buckets) -->
+    <!-- Age Group Dimension (example using CEL expression) -->
     <record id="dimension_age_group" model="spp.demographic.dimension">
         <field name="name">age_group</field>
         <field name="label">Age Group</field>
-        <field
-            name="description"
-        >Age group based on birth date (UNICEF/WHO-aligned)</field>
+        <field name="description">Age group based on birth date</field>
         <field name="sequence">50</field>
         <field name="dimension_type">expression</field>
         <field
             name="cel_expression"
         ><![CDATA[
             r.birthdate == null ? "unknown" :
-            age_years(r.birthdate) < 5 ? "under_5" :
-            age_years(r.birthdate) < 15 ? "child" :
-            age_years(r.birthdate) < 18 ? "adolescent" :
+            age_years(r.birthdate) < 18 ? "child" :
             age_years(r.birthdate) < 60 ? "adult" : "elderly"
         ]]></field>
         <field name="applies_to">individuals</field>
         <field
             name="value_labels_json"
-        >{"under_5": "Under 5", "child": "Child (5-14)", "adolescent": "Adolescent (15-17)", "adult": "Adult (18-59)", "elderly": "Elderly (60+)", "unknown": "Unknown"}</field>
+        >{"child": "Child (0-17)", "adult": "Adult (18-59)", "elderly": "Elderly (60+)", "unknown": "Unknown"}</field>
     </record>
 </odoo>

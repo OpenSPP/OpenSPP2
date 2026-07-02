@@ -584,7 +584,7 @@ class SPPDemoDataGenerator(models.Model):
         """Get area_id based on profile configuration.
 
         Supports three ways to assign areas:
-        1. area_ref: Direct XML ID reference (e.g., 'spp_demo.area_phl_ph1307404')
+        1. area_ref: Direct XML ID reference (e.g., 'spp_demo.area_phl_ncr_quezon_city')
         2. area_kind: Pick random area of specified kind (e.g., 'municipality')
         3. Fallback: Pick any available area
 

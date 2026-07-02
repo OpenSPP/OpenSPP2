@@ -1,23 +1,11 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 import json
 import logging
-from dataclasses import dataclass
-from dataclasses import field as dataclass_field
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
-from odoo.tools.sql import SQL
 
 _logger = logging.getLogger(__name__)
-
-
-@dataclass
-class SQLColumnResult:
-    """Result of compiling a demographic dimension to a SQL expression."""
-
-    expression: SQL
-    joins: list[SQL] = dataclass_field(default_factory=list)
-    alias_counter: int = 0
 
 
 class DemographicDimension(models.Model):
@@ -185,10 +173,8 @@ class DemographicDimension(models.Model):
             return self.default_value or "unknown"
 
         # Convert to string key
-        if hasattr(value, "_name"):
-            # Odoo recordset (Many2one). Empty recordset means the field is unset.
-            if not value:
-                return self.default_value or "unknown"
+        if hasattr(value, "id"):
+            # Many2one - use code or display_name for meaningful keys
             if hasattr(value, "code") and value.code:
                 key = str(value.code)
             else:
@@ -225,69 +211,27 @@ class DemographicDimension(models.Model):
         """
         Get the display label for a dimension value.
 
-        First checks value_labels_json for a static mapping. If not found and
-        the dimension is field-based pointing to a Many2one, dynamically looks
-        up the display_name from the related model.
-
         :param value: The raw dimension value
         :returns: Display label
         :rtype: str
         """
         self.ensure_one()
+        if not self.value_labels_json:
+            return value
 
-        # Check static labels first
-        if self.value_labels_json:
-            labels = self.value_labels_json
-            if isinstance(labels, str):
-                try:
-                    labels = json.loads(labels)
-                except (json.JSONDecodeError, TypeError):
-                    labels = {}
+        # Handle case where value_labels_json is a string (JSON not yet parsed)
+        labels = self.value_labels_json
+        if isinstance(labels, str):
+            try:
+                labels = json.loads(labels)
+            except (json.JSONDecodeError, TypeError):
+                return value
 
-            str_value = str(value) if value is not None else "null"
-            if str_value in labels:
-                return labels[str_value]
-
-        # For field-based dimensions pointing to a Many2one, try dynamic lookup
-        if self.dimension_type == "field" and self.field_path:
-            label = self._lookup_m2o_label(value)
-            if label:
-                return label
-
+        # Convert value to string for lookup (keys are strings in JSON)
+        str_value = str(value) if value is not None else "null"
+        if str_value in labels:
+            return labels[str_value]
         return value
-
-    def _lookup_m2o_label(self, raw_value):
-        """Look up display_name for a Many2one field-based dimension value.
-
-        When field_path points to a Many2one (e.g. area_id, gender_id), the raw
-        value is typically the record's code. This method searches the related
-        model by code to return the display_name.
-
-        :param raw_value: The raw dimension value (typically a code string)
-        :returns: display_name or None if not found
-        """
-        # Only handle simple field paths (one segment, no dotted traversal
-        # like "gender_id.code" where the user explicitly chose a sub-field)
-        if "." in self.field_path:
-            return None
-
-        field_name = self.field_path
-        partner_fields = self.env["res.partner"]._fields
-        if field_name not in partner_fields:
-            return None
-
-        field = partner_fields[field_name]
-        if field.type != "many2one":
-            return None
-
-        comodel = self.env[field.comodel_name]
-        # Search by code if the related model has a code field
-        if "code" in comodel._fields:
-            record = comodel.search([("code", "=", raw_value)], limit=1)
-            if record:
-                return record.display_name
-
-        return None
 
     @api.model
     def get_by_name(self, name):
@@ -315,176 +259,6 @@ class DemographicDimension(models.Model):
             domain.append(("applies_to", "=", "all"))
             domain.append(("applies_to", "=", applies_to))
         return self.search(domain, order="sequence, name")
-
-    # -------------------------------------------------------------------------
-    # SQL Column Generation
-    # -------------------------------------------------------------------------
-    def to_sql_column(self, alias="ind", alias_counter=0):
-        """Generate a SQL expression for this dimension's value.
-
-        Compiles this dimension to a SQL expression that can be used in a
-        SELECT clause. For field-based dimensions, generates column references
-        (with JOINs for Many2one). For CEL expression dimensions, delegates to
-        the CEL-to-SQL compiler.
-
-        Args:
-            alias: SQL alias for the res_partner table (default "ind")
-            alias_counter: Counter for generating unique join aliases
-
-        Returns:
-            SQLColumnResult | None: SQL expression + joins, or None if
-                SQL compilation is not possible (fall back to Python).
-        """
-        self.ensure_one()
-        default = self.default_value or "unknown"
-
-        if self.dimension_type == "field":
-            result = self._to_sql_column_field(alias, alias_counter, default)
-        elif self.dimension_type == "expression":
-            result = self._to_sql_column_expression(alias, alias_counter, default)
-        else:
-            return None
-
-        if result is None:
-            return None
-
-        # Wrap with applies_to filter: return default for non-matching registrants
-        if self.applies_to == "individuals":
-            result = SQLColumnResult(
-                expression=SQL(
-                    "CASE WHEN %s.%s = FALSE THEN %s ELSE %s END",
-                    SQL.identifier(alias),
-                    SQL.identifier("is_group"),
-                    result.expression,
-                    SQL("%s", default),
-                ),
-                joins=result.joins,
-                alias_counter=result.alias_counter,
-            )
-        elif self.applies_to == "groups":
-            result = SQLColumnResult(
-                expression=SQL(
-                    "CASE WHEN %s.%s = TRUE THEN %s ELSE %s END",
-                    SQL.identifier(alias),
-                    SQL.identifier("is_group"),
-                    result.expression,
-                    SQL("%s", default),
-                ),
-                joins=result.joins,
-                alias_counter=result.alias_counter,
-            )
-
-        return result
-
-    def _to_sql_column_field(self, alias, alias_counter, default):
-        """Generate SQL for a field-based dimension."""
-        if not self.field_path:
-            return None
-
-        parts = self.field_path.split(".")
-        partner_fields = self.env["res.partner"]._fields
-
-        if len(parts) == 1:
-            # Simple field (e.g., is_group, area_id)
-            field_name = parts[0]
-            if field_name not in partner_fields:
-                return None
-
-            field_def = partner_fields[field_name]
-            if field_def.type == "many2one":
-                # Many2one direct: use code from related model if available
-                return self._to_sql_column_m2o_direct(alias, alias_counter, field_name, field_def, default)
-            else:
-                # Scalar field: CAST to text
-                col = SQL("%s.%s", SQL.identifier(alias), SQL.identifier(field_name))
-                expr = SQL("COALESCE(CAST(%s AS TEXT), %s)", col, default)
-                return SQLColumnResult(expression=expr, alias_counter=alias_counter)
-
-        elif len(parts) == 2:
-            # Dotted path (e.g., gender_id.code)
-            field_name, sub_field = parts
-            if field_name not in partner_fields:
-                return None
-
-            field_def = partner_fields[field_name]
-            if field_def.type != "many2one":
-                return None
-
-            return self._to_sql_column_m2o_sub(alias, alias_counter, field_name, field_def, sub_field, default)
-
-        # Deeper paths not supported in SQL
-        return None
-
-    def _to_sql_column_m2o_direct(self, alias, alias_counter, field_name, field_def, default):
-        """Generate SQL for a direct Many2one field (e.g., gender_id, area_id).
-
-        JOINs to the comodel and uses code if available, otherwise id as text.
-        """
-        comodel_name = field_def.comodel_name
-        comodel = self.env[comodel_name]
-        join_alias = f"_dim{alias_counter}"
-        comodel_table = comodel._table
-
-        fk_col = SQL("%s.%s", SQL.identifier(alias), SQL.identifier(field_name))
-        join_id = SQL("%s.id", SQL.identifier(join_alias))
-        join_sql = SQL(
-            "LEFT JOIN %s %s ON %s = %s",
-            SQL.identifier(comodel_table),
-            SQL.identifier(join_alias),
-            join_id,
-            fk_col,
-        )
-
-        if "code" in comodel._fields:
-            code_col = SQL("%s.%s", SQL.identifier(join_alias), SQL.identifier("code"))
-            expr = SQL("COALESCE(CAST(%s AS TEXT), %s)", code_col, default)
-        else:
-            id_col = SQL("%s.id", SQL.identifier(join_alias))
-            expr = SQL("COALESCE(CAST(%s AS TEXT), %s)", id_col, default)
-
-        return SQLColumnResult(expression=expr, joins=[join_sql], alias_counter=alias_counter + 1)
-
-    def _to_sql_column_m2o_sub(self, alias, alias_counter, field_name, field_def, sub_field, default):
-        """Generate SQL for a Many2one dotted path (e.g., gender_id.code)."""
-        comodel_name = field_def.comodel_name
-        comodel = self.env[comodel_name]
-        join_alias = f"_dim{alias_counter}"
-        comodel_table = comodel._table
-
-        if sub_field not in comodel._fields:
-            return None
-
-        fk_col = SQL("%s.%s", SQL.identifier(alias), SQL.identifier(field_name))
-        join_id = SQL("%s.id", SQL.identifier(join_alias))
-        join_sql = SQL(
-            "LEFT JOIN %s %s ON %s = %s",
-            SQL.identifier(comodel_table),
-            SQL.identifier(join_alias),
-            join_id,
-            fk_col,
-        )
-
-        sub_col = SQL("%s.%s", SQL.identifier(join_alias), SQL.identifier(sub_field))
-        expr = SQL("COALESCE(CAST(%s AS TEXT), %s)", sub_col, default)
-
-        return SQLColumnResult(expression=expr, joins=[join_sql], alias_counter=alias_counter + 1)
-
-    def _to_sql_column_expression(self, alias, alias_counter, default):
-        """Generate SQL for a CEL expression-based dimension."""
-        if not self.cel_expression:
-            return None
-
-        try:
-            translator = self.env["spp.cel.translator"]
-        except KeyError:
-            return None
-
-        sql_expr = translator.to_sql_case(self.cel_expression, "res.partner", alias)
-        if sql_expr is None:
-            return None
-
-        expr = SQL("COALESCE(CAST(%s AS TEXT), %s)", sql_expr, default)
-        return SQLColumnResult(expression=expr, alias_counter=alias_counter)
 
     # -------------------------------------------------------------------------
     # Cache Invalidation

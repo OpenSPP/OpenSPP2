@@ -35,7 +35,7 @@ class TestHazardGeofence(HazardTestCase):
                 "code": "GEO-TEST-INC-001",
                 "category_id": cls.category_typhoon.id,
                 "start_date": "2024-06-01",
-                "severity_id": cls.severity_severe.id,
+                "severity": "3",
             }
         )
 
