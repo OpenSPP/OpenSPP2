@@ -93,8 +93,6 @@ class Operator:
         "Point": "point",
         "LineString": "line",
         "Polygon": "polygon",
-        "MultiPolygon": "multipolygon",
-        "GeometryCollection": "geometrycollection",
     }
 
     def __init__(self, field, table_alias=None):
@@ -257,18 +255,6 @@ class Operator:
         points = [self.st_makepoint(*coord) for coord in coordinates[0]]
         polygon = self.st_makepolygon(points)
         return self.st_setsrid(polygon, srid)
-
-    def create_from_geojson(self, geojson_dict, srid):
-        """Create geometry from full GeoJSON using ST_GeomFromGeoJSON.
-
-        Used for complex geometry types (MultiPolygon, GeometryCollection)
-        that cannot be easily constructed from coordinates.
-
-        Returns a SQL object with the GeoJSON string as a bound parameter
-        to avoid SQL injection via string interpolation.
-        """
-        geojson_str = json.dumps(geojson_dict)
-        return SQL("ST_SetSRID(ST_GeomFromGeoJSON(%s), %s)", geojson_str, srid)
 
     def validate_coordinates_for_point(self, coordinates):
         """
@@ -468,10 +454,7 @@ class Operator:
         to validate the structure of the GeoJSON using the `shape` function
         """
         if geojson.get("type") not in self.ALLOWED_LAYER_TYPE:
-            raise ValueError(
-                "Invalid geojson type. Allowed types are Point, LineString, "
-                "Polygon, MultiPolygon, and GeometryCollection."
-            )
+            raise ValueError("Invalid geojson type. Allowed types are Point, LineString, and Polygon.")
         try:
             shape(geojson)
         except Exception as e:
@@ -504,19 +487,6 @@ class Operator:
 
         operation = self.OPERATION_TO_RELATION[operator]
         layer_type = self.ALLOWED_LAYER_TYPE[geojson_val["type"]]
-
-        if layer_type in ("multipolygon", "geometrycollection"):
-            # Complex types use ST_GeomFromGeoJSON directly
-            geom = self.create_from_geojson(geojson_val, self.field.srid)
-            postgis_fn = self.POSTGIS_SPATIAL_RELATION[operation]
-            right = SQL(self.qualified_field_name)
-            if distance:
-                left = geom
-                if self.field.srid == 4326:
-                    left = SQL("ST_Transform(%s, %s)", geom, 3857)
-                    right = SQL("ST_Transform(%s, %s)", right, 3857)
-                return SQL("%s(ST_Buffer(%s, %s), %s)", SQL(postgis_fn), left, distance, right)
-            return SQL("%s(%s, %s)", SQL(postgis_fn), geom, right)
-
         coordinates = geojson_val["coordinates"]
+
         return SQL(self.get_postgis_query(operation, coordinates, distance=distance, layer_type=layer_type))

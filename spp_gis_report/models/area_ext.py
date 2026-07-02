@@ -153,15 +153,7 @@ class Area(models.Model):
             # Build legend info from thresholds for display purposes only.
             thresholds = report.threshold_ids.sorted("sequence")
             if thresholds:
-                layer_dict["report_legend"] = [
-                    {
-                        "color": t.color,
-                        "label": t.label,
-                        "min_value": t.min_value,
-                        "max_value": t.max_value,
-                    }
-                    for t in thresholds
-                ]
+                layer_dict["report_legend"] = [{"color": t.color, "label": t.label} for t in thresholds]
                 layer_dict["report_legend_title"] = report.name
 
             # Build pre-computed features for report layer

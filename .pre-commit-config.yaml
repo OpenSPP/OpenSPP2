@@ -60,13 +60,6 @@ repos:
           - --if-source-changed
           - --keep-source-digest
           - --convert-fragments-to-markdown
-        # Pin doc-generation deps so README output is reproducible across Python
-        # versions/environments (CI runs Python 3.11). Without this, differing
-        # docutils/markdown-it-py versions render RST tables with different column
-        # widths, causing spurious README drift in CI.
-        additional_dependencies:
-          - "docutils==0.23"
-          - "markdown-it-py==4.2.0"
         manual: true
       - id: oca-gen-external-dependencies
         manual: true
