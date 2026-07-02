@@ -5,31 +5,14 @@
         <field name="name">spp.disability.assessment.form</field>
         <field name="model">spp.disability.assessment</field>
         <field name="arch" type="xml">
-            <form
-                string="Disability Assessment"
-                readonly="approval_state not in ('draft', 'revision')"
-            >
+            <form string="Disability Assessment">
                 <header>
-                    <!-- Approve/Reject visibility follows the configured approval
-                         workflow (can_approve/can_reject), so the configured
-                         approvers drive the buttons rather than a fixed group. -->
-                    <field name="can_submit" invisible="1" />
-                    <field name="can_approve" invisible="1" />
-                    <field name="can_reject" invisible="1" />
-                    <field name="has_approval_definition" invisible="1" />
-                    <field name="questionnaire_complete" invisible="1" />
-                    <field name="assessment_complete" invisible="1" />
-                    <field name="cfg_display_impairment" invisible="1" />
-                    <field name="cfg_display_wg" invisible="1" />
-                    <field name="cfg_display_support" invisible="1" />
-                    <field name="cfg_support_show_devices" invisible="1" />
-                    <field name="cfg_display_review" invisible="1" />
                     <button
                         name="action_submit_for_approval"
                         string="Submit"
                         type="object"
                         class="btn-primary"
-                        invisible="not can_submit or not has_approval_definition or not assessment_complete"
+                        invisible="approval_state != 'draft'"
                         groups="spp_disability_registry.group_disability_assessor"
                     />
                     <button
@@ -37,14 +20,16 @@
                         string="Approve"
                         type="object"
                         class="btn-success"
-                        invisible="not can_approve"
+                        invisible="approval_state != 'pending'"
+                        groups="spp_disability_registry.group_disability_validator"
                     />
                     <button
                         name="action_reject"
                         string="Reject"
                         type="object"
                         class="btn-danger"
-                        invisible="not can_reject"
+                        invisible="approval_state != 'pending'"
+                        groups="spp_disability_registry.group_disability_validator"
                     />
                     <button
                         name="action_reset_to_draft"
@@ -102,58 +87,11 @@
                             <div>
                                 <strong>Disability Identified</strong>
                                 <p class="mb-0">
-                                    Based on the assessment responses, this person meets the disability threshold
+                                    Based on WG responses, this person meets the disability threshold
                                     (<field
                                     name="wg_domain_count"
                                     class="d-inline"
                                 /> domain(s) with significant difficulty).
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- No approval workflow configured: Submit is hidden until one exists -->
-                    <div
-                        class="alert alert-warning mb-3"
-                        role="alert"
-                        invisible="approval_state != 'draft' or has_approval_definition"
-                    >
-                        <div class="d-flex align-items-center">
-                            <i
-                                class="fa fa-exclamation-triangle fa-lg me-3"
-                                aria-hidden="true"
-                            />
-                            <div>
-                                <strong>No approval workflow configured</strong>
-                                <p class="mb-0">
-                                    This assessment cannot be submitted for approval yet.
-                                    An administrator must create an approval workflow in
-                                    <b>Approvals → Approval Definitions</b> (Model =
-                                    Disability Assessment), then select it under
-                                    <b>Settings → Disability Registry → Approval</b>.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Assessment incomplete: Submit is hidden until required tabs are complete -->
-                    <div
-                        class="alert alert-info mb-3"
-                        role="status"
-                        invisible="approval_state != 'draft' or not has_approval_definition or assessment_complete"
-                    >
-                        <div class="d-flex align-items-center">
-                            <i
-                                class="fa fa-info-circle fa-lg me-3"
-                                aria-hidden="true"
-                            />
-                            <div>
-                                <strong>Complete the required tabs to submit</strong>
-                                <p class="mb-0">
-                                    Answer the impairment question on the <b
-                                >Impairment Classification</b> tab and, where required,
-                                    complete the <b>WG/CFM Assessment</b> questionnaire.
-                                    The Submit button appears once all required tabs are complete.
                                 </p>
                             </div>
                         </div>
@@ -165,23 +103,12 @@
                             <group col="2">
                                 <group string="Registrant">
                                     <field
-                                        name="age_restriction_enforced"
-                                        invisible="1"
-                                    />
-                                    <field name="registrant_birthdate" invisible="1" />
-                                    <field
                                         name="registrant_id"
                                         readonly="approval_state != 'draft'"
                                         options="{'no_create': True}"
                                     />
-                                    <field
-                                        name="age_at_assessment"
-                                        invisible="not registrant_birthdate"
-                                    />
-                                    <field
-                                        name="assessment_type"
-                                        readonly="age_restriction_enforced or approval_state != 'draft'"
-                                    />
+                                    <field name="age_at_assessment" />
+                                    <field name="assessment_type" />
                                 </group>
                                 <group string="Assessment Details">
                                     <field
@@ -192,52 +119,15 @@
                                         name="assessor_id"
                                         readonly="approval_state != 'draft'"
                                     />
+                                    <field name="has_disability" />
                                 </group>
                             </group>
                             <group col="2">
-                                <group
-                                    string="Review Schedule"
-                                    invisible="not cfg_display_review"
-                                >
-                                    <field name="review_category" />
-                                    <field name="next_review_date" />
-                                </group>
-                            </group>
-                        </page>
-
-                        <!-- Tab 2: Impairment Classification (one row per impairment type) -->
-                        <page
-                            name="impairment"
-                            string="Impairment Classification"
-                            invisible="not cfg_display_impairment"
-                        >
-                            <group>
-                                <field
-                                    name="has_impairments_to_record"
-                                    widget="radio"
-                                    options="{'horizontal': true}"
-                                />
-                            </group>
-                            <div
-                                class="alert alert-light mb-3"
-                                role="status"
-                                invisible="has_impairments_to_record != 'yes'"
-                            >
-                                <strong>Impairment Classification</strong>
-                                <p class="mb-0">
-                                    Add one row per impairment type, each with its own cause
-                                    and severity. The overall severity (shown on the registrant)
-                                    is the most severe level across the rows.
-                                </p>
-                            </div>
-                            <field
-                                name="impairment_line_ids"
-                                invisible="has_impairments_to_record != 'yes'"
-                            >
-                                <list editable="bottom">
+                                <group string="Impairment Classification">
                                     <field
-                                        name="impairment_type_id"
-                                        options="{'no_create': True}"
+                                        name="impairment_type_ids"
+                                        widget="many2many_tags"
+                                        options="{'color_field': 'color', 'no_create': True}"
                                     />
                                     <field
                                         name="impairment_cause_id"
@@ -247,893 +137,67 @@
                                         name="severity_level_id"
                                         options="{'no_create': True}"
                                     />
-                                </list>
-                            </field>
-                        </page>
-
-                        <!-- Tab 3: WG/CFM Assessment (form varies by assessment type) -->
-                        <page
-                            name="wg_assessment"
-                            string="WG/CFM Assessment"
-                            invisible="not cfg_display_wg"
-                        >
-                            <!-- Respondent / proxy (OP#1053) -->
-                            <field name="proxy_locked" invisible="1" />
-                            <group string="Respondent" col="2">
-                                <group>
-                                    <field
-                                        name="is_proxy_response"
-                                        readonly="proxy_locked"
-                                        invisible="assessment_type == 'wg_ss' and proxy_locked"
-                                    />
                                 </group>
-                                <group invisible="not is_proxy_response">
-                                    <field
-                                        name="proxy_respondent_id"
-                                        options="{'no_create': True}"
-                                    />
-                                    <field name="proxy_relationship" />
-                                    <field
-                                        name="proxy_reason"
-                                        invisible="assessment_type != 'wg_ss'"
-                                    />
+                                <group string="Review Schedule">
+                                    <field name="review_category" />
+                                    <field name="next_review_date" />
                                 </group>
                             </group>
-                            <!-- Adults 18+ : Washington Group Short Set -->
-                            <div invisible="assessment_type != 'wg_ss'">
-                                <div class="alert alert-light mb-3" role="status">
-                                    <strong>Washington Group Short Set (WG-SS)</strong>
-                                    <p class="mb-0">
-                                        Rate the difficulty for each domain. A person has a disability
-                                        if any domain is "A lot of difficulty" or "Cannot do at all".
-                                    </p>
-                                </div>
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light py-2">
-                                        <span
-                                            class="fw-bold text-uppercase small"
-                                        >Functional Domains</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Difficulty seeing, even if wearing glasses?</div>
-                                            <field
-                                                name="wg_seeing"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div class="mb-3">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Difficulty hearing, even if using a hearing aid?</div>
-                                            <field
-                                                name="wg_hearing"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div class="mb-3">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Difficulty walking or climbing steps?</div>
-                                            <field
-                                                name="wg_walking"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div class="mb-3">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Difficulty remembering or concentrating?</div>
-                                            <field
-                                                name="wg_remembering"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div class="mb-3">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Difficulty with self-care (washing, dressing)?</div>
-                                            <field
-                                                name="wg_selfcare"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div class="mb-0">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Difficulty communicating (understanding or being understood) in their usual language?</div>
-                                            <field
-                                                name="wg_communicating"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Children 2-4 : WG/UNICEF Child Functioning Module (CFM 2-4) -->
-                            <div invisible="assessment_type != 'cfm_2_4'">
-                                <div class="alert alert-light mb-3" role="status">
-                                    <strong
-                                    >Child Functioning Module - Ages 2-4 (CFM 2-4)</strong>
-                                    <p class="mb-0">
-                                        A child meets the disability threshold if any domain is
-                                        answered "A lot of difficulty"/"Cannot do at all" (or, for
-                                        controlling behaviour, "A lot more").
-                                    </p>
-                                </div>
-                                <!-- Vision -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light py-2">
-                                        <span
-                                            class="fw-bold text-uppercase small"
-                                        >Vision</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Does the child wear glasses?</div>
-                                            <field
-                                                name="cfm24_glasses"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div
-                                            class="mb-0"
-                                            invisible="cfm24_glasses != 'yes'"
-                                        >
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >When wearing his/her glasses, does the child have difficulty seeing?</div>
-                                            <field
-                                                name="cfm24_vision_aided"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div
-                                            class="mb-0"
-                                            invisible="cfm24_glasses != 'no'"
-                                        >
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Does the child have difficulty seeing?</div>
-                                            <field
-                                                name="cfm24_vision"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Hearing -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light py-2">
-                                        <span
-                                            class="fw-bold text-uppercase small"
-                                        >Hearing</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Does the child use a hearing aid?</div>
-                                            <field
-                                                name="cfm24_hearing_aid"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div
-                                            class="mb-0"
-                                            invisible="cfm24_hearing_aid != 'yes'"
-                                        >
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >When using his/her hearing aid, does the child have difficulty hearing sounds like people's voices or music?</div>
-                                            <field
-                                                name="cfm24_hearing_aided"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div
-                                            class="mb-0"
-                                            invisible="cfm24_hearing_aid != 'no'"
-                                        >
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Does the child have difficulty hearing sounds like people's voices or music?</div>
-                                            <field
-                                                name="cfm24_hearing"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Mobility -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light py-2">
-                                        <span
-                                            class="fw-bold text-uppercase small"
-                                        >Mobility</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Does the child use any equipment or receive assistance for walking?</div>
-                                            <field
-                                                name="cfm24_walk_equipment"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div
-                                            class="mb-3"
-                                            invisible="cfm24_walk_equipment != 'yes'"
-                                        >
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Without his/her equipment or assistance, does the child have difficulty walking?</div>
-                                            <field
-                                                name="cfm24_walk_unaided"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div
-                                            class="mb-0"
-                                            invisible="cfm24_walk_equipment != 'yes'"
-                                        >
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >With his/her equipment or assistance, does the child have difficulty walking?</div>
-                                            <field
-                                                name="cfm24_walk_aided"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div
-                                            class="mb-0"
-                                            invisible="cfm24_walk_equipment != 'no'"
-                                        >
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Compared with children of the same age, does the child have difficulty walking?</div>
-                                            <field
-                                                name="cfm24_walk_compare"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Dexterity -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light py-2">
-                                        <span
-                                            class="fw-bold text-uppercase small"
-                                        >Dexterity</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-0">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Compared with children of the same age, does the child have difficulty picking up small objects with his/her hand?</div>
-                                            <field
-                                                name="cfm24_dexterity"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Communication -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light py-2">
-                                        <span
-                                            class="fw-bold text-uppercase small"
-                                        >Communication</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Does the child have difficulty understanding you?</div>
-                                            <field
-                                                name="cfm24_understand_you"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div class="mb-0">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >When the child speaks, do you have difficulty understanding him/her?</div>
-                                            <field
-                                                name="cfm24_understood"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Learning -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light py-2">
-                                        <span
-                                            class="fw-bold text-uppercase small"
-                                        >Learning</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-0">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Compared with children of the same age, does the child have difficulty learning things?</div>
-                                            <field
-                                                name="cfm24_learning"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Playing -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light py-2">
-                                        <span
-                                            class="fw-bold text-uppercase small"
-                                        >Playing</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-0">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Compared with children of the same age, does the child have difficulty playing?</div>
-                                            <field
-                                                name="cfm24_playing"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Controlling Behaviour -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light py-2">
-                                        <span
-                                            class="fw-bold text-uppercase small"
-                                        >Controlling Behaviour</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-0">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Compared with children of the same age, how much does the child kick, bite or hit other children or adults?</div>
-                                            <field
-                                                name="cfm24_behavior"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Children 5-17 : WG/UNICEF Child Functioning Module (CFM 5-17) -->
-                            <div invisible="assessment_type != 'cfm_5_17'">
-                                <div class="alert alert-light mb-3" role="status">
-                                    <strong
-                                    >Child Functioning Module - Ages 5-17 (CFM 5-17)</strong>
-                                    <p class="mb-0">
-                                        A child meets the disability threshold if any domain is
-                                        answered "A lot of difficulty"/"Cannot do at all" (or, for
-                                        anxiety and depression, occurs "Daily").
-                                    </p>
-                                </div>
-                                <!-- Vision -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light py-2">
-                                        <span
-                                            class="fw-bold text-uppercase small"
-                                        >Vision</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Does the child wear glasses?</div>
-                                            <field
-                                                name="cfm517_glasses"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div
-                                            class="mb-0"
-                                            invisible="cfm517_glasses != 'yes'"
-                                        >
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >When wearing his/her glasses, does the child have difficulty seeing?</div>
-                                            <field
-                                                name="cfm517_vision_aided"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div
-                                            class="mb-0"
-                                            invisible="cfm517_glasses != 'no'"
-                                        >
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Does the child have difficulty seeing?</div>
-                                            <field
-                                                name="cfm517_vision"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Hearing -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light py-2">
-                                        <span
-                                            class="fw-bold text-uppercase small"
-                                        >Hearing</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Does the child use a hearing aid?</div>
-                                            <field
-                                                name="cfm517_hearing_aid"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div
-                                            class="mb-0"
-                                            invisible="cfm517_hearing_aid != 'yes'"
-                                        >
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >When using his/her hearing aid, does the child have difficulty hearing sounds like people's voices or music?</div>
-                                            <field
-                                                name="cfm517_hearing_aided"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div
-                                            class="mb-0"
-                                            invisible="cfm517_hearing_aid != 'no'"
-                                        >
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Does the child have difficulty hearing sounds like people's voices or music?</div>
-                                            <field
-                                                name="cfm517_hearing"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Mobility -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light py-2">
-                                        <span
-                                            class="fw-bold text-uppercase small"
-                                        >Mobility</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Does the child use any equipment or receive assistance for walking?</div>
-                                            <field
-                                                name="cfm517_walk_equipment"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div
-                                            class="mb-3"
-                                            invisible="cfm517_walk_equipment != 'yes'"
-                                        >
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Without his/her equipment or assistance, does the child have difficulty walking 100 yards/meters on level ground?</div>
-                                            <field
-                                                name="cfm517_walk_unaided_100"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div
-                                            class="mb-3"
-                                            invisible="cfm517_walk_equipment != 'yes'"
-                                        >
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Without his/her equipment or assistance, does the child have difficulty walking 500 yards/meters on level ground?</div>
-                                            <field
-                                                name="cfm517_walk_unaided_500"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div
-                                            class="mb-3"
-                                            invisible="cfm517_walk_equipment != 'yes'"
-                                        >
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >With his/her equipment or assistance, does the child have difficulty walking 100 yards/meters on level ground?</div>
-                                            <field
-                                                name="cfm517_walk_aided_100"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div
-                                            class="mb-0"
-                                            invisible="cfm517_walk_equipment != 'yes'"
-                                        >
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >With his/her equipment or assistance, does the child have difficulty walking 500 yards/meters on level ground?</div>
-                                            <field
-                                                name="cfm517_walk_aided_500"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div
-                                            class="mb-3"
-                                            invisible="cfm517_walk_equipment != 'no'"
-                                        >
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Compared with children of the same age, does the child have difficulty walking 100 yards/meters on level ground?</div>
-                                            <field
-                                                name="cfm517_walk_compare_100"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div
-                                            class="mb-0"
-                                            invisible="cfm517_walk_equipment != 'no'"
-                                        >
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Compared with children of the same age, does the child have difficulty walking 500 yards/meters on level ground?</div>
-                                            <field
-                                                name="cfm517_walk_compare_500"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Self-care -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light py-2">
-                                        <span
-                                            class="fw-bold text-uppercase small"
-                                        >Self-care</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-0">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Does the child have difficulty with self-care such as feeding or dressing him/herself?</div>
-                                            <field
-                                                name="cfm517_selfcare"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Communication -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light py-2">
-                                        <span
-                                            class="fw-bold text-uppercase small"
-                                        >Communication</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >When the child speaks, does he/she have difficulty being understood by people inside this household?</div>
-                                            <field
-                                                name="cfm517_comm_inside"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                        <div class="mb-0">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >When the child speaks, does he/she have difficulty being understood by people outside this household?</div>
-                                            <field
-                                                name="cfm517_comm_outside"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Learning -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light py-2">
-                                        <span
-                                            class="fw-bold text-uppercase small"
-                                        >Learning</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-0">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Compared with children of the same age, does the child have difficulty learning things?</div>
-                                            <field
-                                                name="cfm517_learning"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Remembering -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light py-2">
-                                        <span
-                                            class="fw-bold text-uppercase small"
-                                        >Remembering</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-0">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Compared with children of the same age, does the child have difficulty remembering things?</div>
-                                            <field
-                                                name="cfm517_remembering"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Concentrating -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light py-2">
-                                        <span
-                                            class="fw-bold text-uppercase small"
-                                        >Concentrating</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-0">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Does the child have difficulty concentrating on an activity that he/she enjoys doing?</div>
-                                            <field
-                                                name="cfm517_concentrating"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Accepting change -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light py-2">
-                                        <span
-                                            class="fw-bold text-uppercase small"
-                                        >Accepting change</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-0">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Does the child have difficulty accepting changes in his/her routine?</div>
-                                            <field
-                                                name="cfm517_accepting_change"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Controlling behaviour -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light py-2">
-                                        <span
-                                            class="fw-bold text-uppercase small"
-                                        >Controlling behaviour</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-0">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Compared with children of the same age, does the child have difficulty controlling his/her behaviour?</div>
-                                            <field
-                                                name="cfm517_behavior"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Making friends -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light py-2">
-                                        <span
-                                            class="fw-bold text-uppercase small"
-                                        >Making friends</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-0">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >Does the child have difficulty making friends?</div>
-                                            <field
-                                                name="cfm517_friends"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Anxiety -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light py-2">
-                                        <span
-                                            class="fw-bold text-uppercase small"
-                                        >Anxiety</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-0">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >How often does the child seem very anxious, nervous or worried?</div>
-                                            <field
-                                                name="cfm517_anxiety"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Depression -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light py-2">
-                                        <span
-                                            class="fw-bold text-uppercase small"
-                                        >Depression</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-0">
-                                            <div
-                                                class="fw-bold mb-1"
-                                            >How often does the child seem very sad or depressed?</div>
-                                            <field
-                                                name="cfm517_depression"
-                                                widget="radio"
-                                                options="{'horizontal': true}"
-                                                nolabel="1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </page>
 
-                        <!-- Tab 4: Support Needs -->
-                        <page
-                            name="support"
-                            string="Support Needs"
-                            invisible="not cfg_display_support"
-                        >
-                            <separator
-                                string="Assistive Devices"
-                                invisible="not cfg_support_show_devices"
-                            />
-                            <div
-                                class="alert alert-light mb-2"
-                                role="status"
-                                invisible="not cfg_support_show_devices"
-                            >
+                        <!-- Tab 2: Washington Group Assessment -->
+                        <page name="wg_assessment" string="WG Assessment">
+                            <div class="alert alert-light mb-3" role="status">
+                                <strong>Washington Group Short Set (WG-SS)</strong>
                                 <p class="mb-0">
-                                    Record assistive devices the registrant needs. These are
-                                    created on the registrant (status <em
-                                >Needed</em>) once the
-                                    assessment is approved.
+                                    Rate difficulty levels for each domain.
+                                    A person has a disability if they have "A lot of difficulty" or "Cannot do at all" in at least one domain.
                                 </p>
                             </div>
-                            <field
-                                name="device_request_ids"
-                                invisible="not cfg_support_show_devices"
-                            >
-                                <list editable="bottom">
-                                    <field
-                                        name="device_type_id"
-                                        options="{'no_create': True}"
-                                    />
-                                    <field name="status" readonly="1" />
-                                    <field name="notes" optional="hide" />
-                                </list>
-                            </field>
+                            <group col="2">
+                                <group string="Sensory Functions">
+                                    <field name="wg_seeing" widget="radio" />
+                                    <field name="wg_hearing" widget="radio" />
+                                </group>
+                                <group string="Motor Functions">
+                                    <field name="wg_walking" widget="radio" />
+                                    <field name="wg_selfcare" widget="radio" />
+                                </group>
+                            </group>
+                            <group col="2">
+                                <group string="Cognitive Functions">
+                                    <field name="wg_remembering" widget="radio" />
+                                </group>
+                                <group string="Communication">
+                                    <field name="wg_communicating" widget="radio" />
+                                </group>
+                            </group>
+                        </page>
 
-                            <separator string="Support Needs" />
+                        <!-- Tab 3: Support Needs -->
+                        <page name="support" string="Support Needs">
                             <group>
                                 <field
                                     name="support_needs"
                                     nolabel="1"
                                     placeholder="Describe the person's support needs (human assistance, accessibility requirements, etc.)..."
                                 />
+                            </group>
+                        </page>
+
+                        <!-- Tab 4: Proxy Response -->
+                        <page name="proxy" string="Response Information">
+                            <group col="2">
+                                <group string="Response Type">
+                                    <field name="is_proxy_response" />
+                                </group>
+                                <group
+                                    string="Proxy Respondent"
+                                    invisible="not is_proxy_response"
+                                >
+                                    <field name="proxy_respondent_id" />
+                                    <field name="proxy_relationship" />
+                                </group>
                             </group>
                         </page>
                     </notebook>

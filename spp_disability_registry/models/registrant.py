@@ -1,8 +1,6 @@
 import logging
 
-from dateutil.relativedelta import relativedelta
-
-from odoo import _, api, fields, models
+from odoo import api, fields, models
 
 _logger = logging.getLogger(__name__)
 
@@ -68,38 +66,6 @@ class ResPartner(models.Model):
         compute="_compute_unmet_device_need",
         store=True,
     )
-
-    # === Assessment Eligibility ===
-    can_create_disability_assessment = fields.Boolean(
-        string="Can Create Disability Assessment",
-        compute="_compute_can_create_disability_assessment",
-    )
-    disability_no_create_reason = fields.Char(
-        compute="_compute_can_create_disability_assessment",
-    )
-
-    @api.depends("birthdate")
-    def _compute_can_create_disability_assessment(self):
-        # When the assessment type is age-driven, an assessment needs a date of birth
-        # and an age of at least 2 (the youngest CFM instrument covers ages 2-4).
-        # nosemgrep: odoo-sudo-without-context — read configuration parameter
-        icp = self.env["ir.config_parameter"].sudo()
-        disregard_age = icp.get_param("spp_disability_registry.disregard_age", "False") == "True"
-        today = fields.Date.today()
-        for rec in self:
-            reason = False
-            if disregard_age:
-                can_create = True
-            elif not rec.birthdate:
-                can_create = False
-                reason = _("Add the registrant's date of birth to create a disability assessment.")
-            elif relativedelta(today, rec.birthdate).years < 2:
-                can_create = False
-                reason = _("Disability assessments are not available for children under 2 years old.")
-            else:
-                can_create = True
-            rec.can_create_disability_assessment = can_create
-            rec.disability_no_create_reason = reason
 
     def _compute_disability_assessment_count(self):
         for rec in self:

@@ -1,10 +1,9 @@
 import logging
 
 from dateutil.relativedelta import relativedelta
-from markupsafe import Markup
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -18,54 +17,6 @@ WG_DIFFICULTY_LEVELS = [
 
 # Severe difficulty levels that indicate disability per WG standard
 WG_SEVERE_DIFFICULTY_LEVELS = ("a_lot", "cannot")
-
-# WG/UNICEF Child Functioning Module (CFM) response scales.
-# Standard difficulty scale (shared by CFM 2-4 and CFM 5-17), including the
-# survey non-response codes; "a_lot"/"cannot" reuse WG_SEVERE_DIFFICULTY_LEVELS.
-CFM_DIFFICULTY_LEVELS = [
-    ("none", "No difficulty"),
-    ("some", "Some difficulty"),
-    ("a_lot", "A lot of difficulty"),
-    ("cannot", "Cannot do at all"),
-    ("refused", "Refused"),
-    ("dont_know", "Don't know"),
-]
-# Same scale without "No difficulty" — used by the "without his/her equipment or
-# assistance" walking questions, where "no difficulty" unaided wouldn't warrant
-# the aid in the first place (BM reword).
-CFM_DIFFICULTY_LEVELS_NO_NONE = [
-    ("some", "Some difficulty"),
-    ("a_lot", "A lot of difficulty"),
-    ("cannot", "Cannot do at all"),
-    ("refused", "Refused"),
-    ("dont_know", "Don't know"),
-]
-# Behaviour-frequency scale used by CFM 2-4 CF16 (controlling behaviour).
-# Disability threshold is "a lot more".
-CFM_BEHAVIOR_LEVELS = [
-    ("not_at_all", "Not at all"),
-    ("same_or_less", "The same or less"),
-    ("more", "More"),
-    ("a_lot_more", "A lot more"),
-    ("refused", "Refused"),
-    ("dont_know", "Don't know"),
-]
-# Frequency scale used by CFM 5-17 CF23 (anxiety) and CF24 (depression).
-# Disability threshold is "daily".
-CFM_FREQUENCY_LEVELS = [
-    ("daily", "Daily"),
-    ("weekly", "Weekly"),
-    ("monthly", "Monthly"),
-    ("few_times_year", "A few times a year"),
-    ("never", "Never"),
-    ("refused", "Refused"),
-    ("dont_know", "Don't know"),
-]
-# Yes/No gate questions in the CFM instruments (glasses, hearing aid, walking aid).
-CFM_YES_NO = [
-    ("yes", "Yes"),
-    ("no", "No"),
-]
 
 # Review category to months mapping
 REVIEW_CATEGORY_MONTHS = {
@@ -126,30 +77,6 @@ class SppDisabilityAssessment(models.Model):
         compute="_compute_age_at_assessment",
         store=True,
     )
-    # Surfaced so the form can hide "Age at Assessment" when there is no date of birth.
-    registrant_birthdate = fields.Date(
-        related="registrant_id.birthdate",
-        string="Registrant Date of Birth",
-    )
-    age_restriction_enforced = fields.Boolean(
-        string="Age Restriction Enforced",
-        compute="_compute_age_restriction_enforced",
-        help="Technical flag driving the form: True when the assessment type is "
-        "auto-determined by age (default). Toggled by the 'Allow manual assessment "
-        "type' setting in Disability Registry configuration.",
-    )
-    has_approval_definition = fields.Boolean(
-        string="Approval Workflow Configured",
-        compute="_compute_has_approval_definition",
-        help="Technical flag: whether an approval workflow is configured for "
-        "disability assessments. The Submit button is hidden until one exists.",
-    )
-    questionnaire_complete = fields.Boolean(
-        string="Questionnaire Complete",
-        compute="_compute_questionnaire_complete",
-        help="Technical flag: whether the WG/CFM questionnaire has enough answers to "
-        "compute a disability result for the assessment type. Required to submit.",
-    )
 
     # === WG-SS Responses (6 domains) ===
     wg_seeing = fields.Selection(
@@ -180,274 +107,29 @@ class SppDisabilityAssessment(models.Model):
     wg_communicating = fields.Selection(
         WG_DIFFICULTY_LEVELS,
         string="Communicating",
-        help="Do you have difficulty communicating (understanding or being understood) in their usual language?",
+        help="Do you have difficulty communicating (understanding or being understood)?",
     )
 
-    # === CFM 2-4 Responses (children aged 2-4, CF1-CF16) ===
-    # Vision
-    cfm24_glasses = fields.Selection(  # CF1
-        CFM_YES_NO,
-        string="Does the child wear glasses?",
-    )
-    cfm24_vision_aided = fields.Selection(  # CF2 (asked when glasses are worn)
-        CFM_DIFFICULTY_LEVELS,
-        string="When wearing his/her glasses, does the child have difficulty seeing?",
-    )
-    cfm24_vision = fields.Selection(  # CF3 (asked when no glasses)
-        CFM_DIFFICULTY_LEVELS,
-        string="Does the child have difficulty seeing?",
-    )
-    # Hearing
-    cfm24_hearing_aid = fields.Selection(  # CF4
-        CFM_YES_NO,
-        string="Does the child use a hearing aid?",
-    )
-    cfm24_hearing_aided = fields.Selection(  # CF5
-        CFM_DIFFICULTY_LEVELS,
-        string="When using his/her hearing aid, does the child have difficulty hearing sounds "
-        "like people's voices or music?",
-    )
-    cfm24_hearing = fields.Selection(  # CF6
-        CFM_DIFFICULTY_LEVELS,
-        string="Does the child have difficulty hearing sounds like people's voices or music?",
-    )
-    # Mobility
-    cfm24_walk_equipment = fields.Selection(  # CF7
-        CFM_YES_NO,
-        string="Does the child use any equipment or receive assistance for walking?",
-    )
-    cfm24_walk_unaided = fields.Selection(  # CF8 (without equipment)
-        CFM_DIFFICULTY_LEVELS_NO_NONE,
-        string="Without his/her equipment or assistance, does the child have difficulty walking?",
-    )
-    cfm24_walk_aided = fields.Selection(  # CF9 (with equipment) - concluding when equipment used
-        CFM_DIFFICULTY_LEVELS,
-        string="With his/her equipment or assistance, does the child have difficulty walking?",
-    )
-    cfm24_walk_compare = fields.Selection(  # CF10 (no equipment) - concluding when no equipment
-        CFM_DIFFICULTY_LEVELS,
-        string="Compared with children of the same age, does the child have difficulty walking?",
-    )
-    # Dexterity
-    cfm24_dexterity = fields.Selection(  # CF11
-        CFM_DIFFICULTY_LEVELS,
-        string="Compared with children of the same age, does the child have difficulty picking "
-        "up small objects with his/her hand?",
-    )
-    # Communication
-    cfm24_understand_you = fields.Selection(  # CF12
-        CFM_DIFFICULTY_LEVELS,
-        string="Does the child have difficulty understanding you?",
-    )
-    cfm24_understood = fields.Selection(  # CF13
-        CFM_DIFFICULTY_LEVELS,
-        string="When the child speaks, do you have difficulty understanding him/her?",
-    )
-    # Learning
-    cfm24_learning = fields.Selection(  # CF14
-        CFM_DIFFICULTY_LEVELS,
-        string="Compared with children of the same age, does the child have difficulty learning things?",
-    )
-    # Playing
-    cfm24_playing = fields.Selection(  # CF15
-        CFM_DIFFICULTY_LEVELS,
-        string="Compared with children of the same age, does the child have difficulty playing?",
-    )
-    # Controlling behaviour
-    cfm24_behavior = fields.Selection(  # CF16 (behaviour scale, threshold "a lot more")
-        CFM_BEHAVIOR_LEVELS,
-        string="Compared with children of the same age, how much does the child kick, bite or hit "
-        "other children or adults?",
-    )
-
-    # === CFM 5-17 Responses (children aged 5-17, CF1-CF24) ===
-    # Vision
-    cfm517_glasses = fields.Selection(  # CF1
-        CFM_YES_NO,
-        string="Does the child wear glasses?",
-    )
-    cfm517_vision_aided = fields.Selection(  # CF2
-        CFM_DIFFICULTY_LEVELS,
-        string="When wearing his/her glasses, does the child have difficulty seeing?",
-    )
-    cfm517_vision = fields.Selection(  # CF3
-        CFM_DIFFICULTY_LEVELS,
-        string="Does the child have difficulty seeing?",
-    )
-    # Hearing
-    cfm517_hearing_aid = fields.Selection(  # CF4
-        CFM_YES_NO,
-        string="Does the child use a hearing aid?",
-    )
-    cfm517_hearing_aided = fields.Selection(  # CF5
-        CFM_DIFFICULTY_LEVELS,
-        string="When using his/her hearing aid, does the child have difficulty hearing sounds "
-        "like people's voices or music?",
-    )
-    cfm517_hearing = fields.Selection(  # CF6
-        CFM_DIFFICULTY_LEVELS,
-        string="Does the child have difficulty hearing sounds like people's voices or music?",
-    )
-    # Mobility (100/500 yards-meters, with and without equipment; concluding = the
-    # "with aid" answer when equipment is used, otherwise the "compared" answer)
-    cfm517_walk_equipment = fields.Selection(  # CF7
-        CFM_YES_NO,
-        string="Does the child use any equipment or receive assistance for walking?",
-    )
-    cfm517_walk_unaided_100 = fields.Selection(  # CF8 (without equipment, 100)
-        CFM_DIFFICULTY_LEVELS_NO_NONE,
-        string="Without his/her equipment or assistance, does the child have difficulty walking "
-        "100 yards/meters on level ground?",
-    )
-    cfm517_walk_unaided_500 = fields.Selection(  # CF9 (without equipment, 500)
-        CFM_DIFFICULTY_LEVELS_NO_NONE,
-        string="Without his/her equipment or assistance, does the child have difficulty walking "
-        "500 yards/meters on level ground?",
-    )
-    cfm517_walk_aided_100 = fields.Selection(  # CF10 (with equipment, 100) - concluding
-        CFM_DIFFICULTY_LEVELS,
-        string="With his/her equipment or assistance, does the child have difficulty walking "
-        "100 yards/meters on level ground?",
-    )
-    cfm517_walk_aided_500 = fields.Selection(  # CF11 (with equipment, 500) - concluding
-        CFM_DIFFICULTY_LEVELS,
-        string="With his/her equipment or assistance, does the child have difficulty walking "
-        "500 yards/meters on level ground?",
-    )
-    cfm517_walk_compare_100 = fields.Selection(  # CF12 (no equipment, compared, 100) - concluding
-        CFM_DIFFICULTY_LEVELS,
-        string="Compared with children of the same age, does the child have difficulty walking "
-        "100 yards/meters on level ground?",
-    )
-    cfm517_walk_compare_500 = fields.Selection(  # CF13 (no equipment, compared, 500) - concluding
-        CFM_DIFFICULTY_LEVELS,
-        string="Compared with children of the same age, does the child have difficulty walking "
-        "500 yards/meters on level ground?",
-    )
-    # Self-care
-    cfm517_selfcare = fields.Selection(  # CF14
-        CFM_DIFFICULTY_LEVELS,
-        string="Does the child have difficulty with self-care such as feeding or dressing him/herself?",
-    )
-    # Communication
-    cfm517_comm_inside = fields.Selection(  # CF15
-        CFM_DIFFICULTY_LEVELS,
-        string="When the child speaks, does he/she have difficulty being understood by people inside this household?",
-    )
-    cfm517_comm_outside = fields.Selection(  # CF16
-        CFM_DIFFICULTY_LEVELS,
-        string="When the child speaks, does he/she have difficulty being understood by people outside this household?",
-    )
-    # Learning
-    cfm517_learning = fields.Selection(  # CF17
-        CFM_DIFFICULTY_LEVELS,
-        string="Compared with children of the same age, does the child have difficulty learning things?",
-    )
-    # Remembering
-    cfm517_remembering = fields.Selection(  # CF18
-        CFM_DIFFICULTY_LEVELS,
-        string="Compared with children of the same age, does the child have difficulty remembering things?",
-    )
-    # Concentrating
-    cfm517_concentrating = fields.Selection(  # CF19
-        CFM_DIFFICULTY_LEVELS,
-        string="Does the child have difficulty concentrating on an activity that he/she enjoys doing?",
-    )
-    # Accepting change
-    cfm517_accepting_change = fields.Selection(  # CF20
-        CFM_DIFFICULTY_LEVELS,
-        string="Does the child have difficulty accepting changes in his/her routine?",
-    )
-    # Controlling behaviour (standard difficulty scale in CFM 5-17)
-    cfm517_behavior = fields.Selection(  # CF21
-        CFM_DIFFICULTY_LEVELS,
-        string="Compared with children of the same age, does the child have difficulty controlling his/her behaviour?",
-    )
-    # Making friends
-    cfm517_friends = fields.Selection(  # CF22
-        CFM_DIFFICULTY_LEVELS,
-        string="Does the child have difficulty making friends?",
-    )
-    # Anxiety / Depression (frequency scale, threshold "daily")
-    cfm517_anxiety = fields.Selection(  # CF23
-        CFM_FREQUENCY_LEVELS,
-        string="How often does the child seem very anxious, nervous or worried?",
-    )
-    cfm517_depression = fields.Selection(  # CF24
-        CFM_FREQUENCY_LEVELS,
-        string="How often does the child seem very sad or depressed?",
-    )
-
-    # === Impairment Classification (DCI vocabularies) ===
-    # Gate question (OP#1068): "No" marks the tab complete with no lines;
-    # "Yes" reveals the list and requires at least one row before submission.
-    has_impairments_to_record = fields.Selection(
-        [("yes", "Yes"), ("no", "No")],
-        string="Does the registrant have any impairments or functional limitations to record?",
-        help="If Yes, classify each impairment below. If No, this tab is considered complete.",
-    )
-    # One row per impairment type, each with its own cause and severity.
-    impairment_line_ids = fields.One2many(
-        "spp.disability.impairment",
-        "assessment_id",
-        string="Impairment Classification",
-    )
-    # Assessment-level summaries derived from the lines, kept for the registrant
-    # propagation, list/badge decorations, search filters and CEL functions.
+    # === Impairment Classification (DCI DO.DR.02) ===
     impairment_type_ids = fields.Many2many(
         "spp.vocabulary.code",
         "spp_disability_assessment_impairment_type_rel",
         "assessment_id",
         "code_id",
         string="Impairment Types",
-        compute="_compute_impairment_summary",
-        store=True,
+        domain="[('vocabulary_id.namespace_uri', '=', 'urn:dci:cd:dr:01')]",
+    )
+    impairment_cause_id = fields.Many2one(
+        "spp.vocabulary.code",
+        string="Impairment Cause",
+        domain="[('vocabulary_id.namespace_uri', '=', 'urn:dci:cd:dr:03')]",
     )
     severity_level_id = fields.Many2one(
         "spp.vocabulary.code",
         string="Severity Level",
-        compute="_compute_impairment_summary",
-        store=True,
+        domain="[('vocabulary_id.namespace_uri', '=', 'urn:dci:cd:dr:02')]",
         tracking=True,
-        help="Overall severity: the most severe level across the impairment classification lines.",
     )
-    # Per-line "Type — Severity" rendering for the registrant overview table (OP#1068):
-    # each impairment type shows its own severity on a separate line.
-    impairment_severity_display = fields.Html(
-        string="Impairments",
-        compute="_compute_impairment_severity_display",
-        help="Each classified impairment type with its severity, one per line.",
-    )
-
-    @api.depends(
-        "impairment_line_ids.impairment_type_id",
-        "impairment_line_ids.severity_level_id",
-    )
-    def _compute_impairment_severity_display(self):
-        for rec in self:
-            rows = []
-            for line in rec.impairment_line_ids:
-                label = line.impairment_type_id.display or line.impairment_type_id.code or ""
-                severity = line.severity_level_id.display or line.severity_level_id.code or ""
-                text = f"{label} — {severity}" if severity else label
-                if text:
-                    rows.append(Markup("<div>%s</div>") % text)
-            rec.impairment_severity_display = Markup("").join(rows) if rows else False
-
-    @api.depends(
-        "impairment_line_ids.impairment_type_id",
-        "impairment_line_ids.severity_level_id",
-        "impairment_line_ids.severity_sequence",
-    )
-    def _compute_impairment_summary(self):
-        for rec in self:
-            rec.impairment_type_ids = rec.impairment_line_ids.impairment_type_id
-            severe_lines = rec.impairment_line_ids.filtered("severity_level_id")
-            if severe_lines:
-                top = max(severe_lines, key=lambda line: line.severity_sequence or 0)
-                rec.severity_level_id = top.severity_level_id
-            else:
-                rec.severity_level_id = False
 
     # === Review Schedule (categorical) ===
     review_category = fields.Selection(
@@ -471,117 +153,16 @@ class SppDisabilityAssessment(models.Model):
         string="Support Needs",
         help="Free-text description of support needs. Countries can extend with structured fields.",
     )
-    # Assistive-device requests (OP#1068). On approval each becomes a real
-    # spp.assistive.device (status "needed") on the registrant.
-    device_request_ids = fields.One2many(
-        "spp.disability.assessment.device.request",
-        "assessment_id",
-        string="Assistive Device Requests",
-    )
-
-    # === Assessment-tab configuration mirrors (OP#1068) ===
-    # Read from ir.config_parameter so the form (tab visibility) and the submit
-    # gate can react to the Disability Registry settings.
-    cfg_display_impairment = fields.Boolean(compute="_compute_tab_config")
-    cfg_display_wg = fields.Boolean(compute="_compute_tab_config")
-    cfg_display_support = fields.Boolean(compute="_compute_tab_config")
-    cfg_require_impairment = fields.Boolean(compute="_compute_tab_config")
-    cfg_require_wg = fields.Boolean(compute="_compute_tab_config")
-    cfg_require_support = fields.Boolean(compute="_compute_tab_config")
-    cfg_support_show_devices = fields.Boolean(compute="_compute_tab_config")
-    cfg_display_review = fields.Boolean(compute="_compute_tab_config")
-    cfg_require_review = fields.Boolean(compute="_compute_tab_config")
-    cfg_require_proxy_details = fields.Boolean(compute="_compute_tab_config")
-
-    @api.depends_context("uid")
-    def _compute_tab_config(self):
-        # nosemgrep: odoo-sudo-without-context — read configuration parameters
-        icp = self.env["ir.config_parameter"].sudo()
-
-        def flag(key):
-            return icp.get_param("spp_disability_registry." + key, "True") == "True"
-
-        values = {
-            "cfg_display_impairment": flag("display_impairment"),
-            "cfg_display_wg": flag("display_wg"),
-            "cfg_display_support": flag("display_support"),
-            "cfg_require_impairment": flag("require_impairment"),
-            "cfg_require_wg": flag("require_wg"),
-            "cfg_require_support": flag("require_support"),
-            "cfg_support_show_devices": flag("support_show_devices"),
-            "cfg_display_review": flag("display_review"),
-            "cfg_require_review": flag("require_review"),
-            "cfg_require_proxy_details": flag("require_proxy_details"),
-        }
-        for rec in self:
-            rec.update(values)
-
-    # === Submission completeness (OP#1068) ===
-    impairment_tab_complete = fields.Boolean(
-        compute="_compute_assessment_complete",
-        help="Impairment tab complete: 'No' to the gate question, or 'Yes' with at least one row.",
-    )
-    assessment_complete = fields.Boolean(
-        compute="_compute_assessment_complete",
-        help="True when every displayed and required assessment tab is complete.",
-    )
-
-    @api.depends(
-        "has_impairments_to_record",
-        "impairment_line_ids",
-        "questionnaire_complete",
-        "review_category",
-        "is_proxy_response",
-        "proxy_respondent_id",
-        "proxy_relationship",
-        "cfg_display_impairment",
-        "cfg_display_wg",
-        "cfg_display_review",
-        "cfg_require_impairment",
-        "cfg_require_wg",
-        "cfg_require_review",
-        "cfg_require_proxy_details",
-    )
-    def _compute_assessment_complete(self):
-        for rec in self:
-            # Impairment tab: "No" → complete; "Yes" → at least one classified row.
-            rec.impairment_tab_complete = rec.has_impairments_to_record == "no" or (
-                rec.has_impairments_to_record == "yes" and bool(rec.impairment_line_ids)
-            )
-            checks = []
-            if rec.cfg_display_impairment and rec.cfg_require_impairment:
-                checks.append(rec.impairment_tab_complete)
-            if rec.cfg_display_wg and rec.cfg_require_wg:
-                checks.append(rec.questionnaire_complete)
-            # Review schedule: when shown and required, a review category must be set (OP#1068).
-            if rec.cfg_display_review and rec.cfg_require_review:
-                checks.append(bool(rec.review_category))
-            # Proxy details: when a proxy responded and details are required, the
-            # respondent and their relationship must be recorded (OP#1053).
-            if rec.cfg_require_proxy_details and rec.is_proxy_response:
-                checks.append(bool(rec.proxy_respondent_id) and bool(rec.proxy_relationship))
-            # Support Needs has no content gate (OP#1068), so it never blocks.
-            rec.assessment_complete = all(checks)
 
     # === Proxy Response Tracking ===
     is_proxy_response = fields.Boolean(
         string="Proxy Response",
-        compute="_compute_is_proxy_response",
-        store=True,
-        readonly=False,
-        help="True if responses were provided by a proxy. Forced on for CFM 2-4 and "
-        "(unless self-report is enabled) CFM 5-17; optional for WG-SS.",
-    )
-    proxy_locked = fields.Boolean(
-        string="Proxy Locked",
-        compute="_compute_proxy_locked",
-        help="Technical flag: True when the proxy response checkbox is forced and "
-        "must not be edited (driven by assessment type, age and configuration).",
+        default=False,
+        help="True if responses provided by proxy (always true for children)",
     )
     proxy_respondent_id = fields.Many2one(
         "res.partner",
         string="Proxy Respondent",
-        domain="[('id', '!=', registrant_id)]",
         help="Person who provided responses on behalf of the registrant",
     )
     proxy_relationship = fields.Selection(
@@ -593,19 +174,6 @@ class SppDisabilityAssessment(models.Model):
             ("other", "Other"),
         ],
         string="Proxy Relationship",
-    )
-    proxy_reason = fields.Selection(
-        [
-            (
-                "functional_limitation",
-                "Unable to respond due to functional limitation (hearing, communication, cognitive, etc.)",
-            ),
-            ("caregiver", "Individual not present - caregiver responding"),
-            ("household_head", "Individual not present - household head responding"),
-            ("other", "Other"),
-        ],
-        string="Reason for Proxy",
-        help="Why a proxy responded instead of the individual (WG-SS).",
     )
 
     # === Computed Disability Indicator ===
@@ -659,300 +227,18 @@ class SppDisabilityAssessment(models.Model):
             delta = relativedelta(rec.assessment_date, rec.registrant_id.birthdate)
             rec.age_at_assessment = delta.years
 
-    @api.model
-    def _disability_config(self):
-        """Read the Disability Registry configuration parameters with defaults."""
-        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
-        icp = self.env["ir.config_parameter"].sudo()
-        get = icp.get_param
-        return {
-            "disregard_age": get("spp_disability_registry.disregard_age", "False") == "True",
-            "allow_self_report_cfm": get("spp_disability_registry.allow_self_report_cfm_5_17", "False") == "True",
-            "self_report_min_age": int(get("spp_disability_registry.self_report_min_age", "0") or 0),
-            "allow_proxy_wg_ss": get("spp_disability_registry.allow_proxy_wg_ss", "True") == "True",
-        }
-
-    @api.model
-    def _disability_disregard_age(self):
-        """Read the 'disregard age for assessment type' configuration flag."""
-        return self._disability_config()["disregard_age"]
-
-    def _proxy_is_locked(self):
-        """Whether the proxy response flag is forced (non-editable) for this record.
-
-        - CFM 2-4: always locked (proxy mandatory).
-        - CFM 5-17: locked unless self-report is enabled and the child meets the
-          optional minimum self-report age.
-        - WG-SS: locked only when proxy reporting is disabled by configuration.
-        """
-        self.ensure_one()
-        cfg = self._disability_config()
-        if self.assessment_type == "cfm_2_4":
-            return True
-        if self.assessment_type == "cfm_5_17":
-            min_age = cfg["self_report_min_age"]
-            old_enough = (not min_age) or (self.age_at_assessment >= min_age)
-            return not (cfg["allow_self_report_cfm"] and old_enough)
-        # WG-SS (adult) and any fallback.
-        return not cfg["allow_proxy_wg_ss"]
-
-    @api.depends("assessment_type")
-    def _compute_is_proxy_response(self):
-        """Seed the proxy flag from the assessment type (children = proxy by default,
-        adults = self-report). This default also matches the forced value in every
-        locked case, so locked records always carry the correct flag. Editable for
-        unlocked types — user toggles persist until the assessment type changes.
-        """
-        for rec in self:
-            rec.is_proxy_response = rec.assessment_type in ("cfm_2_4", "cfm_5_17")
-
-    @api.depends("assessment_type", "age_at_assessment")
-    def _compute_proxy_locked(self):
-        for rec in self:
-            rec.proxy_locked = rec._proxy_is_locked()
-
-    def _assessment_type_for_age(self):
-        """Return the WG/CFM assessment type implied by the age at assessment."""
-        self.ensure_one()
-        age = self.age_at_assessment
-        if age >= 18:
-            return "wg_ss"
-        elif age >= 5:
-            return "cfm_5_17"
-        # Under 5 (including under 2) defaults to the CFM 2-4 instrument.
-        return "cfm_2_4"
-
-    def _compute_age_restriction_enforced(self):
-        enforced = not self._disability_disregard_age()
-        for rec in self:
-            rec.age_restriction_enforced = enforced
-
-    def _compute_has_approval_definition(self):
-        for rec in self:
-            rec.has_approval_definition = bool(rec._resolve_approval_definition())
-
-    def _get_approval_definition(self):
-        """Return the approval workflow configured for disability assessments
-        (Settings > Disability Registry), or an empty recordset if none is set.
-        """
-        definition = self.env["spp.approval.definition"]
-        # nosemgrep: odoo-sudo-without-context — read approval definition id from config
-        def_id = self.env["ir.config_parameter"].sudo().get_param("spp_disability_registry.approval_definition_id")
-        return definition.browse(int(def_id)).exists() if def_id else definition
-
-    def _resolve_approval_definition(self):
-        """Use only the configured definition (no model-wide fallback), so the
-        Submit button stays hidden until an admin selects a workflow.
-        """
-        self.ensure_one()
-        return self._get_approval_definition()
-
-    def _questionnaire_answers(self):
-        """The answers that feed the disability result for this assessment type
-        (the concluding answer per branched domain). The questionnaire is
-        'complete enough to compute a result' when all of these are answered.
-        """
-        self.ensure_one()
-        if self.assessment_type == "cfm_2_4":
-            vision = self.cfm24_vision_aided if self.cfm24_glasses == "yes" else self.cfm24_vision
-            hearing = self.cfm24_hearing_aided if self.cfm24_hearing_aid == "yes" else self.cfm24_hearing
-            mobility = self.cfm24_walk_aided if self.cfm24_walk_equipment == "yes" else self.cfm24_walk_compare
-            return [
-                vision,
-                hearing,
-                mobility,
-                self.cfm24_dexterity,
-                self.cfm24_understand_you,
-                self.cfm24_understood,
-                self.cfm24_learning,
-                self.cfm24_playing,
-                self.cfm24_behavior,
-            ]
-        if self.assessment_type == "cfm_5_17":
-            vision = self.cfm517_vision_aided if self.cfm517_glasses == "yes" else self.cfm517_vision
-            hearing = self.cfm517_hearing_aided if self.cfm517_hearing_aid == "yes" else self.cfm517_hearing
-            if self.cfm517_walk_equipment == "yes":
-                mobility = [self.cfm517_walk_aided_100, self.cfm517_walk_aided_500]
-            else:
-                mobility = [self.cfm517_walk_compare_100, self.cfm517_walk_compare_500]
-            return [
-                vision,
-                hearing,
-                *mobility,
-                self.cfm517_selfcare,
-                self.cfm517_comm_inside,
-                self.cfm517_comm_outside,
-                self.cfm517_learning,
-                self.cfm517_remembering,
-                self.cfm517_concentrating,
-                self.cfm517_accepting_change,
-                self.cfm517_behavior,
-                self.cfm517_friends,
-                self.cfm517_anxiety,
-                self.cfm517_depression,
-            ]
-        # WG-SS (adult) and any fallback.
-        return [
-            self.wg_seeing,
-            self.wg_hearing,
-            self.wg_walking,
-            self.wg_remembering,
-            self.wg_selfcare,
-            self.wg_communicating,
-        ]
-
-    @api.depends(
-        "assessment_type",
-        "wg_seeing",
-        "wg_hearing",
-        "wg_walking",
-        "wg_remembering",
-        "wg_selfcare",
-        "wg_communicating",
-        "cfm24_glasses",
-        "cfm24_vision_aided",
-        "cfm24_vision",
-        "cfm24_hearing_aid",
-        "cfm24_hearing_aided",
-        "cfm24_hearing",
-        "cfm24_walk_equipment",
-        "cfm24_walk_aided",
-        "cfm24_walk_compare",
-        "cfm24_dexterity",
-        "cfm24_understand_you",
-        "cfm24_understood",
-        "cfm24_learning",
-        "cfm24_playing",
-        "cfm24_behavior",
-        "cfm517_glasses",
-        "cfm517_vision_aided",
-        "cfm517_vision",
-        "cfm517_hearing_aid",
-        "cfm517_hearing_aided",
-        "cfm517_hearing",
-        "cfm517_walk_equipment",
-        "cfm517_walk_aided_100",
-        "cfm517_walk_aided_500",
-        "cfm517_walk_compare_100",
-        "cfm517_walk_compare_500",
-        "cfm517_selfcare",
-        "cfm517_comm_inside",
-        "cfm517_comm_outside",
-        "cfm517_learning",
-        "cfm517_remembering",
-        "cfm517_concentrating",
-        "cfm517_accepting_change",
-        "cfm517_behavior",
-        "cfm517_friends",
-        "cfm517_anxiety",
-        "cfm517_depression",
-    )
-    def _compute_questionnaire_complete(self):
-        for rec in self:
-            answers = rec._questionnaire_answers()
-            rec.questionnaire_complete = bool(answers) and all(answers)
-
-    def _check_can_submit(self):
-        """Require every displayed + required tab to be complete before submitting."""
-        super()._check_can_submit()
-        if not self.assessment_complete:
-            raise UserError(
-                _(
-                    "Complete all required parts of the assessment before submitting for "
-                    "approval: the impairment question, the WG/CFM questionnaire, the review "
-                    "schedule, and - when a proxy responded - the proxy respondent and "
-                    "relationship (whichever are required in the Disability Registry settings)."
-                )
-            )
-
-    def _sync_registrant_disability_status(self):
-        """Notify the ORM that approval_state changed so the registrant's
-        disability status (current_disability_assessment_id, has_disability, ...)
-        recomputes. The approval mixin writes approval_state via raw SQL for
-        optimistic locking, which bypasses ORM dependency tracking, so the
-        registrant would otherwise show a stale status (#1022).
-        """
-        self.modified(["approval_state"])
-
-    def _on_approve(self):
-        res = super()._on_approve()
-        self._sync_registrant_disability_status()
-        self._materialize_device_requests()
-        return res
-
-    def _materialize_device_requests(self):
-        """On approval, turn each Support-Needs device request into a real
-        spp.assistive.device (status 'needed') on the registrant so it shows on
-        the Overview / registrant (OP#1068). Skips a device type that already
-        has a pending 'needed' record to avoid duplicates on re-approval.
-        """
-        Device = self.env["spp.assistive.device"]
-        for rec in self:
-            for req in rec.device_request_ids:
-                already = Device.search_count(
-                    [
-                        ("registrant_id", "=", rec.registrant_id.id),
-                        ("device_type_id", "=", req.device_type_id.id),
-                        ("status", "=", "needed"),
-                    ]
-                )
-                if not already:
-                    Device.create(
-                        {
-                            "registrant_id": rec.registrant_id.id,
-                            "device_type_id": req.device_type_id.id,
-                            "status": "needed",
-                        }
-                    )
-
-    def _on_reject(self, reason):
-        res = super()._on_reject(reason)
-        self._sync_registrant_disability_status()
-        return res
-
-    def _on_reset_to_draft(self):
-        res = super()._on_reset_to_draft()
-        self._sync_registrant_disability_status()
-        return res
-
     @api.depends("age_at_assessment")
     def _compute_assessment_type(self):
-        disregard_age = self._disability_disregard_age()
         for rec in self:
-            if disregard_age:
-                # Manual mode: preserve the user's selection; only seed a
-                # sensible default when nothing has been chosen yet.
-                if not rec.assessment_type:
-                    rec.assessment_type = rec._assessment_type_for_age()
-                continue
-            rec.assessment_type = rec._assessment_type_for_age()
-
-    @api.constrains("registrant_id", "assessment_date")
-    def _check_birthdate_required_for_age(self):
-        """When the assessment type is age-driven, require a date of birth and an
-        age of at least 2 (the youngest CFM instrument covers ages 2-4)."""
-        if self._disability_disregard_age():
-            return
-        for rec in self:
-            if not rec.registrant_id:
-                continue
-            if not rec.registrant_id.birthdate:
-                raise ValidationError(
-                    _(
-                        "A date of birth is required for %s to determine the assessment type by age. "
-                        "Set the registrant's date of birth, or enable 'Allow manual assessment type' "
-                        "in the Disability Registry settings.",
-                        rec.registrant_id.display_name,
-                    )
-                )
-            if rec.age_at_assessment < 2:
-                raise ValidationError(
-                    _(
-                        "Disability assessments are only available for individuals aged 2 years or "
-                        "older. %s is younger than 2 at the assessment date.",
-                        rec.registrant_id.display_name,
-                    )
-                )
+            if rec.age_at_assessment >= 18:
+                rec.assessment_type = "wg_ss"
+            elif rec.age_at_assessment >= 5:
+                rec.assessment_type = "cfm_5_17"
+            elif rec.age_at_assessment >= 2:
+                rec.assessment_type = "cfm_2_4"
+            else:
+                # Under 2 - default to CFM 2-4 but flag for manual review
+                rec.assessment_type = "cfm_2_4"
 
     @api.depends("review_category", "assessment_date")
     def _compute_next_review_date(self):
@@ -963,143 +249,35 @@ class SppDisabilityAssessment(models.Model):
             months = REVIEW_CATEGORY_MONTHS.get(rec.review_category, REVIEW_CATEGORY_MONTHS["mip"])
             rec.next_review_date = rec.assessment_date + relativedelta(months=months)
 
-    def _wg_ss_domain_count(self):
-        """Number of WG-SS domains with 'a lot of difficulty' or 'cannot do at all'."""
-        self.ensure_one()
-        responses = [
-            self.wg_seeing,
-            self.wg_hearing,
-            self.wg_walking,
-            self.wg_remembering,
-            self.wg_selfcare,
-            self.wg_communicating,
-        ]
-        return sum(1 for r in responses if r in WG_SEVERE_DIFFICULTY_LEVELS)
-
-    def _cfm_2_4_domain_count(self):
-        """Number of CFM 2-4 domains meeting the disability threshold.
-
-        Standard domains use 'a lot of difficulty'/'cannot do at all' on the
-        concluding answer; controlling behaviour (CF16) uses 'a lot more'.
-        """
-        self.ensure_one()
-        # Concluding answer per branched domain (gate answered "yes" = aided path).
-        vision = self.cfm24_vision_aided if self.cfm24_glasses == "yes" else self.cfm24_vision
-        hearing = self.cfm24_hearing_aided if self.cfm24_hearing_aid == "yes" else self.cfm24_hearing
-        mobility = self.cfm24_walk_aided if self.cfm24_walk_equipment == "yes" else self.cfm24_walk_compare
-        standard = [
-            vision,
-            hearing,
-            mobility,
-            self.cfm24_dexterity,
-            self.cfm24_understand_you,
-            self.cfm24_understood,
-            self.cfm24_learning,
-            self.cfm24_playing,
-        ]
-        count = sum(1 for r in standard if r in WG_SEVERE_DIFFICULTY_LEVELS)
-        if self.cfm24_behavior == "a_lot_more":
-            count += 1
-        return count
-
-    def _cfm_5_17_domain_count(self):
-        """Number of CFM 5-17 domains meeting the disability threshold.
-
-        Standard domains use 'a lot of difficulty'/'cannot do at all' on the
-        concluding answer; mobility uses the 'with aid' answer (either distance)
-        when equipment is used, otherwise the 'compared with peers' answer;
-        anxiety (CF23) and depression (CF24) use a 'daily' frequency threshold.
-        """
-        self.ensure_one()
-        severe = WG_SEVERE_DIFFICULTY_LEVELS
-        vision = self.cfm517_vision_aided if self.cfm517_glasses == "yes" else self.cfm517_vision
-        hearing = self.cfm517_hearing_aided if self.cfm517_hearing_aid == "yes" else self.cfm517_hearing
-        if self.cfm517_walk_equipment == "yes":
-            mobility_severe = self.cfm517_walk_aided_100 in severe or self.cfm517_walk_aided_500 in severe
-        else:
-            mobility_severe = self.cfm517_walk_compare_100 in severe or self.cfm517_walk_compare_500 in severe
-        standard = [
-            vision,
-            hearing,
-            self.cfm517_selfcare,
-            self.cfm517_comm_inside,
-            self.cfm517_comm_outside,
-            self.cfm517_learning,
-            self.cfm517_remembering,
-            self.cfm517_concentrating,
-            self.cfm517_accepting_change,
-            self.cfm517_behavior,
-            self.cfm517_friends,
-        ]
-        count = sum(1 for r in standard if r in severe)
-        if mobility_severe:
-            count += 1
-        if self.cfm517_anxiety == "daily":
-            count += 1
-        if self.cfm517_depression == "daily":
-            count += 1
-        return count
-
     @api.depends(
-        "assessment_type",
         "wg_seeing",
         "wg_hearing",
         "wg_walking",
         "wg_remembering",
         "wg_selfcare",
         "wg_communicating",
-        "cfm24_glasses",
-        "cfm24_vision_aided",
-        "cfm24_vision",
-        "cfm24_hearing_aid",
-        "cfm24_hearing_aided",
-        "cfm24_hearing",
-        "cfm24_walk_equipment",
-        "cfm24_walk_aided",
-        "cfm24_walk_compare",
-        "cfm24_dexterity",
-        "cfm24_understand_you",
-        "cfm24_understood",
-        "cfm24_learning",
-        "cfm24_playing",
-        "cfm24_behavior",
-        "cfm517_glasses",
-        "cfm517_vision_aided",
-        "cfm517_vision",
-        "cfm517_hearing_aid",
-        "cfm517_hearing_aided",
-        "cfm517_hearing",
-        "cfm517_walk_equipment",
-        "cfm517_walk_aided_100",
-        "cfm517_walk_aided_500",
-        "cfm517_walk_compare_100",
-        "cfm517_walk_compare_500",
-        "cfm517_selfcare",
-        "cfm517_comm_inside",
-        "cfm517_comm_outside",
-        "cfm517_learning",
-        "cfm517_remembering",
-        "cfm517_concentrating",
-        "cfm517_accepting_change",
-        "cfm517_behavior",
-        "cfm517_friends",
-        "cfm517_anxiety",
-        "cfm517_depression",
     )
     def _compute_disability_indicator(self):
-        """Count domains meeting the disability threshold for the active instrument.
-
-        Any domain at/above threshold marks the person as having a disability.
-        """
+        """WG standard: any domain with 'a_lot' or 'cannot' indicates disability."""
         for rec in self:
-            if rec.assessment_type == "cfm_2_4":
-                domain_count = rec._cfm_2_4_domain_count()
-            elif rec.assessment_type == "cfm_5_17":
-                domain_count = rec._cfm_5_17_domain_count()
-            else:
-                domain_count = rec._wg_ss_domain_count()
+            responses = [
+                rec.wg_seeing,
+                rec.wg_hearing,
+                rec.wg_walking,
+                rec.wg_remembering,
+                rec.wg_selfcare,
+                rec.wg_communicating,
+            ]
+            # Count domains with severe difficulty
+            domain_count = sum(1 for r in responses if r in WG_SEVERE_DIFFICULTY_LEVELS)
             rec.wg_domain_count = domain_count
             rec.has_disability = domain_count > 0
+
+    @api.onchange("assessment_type")
+    def _onchange_assessment_type(self):
+        """Set proxy response flag automatically for child assessments."""
+        if self.assessment_type in ("cfm_2_4", "cfm_5_17"):
+            self.is_proxy_response = True
 
     def action_view_registrant(self):
         """Open the registrant form."""

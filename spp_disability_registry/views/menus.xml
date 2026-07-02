@@ -35,13 +35,4 @@
         sequence="100"
         groups="spp_disability_registry.group_disability_manager"
     />
-
-    <!-- Configuration > Settings -->
-    <menuitem
-        id="menu_disability_config_settings"
-        name="Settings"
-        parent="menu_disability_config"
-        action="action_disability_config_settings"
-        sequence="10"
-    />
 </odoo>

@@ -7,6 +7,6 @@ Comprehensive disability assessment and registry management for social protectio
 - Disability indicator computation per WG standard (any domain with "a lot of difficulty" or "cannot do at all")
 - Review category system (MIE/MIP/MINE) with automatic next-review-date scheduling
 - Impairment type, cause, and severity classifications using DCI vocabularies
-- Assistive device management with status (needed, requested, provided)
+- Assistive device management with status workflow (needed, requested, provided)
 - Proxy response tracking for children
 - CEL function integration for program eligibility targeting
