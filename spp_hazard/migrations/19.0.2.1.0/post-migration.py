@@ -19,6 +19,8 @@ kept as a safety net. Fresh installs have no legacy columns and skip cleanly.
 
 import logging
 
+from psycopg2 import sql
+
 # Fixed name: this file is loaded by Odoo's migration runner (and by tests via
 # importlib), where __name__ differs; a stable logger keeps output filterable.
 _logger = logging.getLogger("odoo.addons.spp_hazard.migrations.severity")
@@ -33,7 +35,7 @@ LEGACY_SEVERITY_TO_CAP = {
     "5": "extreme",
 }
 
-# (table, legacy column, new column) - identifiers are constants, never user input
+# (table, legacy column, new column)
 TARGETS = [
     ("spp_hazard_incident", "severity", "severity_id"),
     ("spp_hazard_incident_area", "severity_override", "severity_override_id"),
@@ -58,19 +60,26 @@ def migrate(cr, version):
             _logger.info("spp_hazard severity migration: %s.%s absent, skipping", table, legacy_col)
             continue
 
-        case_parts = " ".join("WHEN %s THEN %s" for _ in LEGACY_SEVERITY_TO_CAP)
+        ids = {
+            "table": sql.Identifier(table),
+            "legacy": sql.Identifier(legacy_col),
+            "new": sql.Identifier(new_col),
+        }
+        case_parts = sql.SQL(" ").join(sql.SQL("WHEN %s THEN %s") for _ in LEGACY_SEVERITY_TO_CAP)
         case_params = [p for pair in LEGACY_SEVERITY_TO_CAP.items() for p in pair]
         cr.execute(
-            f"""
-            UPDATE {table} t
-            SET {new_col} = c.id
-            FROM spp_vocabulary_code c
-            JOIN spp_vocabulary v ON c.vocabulary_id = v.id
-            WHERE v.namespace_uri = %s
-              AND c.code = CASE t.{legacy_col} {case_parts} END
-              AND t.{legacy_col} IS NOT NULL
-              AND t.{new_col} IS NULL
-            """,
+            sql.SQL(
+                """
+                UPDATE {table} t
+                SET {new} = c.id
+                FROM spp_vocabulary_code c
+                JOIN spp_vocabulary v ON c.vocabulary_id = v.id
+                WHERE v.namespace_uri = %s
+                  AND c.code = CASE t.{legacy} {case_parts} END
+                  AND t.{legacy} IS NOT NULL
+                  AND t.{new} IS NULL
+                """
+            ).format(case_parts=case_parts, **ids),
             [CAP_SEVERITY_NS, *case_params],
         )
         _logger.info(
@@ -81,18 +90,19 @@ def migrate(cr, version):
         )
 
         cr.execute(
-            f"""
-            SELECT DISTINCT t.{legacy_col}
-            FROM {table} t
-            WHERE t.{legacy_col} IS NOT NULL
-              AND t.{new_col} IS NULL
-            """
+            sql.SQL(
+                """
+                SELECT DISTINCT t.{legacy}
+                FROM {table} t
+                WHERE t.{legacy} IS NOT NULL
+                  AND t.{new} IS NULL
+                """
+            ).format(**ids)
         )
         unmapped = [row[0] for row in cr.fetchall()]
         if unmapped:
             _logger.warning(
-                "spp_hazard severity migration: %s.%s has unmapped legacy values %s; "
-                "left empty for manual review",
+                "spp_hazard severity migration: %s.%s has unmapped legacy values %s; left empty for manual review",
                 table,
                 legacy_col,
                 unmapped,
