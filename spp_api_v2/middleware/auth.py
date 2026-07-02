@@ -60,7 +60,7 @@ def get_authenticated_client(
     # OAuth2 dependency returns the full Authorization header value
     # (e.g. "Bearer eyJ..."). Strip the scheme prefix to get the raw JWT.
     if token.lower().startswith("bearer "):
-        token = token[7:]
+        token = token[7:].strip()
 
     try:
         # Decode and validate JWT
