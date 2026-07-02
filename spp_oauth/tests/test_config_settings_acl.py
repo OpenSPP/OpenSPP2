@@ -62,6 +62,17 @@ class TestOAuthConfigSettingsAcl(TransactionCase):
         self.assertNotIn("oauth_priv_key", values)
         self.assertNotIn("oauth_pub_key", values)
 
+    def test_superuser_mode_bypasses_key_filter(self):
+        """Superuser mode (sudo) is a trusted server-side context that already
+        bypasses ACLs; default_get must not strip the keys there, even though
+        env.user remains the original non-admin user. The RPC attack path is
+        never in superuser mode, so this does not reopen the exposure."""
+        settings = self.env["res.config.settings"].with_user(self.plain_user).sudo()
+        self.assertTrue(settings.env.su)
+        values = settings.default_get(["oauth_priv_key", "oauth_pub_key"])
+        self.assertEqual(values.get("oauth_priv_key"), PRIV_KEY_SENTINEL)
+        self.assertEqual(values.get("oauth_pub_key"), PUB_KEY_SENTINEL)
+
     def test_admin_can_access_settings_model(self):
         """A system administrator retains read access to res.config.settings."""
         # Raises AccessError only if admin access was wrongly removed.

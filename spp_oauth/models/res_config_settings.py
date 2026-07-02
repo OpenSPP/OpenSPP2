@@ -23,8 +23,10 @@ class RegistryConfig(models.TransientModel):
         res = super().default_get(fields_list)
         # default_get sources config_parameter values via sudo(), bypassing model
         # and field access checks. Never expose the OAuth signing keys to a user
-        # who is not a system administrator.
-        if not self.env.user.has_group("base.group_system"):
+        # who is not a system administrator. Superuser mode (self.env.su) is a
+        # trusted server-side context that already bypasses ACLs, so honour it here
+        # too — env.user stays the original (possibly non-admin) user under sudo().
+        if not self.env.su and not self.env.user.has_group("base.group_system"):
             for field_name in OAUTH_KEY_FIELDS:
                 res.pop(field_name, None)
         return res
