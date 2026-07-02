@@ -31,6 +31,7 @@
         "views/assessment_views.xml",
         "views/assistive_device_views.xml",
         "views/registrant_views.xml",
+        "views/res_config_settings_views.xml",
         "views/menus.xml",
     ],
     "demo": [
