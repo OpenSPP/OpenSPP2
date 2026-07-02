@@ -24,7 +24,8 @@ Usage:
     uv run --with geopandas --with requests --with pandas --with openpyxl scripts/prepare_phl_geodata.py
 
     # Custom simplification tolerance (default: 0.005 degrees, ~500m)
-    uv run --with geopandas --with requests --with pandas --with openpyxl scripts/prepare_phl_geodata.py --simplify-tolerance 0.003
+    uv run --with geopandas --with requests --with pandas --with openpyxl \\
+        scripts/prepare_phl_geodata.py --simplify-tolerance 0.003
 
     # Force re-download (ignore cache)
     uv run --with geopandas --with requests --with pandas --with openpyxl scripts/prepare_phl_geodata.py --no-cache
@@ -126,7 +127,9 @@ def download_with_cache(url, filename, cache_dir, no_cache=False):
                 downloaded += len(chunk)
                 if total:
                     pct = downloaded * 100 // total
-                    print(f"\r  Progress: {pct}% ({downloaded // (1024 * 1024)}MB / {total // (1024 * 1024)}MB)", end="")
+                    print(
+                        f"\r  Progress: {pct}% ({downloaded // (1024 * 1024)}MB / {total // (1024 * 1024)}MB)", end=""
+                    )
     print()
     _logger.info("Saved to %s", cached_path)
     return cached_path
