@@ -4,17 +4,15 @@
 Creates one spp.gis.geofence.tag per distinct legacy vocabulary name and
 restores the geofence links, then drops the aux table. See pre-migration.py
 for the full story.
+
+All SQL is literal and value-parameterized; identifiers are never composed.
 """
 
 import logging
 
-from psycopg2 import sql
-
 from odoo import SUPERUSER_ID, api
 
 _logger = logging.getLogger("odoo.addons.spp_gis.migrations.geofence_tags")
-
-AUX_TABLE = "spp_gis_geofence_tag_legacy_migration"
 
 
 def _table_exists(cr, table):
@@ -23,14 +21,13 @@ def _table_exists(cr, table):
 
 
 def migrate(cr, version):
-    if not _table_exists(cr, AUX_TABLE):
+    if not _table_exists(cr, "spp_gis_geofence_tag_legacy_migration"):
         return
 
     env = api.Environment(cr, SUPERUSER_ID, {})
     Tag = env["spp.gis.geofence.tag"]
-    aux = sql.Identifier(AUX_TABLE)
 
-    cr.execute(sql.SQL("SELECT DISTINCT vocab_name FROM {aux}").format(aux=aux))
+    cr.execute("SELECT DISTINCT vocab_name FROM spp_gis_geofence_tag_legacy_migration")
     tag_ids_by_name = {}
     for (name,) in cr.fetchall():
         tag = Tag.search([("name", "=", name)], limit=1)
@@ -39,7 +36,7 @@ def migrate(cr, version):
         tag_ids_by_name[name] = tag.id
 
     restored = 0
-    cr.execute(sql.SQL("SELECT geofence_id, vocab_name FROM {aux}").format(aux=aux))
+    cr.execute("SELECT geofence_id, vocab_name FROM spp_gis_geofence_tag_legacy_migration")
     for geofence_id, name in cr.fetchall():
         cr.execute(
             """
@@ -51,7 +48,7 @@ def migrate(cr, version):
         )
         restored += cr.rowcount
 
-    cr.execute(sql.SQL("DROP TABLE {aux}").format(aux=aux))
+    cr.execute("DROP TABLE spp_gis_geofence_tag_legacy_migration")
     _logger.info(
         "spp_gis geofence tag migration: created %s tags, restored %s links",
         len(tag_ids_by_name),
