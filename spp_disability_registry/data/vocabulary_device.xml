@@ -2,15 +2,12 @@
 <odoo noupdate="1">
     <!--
             Assistive Device Type Vocabulary
-            Based on DCI CD.DR.04 and ISO 9999
         -->
     <record id="vocab_device_type" model="spp.vocabulary">
         <field name="name">Assistive Device Type</field>
         <field name="namespace_uri">urn:dci:cd:dr:04</field>
         <field name="version">2024</field>
-        <field
-            name="description"
-        >Types of assistive devices aligned with ISO 9999 classification</field>
+        <field name="description">Types of assistive devices</field>
         <field name="is_system">True</field>
         <field name="domain">disability</field>
     </record>

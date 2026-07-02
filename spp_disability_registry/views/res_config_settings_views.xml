@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_res_config_settings_form_disability" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.disability</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app
+                    data-string="Disability Registry"
+                    string="Disability Registry"
+                    name="spp_disability_registry"
+                    logo="/spp_disability_registry/static/description/icon.png"
+                >
+                    <block title="Assessment" name="disability_assessment_block">
+                        <setting
+                            string="Allow manual assessment type"
+                            help="When enabled, the assessment type can be selected manually and the registrant's date of birth is not required. When disabled, the assessment type is determined automatically from the registrant's age and a date of birth is required."
+                        >
+                            <field name="disability_disregard_age" />
+                        </setting>
+                    </block>
+
+                    <block title="Proxy Response" name="disability_proxy_block">
+                        <setting
+                            string="Allow self-report on CFM 5-17"
+                            help="When enabled, the proxy response flag can be unticked on CFM 5-17 assessments (subject to the minimum self-report age)."
+                        >
+                            <field name="disability_allow_self_report_cfm" />
+                            <div
+                                class="mt16"
+                                invisible="not disability_allow_self_report_cfm"
+                            >
+                                <label
+                                    for="disability_self_report_min_age"
+                                    string="Minimum self-report age"
+                                />
+                                <field
+                                    name="disability_self_report_min_age"
+                                    class="oe_inline"
+                                    required="disability_allow_self_report_cfm"
+                                    placeholder="5-17"
+                                />
+                            </div>
+                        </setting>
+                        <setting
+                            string="Allow proxy report on WG-SS"
+                            help="When enabled, the proxy response flag can be ticked on adult WG-SS assessments. When disabled, WG-SS assessments are self-report only."
+                        >
+                            <field name="disability_allow_proxy_wg_ss" />
+                        </setting>
+                        <setting
+                            string="Require proxy details on proxy responses"
+                            help="When enabled, an assessment answered by a proxy cannot be submitted until the proxy respondent and relationship are recorded."
+                        >
+                            <field name="disability_require_proxy_details" />
+                        </setting>
+                    </block>
+
+                    <block title="Approval" name="disability_approval_block">
+                        <setting
+                            string="Assessment approval workflow"
+                            help="Approval workflow applied to disability assessments. Create it under Approvals → Approval Definitions (with Model = Disability Assessment), then select it here. Until one is selected, assessments cannot be submitted for approval."
+                        >
+                            <field
+                                name="disability_approval_definition_id"
+                                options="{'no_create_edit': True}"
+                            />
+                        </setting>
+                    </block>
+
+                    <block title="Assessment Tabs" name="disability_tabs_block">
+                        <setting
+                            string="Impairment Classification tab"
+                            help="Show this tab on the assessment, and whether it must be completed before an assessment can be submitted for approval."
+                        >
+                            <field name="disability_display_impairment" />
+                            <div class="mt8">
+                                <field
+                                    name="disability_require_impairment"
+                                    invisible="not disability_display_impairment"
+                                />
+                                <label
+                                    for="disability_require_impairment"
+                                    string="Required to submit"
+                                    invisible="not disability_display_impairment"
+                                />
+                            </div>
+                        </setting>
+                        <setting
+                            string="WG/CFM Assessment tab"
+                            help="Show the WG/CFM questionnaire tab, and whether the questionnaire must be complete before submission."
+                        >
+                            <field name="disability_display_wg" />
+                            <div class="mt8">
+                                <field
+                                    name="disability_require_wg"
+                                    invisible="not disability_display_wg"
+                                />
+                                <label
+                                    for="disability_require_wg"
+                                    string="Required to submit"
+                                    invisible="not disability_display_wg"
+                                />
+                            </div>
+                        </setting>
+                        <setting
+                            string="Support Needs tab"
+                            help="Show the Support Needs tab. (It has no mandatory content, so 'required' only keeps it visible for review.)"
+                        >
+                            <field name="disability_display_support" />
+                            <div class="mt8" invisible="not disability_display_support">
+                                <field name="disability_require_support" />
+                                <label
+                                    for="disability_require_support"
+                                    string="Required to submit"
+                                />
+                            </div>
+                            <div class="mt8" invisible="not disability_display_support">
+                                <field name="disability_support_show_devices" />
+                                <label
+                                    for="disability_support_show_devices"
+                                    string="Show Assistive Devices section"
+                                />
+                            </div>
+                        </setting>
+                        <setting
+                            string="Review Schedule"
+                            help="Show the Review Schedule section on the assessment, and whether a review category must be set before submission."
+                        >
+                            <field name="disability_display_review" />
+                            <div class="mt8" invisible="not disability_display_review">
+                                <field name="disability_require_review" />
+                                <label
+                                    for="disability_require_review"
+                                    string="Required to submit"
+                                />
+                            </div>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Open the general Settings at the Disability Registry section -->
+    <record id="action_disability_config_settings" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="context">{'module': 'spp_disability_registry'}</field>
+    </record>
+</odoo>
