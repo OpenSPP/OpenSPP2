@@ -1,3 +1,7 @@
+### 19.0.2.0.3
+
+- fix(security): remove the `base.group_user` read grant on `spp.hazard.impact` so registrant-linked impact records (name, damage level, verification, notes) are readable only by hazard roles, `registry_viewer`, and admins — not every internal user via RPC. Gate the impact UI on the registrant and incident forms (stat buttons, Emergency Response / Impacts pages, list columns, search filters) to users with impact read.
+
 ### 19.0.2.0.2
 
 - fix(security): grant `group_hazard_viewer` to spp_user_roles roles (Registry Viewer, Program Manager, Global/Local Registrar) that the OP#951 menu audit identifies as needing read-only Hazard menu access. Other affected roles defined outside this module (program/CR/farm roles) are wired in their own modules.
