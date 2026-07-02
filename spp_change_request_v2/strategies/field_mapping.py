@@ -15,17 +15,35 @@ class SPPCRStrategyFieldMapping(models.AbstractModel):
     _inherit = "spp.cr.strategy.base"
     _description = "CR Apply Strategy: Field Mapping"
 
+    def _effective_mappings(self, change_request):
+        """Return the mappings that may be applied for this change request.
+
+        For dynamic-approval CR types the approval workflow is routed and
+        approved based on a single selected field, so ONLY that field's mapping
+        may be written to the registrant — regardless of any other mapped detail
+        fields that were also changed. This keeps the applied change in lockstep
+        with what was actually approved. Fail closed: if no field is selected, or
+        the selection maps to no configured field, nothing is applied.
+        """
+        cr_type = change_request.request_type_id
+        mappings = cr_type.apply_mapping_ids
+        if not cr_type.use_dynamic_approval:
+            return mappings
+        selected = change_request.selected_field_name
+        if not selected:
+            return mappings.browse()
+        return mappings.filtered(lambda m: m.source_field == selected)
+
     def apply(self, change_request):
         """Apply field mappings from detail to registrant."""
         registrant = change_request.registrant_id
         detail = change_request.get_detail()
-        cr_type = change_request.request_type_id
 
         if not detail:
             raise UserError(_("No detail record found."))
 
         values = {}
-        for mapping in cr_type.apply_mapping_ids:
+        for mapping in self._effective_mappings(change_request):
             source_value = getattr(detail, mapping.source_field, None)
             current_value = getattr(registrant, mapping.target_field, None)
 
@@ -147,13 +165,14 @@ class SPPCRStrategyFieldMapping(models.AbstractModel):
         """Preview what changes will be applied."""
         registrant = change_request.registrant_id
         detail = change_request.get_detail()
-        cr_type = change_request.request_type_id
 
         if not detail:
             return {}
 
         changes = {}
-        for mapping in cr_type.apply_mapping_ids:
+        # Mirror apply(): a dynamic-approval CR previews only the selected field,
+        # so the approver sees exactly what will be written.
+        for mapping in self._effective_mappings(change_request):
             source_raw = getattr(detail, mapping.source_field, None)
             current_raw = getattr(registrant, mapping.target_field, None)
 

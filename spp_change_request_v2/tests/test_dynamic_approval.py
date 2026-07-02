@@ -1057,3 +1057,87 @@ class TestDynamicApproval(TransactionCase):
         self.assertIn("id", normalized["parent"])
         self.assertIn("name", normalized["parent"])
         self.assertIn("code", normalized["parent"])
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # APPLY RESTRICTION — a dynamic-approval CR must apply ONLY the selected
+    # field, even if other mapped detail fields were also changed. Otherwise a
+    # user could route a low-risk field to a weak workflow and smuggle changes
+    # to other (higher-risk) mapped fields through the same weak approval.
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def _field_mapping_strategy(self):
+        return self.env["spp.cr.strategy.field_mapping"]
+
+    def test_dynamic_apply_writes_only_selected_field(self):
+        cr = self._create_cr()
+        detail = cr.get_detail()
+        # Select the low-risk field (phone) but ALSO change a high-risk field.
+        detail.write({"field_to_modify": "phone", "phone": "999-000", "given_name": "HACKED"})
+        self.assertEqual(cr.selected_field_name, "phone")
+
+        self._field_mapping_strategy().apply(cr)
+
+        self.assertEqual(self.registrant.phone, "999-000", "the selected field must be applied")
+        self.assertEqual(
+            self.registrant.given_name,
+            "Original Given",
+            "a non-selected mapped field must NOT be applied for a dynamic-approval CR",
+        )
+
+    def test_dynamic_preview_shows_only_selected_field(self):
+        cr = self._create_cr()
+        detail = cr.get_detail()
+        detail.write({"field_to_modify": "phone", "phone": "999-000", "given_name": "HACKED"})
+
+        changes = self._field_mapping_strategy().preview(cr)
+
+        self.assertEqual(len(changes), 1, "preview must show only the selected field for a dynamic CR")
+        self.assertEqual(next(iter(changes.values()))["new"], "999-000")
+
+    def test_dynamic_apply_unmapped_selected_field_writes_nothing(self):
+        """Fail-closed: a dynamic CR whose selected field has no mapping writes nothing,
+        even if another mapped detail field was changed."""
+        cr = self._create_cr()
+        detail = cr.get_detail()
+        detail.write({"phone": "999-000"})
+        # Force a selected field that is not present in apply_mapping_ids.
+        cr.selected_field_name = "email"
+
+        self._field_mapping_strategy().apply(cr)
+
+        self.assertEqual(self.registrant.phone, "111-222", "nothing may be applied for an unmapped selection")
+
+    def test_non_dynamic_apply_still_writes_all_changed_fields(self):
+        """Regression: non-dynamic CR types keep applying every changed mapping."""
+        nd_type = self.CRType.create(
+            {
+                "name": "Non-Dynamic With Mappings",
+                "code": "nd_with_mappings_test",
+                "target_type": "individual",
+                "detail_model": "spp.cr.detail.edit_individual",
+                "apply_strategy": "field_mapping",
+                "approval_definition_id": self.static_def.id,
+                "use_dynamic_approval": False,
+                "apply_mapping_ids": [
+                    Command.create({"source_field": "phone", "target_field": "phone", "sequence": 10}),
+                    Command.create({"source_field": "given_name", "target_field": "given_name", "sequence": 20}),
+                ],
+            }
+        )
+        reg = self.env["res.partner"].create(
+            {
+                "name": "ND Registrant",
+                "given_name": "OldGiven",
+                "phone": "000-000",
+                "is_registrant": True,
+                "is_group": False,
+            }
+        )
+        cr = self.CR.create({"request_type_id": nd_type.id, "registrant_id": reg.id})
+        detail = cr.get_detail()
+        detail.write({"phone": "555-555", "given_name": "NewGiven"})
+
+        self._field_mapping_strategy().apply(cr)
+
+        self.assertEqual(reg.phone, "555-555")
+        self.assertEqual(reg.given_name, "NewGiven", "non-dynamic CR must apply all changed mappings")
