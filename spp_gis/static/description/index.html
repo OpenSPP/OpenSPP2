@@ -507,6 +507,21 @@ linking <tt class="docutils literal">spp.gis.data.layer</tt> records</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.0</h1>
+<ul class="simple">
+<li>feat: spatial operators support MultiPolygon and GeometryCollection,
+including distance buffering (re-land from #76).</li>
+<li>feat: OSM style fallback in map renderer/edit widgets when no MapTiler
+API key is configured; placeholder key treated as unconfigured
+(re-land from #76).</li>
+<li>feat: geofence GeoJSON output includes the record uuid as feature id;
+new <tt class="docutils literal">spp.gis.geofence.tag</tt> model replaces vocabulary-based geofence
+tags (re-land from #76).</li>
+<li>feat: migration remaps existing vocabulary-based geofence tag links
+onto <tt class="docutils literal">spp.gis.geofence.tag</tt> records when upgrading from 19.0.2.0.x.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

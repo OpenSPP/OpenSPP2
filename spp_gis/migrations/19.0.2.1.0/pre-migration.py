@@ -14,6 +14,8 @@ spp.gis.geofence.tag links and drops the aux table.
 
 import logging
 
+from psycopg2 import sql
+
 _logger = logging.getLogger("odoo.addons.spp_gis.migrations.geofence_tags")
 
 AUX_TABLE = "spp_gis_geofence_tag_legacy_migration"
@@ -32,37 +34,43 @@ def migrate(cr, version):
     # table (only possible when this migration reruns or in tests); it is
     # legacy if it references a vocabulary instead. Checking the new table
     # first resolves numeric id collisions in favor of valid links.
-    new_table_exists = _table_exists(cr, "spp_gis_geofence_tag")
-    valid_clause = (
-        "AND rel.tag_id NOT IN (SELECT id FROM spp_gis_geofence_tag)" if new_table_exists else ""
-    )
+    if _table_exists(cr, "spp_gis_geofence_tag"):
+        valid_clause = sql.SQL("AND rel.tag_id NOT IN (SELECT id FROM spp_gis_geofence_tag)")
+    else:
+        valid_clause = sql.SQL("")
 
+    aux = sql.Identifier(AUX_TABLE)
     cr.execute(
-        f"""
-        CREATE TABLE IF NOT EXISTS {AUX_TABLE} (
-            geofence_id integer NOT NULL,
-            vocab_name varchar NOT NULL
-        )
-        """
+        sql.SQL(
+            """
+            CREATE TABLE IF NOT EXISTS {aux} (
+                geofence_id integer NOT NULL,
+                vocab_name varchar NOT NULL
+            )
+            """
+        ).format(aux=aux)
     )
     cr.execute(
-        f"""
-        INSERT INTO {AUX_TABLE} (geofence_id, vocab_name)
-        SELECT rel.geofence_id,
-               -- name is a translated (jsonb) field: prefer en_US, else any value
-               COALESCE(v.name->>'en_US', (SELECT t.value FROM jsonb_each_text(v.name) t LIMIT 1))
-        FROM spp_gis_geofence_tag_rel rel
-        JOIN spp_vocabulary v ON v.id = rel.tag_id
-        WHERE true {valid_clause}
-        """
+        sql.SQL(
+            """
+            INSERT INTO {aux} (geofence_id, vocab_name)
+            SELECT rel.geofence_id,
+                   COALESCE(v.name->>'en_US', (SELECT t.value FROM jsonb_each_text(v.name) t LIMIT 1))
+            FROM spp_gis_geofence_tag_rel rel
+            JOIN spp_vocabulary v ON v.id = rel.tag_id
+            WHERE true {valid_clause}
+            """
+        ).format(aux=aux, valid_clause=valid_clause)
     )
     parked = cr.rowcount
     cr.execute(
-        f"""
-        DELETE FROM spp_gis_geofence_tag_rel rel
-        USING spp_vocabulary v
-        WHERE v.id = rel.tag_id {valid_clause}
-        """
+        sql.SQL(
+            """
+            DELETE FROM spp_gis_geofence_tag_rel rel
+            USING spp_vocabulary v
+            WHERE v.id = rel.tag_id {valid_clause}
+            """
+        ).format(valid_clause=valid_clause)
     )
     _logger.info(
         "spp_gis geofence tag migration: parked %s legacy vocabulary tag links (%s rows removed)",

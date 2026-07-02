@@ -8,6 +8,8 @@ for the full story.
 
 import logging
 
+from psycopg2 import sql
+
 from odoo import SUPERUSER_ID, api
 
 _logger = logging.getLogger("odoo.addons.spp_gis.migrations.geofence_tags")
@@ -26,8 +28,9 @@ def migrate(cr, version):
 
     env = api.Environment(cr, SUPERUSER_ID, {})
     Tag = env["spp.gis.geofence.tag"]
+    aux = sql.Identifier(AUX_TABLE)
 
-    cr.execute(f"SELECT DISTINCT vocab_name FROM {AUX_TABLE}")
+    cr.execute(sql.SQL("SELECT DISTINCT vocab_name FROM {aux}").format(aux=aux))
     tag_ids_by_name = {}
     for (name,) in cr.fetchall():
         tag = Tag.search([("name", "=", name)], limit=1)
@@ -36,7 +39,7 @@ def migrate(cr, version):
         tag_ids_by_name[name] = tag.id
 
     restored = 0
-    cr.execute(f"SELECT geofence_id, vocab_name FROM {AUX_TABLE}")
+    cr.execute(sql.SQL("SELECT geofence_id, vocab_name FROM {aux}").format(aux=aux))
     for geofence_id, name in cr.fetchall():
         cr.execute(
             """
@@ -48,7 +51,7 @@ def migrate(cr, version):
         )
         restored += cr.rowcount
 
-    cr.execute(f"DROP TABLE {AUX_TABLE}")
+    cr.execute(sql.SQL("DROP TABLE {aux}").format(aux=aux))
     _logger.info(
         "spp_gis geofence tag migration: created %s tags, restored %s links",
         len(tag_ids_by_name),
