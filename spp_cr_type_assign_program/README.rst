@@ -91,11 +91,17 @@ Dependencies
 Changelog
 =========
 
-19.0.1.0.0 (2026-05-04)
------------------------
+19.0.1.0.2
+~~~~~~~~~~
 
-Added
-~~~~~
+- fix(security): add record rules to ``spp.cr.detail.assign_program``
+  enforcing parent change-request ownership and area scope. The model
+  previously had an ACL granting ``group_cr_user`` write/create but no
+  record rule, so a CR user could re-point ``program_id`` on
+  assign-program details of change requests they do not own via RPC.
+
+19.0.1.0.0
+~~~~~~~~~~
 
 - New module ``spp_cr_type_assign_program`` with the ``assign_program``
   change request type.
