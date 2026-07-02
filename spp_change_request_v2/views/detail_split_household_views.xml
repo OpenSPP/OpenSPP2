@@ -120,57 +120,26 @@
                         </field>
                     </group>
 
-                    <!-- Members to move: table + Edit Member Information modal. -->
+                    <!-- Members to move: relational-only table (member + role). -->
                     <separator string="Members to Move to New Household" />
                     <div class="text-muted mb-2">
                         Only members that are not head of the source household can be moved.
-                        Click a row to open the member, set their role, and edit their information.
+                        Select each member to move and their role in the new household.
                     </div>
                     <field name="member_line_ids" nolabel="1">
-                        <list>
-                            <field name="individual_id" />
-                            <field name="membership_type_id" string="Role" />
+                        <list editable="bottom">
+                            <field
+                                name="individual_id"
+                                domain="[('id', 'in', parent.available_member_ids)]"
+                                options="{'no_create': True, 'no_open': True}"
+                                required="1"
+                            />
+                            <field
+                                name="membership_type_id"
+                                string="Role"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
                         </list>
-                        <form string="Member to Move">
-                            <group>
-                                <field
-                                    name="individual_id"
-                                    domain="[('id', 'in', parent.available_member_ids)]"
-                                    options="{'no_create': True, 'no_open': True}"
-                                    required="1"
-                                />
-                                <field
-                                    name="membership_type_id"
-                                    string="Role"
-                                    options="{'no_create': True, 'no_open': True}"
-                                />
-                            </group>
-                            <separator string="Member Information" />
-                            <group>
-                                <group>
-                                    <field name="family_name" />
-                                    <field name="given_name" />
-                                    <field name="middle_name" />
-                                    <field name="birthdate" />
-                                    <field name="birth_place" />
-                                </group>
-                                <group>
-                                    <field
-                                        name="gender_id"
-                                        options="{'no_create': True, 'no_open': True}"
-                                    />
-                                    <field
-                                        name="civil_status_id"
-                                        options="{'no_create': True, 'no_open': True}"
-                                    />
-                                    <field
-                                        name="occupation_id"
-                                        options="{'no_create': True, 'no_open': True}"
-                                    />
-                                    <field name="income" widget="monetary" />
-                                </group>
-                            </group>
-                        </form>
                     </field>
 
                     <group string="Additional Information">

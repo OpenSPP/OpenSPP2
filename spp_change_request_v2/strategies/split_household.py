@@ -5,22 +5,6 @@ from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
-HEAD_ROLE_CODE = "head"
-
-# Editable member fields captured on a move-line (proposed edits, OP#877).
-# Labels are translated at use-time (preview), not at module import.
-MEMBER_EDIT_FIELDS = [
-    ("given_name", "Given Name"),
-    ("family_name", "Family Name"),
-    ("middle_name", "Middle Name"),
-    ("birthdate", "Date of Birth"),
-    ("birth_place", "Birth Place"),
-    ("gender_id", "Gender"),
-    ("civil_status_id", "Civil Status"),
-    ("occupation_id", "Occupation"),
-    ("income", "Income"),
-]
-
 
 class SPPCRApplySplitHousehold(models.AbstractModel):
     """Custom apply strategy for Split Household CR type (OP#877)."""
@@ -49,7 +33,6 @@ class SPPCRApplySplitHousehold(models.AbstractModel):
         self._attach_group_lines(detail, new_group)
 
         Membership = self.env["spp.group.membership"]
-        head_kind = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", HEAD_ROLE_CODE)
         for line in detail.member_line_ids:
             individual = line.individual_id
             # End the source membership.
@@ -59,17 +42,12 @@ class SPPCRApplySplitHousehold(models.AbstractModel):
             )
             if source_membership:
                 source_membership.write({"ended_date": fields.Datetime.now()})
-            # Apply any proposed edits to the individual.
-            self._apply_member_edits(line, individual)
-            # Create the membership in the new group with the chosen role.
+            # Create the membership in the new group following the CR line's role
+            # exactly - a blank role on the line means no role in the new group
+            # (the source role is NOT carried over).
             vals = {"group": new_group.id, "individual": individual.id, "start_date": fields.Datetime.now()}
             if line.membership_type_id:
                 vals["membership_type_ids"] = [Command.link(line.membership_type_id.id)]
-            elif head_kind:
-                # carry over non-head roles from the source membership
-                roles = (source_membership.membership_type_ids - head_kind) if source_membership else False
-                if roles:
-                    vals["membership_type_ids"] = [Command.set(roles.ids)]
             Membership.create(vals)
 
         detail.write({"created_group_id": new_group.id})
@@ -131,31 +109,6 @@ class SPPCRApplySplitHousehold(models.AbstractModel):
                 }
             )
 
-    def _changed_edits(self, line):
-        """Return [(field, label, new_value)] for member fields the line changes."""
-        individual = line.individual_id
-        changed = []
-        for fname, label in MEMBER_EDIT_FIELDS:
-            if fname not in line._fields:
-                continue
-            new_val = line[fname]
-            if not new_val:
-                continue
-            current = individual[fname] if individual and fname in individual._fields else False
-            if new_val != current:
-                changed.append((fname, label, new_val))
-        return changed
-
-    def _apply_member_edits(self, line, individual):
-        vals = {}
-        for fname, _label, new_val in self._changed_edits(line):
-            if fname in individual._fields:
-                vals[fname] = new_val.id if hasattr(new_val, "id") else new_val
-        if vals:
-            individual.write(vals)
-            if hasattr(individual, "name_change"):
-                individual.name_change()
-
     # ──────────────────────────────────────────────────────────────────────
     # preview
     # ──────────────────────────────────────────────────────────────────────
@@ -177,17 +130,6 @@ class SPPCRApplySplitHousehold(models.AbstractModel):
         tables = [
             {"title": _("Members to Move"), "columns": [_("Name"), _("Role")], "rows": members_rows},
         ]
-
-        # Separate table for proposed member edits (like the Edit Member CR).
-        edit_rows = []
-        for line in detail.member_line_ids:
-            for _fname, label, new_val in self._changed_edits(line):
-                display = new_val.display_name if hasattr(new_val, "display_name") else str(new_val)
-                edit_rows.append([line.individual_id.display_name or "", _(label), display])
-        if edit_rows:
-            tables.append(
-                {"title": _("Member Edits"), "columns": [_("Member"), _("Field"), _("New Value")], "rows": edit_rows}
-            )
 
         return {
             "_action": "split_household",

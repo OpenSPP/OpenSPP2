@@ -1,9 +1,10 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Tests for the redesigned Split Household strategy (OP#877).
 
-Members to move are an editable table (member + role + per-member edits); the
-new household uses the Create-Group field set; a head is not mandatory; and the
-split reason can drive required documents (reusing the #873 mechanism).
+Moving a member is a relational update (member + role only, no per-member edits);
+the new household uses the Create-Group field set; at most one moved member may be
+Head and a head is not mandatory; and the split reason can drive required documents
+(reusing the #873 mechanism).
 """
 
 from odoo import Command, fields
@@ -110,6 +111,26 @@ class TestSplitHouseholdStrategy(TransactionCase):
         cr.action_apply()
         self.assertTrue(cr.is_applied)
 
+    def test_blank_cr_role_leaves_role_blank(self):
+        """A blank role on the CR line yields no role in the new group.
+
+        The member's role in the source household must NOT be carried over - the
+        new membership follows the CR line's role exactly, even when empty.
+        """
+        if not self.member_kind:
+            self.skipTest("member role code not present")
+        # Give m3 a role in the source household.
+        self._active_membership(self.source_group, self.m3).membership_type_ids = [Command.set(self.member_kind.ids)]
+        cr = self._make_cr(
+            new_group_name="Blank Role Split",
+            member_line_ids=[self._line(self.m3)],  # no role on the CR line
+        )
+        cr.approval_state = "approved"
+        cr.action_apply()
+        new_membership = self._active_membership(cr.get_detail().created_group_id, self.m3)
+        self.assertTrue(new_membership)
+        self.assertFalse(new_membership.membership_type_ids)
+
     # ──────────────────────────────────────────────────────────────────
     # Validation
     # ──────────────────────────────────────────────────────────────────
@@ -129,30 +150,42 @@ class TestSplitHouseholdStrategy(TransactionCase):
         if self.head_kind:
             self.assertNotIn(self.head, available)
 
-    # ──────────────────────────────────────────────────────────────────
-    # Per-member edits (Edit Member modal)
-    # ──────────────────────────────────────────────────────────────────
-    def test_member_edits_applied_on_move(self):
-        if "family_name" not in self.partner_model._fields:
-            self.skipTest("registry name fields not present")
+    def test_only_one_head_among_moved_members(self):
+        """Two moved members cannot both be Head of the new household."""
+        if not self.head_kind:
+            self.skipTest("head role code not present")
+        with self.assertRaises(ValidationError):
+            self._make_cr(
+                new_group_name="Two Heads",
+                member_line_ids=[
+                    self._line(self.m2, membership_type_id=self.head_kind.id),
+                    self._line(self.m3, membership_type_id=self.head_kind.id),
+                ],
+            )
+
+    def test_single_head_allowed(self):
+        """One moved member as Head is accepted."""
+        if not self.head_kind:
+            self.skipTest("head role code not present")
         cr = self._make_cr(
-            new_group_name="Edited Split",
-            member_line_ids=[self._line(self.m3, family_name="Renamed")],
+            new_group_name="One Head",
+            member_line_ids=[
+                self._line(self.m2, membership_type_id=self.head_kind.id),
+                self._line(self.m3),
+            ],
         )
         cr.approval_state = "approved"
         cr.action_apply()
-        self.m3.invalidate_recordset()
-        self.assertEqual(self.m3.family_name, "Renamed")
+        self.assertTrue(cr.is_applied)
 
     # ──────────────────────────────────────────────────────────────────
     # Preview / review page
     # ──────────────────────────────────────────────────────────────────
     def test_preview_header_and_tables(self):
-        edits = {"family_name": "Renamed"} if "family_name" in self.partner_model._fields else {}
         cr = self._make_cr(
             new_group_name="Preview Split",
             split_reason="marriage",
-            member_line_ids=[self._line(self.m2), self._line(self.m3, **edits)],
+            member_line_ids=[self._line(self.m2), self._line(self.m3)],
         )
         preview = cr.action_preview_changes()
         self.assertEqual(preview["_action"], "split_household")
@@ -160,8 +193,7 @@ class TestSplitHouseholdStrategy(TransactionCase):
         self.assertEqual(preview["New Household Name"], "Preview Split")
         titles = [t["title"] for t in preview["_tables"]]
         self.assertIn("Members to Move", titles)
-        if edits:
-            self.assertIn("Member Edits", titles)
+        self.assertNotIn("Member Edits", titles)
         html = cr._generate_review_comparison_html()
         self.assertIn("new household will be created", html.lower())
 

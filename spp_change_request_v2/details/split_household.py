@@ -9,9 +9,10 @@ class SPPCRDetailSplitHousehold(models.Model):
     """Detail model for Split Household CR type (OP#877).
 
     Splits members out of a source household into a brand-new household. The new
-    household captures the same group fields as Create Group (OP#876); the
-    members to move are an editable table (member + role + per-member edits via
-    a modal). A head for the new group is NOT mandatory.
+    household captures the same group fields as Create Group (OP#876). Moving a
+    member is a relational update only: each move line picks an existing source
+    member and their role in the new household - the member's own data is not
+    edited here. At most one moved member may be Head, and a head is not mandatory.
     """
 
     _name = "spp.cr.detail.split_household"
@@ -135,13 +136,24 @@ class SPPCRDetailSplitHousehold(models.Model):
                         "Cannot move all members. At least one member must remain in the source household."
                     )
 
+    @api.constrains("member_line_ids")
+    def _check_single_head(self):
+        """At most one moved member may be designated Head of the new household."""
+        head = self.env["spp.vocabulary.code"].get_code(ROLE_NAMESPACE, HEAD_ROLE_CODE)
+        if not head:
+            return
+        for rec in self:
+            heads = rec.member_line_ids.filtered(lambda line, h=head: line.membership_type_id == h)
+            if len(heads) > 1:
+                raise ValidationError("Only one member can be moved as Head of the new household.")
+
 
 class SPPCRDetailSplitHouseholdMember(models.Model):
-    """A member moved to the new household, with role and optional edits (OP#877).
+    """A member moved to the new household (OP#877).
 
-    The editable fields capture proposed changes to the individual (applied on
-    CR apply, like the Edit Member CR); they are surfaced through the
-    "Edit Member Information" modal and default to the member's current values.
+    Moving is a pure relational update: the line references an existing source
+    member and the role they take in the new household. The member's own
+    attributes are not edited here.
     """
 
     _name = "spp.cr.detail.split_household.member"
@@ -154,34 +166,3 @@ class SPPCRDetailSplitHouseholdMember(models.Model):
         string="Role",
         domain="[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:group-membership-type')]",
     )
-
-    # Editable member info (proposed edits, prefilled from the member).
-    given_name = fields.Char(string="Given Name")
-    family_name = fields.Char(string="Family Name")
-    middle_name = fields.Char(string="Middle Name")
-    birthdate = fields.Date(string="Date of Birth")
-    birth_place = fields.Char(string="Birth Place")
-    gender_id = fields.Many2one(
-        "spp.vocabulary.code", string="Gender", domain="[('namespace_uri', '=', 'urn:iso:std:iso:5218')]"
-    )
-    civil_status_id = fields.Many2one(
-        "spp.vocabulary.code",
-        string="Civil Status",
-        domain="[('vocabulary_id.namespace_uri', '=', 'urn:un:unsd:pop-census:marital-status')]",
-    )
-    occupation_id = fields.Many2one(
-        "spp.vocabulary.code", string="Occupation", domain="[('vocabulary_id.namespace_uri', '=', 'urn:ilo:isco-08')]"
-    )
-    income = fields.Float(string="Income")
-
-    @api.onchange("individual_id")
-    def _onchange_individual_id(self):
-        """Prefill the editable fields from the selected member's current values."""
-        p = self.individual_id
-        if not p:
-            return
-        self.given_name = p.given_name if "given_name" in p._fields else False
-        self.family_name = p.family_name if "family_name" in p._fields else False
-        for fname in ("birthdate", "birth_place", "gender_id", "civil_status_id", "occupation_id", "income"):
-            if fname in p._fields:
-                self[fname] = p[fname]
