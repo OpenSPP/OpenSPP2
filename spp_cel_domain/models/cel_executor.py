@@ -1218,7 +1218,9 @@ class CelExecutor(models.AbstractModel):
             if not batch_ids:
                 continue
             total_requested += len(batch_ids)
-            batch_values, batch_stats = svc.evaluate(p.metric, subject_model, batch_ids, period_key, mode=eval_mode)
+            batch_values, batch_stats = svc.evaluate(
+                p.metric, subject_model, batch_ids, period_key, mode=eval_mode, params=getattr(p, "params", None)
+            )
             aggregated_values.update(batch_values)
             if batch_stats:
                 stats_total["cache_hits"] += int(batch_stats.get("cache_hits") or 0)
@@ -1470,10 +1472,12 @@ class CelExecutor(models.AbstractModel):
             (provider, params_hash),
         ]
         if provider:
+            # Relax the provider (a routing/registry detail) but keep the requested
+            # params_hash. Params are a semantic filter, not a provider detail: a
+            # non-empty params_hash must never fall back to params_hash "" rows, or a
+            # parameterized metric would match unparameterized/legacy cache rows. When
+            # params_hash == "" this combo already covers the unparameterized rows.
             combos.append(("", params_hash))
-        if params_hash:
-            combos.append((provider, ""))
-        combos.append(("", ""))
         # Deduplicate while preserving order
         seen = set()
         uniq_combos: list[tuple[str, str]] = []
