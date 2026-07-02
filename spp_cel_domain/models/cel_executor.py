@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 import logging
 from collections.abc import Iterable, Iterator
 from typing import Any
@@ -1218,8 +1219,8 @@ class CelExecutor(models.AbstractModel):
             if not batch_ids:
                 continue
             total_requested += len(batch_ids)
-            batch_values, batch_stats = svc.evaluate(
-                p.metric, subject_model, batch_ids, period_key, mode=eval_mode, params=getattr(p, "params", None)
+            batch_values, batch_stats = self._svc_evaluate_batch(  # pragma: no cover
+                svc, p, subject_model, batch_ids, period_key, eval_mode
             )
             aggregated_values.update(batch_values)
             if batch_stats:
@@ -1464,6 +1465,39 @@ class CelExecutor(models.AbstractModel):
             *clause_args,
         )
         return SQL("(%s)", SQL(sql, *args))
+
+    @staticmethod
+    def _evaluate_accepts_params(svc) -> bool:
+        """Whether ``svc.evaluate`` accepts a ``params`` keyword argument.
+
+        The evaluation service (``spp.indicator``) is provided by a legacy/external
+        module whose signature we do not control and which may predate the
+        ``params`` kwarg. Returns True when ``evaluate`` declares an explicit
+        ``params`` parameter or a ``**kwargs`` catch-all; False otherwise (so the
+        caller degrades to an unparameterized call instead of raising ``TypeError``).
+        """
+        try:
+            sig = inspect.signature(svc.evaluate)
+        except (TypeError, ValueError):
+            return False
+        return any(prm.name == "params" or prm.kind is inspect.Parameter.VAR_KEYWORD for prm in sig.parameters.values())
+
+    def _svc_evaluate_batch(self, svc, p, subject_model, batch_ids, period_key, eval_mode):  # pragma: no cover
+        """Call the legacy/external evaluation service for one batch.
+
+        Threads the metric's params through so parameterized refreshes are computed
+        with the right params — but only when ``evaluate`` accepts a ``params`` kwarg
+        (see ``_evaluate_accepts_params``), degrading gracefully on older services.
+
+        Not covered by tests: ``spp.indicator`` is not in this repo's dependency
+        closure, so this path is unreachable here; the params-compat decision is
+        unit-tested via ``_evaluate_accepts_params``.
+        """
+        eval_kwargs = {"mode": eval_mode}
+        metric_params = getattr(p, "params", None)
+        if metric_params and self._evaluate_accepts_params(svc):
+            eval_kwargs["params"] = metric_params
+        return svc.evaluate(p.metric, subject_model, batch_ids, period_key, **eval_kwargs)
 
     def _provider_clause(self, provider: str, params_hash: str, allow_any_provider: bool) -> tuple[str, list[Any]]:
         provider = provider or ""
