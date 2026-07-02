@@ -481,7 +481,7 @@ class DCIDataSource(models.Model):
         }
 
         _logger.debug(
-            "get_headers() called for data source %s, auth_type=%s, force_refresh=%s",
+            "_get_headers() called for data source %s, auth_type=%s, force_refresh=%s",
             self.code,
             self.auth_type,
             force_refresh_token,

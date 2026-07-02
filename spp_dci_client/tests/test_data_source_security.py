@@ -34,12 +34,18 @@ class TestDataSourceCredentialAccess(TransactionCase):
             }
         )
 
-    def test_token_methods_are_not_rpc_exposed(self):
-        """The credential methods must be private (underscore-prefixed), so they
-        are not callable over RPC; the public entrypoints must be gone."""
+    def test_token_methods_are_private(self):
+        """The credential methods must be private (underscore-prefixed).
+
+        Odoo blocks RPC ``call_kw`` to underscore-prefixed methods (framework
+        guarantee), so making them private removes them as an RPC entry point.
+        This asserts the public names are gone (catching a re-added public alias)
+        and the private ones exist; the RPC-dispatch block itself is a framework
+        property of ``_``-prefixed names.
+        """
         model = self.env["spp.dci.data.source"]
-        self.assertFalse(hasattr(model, "get_oauth2_token"), "get_oauth2_token must be removed (RPC-exposed)")
-        self.assertFalse(hasattr(model, "get_headers"), "get_headers must be removed (RPC-exposed)")
+        self.assertFalse(hasattr(model, "get_oauth2_token"), "public get_oauth2_token must be removed")
+        self.assertFalse(hasattr(model, "get_headers"), "public get_headers must be removed")
         self.assertTrue(hasattr(model, "_get_oauth2_token"))
         self.assertTrue(hasattr(model, "_get_headers"))
 
@@ -64,3 +70,8 @@ class TestDataSourceCredentialAccess(TransactionCase):
         outbound call; a read-only user must not be able to trigger it."""
         with self.assertRaises(AccessError):
             self.ds.with_user(self.user).test_connection()
+
+    def test_action_test_connection_requires_write_access(self):
+        """The public button alias must inherit the same write gate."""
+        with self.assertRaises(AccessError):
+            self.ds.with_user(self.user).action_test_connection()
