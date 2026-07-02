@@ -28,9 +28,12 @@ def _parse_datetime_string(value):
     Returns:
         datetime object
     """
-    # Replace 'Z' with '+00:00' for fromisoformat compatibility
-    normalized = value.replace("Z", "+00:00")
-    dt = datetime.fromisoformat(normalized)
+    if isinstance(value, datetime):
+        dt = value
+    else:
+        # Replace 'Z' with '+00:00' for fromisoformat compatibility
+        normalized = value.replace("Z", "+00:00")
+        dt = datetime.fromisoformat(normalized)
     # Odoo requires naive (UTC) datetimes
     if dt.tzinfo is not None:
         dt = dt.astimezone(UTC).replace(tzinfo=None)
@@ -525,17 +528,20 @@ class HazardIncident(models.Model):
         geojson_str = json.dumps(geometry_dict) if isinstance(geometry_dict, dict) else geometry_dict
 
         try:
-            self.env.cr.execute(
-                """
-                SELECT id FROM spp_area
-                WHERE geo_polygon IS NOT NULL
-                AND ST_Intersects(
-                    geo_polygon::geometry,
-                    ST_SetSRID(ST_GeomFromGeoJSON(%s), 4326)
+            # Savepoint: a failed query (e.g. invalid geometry) would otherwise
+            # abort the whole transaction, not just this optional linking step.
+            with self.env.cr.savepoint():
+                self.env.cr.execute(
+                    """
+                    SELECT id FROM spp_area
+                    WHERE geo_polygon IS NOT NULL
+                    AND ST_Intersects(
+                        geo_polygon::geometry,
+                        ST_SetSRID(ST_GeomFromGeoJSON(%s), 4326)
+                    )
+                    """,
+                    (geojson_str,),
                 )
-                """,
-                (geojson_str,),
-            )
             area_ids = [row[0] for row in self.env.cr.fetchall()]
             if area_ids:
                 self.write({"area_ids": [Command.set(area_ids)]})

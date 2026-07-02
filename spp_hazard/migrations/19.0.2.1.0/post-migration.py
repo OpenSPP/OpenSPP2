@@ -94,6 +94,7 @@ def _column_exists(cr, table, column):
         SELECT 1
         FROM information_schema.columns
         WHERE table_name = %s AND column_name = %s
+          AND table_schema = current_schema()
         """,
         (table, column),
     )
