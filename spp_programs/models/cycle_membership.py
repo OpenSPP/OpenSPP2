@@ -130,6 +130,12 @@ class SPPCycleMembership(models.Model):
             Returns the count of inserted rows.
         :return: Recordset (skip_duplicates=False) or int count (skip_duplicates=True)
         """
+        # This is a public (RPC-callable) method whose skip_duplicates path uses
+        # raw SQL that bypasses the ORM's ACL checks. Enforce model-level create
+        # access explicitly so a low-privileged user cannot use it to create
+        # memberships they could not create through the ORM.
+        self.check_access("create")
+
         if not vals_list:
             return 0 if skip_duplicates else self.env["spp.cycle.membership"]
 
