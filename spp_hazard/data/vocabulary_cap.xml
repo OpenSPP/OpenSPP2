@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- CAP (Common Alerting Protocol) Vocabularies
+         Standard: OASIS CAP v1.2 (https://docs.oasis-open.org/emergency/cap/v1.2/)
+         These are fixed international standard values. -->
+
+    <!-- === CAP Severity === -->
+    <record id="vocab_cap_severity" model="spp.vocabulary">
+        <field name="name">CAP Severity</field>
+        <field name="namespace_uri">urn:oasis:names:tc:cap:severity</field>
+        <field name="version">1.2</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+        <field
+            name="reference_url"
+        >https://docs.oasis-open.org/emergency/cap/v1.2/</field>
+        <field
+            name="description"
+        >Severity values from the Common Alerting Protocol (CAP) v1.2 standard.</field>
+    </record>
+
+    <record id="code_cap_severity_extreme" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_cap_severity" />
+        <field name="code">extreme</field>
+        <field name="display">Extreme</field>
+        <field name="definition">Extraordinary threat to life or property</field>
+        <field name="sequence">1</field>
+    </record>
+    <record id="code_cap_severity_severe" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_cap_severity" />
+        <field name="code">severe</field>
+        <field name="display">Severe</field>
+        <field name="definition">Significant threat to life or property</field>
+        <field name="sequence">2</field>
+    </record>
+    <record id="code_cap_severity_moderate" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_cap_severity" />
+        <field name="code">moderate</field>
+        <field name="display">Moderate</field>
+        <field name="definition">Possible threat to life or property</field>
+        <field name="sequence">3</field>
+    </record>
+    <record id="code_cap_severity_minor" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_cap_severity" />
+        <field name="code">minor</field>
+        <field name="display">Minor</field>
+        <field name="definition">Minimal to no known threat to life or property</field>
+        <field name="sequence">4</field>
+    </record>
+    <record id="code_cap_severity_unknown" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_cap_severity" />
+        <field name="code">unknown</field>
+        <field name="display">Unknown</field>
+        <field name="definition">Severity unknown</field>
+        <field name="sequence">5</field>
+    </record>
+
+    <!-- === CAP Urgency === -->
+    <record id="vocab_cap_urgency" model="spp.vocabulary">
+        <field name="name">CAP Urgency</field>
+        <field name="namespace_uri">urn:oasis:names:tc:cap:urgency</field>
+        <field name="version">1.2</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+        <field
+            name="reference_url"
+        >https://docs.oasis-open.org/emergency/cap/v1.2/</field>
+        <field
+            name="description"
+        >Urgency values from the Common Alerting Protocol (CAP) v1.2 standard.</field>
+    </record>
+
+    <record id="code_cap_urgency_immediate" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_cap_urgency" />
+        <field name="code">immediate</field>
+        <field name="display">Immediate</field>
+        <field name="definition">Responsive action should be taken immediately</field>
+        <field name="sequence">1</field>
+    </record>
+    <record id="code_cap_urgency_expected" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_cap_urgency" />
+        <field name="code">expected</field>
+        <field name="display">Expected</field>
+        <field
+            name="definition"
+        >Responsive action should be taken soon (within next hour)</field>
+        <field name="sequence">2</field>
+    </record>
+    <record id="code_cap_urgency_future" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_cap_urgency" />
+        <field name="code">future</field>
+        <field name="display">Future</field>
+        <field
+            name="definition"
+        >Responsive action should be taken in the near future</field>
+        <field name="sequence">3</field>
+    </record>
+    <record id="code_cap_urgency_past" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_cap_urgency" />
+        <field name="code">past</field>
+        <field name="display">Past</field>
+        <field name="definition">Responsive action is no longer required</field>
+        <field name="sequence">4</field>
+    </record>
+    <record id="code_cap_urgency_unknown" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_cap_urgency" />
+        <field name="code">unknown</field>
+        <field name="display">Unknown</field>
+        <field name="definition">Urgency not known</field>
+        <field name="sequence">5</field>
+    </record>
+
+    <!-- === CAP Certainty === -->
+    <record id="vocab_cap_certainty" model="spp.vocabulary">
+        <field name="name">CAP Certainty</field>
+        <field name="namespace_uri">urn:oasis:names:tc:cap:certainty</field>
+        <field name="version">1.2</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+        <field
+            name="reference_url"
+        >https://docs.oasis-open.org/emergency/cap/v1.2/</field>
+        <field
+            name="description"
+        >Certainty values from the Common Alerting Protocol (CAP) v1.2 standard.</field>
+    </record>
+
+    <record id="code_cap_certainty_observed" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_cap_certainty" />
+        <field name="code">observed</field>
+        <field name="display">Observed</field>
+        <field name="definition">Determined to have occurred or to be ongoing</field>
+        <field name="sequence">1</field>
+    </record>
+    <record id="code_cap_certainty_likely" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_cap_certainty" />
+        <field name="code">likely</field>
+        <field name="display">Likely</field>
+        <field name="definition">Likely (p &gt; ~50%)</field>
+        <field name="sequence">2</field>
+    </record>
+    <record id="code_cap_certainty_possible" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_cap_certainty" />
+        <field name="code">possible</field>
+        <field name="display">Possible</field>
+        <field name="definition">Possible but not likely (p &lt;= ~50%)</field>
+        <field name="sequence">3</field>
+    </record>
+    <record id="code_cap_certainty_unlikely" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_cap_certainty" />
+        <field name="code">unlikely</field>
+        <field name="display">Unlikely</field>
+        <field name="definition">Not expected to occur (p ~ 0)</field>
+        <field name="sequence">4</field>
+    </record>
+    <record id="code_cap_certainty_unknown" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_cap_certainty" />
+        <field name="code">unknown</field>
+        <field name="display">Unknown</field>
+        <field name="definition">Certainty not known</field>
+        <field name="sequence">5</field>
+    </record>
+
+    <!-- === CAP Message Type === -->
+    <record id="vocab_cap_msg_type" model="spp.vocabulary">
+        <field name="name">CAP Message Type</field>
+        <field name="namespace_uri">urn:oasis:names:tc:cap:msg-type</field>
+        <field name="version">1.2</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+        <field
+            name="reference_url"
+        >https://docs.oasis-open.org/emergency/cap/v1.2/</field>
+        <field
+            name="description"
+        >Message type values from the Common Alerting Protocol (CAP) v1.2 standard.</field>
+    </record>
+
+    <record id="code_cap_msg_type_alert" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_cap_msg_type" />
+        <field name="code">alert</field>
+        <field name="display">Alert</field>
+        <field
+            name="definition"
+        >Initial information requiring attention by targeted recipients</field>
+        <field name="sequence">1</field>
+    </record>
+    <record id="code_cap_msg_type_update" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_cap_msg_type" />
+        <field name="code">update</field>
+        <field name="display">Update</field>
+        <field name="definition">Updates and supersedes the earlier message(s)</field>
+        <field name="sequence">2</field>
+    </record>
+    <record id="code_cap_msg_type_cancel" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_cap_msg_type" />
+        <field name="code">cancel</field>
+        <field name="display">Cancel</field>
+        <field name="definition">Cancels the earlier message(s)</field>
+        <field name="sequence">3</field>
+    </record>
+</odoo>
