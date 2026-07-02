@@ -214,23 +214,21 @@ Preview**.
 
 The **Data Source** tab contains:
 
-+-----------------------------+-----------------------------+----------+
-| Field                       | Description                 | Required |
-+=============================+=============================+==========+
-| **Indicator Variable**      | Dropdown of                 | Yes      |
-|                             | ``spp.cel.variable``        |          |
-|                             | records (no inline          |          |
-|                             | create/open)                |          |
-+-----------------------------+-----------------------------+----------+
-| **Period Key**              | Free-text, defaults to      | No       |
-|                             | "current". Examples:        |          |
-|                             | "2024-12", "current"        |          |
-+-----------------------------+-----------------------------+----------+
-| **Incident/Disaster**       | Dropdown of                 | No       |
-|                             | ``spp.hazard.incident``     |          |
-|                             | records. Filters indicator  |          |
-|                             | data by incident.           |          |
-+-----------------------------+-----------------------------+----------+
++------------------------+----------------------------------+----------+
+| Field                  | Description                      | Required |
++========================+==================================+==========+
+| **Indicator Variable** | Dropdown of ``spp.cel.variable`` | Yes      |
+|                        | records (no inline create/open)  |          |
++------------------------+----------------------------------+----------+
+| **Period Key**         | Free-text, defaults to           | No       |
+|                        | "current". Examples: "2024-12",  |          |
+|                        | "current"                        |          |
++------------------------+----------------------------------+----------+
+| **Incident/Disaster**  | Dropdown of                      | No       |
+|                        | ``spp.hazard.incident`` records. |          |
+|                        | Filters indicator data by        |          |
+|                        | incident.                        |          |
++------------------------+----------------------------------+----------+
 
 Indicator Layer — Form: Visualization Tab
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
