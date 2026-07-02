@@ -310,14 +310,18 @@ class DCIDataSource(models.Model):
             if record.auth_type != "none" and not record.our_sender_id:
                 raise ValidationError(_("Sender ID is required for authenticated connections."))
 
-    def clear_oauth2_token_cache(self):
+    def _clear_oauth2_token_cache(self):
         """Clear cached OAuth2 token, forcing a fresh token request on next use.
 
-        This can be useful when the cached token becomes invalid or when
-        troubleshooting authentication issues.
+        Internal (underscore-prefixed) so it is NOT callable over RPC — otherwise
+        a low-privilege user could force repeated re-minting. It is invoked from
+        trusted server-side code (e.g. DCIClient on a 401 retry). The cache fields
+        are admin-restricted, so write via sudo: clearing the cache must work
+        regardless of the current user's privilege.
         """
         self.ensure_one()
-        self.write(
+        # nosemgrep: odoo-sudo-without-context
+        self.sudo().write(
             {
                 "_oauth2_access_token": False,
                 "_oauth2_token_expires_at": False,
@@ -356,11 +360,9 @@ class DCIDataSource(models.Model):
         if not force_refresh and sudo_self._oauth2_access_token and sudo_self._oauth2_token_expires_at:
             expiry_with_buffer = sudo_self._oauth2_token_expires_at - timedelta(seconds=60)
             if now < expiry_with_buffer:
-                _logger.info(
-                    "Using cached OAuth2 token for data source: %s (expires at %s)",
-                    self.code,
-                    sudo_self._oauth2_token_expires_at,
-                )
+                # Do not log the token expiry field (it is a credential-adjacent
+                # cache field); log only the data source code.
+                _logger.info("Using cached OAuth2 token for data source: %s", self.code)
                 return sudo_self._oauth2_access_token
 
         # Request new token
@@ -497,9 +499,14 @@ class DCIDataSource(models.Model):
                 len(token) if token else 0,
             )
         elif self.auth_type == "bearer":
-            if not self.bearer_token:
+            # bearer_token is admin-restricted (groups=base.group_system); read it
+            # via sudo so a non-admin internal caller (this method is not
+            # RPC-exposed) can build the header, matching the OAuth2 branch.
+            # nosemgrep: odoo-sudo-without-context
+            bearer_token = self.sudo().bearer_token
+            if not bearer_token:
                 raise UserError(_("Bearer token is not configured for this data source."))
-            headers["Authorization"] = f"Bearer {self.bearer_token}"
+            headers["Authorization"] = f"Bearer {bearer_token}"
 
         return headers
 

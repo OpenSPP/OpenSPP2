@@ -75,3 +75,27 @@ class TestDataSourceCredentialAccess(TransactionCase):
         """The public button alias must inherit the same write gate."""
         with self.assertRaises(AccessError):
             self.ds.with_user(self.user).action_test_connection()
+
+    def test_regular_user_context_can_clear_token_cache(self):
+        """The internal cache-clear (used on a 401 retry) must work regardless of
+        the current user's privilege — it writes admin-restricted fields via sudo."""
+        self.ds.sudo().write({"_oauth2_access_token": "some-token"})
+        # Called from server-side code running in a non-admin user context.
+        self.ds.with_user(self.user)._clear_oauth2_token_cache()
+        self.assertFalse(self.ds.sudo()._oauth2_access_token)
+
+    def test_regular_user_context_can_get_bearer_headers(self):
+        """A bearer-auth header must build in a non-admin user context: the
+        admin-only bearer_token is read via sudo inside the internal method."""
+        bearer_ds = self.DataSource.create(
+            {
+                "name": "Bearer DS",
+                "code": "bearer_ds_sec",
+                "base_url": "https://dci.example.org/api",
+                "auth_type": "bearer",
+                "our_sender_id": "openspp.test",
+                "bearer_token": "secret-bearer-token",
+            }
+        )
+        headers = bearer_ds.with_user(self.user)._get_headers()
+        self.assertEqual(headers.get("Authorization"), "Bearer secret-bearer-token")

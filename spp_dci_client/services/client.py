@@ -1001,7 +1001,7 @@ class DCIClient:
                         log_response_data = response.json()
                     except json.JSONDecodeError:
                         log_response_data = None
-                    self.data_source.clear_oauth2_token_cache()
+                    self.data_source._clear_oauth2_token_cache()
                     return self._make_request(endpoint, envelope, _retry_auth=False)
 
                 # Check for HTTP errors
