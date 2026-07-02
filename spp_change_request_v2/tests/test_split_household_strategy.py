@@ -163,6 +163,14 @@ class TestSplitHouseholdStrategy(TransactionCase):
                 ],
             )
 
+    def test_no_duplicate_member(self):
+        """The same member cannot be added on more than one move line."""
+        with self.assertRaises(ValidationError):
+            self._make_cr(
+                new_group_name="Dup Member",
+                member_line_ids=[self._line(self.m3), self._line(self.m3)],
+            )
+
     def test_single_head_allowed(self):
         """One moved member as Head is accepted."""
         if not self.head_kind:

@@ -147,6 +147,14 @@ class SPPCRDetailSplitHousehold(models.Model):
             if len(heads) > 1:
                 raise ValidationError("Only one member can be moved as Head of the new household.")
 
+    @api.constrains("member_line_ids")
+    def _check_no_duplicate_members(self):
+        """The same member cannot be moved more than once."""
+        for rec in self:
+            ids = [line.individual_id.id for line in rec.member_line_ids if line.individual_id]
+            if len(ids) != len(set(ids)):
+                raise ValidationError("Each member can only be added once to the members to move.")
+
 
 class SPPCRDetailSplitHouseholdMember(models.Model):
     """A member moved to the new household (OP#877).
