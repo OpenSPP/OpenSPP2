@@ -35,11 +35,15 @@ Key Capabilities
   any model using PostGIS spatial types
 - Visualize records on interactive maps via the GIS view type
 - Configure background raster layers (OpenStreetMap, WMS, satellite
-  imagery)
+  imagery); map widgets fall back to OpenStreetMap styling when no
+  MapTiler API key is configured
 - Configure data layers with basic or choropleth (color-by-value)
   rendering
 - Perform spatial queries (intersects, contains, within, distance-based)
-  via ``gis_locational_query()``
+  via ``gis_locational_query()``, including complex geometries
+  (``MultiPolygon``, ``GeometryCollection``) with distance buffering
+- Save geographic areas of interest as geofences, classify them with
+  tags, and export them as GeoJSON features
 - Import area boundaries from GeoJSON/shapefiles via area import wizard
 - Manage color schemes for thematic mapping with sequential, diverging,
   or qualitative palettes
@@ -52,6 +56,11 @@ Key Models
 +===============================+======================================+
 | ``spp.gis.raster.layer``      | Background map layers (OSM, WMS,     |
 |                               | image)                               |
++-------------------------------+--------------------------------------+
+| ``spp.gis.geofence``          | Saved geographic areas of interest   |
+|                               | (GeoJSON in/out)                     |
++-------------------------------+--------------------------------------+
+| ``spp.gis.geofence.tag``      | Tags for classifying geofences       |
 +-------------------------------+--------------------------------------+
 | ``spp.gis.data.layer``        | Vector data layers referencing geo   |
 |                               | fields from any model                |
