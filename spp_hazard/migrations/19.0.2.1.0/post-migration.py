@@ -19,8 +19,6 @@ kept as a safety net. Fresh installs have no legacy columns and skip cleanly.
 
 import logging
 
-from psycopg2 import sql
-
 # Fixed name: this file is loaded by Odoo's migration runner (and by tests via
 # importlib), where __name__ differs; a stable logger keeps output filterable.
 _logger = logging.getLogger("odoo.addons.spp_hazard.migrations.severity")
@@ -35,10 +33,58 @@ LEGACY_SEVERITY_TO_CAP = {
     "5": "extreme",
 }
 
-# (table, legacy column, new column)
+# Literal, fully parameterized SQL per target table (no identifier
+# composition, so SQL scanners can verify there is no injection surface).
+_BACKFILL_INCIDENT = """
+    UPDATE spp_hazard_incident t
+    SET severity_id = c.id
+    FROM spp_vocabulary_code c
+    JOIN spp_vocabulary v ON c.vocabulary_id = v.id
+    WHERE v.namespace_uri = %s
+      AND c.code = CASE t.severity
+            WHEN %s THEN %s WHEN %s THEN %s WHEN %s THEN %s
+            WHEN %s THEN %s WHEN %s THEN %s END
+      AND t.severity IS NOT NULL
+      AND t.severity_id IS NULL
+"""
+
+_UNMAPPED_INCIDENT = """
+    SELECT DISTINCT t.severity
+    FROM spp_hazard_incident t
+    WHERE t.severity IS NOT NULL
+      AND t.severity_id IS NULL
+"""
+
+_BACKFILL_AREA = """
+    UPDATE spp_hazard_incident_area t
+    SET severity_override_id = c.id
+    FROM spp_vocabulary_code c
+    JOIN spp_vocabulary v ON c.vocabulary_id = v.id
+    WHERE v.namespace_uri = %s
+      AND c.code = CASE t.severity_override
+            WHEN %s THEN %s WHEN %s THEN %s WHEN %s THEN %s
+            WHEN %s THEN %s WHEN %s THEN %s END
+      AND t.severity_override IS NOT NULL
+      AND t.severity_override_id IS NULL
+"""
+
+_UNMAPPED_AREA = """
+    SELECT DISTINCT t.severity_override
+    FROM spp_hazard_incident_area t
+    WHERE t.severity_override IS NOT NULL
+      AND t.severity_override_id IS NULL
+"""
+
+# (table, legacy column, new column, backfill query, unmapped query)
 TARGETS = [
-    ("spp_hazard_incident", "severity", "severity_id"),
-    ("spp_hazard_incident_area", "severity_override", "severity_override_id"),
+    ("spp_hazard_incident", "severity", "severity_id", _BACKFILL_INCIDENT, _UNMAPPED_INCIDENT),
+    (
+        "spp_hazard_incident_area",
+        "severity_override",
+        "severity_override_id",
+        _BACKFILL_AREA,
+        _UNMAPPED_AREA,
+    ),
 ]
 
 
@@ -55,33 +101,13 @@ def _column_exists(cr, table, column):
 
 
 def migrate(cr, version):
-    for table, legacy_col, new_col in TARGETS:
+    case_params = [p for pair in LEGACY_SEVERITY_TO_CAP.items() for p in pair]
+    for table, legacy_col, new_col, backfill_query, unmapped_query in TARGETS:
         if not _column_exists(cr, table, legacy_col):
             _logger.info("spp_hazard severity migration: %s.%s absent, skipping", table, legacy_col)
             continue
 
-        ids = {
-            "table": sql.Identifier(table),
-            "legacy": sql.Identifier(legacy_col),
-            "new": sql.Identifier(new_col),
-        }
-        case_parts = sql.SQL(" ").join(sql.SQL("WHEN %s THEN %s") for _ in LEGACY_SEVERITY_TO_CAP)
-        case_params = [p for pair in LEGACY_SEVERITY_TO_CAP.items() for p in pair]
-        cr.execute(
-            sql.SQL(
-                """
-                UPDATE {table} t
-                SET {new} = c.id
-                FROM spp_vocabulary_code c
-                JOIN spp_vocabulary v ON c.vocabulary_id = v.id
-                WHERE v.namespace_uri = %s
-                  AND c.code = CASE t.{legacy} {case_parts} END
-                  AND t.{legacy} IS NOT NULL
-                  AND t.{new} IS NULL
-                """
-            ).format(case_parts=case_parts, **ids),
-            [CAP_SEVERITY_NS, *case_params],
-        )
+        cr.execute(backfill_query, [CAP_SEVERITY_NS, *case_params])
         _logger.info(
             "spp_hazard severity migration: backfilled %s rows in %s.%s",
             cr.rowcount,
@@ -89,18 +115,7 @@ def migrate(cr, version):
             new_col,
         )
 
-        # Safe: identifiers come from the TARGETS constant and are composed
-        # with psycopg2.sql.Identifier; no external input reaches the query.
-        cr.execute(  # pylint: disable=sql-injection
-            sql.SQL(
-                """
-                SELECT DISTINCT t.{legacy}
-                FROM {table} t
-                WHERE t.{legacy} IS NOT NULL
-                  AND t.{new} IS NULL
-                """
-            ).format(**ids)
-        )
+        cr.execute(unmapped_query)
         unmapped = [row[0] for row in cr.fetchall()]
         if unmapped:
             _logger.warning(
