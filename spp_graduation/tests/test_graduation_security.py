@@ -278,6 +278,16 @@ class TestGraduationSecurity(TransactionCase):
         assessment.write({"recommendation": "graduate", "recommendation_notes": "ready"})
         self.assertEqual(assessment.recommendation, "graduate")
 
+    def test_user_cannot_modify_submitted_assessment_content(self):
+        """A user must not change assessment content once it is submitted — else
+        they could flip the recommendation the manager is about to approve."""
+        assessment = self._submitted_assessment_owned_by_user()
+        with self.assertRaises(AccessError):
+            assessment.write({"recommendation": "extend"})
+        with self.assertRaises(AccessError):
+            assessment.write({"recommendation_notes": "changed after submit"})
+        self.assertEqual(assessment.recommendation, "graduate")
+
     def test_user_cannot_unsubmit_own_assessment(self):
         """A user may only move draft -> submitted; un-submitting is manager-only."""
         assessment = self._submitted_assessment_owned_by_user()

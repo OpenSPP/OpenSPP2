@@ -140,6 +140,19 @@ class GraduationAssessment(models.Model):
     # outcome and must never be writable by the assessor via RPC.
     _MANAGER_ONLY_FIELDS = ("approved_by_id", "approved_date", "graduation_date")
 
+    # Assessor-editable content. Once the assessment leaves draft it is awaiting
+    # the manager's decision, so a non-manager must not change what will be
+    # approved (e.g. flip recommendation to "graduate" after submitting). Only
+    # these business fields are frozen — technical/chatter writes are unaffected.
+    _LOCKED_CONTENT_FIELDS = (
+        "partner_id",
+        "pathway_id",
+        "assessment_date",
+        "recommendation",
+        "recommendation_notes",
+        "response_ids",
+    )
+
     def _is_graduation_manager(self):
         """True for graduation managers and for superuser/sudo (system) contexts.
 
@@ -213,6 +226,18 @@ class GraduationAssessment(models.Model):
                 raise AccessError(
                     _("Only graduation managers can set assessment approval fields: %s.") % ", ".join(forbidden)
                 )
+            # Content is frozen once the assessment leaves draft: the manager must
+            # approve exactly what was submitted (e.g. no flipping recommendation
+            # to "graduate" after submission). A manager can reset it to draft.
+            if any(f in vals for f in self._LOCKED_CONTENT_FIELDS):
+                for rec in self:
+                    if rec.state != "draft":
+                        raise AccessError(
+                            _(
+                                "A graduation assessment can only be edited while it is in draft. "
+                                "Ask a manager to reset it to draft to make changes."
+                            )
+                        )
             if "state" in vals:
                 new_state = vals["state"]
                 for rec in self:
