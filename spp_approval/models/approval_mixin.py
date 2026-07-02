@@ -128,6 +128,13 @@ class ApprovalMixin(models.AbstractModel):
     can_reject = fields.Boolean(
         compute="_compute_approval_permissions",
     )
+    # Reset-to-draft is intentionally open to any record editor (state-gated
+    # only, no approver-group restriction) — see action_reset_to_draft. This
+    # field is the authoritative view gate so buttons never rely on a hardcoded
+    # security group that could diverge from the workflow (OP#1066).
+    can_reset = fields.Boolean(
+        compute="_compute_approval_permissions",
+    )
 
     # Optimistic locking
     approval_version = fields.Integer(default=1, copy=False)
@@ -190,6 +197,9 @@ class ApprovalMixin(models.AbstractModel):
         """Compute whether current user can submit/approve/reject."""
         for record in self:
             record.can_submit = record.approval_state == "draft"
+            # Reset-to-draft mirrors action_reset_to_draft's state guard and is
+            # intentionally open to record editors (no approver-group check).
+            record.can_reset = record.approval_state in ("rejected", "revision")
             record.can_approve = False
             record.can_reject = False
             _logger.warning(
@@ -488,7 +498,13 @@ class ApprovalMixin(models.AbstractModel):
         self._notify_approval_result("rejected", reason)
 
     def action_reset_to_draft(self):
-        """Reset rejected or revision-requested record to draft."""
+        """Reset rejected or revision-requested record to draft.
+
+        Intentionally open to any record editor (state-gated only, no
+        approver-group check): resetting a rejected/revision record so it can be
+        corrected and resubmitted is the submitter's action, not the approver's.
+        The `can_reset` field mirrors this guard for view gating (OP#1066).
+        """
         for record in self:
             if record.approval_state not in ("rejected", "revision"):
                 raise UserError(_("Only rejected or revision-requested records can be reset to draft."))
@@ -559,7 +575,13 @@ class ApprovalMixin(models.AbstractModel):
 
     # === Validation Methods ===
     def _check_can_submit(self):
-        """Check if current user can submit."""
+        """Check if current user can submit.
+
+        Intentionally open to any record editor (state-gated only, no
+        approver-group check): submitting one's own record for approval is the
+        submitter's action. The `can_submit` field mirrors this for view gating
+        (OP#1066).
+        """
         self.ensure_one()
         if self.approval_state != "draft":
             raise UserError(_("Only draft records can be submitted for approval."))
