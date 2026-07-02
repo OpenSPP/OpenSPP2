@@ -198,8 +198,8 @@ class GeofenceMembershipManager(models.Model):
     def _import_registrants_async(self, new_beneficiaries, state="draft"):
         self.ensure_one()
         program = self.program_id
-        program.message_post(body=f"Import of {len(new_beneficiaries)} beneficiaries started.")
-        program.write({"is_locked": True, "locked_reason": "Importing beneficiaries"})
+        program.message_post(body=_("Import of %s beneficiaries started.") % len(new_beneficiaries))
+        program.write({"is_locked": True, "locked_reason": _("Importing beneficiaries")})
 
         jobs = []
         for i in range(0, len(new_beneficiaries), self.IMPORT_CHUNK_SIZE):
@@ -240,13 +240,13 @@ class GeofenceMembershipManager(models.Model):
         except Exception:
             _logger.exception("Geofence eligibility preview failed for manager %s", self.id)
             self.preview_count = 0
-            self.preview_error = "Preview failed. Check the server logs for details."
+            self.preview_error = _("Preview failed. Check the server logs for details.")
         return {
             "type": "ir.actions.client",
             "tag": "display_notification",
             "params": {
-                "title": "Preview Complete",
-                "message": f"{self.preview_count} registrants match the current geofences.",
+                "title": _("Preview Complete"),
+                "message": _("%s registrants match the current geofences.") % self.preview_count,
                 "sticky": False,
                 "type": "success" if not self.preview_error else "warning",
             },
