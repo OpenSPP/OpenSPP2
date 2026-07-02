@@ -77,38 +77,3 @@ class SppAssistiveDevice(models.Model):
             "view_mode": "form",
             "target": "current",
         }
-
-
-class SppDisabilityAssessmentDeviceRequest(models.Model):
-    """Assistive-device request captured on an assessment's Support Needs tab.
-
-    Status is always "Needed" (read-only). On assessment approval each row
-    creates a real ``spp.assistive.device`` (status "needed") on the registrant,
-    so it surfaces on the Overview / registrant (OP#1068).
-    """
-
-    _name = "spp.disability.assessment.device.request"
-    _description = "Assessment Assistive Device Request"
-
-    assessment_id = fields.Many2one(
-        "spp.disability.assessment",
-        string="Assessment",
-        required=True,
-        index=True,
-        ondelete="cascade",
-    )
-    device_type_id = fields.Many2one(
-        "spp.vocabulary.code",
-        string="Device Type",
-        required=True,
-        domain="[('vocabulary_id.namespace_uri', '=', 'urn:dci:cd:dr:04')]",
-    )
-    # Always "Needed" — these are requests; the registrant's device record is
-    # what later moves to requested/provided.
-    status = fields.Selection(
-        [("needed", "Needed")],
-        string="Status",
-        default="needed",
-        readonly=True,
-    )
-    notes = fields.Text(string="Notes")

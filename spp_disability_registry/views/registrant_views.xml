@@ -20,7 +20,6 @@
                             name="disability_severity_id"
                             class="o_stat_text"
                             invisible="not has_disability"
-                            options="{'no_open': True}"
                         />
                         <span
                             class="o_stat_text"
@@ -52,7 +51,7 @@
                     type="object"
                     class="oe_stat_button"
                     icon="fa-medkit"
-                    invisible="not is_registrant or is_group"
+                    invisible="not is_registrant or is_group or assistive_device_count == 0"
                 >
                     <field
                         name="assistive_device_count"
@@ -90,50 +89,26 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="fw-bold">Disability Status</div>
-                                        <!-- Severity comes from impairment classification; a
-                                             questionnaire-only disability has none, so fall back
-                                             to a plain "Identified" badge instead of a blank. -->
                                         <field
                                             name="disability_severity_id"
                                             widget="badge"
-                                            invisible="not disability_severity_id"
                                             decoration-info="disability_severity_id.code == 'mild'"
                                             decoration-warning="disability_severity_id.code == 'moderate'"
                                             decoration-danger="disability_severity_id.code in ('severe', 'profound')"
                                         />
-                                        <span
-                                            class="badge text-bg-primary"
-                                            invisible="disability_severity_id"
-                                        >Disability identified</span>
-                                        <div
-                                            class="small text-muted"
-                                            invisible="disability_severity_id"
-                                        >Severity not classified</div>
                                     </div>
                                     <div class="col-md-3">
                                         <div
                                             class="small text-muted"
                                         >Review Category</div>
-                                        <field
-                                            name="disability_review_category"
-                                            invisible="not disability_review_category"
-                                        />
-                                        <span
-                                            class="text-muted"
-                                            invisible="disability_review_category"
-                                        >—</span>
+                                        <field name="disability_review_category" />
                                     </div>
                                     <div class="col-md-3">
                                         <div class="small text-muted">Next Review</div>
                                         <field
                                             name="disability_next_review"
-                                            invisible="not disability_next_review"
                                             decoration-danger="disability_next_review and disability_next_review &lt; context_today()"
                                         />
-                                        <span
-                                            class="text-muted"
-                                            invisible="disability_next_review"
-                                        >Not scheduled</span>
                                     </div>
                                 </div>
                             </div>
@@ -167,23 +142,15 @@
                             aria-hidden="true"
                         />
                         <h5>No Disability Status Recorded</h5>
-                        <p
-                        >No approved assessment currently identifies a disability for this person.</p>
+                        <p>No approved disability assessment exists for this person.</p>
                         <button
                             name="action_create_disability_assessment"
                             type="object"
                             class="btn btn-primary mt-2"
-                            invisible="not can_create_disability_assessment"
                             groups="spp_disability_registry.group_disability_assessor"
                         >
                             <i class="fa fa-plus me-1" /> Create Assessment
                         </button>
-                        <div
-                            class="text-warning mt-2"
-                            invisible="can_create_disability_assessment"
-                        >
-                            <field name="disability_no_create_reason" nolabel="1" />
-                        </div>
                     </div>
 
                     <!-- Assessment History -->
@@ -196,7 +163,6 @@
                                 name="action_create_disability_assessment"
                                 type="object"
                                 class="btn btn-sm btn-primary"
-                                invisible="not can_create_disability_assessment"
                                 groups="spp_disability_registry.group_disability_assessor"
                             >
                                 <i class="fa fa-plus me-1" /> New Assessment
@@ -223,13 +189,10 @@
                                 <field name="assessment_date" />
                                 <field name="assessment_type" />
                                 <field
-                                    name="has_disability"
-                                    string="Disability according to WG/CFM"
+                                    name="impairment_type_ids"
+                                    widget="many2many_tags"
                                 />
-                                <field
-                                    name="impairment_severity_display"
-                                    string="Impairments"
-                                />
+                                <field name="severity_level_id" widget="badge" />
                                 <field
                                     name="approval_state"
                                     widget="badge"
@@ -243,8 +206,8 @@
                         </field>
                     </div>
 
-                    <!-- Assistive Devices Section (no disability prerequisite — OP#1052) -->
-                    <div class="mt-4">
+                    <!-- Assistive Devices Section -->
+                    <div class="mt-4" invisible="not has_disability">
                         <separator string="Assistive Devices" />
                         <div invisible="assistive_device_count == 0" class="mb-3">
                             <span
@@ -260,25 +223,21 @@
                             nolabel="1"
                             widget="x2many_no_padding"
                         >
-                            <list
-                                editable="bottom"
-                                decoration-info="status == 'needed'"
-                                decoration-warning="status == 'requested'"
-                                decoration-success="status == 'provided'"
-                            >
+                            <list editable="bottom">
                                 <field
                                     name="device_type_id"
                                     options="{'no_create': True}"
                                 />
-                                <field name="status" />
+                                <field
+                                    name="status"
+                                    widget="badge"
+                                    decoration-info="status == 'needed'"
+                                    decoration-warning="status == 'requested'"
+                                    decoration-success="status == 'provided'"
+                                />
                                 <field
                                     name="provision_date"
                                     invisible="status != 'provided'"
-                                />
-                                <field
-                                    name="provider"
-                                    invisible="status != 'provided'"
-                                    optional="hide"
                                 />
                                 <field name="notes" optional="hide" />
                             </list>
@@ -289,7 +248,6 @@
                     <field name="has_disability" invisible="1" />
                     <field name="has_unmet_device_need" invisible="1" />
                     <field name="current_disability_assessment_id" invisible="1" />
-                    <field name="can_create_disability_assessment" invisible="1" />
                 </page>
             </xpath>
         </field>
