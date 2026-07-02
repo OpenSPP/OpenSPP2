@@ -434,7 +434,13 @@ class SeededFarmGenerator:
 
         for bp in blueprints:
             for i in range(bp["count"]):
-                farm_name = self._generate_farm_name(bp.get("farm_type"), bp.get("head_gender"))
+                # OP#1114: name the farm after its head member and remember the
+                # head's given + family name so Phase 3 can (a) make the head an
+                # actual member of the group and (b) give every other member the
+                # same family name (the household is a family of the head).
+                farm_name, head_given, family_name = self._generate_household_identity(
+                    bp.get("farm_type"), bp.get("head_gender")
+                )
                 size = round(self.rng.uniform(*bp["size_range"]), 1)
                 experience = self.rng.randint(*bp["experience_range"])
                 area_id, gps = self._pick_area_and_gps(bp["zone"], area_id_by_code)
@@ -508,7 +514,9 @@ class SeededFarmGenerator:
                 gvals["phone"] = group_phone
 
                 group_vals_list.append(gvals)
-                member_specs.append((bp, i, size, gps, group_phone, group_bank_name, group_acc_no))
+                member_specs.append(
+                    (bp, i, size, gps, group_phone, group_bank_name, group_acc_no, head_given, family_name)
+                )
 
         # Phase 2: Batch-create farm groups (farm details auto-created via _inherits)
         # Area is already set in vals (Phase 1) so the GPS pin sits inside
@@ -526,8 +534,13 @@ class SeededFarmGenerator:
         # of role distribution.
         member_contact = []
 
-        for group_idx, (bp, _instance_idx, _size, _gps, _gphone, _gbank, _gacc) in enumerate(member_specs):
+        for group_idx, (bp, _instance_idx, _size, _gps, _gphone, _gbank, _gacc, head_given, family_name) in enumerate(
+            member_specs
+        ):
             group_record = groups[group_idx]
+            # Given names already used in this household — seeded with the head's
+            # so other members don't accidentally reuse it (OP#1114).
+            used_given = {head_given}
             for member_spec in bp["members"]:
                 gender = self._resolve_gender(member_spec.get("gender", "any"))
                 # Draw age and turn it into a deterministic birthdate.
@@ -539,7 +552,13 @@ class SeededFarmGenerator:
                 today = datetime.date.today()
                 birthdate = datetime.date(today.year - age, birth_month, birth_day)
 
-                given_name, family_name = self._generate_member_name(gender)
+                # The head is the person the farm is named after; other members
+                # get a distinct given name but share the head's family name.
+                if member_spec["role"] == "head":
+                    given_name = head_given
+                else:
+                    given_name = self._pick_given_name(gender, used_given)
+                used_given.add(given_name)
 
                 gender_id = self._get_gender_id(gender)
 
@@ -599,7 +618,7 @@ class SeededFarmGenerator:
         # Build result list
         results = []
         ind_offset = 0
-        for group_idx, (bp, _instance_idx, size, gps, _gphone, _gbank, _gacc) in enumerate(member_specs):
+        for group_idx, (bp, _instance_idx, size, gps, _gphone, _gbank, _gacc, _hg, _fam) in enumerate(member_specs):
             group_record = groups[group_idx]
             member_count = len(bp["members"])
             farm_members = list(individuals[ind_offset : ind_offset + member_count])
@@ -700,7 +719,7 @@ class SeededFarmGenerator:
 
         # ---- Phase: phone numbers ----
         phone_vals = []
-        for group, (_bp, _i, _s, _g, gphone, _gb, _ga) in zip(groups, member_specs, strict=False):
+        for group, (_bp, _i, _s, _g, gphone, _gb, _ga, _hg, _fam) in zip(groups, member_specs, strict=False):
             if gphone:
                 phone_vals.append({"partner_id": group.id, "phone_no": gphone})
 
@@ -714,7 +733,7 @@ class SeededFarmGenerator:
         # ---- Phase: bank accounts ----
         bank_vals = []
         # One bank account per farm group.
-        for group, (_bp, _i, _s, _g, _gphone, gbank, gacc) in zip(groups, member_specs, strict=False):
+        for group, (_bp, _i, _s, _g, _gphone, gbank, gacc, _hg, _fam) in zip(groups, member_specs, strict=False):
             if gbank and gacc:
                 bank_vals.append(
                     {
@@ -816,7 +835,7 @@ class SeededFarmGenerator:
         sp_records = self.env["spp.service.point"].sudo().search([])  # nosemgrep
         sp_by_name = {sp.name: sp.id for sp in sp_records}
         if sp_by_name:
-            for group, (bp, _i, _s, _g, _gphone, _gb, _ga) in zip(groups, member_specs, strict=False):
+            for group, (bp, _i, _s, _g, _gphone, _gb, _ga, _hg, _fam) in zip(groups, member_specs, strict=False):
                 pool = sorted(_FARM_TYPE_SPECIALISED_POINTS.get(bp.get("farm_type"), []))
                 if pool:
                     digest = zlib.crc32((group.name or "").encode("utf-8"))
@@ -837,15 +856,18 @@ class SeededFarmGenerator:
     # Internal: Farm name generation
     # =========================================================================
 
-    def _generate_farm_name(self, farm_type=None, head_gender=None):
-        """Generate a unique, realistic owner-style farm name (OP#1114).
+    def _generate_household_identity(self, farm_type=None, head_gender=None):
+        """Generate a unique farm name tied to its head member (OP#1114).
 
-        Names read like "Maria Santos Farm" or "Amir Mangudadatu Fishpond":
-        a generated owner (given + family name) plus a farm-type descriptor.
-        The 86-surname pool alone is far smaller than the ~730 farms, so the
-        given name widens the space; any residual collision is resolved by
-        rotating the realistic descriptor pool (then re-rolling the owner) —
-        never a bare numeric suffix.
+        Returns ``(farm_name, head_given, family_name)``. The farm is named after
+        its head — "{head_given} {family_name} {descriptor}", e.g. "Maria Santos
+        Farm" — and ``family_name`` is the surname shared by every member of the
+        household, so the group reads as a family of the head. The named owner is
+        therefore an actual member (the head), not an unrelated invented name.
+
+        Uniqueness of the farm name is preserved by rotating the realistic
+        descriptor pool and then re-rolling the owner — never a bare numeric
+        suffix.
         """
         descriptors = _FARM_NAME_DESCRIPTORS.get(farm_type, _DEFAULT_FARM_DESCRIPTORS)
         if head_gender == "female":
@@ -859,11 +881,14 @@ class SeededFarmGenerator:
         family = self.rng.choice(_FILIPINO_LAST_NAMES)
         for _ in range(30):
             owner = f"{given} {family}"
-            for descriptor in descriptors:
-                name = f"{owner} {descriptor}"
-                if name not in self._reserved_names and name not in self._used_names:
-                    self._used_names.add(name)
-                    return name
+            # Skip owners reserved as story personas — the owner is now a real
+            # member, so it must not clash with a hand-authored persona name.
+            if owner not in self._reserved_names:
+                for descriptor in descriptors:
+                    name = f"{owner} {descriptor}"
+                    if name not in self._reserved_names and name not in self._used_names:
+                        self._used_names.add(name)
+                        return name, given, family
             # Whole descriptor pool taken for this owner — re-roll the owner.
             given = self.rng.choice(given_pool)
             family = self.rng.choice(_FILIPINO_LAST_NAMES)
@@ -877,21 +902,22 @@ class SeededFarmGenerator:
             name = f"{base} {suffix}"
             suffix += 1
         self._used_names.add(name)
-        return name
+        return name, given, family
 
-    def _generate_member_name(self, gender):
-        """Generate a (given_name, family_name) tuple from Filipino name pools."""
-        max_attempts = 20
-        for _ in range(max_attempts):
-            if gender == "male":
-                given = self.rng.choice(_FILIPINO_MALE_FIRST_NAMES)
-            else:
-                given = self.rng.choice(_FILIPINO_FEMALE_FIRST_NAMES)
-            family = self.rng.choice(_FILIPINO_LAST_NAMES)
-            full_name = f"{given} {family}"
-            if full_name not in self._reserved_names:
-                return given, family
-        return given, family
+    def _generate_farm_name(self, farm_type=None, head_gender=None):
+        """Backwards-compatible wrapper returning just the farm name."""
+        return self._generate_household_identity(farm_type, head_gender)[0]
+
+    def _pick_given_name(self, gender, exclude=()):
+        """Pick a deterministic given name from the gender-appropriate pool,
+        avoiding names already used in the same household where possible."""
+        pool = _FILIPINO_MALE_FIRST_NAMES if gender == "male" else _FILIPINO_FEMALE_FIRST_NAMES
+        given = self.rng.choice(pool)
+        for _ in range(20):
+            if given not in exclude:
+                return given
+            given = self.rng.choice(pool)
+        return given
 
     def _resolve_gender(self, gender_spec):
         """Resolve 'any' gender to 'male' or 'female' deterministically."""
