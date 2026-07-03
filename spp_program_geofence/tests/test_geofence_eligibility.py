@@ -442,6 +442,183 @@ class TestGeofenceEligibility(TransactionCase):
         # Restore
         self.program.geofence_ids = [Command.set([self.geofence.id])]
 
+    # --- Combined geometry edge cases ---
+
+    def test_combined_geometry_no_geofences(self):
+        """_get_combined_geometry returns None when the program has no geofences."""
+        program = self.env["spp.program"].create(
+            {
+                "name": "No Geofence Program",
+                "target_type": "individual",
+            }
+        )
+        manager = self.env["spp.program.membership.manager.geofence"].create(
+            {
+                "name": "No Geofence Manager",
+                "program_id": program.id,
+            }
+        )
+        self.assertIsNone(manager._get_combined_geometry())
+
+    def test_combined_geometry_shapely_unavailable(self):
+        """Without shapely, _get_combined_geometry warns and eligibility is empty."""
+        logger_name = "odoo.addons.spp_program_geofence.models.eligibility_manager"
+        with patch(f"{logger_name}.unary_union", None):
+            with self.assertLogs(logger_name, level="WARNING") as log_capture:
+                self.assertIsNone(self.manager._get_combined_geometry())
+                eligible = self.manager._find_eligible_registrants()
+        self.assertEqual(len(eligible), 0)
+        self.assertTrue(any("shapely is not available" in msg for msg in log_capture.output))
+
+    def test_combined_geometry_no_shapes(self):
+        """Geofences whose stored geometry is NULL yield no combined geometry."""
+        geofence = self.env["spp.gis.geofence"].create(
+            {
+                "name": "Null Geometry Geofence",
+                "geometry": self.geofence_geojson,
+                "geofence_type": "custom",
+            }
+        )
+        program = self.env["spp.program"].create(
+            {
+                "name": "Null Geometry Program",
+                "target_type": "individual",
+                "geofence_ids": [Command.set([geofence.id])],
+            }
+        )
+        manager = self.env["spp.program.membership.manager.geofence"].create(
+            {
+                "name": "Null Geometry Manager",
+                "program_id": program.id,
+            }
+        )
+        # Simulate a legacy/corrupt row: store an empty geometry directly in SQL
+        # (the ORM constraint prevents writing an empty geometry, and the
+        # column is NOT NULL).
+        self.env.cr.execute(
+            "UPDATE spp_gis_geofence SET geometry = ST_GeomFromText('POLYGON EMPTY', 4326) WHERE id = %s",
+            (geofence.id,),
+        )
+        self.env.invalidate_all()
+        self.assertIsNone(manager._get_combined_geometry())
+        eligible = manager._find_eligible_registrants()
+        self.assertEqual(len(eligible), 0)
+
+    # --- Cycle eligibility ---
+
+    def test_verify_cycle_eligibility(self):
+        """verify_cycle_eligibility keeps cycle memberships of eligible partners only."""
+        membership_inside = self.env["spp.program.membership"].create(
+            {
+                "partner_id": self.reg_inside.id,
+                "program_id": self.program.id,
+                "state": "enrolled",
+            }
+        )
+        membership_outside = self.env["spp.program.membership"].create(
+            {
+                "partner_id": self.reg_outside.id,
+                "program_id": self.program.id,
+                "state": "enrolled",
+            }
+        )
+        today = fields.Date.today()
+        cycle = self.env["spp.cycle"].create(
+            {
+                "name": "Geofence Test Cycle",
+                "program_id": self.program.id,
+                "start_date": today,
+                "end_date": fields.Date.add(today, days=30),
+                "state": "draft",
+            }
+        )
+        cycle_membership_inside = self.env["spp.cycle.membership"].create(
+            {
+                "cycle_id": cycle.id,
+                "partner_id": self.reg_inside.id,
+                "state": "enrolled",
+            }
+        )
+        cycle_membership_outside = self.env["spp.cycle.membership"].create(
+            {
+                "cycle_id": cycle.id,
+                "partner_id": self.reg_outside.id,
+                "state": "enrolled",
+            }
+        )
+        result = self.manager.verify_cycle_eligibility(cycle, membership_inside | membership_outside)
+        self.assertIn(cycle_membership_inside, result)
+        self.assertNotIn(cycle_membership_outside, result)
+
+    # --- Async import path ---
+
+    def test_import_over_threshold_runs_async(self):
+        """Above the async threshold, import queues jobs and finishes the import."""
+        program = self.env["spp.program"].create(
+            {
+                "name": "Async Import Program",
+                "target_type": "individual",
+                "geofence_ids": [Command.set([self.geofence.id])],
+            }
+        )
+        manager = self.env["spp.program.membership.manager.geofence"].create(
+            {
+                "name": "Async Import Manager",
+                "program_id": program.id,
+            }
+        )
+        # Lower the threshold so the small eligible population takes the async
+        # path; queue_job__no_delay in the test context runs the jobs inline.
+        with patch.object(type(manager), "ASYNC_IMPORT_THRESHOLD", 1):
+            count = manager.import_eligible_registrants()
+        self.assertGreater(count, 1)
+        enrolled_partners = program.program_membership_ids.mapped("partner_id")
+        self.assertIn(self.reg_inside, enrolled_partners)
+        self.assertNotIn(self.reg_outside, enrolled_partners)
+        self.assertEqual(len(program.program_membership_ids), count)
+        # mark_import_as_done ran and unlocked the program
+        self.assertFalse(program.is_locked)
+        self.assertFalse(program.locked_reason)
+        messages = program.message_ids.mapped("body")
+        self.assertTrue(any("Import finished" in body for body in messages))
+
+    def test_mark_import_as_done_unlocks_program(self):
+        """mark_import_as_done unlocks the program and posts a message."""
+        self.program.write({"is_locked": True, "locked_reason": "Importing beneficiaries"})
+        self.manager.mark_import_as_done()
+        self.assertFalse(self.program.is_locked)
+        self.assertFalse(self.program.locked_reason)
+        messages = self.program.message_ids.mapped("body")
+        self.assertTrue(any("Import finished" in body for body in messages))
+
+    # --- Preview action ---
+
+    def test_action_preview_eligible_success(self):
+        """action_preview_eligible stores the count and returns a success notification."""
+        result = self.manager.action_preview_eligible()
+        expected_count = len(self.manager._find_eligible_registrants())
+        self.assertEqual(self.manager.preview_count, expected_count)
+        self.assertFalse(self.manager.preview_error)
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertEqual(result["tag"], "display_notification")
+        self.assertEqual(result["params"]["type"], "success")
+        self.assertIn(str(expected_count), result["params"]["message"])
+
+    def test_action_preview_eligible_error(self):
+        """On failure, action_preview_eligible sets preview_error and warns."""
+        logger_name = "odoo.addons.spp_program_geofence.models.eligibility_manager"
+        with patch.object(
+            type(self.manager),
+            "_find_eligible_registrants",
+            side_effect=RuntimeError("boom"),
+        ):
+            with self.assertLogs(logger_name, level="ERROR") as log_capture:
+                result = self.manager.action_preview_eligible()
+        self.assertEqual(self.manager.preview_count, 0)
+        self.assertTrue(self.manager.preview_error)
+        self.assertEqual(result["params"]["type"], "warning")
+        self.assertTrue(any("preview failed" in msg.lower() for msg in log_capture.output))
+
     # --- Program geofence field ---
 
     def test_program_geofence_count(self):
@@ -451,6 +628,13 @@ class TestGeofenceEligibility(TransactionCase):
         self.assertEqual(self.program.geofence_count, 2)
         # Restore
         self.program.geofence_ids = [Command.set([self.geofence.id])]
+
+    def test_program_action_open_geofences(self):
+        """action_open_geofences returns an act_window scoped to the program's geofences."""
+        action = self.program.action_open_geofences()
+        self.assertEqual(action["type"], "ir.actions.act_window")
+        self.assertEqual(action["res_model"], "spp.gis.geofence")
+        self.assertEqual(action["domain"], [("id", "in", self.program.geofence_ids.ids)])
 
 
 @tagged("post_install", "-at_install")
