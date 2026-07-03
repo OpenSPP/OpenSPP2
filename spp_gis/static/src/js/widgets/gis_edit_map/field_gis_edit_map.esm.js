@@ -51,11 +51,20 @@ export class FieldGisEditMap extends Component {
                 defaultCenter: default_center,
             });
 
+            this._lastValue = this.props.record.data[this.props.name] || false;
             this.renderMap();
             this.addDrawInteraction();
         });
 
         onPatched(() => {
+            // Re-creating the MapLibre map on every OWL patch loses zoom/pan
+            // state and can exhaust WebGL contexts; only re-render when the
+            // geometry value actually changed.
+            const value = this.props.record.data[this.props.name] || false;
+            if (value === this._lastValue) {
+                return;
+            }
+            this._lastValue = value;
             this.defaultZoom = this.map.getZoom();
             this.renderMap();
             this.addDrawInteraction();

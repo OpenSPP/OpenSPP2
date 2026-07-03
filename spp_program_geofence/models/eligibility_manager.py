@@ -151,9 +151,11 @@ class GeofenceMembershipManager(models.Model):
                 area_domain += [("area_type_id", "=", self.fallback_area_type_id.id)]
             matching_areas = self.env["spp.area"].search(area_domain)
             if matching_areas:
+                # No "id not in tier1.ids" filter: with many tier-1 matches it
+                # generates a heavy NOT IN clause, and the tier1 | tier2 union
+                # below already deduplicates.
                 tier2_domain = base_domain + [
                     ("area_id", "in", matching_areas.ids),
-                    ("id", "not in", tier1.ids),
                 ]
                 tier2 = self.env["res.partner"].search(tier2_domain)
                 return tier1 | tier2
@@ -185,8 +187,7 @@ class GeofenceMembershipManager(models.Model):
         new_beneficiaries = self._find_eligible_registrants()
 
         # Exclude already-enrolled beneficiaries (match base manager's exclusion source)
-        existing_partner_ids = set(self.program_id.get_beneficiaries().mapped("partner_id").ids)
-        new_beneficiaries = new_beneficiaries.filtered(lambda r: r.id not in existing_partner_ids)
+        new_beneficiaries -= self.program_id.get_beneficiaries().mapped("partner_id")
 
         ben_count = len(new_beneficiaries)
         if ben_count < self.ASYNC_IMPORT_THRESHOLD:
@@ -222,9 +223,19 @@ class GeofenceMembershipManager(models.Model):
         self.program_id.message_post(body=_("Import finished."))
 
     def _import_registrants(self, new_beneficiaries, state="draft", do_count=False):
+        program = self.program_id
+        # This runs from the job queue: the program may have been archived or
+        # deleted between enqueue and execution (a Many2one still dereferences
+        # an archived record as truthy).
+        if not program.exists() or not program.active:
+            _logger.warning(
+                "spp_program_geofence: program for manager %s is missing or archived; skipping import",
+                self.id,
+            )
+            return
         _logger.info("spp_program_geofence: Importing %s beneficiaries", len(new_beneficiaries))
         self.env["spp.program.membership"].create(
-            [{"program_id": self.program_id.id, "partner_id": b.id, "state": state} for b in new_beneficiaries]
+            [{"program_id": program.id, "partner_id": pid, "state": state} for pid in new_beneficiaries.ids]
         )
 
         if do_count:

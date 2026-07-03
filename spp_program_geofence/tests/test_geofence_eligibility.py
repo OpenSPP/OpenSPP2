@@ -786,3 +786,15 @@ class TestGeofenceAsyncChannelRouting(TransactionCase):
             channels,
             f"Expected 'statistics_refresh' channel for on_done job, got: {channels}",
         )
+
+    def test_import_skips_archived_program(self):
+        """The queued import must not create memberships for an archived program."""
+        registrant = self.env["res.partner"].create({"name": "Archived Prog Registrant", "is_registrant": True})
+        Membership = self.env["spp.program.membership"]
+        before = Membership.with_context(active_test=False).search_count([("program_id", "=", self.program.id)])
+        self.program.active = False
+        with self.assertLogs("odoo.addons.spp_program_geofence.models.eligibility_manager", level="WARNING"):
+            self.manager._import_registrants(registrant)
+        self.program.active = True
+        after = Membership.with_context(active_test=False).search_count([("program_id", "=", self.program.id)])
+        self.assertEqual(before, after, "no memberships may be created for an archived program")
