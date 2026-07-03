@@ -30,7 +30,6 @@ discover them from endpoint signatures, so the hook injects them into
 import logging
 from typing import Any
 
-from fastapi.openapi.utils import get_openapi
 from pydantic import BaseModel, Field
 from pydantic.json_schema import models_json_schema
 
@@ -114,15 +113,15 @@ def install_polymorphic_openapi_hook(app: FastAPI) -> None:
     NOT injected, so cross-app pollution is avoided.
     """
 
+    original_openapi = app.openapi
+
     def custom_openapi():
         if app.openapi_schema:
             return app.openapi_schema
-        schema = get_openapi(
-            title=app.title,
-            version=app.version,
-            description=app.description,
-            routes=app.routes,
-        )
+        # Build via the app's own generator so every configured piece of
+        # metadata (contact, license_info, servers, tags, ...) is preserved;
+        # a direct get_openapi() call with a subset of kwargs would drop them.
+        schema = original_openapi()
         components = schema.setdefault("components", {}).setdefault("schemas", {})
 
         all_refs = _collect_refs(schema)
