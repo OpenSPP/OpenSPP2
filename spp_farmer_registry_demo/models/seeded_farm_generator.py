@@ -633,7 +633,8 @@ class SeededFarmGenerator:
         # Build result list
         results = []
         ind_offset = 0
-        for group_idx, (bp, _instance_idx, size, gps, _gphone, _gbank, _gacc, _hg, _fam, _gen) in enumerate(member_specs):
+        for group_idx, member_spec in enumerate(member_specs):
+            bp, _instance_idx, size, gps, _gphone, _gbank, _gacc, _hg, _fam, _gen = member_spec
             group_record = groups[group_idx]
             member_count = len(bp["members"])
             farm_members = list(individuals[ind_offset : ind_offset + member_count])
