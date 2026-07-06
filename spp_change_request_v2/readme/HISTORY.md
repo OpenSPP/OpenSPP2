@@ -1,6 +1,7 @@
 ### 19.0.3.0.0
 
 - feat(change_request): redesign the group/membership CR flows (#242) — Create Group (#876), Add Member now searches an existing member (#871), Remove Member first-page/review cleanup (#872), Change Head of Household via a per-member role table (#873), and Split Household as a relational member move with single-head validation (#877). Review pages render the real data as tables / detail sections.
+- fix(change_request): Split Household "New Household Information" now shows a fillable Address field (was an unrendered `colspan` field) and drops the Latitude/Longitude inputs, matching the group registry fields (#877)
 - **Breaking:** the Add Member detail no longer exposes the create-a-new-individual fields (`created_individual_id`, `given_name`, `family_name`, `birthdate`, `gender_id`, `relationship_id`); downstream modules that extended the old flow must adapt (see #1133).
 
 ### 19.0.2.0.7

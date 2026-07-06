@@ -74,8 +74,6 @@ class SPPCRApplySplitHousehold(models.AbstractModel):
             ("email", detail.new_email),
             ("address", detail.new_address),
             ("area_id", detail.new_area_id.id if detail.new_area_id else False),
-            ("latitude", detail.new_latitude),
-            ("longitude", detail.new_longitude),
         ]:
             if fname in Partner._fields:
                 vals[fname] = value

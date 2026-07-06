@@ -76,8 +76,6 @@ class SPPCRDetailSplitHousehold(models.Model):
     new_area_id = fields.Many2one("spp.area", string="Area", tracking=True)
     new_address = fields.Text(string="Address", tracking=True)
     new_email = fields.Char(string="Email", tracking=True)
-    new_latitude = fields.Float(string="Latitude", digits=(13, 10), tracking=True)
-    new_longitude = fields.Float(string="Longitude", digits=(13, 10), tracking=True)
     new_phone_line_ids = fields.One2many(
         "spp.cr.detail.create_group.phone", "split_household_detail_id", string="Phone Numbers"
     )
