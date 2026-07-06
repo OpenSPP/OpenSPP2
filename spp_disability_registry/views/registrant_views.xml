@@ -7,31 +7,6 @@
         <field name="inherit_id" ref="spp_registry.view_individuals_form" />
         <field name="arch" type="xml">
             <xpath expr="//div[@name='button_box']" position="inside">
-                <!-- Disability Status Smart Button -->
-                <button
-                    name="action_view_disability_assessments"
-                    type="object"
-                    class="oe_stat_button"
-                    icon="fa-wheelchair"
-                    invisible="not is_registrant or is_group"
-                >
-                    <div class="o_stat_info">
-                        <field
-                            name="disability_severity_id"
-                            class="o_stat_text"
-                            invisible="not has_disability"
-                            options="{'no_open': True}"
-                        />
-                        <span
-                            class="o_stat_text"
-                            invisible="not has_disability"
-                        >Disability</span>
-                        <span
-                            class="o_stat_text text-muted"
-                            invisible="has_disability"
-                        >No Disability</span>
-                    </div>
-                </button>
                 <!-- Assessment Count Button -->
                 <button
                     name="action_view_disability_assessments"
