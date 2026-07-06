@@ -128,6 +128,11 @@ Changelog
   and registry IDs stay unique and generation remains
   seed-deterministic, resolving duplicate farm names and duplicate
   Tax/National IDs (#1114)
+- fix(demo): resolve the head's gender once (up front) for blueprints
+  with ``head_gender="any"`` and use it for both the head's name pool
+  and the head member's gender, so a head's name always matches their
+  recorded gender (no more e.g. a male-gendered head named "Maria")
+  (#1114)
 
 19.0.2.1.0
 ~~~~~~~~~~

@@ -185,9 +185,24 @@ class TestSeededFarmGeneratorNames(TransactionCase):
     def test_household_identity_returns_owner_parts(self):
         """The identity's farm name is '{head_given} {family} {descriptor}'."""
         gen = self._make_generator()
-        name, head_given, family = gen._generate_household_identity("crop", "female")
+        name, head_given, family, resolved_gender = gen._generate_household_identity("crop", "female")
         self.assertTrue(name.startswith(f"{head_given} {family} "))
         self.assertNotIn(name, gen._reserved_names)
+        self.assertEqual(resolved_gender, "female")
+
+    def test_household_identity_resolves_any_gender(self):
+        """An 'any' head_gender is resolved to a concrete gender and the given
+        name is drawn from that gender's pool (OP#1114 — no name/gender mismatch)."""
+        from odoo.addons.spp_farmer_registry_demo.models.seeded_farm_generator import (
+            _FILIPINO_FEMALE_FIRST_NAMES,
+            _FILIPINO_MALE_FIRST_NAMES,
+        )
+
+        gen = self._make_generator()
+        _name, head_given, _family, resolved_gender = gen._generate_household_identity("crop", "any")
+        self.assertIn(resolved_gender, ("male", "female"))
+        pool = _FILIPINO_MALE_FIRST_NAMES if resolved_gender == "male" else _FILIPINO_FEMALE_FIRST_NAMES
+        self.assertIn(head_given, pool)
 
     def test_resolve_gender_male(self):
         """Specifying 'male' returns 'male'."""

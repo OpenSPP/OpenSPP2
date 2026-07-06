@@ -495,6 +495,11 @@ the head’s family name so a household reads as one family; farm names
 and registry IDs stay unique and generation remains
 seed-deterministic, resolving duplicate farm names and duplicate
 Tax/National IDs (#1114)</li>
+<li>fix(demo): resolve the head’s gender once (up front) for blueprints
+with <tt class="docutils literal"><span class="pre">head_gender=&quot;any&quot;</span></tt> and use it for both the head’s name pool
+and the head member’s gender, so a head’s name always matches their
+recorded gender (no more e.g. a male-gendered head named “Maria”)
+(#1114)</li>
 </ul>
 </div>
 <div class="section" id="section-2">
