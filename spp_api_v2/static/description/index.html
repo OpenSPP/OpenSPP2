@@ -535,7 +535,7 @@ endpoints</li>
 (<tt class="docutils literal">utils/openapi_polymorphic.py</tt>): <tt class="docutils literal">polymorphic_body()</tt> for
 declaring dict-typed fields that accept one of several Pydantic
 models, plus an app-level OpenAPI hook that injects the corresponding
-<tt class="docutils literal">anyOf</tt> schemas into the generated document</li>
+<tt class="docutils literal">oneOf</tt> schemas into the generated document</li>
 <li>Auth middleware: replace the plain <tt class="docutils literal">HTTPBearer</tt> scheme with an
 OAuth2 client-credentials security scheme so the OpenAPI document
 advertises the token endpoint and consumers (Swagger UI, QGIS, etc.)

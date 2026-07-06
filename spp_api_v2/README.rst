@@ -154,7 +154,7 @@ Changelog
   (``utils/openapi_polymorphic.py``): ``polymorphic_body()`` for
   declaring dict-typed fields that accept one of several Pydantic
   models, plus an app-level OpenAPI hook that injects the corresponding
-  ``anyOf`` schemas into the generated document
+  ``oneOf`` schemas into the generated document
 - Auth middleware: replace the plain ``HTTPBearer`` scheme with an
   OAuth2 client-credentials security scheme so the OpenAPI document
   advertises the token endpoint and consumers (Swagger UI, QGIS, etc.)
