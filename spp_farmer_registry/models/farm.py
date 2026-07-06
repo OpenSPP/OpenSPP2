@@ -149,21 +149,6 @@ class Farm(models.Model):
     )
 
     # ═══════════════════════════════════════════════════════════════════════
-    # MEMBERSHIP COMPLETENESS (#939)
-    # ═══════════════════════════════════════════════════════════════════════
-    # Farm-registry users need to surface farms that aren't usable yet because
-    # nobody is associated with them, or because no member is flagged as the
-    # head of household. Stored so the search filters and list-row decoration
-    # can use them without triggering N+1 reads.
-
-    member_count = fields.Integer(
-        string="# Members",
-        compute="_compute_member_membership_state",
-        store=True,
-        help="Number of non-ended members linked to this farm/group.",
-    )
-
-    # ═══════════════════════════════════════════════════════════════════════
     # COMPUTED METHODS
     # ═══════════════════════════════════════════════════════════════════════
 
@@ -210,15 +195,6 @@ class Farm(models.Model):
         """Sum all livestock activity quantities."""
         for record in self:
             record.total_livestock_heads = sum(act.quantity or 0 for act in record.farm_livestock_act_ids)
-
-    @api.depends(
-        "group_membership_ids",
-        "group_membership_ids.is_ended",
-    )
-    def _compute_member_membership_state(self):
-        """Compute member_count from non-ended memberships."""
-        for record in self:
-            record.member_count = len(record.group_membership_ids.filtered(lambda m: not m.is_ended))
 
     # ═══════════════════════════════════════════════════════════════════════
     # HELPER METHODS
