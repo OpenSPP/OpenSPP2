@@ -1,3 +1,7 @@
+### 19.0.2.1.1
+
+- fix(demo): name each farm after its head member and give every member the head's family name so a household reads as one family; farm names and registry IDs stay unique and generation remains seed-deterministic, resolving duplicate farm names and duplicate Tax/National IDs (#1114)
+
 ### 19.0.2.1.0
 
 - feat(demo): add GIS + irrigation scenario (FM4) with reservoir + canal network seed; FM4's idle hectare is now narratively explained as the downstream consequence of reduced reservoir capacity
