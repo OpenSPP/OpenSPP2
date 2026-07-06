@@ -436,6 +436,16 @@ metrics</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.3</h1>
+<ul class="simple">
+<li>fix(farm): remove the “No head member designated” warning banner and
+its <tt class="docutils literal">has_head_member</tt> check (banner, search filter, list column, and
+the computed field). The check misfired on farm groups that did have a
+head, and per #1113 no such warning should be shown. The “No Members”
+banner/filter are unchanged (#1113)</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.2</h1>
 <ul class="simple">
 <li>fix(security): align Farm User / Farm Manager roles with the OP#951
@@ -446,7 +456,7 @@ Reports menu visibility once those menu roots are gated. Adds
 <tt class="docutils literal">spp_hazard</tt> and <tt class="docutils literal">spp_gis_report</tt> to module dependencies.</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix(views): apply <tt class="docutils literal">spp_registry.x2many_no_padding</tt> widget to the
@@ -454,7 +464,7 @@ farm activities list on farm forms — removes the four empty
 placeholder rows Odoo 19 inserts on inline list-in-form views (#943).</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

@@ -68,6 +68,15 @@ Model                 Description
 Changelog
 =========
 
+19.0.2.0.3
+~~~~~~~~~~
+
+- fix(farm): remove the "No head member designated" warning banner and
+  its ``has_head_member`` check (banner, search filter, list column, and
+  the computed field). The check misfired on farm groups that did have a
+  head, and per #1113 no such warning should be shown. The "No Members"
+  banner/filter are unchanged (#1113)
+
 19.0.2.0.2
 ~~~~~~~~~~
 

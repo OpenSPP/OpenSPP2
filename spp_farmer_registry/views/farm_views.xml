@@ -240,11 +240,6 @@
                     name="no_members"
                     domain="[('member_count', '=', 0)]"
                 />
-                <filter
-                    string="No Head Member"
-                    name="no_head_member"
-                    domain="[('has_head_member', '=', False)]"
-                />
             </xpath>
         </field>
     </record>
@@ -260,16 +255,13 @@
         <field name="arch" type="xml">
             <xpath expr="//list" position="inside">
                 <field name="member_count" optional="hide" />
-                <field name="has_head_member" optional="hide" widget="boolean" />
             </xpath>
         </field>
     </record>
 
-    <!-- Form-top banners: warn when a group has no members, or has members
-         but no designated head. The two banners are mutually exclusive:
-         no-members fires only when member_count == 0; no-head fires only
-         when there are members but none flagged as head. Scoped to
-         is_group so neither appears on individuals. -->
+    <!-- Form-top banner: warn when a group has no members. Scoped to is_group
+         so it doesn't appear on individuals. (The "no head member" banner was
+         removed in #1113 — see below.) -->
     <record id="view_individuals_form_farm_no_members" model="ir.ui.view">
         <field name="name">res.partner.form.farm.member_completeness_banners</field>
         <field name="model">res.partner</field>
@@ -284,14 +276,6 @@
                 >
                     <i class="fa fa-exclamation-triangle me-2" title="Warning" />
                     No members linked to this group yet.
-                </div>
-                <div
-                    class="alert alert-danger text-center"
-                    role="alert"
-                    invisible="not is_group or member_count == 0 or has_head_member"
-                >
-                    <i class="fa fa-exclamation-triangle me-2" title="Warning" />
-                    No head member designated.
                 </div>
             </xpath>
         </field>

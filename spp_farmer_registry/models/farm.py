@@ -162,12 +162,6 @@ class Farm(models.Model):
         store=True,
         help="Number of non-ended members linked to this farm/group.",
     )
-    has_head_member = fields.Boolean(
-        string="Has Head Member",
-        compute="_compute_member_membership_state",
-        store=True,
-        help="True when at least one non-ended member carries the 'head' membership type.",
-    )
 
     # ═══════════════════════════════════════════════════════════════════════
     # COMPUTED METHODS
@@ -220,17 +214,11 @@ class Farm(models.Model):
     @api.depends(
         "group_membership_ids",
         "group_membership_ids.is_ended",
-        "group_membership_ids.membership_type_ids",
     )
     def _compute_member_membership_state(self):
-        """Compute member_count and has_head_member from non-ended memberships."""
-        head_code = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", "head")
+        """Compute member_count from non-ended memberships."""
         for record in self:
-            active_members = record.group_membership_ids.filtered(lambda m: not m.is_ended)
-            record.member_count = len(active_members)
-            record.has_head_member = bool(
-                head_code and active_members.filtered(lambda m: head_code in m.membership_type_ids)
-            )
+            record.member_count = len(record.group_membership_ids.filtered(lambda m: not m.is_ended))
 
     # ═══════════════════════════════════════════════════════════════════════
     # HELPER METHODS
