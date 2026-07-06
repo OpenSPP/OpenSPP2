@@ -23,7 +23,7 @@ pdfminer.six
 # OpenSPP Specific (not in module manifests but required)
 # -----------------------------------------------------------------------------
 # Pin specific versions for Docker builds
-Pillow==11.1.0
+Pillow==12.3.0
 fastapi==0.112.2
 # Note: requests/urllib3 versions constrained by Odoo's requirements.txt
 
