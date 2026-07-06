@@ -151,6 +151,13 @@ Dependencies
 Changelog
 =========
 
+19.0.2.1.0
+~~~~~~~~~~
+
+- feat: metric disaggregation in GIS reports (breakdown dimensions,
+  report helpers, wizard support) (re-land from #76; uses the
+  spp_metric_service breakdown API).
+
 19.0.2.0.1
 ~~~~~~~~~~
 
