@@ -62,7 +62,7 @@
                             <field name="name" />
                             <field name="category_id" />
                             <field name="status" widget="badge" />
-                            <field name="severity_id" />
+                            <field name="severity" widget="badge" />
                         </list>
                     </field>
                 </page>

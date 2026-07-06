@@ -56,3 +56,44 @@ class TestDataProviderDCI(TransactionCase):
         )
         self.assertTrue(provider.is_dci_backed)
         self.assertEqual(provider.dci_data_source_id, self.dci_source)
+
+    def test_dci_backed_variable_not_data_api_pullable(self):
+        """DCI-backed external variables must not be exposed via the generic
+        Data API, even though ordinary external-provider variables are."""
+        dci_provider = self.Provider.create(
+            {
+                "name": "DCI CRVS",
+                "code": "dci_crvs_pullable_t",
+                "dci_data_source_id": self.dci_source.id,
+            }
+        )
+        ordinary_provider = self.Provider.create({"name": "Edu", "code": "edu_pullable_t"})
+
+        dci_var = self.env["spp.cel.variable"].create(
+            {
+                "name": "dci.crvs.is_alive_t",
+                "cel_accessor": "r.dci.crvs.is_alive_t",
+                "source_type": "external",
+                "external_provider_id": dci_provider.id,
+                "value_type": "boolean",
+            }
+        )
+        ordinary_var = self.env["spp.cel.variable"].create(
+            {
+                "name": "school_attendance_t",
+                "cel_accessor": "school_attendance_t",
+                "source_type": "external",
+                "external_provider_id": ordinary_provider.id,
+                "value_type": "number",
+            }
+        )
+
+        self.assertFalse(dci_var.is_data_api_pullable())
+        self.assertTrue(ordinary_var.is_data_api_pullable())
+
+        # The DB-level pullable domain must exclude DCI-backed variables too, so
+        # /Data/variables counts and paginates over the same set.
+        Variable = self.env["spp.cel.variable"]
+        matched = Variable.search(Variable._get_data_api_pullable_domain())
+        self.assertIn(ordinary_var, matched)
+        self.assertNotIn(dci_var, matched)

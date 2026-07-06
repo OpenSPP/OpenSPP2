@@ -461,10 +461,10 @@ class SPPCycle(models.Model):
         self.env.cr.execute(
             """
             SELECT DISTINCT cycle_id FROM spp_entitlement
-            WHERE cycle_id IN %s AND state != 'approved'
+            WHERE cycle_id IN %s AND state IS DISTINCT FROM 'approved'
             UNION
             SELECT DISTINCT cycle_id FROM spp_entitlement_inkind
-            WHERE cycle_id IN %s AND state != 'approved'
+            WHERE cycle_id IN %s AND state IS DISTINCT FROM 'approved'
             """,
             (cycle_ids, cycle_ids),
         )

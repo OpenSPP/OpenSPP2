@@ -34,6 +34,22 @@ class VariableValueService:
     def __init__(self, env: Environment):
         self.env = env
 
+    def _data_api_pullable_accessors(self):
+        """cel_accessors whose cached values may be exposed through the API.
+
+        Mirrors the Data API allowlist (`spp.cel.variable._get_data_api_pullable_domain`):
+        only ordinary external-provider variables are returnable; DCI-backed
+        (inter-registry health/vital) and computed/scoring/aggregate values are
+        excluded so this endpoint cannot become an oracle for sensitive cached
+        data. Cache rows are keyed by the variable's cel_accessor.
+        """
+        if "spp.cel.variable" not in self.env:
+            return []
+        # sudo: the allowlist is system config; API authorization is the scope
+        # check at the router. The API client user has no spp.cel.variable ACL.
+        Variable = self.env["spp.cel.variable"].sudo()  # nosemgrep: odoo-sudo-without-context
+        return Variable.search(Variable._get_data_api_pullable_domain()).mapped("cel_accessor")
+
     def get_values_for_subject(
         self,
         partner_id: int,
@@ -66,11 +82,15 @@ class VariableValueService:
             return {}
         DataValue = self.env["spp.data.value"]
 
-        # Build domain
+        # Build domain. Restrict to API-pullable variables and the current
+        # company so this endpoint cannot disclose sensitive cached values
+        # (DCI/CRVS, scoring) or cross-company data.
         domain = [
             ("subject_model", "=", "res.partner"),
             ("subject_id", "=", partner_id),
             ("period_key", "=", period_key),
+            ("company_id", "=", self.env.company.id),
+            ("variable_name", "in", self._data_api_pullable_accessors()),
         ]
 
         # Filter by variable names if specified
@@ -136,11 +156,15 @@ class VariableValueService:
             return {}
         DataValue = self.env["spp.data.value"]
 
-        # Build domain
+        # Build domain. Restrict to API-pullable variables and the current
+        # company (see get_values_for_subject) so sensitive cached values are
+        # not disclosed in bulk.
         domain = [
             ("subject_model", "=", "res.partner"),
             ("subject_id", "in", partner_ids),
             ("period_key", "=", period_key),
+            ("company_id", "=", self.env.company.id),
+            ("variable_name", "in", self._data_api_pullable_accessors()),
         ]
 
         if variable_names and "*" not in variable_names:

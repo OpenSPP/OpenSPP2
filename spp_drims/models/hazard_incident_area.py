@@ -1,16 +1,6 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 from odoo import api, fields, models
 
-# Map CAP severity vocabulary codes to a 1-5 numeric scale (higher = more
-# severe) for choropleth map visualization.
-CAP_SEVERITY_NUMERIC = {
-    "extreme": 5,
-    "severe": 4,
-    "moderate": 3,
-    "minor": 2,
-    "unknown": 1,
-}
-
 
 class HazardIncidentArea(models.Model):
     """Extend incident area with GIS polygon for map visualization."""
@@ -27,12 +17,17 @@ class HazardIncidentArea(models.Model):
     )
 
     # Computed severity that falls back to incident severity
-    effective_severity_id = fields.Many2one(
-        "spp.vocabulary.code",
-        string="Effective Severity",
+    effective_severity = fields.Selection(
+        [
+            ("1", "Level 1 - Minor"),
+            ("2", "Level 2 - Moderate"),
+            ("3", "Level 3 - Significant"),
+            ("4", "Level 4 - Severe"),
+            ("5", "Level 5 - Catastrophic"),
+        ],
         compute="_compute_effective_severity",
         store=True,
-        help="Area-specific severity override, or inherited from the incident",
+        help="Area-specific severity or inherited from incident",
     )
 
     # Additional fields for GIS popup display and grouping
@@ -66,14 +61,14 @@ class HazardIncidentArea(models.Model):
         help="Numeric severity (1-5) for choropleth map visualization",
     )
 
-    @api.depends("severity_override_id", "incident_id.severity_id")
+    @api.depends("severity_override", "incident_id.severity")
     def _compute_effective_severity(self):
-        """Compute effective severity from area override or incident default."""
+        """Compute effective severity from override or incident default."""
         for rec in self:
-            rec.effective_severity_id = rec.severity_override_id or rec.incident_id.severity_id
+            rec.effective_severity = rec.severity_override or rec.incident_id.severity or "3"
 
-    @api.depends("effective_severity_id")
+    @api.depends("effective_severity")
     def _compute_severity_numeric(self):
-        """Compute numeric severity from the CAP severity code for choropleth."""
+        """Compute numeric severity from selection value for choropleth."""
         for rec in self:
-            rec.severity_numeric = CAP_SEVERITY_NUMERIC.get(rec.effective_severity_id.code, 0)
+            rec.severity_numeric = int(rec.effective_severity) if rec.effective_severity else 3

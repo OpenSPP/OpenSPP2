@@ -5,11 +5,6 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from odoo.addons.spp_api_v2.utils.openapi_polymorphic import polymorphic_body
-
-from .group import Group
-from .individual import Individual
-
 
 class BundleLink(BaseModel):
     """Link in a bundle (for pagination)"""
@@ -55,12 +50,7 @@ class BundleEntry(BaseModel):
     )
     request: BundleRequest | None = None
     response: BundleResponse | None = None
-    resource: dict[str, Any] | None = polymorphic_body(
-        Individual,
-        Group,
-        default=None,
-        description="FHIR-style resource. Must match the type indicated by request.url.",
-    )
+    resource: dict[str, Any] | None = None
     search: BundleSearch | None = None
 
 

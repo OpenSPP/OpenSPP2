@@ -18,13 +18,9 @@
         "spp_vocabulary",
         "spp_indicator",
         "spp_analytics",
-        "spp_programs",
-        "spp_cel_domain",
-        "job_worker",
     ],
     "data": [
         "security/ir.model.access.csv",
-        "data/cron_job_cleanup.xml",
     ],
     "assets": {},
     "demo": [],

@@ -96,6 +96,14 @@ class DCISubscription(models.Model):
         string="Filter Expression",
         help="Optional DCI expression to filter which events trigger notifications",
     )
+    filter_type = fields.Char(
+        string="Filter Type",
+        help=(
+            "How to interpret filter_expression (DCI query_type: idtype-value, "
+            "expression, predicate). Required to evaluate the filter at notify time; "
+            "an unparseable/unknown filter is treated as non-matching (fail closed)."
+        ),
+    )
 
     # Subscription State
     active = fields.Boolean(
@@ -195,28 +203,101 @@ class DCISubscription(models.Model):
         _logger.info("Deactivated %d expired subscriptions", len(expired))
         return True
 
-    def notify_event(self, event_type: str, records: list, reg_type: str):
-        """Queue notifications for matching subscriptions.
+    @api.model
+    def _matching_subscriptions(self, event_type: str, reg_type: str):
+        """Active, unexpired subscriptions for an event/registry type."""
+        return self.search(
+            [
+                ("event_type", "=", event_type),
+                ("reg_type", "=", reg_type),
+                ("active", "=", True),
+                ("state", "=", "active"),
+                "|",
+                ("expires", "=", False),
+                ("expires", ">", fields.Datetime.now()),
+            ]
+        )
 
-        Called when a registry event occurs (registration, update, delete).
+    def _consent_allows_partner(self, partner_id: int) -> bool:
+        """Whether this subscription's sender may receive this registrant's data.
+
+        Uses the proper consent primitive (legal-basis bypass, or per-registrant
+        consent via the API consent service). Fail-closed when no sender.
+        """
+        self.ensure_one()
+        from ..services.consent_adapter import DCIConsentAdapter
+
+        adapter = DCIConsentAdapter(self.env, self.sender_id)
+        if adapter.has_legal_basis_bypass():
+            return True
+        return adapter.can_access_registrant(partner_id)
+
+    def _filter_matching_partners(self, partner_ids: list) -> list:
+        """Subset of partner_ids matching this subscription's filter_expression.
+
+        Base policy: no filter -> all; a filter that this (generic) layer cannot
+        evaluate -> none (fail closed). Registry modules override this to
+        evaluate their filter shape in a single batched query (avoiding an
+        O(partners x subscriptions) per-record query pattern).
+        """
+        self.ensure_one()
+        if not self.filter_expression:
+            return list(partner_ids or [])
+        return []
+
+    def _partner_matches_filter(self, partner_id: int) -> bool:
+        """Whether a single partner matches this subscription's filter."""
+        self.ensure_one()
+        return bool(self._filter_matching_partners([partner_id]))
+
+    def _eligible_partner_ids(self, partner_ids: list) -> list:
+        """Subset of partner_ids this subscription is allowed to be told about.
+
+        Applies consent per record, then the filter in a single batch.
+        """
+        self.ensure_one()
+        if not partner_ids:
+            return []
+        consented = [pid for pid in partner_ids if self._consent_allows_partner(pid)]
+        return self._filter_matching_partners(consented)
+
+    def _build_notification_records(self, partner_ids: list) -> list:
+        """Build the DCI record payloads for partner_ids (registry-specific).
+
+        Base returns nothing; registry server modules (e.g. spp_dci_server_social)
+        override this to materialise records with this subscription's sender scope.
+        """
+        self.ensure_one()
+        return []
+
+    def _delete_records_for(self, delete_payloads: list) -> list:
+        """Identifier payloads this subscription is eligible to receive on delete.
+
+        Eligibility is precomputed at unlink time (while the record still exists)
+        and carried per payload as ``eligible_subscription_ids``.
+        """
+        self.ensure_one()
+        return [
+            {"identifiers": p.get("identifiers", [])}
+            for p in (delete_payloads or [])
+            if self.id in (p.get("eligible_subscription_ids") or [])
+        ]
+
+    def notify_event(self, event_type: str, partner_ids: list, reg_type: str, delete_payloads: list = None):
+        """Queue notifications for matching subscriptions, scoped per subscriber.
+
+        Each matching subscription only receives records its sender is permitted
+        to see (consent/legal-basis) and that match its filter_expression; the
+        payload is built with that subscription's sender context.
 
         Args:
-            event_type: Type of event (registration, update, delete)
-            records: List of affected record data dicts
-            reg_type: Registry type (SOCIAL_REGISTRY, DR, etc.)
+            event_type: Event type (registration, update, delete)
+            partner_ids: Affected res.partner ids (create/update). Ignored for delete.
+            reg_type: Registry type (SOCIAL_REGISTRY, DR, ...)
+            delete_payloads: For delete, per-record identifier payloads carrying
+                precomputed ``eligible_subscription_ids`` (records are gone by now).
         """
-        # Find matching active subscriptions
-        domain = [
-            ("event_type", "=", event_type),
-            ("reg_type", "=", reg_type),
-            ("active", "=", True),
-            ("state", "=", "active"),
-            "|",
-            ("expires", "=", False),
-            ("expires", ">", fields.Datetime.now()),
-        ]
-        subscriptions = self.search(domain)
-
+        subscriptions = self._matching_subscriptions(event_type, reg_type)
         _logger.info(
             "Found %d subscriptions for event %s/%s",
             len(subscriptions),
@@ -225,7 +306,15 @@ class DCISubscription(models.Model):
         )
 
         for sub in subscriptions:
-            # Queue notification job for each subscription
+            if event_type == "delete":
+                records = sub._delete_records_for(delete_payloads or [])
+            else:
+                eligible = sub._eligible_partner_ids(partner_ids or [])
+                records = sub._build_notification_records(eligible) if eligible else []
+
+            if not records:
+                continue
+
             sub.with_delay(
                 channel="dci",
                 timeout=60,

@@ -11,7 +11,7 @@
     "license": "LGPL-3",
     "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "reichie020212"],
-    "depends": ["base", "web", "contacts", "spp_security", "spp_area", "spp_registry"],
+    "depends": ["base", "web", "contacts", "spp_security", "spp_area", "spp_vocabulary", "spp_registry"],
     "external_dependencies": {"python": ["shapely", "pyproj", "geojson"]},
     "data": [
         "data/res_config_data.xml",

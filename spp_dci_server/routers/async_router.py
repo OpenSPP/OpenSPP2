@@ -146,10 +146,21 @@ async def async_search(
             ) from e
 
         # SECURITY: Use verified_sender_id from signature verification
-        # instead of reading from envelope.header to prevent spoofing
-        # Use sudo() for API access - authentication is handled by signature verification
+        # instead of reading from envelope.header to prevent spoofing.
+        # Fail closed: require an ACTIVE registered sender. Persisting
+        # sender_id=False here would later run the search with no sender, which
+        # disengages consent filtering and returns unscoped PII.
         # nosemgrep: odoo-sudo-without-context — DCI protocol handler with JWT/signature verification
-        sender = env["spp.dci.sender.registry"].sudo().search([("sender_id", "=", verified_sender_id)], limit=1)
+        sender = env["spp.dci.sender.registry"].sudo().get_by_sender_id(verified_sender_id)
+        if not sender:
+            _logger.warning(
+                "Async search rejected: sender %s is not an active registered sender",
+                verified_sender_id,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Sender is not an active registered DCI sender",
+            )
 
         # Get callback URI from header
         callback_uri = envelope.header.sender_uri
@@ -171,7 +182,7 @@ async def async_search(
                     "correlation_id": correlation_id,
                     "action": "search",
                     "reg_type": "SOCIAL_REGISTRY",  # Default, could be derived from request
-                    "sender_id": sender.id if sender else False,
+                    "sender_id": sender.id,
                     "sender_uri": verified_sender_id,
                     "callback_uri": callback_uri,
                     "request_payload": json.dumps(envelope.model_dump(mode="json")),
@@ -183,7 +194,7 @@ async def async_search(
         _logger.info(
             "Created async search transaction %s for sender_id=%s",
             transaction.transaction_id,
-            sender.id if sender else "unknown",
+            sender.id,
         )
 
         # Queue the search job with job_worker
@@ -302,6 +313,7 @@ async def subscribe(
                             "event_type": event_type,
                             "reg_type": reg_type,
                             "filter_expression": filter_expression,
+                            "filter_type": req_item.subscribe_criteria.filter_type,
                             "original_message_id": envelope.header.message_id,
                             "original_transaction_id": sub_request.transaction_id,
                             "state": "pending",

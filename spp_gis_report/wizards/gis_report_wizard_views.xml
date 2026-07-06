@@ -147,11 +147,8 @@
                     <!-- Additional Options -->
                     <group string="Options">
                         <field name="enable_rollup" />
-                        <field
-                            name="dimension_ids"
-                            widget="many2many_tags"
-                            string="Disaggregation Dimensions"
-                        />
+                        <field name="disaggregate_by_gender" />
+                        <field name="disaggregate_by_age" />
                     </group>
                 </div>
 

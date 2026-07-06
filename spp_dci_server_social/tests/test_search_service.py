@@ -491,6 +491,63 @@ class TestDCISocialSearchService(DCISocialServerCommon):
         self.assertLessEqual(len(response_item.data.reg_records), 2)
         self.assertGreaterEqual(response_item.pagination.total_count, 3)  # At least our 3 individuals
 
+    def test_search_caps_page_size(self):
+        """page_size is clamped to dci.max_page_size so a single request cannot
+        enumerate the whole registry (the schema only enforces page_size > 0)."""
+        self.env["ir.config_parameter"].sudo().set_param("dci.max_page_size", "1")
+        criteria = SearchCriteria(
+            reg_type="SOCIAL_REGISTRY",
+            reg_event_type="ACTIVE",
+            query_type="expression",
+            query={"seq": []},  # match all registrants
+            pagination=PaginationRequest(page_size=1000, page_number=1),
+        )
+        search_req = SearchRequestItem(
+            reference_id="test-ref-cap",
+            timestamp=datetime.now(UTC),
+            search_criteria=criteria,
+        )
+        request = SearchRequest(transaction_id="test-txn-cap", search_request=[search_req])
+        self.env.user.write({"group_ids": [(4, self.env.ref("spp_registry.group_registry_viewer").id)]})
+
+        response = self.search_service.execute_search(request)
+
+        item = response.search_response[0]
+        self.assertEqual(item.status, "succ")
+        # Returned page and reported page_size are clamped to the cap (1),
+        # even though there are >= 3 matching registrants.
+        self.assertLessEqual(len(item.data.reg_records), 1)
+        self.assertEqual(item.pagination.page_size, 1)
+        self.assertGreaterEqual(item.pagination.total_count, 3)
+
+    def test_search_non_positive_cap_falls_back_to_default(self):
+        """A non-positive dci.max_page_size (0 or negative) must NOT disable the
+        cap. Such a misconfiguration should fall back to the default (100), not
+        leave page_size unbounded at whatever the client requested."""
+        self.env["ir.config_parameter"].sudo().set_param("dci.max_page_size", "0")
+        criteria = SearchCriteria(
+            reg_type="SOCIAL_REGISTRY",
+            reg_event_type="ACTIVE",
+            query_type="expression",
+            query={"seq": []},  # match all registrants
+            pagination=PaginationRequest(page_size=1000, page_number=1),
+        )
+        search_req = SearchRequestItem(
+            reference_id="test-ref-cap0",
+            timestamp=datetime.now(UTC),
+            search_criteria=criteria,
+        )
+        request = SearchRequest(transaction_id="test-txn-cap0", search_request=[search_req])
+        self.env.user.write({"group_ids": [(4, self.env.ref("spp_registry.group_registry_viewer").id)]})
+
+        response = self.search_service.execute_search(request)
+
+        item = response.search_response[0]
+        self.assertEqual(item.status, "succ")
+        # The client asked for 1000; a 0 cap must clamp to the default 100,
+        # never honor the unbounded request.
+        self.assertEqual(item.pagination.page_size, 100)
+
     def test_search_pagination_second_page(self):
         """Test retrieving second page of results."""
         criteria = SearchCriteria(
@@ -712,6 +769,36 @@ class TestDCISocialSearchService(DCISocialServerCommon):
         self.assertIsNotNone(response_item.data)
         # Should return at least our test individuals
         self.assertGreaterEqual(response_item.pagination.total_count, 3)
+
+    def test_search_expression_rejects_sensitive_field(self):
+        """An expression-type search must not oracle sensitive partner fields.
+
+        The structured expression path is the same caller-supplied oracle as a
+        CEL predicate; filtering on a disability field must be rejected rather
+        than disclosed via total_count/pagination.
+        """
+        criteria = SearchCriteria(
+            reg_type="SOCIAL_REGISTRY",
+            reg_event_type="ACTIVE",
+            query_type="expression",
+            query={"seq": [{"attribute": "disability_severity_id", "operator": "=", "value": 5}]},
+        )
+        search_req = SearchRequestItem(
+            reference_id="test-ref-010e",
+            timestamp=datetime.now(UTC),
+            search_criteria=criteria,
+        )
+        request = SearchRequest(
+            transaction_id="test-txn-010e",
+            search_request=[search_req],
+        )
+        self.env.user.write({"group_ids": [(4, self.env.ref("spp_registry.group_registry_viewer").id)]})
+
+        response = self.search_service.execute_search(request)
+
+        response_item = response.search_response[0]
+        self.assertEqual(response_item.status, "rjct")
+        self.assertEqual(response_item.status_reason_code, "rjct.filter.invalid")
 
     def test_search_cursor_pagination(self):
         """Test cursor-based pagination for efficient large dataset traversal."""

@@ -17,7 +17,7 @@ class TestRegistrant(HazardTestCase):
                 "code": "REG-TEST-INC-001",
                 "category_id": cls.category_typhoon.id,
                 "start_date": "2024-01-01",
-                "severity_id": cls.severity_severe.id,
+                "severity": "3",
             }
         )
         cls.impact = cls.env["spp.hazard.impact"].create(
