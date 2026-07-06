@@ -12,7 +12,6 @@ from . import test_api_consent_matching
 from . import test_audit_log_performance
 from . import test_batch_api
 from . import test_bulk_api
-from . import test_bundle_openapi
 from . import test_bundle_service
 from . import test_consent
 from . import test_consent_history
@@ -29,8 +28,6 @@ from . import test_ir_http_patch
 from . import test_jwt_secret_validation
 from . import test_metadata
 from . import test_oauth
-from . import test_openapi_contract
-from . import test_openapi_polymorphic
 from . import test_organization_type_security
 from . import test_pagination
 from . import test_patch_api

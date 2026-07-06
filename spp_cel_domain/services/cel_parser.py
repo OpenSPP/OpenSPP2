@@ -524,7 +524,7 @@ class Parser:
         if tok.kind == "QUESTION":
             true_expr = self.expr(0)  # Parse until we hit COLON
             self.eat("COLON")
-            false_expr = self.expr(self.PRECEDENCE["QUESTION"] - 1)  # Right-associative
+            false_expr = self.expr(self.PRECEDENCE["QUESTION"])  # Right-associative
             return Ternary(left, true_expr, false_expr)
         raise SyntaxError(f"Unexpected infix token {tok.kind}")
 

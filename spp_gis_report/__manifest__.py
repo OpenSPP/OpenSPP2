@@ -10,7 +10,6 @@
     "depends": [
         "spp_area",
         "spp_gis",
-        "spp_metric_service",
         "spp_registry",
         "spp_vocabulary",
         "spp_cel_domain",
@@ -48,7 +47,6 @@
             "spp_gis_report/static/src/css/gis_report.css",
         ],
     },
-    "post_init_hook": "_migrate_boolean_disaggregation",
     "installable": True,
     "application": False,
     "auto_install": False,

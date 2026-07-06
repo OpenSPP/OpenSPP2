@@ -16,11 +16,3 @@ class ApiClientScope(models.Model):
         ],
         ondelete={"gis": "cascade", "statistics": "cascade"},
     )
-
-    action = fields.Selection(
-        selection_add=[
-            ("geofence", "Geofence Management"),
-            ("incident", "Incident Management"),
-        ],
-        ondelete={"geofence": "cascade", "incident": "cascade"},
-    )

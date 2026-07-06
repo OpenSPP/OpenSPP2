@@ -24,18 +24,14 @@
         >[('is_registrant', '=', True), ('is_group', '=', True)]</field>
         <field name="aggregation_method">count</field>
         <field name="base_area_level">2</field>
-        <field name="normalization_method">per_population</field>
+        <field name="normalization_method">raw</field>
         <field name="enable_rollup">True</field>
         <field name="rollup_method">sum</field>
         <field name="rollup_weight_source">count</field>
         <field name="color_scheme_id" ref="spp_gis.scheme_viridis" />
         <field name="threshold_mode">auto_quartile</field>
         <field name="bucket_count">5</field>
-        <field
-            name="dimension_ids"
-            eval="[Command.link(ref('spp_metric_service.dimension_gender'))]"
-        />
-        <field name="member_expansion">expand</field>
+        <field name="disaggregate_by_gender">True</field>
         <field name="refresh_mode">scheduled</field>
         <field name="refresh_interval">daily</field>
     </record>
@@ -62,13 +58,9 @@
         <field name="rollup_method">weighted_avg</field>
         <field name="rollup_weight_source">area_sqkm</field>
         <field name="color_scheme_id" ref="spp_gis.scheme_blues" />
-        <field name="threshold_mode">auto_quartile</field>
+        <field name="threshold_mode">auto_jenks</field>
         <field name="bucket_count">5</field>
-        <field
-            name="dimension_ids"
-            eval="[Command.link(ref('spp_metric_service.dimension_gender'))]"
-        />
-        <field name="member_expansion">expand</field>
+        <field name="disaggregate_by_gender">True</field>
         <field name="refresh_mode">scheduled</field>
         <field name="refresh_interval">daily</field>
     </record>
@@ -97,10 +89,8 @@
         <field name="color_scheme_id" ref="spp_gis.scheme_viridis" />
         <field name="threshold_mode">auto_quartile</field>
         <field name="bucket_count">4</field>
-        <field
-            name="dimension_ids"
-            eval="[Command.link(ref('spp_metric_service.dimension_age_group')), Command.link(ref('spp_metric_service.dimension_gender'))]"
-        />
+        <field name="disaggregate_by_age">True</field>
+        <field name="disaggregate_by_gender">True</field>
         <field name="refresh_mode">scheduled</field>
         <field name="refresh_interval">weekly</field>
     </record>

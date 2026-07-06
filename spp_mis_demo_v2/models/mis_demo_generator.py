@@ -34,7 +34,6 @@ class SPPMISDemoGenerator(models.TransientModel):
             ("training", "Partner Training"),
             ("testing", "Developer Testing"),
             ("complete", "Complete Demo"),
-            ("volume", "Volume (GIS)"),
         ],
         string="Demo Mode",
         default="complete",
@@ -43,8 +42,7 @@ class SPPMISDemoGenerator(models.TransientModel):
         "- Sales: Fixed stories + minimal programs (fast)\n"
         "- Training: Full programs + Logic Packs (comprehensive)\n"
         "- Testing: Volume data + random generation (scale testing)\n"
-        "- Complete: All features enabled\n"
-        "- Volume: Large-scale GIS data (7K+ households, geodata)",
+        "- Complete: All features enabled",
     )
 
     # Logic Studio integration
@@ -84,35 +82,6 @@ class SPPMISDemoGenerator(models.TransientModel):
         string="Generate Volume Data",
         default=True,
         help="Generate deterministic households from blueprints (~730 households, ~2500 members)",
-    )
-    volume_enrollments = fields.Integer(
-        string="Random Enrollments",
-        default=50,
-        help="Number of random program enrollments to generate",
-    )
-
-    # Random group/household generation (Luzon-style GIS volume demo).
-    # When enabled (e.g. by the "Volume (GIS)" demo mode), households are
-    # generated with random/faker data instead of the deterministic blueprints.
-    generate_random_groups = fields.Boolean(
-        string="Generate Random Groups",
-        default=False,
-        help="Generate random households/groups with members instead of deterministic blueprints",
-    )
-    random_groups_count = fields.Integer(
-        string="Number of Groups",
-        default=20,
-        help="Number of random groups/households to generate",
-    )
-    members_per_group_min = fields.Integer(
-        string="Min Members per Group",
-        default=2,
-        help="Minimum number of members per random group",
-    )
-    members_per_group_max = fields.Integer(
-        string="Max Members per Group",
-        default=6,
-        help="Maximum number of members per random group",
     )
 
     # Cycle and payment options
@@ -231,25 +200,11 @@ class SPPMISDemoGenerator(models.TransientModel):
             rec._ensure_demo_user_groups()
         return True
 
-    @api.constrains(
-        "volume_enrollments",
-        "cycles_per_program",
-        "random_groups_count",
-        "members_per_group_min",
-        "members_per_group_max",
-    )
+    @api.constrains("cycles_per_program")
     def _check_positive_integers(self):
         for rec in self:
-            if rec.volume_enrollments < 0:
-                raise ValidationError(_("Volume enrollments must be zero or positive"))
             if rec.cycles_per_program < 0:
                 raise ValidationError(_("Cycles per program must be zero or positive"))
-            if rec.random_groups_count < 0:
-                raise ValidationError(_("Number of groups must be zero or positive"))
-            if rec.members_per_group_min < 1:
-                raise ValidationError(_("Minimum members per group must be at least 1"))
-            if rec.members_per_group_max < rec.members_per_group_min:
-                raise ValidationError(_("Maximum members must be greater than or equal to minimum"))
 
     @api.onchange("demo_mode")
     def _onchange_demo_mode(self):
@@ -335,30 +290,6 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "generate_case_demo": True,
                 "case_volume_count": 50,
                 "generate_claim169_demo": True,
-                "generate_credentials_for_stories": True,
-                "load_geographic_data": True,
-                "country_code": "phl",
-            },
-            "volume": {
-                "create_demo_programs": True,
-                "enroll_demo_stories": True,
-                "create_story_payments": True,
-                "generate_volume": True,
-                "volume_enrollments": 5000,
-                "generate_random_groups": True,
-                "random_groups_count": 10000,
-                "create_cycles": True,
-                "cycles_per_program": 3,
-                "create_event_data": False,
-                "create_change_requests": False,
-                "create_fairness_analysis": False,
-                "install_logic_packs": False,
-                "include_test_personas": False,
-                "generate_grm_demo": False,
-                "grm_volume_tickets": 0,
-                "generate_case_demo": False,
-                "case_volume_count": 0,
-                "generate_claim169_demo": False,
                 "generate_credentials_for_stories": True,
                 "load_geographic_data": True,
                 "country_code": "phl",
@@ -482,16 +413,7 @@ class SPPMISDemoGenerator(models.TransientModel):
         }
 
         try:
-            result = self._run_generation_steps(stats)
-            # When large-volume generation is dispatched to a background job,
-            # _run_generation_steps returns a client action (notification)
-            # instead of the (demo_locale, created_data) tuple. In that case
-            # the remaining steps run inside the background job.
-            if isinstance(result, dict):
-                self.state = "completed"
-                self.env.company.mis_demo_loaded = True
-                return result
-            demo_locale, created_data = result
+            demo_locale, created_data = self._run_generation_steps(stats)
 
             self.state = "completed"
 
@@ -506,200 +428,8 @@ class SPPMISDemoGenerator(models.TransientModel):
             self.state = "draft"
             raise UserError(_("Error generating demo data: %s") % e) from e
 
-    def _generate_random_volume(self, stats):
-        """Generate households using random/faker data (Luzon-style GIS demo).
-
-        For large volumes the work is either dispatched to a background job
-        (in a UI/web context) or run inline in committed chunks (in a CLI/shell
-        context). Both large-volume paths also assign areas, generate GPS
-        coordinates, ensure GIS layers, and refresh reports.
-
-        Returns:
-            bool: True if the work was dispatched to a background job (in which
-            case the caller should stop and let the job finish the remaining
-            steps); False if generation ran synchronously.
-        """
-        from faker import Faker
-
-        faker_locale = self.locale_origin.faker_locale or "en_US"
-        fake = Faker(faker_locale)
-        try:
-            from odoo.http import request as http_request
-
-            has_ui = bool(http_request and http_request.env)
-        except Exception:
-            has_ui = False
-
-        if self.random_groups_count > 500 and has_ui and hasattr(self, "with_delay"):
-            # Large volume in a UI/web context: dispatch to a background job.
-            # The job handles group creation (chunked), area assignment,
-            # coordinate generation, GIS layers, and report refresh.
-            _logger.info(
-                "Dispatching %d random groups to background job (chunked)...",
-                self.random_groups_count,
-            )
-            self._dispatch_volume_job(fake)
-            return True
-
-        if self.random_groups_count > 500:
-            # CLI/shell context: run chunked generation inline with commits.
-            # The inline job creates households (and assigns areas/coordinates
-            # and refreshes GIS) in committed chunks; the remaining steps in
-            # _run_generation_steps (programs, enrollments, cycles) still run
-            # normally afterwards.
-            _logger.info(
-                "Generating %d random groups inline (chunked)...",
-                self.random_groups_count,
-            )
-            locale = fake.locales[0] if fake.locales else "en_US"
-            self._run_volume_generation_job(locale)
-            return False
-
-        _logger.info("Generating %d random groups...", self.random_groups_count)
-        self._generate_random_groups(fake, stats)
-        return False
-
-    def _enroll_blueprint_households(self, generator, volume_households, programs):
-        """Enroll deterministic blueprint households into the created programs."""
-        _logger.info("Enrolling blueprint households in programs...")
-        program_map = {}
-        for prog in programs:
-            for prog_def in demo_programs.get_all_demo_programs():
-                if prog_def["name"] == prog.name:
-                    program_map[prog_def["id"]] = prog
-                    break
-        generator.enroll_in_programs(volume_households, program_map)
-
-    def _dispatch_volume_job(self, fake):
-        """Dispatch large-volume generation as a background job.
-
-        This runs before programs/enrollments/cycles are created (those run
-        synchronously in action_generate before this is reached). The job
-        handles: group creation (in chunks), area assignment, and coordinate
-        generation, committing after each chunk.
-        """
-        self.with_delay(
-            priority=5,
-            description=f"Generate {self.random_groups_count} demo households",
-            max_retries=0,
-        )._run_volume_generation_job(fake.locales[0] if fake.locales else "en_US")
-
-    def _run_volume_generation_job(self, faker_locale):
-        """Background job: create groups in committed chunks, then assign areas.
-
-        Each chunk of CHUNK_SIZE groups is created and committed independently.
-        If one chunk fails, previous chunks are preserved.
-
-        Args:
-            faker_locale: Locale string for Faker (e.g., "en_US")
-        """
-        from faker import Faker
-
-        CHUNK_SIZE = 500
-        total = self.random_groups_count
-        fake = Faker(faker_locale)
-
-        _logger.info("[volume-job] Starting: %d groups in chunks of %d", total, CHUNK_SIZE)
-
-        stats = {
-            "random_groups_created": 0,
-            "random_individuals_created": 0,
-        }
-
-        offset = 0
-        while offset < total:
-            chunk_count = min(CHUNK_SIZE, total - offset)
-            chunk_stats = {
-                "random_groups_created": 0,
-                "random_individuals_created": 0,
-            }
-
-            # Temporarily set random_groups_count for the chunk
-            original_count = self.random_groups_count
-            self.random_groups_count = chunk_count
-            try:
-                self._generate_random_groups(fake, chunk_stats)
-            finally:
-                self.random_groups_count = original_count
-
-            stats["random_groups_created"] += chunk_stats["random_groups_created"]
-            stats["random_individuals_created"] += chunk_stats["random_individuals_created"]
-
-            # Commit this chunk so it's durable
-            # Skip commit in test mode to avoid breaking test isolation
-            if not config["test_enable"]:
-                self.env.cr.commit()  # pylint: disable=invalid-commit
-
-            offset += chunk_count
-            _logger.info(
-                "[volume-job] Chunk committed: %d/%d groups (%d individuals so far)",
-                stats["random_groups_created"],
-                total,
-                stats["random_individuals_created"],
-            )
-
-        _logger.info(
-            "[volume-job] All groups created: %d groups, %d individuals",
-            stats["random_groups_created"],
-            stats["random_individuals_created"],
-        )
-
-        # Assign areas and generate coordinates (also in a committed step)
-        if self.load_geographic_data:
-            _logger.info("[volume-job] Assigning areas...")
-            self._assign_registrant_areas(stats)
-            self.env.cr.commit()  # pylint: disable=invalid-commit
-
-            _logger.info("[volume-job] Generating coordinates...")
-            self._generate_coordinates(stats)
-            self.env.cr.commit()  # pylint: disable=invalid-commit
-
-        # Refresh GIS reports
-        self._ensure_debug_gis_layers(stats)
-        self._refresh_gis_reports(stats)
-        self.env.cr.commit()  # pylint: disable=invalid-commit
-
-        _logger.info("[volume-job] Complete: %s", stats)
-
-    def _show_volume_dispatched_notification(self):
-        """Return notification that volume generation was dispatched to background."""
-        return {
-            "type": "ir.actions.client",
-            "tag": "display_notification",
-            "params": {
-                "title": _("Demo Data Generation Started"),
-                "message": _(
-                    "Programs and stories created. Volume generation of %(count)d"
-                    " households has been dispatched to a background job."
-                    " Check the job queue for progress.",
-                    count=self.random_groups_count,
-                ),
-                "type": "info",
-                "sticky": True,
-            },
-        }
-
-    def _ensure_debug_gis_layers(self, stats):
-        """Ensure optional debug GIS layers exist after demo generation."""
-        try:
-            from .indicator_providers import _ensure_household_points_debug_layer
-
-            layer = _ensure_household_points_debug_layer(self.env)
-            stats["debug_hh_points_layer_ready"] = bool(layer)
-        except Exception as e:
-            # Debug layer should never block demo generation.
-            _logger.warning("Could not ensure debug GIS layers: %s", e)
-            stats["debug_hh_points_layer_ready"] = False
-
     def _run_generation_steps(self, stats):
-        """Execute all generation steps.
-
-        Returns either:
-        - (demo_locale, created_data) tuple for synchronous generation, or
-        - a client action dict when large-volume household generation has been
-          dispatched to a background job (the remaining steps then run inside
-          that job).
-        """
+        """Execute all generation steps. Returns (demo_locale, created_data)."""
         # Resolve country configuration (locale, currency)
         country_cfg = self._get_country_config()
         demo_locale = country_cfg["locale"]
@@ -755,22 +485,9 @@ class SPPMISDemoGenerator(models.TransientModel):
         if stories_created:
             _logger.info("Auto-generated %d demo story registrants", stories_created)
 
-        # Step 0.75: Generate households.
-        #
-        # Two strategies are supported:
-        #  1. Random/faker volume generation (Luzon-style GIS demo): when
-        #     ``generate_random_groups`` is enabled with a positive count. For
-        #     large volumes this can be dispatched to a background job.
-        #  2. Deterministic blueprint generation: the default, when only
-        #     ``generate_volume`` is enabled.
+        # Step 0.75: Generate deterministic households from blueprints
         volume_households = []
-        generator = None
-        if self.generate_random_groups and self.random_groups_count > 0:
-            if self._generate_random_volume(stats):
-                # Dispatched to a background job; the remaining steps run there.
-                return self._show_volume_dispatched_notification()
-        elif self.generate_volume:
-            # Deterministic blueprint generation.
+        if self.generate_volume:
             from .household_blueprints import HOUSEHOLD_BLUEPRINTS
             from .seeded_volume_generator import SeededVolumeGenerator
 
@@ -796,7 +513,14 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         # Step 3: Enroll blueprint households in programs
         if self.generate_volume and volume_households and created_data["programs"]:
-            self._enroll_blueprint_households(generator, volume_households, created_data["programs"])
+            _logger.info("Enrolling blueprint households in programs...")
+            program_map = {}
+            for prog in created_data["programs"]:
+                for prog_def in demo_programs.get_all_demo_programs():
+                    if prog_def["name"] == prog.name:
+                        program_map[prog_def["id"]] = prog
+                        break
+            generator.enroll_in_programs(volume_households, program_map)
 
         # Step 4: Create cycles
         if self.create_cycles:
@@ -844,13 +568,10 @@ class SPPMISDemoGenerator(models.TransientModel):
             _logger.info("Generating GPS coordinates for registrants...")
             self._generate_coordinates(stats)
 
-        # Step 12: Ensure debug GIS layers are present (idempotent)
-        self._ensure_debug_gis_layers(stats)
-
-        # Step 13: Refresh GIS reports so map data is available immediately
+        # Step 12: Refresh GIS reports so map data is available immediately
         self._refresh_gis_reports(stats)
 
-        # Step 14: Create PRISM API client with known credentials
+        # Step 13: Create PRISM API client with known credentials
         self._create_prism_api_client(stats)
 
         return demo_locale, created_data
@@ -1318,278 +1039,6 @@ class SPPMISDemoGenerator(models.TransientModel):
         )
 
         return member
-
-    def _generate_random_groups(self, fake, stats):
-        """Generate random groups/households with members.
-
-        Uses batch ORM create() for groups and individuals, which is
-        significantly faster than per-record create() calls. Each batch
-        of BATCH_SIZE groups is created together, then their individuals
-        are batch-created and linked via memberships.
-        """
-        BATCH_SIZE = 100
-
-        try:
-            from odoo.addons.spp_demo.models import demo_stories
-
-            reserved_names = set(demo_stories.RESERVED_NAMES)
-        except ImportError:
-            reserved_names = set()
-
-        groups_created = []
-        head_membership_type = self.env["spp.vocabulary.code"].get_code(
-            "urn:openspp:vocab:group-membership-type", "head"
-        )
-        head_type_id = head_membership_type.id if head_membership_type else False
-
-        # Cache gender IDs upfront (avoids ORM search per individual)
-        DemoGenerator = self.env["spp.demo.data.generator"].with_context(tracking_disable=True)
-        gender_id_cache = {
-            "male": DemoGenerator.lookup_gender_id("Male"),
-            "female": DemoGenerator.lookup_gender_id("Female"),
-        }
-
-        Partner = self.env["res.partner"].with_context(tracking_disable=True)
-        today_year = fields.Date.today().year
-
-        # Collect all create_date updates for batch SQL at the end
-        backdate_updates = []  # list of (date, partner_id)
-
-        # Process groups in batches for batch ORM create()
-        pending_groups = []  # list of (group_vals, registration_date, member_specs)
-        # member_specs: list of (individual_vals, is_head)
-
-        for _i in range(self.random_groups_count):
-            head_gender = random.choice(["male", "female"])
-            head_first = fake.first_name_male() if head_gender == "male" else fake.first_name_female()
-            head_last = fake.last_name()
-            head_name = f"{head_first} {head_last}"
-
-            if head_name in reserved_names:
-                continue
-
-            head_age = random.randint(25, 65)
-            registration_date = fake.date_between(start_date="-365d", end_date="-30d")
-
-            group_vals = {
-                "name": head_last,
-                "is_registrant": True,
-                "is_group": True,
-            }
-
-            member_specs = []
-
-            # Head of household
-            head_vals = self._individual_vals(head_name, head_gender, head_age, gender_id_cache, today_year)
-            member_specs.append((head_vals, True))
-
-            # Determine number of additional members
-            num_members = random.randint(self.members_per_group_min - 1, self.members_per_group_max - 1)
-
-            # Sometimes add spouse
-            if num_members > 0 and random.random() < 0.7:
-                spouse_gender = "female" if head_gender == "male" else "male"
-                spouse_first = fake.first_name_female() if spouse_gender == "female" else fake.first_name_male()
-                spouse_name = f"{spouse_first} {head_last}"
-                spouse_age = head_age + random.randint(-5, 5)
-                if spouse_name not in reserved_names:
-                    spouse_vals = self._individual_vals(
-                        spouse_name, spouse_gender, spouse_age, gender_id_cache, today_year
-                    )
-                    member_specs.append((spouse_vals, False))
-                num_members -= 1
-
-            # Children / other members
-            for _j in range(num_members):
-                age_roll = random.random()
-                if age_roll < 0.15:
-                    member_age = random.randint(0, 4)
-                elif age_roll < 0.45:
-                    member_age = random.randint(5, 17)
-                elif age_roll < 0.85:
-                    member_age = random.randint(18, 59)
-                else:
-                    member_age = random.randint(60, 85)
-                member_gender = random.choice(["male", "female"])
-                member_first = fake.first_name_male() if member_gender == "male" else fake.first_name_female()
-                member_name = f"{member_first} {head_last}"
-                if member_name not in reserved_names:
-                    m_vals = self._individual_vals(member_name, member_gender, member_age, gender_id_cache, today_year)
-                    member_specs.append((m_vals, False))
-
-            pending_groups.append((group_vals, registration_date, member_specs))
-
-            # Flush batch
-            if len(pending_groups) >= BATCH_SIZE:
-                batch_result = self._flush_group_batch(Partner, pending_groups, head_type_id, backdate_updates)
-                groups_created.extend(batch_result["groups"])
-                stats["random_groups_created"] += batch_result["group_count"]
-                stats["random_individuals_created"] += batch_result["individual_count"]
-                pending_groups = []
-
-                if stats["random_groups_created"] % 500 == 0:
-                    _logger.info(
-                        "Generated %d/%d groups...",
-                        stats["random_groups_created"],
-                        self.random_groups_count,
-                    )
-
-        # Flush remaining
-        if pending_groups:
-            batch_result = self._flush_group_batch(Partner, pending_groups, head_type_id, backdate_updates)
-            groups_created.extend(batch_result["groups"])
-            stats["random_groups_created"] += batch_result["group_count"]
-            stats["random_individuals_created"] += batch_result["individual_count"]
-
-        # Batch-update create_dates via raw SQL
-        if backdate_updates:
-            self.env.cr.executemany(
-                "UPDATE res_partner SET create_date = %s WHERE id = %s",
-                backdate_updates,
-            )
-
-        _logger.info(
-            "Created %s random groups with %s individuals",
-            stats["random_groups_created"],
-            stats["random_individuals_created"],
-        )
-        return groups_created
-
-    def _individual_vals(self, name, gender, age, gender_id_cache, today_year):
-        """Build a res.partner vals dict for an individual (no ORM calls)."""
-        name_parts = name.split(" ", 1)
-        given_name = name_parts[0]
-        family_name = name_parts[1] if len(name_parts) > 1 else ""
-
-        name_formatted = [
-            f"{family_name}," if family_name and given_name else family_name or "",
-            given_name,
-        ]
-        computed_name = " ".join(filter(None, name_formatted)).upper()
-
-        birth_year = today_year - age
-        birth_month = random.randint(1, 12)
-        birth_day = random.randint(1, 28)
-        today = fields.Date.today()
-        birthdate = datetime.date(birth_year, birth_month, birth_day)
-        # Ensure birthdate is not in the future (matters for age 0-1)
-        if birthdate > today:
-            birthdate = today
-
-        vals = {
-            "name": computed_name,
-            "family_name": family_name,
-            "given_name": given_name,
-            "is_registrant": True,
-            "is_group": False,
-            "gender_id": gender_id_cache.get(gender, False),
-            "birthdate": birthdate,
-        }
-
-        # Income for adults
-        if age >= 18:
-            income_tier = random.random()
-            if income_tier < 0.70:
-                vals["income"] = float(random.randint(500, 2000))
-            elif income_tier < 0.95:
-                vals["income"] = float(random.randint(2000, 4000))
-            else:
-                vals["income"] = float(random.randint(4000, 8000))
-
-        return vals
-
-    def _flush_group_batch(self, Partner, pending_groups, head_type_id, backdate_updates):
-        """Batch-create a set of groups with their individuals and memberships.
-
-        Args:
-            Partner: res.partner model (with tracking_disable context)
-            pending_groups: list of (group_vals, registration_date, member_specs)
-            head_type_id: ID of the "head" membership type vocabulary code
-            backdate_updates: list to append (date, partner_id) tuples to
-
-        Returns:
-            dict with groups (recordset), group_count, individual_count
-        """
-        # 1. Batch-create all groups
-        group_vals_list = [g[0] for g in pending_groups]
-        groups = Partner.create(group_vals_list)
-
-        # 2. Batch-create all individuals across all groups
-        all_individual_vals = []
-        # Track which individuals belong to which group and head status
-        # Each entry: (group_index_in_batch, is_head)
-        individual_mapping = []
-
-        for batch_idx, (_gv, _reg_date, member_specs) in enumerate(pending_groups):
-            for indiv_vals, is_head in member_specs:
-                all_individual_vals.append(indiv_vals)
-                individual_mapping.append((batch_idx, is_head))
-
-        individuals = Partner.create(all_individual_vals) if all_individual_vals else Partner.browse()
-
-        # 3. Build membership records and backdate updates
-        membership_vals = []
-        for indiv_idx, individual in enumerate(individuals):
-            batch_idx, is_head = individual_mapping[indiv_idx]
-            group = groups[batch_idx]
-            reg_date = pending_groups[batch_idx][1]
-
-            backdate_updates.append((reg_date, individual.id))
-
-            m_vals = {"group": group.id, "individual": individual.id}
-            if is_head and head_type_id:
-                m_vals["membership_type_ids"] = [Command.link(head_type_id)]
-            membership_vals.append(m_vals)
-
-        # Backdate groups too
-        for batch_idx, group in enumerate(groups):
-            reg_date = pending_groups[batch_idx][1]
-            backdate_updates.append((reg_date, group.id))
-
-        # 4. Batch-create all memberships
-        if membership_vals:
-            self.env["spp.group.membership"].with_context(tracking_disable=True).create(membership_vals)
-
-        return {
-            "groups": groups,
-            "group_count": len(groups),
-            "individual_count": len(individuals),
-        }
-
-    def _create_random_individual(self, fake, name, gender, age, registration_date, reserved_names):
-        """Create a random individual registrant with realistic demographic data.
-
-        Uses SPPDemoDataGenerator utility method for consistent individual creation,
-        adding MIS-specific fields (income, disability) via extra_vals.
-
-        Includes income and disability status for proper variable calculation:
-        - Adults (18+): Random income between 1000-8000 (most below poverty line)
-        - ~5% chance of disability (realistic population rate)
-        """
-        if name in reserved_names:
-            return None
-
-        # Build MIS-specific extra values
-        extra_vals = {}
-
-        # Monthly income for adults (for hh_total_income aggregate)
-        # Most households should be below poverty_line (2500) to be eligible
-        if age >= 18:
-            # 70% low income (500-2000), 25% moderate (2000-4000), 5% higher (4000-8000)
-            income_tier = random.random()
-            if income_tier < 0.70:
-                extra_vals["income"] = float(random.randint(500, 2000))
-            elif income_tier < 0.95:
-                extra_vals["income"] = float(random.randint(2000, 4000))
-            else:
-                extra_vals["income"] = float(random.randint(4000, 8000))
-
-        # Disability status (~5% of population for realistic demo data)
-        # Use SPPDemoDataGenerator utility for consistent individual creation
-        DemoGenerator = self.env["spp.demo.data.generator"].with_context(tracking_disable=True)
-        individual = DemoGenerator.create_individual_from_params(name, gender, age, extra_vals)
-
-        return individual
 
     def _create_demo_programs(self, stats):
         """Create demo programs from definitions."""
@@ -4480,7 +3929,6 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         Uses the DemoAreaLoader from spp_demo to load country-specific
         area hierarchies with GIS polygon data for spatial queries.
-        If spp_demo_phl_luzon is installed, also loads full Luzon data.
 
         Args:
             stats: Statistics dictionary to update
@@ -4496,168 +3944,82 @@ class SPPMISDemoGenerator(models.TransientModel):
                 self.country_code,
                 result.get("shapes_loaded", 0),
             )
+            return result
         except Exception as e:
             _logger.warning("[spp.mis.demo] Failed to load geographic data: %s", e)
             return None
-
-        # Load extended Luzon areas if the module is installed
-        if "spp.demo.luzon.area.loader" in self.env:
-            try:
-                luzon_result = self.env["spp.demo.luzon.area.loader"].load_luzon_areas(load_shapes=True)
-                _logger.info(
-                    "[spp.mis.demo] Loaded Luzon geodata: %d areas, %d shapes",
-                    luzon_result.get("areas_created", 0),
-                    luzon_result.get("shapes_loaded", 0),
-                )
-            except Exception as e:
-                _logger.warning("[spp.mis.demo] Failed to load Luzon geodata: %s", e)
-
-        return result
-
-    def _populate_area_metadata(self, municipalities, weights_by_area_id):
-        """Populate area_sqkm and population on spp.area records.
-
-        GIS report normalization (per_area_sqkm, per_population) needs these
-        fields filled in. area_sqkm is computed from the geo_polygon geometry,
-        population is copied from the demo population weights CSV, then
-        both are rolled up to parent levels (province, region).
-
-        Args:
-            municipalities: spp.area recordset with geo_polygon
-            weights_by_area_id: dict mapping area_id to population count, or None
-        """
-        # Compute area_sqkm from geometry for ALL areas missing it (including parents)
-        self.env.cr.execute(
-            """
-            UPDATE spp_area
-            SET area_sqkm = ST_Area(geo_polygon::geography) / 1000000.0
-            WHERE (area_sqkm IS NULL OR area_sqkm = 0)
-              AND geo_polygon IS NOT NULL
-            """,
-        )
-        updated_sqkm = self.env.cr.rowcount
-        if updated_sqkm:
-            _logger.info("[spp.mis.demo] Computed area_sqkm for %d areas", updated_sqkm)
-
-        # Copy population from weights CSV into spp_area.population
-        if weights_by_area_id:
-            pop_updates = [
-                (pop, area_id) for area_id, pop in weights_by_area_id.items() if area_id in municipalities._ids
-            ]
-            if pop_updates:
-                self.env.cr.executemany(
-                    "UPDATE spp_area SET population = %s WHERE id = %s AND (population IS NULL OR population = 0)",
-                    pop_updates,
-                )
-                _logger.info("[spp.mis.demo] Set population for %d municipalities", len(pop_updates))
-
-            # Roll up population to parent areas (province, region)
-            self.env.cr.execute(
-                """
-                UPDATE spp_area parent
-                SET population = sub.total_pop
-                FROM (
-                    SELECT child.parent_id as pid, SUM(child.population) as total_pop
-                    FROM spp_area child
-                    WHERE child.population > 0 AND child.parent_id IS NOT NULL
-                    GROUP BY child.parent_id
-                ) sub
-                WHERE parent.id = sub.pid
-                  AND (parent.population IS NULL OR parent.population = 0)
-                """,
-            )
-            rolled = self.env.cr.rowcount
-            if rolled:
-                _logger.info("[spp.mis.demo] Rolled up population to %d parent areas", rolled)
-                # Second pass for grandparent level (regions)
-                self.env.cr.execute(
-                    """
-                    UPDATE spp_area parent
-                    SET population = sub.total_pop
-                    FROM (
-                        SELECT child.parent_id as pid, SUM(child.population) as total_pop
-                        FROM spp_area child
-                        WHERE child.population > 0 AND child.parent_id IS NOT NULL
-                        GROUP BY child.parent_id
-                    ) sub
-                    WHERE parent.id = sub.pid
-                      AND (parent.population IS NULL OR parent.population = 0)
-                    """,
-                )
-
-        self.env.invalidate_all()
 
     # Locale-aware area assignments for story registrants.
     # Each story gets a specific area per country for consistent demo scenarios.
     # Keys: story_id -> {locale: area_xmlid}
     STORY_AREA_MAP = {
         "juan_dela_cruz": {
-            "fil_PH": "spp_demo.area_phl_ph0403405",  # Calamba
+            "fil_PH": "spp_demo.area_phl_calamba",
             "fr_TG": "spp_demo.area_tgo_lome_tokoin",
             "si_LK": "spp_demo.area_lka_moratuwa",
         },
         "maria_santos": {
-            "fil_PH": "spp_demo.area_phl_ph0403428",  # Santa Rosa
+            "fil_PH": "spp_demo.area_phl_santa_rosa",
             "fr_TG": "spp_demo.area_tgo_aflao",
             "si_LK": "spp_demo.area_lka_kolonnawa",
         },
         "jose_reyes_multigenerational": {
-            "fil_PH": "spp_demo.area_phl_ph0403424",  # San Pablo
+            "fil_PH": "spp_demo.area_phl_san_pablo",
             "fr_TG": "spp_demo.area_tgo_kpalime",
             "si_LK": "spp_demo.area_lka_kandy_ds",
         },
         "ibrahim_hassan": {
-            "fil_PH": "spp_demo.area_phl_ph0405802",  # Antipolo
+            "fil_PH": "spp_demo.area_phl_antipolo",
             "fr_TG": "spp_demo.area_tgo_sokode",
             "si_LK": "spp_demo.area_lka_galle_ds",
         },
         "david_sofia_martinez": {
-            "fil_PH": "spp_demo.area_phl_ph1307602",  # Makati
+            "fil_PH": "spp_demo.area_phl_makati",
             "fr_TG": "spp_demo.area_tgo_lome",
             "si_LK": "spp_demo.area_lka_dehiwala",
         },
         "rosa_garcia": {
-            "fil_PH": "spp_demo.area_phl_ph1307404",  # Quezon City
+            "fil_PH": "spp_demo.area_phl_quezon_city",
             "fr_TG": "spp_demo.area_tgo_lome_be",
             "si_LK": "spp_demo.area_lka_colombo_fort",
         },
         "mary_johnson": {
-            "fil_PH": "spp_demo.area_phl_ph1307403",  # Pasig
+            "fil_PH": "spp_demo.area_phl_pasig",
             "fr_TG": "spp_demo.area_tgo_lome_nyekonakpoe",
             "si_LK": "spp_demo.area_lka_colombo_pettah",
         },
         "ahmed_said": {
-            "fil_PH": "spp_demo.area_phl_ph1307607",  # Taguig
+            "fil_PH": "spp_demo.area_phl_taguig",
             "fr_TG": "spp_demo.area_tgo_lome_adidogome",
             "si_LK": "spp_demo.area_lka_dehiwala_gn",
         },
         "nguyen_extended_family": {
-            "fil_PH": "spp_demo.area_phl_ph0402103",  # Bacoor
+            "fil_PH": "spp_demo.area_phl_bacoor",
             "fr_TG": "spp_demo.area_tgo_baguida_centre",
             "si_LK": "spp_demo.area_lka_hikkaduwa",
         },
         "amina_osman_household": {
-            "fil_PH": "spp_demo.area_phl_ph1303901",  # City of Manila
+            "fil_PH": "spp_demo.area_phl_manila",
             "fr_TG": "spp_demo.area_tgo_kpalime_centre",
             "si_LK": "spp_demo.area_lka_mount_lavinia_gn",
         },
         "carlos_elena_morales": {
-            "fil_PH": "spp_demo.area_phl_ph0402106",  # Dasmariñas
+            "fil_PH": "spp_demo.area_phl_dasmarinas",
             "fr_TG": "spp_demo.area_tgo_kpalime_tove",
             "si_LK": "spp_demo.area_lka_galle_fort",
         },
         "chen_large_family": {
-            "fil_PH": "spp_demo.area_phl_ph1307404",  # Quezon City (Commonwealth brgy in curated data)
+            "fil_PH": "spp_demo.area_phl_qc_commonwealth",
             "fr_TG": "spp_demo.area_tgo_zio",
             "si_LK": "spp_demo.area_lka_gampaha",
         },
         "grace_okonkwo": {
-            "fil_PH": "spp_demo.area_phl_ph1307602",  # Makati (Poblacion brgy in curated data)
+            "fil_PH": "spp_demo.area_phl_makati_poblacion",
             "fr_TG": "spp_demo.area_tgo_ogou",
             "si_LK": "spp_demo.area_lka_kalutara",
         },
         "luis_fernandez": {
-            "fil_PH": "spp_demo.area_phl_ph0403405",  # Calamba (Real brgy in curated data)
+            "fil_PH": "spp_demo.area_phl_calamba_real",
             "fr_TG": "spp_demo.area_tgo_lacs",
             "si_LK": "spp_demo.area_lka_matara",
         },
@@ -4667,11 +4029,9 @@ class SPPMISDemoGenerator(models.TransientModel):
         """Assign geographic areas to registrants.
 
         Strategy:
-        1. Find the lowest (most specific) area level that has geo_polygon data
-        2. Assign specific areas to story registrants (locale-aware)
-        3. Assign one of those areas (population-weighted when available) to each
-           remaining group
-        4. Individual members inherit area_id from their group
+        1. Assign specific areas to story registrants (locale-aware)
+        2. Assign random municipalities to remaining groups
+        3. Individual members inherit area_id from their group
 
         Args:
             stats: Statistics dictionary to update
@@ -4679,38 +4039,19 @@ class SPPMISDemoGenerator(models.TransientModel):
         Area = self.env["spp.area"]
         Partner = self.env["res.partner"]
 
-        # Find the lowest (most specific) area level that has geo_polygon data.
-        # This works for any hierarchy depth: 4-level (curated) or 3-level (Luzon).
-        # Flush to ensure computed area_level values are written to DB before raw SQL.
-        self.env.flush_all()
-        self.env.cr.execute("SELECT MAX(area_level) FROM spp_area WHERE geo_polygon IS NOT NULL")
-        result = self.env.cr.fetchone()
-        target_level = result[0] if result and result[0] is not None else None
+        # Get all level 3 areas (municipalities) that have geo_polygon data
+        municipalities = Area.search([("area_level", "=", 3), ("geo_polygon", "!=", False)])
 
-        if target_level is None:
+        if not municipalities:
             # Fall back to any level 3 areas even without polygons
             municipalities = Area.search([("area_level", "=", 3)])
-            if not municipalities:
-                _logger.warning("[spp.mis.demo] No areas with GIS data found, skipping area assignment")
-                stats["areas_assigned"] = 0
-                return
-            _logger.info(
-                "[spp.mis.demo] Found %d municipalities for area assignment (no GIS polygons)",
-                len(municipalities),
-            )
-        else:
-            municipalities = Area.search([("area_level", "=", target_level), ("geo_polygon", "!=", False)])
 
-            if not municipalities:
-                _logger.warning("[spp.mis.demo] No areas with GIS data found at level %s", target_level)
-                stats["areas_assigned"] = 0
-                return
+        if not municipalities:
+            _logger.warning("[spp.mis.demo] No municipalities found, skipping area assignment")
+            stats["areas_assigned"] = 0
+            return
 
-            _logger.info(
-                "[spp.mis.demo] Found %d areas with GIS data at level %d",
-                len(municipalities),
-                target_level,
-            )
+        _logger.info("[spp.mis.demo] Found %d municipalities for area assignment", len(municipalities))
 
         # Step 1: Assign specific areas to story registrants
         locale = self.env.context.get("demo_locale", "fil_PH")
@@ -4730,78 +4071,19 @@ class SPPMISDemoGenerator(models.TransientModel):
             stats["areas_assigned"] = story_assigned
             return
 
-        # Check if population weights are available (spp_demo_phl_luzon installed)
-        weights_by_area_id = None
-        if "spp.demo.population.weights" in self.env:
-            try:
-                weights_by_area_id = self.env["spp.demo.population.weights"].get_weights_by_area_id()
-            except Exception as e:
-                _logger.warning("[spp.mis.demo] Could not load population weights: %s", e)
+        # Assign random municipality to each remaining group
+        groups_assigned = story_assigned
+        for group in groups:
+            municipality = random.choice(municipalities)
+            group.write({"area_id": municipality.id})
+            groups_assigned += 1
 
-        # Populate area metadata (area_sqkm from geometry, population from weights)
-        # so that GIS report normalization (per_area_sqkm, per_population) works correctly.
-        self._populate_area_metadata(municipalities, weights_by_area_id)
-
-        # Build weighted selection if population data available
-        muni_ids = municipalities.ids
-        if weights_by_area_id:
-            weights = [weights_by_area_id.get(mid, 1) for mid in muni_ids]
-            _logger.info("[spp.mis.demo] Using population-weighted area assignment")
-        else:
-            weights = None
-
-        # Pre-assign areas for all groups at once.
-        # Guarantee a minimum floor per area so no municipality ends up with zero groups
-        # (which would show as "No Data" gray on the map).
-        MIN_PER_AREA = 2
-        num_groups = len(groups)
-        floor_total = MIN_PER_AREA * len(muni_ids)
-
-        if num_groups >= floor_total:
-            # Assign minimum floor to every municipality, then distribute the rest by weight
-            assigned_ids = muni_ids * MIN_PER_AREA  # each muni gets MIN_PER_AREA groups
-            remaining = num_groups - floor_total
-            if remaining > 0:
-                if weights:
-                    assigned_ids += random.choices(muni_ids, weights=weights, k=remaining)
-                else:
-                    assigned_ids += [random.choice(muni_ids) for _ in range(remaining)]
-            random.shuffle(assigned_ids)
-        elif weights:
-            assigned_ids = random.choices(muni_ids, weights=weights, k=num_groups)
-        else:
-            assigned_ids = [random.choice(muni_ids) for _ in range(num_groups)]
-
-        # Batch-assign areas to groups via raw SQL (avoids N+1 ORM writes)
-        group_area_pairs = list(zip(groups.ids, assigned_ids, strict=False))
-        if group_area_pairs:
-            self.env.cr.executemany(
-                "UPDATE res_partner SET area_id = %s WHERE id = %s",
-                [(area_id, group_id) for group_id, area_id in group_area_pairs],
-            )
-            _logger.info("[spp.mis.demo] Batch-assigned areas to %d groups", len(group_area_pairs))
-
-            # Propagate area_id to individual members via a single UPDATE + JOIN
-            self.env.cr.execute(
-                """
-                UPDATE res_partner p
-                SET area_id = g.area_id
-                FROM spp_group_membership gm
-                JOIN res_partner g ON g.id = gm."group"
-                WHERE gm.individual = p.id
-                  AND gm.is_ended = false
-                  AND g.is_group = true
-                  AND g.area_id IS NOT NULL
-                """
-            )
-            members_updated = self.env.cr.rowcount
-            _logger.info("[spp.mis.demo] Propagated area_id to %d individual members", members_updated)
-
-            # Invalidate ORM cache after raw SQL updates
-            self.env.invalidate_all()
+            # Members inherit area from group
+            members = Partner.search([("group_membership_ids.group", "=", group.id)])
+            if members:
+                members.write({"area_id": municipality.id})
 
         # Also assign areas to standalone individuals without area_id
-        # (registrants not attached to any group/household).
         individuals = Partner.search(
             [
                 ("is_group", "=", False),
@@ -4814,13 +4096,8 @@ class SPPMISDemoGenerator(models.TransientModel):
             municipality = random.choice(municipalities)
             ind.write({"area_id": municipality.id})
 
-        groups_assigned = story_assigned + len(group_area_pairs)
         stats["areas_assigned"] = groups_assigned
-        _logger.info(
-            "[spp.mis.demo] Assigned areas to %d groups (%d story-specific)",
-            groups_assigned,
-            story_assigned,
-        )
+        _logger.info("[spp.mis.demo] Assigned areas to %d groups (%d story-specific)", groups_assigned, story_assigned)
 
     def _assign_story_areas(self, locale):
         """Assign locale-specific areas to story registrants.
@@ -4888,7 +4165,7 @@ class SPPMISDemoGenerator(models.TransientModel):
         generates a random point within the area polygon and sets
         the coordinates field (if spp_registrant_gis is installed).
 
-        Processes in chunks to avoid excessive memory usage at scale (50K+).
+        Uses shapely to generate random points within polygons.
 
         Args:
             stats: Statistics dictionary to update
@@ -4909,92 +4186,76 @@ class SPPMISDemoGenerator(models.TransientModel):
         Partner = self.env["res.partner"]
         Area = self.env["spp.area"]
 
-        # Count total registrants with area_id
-        total_count = Partner.search_count([("is_registrant", "=", True), ("area_id", "!=", False)])
+        # Get all registrants with an area_id
+        registrants = Partner.search(
+            [
+                ("is_registrant", "=", True),
+                ("area_id", "!=", False),
+            ]
+        )
 
-        if not total_count:
+        if not registrants:
             _logger.warning("[spp.mis.demo] No registrants with areas found")
             stats["coordinates_generated"] = 0
             return
 
-        _logger.info("[spp.mis.demo] Generating coordinates for %d registrants", total_count)
+        _logger.info("[spp.mis.demo] Generating coordinates for %d registrants", len(registrants))
 
-        # Cache polygon data by area_id to avoid repeated reads
-        polygon_cache = {}
         coordinates_generated = 0
-        CHUNK_SIZE = 2000
 
-        # Process registrants in chunks to limit memory usage
-        offset = 0
-        while offset < total_count:
-            registrants = Partner.search(
-                [("is_registrant", "=", True), ("area_id", "!=", False)],
-                limit=CHUNK_SIZE,
-                offset=offset,
-            )
-            if not registrants:
-                break
+        # Group registrants by area to minimize queries
+        registrants_by_area = {}
+        for registrant in registrants:
+            area_id = registrant.area_id.id
+            if area_id not in registrants_by_area:
+                registrants_by_area[area_id] = []
+            registrants_by_area[area_id].append(registrant)
 
-            # Group this chunk by area
-            registrants_by_area = {}
-            for registrant in registrants:
-                area_id = registrant.area_id.id
-                if area_id not in registrants_by_area:
-                    registrants_by_area[area_id] = []
-                registrants_by_area[area_id].append(registrant)
+        # Process each area
+        for area_id, area_registrants in registrants_by_area.items():
+            area = Area.browse(area_id)
 
-            # Batch collect coordinate writes
-            write_batch = []  # list of (registrant_id, wkt_point)
+            # Skip if no polygon data
+            if not area.geo_polygon:
+                continue
 
-            for area_id, area_registrants in registrants_by_area.items():
-                # Get or cache polygon
-                if area_id not in polygon_cache:
-                    area = Area.browse(area_id)
-                    polygon_cache[area_id] = area.geo_polygon if area.geo_polygon else None
+            try:
+                # The ORM returns geo_polygon as a Shapely geometry object
+                polygon = area.geo_polygon
 
-                polygon = polygon_cache[area_id]
-                if polygon is None:
-                    continue
+                # Generate random points for all registrants in this area
+                minx, miny, maxx, maxy = polygon.bounds
 
-                try:
-                    minx, miny, maxx, maxy = polygon.bounds
+                for registrant in area_registrants:
+                    # Generate random point within bounding box, retry if outside polygon
+                    max_attempts = 10
+                    for _attempt in range(max_attempts):
+                        point_x = random.uniform(minx, maxx)
+                        point_y = random.uniform(miny, maxy)
+                        point = shape({"type": "Point", "coordinates": [point_x, point_y]})
 
-                    for registrant in area_registrants:
-                        max_attempts = 10
-                        for _attempt in range(max_attempts):
-                            point_x = random.uniform(minx, maxx)
-                            point_y = random.uniform(miny, maxy)
-                            point = shape({"type": "Point", "coordinates": [point_x, point_y]})
+                        if polygon.contains(point):
+                            # Set the coordinates field (GeoPointField expects WKB)
+                            registrant.write(
+                                {
+                                    "coordinates": f"POINT({point_x} {point_y})",
+                                }
+                            )
+                            coordinates_generated += 1
+                            break
+                    else:
+                        # If we couldn't find a point inside after max_attempts, use centroid
+                        centroid = polygon.centroid
+                        registrant.write(
+                            {
+                                "coordinates": f"POINT({centroid.x} {centroid.y})",
+                            }
+                        )
+                        coordinates_generated += 1
 
-                            if polygon.contains(point):
-                                write_batch.append((registrant.id, f"POINT({point_x} {point_y})"))
-                                break
-                        else:
-                            centroid = polygon.centroid
-                            write_batch.append((registrant.id, f"POINT({centroid.x} {centroid.y})"))
-
-                except Exception as e:
-                    _logger.warning("[spp.mis.demo] Failed to generate coordinates for area %s: %s", area_id, e)
-                    continue
-
-            # Batch write coordinates via raw SQL (much faster than ORM one-by-one)
-            if write_batch:
-                self.env.cr.executemany(
-                    "UPDATE res_partner SET coordinates = ST_GeomFromText(%s, 4326) WHERE id = %s",
-                    [(wkt_point, partner_id) for partner_id, wkt_point in write_batch],
-                )
-                coordinates_generated += len(write_batch)
-
-            offset += CHUNK_SIZE
-            _logger.info(
-                "[spp.mis.demo] Coordinate progress: %d / %d",
-                coordinates_generated,
-                total_count,
-            )
-
-        # Invalidate ORM cache after raw SQL coordinate updates
-        if coordinates_generated:
-            self.env.invalidate_all()
+            except Exception as e:
+                _logger.warning("[spp.mis.demo] Failed to generate coordinates for area %s: %s", area.id, e)
+                continue
 
         stats["coordinates_generated"] = coordinates_generated
         _logger.info("[spp.mis.demo] Generated coordinates for %d registrants", coordinates_generated)

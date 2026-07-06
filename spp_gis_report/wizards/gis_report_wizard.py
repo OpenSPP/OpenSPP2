@@ -102,10 +102,15 @@ class GISReportWizard(models.TransientModel):
     )
 
     # Disaggregation options
-    dimension_ids = fields.Many2many(
-        "spp.demographic.dimension",
-        string="Disaggregation Dimensions",
-        help="Demographic dimensions to compute disaggregation for",
+    disaggregate_by_gender = fields.Boolean(
+        string="Include Gender Disaggregation",
+        default=False,
+        help="Show gender breakdown in map popups",
+    )
+    disaggregate_by_age = fields.Boolean(
+        string="Include Age Group Disaggregation",
+        default=False,
+        help="Show age group breakdown in map popups",
     )
 
     # Rollup
@@ -355,7 +360,8 @@ class GISReportWizard(models.TransientModel):
             "base_area_level": self.base_area_level,
             "normalization_method": self.normalization_method,
             "enable_rollup": self.enable_rollup,
-            "dimension_ids": [(6, 0, self.dimension_ids.ids)],
+            "disaggregate_by_gender": self.disaggregate_by_gender,
+            "disaggregate_by_age": self.disaggregate_by_age,
             # Thresholds
             "threshold_mode": self.threshold_mode,
             "color_scheme_id": self.color_scheme_id.id,
