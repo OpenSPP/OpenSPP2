@@ -18,13 +18,7 @@
                     </div>
 
                     <group>
-                        <group>
-                            <field
-                                name="warehouse_id"
-                                options="{'no_create': True}"
-                                placeholder="Pick a warehouse to allocate from..."
-                            />
-                        </group>
+                        <group />
                         <group>
                             <field name="total_requested" />
                             <field name="total_available" />
@@ -32,18 +26,18 @@
                         </group>
                     </group>
 
-                    <!-- No warehouse picked yet: prompt to choose one. The
-                         warehouses that hold stock are listed below (OP#1079
-                         scenario 1). -->
+                    <!-- Info: the split proposal below is filled automatically
+                         from where stock is available; the user can adjust the
+                         quantities or warehouses before confirming (OP#1079).
+                         Hidden when nothing could be proposed (no stock) so the
+                         message doesn't contradict an empty list. -->
                     <div
                         class="alert alert-info"
                         role="status"
-                        invisible="warehouse_id"
+                        invisible="not line_ids"
                     >
-                        <strong
-                    >Select a source warehouse</strong> to preview availability.
-                        The warehouses that currently hold stock for the requested items
-                        are listed below.
+                        Stock has been split automatically across the warehouses that hold it.
+                        Adjust the quantities or warehouses per row, then confirm.
                     </div>
 
                     <!-- Warning for shortfall -->
@@ -52,46 +46,40 @@
                         role="alert"
                         invisible="not has_shortfall"
                     >
-                        <strong>Warning:</strong> Some items have insufficient stock.
-                        Consider using an alternative warehouse or accepting partial allocation.
+                        <strong>Warning:</strong> There is not enough stock across DRIMS
+                        warehouses to fully allocate every item. You can confirm a partial
+                        allocation and allocate the balance later once stock arrives.
                     </div>
-
-                    <!-- Warehouses with stock: shown when no warehouse is
-                         selected (where to allocate from) or when the selected
-                         warehouse is short (where else to look) — OP#1079. -->
-                    <group invisible="warehouse_id and not has_shortfall">
-                        <field
-                            name="alternative_warehouse_ids"
-                            widget="many2many_tags"
-                            string="Warehouses with Stock"
-                            readonly="1"
-                        />
-                    </group>
 
                     <notebook>
                         <page string="Allocation Lines" name="lines">
                             <field name="line_ids">
-                                <list editable="bottom" create="0" delete="0">
+                                <!-- Proposal-driven: rows are auto-built from
+                                     availability (OP#1079). Manual "Add a line"
+                                     is disabled because a new row can't set its
+                                     required request_line_id from the UI. Users
+                                     adjust the warehouse / quantity on the
+                                     proposed rows instead. -->
+                                <list editable="bottom" create="false">
                                     <field name="product_id" readonly="1" />
-                                    <field name="uom_id" readonly="1" />
+                                    <field
+                                        name="uom_id"
+                                        readonly="1"
+                                        groups="uom.group_uom"
+                                    />
                                     <field name="quantity_requested" />
-                                    <field name="available_qty" />
-                                    <field name="quantity_to_allocate" />
-                                    <field
-                                        name="shortfall"
-                                        decoration-danger="shortfall > 0"
-                                    />
-                                    <field
-                                        name="allocation_status"
-                                        widget="badge"
-                                        decoration-success="allocation_status == 'full'"
-                                        decoration-warning="allocation_status == 'partial'"
-                                        decoration-danger="allocation_status == 'none'"
-                                    />
                                     <field
                                         name="request_line_id"
+                                        domain="[('request_id', '=', parent.request_id)]"
                                         column_invisible="True"
                                     />
+                                    <field
+                                        name="warehouse_id"
+                                        options="{'no_create': True}"
+                                        required="1"
+                                    />
+                                    <field name="available_qty" />
+                                    <field name="quantity_to_allocate" />
                                 </list>
                             </field>
                         </page>

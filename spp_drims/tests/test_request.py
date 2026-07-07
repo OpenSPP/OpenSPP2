@@ -309,10 +309,18 @@ class TestDrimsRequest(DrimsTestCommon):
             }
         )
         line = request.line_ids[0]
-        # Simulate workflow
+        # Simulate workflow. quantity_allocated / quantity_dispatched are now
+        # sums of the per-warehouse allocation records (OP#1079), so drive
+        # them through an allocation row rather than writing them directly.
         line.quantity_approved = 80
-        line.quantity_allocated = 75
-        line.quantity_dispatched = 70
+        self.env["spp.drims.request.allocation"].create(
+            {
+                "request_line_id": line.id,
+                "warehouse_id": self.warehouse.id,
+                "quantity_allocated": 75,
+                "quantity_dispatched": 70,
+            }
+        )
         line.quantity_delivered = 70
         self.assertEqual(line.quantity_approved, 80)
         self.assertEqual(line.quantity_allocated, 75)
@@ -341,83 +349,30 @@ class TestDrimsRequest(DrimsTestCommon):
         )
         self.assertNotEqual(request1.reference, request2.reference)
 
-    def test_allocate_without_warehouse(self):
-        """Test that allocation requires source warehouse (GAP-REQ-001/002)."""
-        request = self.env["spp.drims.request"].create(
-            {
-                "incident_id": self.incident.id,
-                "destination_area_id": self.area.id,
-                "date_needed": self.future_date,
-                "line_ids": [
-                    (
-                        0,
-                        0,
-                        {
-                            "product_id": self.product.id,
-                            "quantity_requested": 10,
-                            "uom_id": self.product.uom_id.id,
-                        },
-                    )
-                ],
-            }
-        )
-        request.action_submit()
-        request.action_approve()
-        # No source warehouse - should fail
-        with self.assertRaises(UserError):
-            request.action_allocate()
-
-    def test_allocate_with_warehouse(self):
-        """Test allocation workflow with source warehouse (GAP-REQ-001/002).
-
-        OP#1032: the warehouse must also have stock — without stock,
-        `action_allocate` now refuses to advance the request state.
-        """
-        request = self.env["spp.drims.request"].create(
-            {
-                "incident_id": self.incident.id,
-                "destination_area_id": self.area.id,
-                "date_needed": self.future_date,
-                "source_warehouse_id": self.warehouse.id,
-                "line_ids": [
-                    (
-                        0,
-                        0,
-                        {
-                            "product_id": self.product.id,
-                            "quantity_requested": 10,
-                            "uom_id": self.product.uom_id.id,
-                        },
-                    )
-                ],
-            }
-        )
-        request.action_submit()
-        request.action_approve()
-        # Seed stock so the allocation actually has something to grab.
+    def _seed_stock(self, warehouse, qty, product=None):
         self.env["stock.quant"].create(
             {
-                "product_id": self.product.id,
-                "location_id": self.warehouse.lot_stock_id.id,
-                "quantity": 25.0,
+                "product_id": (product or self.product).id,
+                "location_id": warehouse.lot_stock_id.id,
+                "quantity": qty,
             }
         )
-        request.action_allocate()
-        self.assertEqual(request.state, "allocated")
-        self.assertGreater(request.total_allocated, 0)
 
-    def test_allocate_blocked_when_warehouse_has_no_stock(self):
-        """OP#1032: action_allocate refuses to advance the request state
-        when the source warehouse has zero available stock for every
-        requested line. Previously the request silently advanced to
-        Ready for Dispatch with 0 allocated.
-        """
+    def _add_alloc(self, request, qty, warehouse=None, line=None):
+        """Create/top up a per-warehouse allocation record for a request line."""
+        return request._add_allocation(line or request.line_ids[0], warehouse or self.warehouse, qty)
+
+    def _mark_allocated(self, request):
+        request._set_state_by_code("allocated")
+
+    def test_allocate_auto_splits_from_stock(self):
+        """action_allocate fills each line from the DRIMS warehouses that hold
+        stock, creating per-warehouse allocation records (OP#1079)."""
         request = self.env["spp.drims.request"].create(
             {
                 "incident_id": self.incident.id,
                 "destination_area_id": self.area.id,
                 "date_needed": self.future_date,
-                "source_warehouse_id": self.warehouse.id,
                 "line_ids": [
                     (
                         0,
@@ -433,8 +388,36 @@ class TestDrimsRequest(DrimsTestCommon):
         )
         request.action_submit()
         request.action_approve()
-        # No stock seeded — allocation should raise and the state should
-        # stay at approved (Ready for Allocation).
+        self._seed_stock(self.warehouse, 25.0)
+        request.action_allocate()
+        self.assertEqual(request.state, "allocated")
+        self.assertEqual(request.total_allocated, 10)
+        self.assertEqual(request.line_ids.allocation_ids.warehouse_id, self.warehouse)
+
+    def test_allocate_blocked_when_no_stock(self):
+        """OP#1032/OP#1079: action_allocate refuses to advance the state when
+        no DRIMS warehouse has available stock for any requested line.
+        """
+        request = self.env["spp.drims.request"].create(
+            {
+                "incident_id": self.incident.id,
+                "destination_area_id": self.area.id,
+                "date_needed": self.future_date,
+                "line_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "product_id": self.product.id,
+                            "quantity_requested": 10,
+                            "uom_id": self.product.uom_id.id,
+                        },
+                    )
+                ],
+            }
+        )
+        request.action_submit()
+        request.action_approve()
         with self.assertRaises(UserError):
             request.action_allocate()
         self.assertEqual(request.state, "approved")
@@ -447,7 +430,6 @@ class TestDrimsRequest(DrimsTestCommon):
                 "incident_id": self.incident.id,
                 "destination_area_id": self.area.id,
                 "date_needed": self.future_date,
-                "source_warehouse_id": self.warehouse.id,
                 "line_ids": [
                     (
                         0,
@@ -474,7 +456,6 @@ class TestDrimsRequest(DrimsTestCommon):
                 "incident_id": self.incident.id,
                 "destination_area_id": self.area.id,
                 "date_needed": self.future_date,
-                "source_warehouse_id": self.warehouse.id,
                 "line_ids": [
                     (
                         0,
@@ -490,22 +471,9 @@ class TestDrimsRequest(DrimsTestCommon):
         )
         request.action_submit()
         request.action_approve()
-        # Manually set allocated quantity for testing
-        request.line_ids[0].quantity_allocated = 10
-        # Set state to allocated
-        allocated_state = self.env["spp.vocabulary.code"].search(
-            [
-                (
-                    "vocabulary_id.namespace_uri",
-                    "=",
-                    "urn:openspp:vocab:drims:request-states",
-                ),
-                ("code", "=", "allocated"),
-            ],
-            limit=1,
-        )
-        if allocated_state:
-            request.state_id = allocated_state
+        # Allocate 10 from the warehouse, then mark allocated.
+        self._add_alloc(request, 10)
+        self._mark_allocated(request)
 
         # Now dispatch should work
         action = request.action_create_dispatch()
@@ -522,14 +490,52 @@ class TestDrimsRequest(DrimsTestCommon):
         # Verify request state updated
         self.assertEqual(request.state, "dispatched")
 
-    def test_create_dispatch_no_allocated_lines(self):
-        """Test that dispatch fails without allocated lines (GAP-REQ-003)."""
+    def test_dispatch_creates_one_picking_per_warehouse(self):
+        """OP#1079: a request allocated across two warehouses dispatches as one
+        picking per source warehouse, each moving that warehouse's quantity."""
+        warehouse2 = self.env["stock.warehouse"].create(
+            {"name": "Dispatch WH2", "code": "DWH2", "is_drims_warehouse": True}
+        )
         request = self.env["spp.drims.request"].create(
             {
                 "incident_id": self.incident.id,
                 "destination_area_id": self.area.id,
                 "date_needed": self.future_date,
-                "source_warehouse_id": self.warehouse.id,
+                "line_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "product_id": self.product.id,
+                            "quantity_requested": 70,
+                            "uom_id": self.product.uom_id.id,
+                        },
+                    )
+                ],
+            }
+        )
+        request.action_submit()
+        request.action_approve()
+        self._add_alloc(request, 50, warehouse=self.warehouse)
+        self._add_alloc(request, 20, warehouse=warehouse2)
+        self._mark_allocated(request)
+
+        request.action_create_dispatch()
+
+        self.assertEqual(request.picking_count, 2)
+        qty_by_wh = {p.location_id.warehouse_id: sum(p.move_ids.mapped("product_uom_qty")) for p in request.picking_ids}
+        self.assertEqual(qty_by_wh.get(self.warehouse), 50)
+        self.assertEqual(qty_by_wh.get(warehouse2), 20)
+        self.assertEqual(request.line_ids.quantity_dispatched, 70)
+        self.assertEqual(request.state, "dispatched")
+
+    def test_create_dispatch_no_allocated_lines(self):
+        """Test that dispatch fails without allocations (GAP-REQ-003)."""
+        request = self.env["spp.drims.request"].create(
+            {
+                "incident_id": self.incident.id,
+                "destination_area_id": self.area.id,
+                "date_needed": self.future_date,
                 "line_ids": [
                     (
                         0,
@@ -545,34 +551,21 @@ class TestDrimsRequest(DrimsTestCommon):
         )
         request.action_submit()
         request.action_approve()
-        # Set state to allocated but don't allocate any lines
-        allocated_state = self.env["spp.vocabulary.code"].search(
-            [
-                (
-                    "vocabulary_id.namespace_uri",
-                    "=",
-                    "urn:openspp:vocab:drims:request-states",
-                ),
-                ("code", "=", "allocated"),
-            ],
-            limit=1,
-        )
-        if allocated_state:
-            request.state_id = allocated_state
-        # No lines allocated - should fail
+        self._mark_allocated(request)
+        # No allocations created - should fail
         with self.assertRaises(UserError):
             request.action_create_dispatch()
 
     # ---------- OP#1033: partial dispatches ----------
 
     def _setup_allocated_request(self, requested=5000, allocated=2000):
-        """Build a request in ``allocated`` state with the given line numbers."""
+        """Build a request in ``allocated`` state with a single-warehouse
+        allocation of ``allocated`` units."""
         request = self.env["spp.drims.request"].create(
             {
                 "incident_id": self.incident.id,
                 "destination_area_id": self.area.id,
                 "date_needed": self.future_date,
-                "source_warehouse_id": self.warehouse.id,
                 "line_ids": [
                     (
                         0,
@@ -588,16 +581,8 @@ class TestDrimsRequest(DrimsTestCommon):
         )
         request.action_submit()
         request.action_approve()
-        request.line_ids[0].quantity_allocated = allocated
-        allocated_state = self.env["spp.vocabulary.code"].search(
-            [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:request-states"),
-                ("code", "=", "allocated"),
-            ],
-            limit=1,
-        )
-        if allocated_state:
-            request.state_id = allocated_state
+        self._add_alloc(request, allocated)
+        self._mark_allocated(request)
         return request
 
     def test_partial_dispatch_keeps_state_allocated(self):
@@ -618,8 +603,8 @@ class TestDrimsRequest(DrimsTestCommon):
         request.action_create_dispatch()
         self.assertEqual(request.state, "allocated")
 
-        # Operator allocates the remaining 3000 and dispatches again.
-        request.line_ids[0].quantity_allocated = 5000
+        # Operator allocates the remaining 3000 (same warehouse) and dispatches.
+        self._add_alloc(request, 3000)
         request.action_create_dispatch()
 
         self.assertEqual(request.state, "dispatched")
@@ -636,7 +621,7 @@ class TestDrimsRequest(DrimsTestCommon):
         first_picking = request.picking_ids[0]
         self.assertEqual(first_picking.move_ids[0].product_uom_qty, 2000)
 
-        request.line_ids[0].quantity_allocated = 5000
+        self._add_alloc(request, 3000)
         request.action_create_dispatch()
         second_picking = request.picking_ids - first_picking
         self.assertEqual(len(second_picking), 1)
@@ -683,10 +668,19 @@ class TestDrimsRequestUIFields(DrimsTestCommon):
             }
         )
         if qty_alloc:
-            req.line_ids.quantity_allocated = qty_alloc
+            self._set_alloc(req, qty_alloc)
         if approval_state:
             req.approval_state = approval_state
         return req
+
+    def _set_alloc(self, req, qty):
+        """Set the request line's total allocated qty via its allocation row."""
+        line = req.line_ids[0]
+        alloc = line.allocation_ids[:1]
+        if alloc:
+            alloc.quantity_allocated = qty
+        elif qty:
+            req._add_allocation(line, self.warehouse, qty)
 
     def test_destination_type_defaults_to_warehouse(self):
         req = self._request()
@@ -697,12 +691,10 @@ class TestDrimsRequestUIFields(DrimsTestCommon):
         req = self._request(qty_req=50, qty_alloc=0)
         self.assertFalse(req.is_fully_allocated)
         # Partially allocated.
-        req.line_ids.quantity_allocated = 20
-        req.invalidate_recordset(["is_fully_allocated"])
+        self._set_alloc(req, 20)
         self.assertFalse(req.is_fully_allocated)
         # Fully allocated.
-        req.line_ids.quantity_allocated = 50
-        req.invalidate_recordset(["is_fully_allocated"])
+        self._set_alloc(req, 50)
         self.assertTrue(req.is_fully_allocated)
 
     def test_line_allocation_short_only_after_approval(self):
@@ -711,10 +703,8 @@ class TestDrimsRequestUIFields(DrimsTestCommon):
         self.assertFalse(req.line_ids.is_allocation_short)
         # Approved but under-allocated -> flagged.
         req.approval_state = "approved"
-        req.line_ids.quantity_allocated = 20
-        req.line_ids.invalidate_recordset(["is_allocation_short"])
+        self._set_alloc(req, 20)
         self.assertTrue(req.line_ids.is_allocation_short)
         # Approved and fully allocated -> not flagged.
-        req.line_ids.quantity_allocated = 50
-        req.line_ids.invalidate_recordset(["is_allocation_short"])
+        self._set_alloc(req, 50)
         self.assertFalse(req.line_ids.is_allocation_short)

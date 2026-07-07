@@ -35,11 +35,33 @@ class DrimsRequestLine(models.Model):
         default=0.0,
         help="Quantity approved by approver (may differ from requested)",
     )
+    # OP#1079: allocation is now recorded per source warehouse. The totals
+    # below are the sums of the per-warehouse allocation rows, which are the
+    # source of truth (see spp.drims.request.allocation).
+    allocation_ids = fields.One2many(
+        "spp.drims.request.allocation",
+        "request_line_id",
+        string="Allocations",
+    )
     quantity_allocated = fields.Float(
         string="Quantity Allocated",
-        default=0.0,
-        help="Quantity allocated from warehouse stock",
+        compute="_compute_allocation_totals",
+        store=True,
+        help="Total quantity allocated across all source warehouses",
     )
+    quantity_dispatched = fields.Float(
+        string="Quantity Dispatched",
+        compute="_compute_allocation_totals",
+        store=True,
+        help="Total quantity sent out for delivery across all source warehouses",
+    )
+
+    @api.depends("allocation_ids.quantity_allocated", "allocation_ids.quantity_dispatched")
+    def _compute_allocation_totals(self):
+        for line in self:
+            line.quantity_allocated = sum(line.allocation_ids.mapped("quantity_allocated"))
+            line.quantity_dispatched = sum(line.allocation_ids.mapped("quantity_dispatched"))
+
     # OP#1075: flag a line where, after the request is approved, less has been
     # allocated than requested — used to show the shortfall in red on the form.
     is_allocation_short = fields.Boolean(
@@ -54,11 +76,6 @@ class DrimsRequestLine(models.Model):
                 line.request_id.approval_state == "approved" and line.quantity_allocated < line.quantity_requested
             )
 
-    quantity_dispatched = fields.Float(
-        string="Quantity Dispatched",
-        default=0.0,
-        help="Quantity sent out for delivery",
-    )
     quantity_delivered = fields.Float(
         string="Quantity Delivered",
         default=0.0,

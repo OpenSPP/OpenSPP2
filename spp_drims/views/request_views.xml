@@ -34,6 +34,8 @@
                 <field name="date_requested" optional="hide" />
                 <field name="affected_population" optional="hide" />
                 <field name="line_count" string="Items" optional="hide" />
+                <!-- OP#1079: which warehouse(s) stock was allocated from. -->
+                <field name="source_warehouse_names" optional="show" />
                 <field name="total_value" sum="Total Value" optional="hide" />
                 <!-- OP#1075: `state` (related to state_id.code, label "Code") is
                      needed for the row decorations below, but must not render as
@@ -325,19 +327,6 @@
                         </group>
                     </group>
 
-                    <!-- Allocation: the source warehouse can be set here before
-                         clicking "Allocate Stock" (it is optional — the wizard
-                         can also pick it). It is not editable once dispatch has
-                         started. OP#1079. -->
-                    <group string="Allocation" invisible="approval_state != 'approved'">
-                        <field
-                            name="source_warehouse_id"
-                            options="{'no_create': True, 'no_open': True}"
-                            readonly="state in ('dispatched', 'delivered', 'fulfilled')"
-                            help="Optional. Leave empty and pick a warehouse in the Allocate Stock wizard, which shows where stock is available."
-                        />
-                    </group>
-
                     <!-- Revision Needed Banner -->
                     <div
                         class="alert alert-warning"
@@ -446,6 +435,38 @@
                                     string="Total Estimated Value"
                                 />
                             </group>
+                        </page>
+
+                        <!-- OP#1079: per-warehouse allocation split. Shows
+                             which warehouse each allocated quantity comes from
+                             (a request line for 70 filled 50 @ WH1 + 20 @ WH2
+                             appears as two rows), plus how much has been
+                             dispatched from each. Read-only — the split is set
+                             and adjusted in the Allocate Stock wizard. -->
+                        <page
+                            string="Allocations"
+                            name="allocations"
+                            invisible="not allocation_ids"
+                        >
+                            <field name="allocation_ids" readonly="1" nolabel="1">
+                                <list>
+                                    <field name="product_id" />
+                                    <field name="warehouse_id" />
+                                    <field
+                                        name="quantity_allocated"
+                                        sum="Total Allocated"
+                                    />
+                                    <field
+                                        name="quantity_dispatched"
+                                        sum="Total Dispatched"
+                                    />
+                                    <field
+                                        name="quantity_remaining"
+                                        string="To Dispatch"
+                                    />
+                                    <field name="uom_id" groups="uom.group_uom" />
+                                </list>
+                            </field>
                         </page>
 
                         <page string="Approval History" name="approval_history">
