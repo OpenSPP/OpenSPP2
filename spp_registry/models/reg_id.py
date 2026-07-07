@@ -34,7 +34,15 @@ class SPPRegistrantID(models.Model):
         string="Namespace",
     )
 
-    status = fields.Selection([("invalid", "Invalid"), ("valid", "Valid")])
+    status = fields.Selection(
+        [("invalid", "Invalid"), ("valid", "Valid")],
+        default="valid",
+        help=(
+            "Validity of this ID. A newly added ID defaults to Valid; a change "
+            "request can mark it Invalid (soft-remove) so it stays on the profile "
+            "for audit."
+        ),
+    )
 
     description = fields.Char()
 

@@ -376,3 +376,47 @@ class TestNameSearch(RegIdCommon):
         # Both seeded records should appear (limit defaults to 100).
         self.assertIn(self.rec_alice_national.id, ids)
         self.assertIn(self.rec_bob_tax.id, ids)
+
+
+@tagged("post_install", "-at_install")
+class TestStatusDefault(RegIdCommon):
+    """``status`` defaults to ``valid`` (OP#1110).
+
+    Adding an ID via the registry form must mark it valid rather than
+    leaving the status empty; a change request can still mark an existing
+    ID invalid (soft-remove).
+    """
+
+    def test_new_id_defaults_to_valid(self):
+        """A directly-created ID (as the registry form does) is Valid."""
+        rec = self.RegId.create(
+            {
+                "partner_id": self.individual_a.id,
+                "id_type_id": self.id_type_national.id,
+                "value": "NAT-123",
+            }
+        )
+        self.assertEqual(rec.status, "valid")
+
+    def test_group_id_defaults_to_valid(self):
+        """Same default applies to IDs added on a group profile."""
+        rec = self.RegId.create(
+            {
+                "partner_id": self.group.id,
+                "id_type_id": self.id_type_national.id,
+                "value": "GRP-123",
+            }
+        )
+        self.assertEqual(rec.status, "valid")
+
+    def test_explicit_status_is_preserved(self):
+        """An explicit status wins over the default (e.g. CR soft-remove)."""
+        rec = self.RegId.create(
+            {
+                "partner_id": self.individual_a.id,
+                "id_type_id": self.id_type_national.id,
+                "value": "NAT-456",
+                "status": "invalid",
+            }
+        )
+        self.assertEqual(rec.status, "invalid")

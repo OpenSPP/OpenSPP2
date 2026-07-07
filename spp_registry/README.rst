@@ -139,6 +139,14 @@ Dependencies
 Changelog
 =========
 
+19.0.2.1.3
+~~~~~~~~~~
+
+- fix(registry): show an ID **Status** column on the group form
+  (Valid/Invalid badge) and default a newly added ID to Valid so IDs
+  added via the registry form are no longer left with an empty status
+  (#1110)
+
 19.0.2.1.1
 ~~~~~~~~~~
 
