@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from odoo import Command
 from odoo.tests.common import TransactionCase
 
 
@@ -114,3 +115,41 @@ class TestNoMatchingRuleNoRead(AuditDisableCommon):
         self.assertEqual(partner.name, "No Write Rule Changed")
         self.assertFalse(self._logs(partner, "write"))
         self.assertFalse(reads, "no write rule -> no full-record snapshot reads")
+
+    def test_unlink_without_unlink_rule(self):
+        partner = self.env["res.partner"].create({"name": "No Unlink Rule"})
+        partner_id = partner.id
+        self.audit_rule.write({"is_log_unlink": False})
+        patcher, reads = self._classic_write_read_spy()
+        with patcher:
+            partner.unlink()
+        self.assertFalse(partner.exists())
+        self.assertFalse(
+            self._logs(self.env["res.partner"].browse(partner_id), "unlink"),
+            "no unlink rule -> no unlink log",
+        )
+        self.assertFalse(reads, "no unlink rule -> no full-record snapshot read")
+
+
+class TestMarkupValuesLogged(AuditDisableCommon):
+    """Markup field values (Html fields, e.g. res.partner.comment) must be
+    stringified before the audit payload is logged."""
+
+    def test_html_field_value_is_stringified_in_log(self):
+        # Make sure the Html field is among the rule's logged fields (a
+        # pre-existing rule may restrict field_to_log_ids to a fixed list).
+        comment_field = self.env["ir.model.fields"]._get("res.partner", "comment")
+        self.audit_rule.write({"field_to_log_ids": [Command.link(comment_field.id)]})
+        partner = self.env["res.partner"].create(
+            {
+                "name": "Markup Partner",
+                "comment": "<p>Audit Markup Body</p>",
+            }
+        )
+        logs = self._logs(partner, "create")
+        self.assertTrue(logs, "create with an Html field must still be logged")
+        self.assertIn(
+            "Audit Markup Body",
+            logs[0].data or "",
+            "the Html field's content must appear in the logged data as plain text",
+        )
