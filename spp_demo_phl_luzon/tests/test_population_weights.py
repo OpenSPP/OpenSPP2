@@ -56,7 +56,10 @@ class TestPopulationWeights(TransactionCase):
         )
         _reset_cache()
 
-        with patch("odoo.tools.misc.file_path", return_value="/fake/path"):
+        with patch(
+            "odoo.addons.spp_demo_phl_luzon.models.population_weights.file_path",
+            return_value="/fake/path",
+        ):
             with patch("builtins.open", mock_open(read_data=csv_content)):
                 weights = DemoPopulationWeights.get_weights()
 
@@ -68,7 +71,10 @@ class TestPopulationWeights(TransactionCase):
         csv_content = "pcode,name,province_pcode,region_pcode,population\n"
         _reset_cache()
 
-        with patch("odoo.tools.misc.file_path", return_value="/fake/path"):
+        with patch(
+            "odoo.addons.spp_demo_phl_luzon.models.population_weights.file_path",
+            return_value="/fake/path",
+        ):
             with patch("builtins.open", mock_open(read_data=csv_content)):
                 weights = DemoPopulationWeights.get_weights()
 

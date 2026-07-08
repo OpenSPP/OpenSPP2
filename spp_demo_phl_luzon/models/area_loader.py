@@ -157,6 +157,14 @@ class DemoLuzonAreaLoader(models.TransientModel):
         features = geojson_data.get("features", [])
         shapes_loaded = 0
 
+        # Import shapely once up front: if it is missing there is no point
+        # iterating features (each would fail and flood the log with warnings).
+        try:
+            from shapely.geometry import shape
+        except ImportError:
+            _logger.warning("shapely not installed; skipping Luzon shape loading")
+            return 0
+
         # Batch-fetch all referenced areas once; a per-feature search would
         # issue hundreds of queries for Luzon's administrative areas.
         codes = [f.get("properties", {}).get("code") for f in features]
@@ -176,8 +184,6 @@ class DemoLuzonAreaLoader(models.TransientModel):
                 continue
 
             try:
-                from shapely.geometry import shape
-
                 geom = shape(geometry)
                 area.write({"geo_polygon": geom.wkt})
                 shapes_loaded += 1

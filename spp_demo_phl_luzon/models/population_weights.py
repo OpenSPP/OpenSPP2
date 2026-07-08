@@ -29,11 +29,11 @@ class DemoPopulationWeights(models.TransientModel):
         with open(csv_path, encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                pcode = row["pcode"].strip()
                 try:
+                    pcode = row["pcode"].strip()
                     population = int(row["population"])
-                except (ValueError, KeyError):
-                    _logger.warning("Skipping invalid population row for pcode: %s", pcode)
+                except (ValueError, KeyError, AttributeError):
+                    _logger.warning("Skipping invalid population row: %s", row)
                     continue
                 weights[pcode] = population
 
