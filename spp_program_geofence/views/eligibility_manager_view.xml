@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Geofence Eligibility Manager Form -->
+    <record id="view_eligibility_manager_geofence_form" model="ir.ui.view">
+        <field name="name">spp.program.membership.manager.geofence.form</field>
+        <field name="model">spp.program.membership.manager.geofence</field>
+        <field name="arch" type="xml">
+            <form string="Geofence Eligibility Manager">
+                <sheet>
+                    <div class="oe_title mb-4">
+                        <h1>
+                            <field
+                                name="name"
+                                placeholder="Enter the Manager Name..."
+                            />
+                        </h1>
+                        <field name="program_id" invisible="1" />
+                    </div>
+
+                    <!-- Warning: no geofences configured -->
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="program_geofence_ids"
+                    >
+                        <i class="fa fa-exclamation-triangle me-2" title="Warning" />
+                        No geofences configured on this program. Add geofences
+                        on the program's <strong>Overview</strong> tab before
+                        importing eligible registrants.
+                    </div>
+
+                    <group name="settings_section" col="2">
+                        <group name="settings_primary">
+                            <field
+                                name="include_area_fallback"
+                                widget="boolean_toggle"
+                                help="When enabled, registrants without GPS coordinates will be matched by their assigned administrative area if it overlaps the geofence. Disable to require precise GPS coordinates only."
+                            />
+                        </group>
+                        <group name="settings_secondary">
+                            <field
+                                name="fallback_area_type_id"
+                                invisible="not include_area_fallback"
+                                options="{'no_create': True}"
+                                help="Restrict area fallback to a specific administrative level (e.g. District). Leave empty to match all area types."
+                            />
+                        </group>
+                    </group>
+
+                    <group string="Program Geofences" colspan="4" col="1">
+                        <div class="alert alert-info small py-2" role="alert">
+                            <i class="fa fa-info-circle me-2" title="Info" />
+                            This manager checks whether registrants fall within
+                            the program's geographic scope. Geofences are
+                            configured on the program's
+                            <strong>Overview</strong> tab.
+                        </div>
+                        <field
+                            name="program_geofence_ids"
+                            nolabel="1"
+                            readonly="1"
+                            widget="many2many_tags"
+                        />
+                    </group>
+
+                    <!-- Preview section -->
+                    <group string="Preview" colspan="4" col="1">
+                        <div class="o_row mb-3">
+                            <button
+                                name="action_preview_eligible"
+                                string="Preview Eligible Registrants"
+                                type="object"
+                                class="btn-secondary"
+                                icon="fa-eye"
+                            />
+                        </div>
+                        <div
+                            class="alert alert-success"
+                            role="status"
+                            invisible="preview_error or not program_geofence_ids"
+                        >
+                            <i class="fa fa-map-marker me-2" title="Location match" />
+                            <strong>
+                            <field name="preview_count" class="oe_inline" />
+                        </strong>
+                            registrants match the current geographic scope.
+                        </div>
+                        <div
+                            class="alert alert-danger"
+                            role="alert"
+                            invisible="not preview_error"
+                        >
+                            <i class="fa fa-exclamation-triangle me-2" title="Error" />
+                            <field name="preview_error" nolabel="1" class="oe_inline" />
+                        </div>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

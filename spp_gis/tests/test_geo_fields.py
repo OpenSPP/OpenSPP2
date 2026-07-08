@@ -246,3 +246,228 @@ class TestOperatorTableAlias(TransactionCase):
         )
 
         self.assertIn('"spp_area"."geo_polygon"', result)
+
+
+class TestOperatorMultiPolygon(TransactionCase):
+    """Test that the Operator handles MultiPolygon and GeometryCollection types."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.env = cls.env(
+            context=dict(
+                cls.env.context,
+                test_queue_job_no_delay=True,
+            )
+        )
+
+    def _make_field(self, name="geo_polygon", srid=4326):
+        """Create a mock field for the Operator."""
+        from odoo.addons.spp_gis.fields import GeoPolygonField
+
+        field = GeoPolygonField()
+        field.name = name
+        field.srid = srid
+        return field
+
+    def test_multipolygon_domain_query(self):
+        """domain_query accepts MultiPolygon GeoJSON and generates ST_GeomFromGeoJSON SQL."""
+        from odoo.addons.spp_gis.operators import Operator
+
+        field = self._make_field()
+        operator = Operator(field)
+
+        geojson = {
+            "type": "MultiPolygon",
+            "coordinates": [
+                [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+                [[[10, 10], [11, 10], [11, 11], [10, 11], [10, 10]]],
+            ],
+        }
+
+        result = operator.domain_query("gis_intersects", geojson)
+        sql_string = str(result)
+
+        self.assertIn("ST_Intersects", sql_string)
+        self.assertIn("ST_GeomFromGeoJSON", sql_string)
+        self.assertIn("MultiPolygon", sql_string)
+
+    def test_multipolygon_domain_query_with_alias(self):
+        """domain_query for MultiPolygon uses table-qualified column names."""
+        from odoo.addons.spp_gis.operators import Operator
+
+        field = self._make_field()
+        operator = Operator(field, table_alias="spp_area")
+
+        geojson = {
+            "type": "MultiPolygon",
+            "coordinates": [
+                [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+                [[[10, 10], [11, 10], [11, 11], [10, 11], [10, 10]]],
+            ],
+        }
+
+        result = operator.domain_query("gis_within", geojson)
+        sql_string = str(result)
+
+        self.assertIn("ST_Within", sql_string)
+        self.assertIn('"spp_area"."geo_polygon"', sql_string)
+        self.assertIn("ST_GeomFromGeoJSON", sql_string)
+
+    def test_multipolygon_from_geojson_string(self):
+        """domain_query accepts MultiPolygon as a JSON string."""
+        from odoo.addons.spp_gis.operators import Operator
+
+        field = self._make_field()
+        operator = Operator(field)
+
+        geojson_str = json.dumps(
+            {
+                "type": "MultiPolygon",
+                "coordinates": [
+                    [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+                    [[[10, 10], [11, 10], [11, 11], [10, 11], [10, 10]]],
+                ],
+            }
+        )
+
+        result = operator.domain_query("gis_contains", geojson_str)
+        sql_string = str(result)
+
+        self.assertIn("ST_Contains", sql_string)
+        self.assertIn("ST_GeomFromGeoJSON", sql_string)
+
+    def test_geometrycollection_domain_query(self):
+        """domain_query accepts GeometryCollection GeoJSON."""
+        from odoo.addons.spp_gis.operators import Operator
+
+        field = self._make_field()
+        operator = Operator(field)
+
+        geojson = {
+            "type": "GeometryCollection",
+            "geometries": [
+                {
+                    "type": "Polygon",
+                    "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+                },
+                {"type": "Point", "coordinates": [5, 5]},
+            ],
+        }
+
+        result = operator.domain_query("gis_intersects", geojson)
+        sql_string = str(result)
+
+        self.assertIn("ST_Intersects", sql_string)
+        self.assertIn("ST_GeomFromGeoJSON", sql_string)
+        self.assertIn("GeometryCollection", sql_string)
+
+    def test_multipolygon_distance_uses_buffer(self):
+        """Distance operand on MultiPolygon uses ST_Buffer path."""
+        from odoo.addons.spp_gis.operators import Operator
+
+        field = self._make_field()
+        operator = Operator(field)
+
+        geojson = {
+            "type": "MultiPolygon",
+            "coordinates": [
+                [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+            ],
+        }
+
+        result = operator.domain_query("gis_intersects", (geojson, 1000))
+        sql_string = str(result)
+
+        self.assertIn("ST_Intersects", sql_string)
+        self.assertIn("ST_Buffer", sql_string)
+        self.assertIn("ST_Transform", sql_string)
+
+    def test_geometrycollection_distance_uses_buffer(self):
+        """Distance operand on GeometryCollection uses ST_Buffer path."""
+        from odoo.addons.spp_gis.operators import Operator
+
+        field = self._make_field()
+        operator = Operator(field)
+
+        geojson = {
+            "type": "GeometryCollection",
+            "geometries": [
+                {
+                    "type": "Polygon",
+                    "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+                }
+            ],
+        }
+
+        result = operator.domain_query("gis_intersects", (geojson, 500))
+        sql_string = str(result)
+
+        self.assertIn("ST_Intersects", sql_string)
+        self.assertIn("ST_Buffer", sql_string)
+        self.assertIn("ST_Transform", sql_string)
+
+    def test_multipolygon_from_shapely(self):
+        """domain_query accepts a shapely MultiPolygon object."""
+        from shapely.geometry import MultiPolygon, Polygon
+
+        from odoo.addons.spp_gis.operators import Operator
+
+        field = self._make_field()
+        operator = Operator(field)
+
+        poly1 = Polygon([(0, 0), (1, 0), (1, 1), (0, 1), (0, 0)])
+        poly2 = Polygon([(10, 10), (11, 10), (11, 11), (10, 11), (10, 10)])
+        multi = MultiPolygon([poly1, poly2])
+
+        result = operator.domain_query("gis_intersects", multi)
+        sql_string = str(result)
+
+        self.assertIn("ST_Intersects", sql_string)
+        self.assertIn("ST_GeomFromGeoJSON", sql_string)
+
+    def test_validate_geojson_accepts_multipolygon(self):
+        """validate_geojson accepts MultiPolygon type."""
+        from odoo.addons.spp_gis.operators import Operator
+
+        field = self._make_field()
+        operator = Operator(field)
+
+        geojson = {
+            "type": "MultiPolygon",
+            "coordinates": [
+                [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+            ],
+        }
+        # Should not raise
+        operator.validate_geojson(geojson)
+
+    def test_validate_geojson_rejects_invalid_type(self):
+        """validate_geojson rejects unsupported geometry types."""
+        from odoo.addons.spp_gis.operators import Operator
+
+        field = self._make_field()
+        operator = Operator(field)
+
+        geojson = {"type": "InvalidType", "coordinates": []}
+        with self.assertRaises(ValueError):
+            operator.validate_geojson(geojson)
+
+    def test_polygon_still_uses_coordinate_construction(self):
+        """Regular Polygon queries still use the coordinate-based path (not ST_GeomFromGeoJSON)."""
+        from odoo.addons.spp_gis.operators import Operator
+
+        field = self._make_field()
+        operator = Operator(field)
+
+        geojson = {
+            "type": "Polygon",
+            "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+        }
+
+        result = operator.domain_query("gis_intersects", geojson)
+        sql_string = str(result)
+
+        self.assertIn("ST_Intersects", sql_string)
+        self.assertIn("ST_MakePolygon", sql_string)
+        self.assertNotIn("ST_GeomFromGeoJSON", sql_string)

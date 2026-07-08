@@ -61,18 +61,12 @@ class TestGeofenceModel(TransactionCase):
             ],
         }
 
-        # Create test vocabulary for tags
-        cls.tag1 = cls.env["spp.vocabulary"].search(
-            [("namespace_uri", "=", "urn:openspp:concept:geofence_tag_1")],
-            limit=1,
+        # Create test tag for geofences
+        cls.tag1 = cls.env["spp.gis.geofence.tag"].create(
+            {
+                "name": "Test Tag 1",
+            }
         )
-        if not cls.tag1:
-            cls.tag1 = cls.env["spp.vocabulary"].create(
-                {
-                    "name": "Test Tag 1",
-                    "namespace_uri": "urn:openspp:concept:geofence_tag_1",
-                }
-            )
 
     def test_create_geofence_basic(self):
         """Test creating a basic geofence."""
