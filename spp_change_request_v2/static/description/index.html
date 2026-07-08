@@ -1347,10 +1347,12 @@ Create Group (#876), Add Member now searches an existing member
 Household via a per-member role table (#873), and Split Household as a
 relational member move with single-head validation (#877). Review
 pages render the real data as tables / detail sections.</li>
-<li>fix(change_request): Split Household “New Household Information” now
-shows a fillable Address field (was an unrendered <tt class="docutils literal">colspan</tt> field)
-and drops the Latitude/Longitude inputs, matching the group registry
-fields (#877)</li>
+<li>fix(change_request): Split Household “New Household Information” shows
+a fillable Address field, and the new-household <strong>Latitude/Longitude</strong>
+are surfaced with an interactive <strong>map</strong> (<tt class="docutils literal">spp_gis</tt>, OSM basemap) to
+pick/preview the location — the two stay in sync and out-of-range
+coordinates are rejected. The review page surfaces the coordinates
+plus the new household’s Phone / Bank / ID lines as tables (#877)</li>
 <li><strong>Breaking:</strong> the Add Member detail no longer exposes the
 create-a-new-individual fields (<tt class="docutils literal">created_individual_id</tt>,
 <tt class="docutils literal">given_name</tt>, <tt class="docutils literal">family_name</tt>, <tt class="docutils literal">birthdate</tt>, <tt class="docutils literal">gender_id</tt>,

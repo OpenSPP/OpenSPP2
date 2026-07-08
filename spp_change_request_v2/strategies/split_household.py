@@ -121,13 +121,47 @@ class SPPCRApplySplitHousehold(models.AbstractModel):
                 detail.split_reason
             )
 
+        # New-household One2many lines shown as tables on the review page
+        # (OP#877), mirroring the Create Group preview.
+        tables = []
+        phone_rows = [
+            [p.phone_no or "", p.country_id.display_name or "", _("Yes") if p.is_primary else ""]
+            for p in detail.new_phone_line_ids
+        ]
+        if phone_rows:
+            tables.append(
+                {"title": _("Phone Numbers"), "columns": [_("Number"), _("Country"), _("Primary")], "rows": phone_rows}
+            )
+        bank_rows = [
+            [b.acc_number or "", b.acc_holder_name or "", b.bank_id.display_name or ""]
+            for b in detail.new_bank_line_ids
+        ]
+        if bank_rows:
+            tables.append(
+                {
+                    "title": _("Bank Accounts"),
+                    "columns": [_("Account Number"), _("Account Holder"), _("Bank")],
+                    "rows": bank_rows,
+                }
+            )
+        id_doc_rows = [
+            [d.id_type_id.display_name or "", d.value or "", str(d.expiry_date) if d.expiry_date else ""]
+            for d in detail.new_id_doc_line_ids
+        ]
+        if id_doc_rows:
+            tables.append(
+                {
+                    "title": _("ID Documents"),
+                    "columns": [_("Type"), _("Number"), _("Expiry Date")],
+                    "rows": id_doc_rows,
+                }
+            )
+
         members_rows = [
             [line.individual_id.display_name or "", line.membership_type_id.display if line.membership_type_id else ""]
             for line in detail.member_line_ids
         ]
-        tables = [
-            {"title": _("Members to Move"), "columns": [_("Name"), _("Role")], "rows": members_rows},
-        ]
+        tables.append({"title": _("Members to Move"), "columns": [_("Name"), _("Role")], "rows": members_rows})
 
         return {
             "_action": "split_household",
@@ -137,6 +171,9 @@ class SPPCRApplySplitHousehold(models.AbstractModel):
             _("Area"): detail.new_area_id.display_name if detail.new_area_id else None,
             _("Address"): detail.new_address or None,
             _("Email"): detail.new_email or None,
+            # OP#877: surface the new household's coordinates on the review page.
+            _("Latitude"): detail.new_latitude or None,
+            _("Longitude"): detail.new_longitude or None,
             _("Reason for Split"): reason_label,
             _("Remarks"): detail.remarks or None,
             "_tables": tables,

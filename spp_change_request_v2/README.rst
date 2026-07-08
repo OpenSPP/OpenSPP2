@@ -862,10 +862,12 @@ Changelog
   Household via a per-member role table (#873), and Split Household as a
   relational member move with single-head validation (#877). Review
   pages render the real data as tables / detail sections.
-- fix(change_request): Split Household "New Household Information" now
-  shows a fillable Address field (was an unrendered ``colspan`` field)
-  and drops the Latitude/Longitude inputs, matching the group registry
-  fields (#877)
+- fix(change_request): Split Household "New Household Information" shows
+  a fillable Address field, and the new-household **Latitude/Longitude**
+  are surfaced with an interactive **map** (``spp_gis``, OSM basemap) to
+  pick/preview the location — the two stay in sync and out-of-range
+  coordinates are rejected. The review page surfaces the coordinates
+  plus the new household's Phone / Bank / ID lines as tables (#877)
 - **Breaking:** the Add Member detail no longer exposes the
   create-a-new-individual fields (``created_individual_id``,
   ``given_name``, ``family_name``, ``birthdate``, ``gender_id``,

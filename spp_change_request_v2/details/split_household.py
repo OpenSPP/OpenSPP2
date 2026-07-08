@@ -1,4 +1,6 @@
-from odoo import api, fields, models
+import json
+
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
 ROLE_NAMESPACE = "urn:openspp:vocab:group-membership-type"
@@ -76,6 +78,13 @@ class SPPCRDetailSplitHousehold(models.Model):
     new_area_id = fields.Many2one("spp.area", string="Area", tracking=True)
     new_address = fields.Text(string="Address", tracking=True)
     new_email = fields.Char(string="Email", tracking=True)
+    # New household location (OP#877). Latitude/Longitude are the editable
+    # source of truth (mirrors Create Group and drives the dispatch/location
+    # string in the strategy); new_coordinates is a GeoPoint kept in sync so the
+    # location can be viewed/picked on the map below the fields.
+    new_latitude = fields.Float(string="Latitude", digits=(13, 10), tracking=True)
+    new_longitude = fields.Float(string="Longitude", digits=(13, 10), tracking=True)
+    new_coordinates = fields.GeoPointField(string="Map Location")
     new_phone_line_ids = fields.One2many(
         "spp.cr.detail.create_group.phone", "split_household_detail_id", string="Phone Numbers"
     )
@@ -97,6 +106,52 @@ class SPPCRDetailSplitHousehold(models.Model):
     # ──────────────────────────────────────────────────────────────────────
     # Computes / constraints
     # ──────────────────────────────────────────────────────────────────────
+    @api.onchange("new_latitude", "new_longitude")
+    def _onchange_new_latlon(self):
+        """Reflect typed Latitude/Longitude onto the map pin (OP#877).
+
+        Guard the WGS84 ranges: an out-of-range value must never reach the map
+        widget, otherwise MapLibre throws "Invalid LngLat ...". When invalid, the
+        pin is cleared and the user is warned to correct the value (the typed
+        value is left in place so they can fix it).
+        """
+        for rec in self:
+            lat, lon = rec.new_latitude, rec.new_longitude
+            if not lat and not lon:
+                rec.new_coordinates = False
+                continue
+            if not (-90 <= lat <= 90) or not (-180 <= lon <= 180):
+                rec.new_coordinates = False
+                return {
+                    "warning": {
+                        "title": _("Invalid coordinates"),
+                        "message": _("Latitude must be between -90 and 90 and Longitude between -180 and 180."),
+                    }
+                }
+            rec.new_coordinates = json.dumps({"type": "Point", "coordinates": [lon, lat]})
+
+    @api.constrains("new_latitude", "new_longitude")
+    def _check_coordinates_range(self):
+        """Reject coordinates outside the valid WGS84 ranges (OP#877)."""
+        for rec in self:
+            if rec.new_latitude and not (-90 <= rec.new_latitude <= 90):
+                raise ValidationError(_("Latitude must be between -90 and 90."))
+            if rec.new_longitude and not (-180 <= rec.new_longitude <= 180):
+                raise ValidationError(_("Longitude must be between -180 and 180."))
+
+    @api.onchange("new_coordinates")
+    def _onchange_new_coordinates(self):
+        """Reflect a pin dropped on the map back onto Latitude/Longitude (OP#877)."""
+        for rec in self:
+            geom = rec.new_coordinates
+            if geom and not geom.is_empty:
+                # GeoPoint stores (x=longitude, y=latitude); only write when the
+                # value actually differs so the two onchanges don't ping-pong.
+                if rec.new_longitude != geom.x:
+                    rec.new_longitude = geom.x
+                if rec.new_latitude != geom.y:
+                    rec.new_latitude = geom.y
+
     @api.depends("source_group_id")
     def _compute_available_member_ids(self):
         head = self.env["spp.vocabulary.code"].get_code(ROLE_NAMESPACE, HEAD_ROLE_CODE)

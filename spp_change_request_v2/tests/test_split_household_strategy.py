@@ -92,6 +92,67 @@ class TestSplitHouseholdStrategy(TransactionCase):
         # head + m2 remain in the source.
         self.assertTrue(self._active_membership(self.source_group, self.head))
 
+    def test_new_household_location_sync_and_preview(self):
+        """OP#877: Latitude/Longitude are editable, sync both ways with the map
+        pin, and show on the review page."""
+        cr = self._make_cr(
+            new_group_name="Geo Household",
+            split_reason="independence",
+            new_latitude=14.5995,
+            new_longitude=120.9842,
+            new_phone_line_ids=[(0, 0, {"phone_no": "0912312312312", "is_primary": True})],
+            member_line_ids=[self._line(self.m3)],
+        )
+        detail = cr.get_detail()
+
+        # Latitude/Longitude -> map pin
+        detail._onchange_new_latlon()
+        self.assertTrue(detail.new_coordinates)
+        self.assertAlmostEqual(detail.new_coordinates.x, 120.9842, places=4)
+        self.assertAlmostEqual(detail.new_coordinates.y, 14.5995, places=4)
+
+        # Map pin -> Latitude/Longitude
+        detail.new_coordinates = '{"type": "Point", "coordinates": [100.5, -6.2]}'
+        detail._onchange_new_coordinates()
+        self.assertAlmostEqual(detail.new_longitude, 100.5, places=4)
+        self.assertAlmostEqual(detail.new_latitude, -6.2, places=4)
+
+        # Review page surfaces Latitude and Longitude explicitly.
+        preview = self.env["spp.cr.apply.split_household"].preview(cr)
+        self.assertAlmostEqual(preview.get("Longitude"), 100.5, places=4)
+        self.assertAlmostEqual(preview.get("Latitude"), -6.2, places=4)
+
+        # Review page surfaces the new household's Phone/Bank/ID lines as tables.
+        table_titles = [t["title"] for t in preview.get("_tables", [])]
+        self.assertIn("Phone Numbers", table_titles)
+        phone_table = next(t for t in preview["_tables"] if t["title"] == "Phone Numbers")
+        self.assertIn("0912312312312", [cell for row in phone_table["rows"] for cell in row])
+
+        # The geo_point map widget needs a GIS view for the model, otherwise it
+        # raises "No GIS view defined for the model" (OP#877).
+        gis_view = self.env["spp.cr.detail.split_household"]._get_gis_view()
+        self.assertEqual(gis_view.type, "gis")
+
+    def test_out_of_range_coordinates_handled(self):
+        """OP#877: out-of-range coordinates never reach the map and can't save."""
+        # Onchange guard on an in-memory record (form context, before the
+        # constraint applies): an out-of-range latitude clears the pin so
+        # MapLibre never gets an invalid LngLat, and returns a warning.
+        draft = self.env["spp.cr.detail.split_household"].new({"new_latitude": 500.0, "new_longitude": 10.0})
+        warning = draft._onchange_new_latlon()
+        self.assertFalse(draft.new_coordinates)
+        self.assertTrue(warning and warning.get("warning"))
+
+        # A valid latitude sets the pin.
+        draft.new_latitude = 45.0
+        draft._onchange_new_latlon()
+        self.assertTrue(draft.new_coordinates)
+
+        # The constraint blocks persisting out-of-range values.
+        cr = self._make_cr(new_group_name="Geo", member_line_ids=[self._line(self.m3)])
+        with self.assertRaises(ValidationError):
+            cr.get_detail().write({"new_latitude": 500.0})
+
     def test_role_assigned_in_new_group(self):
         if not self.member_kind:
             self.skipTest("member role code not present")

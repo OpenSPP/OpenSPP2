@@ -86,7 +86,14 @@
                         </group>
                         <group>
                             <field name="new_email" widget="email" />
+                            <field name="new_latitude" />
+                            <field name="new_longitude" />
                         </group>
+                    </group>
+                    <!-- OP#877: map below the coordinates — drop a pin to set the
+                         location, or type the Latitude/Longitude above. -->
+                    <group>
+                        <field name="new_coordinates" nolabel="1" colspan="2" />
                     </group>
                     <group>
                         <field name="new_phone_line_ids" string="Phone Numbers">
