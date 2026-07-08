@@ -48,7 +48,6 @@
             "spp_gis_report/static/src/css/gis_report.css",
         ],
     },
-    "post_init_hook": "_migrate_boolean_disaggregation",
     "installable": True,
     "application": False,
     "auto_install": False,
