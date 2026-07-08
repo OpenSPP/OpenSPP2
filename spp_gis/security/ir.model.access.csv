@@ -6,6 +6,9 @@ access_spp_raster_layer_admin,Raster Layer Admin,spp_gis.model_spp_gis_raster_la
 access_spp_raster_layer_type_admin,Raster Layer Type Admin,spp_gis.model_spp_gis_raster_layer_type,spp_security.group_spp_admin,1,1,1,1
 access_spp_data_layer_read,Data Layer Read,spp_gis.model_spp_gis_data_layer,spp_registry.group_registry_read,1,0,0,0
 access_spp_raster_layer_read,Raster Layer Read,spp_gis.model_spp_gis_raster_layer,spp_registry.group_registry_read,1,0,0,0
+access_spp_gis_geofence_tag_admin,Geofence Tag Admin,spp_gis.model_spp_gis_geofence_tag,spp_security.group_spp_admin,1,1,1,1
+access_spp_gis_geofence_tag_manager,Geofence Tag Manager,spp_gis.model_spp_gis_geofence_tag,spp_registry.group_registry_manager,1,1,1,0
+access_spp_gis_geofence_tag_read,Geofence Tag Read,spp_gis.model_spp_gis_geofence_tag,spp_registry.group_registry_read,1,0,0,0
 access_spp_gis_geofence_admin,Geofence Admin,spp_gis.model_spp_gis_geofence,spp_security.group_spp_admin,1,1,1,1
 access_spp_gis_geofence_manager,Geofence Manager,spp_gis.model_spp_gis_geofence,spp_registry.group_registry_manager,1,1,1,1
 access_spp_gis_geofence_officer,Geofence Officer,spp_gis.model_spp_gis_geofence,spp_registry.group_registry_officer,1,1,1,0
