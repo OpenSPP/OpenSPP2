@@ -379,16 +379,16 @@ class TestNameSearch(RegIdCommon):
 
 
 @tagged("post_install", "-at_install")
-class TestStatusDefault(RegIdCommon):
-    """``status`` defaults to ``valid`` (OP#1110).
+class TestStatusEmptyOnRegistryAdd(RegIdCommon):
+    """``status`` is left empty for IDs added via the registry UI (OP#1110).
 
-    Adding an ID via the registry form must mark it valid rather than
-    leaving the status empty; a change request can still mark an existing
-    ID invalid (soft-remove).
+    Per the #1110 decision, IDs added directly through the registry (admin)
+    keep an empty status to stay consistent across the system; Valid/Invalid
+    is set only by the ID-document change request flow.
     """
 
-    def test_new_id_defaults_to_valid(self):
-        """A directly-created ID (as the registry form does) is Valid."""
+    def test_new_id_status_empty(self):
+        """A directly-created ID (as the registry form does) has no status."""
         rec = self.RegId.create(
             {
                 "partner_id": self.individual_a.id,
@@ -396,10 +396,10 @@ class TestStatusDefault(RegIdCommon):
                 "value": "NAT-123",
             }
         )
-        self.assertEqual(rec.status, "valid")
+        self.assertFalse(rec.status)
 
-    def test_group_id_defaults_to_valid(self):
-        """Same default applies to IDs added on a group profile."""
+    def test_group_id_status_empty(self):
+        """Same applies to IDs added on a group profile."""
         rec = self.RegId.create(
             {
                 "partner_id": self.group.id,
@@ -407,10 +407,10 @@ class TestStatusDefault(RegIdCommon):
                 "value": "GRP-123",
             }
         )
-        self.assertEqual(rec.status, "valid")
+        self.assertFalse(rec.status)
 
     def test_explicit_status_is_preserved(self):
-        """An explicit status wins over the default (e.g. CR soft-remove)."""
+        """An explicit status (e.g. set by the CR flow) is respected."""
         rec = self.RegId.create(
             {
                 "partner_id": self.individual_a.id,

@@ -36,11 +36,11 @@ class SPPRegistrantID(models.Model):
 
     status = fields.Selection(
         [("invalid", "Invalid"), ("valid", "Valid")],
-        default="valid",
         help=(
-            "Validity of this ID. A newly added ID defaults to Valid; a change "
-            "request can mark it Invalid (soft-remove) so it stays on the profile "
-            "for audit."
+            "Validity of this ID. Left empty for IDs added directly via the "
+            "registry UI (kept consistent across the system, OP#1110); set by "
+            "the ID-document change request flow — Valid on add, Invalid on "
+            "soft-remove."
         ),
     )
 
