@@ -3,7 +3,7 @@
     "name": "OpenSPP Audit",
     "summary": "Comprehensively tracks all data modifications and user actions across the OpenSPP platform, recording old and new values for configured data. It enhances accountability and data integrity by maintaining an immutable history of changes, crucial for internal audits, compliance, and detecting unauthorized alterations. Supports multiple backends (database, file, syslog, HTTP) with tamper-resistant configuration.",
     "category": "OpenSPP/Monitoring",
-    "version": "19.0.2.0.1",
+    "version": "19.0.2.0.2",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",

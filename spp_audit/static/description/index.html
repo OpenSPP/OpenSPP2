@@ -516,6 +516,20 @@ domain-specific actions</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.2</h1>
+<ul class="simple">
+<li>feat: <tt class="docutils literal">audit_disable</tt> context key lets trusted machine flows (e.g.
+cross-instance replication of records already audited at their source)
+bypass audit logging and its full-record snapshot reads in
+create/write/unlink</li>
+<li>perf: skip the full-record snapshot <tt class="docutils literal"><span class="pre">read(load=&quot;_classic_write&quot;)</span></tt>
+when no audit rule matches the method — <tt class="docutils literal">audit_create</tt> read
+unconditionally and <tt class="docutils literal">audit_write</tt> did its post-write read even with
+zero matching rules, evaluating every non-stored compute (with
+per-record searches) on every create/write of an audited model</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix: use &#64;api.model_create_multi for audit_create to support Odoo 19
@@ -528,7 +542,7 @@ all records, not just the first</li>
 <tt class="docutils literal">parent_data_html</tt> fields to prevent stored XSS (#50)</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

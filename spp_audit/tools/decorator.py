@@ -11,6 +11,14 @@ from odoo import api
 _logger = logging.getLogger(__name__)
 
 
+def _stringify_markup(values):
+    """Convert Markup field values to plain str in read() result dicts."""
+    for rec_values in values or []:
+        for key, value in rec_values.items():
+            if isinstance(value, Markup):
+                rec_values[key] = str(value)
+
+
 def audit_decorator(method):
     """
     The audit_decorator function is a Python decorator that adds auditing functionality to create, write, and
@@ -24,9 +32,18 @@ def audit_decorator(method):
 
     @api.model_create_multi
     def audit_create(self, vals_list):
+        # audit_disable: trusted machine flows (e.g. replication of records
+        # already audited at their source) opt out of audit logging and its
+        # full-record snapshot reads.
+        if self.env.context.get("audit_disable"):
+            return audit_create.origin(self, vals_list)
         result = audit_create.origin(self, vals_list)
         records = result
         rules = self.get_audit_rules("create")
+        if not rules:
+            # No matching rule: skip the snapshot read — reading every field
+            # evaluates every non-stored compute on the new records.
+            return result
 
         # Use sudo() to avoid access errors when reading computed fields
         new_values = (
@@ -37,15 +54,14 @@ def audit_decorator(method):
             )
         )
         if new_values:
-            for nv in new_values:
-                for key, value in nv.items():
-                    if isinstance(value, Markup):
-                        nv[key] = str(value)
-
+            _stringify_markup(new_values)
             rules.log("create", new_values=new_values)
         return result
 
     def audit_write(self, vals):
+        # audit_disable: trusted machine flows opt out entirely (see audit_create)
+        if self.env.context.get("audit_disable"):
+            return audit_write.origin(self, vals)
         # Prevent recursive audit logging from computed field updates
         if self.env.context.get("audit_in_progress"):
             return audit_write.origin(self, vals)
@@ -65,6 +81,12 @@ def audit_decorator(method):
         # Set flag to prevent recursive auditing
         result = audit_write.origin(self.with_context(audit_in_progress=True), vals)
 
+        if not rules:
+            # No matching rule: skip the post-write snapshot read too — it
+            # previously ran unconditionally, evaluating every non-stored
+            # compute on every write of an audited model.
+            return result
+
         new_values = (
             self.sudo()  # nosemgrep: odoo-sudo-without-context
             .with_context(allowed_company_ids=[])
@@ -72,20 +94,18 @@ def audit_decorator(method):
         )
 
         if new_values and old_values_copy:
-            for nv in new_values:
-                for key, value in nv.items():
-                    if isinstance(value, Markup):
-                        nv[key] = str(value)
-            for ov in old_values_copy:
-                for key, value in ov.items():
-                    if isinstance(value, Markup):
-                        ov[key] = str(value)
-
+            _stringify_markup(new_values)
+            _stringify_markup(old_values_copy)
             rules.log("write", old_values_copy, new_values)
         return result
 
     def audit_unlink(self):
+        # audit_disable: trusted machine flows opt out entirely (see audit_create)
+        if self.env.context.get("audit_disable"):
+            return audit_unlink.origin(self)
         rules = self.get_audit_rules("unlink")
+        if not rules:
+            return audit_unlink.origin(self)
         # Use sudo() to avoid access errors when reading computed fields
         old_values = (
             self.sudo()  # nosemgrep: odoo-sudo-without-context
@@ -94,11 +114,7 @@ def audit_decorator(method):
         )
 
         if old_values:
-            for ov in old_values:
-                for key, value in ov.items():
-                    if isinstance(value, Markup):
-                        ov[key] = str(value)
-
+            _stringify_markup(old_values)
             rules.log("unlink", old_values)
         return audit_unlink.origin(self)
 
