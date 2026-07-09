@@ -1186,7 +1186,7 @@ encounter unexpected behavior, please report it as a new issue.
 Changelog
 =========
 
-19.0.2.1.0
+19.0.3.0.0
 ~~~~~~~~~~
 
 - **BREAKING**: the 1-5 ``severity`` Selection on

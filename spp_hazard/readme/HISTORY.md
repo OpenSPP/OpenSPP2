@@ -1,4 +1,4 @@
-### 19.0.2.1.0
+### 19.0.3.0.0
 
 - **BREAKING**: the 1-5 `severity` Selection on `spp.hazard.incident` and `severity_override` on `spp.hazard.incident.area` are removed and replaced by `severity_id` / `severity_override_id` (Many2one to `spp.vocabulary.code` on the CAP severity namespace). Modules that extend these models must migrate: views that reference `<field name="severity">` / `severity_override`, code that reads `record.severity`, records created with `severity="…"`, and any `fields_to_log` entries or domains naming the old fields. Read `severity_numeric` (below) where a numeric scale is needed.
 - **BREAKING**: `spp_hazard` now depends on `spp_vocabulary`.

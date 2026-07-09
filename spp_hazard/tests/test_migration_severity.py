@@ -6,7 +6,7 @@ from odoo.tests.common import TransactionCase
 
 CAP_SEVERITY_NS = "urn:oasis:names:tc:cap:severity"
 
-MIGRATION_PATH = Path(__file__).parent.parent / "migrations" / "19.0.2.1.0" / "post-migration.py"
+MIGRATION_PATH = Path(__file__).parent.parent / "migrations" / "19.0.3.0.0" / "post-migration.py"
 
 
 def _load_migration():
@@ -17,7 +17,7 @@ def _load_migration():
 
 
 class TestSeverityMigration(TransactionCase):
-    """Exercise the 19.0.2.1.0 post-migration that backfills severity
+    """Exercise the 19.0.3.0.0 post-migration that backfills severity
     vocabulary codes from the legacy 1-5 Selection columns.
 
     The legacy columns do not exist in a fresh database, so each test
