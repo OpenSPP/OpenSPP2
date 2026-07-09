@@ -340,3 +340,18 @@ class TestHazardIncident(HazardTestCase):
         # inc1 gets auto end_date, inc2 preserves its own
         self.assertTrue(inc1.end_date)
         self.assertEqual(str(inc2.end_date), "2024-04-01")
+
+    def test_22_severity_numeric(self):
+        """Test severity_numeric maps the CAP severity code to a 1-5 scale."""
+        # setUpClass created the incident with the 'severe' code -> 4
+        self.assertEqual(self.incident.severity_numeric, 4)
+
+        # Recomputes when the code changes
+        self.incident.severity_id = self.severity_extreme
+        self.assertEqual(self.incident.severity_numeric, 5)
+        self.incident.severity_id = self.severity_moderate
+        self.assertEqual(self.incident.severity_numeric, 3)
+
+        # No severity set -> 0 (sorts last in "most severe" ordering)
+        self.incident.severity_id = False
+        self.assertEqual(self.incident.severity_numeric, 0)

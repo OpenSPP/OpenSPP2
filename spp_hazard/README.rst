@@ -1189,11 +1189,29 @@ Changelog
 19.0.2.1.0
 ~~~~~~~~~~
 
+- **BREAKING**: the 1-5 ``severity`` Selection on
+  ``spp.hazard.incident`` and ``severity_override`` on
+  ``spp.hazard.incident.area`` are removed and replaced by
+  ``severity_id`` / ``severity_override_id`` (Many2one to
+  ``spp.vocabulary.code`` on the CAP severity namespace). Modules that
+  extend these models must migrate: views that reference
+  ``<field name="severity">`` / ``severity_override``, code that reads
+  ``record.severity``, records created with ``severity="…"``, and any
+  ``fields_to_log`` entries or domains naming the old fields. Read
+  ``severity_numeric`` (below) where a numeric scale is needed.
+- **BREAKING**: ``spp_hazard`` now depends on ``spp_vocabulary``.
+- **BREAKING**: ``category_id`` and ``start_date`` are no longer
+  ``required`` at the model level (they remain required in the incident
+  form view) so alert ingestion can create incidents that lack them.
 - feat: severity is now a CAP v1.2 vocabulary code (``severity_id``,
   ``severity_override_id`` on incident areas) instead of a hardcoded 1-5
   Selection; adds CAP urgency/certainty/message-type/event fields, alert
   ingestion (``create_incident_from_alert``), and incident ``uuid``
   (re-land from #76).
+- feat: ``spp.hazard.incident`` exposes a stored ``severity_numeric``
+  (5=extreme, 4=severe, 3=moderate, 2=minor, 1=unknown, 0=unset) so
+  downstream ordering and threshold logic can consume a numeric scale
+  without resolving CAP vocabulary codes.
 - feat: migration backfills legacy 1-5 severity values onto the
   vocabulary fields when upgrading from 19.0.2.0.x (1→minor, 2→moderate,
   3→severe, 4→severe, 5→extreme); existing values are never overwritten

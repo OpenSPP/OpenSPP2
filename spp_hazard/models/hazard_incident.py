@@ -18,6 +18,17 @@ CAP_URGENCY_NS = "urn:oasis:names:tc:cap:urgency"
 CAP_CERTAINTY_NS = "urn:oasis:names:tc:cap:certainty"
 CAP_MSG_TYPE_NS = "urn:oasis:names:tc:cap:msg-type"
 
+# CAP severity codes mapped to a 1-5 numeric scale (higher = more severe) for
+# ordering and threshold logic; 0 means no severity is set. Downstream modules
+# should read the stored ``severity_numeric`` field instead of resolving codes.
+CAP_SEVERITY_NUMERIC = {
+    "extreme": 5,
+    "severe": 4,
+    "moderate": 3,
+    "minor": 2,
+    "unknown": 1,
+}
+
 
 def _parse_datetime_string(value):
     """Parse a datetime string in either ISO 8601 or Odoo format.
@@ -108,6 +119,14 @@ class HazardIncident(models.Model):
         tracking=True,
         domain=f"[('namespace_uri', '=', '{CAP_SEVERITY_NS}')]",
         help="Overall magnitude/severity of the incident (CAP vocabulary)",
+    )
+    severity_numeric = fields.Integer(
+        string="Severity (numeric)",
+        compute="_compute_severity_numeric",
+        store=True,
+        help="CAP severity mapped to a 1-5 scale (5=extreme, 4=severe, "
+        "3=moderate, 2=minor, 1=unknown; 0=unset) so downstream ordering and "
+        "threshold logic need not resolve vocabulary codes.",
     )
 
     # CAP (Common Alerting Protocol) fields
@@ -229,6 +248,12 @@ class HazardIncident(models.Model):
                 "active",
                 "recovery",
             )
+
+    @api.depends("severity_id")
+    def _compute_severity_numeric(self):
+        """Map the CAP severity code to a 1-5 numeric scale for ordering."""
+        for rec in self:
+            rec.severity_numeric = CAP_SEVERITY_NUMERIC.get(rec.severity_id.code, 0)
 
     @api.depends("area_ids", "incident_area_ids.area_id")
     def _compute_area_count(self):
