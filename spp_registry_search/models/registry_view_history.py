@@ -211,6 +211,33 @@ class RegistryViewHistory(models.Model):
         return False
 
     @api.model
+    def check_registrant_create_permission(self):
+        """Check if current user can create registrants from the UI (OP#1124).
+
+        Generic ``res.partner`` create access is too broad — base Odoo grants it
+        to most internal users — so it lets unintended roles (e.g. validators)
+        initiate registrant creation from Registry Search. Only the same
+        privileged registry roles allowed to edit may create.
+
+        Returns:
+            bool: True if user can create registrants in the UI
+        """
+        create_groups = [
+            "base.group_system",
+            "spp_security.group_spp_admin",
+            "spp_registry.group_registry_manager",
+            "spp_registry.group_registry_officer",
+        ]
+        for group in create_groups:
+            try:
+                if self.env.user.has_group(group):
+                    return True
+            except ValueError:
+                # Group doesn't exist (module not installed)
+                continue
+        return False
+
+    @api.model
     def check_registrant_archive_permission(self):
         """Check if current user can archive/unarchive registrants in the UI.
 

@@ -68,6 +68,17 @@ Model                 Description
 Changelog
 =========
 
+19.0.2.0.3
+~~~~~~~~~~
+
+- fix(farm): remove the farm membership-completeness warnings entirely —
+  both the "No head member designated" and "No members linked to this
+  group yet" banners, their "No Head Member" / "No Members" search
+  filters, the ``member_count`` and head-member list columns, and the
+  backing ``has_head_member`` / ``member_count`` computed fields. The
+  head-member check misfired on farm groups that did have a head, and
+  per #1113 no such warnings should be shown (#1113)
+
 19.0.2.0.2
 ~~~~~~~~~~
 

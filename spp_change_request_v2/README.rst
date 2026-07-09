@@ -874,6 +874,16 @@ Changelog
   ``relationship_id``); downstream modules that extended the old flow
   must adapt (see #1133).
 
+19.0.2.0.8
+~~~~~~~~~~
+
+- fix(views): disable inline creation of CR document types on the Change
+  Request Type "Documents" tab — the ``Available Documents`` field now
+  only selects existing ``cr_document_type`` vocabulary codes
+  (``no_create`` / ``no_quick_create``), matching
+  ``Required Documents``. This removes the broken "Create Available
+  Documents" modal (missing Name field) that blocked saving (#1125)
+
 19.0.2.0.7
 ~~~~~~~~~~
 

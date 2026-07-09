@@ -306,6 +306,34 @@ class SPPMISDemoGenerator(models.TransientModel):
         "tgo": {"xmlid": "base.tg", "locale": "fr_TG", "currency_xmlid": "base.XOF"},
     }
 
+    # OP#1102: country-appropriate CR document types seeded into the
+    # `cr_document_type` vocabulary so a document type can be selected when
+    # attaching files to a change request (inline creation is disabled). At
+    # least 5 per country; (code, display) pairs.
+    CR_DOCUMENT_TYPES = {
+        "phl": [
+            ("psa_birth_certificate", "PSA Birth Certificate"),
+            ("philsys_id", "PhilSys National ID"),
+            ("barangay_residency_certificate", "Barangay Certificate of Residency"),
+            ("psa_marriage_certificate", "PSA Marriage Certificate"),
+            ("proof_of_income", "Proof of Income"),
+        ],
+        "lka": [
+            ("birth_certificate", "Birth Certificate"),
+            ("national_identity_card", "National Identity Card (NIC)"),
+            ("gn_residence_certificate", "Grama Niladhari Residence Certificate"),
+            ("marriage_certificate", "Marriage Certificate"),
+            ("income_statement", "Income Statement"),
+        ],
+        "tgo": [
+            ("acte_de_naissance", "Acte de Naissance (Birth Certificate)"),
+            ("carte_nationale_identite", "Carte Nationale d'Identite"),
+            ("certificat_de_residence", "Certificat de Residence"),
+            ("acte_de_mariage", "Acte de Mariage (Marriage Certificate)"),
+            ("justificatif_de_revenus", "Justificatif de Revenus"),
+        ],
+    }
+
     def _get_country_config(self):
         """Get country, locale, and currency based on selected country_code."""
         config = self.COUNTRY_CONFIG.get(self.country_code, self.COUNTRY_CONFIG["phl"])
@@ -319,6 +347,20 @@ class SPPMISDemoGenerator(models.TransientModel):
             "locale": config["locale"],
             "currency": currency,
         }
+
+    def _seed_cr_document_types(self, stats):
+        """Seed country-appropriate CR document types (OP#1102).
+
+        Inline creation of document types from the CR Type UI is disabled, so
+        the demo must provide selectable values in the `cr_document_type`
+        vocabulary. Idempotent via ``get_or_create_local``.
+        """
+        VocabCode = self.env["spp.vocabulary.code"]
+        doc_types = self.CR_DOCUMENT_TYPES.get(self.country_code, self.CR_DOCUMENT_TYPES["phl"])
+        for code, display in doc_types:
+            VocabCode.get_or_create_local("urn:openspp:vocab:cr_document_type", code, display=display)
+        stats["cr_document_types_seeded"] = len(doc_types)
+        _logger.info("Seeded %d CR document types for %s", len(doc_types), self.country_code)
 
     def _install_logic_packs(self):
         """Install Logic Packs used by demo programs.
@@ -460,6 +502,10 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         # Step 0: Ensure security groups are assigned FIRST (ALWAYS)
         self._ensure_demo_user_groups()
+
+        # Step 0.2: Seed country-appropriate CR document types (OP#1102) so a
+        # document type can be selected when attaching files to a change request.
+        self._seed_cr_document_types(stats)
 
         # Step 0.25: Install Logic Packs (if enabled)
         if self.install_logic_packs:
