@@ -222,7 +222,7 @@
                                     name="available_document_ids"
                                     widget="many2many_tags"
                                     placeholder="Select which document types can be uploaded..."
-                                    context="{'default_vocabulary_id': %(spp_vocabulary.vocabulary_cr_document_type)d}"
+                                    options="{'no_create': True, 'no_quick_create': True}"
                                 />
                                 <field
                                     name="required_document_ids"
