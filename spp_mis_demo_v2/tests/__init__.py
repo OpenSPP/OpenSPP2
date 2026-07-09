@@ -1,4 +1,5 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+from . import test_cr_document_types
 
 from . import test_access_control
 from . import test_access_control_case

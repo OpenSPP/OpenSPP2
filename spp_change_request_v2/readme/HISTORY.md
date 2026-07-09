@@ -1,3 +1,7 @@
+### 19.0.2.0.8
+
+- fix(views): disable inline creation of CR document types on the Change Request Type "Documents" tab — the `Available Documents` field now only selects existing `cr_document_type` vocabulary codes (`no_create` / `no_quick_create`), matching `Required Documents`. This removes the broken "Create Available Documents" modal (missing Name field) that blocked saving (#1125)
+
 ### 19.0.2.0.7
 
 - fix(security): align CR Requestor / CR Local Validator / CR HQ Validator roles with the OP#951 menu audit — replace the `spp_registry.group_registry_read` (Tier-3, no menu) link with `spp_registry.group_registry_viewer` so these roles see the Registry menu; add `spp_hazard.group_hazard_viewer` so they retain Hazard visibility once the menu root is gated. Adds `spp_hazard` to module dependencies.
