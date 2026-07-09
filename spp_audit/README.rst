@@ -145,6 +145,19 @@ External Python: ``requests`` (HTTP backend)
 Changelog
 =========
 
+19.0.2.0.2
+~~~~~~~~~~
+
+- feat: ``audit_disable`` context key lets trusted machine flows (e.g.
+  cross-instance replication of records already audited at their source)
+  bypass audit logging and its full-record snapshot reads in
+  create/write/unlink
+- perf: skip the full-record snapshot ``read(load="_classic_write")``
+  when no audit rule matches the method — ``audit_create`` read
+  unconditionally and ``audit_write`` did its post-write read even with
+  zero matching rules, evaluating every non-stored compute (with
+  per-record searches) on every create/write of an audited model
+
 19.0.2.0.1
 ~~~~~~~~~~
 
