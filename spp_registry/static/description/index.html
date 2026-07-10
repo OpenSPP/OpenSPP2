@@ -518,6 +518,17 @@ when group composition changes</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.3</h1>
+<ul class="simple">
+<li>fix(registry): show an ID <strong>Status</strong> column on the group form
+(Valid/Invalid badge) so a soft-removed ID is distinguishable from a
+valid one. IDs added directly via the registry UI keep an <strong>empty</strong>
+status (Valid/Invalid is set only by the ID-document change request
+flow) — per the #1110 decision to stay consistent across the system
+(#1110)</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.1.1</h1>
 <ul class="simple">
 <li>fix(views): add reusable <tt class="docutils literal">x2many_no_padding</tt> JS widget that
@@ -527,7 +538,7 @@ Membership, and Group Members lists on registrant forms so blank cells
 don’t bloat the layout (#943).</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
