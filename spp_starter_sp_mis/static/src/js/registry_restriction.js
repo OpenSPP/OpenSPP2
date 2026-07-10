@@ -8,6 +8,24 @@
  *
  * The restriction check is cached and resolved before the form/list setup
  * so that modelParams can return mode: "readonly" before the model is created.
+ *
+ * Per-action opt-out: an action can exempt its own view from the restriction
+ * by setting ``bypass_registry_admin_only_crud: True`` in its context (e.g.
+ * an action that puts a dedicated non-admin role in charge of authoring one
+ * registry list).
+ *
+ * Opt-out scope and caveats:
+ * - The flag is a UI affordance, NOT a security boundary. Like the
+ *   restriction itself, it changes nothing server-side: ACLs and record
+ *   rules remain the real enforcement, and any user who can write
+ *   ``ir.actions.act_window`` records can set the flag.
+ * - The flag follows Odoo's normal context propagation: relational dialogs
+ *   (many2one create/edit and search-more, x2many record dialogs), expanded
+ *   dialogs, and actions opened via buttons from inside the exempt view all
+ *   inherit it. Scope bypass actions deliberately.
+ * - Exempt form views also disable the blur-triggered urgent (beacon) save,
+ *   because authoring actions typically carry ``default_*`` context keys
+ *   that make a new record dirty before the user types.
  */
 
 import {FormController} from "@web/views/form/form_controller";
@@ -19,6 +37,12 @@ import {onMounted, onPatched, onWillStart, onWillUnmount} from "@odoo/owl";
 
 // Models affected by the registry restriction
 const REGISTRY_MODELS = ["res.partner"];
+
+// An action opts its own view out of the restriction by setting this flag
+// in its context. See the module docstring for scope and caveats.
+function actionBypassesRestriction(controller) {
+    return Boolean(controller.props.context?.bypass_registry_admin_only_crud);
+}
 
 // Cache the restriction check to avoid repeated RPC calls within the same session.
 // Resolved once at module load time so it's available synchronously in setup().
@@ -69,13 +93,16 @@ const BLOCKED_ACTIONS = ["delete", "archive", "unarchive", "duplicate"];
 patch(FormController.prototype, {
     setup() {
         const modelName = this.props.resModel;
+        const bypassed = actionBypassesRestriction(this);
         // Check synchronous cache BEFORE super.setup() creates the model
         this._registryRestricted =
-            REGISTRY_MODELS.includes(modelName) && _restrictionResult === true;
+            REGISTRY_MODELS.includes(modelName) &&
+            !bypassed &&
+            _restrictionResult === true;
 
         super.setup(...arguments);
 
-        if (!REGISTRY_MODELS.includes(modelName)) {
+        if (!REGISTRY_MODELS.includes(modelName) || bypassed) {
             return;
         }
 
@@ -156,6 +183,13 @@ patch(FormController.prototype, {
         if (this._registryRestricted) {
             params.config.mode = "readonly";
         }
+        if (actionBypassesRestriction(this)) {
+            // Bypass actions typically set default_* keys that make a new
+            // record dirty before the user types; the blur-triggered urgent
+            // (beacon) save would then raise validation errors on every tab
+            // refocus. Let the user decide when to save.
+            params.useSendBeaconToSaveUrgently = false;
+        }
         return params;
     },
 
@@ -182,7 +216,7 @@ patch(ListController.prototype, {
         super.setup(...arguments);
 
         const modelName = this.props.resModel;
-        if (!REGISTRY_MODELS.includes(modelName)) {
+        if (!REGISTRY_MODELS.includes(modelName) || actionBypassesRestriction(this)) {
             return;
         }
 

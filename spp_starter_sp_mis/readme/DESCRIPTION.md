@@ -39,6 +39,15 @@ The registry restriction uses:
 - **JavaScript Patches**: Modifies `FormController` and `ListController` for `res.partner` model
 - **Admin Check**: Users in `spp_security.group_spp_admin` bypass all restrictions
 - **MutationObserver**: Monitors DOM changes to re-apply restrictions dynamically
+- **Per-Action Opt-Out**: An action can exempt its own views by setting
+  `bypass_registry_admin_only_crud: True` in its context (e.g. an action that puts a
+  dedicated non-admin role in charge of authoring one registry list). Like the
+  restriction itself this is client-side only, not a security boundary — server-side
+  ACLs and record rules remain the real enforcement. The flag follows Odoo's normal
+  context propagation, so relational dialogs and actions opened via buttons from
+  inside the exempt view inherit it; exempt form views also disable the blur-triggered
+  urgent (beacon) save so partially-filled new records do not raise validation errors
+  on tab switch
 
 ### Included Modules
 
