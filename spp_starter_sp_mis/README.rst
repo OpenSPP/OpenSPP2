@@ -91,6 +91,16 @@ The registry restriction uses:
   restrictions
 - **MutationObserver**: Monitors DOM changes to re-apply restrictions
   dynamically
+- **Per-Action Opt-Out**: An action can exempt its own views by setting
+  ``bypass_registry_admin_only_crud: True`` in its context (e.g. an
+  action that puts a dedicated non-admin role in charge of authoring one
+  registry list). Like the restriction itself this is client-side only,
+  not a security boundary — server-side ACLs and record rules remain the
+  real enforcement. The flag follows Odoo's normal context propagation,
+  so relational dialogs and actions opened via buttons from inside the
+  exempt view inherit it; exempt form views also disable the
+  blur-triggered urgent (beacon) save so partially-filled new records do
+  not raise validation errors on tab switch
 
 Included Modules
 ~~~~~~~~~~~~~~~~
@@ -118,6 +128,16 @@ Dependencies
 
 Changelog
 =========
+
+19.0.2.1.0
+~~~~~~~~~~
+
+- feat(ui): honor ``bypass_registry_admin_only_crud`` in an action's
+  context to exempt that action's views (including relational dialogs
+  opened from them) from the registry admin-only CRUD restriction;
+  exempt form views also disable the blur-triggered urgent (beacon) save
+  so partially-filled new records do not raise validation errors on tab
+  switch
 
 19.0.2.0.0
 ~~~~~~~~~~
