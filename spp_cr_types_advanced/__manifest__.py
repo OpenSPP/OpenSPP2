@@ -1,6 +1,6 @@
 {
     "name": "OpenSPP CR Types - Advanced",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.1.0",
     "sequence": 52,
     "category": "OpenSPP",
     "summary": "Advanced change request types with custom Python strategies",

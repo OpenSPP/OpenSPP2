@@ -2793,8 +2793,7 @@ class SPPMISDemoGenerator(models.TransientModel):
             "proposed_changes": {
                 "group_name": "Ramos",
                 "head_name": "Maricel Ramos",
-                "address_line1": "123 Marriage Lane",
-                "city": "New Family City",
+                "address": "123 Marriage Lane, New Family City",
             },
         },
         # Phase 5.1 & 5.2: Add split_household CR (REJECTED)
@@ -3154,6 +3153,90 @@ class SPPMISDemoGenerator(models.TransientModel):
                     }
                 )
 
+    def _add_member_detail_vals(self, proposed_changes):
+        """Register the individual for an Add Member CR and return detail vals (OP#871).
+
+        Add Member now adds an EXISTING individual, so the MIS "new baby" scenario
+        registers the person first and the CR references them via individual_id.
+        """
+        rel_xmlid = proposed_changes.get("relationship_xmlid")
+        membership_type_id = False
+        if rel_xmlid:
+            code = self.env.ref(rel_xmlid, raise_if_not_found=False)
+            membership_type_id = code.id if code else False
+        given = (proposed_changes.get("given_name") or "").strip()
+        family = (proposed_changes.get("family_name") or "").strip()
+        if family and given:
+            full_name = f"{family.upper()}, {given}"
+        elif family:
+            full_name = family.upper()
+        else:
+            full_name = given or "New Member"
+        Partner = self.env["res.partner"]
+        partner_vals = {"name": full_name, "is_registrant": True, "is_group": False}
+        for fname, value in [
+            ("given_name", given),
+            ("family_name", family),
+            ("birthdate", proposed_changes.get("birthdate")),
+        ]:
+            if value and fname in Partner._fields:
+                partner_vals[fname] = value
+        individual = Partner.create(partner_vals)
+        return {"individual_id": individual.id, "membership_type_id": membership_type_id}
+
+    def _change_hoh_member_lines(self, registrant, new_head_name):
+        """Rebuild the Change HoH member role lines (OP#873).
+
+        Returns member_line_ids commands promoting the named new head to "head"
+        and demoting whoever currently holds it (to an existing non-head role, or
+        any non-head role, so the apply step does not skip the line and leave two
+        heads). Returns None when no matching new head is found.
+        """
+        if not new_head_name:
+            return None
+        name_parts = new_head_name.split()
+        given_name = name_parts[0] if name_parts else new_head_name
+        new_head = self.env["res.partner"].search(
+            [("given_name", "ilike", given_name), ("is_group", "=", False), ("is_registrant", "=", True)],
+            limit=1,
+        )
+        if not new_head:
+            return None
+        Code = self.env["spp.vocabulary.code"]
+        head_code = Code.get_code("urn:openspp:vocab:group-membership-type", "head")
+        non_head_codes = Code.search(
+            [
+                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:group-membership-type"),
+                ("code", "!=", "head"),
+            ]
+        )
+        memberships = self.env["spp.group.membership"].search(
+            [("group", "=", registrant.id), ("status", "=", "active")]
+        )
+        lines = [(5, 0, 0)]
+        for m in memberships:
+            current_roles = m.membership_type_ids
+            if m.individual == new_head:
+                new_role = head_code
+            elif head_code and head_code in current_roles:
+                remaining = current_roles.filtered(lambda r, h=head_code: r != h)
+                new_role = remaining[:1] or non_head_codes[:1]
+            else:
+                new_role = current_roles[:1]
+            lines.append(
+                (
+                    0,
+                    0,
+                    {
+                        "individual_id": m.individual.id,
+                        "membership_id": m.id,
+                        "old_role_display": ", ".join(current_roles.mapped("display")),
+                        "new_role_id": new_role.id if new_role else False,
+                    },
+                )
+            )
+        return lines
+
     def _build_detail_changes(self, detail_model, registrant, proposed_changes, cr_def):
         """Map proposed_changes to CR detail fields for V2 CR types."""
         vals = {}
@@ -3187,22 +3270,9 @@ class SPPMISDemoGenerator(models.TransientModel):
                     }
                 )
             elif detail_model == "spp.cr.detail.add_member":
-                rel_xmlid = proposed_changes.get("relationship_xmlid")
-                relationship_id = False
-                if rel_xmlid:
-                    relationship_id = self.env.ref(rel_xmlid, raise_if_not_found=False)
-                    relationship_id = relationship_id.id if relationship_id else False
-                vals.update(
-                    {
-                        "given_name": proposed_changes.get("given_name"),
-                        "family_name": proposed_changes.get("family_name"),
-                        "member_name": " ".join(
-                            filter(None, [proposed_changes.get("given_name"), proposed_changes.get("family_name")])
-                        ),
-                        "birthdate": proposed_changes.get("birthdate"),
-                        "relationship_id": relationship_id,
-                    }
-                )
+                # OP#871: add_member selects an EXISTING individual; register the
+                # MIS "new baby" first, then the CR adds them to the group.
+                vals.update(self._add_member_detail_vals(proposed_changes))
             elif detail_model == "spp.cr.detail.transfer_member":
                 member_name = proposed_changes.get("member_name")
                 target_story = proposed_changes.get("target_group_story")
@@ -3236,20 +3306,11 @@ class SPPMISDemoGenerator(models.TransientModel):
                     }
                 )
             elif detail_model == "spp.cr.detail.change_hoh":
-                new_head_name = proposed_changes.get("new_head_name")
-                if new_head_name:
-                    # Search by given_name for case-insensitive match
-                    name_parts = new_head_name.split()
-                    given_name = name_parts[0] if name_parts else new_head_name
-                    individual = self.env["res.partner"].search(
-                        [
-                            ("given_name", "ilike", given_name),
-                            ("is_group", "=", False),
-                            ("is_registrant", "=", True),
-                        ],
-                        limit=1,
-                    )
-                    vals["new_head_id"] = individual.id if individual else False
+                # OP#873: change_hoh uses per-member role lines instead of a single
+                # new_head_id — rebuild the seeded lines (see helper).
+                lines = self._change_hoh_member_lines(registrant, proposed_changes.get("new_head_name"))
+                if lines is not None:
+                    vals["member_line_ids"] = lines
             # Phase 5.1: Add remove_member support
             elif detail_model == "spp.cr.detail.remove_member":
                 member_name = proposed_changes.get("member_name")
@@ -3274,16 +3335,37 @@ class SPPMISDemoGenerator(models.TransientModel):
                     }
                 )
             # Phase 5.1: Add create_group support
+            #
+            # OP#876 redesigned the detail model — head info now lives on a
+            # member_new_ids sub-record with the "head" membership-type code.
+            # Split `head_name` ("Maricel Ramos") into given + family so the
+            # downstream CR has a real new-member row.
             elif detail_model == "spp.cr.detail.create_group":
                 vals.update(
                     {
                         "group_name": proposed_changes.get("group_name", "New Household"),
-                        "head_name": proposed_changes.get("head_name", ""),
-                        "address_line1": proposed_changes.get("address_line1", ""),
-                        "city": proposed_changes.get("city", ""),
-                        "postal_code": proposed_changes.get("postal_code", ""),
+                        "address": proposed_changes.get("address", ""),
                     }
                 )
+                head_name = proposed_changes.get("head_name", "").strip()
+                if head_name:
+                    parts = head_name.split(None, 1)
+                    given = parts[0]
+                    family = parts[1] if len(parts) > 1 else parts[0]
+                    head_kind = self.env["spp.vocabulary.code"].get_code(
+                        "urn:openspp:vocab:group-membership-type", "head"
+                    )
+                    vals["member_new_ids"] = [
+                        (
+                            0,
+                            0,
+                            {
+                                "given_name": given,
+                                "family_name": family,
+                                "membership_type_id": head_kind.id if head_kind else False,
+                            },
+                        )
+                    ]
             # Phase 5.1: Add split_household support
             elif detail_model == "spp.cr.detail.split_household":
                 vals.update(

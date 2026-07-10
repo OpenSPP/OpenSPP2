@@ -1,7 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 {
     "name": "OpenSPP DCI Demo",
-    "version": "19.0.2.0.0",
+    "version": "19.0.3.0.0",
     "category": "OpenSPP",
     "license": "LGPL-3",
     "development_status": "Alpha",
@@ -18,8 +18,6 @@
         "data/vocabulary_data.xml",
         "data/system_parameters.xml",
         "data/demo_household.xml",
-        "views/cr_detail_add_member_view.xml",
-        "views/change_request_view.xml",
     ],
     "demo": [],
     "post_init_hook": "post_init_hook",

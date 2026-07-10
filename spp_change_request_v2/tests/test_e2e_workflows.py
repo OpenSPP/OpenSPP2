@@ -84,17 +84,24 @@ class TestE2EWorkflows(TransactionCase):
                 "registrant_id": placeholder.id,
             }
         )
+        head_kind = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", "head")
         detail1 = cr1.get_detail()
         detail1.write(
             {
                 "group_name": "Dela Cruz Household",
-                "create_new_head": True,
-                "head_given_name": "Juan",
-                "head_family_name": "Dela Cruz",
-                "head_name": "Juan Dela Cruz",
-                "address_line1": "123 Mabini St",
-                "city": "Quezon City",
-                "phone": "+639123456789",
+                "address": "123 Mabini St, Quezon City",
+                "phone_line_ids": [(0, 0, {"phone_no": "+639123456789", "is_primary": True})],
+                "member_new_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "given_name": "Juan",
+                            "family_name": "Dela Cruz",
+                            "membership_type_id": head_kind.id if head_kind else False,
+                        },
+                    )
+                ],
             }
         )
         self._approve_and_apply(cr1)
@@ -113,42 +120,36 @@ class TestE2EWorkflows(TransactionCase):
         head = head_membership.individual
         self.assertEqual(head.name, "DELA CRUZ, JUAN")
 
-        # Step 2: Add spouse
+        # Step 2: Add spouse (an existing individual)
+        spouse = self.partner_model.create({"name": "DELA CRUZ, MARIA", "is_registrant": True, "is_group": False})
         cr2 = self.cr_model.create(
             {
                 "request_type_id": self.add_member_type.id,
                 "registrant_id": household.id,
             }
         )
-        detail2 = cr2.get_detail()
-        detail2.write(
+        cr2.get_detail().write(
             {
-                "given_name": "Maria",
-                "family_name": "Dela Cruz",
-                "member_name": "Maria Dela Cruz",
-                "relationship_id": self.spouse_kind.id,
+                "individual_id": spouse.id,
+                "membership_type_id": self.spouse_kind.id,
             }
         )
         self._approve_and_apply(cr2)
-
-        spouse = detail2.created_individual_id
         self.assertEqual(spouse.name, "DELA CRUZ, MARIA")
 
-        # Step 3: Add children
-        for _i, name in enumerate(["Pedro", "Ana"]):
+        # Step 3: Add children (existing individuals)
+        for name in ["PEDRO", "ANA"]:
+            child = self.partner_model.create({"name": f"DELA CRUZ, {name}", "is_registrant": True, "is_group": False})
             cr = self.cr_model.create(
                 {
                     "request_type_id": self.add_member_type.id,
                     "registrant_id": household.id,
                 }
             )
-            detail = cr.get_detail()
-            detail.write(
+            cr.get_detail().write(
                 {
-                    "given_name": name,
-                    "family_name": "Dela Cruz",
-                    "member_name": f"{name} Dela Cruz",
-                    "relationship_id": self.child_kind.id,
+                    "individual_id": child.id,
+                    "membership_type_id": self.child_kind.id,
                 }
             )
             self._approve_and_apply(cr)
@@ -247,7 +248,7 @@ class TestE2EWorkflows(TransactionCase):
                 "start_date": fields.Datetime.now(),
             }
         )
-        mem_child = self.membership_model.create(
+        self.membership_model.create(
             {
                 "group": original.id,
                 "individual": child.id,
@@ -265,14 +266,10 @@ class TestE2EWorkflows(TransactionCase):
         detail1 = cr1.get_detail()
         detail1.write(
             {
-                "members_to_split_ids": [(6, 0, [mem_child.id])],
-                "new_head_membership_id": mem_child.id,
+                "member_line_ids": [(0, 0, {"individual_id": child.id})],
                 "new_group_name": "New Family",
                 "split_reason": "marriage",
-                "effective_date": fields.Date.today(),
-                "copy_address": False,
-                "address_line1": "456 New St",
-                "city": "Makati",
+                "new_address": "456 New St, Makati",
             }
         )
         self._approve_and_apply(cr1)
@@ -280,7 +277,6 @@ class TestE2EWorkflows(TransactionCase):
         new_household = detail1.created_group_id
         self.assertTrue(new_household)
         self.assertEqual(new_household.name, "New Family")
-        self.assertEqual(new_household.street, "456 New St")
 
         # Verify child is in new household
         child_membership = self.membership_model.search(
@@ -292,20 +288,18 @@ class TestE2EWorkflows(TransactionCase):
         )
         self.assertTrue(child_membership)
 
-        # Step 2: Add spouse to new household
+        # Step 2: Add spouse (an existing individual) to new household
+        spouse = self.partner_model.create({"name": "New Spouse", "is_registrant": True, "is_group": False})
         cr2 = self.cr_model.create(
             {
                 "request_type_id": self.add_member_type.id,
                 "registrant_id": new_household.id,
             }
         )
-        detail2 = cr2.get_detail()
-        detail2.write(
+        cr2.get_detail().write(
             {
-                "given_name": "New",
-                "family_name": "Spouse",
-                "member_name": "New Spouse",
-                "relationship_id": self.spouse_kind.id,
+                "individual_id": spouse.id,
+                "membership_type_id": self.spouse_kind.id,
             }
         )
         self._approve_and_apply(cr2)
@@ -380,13 +374,11 @@ class TestE2EWorkflows(TransactionCase):
             }
         )
         detail1 = cr1.get_detail()
-        detail1.write(
-            {
-                "new_head_membership_id": spouse_mem.id,
-                "reason": "deceased",
-                "effective_date": fields.Date.today(),
-            }
-        )
+        detail1.reason = "deceased"
+        # Original head steps down; spouse is promoted to head. Step the current
+        # head down first to avoid a transient two-heads state.
+        detail1.member_line_ids.filtered(lambda r: r.individual_id == head).new_role_id = self.spouse_kind
+        detail1.member_line_ids.filtered(lambda r: r.individual_id == spouse).new_role_id = self.head_kind
         self._approve_and_apply(cr1)
 
         # Verify spouse is now head
@@ -608,12 +600,22 @@ class TestE2EWorkflows(TransactionCase):
                 "registrant_id": placeholder.id,
             }
         )
+        head_kind = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", "head")
         detail1 = cr1.get_detail()
         detail1.write(
             {
                 "group_name": "Lifecycle Household",
-                "create_new_head": True,
-                "head_name": "Lifecycle Head",
+                "member_new_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "given_name": "Lifecycle",
+                            "family_name": "Head",
+                            "membership_type_id": head_kind.id if head_kind else False,
+                        },
+                    )
+                ],
             }
         )
         self._approve_and_apply(cr1)
@@ -627,23 +629,21 @@ class TestE2EWorkflows(TransactionCase):
         )
         head = head_mem.individual
 
-        # Step 2: Add member
+        # Step 2: Add member (an existing individual)
+        member = self.partner_model.create({"name": "Lifecycle Member", "is_registrant": True, "is_group": False})
         cr2 = self.cr_model.create(
             {
                 "request_type_id": self.add_member_type.id,
                 "registrant_id": household.id,
             }
         )
-        detail2 = cr2.get_detail()
-        detail2.write(
+        cr2.get_detail().write(
             {
-                "member_name": "Lifecycle Member",
-                "relationship_id": self.spouse_kind.id,
+                "individual_id": member.id,
+                "membership_type_id": self.spouse_kind.id,
             }
         )
         self._approve_and_apply(cr2)
-
-        member = detail2.created_individual_id
         member_mem = self.membership_model.search(
             [
                 ("group", "=", household.id),
@@ -663,7 +663,6 @@ class TestE2EWorkflows(TransactionCase):
         detail3.write(
             {
                 "membership_id": member_mem.id,
-                "end_date": fields.Date.today(),
                 "end_reason": "left_household",
             }
         )
