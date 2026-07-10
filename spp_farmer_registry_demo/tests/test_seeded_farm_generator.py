@@ -130,14 +130,16 @@ class TestSeededFarmGeneratorNames(TransactionCase):
         self.assertTrue(name.endswith(" Farm"), f"Expected 'X Farm', got '{name}'")
 
     def test_generate_farm_name_uses_filipino_surnames(self):
-        """Farm names should use a Filipino last name."""
+        """Farm names are owner-style ("{given} {family} Farm") and use a
+        Filipino last name as the family component (OP#1114)."""
         from odoo.addons.spp_farmer_registry_demo.models.seeded_farm_generator import (
             _FILIPINO_LAST_NAMES,
         )
 
         gen = self._make_generator()
         name = gen._generate_farm_name()
-        surname = name.replace(" Farm", "")
+        # Default descriptor is "Farm"; the family name is the token before it.
+        surname = name.replace(" Farm", "").split()[-1]
         self.assertIn(surname, _FILIPINO_LAST_NAMES)
 
     def test_generate_farm_name_avoids_reserved(self):
@@ -147,35 +149,60 @@ class TestSeededFarmGeneratorNames(TransactionCase):
             name = gen._generate_farm_name()
             self.assertNotIn(name, gen._reserved_names)
 
-    def test_generate_member_name_male(self):
-        """Male member names should come from the male first name pool."""
+    def test_pick_given_name_male(self):
+        """Male member given names should come from the male first name pool."""
         from odoo.addons.spp_farmer_registry_demo.models.seeded_farm_generator import (
             _FILIPINO_MALE_FIRST_NAMES,
         )
 
         gen = self._make_generator()
-        given, family = gen._generate_member_name("male")
+        given = gen._pick_given_name("male")
         self.assertIn(given, _FILIPINO_MALE_FIRST_NAMES)
-        self.assertIsInstance(family, str)
-        self.assertTrue(len(family) > 0)
 
-    def test_generate_member_name_female(self):
-        """Female member names should come from the female first name pool."""
+    def test_pick_given_name_female(self):
+        """Female member given names should come from the female first name pool."""
         from odoo.addons.spp_farmer_registry_demo.models.seeded_farm_generator import (
             _FILIPINO_FEMALE_FIRST_NAMES,
         )
 
         gen = self._make_generator()
-        given, family = gen._generate_member_name("female")
+        given = gen._pick_given_name("female")
         self.assertIn(given, _FILIPINO_FEMALE_FIRST_NAMES)
 
-    def test_generate_member_name_avoids_reserved(self):
-        """Generated full names must not collide with reserved names."""
+    def test_pick_given_name_avoids_excluded(self):
+        """Excluding the name that would otherwise be picked yields a different one."""
+        from odoo.addons.spp_farmer_registry_demo.models.seeded_farm_generator import (
+            _FILIPINO_MALE_FIRST_NAMES,
+        )
+
+        # Same seed -> the un-excluded pick is deterministic; excluding it on an
+        # identically-seeded generator must produce a different, valid name.
+        first = self._make_generator()._pick_given_name("male")
+        picked = self._make_generator()._pick_given_name("male", {first})
+        self.assertNotEqual(picked, first)
+        self.assertIn(picked, _FILIPINO_MALE_FIRST_NAMES)
+
+    def test_household_identity_returns_owner_parts(self):
+        """The identity's farm name is '{head_given} {family} {descriptor}'."""
         gen = self._make_generator()
-        for _ in range(50):
-            given, family = gen._generate_member_name("male")
-            full = f"{given} {family}"
-            self.assertNotIn(full, gen._reserved_names)
+        name, head_given, family, resolved_gender = gen._generate_household_identity("crop", "female")
+        self.assertTrue(name.startswith(f"{head_given} {family} "))
+        self.assertNotIn(name, gen._reserved_names)
+        self.assertEqual(resolved_gender, "female")
+
+    def test_household_identity_resolves_any_gender(self):
+        """An 'any' head_gender is resolved to a concrete gender and the given
+        name is drawn from that gender's pool (OP#1114 — no name/gender mismatch)."""
+        from odoo.addons.spp_farmer_registry_demo.models.seeded_farm_generator import (
+            _FILIPINO_FEMALE_FIRST_NAMES,
+            _FILIPINO_MALE_FIRST_NAMES,
+        )
+
+        gen = self._make_generator()
+        _name, head_given, _family, resolved_gender = gen._generate_household_identity("crop", "any")
+        self.assertIn(resolved_gender, ("male", "female"))
+        pool = _FILIPINO_MALE_FIRST_NAMES if resolved_gender == "male" else _FILIPINO_FEMALE_FIRST_NAMES
+        self.assertIn(head_given, pool)
 
     def test_resolve_gender_male(self):
         """Specifying 'male' returns 'male'."""
@@ -1069,6 +1096,51 @@ class TestSeededFarmGeneratorPhases(TransactionCase):
         self.assertIn("size", result)
         self.assertIn("gps", result)
         self.assertEqual(result["blueprint"]["id"], "test_struct")
+
+    def test_farm_named_after_head_and_family_shares_surname(self):
+        """OP#1114: the farm is named after its head member, and every member
+        shares the head's family name (the household is a family of the head)."""
+        gen = self._make_generator()
+
+        bp = {
+            "id": "test_family",
+            "label": "Test Family",
+            "count": 3,
+            "zone": "rural",
+            "farm_type": "crop",
+            "size_range": (2.0, 2.0),
+            "experience_range": (5, 5),
+            "head_gender": "female",
+            "members": [
+                {"role": "head", "gender": "female", "age_range": (35, 35)},
+                {"role": "spouse", "gender": "male", "age_range": (38, 38)},
+                {"role": "child", "gender": "any", "age_range": (10, 10)},
+            ],
+            "activities": [],
+            "land_tenure": "self",
+            "land_use": "cultivation",
+            "eligibility": {},
+        }
+        results = gen.generate_all_farms([bp])
+        self.assertEqual(len(results), 3)
+
+        for result in results:
+            farm = result["group"]
+            members = result["members"]
+            head = members[0]  # blueprint lists the head first
+
+            # 1) The farm is named after its head member.
+            self.assertTrue(
+                farm.name.startswith(head.name + " "),
+                f"Farm '{farm.name}' should be named after head '{head.name}'",
+            )
+            # The head named in the farm is an actual member of the group.
+            self.assertIn(head.name, [m.name for m in members])
+
+            # 2) Every member shares the head's family name (one family).
+            self.assertTrue(head.family_name)
+            for member in members:
+                self.assertEqual(member.family_name, head.family_name)
 
 
 @tagged("post_install", "-at_install")
