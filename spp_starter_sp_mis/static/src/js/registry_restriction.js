@@ -57,6 +57,11 @@ fetchRestriction();
 // Actions to strip from the action menu when restricted
 const BLOCKED_ACTIONS = ["delete", "archive", "unarchive", "duplicate"];
 
+function bypassRegistryRestriction(component) {
+    const context = component.props?.context || {};
+    return context.bypass_registry_admin_only_crud === true;
+}
+
 /**
  * Patch FormController to enforce read-only on registry forms when restricted.
  *
@@ -69,6 +74,10 @@ const BLOCKED_ACTIONS = ["delete", "archive", "unarchive", "duplicate"];
 patch(FormController.prototype, {
     setup() {
         const modelName = this.props.resModel;
+        if (REGISTRY_MODELS.includes(modelName) && bypassRegistryRestriction(this)) {
+            super.setup(...arguments);
+            return;
+        }
         // Check synchronous cache BEFORE super.setup() creates the model
         this._registryRestricted =
             REGISTRY_MODELS.includes(modelName) && _restrictionResult === true;
@@ -153,7 +162,10 @@ patch(FormController.prototype, {
     get modelParams() {
         const params = super.modelParams;
         // Force readonly mode when registry is restricted
-        if (this._registryRestricted) {
+        if (
+            this._registryRestricted &&
+            !bypassRegistryRestriction(this)
+        ) {
             params.config.mode = "readonly";
         }
         return params;
@@ -162,7 +174,11 @@ patch(FormController.prototype, {
     get actionMenuItems() {
         const menuItems = super.actionMenuItems;
 
-        if (this._registryRestricted && REGISTRY_MODELS.includes(this.props.resModel)) {
+        if (
+            this._registryRestricted &&
+            REGISTRY_MODELS.includes(this.props.resModel) &&
+            !bypassRegistryRestriction(this)
+        ) {
             if (menuItems.action) {
                 menuItems.action = menuItems.action.filter(
                     (item) => !BLOCKED_ACTIONS.includes(item.key)
@@ -183,6 +199,9 @@ patch(ListController.prototype, {
 
         const modelName = this.props.resModel;
         if (!REGISTRY_MODELS.includes(modelName)) {
+            return;
+        }
+        if (bypassRegistryRestriction(this)) {
             return;
         }
 
@@ -247,7 +266,11 @@ patch(ListController.prototype, {
     get actionMenuItems() {
         const menuItems = super.actionMenuItems;
 
-        if (this._registryRestricted && REGISTRY_MODELS.includes(this.props.resModel)) {
+        if (
+            this._registryRestricted &&
+            REGISTRY_MODELS.includes(this.props.resModel) &&
+            !bypassRegistryRestriction(this)
+        ) {
             if (menuItems.action) {
                 menuItems.action = menuItems.action.filter(
                     (item) => !BLOCKED_ACTIONS.includes(item.key)
