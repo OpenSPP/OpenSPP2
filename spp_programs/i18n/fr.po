@@ -18,7 +18,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:spp_programs.field_spp_cycle__members_count
 #: model:ir.model.fields,field_description:spp_programs.field_spp_program__beneficiaries_count
 msgid "# Beneficiaries"
-msgstr "# Bénéficiaires"
+msgstr "Nb de bénéficiaires"
 
 #. module: spp_programs
 #: model:ir.model.fields,field_description:spp_programs.field_res_partner__entitlements_count
@@ -38,7 +38,7 @@ msgstr "# Cycles"
 #. module: spp_programs
 #: model:ir.model.fields,field_description:spp_programs.field_spp_program__eligible_beneficiaries_count
 msgid "# Eligible Beneficiaries"
-msgstr "# Bénéficiaires éligibles"
+msgstr "Nb de bénéficiaires éligibles"
 
 #. module: spp_programs
 #: model:ir.model.fields,field_description:spp_programs.field_spp_cycle__all_members_count
@@ -2199,7 +2199,7 @@ msgstr "Impossible de supprimer l'appartenance dupliquée"
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_program_fund_form
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_spp_program_enrollment_wizard_form
 msgid "Cancel"
-msgstr "Cancel"
+msgstr "Annuler"
 
 #. module: spp_programs
 #. odoo-python
@@ -2977,7 +2977,7 @@ msgstr "Contact"
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_cycle_form
 msgid "Copy Beneficiaries"
-msgstr "Copy Bénéficiaires"
+msgstr "Copier les bénéficiaires"
 
 #. module: spp_programs
 #: model:ir.model.fields,field_description:spp_programs.field_spp_program_manager_default__copy_last_cycle_on_new_cycle
@@ -3027,7 +3027,7 @@ msgstr "Créer Nouveau Journal"
 #: model:ir.actions.act_window,name:spp_programs.action_create_program_wizard
 #: model_terms:ir.ui.view,arch_db:spp_programs.create_program_wizard_form_view
 msgid "Create Program"
-msgstr "Créer Programme"
+msgstr "Créer un programme"
 
 #. module: spp_programs
 #: model:ir.model,name:spp_programs.model_spp_program_create_wizard
@@ -3606,7 +3606,7 @@ msgstr "Jours Sales Outstanding (DSO)"
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_program_list_form
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_program_membership_form
 msgid "Deduplicate"
-msgstr "Deduplicate"
+msgstr "Dédoublonner"
 
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_program_membership_form
@@ -4083,7 +4083,7 @@ msgstr "Display preview button"
 #: model:ir.model.fields.selection,name:spp_programs.selection__spp_cycle__state__distributed
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_cycle_search
 msgid "Distributed"
-msgstr "Distributed"
+msgstr "Distribué"
 
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.create_program_wizard_form_view
@@ -4455,7 +4455,7 @@ msgstr "Enroll"
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_program_list_form
 msgid "Enroll Eligible"
-msgstr "Enroll Eligible"
+msgstr "Inscrire les éligibles"
 
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_program_membership_form
@@ -5440,7 +5440,7 @@ msgstr "Have Bénéficiaires"
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_entitlement_form
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_program_list_form
 msgid "History"
-msgstr "History"
+msgstr "Historique"
 
 #. module: spp_programs
 #: model:ir.model.fields,field_description:spp_programs.field_spp_program_membership__grm_household_ticket_count
@@ -5754,7 +5754,7 @@ msgstr "Import Bénéficiaires"
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_program_list_form
 msgid "Import Eligible"
-msgstr "Import Eligible"
+msgstr "Importer les éligibles"
 
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.create_program_wizard_form_view
@@ -6899,7 +6899,7 @@ msgstr "Nouveau"
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_program_list_form
 msgid "New Cycle"
-msgstr "Nouveau Cycle"
+msgstr "Nouveau cycle"
 
 #. module: spp_programs
 #: model:ir.model.fields,field_description:spp_programs.field_spp_program_create_wizard_entitlement_cash_item__program_id
@@ -7154,7 +7154,7 @@ msgstr "Notifications"
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_program_list_form
 msgid "Notify"
-msgstr "Notify"
+msgstr "Notifier"
 
 #. module: spp_programs
 #: model:ir.model.fields,field_description:spp_programs.field_spp_program_manager_default__number_of_cycles
@@ -7530,7 +7530,7 @@ msgstr "Valeur de remplacement pour ce programme"
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_cycle_form
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_program_list_form
 msgid "Overview"
-msgstr "Overview"
+msgstr "Aperçu"
 
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_cycle_membership_form
@@ -7930,7 +7930,7 @@ msgstr "Posted"
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_cycle_form
 msgid "Prepare Entitlements"
-msgstr "Préparer Droits"
+msgstr "Préparer les droits"
 
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_cycle_form
@@ -8740,7 +8740,7 @@ msgstr "Replenishment Horizon"
 #. module: spp_programs
 #: model:ir.ui.menu,name:spp_programs.spp_programs_reports_menu_root
 msgid "Reports"
-msgstr "Reports"
+msgstr "Rapports"
 
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_program_fund_form
@@ -9668,7 +9668,7 @@ msgstr "Target Bénéficiaires"
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_cel_example_search
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_program_search
 msgid "Target Type"
-msgstr "Type de target"
+msgstr "Type de cible"
 
 #. module: spp_programs
 #: model:ir.model.fields,field_description:spp_programs.field_spp_program_settings__tax_cash_basis_journal_id
@@ -10115,12 +10115,12 @@ msgstr "Tools"
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_cycle_form
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_entitlement_tree
 msgid "Total Amount"
-msgstr "Total Montant"
+msgstr "Montant total"
 
 #. module: spp_programs
 #: model:ir.model.fields,field_description:spp_programs.field_spp_cycle__total_amount_in_words
 msgid "Total Amount In Words"
-msgstr "Total Montant In Words"
+msgstr "Montant total en toutes lettres"
 
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.print_summary

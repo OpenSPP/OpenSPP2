@@ -92,7 +92,7 @@ msgstr "Ajoutez un individu à un groupe !"
 #. module: spp_registry
 #: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
 msgid "Add tags..."
-msgstr "Ajouter des étiquettes..."
+msgstr "Ajouter des étiquettes…"
 
 #. module: spp_registry
 #: model:ir.model.fields,field_description:spp_registry.field_res_partner__addl_name
@@ -1177,7 +1177,7 @@ msgstr "Inscrit :"
 #: model_terms:ir.ui.view,arch_db:spp_registry.view_registry_groups_filter
 #: model_terms:ir.ui.view,arch_db:spp_registry.view_registry_individuals_filter_enhanced
 msgid "Registration Date"
-msgstr "Date d’enregistrement"
+msgstr "Date d'inscription"
 
 #. module: spp_registry
 #: model_terms:ir.ui.view,arch_db:spp_registry.view_registry_individuals_filter_enhanced
