@@ -43,3 +43,28 @@ class TestOpenAPIContract(HttpCase):
             "is not wired, or a polymorphic_body() references a model not in components/schemas.\n"
             f"Found: {unresolved[:5]}",
         )
+
+    def test_security_scheme_token_url_is_absolute(self):
+        """securitySchemes advertises the token endpoint with an absolute path.
+
+        A relative tokenUrl ("oauth/token") RFC-3986-resolves against the
+        server URL to /api/v2/oauth/token (404) in strict clients; the
+        generation-time hook must rewrite it to the mounted endpoint's
+        absolute path.
+        """
+        response = self.url_open("/api/v2/spp/openapi.json")
+        self.assertEqual(response.status_code, 200)
+        schema = response.json()
+        schemes = schema.get("components", {}).get("securitySchemes", {})
+        self.assertTrue(schemes, "securitySchemes missing from the OpenAPI document")
+        token_urls = [
+            flow.get("tokenUrl")
+            for scheme in schemes.values()
+            for flow in scheme.get("flows", {}).values()
+            if "tokenUrl" in flow
+        ]
+        self.assertTrue(token_urls, "no clientCredentials tokenUrl advertised")
+        for url in token_urls:
+            self.assertTrue(url.startswith("/"), f"tokenUrl not absolute: {url}")
+            self.assertTrue(url.endswith("/oauth/token"), f"unexpected tokenUrl: {url}")
+            self.assertEqual(url, "/api/v2/spp/oauth/token")

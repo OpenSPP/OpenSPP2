@@ -145,6 +145,15 @@ def install_polymorphic_openapi_hook(app: FastAPI) -> None:
                     ", ".join(m.__name__ for m in wanted),
                 )
             for name, model_schema in generated.items():
+                existing = components.get(name)
+                if existing is not None and existing != model_schema:
+                    _logger.warning(
+                        "polymorphic OpenAPI hook: schema name collision on %r; "
+                        "keeping the app-generated schema, so $refs to it may "
+                        "describe a different model than intended",
+                        name,
+                    )
+                    continue
                 components.setdefault(name, model_schema)
 
         app.openapi_schema = schema

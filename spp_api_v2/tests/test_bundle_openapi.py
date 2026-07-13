@@ -24,10 +24,15 @@ class TestBundleEntryOpenAPI(HttpCase):
         schema = response.json()
         components = schema["components"]["schemas"]
 
-        self.assertIn("BundleEntry", components)
-        resource_schema = components["BundleEntry"]["properties"]["resource"]
+        self.assertIn("RegistrantBundleEntry", components)
+        resource_schema = components["RegistrantBundleEntry"]["properties"]["resource"]
 
-        # Spike-confirmed shape: for `dict | None = polymorphic_body(...)`,
+        # The base BundleEntry is reused by other modules (e.g. Products) for
+        # non-registrant resources, so it must stay generic: no oneOf there.
+        if "BundleEntry" in components:
+            self.assertNotIn("oneOf", components["BundleEntry"]["properties"]["resource"])
+
+        # Shape note: for `dict | None = polymorphic_body(...)`,
         # Pydantic emits `anyOf: [{type: object}, {type: null}]` and our hook
         # attaches `oneOf` at the SAME top level (siblings, not nested).
         self.assertIn("oneOf", resource_schema, f"no oneOf at top level: {resource_schema}")

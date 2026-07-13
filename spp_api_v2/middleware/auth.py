@@ -14,11 +14,36 @@ from fastapi.security import OAuth2
 
 _logger = logging.getLogger(__name__)
 
+
 # OAuth2 Client Credentials scheme.
 # This produces an "oauth2" entry in the OpenAPI securitySchemes with the
 # clientCredentials flow pointing at our token endpoint, so API consumers
 # (Swagger UI, QGIS, etc.) can discover how to authenticate.
 # auto_error=False allows us to handle authentication errors with proper status codes.
+def absolutize_oauth_token_urls(app, root_path: str) -> None:
+    """Rewrite relative OAuth2 tokenUrls to the endpoint's absolute path.
+
+    The security scheme below is a module-level constant, created before any
+    mount path is known, so its tokenUrl is relative. Per RFC 3986 a strict
+    client resolves "oauth/token" against the server URL "/api/v2/spp" to
+    "/api/v2/oauth/token" (404). This wraps the app's OpenAPI generator and
+    absolutizes the advertised URL against the endpoint's root_path.
+    """
+    inner = app.openapi
+
+    def openapi_with_absolute_token_urls():
+        schema = inner()
+        schemes = schema.get("components", {}).get("securitySchemes", {})
+        for scheme in schemes.values():
+            for flow in scheme.get("flows", {}).values():
+                url = flow.get("tokenUrl")
+                if url and "://" not in url and not url.startswith("/"):
+                    flow["tokenUrl"] = f"{root_path.rstrip('/')}/{url}"
+        return schema
+
+    app.openapi = openapi_with_absolute_token_urls
+
+
 security = OAuth2(
     flows={
         "clientCredentials": {

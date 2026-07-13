@@ -5,8 +5,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from odoo.addons.spp_api_v2.utils.openapi_polymorphic import polymorphic_body
-
+from ..utils.openapi_polymorphic import polymorphic_body
 from .group import Group
 from .individual import Individual
 
@@ -55,10 +54,8 @@ class BundleEntry(BaseModel):
     )
     request: BundleRequest | None = None
     response: BundleResponse | None = None
-    resource: dict[str, Any] | None = polymorphic_body(
-        Individual,
-        Group,
-        default=None,
+    resource: dict[str, Any] | None = Field(
+        None,
         description="FHIR-style resource. Must match the type indicated by request.url.",
     )
     search: BundleSearch | None = None
@@ -119,6 +116,29 @@ class Bundle(BaseModel):
     link: list[BundleLink] | None = None
 
     entry: list[BundleEntry] | None = None
+
+
+class RegistrantBundleEntry(BundleEntry):
+    """Bundle entry whose resource is a registrant (Individual or Group).
+
+    The base BundleEntry stays generic because other modules (e.g. Products)
+    reuse it for non-registrant resources; only registrant-serving endpoints
+    document the Individual/Group restriction.
+    """
+
+    resource: dict[str, Any] | None = polymorphic_body(
+        Individual,
+        Group,
+        default=None,
+        description="FHIR-style registrant resource (Individual or Group). "
+        "Must match the type indicated by request.url.",
+    )
+
+
+class RegistrantBundle(Bundle):
+    """Bundle whose entries carry registrant resources (Individual or Group)."""
+
+    entry: list[RegistrantBundleEntry] | None = None
 
 
 # ============================================================================

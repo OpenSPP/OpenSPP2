@@ -150,8 +150,8 @@ class TestPolymorphicBody(TransactionCase):
         For a `dict | None = polymorphic_body(..., default=None)` field, Pydantic
         emits `anyOf: [{type: object}, {type: null}]` and our hook attaches
         `oneOf: [<refs>]` at the same level. The two siblings are combined by
-        JSON-Schema AND semantics; this is the documented (and Swagger-renders-
-        correctly) trade-off, see the plan's "Open Questions" section.
+        JSON-Schema AND semantics; a deliberate trade-off that keeps the
+        runtime type `dict` while Swagger renders the model choices.
         """
         reset_polymorphic_registry()
 
