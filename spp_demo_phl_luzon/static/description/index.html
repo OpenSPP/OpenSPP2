@@ -377,8 +377,12 @@ weights for the OpenSPP demo data generator.</p>
 <div class="section" id="contents">
 <h2>Contents</h2>
 <ul class="simple">
-<li><strong>Area records</strong>: Regions, provinces, and municipalities of Luzon
-loaded as <tt class="docutils literal">spp.area</tt> records on install.</li>
+<li><strong>Area records</strong>: Regions, provinces, and municipalities of Luzon,
+importable as <tt class="docutils literal">spp.area</tt> records via the bundled loader
+(<tt class="docutils literal">spp.demo.luzon.area.loader</tt>). The data is not loaded automatically
+on install; invoking the loader (e.g. from demo tooling or an Odoo
+shell) is a deliberate step. Automatic wiring into the demo generator
+is planned as a follow-up.</li>
 <li><strong>GeoJSON shapes</strong>: Polygon geometries for all Luzon administrative
 units, located at <tt class="docutils literal">data/shapes/phl_luzon.geojson</tt>.</li>
 <li><strong>Population weights</strong>: Municipality-level population figures used to
