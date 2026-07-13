@@ -5,6 +5,8 @@ from odoo import api, fields, models
 
 from fastapi import APIRouter, FastAPI
 
+from ..utils.openapi_polymorphic import install_polymorphic_openapi_hook
+
 _logger = logging.getLogger(__name__)
 
 
@@ -79,6 +81,13 @@ class SppApiV2Endpoint(models.Model):
             from ..middleware.version import VersionMiddleware
 
             app.add_middleware(VersionMiddleware)
+            # Install OpenAPI hook so polymorphic_body() schemas are injected
+            install_polymorphic_openapi_hook(app)
+            # Advertise the token endpoint with an absolute path (strict
+            # RFC 3986 clients would resolve a relative one to a 404).
+            from ..middleware.auth import absolutize_oauth_token_urls
+
+            absolutize_oauth_token_urls(app, self.root_path or "")
             # V2 API uses public endpoint with JWT authentication in middleware
             # No default authentication required at app level
             return app
