@@ -158,11 +158,17 @@ Changelog
 - Auth middleware: replace the plain ``HTTPBearer`` scheme with an
   OAuth2 client-credentials security scheme so the OpenAPI document
   advertises the token endpoint and consumers (Swagger UI, QGIS, etc.)
-  can discover how to authenticate; strip the ``Bearer`` prefix from the
-  raw Authorization header value
-- Bundle schemas: document ``BundleEntry.resource`` as a polymorphic
-  Individual/Group body instead of an opaque dict, so bundle payloads
-  are fully described in the OpenAPI document
+  can discover how to authenticate. The advertised ``tokenUrl`` is
+  absolutized against the endpoint's mount path at generation time so
+  strict RFC 3986 clients resolve it correctly. The ``Bearer`` prefix is
+  stripped from the Authorization header when present; a raw token
+  without the prefix is also accepted
+- Bundle schemas: registrant-serving endpoints document bundle entries
+  as polymorphic Individual/Group bodies via new
+  ``RegistrantBundle``/``RegistrantBundleEntry`` subtypes, so their
+  payloads are fully described in the OpenAPI document; the shared
+  ``BundleEntry`` stays generic because other modules reuse it for
+  non-registrant resources
 - Add OpenAPI contract tests covering bundle schema rendering, the
   polymorphic utilities, and the overall OpenAPI document contract
 

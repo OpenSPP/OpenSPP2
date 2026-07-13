@@ -539,11 +539,17 @@ models, plus an app-level OpenAPI hook that injects the corresponding
 <li>Auth middleware: replace the plain <tt class="docutils literal">HTTPBearer</tt> scheme with an
 OAuth2 client-credentials security scheme so the OpenAPI document
 advertises the token endpoint and consumers (Swagger UI, QGIS, etc.)
-can discover how to authenticate; strip the <tt class="docutils literal">Bearer</tt> prefix from the
-raw Authorization header value</li>
-<li>Bundle schemas: document <tt class="docutils literal">BundleEntry.resource</tt> as a polymorphic
-Individual/Group body instead of an opaque dict, so bundle payloads
-are fully described in the OpenAPI document</li>
+can discover how to authenticate. The advertised <tt class="docutils literal">tokenUrl</tt> is
+absolutized against the endpoint’s mount path at generation time so
+strict RFC 3986 clients resolve it correctly. The <tt class="docutils literal">Bearer</tt> prefix is
+stripped from the Authorization header when present; a raw token
+without the prefix is also accepted</li>
+<li>Bundle schemas: registrant-serving endpoints document bundle entries
+as polymorphic Individual/Group bodies via new
+<tt class="docutils literal">RegistrantBundle</tt>/<tt class="docutils literal">RegistrantBundleEntry</tt> subtypes, so their
+payloads are fully described in the OpenAPI document; the shared
+<tt class="docutils literal">BundleEntry</tt> stays generic because other modules reuse it for
+non-registrant resources</li>
 <li>Add OpenAPI contract tests covering bundle schema rendering, the
 polymorphic utilities, and the overall OpenAPI document contract</li>
 </ul>
