@@ -4000,72 +4000,79 @@ class SPPMISDemoGenerator(models.TransientModel):
     # Keys: story_id -> {locale: area_xmlid}
     STORY_AREA_MAP = {
         "juan_dela_cruz": {
-            "fil_PH": "spp_demo.area_phl_calamba",
+            "fil_PH": "spp_demo.area_phl_ph0403405",  # City of Calamba, Laguna
             "fr_TG": "spp_demo.area_tgo_lome_tokoin",
             "si_LK": "spp_demo.area_lka_moratuwa",
         },
         "maria_santos": {
-            "fil_PH": "spp_demo.area_phl_santa_rosa",
+            "fil_PH": "spp_demo.area_phl_ph0403428",  # City of Santa Rosa, Laguna
             "fr_TG": "spp_demo.area_tgo_aflao",
             "si_LK": "spp_demo.area_lka_kolonnawa",
         },
         "jose_reyes_multigenerational": {
-            "fil_PH": "spp_demo.area_phl_san_pablo",
+            "fil_PH": "spp_demo.area_phl_ph0403424",  # San Pablo City, Laguna
             "fr_TG": "spp_demo.area_tgo_kpalime",
             "si_LK": "spp_demo.area_lka_kandy_ds",
         },
         "ibrahim_hassan": {
-            "fil_PH": "spp_demo.area_phl_antipolo",
+            "fil_PH": "spp_demo.area_phl_ph0405802",  # City of Antipolo, Rizal
             "fr_TG": "spp_demo.area_tgo_sokode",
             "si_LK": "spp_demo.area_lka_galle_ds",
         },
         "david_sofia_martinez": {
-            "fil_PH": "spp_demo.area_phl_makati",
+            "fil_PH": "spp_demo.area_phl_ph1307602",  # City of Makati, NCR
             "fr_TG": "spp_demo.area_tgo_lome",
             "si_LK": "spp_demo.area_lka_dehiwala",
         },
         "rosa_garcia": {
-            "fil_PH": "spp_demo.area_phl_quezon_city",
+            "fil_PH": "spp_demo.area_phl_ph1307404",  # Quezon City, NCR
             "fr_TG": "spp_demo.area_tgo_lome_be",
             "si_LK": "spp_demo.area_lka_colombo_fort",
         },
         "mary_johnson": {
-            "fil_PH": "spp_demo.area_phl_pasig",
+            "fil_PH": "spp_demo.area_phl_ph1307403",  # City of Pasig, NCR
             "fr_TG": "spp_demo.area_tgo_lome_nyekonakpoe",
             "si_LK": "spp_demo.area_lka_colombo_pettah",
         },
         "ahmed_said": {
-            "fil_PH": "spp_demo.area_phl_taguig",
+            "fil_PH": "spp_demo.area_phl_ph1307607",  # Taguig City, NCR
             "fr_TG": "spp_demo.area_tgo_lome_adidogome",
             "si_LK": "spp_demo.area_lka_dehiwala_gn",
         },
         "nguyen_extended_family": {
-            "fil_PH": "spp_demo.area_phl_bacoor",
+            # Bacoor is not in the curated PSGC dataset; Imus is the nearest available city in Cavite.
+            "fil_PH": "spp_demo.area_phl_ph0402109",  # Imus City, Cavite
             "fr_TG": "spp_demo.area_tgo_baguida_centre",
             "si_LK": "spp_demo.area_lka_hikkaduwa",
         },
         "amina_osman_household": {
-            "fil_PH": "spp_demo.area_phl_manila",
+            "fil_PH": "spp_demo.area_phl_ph1303901",  # City of Manila, NCR
             "fr_TG": "spp_demo.area_tgo_kpalime_centre",
             "si_LK": "spp_demo.area_lka_mount_lavinia_gn",
         },
         "carlos_elena_morales": {
-            "fil_PH": "spp_demo.area_phl_dasmarinas",
+            "fil_PH": "spp_demo.area_phl_ph0402106",  # City of Dasmariñas, Cavite
             "fr_TG": "spp_demo.area_tgo_kpalime_tove",
             "si_LK": "spp_demo.area_lka_galle_fort",
         },
         "chen_large_family": {
-            "fil_PH": "spp_demo.area_phl_qc_commonwealth",
+            # Commonwealth barangay (Quezon City) is not in the municipality-level dataset;
+            # assigned a distinct NCR city to keep areas spread across the demo map.
+            "fil_PH": "spp_demo.area_phl_ph1307501",  # Caloocan City, NCR
             "fr_TG": "spp_demo.area_tgo_zio",
             "si_LK": "spp_demo.area_lka_gampaha",
         },
         "grace_okonkwo": {
-            "fil_PH": "spp_demo.area_phl_makati_poblacion",
+            # Poblacion barangay (Makati) is not in the municipality-level dataset;
+            # assigned a distinct NCR city to keep areas spread across the demo map.
+            "fil_PH": "spp_demo.area_phl_ph1307603",  # City of Muntinlupa, NCR
             "fr_TG": "spp_demo.area_tgo_ogou",
             "si_LK": "spp_demo.area_lka_kalutara",
         },
         "luis_fernandez": {
-            "fil_PH": "spp_demo.area_phl_calamba_real",
+            # Real barangay (Calamba) is not in the municipality-level dataset;
+            # assigned a distinct Laguna city to keep areas spread across the demo map.
+            "fil_PH": "spp_demo.area_phl_ph0403403",  # City of Biñan, Laguna
             "fr_TG": "spp_demo.area_tgo_lacs",
             "si_LK": "spp_demo.area_lka_matara",
         },
