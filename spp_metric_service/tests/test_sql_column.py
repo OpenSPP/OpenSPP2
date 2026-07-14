@@ -153,3 +153,42 @@ class TestDimensionSqlColumn(TransactionCase):
         # Should reference the correct alias
         self.assertIn("t", sql_str)
         self.assertIn("birthdate", sql_str)
+
+    def test_applies_to_individuals_wraps_in_is_group_false_case(self):
+        """An individuals-scoped dimension wraps its SQL in CASE WHEN is_group = FALSE."""
+        dim = self.env["spp.demographic.dimension"].create(
+            {
+                "name": "test_individuals_scope",
+                "label": "Individuals Scope",
+                "dimension_type": "field",
+                "field_path": "is_group",
+                "default_value": "unknown",
+                "applies_to": "individuals",
+            }
+        )
+        result = dim.to_sql_column("p", 0)
+        self.assertIsNotNone(result)
+        sql_str = str(result.expression)
+        self.assertIn("CASE WHEN", sql_str)
+        self.assertIn("is_group", sql_str)
+        self.assertIn("= FALSE", sql_str)
+        # Non-matching registrants fall through to the dimension default
+        self.assertIn("unknown", str(result.expression.params))
+
+    def test_applies_to_groups_wraps_in_is_group_true_case(self):
+        """A groups-scoped dimension wraps its SQL in CASE WHEN is_group = TRUE."""
+        dim = self.env["spp.demographic.dimension"].create(
+            {
+                "name": "test_groups_scope",
+                "label": "Groups Scope",
+                "dimension_type": "field",
+                "field_path": "is_group",
+                "default_value": "unknown",
+                "applies_to": "groups",
+            }
+        )
+        result = dim.to_sql_column("p", 0)
+        self.assertIsNotNone(result)
+        sql_str = str(result.expression)
+        self.assertIn("CASE WHEN", sql_str)
+        self.assertIn("= TRUE", sql_str)

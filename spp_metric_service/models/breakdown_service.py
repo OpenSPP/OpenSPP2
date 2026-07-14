@@ -24,6 +24,15 @@ class BreakdownService(models.AbstractModel):
 
         Uses dimension cache for 5-10x performance improvement.
 
+        Expansion semantics (deliberate): if ANY requested dimension has
+        ``applies_to == "individuals"``, the ENTIRE registrant set is expanded
+        from groups to their active individual members before evaluation —
+        including for any non-individual dimensions mixed into the same
+        request (mixing scopes in one breakdown is inherently ambiguous; the
+        expansion is all-or-nothing by design). Consequently breakdown totals
+        count members and intentionally need not reconcile with a group-level
+        scope count.
+
         :param registrant_ids: List of partner IDs
         :param group_by: List of dimension names
         :param statistics: List of statistic names (optional)
