@@ -40,7 +40,19 @@
                         Adjust the quantities or warehouses per row, then confirm.
                     </div>
 
-                    <!-- Warning for shortfall -->
+                    <!-- No stock anywhere: nothing can be allocated yet. -->
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="not no_stock_available"
+                    >
+                        <strong
+                    >No stock available.</strong> No DRIMS warehouse currently
+                        holds stock for the requested items, so there is nothing to allocate
+                        yet. Once stock is received you can allocate this request.
+                    </div>
+
+                    <!-- Genuine stock shortfall: some stock, but less than requested. -->
                     <div
                         class="alert alert-warning"
                         role="alert"
@@ -51,23 +63,37 @@
                         allocation and allocate the balance later once stock arrives.
                     </div>
 
+                    <!-- Enough stock exists, but the user reduced To Allocate below
+                         what is requested — a deliberate partial allocation, not a
+                         stock problem (OP#1079 QA round 2). -->
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="not is_partial_allocation"
+                    >
+                        <strong
+                    >Warning:</strong> The total requested quantity is not fully
+                        allocated. Confirming will proceed with a partial allocation.
+                    </div>
+
                     <notebook>
                         <page string="Allocation Lines" name="lines">
                             <field name="line_ids">
                                 <!-- Proposal-driven: rows are auto-built from
-                                     availability (OP#1079). Manual "Add a line"
-                                     is disabled because a new row can't set its
-                                     required request_line_id from the UI. Users
-                                     adjust the warehouse / quantity on the
-                                     proposed rows instead. -->
-                                <list editable="bottom" create="false">
+                                     availability (OP#1079). Both "Add a line"
+                                     and row delete are disabled — a new row
+                                     can't set its required request_line_id from
+                                     the UI, and a deleted proposal row can't be
+                                     added back. Users adjust the warehouse /
+                                     quantity on the proposed rows instead (set
+                                     To Allocate to 0 to drop a warehouse). -->
+                                <list editable="bottom" create="false" delete="false">
                                     <field name="product_id" readonly="1" />
                                     <field
                                         name="uom_id"
                                         readonly="1"
                                         groups="uom.group_uom"
                                     />
-                                    <field name="quantity_requested" />
                                     <field
                                         name="request_line_id"
                                         domain="[('request_id', '=', parent.request_id)]"

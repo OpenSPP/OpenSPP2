@@ -36,6 +36,17 @@ class DrimsAllocationPreviewWizard(models.TransientModel):
     has_shortfall = fields.Boolean(
         compute="_compute_totals",
         string="Has Shortfall",
+        help="Some stock exists but less than the requested quantity.",
+    )
+    no_stock_available = fields.Boolean(
+        compute="_compute_totals",
+        string="No Stock Available",
+        help="No DRIMS warehouse holds any stock for the requested items.",
+    )
+    is_partial_allocation = fields.Boolean(
+        compute="_compute_totals",
+        string="Partial Allocation",
+        help="Enough stock exists, but the user chose to allocate less than requested.",
     )
     total_requested = fields.Float(
         compute="_compute_totals",
@@ -69,7 +80,18 @@ class DrimsAllocationPreviewWizard(models.TransientModel):
             wizard.total_requested = remaining
             wizard.total_available = sum(wizard.line_ids.mapped("available_qty"))
             wizard.total_to_allocate = sum(wizard.line_ids.mapped("quantity_to_allocate"))
-            wizard.has_shortfall = wizard.total_to_allocate < remaining
+            # Distinguish the three "not fully allocated" cases so the UI shows
+            # the right message (OP#1079 QA round 2). The stock-based flags key
+            # off AVAILABLE stock, never off the user-editable To Allocate:
+            #  - no stock anywhere      -> nothing to allocate yet
+            #  - some stock < requested -> a genuine stock shortfall
+            #  - enough stock, but the user dialled To Allocate down
+            #                           -> a deliberate partial allocation
+            wizard.no_stock_available = remaining > 0 and wizard.total_available <= 0
+            wizard.has_shortfall = remaining > 0 and 0 < wizard.total_available < remaining
+            wizard.is_partial_allocation = (
+                remaining > 0 and wizard.total_available >= remaining and wizard.total_to_allocate < remaining
+            )
 
     @api.model
     def default_get(self, fields_list):
@@ -119,7 +141,6 @@ class DrimsAllocationPreviewWizard(models.TransientModel):
                         {
                             "request_line_id": req_line.id,
                             "warehouse_id": warehouse.id,
-                            "quantity_requested": req_line.quantity_requested - req_line.quantity_allocated,
                             "available_qty": available,
                             "quantity_to_allocate": take,
                         },
@@ -209,11 +230,6 @@ class DrimsAllocationPreviewWizardLine(models.TransientModel):
         "stock.warehouse",
         string="Source Warehouse",
         domain="[('is_drims_warehouse', '=', True)]",
-    )
-    quantity_requested = fields.Float(
-        string="Still Needed",
-        readonly=True,
-        help="Quantity of this item still to be allocated on the request.",
     )
     available_qty = fields.Float(
         string="Available",

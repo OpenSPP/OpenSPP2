@@ -190,7 +190,10 @@ Changelog
   Warehouse(s)" column on the Requests list; dispatch creates one
   picking per source warehouse. The single "Source Warehouse" field on
   the request has been removed — the warehouse(s) are chosen in the
-  wizard (#1079)
+  wizard. The allocation wizard distinguishes no-stock, stock-shortfall
+  and deliberate partial-allocation cases with clear messages, and the
+  request line's Fulfillment % tracks allocated ÷ requested so the bar
+  reflects allocation progress (#1079)
 - feat(drims): Requests review UI/UX overhaul — post-approval
   fulfillment lanes, allocation shortfall indicators, and a
   destination-type selector (#1075)

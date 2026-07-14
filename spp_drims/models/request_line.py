@@ -118,11 +118,15 @@ class DrimsRequestLine(models.Model):
         for line in self:
             line.value = line.quantity_requested * line.unit_value
 
-    @api.depends("quantity_requested", "quantity_delivered")
+    # OP#1079: fulfillment tracks how much of the requested quantity has been
+    # allocated (stock committed across source warehouses), so the bar moves in
+    # step with the "Fully Allocated" state instead of staying at 0 until a
+    # separate delivery figure is entered. Capped at 100% for a sane bar.
+    @api.depends("quantity_requested", "quantity_allocated")
     def _compute_fulfillment(self):
         for line in self:
             if line.quantity_requested:
-                line.fulfillment_pct = (line.quantity_delivered / line.quantity_requested) * 100
+                line.fulfillment_pct = min(100.0, (line.quantity_allocated / line.quantity_requested) * 100)
             else:
                 line.fulfillment_pct = 0.0
 

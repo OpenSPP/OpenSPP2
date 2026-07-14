@@ -283,9 +283,17 @@ class TestDrimsRequest(DrimsTestCommon):
         )
         line = request.line_ids[0]
         self.assertEqual(line.fulfillment_pct, 0.0)
-        line.quantity_delivered = 50
+        # OP#1079: fulfillment tracks allocated / requested, so drive it through
+        # per-warehouse allocation records rather than a delivered quantity.
+        alloc = self.env["spp.drims.request.allocation"].create(
+            {
+                "request_line_id": line.id,
+                "warehouse_id": self.warehouse.id,
+                "quantity_allocated": 50,
+            }
+        )
         self.assertEqual(line.fulfillment_pct, 50.0)
-        line.quantity_delivered = 100
+        alloc.quantity_allocated = 100
         self.assertEqual(line.fulfillment_pct, 100.0)
 
     def test_line_quantity_tracking(self):
@@ -325,7 +333,8 @@ class TestDrimsRequest(DrimsTestCommon):
         self.assertEqual(line.quantity_approved, 80)
         self.assertEqual(line.quantity_allocated, 75)
         self.assertEqual(line.quantity_dispatched, 70)
-        self.assertEqual(line.fulfillment_pct, 70.0)
+        # OP#1079: fulfillment now tracks allocated / requested (75 / 100).
+        self.assertEqual(line.fulfillment_pct, 75.0)
 
     def test_request_unique_reference(self):
         """Test that request references are unique."""

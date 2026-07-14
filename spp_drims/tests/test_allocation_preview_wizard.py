@@ -125,8 +125,34 @@ class TestDrimsAllocationPreviewWizard(DrimsTestCommon):
         request = self._create_request_with_lines([(self.stockable_product, 100)])
         wizard = self._open_wizard(request)
         self.assertFalse(wizard.line_ids)
+        # OP#1079 QA r2: with no stock at all, the "no stock available" flag is
+        # raised (not the shortfall / partial flags), so the UI can show a
+        # message that makes sense for an empty list.
+        self.assertTrue(wizard.no_stock_available)
+        self.assertFalse(wizard.has_shortfall)
+        self.assertFalse(wizard.is_partial_allocation)
         with self.assertRaises(UserError):
             wizard.action_confirm_allocation()
+
+    def test_partial_allocation_is_not_a_shortfall(self):
+        """OP#1079 QA r2: reducing To Allocate below requested when there is
+        enough stock is a deliberate partial allocation — not a stock shortfall.
+        The stock-shortfall flag must stay off and key off availability."""
+        self._seed_stock(self.warehouse, 100.0)
+        request = self._create_request_with_lines([(self.stockable_product, 70)])
+
+        wizard = self._open_wizard(request)
+        # Auto-split proposes the full 70; stock (100) covers the request.
+        self.assertEqual(wizard.total_to_allocate, 70.0)
+        self.assertFalse(wizard.has_shortfall)
+        self.assertFalse(wizard.is_partial_allocation)
+
+        # User dials the allocation down to 40 — stock is still plentiful.
+        wizard.line_ids[0].quantity_to_allocate = 40.0
+        self.assertEqual(wizard.total_to_allocate, 40.0)
+        self.assertFalse(wizard.has_shortfall, "Enough stock exists — not a shortfall")
+        self.assertFalse(wizard.no_stock_available)
+        self.assertTrue(wizard.is_partial_allocation, "Under-allocation should flag as partial")
 
     # ── confirm → allocation records ─────────────────────────────────────────
     def test_confirm_creates_allocation_records(self):
@@ -144,6 +170,28 @@ class TestDrimsAllocationPreviewWizard(DrimsTestCommon):
         self.assertEqual(line.quantity_allocated, 100.0)
         if self.state_allocated:
             self.assertEqual(request.state_id, self.state_allocated)
+
+    def test_fulfillment_reflects_allocation(self):
+        """OP#1079 QA r2: the Fulfillment % tracks allocated / requested, so a
+        fully-allocated line reads 100% (it no longer sits at 0 until a delivery
+        quantity is entered), and a partial allocation reads pro-rata."""
+        self._seed_stock(self.warehouse, 100.0)
+        request = self._create_request_with_lines([(self.stockable_product, 100)])
+        line = request.line_ids[0]
+        self.assertEqual(line.fulfillment_pct, 0.0)
+
+        wizard = self._open_wizard(request)
+        # Allocate only 40 of 100 first → 40%.
+        wizard.line_ids[0].quantity_to_allocate = 40.0
+        wizard.action_confirm_allocation()
+        self.assertEqual(line.quantity_allocated, 40.0)
+        self.assertEqual(line.fulfillment_pct, 40.0)
+
+        # Allocate the remaining 60 → 100%.
+        wizard2 = self._open_wizard(request)
+        wizard2.action_confirm_allocation()
+        self.assertEqual(line.quantity_allocated, 100.0)
+        self.assertEqual(line.fulfillment_pct, 100.0)
 
     def test_confirm_multi_warehouse_records_and_names(self):
         """A split of 50 + 20 produces two allocation records and a joined
