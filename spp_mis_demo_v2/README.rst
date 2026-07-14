@@ -161,6 +161,14 @@ Dependencies
 Changelog
 =========
 
+19.0.2.1.2
+~~~~~~~~~~
+
+- fix: demo GIS reports use ``dimension_ids`` + ``member_expansion``
+  instead of the removed ``disaggregate_by_*`` boolean fields (ported
+  from #295, credit @kneckinator; required in lockstep with the
+  spp_gis_report dimension change).
+
 19.0.2.1.1
 ~~~~~~~~~~
 

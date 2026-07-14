@@ -31,7 +31,12 @@
         <field name="color_scheme_id" ref="spp_gis.scheme_viridis" />
         <field name="threshold_mode">auto_quartile</field>
         <field name="bucket_count">5</field>
-        <field name="disaggregate_by_gender">True</field>
+        <field
+            name="dimension_ids"
+            eval="[Command.set([ref('spp_metric_service.dimension_gender')])]"
+        />
+        <!-- Report filters on groups; expand to members so gender is read off individuals. -->
+        <field name="member_expansion">expand</field>
         <field name="refresh_mode">scheduled</field>
         <field name="refresh_interval">daily</field>
     </record>
@@ -60,7 +65,12 @@
         <field name="color_scheme_id" ref="spp_gis.scheme_blues" />
         <field name="threshold_mode">auto_jenks</field>
         <field name="bucket_count">5</field>
-        <field name="disaggregate_by_gender">True</field>
+        <field
+            name="dimension_ids"
+            eval="[Command.set([ref('spp_metric_service.dimension_gender')])]"
+        />
+        <!-- Report filters on groups; expand to members so gender is read off individuals. -->
+        <field name="member_expansion">expand</field>
         <field name="refresh_mode">scheduled</field>
         <field name="refresh_interval">daily</field>
     </record>
@@ -89,8 +99,11 @@
         <field name="color_scheme_id" ref="spp_gis.scheme_viridis" />
         <field name="threshold_mode">auto_quartile</field>
         <field name="bucket_count">4</field>
-        <field name="disaggregate_by_age">True</field>
-        <field name="disaggregate_by_gender">True</field>
+        <!-- Report already filters on individuals, so no member expansion is needed. -->
+        <field
+            name="dimension_ids"
+            eval="[Command.set([ref('spp_metric_service.dimension_age_group'), ref('spp_metric_service.dimension_gender')])]"
+        />
         <field name="refresh_mode">scheduled</field>
         <field name="refresh_interval">weekly</field>
     </record>
