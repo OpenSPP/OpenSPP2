@@ -10,3 +10,4 @@ from . import test_gis_report_helpers
 from . import test_disaggregation
 from . import test_gis_report_data
 from . import test_gis_report_wizard
+from . import test_migration_boolean_dimensions

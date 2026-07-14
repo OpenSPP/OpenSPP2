@@ -905,9 +905,10 @@ class GISReport(models.Model):
         if not memberships:
             return {}
 
-        # Build individual -> base_area mapping, inheriting from group
+        # Dedup members (first membership seen provides the group fallback,
+        # matching the SQL path's DISTINCT ON semantics)
         seen_individuals = set()
-        individual_area = {}
+        member_group_area = {}
         all_individual_ids = []
 
         for mem in memberships:
@@ -918,15 +919,27 @@ class GISReport(models.Model):
             all_individual_ids.append(ind_id)
 
             grp_id = mem["group"][0] if isinstance(mem["group"], (list, tuple)) else mem["group"]
-            # Individual's area or inherited from group
-            grp_area_id = group_area.get(grp_id)
-            if grp_area_id:
-                base_id = child_to_base.get(grp_area_id)
-                if base_id:
-                    individual_area[ind_id] = base_id
+            member_group_area[ind_id] = group_area.get(grp_id)
 
         if not all_individual_ids:
             return {}
+
+        # Individual's own area takes precedence, falling back to the group's —
+        # parity with the SQL path's COALESCE(ind.<area>, grp.<area>) so the
+        # same person cannot land in different areas across dimension paths.
+        own_area = {}
+        for rec in self.env["res.partner"].search_read([("id", "in", all_individual_ids)], [area_field]):
+            area_val = rec[area_field]
+            if area_val:
+                own_area[rec["id"]] = area_val[0] if isinstance(area_val, (list, tuple)) else area_val
+
+        individual_area = {}
+        for ind_id in all_individual_ids:
+            area_id = own_area.get(ind_id) or member_group_area.get(ind_id)
+            if area_id:
+                base_id = child_to_base.get(area_id)
+                if base_id:
+                    individual_area[ind_id] = base_id
 
         cache_service = self.env["spp.metric.dimension.cache"]
         dim_evaluations = {}

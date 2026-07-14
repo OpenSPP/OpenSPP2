@@ -450,3 +450,74 @@ class TestDisaggregation(GISReportTestBase):
                     "member_expansion": "expand",
                 }
             )
+
+    def test_member_expansion_member_own_area_wins_python_path(self):
+        """A member with their own area lands there, not in the group's area.
+
+        Parity with the SQL path's COALESCE(ind.area, grp.area): the Python
+        fallback (non-SQL-compilable dimension) must attribute a member to
+        their OWN area when set, falling back to the group's only when absent.
+        """
+        fallback_dim = self.env["spp.demographic.dimension"].create(
+            {
+                "name": "test_fallback_own_area",
+                "label": "Fallback Own Area",
+                "dimension_type": "expression",
+                "cel_expression": "r.income + r.bonus",
+                "default_value": "n/a",
+            }
+        )
+        member = self.env["res.partner"].create(
+            {
+                "name": "Own Area Member",
+                "is_registrant": True,
+                "is_group": False,
+                "area_id": self.area_district_2.id,
+            }
+        )
+        self.env["spp.group.membership"].create({"group": self.registrant_group.id, "individual": member.id})
+
+        report = self.create_test_report(
+            name="Own Area Python Path Test",
+            dimension_ids=[Command.set([fallback_dim.id])],
+            member_expansion="expand",
+            filter_domain="[('is_registrant', '=', True), ('is_group', '=', True)]",
+            filter_mode="domain",
+        )
+        area_context = report._prepare_area_context()
+        result = report._compute_disaggregation(area_context)
+
+        self.assertIn(
+            self.area_district_2.id,
+            result,
+            "member with their own area must be attributed to it (individual-first)",
+        )
+        district_1_counts = result.get(self.area_district_1.id, {}).get("test_fallback_own_area", {})
+        self.assertFalse(
+            district_1_counts,
+            f"member must not also/only be counted in the group's area: {district_1_counts}",
+        )
+
+    def test_member_expansion_member_own_area_wins_sql_path(self):
+        """Same own-area-first rule on the SQL path (documents parity)."""
+        member = self.env["res.partner"].create(
+            {
+                "name": "Own Area Member SQL",
+                "is_registrant": True,
+                "is_group": False,
+                "area_id": self.area_district_2.id,
+            }
+        )
+        self.env["spp.group.membership"].create({"group": self.registrant_group.id, "individual": member.id})
+
+        report = self.create_test_report(
+            name="Own Area SQL Path Test",
+            dimension_ids=[Command.set([self.age_dimension.id])],
+            member_expansion="expand",
+            filter_domain="[('is_registrant', '=', True), ('is_group', '=', True)]",
+            filter_mode="domain",
+        )
+        area_context = report._prepare_area_context()
+        result = report._compute_disaggregation(area_context)
+
+        self.assertIn(self.area_district_2.id, result)
