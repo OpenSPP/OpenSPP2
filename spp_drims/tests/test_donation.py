@@ -1230,7 +1230,8 @@ class TestDrimsDonationOP1076(DrimsTestCommon):
         donation.line_ids[0].disposition_id = disposition_return
         self.assertIn(donation.line_ids[0], donation.non_accepted_line_ids)
 
-    # ---------- OP#1055: items can only be added/removed in draft ----------
+    # ---------- OP#1055: items can be added/removed while draft or announced,
+    #            but the list is locked once the donation is received ----------
 
     def test_1055_can_add_and_remove_lines_in_draft(self):
         donation = self._draft_donation()
@@ -1246,9 +1247,30 @@ class TestDrimsDonationOP1076(DrimsTestCommon):
         line.unlink()
         self.assertNotIn(line, donation.line_ids)
 
-    def test_1055_cannot_add_line_after_draft(self):
+    def test_1055_can_add_and_remove_lines_when_announced(self):
+        """OP#1055 (round 2): a line can still be added — with a selectable
+        product — while the donation is announced (QA adds late-announced items
+        during receiving). Adding/removing is allowed up to the announced state.
+        """
         donation = self._draft_donation()
         donation.action_mark_announced()
+        line = self.env["spp.drims.donation.line"].create(
+            {
+                "donation_id": donation.id,
+                "product_id": self.product.id,
+                "quantity_pledged": 5,
+                "uom_id": self.product.uom_id.id,
+            }
+        )
+        self.assertIn(line, donation.line_ids)
+        line.unlink()
+        self.assertNotIn(line, donation.line_ids)
+
+    def test_1055_cannot_add_line_after_received(self):
+        """The original bug: no new items once the donation is received."""
+        donation = self._draft_donation()
+        self._receive_donation(donation)
+        self.assertEqual(donation.state, "received")
         with self.assertRaises(ValidationError):
             self.env["spp.drims.donation.line"].create(
                 {
@@ -1259,9 +1281,9 @@ class TestDrimsDonationOP1076(DrimsTestCommon):
                 }
             )
 
-    def test_1055_cannot_remove_line_after_draft(self):
+    def test_1055_cannot_remove_line_after_received(self):
         donation = self._draft_donation()
-        donation.action_mark_announced()
+        self._receive_donation(donation)
         with self.assertRaises(ValidationError):
             donation.line_ids[0].unlink()
 

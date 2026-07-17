@@ -158,12 +158,14 @@
                     <notebook>
                         <page string="Donation Items" name="items">
                             <!--
-                                OP#1055: items can only be added/edited while the
-                                donation is in draft (then only Received is edited
-                                while announced). Making the field read-only from
-                                'received' onward removes the "Add a line" row that
-                                otherwise let users create empty, product-less lines
-                                on an already-received donation.
+                                OP#1055: items can be added/edited/removed while
+                                the donation is in draft or announced (during
+                                receiving a late-announced item can still be added
+                                with a selectable product). Making the field
+                                read-only from 'received' onward removes the
+                                "Add a line" row that otherwise let users create
+                                empty, product-less lines on an already-received
+                                donation.
                             -->
                             <field
                                 name="line_ids"
@@ -191,12 +193,12 @@
                                         name="product_id"
                                         options="{'no_create_edit': True}"
                                         context="{'default_type': 'consu', 'default_is_storable': True}"
-                                        readonly="parent.state != 'draft'"
+                                        readonly="parent.state not in ('draft', 'announced')"
                                     />
                                     <field
                                         name="quantity_pledged"
                                         string="Pledged"
-                                        readonly="parent.state != 'draft'"
+                                        readonly="parent.state not in ('draft', 'announced')"
                                     />
                                     <!--
                                         OP#1076: Received is entered MANUALLY on the
