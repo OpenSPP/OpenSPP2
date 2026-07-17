@@ -56,4 +56,20 @@
         action="res_config_settings_menu_registry_action"
         groups="spp_security.group_spp_admin"
     />
+
+    <!--
+        OP#1009: the registry settings + configuration menus now live under the
+        Odoo Settings app (base.menu_administration), which is otherwise limited
+        to base.group_system / base.group_erp_manager. Grant the OpenSPP admin
+        and registry-config-admin groups access to the Settings app so those
+        personas can actually reach Settings → Registry. Additive (Command.link)
+        so the stock system / access-rights visibility is preserved; every
+        section under Settings still enforces its own group gate.
+    -->
+    <record id="base.menu_administration" model="ir.ui.menu">
+        <field
+            name="group_ids"
+            eval="[Command.link(ref('spp_security.group_spp_admin')), Command.link(ref('spp_registry.group_registry_config_admin'))]"
+        />
+    </record>
 </odoo>

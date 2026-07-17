@@ -41,8 +41,11 @@
         # Wizards
         "wizard/disable_registrant_view.xml",
         # Views - Base
-        "views/main_view.xml",
+        # res_config_settings_views.xml defines menu_registry_settings_root, which
+        # main_view.xml reparents the Configuration menu under (OP#1009), so it
+        # must load first.
         "views/res_config_settings_views.xml",
+        "views/main_view.xml",
         "views/reg_relationship_view.xml",
         "views/reg_id_view.xml",
         "views/id_types_view.xml",
