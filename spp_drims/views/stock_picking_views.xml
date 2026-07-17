@@ -117,6 +117,20 @@
                 <attribute name="invisible">state != 'done' or drims_type_id</attribute>
             </xpath>
 
+            <!--
+                OP#1075: a request dispatch's stock moves are generated from the
+                request's per-warehouse allocations (action_create_dispatch), so
+                the picking contents are already decided. Lock the Operations
+                moves list on a dispatch so users cannot add products (or edit
+                the allocation-derived quantities). The core done+locked
+                condition is preserved; other pickings are unaffected.
+            -->
+            <xpath expr="//field[@name='move_ids']" position="attributes">
+                <attribute
+                    name="readonly"
+                >(state == 'done' and is_locked) or drims_type == 'request_dispatch'</attribute>
+            </xpath>
+
             <!-- Add DRIMS tab -->
             <xpath expr="//notebook" position="inside">
                 <page string="DRIMS" name="drims" invisible="drims_type_id == False">

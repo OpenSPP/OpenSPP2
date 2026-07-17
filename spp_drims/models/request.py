@@ -259,6 +259,20 @@ class DrimsRequest(models.Model):
                 line.quantity_allocated >= line.quantity_requested for line in lines
             )
 
+    # OP#1075: requested lines still short once the request is approved — drives
+    # the "Not Allocated" section on the form (paired with allocation_ids, which
+    # drives the "Allocated" section).
+    unallocated_line_ids = fields.One2many(
+        "spp.drims.request.line",
+        compute="_compute_unallocated_line_ids",
+        string="Not Allocated",
+    )
+
+    @api.depends("line_ids.is_allocation_short")
+    def _compute_unallocated_line_ids(self):
+        for rec in self:
+            rec.unallocated_line_ids = rec.line_ids.filtered("is_allocation_short")
+
     # Stock
     picking_ids = fields.One2many(
         "stock.picking",

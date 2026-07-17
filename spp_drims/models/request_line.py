@@ -76,6 +76,19 @@ class DrimsRequestLine(models.Model):
                 line.request_id.approval_state == "approved" and line.quantity_allocated < line.quantity_requested
             )
 
+    # OP#1075: outstanding quantity still to allocate — shown in the request's
+    # "Not Allocated" section.
+    quantity_short = fields.Float(
+        string="Short",
+        compute="_compute_quantity_short",
+        help="Requested quantity that has not been allocated yet.",
+    )
+
+    @api.depends("quantity_requested", "quantity_allocated")
+    def _compute_quantity_short(self):
+        for line in self:
+            line.quantity_short = max(0.0, line.quantity_requested - line.quantity_allocated)
+
     quantity_delivered = fields.Float(
         string="Quantity Delivered",
         default=0.0,

@@ -388,20 +388,24 @@
 
                     <!-- Notebook with Tabs -->
                     <notebook>
+                        <!--
+                            OP#1075: a single "Requested Items" tab. While the
+                            request is still being drafted the editable
+                            requested-items list is shown for entry; once it is
+                            approved that list is replaced by two read-only
+                            sections — "Allocated" (the per-warehouse split) and
+                            "Not Allocated" (lines still short of their requested
+                            quantity).
+                        -->
                         <page string="Requested Items" name="items">
+                            <!-- Entry / pre-approval: the editable requested items -->
                             <field
                                 name="line_ids"
+                                invisible="approval_state == 'approved'"
                                 readonly="approval_state not in ('draft', 'revision')"
                             >
-                                <list
-                                    editable="bottom"
-                                    decoration-danger="is_allocation_short"
-                                >
+                                <list editable="bottom">
                                     <field name="sequence" widget="handle" />
-                                    <field
-                                        name="is_allocation_short"
-                                        column_invisible="1"
-                                    />
                                     <field name="product_id" />
                                     <field name="quantity_requested" />
                                     <field name="uom_id" groups="uom.group_uom" />
@@ -411,21 +415,14 @@
                                         sum="Total Value"
                                         optional="show"
                                     />
-                                    <field
-                                        name="quantity_allocated"
-                                        optional="show"
-                                        decoration-danger="is_allocation_short"
-                                    />
-                                    <field name="quantity_delivered" optional="show" />
-                                    <field
-                                        name="fulfillment_pct"
-                                        widget="progressbar"
-                                        optional="show"
-                                    />
                                     <field name="notes" optional="hide" />
                                 </list>
                             </field>
-                            <group class="oe_subtotal_footer oe_right" colspan="2">
+                            <group
+                                class="oe_subtotal_footer oe_right"
+                                colspan="2"
+                                invisible="approval_state == 'approved'"
+                            >
                                 <field
                                     name="total_quantity"
                                     string="Total Quantity Requested"
@@ -435,20 +432,23 @@
                                     string="Total Estimated Value"
                                 />
                             </group>
-                        </page>
 
-                        <!-- OP#1079: per-warehouse allocation split. Shows
-                             which warehouse each allocated quantity comes from
-                             (a request line for 70 filled 50 @ WH1 + 20 @ WH2
-                             appears as two rows), plus how much has been
-                             dispatched from each. Read-only — the split is set
-                             and adjusted in the Allocate Stock wizard. -->
-                        <page
-                            string="Allocations"
-                            name="allocations"
-                            invisible="not allocation_ids"
-                        >
-                            <field name="allocation_ids" readonly="1" nolabel="1">
+                            <!-- OP#1079: per-warehouse allocation split. Shows
+                                 which warehouse each allocated quantity comes from
+                                 (a request line for 70 filled 50 @ WH1 + 20 @ WH2
+                                 appears as two rows), plus how much has been
+                                 dispatched from each. Read-only — the split is set
+                                 and adjusted in the Allocate Stock wizard. -->
+                            <separator
+                                string="Allocated"
+                                invisible="approval_state != 'approved' or not allocation_ids"
+                            />
+                            <field
+                                name="allocation_ids"
+                                readonly="1"
+                                nolabel="1"
+                                invisible="approval_state != 'approved' or not allocation_ids"
+                            >
                                 <list>
                                     <field name="product_id" />
                                     <field name="warehouse_id" />
@@ -463,6 +463,37 @@
                                     <field
                                         name="quantity_remaining"
                                         string="To Dispatch"
+                                    />
+                                    <field name="uom_id" groups="uom.group_uom" />
+                                </list>
+                            </field>
+
+                            <!-- OP#1075: requested lines still short of their
+                                 requested quantity once the request is approved. -->
+                            <separator
+                                string="Not Allocated"
+                                invisible="approval_state != 'approved' or not unallocated_line_ids"
+                            />
+                            <field
+                                name="unallocated_line_ids"
+                                readonly="1"
+                                nolabel="1"
+                                invisible="approval_state != 'approved' or not unallocated_line_ids"
+                            >
+                                <list>
+                                    <field name="product_id" />
+                                    <field
+                                        name="quantity_requested"
+                                        string="Requested"
+                                    />
+                                    <field
+                                        name="quantity_allocated"
+                                        string="Allocated"
+                                    />
+                                    <field
+                                        name="quantity_short"
+                                        string="Short"
+                                        decoration-danger="quantity_short &gt; 0"
                                     />
                                     <field name="uom_id" groups="uom.group_uom" />
                                 </list>
