@@ -15,11 +15,14 @@ from unittest.mock import AsyncMock, MagicMock
 from odoo.tests import tagged
 
 from odoo.addons.spp_dci.schemas.constants import MsgHeaderStatusReasonCode
+from odoo.addons.spp_dci.schemas.envelope import DCIMessageHeader
 from odoo.addons.spp_dci.schemas.search import (
     SearchCriteria,
     SearchRequest,
     SearchRequestItem,
+    SearchResponse,
 )
+from odoo.addons.spp_dci.schemas import DCIEnvelope
 
 from .common import DCIServerCommon
 
@@ -211,8 +214,24 @@ class TestRegistryAliasStubs(DCIServerCommon):
             )
         return SearchRequest(transaction_id="txn-alias", search_request=items)
 
+    def _build_search_envelope(self, n_items=1):
+        search_request = self._build_search_request(n_items=n_items)
+        header = DCIMessageHeader(
+            message_id="msg-alias-test",
+            message_ts=datetime.now(UTC),
+            action="search",
+            sender_id="registry-witness",
+            receiver_id="openspp",
+            total_count=n_items,
+        )
+        return DCIEnvelope(
+            signature="",
+            header=header,
+            message=search_request.model_dump(mode="json"),
+        )
+
     def test_search_stubs_return_per_item_rjct(self):
-        request = self._build_search_request(n_items=2)
+        request = self._build_search_envelope(n_items=2)
         # Each alias mentions its corresponding spp_dci_server_* module in
         # the rejection message so operators can find the missing addon.
         expected_module = {
@@ -223,9 +242,11 @@ class TestRegistryAliasStubs(DCIServerCommon):
         for registry, endpoint in self.search_endpoints.items():
             with self.subTest(registry=registry):
                 response = _run(endpoint(request, self.env, _bearer_token="t"))
-                self.assertEqual(response.transaction_id, "txn-alias")
-                self.assertEqual(len(response.search_response), 2)
-                for item in response.search_response:
+                self.assertIsInstance(response, DCIEnvelope)
+                search_response = SearchResponse.model_validate(response.message)
+                self.assertEqual(search_response.transaction_id, "txn-alias")
+                self.assertEqual(len(search_response.search_response), 2)
+                for item in search_response.search_response:
                     self.assertEqual(item.status, "rjct")
                     self.assertEqual(
                         item.status_reason_code,
