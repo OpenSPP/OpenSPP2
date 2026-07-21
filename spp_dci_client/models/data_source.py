@@ -361,8 +361,9 @@ class DCIDataSource(models.Model):
             expiry_with_buffer = sudo_self._oauth2_token_expires_at - timedelta(seconds=60)
             if now < expiry_with_buffer:
                 # Do not log the token expiry field (it is a credential-adjacent
-                # cache field); log only the data source code.
-                _logger.info("Using cached OAuth2 token for data source: %s", self.code)
+                # cache field); log only the data source code. No secret reaches
+                # the log: the word "token" in the message alone trips the rule.
+                _logger.info("Using cached OAuth2 token for data source: %s", self.code)  # nosemgrep: python.lang.security.audit.logging.logger-credential-leak.python-logger-credential-disclosure  # noqa: E501  # fmt: skip
                 return sudo_self._oauth2_access_token
 
         # Request new token
