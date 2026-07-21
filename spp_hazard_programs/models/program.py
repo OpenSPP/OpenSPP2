@@ -84,19 +84,21 @@ class SppProgram(models.Model):
             # Build domain for qualifying damage levels
             damage_domain = rec._get_damage_level_domain()
 
-            # Count unique registrants with qualifying impacts.
+            # Count unique registrants with qualifying impacts, aggregated in
+            # SQL so no impact rows are loaded into memory.
             # sudo: emergency-program eligibility must consider all qualifying
             # impacts regardless of the viewing user's hazard access; impact rows
             # are not exposed, only the aggregate count.
             impact_sudo = self.env["spp.hazard.impact"].sudo()  # nosemgrep: odoo-sudo-without-context
-            impacts = impact_sudo.search(
+            [(count,)] = impact_sudo._read_group(
                 [
                     ("incident_id", "in", rec.target_incident_ids.ids),
                     ("verification_status", "=", "verified"),
                 ]
-                + damage_domain
+                + damage_domain,
+                aggregates=["registrant_id:count_distinct"],
             )
-            rec.affected_registrant_count = len(impacts.mapped("registrant_id"))
+            rec.affected_registrant_count = count
 
     def _get_damage_level_domain(self):
         """Get the domain filter for qualifying damage levels."""
@@ -127,19 +129,22 @@ class SppProgram(models.Model):
 
         damage_domain = self._get_damage_level_domain()
 
-        # Find qualifying impacts.
+        # Find the unique registrants of qualifying impacts, grouped in SQL so
+        # no impact rows are loaded into memory.
         # sudo: eligibility must consider all qualifying impacts regardless of the
         # viewing user's hazard access; only the resulting registrants are returned.
         impact_sudo = self.env["spp.hazard.impact"].sudo()  # nosemgrep: odoo-sudo-without-context
-        impacts = impact_sudo.search(
+        groups = impact_sudo._read_group(
             [
                 ("incident_id", "in", self.target_incident_ids.ids),
                 ("verification_status", "=", "verified"),
             ]
-            + damage_domain
+            + damage_domain,
+            groupby=["registrant_id"],
         )
 
-        return impacts.mapped("registrant_id")
+        # Return the registrants in the caller's env (not the sudo one).
+        return self.env["res.partner"].browse([registrant.id for (registrant,) in groups if registrant])
 
     def action_view_target_incidents(self):
         """Open a list view of target incidents."""
