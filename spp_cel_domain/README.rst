@@ -142,6 +142,15 @@ Dependencies
 Changelog
 =========
 
+19.0.2.1.1
+~~~~~~~~~~
+
+- fix(security): metric cache lookups are keyed strictly by the
+  requested params — a parameterized metric request no longer falls back
+  to unparameterized (or differently-parameterized) cache rows, which
+  could return values computed for other parameters. ``evaluate()`` also
+  guards the ``params`` kwarg against legacy signatures.
+
 19.0.2.1.0
 ~~~~~~~~~~
 

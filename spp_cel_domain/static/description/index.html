@@ -522,6 +522,16 @@ contexts</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.1</h1>
+<ul class="simple">
+<li>fix(security): metric cache lookups are keyed strictly by the
+requested params — a parameterized metric request no longer falls back
+to unparameterized (or differently-parameterized) cache rows, which
+could return values computed for other parameters. <tt class="docutils literal">evaluate()</tt> also
+guards the <tt class="docutils literal">params</tt> kwarg against legacy signatures.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.1.0</h1>
 <ul class="simple">
 <li>feat(sql): compile CEL ternary expressions to SQL CASE via
@@ -533,7 +543,7 @@ compilation</li>
 <li>test(translator): add coverage for the CEL translation cache helpers</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
