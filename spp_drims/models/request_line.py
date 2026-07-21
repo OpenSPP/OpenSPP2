@@ -119,6 +119,16 @@ class DrimsRequestLine(models.Model):
 
     notes = fields.Text(string="Notes")
 
+    @api.depends("product_id", "quantity_requested")
+    def _compute_display_name(self):
+        """OP#1079: a readable label for the allocation wizard's Item picker
+        (e.g. "Rice 25kg Bag (500 requested)") instead of the raw model,id."""
+        for line in self:
+            if line.product_id:
+                line.display_name = f"{line.product_id.display_name} ({line.quantity_requested:g} requested)"
+            else:
+                line.display_name = _("Request Line")
+
     @api.constrains("quantity_requested")
     def _check_quantity_positive(self):
         """Ensure quantity is positive."""

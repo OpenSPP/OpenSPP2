@@ -33,65 +33,76 @@ class DrimsAllocationPreviewWizard(models.TransientModel):
         "wizard_id",
         string="Allocation Lines",
     )
+    # Total Requested is stable (it comes from the request, not the editable
+    # wizard rows), so it stays a plain compute. The volatile totals/flags below
+    # are regular fields refreshed by _sync_flags on create and on every line
+    # edit (via _onchange_line_ids): a *non-stored compute* over editable x2many
+    # rows does not refresh reliably in the form — that is what made the header
+    # "Total to Allocate" disagree with the row sum (OP#1079 round 4).
+    total_requested = fields.Float(
+        compute="_compute_total_requested",
+        string="Total Requested",
+        help="Total quantity still to allocate across all requested items.",
+    )
+    total_available = fields.Float(string="Total Available")
+    total_to_allocate = fields.Float(string="Total to Allocate")
     has_shortfall = fields.Boolean(
-        compute="_compute_totals",
         string="Has Shortfall",
         help="Some stock exists but less than the requested quantity.",
     )
     no_stock_available = fields.Boolean(
-        compute="_compute_totals",
         string="No Stock Available",
         help="No DRIMS warehouse holds any stock for the requested items.",
     )
     is_partial_allocation = fields.Boolean(
-        compute="_compute_totals",
         string="Partial Allocation",
         help="Enough stock exists, but the user chose to allocate less than requested.",
     )
-    total_requested = fields.Float(
-        compute="_compute_totals",
-        string="Total Requested",
-        help="Total quantity still to allocate across all requested items.",
-    )
-    total_available = fields.Float(
-        compute="_compute_totals",
-        string="Total Available",
-    )
-    total_to_allocate = fields.Float(
-        compute="_compute_totals",
-        string="Total to Allocate",
+    over_allocated = fields.Boolean(
+        string="Over Allocated",
+        help="A requested item has more allocated across its warehouse rows than was requested.",
     )
 
-    @api.depends(
-        "request_id",
-        "line_ids.available_qty",
-        "line_ids.quantity_to_allocate",
-        "request_id.line_ids.quantity_requested",
-        "request_id.line_ids.quantity_allocated",
-    )
-    def _compute_totals(self):
+    @api.depends("request_id.line_ids.quantity_requested", "request_id.line_ids.quantity_allocated")
+    def _compute_total_requested(self):
         for wizard in self:
-            # Requested is counted once per request line (its unallocated
-            # balance), not once per wizard row — a line split across two
-            # warehouses still only "needs" its remaining quantity.
-            remaining = 0.0
-            for req_line in wizard.request_id.line_ids:
-                remaining += max(0.0, req_line.quantity_requested - req_line.quantity_allocated)
-            wizard.total_requested = remaining
+            wizard.total_requested = sum(
+                max(0.0, line.quantity_requested - line.quantity_allocated) for line in wizard.request_id.line_ids
+            )
+
+    @api.onchange("line_ids")
+    def _onchange_line_ids(self):
+        """Refresh the totals + warning flags whenever a row is added, edited or
+        removed. Done via onchange (not a compute) because a non-stored compute
+        over editable wizard rows does not refresh reliably in the form."""
+        self._sync_flags()
+
+    def _sync_flags(self):
+        """Recompute the volatile totals and warning flags from the current rows.
+
+        `remaining` is the still-unallocated balance summed once per request line
+        (a line split across warehouses only "needs" its remaining quantity). The
+        stock-based flags key off AVAILABLE stock, never off the user-editable To
+        Allocate, so lowering To Allocate reads as a deliberate partial rather
+        than a stock shortfall.
+        """
+        for wizard in self:
+            remaining = sum(
+                max(0.0, line.quantity_requested - line.quantity_allocated) for line in wizard.request_id.line_ids
+            )
             wizard.total_available = sum(wizard.line_ids.mapped("available_qty"))
             wizard.total_to_allocate = sum(wizard.line_ids.mapped("quantity_to_allocate"))
-            # Distinguish the three "not fully allocated" cases so the UI shows
-            # the right message (OP#1079 QA round 2). The stock-based flags key
-            # off AVAILABLE stock, never off the user-editable To Allocate:
-            #  - no stock anywhere      -> nothing to allocate yet
-            #  - some stock < requested -> a genuine stock shortfall
-            #  - enough stock, but the user dialled To Allocate down
-            #                           -> a deliberate partial allocation
             wizard.no_stock_available = remaining > 0 and wizard.total_available <= 0
             wizard.has_shortfall = remaining > 0 and 0 < wizard.total_available < remaining
             wizard.is_partial_allocation = (
                 remaining > 0 and wizard.total_available >= remaining and wizard.total_to_allocate < remaining
             )
+            over = False
+            for req_line in wizard.request_id.line_ids:
+                rows_qty = sum(row.quantity_to_allocate for row in wizard.line_ids if row.request_line_id == req_line)
+                if req_line.quantity_allocated + rows_qty > req_line.quantity_requested + 1e-6:
+                    over = True
+            wizard.over_allocated = over
 
     @api.model
     def default_get(self, fields_list):
@@ -108,6 +119,9 @@ class DrimsAllocationPreviewWizard(models.TransientModel):
             # known and the caller hasn't supplied its own lines.
             if wizard.request_id and not wizard.line_ids:
                 wizard.line_ids = wizard._build_split_lines(wizard.request_id)
+            # Seed the totals/flags so they are correct when the form first opens
+            # (there is no line onchange on initial render).
+            wizard._sync_flags()
         return wizards
 
     def _build_split_lines(self, request):
@@ -166,6 +180,25 @@ class DrimsAllocationPreviewWizard(models.TransientModel):
         missing_wh = rows.filtered(lambda line: not line.warehouse_id)
         if missing_wh:
             raise UserError(_("Please select a source warehouse for every allocation row."))
+
+        # OP#1079: never allocate a request line beyond its requested quantity
+        # (rows can be added by hand; the wizard's over_allocated warning flags
+        # this live, and this is the hard stop at confirm).
+        for req_line in self.request_id.line_ids:
+            proposed = sum(row.quantity_to_allocate for row in rows if row.request_line_id == req_line)
+            if req_line.quantity_allocated + proposed > req_line.quantity_requested + 1e-6:
+                raise UserError(
+                    _(
+                        "Cannot allocate more than requested for %(product)s "
+                        "(requested %(req)g, already allocated %(alloc)g, this run %(now)g)."
+                    )
+                    % {
+                        "product": req_line.product_id.display_name,
+                        "req": req_line.quantity_requested,
+                        "alloc": req_line.quantity_allocated,
+                        "now": proposed,
+                    }
+                )
 
         _logger.info(
             "Applying allocation for request %s across %d warehouse row(s)",
@@ -231,6 +264,15 @@ class DrimsAllocationPreviewWizardLine(models.TransientModel):
         string="Source Warehouse",
         domain="[('is_drims_warehouse', '=', True)]",
     )
+    # OP#1079: the warehouses actually offered for this row — DRIMS warehouses
+    # that hold net stock for this item and aren't already used by another row.
+    # Drives the row's Source Warehouse domain so adding a warehouse scales to
+    # any number of warehouses (only stocked, unused ones appear in the picker).
+    candidate_warehouse_ids = fields.Many2many(
+        "stock.warehouse",
+        compute="_compute_candidate_warehouse_ids",
+        string="Warehouses with Stock",
+    )
     available_qty = fields.Float(
         string="Available",
         readonly=True,
@@ -240,22 +282,60 @@ class DrimsAllocationPreviewWizardLine(models.TransientModel):
         string="To Allocate",
     )
 
+    @api.depends(
+        "request_line_id",
+        "warehouse_id",
+        "wizard_id.line_ids.warehouse_id",
+        "wizard_id.line_ids.request_line_id",
+    )
+    def _compute_candidate_warehouse_ids(self):
+        """OP#1079: offer only DRIMS warehouses that hold net stock for this
+        row's item and aren't already used by another row (so you can't build a
+        duplicate product+warehouse row). The row's own current warehouse always
+        stays selectable. Until an item is picked, all DRIMS warehouses show."""
+        warehouses = self.env["stock.warehouse"].search([("is_drims_warehouse", "=", True)])
+        for line in self:
+            product = line.request_line_id.product_id
+            request = line.request_line_id.request_id
+            if not product or not request:
+                line.candidate_warehouse_ids = warehouses
+                continue
+            used_ids = {
+                row.warehouse_id.id
+                for row in line.wizard_id.line_ids
+                if row.id != line.id and row.warehouse_id and row.request_line_id.product_id == product
+            }
+            candidate_ids = [
+                wh.id
+                for wh in warehouses
+                if wh.id not in used_ids and request._drims_available_quantity(product, wh) > 0
+            ]
+            line.candidate_warehouse_ids = warehouses.browse(candidate_ids) | line.warehouse_id
+
     @api.onchange("warehouse_id")
     def _onchange_warehouse_id(self):
-        """Refresh availability when the row's warehouse changes."""
+        """Refresh availability when the row's warehouse changes; clamp the
+        quantity to what that warehouse has available."""
         if self.warehouse_id and self.product_id and self.request_line_id:
-            available = self.request_line_id.request_id._drims_available_quantity(self.product_id, self.warehouse_id)
-            self.available_qty = available
-            if self.quantity_to_allocate > available:
-                self.quantity_to_allocate = available
+            self.available_qty = self.request_line_id.request_id._drims_available_quantity(
+                self.product_id, self.warehouse_id
+            )
+            if self.quantity_to_allocate > self.available_qty:
+                self.quantity_to_allocate = self.available_qty
         else:
             self.available_qty = 0.0
             self.quantity_to_allocate = 0.0
 
     @api.onchange("quantity_to_allocate")
     def _onchange_quantity_to_allocate(self):
-        """Clamp the allocation quantity to what is available."""
+        """Clamp the quantity to what this row's warehouse has available.
+
+        The per-line rule (a line's rows must not exceed the requested quantity)
+        is enforced at the wizard level via `over_allocated` (a live warning) and
+        re-checked in `action_confirm_allocation`. It is deliberately NOT done
+        here from sibling rows: a line reading its siblings during onchange sees
+        stale values, which caused a freshly-edited row to snap back to 0."""
         if self.quantity_to_allocate < 0:
-            self.quantity_to_allocate = 0
+            self.quantity_to_allocate = 0.0
         elif self.quantity_to_allocate > self.available_qty:
             self.quantity_to_allocate = self.available_qty

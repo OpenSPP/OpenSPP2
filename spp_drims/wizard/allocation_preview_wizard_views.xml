@@ -17,12 +17,16 @@
                         </h1>
                     </div>
 
+                    <!-- Total Requested (from the request) and Total Available
+                         (recomputed on open / warehouse change) sit on top, both
+                         read-only. The live "To Allocate" total is the list-footer
+                         sum below — a header aggregate can't track the
+                         constantly-edited To Allocate in sync (OP#1079 r4). -->
                     <group>
                         <group />
                         <group>
                             <field name="total_requested" />
-                            <field name="total_available" />
-                            <field name="total_to_allocate" />
+                            <field name="total_available" readonly="1" />
                         </group>
                     </group>
 
@@ -37,7 +41,8 @@
                         invisible="not line_ids"
                     >
                         Stock has been split automatically across the warehouses that hold it.
-                        Adjust the quantities or warehouses per row, then confirm.
+                        Adjust the quantities or warehouses per row — or add a row to pull from
+                        another warehouse — then confirm.
                     </div>
 
                     <!-- No stock anywhere: nothing can be allocated yet. -->
@@ -63,49 +68,55 @@
                         allocation and allocate the balance later once stock arrives.
                     </div>
 
-                    <!-- Enough stock exists, but the user reduced To Allocate below
-                         what is requested — a deliberate partial allocation, not a
-                         stock problem (OP#1079 QA round 2). -->
-                    <div
-                        class="alert alert-warning"
-                        role="alert"
-                        invisible="not is_partial_allocation"
-                    >
-                        <strong
-                    >Warning:</strong> The total requested quantity is not fully
-                        allocated. Confirming will proceed with a partial allocation.
-                    </div>
+                    <!-- Note: the "deliberate partial" and "over-allocated"
+                         states are NOT shown as live banners — they depend on the
+                         editable To Allocate, which a form header/banner can't
+                         track in sync. Compare the To Allocate column footer with
+                         Total Requested instead. Over-allocation is blocked at
+                         confirm with a precise per-item message. -->
 
                     <notebook>
                         <page string="Allocation Lines" name="lines">
                             <field name="line_ids">
-                                <!-- Proposal-driven: rows are auto-built from
-                                     availability (OP#1079). Both "Add a line"
-                                     and row delete are disabled — a new row
-                                     can't set its required request_line_id from
-                                     the UI, and a deleted proposal row can't be
-                                     added back. Users adjust the warehouse /
-                                     quantity on the proposed rows instead (set
-                                     To Allocate to 0 to drop a warehouse). -->
-                                <list editable="bottom" create="false" delete="false">
-                                    <field name="product_id" readonly="1" />
+                                <!-- OP#1079: rows start from the auto-built
+                                     availability split, but the user can also
+                                     add a warehouse to cover the balance (e.g.
+                                     pull from a nearer warehouse). The Source
+                                     Warehouse picker is scoped to
+                                     candidate_warehouse_ids — DRIMS warehouses
+                                     that hold stock for the row's item and
+                                     aren't already used — so adding a warehouse
+                                     scales to any number of warehouses. Per-row
+                                     and confirm-time caps keep a line from being
+                                     allocated beyond what was requested. -->
+                                <list editable="bottom">
+                                    <field
+                                        name="candidate_warehouse_ids"
+                                        column_invisible="True"
+                                    />
+                                    <field
+                                        name="request_line_id"
+                                        string="Item"
+                                        domain="[('request_id', '=', parent.request_id)]"
+                                        options="{'no_create': True, 'no_open': True}"
+                                        required="1"
+                                    />
                                     <field
                                         name="uom_id"
                                         readonly="1"
                                         groups="uom.group_uom"
                                     />
                                     <field
-                                        name="request_line_id"
-                                        domain="[('request_id', '=', parent.request_id)]"
-                                        column_invisible="True"
-                                    />
-                                    <field
                                         name="warehouse_id"
+                                        domain="[('id', 'in', candidate_warehouse_ids)]"
                                         options="{'no_create': True}"
                                         required="1"
                                     />
                                     <field name="available_qty" />
-                                    <field name="quantity_to_allocate" />
+                                    <field
+                                        name="quantity_to_allocate"
+                                        sum="To Allocate"
+                                    />
                                 </list>
                             </field>
                         </page>
