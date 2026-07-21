@@ -67,14 +67,21 @@ class TestDetailRecordRules(CRTestCase):
     def test_every_concrete_detail_model_is_fully_scoped(self):
         """Guard against a detail model shipping without complete ownership rules.
 
-        Asserts, for every concrete ``spp.cr.detail.*`` model, that ``group_cr_user``
-        is scoped on EVERY operation the ACL grants it (read/write/create) — a rule
-        missing only ``perm_write`` would still leave a tamper path — and that the
-        higher roles each retain a permissive rule (else the group hierarchy would
+        Asserts, for every concrete ``spp.cr.detail.*`` model reachable by
+        ``group_cr_user`` (via ACL), that ``group_cr_user`` is scoped on EVERY
+        operation the ACL grants it (read/write/create) — a rule missing only
+        ``perm_write`` would still leave a tamper path — and that the higher
+        roles each retain a permissive rule (else the group hierarchy would
         cage them behind the restrictive user rule).
+
+        Models the CR user role has NO ACL path to (e.g. the farmer-registry
+        and studio detail models, gated by their own group models) are out of
+        scope here: cr_user cannot reach them at all, and their ownership
+        scoping needs per-module analysis (tracked as a separate follow-up).
         """
         models = self.env["ir.model"].search([("model", "=like", "spp.cr.detail.%")])
         self.assertTrue(models, "expected at least one spp.cr.detail.* model")
+        Access = self.env["ir.model.access"]
         Rule = self.env["ir.rule"]
         higher_roles = [
             ("validator", self.validator_group),
@@ -82,9 +89,19 @@ class TestDetailRecordRules(CRTestCase):
             ("manager", self.env.ref("spp_change_request_v2.group_cr_manager")),
         ]
         problems = []
+        checked = 0
         for model in models:
             if self.env[model.model]._abstract:
                 continue
+            # Skip models cr_user has no ACL path to (global no-group ACLs
+            # count as a path): in a full-stack DB other apps' detail models
+            # (different group models, no cr_* ACLs) would otherwise fail
+            # assertions about a role that cannot touch them anyway.
+            if not Access.search_count(
+                [("model_id", "=", model.id), "|", ("group_id", "=", False), ("group_id", "=", self.user_group.id)]
+            ):
+                continue
+            checked += 1
             rules = Rule.search([("model_id", "=", model.id)])
 
             def grants(group, perm, _rules=rules):
@@ -99,6 +116,7 @@ class TestDetailRecordRules(CRTestCase):
             # A global (no-group) read rule mirrors the parent CR area filter.
             if not any(not r.groups and r.perm_read for r in rules):
                 problems.append(f"{model.model}: missing global area-filter rule")
+        self.assertTrue(checked, "expected at least one cr_user-reachable spp.cr.detail.* model")
         self.assertFalse(problems, "detail model rule gaps:\n  " + "\n  ".join(problems))
 
     # ------------------------------------------------------------------
