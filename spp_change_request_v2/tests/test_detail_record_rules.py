@@ -91,7 +91,10 @@ class TestDetailRecordRules(CRTestCase):
         problems = []
         checked = 0
         for model in models:
-            if self.env[model.model]._abstract:
+            # Transient models (wizards) enforce creator-only access in the
+            # ORM itself — non-superusers may only reach records they created
+            # — so they need no ir.rule.
+            if self.env[model.model]._abstract or self.env[model.model]._transient:
                 continue
             # Skip models cr_user has no ACL path to (global no-group ACLs
             # count as a path): in a full-stack DB other apps' detail models
