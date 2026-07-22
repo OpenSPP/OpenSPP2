@@ -79,3 +79,25 @@ class TestRegistrantGIS(TransactionCase):
 
         # Coordinates should be False/empty by default
         self.assertFalse(registrant.coordinates)
+
+    # ── OP#1143: visible latitude/longitude inputs synced with coordinates ──
+    def test_lat_long_computed_from_coordinates(self):
+        """Setting coordinates populates the latitude/longitude inputs."""
+        registrant = self.partner_model.create({"name": "LatLong From Point", "is_registrant": True})
+        registrant.write({"coordinates": json.dumps({"type": "Point", "coordinates": [121.5, 14.25]})})
+        self.assertAlmostEqual(registrant.gis_longitude, 121.5, places=5)
+        self.assertAlmostEqual(registrant.gis_latitude, 14.25, places=5)
+
+    def test_coordinates_built_from_lat_long(self):
+        """Typing latitude/longitude rebuilds the coordinates point."""
+        group = self.partner_model.create({"name": "LatLong Group", "is_registrant": True, "is_group": True})
+        group.write({"gis_latitude": 8.5, "gis_longitude": 124.75})
+        self.assertTrue(group.coordinates)
+        self.assertAlmostEqual(group.coordinates.x, 124.75, places=5)  # x = longitude
+        self.assertAlmostEqual(group.coordinates.y, 8.5, places=5)  # y = latitude
+
+    def test_lat_long_empty_when_no_coordinates(self):
+        """With no point set, the latitude/longitude inputs read as 0."""
+        registrant = self.partner_model.create({"name": "No Coords", "is_registrant": True})
+        self.assertEqual(registrant.gis_latitude, 0.0)
+        self.assertEqual(registrant.gis_longitude, 0.0)
