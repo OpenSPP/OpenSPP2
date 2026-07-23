@@ -92,12 +92,8 @@ class TestKeyAdminGroup(TransactionCase):
         """The 19.0.2.0.1 migration strips base.group_system from the
         group on databases installed before the fix (removing the XML
         line alone never unlinks an existing relation)."""
-        migration_path = (
-            Path(__file__).parent.parent / "migrations" / "19.0.2.0.1" / "post-migration.py"
-        )
-        spec = importlib.util.spec_from_file_location(
-            "spp_key_management_migration_19_0_2_0_1", migration_path
-        )
+        migration_path = Path(__file__).parent.parent / "migrations" / "19.0.2.0.1" / "post-migration.py"
+        spec = importlib.util.spec_from_file_location("spp_key_management_migration_19_0_2_0_1", migration_path)
         migration = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(migration)
 
