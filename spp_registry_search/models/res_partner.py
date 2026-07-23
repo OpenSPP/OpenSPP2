@@ -91,18 +91,38 @@ class ResPartner(models.Model):
         Returns:
             list: List of dicts with partner data
         """
-        if not search_term:
+        # Validate RPC inputs: this method is callable directly (bypassing the
+        # JS portal), so malformed values must not crash into a generic 500.
+        if not isinstance(search_term, str) or not search_term:
+            return []
+        try:
+            limit = int(limit) if limit else 0
+        except (TypeError, ValueError):
+            limit = 0
+
+        # Read config with fallback defaults, mirroring the clamps that
+        # get_search_config() applies for the JS client.
+        get_param = self.env["ir.config_parameter"].sudo().get_param  # nosemgrep: odoo-sudo-without-context
+        config_limit = max(10, min(200, int(get_param("spp_registry_search.result_limit", "50"))))
+        min_chars = max(1, min(10, int(get_param("spp_registry_search.min_chars", "3"))))
+
+        # Enforce the configured minimum on *effective* characters: SQL LIKE
+        # wildcards (%, _) are stripped before counting, otherwise a term like
+        # '%%%' passes a plain length check yet matches every registrant.
+        if len(search_term.replace("%", "").replace("_", "").strip()) < min_chars:
             return []
 
-        # Read config with fallback defaults
-        get_param = self.env["ir.config_parameter"].sudo().get_param  # nosemgrep: odoo-sudo-without-context
-        config_limit = int(get_param("spp_registry_search.result_limit", "50"))
-        limit = max(10, min(200, limit or config_limit))
+        # Callers may request fewer results than the configured maximum,
+        # never more.
+        limit = min(limit, config_limit) if limit > 0 else config_limit
 
         search_mode = get_param("spp_registry_search.search_mode", "unified")
 
-        # If targeted mode and a field is specified, only search that field
-        if search_mode == "targeted" and search_field:
+        if search_mode == "targeted":
+            # Targeted mode never widens to unified search: a missing or
+            # unknown field falls back to the configured default field.
+            if search_field not in ("name", "id_number", "phone", "email"):
+                search_field = get_param("spp_registry_search.target_field", "name")
             partner_ids = self._search_by_field(search_term, search_field, limit)
         else:
             # Unified mode: run separate queries per field and merge
