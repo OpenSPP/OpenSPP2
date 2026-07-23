@@ -88,6 +88,29 @@ class TestKeyAdminGroup(TransactionCase):
         with self.assertRaises(AccessError):
             key.with_user(operator_user).encrypted_key  # noqa: B018
 
+    def test_key_admin_sees_key_management_menu(self):
+        """A user holding only the key admin role must be able to reach the
+        Key Management menu. Odoo drops menus whose ancestors are invisible,
+        so parenting under Settings (base.group_erp_manager) would hide the
+        whole subtree from dedicated key-custody users."""
+        user = self._create_user(
+            "key_admin_menu",
+            [
+                self.env.ref("base.group_user"),
+                self.env.ref("spp_key_management.group_key_admin"),
+            ],
+        )
+        root = self.env.ref("spp_key_management.menu_key_management_root")
+        # load_menus is what the web client uses; unlike _visible_menu_ids
+        # it also prunes menus whose ancestors are invisible ("not related
+        # to an app"), which is exactly the failure mode being pinned.
+        menus = self.env["ir.ui.menu"].with_user(user).load_menus(False)
+        self.assertIn(
+            root.id,
+            menus,
+            "Key Management menu must be reachable for key admins",
+        )
+
     def test_migration_removes_escalation(self):
         """The 19.0.2.0.1 migration strips base.group_system from the
         group on databases installed before the fix (removing the XML
