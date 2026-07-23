@@ -172,6 +172,18 @@ class TestBearerTokenAuth(DCIServerCommon):
             self._call("Bearer café-ÿ")
         self.assertEqual(ctx.exception.status_code, 401)
 
+    def test_control_char_token_treated_as_normal_invalid(self):
+        """Control characters are ASCII, so a control-char token passes the
+        non-ASCII guard and reaches hmac.compare_digest, which handles it
+        without raising. It is simply an ordinary non-match -> 401. This pins
+        that the guard deliberately rejects only non-ASCII input, not every
+        odd byte, and that control chars do not crash the compare."""
+        self.ICP.set_param("dci.api_tokens", "alpha")
+
+        with self.assertRaises(HTTPException) as ctx:
+            self._call("Bearer \x00\x01")
+        self.assertEqual(ctx.exception.status_code, 401)
+
 
 @tagged("post_install", "-at_install")
 class TestSecurityDefaults(DCIServerCommon):
