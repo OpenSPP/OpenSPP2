@@ -127,6 +127,20 @@ class TestSearchRegistrants(TransactionCase):
         """A non-string term must be rejected, not flow into ilike."""
         self.assertEqual(self._search({"weird": "input"}), [])
 
+    def test_non_dict_advanced_filters_does_not_crash(self):
+        """A malformed advanced_filters value must be ignored, not raise
+        AttributeError (which would surface as a generic 500)."""
+        results = self._search("Alicia", advanced_filters="not-a-dict")
+        self.assertIn(self.alice.id, [r["id"] for r in results])
+
+    def test_targeted_mode_invalid_admin_target_field_fails_closed(self):
+        """If the admin-configured target_field is itself invalid, targeted
+        mode must fail closed (no results) rather than widen to unified."""
+        self.ICP.set_param("spp_registry_search.search_mode", "targeted")
+        self.ICP.set_param("spp_registry_search.target_field", "bogus")
+        # Term matches via phone; a fallback to unified would find it.
+        self.assertEqual(self._search("09171234567", search_field=None), [])
+
     def test_search_type_filter_regression(self):
         """Regression: search_type filtering still works."""
         results = self._search("Alicia", search_type="groups")
