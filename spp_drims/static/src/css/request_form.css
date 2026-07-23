@@ -1,0 +1,17 @@
+/*
+ * OP#1075 round 3 (QA follow-up): the read-only "Allocated" and "Not Allocated"
+ * sections on the DRIMS request form are short x2many lists. Odoo pads every
+ * embedded x2many list to a minimum of 4 rows with empty filler rows
+ * (ListRenderer.getEmptyRowIds), which show up as blank "additional lines"
+ * under the real data. These lists are read-only, so the filler rows add
+ * nothing — hide them so only the actual rows (and the totals footer) show.
+ *
+ * Scope is limited to the tagged lists, and only <tbody> rows that are NOT real
+ * data rows are hidden; the totals live in <tfoot> and are unaffected.
+ */
+.o_drims_request_section_list
+    .o_list_table
+    > tbody
+    > tr:not(.o_data_row):not(.o_field_x2many_list_row_add) {
+    display: none;
+}

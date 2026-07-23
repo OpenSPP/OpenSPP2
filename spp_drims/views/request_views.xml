@@ -447,6 +447,7 @@
                                 name="allocation_ids"
                                 readonly="1"
                                 nolabel="1"
+                                class="o_drims_request_section_list"
                                 invisible="approval_state != 'approved' or not allocation_ids"
                             >
                                 <list>
@@ -478,6 +479,7 @@
                                 name="unallocated_line_ids"
                                 readonly="1"
                                 nolabel="1"
+                                class="o_drims_request_section_list"
                                 invisible="approval_state != 'approved' or not unallocated_line_ids"
                             >
                                 <list>
