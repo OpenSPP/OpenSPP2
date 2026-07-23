@@ -1084,13 +1084,29 @@ class SPPCycle(models.Model):
         return [("id", "in", related_jobs.ids)]
 
     def action_force_unlock(self):
-        """Manager-only escape hatch: clear a stuck "Operation in progress" lock.
+        """System-administrator-only escape hatch: clear a stuck "Operation
+        in progress" lock.
 
         Use when an async pipeline (entitlement processing, payment prep, etc.)
         died without firing its on_done/on_error callback — for example after
         a hard server restart or before this fix was deployed. Posts an audit
         line to chatter so admins can see who unstuck the cycle.
+
+        The view button is gated to base.group_system, but object methods are
+        reachable via RPC regardless of button visibility, so the same
+        restriction is enforced here: clearing an active operation lock while
+        jobs may still be running is an emergency control reserved for system
+        administrators. Trusted server-side sudo() flows are exempt.
         """
+        if not self.env.su and not self.env.user.has_group("base.group_system"):
+            raise AccessError(
+                _(
+                    "Force unlock is restricted to system administrators. It is an "
+                    "emergency control for clearing a stuck operation lock; ask a "
+                    "system administrator to confirm the async job has actually "
+                    "stopped before the lock is cleared."
+                )
+            )
         for rec in self:
             if not rec.is_locked:
                 continue
