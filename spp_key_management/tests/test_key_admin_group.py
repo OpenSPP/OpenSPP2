@@ -88,6 +88,29 @@ class TestKeyAdminGroup(TransactionCase):
         with self.assertRaises(AccessError):
             key.with_user(operator_user).encrypted_key  # noqa: B018
 
+    def test_system_admin_retains_key_access(self):
+        """System administrators keep key access without holding the key
+        admin group: the field gate and menu root both list
+        base.group_system, and the ACL grants system its own rows. This
+        pins the other half of the design - removing the escalation must
+        not cost real system admins anything."""
+        key = self.env["spp.encryption.key"].create(
+            {
+                "key_id": "test-system-access",
+                "encrypted_key": "d3JhcHBlZA==",
+            }
+        )
+        system_user = self._create_user(
+            "key_system_admin",
+            [self.env.ref("base.group_system")],
+        )
+        # Access is retained via base.group_system, NOT via the key group.
+        self.assertFalse(system_user.has_group("spp_key_management.group_key_admin"))
+        self.assertEqual(key.with_user(system_user).encrypted_key, "d3JhcHBlZA==")
+        root = self.env.ref("spp_key_management.menu_key_management_root")
+        menus = self.env["ir.ui.menu"].with_user(system_user).load_menus(False)
+        self.assertIn(root.id, menus)
+
     def test_key_admin_sees_key_management_menu(self):
         """A user holding only the key admin role must be able to reach the
         Key Management menu. Odoo drops menus whose ancestors are invisible,
