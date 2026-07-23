@@ -133,3 +133,7 @@ class TestKeyAdminGroup(TransactionCase):
         group.invalidate_recordset()
         self.assertNotIn(system, group.implied_ids)
         self.assertNotIn(system, group.all_implied_ids)
+
+        # Idempotent: a second run finds the link absent and stays silent.
+        with self.assertNoLogs("spp_key_management_migration_19_0_2_0_1", level="WARNING"):
+            migration.migrate(self.env.cr, "19.0.2.0.0")

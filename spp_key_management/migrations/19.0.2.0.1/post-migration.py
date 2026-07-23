@@ -30,7 +30,9 @@ def migrate(cr, version):
     if not group or not system or system not in group.implied_ids:
         return
 
-    affected = len(group.user_ids)
+    # all_user_ids also counts members of any group implying key admin, so
+    # the log reflects everyone who actually held the escalation.
+    affected = len(group.all_user_ids)
     group.write({"implied_ids": [Command.unlink(system.id)]})
     _logger.warning(
         "Removed the base.group_system implication from the Key Management "
