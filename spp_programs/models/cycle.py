@@ -1083,6 +1083,35 @@ class SPPCycle(models.Model):
         related_jobs = jobs.filtered(lambda r: self in r.args[0])
         return [("id", "in", related_jobs.ids)]
 
+    def write(self, vals):
+        # ``is_locked`` / ``locked_reason`` form an operation lock protecting
+        # in-flight async pipelines (entitlement, payment, eligibility).
+        # Clearing or setting it out of band lets conflicting operations run,
+        # so direct writes to these fields are restricted to system
+        # administrators. The pipeline manages the lock through
+        # ``_acquire_operation_lock`` / ``_release_operation_lock`` (which
+        # ``sudo()``), and Force Unlock is the admin-only manual override.
+        if not self.env.su and ("is_locked" in vals or "locked_reason" in vals):
+            if not self.env.user.has_group("base.group_system"):
+                raise AccessError(
+                    _(
+                        "Changing the operation lock is restricted to system "
+                        "administrators. The lock is managed automatically by "
+                        "the async pipeline; use Force Unlock only in an emergency."
+                    )
+                )
+        return super().write(vals)
+
+    def _acquire_operation_lock(self, reason):
+        """Set the async-operation lock. Written via ``sudo()`` because direct
+        writes to ``is_locked`` / ``locked_reason`` are restricted to system
+        administrators (see ``write``)."""
+        self.sudo().write({"is_locked": True, "locked_reason": reason})
+
+    def _release_operation_lock(self):
+        """Clear the async-operation lock (see ``_acquire_operation_lock``)."""
+        self.sudo().write({"is_locked": False, "locked_reason": False})
+
     def action_force_unlock(self):
         """System-administrator-only escape hatch: clear a stuck "Operation
         in progress" lock.

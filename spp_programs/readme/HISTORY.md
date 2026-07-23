@@ -1,12 +1,16 @@
 ### 19.0.2.2.1
 
-- fix(security): enforce server-side authorization on Force Unlock. The
-  `action_force_unlock` methods on `spp.cycle` and `spp.program` cleared an
-  active operation lock with no group check, so any role holding write
-  access (program officers, managers, cycle approvers) could bypass the
-  emergency-only control via RPC and clear a lock while async jobs were
-  still running. The methods now require `base.group_system` (trusted
-  `sudo()` flows exempt), matching the view-button gating.
+- fix(security): make the async operation lock a server-side boundary. The
+  Force Unlock buttons were gated to `base.group_system` in the views, but
+  `action_force_unlock` on `spp.cycle` / `spp.program` — and direct writes to
+  the `is_locked` / `locked_reason` fields — had no server-side check, so any
+  role holding write access (program officers, managers, cycle approvers)
+  could clear an active operation lock via RPC while async entitlement /
+  payment / eligibility jobs were still running. Direct writes to the lock
+  fields now require `base.group_system` (via a `write()` guard), the manual
+  `action_force_unlock` override requires the same, and the async pipeline
+  manages the lock through `sudo()` helpers so legitimate acquire/release
+  from the initiating user keeps working.
 
 ### 19.0.2.1.3
 

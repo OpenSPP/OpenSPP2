@@ -111,3 +111,59 @@ class TestForceUnlockAuthorization(TransactionCase):
         self.program.with_user(self.system).action_force_unlock()
         self.assertFalse(self.program.is_locked)
         self.assertFalse(self.program.locked_reason)
+
+    # --- direct field write (the sink behind action_force_unlock) ------
+
+    def test_cycle_direct_write_is_locked_denied_for_officer(self):
+        """Clearing the lock via a direct RPC write must be blocked too, not
+        just the action_force_unlock button — officers hold write on the model."""
+        self._lock_cycle()
+        with self.assertRaises(AccessError):
+            self.cycle.with_user(self.officer).write({"is_locked": False, "locked_reason": False})
+        self.assertTrue(self.cycle.is_locked)
+
+    def test_cycle_direct_write_is_locked_denied_for_manager(self):
+        self._lock_cycle()
+        with self.assertRaises(AccessError):
+            self.cycle.with_user(self.manager).write({"is_locked": False})
+        self.assertTrue(self.cycle.is_locked)
+
+    def test_cycle_direct_write_setting_lock_denied_for_manager(self):
+        """Setting the lock out of band is blocked as well (availability)."""
+        with self.assertRaises(AccessError):
+            self.cycle.with_user(self.manager).write({"is_locked": True, "locked_reason": "x"})
+        self.assertFalse(self.cycle.is_locked)
+
+    def test_program_direct_write_is_locked_denied_for_manager(self):
+        self.program.write({"is_locked": True, "locked_reason": "Enrollment running"})
+        with self.assertRaises(AccessError):
+            self.program.with_user(self.manager).write({"is_locked": False})
+        self.assertTrue(self.program.is_locked)
+
+    def test_cycle_direct_write_is_locked_allowed_for_system_admin(self):
+        self._lock_cycle()
+        self.cycle.with_user(self.system).write({"is_locked": False, "locked_reason": False})
+        self.assertFalse(self.cycle.is_locked)
+
+    def test_manager_editing_other_fields_still_works(self):
+        """The guard only covers the lock fields — normal edits by a manager
+        (who holds write) must not be affected."""
+        self._lock_cycle()
+        # A non-lock field write by the manager succeeds even while locked.
+        self.cycle.with_user(self.manager).write({"name": "Renamed [CYCLE TEST]"})
+        self.assertEqual(self.cycle.name, "Renamed [CYCLE TEST]")
+
+    # --- pipeline helpers still work for the non-admin operating user --
+
+    def test_release_operation_lock_works_for_non_admin(self):
+        """The async pipeline releases its own lock via the sudo() helper even
+        though the job runs as the initiating (non-admin) user."""
+        self._lock_cycle()
+        self.cycle.with_user(self.officer)._release_operation_lock()
+        self.assertFalse(self.cycle.is_locked)
+        self.assertFalse(self.cycle.locked_reason)
+
+    def test_acquire_operation_lock_works_for_non_admin(self):
+        self.cycle.with_user(self.officer)._acquire_operation_lock("Import running")
+        self.assertTrue(self.cycle.is_locked)
+        self.assertEqual(self.cycle.locked_reason, "Import running")

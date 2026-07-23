@@ -150,7 +150,7 @@ class DefaultEligibilityManager(models.Model):
         self.ensure_one()
         program = self.program_id
         program.message_post(body=f"Import of {len(new_beneficiaries)} beneficiaries started.")
-        program.write({"is_locked": True, "locked_reason": "Importing beneficiaries"})
+        program._acquire_operation_lock("Importing beneficiaries")
 
         jobs = []
         for i in range(0, len(new_beneficiaries), 10000):
