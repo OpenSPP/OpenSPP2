@@ -785,11 +785,14 @@ class SPPProgram(models.Model):
     def _acquire_operation_lock(self, reason):
         """Set the async-operation lock. Written via ``sudo()`` because direct
         writes to ``is_locked`` / ``locked_reason`` are restricted to system
-        administrators (see ``write``)."""
+        administrators (see ``write``); the pipeline runs as the initiating
+        non-admin user and must bypass that guard for the two lock fields only."""
+        # nosemgrep: odoo-sudo-without-context - lock fields admin-write-only (see write()); sudo scoped
         self.sudo().write({"is_locked": True, "locked_reason": reason})
 
     def _release_operation_lock(self):
         """Clear the async-operation lock (see ``_acquire_operation_lock``)."""
+        # nosemgrep: odoo-sudo-without-context - lock fields admin-write-only (see write()); sudo scoped
         self.sudo().write({"is_locked": False, "locked_reason": False})
 
     def action_force_unlock(self):
