@@ -45,8 +45,6 @@ class DCIDataSourceCompliance(models.Model):
         # calling user. Scope is limited to the exact known public secret.
         # nosemgrep: odoo-sudo-without-context
         stale = self.sudo().search([("bearer_token", "=", DEFAULT_COMPLIANCE_BEARER_TOKEN)])
-        if not stale:
-            return 0
         for record in stale:
             _logger.warning(
                 "Removing DCI compliance data source %r that still held the default bearer token.",
