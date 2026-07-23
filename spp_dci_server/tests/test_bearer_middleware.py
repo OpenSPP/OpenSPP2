@@ -146,6 +146,32 @@ class TestBearerTokenAuth(DCIServerCommon):
             self._call("Bearer ")
         self.assertEqual(ctx.exception.status_code, 401)
 
+    # --- Non-ASCII / malformed credentials (regression) -----------------------
+
+    def test_non_ascii_bearer_token_rejected_with_401(self):
+        """A Bearer token carrying non-ASCII characters must be rejected as a
+        401, not crash the dependency. HTTP headers are latin-1-decoded, so a
+        non-ASCII header byte reaches this code as a non-ASCII str; passing it
+        to hmac.compare_digest raises TypeError, which - being neither an
+        HTTPException nor caught here - escaped as a generic 500 (with a stack
+        trace in the log) on every bearer-authenticated DCI endpoint."""
+        self.ICP.set_param("dci.api_tokens", "alpha,beta")
+
+        with self.assertRaises(HTTPException) as ctx:
+            self._call("Bearer café-ÿ")
+        self.assertEqual(ctx.exception.status_code, 401)
+
+    def test_non_ascii_bearer_token_rejected_even_with_empty_list(self):
+        """The non-ASCII guard is a single choke point: it rejects before the
+        opt-out 'accept any non-empty token' path too, so a non-ASCII token is
+        never returned as a valid credential regardless of configuration."""
+        self.ICP.set_param("dci.api_tokens", "")
+        self.ICP.set_param("dci.api_tokens_required", "false")
+
+        with self.assertRaises(HTTPException) as ctx:
+            self._call("Bearer café-ÿ")
+        self.assertEqual(ctx.exception.status_code, 401)
+
 
 @tagged("post_install", "-at_install")
 class TestSecurityDefaults(DCIServerCommon):
