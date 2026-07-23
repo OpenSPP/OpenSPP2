@@ -13,8 +13,11 @@ two safeguards added in 19.0.1.0.2:
   records untouched.
 - ``_get_test_data_source`` in the trigger controller refuses to serve a record
   still holding the default token, so a skipped migration cannot re-expose it.
+- ``_get_compliance_bearer_token`` rejects the well-known default token when it
+  is configured, so the create path cannot mint a fresh default-token record.
 """
 
+from odoo.exceptions import UserError
 from odoo.tests import TransactionCase, tagged
 
 from odoo.addons.spp_dci_client_compliance.models.data_source import (
@@ -74,6 +77,24 @@ class TestPurgeDefaultBearerToken(TransactionCase):
         self.assertEqual(removed, 1)
         self.assertFalse(stale.exists())
         self.assertTrue(rekeyed.exists())
+
+    def test_purge_matches_on_token_only_not_flag_or_name(self):
+        # A default-token record that is neither flagged nor named as a
+        # compliance record must still be purged - the match is token-only.
+        DataSource = self.env["spp.dci.data.source"].sudo()
+        unflagged = DataSource.create(
+            _ds_vals(
+                "dci_compliance_unflagged",
+                DEFAULT_COMPLIANCE_BEARER_TOKEN,
+                name="Some Other Data Source",
+                is_compliance_test=False,
+            )
+        )
+
+        removed = DataSource._purge_default_compliance_bearer_token()
+
+        self.assertEqual(removed, 1)
+        self.assertFalse(unflagged.exists())
 
 
 @tagged("post_install", "-at_install")
@@ -145,3 +166,61 @@ class TestControllerRejectsDefaultToken(TransactionCase):
         result = self._run_with_request()
 
         self.assertEqual(result.id, rekeyed.id, "A properly configured record must still be used")
+
+
+@tagged("post_install", "-at_install")
+class TestCreatePathRejectsDefaultToken(TransactionCase):
+    """The create path must refuse the well-known default token when configured.
+
+    Guarding only the search paths is not enough: if an operator sets
+    ``dci.client_compliance.bearer_token`` to the public default (as the module
+    docs previously suggested), the create path would mint a fresh data source
+    carrying it - recreating the exposure through the front door.
+    ``_get_compliance_bearer_token`` therefore rejects the default value.
+    """
+
+    def setUp(self):
+        super().setUp()
+        from odoo.addons.spp_dci_client_compliance.controllers.trigger import (
+            DCIClientTriggerController,
+        )
+
+        self.controller = DCIClientTriggerController()
+        self.ICP = self.env["ir.config_parameter"].sudo()
+        self.ICP.set_param(MOCK_URL_PARAM, "http://mock_registry:3335")
+
+    def _run(self, method_name):
+        import odoo.addons.spp_dci_client_compliance.controllers.trigger as mod
+
+        class FakeRequest:
+            env = self.env
+
+        original = mod.__dict__["request"]
+        mod.request = FakeRequest()
+        try:
+            return getattr(self.controller, method_name)()
+        finally:
+            mod.request = original
+
+    def test_get_bearer_token_rejects_default(self):
+        self.ICP.set_param(BEARER_TOKEN_PARAM, DEFAULT_COMPLIANCE_BEARER_TOKEN)
+        with self.assertRaises(UserError):
+            self.controller._get_compliance_bearer_token(self.env)
+
+    def test_create_path_refuses_to_mint_default_token_record(self):
+        self.ICP.set_param(BEARER_TOKEN_PARAM, DEFAULT_COMPLIANCE_BEARER_TOKEN)
+        with self.assertRaises(UserError):
+            self._run("_create_test_data_source")
+        # Nothing was created carrying the default token.
+        count = (
+            self.env["spp.dci.data.source"]
+            .sudo()
+            .search_count([("bearer_token", "=", DEFAULT_COMPLIANCE_BEARER_TOKEN)])
+        )
+        self.assertEqual(count, 0)
+
+    def test_create_path_succeeds_with_private_token(self):
+        self.ICP.set_param(BEARER_TOKEN_PARAM, "operator-real-token")
+        result = self._run("_create_test_data_source")
+        self.assertTrue(result)
+        self.assertEqual(result.bearer_token, "operator-real-token")

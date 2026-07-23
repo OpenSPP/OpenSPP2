@@ -72,6 +72,18 @@ class DCIClientTriggerController(http.Controller):
                 f"Set the system parameter {BEARER_TOKEN_PARAM!r} before "
                 f"using the trigger endpoints."
             )
+        # Refuse the well-known default token: it is public, so accepting it
+        # would recreate the exact exposure the 19.0.1.0.2 migration purges -
+        # a data source authenticating outbound requests with a shared secret.
+        # Plain equality against a PUBLIC sentinel - not a secret comparison, so
+        # timing analysis leaks nothing.
+        # nosemgrep: odoo-timing-attack-password
+        if token == DEFAULT_COMPLIANCE_BEARER_TOKEN:
+            raise UserError(
+                f"The DCI client compliance bearer token is set to the well-known "
+                f"default value, which is not allowed. Set {BEARER_TOKEN_PARAM!r} to a "
+                f"private token before using the trigger endpoints."
+            )
         return token
 
     def _disabled_response(self):
