@@ -15,6 +15,8 @@ from odoo import http, tools
 from odoo.exceptions import UserError
 from odoo.http import request
 
+from ..models.data_source import DEFAULT_COMPLIANCE_BEARER_TOKEN
+
 _logger = logging.getLogger(__name__)
 
 COMPLIANCE_ENABLED_PARAM = "dci.client_compliance.enabled"
@@ -96,16 +98,20 @@ class DCIClientTriggerController(http.Controller):
         DataSource = request.env["spp.dci.data.source"].sudo()
 
         # First try to find one marked for compliance testing
-        test_ds = DataSource.search(
-            [("is_compliance_test", "=", True)],
-            limit=1,
+        test_ds = self._reject_default_token(
+            DataSource.search(
+                [("is_compliance_test", "=", True)],
+                limit=1,
+            )
         )
 
         if not test_ds:
             # Fall back to one named "DCI Compliance Test"
-            test_ds = DataSource.search(
-                [("name", "=", "DCI Compliance Test")],
-                limit=1,
+            test_ds = self._reject_default_token(
+                DataSource.search(
+                    [("name", "=", "DCI Compliance Test")],
+                    limit=1,
+                )
             )
 
         if not test_ds:
@@ -113,6 +119,28 @@ class DCIClientTriggerController(http.Controller):
             test_ds = self._create_test_data_source()
 
         return test_ds
+
+    @staticmethod
+    def _reject_default_token(data_source):
+        """Drop a data source still holding the well-known default token.
+
+        Upgraded databases may retain a compliance data source carrying the
+        public default token (see the 19.0.1.0.2 migration). Serving it would
+        re-expose the shared secret over the ``auth='none'`` routes, so treat
+        such a record as absent and let the caller fall through to the
+        fail-closed create path.
+        """
+        # Plain equality against a PUBLIC, well-known sentinel token - not a
+        # secret comparison, so timing analysis leaks nothing. This is a
+        # fail-closed record filter, not an authentication check.
+        # nosemgrep: odoo-timing-attack-password
+        if data_source and data_source.bearer_token == DEFAULT_COMPLIANCE_BEARER_TOKEN:
+            _logger.warning(
+                "Ignoring DCI compliance data source %r that still holds the default bearer token.",
+                data_source.code,
+            )
+            return data_source.browse()
+        return data_source
 
     def _create_test_data_source(self):
         """Create a test data source pointing to mock registry.
