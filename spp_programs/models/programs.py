@@ -782,6 +782,11 @@ class SPPProgram(models.Model):
                 )
         return super().write(vals)
 
+    # NOTE(#337): these helpers sudo the lock write, so any PUBLIC method that
+    # calls them (e.g. the async mark_*_as_done / mark_*_as_failed completion
+    # callbacks) is an RPC-reachable lock-clearing path that the write() guard
+    # above does not cover. Closing that needs authorization on those
+    # callbacks and is tracked separately in issue #337.
     def _acquire_operation_lock(self, reason):
         """Set the async-operation lock. Written via ``sudo()`` because direct
         writes to ``is_locked`` / ``locked_reason`` are restricted to system
