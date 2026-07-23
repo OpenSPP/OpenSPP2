@@ -68,12 +68,8 @@ class TestDCIAdminGroup(TransactionCase):
     def test_migration_removes_escalation(self):
         """The 19.0.2.0.2 migration strips base.group_system from the
         noupdate'd group record on databases installed before the fix."""
-        migration_path = (
-            Path(__file__).parent.parent / "migrations" / "19.0.2.0.2" / "post-migration.py"
-        )
-        spec = importlib.util.spec_from_file_location(
-            "spp_dci_migration_19_0_2_0_2", migration_path
-        )
+        migration_path = Path(__file__).parent.parent / "migrations" / "19.0.2.0.2" / "post-migration.py"
+        spec = importlib.util.spec_from_file_location("spp_dci_migration_19_0_2_0_2", migration_path)
         migration = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(migration)
 
