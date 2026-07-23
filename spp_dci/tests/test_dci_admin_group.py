@@ -79,8 +79,11 @@ class TestDCIAdminGroup(TransactionCase):
         group.write({"implied_ids": [Command.link(system.id)]})
         self.assertIn(system, group.implied_ids)
 
-        migration.migrate(self.env.cr, "19.0.2.0.1")
+        with self.assertLogs("spp_dci_migration_19_0_2_0_2", level="WARNING") as capture:
+            migration.migrate(self.env.cr, "19.0.2.0.1")
+        self.assertIn("Removed the base.group_system implication", capture.output[0])
 
         group.invalidate_recordset()
         self.assertNotIn(system, group.implied_ids)
         self.assertNotIn(system, group.all_implied_ids)
+        self.assertNotIn("must already be system administrators", group.comment)

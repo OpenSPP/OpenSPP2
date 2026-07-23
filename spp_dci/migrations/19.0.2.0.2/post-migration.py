@@ -29,7 +29,19 @@ def migrate(cr, version):
         return
 
     affected = len(group.user_ids)
-    group.write({"implied_ids": [Command.unlink(system.id)]})
+    group.write(
+        {
+            "implied_ids": [Command.unlink(system.id)],
+            # The record is noupdate, so also refresh the comment that
+            # documented the inverted mental model ("Members must already
+            # be system administrators").
+            "comment": (
+                "Grants visibility to raw DCI payloads, full identifiers, "
+                "disability data, and other sensitive fields exposed by the "
+                "DCI cache and log models."
+            ),
+        }
+    )
     _logger.warning(
         "Removed the base.group_system implication from the DCI Administrator "
         "group; %s user(s) held the group and lose the transitively granted "
