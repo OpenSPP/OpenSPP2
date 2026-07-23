@@ -416,8 +416,10 @@ boolean field</td>
 <ol class="arabic simple">
 <li>Set system parameter <tt class="docutils literal">dci.client_compliance.mock_registry_url</tt> to
 point to your mock registry (default: <tt class="docutils literal"><span class="pre">http://mock_registry:3335</span></tt>)</li>
-<li>Set system parameter <tt class="docutils literal">dci.client_compliance.bearer_token</tt> for
-authentication (default: <tt class="docutils literal"><span class="pre">compliance-test-api-key-12345</span></tt>)</li>
+<li>Set system parameter <tt class="docutils literal">dci.client_compliance.bearer_token</tt> to a
+<strong>private</strong> token for authentication. There is no default, and the
+well-known value <tt class="docutils literal"><span class="pre">compliance-test-api-key-12345</span></tt> is rejected; the
+trigger endpoints refuse to run until a private token is configured.</li>
 <li>Verify test data source exists under <strong>Settings &gt; Technical &gt; DCI &gt;
 Configuration &gt; Data Sources</strong> (auto-created if missing)</li>
 </ol>
@@ -500,9 +502,10 @@ Only for development or testing purpose, do not use in production.</p>
 <h1>19.0.1.0.2</h1>
 <ul class="simple">
 <li>fix(security): remove compliance data sources that still hold the old
-shared bearer token on upgrade, and refuse to serve any such record
-from the trigger controller, so upgraded databases cannot re-use the
-well-known credential over the unauthenticated trigger routes.</li>
+shared bearer token on upgrade, refuse to serve any such record from
+the trigger controller, and reject the well-known default token when
+configured, so upgraded or freshly configured databases cannot use the
+shared credential over the unauthenticated trigger routes.</li>
 </ul>
 <div class="section" id="bug-tracker">
 <h2>Bug Tracker</h2>
