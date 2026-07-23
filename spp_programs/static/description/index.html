@@ -660,14 +660,18 @@ to define custom compliance criteria</li>
 <div class="section" id="section-1">
 <h1>19.0.2.2.1</h1>
 <ul class="simple">
-<li>fix(security): enforce server-side authorization on Force Unlock. The
-<tt class="docutils literal">action_force_unlock</tt> methods on <tt class="docutils literal">spp.cycle</tt> and <tt class="docutils literal">spp.program</tt>
-cleared an active operation lock with no group check, so any role
-holding write access (program officers, managers, cycle approvers)
-could bypass the emergency-only control via RPC and clear a lock while
-async jobs were still running. The methods now require
-<tt class="docutils literal">base.group_system</tt> (trusted <tt class="docutils literal">sudo()</tt> flows exempt), matching the
-view-button gating.</li>
+<li>fix(security): make the async operation lock a server-side boundary.
+The Force Unlock buttons were gated to <tt class="docutils literal">base.group_system</tt> in the
+views, but <tt class="docutils literal">action_force_unlock</tt> on <tt class="docutils literal">spp.cycle</tt> / <tt class="docutils literal">spp.program</tt>
+— and direct writes to the <tt class="docutils literal">is_locked</tt> / <tt class="docutils literal">locked_reason</tt> fields —
+had no server-side check, so any role holding write access (program
+officers, managers, cycle approvers) could clear an active operation
+lock via RPC while async entitlement / payment / eligibility jobs were
+still running. Direct writes to the lock fields now require
+<tt class="docutils literal">base.group_system</tt> (via a <tt class="docutils literal">write()</tt> guard), the manual
+<tt class="docutils literal">action_force_unlock</tt> override requires the same, and the async
+pipeline manages the lock through <tt class="docutils literal">sudo()</tt> helpers so legitimate
+acquire/release from the initiating user keeps working.</li>
 </ul>
 </div>
 <div class="section" id="section-2">
