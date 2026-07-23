@@ -24,29 +24,38 @@ def migrate(cr, version):
 
     env = api.Environment(cr, SUPERUSER_ID, {})
     group = env.ref("spp_dci.group_dci_admin", raise_if_not_found=False)
-    system = env.ref("base.group_system", raise_if_not_found=False)
-    if not group or not system or system not in group.implied_ids:
+    if not group:
         return
 
-    affected = len(group.user_ids)
-    group.write(
-        {
-            "implied_ids": [Command.unlink(system.id)],
-            # The record is noupdate, so also refresh the comment that
-            # documented the inverted mental model ("Members must already
-            # be system administrators").
-            "comment": (
-                "Grants visibility to raw DCI payloads, full identifiers, "
-                "disability data, and other sensitive fields exposed by the "
-                "DCI cache and log models."
-            ),
-        }
+    system = env.ref("base.group_system", raise_if_not_found=False)
+    escalated = bool(system) and system in group.implied_ids
+
+    vals = {}
+    # The record is noupdate, so refresh the comment that documented the
+    # inverted mental model ("Members must already be system administrators")
+    # even on databases where the link was already removed manually.
+    correct_comment = (
+        "Grants visibility to raw DCI payloads, full identifiers, "
+        "disability data, and other sensitive fields exposed by the "
+        "DCI cache and log models."
     )
-    _logger.warning(
-        "Removed the base.group_system implication from the DCI Administrator "
-        "group; %s user(s) held the group and lose the transitively granted "
-        "system administration rights. Audit changes made by these users while "
-        "escalated, and grant base.group_system explicitly where it is "
-        "genuinely intended.",
-        affected,
-    )
+    if group.comment != correct_comment:
+        vals["comment"] = correct_comment
+    if escalated:
+        affected = len(group.user_ids)
+        vals["implied_ids"] = [Command.unlink(system.id)]
+
+    if not vals:
+        return
+
+    group.write(vals)
+
+    if escalated:
+        _logger.warning(
+            "Removed the base.group_system implication from the DCI Administrator "
+            "group; %s user(s) held the group and lose the transitively granted "
+            "system administration rights. Audit changes made by these users while "
+            "escalated, and grant base.group_system explicitly where it is "
+            "genuinely intended.",
+            affected,
+        )

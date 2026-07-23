@@ -75,8 +75,14 @@ class TestDCIAdminGroup(TransactionCase):
 
         group = self.env.ref("spp_dci.group_dci_admin")
         system = self.env.ref("base.group_system")
-        # Recreate the released (vulnerable) state.
-        group.write({"implied_ids": [Command.link(system.id)]})
+        # Recreate the released (vulnerable) state: the escalating link and
+        # the stale comment that the noupdate record would have preserved.
+        group.write(
+            {
+                "implied_ids": [Command.link(system.id)],
+                "comment": "Sensitive. Members must already be system administrators.",
+            }
+        )
         self.assertIn(system, group.implied_ids)
 
         with self.assertLogs("spp_dci_migration_19_0_2_0_2", level="WARNING") as capture:
@@ -87,3 +93,8 @@ class TestDCIAdminGroup(TransactionCase):
         self.assertNotIn(system, group.implied_ids)
         self.assertNotIn(system, group.all_implied_ids)
         self.assertNotIn("must already be system administrators", group.comment)
+
+        # Idempotent: a second run finds the link absent and the comment
+        # already refreshed, so it makes no changes and stays silent.
+        with self.assertNoLogs("spp_dci_migration_19_0_2_0_2", level="WARNING"):
+            migration.migrate(self.env.cr, "19.0.2.0.1")
