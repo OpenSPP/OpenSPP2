@@ -504,6 +504,18 @@ Only for development or testing purpose, do not use in production.</p>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.2</h1>
+<ul class="simple">
+<li>fix(security): stop the DCI Administrator group from granting full
+system administration. <tt class="docutils literal">implied_ids</tt> grants the implied groups to
+members, so the previous <tt class="docutils literal">base.group_system</tt> link escalated any
+holder of the DCI PII-visibility role to a Settings/System
+administrator. OpenSPP admins now imply the group instead (preserving
+admin visibility of gated PII fields), and a migration strips the
+unsafe link from existing databases.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
