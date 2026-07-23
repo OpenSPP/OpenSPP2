@@ -155,7 +155,8 @@ class TestControllerRejectsDefaultToken(TransactionCase):
         self.assertEqual(result.bearer_token, "operator-real-token")
 
     def test_default_token_record_matched_by_name_is_not_served(self):
-        # is_compliance_test=False so only the by-name fallback can find it.
+        # is_compliance_test=False so only the by-name lookup could match it -
+        # but the default-token exclusion in the search domain drops it there too.
         DataSource = self.env["spp.dci.data.source"].sudo()
         DataSource.create(
             _ds_vals(
