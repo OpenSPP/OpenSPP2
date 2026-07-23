@@ -168,8 +168,7 @@ class DefaultEligibilityManager(models.Model):
         self.ensure_one()
         self.program_id.refresh_beneficiary_counts()
 
-        self.program_id.is_locked = False
-        self.program_id.locked_reason = None
+        self.program_id._release_operation_lock()
         self.program_id.message_post(body=_("Import finished."))
 
     def _import_registrants(self, new_beneficiaries, state="draft", do_count=False):

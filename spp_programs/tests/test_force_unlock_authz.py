@@ -167,3 +167,15 @@ class TestForceUnlockAuthorization(TransactionCase):
         self.cycle.with_user(self.officer)._acquire_operation_lock("Import running")
         self.assertTrue(self.cycle.is_locked)
         self.assertEqual(self.cycle.locked_reason, "Import running")
+
+    def test_eligibility_mark_import_done_releases_lock_as_non_admin(self):
+        """Regression: the async import on_done callback runs as the initiating
+        non-admin user; it must release the program lock through the sudo helper
+        rather than a direct field write that the guard would reject."""
+        manager = self.env["spp.program.membership.manager.default"].create(
+            {"name": "Elig Manager", "program_id": self.program.id}
+        )
+        self.program.write({"is_locked": True, "locked_reason": "Importing beneficiaries"})
+        manager.with_user(self.officer).mark_import_as_done()
+        self.assertFalse(self.program.is_locked)
+        self.assertFalse(self.program.locked_reason)
