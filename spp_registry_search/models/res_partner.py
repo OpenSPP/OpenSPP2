@@ -139,7 +139,7 @@ class ResPartner(models.Model):
         elif search_type == "groups":
             domain.append(("is_group", "=", True))
 
-        if advanced_filters:
+        if advanced_filters and isinstance(advanced_filters, dict):
             if advanced_filters.get("registrationDateFrom"):
                 domain.append(("registration_date", ">=", advanced_filters["registrationDateFrom"]))
             if advanced_filters.get("registrationDateTo"):
