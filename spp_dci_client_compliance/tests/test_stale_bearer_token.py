@@ -78,6 +78,17 @@ class TestPurgeDefaultBearerToken(TransactionCase):
         self.assertFalse(stale.exists())
         self.assertTrue(rekeyed.exists())
 
+    def test_purge_removes_archived_default_token_record(self):
+        # Archived records still hold the token at rest and stay usable by
+        # non-controller consumers, so the purge must reach them too.
+        DataSource = self.env["spp.dci.data.source"].sudo()
+        archived = DataSource.create(_ds_vals("dci_compliance_archived", DEFAULT_COMPLIANCE_BEARER_TOKEN, active=False))
+
+        removed = DataSource._purge_default_compliance_bearer_token()
+
+        self.assertEqual(removed, 1)
+        self.assertFalse(archived.exists(), "Archived default-token record must be deleted")
+
     def test_purge_matches_on_token_only_not_flag_or_name(self):
         # A default-token record that is neither flagged nor named as a
         # compliance record must still be purged - the match is token-only.
@@ -166,6 +177,18 @@ class TestControllerRejectsDefaultToken(TransactionCase):
         result = self._run_with_request()
 
         self.assertEqual(result.id, rekeyed.id, "A properly configured record must still be used")
+
+    def test_rekeyed_record_served_even_when_stale_record_coexists(self):
+        # Both records share the name/flag; a stale record can sort ahead of the
+        # valid one. The good record must still be served (not masked by limit=1).
+        DataSource = self.env["spp.dci.data.source"].sudo()
+        DataSource.create(_ds_vals("dci_compliance_stale", DEFAULT_COMPLIANCE_BEARER_TOKEN))
+        rekeyed = DataSource.create(_ds_vals("dci_compliance_rekeyed", "operator-real-token"))
+
+        result = self._run_with_request()
+
+        self.assertEqual(result.id, rekeyed.id, "Valid record must not be masked by a stale one")
+        self.assertEqual(result.bearer_token, "operator-real-token")
 
 
 @tagged("post_install", "-at_install")

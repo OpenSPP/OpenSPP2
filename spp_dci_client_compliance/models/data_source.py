@@ -43,8 +43,12 @@ class DCIDataSourceCompliance(models.Model):
         # sudo(): bearer_token is field-level restricted to base.group_system;
         # this maintenance sweep must see and remove records regardless of the
         # calling user. Scope is limited to the exact known public secret.
+        # active_test=False: archived records still hold the token in their
+        # bearer_token column and remain usable by non-controller consumers
+        # (and readable at rest), so they must be purged too.
         # nosemgrep: odoo-sudo-without-context
-        stale = self.sudo().search([("bearer_token", "=", DEFAULT_COMPLIANCE_BEARER_TOKEN)])
+        records = self.sudo().with_context(active_test=False)
+        stale = records.search([("bearer_token", "=", DEFAULT_COMPLIANCE_BEARER_TOKEN)])
         for record in stale:
             _logger.warning(
                 "Removing DCI compliance data source %r that still held the default bearer token.",
