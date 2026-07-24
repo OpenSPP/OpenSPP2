@@ -9,4 +9,5 @@ from . import test_qml_template_service
 from . import test_spatial_query_service
 from . import test_statistics_endpoint
 from . import test_batch_query
+from . import test_gis_published_variables
 from . import test_proximity_query

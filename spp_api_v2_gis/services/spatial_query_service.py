@@ -354,14 +354,23 @@ class SpatialQueryService:
         # Create an explicit scope for the registrant IDs
         scope = build_explicit_scope(registrant_ids)
 
-        # Determine statistics to compute
-        statistics_to_compute = variables
-        if not statistics_to_compute:
-            # Use GIS-published statistics
-            # nosemgrep: odoo-sudo-without-context
-            Statistic = self.env["spp.indicator"].sudo()
-            gis_stats = Statistic.get_published_for_context("gis")
-            statistics_to_compute = [stat.name for stat in gis_stats] if gis_stats else None
+        # Enforce the GIS publication boundary as a positive allowlist: only
+        # indicators an admin published to GIS may be computed here. Client-
+        # supplied `variables` are otherwise resolved by the aggregation
+        # registry via sudo() against ALL indicators and CEL variables, which
+        # would let a caller with only gis/statistics read pull aggregates for
+        # names never published to GIS. Restrict both the supplied and default
+        # paths to the same published set; unknown/unpublished names are dropped
+        # (matching the existing "unknown variables -> valid response" contract
+        # and avoiding an existence oracle).
+        # nosemgrep: odoo-sudo-without-context
+        Statistic = self.env["spp.indicator"].sudo()
+        published_gis_names = set(Statistic.get_published_for_context("gis").mapped("name"))
+
+        if variables:
+            statistics_to_compute = [name for name in variables if name in published_gis_names]
+        else:
+            statistics_to_compute = list(published_gis_names)
 
         if not statistics_to_compute:
             return {
