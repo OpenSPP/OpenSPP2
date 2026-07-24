@@ -279,21 +279,25 @@ class TestComputeCalcAge(RegistryCommon):
 
 @tagged("post_install", "-at_install")
 class TestCheckAgeIsInteger(RegistryCommon):
-    """``_check_age_is_integer`` — constraint on the ``age`` field.
+    """Creation behavior around the computed ``age`` field.
 
-    Note: ``age`` is a NON-stored compute, so ``@api.constrains("age")``
-    only fires when ``age`` is read after a dependency change. In
-    practice, creating an individual with no birthdate yields
-    ``age = "No Birthdate!"`` (not isdigit), but the constraint does NOT
-    fire because Odoo's constrains hooks only trigger on stored writes.
+    ``age`` is a NON-stored compute derived from ``birthdate``
+    (``str(years)`` when set, else ``"No Birthdate!"``), so it can never
+    carry a user-supplied non-integer. The former ``@api.constrains("age")``
+    ``_check_age_is_integer`` guard therefore never fired (Odoo's constrains
+    hooks only trigger on stored writes) and only emitted the registry-load
+    warning ``@constrains parameter 'age' is not writeable`` — it was removed
+    as dead code.
 
-    These tests pin the current observable behavior. If the constraint
-    is ever made to fire (e.g., by storing the compute), the second test
-    will need to flip to ``assertRaises(ValidationError)``.
+    These tests pin the observable behavior the removal must preserve:
+    an individual can be created with or without a birthdate. They also
+    guard against a naive re-introduction (e.g. constraining on
+    ``birthdate`` or storing the compute), which would make the
+    birthdate-less case raise on ``age == "No Birthdate!"``.
     """
 
     def test_individual_without_birthdate_can_be_created(self):
-        """Despite age=='No Birthdate!' (not isdigit), no error."""
+        """age=='No Birthdate!' (not isdigit) must not block creation."""
         rec = self.Partner.create({"name": "Ageless", "is_registrant": True})
         self.assertTrue(rec.id)
 
