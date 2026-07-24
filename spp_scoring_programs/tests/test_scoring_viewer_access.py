@@ -33,9 +33,7 @@ class TestScoringViewerMembershipAccess(TransactionCase):
             }
         )
         cls.program = cls.Program.create({"name": "Scoring PII Test Program"})
-        cls.membership = cls.Membership.create(
-            {"partner_id": cls.registrant.id, "program_id": cls.program.id}
-        )
+        cls.membership = cls.Membership.create({"partner_id": cls.registrant.id, "program_id": cls.program.id})
 
         scoring_viewer_group = cls.env.ref("spp_scoring.group_scoring_viewer")
         programs_viewer_group = cls.env.ref("spp_programs.group_programs_viewer")
