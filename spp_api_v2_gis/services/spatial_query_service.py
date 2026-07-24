@@ -365,12 +365,15 @@ class SpatialQueryService:
         # and avoiding an existence oracle).
         # nosemgrep: odoo-sudo-without-context
         Statistic = self.env["spp.indicator"].sudo()
-        published_gis_names = set(Statistic.get_published_for_context("gis").mapped("name"))
+        # Keep the recordset order (spp.indicator _order) for a deterministic
+        # default result; use the set only for the supplied-path membership test.
+        published_gis = Statistic.get_published_for_context("gis").mapped("name")
+        published_gis_names = set(published_gis)
 
         if variables:
             statistics_to_compute = [name for name in variables if name in published_gis_names]
         else:
-            statistics_to_compute = list(published_gis_names)
+            statistics_to_compute = published_gis
 
         if not statistics_to_compute:
             return {
@@ -409,6 +412,9 @@ class SpatialQueryService:
         result = {}
         grouped_stats = {}
 
+        # These names are already restricted to GIS-published indicators by
+        # _compute_via_aggregation_service, so this metadata lookup only ever
+        # sees published names (no is_published_gis filter needed here).
         # nosemgrep: odoo-sudo-without-context
         Statistic = self.env["spp.indicator"].sudo()
         statistic_by_name = {stat.name: stat for stat in Statistic.search([("name", "in", list(statistics.keys()))])}

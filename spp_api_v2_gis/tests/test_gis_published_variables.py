@@ -93,3 +93,14 @@ class TestGisPublishedVariables(TransactionCase):
         keys = self._flat_stat_keys(result)
         self.assertIn("gis_published_stat", keys)
         self.assertNotIn("gis_unpublished_stat", keys)
+
+    def test_mixed_list_keeps_published_drops_unpublished(self):
+        # Smuggling an unpublished name alongside a published one must not leak
+        # the unpublished aggregate; the published one is still returned.
+        result = self._service()._compute_statistics(
+            self.registrant_ids, ["gis_published_stat", "gis_unpublished_stat", "gis_raw_cel_var"]
+        )
+        keys = self._flat_stat_keys(result)
+        self.assertIn("gis_published_stat", keys)
+        self.assertNotIn("gis_unpublished_stat", keys)
+        self.assertNotIn("gis_raw_cel_var", keys)
