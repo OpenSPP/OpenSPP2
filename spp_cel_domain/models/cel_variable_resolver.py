@@ -109,6 +109,7 @@ class CELVariableResolver(models.AbstractModel):
                 "or",
                 "r",
                 "m",
+                "me",
                 "members",
                 "enrollments",
                 "entitlements",
