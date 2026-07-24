@@ -146,3 +146,14 @@ class TestStorageCredentialAccess(TransactionCase):
             self.azure_backend.with_user(self.base_user)._get_azure_client()
         args, _ = fake_module.BlobServiceClient.from_connection_string.call_args
         self.assertEqual(args[0], AZURE_CONN)
+
+    def test_azure_public_url_resolves_credentials_for_non_admin(self):
+        """SAS-URL generation reads the connection string through the same sudo
+        helper, so it works for an operating non-admin user (regression: the
+        second Azure credential read site)."""
+        fake_module = MagicMock()
+        mods = {"azure": MagicMock(), "azure.storage": MagicMock(), "azure.storage.blob": fake_module}
+        with patch.dict(sys.modules, mods):
+            self.azure_backend.with_user(self.base_user)._get_azure_public_url("blob.txt", 3600)
+        _, kwargs = fake_module.generate_blob_sas.call_args
+        self.assertEqual(kwargs.get("account_key"), "SECRETKEY==")

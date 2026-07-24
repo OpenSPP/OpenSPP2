@@ -451,6 +451,16 @@ class StorageBackend(models.Model):
     # AZURE BACKEND IMPLEMENTATION
     # ========================================================================
 
+    def _get_azure_connection_string(self):
+        """Resolve the group-restricted Azure connection string server-side.
+
+        The field is admin-only readable; an operating user may use the backend
+        without being able to read the secret, so it is read via ``sudo()`` and
+        only used to build clients / SAS URLs (never returned to the caller).
+        """
+        # nosemgrep: odoo-sudo-without-context - read admin-only credential field to build the client
+        return self.sudo().azure_connection_string
+
     def _get_azure_client(self):
         """Get configured Azure Blob client."""
         try:
@@ -460,12 +470,7 @@ class StorageBackend(models.Model):
                 _("azure-storage-blob library is not installed. Please install it to use Azure storage.")
             ) from e
 
-        # Connection string is group-restricted (admin-only readable); resolve
-        # it server-side so an operating user can use the backend without being
-        # able to read the secret.
-        # nosemgrep: odoo-sudo-without-context - read admin-only credential field to build the client
-        connection_string = self.sudo().azure_connection_string
-        service_client = BlobServiceClient.from_connection_string(connection_string)
+        service_client = BlobServiceClient.from_connection_string(self._get_azure_connection_string())
         return service_client.get_container_client(self.azure_container)
 
     def _store_azure(self, binary_data, path):
@@ -510,8 +515,10 @@ class StorageBackend(models.Model):
         container_client = self._get_azure_client()
         blob_client = container_client.get_blob_client(reference)
 
-        # Extract account name and key from connection string
-        conn_parts = dict(item.split("=", 1) for item in self.azure_connection_string.split(";") if "=" in item)
+        # Extract account name and key from connection string (admin-only field
+        # resolved via sudo; used only to sign the SAS URL, not returned).
+        connection_string = self._get_azure_connection_string()
+        conn_parts = dict(item.split("=", 1) for item in connection_string.split(";") if "=" in item)
         account_name = conn_parts.get("AccountName")
         account_key = conn_parts.get("AccountKey")
 
