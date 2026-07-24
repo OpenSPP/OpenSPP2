@@ -1,3 +1,12 @@
+### 19.0.2.1.3
+
+- fix(security): deactivate this module's default-credential demo users
+  (created with the well-known password ``demo``) when installed on a database
+  without demo data, so the known credentials cannot be used to log in on a
+  production instance; the accounts stay active on demo/evaluation databases.
+  Also lowers ``development_status`` from ``Production/Stable`` to ``Alpha`` so
+  the demo module no longer signals production-readiness.
+
 ### 19.0.2.1.1
 
 - fix(demo): name each farm after its head member and give every member the head's family name so a household reads as one family; farm names and registry IDs stay unique and generation remains seed-deterministic, resolving duplicate farm names and duplicate Tax/National IDs (#1114)
