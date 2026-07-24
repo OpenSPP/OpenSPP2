@@ -10,7 +10,7 @@ a demo/evaluation database they must stay active.
 from odoo.modules.module import get_manifest
 from odoo.tests import TransactionCase, tagged
 
-from odoo.addons.spp_demo import deactivate_default_demo_users
+from odoo.addons.spp_demo import deactivate_default_demo_users, demo_data_enabled
 from odoo.addons.spp_farmer_registry_demo import DEFAULT_DEMO_USER_XMLIDS
 
 
@@ -52,4 +52,17 @@ class TestFarmerDemoUserSafety(TransactionCase):
         self.assertNotEqual(
             get_manifest("spp_farmer_registry_demo").get("development_status"),
             "Production/Stable",
+        )
+
+    def test_demo_data_enabled_matches_module_flag(self):
+        module = self.env["ir.module.module"].search(
+            [("name", "=", "spp_farmer_registry_demo")], limit=1
+        )
+        self.assertEqual(
+            demo_data_enabled(self.env, "spp_farmer_registry_demo"), bool(module.demo)
+        )
+
+    def test_manifest_wires_post_init_hook(self):
+        self.assertEqual(
+            get_manifest("spp_farmer_registry_demo").get("post_init_hook"), "post_init_hook"
         )

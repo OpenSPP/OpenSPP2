@@ -10,6 +10,15 @@
 
     Login credentials: username / demo
     ==========================================================================
+
+    SECURITY: on a database without demo data (a production-style install)
+    these default-credential users are archived by spp_demo's post_init_hook
+    (see __init__.py). That hook runs on install only. These records
+    intentionally set NO `active` field, so an upgrade re-run of this
+    noupdate="0" file does not reactivate archived users. Do NOT add
+    `<field name="active" eval="True"/>` here without also re-archiving on
+    upgrade, or a production upgrade would silently re-enable the accounts.
+    ==========================================================================
     -->
 
     <!-- VIEWER: Read-only access across domains -->
