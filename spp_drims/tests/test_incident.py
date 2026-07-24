@@ -169,6 +169,38 @@ class TestDrimsIncident(DrimsTestCommon):
         self.incident.action_set_alert()
         self.assertEqual(self.incident.status, "alert")
 
+    def test_1094_stock_kpi_refreshes_on_warehouse_link(self):
+        """OP#1094: linking a warehouse to an incident refreshes the stock KPI,
+        even when the stock existed before the link (cache was populated with 0)."""
+        wh = self.env["stock.warehouse"].create({"name": "KPI WH 1094", "code": "K1094", "is_drims_warehouse": True})
+        self.product.standard_price = 25.0
+        self.env["stock.quant"].create(
+            {"product_id": self.product.id, "location_id": wh.lot_stock_id.id, "quantity": 100}
+        )
+        incident = self.env["spp.hazard.incident"].create(
+            {
+                "name": "KPI Incident 1094",
+                "code": "KPI-1094",
+                "category_id": self.hazard_category.id,
+                "start_date": "2024-01-01",
+                "status": "active",
+            }
+        )
+        # Not linked yet -> stock KPI is 0 (and this stores 0).
+        self.assertEqual(incident.drims_stock_value, 0.0)
+
+        # Link the warehouse AFTER stock already exists.
+        wh.write({"incident_ids": [(4, incident.id)]})
+        self.env.flush_all()
+        incident.invalidate_recordset()
+        self.assertEqual(incident.drims_stock_value, 2500.0)  # 100 * 25
+
+        # Unlinking refreshes back to 0.
+        wh.write({"incident_ids": [(3, incident.id)]})
+        self.env.flush_all()
+        incident.invalidate_recordset()
+        self.assertEqual(incident.drims_stock_value, 0.0)
+
     def test_incident_stock_value_initially_zero(self):
         """Test stock value is zero when no warehouse linked."""
         self.incident.invalidate_recordset()
