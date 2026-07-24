@@ -369,7 +369,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Production/Stable" src="https://img.shields.io/badge/maturity-Production%2FStable-green.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_demo"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Alpha" src="https://img.shields.io/badge/maturity-Alpha-red.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_demo"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Demo data generator for OpenSPP with Faker-based random registrant
 creation and fixed demo stories. Generates realistic individuals and
 groups with locale-specific data providers. Includes predefined personas
@@ -514,6 +514,11 @@ parameters</li>
 <p><tt class="docutils literal">base</tt>, <tt class="docutils literal">spp_base_common</tt>, <tt class="docutils literal">spp_registry</tt>, <tt class="docutils literal">spp_vocabulary</tt>,
 <tt class="docutils literal">queue_job</tt>, <tt class="docutils literal">spp_security</tt></p>
 <p>External Python dependency: <tt class="docutils literal">faker</tt></p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">This is an alpha version, the data model and design can change at any time without warning.
+Only for development or testing purpose, do not use in production.</p>
+</div>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">
@@ -525,6 +530,19 @@ parameters</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.1</h1>
+<ul class="simple">
+<li>fix(security): deactivate the default-credential demo users (including
+the <tt class="docutils literal">sppadmin</tt> SPP admin, all created with the well-known password
+<tt class="docutils literal">demo</tt>) when the module is installed on a database without demo
+data, so the known credentials cannot be used to log in on a
+production instance. The accounts stay active on demo/evaluation
+databases. Also lowers <tt class="docutils literal">development_status</tt> from
+<tt class="docutils literal">Production/Stable</tt> to <tt class="docutils literal">Alpha</tt> so the demo module no longer
+signals production-readiness.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.1.0</h1>
 <ul class="simple">
 <li>feat(demo): re-land curated PHL geodata and demo generator updates
@@ -536,7 +554,7 @@ and area loader test updates. Adds the companion
 population weights.</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
