@@ -35,6 +35,9 @@ class TestScoringViewerMembershipAccess(TransactionCase):
         cls.program = cls.Program.create({"name": "Scoring PII Test Program"})
         cls.membership = cls.Membership.create({"partner_id": cls.registrant.id, "program_id": cls.program.id})
 
+        # Internal user baseline so the AccessError is attributable to the
+        # missing membership ACL, not to lacking internal-user status.
+        base_user_group = cls.env.ref("base.group_user")
         scoring_viewer_group = cls.env.ref("spp_scoring.group_scoring_viewer")
         programs_viewer_group = cls.env.ref("spp_programs.group_programs_viewer")
 
@@ -43,7 +46,7 @@ class TestScoringViewerMembershipAccess(TransactionCase):
             {
                 "name": "Pure Scoring Viewer",
                 "login": "scoring_viewer_pii_test",
-                "group_ids": [(6, 0, [scoring_viewer_group.id])],
+                "group_ids": [(6, 0, [base_user_group.id, scoring_viewer_group.id])],
             }
         )
         # Scoring viewer who is ALSO a program viewer — membership access comes
@@ -52,7 +55,7 @@ class TestScoringViewerMembershipAccess(TransactionCase):
             {
                 "name": "Scoring + Program Viewer",
                 "login": "scoring_program_viewer_pii_test",
-                "group_ids": [(6, 0, [scoring_viewer_group.id, programs_viewer_group.id])],
+                "group_ids": [(6, 0, [base_user_group.id, scoring_viewer_group.id, programs_viewer_group.id])],
             }
         )
 
