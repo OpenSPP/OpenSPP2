@@ -10,9 +10,9 @@ OpenSPP GRM Demo Data
    !! source digest: sha256:force_regen
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Production/Stable
+    :alt: Alpha
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
@@ -115,6 +115,10 @@ Dependencies
 ``spp_demo``, ``spp_grm``, ``spp_grm_registry``, ``spp_grm_programs``,
 ``spp_security``, ``faker`` (Python)
 
+.. IMPORTANT::
+   This is an alpha version, the data model and design can change at any time without warning.
+   Only for development or testing purpose, do not use in production.
+
 **Table of contents**
 
 .. contents::
@@ -122,6 +126,15 @@ Dependencies
 
 Changelog
 =========
+
+19.0.2.0.1
+~~~~~~~~~~
+
+- fix(security): archive the default-credential GRM demo users
+  (``demo_grm_manager``, ``demo_grm_officer``, shared password ``demo``)
+  on a production install via a ``post_init_hook``; they stay active
+  only when demo data is enabled. Also drop ``Production/Stable`` (this
+  is a demo-only bundle).
 
 19.0.2.0.0
 ~~~~~~~~~~

@@ -369,7 +369,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:force_regen
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Production/Stable" src="https://img.shields.io/badge/maturity-Production%2FStable-green.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_grm_demo"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Alpha" src="https://img.shields.io/badge/maturity-Alpha-red.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_grm_demo"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Demo data generator for the Grievance Redress Mechanism. Creates both
 story-based tickets linked to specific personas (Juan Dela Cruz, Ibrahim
 Hassan, Fatima Al-Rahman, Ahmed Said, David Martinez, Maria Santos, Rosa
@@ -482,6 +482,11 @@ workflow demonstrations.</p>
 <h1>Dependencies</h1>
 <p><tt class="docutils literal">spp_demo</tt>, <tt class="docutils literal">spp_grm</tt>, <tt class="docutils literal">spp_grm_registry</tt>, <tt class="docutils literal">spp_grm_programs</tt>,
 <tt class="docutils literal">spp_security</tt>, <tt class="docutils literal">faker</tt> (Python)</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">This is an alpha version, the data model and design can change at any time without warning.
+Only for development or testing purpose, do not use in production.</p>
+</div>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">
@@ -493,6 +498,16 @@ workflow demonstrations.</p>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.1</h1>
+<ul class="simple">
+<li>fix(security): archive the default-credential GRM demo users
+(<tt class="docutils literal">demo_grm_manager</tt>, <tt class="docutils literal">demo_grm_officer</tt>, shared password <tt class="docutils literal">demo</tt>)
+on a production install via a <tt class="docutils literal">post_init_hook</tt>; they stay active
+only when demo data is enabled. Also drop <tt class="docutils literal">Production/Stable</tt> (this
+is a demo-only bundle).</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
