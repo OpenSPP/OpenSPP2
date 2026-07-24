@@ -55,14 +55,8 @@ class TestFarmerDemoUserSafety(TransactionCase):
         )
 
     def test_demo_data_enabled_matches_module_flag(self):
-        module = self.env["ir.module.module"].search(
-            [("name", "=", "spp_farmer_registry_demo")], limit=1
-        )
-        self.assertEqual(
-            demo_data_enabled(self.env, "spp_farmer_registry_demo"), bool(module.demo)
-        )
+        module = self.env["ir.module.module"].search([("name", "=", "spp_farmer_registry_demo")], limit=1)
+        self.assertEqual(demo_data_enabled(self.env, "spp_farmer_registry_demo"), bool(module.demo))
 
     def test_manifest_wires_post_init_hook(self):
-        self.assertEqual(
-            get_manifest("spp_farmer_registry_demo").get("post_init_hook"), "post_init_hook"
-        )
+        self.assertEqual(get_manifest("spp_farmer_registry_demo").get("post_init_hook"), "post_init_hook")
