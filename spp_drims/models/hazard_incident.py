@@ -1,5 +1,6 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 import logging
+from collections import defaultdict
 from datetime import timedelta
 
 from odoo import api, fields, models
@@ -214,74 +215,115 @@ class HazardIncident(models.Model):
                 rec.drims_donation_value = sum(donations.mapped("total_value"))
                 _logger.debug("Cache miss for drims_donation_value on incident %s", rec.id)
 
+    def _drims_incident_stock_units(self):
+        """OP#1160: units + distinct-product count of stock related to THIS
+        incident, across any warehouse.
+
+        "Related to the incident" = items stocked in from this incident's
+        donations, net of what its requests have committed out (allocated,
+        which already covers dispatched). This is deliberately NOT the physical
+        contents of the incident's warehouses (which mixes in unrelated stock).
+
+        Returns:
+            tuple(float, int): (total net units, number of distinct products
+            with a positive net).
+        """
+        self.ensure_one()
+        Picking = self.env["stock.picking"]
+
+        # Stocked in: done moves on this incident's donation-receipt pickings.
+        stocked = defaultdict(float)
+        receipts = Picking.search(
+            [
+                ("incident_id", "=", self.id),
+                ("drims_type", "=", "donation_receipt"),
+                ("state", "=", "done"),
+            ]
+        )
+        for move in receipts.mapped("move_ids").filtered(lambda m: m.state == "done"):
+            stocked[move.product_id.id] += move.quantity
+
+        # Committed out: quantity allocated by this incident's request lines
+        # (allocation covers what is subsequently dispatched).
+        allocated = defaultdict(float)
+        for line in self.drims_request_ids.mapped("line_ids"):
+            if line.quantity_allocated:
+                allocated[line.product_id.id] += line.quantity_allocated
+
+        total_units = 0.0
+        product_count = 0
+        for product_id, qty_in in stocked.items():
+            net = qty_in - allocated.get(product_id, 0.0)
+            if net > 0:
+                total_units += net
+                product_count += 1
+        return total_units, product_count
+
+    def _drims_distributed_net(self):
+        """OP#1160: distributed value net of returns.
+
+        Value dispatched via completed request dispatches, minus the value of
+        returned items (returns that are past draft and not cancelled) — those
+        items came back and are therefore no longer distributed. Floored at 0.
+        """
+        self.ensure_one()
+        Picking = self.env["stock.picking"]
+        pickings = Picking.search(
+            [
+                ("incident_id", "=", self.id),
+                ("state", "=", "done"),
+                ("drims_type", "=", "request_dispatch"),
+            ]
+        )
+        dispatched_value = 0.0
+        for picking in pickings:
+            for move in picking.move_ids.filtered(lambda m: m.state == "done"):
+                dispatched_value += move.quantity * (move.product_id.standard_price or 0.0)
+
+        returned_value = sum(
+            self.drims_return_ids.filtered(lambda r: r.state not in ("draft", "cancelled")).mapped("total_value")
+        )
+        return max(0.0, dispatched_value - returned_value)
+
     @api.depends(
         "drims_picking_ids",
         "drims_picking_ids.state",
         "drims_picking_ids.drims_type",
+        "drims_request_ids.line_ids.quantity_allocated",
+        "drims_request_ids.line_ids.product_id",
+        "drims_return_ids.total_value",
+        "drims_return_ids.state",
     )
     def _compute_drims_stock_kpis(self):
-        """Compute stock and distributed values from warehouse data.
+        """Compute stock and distributed KPIs.
 
-        Uses hybrid approach for expensive aggregations:
-        1. Try to read from spp.data.value cache
-        2. Fall back to direct computation if cache miss
-
-        Uses ORM-based aggregation for proper handling of Odoo 19 Properties fields.
+        - Units / product count (OP#1160): computed live from incident-related
+          stock (donations stocked in, net of request allocations).
+        - Stock value (monetary): warehouse contents, cached with fallback.
+        - Distributed value (OP#1160): dispatched net of returns, cached with
+          fallback.
         """
         if not self:
             return
 
         DataValue = self.env["spp.data.value"]
 
-        # Try to read cached values for all records
-        # Note: variable_name implicitly identifies subject_model (no explicit filter needed)
-        cached_stock_values = DataValue.read_values(
-            "drims_stock_value",
-            self.ids,
-            period_key="current",
-        )
-        cached_distributed_values = DataValue.read_values(
-            "drims_distributed_value",
-            self.ids,
-            period_key="current",
-        )
+        # Cached monetary aggregations (variable_name implies subject_model).
+        cached_stock_values = DataValue.read_values("drims_stock_value", self.ids, period_key="current")
+        cached_distributed_values = DataValue.read_values("drims_distributed_value", self.ids, period_key="current")
 
         Warehouse = self.env["stock.warehouse"]
         Quant = self.env["stock.quant"]
         Picking = self.env["stock.picking"]
 
         for rec in self:
-            # Stock KPIs - use cache with fallback
+            # OP#1160: Units / Products — stock related to THIS incident.
+            rec.drims_total_stock_units, rec.drims_stock_item_count = rec._drims_incident_stock_units()
+
+            # Stock value (monetary) still reflects warehouse contents — cached.
             if rec.id in cached_stock_values:
                 rec.drims_stock_value = cached_stock_values[rec.id]
-                _logger.debug("Cache hit for drims_stock_value on incident %s", rec.id)
-                # Still need to compute units and item count (not cached)
-                warehouses = Warehouse.search(
-                    [
-                        ("incident_ids", "in", rec.id),
-                        ("is_drims_warehouse", "=", True),
-                    ]
-                )
-                if warehouses:
-                    location_ids = warehouses.mapped("lot_stock_id").ids
-                    if location_ids:
-                        quants = Quant.search(
-                            [
-                                ("location_id", "child_of", location_ids),
-                                ("quantity", ">", 0),
-                            ]
-                        )
-                        rec.drims_total_stock_units = sum(quants.mapped("quantity"))
-                        rec.drims_stock_item_count = len(quants.mapped("product_id"))
-                    else:
-                        rec.drims_total_stock_units = 0.0
-                        rec.drims_stock_item_count = 0
-                else:
-                    rec.drims_total_stock_units = 0.0
-                    rec.drims_stock_item_count = 0
             else:
-                # Cache miss - compute directly using ORM
-                _logger.debug("Cache miss for drims_stock_value on incident %s", rec.id)
                 warehouses = Warehouse.search(
                     [
                         ("incident_ids", "in", rec.id),
@@ -289,12 +331,9 @@ class HazardIncident(models.Model):
                     ]
                 )
                 stock_value = 0.0
-                total_units = 0.0
-                item_count = 0
                 if warehouses:
                     location_ids = warehouses.mapped("lot_stock_id").ids
                     if location_ids:
-                        # Use ORM to properly handle standard_price Properties field
                         quants = Quant.search(
                             [
                                 ("location_id", "child_of", location_ids),
@@ -302,33 +341,15 @@ class HazardIncident(models.Model):
                             ]
                         )
                         stock_value = sum(q.quantity * (q.product_id.standard_price or 0.0) for q in quants)
-                        total_units = sum(quants.mapped("quantity"))
-                        item_count = len(quants.mapped("product_id"))
                 rec.drims_stock_value = stock_value
-                rec.drims_total_stock_units = total_units
-                rec.drims_stock_item_count = item_count
 
-            # Distributed value - use cache with fallback
+            # OP#1160: Distributed = dispatched net of returns — cached with fallback.
             if rec.id in cached_distributed_values:
                 rec.drims_distributed_value = cached_distributed_values[rec.id]
-                _logger.debug("Cache hit for drims_distributed_value on incident %s", rec.id)
             else:
-                # Cache miss - compute directly from completed dispatch pickings using ORM
-                _logger.debug("Cache miss for drims_distributed_value on incident %s", rec.id)
-                pickings = Picking.search(
-                    [
-                        ("incident_id", "=", rec.id),
-                        ("state", "=", "done"),
-                        ("drims_type", "=", "request_dispatch"),
-                    ]
-                )
-                distributed_value = 0.0
-                for picking in pickings:
-                    for move in picking.move_ids.filtered(lambda m: m.state == "done"):
-                        distributed_value += move.quantity * (move.product_id.standard_price or 0.0)
-                rec.drims_distributed_value = distributed_value
+                rec.drims_distributed_value = rec._drims_distributed_net()
 
-            # Beneficiaries served - count from completed dispatches in last 30 days
+            # Beneficiaries served - count from completed dispatches in last 30 days.
             thirty_days_ago = fields.Date.today() - timedelta(days=30)
             recent_pickings = Picking.search(
                 [
@@ -524,7 +545,7 @@ class HazardIncident(models.Model):
                 }
             )
 
-            # 3. Compute distributed value
+            # 3. Compute distributed value (OP#1160: net of returns).
             pickings = Picking.search(
                 [
                     ("incident_id", "=", incident.id),
@@ -532,11 +553,8 @@ class HazardIncident(models.Model):
                     ("drims_type", "=", "request_dispatch"),
                 ]
             )
-            distributed_value = 0.0
             picking_count = len(pickings)
-            for picking in pickings:
-                for move in picking.move_ids.filtered(lambda m: m.state == "done"):
-                    distributed_value += move.quantity * (move.product_id.standard_price or 0.0)
+            distributed_value = incident._drims_distributed_net()
             values_to_upsert.append(
                 {
                     "variable_name": "drims_distributed_value",

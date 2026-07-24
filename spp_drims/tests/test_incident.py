@@ -223,6 +223,133 @@ class TestDrimsIncident(DrimsTestCommon):
         # 10 * 25 = 250
         self.assertEqual(self.incident.drims_distributed_value, 250.0)
 
+    # ── OP#1160: Units/Products = incident-related stock (stocked − allocated) ──
+    def _drims_type(self, code):
+        return self.env["spp.vocabulary.code"].search(
+            [
+                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:drims-types"),
+                ("code", "=", code),
+            ],
+            limit=1,
+        )
+
+    def _stock_in_receipt(self, qty):
+        """Create + validate a done donation-receipt picking into the warehouse."""
+        drims_type = self._drims_type("donation_receipt")
+        if not drims_type:
+            self.skipTest("donation_receipt vocabulary code not found")
+        picking = self.env["stock.picking"].create(
+            {
+                "picking_type_id": self.warehouse.in_type_id.id,
+                "location_id": self.env.ref("stock.stock_location_suppliers").id,
+                "location_dest_id": self.warehouse.lot_stock_id.id,
+                "incident_id": self.incident.id,
+                "drims_type_id": drims_type.id,
+            }
+        )
+        move = self.env["stock.move"].create(
+            {
+                "product_id": self.product.id,
+                "product_uom_qty": qty,
+                "product_uom": self.product.uom_id.id,
+                "picking_id": picking.id,
+                "location_id": picking.location_id.id,
+                "location_dest_id": picking.location_dest_id.id,
+            }
+        )
+        picking.action_confirm()
+        move.quantity = qty
+        picking.button_validate()
+        return picking
+
+    def _request_with_allocation(self, requested, allocated):
+        return self.env["spp.drims.request"].create(
+            {
+                "incident_id": self.incident.id,
+                "destination_area_id": self.area.id,
+                "date_needed": self.future_date,
+                "line_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "product_id": self.product.id,
+                            "quantity_requested": requested,
+                            "quantity_allocated": allocated,
+                            "uom_id": self.product.uom_id.id,
+                        },
+                    )
+                ],
+            }
+        )
+
+    def test_incident_units_net_of_allocation(self):
+        """Units/Products = stocked-in from this incident's donations minus what
+        its requests have allocated (OP#1160)."""
+        self._stock_in_receipt(100)
+        self._request_with_allocation(requested=100, allocated=30)
+        self.incident.invalidate_recordset()
+        self.assertEqual(self.incident.drims_total_stock_units, 70.0)
+        self.assertEqual(self.incident.drims_stock_item_count, 1)
+
+    def test_incident_units_zero_when_fully_allocated(self):
+        """A product fully allocated away drops out of the incident stock count."""
+        self._stock_in_receipt(50)
+        self._request_with_allocation(requested=50, allocated=50)
+        self.incident.invalidate_recordset()
+        self.assertEqual(self.incident.drims_total_stock_units, 0.0)
+        self.assertEqual(self.incident.drims_stock_item_count, 0)
+
+    def test_incident_distributed_net_of_returns(self):
+        """Distributed value is reduced by returned items (OP#1160)."""
+        # Dispatch 10 @ 25 = 250 distributed (mirrors the dispatch test).
+        drims_type = self._drims_type("request_dispatch")
+        if not drims_type:
+            self.skipTest("request_dispatch vocabulary code not found")
+        self.product.standard_price = 25.0
+        dispatch = self.env["stock.picking"].create(
+            {
+                "picking_type_id": self.warehouse.out_type_id.id,
+                "location_id": self.warehouse.lot_stock_id.id,
+                "location_dest_id": self.env.ref("stock.stock_location_customers").id,
+                "incident_id": self.incident.id,
+                "drims_type_id": drims_type.id,
+            }
+        )
+        move = self.env["stock.move"].create(
+            {
+                "product_id": self.product.id,
+                "product_uom_qty": 10,
+                "product_uom": self.product.uom_id.id,
+                "picking_id": dispatch.id,
+                "location_id": dispatch.location_id.id,
+                "location_dest_id": dispatch.location_dest_id.id,
+            }
+        )
+        dispatch.action_confirm()
+        move.quantity = 10
+        dispatch.beneficiary_count = 50
+        dispatch.beneficiary_area_id = self.area.id
+        dispatch.button_validate()
+
+        # A draft return does not yet reduce distributed.
+        return_rec = self.env["spp.drims.return"].create(
+            {
+                "incident_id": self.incident.id,
+                "original_picking_id": dispatch.id,
+                "warehouse_id": self.warehouse.id,
+                "line_ids": [(0, 0, {"product_id": self.product.id, "quantity_returned": 4})],
+            }
+        )
+        self.assertEqual(return_rec.total_value, 100.0)  # 4 * 25
+        self.incident.invalidate_recordset()
+        self.assertEqual(self.incident.drims_distributed_value, 250.0)
+
+        # Once the return is active, 100 of the 250 is no longer distributed.
+        return_rec.state = "confirmed"
+        self.incident.invalidate_recordset()
+        self.assertEqual(self.incident.drims_distributed_value, 150.0)
+
     def test_incident_picking_ids_relation(self):
         """Test incident has access to related pickings."""
         picking = self.env["stock.picking"].create(
