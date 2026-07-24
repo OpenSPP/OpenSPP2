@@ -26,21 +26,26 @@
                             global settings from DRIMS Configuration.
                         </p>
                     </group>
+                    <!-- OP#1158: the DRIMS threshold overrides are locked once the
+                         incident is closed, matching the base incident fields. -->
                     <group name="alert_thresholds_main">
                         <group name="stock_thresholds" string="Stock Thresholds">
                             <field
                                 name="drims_low_stock_threshold_override"
                                 placeholder="Leave empty for global setting"
+                                readonly="status == 'closed'"
                             />
                         </group>
                         <group name="expiry_thresholds" string="Expiry Thresholds">
                             <field
                                 name="drims_expiry_warning_override"
                                 placeholder="Leave empty for global setting"
+                                readonly="status == 'closed'"
                             />
                             <field
                                 name="drims_expiry_critical_override"
                                 placeholder="Leave empty for global setting"
+                                readonly="status == 'closed'"
                             />
                         </group>
                     </group>
@@ -49,6 +54,7 @@
                             <field
                                 name="drims_sla_warning_override"
                                 placeholder="Leave empty for global setting"
+                                readonly="status == 'closed'"
                             />
                         </group>
                         <group />

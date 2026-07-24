@@ -253,6 +253,9 @@ class DrimsDonation(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            # OP#1158: no new donations may be accepted for a closed incident.
+            if vals.get("incident_id"):
+                self.env["spp.hazard.incident"].browse(vals["incident_id"])._drims_ensure_open(_("accept a donation"))
             if vals.get("reference", _("New")) == _("New"):
                 vals["reference"] = self.env["ir.sequence"].next_by_code("spp.drims.donation") or _("New")
         records = super().create(vals_list)

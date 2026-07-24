@@ -359,11 +359,14 @@
         <field name="model">spp.hazard.incident</field>
         <field name="inherit_id" ref="spp_hazard.view_hazard_incident_form" />
         <field name="arch" type="xml">
-            <!-- Add coordination mode field in main info group -->
+            <!-- Add coordination mode field in main info group.
+                 OP#1158: locked once the incident is closed, matching the
+                 other incident fields. -->
             <xpath expr="//group[@name='main_info']" position="inside">
                 <field
                     name="coordination_mode_id"
                     options="{'no_create': True, 'no_open': True}"
+                    readonly="status == 'closed'"
                 />
             </xpath>
 

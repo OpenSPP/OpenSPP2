@@ -1,6 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 from datetime import date, timedelta
 
+from odoo.exceptions import UserError
 from odoo.tests import tagged
 
 from .common import DrimsTestCommon
@@ -361,3 +362,94 @@ class TestDrimsIncident(DrimsTestCommon):
             }
         )
         self.assertIn(picking, self.incident.drims_picking_ids)
+
+
+@tagged("post_install", "-at_install")
+class TestDrimsIncidentClosedGuards(DrimsTestCommon):
+    """OP#1158: limit DRIMS operations on incidents in the 'closed' state."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.future_date = date.today() + timedelta(days=30)
+        cls.closed_incident = cls.env["spp.hazard.incident"].create(
+            {
+                "name": "Closed Incident 1158",
+                "code": "CLOSED-1158",
+                "category_id": cls.hazard_category.id,
+                "start_date": "2024-01-01",
+                "status": "closed",
+            }
+        )
+
+    def _new_request(self, incident):
+        return self.env["spp.drims.request"].create(
+            {
+                "incident_id": incident.id,
+                "destination_area_id": self.area.id,
+                "date_needed": self.future_date,
+                "line_ids": [
+                    (0, 0, {"product_id": self.product.id, "quantity_requested": 10, "uom_id": self.product.uom_id.id})
+                ],
+            }
+        )
+
+    # ── requests: submit / approve / allocate blocked on a closed incident ──
+    def test_1158_submit_blocked_when_closed(self):
+        req = self._new_request(self.closed_incident)
+        with self.assertRaises(UserError):
+            req.action_submit()
+
+    def test_1158_approve_blocked_when_closed(self):
+        req = self._new_request(self.closed_incident)
+        with self.assertRaises(UserError):
+            req.action_approve()
+
+    def test_1158_allocate_blocked_when_closed(self):
+        req = self._new_request(self.closed_incident)
+        with self.assertRaises(UserError):
+            req.action_allocate()
+
+    def test_1158_submit_allowed_when_open(self):
+        """Sanity: the guard does not block an open incident."""
+        req = self._new_request(self.incident)  # common incident is active
+        req.action_submit()  # should not raise
+        self.assertIn(req.approval_state, ("pending", "submitted"))
+
+    # ── donations: no new donations accepted on a closed incident ──
+    def test_1158_donation_blocked_when_closed(self):
+        with self.assertRaises(UserError):
+            self.env["spp.drims.donation"].create(
+                {
+                    "incident_id": self.closed_incident.id,
+                    "warehouse_id": self.warehouse.id,
+                    "donor_name": "Closed Donor",
+                    "line_ids": [
+                        (0, 0, {"product_id": self.product.id, "quantity_pledged": 5, "uom_id": self.product.uom_id.id})
+                    ],
+                }
+            )
+
+    def test_1158_donation_allowed_when_open(self):
+        donation = self.env["spp.drims.donation"].create(
+            {
+                "incident_id": self.incident.id,
+                "warehouse_id": self.warehouse.id,
+                "donor_name": "Open Donor",
+                "line_ids": [
+                    (0, 0, {"product_id": self.product.id, "quantity_pledged": 5, "uom_id": self.product.uom_id.id})
+                ],
+            }
+        )
+        self.assertTrue(donation.exists())
+
+    # ── personnel: cannot deploy to a closed incident ──
+    def test_1158_personnel_blocked_when_closed(self):
+        with self.assertRaises(UserError):
+            self.env["spp.drims.personnel"].create(
+                {"name": "Closed Deployment", "incident_id": self.closed_incident.id}
+            )
+
+    def test_1158_personnel_allowed_when_open(self):
+        person = self.env["spp.drims.personnel"].create({"name": "Open Deployment", "incident_id": self.incident.id})
+        self.assertTrue(person.exists())

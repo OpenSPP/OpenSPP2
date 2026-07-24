@@ -380,6 +380,7 @@ class DrimsRequest(models.Model):
             limit=1,
         )
         for rec in self:
+            rec.incident_id._drims_ensure_open(_("submit a request"))  # OP#1158
             if not rec.line_ids:
                 raise UserError(_("Cannot submit request without items."))
             rec.state_id = submitted_state
@@ -426,6 +427,7 @@ class DrimsRequest(models.Model):
     def action_approve(self):
         """Approve the request (for direct approval without workflow)."""
         for rec in self:
+            rec.incident_id._drims_ensure_open(_("approve a request"))  # OP#1158
             if rec.approval_state not in ("pending", "submitted"):
                 raise UserError(_("Only pending requests can be approved."))
             rec.approval_state = "approved"
@@ -520,6 +522,7 @@ class DrimsRequest(models.Model):
         and the user is forced to pick a warehouse that actually has stock.
         """
         for rec in self:
+            rec.incident_id._drims_ensure_open(_("allocate a request"))  # OP#1158
             if rec.approval_state != "approved":
                 raise UserError(_("Only approved requests can be allocated."))
             if not rec.source_warehouse_id:

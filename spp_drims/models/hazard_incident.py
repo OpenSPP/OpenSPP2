@@ -3,7 +3,8 @@ import logging
 from collections import defaultdict
 from datetime import timedelta
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -360,6 +361,20 @@ class HazardIncident(models.Model):
                 ]
             )
             rec.drims_beneficiaries_served = sum(recent_pickings.mapped("beneficiary_count"))
+
+    def _drims_ensure_open(self, action):
+        """OP#1158: block DRIMS operations once an incident is closed.
+
+        Raises a UserError if any incident in the recordset is closed. Callers
+        pass a short label (e.g. "approve a request") for the message. An empty
+        recordset is a no-op.
+        """
+        for rec in self:
+            if rec.status == "closed":
+                raise UserError(
+                    _("Cannot %(action)s: incident '%(name)s' is closed.")
+                    % {"action": action, "name": rec.display_name}
+                )
 
     def action_view_drims_donations(self):
         """Open list view of donations for this incident.
