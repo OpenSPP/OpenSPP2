@@ -163,6 +163,12 @@ class TestDrimsIncident(DrimsTestCommon):
         self.incident.invalidate_recordset()
         self.assertIn(self.warehouse, self.incident.drims_warehouse_ids)
 
+    def test_1157_flag_as_alert(self):
+        """OP#1157: action_set_alert moves the incident into the Alert state."""
+        self.assertNotEqual(self.incident.status, "alert")
+        self.incident.action_set_alert()
+        self.assertEqual(self.incident.status, "alert")
+
     def test_incident_stock_value_initially_zero(self):
         """Test stock value is zero when no warehouse linked."""
         self.incident.invalidate_recordset()

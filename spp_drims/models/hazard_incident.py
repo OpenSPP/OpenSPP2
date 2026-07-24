@@ -362,6 +362,14 @@ class HazardIncident(models.Model):
             )
             rec.drims_beneficiaries_served = sum(recent_pickings.mapped("beneficiary_count"))
 
+    def action_set_alert(self):
+        """OP#1157: flag the incident into the 'alert' state.
+
+        The 'alert' status exists in the base state machine but had no setter;
+        this exposes it via the "Flag As Alert" header button.
+        """
+        self.write({"status": "alert"})
+
     def _drims_ensure_open(self, action):
         """OP#1158: block DRIMS operations once an incident is closed.
 

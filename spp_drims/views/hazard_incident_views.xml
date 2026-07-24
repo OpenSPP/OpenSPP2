@@ -16,6 +16,19 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
 
+            <!-- OP#1157: expose the 'alert' state via a header button (the base
+                 state machine has the state but no way to set it). Shown while
+                 the incident is active/recovery (not already alert, not closed). -->
+            <xpath expr="//header/field[@name='status']" position="before">
+                <button
+                    name="action_set_alert"
+                    type="object"
+                    string="Flag As Alert"
+                    class="btn-secondary"
+                    invisible="status in ('alert', 'closed')"
+                />
+            </xpath>
+
             <!-- Add Alert Thresholds page to notebook -->
             <xpath expr="//notebook" position="inside">
                 <page string="Alert Thresholds" name="alert_thresholds">
