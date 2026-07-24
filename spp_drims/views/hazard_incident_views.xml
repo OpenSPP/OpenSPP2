@@ -6,6 +6,16 @@
         <field name="model">spp.hazard.incident</field>
         <field name="inherit_id" ref="spp_hazard.view_hazard_incident_form" />
         <field name="arch" type="xml">
+            <!--
+                OP#1159: temporarily hide the "Impacts" tab on incidents,
+                pending the full impact-tracking implementation in #1155.
+                Done in the DRIMS-inherited view so it only applies where DRIMS
+                is installed and is trivial to revert once #1155 lands.
+            -->
+            <xpath expr="//page[@name='impacts']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
             <!-- Add Alert Thresholds page to notebook -->
             <xpath expr="//notebook" position="inside">
                 <page string="Alert Thresholds" name="alert_thresholds">
