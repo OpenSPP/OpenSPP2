@@ -58,10 +58,12 @@ class StorageBackend(models.Model):
     )
     s3_access_key = fields.Char(
         string="Access Key",
+        groups="spp_storage_backend.group_storage_admin",
         help="AWS Access Key ID or S3-compatible access key",
     )
     s3_secret_key = fields.Char(
         string="Secret Key",
+        groups="spp_storage_backend.group_storage_admin",
         help="AWS Secret Access Key or S3-compatible secret key",
     )
     s3_region = fields.Char(
@@ -78,6 +80,7 @@ class StorageBackend(models.Model):
     # Azure Configuration
     azure_connection_string = fields.Char(
         string="Connection String",
+        groups="spp_storage_backend.group_storage_admin",
         help="Azure Storage connection string",
     )
     azure_container = fields.Char(
@@ -363,9 +366,14 @@ class StorageBackend(models.Model):
         except ImportError as e:
             raise UserError(_("boto3 library is not installed. Please install it to use S3 storage.")) from e
 
+        # Credentials are group-restricted (admin-only readable); resolve them
+        # server-side so an operating user can use the backend without being
+        # able to read the secret. The value is only used to build the client.
+        # nosemgrep: odoo-sudo-without-context - read admin-only credential fields to build the client
+        creds = self.sudo()
         config = {
-            "aws_access_key_id": self.s3_access_key,
-            "aws_secret_access_key": self.s3_secret_key,
+            "aws_access_key_id": creds.s3_access_key,
+            "aws_secret_access_key": creds.s3_secret_key,
             "region_name": self.s3_region,
         }
 
@@ -452,7 +460,12 @@ class StorageBackend(models.Model):
                 _("azure-storage-blob library is not installed. Please install it to use Azure storage.")
             ) from e
 
-        service_client = BlobServiceClient.from_connection_string(self.azure_connection_string)
+        # Connection string is group-restricted (admin-only readable); resolve
+        # it server-side so an operating user can use the backend without being
+        # able to read the secret.
+        # nosemgrep: odoo-sudo-without-context - read admin-only credential field to build the client
+        connection_string = self.sudo().azure_connection_string
+        service_client = BlobServiceClient.from_connection_string(connection_string)
         return service_client.get_container_client(self.azure_container)
 
     def _store_azure(self, binary_data, path):

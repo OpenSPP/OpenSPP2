@@ -9,7 +9,7 @@ S3/Azure client builders) may resolve the credential values.
 """
 
 import sys
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase, tagged
@@ -56,10 +56,14 @@ class TestStorageCredentialAccess(TransactionCase):
                 "name": "Storage Admin User",
                 "login": "storage_admin_user",
                 "group_ids": [
-                    (6, 0, [
-                        cls.env.ref("base.group_user").id,
-                        cls.env.ref("spp_storage_backend.group_storage_admin").id,
-                    ])
+                    (
+                        6,
+                        0,
+                        [
+                            cls.env.ref("base.group_user").id,
+                            cls.env.ref("spp_storage_backend.group_storage_admin").id,
+                        ],
+                    )
                 ],
             }
         )
@@ -92,11 +96,18 @@ class TestStorageCredentialAccess(TransactionCase):
             AZURE_CONN,
         )
 
-    def test_base_user_search_read_excludes_credentials(self):
-        rows = self.env["spp.storage.backend"].with_user(self.base_user).search_read([], list(CRED_FIELDS))
+    def test_base_user_search_read_explicit_credentials_denied(self):
+        # Explicitly requesting a restricted field over RPC raises AccessError.
+        with self.assertRaises(AccessError):
+            self.env["spp.storage.backend"].with_user(self.base_user).search_read([], list(CRED_FIELDS))
+
+    def test_base_user_default_read_excludes_credentials(self):
+        # Reading the accessible fields must not surface the credentials.
+        rows = self.env["spp.storage.backend"].with_user(self.base_user).search_read([])
+        self.assertTrue(rows)
         for row in rows:
             for field in CRED_FIELDS:
-                self.assertFalse(row.get(field), f"{field} leaked via search_read")
+                self.assertNotIn(field, row, f"{field} leaked via default search_read")
 
     def test_credential_fields_are_group_restricted(self):
         info = self.env["spp.storage.backend"].fields_get(list(CRED_FIELDS))
@@ -122,7 +133,7 @@ class TestStorageCredentialAccess(TransactionCase):
         """The S3 client is built server-side with the real credentials even
         when the operating user cannot read them (use-without-see via sudo)."""
         fake_boto3 = MagicMock()
-        with patch_dict_modules({"boto3": fake_boto3}):
+        with patch.dict(sys.modules, {"boto3": fake_boto3}):
             self.s3_backend.with_user(self.base_user)._get_s3_client()
         _, kwargs = fake_boto3.client.call_args
         self.assertEqual(kwargs.get("aws_secret_access_key"), S3_SECRET)
@@ -130,29 +141,8 @@ class TestStorageCredentialAccess(TransactionCase):
 
     def test_azure_client_builder_resolves_credentials_for_non_admin(self):
         fake_module = MagicMock()
-        with patch_dict_modules({"azure": MagicMock(), "azure.storage": MagicMock(), "azure.storage.blob": fake_module}):
+        mods = {"azure": MagicMock(), "azure.storage": MagicMock(), "azure.storage.blob": fake_module}
+        with patch.dict(sys.modules, mods):
             self.azure_backend.with_user(self.base_user)._get_azure_client()
         args, _ = fake_module.BlobServiceClient.from_connection_string.call_args
         self.assertEqual(args[0], AZURE_CONN)
-
-
-class patch_dict_modules:
-    """Context manager to temporarily inject modules into sys.modules."""
-
-    def __init__(self, mapping):
-        self.mapping = mapping
-        self._saved = {}
-
-    def __enter__(self):
-        for name, mod in self.mapping.items():
-            self._saved[name] = sys.modules.get(name)
-            sys.modules[name] = mod
-        return self
-
-    def __exit__(self, *exc):
-        for name, prev in self._saved.items():
-            if prev is None:
-                sys.modules.pop(name, None)
-            else:
-                sys.modules[name] = prev
-        return False
