@@ -5,7 +5,7 @@
     "inventory management. Includes geographic hierarchy, government agencies, "
     "and approval thresholds per DMC requirements.",
     "category": "OpenSPP/Inventory",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.0.1",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -39,6 +39,7 @@
         # Second pass: enable multitier (must load after tiers are created)
         "data/approval_config_multitier.xml",
     ],
+    "post_init_hook": "post_init_hook",
     "application": False,
     "installable": True,
     "auto_install": False,

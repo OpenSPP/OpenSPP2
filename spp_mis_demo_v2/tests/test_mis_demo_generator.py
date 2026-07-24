@@ -13,6 +13,19 @@ class TestMISDemoGenerator(TransactionCase):
         super().setUpClass()
         # Create test country for locale
         cls.test_country = cls.env.ref("base.us")
+        # The module's post_init_hook archives the default-credential demo users
+        # on a database without demo data (the test harness installs without
+        # demo). The demo CR generator drives a tiered approval workflow that can
+        # only be performed by the designated demo validator users, so reactivate
+        # them here: running the generator is an explicit demo action, exactly the
+        # deliberate reactivation the hook's warning describes.
+        for xmlid in (
+            "spp_mis_demo_v2.demo_user_cr_local_validator",
+            "spp_mis_demo_v2.demo_user_cr_hq_validator",
+        ):
+            user = cls.env.ref(xmlid, raise_if_not_found=False)
+            if user:
+                user.active = True
 
     def test_generator_creation(self):
         """Test that generator can be created with defaults."""

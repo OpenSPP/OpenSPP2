@@ -5,10 +5,14 @@
     These are demo operator/staff accounts with different roles for testing
     access control, approval workflows, and multi-user scenarios.
 
-    IMPORTANT: For security reasons, these demo users should ONLY be loaded in
+    IMPORTANT: For security reasons, these demo users should ONLY be active in
     demo/testing environments. Never use in production.
 
-    All demo users share the same password: "demo" (hashed in the system)
+    All demo users share the same password: "demo" (hashed in the system).
+    They load via the manifest `data` section, so they exist after any install.
+    On a production database (installed without demo data) this module's
+    post_init_hook (see __init__.py) archives them so the well-known password
+    cannot be used to log in; on a demo/evaluation database they stay active.
 -->
 <odoo noupdate="1">
     <!-- ═══════════════════════════════════════════════════════════════════════

@@ -26,6 +26,12 @@
     - officer.galle@drims.gov.lk      - Field Officer
     - secretary@drims.gov.lk          - Secretary (Viewer, for dashboard tutorial)
     - director@drims.gov.lk           - Director (Viewer)
+
+    SECURITY: these users share the well-known password "demo" and load via the
+    manifest `data` section, so they exist after any install. On a production
+    database (installed without demo data) they are archived by this module's
+    post_init_hook (see __init__.py) so the well-known password cannot be used
+    to log in; on a demo/evaluation database they stay active.
     -->
 
     <!-- ==================== SUPER ADMIN ==================== -->

@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
+    <!--
+        SECURITY: the res.users below use the shared, well-known password
+        "demo". They load via the manifest `data` section, so they exist after
+        any install. On a production database (installed without demo data)
+        these default-credential users are archived by this module's
+        post_init_hook (see __init__.py); on a demo/evaluation database they
+        stay active. Do not rely on these accounts outside a demo instance.
+    -->
     <!-- Extend Local Registrar role to include GRM Manager access -->
     <record id="spp_user_roles.local_role_registrar" model="res.users.role">
         <field
