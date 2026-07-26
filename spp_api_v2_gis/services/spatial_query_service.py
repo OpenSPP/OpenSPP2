@@ -155,7 +155,12 @@ class SpatialQueryService:
             )
 
         # Fall back to area-based query
-        result = self._query_by_area(geometry_json, filters)
+        # A failed statement here would otherwise leave the transaction aborted
+        # for every subsequent query on this cursor, including later geometries
+        # in query_statistics_batch. The savepoint contains it.
+        # flush=False keeps unrelated pending ORM writes out of the rollback.
+        with self.env.cr.savepoint(flush=False):
+            result = self._query_by_area(geometry_json, filters)
         _logger.info(
             f"Spatial query using area fallback: {result['total_count']} registrants in {result['areas_matched']} areas"
         )

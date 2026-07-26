@@ -1,9 +1,17 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Tests for batch spatial query service."""
 
+import json
 from datetime import date
 
 from odoo.tests.common import TransactionCase
+from odoo.tools import mute_logger
+
+# Polygon covering roughly lon 27.9..28.1 / lat -2.1..-1.9 (East Africa).
+QUERY_POLYGON = {
+    "type": "Polygon",
+    "coordinates": [[[27.9, -2.1], [28.1, -2.1], [28.1, -1.9], [27.9, -1.9], [27.9, -2.1]]],
+}
 
 
 class TestBatchSpatialQueryService(TransactionCase):
@@ -233,6 +241,84 @@ class TestBatchSpatialQueryService(TransactionCase):
         self.assertEqual(len(result["results"]), 0)
         self.assertEqual(result["summary"]["total_count"], 0)
         self.assertEqual(result["summary"]["geometries_queried"], 0)
+
+
+class TestBatchQueryDoesNotPoisonLaterGeometries(TransactionCase):
+    """A geometry that fails inside PostgreSQL must not abort the rest of the batch.
+
+    ``query_statistics`` only wraps its coordinate attempt in a savepoint; the
+    area fallback it calls into runs raw SQL unguarded. If that fallback hits a
+    genuine database error (not a Python-level ``ValueError``), the whole
+    transaction is left aborted, and every later geometry in the same batch
+    call fails too, since even opening a new savepoint requires a live
+    transaction.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        """Create an area covering the query polygon plus a registrant in it."""
+        super().setUpClass()
+
+        cls.area = cls.env["spp.area"].create(
+            {
+                "draft_name": "Batch Poison Test Area",
+                "code": "BATCH-POISON-001",
+            }
+        )
+        cls.env.cr.execute(
+            """
+            UPDATE spp_area
+            SET geo_polygon = ST_SetSRID(ST_GeomFromGeoJSON(%s), 4326)
+            WHERE id = %s
+            """,
+            [json.dumps(QUERY_POLYGON), cls.area.id],
+        )
+
+        cls.group = cls.env["res.partner"].create(
+            {
+                "name": "Batch Poison Test Household",
+                "is_registrant": True,
+                "is_group": True,
+                "area_id": cls.area.id,
+            }
+        )
+
+    def test_invalid_geometry_does_not_abort_later_geometries(self):
+        """A DB-level failure on one geometry must not poison the geometries after it."""
+        from ..services.spatial_query_service import SpatialQueryService
+
+        service = SpatialQueryService(self.env)
+
+        geometries = [
+            {
+                "id": "invalid",
+                # Genuinely invalid GeoJSON: ST_GeomFromGeoJSON rejects the type at
+                # the database level, so this fails the same way a real bad request
+                # would, rather than being simulated with a mock.
+                "geometry": {"type": "InvalidType", "coordinates": []},
+            },
+            {
+                "id": "valid",
+                "geometry": QUERY_POLYGON,
+            },
+        ]
+
+        with mute_logger("odoo.sql_db"):
+            result = service.query_statistics_batch(geometries=geometries)
+
+        self.assertEqual(len(result["results"]), 2)
+
+        invalid_result = next(r for r in result["results"] if r["id"] == "invalid")
+        self.assertEqual(invalid_result["query_method"], "error")
+
+        valid_result = next(r for r in result["results"] if r["id"] == "valid")
+        self.assertEqual(
+            valid_result["query_method"],
+            "area_fallback",
+            "a DB error on an earlier geometry aborted the transaction for the rest of the batch",
+        )
+        self.assertEqual(valid_result["total_count"], 1)
+        self.assertEqual(valid_result["areas_matched"], 1)
 
 
 class TestBatchSpatialQuerySchemas(TransactionCase):
