@@ -176,11 +176,11 @@ class SpatialQueryService:
         """
         # Build WHERE clause from filters
         where_clauses = ["p.is_registrant = true"]
-        params = [geometry_json]
+        filter_params = []
 
         if filters.get("is_group") is not None:
             where_clauses.append("p.is_group = %s")
-            params.append(filters["is_group"])
+            filter_params.append(filters["is_group"])
 
         if filters.get("disabled") is not None:
             if filters["disabled"]:
@@ -209,8 +209,8 @@ class SpatialQueryService:
               )
         """  # nosec B608 - SQL clauses built from hardcoded fragments, data uses %s params
 
-        # Add geometry parameter at the beginning
-        params = [geometry_json] + params[1:]
+        # Params ordered to match SQL: filter params (in where_clause) then geometry
+        params = filter_params + [geometry_json]
 
         self.env.cr.execute(query, params)
         registrant_ids = [row[0] for row in self.env.cr.fetchall()]
