@@ -1,10 +1,10 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
-"""Tests for the area fallback taken when the coordinate query fails.
+"""Tests for the area fallbacks taken when a coordinate query fails.
 
-``query_statistics`` catches failures from the coordinate-based query and
-retries with the area-based query on the same cursor. A failed statement
-aborts the PostgreSQL transaction, so the coordinate query has to run inside a
-savepoint for the fallback to be reachable at all.
+``query_statistics`` and ``query_proximity`` both catch failures from their
+coordinate-based query and retry with the area-based query on the same cursor.
+A failed statement aborts the PostgreSQL transaction, so the coordinate query
+has to run inside a savepoint for either fallback to be reachable at all.
 """
 
 import json
@@ -22,8 +22,17 @@ QUERY_POLYGON = {
 }
 
 
+# Centre of QUERY_POLYGON, used as the proximity reference point.
+REFERENCE_POINTS = [{"longitude": 28.0, "latitude": -2.0}]
+
+
 def _failing_coordinate_query(self, geometry_json, filters):
     """Stand-in for a coordinate query that dies inside PostgreSQL."""
+    self.env.cr.execute("SELECT id FROM spp_table_that_does_not_exist")
+
+
+def _failing_proximity_query(self, reference_points, radius_meters, relation, filters):
+    """Stand-in for a proximity query that dies inside PostgreSQL."""
     self.env.cr.execute("SELECT id FROM spp_table_that_does_not_exist")
 
 
@@ -91,6 +100,75 @@ class TestCoordinateQueryFallback(TransactionCase):
             self.assertLogs(SERVICE_LOGGER, level="WARNING"),
         ):
             service.query_statistics(geometry=QUERY_POLYGON)
+
+        self.env.cr.execute("SELECT id FROM res_partner WHERE id = %s", [self.group.id])
+        self.assertEqual(self.env.cr.fetchall(), [(self.group.id,)])
+
+
+class TestProximityQueryFallback(TransactionCase):
+    """query_proximity has the same fallback, and needs the same savepoint."""
+
+    @classmethod
+    def setUpClass(cls):
+        """Create an area covering the reference point plus a registrant in it."""
+        super().setUpClass()
+
+        cls.area = cls.env["spp.area"].create(
+            {
+                "draft_name": "Proximity Fallback Test Area",
+                "code": "FALLBACK-AREA-002",
+            }
+        )
+        cls.env.cr.execute(
+            """
+            UPDATE spp_area
+            SET geo_polygon = ST_SetSRID(ST_GeomFromGeoJSON(%s), 4326)
+            WHERE id = %s
+            """,
+            [json.dumps(QUERY_POLYGON), cls.area.id],
+        )
+
+        cls.group = cls.env["res.partner"].create(
+            {
+                "name": "Proximity Fallback Test Household",
+                "is_registrant": True,
+                "is_group": True,
+                "area_id": cls.area.id,
+            }
+        )
+
+    def test_area_fallback_runs_after_failed_proximity_query(self):
+        """A SQL error in the proximity query degrades to the area query."""
+        from ..services.spatial_query_service import SpatialQueryService
+
+        service = SpatialQueryService(self.env)
+
+        with (
+            patch.object(SpatialQueryService, "_proximity_by_coordinates", _failing_proximity_query),
+            mute_logger("odoo.sql_db"),
+            self.assertLogs(SERVICE_LOGGER, level="WARNING") as captured,
+        ):
+            result = service.query_proximity(reference_points=REFERENCE_POINTS, radius_km=10)
+
+        self.assertEqual(result["query_method"], "area_fallback")
+        self.assertIn(self.group.id, result["registrant_ids"])
+        self.assertTrue(
+            any("Coordinate-based proximity query failed" in message for message in captured.output),
+            f"expected a fallback warning, got {captured.output}",
+        )
+
+    def test_cursor_stays_usable_after_failed_proximity_query(self):
+        """The transaction is still usable once the fallback has completed."""
+        from ..services.spatial_query_service import SpatialQueryService
+
+        service = SpatialQueryService(self.env)
+
+        with (
+            patch.object(SpatialQueryService, "_proximity_by_coordinates", _failing_proximity_query),
+            mute_logger("odoo.sql_db"),
+            self.assertLogs(SERVICE_LOGGER, level="WARNING"),
+        ):
+            service.query_proximity(reference_points=REFERENCE_POINTS, radius_km=10)
 
         self.env.cr.execute("SELECT id FROM res_partner WHERE id = %s", [self.group.id])
         self.assertEqual(self.env.cr.fetchall(), [(self.group.id,)])

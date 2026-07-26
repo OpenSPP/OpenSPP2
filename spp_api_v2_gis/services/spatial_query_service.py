@@ -489,7 +489,11 @@ class SpatialQueryService:
 
         # Try coordinate-based query first
         try:
-            result = self._proximity_by_coordinates(reference_points, radius_meters, relation, filters)
+            # A failed statement aborts the whole transaction, which would make
+            # the area fallback below fail too. The savepoint contains it.
+            # flush=False keeps unrelated pending ORM writes out of the rollback.
+            with self.env.cr.savepoint(flush=False):
+                result = self._proximity_by_coordinates(reference_points, radius_meters, relation, filters)
             if result["total_count"] > 0:
                 _logger.info(
                     "Proximity query (%s, %.1f km) using coordinates: %s registrants found",
