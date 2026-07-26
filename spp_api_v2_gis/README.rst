@@ -53,23 +53,23 @@ API Endpoints
 
 **OGC API - Features (primary interface)**
 
-+-------------------------------------------+--------+-----------------------------+
-| Endpoint                                  | Method | Description                 |
-+===========================================+========+=============================+
-| ``/gis/ogc/``                             | GET    | OGC API landing page        |
-+-------------------------------------------+--------+-----------------------------+
-| ``/gis/ogc/conformance``                  | GET    | OGC conformance classes     |
-+-------------------------------------------+--------+-----------------------------+
-| ``/gis/ogc/collections``                  | GET    | List feature collections    |
-+-------------------------------------------+--------+-----------------------------+
-| ``/gis/ogc/collections/{id}``             | GET    | Collection metadata         |
-+-------------------------------------------+--------+-----------------------------+
-| ``/gis/ogc/collections/{id}/items``       | GET    | Feature items (GeoJSON)     |
-+-------------------------------------------+--------+-----------------------------+
-| ``/gis/ogc/collections/{id}/items/{fid}`` | GET    | Single feature              |
-+-------------------------------------------+--------+-----------------------------+
-| ``/gis/ogc/collections/{id}/qml``         | GET    | QGIS style file (extension) |
-+-------------------------------------------+--------+-----------------------------+
++-------------------------------------------+--------+------------------------------+
+| Endpoint                                  | Method | Description                  |
++===========================================+========+==============================+
+| ``/gis/ogc/``                             | GET    | OGC API landing page         |
++-------------------------------------------+--------+------------------------------+
+| ``/gis/ogc/conformance``                  | GET    | OGC conformance classes      |
++-------------------------------------------+--------+------------------------------+
+| ``/gis/ogc/collections``                  | GET    | List feature collections     |
++-------------------------------------------+--------+------------------------------+
+| ``/gis/ogc/collections/{id}``             | GET    | Collection metadata          |
++-------------------------------------------+--------+------------------------------+
+| ``/gis/ogc/collections/{id}/items``       | GET    | Feature items (GeoJSON)      |
++-------------------------------------------+--------+------------------------------+
+| ``/gis/ogc/collections/{id}/items/{fid}`` | GET    | Single feature               |
++-------------------------------------------+--------+------------------------------+
+| ``/gis/ogc/collections/{id}/qml``         | GET    | QGIS style file (extension)  |
++-------------------------------------------+--------+------------------------------+
 
 **Additional endpoints**
 
@@ -155,6 +155,15 @@ Dependencies
 
 Changelog
 =========
+
+19.0.2.0.1
+~~~~~~~~~~
+
+- fix: bind coordinate query parameters in the order the SQL expects
+- fix: run the coordinate query inside a savepoint so the area fallback
+  stays reachable
+- fix: add ``geofence`` and ``incident`` scope actions so geofence
+  endpoints can be granted
 
 19.0.2.0.0
 ~~~~~~~~~~
