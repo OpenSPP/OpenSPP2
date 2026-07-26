@@ -1,4 +1,5 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+from . import test_api_client_scope
 from . import test_catalog_service
 from . import test_export_service
 from . import test_geofence_model
