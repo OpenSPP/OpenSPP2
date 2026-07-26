@@ -134,7 +134,11 @@ class SpatialQueryService:
 
         # Try coordinate-based query first (preferred method)
         try:
-            result = self._query_by_coordinates(geometry_json, filters)
+            # A failed statement aborts the whole transaction, which would make
+            # the area fallback below fail too. The savepoint contains it.
+            # flush=False keeps unrelated pending ORM writes out of the rollback.
+            with self.env.cr.savepoint(flush=False):
+                result = self._query_by_coordinates(geometry_json, filters)
             if result["total_count"] > 0:
                 _logger.info(
                     "Spatial query using coordinates: %s registrants found",

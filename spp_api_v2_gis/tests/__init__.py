@@ -7,6 +7,7 @@ from . import test_ogc_features
 from . import test_ogc_http
 from . import test_qml_template_service
 from . import test_spatial_query_coordinates
+from . import test_spatial_query_fallback
 from . import test_spatial_query_service
 from . import test_statistics_endpoint
 from . import test_batch_query
