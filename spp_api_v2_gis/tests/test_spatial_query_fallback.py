@@ -172,3 +172,62 @@ class TestProximityQueryFallback(TransactionCase):
 
         self.env.cr.execute("SELECT id FROM res_partner WHERE id = %s", [self.group.id])
         self.assertEqual(self.env.cr.fetchall(), [(self.group.id,)])
+
+
+class TestProximityAreaFallbackDoesNotPoisonTransaction(TransactionCase):
+    """query_proximity's own area fallback must not leave the transaction aborted.
+
+    ``query_proximity`` wraps its coordinate attempt in a savepoint, but the
+    area fallback it calls into afterwards (``_proximity_by_area``) runs
+    unguarded. If that fallback hits a genuine database error, the whole
+    transaction is left aborted, and every later query on the same cursor
+    fails too, since even opening a new savepoint requires a live
+    transaction. query_proximity has no batch caller to observe this
+    through today, so it surfaces as an exception from query_proximity
+    itself followed by a poisoned cursor for whatever runs next.
+    """
+
+    def test_non_finite_radius_does_not_abort_the_transaction(self):
+        """A DB-level failure in the area fallback must not poison later queries."""
+        from ..services.spatial_query_service import SpatialQueryService
+
+        service = SpatialQueryService(self.env)
+
+        # _proximity_by_coordinates raises a plain ValueError before it ever
+        # touches the database, since res.partner has no "coordinates" field
+        # in this module's own test environment (spp_registrant_gis is not
+        # installed). That failure is caught and recovered by the
+        # coordinate leg's own savepoint, exactly as intended.
+        #
+        # query_proximity then falls back to _proximity_by_area, which
+        # shares the same temp-table helper and is therefore handed the same
+        # non-finite radius. ST_Buffer rejects a non-finite distance
+        # argument at the database level ("distance must be a finite
+        # value"), a genuine, deterministic PostGIS error, not a simulated
+        # one: unlike an out-of-range or non-finite *coordinate*, which
+        # PostGIS/GEOS only coerces or fails on inconsistently depending on
+        # the exact computation involved, a non-finite *buffer distance* is
+        # rejected by a straightforward argument check every time. Only the
+        # coordinate leg is savepoint-protected, so this second failure (in
+        # the fallback) aborts the transaction.
+        reference_points = [{"longitude": 28.0, "latitude": -2.0}]
+
+        # Deliberately not self.assertRaises: TransactionCase overrides
+        # assertRaises (see BaseCase._assertRaises in odoo/tests/common.py)
+        # to wrap the block in its own savepoint and roll it back on the
+        # expected exception. That would recover the transaction as a side
+        # effect of the assertion itself, hiding exactly the bug this test
+        # exists to catch. A plain try/except leaves the transaction exactly
+        # as query_proximity left it, for the assertion below to see.
+        raised = None
+        with mute_logger("odoo.sql_db"):
+            try:
+                service.query_proximity(reference_points=reference_points, radius_km=float("nan"))
+            except Exception as exc:
+                raised = exc
+        self.assertIsNotNone(raised, "query_proximity should raise when the area fallback hits a DB error")
+
+        # An ordinary ORM query must still work; without the savepoint around
+        # the area fallback, the aborted transaction raises
+        # InFailedSqlTransaction here instead.
+        self.env["res.partner"].search_count([])

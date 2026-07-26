@@ -520,7 +520,11 @@ class SpatialQueryService:
             )
 
         # Fall back to area-based query
-        result = self._proximity_by_area(reference_points, radius_meters, relation, filters)
+        # A failed statement here would otherwise leave the transaction aborted
+        # for every subsequent query on this cursor. The savepoint contains it.
+        # flush=False keeps unrelated pending ORM writes out of the rollback.
+        with self.env.cr.savepoint(flush=False):
+            result = self._proximity_by_area(reference_points, radius_meters, relation, filters)
         _logger.info(
             "Proximity query (%s, %.1f km) using area fallback: %s registrants in %s areas",
             relation,
