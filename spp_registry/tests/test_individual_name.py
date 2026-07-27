@@ -278,7 +278,7 @@ class TestComputeCalcAge(RegistryCommon):
 
 
 @tagged("post_install", "-at_install")
-class TestCheckAgeIsInteger(RegistryCommon):
+class TestAgeCreationBehavior(RegistryCommon):
     """Creation behavior around the computed ``age`` field.
 
     ``age`` is a NON-stored compute derived from ``birthdate``
@@ -291,9 +291,9 @@ class TestCheckAgeIsInteger(RegistryCommon):
 
     These tests pin the observable behavior the removal must preserve:
     an individual can be created with or without a birthdate. They also
-    guard against a naive re-introduction (e.g. constraining on
-    ``birthdate`` or storing the compute), which would make the
-    birthdate-less case raise on ``age == "No Birthdate!"``.
+    guard against a naive re-introduction that stores the compute and
+    keeps an isdigit-style constraint, which would make the birthdate-less
+    case raise on ``age == "No Birthdate!"`` at create time.
     """
 
     def test_individual_without_birthdate_can_be_created(self):
