@@ -173,6 +173,40 @@ class AlertRule(models.Model):
         help="Number of alerts created by this rule",
     )
 
+    eval_as_user_id = fields.Many2one(
+        "res.users",
+        string="Evaluated As",
+        default=lambda self: self.env.user,
+        readonly=True,
+        help="User whose record-rule visibility bounds this rule's monitored search. "
+        "Set to whoever last defined what the rule targets, so evaluation can never "
+        "surface records the configurer cannot see. System-managed; not editable.",
+    )
+
+    # Fields that define what a rule targets. Changing any of them re-binds the
+    # evaluation identity to the editor (see write), so a rule can never be
+    # repointed to surface records its editor is not allowed to see.
+    _EVAL_TARGETING_FIELDS = ("model_id", "domain_filter", "monitored_field_id", "date_field_id", "rule_type")
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Force the evaluation identity to the creator; it is never client-supplied."""
+        for vals in vals_list:
+            vals.pop("eval_as_user_id", None)
+        return super().create(vals_list)
+
+    def write(self, vals):
+        """Re-bind the evaluation identity to the editor when targeting changes.
+
+        eval_as_user_id is never client-writable directly; it tracks whoever last
+        defined what the rule targets, so record rules bound the monitored search
+        to that user's visibility regardless of the elevated cron that runs it.
+        """
+        vals.pop("eval_as_user_id", None)
+        if any(field in vals for field in self._EVAL_TARGETING_FIELDS):
+            vals["eval_as_user_id"] = self.env.uid
+        return super().write(vals)
+
     def _compute_alert_count(self):
         """Compute the number of alerts associated with each rule."""
         alert_data = self.env["spp.alert"].read_group(
@@ -294,15 +328,17 @@ class AlertRule(models.Model):
             _logger.warning("Alert rule '%s' (ID: %d): model '%s' not found, skipping.", self.name, self.id, model_name)
             return 0
 
-        # Evaluate the monitored search as the rule's owner, not the (elevated)
-        # cron/superuser identity that may be triggering the run. Record rules are
-        # then enforced against whoever configured the rule, so a non-admin author
-        # cannot surface — and leak, via alerts readable by all managers — records
-        # they are not allowed to see. An admin-authored rule keeps its wider scope.
-        # create_uid is an ORM-readonly system field (not user input), so switching
-        # to it is safe despite odoo-with-user-unvalidated.
-        if self.create_uid:
-            Model = Model.with_user(self.create_uid.id)  # nosemgrep: odoo-with-user-unvalidated
+        # Evaluate the monitored search as the user who configured what the rule
+        # targets (eval_as_user_id), not the elevated cron/superuser identity that
+        # may be triggering the run. Record rules are then enforced against the
+        # configurer, so a non-admin cannot surface — and leak, via alerts readable
+        # by all managers — records they are not allowed to see. eval_as_user_id is
+        # system-managed (re-bound to the editor on any targeting change) and never
+        # client-writable, so it cannot be forged to escalate. create_uid is the
+        # fallback for rows predating this field.
+        eval_user = self.eval_as_user_id or self.create_uid
+        if eval_user:
+            Model = Model.with_user(eval_user.id)  # nosemgrep: odoo-with-user-unvalidated
 
         # Parse domain filter
         try:

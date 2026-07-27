@@ -86,6 +86,18 @@ class TestRuleEvaluationAccess(AlertsTestCommon):
     def _alert_res_ids(self, rule):
         return set(self.env["spp.alert"].search([("rule_id", "=", rule.id)]).mapped("res_id"))
 
+    def _set_eval_owner(self, rule, user):
+        """Force a rule's ownership + evaluation identity to `user` (bypasses ORM).
+
+        Stands in for a rule authored by that user (create_uid / eval_as_user_id
+        are system-managed and not writable through the ORM).
+        """
+        self.env.cr.execute(
+            "UPDATE spp_alert_rule SET create_uid = %s, eval_as_user_id = %s WHERE id = %s",
+            (user.id, user.id, rule.id),
+        )
+        rule.invalidate_recordset(["create_uid", "eval_as_user_id"])
+
     def test_manager_cannot_see_hidden_partner(self):
         """Sanity: the record rule actually hides the partner from the manager."""
         visible_to_manager = self.env["res.partner"].with_user(self.user_manager).search([]).ids
@@ -117,16 +129,69 @@ class TestRuleEvaluationAccess(AlertsTestCommon):
     def test_unrestricted_owner_rule_still_spans_all_records(self):
         """A rule whose owner can see all partners keeps system-wide scope (intended)."""
         rule = self._manager_rule(name="Unrestricted Owned Rule")
-        # Reassign ownership to the unrestricted user (create_uid is not ORM-writable).
-        self.env.cr.execute(
-            "UPDATE spp_alert_rule SET create_uid = %s WHERE id = %s",
-            (self.user_unrestricted.id, rule.id),
-        )
-        rule.invalidate_recordset(["create_uid"])
-        self.assertEqual(rule.create_uid, self.user_unrestricted)
+        self._set_eval_owner(rule, self.user_unrestricted)
 
         rule.with_user(SUPERUSER_ID)._evaluate_rule()
 
         res_ids = self._alert_res_ids(rule)
         self.assertIn(self.partner_visible.id, res_ids)
         self.assertIn(self.partner_hidden.id, res_ids)
+
+    def test_manager_repointing_owner_rule_de_escalates(self):
+        """A manager who repoints an unrestricted-owned rule re-binds it to themselves.
+
+        Managers have model-wide write on rules; without re-binding, editing an
+        admin-authored rule's targeting would still evaluate as the admin and leak.
+        """
+        rule = self._manager_rule(name="Admin Authored Rule")
+        self._set_eval_owner(rule, self.user_unrestricted)
+
+        # Manager repoints the rule's domain (still matching both partners).
+        new_domain = (
+            f'[("id", "in", [{self.partner_visible.id}, {self.partner_hidden.id}]), ("active", "in", [True, False])]'
+        )
+        rule.with_user(self.user_manager).write({"domain_filter": new_domain})
+        self.assertEqual(rule.eval_as_user_id, self.user_manager)
+
+        rule.with_user(SUPERUSER_ID)._evaluate_rule()
+        res_ids = self._alert_res_ids(rule)
+        self.assertIn(self.partner_visible.id, res_ids)
+        self.assertNotIn(self.partner_hidden.id, res_ids)
+
+    def test_manager_editing_nontargeting_field_preserves_owner_scope(self):
+        """Editing a non-targeting field must NOT re-bind the evaluation identity."""
+        rule = self._manager_rule(name="Admin Authored Rule 2")
+        self._set_eval_owner(rule, self.user_unrestricted)
+
+        # priority is not a targeting field — the rule still targets what the owner defined.
+        rule.with_user(self.user_manager).write({"priority": "high"})
+        self.assertEqual(rule.eval_as_user_id, self.user_unrestricted)
+
+        rule.with_user(SUPERUSER_ID)._evaluate_rule()
+        res_ids = self._alert_res_ids(rule)
+        self.assertIn(self.partner_hidden.id, res_ids)
+
+    def test_eval_as_user_id_not_client_writable(self):
+        """A client cannot forge the evaluation identity via create or write."""
+        rule = (
+            self.env["spp.alert.rule"]
+            .with_user(self.user_manager)
+            .create(
+                {
+                    "name": "Forge Attempt Rule",
+                    "alert_type_id": self.alert_type_threshold.id,
+                    "model_id": self.partner_model.id,
+                    "rule_type": "threshold",
+                    "monitored_field_id": self.field_color.id,
+                    "comparison": "lt",
+                    "threshold_value": 8.0,
+                    "domain_filter": self.domain_both,
+                    "priority": "medium",
+                    "eval_as_user_id": self.user_unrestricted.id,
+                }
+            )
+        )
+        self.assertEqual(rule.eval_as_user_id, self.user_manager)
+
+        rule.with_user(self.user_manager).write({"eval_as_user_id": self.user_unrestricted.id})
+        self.assertEqual(rule.eval_as_user_id, self.user_manager)
