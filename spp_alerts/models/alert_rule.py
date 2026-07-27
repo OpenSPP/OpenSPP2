@@ -294,6 +294,14 @@ class AlertRule(models.Model):
             _logger.warning("Alert rule '%s' (ID: %d): model '%s' not found, skipping.", self.name, self.id, model_name)
             return 0
 
+        # Evaluate the monitored search as the rule's owner, not the (elevated)
+        # cron/superuser identity that may be triggering the run. Record rules are
+        # then enforced against whoever configured the rule, so a non-admin author
+        # cannot surface — and leak, via alerts readable by all managers — records
+        # they are not allowed to see. An admin-authored rule keeps its wider scope.
+        if self.create_uid:
+            Model = Model.with_user(self.create_uid.id)
+
         # Parse domain filter
         try:
             domain = safe_eval.safe_eval(  # nosemgrep: odoo-unsafe-safe-eval
@@ -453,9 +461,9 @@ class AlertRule(models.Model):
     # Cron
     # -------------------------------------------------------------------------
 
-    # Cron runs as superuser (OdooBot). Rule evaluation searches monitored models with
-    # full access, bypassing record rules. This is intentional — only managers can create
-    # rules, so the monitored scope is admin-controlled.
+    # Cron runs as superuser (OdooBot), but each rule's monitored search is evaluated as
+    # the rule's owner (see _evaluate_rule), so record rules still bound what a rule can
+    # surface to whoever configured it — the elevated cron identity does not widen scope.
     @api.model
     def _cron_evaluate_rules(self):
         """Scheduled action to evaluate all active, configured rules."""
