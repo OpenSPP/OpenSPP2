@@ -28,7 +28,7 @@ class SpatialQueryResponse(BaseModel):
     )
     query_method: str = Field(
         ...,
-        description="Method used for query (coordinates, area_fallback, or 'suppressed' when the count is withheld for k-anonymity)",
+        description="Query method: coordinates, area_fallback, or 'suppressed' (count withheld for k-anonymity)",
     )
     areas_matched: int = Field(..., description="Number of areas intersecting query polygon")
     statistics: dict = Field(..., description="Computed aggregate statistics")
@@ -83,7 +83,7 @@ class BatchResultItem(BaseModel):
     )
     query_method: str = Field(
         ...,
-        description="Method used for query (coordinates, area_fallback, or 'suppressed' when the count is withheld for k-anonymity)",
+        description="Query method: coordinates, area_fallback, or 'suppressed' (count withheld for k-anonymity)",
     )
     areas_matched: int = Field(..., description="Number of areas intersecting this geometry")
     statistics: dict = Field(..., description="Statistics computed for this geometry")
@@ -190,7 +190,7 @@ class ProximityQueryResponse(BaseModel):
     )
     query_method: str = Field(
         ...,
-        description="Method used for query (coordinates, area_fallback, or 'suppressed' when the count is withheld for k-anonymity)",
+        description="Query method: coordinates, area_fallback, or 'suppressed' (count withheld for k-anonymity)",
     )
     areas_matched: int = Field(
         ...,
