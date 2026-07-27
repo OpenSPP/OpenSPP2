@@ -130,13 +130,37 @@ class SPPCRCreateWizard(models.TransientModel):
         for rec in self:
             rec.show_registrant = bool(rec.request_type_id and rec.request_type_id.is_requires_registrant)
 
-    @api.depends("request_type_id", "request_type_id.target_type")
+    @api.depends("request_type_id", "request_type_id.target_type", "request_type_id.is_requires_registrant")
     def _compute_target_type_message(self):
         for rec in self:
             rec.target_type_message = ""
-            if not rec.request_type_id or not rec.request_type_id.target_type:
+            cr_type = rec.request_type_id
+            if not cr_type:
                 continue
-            target_type = rec.request_type_id.target_type
+
+            # For types that *don't* require a registrant, the registrant is
+            # what the CR is about to create — say so explicitly instead of
+            # the generic "applies to X" hint so the user understands why no
+            # registrant picker shows up below.
+            if not cr_type.is_requires_registrant:
+                target_type = cr_type.target_type
+                if target_type == "individual":
+                    rec.target_type_message = _(
+                        "This request type creates a new individual — no existing registrant is needed."
+                    )
+                elif target_type == "group":
+                    rec.target_type_message = _(
+                        "This request type creates a new group/household — no existing registrant is needed."
+                    )
+                else:
+                    rec.target_type_message = _(
+                        "This request type creates a new registrant — no existing one is needed."
+                    )
+                continue
+
+            if not cr_type.target_type:
+                continue
+            target_type = cr_type.target_type
             if target_type == "individual":
                 rec.target_type_message = _("This request type applies to individuals only.")
             elif target_type == "group":

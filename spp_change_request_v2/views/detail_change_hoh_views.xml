@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <!-- Change Head of Household Detail Form View -->
+    <!-- Change Head of Household Detail Form View (OP#873 redesign) -->
     <record id="spp_cr_detail_change_hoh_form" model="ir.ui.view">
         <field name="name">spp.cr.detail.change_hoh.form</field>
         <field name="model">spp.cr.detail.change_hoh</field>
@@ -45,44 +45,50 @@
                 </header>
                 <sheet>
                     <group>
-                        <group string="Current Head">
-                            <field name="current_head_id" readonly="1" />
-                        </group>
-                        <group string="New Head">
-                            <field name="available_individual_ids" invisible="1" />
+                        <group string="Household">
+                            <field name="change_request_id" invisible="1" />
                             <field
-                                name="new_head_id"
-                                options="{'no_create': True}"
-                                domain="[('id', 'in', available_individual_ids)]"
-                                required="1"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            />
-                            <field
-                                name="new_head_membership_id"
-                                invisible="1"
-                                force_save="1"
+                                name="current_head_id"
+                                readonly="1"
+                                options="{'no_open': True}"
                             />
                         </group>
-                    </group>
-                    <group>
                         <group string="Change Details">
                             <field
                                 name="reason"
                                 readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
-                            <field
-                                name="effective_date"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            />
-                        </group>
-                        <group string="Previous Head Reassignment">
-                            <field
-                                name="previous_head_new_role_id"
-                                options="{'no_create': True, 'no_open': True}"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            />
                         </group>
                     </group>
+
+                    <separator string="Members &amp; Roles" />
+                    <div class="alert alert-info" role="alert">
+                        <strong>Assign roles to the group members.</strong>
+                        Set one member's <em>New Role</em> to <strong
+                    >Head</strong> to designate
+                        them as the new Head of Household. Each member's current role is shown for
+                        reference.
+                    </div>
+                    <field name="member_line_ids" nolabel="1">
+                        <list editable="bottom" create="0" delete="0">
+                            <field
+                                name="individual_id"
+                                readonly="1"
+                                options="{'no_open': True}"
+                            />
+                            <field
+                                name="old_role_display"
+                                string="Current Role"
+                                readonly="1"
+                            />
+                            <field
+                                name="new_role_id"
+                                string="New Role"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
+                        </list>
+                    </field>
+
                     <group string="Additional Information">
                         <field
                             name="remarks"
@@ -91,6 +97,7 @@
                         />
                     </group>
                 </sheet>
+                <chatter />
             </form>
         </field>
     </record>

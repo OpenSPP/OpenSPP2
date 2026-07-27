@@ -24,6 +24,15 @@ class BreakdownService(models.AbstractModel):
 
         Uses dimension cache for 5-10x performance improvement.
 
+        Expansion semantics (deliberate): if ANY requested dimension has
+        ``applies_to == "individuals"``, the ENTIRE registrant set is expanded
+        from groups to their active individual members before evaluation —
+        including for any non-individual dimensions mixed into the same
+        request (mixing scopes in one breakdown is inherently ambiguous; the
+        expansion is all-or-nothing by design). Consequently breakdown totals
+        count members and intentionally need not reconcile with a group-level
+        scope count.
+
         :param registrant_ids: List of partner IDs
         :param group_by: List of dimension names
         :param statistics: List of statistic names (optional)
@@ -54,6 +63,14 @@ class BreakdownService(models.AbstractModel):
         dimensions = [d for d in dimensions if d]  # Filter out None
 
         if not dimensions:
+            return {}
+
+        # Auto-expand groups to members when any dimension applies to individuals only
+        needs_expansion = any(d.applies_to == "individuals" for d in dimensions)
+        if needs_expansion:
+            registrant_ids = self._expand_groups_to_members(registrant_ids)
+
+        if not registrant_ids:
             return {}
 
         # Get cache service
@@ -95,3 +112,41 @@ class BreakdownService(models.AbstractModel):
         # TODO: Add per-cell statistics if needed
 
         return breakdown
+
+    @api.model
+    def _expand_groups_to_members(self, registrant_ids):
+        """
+        Expand group IDs to their individual member IDs.
+
+        Groups are replaced by their active members. Individual IDs pass through.
+        The result is deduplicated.
+
+        :param registrant_ids: List of partner IDs (groups and/or individuals)
+        :returns: Deduplicated list of individual partner IDs
+        :rtype: list
+        """
+        # sudo: aggregate breakdown metrics must expand groups to their members
+        # across all registrants regardless of the caller's record rules.
+        # Read-only (no writes); callers are authorized at the service entry point.
+        Partner = self.env["res.partner"].sudo()  # nosemgrep: odoo-sudo-without-context,odoo-sudo-on-sensitive-models
+        records = Partner.browse(registrant_ids).exists()
+
+        groups = records.filtered("is_group")
+        group_ids = groups.ids
+        individual_ids = set((records - groups).ids)
+
+        if not group_ids:
+            return list(individual_ids)
+
+        # Expand groups via active memberships
+        Membership = self.env["spp.group.membership"].sudo()  # nosemgrep: odoo-sudo-without-context
+        memberships = Membership.search(
+            [
+                ("group", "in", group_ids),
+                ("is_ended", "=", False),
+            ]
+        )
+
+        individual_ids.update(memberships.individual.ids)
+
+        return list(individual_ids)

@@ -531,6 +531,25 @@ incident selection</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.0</h1>
+<ul class="simple">
+<li>feat: metric disaggregation in GIS reports (breakdown dimensions,
+report helpers, wizard support) (re-land from #76; uses the
+spp_metric_service breakdown API).</li>
+<li>BREAKING (GeoJSON payload): disaggregation output moved from a nested
+<tt class="docutils literal">properties.disaggregation</tt> object to flat
+<tt class="docutils literal">disagg_&lt;dimension&gt;_&lt;value&gt;</tt> properties, with interpretation
+metadata under <tt class="docutils literal">metadata.disaggregation</tt>. External consumers of
+<tt class="docutils literal"><span class="pre">/api/v2/GISReport/.../geojson</span></tt> (e.g. QGIS styles) that read the old
+nested key must be updated.</li>
+<li>BREAKING (model fields): the boolean
+<tt class="docutils literal">disaggregate_by_gender</tt>/<tt class="docutils literal">disaggregate_by_age</tt>/<tt class="docutils literal">disaggregate_by_disability</tt>
+fields are removed in favor of <tt class="docutils literal">dimension_ids</tt>; existing
+configurations are migrated automatically on upgrade (see
+migrations/19.0.2.1.0).</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix(security): grant <tt class="docutils literal">group_gis_report_user</tt> to spp_user_roles’
@@ -545,7 +564,7 @@ Global Support Manager, Local Support, Global Registrar, Local
 Registrar, CR roles).</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

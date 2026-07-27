@@ -54,17 +54,9 @@
                                 required="1"
                                 readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
-                            <field
-                                name="member_name"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            />
                             <field name="membership_id" invisible="1" force_save="1" />
                         </group>
                         <group string="Removal Details">
-                            <field
-                                name="end_date"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            />
                             <field
                                 name="end_reason"
                                 readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"

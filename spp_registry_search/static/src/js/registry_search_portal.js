@@ -60,10 +60,14 @@ export class RegistrySearchPortal extends Component {
         onWillStart(async () => {
             try {
                 const [canCreate, canEdit, recentlyViewed, config] = await Promise.all([
-                    this.orm.call("res.partner", "check_access_rights", [
-                        "create",
-                        false,
-                    ]),
+                    // OP#1124: gate on the registry create-permission groups, not
+                    // generic res.partner create access (which base Odoo grants
+                    // broadly, letting validators/viewers initiate creation).
+                    this.orm.call(
+                        "spp.registry.view.history",
+                        "check_registrant_create_permission",
+                        []
+                    ),
                     this.orm.call(
                         "spp.registry.view.history",
                         "check_registrant_edit_permission",

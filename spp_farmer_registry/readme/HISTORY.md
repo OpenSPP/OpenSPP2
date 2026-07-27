@@ -1,3 +1,7 @@
+### 19.0.2.0.3
+
+- fix(farm): remove the farm membership-completeness warnings entirely — both the "No head member designated" and "No members linked to this group yet" banners, their "No Head Member" / "No Members" search filters, the `member_count` and head-member list columns, and the backing `has_head_member` / `member_count` computed fields. The head-member check misfired on farm groups that did have a head, and per #1113 no such warnings should be shown (#1113)
+
 ### 19.0.2.0.2
 
 - fix(security): align Farm User / Farm Manager roles with the OP#951 menu audit — both farm roles now imply `spp_hazard.group_hazard_viewer` and `spp_gis_report.group_gis_report_user` so they retain Hazard and GIS Reports menu visibility once those menu roots are gated. Adds `spp_hazard` and `spp_gis_report` to module dependencies.

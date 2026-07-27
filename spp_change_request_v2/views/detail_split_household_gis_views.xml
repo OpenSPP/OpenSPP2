@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- OP#877: the geo_point map widget on the Split Household detail form
+         requires a GIS view + data layer + basemap for the model, the same way
+         spp.area defines them. Without a "gis" view for the model the widget
+         raises "No GIS view defined for the model". This view is only here to
+         back the map field; it is not exposed as a browsable view mode. -->
+    <record id="spp_cr_detail_split_household_gis" model="ir.ui.view">
+        <field name="name">spp.cr.detail.split_household.gis</field>
+        <field name="model">spp.cr.detail.split_household</field>
+        <field name="arch" type="xml">
+            <gis editable="1">
+                <field name="id" />
+                <field name="new_group_name" />
+                <field name="new_coordinates" />
+            </gis>
+        </field>
+    </record>
+
+    <record id="gis_layer_split_household_coordinates" model="spp.gis.data.layer">
+        <field
+            name="geo_field_id"
+            ref="field_spp_cr_detail_split_household__new_coordinates"
+        />
+        <field name="name">New Household Location</field>
+        <field eval="1" name="sequence" />
+        <field name="view_id" ref="spp_cr_detail_split_household_gis" />
+        <field name="geo_repr">basic</field>
+        <field name="active_on_startup" eval="True" />
+        <field name="layer_opacity">0.8</field>
+        <field name="begin_color">#FF680A</field>
+    </record>
+
+    <record id="gis_raster_split_household_osm" model="spp.gis.raster.layer">
+        <field name="raster_type">osm</field>
+        <field name="name">Default</field>
+        <field name="view_id" ref="spp_cr_detail_split_household_gis" />
+    </record>
+</odoo>

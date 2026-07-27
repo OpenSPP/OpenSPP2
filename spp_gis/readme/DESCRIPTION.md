@@ -4,9 +4,10 @@ PostGIS integration for geospatial data management, map visualization, and spati
 
 - Define geo fields (`geo_point`, `geo_line`, `geo_polygon`) on any model using PostGIS spatial types
 - Visualize records on interactive maps via the GIS view type
-- Configure background raster layers (OpenStreetMap, WMS, satellite imagery)
+- Configure background raster layers (OpenStreetMap, WMS, satellite imagery); map widgets fall back to OpenStreetMap styling when no MapTiler API key is configured
 - Configure data layers with basic or choropleth (color-by-value) rendering
-- Perform spatial queries (intersects, contains, within, distance-based) via `gis_locational_query()`
+- Perform spatial queries (intersects, contains, within, distance-based) via `gis_locational_query()`, including complex geometries (`MultiPolygon`, `GeometryCollection`) with distance buffering
+- Save geographic areas of interest as geofences, classify them with tags, and export them as GeoJSON features
 - Import area boundaries from GeoJSON/shapefiles via area import wizard
 - Manage color schemes for thematic mapping with sequential, diverging, or qualitative palettes
 
@@ -15,6 +16,8 @@ PostGIS integration for geospatial data management, map visualization, and spati
 | Model                         | Description                                                |
 | ----------------------------- | ---------------------------------------------------------- |
 | `spp.gis.raster.layer`        | Background map layers (OSM, WMS, image)                    |
+| `spp.gis.geofence`            | Saved geographic areas of interest (GeoJSON in/out)        |
+| `spp.gis.geofence.tag`        | Tags for classifying geofences                             |
 | `spp.gis.data.layer`          | Vector data layers referencing geo fields from any model   |
 | `spp.gis.color.scheme`        | Color palettes for choropleth and thematic visualizations  |
 | `spp.gis.raster.layer.type`   | Raster layer type definitions (WMS services)               |

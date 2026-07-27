@@ -3,6 +3,7 @@
 import {Component, onMounted, onPatched, onWillStart} from "@odoo/owl";
 
 import {loadCSS, loadJS} from "@web/core/assets";
+import {osmFallbackStyle} from "../../osm_fallback_style.esm";
 import {registry} from "@web/core/registry";
 import {rpc} from "@web/core/network/rpc";
 import {standardFieldProps} from "@web/views/fields/standard_field_props";
@@ -32,7 +33,9 @@ export class FieldGisEditMap extends Component {
         });
 
         onMounted(async () => {
-            maptilersdk.config.apiKey = this.mapTilerKey;
+            if (this.mapTilerKey) {
+                maptilersdk.config.apiKey = this.mapTilerKey;
+            }
             const editInfo = await this.orm.call(
                 this.props.record.resModel,
                 "get_edit_info_for_gis_column",
@@ -48,15 +51,22 @@ export class FieldGisEditMap extends Component {
                 defaultCenter: default_center,
             });
 
+            this._lastValue = this.props.record.data[this.props.name] || false;
             this.renderMap();
-            this.onLoadMap();
             this.addDrawInteraction();
         });
 
         onPatched(() => {
+            // Re-creating the MapLibre map on every OWL patch loses zoom/pan
+            // state and can exhaust WebGL contexts; only re-render when the
+            // geometry value actually changed.
+            const value = this.props.record.data[this.props.name] || false;
+            if (value === this._lastValue) {
+                return;
+            }
+            this._lastValue = value;
             this.defaultZoom = this.map.getZoom();
             this.renderMap();
-            this.onLoadMap();
             this.addDrawInteraction();
         });
     }
@@ -67,23 +77,18 @@ export class FieldGisEditMap extends Component {
             if (response.mapTilerKey) {
                 this.mapTilerKey = response.mapTilerKey;
                 this.webBaseUrl = response.webBaseUrl;
-            } else {
-                console.log("Error: Api Key not found.");
             }
         } catch (error) {
-            console.error("Error fetching environment variable:", error);
+            console.warn("Could not fetch MapTiler API key:", error);
         }
     }
 
-    onLoadMap() {
-        if (this.props.record.data[this.props.name]) {
-            this.map.on("load", async () => {
-                this.addSourceAndLayer(
-                    this.sourceId,
-                    this.props.record.data[this.props.name]
-                );
-            });
+    _getMapStyle() {
+        if (this.mapTilerKey) {
+            return maptilersdk.MapStyle.STREETS;
         }
+        // Fallback: OSM raster tiles (no API key required)
+        return osmFallbackStyle();
     }
 
     renderMap() {
@@ -104,9 +109,14 @@ export class FieldGisEditMap extends Component {
             this.defaultZoom = 10;
         }
 
+        if (this.map) {
+            this.draw = null;
+            this.map.remove();
+        }
+
         this.map = new maptilersdk.Map({
             container: this.id,
-            style: maptilersdk.MapStyle.STREETS,
+            style: this._getMapStyle(),
             center: this.defaultCenter,
             zoom: this.defaultZoom,
         });
@@ -138,96 +148,55 @@ export class FieldGisEditMap extends Component {
         return null;
     }
 
-    addSourceAndLayer(sourceId, jsonString) {
-        if (!this.map.getSource(sourceId)) {
-            this.addSource(sourceId, jsonString);
-            this.addLayer(sourceId);
-        }
-    }
-
-    addSource(sourceId, jsonString) {
-        const obj = JSON.parse(jsonString);
-        const centroid = turf.centroid(obj);
-
-        this.map.addSource(sourceId, {
-            type: "geojson",
-            data: obj,
-        });
-        this.map.setCenter(centroid.geometry.coordinates);
-
-        this.source = this.map.getSource(sourceId);
-    }
-
-    addLayer(sourceId) {
-        // Polygon
-        this.map.addLayer({
-            id: `${sourceId}-polygon-layerid`,
-            type: "fill",
-            source: sourceId,
-            filter: ["all", ["==", "$type", "Polygon"], ["!=", "mode", "static"]],
-            layout: {},
-            paint: {
-                "fill-color": "#98b",
-                "fill-opacity": 0.8,
-            },
-        });
-
-        // Point
-        this.map.addLayer({
-            id: `${sourceId}-point-layerid`,
-            type: "circle",
-            source: sourceId,
-            filter: ["all", ["==", "$type", "Point"], ["!=", "mode", "static"]],
-            layout: {},
-            paint: {
-                "circle-color": "#FF680A",
-            },
-        });
-
-        // Linestring
-        this.map.addLayer({
-            id: `${sourceId}-linestring-layerid`,
-            type: "line",
-            source: sourceId,
-            filter: ["all", ["==", "$type", "LineString"], ["!=", "mode", "static"]],
-            layout: {},
-            paint: {
-                "line-color": "#e11",
-                "line-width": 4,
-            },
-        });
-    }
-
-    removeSourceAndLayer(source) {
-        this.map.removeLayer(source);
-        this.map.removeSource(source);
-    }
-
     onUIChange() {
-        this.removeSourceAndLayer(this.sourceId);
-        this.onLoadMap();
         this.addDrawInteraction();
     }
 
     addDrawInteraction() {
         const self = this;
+        const hasData = Boolean(this.props.record.data[this.props.name]);
 
-        function updateArea(e) {
-            console.log(e);
-            var data = self.draw.getAll();
-            self.props.record.update({
-                [self.props.name]: JSON.stringify(data.features[0].geometry),
-            });
+        // Remove previous event listeners to prevent stacking on onUIChange() calls
+        if (this._drawHandlers) {
+            this.map.off("draw.create", this._drawHandlers.update);
+            this.map.off("draw.update", this._drawHandlers.update);
+            this.map.off("draw.delete", this._drawHandlers.delete);
+        }
+
+        this._drawHandlers = {
+            update(e) {
+                const eventFeature = e?.features?.[0];
+                if (eventFeature?.geometry) {
+                    self.props.record.update({
+                        [self.props.name]: JSON.stringify(eventFeature.geometry),
+                    });
+                    return;
+                }
+
+                const allFeatures = self.draw.getAll()?.features || [];
+                if (allFeatures.length > 0 && allFeatures[0].geometry) {
+                    self.props.record.update({
+                        [self.props.name]: JSON.stringify(allFeatures[0].geometry),
+                    });
+                }
+            },
+            delete() {
+                self.props.record.update({[self.props.name]: null});
+            },
+        };
+
+        if (this.draw) {
+            this.map.removeControl(this.draw);
         }
 
         this.draw = new MapboxDraw({
             displayControlsDefault: false,
             controls: {
-                [this.drawControl]: !this.props.record.data[this.props.name],
-                trash: Boolean(this.props.record.data[this.props.name]),
+                [this.drawControl]: !hasData,
+                trash: hasData,
             },
             styles: this.addDrawInteractionStyle(),
-            defaultMode: "custom_mode",
+            defaultMode: hasData ? "simple_select" : "custom_mode",
             modes: Object.assign(
                 {
                     custom_mode: this.addDrawCustomModes(),
@@ -244,19 +213,27 @@ export class FieldGisEditMap extends Component {
             elem.classList.add("maplibregl-ctrl", "maplibregl-ctrl-group");
         });
 
-        this.map.on("draw.create", updateArea);
-        this.map.on("draw.update", updateArea);
+        // Load existing geometry into MapboxDraw so it's interactive
+        // (clickable, editable, deletable) instead of a static layer
+        if (hasData) {
+            const loadExisting = () => {
+                const geom = JSON.parse(this.props.record.data[this.props.name]);
+                this.draw.add({
+                    type: "Feature",
+                    geometry: geom,
+                    properties: {},
+                });
+            };
+            if (this.map.loaded()) {
+                loadExisting();
+            } else {
+                this.map.on("load", loadExisting);
+            }
+        }
 
-        const url = `/spp_gis/static/src/images/laos_farm.png`;
-
-        this.map.on("click", `${this.sourceId}-polygon-layerid`, (e) => {
-            new maptilersdk.Popup()
-                .setLngLat(e.lngLat)
-                .setHTML(
-                    `<img src="${url}" height="200" width="300" alt="Placeholder Image">`
-                )
-                .addTo(this.map);
-        });
+        this.map.on("draw.create", this._drawHandlers.update);
+        this.map.on("draw.update", this._drawHandlers.update);
+        this.map.on("draw.delete", this._drawHandlers.delete);
     }
 
     addDrawInteractionStyle() {
@@ -369,8 +346,7 @@ export class FieldGisEditMap extends Component {
     addDrawCustomModes() {
         const customMode = {};
         const self = this;
-        customMode.onTrash = function (state) {
-            console.log(state);
+        customMode.onTrash = function () {
             self.props.record.update({[self.props.name]: null});
         };
 

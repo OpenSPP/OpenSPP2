@@ -78,14 +78,33 @@ class SPPChangeRequestType(models.Model):
     )
 
     is_requires_registrant = fields.Boolean(
+        string="Requires Registrant",
         default=True,
         help="Require selecting a registrant when creating this type of change request. "
         "Disable for types like 'Create New Group' that don't apply to an existing registrant.",
     )
 
     is_requires_applicant = fields.Boolean(
+        string="Requires Applicant",
         default=False,
         help="Require an applicant (person submitting on behalf of registrant)",
+    )
+
+    # OP#876: group-creation-specific config. Only read by the Create Group
+    # detail/strategy today, but lives on the type so each group-creating CR
+    # type can ship its own defaults (e.g. cooperatives may not require a head
+    # while households do).
+    allow_empty_members = fields.Boolean(
+        string="Allow Empty Groups",
+        default=False,
+        help="When set, the Create Group flow asks whether the user wants to add members "
+        "instead of forcing it. When unset, the user must add at least one member.",
+    )
+    requires_head = fields.Boolean(
+        string="Requires Head of Household",
+        default=False,
+        help="When set, the Create Group flow requires exactly one member to be assigned "
+        "the 'head' role from the group-membership-type vocabulary before the CR can apply.",
     )
 
     # ══════════════════════════════════════════════════════════════════════════
@@ -151,6 +170,23 @@ class SPPChangeRequestType(models.Model):
         "spp.dms.category",
         string="Required Documents (Deprecated)",
         help="Deprecated: Use required_document_ids instead",
+    )
+    # Per-reason document rules (OP#873). When a CR type exposes a "reason"
+    # (e.g. Change Head of Household), the required documents can be driven by
+    # the chosen reason instead of the flat required_document_ids list.
+    supports_reason_documents = fields.Boolean(
+        string="Supports Reason-based Documents",
+        compute="_compute_supports_reason_documents",
+        help="True when the detail model exposes a 'reason' field, so required "
+        "documents can depend on the chosen reason.",
+    )
+    reason_document_ids = fields.One2many(
+        "spp.cr.type.reason.document",
+        "cr_type_id",
+        string="Required Documents by Reason",
+        help="Optional: make required documents depend on the request's Reason. "
+        "When set and the request has a matching reason, these documents are "
+        "required in place of the flat 'Required Documents' list.",
     )
     allow_document_download = fields.Boolean(
         string="Allow Document Download",
@@ -323,6 +359,18 @@ class SPPChangeRequestType(models.Model):
         """Check if the detail model exists in the database."""
         for rec in self:
             rec.is_detail_model_exists = bool(rec.detail_model and rec.detail_model in self.env)
+
+    @api.depends("detail_model")
+    def _compute_supports_reason_documents(self):
+        """A CR type supports reason-driven documents only when its detail model
+        exposes a reason field (Change HoH's ``reason``, Split Household's
+        ``split_reason`` or Remove Member's ``end_reason``)."""
+        for rec in self:
+            model = self.env[rec.detail_model] if (rec.detail_model and rec.detail_model in self.env) else None
+            rec.supports_reason_documents = bool(
+                model
+                and ("reason" in model._fields or "split_reason" in model._fields or "end_reason" in model._fields)
+            )
 
     @api.depends("detail_model")
     def _compute_available_field_ids(self):
@@ -502,3 +550,61 @@ class SPPChangeRequestType(models.Model):
                 missing_fields.append(field.field_description)
 
         return len(missing_fields) == 0, missing_fields
+
+
+class SPPCRTypeReasonDocument(models.Model):
+    """Maps a request reason to the set of documents required for it (OP#873/#877).
+
+    Configured on a change request type; consumed by
+    spp.change.request._get_effective_required_document_ids(). The reason values
+    union the reasons of the CR types that expose a reason (Change HoH, Split
+    Household); only the values relevant to a given type's reason will match."""
+
+    _name = "spp.cr.type.reason.document"
+    _description = "CR Type: Required Documents by Reason"
+    _order = "cr_type_id, reason"
+
+    cr_type_id = fields.Many2one(
+        "spp.change.request.type",
+        string="Change Request Type",
+        required=True,
+        ondelete="cascade",
+    )
+    reason = fields.Selection(
+        [
+            # Change Head of Household reasons
+            ("deceased", "Head Deceased"),
+            ("incapacitated", "Head Incapacitated"),
+            ("left_household", "Head Left Household"),
+            ("age_change", "Age-based Change"),
+            # Split Household reasons
+            ("marriage", "Marriage"),
+            ("separation", "Separation/Divorce"),
+            ("independence", "Member Independence"),
+            ("relocation", "Relocation"),
+            # Remove Member reasons (deceased / left_household shared above)
+            ("migrated", "Migrated"),
+            # Shared
+            ("correction", "Data Correction"),
+            ("other", "Other"),
+        ],
+        string="Reason",
+        required=True,
+    )
+    required_document_ids = fields.Many2many(
+        "spp.vocabulary.code",
+        "cr_type_reason_doc_rel",
+        "rule_id",
+        "doc_id",
+        string="Required Documents",
+        domain="[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:cr_document_type')]",
+        help="Documents required when the request's reason matches this rule.",
+    )
+
+    _sql_constraints = [
+        (
+            "reason_uniq",
+            "unique(cr_type_id, reason)",
+            "A reason can only have one document rule per change request type.",
+        ),
+    ]

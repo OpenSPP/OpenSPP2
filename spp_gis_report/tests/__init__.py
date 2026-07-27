@@ -6,5 +6,8 @@ from . import test_data_layer_ext
 from . import test_gis_report
 from . import test_gis_report_api
 from . import test_gis_report_computation
+from . import test_gis_report_helpers
+from . import test_disaggregation
 from . import test_gis_report_data
 from . import test_gis_report_wizard
+from . import test_migration_boolean_dimensions

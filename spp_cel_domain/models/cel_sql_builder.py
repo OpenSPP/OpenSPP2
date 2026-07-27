@@ -362,6 +362,42 @@ class SQLBuilder:
         return result
 
     # =========================================================================
+    # CASE WHEN Builder
+    # =========================================================================
+
+    def case_when(self, condition: SQL, then_expr: SQL, else_expr: SQL) -> SQL:
+        """Build a CASE WHEN ... THEN ... ELSE ... END expression.
+
+        Args:
+            condition: SQL boolean expression for the WHEN clause
+            then_expr: SQL expression for the THEN result
+            else_expr: SQL expression for the ELSE result
+
+        Returns:
+            SQL CASE expression
+        """
+        return SQL("(CASE WHEN %s THEN %s ELSE %s END)", condition, then_expr, else_expr)
+
+    def comparison(self, left: SQL, op: str, right: SQL) -> SQL | None:
+        """Build a SQL comparison expression from two SQL operands.
+
+        Uses operator whitelist to prevent injection (same pattern as term()).
+
+        Args:
+            left: Left-hand SQL expression
+            op: Comparison operator (=, !=, >, >=, <, <=)
+            right: Right-hand SQL expression
+
+        Returns:
+            SQL comparison or None if operator is unsupported
+        """
+        op_sql_map = {"=": "=", "==": "=", "!=": "!=", ">": ">", ">=": ">=", "<": "<", "<=": "<="}
+        sql_op = op_sql_map.get(op)
+        if sql_op is None:
+            return None
+        return SQL("%s " + sql_op + " %s", left, right)
+
+    # =========================================================================
     # Helpers for Default Domain Processing
     # =========================================================================
 
