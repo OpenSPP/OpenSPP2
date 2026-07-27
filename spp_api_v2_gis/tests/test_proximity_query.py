@@ -187,7 +187,12 @@ class TestProximityQueryAreaFallback(TransactionCase):
 
         self.assertIn("total_count", result)
         self.assertIn("registrant_ids", result)
-        self.assertGreater(result["total_count"], 0)
+        # The near area holds fewer than the k-anonymity threshold of registrants,
+        # so the exact count is suppressed to 0 with the flag set. Matching is still
+        # verified below via registrant_ids (the router strips that field from the
+        # API response; suppression only affects the disclosed count).
+        self.assertEqual(result["total_count"], 0)
+        self.assertTrue(result["count_suppressed"])
 
         # Near partner should be in the result (either via coordinates or area fallback)
         self.assertIn(self.partner_near.id, result["registrant_ids"])

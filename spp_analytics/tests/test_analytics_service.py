@@ -365,3 +365,30 @@ class TestAnalyticsServicePublicUser(AnalyticsTestCase):
         # Privacy enforcement should strip individual IDs for aggregate access
         self.assertNotIn("registrant_ids", result)
         self.assertNotIn("partner_ids", result)
+
+
+class TestEffectiveKThreshold(AnalyticsTestCase):
+    """Tests for the public get_effective_k_threshold() accessor."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.service = cls.env["spp.analytics.service"]
+
+    def test_default_when_no_rule(self):
+        """With no access rule, the privacy-service default applies."""
+        default_k = self.env["spp.metric.privacy"].DEFAULT_K_THRESHOLD
+        self.assertEqual(self.service.get_effective_k_threshold(), default_k)
+
+    def test_reads_rule_threshold(self):
+        """The caller's access-rule minimum_k_anonymity is returned."""
+        self.env["spp.analytics.access.rule"].create(
+            {
+                "name": "K Threshold Rule k8",
+                "access_level": "aggregate",
+                "user_id": self.env.user.id,
+                "minimum_k_anonymity": 8,
+                "allow_inline_scopes": True,
+            }
+        )
+        self.assertEqual(self.service.get_effective_k_threshold(), 8)

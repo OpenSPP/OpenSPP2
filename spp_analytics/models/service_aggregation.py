@@ -198,6 +198,22 @@ class AnalyticsService(models.AbstractModel):
             return rule.minimum_k_anonymity
         return self.env["spp.metric.privacy"].DEFAULT_K_THRESHOLD
 
+    @api.model
+    def get_effective_k_threshold(self):
+        """
+        Return the k-anonymity threshold that applies to the current user.
+
+        Resolves the caller's effective access rule and returns its
+        ``minimum_k_anonymity`` (falling back to the privacy service default).
+        Exposed so other services that emit their own counts (e.g. GIS spatial
+        queries) can suppress small counts with the SAME threshold the
+        aggregation engine applies to statistics, rather than a hardcoded value.
+
+        :returns: k threshold value
+        :rtype: int
+        """
+        return self._k_threshold_from_rule(self._get_effective_rule())
+
     def _check_scope_allowed(self, scope, rule=None):
         """
         Check if scope is allowed for current user.
