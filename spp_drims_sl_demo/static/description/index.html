@@ -509,7 +509,9 @@ Only for development or testing purpose, do not use in production.</p>
 (<tt class="docutils literal">kumari</tt>, <tt class="docutils literal">rajitha</tt>, <tt class="docutils literal">silva</tt>, <tt class="docutils literal">perera</tt>, <tt class="docutils literal">fernando</tt>,
 <tt class="docutils literal">secretary</tt>, shared password <tt class="docutils literal">demo</tt>) on a production install via a
 <tt class="docutils literal">post_init_hook</tt> reusing spp_drims_sl’s helper; they stay active
-only when demo data is enabled.</li>
+only when demo data is enabled. A migration archives them the same way
+on upgrade from a released version (the install hook does not run on
+<tt class="docutils literal"><span class="pre">-u</span></tt>).</li>
 </ul>
 </div>
 <div class="section" id="section-2">
