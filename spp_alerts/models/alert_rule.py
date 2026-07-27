@@ -299,8 +299,10 @@ class AlertRule(models.Model):
         # then enforced against whoever configured the rule, so a non-admin author
         # cannot surface — and leak, via alerts readable by all managers — records
         # they are not allowed to see. An admin-authored rule keeps its wider scope.
+        # create_uid is an ORM-readonly system field (not user input), so switching
+        # to it is safe despite odoo-with-user-unvalidated.
         if self.create_uid:
-            Model = Model.with_user(self.create_uid.id)
+            Model = Model.with_user(self.create_uid.id)  # nosemgrep: odoo-with-user-unvalidated
 
         # Parse domain filter
         try:

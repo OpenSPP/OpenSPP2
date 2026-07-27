@@ -1164,6 +1164,17 @@ alphabetical)</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.1</h1>
+<ul class="simple">
+<li>fix(security): evaluate each alert rule’s monitored search as the
+rule’s owner (<tt class="docutils literal">create_uid</tt>) instead of the elevated cron/superuser
+identity, so record rules bound what a rule can surface to whoever
+configured it. A non-admin Alerts Manager can no longer author a rule
+that leaks records they are not allowed to see via the alerts the cron
+creates.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
