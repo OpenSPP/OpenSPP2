@@ -10,4 +10,8 @@ before the upgrade it defaults to whoever created the rule.
 def migrate(cr, version):
     if not version:
         return
-    cr.execute("UPDATE spp_alert_rule SET eval_as_user_id = create_uid WHERE eval_as_user_id IS NULL")
+    # Every existing row predates eval_as_user_id, so set it authoritatively from
+    # create_uid. This is unconditional (not `WHERE ... IS NULL`) because the field
+    # carries no Python default: nothing else populates the column at upgrade time,
+    # and an IS NULL guard would be defeated if Odoo's _init_column ever pre-filled it.
+    cr.execute("UPDATE spp_alert_rule SET eval_as_user_id = create_uid")

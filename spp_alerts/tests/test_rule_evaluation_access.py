@@ -7,9 +7,10 @@ authored by a non-system-admin `group_alerts_manager` could surface records the
 author is not allowed to see — the resulting alerts (readable by all alert
 managers) then leak data across the record-rule boundary.
 
-The fix evaluates each rule's monitored search as the rule's owner
-(`create_uid`), so record rules are enforced against whoever configured the
-rule regardless of who (or what cron) triggers the evaluation.
+The fix evaluates each rule's monitored search as the user who configured what
+the rule targets (system-managed `eval_as_user_id`, re-bound to the editor on any
+targeting change and never client-writable), so record rules are enforced against
+that user's visibility regardless of who (or what cron) triggers the evaluation.
 """
 
 from odoo import SUPERUSER_ID
@@ -194,4 +195,145 @@ class TestRuleEvaluationAccess(AlertsTestCommon):
         self.assertEqual(rule.eval_as_user_id, self.user_manager)
 
         rule.with_user(self.user_manager).write({"eval_as_user_id": self.user_unrestricted.id})
+        self.assertEqual(rule.eval_as_user_id, self.user_manager)
+
+    def test_eval_as_user_id_not_forgeable_via_context_default(self):
+        """A `default_eval_as_user_id` context key must not seed the evaluation identity.
+
+        Popping (vs force-setting) the field would leave it missing and let
+        default_get honour this client-controlled context key.
+        """
+        rule = (
+            self.env["spp.alert.rule"]
+            .with_user(self.user_manager)
+            .with_context(default_eval_as_user_id=SUPERUSER_ID)
+            .create(
+                {
+                    "name": "Context Forge Rule",
+                    "alert_type_id": self.alert_type_threshold.id,
+                    "model_id": self.partner_model.id,
+                    "rule_type": "threshold",
+                    "monitored_field_id": self.field_color.id,
+                    "comparison": "lt",
+                    "threshold_value": 8.0,
+                    "domain_filter": self.domain_both,
+                    "priority": "medium",
+                }
+            )
+        )
+        self.assertEqual(rule.eval_as_user_id, self.user_manager)
+
+    def test_copy_rebinds_evaluation_identity_to_copier(self):
+        """Duplicating a rule (incl. via a context default) binds it to the copier."""
+        rule = self._manager_rule(name="Original Rule")
+        self._set_eval_owner(rule, self.user_unrestricted)
+
+        copied = rule.with_user(self.user_manager).with_context(default_eval_as_user_id=SUPERUSER_ID).copy()
+        self.assertEqual(copied.eval_as_user_id, self.user_manager)
+
+    def test_threshold_change_rebinds_and_de_escalates(self):
+        """Changing a post-search filter field (threshold) re-binds the identity."""
+        rule = self._manager_rule(name="Dormant Admin Rule")
+        self._set_eval_owner(rule, self.user_unrestricted)
+
+        # threshold_value is not the model/domain, but it changes which records leak.
+        rule.with_user(self.user_manager).write({"threshold_value": 999.0})
+        self.assertEqual(rule.eval_as_user_id, self.user_manager)
+
+        rule.with_user(SUPERUSER_ID)._evaluate_rule()
+        res_ids = self._alert_res_ids(rule)
+        self.assertNotIn(self.partner_hidden.id, res_ids)
+
+    def test_reactivating_rule_rebinds_identity(self):
+        """(Re)activating a rule re-binds the identity to whoever activated it."""
+        rule = self._manager_rule(name="Inactive Admin Rule", active=False)
+        self._set_eval_owner(rule, self.user_unrestricted)
+
+        rule.with_user(self.user_manager).write({"active": True})
+        self.assertEqual(rule.eval_as_user_id, self.user_manager)
+
+    def test_no_eval_user_fails_closed(self):
+        """With no resolvable owner, evaluation must skip rather than run elevated."""
+        rule = self._manager_rule(name="Orphaned Rule")
+        self.env.cr.execute(
+            "UPDATE spp_alert_rule SET create_uid = NULL, eval_as_user_id = NULL WHERE id = %s",
+            (rule.id,),
+        )
+        rule.invalidate_recordset(["create_uid", "eval_as_user_id"])
+
+        count = rule.with_user(SUPERUSER_ID)._evaluate_rule()
+        self.assertEqual(count, 0)
+        self.assertFalse(self.env["spp.alert"].search([("rule_id", "=", rule.id)]))
+
+    def test_evaluation_scoped_to_owner_companies(self):
+        """The search runs in the owner's company scope, not the triggering cron's."""
+        main = self.company_main
+        secondary = self.company_secondary
+        # A global multi-company rule on res.partner so company scoping is deterministic.
+        self.env["ir.rule"].create(
+            {
+                "name": "Partner multi-company (test)",
+                "model_id": self.partner_model.id,
+                "global": True,
+                "domain_force": "['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]",
+            }
+        )
+        # Owner belongs only to the main company.
+        owner = self.env["res.users"].create(
+            {
+                "name": "Main-Company Owner",
+                "login": "alert_main_owner",
+                "email": "main_owner@test.com",
+                "company_id": main.id,
+                "company_ids": [(6, 0, [main.id])],
+                "group_ids": [(4, self.env.ref("base.group_user").id)],
+            }
+        )
+        partner_secondary = self.env["res.partner"].create(
+            {"name": "Secondary Co Partner", "color": 1, "company_id": secondary.id}
+        )
+        rule = self._manager_rule(
+            name="Company Scoped Rule",
+            domain_filter=f'[("id", "in", [{self.partner_visible.id}, {partner_secondary.id}])]',
+        )
+        self._set_eval_owner(rule, owner)
+
+        # Cron sees both companies; the owner only sees main — the secondary-company
+        # record must be filtered by the owner's scope, not surfaced by the cron's.
+        rule.with_user(SUPERUSER_ID).with_context(allowed_company_ids=[main.id, secondary.id])._evaluate_rule()
+
+        res_ids = self._alert_res_ids(rule)
+        self.assertIn(self.partner_visible.id, res_ids)
+        self.assertNotIn(partner_secondary.id, res_ids)
+
+    def _load_post_migration(self):
+        import importlib.util
+        import os
+
+        path = os.path.join(os.path.dirname(__file__), "..", "migrations", "19.0.2.0.1", "post-migration.py")
+        spec = importlib.util.spec_from_file_location("spp_alerts_post_migration_test", path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def test_migration_backfills_eval_as_user_id_authoritatively(self):
+        """The shipped migration sets eval_as_user_id = create_uid for existing rules.
+
+        Guards against the IS-NULL-only regression: on a real upgrade Odoo's
+        _init_column pre-fills the new column with the upgrade user, so the backfill
+        must overwrite it (not skip non-NULL rows) to bind each rule to its creator.
+        """
+        rule = self._manager_rule(name="Pre-upgrade Rule")
+        # Simulate the upgrade state: create_uid is the real author; eval_as_user_id
+        # was wrongly pre-filled with a different (elevated) user by _init_column.
+        self.env.cr.execute(
+            "UPDATE spp_alert_rule SET create_uid = %s, eval_as_user_id = %s WHERE id = %s",
+            (self.user_manager.id, self.user_unrestricted.id, rule.id),
+        )
+        rule.invalidate_recordset(["create_uid", "eval_as_user_id"])
+        self.assertEqual(rule.eval_as_user_id, self.user_unrestricted)  # wrong, pre-migration
+
+        self._load_post_migration().migrate(self.env.cr, "19.0.2.0.0")
+        rule.invalidate_recordset(["eval_as_user_id"])
+
         self.assertEqual(rule.eval_as_user_id, self.user_manager)
