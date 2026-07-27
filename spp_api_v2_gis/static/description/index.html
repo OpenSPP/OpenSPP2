@@ -557,24 +557,39 @@ Only for development or testing purpose, do not use in production.</p>
 <div class="contents local topic" id="contents">
 <ul class="simple">
 <li><a class="reference internal" href="#changelog" id="toc-entry-1">Changelog</a><ul>
-<li><a class="reference internal" href="#section-1" id="toc-entry-2">19.0.2.0.0</a></li>
+<li><a class="reference internal" href="#section-1" id="toc-entry-2">19.0.2.0.1</a></li>
+<li><a class="reference internal" href="#section-2" id="toc-entry-3">19.0.2.0.0</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#bug-tracker" id="toc-entry-3">Bug Tracker</a></li>
-<li><a class="reference internal" href="#credits" id="toc-entry-4">Credits</a></li>
+<li><a class="reference internal" href="#bug-tracker" id="toc-entry-4">Bug Tracker</a></li>
+<li><a class="reference internal" href="#credits" id="toc-entry-5">Credits</a></li>
 </ul>
 </div>
 <div class="section" id="changelog">
 <h2><a class="toc-backref" href="#toc-entry-1">Changelog</a></h2>
 <div class="section" id="section-1">
-<h3><a class="toc-backref" href="#toc-entry-2">19.0.2.0.0</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-2">19.0.2.0.1</a></h3>
+<ul class="simple">
+<li>fix(security): apply k-anonymity suppression to registrant counts
+returned by the spatial-query, batch, and proximity endpoints. A
+client with <tt class="docutils literal">gis:read</tt>/<tt class="docutils literal">statistics:read</tt> could previously send
+tiny polygons or proximity buffers and read <tt class="docutils literal">total_count</tt> to learn
+whether beneficiaries live at a precise location, even when the
+aggregate statistics were suppressed. Counts below the caller’s
+access-rule k-anonymity threshold (and genuinely empty areas) are now
+reported as <tt class="docutils literal">total_count = 0</tt> with a new <tt class="docutils literal">count_suppressed</tt> flag,
+so small and empty results are indistinguishable.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
+<h3><a class="toc-backref" href="#toc-entry-3">19.0.2.0.0</a></h3>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
 </ul>
 </div>
 </div>
 <div class="section" id="bug-tracker">
-<h2><a class="toc-backref" href="#toc-entry-3">Bug Tracker</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-4">Bug Tracker</a></h2>
 <p>Bugs are tracked on <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/issues">GitHub Issues</a>.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
@@ -582,7 +597,7 @@ If you spotted it first, help us to smash it by providing a detailed and welcome
 <p>Do not contact contributors directly about support or help with technical issues.</p>
 </div>
 <div class="section" id="credits">
-<h2><a class="toc-backref" href="#toc-entry-4">Credits</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-5">Credits</a></h2>
 </div>
 </div>
 <div class="section" id="authors">
