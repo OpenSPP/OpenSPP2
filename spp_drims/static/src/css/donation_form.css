@@ -1,0 +1,18 @@
+/*
+ * OP#1058 (QA follow-up): the donation form's "Donation Items" and "Items Not
+ * Accepted for Stock" tables are short x2many lists. Odoo pads every embedded
+ * x2many list to a minimum of 4 rows with empty filler rows
+ * (ListRenderer.getEmptyRowIds), which show up as blank "extra lines" under the
+ * real data. Hide those fillers on these two tables so only the actual rows
+ * (plus the editable "Add a line" row, which is kept) are shown.
+ *
+ * Scope is limited to the tagged lists; only <tbody> rows that are neither real
+ * data rows nor the add-a-line control are hidden. Totals live in <tfoot> and
+ * are unaffected.
+ */
+.o_drims_donation_list
+    .o_list_table
+    > tbody
+    > tr:not(.o_data_row):not(.o_field_x2many_list_row_add) {
+    display: none;
+}

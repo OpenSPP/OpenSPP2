@@ -160,6 +160,15 @@ class DrimsDonation(models.Model):
         compute="_compute_non_accepted_line_ids",
         string="Items Not Accepted for Stock",
     )
+    # OP#1058: the accepted lines only (disposition is not return/dispose/
+    # quarantine). Shown as the "Donation Items" table once the donation has
+    # been inspected, so non-accepted items are not duplicated across both the
+    # Donation Items and "Items Not Accepted for Stock" tables.
+    accepted_line_ids = fields.One2many(
+        "spp.drims.donation.line",
+        compute="_compute_accepted_line_ids",
+        string="Accepted Donation Items",
+    )
 
     # Stock
     picking_ids = fields.One2many(
@@ -293,6 +302,13 @@ class DrimsDonation(models.Model):
         for rec in self:
             rec.non_accepted_line_ids = rec.line_ids.filtered(
                 lambda line: (line.disposition_id.code or "") in NON_ACCEPT_DISPOSITIONS
+            )
+
+    @api.depends("line_ids.disposition_id")
+    def _compute_accepted_line_ids(self):
+        for rec in self:
+            rec.accepted_line_ids = rec.line_ids.filtered(
+                lambda line: (line.disposition_id.code or "") not in NON_ACCEPT_DISPOSITIONS
             )
 
     @api.depends("picking_ids")

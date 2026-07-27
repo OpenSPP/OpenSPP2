@@ -997,6 +997,38 @@ class TestDrimsDonation(DrimsTestCommon):
         self.assertIsNotNone(result)
         self.assertIn("200", result["params"]["message"])
 
+    def test_1058_accepted_and_non_accepted_line_split(self):
+        """OP#1058: a non-accepted line appears only in non_accepted_line_ids
+        (the "Items Not Accepted for Stock" table), not in accepted_line_ids
+        (the "Donation Items" table) — no duplication across the two tables."""
+        disposition_accept = self._disposition("accept")
+        disposition_return = self._disposition("return")
+        if not (disposition_accept and disposition_return):
+            self.skipTest("required disposition codes missing")
+
+        donation = self._make_donation(
+            [
+                {"product_id": self.product.id, "quantity_pledged": 3, "uom_id": self.product.uom_id.id},
+                {"product_id": self.product.id, "quantity_pledged": 1, "uom_id": self.product.uom_id.id},
+            ]
+        )
+        self._receive_donation(donation)
+        donation.action_inspect()
+        accepted_line = donation.line_ids[0]
+        returned_line = donation.line_ids[1]
+        accepted_line.disposition_id = disposition_accept
+        returned_line.disposition_id = disposition_return
+
+        # The split covers every line, with no overlap.
+        self.assertIn(accepted_line, donation.accepted_line_ids)
+        self.assertNotIn(returned_line, donation.accepted_line_ids)
+        self.assertIn(returned_line, donation.non_accepted_line_ids)
+        self.assertNotIn(accepted_line, donation.non_accepted_line_ids)
+        self.assertEqual(
+            donation.accepted_line_ids | donation.non_accepted_line_ids,
+            donation.line_ids,
+        )
+
     def test_action_stock_mixed_dispositions_partial_receive_only_stocks_accept(self):
         """OP#1030 regression: even when Odoo merges the receipt moves and
         when received qty differs from pledged, only the accepted received

@@ -167,9 +167,19 @@
                                 empty, product-less lines on an already-received
                                 donation.
                             -->
+                            <!--
+                                OP#1058: entry table for building the donation
+                                (editable in draft/announced, read-only while
+                                received). Once inspected it is hidden and
+                                replaced by the accepted_line_ids table below, so
+                                non-accepted items are not duplicated across both
+                                this table and "Items Not Accepted for Stock".
+                            -->
                             <field
                                 name="line_ids"
+                                class="o_drims_donation_list"
                                 readonly="state not in ('draft', 'announced')"
+                                invisible="state in ('inspected', 'stocked')"
                             >
                                 <!--
                                     OP#1076: columns appear progressively with the
@@ -245,6 +255,35 @@
                                 </list>
                             </field>
                             <!--
+                                OP#1058: once inspected, the "Donation Items"
+                                table shows the accepted items only; the excluded
+                                ones appear solely in "Items Not Accepted for
+                                Stock" below (no duplication).
+                            -->
+                            <field
+                                name="accepted_line_ids"
+                                readonly="1"
+                                class="o_drims_donation_list"
+                                invisible="state not in ('inspected', 'stocked')"
+                            >
+                                <list>
+                                    <field name="product_id" />
+                                    <field name="quantity_pledged" string="Pledged" />
+                                    <field name="quantity_received" string="Received" />
+                                    <field
+                                        name="receipt_variance"
+                                        string="Variance"
+                                        decoration-danger="receipt_variance &lt; 0"
+                                    />
+                                    <field name="uom_id" />
+                                    <field name="unit_value" />
+                                    <field name="value" />
+                                    <field name="condition_id" string="Condition" />
+                                    <field name="disposition_id" string="Action" />
+                                    <field name="lot_number" optional="show" />
+                                </list>
+                            </field>
+                            <!--
                                 OP#1076: once inspected, any items whose
                                 disposition excludes them from stock (return /
                                 dispose / quarantine) are listed separately so
@@ -257,6 +296,7 @@
                             <field
                                 name="non_accepted_line_ids"
                                 readonly="1"
+                                class="o_drims_donation_list"
                                 invisible="state not in ('inspected', 'stocked') or not non_accepted_line_ids"
                             >
                                 <list>
