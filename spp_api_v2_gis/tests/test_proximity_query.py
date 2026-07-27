@@ -343,7 +343,14 @@ class TestProximityQueryAreaFallback(TransactionCase):
         self.assertEqual(result["relation"], "beyond")
 
     def test_areas_matched_count(self):
-        """Test that areas_matched is reported correctly."""
+        """Test areas_matched reporting under k-anonymity suppression.
+
+        The near area holds fewer than the k-anonymity threshold of registrants,
+        so the whole response is canonicalized: query_method becomes "suppressed"
+        and areas_matched is zeroed (it must not reveal that a small population's
+        area was matched). Matching itself is verified in the other tests via
+        registrant_ids.
+        """
         service = self._get_service()
 
         result = service.query_proximity(
@@ -352,6 +359,6 @@ class TestProximityQueryAreaFallback(TransactionCase):
             relation="within",
         )
 
-        # At least the near area should be matched
-        if result["query_method"] == "area_fallback":
-            self.assertGreater(result["areas_matched"], 0)
+        self.assertTrue(result["count_suppressed"])
+        self.assertEqual(result["query_method"], "suppressed")
+        self.assertEqual(result["areas_matched"], 0)
