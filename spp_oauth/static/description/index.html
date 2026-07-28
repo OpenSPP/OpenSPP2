@@ -507,6 +507,18 @@ in API controllers</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.1</h1>
+<ul class="simple">
+<li>fix(security): restrict the OAuth signing keys (<tt class="docutils literal">oauth_priv_key</tt>,
+<tt class="docutils literal">oauth_pub_key</tt>) to <tt class="docutils literal">base.group_system</tt>. The settings ACL row
+granting <tt class="docutils literal">base.group_user</tt> access to <tt class="docutils literal">res.config.settings</tt> is
+removed, and <tt class="docutils literal">default_get()</tt> no longer returns the key values to
+non-system users. Deployments must treat the currently deployed RSA
+keypair as compromised: rotate it and invalidate outstanding tokens,
+because every internal user could previously read the private key.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
