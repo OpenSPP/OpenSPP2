@@ -511,6 +511,21 @@ expressions:</p>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.1</h1>
+<ul class="simple">
+<li>fix(security): restrict GRM routing and escalation rules to GRM staff.
+Portal users no longer hold write/create on <tt class="docutils literal">spp.grm.routing.rule</tt>
+and <tt class="docutils literal">spp.grm.escalation.rule</tt>; these models carry no record rules,
+so the access-control entry was the only boundary. Because portal
+grievance submission runs sudo, a portal-authored rule previously
+executed its CEL condition and actions as superuser.</li>
+<li>fix(grm): increment the escalation counter with elevated rights,
+matching the routing rule’s <tt class="docutils literal">match_count</tt> update, so a caller
+without write access cannot leave an escalation applied half-way
+(notification sent and case created, counter and chatter missing).</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
