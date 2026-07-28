@@ -181,3 +181,4 @@ project. We thank all contributors to both projects. See
 ## License
 
 [LGPL-3.0](LICENSE) - This is free and open-source software.
+
