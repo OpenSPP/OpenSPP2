@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <!-- Main Menu: Key Management -->
+    <!-- Main Menu: Key Management.
+         Top-level on purpose: the Settings root (base.menu_administration)
+         is only visible to base.group_erp_manager, and Odoo prunes menus
+         whose ancestors are invisible - parenting under Settings would
+         hide Key Management from dedicated key admins who are not system
+         administrators. -->
     <menuitem
         id="menu_key_management_root"
         name="Key Management"
-        parent="base.menu_administration"
         sequence="760"
         groups="group_key_admin,base.group_system"
     />
