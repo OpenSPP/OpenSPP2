@@ -560,6 +560,31 @@ class DrimsRequest(models.Model):
             rec.rejection_reason = False
         return True
 
+    def action_resubmit(self):
+        """OP#1162: one-click resubmit of a revision-requested request.
+
+        "Request Changes" moves the request to ``revision``; the submitter's
+        "Resubmit for Approval" button lands here. Flip it back to ``draft`` and
+        run the normal submit flow (``draft`` -> ``pending``). ``action_submit``
+        cannot be called directly from ``revision`` because the approval mixin's
+        submit guard (``_check_can_submit``) only accepts ``draft``.
+        """
+        for rec in self:
+            if rec.approval_state != "revision":
+                raise UserError(_("Only requests with requested changes can be resubmitted."))
+            # A revision-requested request can still carry the original pending
+            # approval review; mark it rejected so the fresh submission below
+            # can create a new one without hitting the unique-pending constraint.
+            rec.approval_review_ids.filtered(lambda r: r.status == "pending").write({"status": "rejected"})
+            rec.approval_state = "draft"
+        # Persist the review-status change now: action_submit creates the new
+        # review via a sudo() env, which flushes independently — without this the
+        # INSERT can run while the old review is still 'pending' in the DB and
+        # trip the unique-pending exclusion constraint.
+        self.env.flush_all()
+        self.action_submit()
+        return True
+
     def _set_state_by_code(self, code):
         """Set the request state to the vocab code, if it exists."""
         self.ensure_one()

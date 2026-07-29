@@ -140,8 +140,10 @@
                     />
 
                     <!-- Revision Actions -->
+                    <!-- OP#1162: resubmit does revision -> draft -> pending in one
+                         click; action_submit alone rejects non-draft records. -->
                     <button
-                        name="action_submit"
+                        name="action_resubmit"
                         string="Resubmit for Approval"
                         type="object"
                         class="btn-primary"

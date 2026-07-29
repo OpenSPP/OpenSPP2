@@ -212,6 +212,47 @@ class TestDrimsRequest(DrimsTestCommon):
         self.assertEqual(request.approval_state, "revision")
         self.assertEqual(request.revision_notes, "Please add justification")
 
+    def test_1162_resubmit_from_revision(self):
+        """OP#1162: 'Resubmit for Approval' from the revision state goes back to
+        pending in one click (previously action_submit raised "Only draft
+        records can be submitted for approval.")."""
+        request = self.env["spp.drims.request"].create(
+            {
+                "incident_id": self.incident.id,
+                "destination_area_id": self.area.id,
+                "date_needed": self.future_date,
+                "line_ids": [
+                    (0, 0, {"product_id": self.product.id, "quantity_requested": 10, "uom_id": self.product.uom_id.id})
+                ],
+            }
+        )
+        request.action_submit()
+        request.action_request_revision(notes="Please add justification")
+        self.assertEqual(request.approval_state, "revision")
+
+        # The old bug: action_submit from revision raises.
+        with self.assertRaises(UserError):
+            request.action_submit()
+
+        # action_resubmit handles revision -> draft -> pending in one click.
+        request.action_resubmit()
+        self.assertEqual(request.approval_state, "pending")
+
+    def test_1162_resubmit_only_from_revision(self):
+        """action_resubmit is rejected outside the revision state."""
+        request = self.env["spp.drims.request"].create(
+            {
+                "incident_id": self.incident.id,
+                "destination_area_id": self.area.id,
+                "date_needed": self.future_date,
+                "line_ids": [
+                    (0, 0, {"product_id": self.product.id, "quantity_requested": 10, "uom_id": self.product.uom_id.id})
+                ],
+            }
+        )
+        with self.assertRaises(UserError):
+            request.action_resubmit()  # still draft
+
     def test_reset_to_draft(self):
         """Test resetting rejected request to draft."""
         request = self.env["spp.drims.request"].create(
