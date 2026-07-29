@@ -122,8 +122,10 @@
                         confirm="Approve this request? Items will be ready for allocation."
                         data-hotkey="a"
                     />
+                    <!-- OP#1161: open a wizard to capture required reviewer
+                         notes instead of calling action_request_revision bare. -->
                     <button
-                        name="action_request_revision"
+                        name="action_open_revision_wizard"
                         string="Request Changes"
                         type="object"
                         class="btn-secondary"
@@ -337,12 +339,22 @@
                     >
                         <div class="d-flex align-items-center">
                             <i class="fa fa-edit fa-2x me-3" title="Edit" />
-                            <div>
+                            <div class="flex-grow-1">
                                 <h5 class="alert-heading mb-1">Changes Requested</h5>
-                                <p class="mb-0">
+                                <p class="mb-1">
                                     An approver has requested changes to this request.
-                                    Please review the feedback below, make the necessary edits, and resubmit.
+                                    Please make the necessary edits and resubmit.
                                 </p>
+                                <!-- OP#1161: show the reviewer's notes captured by
+                                     the Request Changes wizard. -->
+                                <div invisible="not revision_notes">
+                                    <strong>Requested changes:</strong>
+                                    <field
+                                        name="revision_notes"
+                                        readonly="1"
+                                        nolabel="1"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>

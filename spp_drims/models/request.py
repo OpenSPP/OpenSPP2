@@ -517,6 +517,27 @@ class DrimsRequest(models.Model):
             "context": {"default_request_id": self.id},
         }
 
+    def action_open_revision_wizard(self):
+        """Open the request-changes wizard to collect required reviewer notes (OP#1161).
+
+        The "Request Changes" button previously called ``action_request_revision``
+        directly with no notes, so the submitter was sent back to revision with
+        no explanation. This opens a small wizard (mirroring the Reject wizard)
+        that collects a required notes text and then invokes
+        ``action_request_revision(notes=...)``.
+        """
+        self.ensure_one()
+        if self.approval_state not in ("pending", "submitted"):
+            raise UserError(_("Only pending requests can be sent for revision."))
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Request Changes"),
+            "res_model": "spp.drims.request.revision.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {"default_request_id": self.id},
+        }
+
     def action_request_revision(self, notes=None):
         """Request changes from the requester."""
         revision_state = self.env["spp.vocabulary.code"].search(
