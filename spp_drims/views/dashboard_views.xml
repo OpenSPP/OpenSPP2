@@ -378,6 +378,15 @@
                     options="{'no_create': True, 'no_open': True}"
                     readonly="status == 'closed'"
                 />
+                <!-- OP#1164: define the incident's warehouses here (bidirectional
+                     with each warehouse's "Active Incidents"). Locked when the
+                     incident is closed, like the other incident fields (#1158). -->
+                <field
+                    name="drims_warehouse_ids"
+                    widget="many2many_tags"
+                    options="{'no_create': True}"
+                    readonly="status == 'closed'"
+                />
             </xpath>
 
             <!-- Add DRIMS stats buttons in button box -->

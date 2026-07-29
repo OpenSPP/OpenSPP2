@@ -90,4 +90,15 @@
         <field name="key">drims.performance.kpi_cache_ttl_minutes</field>
         <field name="value">30</field>
     </record>
+
+    <!-- =================================================================== -->
+    <!-- WAREHOUSE SETTINGS -->
+    <!-- =================================================================== -->
+    <!-- OP#1164: when True, the warehouse pickers on donations/requests are
+         restricted to the incident's linked warehouses. Set False to allow
+         selecting from any DRIMS warehouse. -->
+    <record id="default_warehouse_filter_by_incident" model="ir.config_parameter">
+        <field name="key">drims.warehouse.filter_by_incident</field>
+        <field name="value">True</field>
+    </record>
 </odoo>

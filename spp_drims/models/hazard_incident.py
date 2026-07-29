@@ -114,6 +114,9 @@ class HazardIncident(models.Model):
         "stock.warehouse",
         string="DRIMS Warehouses",
         compute="_compute_drims_warehouses",
+        inverse="_inverse_drims_warehouses",
+        domain="[('is_drims_warehouse', '=', True)]",
+        help="Warehouses responding to this incident. Editable here or from a warehouse's Active Incidents.",
     )
     drims_picking_ids = fields.One2many(
         "stock.picking",
@@ -171,6 +174,21 @@ class HazardIncident(models.Model):
                     ("is_drims_warehouse", "=", True),
                 ]
             )
+
+    def _inverse_drims_warehouses(self):
+        """OP#1164: allow defining an incident's warehouses from the incident.
+
+        Writes back to the ``stock.warehouse.incident_ids`` many2many (the same
+        link editable from the warehouse's "Active Incidents"), so both sides
+        stay in sync. Writing through ``stock.warehouse.write`` also lets the
+        OP#1094 stock-KPI cache invalidation fire for the affected incidents.
+        """
+        Warehouse = self.env["stock.warehouse"]
+        for rec in self:
+            current = Warehouse.search([("incident_ids", "in", rec.id), ("is_drims_warehouse", "=", True)])
+            target = rec.drims_warehouse_ids
+            (target - current).write({"incident_ids": [(4, rec.id)]})
+            (current - target).write({"incident_ids": [(3, rec.id)]})
 
     @api.depends(
         "drims_donation_ids",

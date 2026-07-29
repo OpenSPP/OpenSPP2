@@ -120,7 +120,7 @@ class DrimsRequest(models.Model):
     source_warehouse_id = fields.Many2one(
         "stock.warehouse",
         string="Source Warehouse",
-        domain="[('is_drims_warehouse', '=', True)]",
+        domain="[('id', 'in', allowed_warehouse_ids)]",
         tracking=True,
         help="Warehouse to fulfill request from",
     )
@@ -128,9 +128,17 @@ class DrimsRequest(models.Model):
     destination_warehouse_id = fields.Many2one(
         "stock.warehouse",
         string="Destination Warehouse",
-        domain="[('is_drims_warehouse', '=', True), ('area_id', '=', destination_area_id)]",
+        domain="[('id', 'in', allowed_warehouse_ids), ('area_id', '=', destination_area_id)]",
         tracking=True,
         help="Warehouse in the destination area to receive the dispatch",
+    )
+    # OP#1164: warehouses selectable for this request — the incident's linked
+    # warehouses when incident-filtering is enabled, otherwise all DRIMS
+    # warehouses. Used to domain the source/destination warehouse fields.
+    allowed_warehouse_ids = fields.Many2many(
+        "stock.warehouse",
+        compute="_compute_allowed_warehouse_ids",
+        string="Allowed Warehouses",
     )
 
     # Contact
@@ -298,6 +306,19 @@ class DrimsRequest(models.Model):
             else:
                 rec.allocation_pct = 0
                 rec.fulfillment_pct = 0
+
+    @api.depends("incident_id", "incident_id.drims_warehouse_ids")
+    def _compute_allowed_warehouse_ids(self):
+        """OP#1164: selectable warehouses = the incident's warehouses when
+        incident-filtering is on (and the incident has any), else all DRIMS
+        warehouses. The fallback avoids locking out allocation/dispatch when an
+        incident has no warehouses linked yet."""
+        Warehouse = self.env["stock.warehouse"]
+        filter_on = self.env["res.config.settings"].is_warehouse_filter_by_incident_enabled()
+        all_drims = Warehouse.search([("is_drims_warehouse", "=", True)])
+        for rec in self:
+            incident_whs = rec.incident_id.drims_warehouse_ids
+            rec.allowed_warehouse_ids = incident_whs if (filter_on and incident_whs) else all_drims
 
     @api.depends("picking_ids")
     def _compute_picking_count(self):

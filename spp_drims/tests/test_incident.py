@@ -163,6 +163,48 @@ class TestDrimsIncident(DrimsTestCommon):
         self.incident.invalidate_recordset()
         self.assertIn(self.warehouse, self.incident.drims_warehouse_ids)
 
+    def test_1164_link_warehouses_from_incident_side(self):
+        """OP#1164: editing drims_warehouse_ids on the incident links/unlinks the
+        warehouse both ways (via stock.warehouse.incident_ids)."""
+        self.warehouse.is_drims_warehouse = True
+        # Link from the incident side.
+        self.incident.drims_warehouse_ids = [(4, self.warehouse.id)]
+        self.assertIn(self.incident, self.warehouse.incident_ids)
+        self.incident.invalidate_recordset()
+        self.assertIn(self.warehouse, self.incident.drims_warehouse_ids)
+        # Unlink from the incident side.
+        self.incident.drims_warehouse_ids = [(3, self.warehouse.id)]
+        self.assertNotIn(self.incident, self.warehouse.incident_ids)
+
+    def test_1164_donation_allowed_warehouses_respects_filter(self):
+        """OP#1164: donation warehouse choices = the incident's warehouses when
+        filtering is on; all DRIMS warehouses when off."""
+        self.warehouse.is_drims_warehouse = True
+        other = self.env["stock.warehouse"].create(
+            {"name": "Other WH 1164", "code": "O1164", "is_drims_warehouse": True}
+        )
+        self.incident.drims_warehouse_ids = [(6, 0, [self.warehouse.id])]
+        donation = self.env["spp.drims.donation"].create(
+            {"incident_id": self.incident.id, "warehouse_id": self.warehouse.id, "donor_name": "D"}
+        )
+        # Filter ON (default): only the incident's warehouse.
+        self.assertIn(self.warehouse, donation.allowed_warehouse_ids)
+        self.assertNotIn(other, donation.allowed_warehouse_ids)
+        # Filter OFF: all DRIMS warehouses.
+        self.env["ir.config_parameter"].sudo().set_param("drims.warehouse.filter_by_incident", "False")
+        donation.invalidate_recordset(["allowed_warehouse_ids"])
+        self.assertIn(other, donation.allowed_warehouse_ids)
+
+    def test_1164_allowed_warehouses_fallback_when_incident_has_none(self):
+        """OP#1164: with filtering on but no warehouses linked, fall back to all
+        DRIMS warehouses (so donation/request creation isn't locked out)."""
+        self.warehouse.is_drims_warehouse = True
+        self.incident.drims_warehouse_ids = [(5, 0, 0)]  # ensure none linked
+        donation = self.env["spp.drims.donation"].create(
+            {"incident_id": self.incident.id, "warehouse_id": self.warehouse.id, "donor_name": "D"}
+        )
+        self.assertIn(self.warehouse, donation.allowed_warehouse_ids)
+
     def test_1157_flag_as_alert(self):
         """OP#1157: action_set_alert moves the incident into the Alert state."""
         self.assertNotEqual(self.incident.status, "alert")

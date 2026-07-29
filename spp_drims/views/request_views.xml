@@ -304,6 +304,8 @@
                         invisible="approval_state != 'approved'"
                     >
                         <group>
+                            <!-- OP#1164: domain source for the warehouse fields -->
+                            <field name="allowed_warehouse_ids" invisible="1" />
                             <field
                                 name="source_warehouse_id"
                                 options="{'no_create': True}"
