@@ -347,6 +347,40 @@ class DrimsDonation(models.Model):
                 raise UserError(_("Add at least one item before announcing the donation."))
             rec.state_id = announced_state
 
+    def action_open_receive_wizard(self):
+        """OP#1163: open the Mark Received wizard to enter received quantities.
+
+        Mirrors the Inspect Items flow: pre-creates the wizard + one line per
+        donation item (Received pre-filled from the pledged quantity) so the
+        operator confirms/edits the quantities on a single screen instead of
+        hitting an error when they weren't entered yet.
+        """
+        self.ensure_one()
+        if self.state != DONATION_STATE_ANNOUNCED:
+            raise UserError(_("Only announced donations can be marked as received."))
+        wizard = self.env["spp.drims.receive.wizard"].create({"donation_id": self.id})
+        line_vals = [
+            {
+                "wizard_id": wizard.id,
+                "donation_line_id": line.id,
+                "product_id": line.product_id.id,
+                "uom_id": line.uom_id.id,
+                "quantity_pledged": line.quantity_pledged,
+                "quantity_received": line.quantity_received or line.quantity_pledged,
+            }
+            for line in self.line_ids
+        ]
+        if line_vals:
+            self.env["spp.drims.receive.wizard.line"].create(line_vals)
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Mark Received"),
+            "res_model": "spp.drims.receive.wizard",
+            "res_id": wizard.id,
+            "view_mode": "form",
+            "target": "new",
+        }
+
     def action_mark_received(self):
         """Mark donation as received and create stock picking.
 

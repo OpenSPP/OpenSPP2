@@ -735,6 +735,38 @@ class TestDrimsDonation(DrimsTestCommon):
             }
         )
 
+    # ---------- OP#1163: Mark Received wizard ----------
+    def test_1163_receive_wizard_writes_qty_and_marks_received(self):
+        """OP#1163: the receive wizard pre-fills received from pledged, writes the
+        entered quantities back, and marks the donation received."""
+        donation = self._make_donation(
+            [{"product_id": self.product.id, "quantity_pledged": 10, "uom_id": self.product.uom_id.id}]
+        )
+        donation.action_mark_announced()
+
+        action = donation.action_open_receive_wizard()
+        self.assertEqual(action["res_model"], "spp.drims.receive.wizard")
+        wizard = self.env["spp.drims.receive.wizard"].browse(action["res_id"])
+        self.assertEqual(len(wizard.line_ids), 1)
+        # Received pre-filled from pledged.
+        self.assertEqual(wizard.line_ids.quantity_received, 10)
+
+        # Adjust and confirm.
+        wizard.line_ids.quantity_received = 8
+        wizard.action_confirm_received()
+        self.assertEqual(donation.state, "received")
+        self.assertEqual(donation.line_ids[0].quantity_received, 8)
+        self.assertEqual(donation.picking_count, 1)
+
+    def test_1163_receive_wizard_only_announced(self):
+        """OP#1163: opening the receive wizard on a non-announced donation raises."""
+        donation = self._make_donation(
+            [{"product_id": self.product.id, "quantity_pledged": 10, "uom_id": self.product.uom_id.id}]
+        )
+        # Still draft, not announced.
+        with self.assertRaises(UserError):
+            donation.action_open_receive_wizard()
+
     def test_action_stock_creates_lot_for_lot_tracked_product(self):
         """Lot-tracked product validates and a stock.lot is created from lot_number."""
         product = self._make_tracked_product("lot", "Rice 25kg (lot)")

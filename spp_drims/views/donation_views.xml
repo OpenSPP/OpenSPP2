@@ -48,8 +48,10 @@
                         class="btn-primary"
                         invisible="state != 'draft'"
                     />
+                    <!-- OP#1163: open a wizard to enter received quantities
+                         instead of erroring when they aren't filled in yet. -->
                     <button
-                        name="action_mark_received"
+                        name="action_open_receive_wizard"
                         string="Mark Received"
                         type="object"
                         class="btn-primary"
