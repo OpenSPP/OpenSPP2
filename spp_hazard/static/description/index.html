@@ -2454,6 +2454,41 @@ the text label</td>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.3.0.0</h1>
+<ul class="simple">
+<li><strong>BREAKING</strong>: the 1-5 <tt class="docutils literal">severity</tt> Selection on
+<tt class="docutils literal">spp.hazard.incident</tt> and <tt class="docutils literal">severity_override</tt> on
+<tt class="docutils literal">spp.hazard.incident.area</tt> are removed and replaced by
+<tt class="docutils literal">severity_id</tt> / <tt class="docutils literal">severity_override_id</tt> (Many2one to
+<tt class="docutils literal">spp.vocabulary.code</tt> on the CAP severity namespace). Modules that
+extend these models must migrate: views that reference
+<tt class="docutils literal">&lt;field <span class="pre">name=&quot;severity&quot;&gt;</span></tt> / <tt class="docutils literal">severity_override</tt>, code that reads
+<tt class="docutils literal">record.severity</tt>, records created with <tt class="docutils literal"><span class="pre">severity=&quot;…&quot;</span></tt>, and any
+<tt class="docutils literal">fields_to_log</tt> entries or domains naming the old fields. Read
+<tt class="docutils literal">severity_numeric</tt> (below) where a numeric scale is needed.</li>
+<li><strong>BREAKING</strong>: <tt class="docutils literal">spp_hazard</tt> now depends on <tt class="docutils literal">spp_vocabulary</tt>.</li>
+<li><strong>BREAKING</strong>: <tt class="docutils literal">category_id</tt> and <tt class="docutils literal">start_date</tt> are no longer
+<tt class="docutils literal">required</tt> at the model level (they remain required in the incident
+form view) so alert ingestion can create incidents that lack them.</li>
+<li>feat: severity is now a CAP v1.2 vocabulary code (<tt class="docutils literal">severity_id</tt>,
+<tt class="docutils literal">severity_override_id</tt> on incident areas) instead of a hardcoded 1-5
+Selection; adds CAP urgency/certainty/message-type/event fields, alert
+ingestion (<tt class="docutils literal">create_incident_from_alert</tt>), and incident <tt class="docutils literal">uuid</tt>
+(re-land from #76).</li>
+<li>feat: <tt class="docutils literal">spp.hazard.incident</tt> exposes a stored <tt class="docutils literal">severity_numeric</tt>
+(5=extreme, 4=severe, 3=moderate, 2=minor, 1=unknown, 0=unset) so
+downstream ordering and threshold logic can consume a numeric scale
+without resolving CAP vocabulary codes.</li>
+<li>feat: migration backfills legacy 1-5 severity values onto the
+vocabulary fields when upgrading from 19.0.2.0.x (1→minor, 2→moderate,
+3→severe, 4→severe, 5→extreme); existing values are never overwritten
+and legacy columns are kept.</li>
+<li>fix: demo incident-area records now set <tt class="docutils literal">severity_override_id</tt>
+vocabulary refs (the removed <tt class="docutils literal">severity_override</tt> field broke demo
+installs).</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.2</h1>
 <ul class="simple">
 <li>fix(security): grant <tt class="docutils literal">group_hazard_viewer</tt> to spp_user_roles roles
@@ -2469,7 +2504,7 @@ logged-in user; the OP#951 audit requires several roles to NOT see it
 Support).</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix(views): apply <tt class="docutils literal">spp_registry.x2many_no_padding</tt> widget to the
@@ -2477,7 +2512,7 @@ hazard impacts list on registrant forms, and hide the table when empty
 (showing a muted info line instead) (#943).</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
