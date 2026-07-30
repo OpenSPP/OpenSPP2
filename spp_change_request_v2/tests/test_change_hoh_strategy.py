@@ -256,3 +256,26 @@ class TestChangeHOHStrategy(TransactionCase):
 
         self.assertIn("_action", preview)
         self.assertEqual(preview["_action"], "change_head_of_household")
+
+    def test_head_computes_and_new_head_onchange(self):
+        """Cover `_compute_current_head`, `_compute_available_individuals`, and
+        `_onchange_new_head_id` on the restored Change HoH detail."""
+        cr = self.cr_model.create(
+            {
+                "request_type_id": self.cr_type.id,
+                "registrant_id": self.group.id,
+            }
+        )
+        detail = cr.get_detail()
+
+        self.assertEqual(detail.current_head_id, self.current_head)
+        self.assertIn(self.new_head, detail.available_individual_ids)
+        self.assertNotIn(self.current_head, detail.available_individual_ids)
+
+        detail.new_head_id = self.new_head
+        detail._onchange_new_head_id()
+        self.assertEqual(detail.new_head_membership_id, self.member_membership)
+
+        detail.new_head_id = False
+        detail._onchange_new_head_id()
+        self.assertFalse(detail.new_head_membership_id)
