@@ -3,10 +3,26 @@ import hashlib
 import json
 import logging
 
+import psycopg2
+
 from odoo import Command, _, api, fields, models
-from odoo.exceptions import AccessError, UserError
+from odoo.exceptions import AccessError, ConcurrencyError, UserError
 
 _logger = logging.getLogger(__name__)
+
+#: Queueing a malware scan is best-effort — a scan that cannot be enqueued must not
+#: block the attachment write. A **database** error is categorically different: it
+#: leaves the transaction unusable, so swallowing one converts a recoverable fault
+#: into an unrelated failure somewhere downstream.
+#:
+#: These are exactly the classes ``odoo.service.model.retrying`` recovers from by
+#: rolling back and re-running the request (``IntegrityError``, ``OperationalError``,
+#: ``ConcurrencyError`` — see ``odoo/service/model.py``). ``SerializationFailure``
+#: resolves through that tuple via
+#: ``SerializationFailure -> TransactionRollbackError -> OperationalError``, so a
+#: concurrent-update conflict on an attachment is retried transparently — *unless*
+#: something catches it first.
+_MUST_NOT_SWALLOW = (psycopg2.Error, ConcurrencyError)
 
 QUARANTINE_PROVIDER_PARAM = "spp_attachment_av_scan.quarantine_encryption_provider_id"
 QUARANTINE_RETENTION_DAYS_PARAM = "spp_attachment_av_scan.quarantine_retention_days"
@@ -92,6 +108,11 @@ class IrAttachment(models.Model):
                         priority=20,
                     )._scan_for_malware()
                     _logger.info("Queued malware scan for attachment ID %s", attachment.id)
+                except _MUST_NOT_SWALLOW:
+                    # Never swallow: see ``_MUST_NOT_SWALLOW``. Re-raise so the
+                    # request is rolled back and retried instead of continuing on a
+                    # dead transaction.
+                    raise
                 except Exception as error:
                     _logger.error(
                         "Failed to queue malware scan for attachment ID %s: %s",
@@ -130,6 +151,14 @@ class IrAttachment(models.Model):
                             "Queued malware scan for updated attachment ID %s",
                             attachment.id,
                         )
+                    except _MUST_NOT_SWALLOW:
+                        # Never swallow: see ``_MUST_NOT_SWALLOW``. This is the exact
+                        # site that turned a transient "could not serialize access due
+                        # to concurrent update" on an attachment into an
+                        # InFailedSqlTransaction reported from an unrelated menu-icon
+                        # lookup, on every module upgrade, with the real cause visible
+                        # only as a stray ERROR line in the server log.
+                        raise
                     except Exception as error:
                         _logger.error(
                             "Failed to queue malware scan for updated attachment ID %s: %s",
