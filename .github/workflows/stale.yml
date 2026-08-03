@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Stale PRs and issues policy
-        uses: actions/stale@v10
+        uses: actions/stale@v11
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           ascending: true
