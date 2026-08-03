@@ -117,6 +117,46 @@
                 <attribute name="invisible">state != 'done' or drims_type_id</attribute>
             </xpath>
 
+            <!--
+                OP#1086: a request dispatch is confirmed the moment
+                action_create_dispatch creates it, so it never sits in Draft.
+                Core renders two statusbars for stock.picking, split on
+                picking_type_code; a dispatch is outgoing, so it picks up the
+                non-incoming one with draft,confirmed,assigned,done. Narrow that
+                one to exclude dispatches and add a dispatch-only bar, rather
+                than editing the shared statusbar_visible, which would drop
+                Draft from every non-incoming transfer in the database.
+
+                Note this hides Waiting (state=confirmed) as a *future* step
+                only. Waiting IS reachable for a dispatch: DRIMS allocation just
+                writes quantity_allocated on the request line and reserves
+                nothing, so two requests can allocate the same units and the
+                second dispatch finds nothing to reserve. The statusbar widget
+                always renders the current value even when it is excluded
+                (getAllItems filters on `value === currentValue ||
+                visibleSelection.includes(value)`), so such a dispatch still
+                shows Waiting and stays visible to warehouse staff.
+            -->
+            <xpath
+                expr="//header/field[@name='state'][@statusbar_visible='draft,confirmed,assigned,done']"
+                position="attributes"
+            >
+                <attribute
+                    name="invisible"
+                >picking_type_code == 'incoming' or drims_type == 'request_dispatch'</attribute>
+            </xpath>
+            <xpath
+                expr="//header/field[@name='state'][@statusbar_visible='draft,confirmed,assigned,done']"
+                position="after"
+            >
+                <field
+                    name="state"
+                    widget="statusbar"
+                    invisible="picking_type_code == 'incoming' or drims_type != 'request_dispatch'"
+                    statusbar_visible="assigned,done"
+                />
+            </xpath>
+
             <!-- Add DRIMS tab -->
             <xpath expr="//notebook" position="inside">
                 <page string="DRIMS" name="drims" invisible="drims_type_id == False">
