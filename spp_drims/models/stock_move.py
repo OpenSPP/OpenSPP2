@@ -17,6 +17,30 @@ class StockMove(models.Model):
         help="Link to the donation line this move receives",
     )
 
+    def _action_done(self, cancel_backorder=False):
+        """Reconcile the request's dispatch counter once moves are validated.
+
+        Needed because Odoo has more than one way to drop undelivered demand:
+        declining "Create Backorder" leaves the move done at the picked quantity
+        without cancelling anything, so the shortfall is invisible to a
+        cancellation hook (OP#1087).
+        """
+        lines = self.drims_request_line_id
+        result = super()._action_done(cancel_backorder=cancel_backorder)
+        lines.exists()._reconcile_quantity_dispatched()
+        return result
+
+    def _action_cancel(self):
+        """Reconcile the request's dispatch counter when moves are cancelled.
+
+        Covers a cancelled backorder and a cancelled dispatch: neither quantity
+        ever shipped, so neither may keep counting as dispatched (OP#1087).
+        """
+        lines = self.drims_request_line_id
+        result = super()._action_cancel()
+        lines.exists()._reconcile_quantity_dispatched()
+        return result
+
     @api.model
     def _prepare_merge_moves_distinct_fields(self):
         """Keep DRIMS donation/request lines distinct when Odoo merges moves.

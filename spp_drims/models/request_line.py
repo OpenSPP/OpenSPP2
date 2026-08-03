@@ -95,6 +95,42 @@ class DrimsRequestLine(models.Model):
             else:
                 line.fulfillment_pct = 0.0
 
+    def _reconcile_quantity_dispatched(self):
+        """Recompute ``quantity_dispatched`` from the dispatch moves that still stand.
+
+        ``quantity_dispatched`` counts quantity committed to a dispatch picking,
+        which ``spp.drims.request.action_create_dispatch`` increments when the
+        picking is created rather than when it ships. Once moves are validated or
+        cancelled that running total can drift from reality, so it is rebuilt
+        here (OP#1087):
+
+        - a cancelled move never shipped and no longer counts at all;
+        - a done move counts what actually moved, not what was demanded, which is
+          what makes declining "Create Backorder" release the balance;
+        - a move still in progress keeps counting its demand, so a pending
+          backorder stays committed to the request.
+
+        ``quantity`` and ``product_uom_qty`` are both expressed in the move's
+        ``product_uom``, which the dispatch sets to this line's ``uom_id``, so
+        the two are directly comparable.
+
+        Runs sudo: warehouse staff validating or cancelling a dispatch need not
+        have write access to the request under the area record rules, and this is
+        system bookkeeping rather than a user edit.
+        """
+        Move = self.env["stock.move"].sudo()
+        for line in self.sudo():
+            dispatched = 0.0
+            for move in Move.search(
+                [
+                    ("drims_request_line_id", "=", line.id),
+                    ("state", "!=", "cancel"),
+                ]
+            ):
+                dispatched += move.quantity if move.state == "done" else move.product_uom_qty
+            line.quantity_dispatched = dispatched
+        self.sudo().request_id._reopen_if_not_fully_dispatched()
+
     @api.onchange("product_id")
     def _onchange_product_id(self):
         if self.product_id:
