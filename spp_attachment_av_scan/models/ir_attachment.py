@@ -15,9 +15,11 @@ _logger = logging.getLogger(__name__)
 #: leaves the transaction unusable, so swallowing one converts a recoverable fault
 #: into an unrelated failure somewhere downstream.
 #:
-#: These are exactly the classes ``odoo.service.model.retrying`` recovers from by
-#: rolling back and re-running the request (``IntegrityError``, ``OperationalError``,
-#: ``ConcurrencyError`` — see ``odoo/service/model.py``). ``SerializationFailure``
+#: This is a superset of the classes ``odoo.service.model.retrying`` recovers from
+#: by rolling back and re-running the request (``IntegrityError``, ``OperationalError``,
+#: ``ConcurrencyError`` — see ``odoo/service/model.py``); the non-retryable rest of
+#: ``psycopg2.Error`` then surfaces with the true traceback instead of poisoning
+#: downstream code. ``SerializationFailure``
 #: resolves through that tuple via
 #: ``SerializationFailure -> TransactionRollbackError -> OperationalError``, so a
 #: concurrent-update conflict on an attachment is retried transparently — *unless*
