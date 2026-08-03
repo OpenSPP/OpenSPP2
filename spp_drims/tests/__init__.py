@@ -5,6 +5,7 @@ from . import test_alert
 from . import test_allocation_preview_wizard
 from . import test_approval
 from . import test_coordination
+from . import test_dispatch_line_lock
 from . import test_donation
 from . import test_incident
 from . import test_personnel

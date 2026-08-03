@@ -266,13 +266,98 @@ class StockPicking(models.Model):
             "res_id": self.drims_return_id.id,
         }
 
+    def _check_drims_dispatch_matches_request(self):
+        """Refuse to dispatch anything the request did not approve (OP#1057).
+
+        A dispatch is generated from an approved request, but the Operations tab
+        stays editable in Ready state, so two things could still be smuggled past
+        the approval workflow:
+
+        1. **Extra products.** "Add a Product" attaches a move that no request
+           line asked for. Note this is keyed on ``drims_request_line_id`` rather
+           than Odoo's ``additional`` flag: ``additional`` is only set when a line
+           is added through the form, so a move created over RPC or by an import
+           has ``additional = False`` and would slip past a check based on it.
+
+        2. **Inflated quantities.** Unlocking the picking makes Demand editable
+           again, so an approved line can be raised above what was allocated.
+           Allocation is itself capped at the requested quantity by
+           ``_allocate_stock_fifo``, so comparing against ``quantity_allocated``
+           transitively enforces the approved amount.
+
+        Raises:
+            UserError: naming the offending products, if either check fails.
+        """
+        for picking in self:
+            if picking.drims_type != "request_dispatch" or not picking.drims_request_id:
+                continue
+
+            live_moves = picking.move_ids.filtered(lambda m: m.state != "cancel")
+            live_move_ids = set(live_moves.ids)
+            approved_line_ids = set(picking.drims_request_id.line_ids.ids)
+
+            # 1. Every move has to trace back to a line of *this* request.
+            unapproved_products = sorted(
+                {m.product_id.display_name for m in live_moves if m.drims_request_line_id.id not in approved_line_ids}
+            )
+            if unapproved_products:
+                raise UserError(
+                    _(
+                        "Dispatch %(picking)s contains items that are not part of "
+                        "request %(request)s: %(products)s.\n\n"
+                        "A dispatch may only ship what the request had approved and "
+                        "allocated. Remove these lines, or raise a new request for "
+                        "them and have it approved.",
+                        picking=picking.name,
+                        request=picking.drims_request_id.reference,
+                        products=", ".join(unapproved_products),
+                    )
+                )
+
+            # 2. Nothing may ship beyond what the request line had allocated,
+            #    counting what earlier dispatches already shipped for that line.
+            over_dispatched = []
+            for line in live_moves.drims_request_line_id:
+                line_moves = self.env["stock.move"].search(
+                    [
+                        ("drims_request_line_id", "=", line.id),
+                        ("state", "!=", "cancel"),
+                    ]
+                )
+                already_shipped = sum(m.quantity for m in line_moves if m.state == "done")
+                about_to_ship = sum(m.quantity for m in line_moves if m.id in live_move_ids)
+                if line.uom_id.compare(already_shipped + about_to_ship, line.quantity_allocated) > 0:
+                    over_dispatched.append(
+                        _(
+                            "%(product)s: dispatching %(total)s but only %(allocated)s is allocated",
+                            product=line.product_id.display_name,
+                            total=already_shipped + about_to_ship,
+                            allocated=line.quantity_allocated,
+                        )
+                    )
+            if over_dispatched:
+                raise UserError(
+                    _(
+                        "Dispatch %(picking)s would ship more than request "
+                        "%(request)s allocated:\n\n%(details)s\n\n"
+                        "Reduce the quantities, or allocate more stock to the "
+                        "request first.",
+                        picking=picking.name,
+                        request=picking.drims_request_id.reference,
+                        details="\n".join(over_dispatched),
+                    )
+                )
+
     def button_validate(self):
         """Override button_validate to enforce beneficiary validation and invalidate cache.
 
         When a request_dispatch picking is validated, this:
-        1. Validates that beneficiary tracking fields are filled (beneficiary_count, beneficiary_area_id)
-        2. Invalidates the cached KPI values to ensure dashboard shows current data
+        1. Refuses items or quantities the request never approved (OP#1057)
+        2. Validates that beneficiary tracking fields are filled (beneficiary_count, beneficiary_area_id)
+        3. Invalidates the cached KPI values to ensure dashboard shows current data
         """
+        self._check_drims_dispatch_matches_request()
+
         # Validate beneficiary tracking for DRIMS dispatches
         for picking in self:
             if picking.drims_type == "request_dispatch":
