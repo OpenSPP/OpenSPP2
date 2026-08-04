@@ -59,6 +59,7 @@
         "wizard/allocation_preview_wizard_views.xml",
         "wizard/create_return_wizard_views.xml",
         "wizard/inspection_wizard_views.xml",
+        "wizard/delivery_confirmation_wizard_views.xml",
         # Views
         "views/alert_views.xml",
         "views/donation_views.xml",

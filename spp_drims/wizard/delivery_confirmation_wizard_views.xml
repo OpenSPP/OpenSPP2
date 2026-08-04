@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Delivery Confirmation Wizard Form (OP#1088) -->
+    <record id="spp_drims_delivery_confirmation_wizard_form" model="ir.ui.view">
+        <field name="name">spp.drims.delivery.confirmation.wizard.form</field>
+        <field name="model">spp.drims.delivery.confirmation.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Confirm Delivery">
+                <sheet>
+                    <group>
+                        <group string="Dispatch" name="dispatch">
+                            <field name="picking_id" readonly="1" />
+                            <field name="request_id" readonly="1" />
+                            <field name="date_departed" readonly="1" />
+                            <field name="date_arrived" />
+                        </group>
+                        <group string="Received By" name="receiver">
+                            <field
+                                name="pod_received_by"
+                                placeholder="Name of the person taking receipt"
+                            />
+                            <field
+                                name="pod_receiver_title"
+                                placeholder="e.g. Barangay Captain"
+                            />
+                            <field
+                                name="pod_receiver_id_number"
+                                placeholder="ID presented"
+                            />
+                            <field name="pod_status_id" options="{'no_create': True}" />
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Delivered Items" name="items">
+                            <field name="line_ids" nolabel="1">
+                                <list editable="bottom" create="0" delete="0">
+                                    <field name="product_id" readonly="1" />
+                                    <field
+                                        name="uom_id"
+                                        readonly="1"
+                                        groups="uom.group_uom"
+                                    />
+                                    <field name="quantity_dispatched" readonly="1" />
+                                    <field name="quantity_delivered" />
+                                    <field
+                                        name="request_line_id"
+                                        column_invisible="1"
+                                    />
+                                </list>
+                            </field>
+                            <div class="text-muted mt-2">
+                                Quantities default to everything that was dispatched. Reduce
+                                only the lines that arrived short, and explain the shortfall
+                                under Discrepancies.
+                            </div>
+                        </page>
+
+                        <page string="Evidence" name="evidence">
+                            <group>
+                                <group string="Signature" name="signature">
+                                    <field
+                                        name="pod_signature"
+                                        widget="image"
+                                        class="oe_avatar"
+                                        nolabel="1"
+                                    />
+                                </group>
+                                <group string="Location" name="location">
+                                    <label
+                                        for="pod_gps_latitude"
+                                        string="GPS Coordinates"
+                                    />
+                                    <div class="o_row">
+                                        <field
+                                            name="pod_gps_latitude"
+                                            placeholder="Latitude"
+                                        />
+                                        <field
+                                            name="pod_gps_longitude"
+                                            placeholder="Longitude"
+                                        />
+                                    </div>
+                                </group>
+                            </group>
+                            <group string="Delivery Photos" name="photos">
+                                <field
+                                    name="pod_photo_ids"
+                                    widget="many2many_binary"
+                                    nolabel="1"
+                                />
+                            </group>
+                        </page>
+
+                        <page string="Notes &amp; Discrepancies" name="notes">
+                            <group>
+                                <field
+                                    name="pod_notes"
+                                    nolabel="1"
+                                    placeholder="How the handover went..."
+                                />
+                            </group>
+                            <group string="Discrepancies" name="discrepancies">
+                                <field
+                                    name="discrepancy_notes"
+                                    nolabel="1"
+                                    placeholder="Anything short, damaged or not as dispatched..."
+                                />
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <footer>
+                    <button
+                        name="action_confirm"
+                        string="Confirm Delivery"
+                        type="object"
+                        class="btn-primary"
+                        data-hotkey="q"
+                    />
+                    <button
+                        string="Cancel"
+                        class="btn-secondary"
+                        special="cancel"
+                        data-hotkey="x"
+                    />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record
+        id="action_drims_delivery_confirmation_wizard"
+        model="ir.actions.act_window"
+    >
+        <field name="name">Confirm Delivery</field>
+        <field name="res_model">spp.drims.delivery.confirmation.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

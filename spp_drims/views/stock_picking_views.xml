@@ -174,52 +174,103 @@
                         </group>
                     </group>
 
-                    <group>
-                        <group string="Departure &amp; Arrival" name="dates">
+                    <!--
+                        OP#1088: each button sits on the row of the field it
+                        fills, instead of in a separate column beside
+                        Distribution Details where it read as unrelated.
+
+                        Confirm Delivery is hidden until departure is recorded
+                        rather than greyed out: an Odoo form button has no
+                        conditional disabled state (ViewButton's `disabled` is a
+                        component prop, never wired to the arch), so hiding is
+                        the only declarative option. The order is also enforced
+                        server-side in action_open_delivery_confirmation and
+                        action_confirm_pod, so no path can log an arrival for
+                        goods that never left.
+                    -->
+                    <group string="Departure &amp; Arrival" name="dates">
+                        <label for="date_departed" />
+                        <div class="o_row">
                             <field name="date_departed" readonly="1" />
-                            <field name="date_arrived" readonly="1" />
-                        </group>
-                        <group>
                             <button
                                 name="action_confirm_departure"
                                 type="object"
                                 string="Confirm Departure"
                                 class="btn-primary"
-                                invisible="date_departed != False"
+                                invisible="date_departed != False or is_pod_confirmed"
                             />
+                        </div>
+                        <label for="date_arrived" />
+                        <div class="o_row">
+                            <field name="date_arrived" readonly="1" />
                             <button
-                                name="action_confirm_pod"
+                                name="action_open_delivery_confirmation"
                                 type="object"
                                 string="Confirm Delivery"
                                 class="btn-primary"
-                                invisible="is_pod_confirmed == True"
+                                invisible="not date_departed or is_pod_confirmed"
                             />
-                        </group>
+                            <span
+                                class="text-muted"
+                                invisible="date_departed != False"
+                            >Confirm departure first</span>
+                        </div>
                     </group>
 
+                    <!--
+                        OP#1088: the Confirm Delivery popup writes this block, so
+                        it becomes the delivery record and is locked once
+                        confirmed. Before confirmation the fields stay editable,
+                        which keeps action_confirm_pod usable for anything
+                        driving the picking directly.
+                    -->
                     <separator string="Proof of Delivery (POD)" />
+                    <div
+                        class="alert alert-info"
+                        role="status"
+                        invisible="is_pod_confirmed or not date_departed"
+                    >
+                        Departed but not yet delivered. Use
+                        <b>Confirm Delivery</b> above to record the handover.
+                    </div>
                     <group>
                         <group string="Receiver Information" name="receiver">
-                            <field name="pod_status_id" />
-                            <field name="is_pod_confirmed" />
-                            <field name="pod_received_by" />
-                            <field name="pod_receiver_title" />
-                            <field name="pod_receiver_id_number" />
+                            <field name="pod_status_id" readonly="is_pod_confirmed" />
+                            <field name="is_pod_confirmed" readonly="1" />
+                            <field name="pod_received_by" readonly="is_pod_confirmed" />
+                            <field
+                                name="pod_receiver_title"
+                                readonly="is_pod_confirmed"
+                            />
+                            <field
+                                name="pod_receiver_id_number"
+                                readonly="is_pod_confirmed"
+                            />
                         </group>
                         <group string="Location" name="location">
                             <label for="pod_gps_latitude" string="GPS Coordinates" />
                             <div class="o_row">
-                                <field name="pod_gps_latitude" placeholder="Latitude" />
+                                <field
+                                    name="pod_gps_latitude"
+                                    placeholder="Latitude"
+                                    readonly="is_pod_confirmed"
+                                />
                                 <field
                                     name="pod_gps_longitude"
                                     placeholder="Longitude"
+                                    readonly="is_pod_confirmed"
                                 />
                             </div>
                         </group>
                     </group>
 
                     <group>
-                        <field name="pod_signature" widget="image" class="oe_avatar" />
+                        <field
+                            name="pod_signature"
+                            widget="image"
+                            class="oe_avatar"
+                            readonly="is_pod_confirmed"
+                        />
                     </group>
 
                     <group string="Delivery Photos" name="photos">
@@ -227,6 +278,7 @@
                             name="pod_photo_ids"
                             widget="many2many_binary"
                             nolabel="1"
+                            readonly="is_pod_confirmed"
                         />
                     </group>
 
@@ -235,11 +287,13 @@
                             name="pod_notes"
                             nolabel="1"
                             placeholder="Additional delivery notes..."
+                            readonly="is_pod_confirmed"
                         />
                         <field
                             name="discrepancy_notes"
                             nolabel="1"
                             placeholder="Any discrepancies or issues..."
+                            readonly="is_pod_confirmed"
                         />
                     </group>
                 </page>
