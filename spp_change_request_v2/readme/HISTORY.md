@@ -1,3 +1,7 @@
+### 19.0.3.1.0
+
+- revert(change_request): restore the create-a-new-individual **Add Member** and role-field **Change Head of Household** CR flows (#871, #873). Reinstates the Add Member create-new fields (`created_individual_id` / `given_name` / `family_name` / `birthdate` / `gender_id` / `relationship_id`) on `spp.cr.detail.add_member` and the Change HoH `current_head_id` / `new_head_id` fields on `spp.cr.detail.change_hoh`, along with their detail views and strategies, so downstream modules that extend the old flows load and apply again. Create Group (#876), Remove Member (#872), and Split Household (#877) are unchanged, and the per-reason Required-Documents feature added alongside #873 is retained. Note: the removed `spp_dci_demo` Add Member birth-verification extension is **not** restored here; reinstate separately if needed.
+
 ### 19.0.3.0.0
 
 - feat(change_request): redesign the group/membership CR flows (#242) — Create Group (#876), Add Member now searches an existing member (#871), Remove Member first-page/review cleanup (#872), Change Head of Household via a per-member role table (#873), and Split Household as a relational member move with single-head validation (#877). Review pages render the real data as tables / detail sections.
