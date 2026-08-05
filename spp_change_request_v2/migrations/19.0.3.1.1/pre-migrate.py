@@ -34,12 +34,13 @@ def migrate(cr, version):
 
     cr.execute(
         """
-        SELECT dup.id, dup.cr_type_id, dup.reason
+        SELECT DISTINCT dup.id, dup.cr_type_id, dup.reason
         FROM spp_cr_type_reason_document dup
         JOIN spp_cr_type_reason_document kept
           ON kept.cr_type_id = dup.cr_type_id
          AND kept.reason = dup.reason
          AND kept.id < dup.id
+        ORDER BY dup.id
         """
     )
     duplicates = cr.fetchall()
