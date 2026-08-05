@@ -117,9 +117,55 @@
                 <attribute name="invisible">state != 'done' or drims_type_id</attribute>
             </xpath>
 
-            <!-- Add DRIMS tab -->
-            <xpath expr="//notebook" position="inside">
-                <page string="DRIMS" name="drims" invisible="drims_type_id == False">
+            <!--
+                OP#1150: on a dispatch, "Delivery Address" is dead weight —
+                partner_id is left blank because relief goods go to a location,
+                not a customer, so the field only invited people to fill in
+                something meaningless. Show the destination location instead.
+
+                Core hides location_dest_id for outgoing pickings
+                (invisible="picking_type_code == 'outgoing'") and keeps an
+                ungated copy at invisible="1", which is why a dispatch had no
+                destination on screen at all. Rather than un-hide core's copy —
+                which is behind stock.group_stock_multi_locations and so would
+                stay invisible wherever that group is off — add a read-only one
+                scoped to dispatches. It is populated by
+                spp.drims.request.action_create_dispatch, from the request's
+                destination warehouse where one is set.
+            -->
+            <xpath
+                expr="//div[@class='o_td_label'][label[@for='partner_id']]"
+                position="attributes"
+            >
+                <attribute name="invisible">drims_type == 'request_dispatch'</attribute>
+            </xpath>
+            <xpath
+                expr="//field[@name='partner_id'][@nolabel='1']"
+                position="attributes"
+            >
+                <attribute name="invisible">drims_type == 'request_dispatch'</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_id'][@nolabel='1']" position="after">
+                <field
+                    name="location_dest_id"
+                    string="Destination Location"
+                    readonly="1"
+                    invisible="drims_type != 'request_dispatch'"
+                    options="{'no_open': True, 'no_create': True}"
+                />
+            </xpath>
+
+            <!--
+                OP#1150: the DRIMS tab is where the dispatch is actually worked,
+                so it sits second, right after Operations, instead of last. Added
+                after the Operations page rather than appended to the notebook.
+            -->
+            <xpath expr="//page[@name='operations']" position="after">
+                <page
+                    string="Dispatch &amp; Delivery"
+                    name="drims"
+                    invisible="drims_type_id == False"
+                >
                     <group>
                         <group string="DRIMS Information" name="drims_info">
                             <field name="drims_type_id" />
