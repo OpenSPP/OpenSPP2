@@ -1,4 +1,5 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+import base64
 import json
 import logging
 
@@ -164,6 +165,46 @@ class StockPicking(models.Model):
     def action_open_gis_map(self):
         """Open the unified DRIMS Operations Map."""
         return self.env.ref("spp_drims.action_drims_operations_map").read()[0]
+
+    def _get_waybill_barcode_data_uri(self, width=300, height=50):
+        """Return the waybill number as an embedded Code128 ``data:`` URI (OP#1151).
+
+        The waybill template used to point an ``<img>`` at ``/report/barcode/``.
+        That makes the barcode depend on wkhtmltopdf being able to fetch a URL
+        from inside the rendering process, so it silently vanished whenever
+        ``web.base.url`` was not reachable there — which is the normal state of a
+        containerised deployment where Odoo listens on 8069 internally but
+        ``web.base.url`` holds an external host and port. Embedding the image
+        removes the network round trip, so the barcode renders the same in dev,
+        CI and production.
+
+        Requires reportlab's renderPM backend (``rlPyCairo``) to be installed;
+        see ``docker/requirements.txt``. Returns ``False`` rather than raising if
+        the barcode cannot be produced, since a missing barcode must not stop a
+        waybill printing.
+
+        Returns:
+            str | bool: ``data:image/png;base64,...`` or ``False``.
+        """
+        self.ensure_one()
+        if not self.waybill_number:
+            return False
+        try:
+            png = self.env["ir.actions.report"].barcode(
+                "Code128",
+                self.waybill_number,
+                width=width,
+                height=height,
+                humanreadable=0,
+            )
+        except Exception:  # noqa: BLE001 - never let a barcode break the document
+            _logger.warning(
+                "Could not render the Code128 barcode for waybill %s; printing without it. Is rlPyCairo installed?",
+                self.waybill_number,
+                exc_info=True,
+            )
+            return False
+        return "data:image/png;base64," + base64.b64encode(png).decode()
 
     def action_confirm_departure(self):
         """Confirm dispatch departure."""
