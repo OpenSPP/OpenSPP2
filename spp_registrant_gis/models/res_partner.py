@@ -1,7 +1,13 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 import json
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
+
+#: WGS84 bounds. Anything outside these is not a place on Earth, and the map
+#: widget cannot project it — see _check_gis_lat_long.
+LATITUDE_RANGE = (-90.0, 90.0)
+LONGITUDE_RANGE = (-180.0, 180.0)
 
 
 class ResPartner(models.Model):
@@ -58,3 +64,37 @@ class ResPartner(models.Model):
                 rec.coordinates = json.dumps({"type": "Point", "coordinates": [rec.gis_longitude, rec.gis_latitude]})
             else:
                 rec.coordinates = False
+
+    @api.constrains("gis_latitude", "gis_longitude", "coordinates")
+    def _check_gis_lat_long(self):
+        """Refuse coordinates that are not a place on Earth (OP#1143 QA round 1).
+
+        Without this the value was stored, and the MapTiler widget then threw
+        ``Cannot read properties of undefined`` while projecting the point —
+        on mouseover, so it fired again on every reopen and the field could not
+        be corrected. Rejecting the write keeps the last good value and leaves
+        the user on the form to fix their typo.
+
+        Constrained on ``coordinates`` too, so a point arriving from an import
+        or from another module writing the geometry directly is checked on the
+        same terms as one typed into the form.
+        """
+        for rec in self:
+            if not LATITUDE_RANGE[0] <= rec.gis_latitude <= LATITUDE_RANGE[1]:
+                raise ValidationError(
+                    _(
+                        "Latitude must be between %(low)s and %(high)s degrees; got %(value)s.",
+                        low=LATITUDE_RANGE[0],
+                        high=LATITUDE_RANGE[1],
+                        value=rec.gis_latitude,
+                    )
+                )
+            if not LONGITUDE_RANGE[0] <= rec.gis_longitude <= LONGITUDE_RANGE[1]:
+                raise ValidationError(
+                    _(
+                        "Longitude must be between %(low)s and %(high)s degrees; got %(value)s.",
+                        low=LONGITUDE_RANGE[0],
+                        high=LONGITUDE_RANGE[1],
+                        value=rec.gis_longitude,
+                    )
+                )

@@ -1,6 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 import json
 
+from odoo.exceptions import ValidationError
 from odoo.tests import TransactionCase
 
 
@@ -101,3 +102,61 @@ class TestRegistrantGIS(TransactionCase):
         registrant = self.partner_model.create({"name": "No Coords", "is_registrant": True})
         self.assertEqual(registrant.gis_latitude, 0.0)
         self.assertEqual(registrant.gis_longitude, 0.0)
+
+    # ── OP#1143 QA round 1: out-of-range values must be refused ──
+    def test_latitude_out_of_range_is_refused(self):
+        """QA round 1: an impossible latitude was accepted and stored.
+
+        The map widget then threw a JavaScript error while projecting the point
+        and kept throwing on every reopen, so the bad value could not be
+        corrected. Reject it on write instead, where the user still has the
+        form in front of them.
+        """
+        registrant = self.partner_model.create({"name": "Bad Latitude", "is_registrant": True})
+        with self.assertRaises(ValidationError):
+            registrant.write({"gis_latitude": 999.0, "gis_longitude": 120.0})
+
+    def test_longitude_out_of_range_is_refused(self):
+        registrant = self.partner_model.create({"name": "Bad Longitude", "is_registrant": True})
+        with self.assertRaises(ValidationError):
+            registrant.write({"gis_latitude": 10.0, "gis_longitude": 5000.0})
+
+    def test_negative_out_of_range_is_refused(self):
+        """The range is two-sided: -91 is as invalid as 91."""
+        registrant = self.partner_model.create({"name": "Negative Bad", "is_registrant": True})
+        with self.assertRaises(ValidationError):
+            registrant.write({"gis_latitude": -91.0, "gis_longitude": 0.0})
+        with self.assertRaises(ValidationError):
+            registrant.write({"gis_latitude": 0.0, "gis_longitude": -181.0})
+
+    def test_range_boundaries_are_accepted(self):
+        """The poles and the antimeridian are legitimate coordinates."""
+        registrant = self.partner_model.create({"name": "Boundary", "is_registrant": True})
+        registrant.write({"gis_latitude": 90.0, "gis_longitude": 180.0})
+        self.assertAlmostEqual(registrant.gis_latitude, 90.0, places=5)
+        registrant.write({"gis_latitude": -90.0, "gis_longitude": -180.0})
+        self.assertAlmostEqual(registrant.gis_longitude, -180.0, places=5)
+
+    def test_out_of_range_point_from_import_is_refused(self):
+        """Import writes `coordinates` directly, bypassing the typed inputs."""
+        registrant = self.partner_model.create({"name": "Bad Import", "is_registrant": True})
+        with self.assertRaises(ValidationError):
+            registrant.write({"coordinates": json.dumps({"type": "Point", "coordinates": [200.0, 95.0]})})
+
+    def test_a_refused_value_leaves_the_record_correctable(self):
+        """The point of the fix: the bad value must not be persisted.
+
+        QA could not recover because the invalid coordinate had been saved and
+        crashed the widget on every reopen.
+        """
+        registrant = self.partner_model.create({"name": "Recoverable", "is_registrant": True})
+        registrant.write({"gis_latitude": 8.5, "gis_longitude": 124.75})
+
+        with self.assertRaises(ValidationError):
+            registrant.write({"gis_latitude": 999.0})
+        registrant.invalidate_recordset()
+
+        # The good value survived, and a correction still goes through.
+        self.assertAlmostEqual(registrant.gis_latitude, 8.5, places=5)
+        registrant.write({"gis_latitude": 9.0})
+        self.assertAlmostEqual(registrant.gis_latitude, 9.0, places=5)
