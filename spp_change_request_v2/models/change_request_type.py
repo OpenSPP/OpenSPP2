@@ -601,10 +601,7 @@ class SPPCRTypeReasonDocument(models.Model):
         help="Documents required when the request's reason matches this rule.",
     )
 
-    _sql_constraints = [
-        (
-            "reason_uniq",
-            "unique(cr_type_id, reason)",
-            "A reason can only have one document rule per change request type.",
-        ),
-    ]
+    _reason_uniq = models.Constraint(
+        "unique(cr_type_id, reason)",
+        "A reason can only have one document rule per change request type.",
+    )
