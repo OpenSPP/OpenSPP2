@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <!-- Add Member Detail Form View (OP#871 — search an existing member) -->
+    <!-- Add Member Detail Form View -->
     <record id="spp_cr_detail_add_member_form" model="ir.ui.view">
         <field name="name">spp.cr.detail.add_member.form</field>
         <field name="model">spp.cr.detail.add_member</field>
@@ -10,9 +10,6 @@
             >
                 <header>
                     <field name="is_cr_manager" invisible="1" />
-                    <field name="type_requires_head" invisible="1" />
-                    <field name="roles_available" invisible="1" />
-                    <field name="individual_domain" invisible="1" />
                     <button
                         name="action_next_documents"
                         string="Next: Upload Documents"
@@ -50,61 +47,66 @@
                         <h1>Add Member to Group</h1>
                     </div>
 
-                    <!-- Review-stage hint above the proposed-changes table. -->
-                    <div
-                        class="alert alert-info"
-                        role="alert"
-                        invisible="stage != 'review'"
-                    >
-                        <strong
-                        >The following individual is to be added to the group:</strong>
-                    </div>
-
+                    <!-- Target Group -->
                     <group string="Target Group">
                         <field
                             name="registrant_id"
                             readonly="1"
                             options="{'no_open': True}"
                         />
-                        <field
-                            name="registrant_id_display"
-                            string="Group ID(s)"
-                            readonly="1"
-                        />
-                        <field name="registrant_registration_date" readonly="1" />
                         <field name="change_request_id" invisible="1" />
                     </group>
 
-                    <group string="Member to Add">
-                        <field
-                            name="individual_id"
-                            domain="individual_domain"
-                            options="{'no_create': True, 'no_quick_create': True}"
-                            placeholder="Search for an existing individual..."
-                            required="1"
-                        />
-                        <field
-                            name="membership_type_id"
-                            string="Role"
-                            options="{'no_create': True, 'no_open': True}"
-                            domain="[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:group-membership-type')]"
-                            required="type_requires_head"
-                            invisible="not roles_available"
-                        />
+                    <!-- Member Details -->
+                    <group string="New Member Information">
+                        <group>
+                            <field
+                                name="given_name"
+                                required="1"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="family_name"
+                                required="1"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field name="member_name" readonly="1" force_save="1" />
+                        </group>
+                        <group>
+                            <field
+                                name="birthdate"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="gender_id"
+                                options="{'no_create': True, 'no_open': True}"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="relationship_id"
+                                options="{'no_create': True, 'no_open': True}"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                        </group>
                     </group>
 
-                    <separator string="Current members (read-only)" />
-                    <field name="existing_membership_ids" nolabel="1" readonly="1">
-                        <list create="0" edit="0" delete="0" no_open="1">
-                            <field name="individual" />
-                            <field name="membership_type_ids" widget="many2many_tags" />
+                    <group string="Contact Information">
+                        <group>
                             <field
-                                name="individual_registration_date"
-                                string="Registration Date"
+                                name="phone"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
-                            <field name="start_date" string="Joined" />
-                        </list>
-                    </field>
+                            <field
+                                name="id_number"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                        </group>
+                    </group>
+
+                    <!-- Result (after apply) -->
+                    <group string="Result" invisible="not created_individual_id">
+                        <field name="created_individual_id" />
+                    </group>
                 </sheet>
                 <chatter />
             </form>

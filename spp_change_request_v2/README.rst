@@ -853,6 +853,36 @@ Before declaring a new CR type complete:
 Changelog
 =========
 
+19.0.3.1.1
+~~~~~~~~~~
+
+- fix(change_request): enforce the ``(cr_type_id, reason)`` uniqueness
+  of per-reason Required-Documents rules with ``models.Constraint``
+  (#394). The rule was previously declared via the legacy
+  ``_sql_constraints`` attribute, which Odoo 19 ignores — the constraint
+  was never created, so duplicate rules for the same reason could be
+  saved silently since 19.0.3.0.0 and one WARNING line was logged on
+  every registry load. A pre-migration removes duplicate rules (the
+  lowest-id rule per pair is kept, matching which rule the runtime
+  applied) so the constraint applies cleanly on upgrade.
+
+19.0.3.1.0
+~~~~~~~~~~
+
+- revert(change_request): restore the create-a-new-individual **Add
+  Member** and role-field **Change Head of Household** CR flows (#871,
+  #873). Reinstates the Add Member create-new fields
+  (``created_individual_id`` / ``given_name`` / ``family_name`` /
+  ``birthdate`` / ``gender_id`` / ``relationship_id``) on
+  ``spp.cr.detail.add_member`` and the Change HoH ``current_head_id`` /
+  ``new_head_id`` fields on ``spp.cr.detail.change_hoh``, along with
+  their detail views and strategies, so downstream modules that extend
+  the old flows load and apply again. Create Group (#876), Remove Member
+  (#872), and Split Household (#877) are unchanged, and the per-reason
+  Required-Documents feature added alongside #873 is retained. Note: the
+  removed ``spp_dci_demo`` Add Member birth-verification extension is
+  **not** restored here; reinstate separately if needed.
+
 19.0.3.0.0
 ~~~~~~~~~~
 
