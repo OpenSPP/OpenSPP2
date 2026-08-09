@@ -1,3 +1,7 @@
+### 19.0.2.1.5
+
+- fix(registry): reject future dates of birth on every write path. `_birthdate_onchange` only guards the form UI, so ORM `create`/`write`, CSV/Excel import, and API writes (XML-RPC, API v2, DCI) could persist a future `birthdate` — which the non-stored `age` compute then rendered as a negative string. A stored-field `@api.constrains("birthdate")` (`_check_birthdate_not_future`) now enforces this server-side; the onchange is kept as the friendlier silent-reset UX in the form (#362)
+
 ### 19.0.2.1.4
 
 - fix(registry): remove the dead `@api.constrains("age")` `_check_age_is_integer` guard. `age` is a non-stored compute derived from `birthdate`, so the constraint never fired and only emitted the registry-load warning `@constrains parameter 'age' is not writeable`. Computed `age` values are unchanged; stale i18n entries for the removed message are dropped
