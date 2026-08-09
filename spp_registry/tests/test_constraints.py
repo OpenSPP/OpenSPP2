@@ -209,3 +209,50 @@ class TestIDTypeNamespaceURI(RegistryCommon):
     def test_empty_name_rejected(self):
         with self.assertRaises(ValidationError):
             self.IDType.create({"name": False})
+
+@tagged("post_install", "-at_install")
+class TestBirthdateNotFutureConstraint(RegistryCommon):
+
+    def test_future_birthdate_rejected_on_write(self):
+        """A future birthdate set via write() raises ValidationError."""
+        future = date.today() + timedelta(days=1)
+        with self.assertRaises(ValidationError):
+            self.individual_a.write({"birthdate": future})
+
+    def test_future_birthdate_rejected_on_create(self):
+        """A future birthdate passed to create() raises ValidationError."""
+        future = date.today() + timedelta(days=1)
+        with self.assertRaises(ValidationError):
+            self.Partner.create(
+                {
+                    "name": "Time Traveller",
+                    "is_registrant": True,
+                    "is_group": False,
+                    "birthdate": future,
+                }
+            )
+
+    def test_future_birthdate_rejected_on_import(self):
+        future = date.today() + timedelta(days=1)
+        result = self.Partner.load(
+            ["name", "is_registrant", "is_group", "birthdate"],
+            [["Imported Person", "1", "0", str(future)]],
+        )
+        self.assertTrue(result["messages"], "expected a constraint message from load()")
+        self.assertFalse(result["ids"], "the future-birthdate row must not be created")
+
+    def test_today_is_allowed(self):
+        """birthdate == today is the boundary that must pass."""
+        self.individual_a.write({"birthdate": date.today()})
+        self.assertEqual(self.individual_a.birthdate, date.today())
+
+    def test_past_birthdate_allowed(self):
+        """An ordinary past birthdate writes without error."""
+        self.individual_a.write({"birthdate": date(1990, 1, 1)})
+        self.assertEqual(self.individual_a.birthdate, date(1990, 1, 1))
+
+    def test_approximate_future_birthdate_rejected(self):
+        """An approximate DOB (birthdate_not_exact) still can't be future."""
+        future = date.today() + timedelta(days=1)
+        with self.assertRaises(ValidationError):
+            self.individual_a.write({"birthdate": future, "birthdate_not_exact": True})
