@@ -7,6 +7,8 @@ Validates code against Odoo 19 compatibility requirements:
 - Search view groups: Detects <group expand=...> or <group string=...> in search views
 - XPath selectors: Detects @title in xpath expressions
 - group_expand signature: Detects old 3-parameter _read_group_* methods
+- Legacy _sql_constraints: Detects the _sql_constraints class attribute, which
+  Odoo 19 ignores (constraints are silently never created); use models.Constraint
 
 Features:
 - Auto-fix support for Command API tuples (--fix)
@@ -231,6 +233,39 @@ class Odoo19Checker:
                         doc_link="docs/principles/odoo19-compatibility.md#command-api-odoo-19-pattern",
                     )
                 )
+
+            # Check for legacy _sql_constraints class attributes. Odoo 19 does
+            # not support them: the registry logs a warning at load time and the
+            # constraints are silently never created in the database.
+            for class_node in ast.walk(tree):
+                if not isinstance(class_node, ast.ClassDef):
+                    continue
+                for stmt in class_node.body:
+                    if isinstance(stmt, ast.Assign):
+                        targets = stmt.targets
+                    elif isinstance(stmt, ast.AnnAssign):
+                        targets = [stmt.target]
+                    else:
+                        continue
+                    if any(isinstance(t, ast.Name) and t.id == "_sql_constraints" for t in targets):
+                        violations.append(
+                            Violation(
+                                file_path=file_path,
+                                line=stmt.lineno,
+                                column=stmt.col_offset,
+                                message=(
+                                    f"'{class_node.name}' defines legacy _sql_constraints, "
+                                    "which Odoo 19 ignores — the constraint is never created"
+                                ),
+                                rule_id="odoo19.sql_constraints",
+                                severity=Severity.ERROR,
+                                suggestion=(
+                                    "Define a models.Constraint class attribute instead, e.g. "
+                                    '_name_uniq = models.Constraint("UNIQUE(name)", "Name must be unique")'
+                                ),
+                                doc_link="docs/principles/odoo19-compatibility.md#sql-constraints",
+                            )
+                        )
         except SyntaxError:
             pass  # Skip files with syntax errors
 
