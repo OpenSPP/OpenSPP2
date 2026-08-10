@@ -36,13 +36,24 @@ class TestAssignProgramDetailSecurity(CRTestCase):
         cls.internal_group = cls.env.ref("base.group_user")
         cls.user_group = cls.env.ref("spp_change_request_v2.group_cr_user")
         cls.validator_group = cls.env.ref("spp_change_request_v2.group_cr_validator")
+        # Assign-program details validate that the writer can actually see the
+        # target program, and that check runs a search in the writing user's
+        # own context. Without read access to spp.program the search raises
+        # AccessError before the validation can even evaluate, which would make
+        # these fixtures fail for a reason unrelated to the record rules under
+        # test. Tier-3 programs viewer grants exactly that read.
+        cls.programs_viewer_group = cls.env.ref("spp_programs.group_programs_viewer")
         Users = cls.env["res.users"].with_context(no_reset_password=True)
         cls.user_a = Users.create(
             {
                 "name": "Assign User A",
                 "login": "assign_user_a",
                 "email": "assign_user_a@test.com",
-                "group_ids": [(4, cls.internal_group.id), (4, cls.user_group.id)],
+                "group_ids": [
+                    (4, cls.internal_group.id),
+                    (4, cls.user_group.id),
+                    (4, cls.programs_viewer_group.id),
+                ],
             }
         )
         cls.user_b = Users.create(
@@ -50,7 +61,11 @@ class TestAssignProgramDetailSecurity(CRTestCase):
                 "name": "Assign User B",
                 "login": "assign_user_b",
                 "email": "assign_user_b@test.com",
-                "group_ids": [(4, cls.internal_group.id), (4, cls.user_group.id)],
+                "group_ids": [
+                    (4, cls.internal_group.id),
+                    (4, cls.user_group.id),
+                    (4, cls.programs_viewer_group.id),
+                ],
             }
         )
         cls.validator = Users.create(
@@ -58,7 +73,11 @@ class TestAssignProgramDetailSecurity(CRTestCase):
                 "name": "Assign Validator",
                 "login": "assign_validator",
                 "email": "assign_validator@test.com",
-                "group_ids": [(4, cls.internal_group.id), (4, cls.validator_group.id)],
+                "group_ids": [
+                    (4, cls.internal_group.id),
+                    (4, cls.validator_group.id),
+                    (4, cls.programs_viewer_group.id),
+                ],
             }
         )
 
