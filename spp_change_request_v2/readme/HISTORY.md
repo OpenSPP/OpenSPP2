@@ -1,3 +1,7 @@
+### 19.0.3.1.2
+
+- fix(security): route and apply the same single field for dynamic-approval change requests, and freeze the proposed change once the request leaves draft. The selected field, its old/new values and the detail pointer were writable after submission, so a requester could re-route an approval or alter the value that had already been approved. Note the mapped-source-field freeze applies to `field_mapping` request types; `custom`-strategy types freeze only the routing selector.
+
 ### 19.0.3.1.1
 
 - fix(change_request): enforce the `(cr_type_id, reason)` uniqueness of per-reason Required-Documents rules with `models.Constraint` (#394). The rule was previously declared via the legacy `_sql_constraints` attribute, which Odoo 19 ignores — the constraint was never created, so duplicate rules for the same reason could be saved silently since 19.0.3.0.0 and one WARNING line was logged on every registry load. A pre-migration removes duplicate rules (the lowest-id rule per pair is kept, matching which rule the runtime applied) so the constraint applies cleanly on upgrade.

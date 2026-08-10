@@ -81,6 +81,15 @@ class SPPCRDetailBase(models.AbstractModel):
         the field_mapping strategy that is the routing selector plus every mapped
         source field; apply-output fields (e.g. created_*_id) are NOT included so
         the apply strategies can still record their results post-approval.
+
+        SCOPE LIMIT: only ``field_mapping`` types get the mapped-source-field
+        protection. Types using the ``custom`` apply strategy (add_member,
+        change_hoh, remove_member, transfer_member, exit_registrant, update_id,
+        create_group, split_household, merge_registrants) freeze only
+        ``field_to_modify``, so their detail content fields stay writable after
+        submission. Closing that needs a per-detail-model override of this
+        method — tracked separately; do not assume this freeze covers every
+        change-request type.
         """
         protected = {"field_to_modify"}
         cr_type = change_request.request_type_id
