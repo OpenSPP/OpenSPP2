@@ -156,7 +156,7 @@ Dependencies
 Changelog
 =========
 
-19.0.2.0.1
+19.0.2.0.2
 ~~~~~~~~~~
 
 - fix(security): apply k-anonymity suppression to registrant counts
