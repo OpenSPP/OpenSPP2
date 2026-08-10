@@ -1,4 +1,4 @@
-### 19.0.2.1.4
+### 19.0.2.1.5
 
 - revert(mis_demo): the Add Member and Change Head of Household demo CRs match the reinstated old flows (see `spp_change_request_v2` #871/#873 revert) — Add Member builds a new individual (given/family name, birthdate, relationship) and Change HoH sets `new_head_id` from the named new head, instead of the redesigned `individual_id` / per-member role lines.
 
