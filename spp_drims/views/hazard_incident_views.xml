@@ -18,8 +18,15 @@
 
             <!-- OP#1157: expose the 'alert' state via a header button (the base
                  state machine has the state but no way to set it). Shown while
-                 the incident is active/recovery (not already alert, not closed). -->
-            <xpath expr="//header/field[@name='status']" position="before">
+                 the incident is active/recovery (not already alert, not closed).
+
+                 Inserted before the first header button rather than before the
+                 statusbar, so it reads leftmost — Flag As Alert, Start Recovery,
+                 Close Incident — which is the order the workflow runs in.
+                 Anchored on the base view's first button; if that is ever
+                 renamed this xpath fails loudly at upgrade rather than silently
+                 reordering. -->
+            <xpath expr="//header/button[@name='action_set_active']" position="before">
                 <button
                     name="action_set_alert"
                     type="object"

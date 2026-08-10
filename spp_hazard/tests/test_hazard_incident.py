@@ -30,8 +30,46 @@ class TestHazardIncident(HazardTestCase):
         """Test basic incident creation."""
         self.assertTrue(self.incident)
         self.assertEqual(self.incident.name, "Test Typhoon Incident")
-        self.assertEqual(self.incident.status, "active")  # default
+        self.assertEqual(self.incident.status, "alert")  # OP#1157: incidents are raised as alerts
         self.assertTrue(self.incident.is_ongoing)
+
+    def test_new_incident_starts_in_alert(self):
+        """OP#1157: an incident is raised as an alert, then confirmed.
+
+        QA round 1 found new incidents landing straight in Active, which skips
+        the triage step the Alert state exists for.
+        """
+        incident = self.env["spp.hazard.incident"].create(
+            {
+                "name": "Freshly Reported",
+                "code": "TEST-INC-ALERT",
+                "category_id": self.category_typhoon.id,
+                "start_date": "2024-02-01",
+            }
+        )
+        self.assertEqual(incident.status, "alert")
+
+    def test_alert_is_reachable_and_reversible(self):
+        """Alert is a state you can return to, not only start in."""
+        self.incident.action_set_active()
+        self.assertEqual(self.incident.status, "active")
+
+        self.incident.write({"status": "alert"})
+        self.assertEqual(self.incident.status, "alert")
+
+        self.incident.action_set_active()
+        self.assertEqual(self.incident.status, "active")
+
+    def test_recovery_is_reached_from_active_only(self):
+        """Answers QA's question about when Recovery is available.
+
+        Start Recovery is offered only from Active, so a newly raised incident
+        goes Alert -> Active -> Recovery rather than jumping straight in.
+        """
+        self.assertEqual(self.incident.status, "alert")
+        self.incident.action_set_active()
+        self.incident.action_set_recovery()
+        self.assertEqual(self.incident.status, "recovery")
 
     def test_02_incident_code_unique(self):
         """Test that incident codes must be unique."""
@@ -73,7 +111,9 @@ class TestHazardIncident(HazardTestCase):
 
     def test_05_status_transitions(self):
         """Test status transition actions."""
-        # Start in active status
+        # OP#1157: a new incident starts in alert and is confirmed into active.
+        self.assertEqual(self.incident.status, "alert")
+        self.incident.action_set_active()
         self.assertEqual(self.incident.status, "active")
 
         # Transition to recovery

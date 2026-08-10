@@ -1,8 +1,11 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 from datetime import date, timedelta
 
+from lxml import etree
+
 from odoo.exceptions import UserError
 from odoo.tests import tagged
+from odoo.tools.safe_eval import safe_eval
 
 from .common import DrimsTestCommon
 
@@ -442,6 +445,68 @@ class TestDrimsIncident(DrimsTestCommon):
             }
         )
         self.assertIn(picking, self.incident.drims_picking_ids)
+
+    # ── OP#1157 QA round 1: header button order and Alert entry state ──
+
+    def _incident_form_buttons(self):
+        """Header action buttons of the incident form, in rendered order."""
+        view = self.env["spp.hazard.incident"].get_view(self.env.ref("spp_hazard.view_hazard_incident_form").id, "form")
+        tree = etree.fromstring(view["arch"])
+        return [b.get("name") for b in tree.xpath("//header/button[@name]")]
+
+    def test_flag_as_alert_is_the_leftmost_header_button(self):
+        """QA asked for Flag As Alert · Start Recovery · Close Incident.
+
+        It was inserted before the statusbar, which put it last. Anchoring it
+        on the first base button puts it where the workflow starts.
+        """
+        buttons = self._incident_form_buttons()
+
+        self.assertIn("action_set_alert", buttons, "Flag As Alert is missing from the header")
+        self.assertEqual(
+            buttons[0],
+            "action_set_alert",
+            f"Flag As Alert should lead the header, got {buttons}",
+        )
+        # The rest keep their base order behind it.
+        self.assertLess(buttons.index("action_set_recovery"), buttons.index("action_close"))
+
+    def test_close_incident_hidden_only_outside_the_open_states(self):
+        """QA asked to confirm Close shows only for alert / active / recovery."""
+        view = self.env["spp.hazard.incident"].get_view(self.env.ref("spp_hazard.view_hazard_incident_form").id, "form")
+        tree = etree.fromstring(view["arch"])
+        close = tree.xpath("//header/button[@name='action_close']")[0]
+        condition = close.get("invisible")
+
+        for status in ("alert", "active", "recovery"):
+            self.assertFalse(
+                safe_eval(condition, {"status": status}),
+                f"Close Incident should be offered while {status}",
+            )
+        self.assertTrue(safe_eval(condition, {"status": "closed"}))
+
+    def test_new_drims_incident_starts_in_alert(self):
+        """The entry state, seen from DRIMS rather than the base module."""
+        incident = self.env["spp.hazard.incident"].create(
+            {
+                "name": "DRIMS Fresh Incident",
+                "code": "DRIMS-ALERT-1157",
+                "category_id": self.hazard_category.id,
+                "start_date": "2026-08-01",
+            }
+        )
+        self.assertEqual(incident.status, "alert")
+
+    def test_flag_as_alert_returns_an_incident_to_alert(self):
+        """The button itself still does its job from active and recovery."""
+        self.incident.action_set_active()
+        self.incident.action_set_alert()
+        self.assertEqual(self.incident.status, "alert")
+
+        self.incident.action_set_active()
+        self.incident.action_set_recovery()
+        self.incident.action_set_alert()
+        self.assertEqual(self.incident.status, "alert")
 
 
 @tagged("post_install", "-at_install")

@@ -60,10 +60,14 @@ class HazardIncident(models.Model):
             ("recovery", "Recovery"),
             ("closed", "Closed"),
         ],
-        default="active",
+        # OP#1157: an incident is raised as an alert and only becomes active
+        # once it has been confirmed, so Alert is the entry state rather than
+        # something you have to step back into. The lifecycle is
+        # Alert -> Active -> Recovery -> Closed.
+        default="alert",
         required=True,
         tracking=True,
-        help="Current status of the incident",
+        help="Current status of the incident. A new incident starts in Alert and is confirmed with Set Active.",
     )
     severity = fields.Selection(
         [

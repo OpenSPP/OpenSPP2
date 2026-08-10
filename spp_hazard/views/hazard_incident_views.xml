@@ -58,11 +58,14 @@
                         invisible="status != 'active'"
                         class="btn-primary"
                     />
+                    <!-- OP#1157: stated positively, so the button stays correct
+                         if another state is ever added to the selection. Same
+                         effect today as the previous "not closed". -->
                     <button
                         name="action_close"
                         type="object"
                         string="Close Incident"
-                        invisible="status in ('closed',)"
+                        invisible="status not in ('alert', 'active', 'recovery')"
                         class="btn-secondary"
                     />
                     <field
