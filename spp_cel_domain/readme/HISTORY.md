@@ -1,4 +1,4 @@
-### 19.0.2.1.1
+### 19.0.2.1.2
 
 - fix: recognise `me` as a CEL context identifier. The resolver rewrites cached
   variables (and the DCI override rewrites dotted accessors) into
