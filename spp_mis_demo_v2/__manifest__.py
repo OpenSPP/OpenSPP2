@@ -2,14 +2,14 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 {
     "name": "OpenSPP MIS Demo V2",
-    "summary": "Demo Generator V2 for SP-MIS programs with fixed stories and volume generation",
+    "summary": "DEMO ONLY — do not install in production. Demo Generator V2 for SP-MIS programs with fixed stories and volume generation.",
     "category": "OpenSPP",
-    "version": "19.0.2.1.4",
+    "version": "19.0.2.1.5",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Production/Stable",
+    "development_status": "Alpha",
     "maintainers": ["jeremi", "gonzalesedwin1123"],
     "depends": [
         # SP-MIS Starter Bundle (includes registry, programs, API, DCI, CR, CEL, etc.)

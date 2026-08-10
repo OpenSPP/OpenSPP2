@@ -11,6 +11,13 @@
     - secretary: Viewer - dashboard and reports only
 
     Login credentials: username / demo
+
+    SECURITY: these users share the well-known password "demo" and load via the
+    manifest `data` section, so they exist after any install. On a production
+    database (installed without demo data) they are archived by this module's
+    post_init_hook (see __init__.py, reusing spp_drims_sl's helper) so the
+    well-known password cannot be used to log in; on a demo/evaluation database
+    they stay active.
     ==========================================================================
     -->
 

@@ -10,9 +10,9 @@ OpenSPP MIS Demo V2
    !! source digest: sha256:force_regen
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Production/Stable
+    :alt: Alpha
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
@@ -153,6 +153,10 @@ Dependencies
 ``spp_starter_sp_mis``, ``spp_cr_types_advanced``, ``spp_demo``,
 ``spp_gis_report``, ``spp_claim_169``
 
+.. IMPORTANT::
+   This is an alpha version, the data model and design can change at any time without warning.
+   Only for development or testing purpose, do not use in production.
+
 **Table of contents**
 
 .. contents::
@@ -161,7 +165,7 @@ Dependencies
 Changelog
 =========
 
-19.0.2.1.4
+19.0.2.1.5
 ~~~~~~~~~~
 
 - revert(mis_demo): the Add Member and Change Head of Household demo CRs

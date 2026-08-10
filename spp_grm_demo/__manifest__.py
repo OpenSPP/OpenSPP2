@@ -3,13 +3,13 @@
 
 {
     "name": "OpenSPP GRM Demo Data",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.0.1",
     "category": "OpenSPP/Monitoring",
-    "summary": "Demo data generator for Grievance Redress Mechanism",
+    "summary": "DEMO ONLY — do not install in production. Demo data generator for Grievance Redress Mechanism.",
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Production/Stable",
+    "development_status": "Alpha",
     "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],
     "depends": [
         "spp_demo",  # Consolidated demo module
@@ -27,6 +27,7 @@
     ],
     "demo": [],
     "images": [],
+    "post_init_hook": "post_init_hook",
     "application": False,
     "installable": True,
     "auto_install": False,
