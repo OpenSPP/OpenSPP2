@@ -1,3 +1,7 @@
+### 19.0.3.1.7
+
+- fix(security): stop the CR Requestor role from granting change-request manager rights. The role linked `group_cr_manager`, which implies `group_cr_validator` and through it `spp_approval.group_approval_approver` — so the least-privileged change-request persona could approve change requests and delete change requests, request types and detail records. It also silently defeated authorisation checks written against the manager group. The role now grants `group_cr_user`, the tier its own description states. A migration re-points the role and re-synchronises users already assigned it; grant the manager group explicitly to anyone who genuinely needs it.
+
 ### 19.0.3.1.1
 
 - fix(change_request): enforce the `(cr_type_id, reason)` uniqueness of per-reason Required-Documents rules with `models.Constraint` (#394). The rule was previously declared via the legacy `_sql_constraints` attribute, which Odoo 19 ignores — the constraint was never created, so duplicate rules for the same reason could be saved silently since 19.0.3.0.0 and one WARNING line was logged on every registry load. A pre-migration removes duplicate rules (the lowest-id rule per pair is kept, matching which rule the runtime applied) so the constraint applies cleanly on upgrade.

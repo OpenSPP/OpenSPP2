@@ -26,3 +26,5 @@ from . import test_conflict_dynamic_approval
 from . import test_html_escaping
 from . import test_wizard_html_escaping
 from . import test_reason_document_constraint
+
+from . import test_cr_role_tiers
