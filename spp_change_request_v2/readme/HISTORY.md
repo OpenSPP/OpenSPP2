@@ -1,3 +1,7 @@
+### 19.0.3.1.3
+
+- fix(security): add ownership and area record rules to every concrete change-request detail model. Detail rows were reachable by any `group_cr_user` regardless of who owned the parent change request, so a requester could read or tamper with another user's detail data over RPC. Each detail model now carries user/validator/validator-HQ/manager rules scoped through its parent change request, plus a global rule mirroring the parent's area filter. `spp.cr.detail.split_household.member` is additionally scoped on delete, the one detail model whose access-control entry grants `unlink` to change-request users.
+
 ### 19.0.3.1.2
 
 - fix(security): route and apply the same single field for dynamic-approval change requests, and freeze the proposed change once the request leaves draft. The selected field, its old/new values and the detail pointer were writable after submission, so a requester could re-route an approval or alter the value that had already been approved. Note the mapped-source-field freeze applies to `field_mapping` request types; `custom`-strategy types freeze only the routing selector.

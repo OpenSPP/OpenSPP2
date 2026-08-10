@@ -69,8 +69,10 @@ class TestDetailRecordRules(CRTestCase):
 
         Asserts, for every concrete ``spp.cr.detail.*`` model reachable by
         ``group_cr_user`` (via ACL), that ``group_cr_user`` is scoped on EVERY
-        operation the ACL grants it (read/write/create) — a rule missing only
-        ``perm_write`` would still leave a tamper path — and that the higher
+        operation the ACL grants it — read/write/create **and unlink** — a rule
+        missing only ``perm_write`` would still leave a tamper path, and one
+        missing ``perm_unlink`` leaves other users' rows deletable — and that
+        the higher
         roles each retain a permissive rule (else the group hierarchy would
         cage them behind the restrictive user rule).
 
@@ -100,9 +102,10 @@ class TestDetailRecordRules(CRTestCase):
             # count as a path): in a full-stack DB other apps' detail models
             # (different group models, no cr_* ACLs) would otherwise fail
             # assertions about a role that cannot touch them anyway.
-            if not Access.search_count(
+            acls = Access.search(
                 [("model_id", "=", model.id), "|", ("group_id", "=", False), ("group_id", "=", self.user_group.id)]
-            ):
+            )
+            if not acls:
                 continue
             checked += 1
             rules = Rule.search([("model_id", "=", model.id)])
@@ -110,7 +113,12 @@ class TestDetailRecordRules(CRTestCase):
             def grants(group, perm, _rules=rules):
                 return any(group in r.groups and getattr(r, perm) for r in _rules)
 
-            for perm in ("perm_read", "perm_write", "perm_create"):
+            # Derive the operations to check from what the ACL actually grants,
+            # so a model shipping an extra permission (e.g. unlink) cannot slip
+            # through unscoped just because this list was written before it.
+            for perm in ("perm_read", "perm_write", "perm_create", "perm_unlink"):
+                if not any(getattr(acl, perm) for acl in acls):
+                    continue
                 if not grants(self.user_group, perm):
                     problems.append(f"{model.model}: group_cr_user missing {perm} rule (bypass)")
             for label, group in higher_roles:

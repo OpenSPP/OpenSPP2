@@ -594,55 +594,11 @@
 
     <!--
         Line/child detail models added by the group/membership CR redesign
-        (create_group, change_hoh, split_household flows). They hang off their
+        (create_group and split_household flows). They hang off their
         parent detail row (some via several alternative parents), so the
         ownership scope traverses each parent path to the change request; rows
         with no matching parent are hidden (fail closed).
     -->
-    <record id="rule_cr_detail_change_hoh_member_user" model="ir.rule">
-        <field name="name">CR Detail (change_hoh.member): User Access</field>
-        <field name="model_id" ref="model_spp_cr_detail_change_hoh_member" />
-        <field name="domain_force">[
-            '|',
-            ('detail_id.change_request_id.create_uid', '=', user.id),
-            ('detail_id.change_request_id.registrant_id', 'in', user.partner_id.ids)
-        ]</field>
-        <field name="groups" eval="[Command.link(ref('group_cr_user'))]" />
-        <field name="perm_read" eval="True" />
-        <field name="perm_write" eval="True" />
-        <field name="perm_create" eval="True" />
-        <field name="perm_unlink" eval="False" />
-    </record>
-    <record id="rule_cr_detail_change_hoh_member_validator" model="ir.rule">
-        <field name="name">CR Detail (change_hoh.member): Validator Access</field>
-        <field name="model_id" ref="model_spp_cr_detail_change_hoh_member" />
-        <field name="domain_force">[(1, '=', 1)]</field>
-        <field name="groups" eval="[Command.link(ref('group_cr_validator'))]" />
-        <field name="perm_read" eval="True" />
-        <field name="perm_write" eval="True" />
-        <field name="perm_create" eval="True" />
-        <field name="perm_unlink" eval="False" />
-    </record>
-    <record id="rule_cr_detail_change_hoh_member_validator_hq" model="ir.rule">
-        <field name="name">CR Detail (change_hoh.member): HQ Validator Access</field>
-        <field name="model_id" ref="model_spp_cr_detail_change_hoh_member" />
-        <field name="domain_force">[(1, '=', 1)]</field>
-        <field name="groups" eval="[Command.link(ref('group_cr_validator_hq'))]" />
-        <field name="perm_read" eval="True" />
-        <field name="perm_write" eval="True" />
-        <field name="perm_create" eval="True" />
-        <field name="perm_unlink" eval="False" />
-    </record>
-    <record id="rule_cr_detail_change_hoh_member_manager" model="ir.rule">
-        <field name="name">CR Detail (change_hoh.member): Manager Access</field>
-        <field name="model_id" ref="model_spp_cr_detail_change_hoh_member" />
-        <field name="domain_force">[(1, '=', 1)]</field>
-        <field name="groups" eval="[Command.link(ref('group_cr_manager'))]" />
-        <field name="perm_read" eval="True" />
-        <field name="perm_write" eval="True" />
-        <field name="perm_create" eval="True" />
-        <field name="perm_unlink" eval="True" />
-    </record>
     <record id="rule_cr_detail_split_household_member_user" model="ir.rule">
         <field name="name">CR Detail (split_household.member): User Access</field>
         <field name="model_id" ref="model_spp_cr_detail_split_household_member" />
@@ -655,7 +611,7 @@
         <field name="perm_read" eval="True" />
         <field name="perm_write" eval="True" />
         <field name="perm_create" eval="True" />
-        <field name="perm_unlink" eval="False" />
+        <field name="perm_unlink" eval="True" />
     </record>
     <record id="rule_cr_detail_split_household_member_validator" model="ir.rule">
         <field name="name">CR Detail (split_household.member): Validator Access</field>
