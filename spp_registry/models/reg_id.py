@@ -80,10 +80,80 @@ class SPPRegistrantID(models.Model):
         help="Raw response or notes from verification",
     )
 
-    _unique_partner_id_type = models.Constraint(
-        "UNIQUE(partner_id, id_type_id)",
-        "A registrant cannot have duplicate ID types",
-    )
+    # OP#1136: uniqueness applies to *live* IDs only. Removing an ID through a
+    # change request marks it Invalid rather than deleting it, and a plain
+    # UNIQUE(partner_id, id_type_id) counted those dead rows — so once an ID had
+    # been removed, that type could never be used again for that registrant.
+    #
+    # Enforced as a partial unique index rather than a table constraint, since
+    # the rule needs a WHERE clause. Note IS DISTINCT FROM, not != : a NULL
+    # status means an ID added straight through the registry, which is live and
+    # must still reserve its type.
+    _UNIQUE_ACTIVE_INDEX = "spp_registry_id_active_id_type_uniq"
+
+    def init(self):
+        super().init()
+        # Drop the unconditional constraint this replaces. Odoo removes
+        # constraints it no longer finds declared, but an explicit drop keeps
+        # upgrades of existing databases predictable.
+        self.env.cr.execute(
+            "ALTER TABLE spp_registry_id DROP CONSTRAINT IF EXISTS spp_registry_id_unique_partner_id_type"
+        )
+        self.env.cr.execute(
+            f"""
+            CREATE UNIQUE INDEX IF NOT EXISTS {self._UNIQUE_ACTIVE_INDEX}
+                ON spp_registry_id (partner_id, id_type_id)
+             WHERE status IS DISTINCT FROM 'invalid'
+            """
+        )
+
+    def _assert_id_type_free(self, partner_id, id_type_id, status, exclude_id=None):
+        """Raise unless this registrant has no live ID of that type.
+
+        Checked ahead of the write rather than through ``@api.constrains``:
+        constraints run on flush, by which point the INSERT has already hit the
+        partial index and the user gets a raw database error instead of a
+        sentence. The index remains the race-safe guarantee; this is what makes
+        the refusal readable (OP#1136).
+
+        ``status`` of ``invalid`` is a removed ID and never conflicts. A NULL
+        status is an ID added straight through the registry — live, and it does.
+        """
+        if status == "invalid" or not partner_id or not id_type_id:
+            return
+        domain = [
+            ("partner_id", "=", partner_id),
+            ("id_type_id", "=", id_type_id),
+            ("status", "!=", "invalid"),
+        ]
+        if exclude_id:
+            domain.append(("id", "!=", exclude_id))
+        clash = self.sudo().search(domain, limit=1)
+        if clash:
+            raise ValidationError(
+                _(
+                    "%(registrant)s already has a valid %(id_type)s. Update the existing one, or remove it first.",
+                    registrant=clash.partner_id.display_name,
+                    id_type=clash.id_type_id.display_name,
+                )
+            )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            self._assert_id_type_free(vals.get("partner_id"), vals.get("id_type_id"), vals.get("status"))
+        return super().create(vals_list)
+
+    def write(self, vals):
+        if {"partner_id", "id_type_id", "status"} & set(vals):
+            for rec in self:
+                self._assert_id_type_free(
+                    vals.get("partner_id", rec.partner_id.id),
+                    vals.get("id_type_id", rec.id_type_id.id),
+                    vals.get("status", rec.status),
+                    exclude_id=rec.id,
+                )
+        return super().write(vals)
 
     def _compute_available_id_type_ids(self):
         for rec in self:
