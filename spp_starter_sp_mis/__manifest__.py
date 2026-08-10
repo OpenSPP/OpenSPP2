@@ -24,11 +24,6 @@
         "data/config_parameters.xml",
         "views/res_config_settings_views.xml",
     ],
-    "assets": {
-        "web.assets_backend": [
-            "spp_starter_sp_mis/static/src/js/registry_restriction.js",
-        ],
-    },
     "demo": [],
     "images": [],
     "application": False,
