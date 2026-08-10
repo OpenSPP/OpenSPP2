@@ -121,9 +121,23 @@ class TestDetailRecordRules(CRTestCase):
                     continue
                 if not grants(self.user_group, perm):
                     problems.append(f"{model.model}: group_cr_user missing {perm} rule (bypass)")
+            # Same treatment for the higher roles, and for the same reason: they
+            # all imply group_cr_user, so if a permission is granted to them by
+            # ACL but no permissive rule of theirs carries it, the restrictive
+            # user rule is the only one left and it cages them. Checking only
+            # read would miss exactly that.
             for label, group in higher_roles:
-                if not grants(group, "perm_read"):
-                    problems.append(f"{model.model}: {label} missing read rule (would be caged)")
+                role_acls = Access.search(
+                    [("model_id", "=", model.id), "|", ("group_id", "=", False), ("group_id", "=", group.id)]
+                )
+                for perm in ("perm_read", "perm_write", "perm_create", "perm_unlink"):
+                    if not any(getattr(acl, perm) for acl in role_acls):
+                        continue
+                    if not grants(group, perm):
+                        problems.append(
+                            f"{model.model}: {label} granted {perm} by ACL but no rule carries it "
+                            f"(caged by the restrictive user rule)"
+                        )
             # A global (no-group) read rule mirrors the parent CR area filter.
             if not any(not r.groups and r.perm_read for r in rules):
                 problems.append(f"{model.model}: missing global area-filter rule")

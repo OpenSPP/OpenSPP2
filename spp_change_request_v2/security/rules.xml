@@ -621,7 +621,7 @@
         <field name="perm_read" eval="True" />
         <field name="perm_write" eval="True" />
         <field name="perm_create" eval="True" />
-        <field name="perm_unlink" eval="False" />
+        <field name="perm_unlink" eval="True" />
     </record>
     <record id="rule_cr_detail_split_household_member_validator_hq" model="ir.rule">
         <field
@@ -633,7 +633,7 @@
         <field name="perm_read" eval="True" />
         <field name="perm_write" eval="True" />
         <field name="perm_create" eval="True" />
-        <field name="perm_unlink" eval="False" />
+        <field name="perm_unlink" eval="True" />
     </record>
     <record id="rule_cr_detail_split_household_member_manager" model="ir.rule">
         <field name="name">CR Detail (split_household.member): Manager Access</field>
