@@ -531,6 +531,17 @@ installation, volume data configuration)</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.4</h1>
+<ul class="simple">
+<li>revert(mis_demo): the Add Member and Change Head of Household demo CRs
+match the reinstated old flows (see <tt class="docutils literal">spp_change_request_v2</tt>
+#871/#873 revert) — Add Member builds a new individual (given/family
+name, birthdate, relationship) and Change HoH sets <tt class="docutils literal">new_head_id</tt>
+from the named new head, instead of the redesigned <tt class="docutils literal">individual_id</tt> /
+per-member role lines.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.1.3</h1>
 <ul class="simple">
 <li>fix: PHL story registrants map to the curated PSGC p-code area
@@ -539,7 +550,7 @@ external IDs introduced by the re-landed spp_demo geodata
 dropping area assignments).</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.1.2</h1>
 <ul class="simple">
 <li>fix: demo GIS reports use <tt class="docutils literal">dimension_ids</tt> + <tt class="docutils literal">member_expansion</tt>
@@ -548,7 +559,7 @@ from #295, credit &#64;kneckinator; required in lockstep with the
 spp_gis_report dimension change).</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.1.1</h1>
 <ul class="simple">
 <li>feat(demo): adapt the change-request demo generator to the redesigned
@@ -556,7 +567,7 @@ CR flows — Add Member selects an existing individual (#871) and Change
 Head of Household uses per-member role lines (#873) (#242)</li>
 </ul>
 </div>
-<div class="section" id="section-4">
+<div class="section" id="section-5">
 <h1>19.0.2.1.0</h1>
 <ul class="simple">
 <li>feat(demo): seed country-appropriate CR document types (≥5 per country
@@ -565,7 +576,7 @@ demo generation, so a document type can be selected when attaching
 files to a change request without defining them manually (#1102)</li>
 </ul>
 </div>
-<div class="section" id="section-5">
+<div class="section" id="section-6">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
