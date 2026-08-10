@@ -853,6 +853,18 @@ Before declaring a new CR type complete:
 Changelog
 =========
 
+19.0.3.1.2
+~~~~~~~~~~
+
+- fix(security): route and apply the same single field for
+  dynamic-approval change requests, and freeze the proposed change once
+  the request leaves draft. The selected field, its old/new values and
+  the detail pointer were writable after submission, so a requester
+  could re-route an approval or alter the value that had already been
+  approved. Note the mapped-source-field freeze applies to
+  ``field_mapping`` request types; ``custom``-strategy types freeze only
+  the routing selector.
+
 19.0.3.1.1
 ~~~~~~~~~~
 
