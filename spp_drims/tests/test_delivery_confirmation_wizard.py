@@ -1,6 +1,8 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 from datetime import date, timedelta
 
+from lxml import etree
+
 from odoo import fields
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
@@ -185,6 +187,73 @@ class TestDrimsDeliveryConfirmation(DrimsTestCommon):
 
         wizard.action_confirm()
         self.assertEqual(request.total_delivered, 100)
+
+    # ------------------------------------------------------------------
+    # saving the popup the way the web client does
+    # ------------------------------------------------------------------
+
+    def test_line_derives_its_context_from_the_move(self):
+        """A line saved with only the move and a quantity still knows the rest.
+
+        This is the payload the popup actually sends: the web client drops
+        readonly fields on save, so product, unit, dispatched quantity and
+        request line never came back from the browser. The unit being empty
+        turned the over-delivery check into a bare singleton error, and the
+        empty request line would have sent the delivered quantities nowhere.
+        """
+        request, picking = self._delivered_dispatch(requested=100)
+        move = picking.move_ids
+
+        wizard = self.env["spp.drims.delivery.confirmation.wizard"].create(
+            {
+                "picking_id": picking.id,
+                "pod_received_by": "Barangay Captain Reyes",
+                "pod_status_id": self.pod_complete.id,
+                "line_ids": [(0, 0, {"move_id": move.id, "quantity_delivered": 100})],
+            }
+        )
+
+        line = wizard.line_ids
+        self.assertEqual(len(line), 1)
+        self.assertEqual(line.product_id, self.product)
+        self.assertEqual(line.uom_id, move.product_uom)
+        self.assertEqual(line.quantity_dispatched, 100)
+        self.assertEqual(line.request_line_id, request.line_ids)
+
+        wizard.action_confirm()
+        self.assertEqual(request.total_delivered, 100)
+
+    def test_over_delivery_still_caught_on_a_move_only_line(self):
+        """The quantity guard must survive the move-derived rewrite."""
+        _request, picking = self._delivered_dispatch(requested=100)
+
+        with self.assertRaises(ValidationError):
+            self.env["spp.drims.delivery.confirmation.wizard"].create(
+                {
+                    "picking_id": picking.id,
+                    "pod_received_by": "Barangay Captain Reyes",
+                    "pod_status_id": self.pod_complete.id,
+                    "line_ids": [(0, 0, {"move_id": picking.move_ids.id, "quantity_delivered": 150})],
+                }
+            )
+
+    def test_move_id_stays_writable_and_in_the_arch(self):
+        """Guard the mechanism the fix depends on.
+
+        ``move_id`` is the only value that has to survive the browser round
+        trip. If it ever goes readonly, or drops out of the line list, the
+        popup silently returns to saving lines with no context at all.
+        """
+        line_model = self.env["spp.drims.delivery.confirmation.wizard.line"]
+        self.assertFalse(
+            line_model._fields["move_id"].readonly,
+            "move_id must stay writable — readonly fields are not sent back on save",
+        )
+
+        arch = etree.fromstring(self.env.ref("spp_drims.spp_drims_delivery_confirmation_wizard_form").arch)
+        nodes = arch.xpath("//field[@name='line_ids']//field[@name='move_id']")
+        self.assertTrue(nodes, "move_id must be present in the delivered-items list")
+        self.assertNotEqual(nodes[0].get("readonly"), "1", "move_id must not be readonly in the view")
 
     # ------------------------------------------------------------------
     # confirming

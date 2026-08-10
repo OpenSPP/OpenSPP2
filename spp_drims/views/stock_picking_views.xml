@@ -188,10 +188,21 @@
                         action_confirm_pod, so no path can log an arrival for
                         goods that never left.
                     -->
+                    <!--
+                        Each date is hidden while it is still empty so the button
+                        starts at the left of the value column rather than after
+                        an empty datetime widget (OP#1088 round 2). The field and
+                        its button are mutually exclusive: an unset date means
+                        there is an action to take, a set one means it is done.
+                    -->
                     <group string="Departure &amp; Arrival" name="dates">
                         <label for="date_departed" />
                         <div class="o_row">
-                            <field name="date_departed" readonly="1" />
+                            <field
+                                name="date_departed"
+                                readonly="1"
+                                invisible="not date_departed"
+                            />
                             <button
                                 name="action_confirm_departure"
                                 type="object"
@@ -202,7 +213,11 @@
                         </div>
                         <label for="date_arrived" />
                         <div class="o_row">
-                            <field name="date_arrived" readonly="1" />
+                            <field
+                                name="date_arrived"
+                                readonly="1"
+                                invisible="not date_arrived"
+                            />
                             <button
                                 name="action_open_delivery_confirmation"
                                 type="object"

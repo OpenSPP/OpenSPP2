@@ -16,6 +16,7 @@ import logging
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools import float_compare
 
 _logger = logging.getLogger(__name__)
 
@@ -105,11 +106,10 @@ class DeliveryConfirmationWizard(models.TransientModel):
                     0,
                     0,
                     {
+                        # The product, unit, dispatched quantity and request line
+                        # all follow from the move, so the move is the only thing
+                        # worth writing down.
                         "move_id": move.id,
-                        "request_line_id": move.drims_request_line_id.id,
-                        "product_id": move.product_id.id,
-                        "uom_id": move.product_uom.id,
-                        "quantity_dispatched": move.quantity,
                         # Default to "all of it arrived" — the common case, and the
                         # officer only has to touch the lines that fell short.
                         "quantity_delivered": move.quantity,
@@ -206,15 +206,27 @@ class DeliveryConfirmationWizardLine(models.TransientModel):
         required=True,
         ondelete="cascade",
     )
-    move_id = fields.Many2one("stock.move", string="Stock Move", readonly=True)
-    request_line_id = fields.Many2one(
-        "spp.drims.request.line",
-        string="Request Line",
-        readonly=True,
+    # Everything except the quantity is derived from the move rather than held
+    # as its own value (OP#1088 round 2). These were plain readonly fields, and
+    # the web client does not send readonly fields back when it saves, so a
+    # confirmation submitted from the popup arrived with nothing but
+    # ``quantity_delivered``: the unit was empty, which made ``uom_id.compare``
+    # raise a bare singleton error, and the request line was empty too, so the
+    # delivered quantities this ticket exists to record would have gone
+    # nowhere. Only ``move_id`` now has to survive the round trip.
+    move_id = fields.Many2one(
+        "stock.move",
+        string="Stock Move",
+        required=True,
+        ondelete="cascade",
     )
-    product_id = fields.Many2one("product.product", string="Product", readonly=True)
-    uom_id = fields.Many2one("uom.uom", string="Unit", readonly=True)
-    quantity_dispatched = fields.Float(string="Dispatched", readonly=True)
+    request_line_id = fields.Many2one(
+        related="move_id.drims_request_line_id",
+        string="Request Line",
+    )
+    product_id = fields.Many2one(related="move_id.product_id", string="Product")
+    uom_id = fields.Many2one(related="move_id.product_uom", string="Unit")
+    quantity_dispatched = fields.Float(related="move_id.quantity", string="Dispatched")
     quantity_delivered = fields.Float(string="Delivered")
 
     @api.constrains("quantity_delivered")
@@ -223,7 +235,15 @@ class DeliveryConfirmationWizardLine(models.TransientModel):
         for line in self:
             if line.quantity_delivered < 0:
                 raise ValidationError(_("Delivered quantity cannot be negative."))
-            if line.uom_id.compare(line.quantity_delivered, line.quantity_dispatched) > 0:
+            # Compare in the line's own unit where there is one, but never let a
+            # missing unit turn an over-delivery check into a singleton error.
+            if line.uom_id:
+                over_delivered = line.uom_id.compare(line.quantity_delivered, line.quantity_dispatched) > 0
+            else:
+                over_delivered = (
+                    float_compare(line.quantity_delivered, line.quantity_dispatched, precision_digits=2) > 0
+                )
+            if over_delivered:
                 raise ValidationError(
                     _(
                         "Cannot deliver more %(product)s than was dispatched "

@@ -35,18 +35,19 @@
                         <page string="Delivered Items" name="items">
                             <field name="line_ids" nolabel="1">
                                 <list editable="bottom" create="0" delete="0">
-                                    <field name="product_id" readonly="1" />
-                                    <field
-                                        name="uom_id"
-                                        readonly="1"
-                                        groups="uom.group_uom"
-                                    />
-                                    <field name="quantity_dispatched" readonly="1" />
+                                    <!--
+                                        move_id is the one value the client has to
+                                        send back: the product, unit, dispatched
+                                        quantity and request line are all related
+                                        off it. It is hidden but deliberately not
+                                        readonly, because readonly fields are
+                                        dropped from the save payload (OP#1088).
+                                    -->
+                                    <field name="move_id" column_invisible="1" />
+                                    <field name="product_id" />
+                                    <field name="uom_id" groups="uom.group_uom" />
+                                    <field name="quantity_dispatched" />
                                     <field name="quantity_delivered" />
-                                    <field
-                                        name="request_line_id"
-                                        column_invisible="1"
-                                    />
                                 </list>
                             </field>
                             <div class="text-muted mt-2">
