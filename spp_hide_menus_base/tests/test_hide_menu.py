@@ -9,8 +9,13 @@ the model's state transition without depending on a real "Apps install"
 flow.
 """
 
+from unittest.mock import patch
+
+from psycopg2 import IntegrityError
+
 from odoo import Command
 from odoo.tests import TransactionCase, tagged
+from odoo.tools import mute_logger
 
 
 @tagged("post_install", "-at_install")
@@ -313,3 +318,113 @@ class TestSppHideMenu(TransactionCase):
                 else 0,
                 "hide_menus() shouldn't touch base.menu_administration",
             )
+
+    def _without_unique_constraint(self):
+        """Reproduce a database on which UNIQUE(menu_id) could not be applied.
+
+        That state is real rather than hypothetical: ``Registry.post_constraint``
+        catches any failure from creating a constraint and only logs it, so a
+        database that already held duplicates when this module upgraded keeps them
+        *and* keeps running. Those are exactly the databases the defensive read has
+        to survive, and the only way to build one in a test is to take the
+        constraint back off.
+
+        DDL is transactional in PostgreSQL, so the constraint returns when the
+        test's transaction rolls back.
+        """
+        self.env.cr.execute("ALTER TABLE spp_hide_menu DROP CONSTRAINT IF EXISTS spp_hide_menu_unique_menu")
+
+    def _menu_without_hide_row(self):
+        """A menu no spp.hide.menu row points at yet."""
+        taken = self.env["spp.hide.menu"].search([]).menu_id.ids
+        menu = self.env["ir.ui.menu"].search([("id", "not in", taken)], limit=1)
+        self.assertTrue(menu, "no unconfigured ir.ui.menu left to test against")
+        return menu
+
+    def test_a_menu_cannot_have_two_hide_configurations(self):
+        """UNIQUE(menu_id): the state that aborts the registry load is rejected.
+
+        Two rows for one menu make hide_menus() read ``.state`` off a
+        multi-record set, which raises Expected singleton from _register_hook and
+        brings the whole instance down. The constraint stops it being creatable.
+        """
+        menu = self._menu_without_hide_row()
+        self.env["spp.hide.menu"].create({"menu_id": menu.id, "xml_id": "test.first"})
+
+        with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"):
+            with self.env.cr.savepoint():
+                self.env["spp.hide.menu"].create({"menu_id": menu.id, "xml_id": "test.second"})
+                self.env.flush_all()
+
+    def test_primary_prefers_a_row_that_can_still_restore_its_menu(self):
+        """Which duplicate survives is not arbitrary.
+
+        ``hide_menu()`` snapshots ``group_ids`` into ``default_group_ids``, so a
+        row created after the menu was already collapsed holds only the hide
+        group and ``show_menu()`` on it restores a menu nobody can see. The
+        de-dup migration ranks rows by the same rule.
+        """
+        menu = self._menu_without_hide_row()
+        hide_group = self.env["spp.hide.menu"]._hide_group()
+        real_groups = self.env.ref("base.group_user")
+
+        degraded = self.env["spp.hide.menu"].create({"menu_id": menu.id, "xml_id": "test.degraded"})
+        degraded.default_group_ids = [Command.set([hide_group.id])]
+
+        self._without_unique_constraint()
+        self.env.cr.execute(
+            "INSERT INTO spp_hide_menu (menu_id, state, xml_id) VALUES (%s, 'hide', 'test.good') RETURNING id",
+            (menu.id,),
+        )
+        good = self.env["spp.hide.menu"].browse(self.env.cr.fetchone()[0])
+        good.default_group_ids = [Command.set([real_groups.id])]
+
+        both = degraded + good
+        self.assertEqual(both._primary(), good, "_primary() must not pick the degraded row")
+
+        empty = self.env["spp.hide.menu"].browse(good.id)
+        empty.default_group_ids = [Command.clear()]
+        self.assertEqual(
+            (degraded + empty)._primary(),
+            empty,
+            "an empty snapshot is a valid one — a menu with no groups restores to no groups",
+        )
+
+    def test_hide_menus_tolerates_a_duplicate_the_constraint_could_not_block(self):
+        """The defensive half of the fix, and why the constraint alone is not enough.
+
+        ``Registry.post_constraint`` logs and swallows a constraint it cannot
+        apply, so a database that still held duplicates when UNIQUE(menu_id)
+        landed keeps running without it. hide_menus() must not raise there —
+        before this change it did, from _register_hook, taking the instance down.
+        """
+        menu = self._menu_without_hide_row()
+        external_id = "spp_hide_menus_base.test_menu_for_duplicate"
+        self.env["ir.model.data"].create(
+            {
+                "module": "spp_hide_menus_base",
+                "name": "test_menu_for_duplicate",
+                "model": "ir.ui.menu",
+                "res_id": menu.id,
+            }
+        )
+
+        self._without_unique_constraint()
+        for xml_id in ("test.dup_a", "test.dup_b"):
+            self.env.cr.execute(
+                "INSERT INTO spp_hide_menu (menu_id, state, xml_id) VALUES (%s, 'hide', %s)",
+                (menu.id, xml_id),
+            )
+        self.env.invalidate_all()
+        self.assertEqual(
+            self.env["spp.hide.menu"].search_count([("menu_id", "=", menu.id)]),
+            2,
+            "precondition: the duplicate must exist for this test to mean anything",
+        )
+
+        # ``base`` is always installed, so this exercises the real loop rather
+        # than depending on which optional Odoo apps the test database happens
+        # to carry.
+        menu_app = dict(self.env["ir.module.module"].MENU_APP, base={"menu_xml_id": external_id})
+        with patch.object(type(self.env["ir.module.module"]), "MENU_APP", menu_app):
+            self.env["ir.module.module"].hide_menus()
