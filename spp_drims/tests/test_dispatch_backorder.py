@@ -35,6 +35,21 @@ class TestDrimsDispatchBackorder(DrimsTestCommon):
             }
         )
 
+    def _allocate(self, line, quantity, warehouse=None):
+        """Record a per-warehouse allocation for ``line``.
+
+        OP#1079 replaced the writable ``quantity_allocated`` on the request line
+        with a stored compute over ``allocation_ids``, so allocation has to be
+        expressed as a row against a warehouse.
+        """
+        return self.env["spp.drims.request.allocation"].create(
+            {
+                "request_line_id": line.id,
+                "warehouse_id": (warehouse or self.warehouse).id,
+                "quantity_allocated": quantity,
+            }
+        )
+
     def _dispatch_for(self, requested=100, allocated=100):
         """Return an allocated request plus its confirmed dispatch picking."""
         request = self.env["spp.drims.request"].create(
@@ -42,7 +57,6 @@ class TestDrimsDispatchBackorder(DrimsTestCommon):
                 "incident_id": self.incident.id,
                 "destination_area_id": self.area.id,
                 "date_needed": self.future_date,
-                "source_warehouse_id": self.warehouse.id,
                 "line_ids": [
                     (
                         0,
@@ -58,7 +72,7 @@ class TestDrimsDispatchBackorder(DrimsTestCommon):
         )
         request.action_submit()
         request.action_approve()
-        request.line_ids[0].quantity_allocated = allocated
+        self._allocate(request.line_ids[0], allocated)
         request.state_id = request._get_state_by_code("allocated")
         request.action_create_dispatch()
         picking = request.picking_ids
