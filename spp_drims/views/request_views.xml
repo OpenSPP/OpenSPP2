@@ -34,8 +34,14 @@
                 <field name="date_requested" optional="hide" />
                 <field name="affected_population" optional="hide" />
                 <field name="line_count" string="Items" optional="hide" />
+                <!-- OP#1079: which warehouse(s) stock was allocated from. -->
+                <field name="source_warehouse_names" optional="show" />
                 <field name="total_value" sum="Total Value" optional="hide" />
-                <field name="state" invisible="1" />
+                <!-- OP#1075: `state` (related to state_id.code, label "Code") is
+                     needed for the row decorations below, but must not render as
+                     a column. In Odoo 19 invisible="1" no longer hides a list
+                     column — column_invisible does. -->
+                <field name="state" column_invisible="1" />
                 <field
                     name="approval_state"
                     widget="badge"
@@ -116,8 +122,10 @@
                         confirm="Approve this request? Items will be ready for allocation."
                         data-hotkey="a"
                     />
+                    <!-- OP#1161: open a wizard to capture required reviewer
+                         notes instead of calling action_request_revision bare. -->
                     <button
-                        name="action_request_revision"
+                        name="action_open_revision_wizard"
                         string="Request Changes"
                         type="object"
                         class="btn-secondary"
@@ -134,8 +142,10 @@
                     />
 
                     <!-- Revision Actions -->
+                    <!-- OP#1162: resubmit does revision -> draft -> pending in one
+                         click; action_submit alone rejects non-draft records. -->
                     <button
-                        name="action_submit"
+                        name="action_resubmit"
                         string="Resubmit for Approval"
                         type="object"
                         class="btn-primary"
@@ -158,7 +168,7 @@
                         string="Allocate Stock"
                         type="object"
                         class="btn-primary"
-                        invisible="approval_state != 'approved' or state in ('dispatched', 'delivered', 'fulfilled')"
+                        invisible="approval_state != 'approved' or state in ('dispatched', 'delivered', 'fulfilled') or is_fully_allocated"
                         data-hotkey="l"
                     />
                     <button
@@ -235,39 +245,50 @@
                         </h2>
                     </div>
 
-                    <!-- Main Info Groups (Two Column Layout) -->
+                    <!-- OP#1075: reference fields are display-only (no navigation
+                         to their own records); fields use no_open. -->
+                    <field name="is_fully_allocated" invisible="1" />
+                    <field name="state_id" invisible="1" />
+                    <field name="state" invisible="1" />
+
+                    <!-- Request Details + Priority and Dates -->
                     <group>
+                        <!-- OP#1075: Request Details follows the ticket spec —
+                             Incident, Humanitarian Cluster, Affected Population,
+                             Justification, Requested by (contact fields are not
+                             part of the spec). -->
                         <group string="Request Details">
                             <field
                                 name="incident_id"
                                 readonly="approval_state not in ('draft', 'revision')"
-                                options="{'no_create': True}"
+                                options="{'no_create': True, 'no_open': True}"
                             />
                             <field
                                 name="cluster_id"
                                 readonly="approval_state not in ('draft', 'revision')"
-                                options="{'no_create': True}"
-                            />
-                            <field
-                                name="destination_area_id"
-                                readonly="approval_state not in ('draft', 'revision')"
-                                options="{'no_create': True}"
-                            />
-                            <field
-                                name="service_point_id"
-                                readonly="approval_state not in ('draft', 'revision')"
-                                options="{'no_create': True}"
+                                options="{'no_create': True, 'no_open': True}"
                             />
                             <field
                                 name="affected_population"
                                 readonly="approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="justification"
+                                placeholder="Explain why this request is needed and how it will help the affected population..."
+                                readonly="approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="requester_id"
+                                string="Requested by"
+                                readonly="approval_state not in ('draft', 'revision')"
+                                options="{'no_create': True, 'no_open': True}"
                             />
                         </group>
                         <group string="Priority and Dates">
                             <field
                                 name="priority_id"
                                 readonly="approval_state not in ('draft', 'revision')"
-                                options="{'no_create': True}"
+                                options="{'no_create': True, 'no_open': True}"
                             />
                             <field
                                 name="is_life_threatening"
@@ -279,63 +300,39 @@
                                 name="date_needed"
                                 readonly="approval_state not in ('draft', 'revision')"
                             />
-                            <field name="state_id" invisible="1" />
-                            <field name="state" invisible="1" />
                         </group>
                     </group>
 
-                    <!-- Contact Info -->
-                    <group string="Contact Information">
+                    <!-- Destination Information: area + type-driven warehouse / service point -->
+                    <group string="Destination Information">
                         <group>
                             <field
-                                name="contact_name"
+                                name="destination_area_id"
                                 readonly="approval_state not in ('draft', 'revision')"
+                                options="{'no_create': True, 'no_open': True}"
                             />
                             <field
-                                name="contact_phone"
+                                name="destination_type"
                                 readonly="approval_state not in ('draft', 'revision')"
                             />
-                        </group>
-                    </group>
-
-                    <!-- Fulfillment - visible after approval (GAP-REQ-001, GAP-REQ-006) -->
-                    <group
-                        string="Fulfillment"
-                        invisible="approval_state != 'approved'"
-                    >
-                        <group>
-                            <!-- OP#1164: domain source for the warehouse fields -->
+                            <!-- OP#1164: domain source for destination_warehouse_id. The
+                                 Fulfillment group and source_warehouse_id that used to sit
+                                 here went with OP#1079's per-warehouse allocation. -->
                             <field name="allowed_warehouse_ids" invisible="1" />
                             <field
-                                name="source_warehouse_id"
-                                options="{'no_create': True}"
-                                required="approval_state == 'approved' and state not in ('allocated', 'dispatched', 'delivered')"
+                                name="destination_warehouse_id"
+                                invisible="destination_type != 'warehouse'"
+                                readonly="approval_state not in ('draft', 'revision')"
+                                options="{'no_create': True, 'no_open': True}"
                             />
                             <field
-                                name="destination_warehouse_id"
-                                options="{'no_create': True}"
+                                name="service_point_id"
+                                invisible="destination_type != 'service_point'"
+                                domain="[('area_id', '=', destination_area_id)]"
+                                readonly="approval_state not in ('draft', 'revision')"
+                                options="{'no_create': True, 'no_open': True}"
                             />
-                            <field name="state" string="Status" readonly="1" />
                         </group>
-                        <group string="Progress">
-                            <field name="total_quantity" string="Requested" />
-                            <field name="total_allocated" />
-                            <field name="allocation_pct" widget="progressbar" />
-                            <field name="total_dispatched" />
-                            <field name="total_delivered" />
-                            <field name="fulfillment_pct" widget="progressbar" />
-                        </group>
-                    </group>
-
-                    <!-- Justification -->
-                    <group string="Justification" col="2">
-                        <field
-                            name="justification"
-                            nolabel="1"
-                            colspan="2"
-                            placeholder="Explain why this request is needed and how it will help the affected population..."
-                            readonly="approval_state not in ('draft', 'revision')"
-                        />
                     </group>
 
                     <!-- Revision Needed Banner -->
@@ -346,21 +343,32 @@
                     >
                         <div class="d-flex align-items-center">
                             <i class="fa fa-edit fa-2x me-3" title="Edit" />
-                            <div>
+                            <div class="flex-grow-1">
                                 <h5 class="alert-heading mb-1">Changes Requested</h5>
-                                <p class="mb-0">
+                                <p class="mb-1">
                                     An approver has requested changes to this request.
-                                    Please review the feedback below, make the necessary edits, and resubmit.
+                                    Please make the necessary edits and resubmit.
                                 </p>
+                                <!-- OP#1161: show the reviewer's notes captured by
+                                     the Request Changes wizard. -->
+                                <div invisible="not revision_notes">
+                                    <strong>Requested changes:</strong>
+                                    <field
+                                        name="revision_notes"
+                                        readonly="1"
+                                        nolabel="1"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Ready to Allocate Banner -->
+                    <!-- Ready to Allocate Banner (only while there is still
+                         something left to allocate — OP#1075). -->
                     <div
                         class="alert alert-success"
                         role="status"
-                        invisible="approval_state != 'approved'"
+                        invisible="approval_state != 'approved' or is_fully_allocated or state in ('dispatched', 'delivered', 'fulfilled')"
                     >
                         <div class="d-flex align-items-center">
                             <i class="fa fa-check-circle fa-2x me-3" title="Approved" />
@@ -375,11 +383,43 @@
                         </div>
                     </div>
 
+                    <!-- Fully-allocated banner: replaces the "ready to allocate"
+                         note once every line is allocated (OP#1075). -->
+                    <div
+                        class="alert alert-info"
+                        role="status"
+                        invisible="approval_state != 'approved' or not is_fully_allocated or state in ('dispatched', 'delivered', 'fulfilled')"
+                    >
+                        <div class="d-flex align-items-center">
+                            <i
+                                class="fa fa-check-circle fa-2x me-3"
+                                title="Allocated"
+                            />
+                            <div>
+                                <h5 class="alert-heading mb-1">Fully Allocated</h5>
+                                <p class="mb-0">
+                                    All requested items have been allocated. You can now create a dispatch.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Notebook with Tabs -->
                     <notebook>
+                        <!--
+                            OP#1075: a single "Requested Items" tab. While the
+                            request is still being drafted the editable
+                            requested-items list is shown for entry; once it is
+                            approved that list is replaced by two read-only
+                            sections — "Allocated" (the per-warehouse split) and
+                            "Not Allocated" (lines still short of their requested
+                            quantity).
+                        -->
                         <page string="Requested Items" name="items">
+                            <!-- Entry / pre-approval: the editable requested items -->
                             <field
                                 name="line_ids"
+                                invisible="approval_state == 'approved'"
                                 readonly="approval_state not in ('draft', 'revision')"
                             >
                                 <list editable="bottom">
@@ -393,17 +433,14 @@
                                         sum="Total Value"
                                         optional="show"
                                     />
-                                    <field name="quantity_allocated" optional="show" />
-                                    <field name="quantity_delivered" optional="show" />
-                                    <field
-                                        name="fulfillment_pct"
-                                        widget="progressbar"
-                                        optional="show"
-                                    />
                                     <field name="notes" optional="hide" />
                                 </list>
                             </field>
-                            <group class="oe_subtotal_footer oe_right" colspan="2">
+                            <group
+                                class="oe_subtotal_footer oe_right"
+                                colspan="2"
+                                invisible="approval_state == 'approved'"
+                            >
                                 <field
                                     name="total_quantity"
                                     string="Total Quantity Requested"
@@ -413,6 +450,74 @@
                                     string="Total Estimated Value"
                                 />
                             </group>
+
+                            <!-- OP#1079: per-warehouse allocation split. Shows
+                                 which warehouse each allocated quantity comes from
+                                 (a request line for 70 filled 50 @ WH1 + 20 @ WH2
+                                 appears as two rows), plus how much has been
+                                 dispatched from each. Read-only — the split is set
+                                 and adjusted in the Allocate Stock wizard. -->
+                            <separator
+                                string="Allocated"
+                                invisible="approval_state != 'approved' or not allocation_ids"
+                            />
+                            <field
+                                name="allocation_ids"
+                                readonly="1"
+                                nolabel="1"
+                                class="o_drims_request_section_list"
+                                invisible="approval_state != 'approved' or not allocation_ids"
+                            >
+                                <list>
+                                    <field name="product_id" />
+                                    <field name="warehouse_id" />
+                                    <field
+                                        name="quantity_allocated"
+                                        sum="Total Allocated"
+                                    />
+                                    <field
+                                        name="quantity_dispatched"
+                                        sum="Total Dispatched"
+                                    />
+                                    <field
+                                        name="quantity_remaining"
+                                        string="To Dispatch"
+                                    />
+                                    <field name="uom_id" groups="uom.group_uom" />
+                                </list>
+                            </field>
+
+                            <!-- OP#1075: requested lines still short of their
+                                 requested quantity once the request is approved. -->
+                            <separator
+                                string="Not Allocated"
+                                invisible="approval_state != 'approved' or not unallocated_line_ids"
+                            />
+                            <field
+                                name="unallocated_line_ids"
+                                readonly="1"
+                                nolabel="1"
+                                class="o_drims_request_section_list"
+                                invisible="approval_state != 'approved' or not unallocated_line_ids"
+                            >
+                                <list>
+                                    <field name="product_id" />
+                                    <field
+                                        name="quantity_requested"
+                                        string="Requested"
+                                    />
+                                    <field
+                                        name="quantity_allocated"
+                                        string="Allocated"
+                                    />
+                                    <field
+                                        name="quantity_short"
+                                        string="Short"
+                                        decoration-danger="quantity_short &gt; 0"
+                                    />
+                                    <field name="uom_id" groups="uom.group_uom" />
+                                </list>
+                            </field>
                         </page>
 
                         <page string="Approval History" name="approval_history">
