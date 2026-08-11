@@ -11,6 +11,11 @@ class StockMove(models.Model):
         string="Request Line",
         help="Link to the request line this move fulfills",
     )
+    drims_allocation_id = fields.Many2one(
+        "spp.drims.request.allocation",
+        string="Request Allocation",
+        help="Link to the per-warehouse allocation this move dispatches",
+    )
     drims_donation_line_id = fields.Many2one(
         "spp.drims.donation.line",
         string="Donation Line",
@@ -51,5 +56,5 @@ class StockMove(models.Model):
         logic relies on to exclude non-accept dispositions.
         """
         fields_list = super()._prepare_merge_moves_distinct_fields()
-        fields_list += ["drims_donation_line_id", "drims_request_line_id"]
+        fields_list += ["drims_donation_line_id", "drims_request_line_id", "drims_allocation_id"]
         return fields_list
