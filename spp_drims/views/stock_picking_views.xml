@@ -118,6 +118,22 @@
             </xpath>
 
             <!--
+                OP#1075 originally locked the Operations moves list on a dispatch
+                by making the whole field readonly, so that users could not add
+                products. That attribute has been removed: a readonly list also
+                blocks editing Quantity, and entering less than Demand is how a
+                partial dispatch and its backorder are produced (OP#1087) — so it
+                took the short-shipment flow out with it.
+
+                The lock now lives in OP#1057, which sets create/delete domains
+                in the field's ``options`` so lines cannot be added or removed
+                while Quantity stays editable, and adds
+                stock.picking._check_drims_dispatch_matches_request to refuse at
+                validation anything the request never approved. That guard also
+                covers RPC and imports, which a view attribute cannot.
+            -->
+
+            <!--
                 OP#1150: on a dispatch, "Delivery Address" is dead weight —
                 partner_id is left blank because relief goods go to a location,
                 not a customer, so the field only invited people to fill in
