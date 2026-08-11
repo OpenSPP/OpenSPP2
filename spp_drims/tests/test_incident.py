@@ -347,7 +347,7 @@ class TestDrimsIncident(DrimsTestCommon):
         return picking
 
     def _request_with_allocation(self, requested, allocated):
-        return self.env["spp.drims.request"].create(
+        request = self.env["spp.drims.request"].create(
             {
                 "incident_id": self.incident.id,
                 "destination_area_id": self.area.id,
@@ -359,13 +359,23 @@ class TestDrimsIncident(DrimsTestCommon):
                         {
                             "product_id": self.product.id,
                             "quantity_requested": requested,
-                            "quantity_allocated": allocated,
                             "uom_id": self.product.uom_id.id,
                         },
                     )
                 ],
             }
         )
+        # OP#1079 made the line's quantity_allocated a stored compute over
+        # per-warehouse allocation rows, so allocating means recording a row —
+        # writing the total directly no longer registers at all.
+        self.env["spp.drims.request.allocation"].create(
+            {
+                "request_line_id": request.line_ids[0].id,
+                "warehouse_id": self.warehouse.id,
+                "quantity_allocated": allocated,
+            }
+        )
+        return request
 
     def test_incident_units_net_of_allocation(self):
         """Units/Products = stocked-in from this incident's donations minus what
