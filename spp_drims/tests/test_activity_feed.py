@@ -60,7 +60,6 @@ class TestActivityFeed(DrimsTestCommon):
                 "incident_id": self.incident.id,
                 "destination_area_id": self.area.id,
                 "date_needed": date.today() + timedelta(days=7),
-                "source_warehouse_id": self.warehouse.id,
             }
         )
 

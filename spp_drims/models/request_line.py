@@ -35,16 +35,60 @@ class DrimsRequestLine(models.Model):
         default=0.0,
         help="Quantity approved by approver (may differ from requested)",
     )
+    # OP#1079: allocation is now recorded per source warehouse. The totals
+    # below are the sums of the per-warehouse allocation rows, which are the
+    # source of truth (see spp.drims.request.allocation).
+    allocation_ids = fields.One2many(
+        "spp.drims.request.allocation",
+        "request_line_id",
+        string="Allocations",
+    )
     quantity_allocated = fields.Float(
         string="Quantity Allocated",
-        default=0.0,
-        help="Quantity allocated from warehouse stock",
+        compute="_compute_allocation_totals",
+        store=True,
+        help="Total quantity allocated across all source warehouses",
     )
     quantity_dispatched = fields.Float(
         string="Quantity Dispatched",
-        default=0.0,
-        help="Quantity sent out for delivery",
+        compute="_compute_allocation_totals",
+        store=True,
+        help="Total quantity sent out for delivery across all source warehouses",
     )
+
+    @api.depends("allocation_ids.quantity_allocated", "allocation_ids.quantity_dispatched")
+    def _compute_allocation_totals(self):
+        for line in self:
+            line.quantity_allocated = sum(line.allocation_ids.mapped("quantity_allocated"))
+            line.quantity_dispatched = sum(line.allocation_ids.mapped("quantity_dispatched"))
+
+    # OP#1075: flag a line where, after the request is approved, less has been
+    # allocated than requested — used to show the shortfall in red on the form.
+    is_allocation_short = fields.Boolean(
+        string="Allocation Short",
+        compute="_compute_is_allocation_short",
+    )
+
+    @api.depends("quantity_requested", "quantity_allocated", "request_id.approval_state")
+    def _compute_is_allocation_short(self):
+        for line in self:
+            line.is_allocation_short = (
+                line.request_id.approval_state == "approved" and line.quantity_allocated < line.quantity_requested
+            )
+
+    # OP#1075: outstanding quantity still to allocate — shown in the request's
+    # "Not Allocated" section.
+    quantity_short = fields.Float(
+        string="Short",
+        compute="_compute_quantity_short",
+        help="Requested quantity that has not been allocated yet.",
+    )
+
+    @api.depends("quantity_requested", "quantity_allocated")
+    def _compute_quantity_short(self):
+        for line in self:
+            line.quantity_short = max(0.0, line.quantity_requested - line.quantity_allocated)
+
     quantity_delivered = fields.Float(
         string="Quantity Delivered",
         default=0.0,
@@ -75,6 +119,16 @@ class DrimsRequestLine(models.Model):
 
     notes = fields.Text(string="Notes")
 
+    @api.depends("product_id", "quantity_requested")
+    def _compute_display_name(self):
+        """OP#1079: a readable label for the allocation wizard's Item picker
+        (e.g. "Rice 25kg Bag (500 requested)") instead of the raw model,id."""
+        for line in self:
+            if line.product_id:
+                line.display_name = f"{line.product_id.display_name} ({line.quantity_requested:g} requested)"
+            else:
+                line.display_name = _("Request Line")
+
     @api.constrains("quantity_requested")
     def _check_quantity_positive(self):
         """Ensure quantity is positive."""
@@ -87,11 +141,15 @@ class DrimsRequestLine(models.Model):
         for line in self:
             line.value = line.quantity_requested * line.unit_value
 
-    @api.depends("quantity_requested", "quantity_delivered")
+    # OP#1079: fulfillment tracks how much of the requested quantity has been
+    # allocated (stock committed across source warehouses), so the bar moves in
+    # step with the "Fully Allocated" state instead of staying at 0 until a
+    # separate delivery figure is entered. Capped at 100% for a sane bar.
+    @api.depends("quantity_requested", "quantity_allocated")
     def _compute_fulfillment(self):
         for line in self:
             if line.quantity_requested:
-                line.fulfillment_pct = (line.quantity_delivered / line.quantity_requested) * 100
+                line.fulfillment_pct = min(100.0, (line.quantity_allocated / line.quantity_requested) * 100)
             else:
                 line.fulfillment_pct = 0.0
 
