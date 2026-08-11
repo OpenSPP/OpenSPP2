@@ -56,7 +56,6 @@ class TestDrimsWaybillReport(DrimsTestCommon):
                 "incident_id": self.incident.id,
                 "destination_area_id": self.area.id,
                 "date_needed": self.future_date,
-                "source_warehouse_id": self.warehouse.id,
                 "destination_warehouse_id": self.dest_warehouse.id,
                 "line_ids": [
                     (
@@ -73,7 +72,15 @@ class TestDrimsWaybillReport(DrimsTestCommon):
         )
         request.action_submit()
         request.action_approve()
-        request.line_ids[0].quantity_allocated = requested
+        # OP#1079: quantity_allocated is a stored compute over per-warehouse
+        # allocation rows, so allocating means recording a row.
+        self.env["spp.drims.request.allocation"].create(
+            {
+                "request_line_id": request.line_ids[0].id,
+                "warehouse_id": self.warehouse.id,
+                "quantity_allocated": requested,
+            }
+        )
         request.state_id = self._vocab("request-states", "allocated")
         request.action_create_dispatch()
         picking = request.picking_ids

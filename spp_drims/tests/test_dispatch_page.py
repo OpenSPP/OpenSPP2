@@ -50,7 +50,6 @@ class TestDrimsDispatchPage(DrimsTestCommon):
             "incident_id": self.incident.id,
             "destination_area_id": self.area.id,
             "date_needed": self.future_date,
-            "source_warehouse_id": self.warehouse.id,
             "line_ids": [
                 (
                     0,
@@ -106,7 +105,9 @@ class TestDrimsDispatchPage(DrimsTestCommon):
     def test_delivery_address_hidden_only_for_dispatches(self):
         arch = self._form_arch()
         field = arch.xpath("//field[@name='partner_id'][@nolabel='1']")[0]
-        label_block = arch.xpath("//div[@class='o_td_label'][label[@for='partner_id']]")[0]
+        # contains(@class, ...) rather than Odoo's hasclass(), which is an Odoo
+        # XPath extension and is not available to plain lxml here.
+        label_block = arch.xpath("//div[contains(@class, 'o_td_label')][label[@for='partner_id']]")[0]
 
         for node, what in ((field, "field"), (label_block, "label")):
             self.assertTrue(
@@ -151,3 +152,103 @@ class TestDrimsDispatchPage(DrimsTestCommon):
             picking.location_dest_id,
             "a dispatch must always have a destination location to print and display",
         )
+
+    # ------------------------------------------------------------------
+    # round 2: what a dispatch must not let you change
+    # ------------------------------------------------------------------
+
+    def _readonly_for(self, node, **record):
+        """Evaluate a node's ``readonly`` expression against field values."""
+        return bool(safe_eval(node.get("readonly", "False"), dict(record)))
+
+    def _outside_list(self, arch, name):
+        """The header copy of a field, ignoring the moves-list copies.
+
+        Core declares picking_type_id and location_id in the list as well, so a
+        bare //field[@name=...] is ambiguous.
+        """
+        nodes = [
+            n for n in arch.xpath(f"//field[@name='{name}']") if not any(a.tag == "list" for a in n.iterancestors())
+        ]
+        self.assertEqual(len(nodes), 1, f"expected one header {name}, found {len(nodes)}")
+        return nodes[0]
+
+    def test_header_fields_are_locked_on_a_dispatch(self):
+        """Operation Type, Source Location and Source Document are set by the
+        request, so a dispatch must not offer them for editing (OP#1150)."""
+        # Source Location only renders for multi-location users; core keeps a
+        # complementary invisible copy for everyone else, so exactly one of the
+        # two survives into the arch and this decides which.
+        self.env.user.group_ids = [(4, self.env.ref("stock.group_stock_multi_locations").id)]
+        arch = self._form_arch()
+
+        for name in ("picking_type_id", "location_id", "origin"):
+            with self.subTest(field=name):
+                node = self._outside_list(arch, name)
+                self.assertTrue(
+                    self._readonly_for(node, state="assigned", drims_type="request_dispatch"),
+                    f"{name} is still editable on a dispatch",
+                )
+                self.assertFalse(
+                    self._readonly_for(node, state="assigned", drims_type=False),
+                    f"{name} must stay editable on an ordinary transfer",
+                )
+
+    def test_source_location_lock_lands_on_the_visible_field(self):
+        """Guard the xpath, not just the outcome.
+
+        Core declares location_id three times — an invisible copy for
+        single-location installs, the visible Source Location, and one in the
+        moves list. An unqualified xpath takes the first, which is the invisible
+        copy, and the lock would silently do nothing.
+        """
+        self.env.user.group_ids = [(4, self.env.ref("stock.group_stock_multi_locations").id)]
+        node = self._outside_list(self._form_arch(), "location_id")
+
+        self.assertNotEqual(node.get("invisible"), "1", "the lock landed on the hidden copy")
+        self.assertIn("request_dispatch", node.get("readonly") or "")
+
+    def test_dispatch_product_is_locked_but_quantity_is_not(self):
+        """The line-up is the request's; the quantity shipped is not.
+
+        Entering less than Demand is how a partial dispatch and its backorder
+        are produced (OP#1087), so quantity has to stay editable.
+        """
+        arch = self._form_arch()
+        moves = arch.xpath("//page[@name='operations']/field[@name='move_ids']/list")
+        self.assertEqual(len(moves), 1)
+
+        product = moves[0].xpath("./field[@name='product_id']")
+        self.assertEqual(len(product), 1)
+        self.assertIn(
+            "parent.drims_type == 'request_dispatch'",
+            product[0].get("readonly") or "",
+            "the product can still be swapped on a dispatch",
+        )
+
+        for qty_field in ("quantity", "product_uom_qty"):
+            for node in moves[0].xpath(f"./field[@name='{qty_field}']"):
+                self.assertNotIn(
+                    "drims_type",
+                    node.get("readonly") or "",
+                    f"{qty_field} must stay editable — short shipment drives the backorder",
+                )
+
+    def test_drims_information_is_read_only_on_a_dispatch(self):
+        """Every field in that group is written by the system, not the user."""
+        arch = self._form_arch()
+        group = arch.xpath("//group[@name='drims_info']")
+        self.assertEqual(len(group), 1)
+
+        for name in ("drims_type_id", "waybill_number", "drims_request_id", "incident_id"):
+            with self.subTest(field=name):
+                nodes = group[0].xpath(f"./field[@name='{name}']")
+                self.assertEqual(len(nodes), 1, f"{name} missing from DRIMS Information")
+                self.assertTrue(
+                    self._readonly_for(nodes[0], drims_type="request_dispatch"),
+                    f"{name} is still editable on a dispatch",
+                )
+                self.assertFalse(
+                    self._readonly_for(nodes[0], drims_type="donation_receipt"),
+                    f"{name} must stay editable on a donation receipt",
+                )
