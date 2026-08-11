@@ -49,7 +49,6 @@ class TestDrimsDispatchStatusbar(DrimsTestCommon):
                 "incident_id": self.incident.id,
                 "destination_area_id": self.area.id,
                 "date_needed": self.future_date,
-                "source_warehouse_id": self.warehouse.id,
                 "line_ids": [
                     (
                         0,
@@ -142,7 +141,7 @@ class TestDrimsDispatchStatusbar(DrimsTestCommon):
         """Why Draft is safe to hide: action_create_dispatch confirms immediately."""
         self._stock_up(100)
         request = self._allocated_request()
-        request.line_ids[0].quantity_allocated = 100
+        request.action_allocate()
         request.state_id = self.env["spp.vocabulary.code"].search(
             [
                 ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:request-states"),
@@ -158,8 +157,8 @@ class TestDrimsDispatchStatusbar(DrimsTestCommon):
     def test_waiting_state_is_reachable_for_a_dispatch(self):
         """Waiting is NOT unreachable, contrary to the ticket's rationale.
 
-        DRIMS allocation only writes ``quantity_allocated`` on the request line —
-        it creates no Odoo reservation. So two requests can allocate the same
+        DRIMS allocation only records per-warehouse allocation rows against the
+        request line — it creates no Odoo reservation. So two requests can allocate the same
         units, and whichever dispatches second has nothing to reserve and lands
         in ``confirmed`` (Waiting). That is why Waiting is only hidden as a
         *future* step: the statusbar widget always renders the current value even
