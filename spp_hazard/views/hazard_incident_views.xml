@@ -143,10 +143,28 @@
                                 placeholder="e.g., 2013-YOLANDA"
                                 readonly="status == 'closed'"
                             />
+                            <!--
+                                OP#1158: a closed incident must not offer a way
+                                out to its hazard category. Making the field
+                                readonly is not enough — a readonly many2one
+                                still renders as an internal link — and
+                                ``no_open`` cannot be made conditional, because
+                                ``options`` is parsed as a static dict and
+                                cannot reference ``status``. So the field is
+                                declared twice, exactly one of which is ever
+                                visible: the open incident keeps its link, the
+                                closed one is inert text.
+                            -->
                             <field
                                 name="category_id"
                                 options="{'no_create': True}"
-                                readonly="status == 'closed'"
+                                invisible="status == 'closed'"
+                            />
+                            <field
+                                name="category_id"
+                                options="{'no_create': True, 'no_open': True}"
+                                readonly="1"
+                                invisible="status != 'closed'"
                             />
                             <field name="severity" readonly="status == 'closed'" />
                         </group>

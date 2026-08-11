@@ -1,5 +1,6 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
+from lxml import etree
 from psycopg2 import IntegrityError
 
 from odoo import Command
@@ -380,3 +381,26 @@ class TestHazardIncident(HazardTestCase):
         # inc1 gets auto end_date, inc2 preserves its own
         self.assertTrue(inc1.end_date)
         self.assertEqual(str(inc2.end_date), "2024-04-01")
+
+    def test_closed_incident_does_not_link_out_to_its_category(self):
+        """A closed incident's Hazard Category must be inert text, not a link.
+
+        Readonly alone does not do it — a readonly many2one still renders as an
+        internal link — and ``no_open`` cannot be made conditional, because
+        ``options`` is a static dict that cannot reference ``status``. Hence two
+        declarations of the field with mutually exclusive ``invisible``
+        (OP#1158). Asserted on the arch because "is it clickable" is decided in
+        the client, not the ORM.
+        """
+        arch = etree.fromstring(self.env.ref("spp_hazard.view_hazard_incident_form").arch)
+        nodes = arch.xpath("//group[@name='main_info']/field[@name='category_id']")
+        self.assertEqual(len(nodes), 2, "expected an open-incident and a closed-incident variant")
+
+        closed = [n for n in nodes if n.get("invisible") == "status != 'closed'"]
+        opened = [n for n in nodes if n.get("invisible") == "status == 'closed'"]
+        self.assertEqual(len(closed), 1, "no closed-incident variant of category_id")
+        self.assertEqual(len(opened), 1, "no open-incident variant of category_id")
+
+        self.assertIn("'no_open': True", closed[0].get("options") or "")
+        # The open incident keeps its link — the ticket only restricts closed ones.
+        self.assertNotIn("no_open", opened[0].get("options") or "")
