@@ -42,6 +42,21 @@ class TestDrimsDispatchLineLock(DrimsTestCommon):
             }
         )
 
+    def _allocate(self, line, quantity, warehouse=None):
+        """Record a per-warehouse allocation for ``line``.
+
+        OP#1079 replaced the writable ``quantity_allocated`` on the request line
+        with a stored compute over ``allocation_ids``, so allocation has to be
+        expressed as a row against a warehouse.
+        """
+        return self.env["spp.drims.request.allocation"].create(
+            {
+                "request_line_id": line.id,
+                "warehouse_id": (warehouse or self.warehouse).id,
+                "quantity_allocated": quantity,
+            }
+        )
+
     def _dispatch_for(self, requested=100, allocated=100):
         """An allocated request plus its confirmed dispatch, ready to validate."""
         request = self.env["spp.drims.request"].create(
@@ -49,7 +64,6 @@ class TestDrimsDispatchLineLock(DrimsTestCommon):
                 "incident_id": self.incident.id,
                 "destination_area_id": self.area.id,
                 "date_needed": self.future_date,
-                "source_warehouse_id": self.warehouse.id,
                 "line_ids": [
                     (
                         0,
@@ -65,7 +79,7 @@ class TestDrimsDispatchLineLock(DrimsTestCommon):
         )
         request.action_submit()
         request.action_approve()
-        request.line_ids[0].quantity_allocated = allocated
+        self._allocate(request.line_ids[0], allocated)
         request.state_id = self.env["spp.vocabulary.code"].search(
             [
                 ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:request-states"),
@@ -228,7 +242,7 @@ class TestDrimsDispatchLineLock(DrimsTestCommon):
         self.assertEqual(first.state, "done")
 
         # Allocate the rest and dispatch again.
-        request.line_ids[0].quantity_allocated = 5000
+        request.line_ids[0].allocation_ids[0].quantity_allocated = 5000
         request.action_create_dispatch()
         second = request.picking_ids - first
         second.write({"beneficiary_count": 200, "beneficiary_area_id": self.area.id})
