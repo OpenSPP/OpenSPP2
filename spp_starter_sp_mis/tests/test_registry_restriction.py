@@ -104,7 +104,7 @@ class TestRegistryRestrictionSetting(RegistryRestrictionCommon):
         )
 
     def test_off_is_stored_not_deleted(self):
-        """"Off" is a stored fact, so it cannot be mistaken for "never set"."""
+        """ "Off" is a stored fact, so it cannot be mistaken for "never set"."""
         self._restrict(True)
 
         self.Settings.create({"is_registry_admin_only_crud": False}).execute()

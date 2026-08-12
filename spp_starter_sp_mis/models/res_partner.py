@@ -19,6 +19,10 @@ class ResPartner(models.Model):
         """Whether registry changes are currently withheld from this user."""
         if self.env.user.has_group(ADMIN_GROUP):
             return False
+        # Reads one system setting in order to decide whether to *withhold*
+        # access. Every user has to be able to read it, and it exposes nothing
+        # beyond the flag itself.
+        # nosemgrep: odoo-sudo-without-context
         param = self.env["ir.config_parameter"].sudo().get_param(REGISTRY_ADMIN_ONLY_CRUD_PARAM, "False")
         return param == "True"
 
@@ -62,6 +66,10 @@ class ResPartner(models.Model):
             return None
 
         if self:
+            # Reads is_registrant to decide what to refuse. Filtering as the
+            # user would recurse straight back into this check, and nothing is
+            # returned but ids the caller already holds.
+            # nosemgrep: odoo-sudo-without-context
             forbidden = self.browse(self.sudo().filtered("is_registrant").ids)
             if not forbidden:
                 return None

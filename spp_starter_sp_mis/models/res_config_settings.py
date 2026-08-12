@@ -35,6 +35,10 @@ class ResConfigSettings(models.TransientModel):
         default, so a missing row can no longer mean "on".
         """
         super().set_values()
+        # Writing a system configuration parameter. ir.config_parameter is
+        # restricted to Settings managers, and the settings form is already
+        # gated on that group, so this widens nothing.
+        # nosemgrep: odoo-sudo-without-context
         self.env["ir.config_parameter"].sudo().set_param(
             REGISTRY_ADMIN_ONLY_CRUD_PARAM,
             "True" if self.is_registry_admin_only_crud else "False",
