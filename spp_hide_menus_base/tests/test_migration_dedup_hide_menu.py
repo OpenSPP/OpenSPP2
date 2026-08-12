@@ -183,6 +183,40 @@ class TestHideMenuDedupMigration(TransactionCase):
         self.assertEqual(self._surviving_ids(menu), [good_id], "the degraded row must be the one deleted")
         self.assertEqual(self._read_imd(imd_id), (good_id, True))
 
+    def test_migration_ranks_a_legacy_group_snapshot_as_degraded(self):
+        """A snapshot against the pre-rename hide group cannot restore its menu either.
+
+        A database upgraded from an old release can carry ``group_menu_visibility``
+        alongside ``group_hide_menus_user``. Ranking against the current group
+        alone would judge a legacy-group snapshot restorable — and here it sits at
+        the LOWER id, so it would win the tie-break and the row that can actually
+        restore its menu would be the one deleted.
+        """
+        legacy = self.env.ref("spp_hide_menus_base.group_menu_visibility", raise_if_not_found=False)
+        if not legacy:
+            legacy = self.env["res.groups"].create({"name": "Hide Menus (legacy)"})
+            self.env.cr.execute(
+                """
+                INSERT INTO ir_model_data (module, name, model, res_id, noupdate)
+                     VALUES ('spp_hide_menus_base', 'group_menu_visibility', 'res.groups', %s, TRUE)
+                """,
+                (legacy.id,),
+            )
+
+        menu = self._menu_without_hide_row()
+        self._drop_unique_constraint()
+        degraded_id = self._insert_raw(menu, "test.legacy_degraded")
+        good_id = self._insert_raw(menu, "test.good")
+        self.HideMenu.browse(degraded_id).default_group_ids = [Command.set([legacy.id])]
+        self.HideMenu.browse(good_id).default_group_ids = [Command.set([self.env.ref("base.group_user").id])]
+
+        # The ORM defers writes; ``migrate`` reads the rel table in raw SQL and
+        # would rank against pre-write data without this.
+        self.env.flush_all()
+        migrate(self.env.cr, "19.0.2.0.0")
+
+        self.assertEqual(self._surviving_ids(menu), [good_id], "a legacy-group snapshot must rank as degraded")
+
     def test_migration_is_a_no_op_without_duplicates(self):
         """No duplicates means no repoint and no ``noupdate`` flipping.
 

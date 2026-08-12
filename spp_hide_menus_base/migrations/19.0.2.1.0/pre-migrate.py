@@ -61,13 +61,16 @@ _logger = logging.getLogger(__name__)
 _HIDE_GROUP_NAMES = ("group_hide_menus_user", "group_menu_visibility")
 
 # No group can have this id, so every row ranks as non-degraded and the tie-break
-# falls through to the lowest id. Used when the hide group cannot be resolved.
+# falls through to the lowest id. Used when no hide group can be resolved.
 _NO_GROUP = -1
 
 # Rank the rows of each menu: rank 1 survives, the rest are surplus. Shared by the
 # surplus lookup and the xml_id repoint so the two cannot disagree about which row
 # is the survivor. Ranked ascending by "is degraded" then id, so a row whose
-# snapshot is exactly the hide group loses to one that can still restore its menu.
+# snapshot holds nothing but hide groups loses to one that can still restore its
+# menu. %(hide)s is an array: a database upgraded from an old release can carry
+# the legacy group alongside the current one, and a snapshot against either is
+# equally unable to restore its menu.
 _RANKED_CTE = """
     WITH ranked AS (
         SELECT s.id,
@@ -78,12 +81,12 @@ _RANKED_CTE = """
                                 WHEN EXISTS (
                                          SELECT 1 FROM res_groups_spp_hide_menu_rel r
                                           WHERE r.spp_hide_menu_id = s.id
-                                            AND r.res_groups_id = %(hide)s
+                                            AND r.res_groups_id = ANY(%(hide)s)
                                      )
                                  AND NOT EXISTS (
                                          SELECT 1 FROM res_groups_spp_hide_menu_rel r
                                           WHERE r.spp_hide_menu_id = s.id
-                                            AND r.res_groups_id <> %(hide)s
+                                            AND r.res_groups_id <> ALL(%(hide)s)
                                      )
                                 THEN 1
                                 ELSE 0
@@ -97,11 +100,12 @@ _RANKED_CTE = """
 
 
 def _table_exists(cr, name):
-    cr.execute("SELECT to_regclass(%s)", (f"public.{name}",))
+    # Bare name: let search_path resolve it rather than hardcoding the schema.
+    cr.execute("SELECT to_regclass(%s)", (name,))
     return bool(cr.fetchone()[0])
 
 
-def _hide_group_id(cr):
+def _hide_group_ids(cr):
     cr.execute(
         """
         SELECT res_id
@@ -109,13 +113,10 @@ def _hide_group_id(cr):
          WHERE model = 'res.groups'
            AND module = 'spp_hide_menus_base'
            AND name IN %s
-         ORDER BY CASE name WHEN 'group_hide_menus_user' THEN 0 ELSE 1 END
-         LIMIT 1
         """,
         (_HIDE_GROUP_NAMES,),
     )
-    row = cr.fetchone()
-    return row[0] if row else None
+    return [row[0] for row in cr.fetchall()]
 
 
 def migrate(cr, version):
@@ -126,28 +127,38 @@ def migrate(cr, version):
     if not _table_exists(cr, "spp_hide_menu") or not _table_exists(cr, "res_groups_spp_hide_menu_rel"):
         return
 
-    hide_group_id = _hide_group_id(cr)
-    if hide_group_id is None:
+    hide_group_ids = _hide_group_ids(cr)
+    if not hide_group_ids:
         _logger.warning(
             "spp_hide_menus_base 19.0.2.1.0: hide group not found; de-duplicating "
             "spp.hide.menu on row id alone, which may keep a row whose "
             "default_group_ids can no longer restore its menu"
         )
-        hide_group_id = _NO_GROUP
+        hide_group_ids = [_NO_GROUP]
 
     # Concatenation joins two code-owned literals; the only runtime value is the
     # bound %(hide)s parameter.
-    cr.execute(  # noqa: S608  # nosec B608
-        _RANKED_CTE + " SELECT id FROM ranked WHERE rank > 1",
-        {"hide": hide_group_id},
+    cr.execute(
+        _RANKED_CTE + " SELECT id, menu_id FROM ranked WHERE rank > 1",  # nosec B608
+        {"hide": hide_group_ids},
     )
-    surplus_ids = tuple(row[0] for row in cr.fetchall())
-    if not surplus_ids:
+    surplus_rows = cr.fetchall()
+    if not surplus_rows:
         return
+    surplus_ids = tuple(row_id for row_id, _menu_id in surplus_rows)
+
+    # The only forensic trail if the wrong row was kept: name every row being
+    # deleted, as spp_change_request_v2 19.0.3.1.1 does. Ids only — no PII.
+    for row_id, menu_id in surplus_rows:
+        _logger.warning(
+            "spp_hide_menus_base 19.0.2.1.0: deleting duplicate spp.hide.menu row id=%s for menu_id=%s",
+            row_id,
+            menu_id,
+        )
 
     # Before the DELETE, not after: the CTE re-reads ``spp_hide_menu``, so once the
     # surplus rows are gone it matches nothing and every xml_id is left dangling.
-    cr.execute(  # noqa: S608  # nosec B608 — code-owned literals; %(hide)s is bound
+    cr.execute(
         _RANKED_CTE
         + """
         , survivor AS (
@@ -161,8 +172,8 @@ def migrate(cr, version):
          WHERE d.model = 'spp.hide.menu'
            AND d.res_id = ranked.id
            AND ranked.rank > 1
-        """,
-        {"hide": hide_group_id},
+        """,  # nosec B608 — code-owned literals; %(hide)s is bound
+        {"hide": hide_group_ids},
     )
     repointed = cr.rowcount
 
