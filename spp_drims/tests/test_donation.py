@@ -1,5 +1,9 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+import re
 from datetime import date, timedelta
+from pathlib import Path
+
+from lxml import etree
 
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
@@ -1418,3 +1422,55 @@ class TestDrimsDonationOP1076(DrimsTestCommon):
         self.assertEqual(line.disposal_date, date.today())
         self.assertEqual(line.disposal_user_id, self.env.user)
         self.assertGreater(len(donation.message_ids), messages_before, "an audit note should be posted")
+
+    # ------------------------------------------------------------------
+    # round 2: the form has to let you enter items in the first place
+    # ------------------------------------------------------------------
+
+    def test_filler_row_css_does_not_hide_add_a_line(self):
+        """The stylesheet must hide Odoo's blank filler rows and nothing else.
+
+        It previously excluded ``.o_field_x2many_list_row_add`` from the rows it
+        hid, on the assumption that class sits on the ``<tr>``. In Odoo 19 it is
+        on the ``<td>`` — the row is ``<tr class="d-print-none">`` — so the
+        exclusion never matched and the rule hid the "Add a line" row itself.
+        A new donation then offered no way to add items at all.
+
+        Filler rows are the only ones rendered without a class, which is what
+        the rule keys on now.
+        """
+        css = (Path(__file__).parents[1] / "static/src/css/donation_form.css").read_text()
+        # Comments explain the trap by name, so check the rules themselves.
+        rules = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+
+        self.assertIn(
+            "tr:not([class])",
+            rules,
+            "filler rows should be matched by having no class",
+        )
+        self.assertNotIn(
+            "o_field_x2many_list_row_add",
+            rules,
+            "that class is on the <td>, not the <tr> — excluding it on the row never matches "
+            "and the Add a line row gets hidden instead",
+        )
+
+    def test_donation_lists_use_column_invisible_not_invisible(self):
+        """Inside a list, ``invisible`` blanks the cells but keeps the column.
+
+        A field hidden that way leaves an empty titled column in the table —
+        which is how a stray "Quantity" column appeared between Pledged and
+        Unit on the donation items table.
+        """
+        arch = etree.fromstring(self.env.ref("spp_drims.view_drims_donation_form").arch)
+
+        offenders = [
+            field.get("name")
+            for lst in arch.iter("list")
+            for field in lst.findall("field")
+            if field.get("invisible") == "1"
+        ]
+        self.assertFalse(
+            offenders,
+            f"these list fields should use column_invisible instead of invisible: {offenders}",
+        )

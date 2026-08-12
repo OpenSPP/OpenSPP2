@@ -230,7 +230,12 @@
                                         column_invisible="parent.state == 'draft'"
                                         decoration-danger="receipt_variance &lt; 0"
                                     />
-                                    <field name="quantity" invisible="1" />
+                                    <!-- column_invisible, not invisible: inside a
+                                         list the latter blanks the cells but
+                                         still renders the column, which is why
+                                         an empty "Quantity" column was showing
+                                         between Pledged and Unit (OP#1076). -->
+                                    <field name="quantity" column_invisible="1" />
                                     <field
                                         name="uom_id"
                                         options="{'no_create': True}"
