@@ -495,7 +495,7 @@ class TestDrimsIncident(DrimsTestCommon):
             )
         self.assertTrue(safe_eval(condition, {"status": "closed"}))
 
-    def test_new_drims_incident_starts_in_alert(self):
+    def test_new_drims_incident_starts_in_draft(self):
         """The entry state, seen from DRIMS rather than the base module."""
         incident = self.env["spp.hazard.incident"].create(
             {
@@ -505,7 +505,30 @@ class TestDrimsIncident(DrimsTestCommon):
                 "start_date": "2026-08-01",
             }
         )
-        self.assertEqual(incident.status, "alert")
+        self.assertEqual(incident.status, "draft")
+
+    def test_draft_offers_exactly_flag_as_alert_and_set_active(self):
+        """OP#1157 round 3: a draft presents those two choices and no others.
+
+        Evaluated off the form arch because button visibility is a view
+        concern; the buttons themselves are contributed by two modules, which
+        is precisely why the combined header is worth asserting.
+        """
+        arch = etree.fromstring(
+            self.env["spp.hazard.incident"].get_view(self.env.ref("spp_hazard.view_hazard_incident_form").id, "form")[
+                "arch"
+            ]
+        )
+        shown = [
+            b.get("name")
+            for b in arch.xpath("//header/button")
+            if not safe_eval(b.get("invisible", "False"), {"status": "draft"})
+        ]
+        self.assertEqual(
+            shown,
+            ["action_set_alert", "action_set_active"],
+            f"a draft should offer Flag As Alert then Set Active, got {shown}",
+        )
 
     def test_flag_as_alert_returns_an_incident_to_alert(self):
         """The button itself still does its job from active and recovery."""

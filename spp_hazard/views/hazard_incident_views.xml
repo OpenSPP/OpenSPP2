@@ -44,11 +44,15 @@
         <field name="arch" type="xml">
             <form string="Hazard Incident">
                 <header>
+                    <!-- OP#1157 round 3: also offered from Draft, so a new
+                         incident can go straight to Active when the response is
+                         already under way, without being flagged as an alert
+                         first. -->
                     <button
                         name="action_set_active"
                         type="object"
                         string="Set Active"
-                        invisible="status not in ('alert', 'recovery')"
+                        invisible="status not in ('draft', 'alert', 'recovery')"
                         class="btn-primary"
                     />
                     <button
@@ -71,7 +75,7 @@
                     <field
                         name="status"
                         widget="statusbar"
-                        statusbar_visible="alert,active,recovery,closed"
+                        statusbar_visible="draft,alert,active,recovery,closed"
                     />
                 </header>
                 <sheet>
@@ -268,6 +272,11 @@
                 <field name="category_id" />
                 <separator />
                 <filter
+                    name="draft"
+                    string="Draft"
+                    domain="[('status', '=', 'draft')]"
+                />
+                <filter
                     name="alert"
                     string="Alert"
                     domain="[('status', '=', 'alert')]"
@@ -329,7 +338,7 @@
         <field name="path">hazard-incidents</field>
         <field
             name="context"
-        >{'search_default_alert': 1, 'search_default_active': 1, 'search_default_recovery': 1}</field>
+        >{'search_default_draft': 1, 'search_default_alert': 1, 'search_default_active': 1, 'search_default_recovery': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Record your first hazard incident

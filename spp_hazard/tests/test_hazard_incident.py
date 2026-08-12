@@ -6,6 +6,7 @@ from psycopg2 import IntegrityError
 from odoo import Command
 from odoo.exceptions import ValidationError
 from odoo.tests import mute_logger
+from odoo.tools.safe_eval import safe_eval
 
 from .common import HazardTestCase
 
@@ -31,14 +32,16 @@ class TestHazardIncident(HazardTestCase):
         """Test basic incident creation."""
         self.assertTrue(self.incident)
         self.assertEqual(self.incident.name, "Test Typhoon Incident")
-        self.assertEqual(self.incident.status, "alert")  # OP#1157: incidents are raised as alerts
-        self.assertTrue(self.incident.is_ongoing)
+        self.assertEqual(self.incident.status, "draft")  # OP#1157: incidents are entered as drafts
+        # A draft is not under way yet, so it does not count as ongoing.
+        self.assertFalse(self.incident.is_ongoing)
 
-    def test_new_incident_starts_in_alert(self):
-        """OP#1157: an incident is raised as an alert, then confirmed.
+    def test_new_incident_starts_in_draft(self):
+        """OP#1157: an incident is entered as a draft, then classified.
 
-        QA round 1 found new incidents landing straight in Active, which skips
-        the triage step the Alert state exists for.
+        The person recording it says what it is — Flag As Alert for something
+        being watched, Set Active for a response already under way. Neither is
+        assumed on their behalf, so the entry state is Draft.
         """
         incident = self.env["spp.hazard.incident"].create(
             {
@@ -48,7 +51,42 @@ class TestHazardIncident(HazardTestCase):
                 "start_date": "2024-02-01",
             }
         )
-        self.assertEqual(incident.status, "alert")
+        self.assertEqual(incident.status, "draft")
+
+    def test_draft_is_not_filtered_out_of_the_incident_list(self):
+        """Draft is the entry state, so the default filter has to include it.
+
+        The action pre-selects status filters. Without Draft among them a newly
+        recorded incident would disappear from the very list it was created in,
+        which would read as the record not having been saved.
+        """
+        action = self.env.ref("spp_hazard.action_hazard_incident")
+        context = safe_eval(action.context or "{}")
+        self.assertTrue(
+            context.get("search_default_draft"),
+            f"Draft is missing from the incident list's default filter: {context}",
+        )
+
+        search = etree.fromstring(self.env.ref("spp_hazard.view_hazard_incident_search").arch)
+        self.assertTrue(
+            search.xpath("//filter[@name='draft']"),
+            "the search view offers no Draft filter to switch back on",
+        )
+
+    def test_draft_can_go_straight_to_active(self):
+        """A response already under way should not have to be flagged first."""
+        incident = self.env["spp.hazard.incident"].create(
+            {
+                "name": "Already Responding",
+                "code": "TEST-INC-DIRECT",
+                "category_id": self.category_typhoon.id,
+                "start_date": "2024-02-01",
+            }
+        )
+        self.assertEqual(incident.status, "draft")
+
+        incident.action_set_active()
+        self.assertEqual(incident.status, "active")
 
     def test_alert_is_reachable_and_reversible(self):
         """Alert is a state you can return to, not only start in."""
@@ -64,10 +102,10 @@ class TestHazardIncident(HazardTestCase):
     def test_recovery_is_reached_from_active_only(self):
         """Answers QA's question about when Recovery is available.
 
-        Start Recovery is offered only from Active, so a newly raised incident
-        goes Alert -> Active -> Recovery rather than jumping straight in.
+        Start Recovery is offered only from Active, so a newly entered incident
+        goes Draft -> Active -> Recovery rather than jumping straight in.
         """
-        self.assertEqual(self.incident.status, "alert")
+        self.assertEqual(self.incident.status, "draft")
         self.incident.action_set_active()
         self.incident.action_set_recovery()
         self.assertEqual(self.incident.status, "recovery")
@@ -99,7 +137,9 @@ class TestHazardIncident(HazardTestCase):
 
     def test_04_is_ongoing_computation(self):
         """Test is_ongoing computed field."""
-        # Active incident with no end date should be ongoing
+        # A draft is not under way; confirming it into Active makes it ongoing.
+        self.assertFalse(self.incident.is_ongoing)
+        self.incident.action_set_active()
         self.assertTrue(self.incident.is_ongoing)
 
         # Set end date - should no longer be ongoing
@@ -112,8 +152,8 @@ class TestHazardIncident(HazardTestCase):
 
     def test_05_status_transitions(self):
         """Test status transition actions."""
-        # OP#1157: a new incident starts in alert and is confirmed into active.
-        self.assertEqual(self.incident.status, "alert")
+        # OP#1157: a new incident starts in draft and is classified from there.
+        self.assertEqual(self.incident.status, "draft")
         self.incident.action_set_active()
         self.assertEqual(self.incident.status, "active")
 

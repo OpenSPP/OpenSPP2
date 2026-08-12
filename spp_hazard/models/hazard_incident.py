@@ -55,19 +55,25 @@ class HazardIncident(models.Model):
     )
     status = fields.Selection(
         [
+            ("draft", "Draft"),
             ("alert", "Alert"),
             ("active", "Active"),
             ("recovery", "Recovery"),
             ("closed", "Closed"),
         ],
-        # OP#1157: an incident is raised as an alert and only becomes active
-        # once it has been confirmed, so Alert is the entry state rather than
-        # something you have to step back into. The lifecycle is
-        # Alert -> Active -> Recovery -> Closed.
-        default="alert",
+        # OP#1157 round 3: an incident is entered as a draft and the person
+        # recording it then says what it is — Flag As Alert for something being
+        # watched, Set Active for a response already under way. Neither is
+        # assumed for them, which is why Draft rather than Alert is the entry
+        # state. The lifecycle is Draft -> Alert or Active -> Recovery ->
+        # Closed; Alert can still be raised later from Active or Recovery.
+        default="draft",
         required=True,
         tracking=True,
-        help="Current status of the incident. A new incident starts in Alert and is confirmed with Set Active.",
+        help=(
+            "Current status of the incident. A new incident starts in Draft and is "
+            "moved on with Flag As Alert or Set Active."
+        ),
     )
     severity = fields.Selection(
         [
