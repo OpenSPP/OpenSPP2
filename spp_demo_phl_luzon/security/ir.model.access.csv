@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+access_spp_demo_population_weights_user,Demo Population Weights User Access,spp_demo_phl_luzon.model_spp_demo_population_weights,base.group_user,1,0,0,0
+access_spp_demo_luzon_area_loader_user,Demo Luzon Area Loader User Access,spp_demo_phl_luzon.model_spp_demo_luzon_area_loader,base.group_user,1,1,1,0

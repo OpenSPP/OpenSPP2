@@ -3153,90 +3153,6 @@ class SPPMISDemoGenerator(models.TransientModel):
                     }
                 )
 
-    def _add_member_detail_vals(self, proposed_changes):
-        """Register the individual for an Add Member CR and return detail vals (OP#871).
-
-        Add Member now adds an EXISTING individual, so the MIS "new baby" scenario
-        registers the person first and the CR references them via individual_id.
-        """
-        rel_xmlid = proposed_changes.get("relationship_xmlid")
-        membership_type_id = False
-        if rel_xmlid:
-            code = self.env.ref(rel_xmlid, raise_if_not_found=False)
-            membership_type_id = code.id if code else False
-        given = (proposed_changes.get("given_name") or "").strip()
-        family = (proposed_changes.get("family_name") or "").strip()
-        if family and given:
-            full_name = f"{family.upper()}, {given}"
-        elif family:
-            full_name = family.upper()
-        else:
-            full_name = given or "New Member"
-        Partner = self.env["res.partner"]
-        partner_vals = {"name": full_name, "is_registrant": True, "is_group": False}
-        for fname, value in [
-            ("given_name", given),
-            ("family_name", family),
-            ("birthdate", proposed_changes.get("birthdate")),
-        ]:
-            if value and fname in Partner._fields:
-                partner_vals[fname] = value
-        individual = Partner.create(partner_vals)
-        return {"individual_id": individual.id, "membership_type_id": membership_type_id}
-
-    def _change_hoh_member_lines(self, registrant, new_head_name):
-        """Rebuild the Change HoH member role lines (OP#873).
-
-        Returns member_line_ids commands promoting the named new head to "head"
-        and demoting whoever currently holds it (to an existing non-head role, or
-        any non-head role, so the apply step does not skip the line and leave two
-        heads). Returns None when no matching new head is found.
-        """
-        if not new_head_name:
-            return None
-        name_parts = new_head_name.split()
-        given_name = name_parts[0] if name_parts else new_head_name
-        new_head = self.env["res.partner"].search(
-            [("given_name", "ilike", given_name), ("is_group", "=", False), ("is_registrant", "=", True)],
-            limit=1,
-        )
-        if not new_head:
-            return None
-        Code = self.env["spp.vocabulary.code"]
-        head_code = Code.get_code("urn:openspp:vocab:group-membership-type", "head")
-        non_head_codes = Code.search(
-            [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:group-membership-type"),
-                ("code", "!=", "head"),
-            ]
-        )
-        memberships = self.env["spp.group.membership"].search(
-            [("group", "=", registrant.id), ("status", "=", "active")]
-        )
-        lines = [(5, 0, 0)]
-        for m in memberships:
-            current_roles = m.membership_type_ids
-            if m.individual == new_head:
-                new_role = head_code
-            elif head_code and head_code in current_roles:
-                remaining = current_roles.filtered(lambda r, h=head_code: r != h)
-                new_role = remaining[:1] or non_head_codes[:1]
-            else:
-                new_role = current_roles[:1]
-            lines.append(
-                (
-                    0,
-                    0,
-                    {
-                        "individual_id": m.individual.id,
-                        "membership_id": m.id,
-                        "old_role_display": ", ".join(current_roles.mapped("display")),
-                        "new_role_id": new_role.id if new_role else False,
-                    },
-                )
-            )
-        return lines
-
     def _build_detail_changes(self, detail_model, registrant, proposed_changes, cr_def):
         """Map proposed_changes to CR detail fields for V2 CR types."""
         vals = {}
@@ -3270,9 +3186,25 @@ class SPPMISDemoGenerator(models.TransientModel):
                     }
                 )
             elif detail_model == "spp.cr.detail.add_member":
-                # OP#871: add_member selects an EXISTING individual; register the
-                # MIS "new baby" first, then the CR adds them to the group.
-                vals.update(self._add_member_detail_vals(proposed_changes))
+                # Add Member CR builds a NEW individual from typed demographics
+                # (given/family name, birthdate, relationship); apply() creates
+                # the individual and links it via created_individual_id.
+                rel_xmlid = proposed_changes.get("relationship_xmlid")
+                relationship_id = False
+                if rel_xmlid:
+                    relationship_id = self.env.ref(rel_xmlid, raise_if_not_found=False)
+                    relationship_id = relationship_id.id if relationship_id else False
+                vals.update(
+                    {
+                        "given_name": proposed_changes.get("given_name"),
+                        "family_name": proposed_changes.get("family_name"),
+                        "member_name": " ".join(
+                            filter(None, [proposed_changes.get("given_name"), proposed_changes.get("family_name")])
+                        ),
+                        "birthdate": proposed_changes.get("birthdate"),
+                        "relationship_id": relationship_id,
+                    }
+                )
             elif detail_model == "spp.cr.detail.transfer_member":
                 member_name = proposed_changes.get("member_name")
                 target_story = proposed_changes.get("target_group_story")
@@ -3306,11 +3238,20 @@ class SPPMISDemoGenerator(models.TransientModel):
                     }
                 )
             elif detail_model == "spp.cr.detail.change_hoh":
-                # OP#873: change_hoh uses per-member role lines instead of a single
-                # new_head_id — rebuild the seeded lines (see helper).
-                lines = self._change_hoh_member_lines(registrant, proposed_changes.get("new_head_name"))
-                if lines is not None:
-                    vals["member_line_ids"] = lines
+                new_head_name = proposed_changes.get("new_head_name")
+                if new_head_name:
+                    # Search by given_name for case-insensitive match
+                    name_parts = new_head_name.split()
+                    given_name = name_parts[0] if name_parts else new_head_name
+                    individual = self.env["res.partner"].search(
+                        [
+                            ("given_name", "ilike", given_name),
+                            ("is_group", "=", False),
+                            ("is_registrant", "=", True),
+                        ],
+                        limit=1,
+                    )
+                    vals["new_head_id"] = individual.id if individual else False
             # Phase 5.1: Add remove_member support
             elif detail_model == "spp.cr.detail.remove_member":
                 member_name = proposed_changes.get("member_name")
@@ -4000,72 +3941,79 @@ class SPPMISDemoGenerator(models.TransientModel):
     # Keys: story_id -> {locale: area_xmlid}
     STORY_AREA_MAP = {
         "juan_dela_cruz": {
-            "fil_PH": "spp_demo.area_phl_calamba",
+            "fil_PH": "spp_demo.area_phl_ph0403405",  # City of Calamba, Laguna
             "fr_TG": "spp_demo.area_tgo_lome_tokoin",
             "si_LK": "spp_demo.area_lka_moratuwa",
         },
         "maria_santos": {
-            "fil_PH": "spp_demo.area_phl_santa_rosa",
+            "fil_PH": "spp_demo.area_phl_ph0403428",  # City of Santa Rosa, Laguna
             "fr_TG": "spp_demo.area_tgo_aflao",
             "si_LK": "spp_demo.area_lka_kolonnawa",
         },
         "jose_reyes_multigenerational": {
-            "fil_PH": "spp_demo.area_phl_san_pablo",
+            "fil_PH": "spp_demo.area_phl_ph0403424",  # San Pablo City, Laguna
             "fr_TG": "spp_demo.area_tgo_kpalime",
             "si_LK": "spp_demo.area_lka_kandy_ds",
         },
         "ibrahim_hassan": {
-            "fil_PH": "spp_demo.area_phl_antipolo",
+            "fil_PH": "spp_demo.area_phl_ph0405802",  # City of Antipolo, Rizal
             "fr_TG": "spp_demo.area_tgo_sokode",
             "si_LK": "spp_demo.area_lka_galle_ds",
         },
         "david_sofia_martinez": {
-            "fil_PH": "spp_demo.area_phl_makati",
+            "fil_PH": "spp_demo.area_phl_ph1307602",  # City of Makati, NCR
             "fr_TG": "spp_demo.area_tgo_lome",
             "si_LK": "spp_demo.area_lka_dehiwala",
         },
         "rosa_garcia": {
-            "fil_PH": "spp_demo.area_phl_quezon_city",
+            "fil_PH": "spp_demo.area_phl_ph1307404",  # Quezon City, NCR
             "fr_TG": "spp_demo.area_tgo_lome_be",
             "si_LK": "spp_demo.area_lka_colombo_fort",
         },
         "mary_johnson": {
-            "fil_PH": "spp_demo.area_phl_pasig",
+            "fil_PH": "spp_demo.area_phl_ph1307403",  # City of Pasig, NCR
             "fr_TG": "spp_demo.area_tgo_lome_nyekonakpoe",
             "si_LK": "spp_demo.area_lka_colombo_pettah",
         },
         "ahmed_said": {
-            "fil_PH": "spp_demo.area_phl_taguig",
+            "fil_PH": "spp_demo.area_phl_ph1307607",  # Taguig City, NCR
             "fr_TG": "spp_demo.area_tgo_lome_adidogome",
             "si_LK": "spp_demo.area_lka_dehiwala_gn",
         },
         "nguyen_extended_family": {
-            "fil_PH": "spp_demo.area_phl_bacoor",
+            # Bacoor is not in the curated PSGC dataset; Imus is the nearest available city in Cavite.
+            "fil_PH": "spp_demo.area_phl_ph0402109",  # Imus City, Cavite
             "fr_TG": "spp_demo.area_tgo_baguida_centre",
             "si_LK": "spp_demo.area_lka_hikkaduwa",
         },
         "amina_osman_household": {
-            "fil_PH": "spp_demo.area_phl_manila",
+            "fil_PH": "spp_demo.area_phl_ph1303901",  # City of Manila, NCR
             "fr_TG": "spp_demo.area_tgo_kpalime_centre",
             "si_LK": "spp_demo.area_lka_mount_lavinia_gn",
         },
         "carlos_elena_morales": {
-            "fil_PH": "spp_demo.area_phl_dasmarinas",
+            "fil_PH": "spp_demo.area_phl_ph0402106",  # City of Dasmariñas, Cavite
             "fr_TG": "spp_demo.area_tgo_kpalime_tove",
             "si_LK": "spp_demo.area_lka_galle_fort",
         },
         "chen_large_family": {
-            "fil_PH": "spp_demo.area_phl_qc_commonwealth",
+            # Commonwealth barangay (Quezon City) is not in the municipality-level dataset;
+            # assigned a distinct NCR city to keep areas spread across the demo map.
+            "fil_PH": "spp_demo.area_phl_ph1307501",  # Caloocan City, NCR
             "fr_TG": "spp_demo.area_tgo_zio",
             "si_LK": "spp_demo.area_lka_gampaha",
         },
         "grace_okonkwo": {
-            "fil_PH": "spp_demo.area_phl_makati_poblacion",
+            # Poblacion barangay (Makati) is not in the municipality-level dataset;
+            # assigned a distinct NCR city to keep areas spread across the demo map.
+            "fil_PH": "spp_demo.area_phl_ph1307603",  # City of Muntinlupa, NCR
             "fr_TG": "spp_demo.area_tgo_ogou",
             "si_LK": "spp_demo.area_lka_kalutara",
         },
         "luis_fernandez": {
-            "fil_PH": "spp_demo.area_phl_calamba_real",
+            # Real barangay (Calamba) is not in the municipality-level dataset;
+            # assigned a distinct Laguna city to keep areas spread across the demo map.
+            "fil_PH": "spp_demo.area_phl_ph0403403",  # City of Biñan, Laguna
             "fr_TG": "spp_demo.area_tgo_lacs",
             "si_LK": "spp_demo.area_lka_matara",
         },

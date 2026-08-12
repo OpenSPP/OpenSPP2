@@ -139,6 +139,17 @@ Dependencies
 Changelog
 =========
 
+19.0.2.1.4
+~~~~~~~~~~
+
+- fix(registry): remove the dead ``@api.constrains("age")``
+  ``_check_age_is_integer`` guard. ``age`` is a non-stored compute
+  derived from ``birthdate``, so the constraint never fired and only
+  emitted the registry-load warning
+  ``@constrains parameter 'age' is not writeable``. Computed ``age``
+  values are unchanged; stale i18n entries for the removed message are
+  dropped
+
 19.0.2.1.3
 ~~~~~~~~~~
 

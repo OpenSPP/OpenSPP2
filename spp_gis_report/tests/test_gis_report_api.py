@@ -104,6 +104,19 @@ class TestGISReportAPI(HttpCase):
             }
         )
 
+        # Get or create a gender dimension for test
+        cls.gender_dimension = cls.env["spp.demographic.dimension"].search([("name", "=", "gender")], limit=1)
+        if not cls.gender_dimension:
+            cls.gender_dimension = cls.env["spp.demographic.dimension"].create(
+                {
+                    "name": "gender",
+                    "label": "Gender",
+                    "dimension_type": "field",
+                    "field_path": "gender_id.code",
+                    "value_labels_json": {"1": "Male", "2": "Female", "0": "Not Known"},
+                }
+            )
+
         # Create report with disaggregation
         cls.report_disagg = cls.env["spp.gis.report"].create(
             {
@@ -115,7 +128,7 @@ class TestGISReportAPI(HttpCase):
                 "aggregation_method": "count",
                 "normalization_method": "raw",
                 "base_area_level": 2,
-                "disaggregate_by_gender": True,
+                "dimension_ids": [(6, 0, [cls.gender_dimension.id])],
             }
         )
         cls.env["spp.gis.report.data"].create(
@@ -328,16 +341,24 @@ class TestGISReportAPI(HttpCase):
         self.assertNotIn("metadata", result)
 
     def test_11_geojson_with_disaggregation(self):
-        """Test GeoJSON includes disaggregation data when requested."""
+        """Test GeoJSON includes flat disagg_* properties when requested."""
         self.authenticate("admin", "admin")
         result = self._get_json(
             "/api/v2/GISReport/api_disagg_test/geojson?include_disaggregation=true&include_geometry=false"
         )
 
-        # Verify disaggregation included
+        # Verify flat disagg_* properties are present
         feature = result["features"][0]
-        self.assertIn("disaggregation", feature["properties"])
-        self.assertIn("gender", feature["properties"]["disaggregation"])
+        props = feature["properties"]
+        # The stored disaggregation has gender.male=60, gender.female=40
+        self.assertIn("disagg_gender_male", props)
+        self.assertEqual(props["disagg_gender_male"], 60)
+        self.assertIn("disagg_gender_female", props)
+        self.assertEqual(props["disagg_gender_female"], 40)
+
+        # Verify disaggregation metadata in the metadata block
+        metadata = result.get("metadata", {})
+        self.assertIn("disaggregation", metadata)
 
     def test_12_geojson_report_not_found(self):
         """Test GeoJSON endpoint handles non-existent report."""

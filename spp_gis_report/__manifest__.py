@@ -1,6 +1,6 @@
 {
     "name": "OpenSPP GIS Reports",
-    "version": "19.0.2.0.1",
+    "version": "19.0.2.1.0",
     "category": "OpenSPP",
     "summary": "Geographic visualization and reporting for social protection data",
     "author": "OpenSPP.org, OpenSPP",
@@ -10,6 +10,7 @@
     "depends": [
         "spp_area",
         "spp_gis",
+        "spp_metric_service",
         "spp_registry",
         "spp_vocabulary",
         "spp_cel_domain",
