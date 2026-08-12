@@ -35,11 +35,15 @@ class SppHideMenu(models.Model):
     xml_id = fields.Char()
 
     def _hide_group(self):
-        """The group a hidden menu is collapsed onto, old xml_id as fallback."""
-        try:
-            return self.env.ref("spp_hide_menus_base.group_hide_menus_user")
-        except ValueError:
-            return self.env.ref("spp_hide_menus_base.group_menu_visibility")
+        """The group a hidden menu is collapsed onto, old xml_id as fallback.
+
+        Returns ``None`` rather than raising when neither xml_id resolves:
+        every caller sits on the ``hide_menus()`` path that runs from
+        ``_register_hook``, where an exception aborts the registry load.
+        """
+        return self.env.ref("spp_hide_menus_base.group_hide_menus_user", raise_if_not_found=False) or self.env.ref(
+            "spp_hide_menus_base.group_menu_visibility", raise_if_not_found=False
+        )
 
     def _primary(self):
         """The single row that governs the menu, when more than one exists.
@@ -57,6 +61,10 @@ class SppHideMenu(models.Model):
         if len(self) <= 1:
             return self
         hide_group = self._hide_group()
+        if not hide_group:
+            # Without the group there is no telling degraded from healthy;
+            # the lowest id is still a deterministic, non-raising answer.
+            return self[0]
         restorable = self.filtered(lambda rec: rec.default_group_ids != hide_group)
         return (restorable or self)[0]
 
@@ -64,28 +72,26 @@ class SppHideMenu(models.Model):
         record = self
         if menu_id:
             record = self.browse(menu_id)
+        hide_group = self._hide_group()
+        if not hide_group:
+            _logger.warning("spp_hide_menus_base: hide group not found; leaving menus visible")
+            return
         for rec in record:
             if rec.state == "show" and rec.menu_id:
-                # Use new XMLID; keep backward-compatible fallback for older databases
-                try:
-                    group_id = self.env.ref("spp_hide_menus_base.group_hide_menus_user").id
-                except ValueError:
-                    group_id = self.env.ref("spp_hide_menus_base.group_menu_visibility").id
-                show_non_openspp_group = [Command.set([group_id])]
                 rec.default_group_ids = rec.menu_id.group_ids
                 rec.menu_id.write(
                     {
-                        "group_ids": show_non_openspp_group,
+                        "group_ids": [Command.set([hide_group.id])],
                     }
                 )
                 rec.state = "hide"
 
     def _reapply_hide(self):
         """Re-apply hiding when module upgrade reset group_ids via XML."""
-        try:
-            hide_group = self.env.ref("spp_hide_menus_base.group_hide_menus_user")
-        except ValueError:
-            hide_group = self.env.ref("spp_hide_menus_base.group_menu_visibility")
+        hide_group = self._hide_group()
+        if not hide_group:
+            _logger.warning("spp_hide_menus_base: hide group not found; cannot re-apply hiding")
+            return
         for rec in self:
             if rec.menu_id and hide_group not in rec.menu_id.group_ids:
                 rec.default_group_ids = rec.menu_id.group_ids

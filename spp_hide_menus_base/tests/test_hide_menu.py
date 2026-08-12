@@ -355,6 +355,57 @@ class TestSppHideMenu(TransactionCase):
             with self.env.cr.savepoint():
                 self.env["spp.hide.menu"].create({"menu_id": menu.id, "xml_id": "test.second"})
                 self.env.flush_all()
+        # The savepoint rolled the failed create back in the database, but the
+        # ORM cache still holds the aborted record; drop it so later reads in
+        # this transaction cannot see a row that does not exist.
+        self.env.invalidate_all()
+
+    def _forget_hide_groups(self):
+        """Remove both hide-group xml_ids, as on a database with mangled module data."""
+        self.env["ir.model.data"].search(
+            [
+                ("module", "=", "spp_hide_menus_base"),
+                ("name", "in", ["group_hide_menus_user", "group_menu_visibility"]),
+            ]
+        ).unlink()
+
+    def test_primary_survives_a_missing_hide_group(self):
+        """The defensive read must not raise even with the hide group gone.
+
+        ``_primary()`` runs on the ``_register_hook`` path; an ``env.ref`` that
+        raises there recreates the outage this module guards against. With no
+        group to rank by, the lowest id is the deterministic fallback.
+        """
+        menu = self._menu_without_hide_row()
+        self._without_unique_constraint()
+        ids = []
+        for xml_id in ("test.nogroup_a", "test.nogroup_b"):
+            self.env.cr.execute(
+                "INSERT INTO spp_hide_menu (menu_id, state, xml_id) VALUES (%s, 'hide', %s) RETURNING id",
+                (menu.id, xml_id),
+            )
+            ids.append(self.env.cr.fetchone()[0])
+        self._forget_hide_groups()
+
+        both = self.env["spp.hide.menu"].browse(ids)
+        self.assertEqual(both._primary().id, ids[0], "lowest id must govern when no group can rank the rows")
+
+    def test_hide_menu_is_a_noop_without_the_hide_group(self):
+        """``hide_menu()`` also runs from ``_register_hook`` via ``hide_menus()``;
+        with no group to collapse onto it must warn and leave the menu alone,
+        not raise."""
+        menu = self._menu_without_hide_row()
+        rec = self.env["spp.hide.menu"].create({"menu_id": menu.id, "xml_id": "test.nogroup"})
+        groups_before = menu.group_ids
+        self._forget_hide_groups()
+
+        rec.hide_menu()
+        self.assertEqual(rec.state, "show", "the row must not pretend the menu was hidden")
+        self.assertEqual(menu.group_ids, groups_before, "the menu must be left as it was")
+
+        rec.state = "hide"
+        rec._reapply_hide()
+        self.assertEqual(menu.group_ids, groups_before, "_reapply_hide must be a no-op too")
 
     def test_primary_prefers_a_row_that_can_still_restore_its_menu(self):
         """Which duplicate survives is not arbitrary.
@@ -428,3 +479,12 @@ class TestSppHideMenu(TransactionCase):
         menu_app = dict(self.env["ir.module.module"].MENU_APP, base={"menu_xml_id": external_id})
         with patch.object(type(self.env["ir.module.module"]), "MENU_APP", menu_app):
             self.env["ir.module.module"].hide_menus()
+
+        # Not raising is necessary but not sufficient: the governing row must
+        # actually have hidden the menu, otherwise a _primary() that picked a
+        # wrong row would pass this test while leaving the menu visible.
+        self.assertEqual(
+            menu.group_ids,
+            self.env["spp.hide.menu"]._hide_group(),
+            "the surviving duplicate must actually govern: the menu is collapsed onto the hide group",
+        )
