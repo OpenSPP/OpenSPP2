@@ -228,10 +228,25 @@ class TestDrimsDispatchBackorder(DrimsTestCommon):
         self.assertEqual(request.state, "allocated")
         # The 10 units never shipped, so they are available to dispatch again.
         self.assertEqual(request.line_ids[0].quantity_dispatched, 90)
+        self._assert_released(request, dispatched=90, remaining=10)
         request.action_create_dispatch()
         new_dispatch = request.picking_ids - picking - backorder
         self.assertEqual(len(new_dispatch), 1)
         self.assertEqual(new_dispatch.move_ids.product_uom_qty, 10)
+
+    def _assert_released(self, request, dispatched, remaining):
+        """The release has to land on the allocation rows, not just the line.
+
+        The line's quantity_dispatched is a stored compute over those rows
+        (OP#1079). Writing it directly persists until something retriggers the
+        compute, so a test that only checks the line can pass while the
+        allocation underneath is still wrong — and it is the allocation that
+        decides how much stock is free to allocate again.
+        """
+        allocations = request.line_ids.allocation_ids
+        self.assertTrue(allocations, "the request line should have allocation rows")
+        self.assertEqual(sum(allocations.mapped("quantity_dispatched")), dispatched)
+        self.assertEqual(sum(allocations.mapped("quantity_remaining")), remaining)
 
     def test_declining_the_backorder_releases_the_quantity(self):
         """Answering "No" to Create Backorder cancels the balance, not ships it."""
@@ -251,6 +266,7 @@ class TestDrimsDispatchBackorder(DrimsTestCommon):
         # Only 90 shipped, so the request must not read as fully dispatched.
         self.assertEqual(request.line_ids[0].quantity_dispatched, 90)
         self.assertEqual(request.state, "allocated")
+        self._assert_released(request, dispatched=90, remaining=10)
 
     def test_cancelling_the_whole_dispatch_releases_everything(self):
         """Cancelling an unvalidated dispatch returns the full quantity."""
@@ -263,6 +279,7 @@ class TestDrimsDispatchBackorder(DrimsTestCommon):
         self.assertEqual(picking.state, "cancel")
         self.assertEqual(request.line_ids[0].quantity_dispatched, 0)
         self.assertEqual(request.state, "allocated")
+        self._assert_released(request, dispatched=0, remaining=100)
 
     # ------------------------------------------------------------------
     # coordinator visibility

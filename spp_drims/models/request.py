@@ -920,7 +920,12 @@ class DrimsRequest(models.Model):
         # ``parent_path`` is a "1/4/9/" style chain that already includes self.
         area_ids = {int(part) for part in (area.parent_path or "").split("/") if part}
         area_ids.add(area.id)
+        # Resolving who to notify about a backorder. Reads res.users only to
+        # collect recipient ids for a message; the acting warehouse officer has
+        # no reason to be able to search users, and nothing about them is
+        # exposed beyond being messaged.
         return (
+            # nosemgrep: odoo-sudo-on-sensitive-models,odoo-sudo-without-context
             self.env["res.users"]
             .sudo()
             .search(
@@ -983,6 +988,7 @@ class DrimsRequest(models.Model):
         edit.
         """
         self.ensure_one()
+        # nosemgrep: odoo-sudo-without-context
         request = self.sudo()
         request._notify_dispatch_backorder(backorder)
         if request.state == "dispatched":
@@ -998,7 +1004,12 @@ class DrimsRequest(models.Model):
         ``stock.move._action_cancel``): a request that reads ``dispatched`` while
         part of it was cancelled rather than shipped has to become actionable
         again.
+
+        Runs sudo for the same reason as the caller: the officer releasing the
+        quantity may sit outside the request's area scope, and moving the
+        request back to actionable is bookkeeping rather than a user edit.
         """
+        # nosemgrep: odoo-sudo-without-context
         for rec in self.sudo():
             if rec.state != "dispatched" or not rec.line_ids:
                 continue
@@ -1013,7 +1024,11 @@ class DrimsRequest(models.Model):
 
         Counterpart to ``_on_dispatch_backorder_created``: when the outstanding
         backorder is finally validated, the request returns to ``dispatched``.
+
+        Runs sudo for the same reason as its counterpart: the validating officer
+        need not have write access to the request under the area record rules.
         """
+        # nosemgrep: odoo-sudo-without-context
         for rec in self.sudo():
             if rec.state != "allocated":
                 continue

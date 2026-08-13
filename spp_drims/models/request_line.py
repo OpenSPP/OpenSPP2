@@ -168,25 +168,40 @@ class DrimsRequestLine(models.Model):
         - a move still in progress keeps counting its demand, so a pending
           backorder stays committed to the request.
 
+        Rebuilt onto the **per-warehouse allocation rows** rather than onto the
+        line (OP#1079). The line's ``quantity_dispatched`` is a stored compute
+        summing ``allocation_ids.quantity_dispatched``, so assigning to it
+        directly no longer registers at all — the write is silently discarded
+        and the released quantity never comes back, which is what broke the
+        backorder flow after the per-warehouse allocation model landed.
+
+        Splitting by allocation is unambiguous because every dispatch move
+        carries the allocation it draws from: ``action_create_dispatch`` creates
+        one move per allocation and stamps ``drims_allocation_id`` on it, and a
+        backorder copies that link along with the rest of the move.
+
         ``quantity`` and ``product_uom_qty`` are both expressed in the move's
-        ``product_uom``, which the dispatch sets to this line's ``uom_id``, so
-        the two are directly comparable.
+        ``product_uom``, which the dispatch sets from the allocation's
+        ``uom_id``, so the two are directly comparable.
 
         Runs sudo: warehouse staff validating or cancelling a dispatch need not
         have write access to the request under the area record rules, and this is
         system bookkeeping rather than a user edit.
         """
+        # nosemgrep: odoo-sudo-without-context
         Move = self.env["stock.move"].sudo()
-        for line in self.sudo():
+        # nosemgrep: odoo-sudo-without-context
+        for allocation in self.sudo().mapped("allocation_ids"):
             dispatched = 0.0
             for move in Move.search(
                 [
-                    ("drims_request_line_id", "=", line.id),
+                    ("drims_allocation_id", "=", allocation.id),
                     ("state", "!=", "cancel"),
                 ]
             ):
                 dispatched += move.quantity if move.state == "done" else move.product_uom_qty
-            line.quantity_dispatched = dispatched
+            allocation.quantity_dispatched = dispatched
+        # nosemgrep: odoo-sudo-without-context
         self.sudo().request_id._reopen_if_not_fully_dispatched()
 
     @api.onchange("product_id")
