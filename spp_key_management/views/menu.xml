@@ -11,6 +11,7 @@
         name="Key Management"
         sequence="760"
         groups="group_key_admin,base.group_system"
+        web_icon="spp_key_management,static/description/icon.png"
     />
 
     <!-- Submenu: Key Providers -->

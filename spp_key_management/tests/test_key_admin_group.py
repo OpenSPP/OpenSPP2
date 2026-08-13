@@ -133,6 +133,13 @@ class TestKeyAdminGroup(TransactionCase):
             menus,
             "Key Management menu must be reachable for key admins",
         )
+        # A top-level app needs an icon: without web_icon the app switcher
+        # shows a generic placeholder tile. load_menus does not check this,
+        # so pin it on the record itself.
+        self.assertTrue(
+            root.web_icon_data,
+            "Key Management root menu must carry a web icon",
+        )
 
     def test_migration_removes_escalation(self):
         """The 19.0.2.0.1 migration strips base.group_system from the
