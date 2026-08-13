@@ -177,7 +177,8 @@ Changelog
   in user context, and a migration strips the unsafe link from existing
   databases. The Key Management menu moved from Settings to a top-level
   menu: the Settings root is only visible to ERP managers, so key admins
-  who are no longer system administrators could not reach it there.
+  who are no longer system administrators could not reach it there. The
+  top-level menu carries the module icon in the app switcher.
 
 19.0.2.0.0
 ~~~~~~~~~~

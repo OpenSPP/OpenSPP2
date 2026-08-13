@@ -510,9 +510,11 @@ Only for development or testing purpose, do not use in production.</p>
 system administration. <tt class="docutils literal">implied_ids</tt> grants the implied groups to
 members, so the previous <tt class="docutils literal">base.group_system</tt> link escalated any
 holder of the DCI PII-visibility role to a Settings/System
-administrator. OpenSPP admins now imply the group instead (preserving
-admin visibility of gated PII fields), and a migration strips the
-unsafe link from existing databases.</li>
+administrator. A migration strips the unsafe link from existing
+databases. The group is deliberately not implied by any other group:
+administrators who need DCI PII rendered on screen must be granted it
+explicitly - a deliberate, reviewable grant on the user record instead
+of an automatic side effect of adminship.</li>
 </ul>
 </div>
 <div class="section" id="section-2">

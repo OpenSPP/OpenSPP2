@@ -521,8 +521,10 @@ grievance submission runs sudo, a portal-authored rule previously
 executed its CEL condition and actions as superuser.</li>
 <li>fix(grm): increment the escalation counter with elevated rights,
 matching the routing rule’s <tt class="docutils literal">match_count</tt> update, so a caller
-without write access cannot leave an escalation applied half-way
-(notification sent and case created, counter and chatter missing).</li>
+without write access on the rule cannot leave the counter and chatter
+missing on an otherwise-applied escalation. Other partial-failure
+modes (a failing notification send or case creation is logged and
+skipped) are pre-existing and unchanged.</li>
 </ul>
 </div>
 <div class="section" id="section-2">
