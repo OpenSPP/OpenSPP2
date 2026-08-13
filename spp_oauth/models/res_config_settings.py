@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import api, fields, models
 
 # The OAuth signing keys are only meaningful to system administrators. Access to
 # res.config.settings is restricted to base.group_system via Odoo core's ACL (this
@@ -10,15 +10,27 @@ OAUTH_KEY_FIELDS = ("oauth_priv_key", "oauth_pub_key")
 class RegistryConfig(models.TransientModel):
     _inherit = "res.config.settings"
 
+    # groups= is enforced by the ORM on read/write/create/search AND on
+    # internal attribute access - so an unauthorized principal reaching the
+    # settings save path fails with AccessError instead of silently writing
+    # False into set_param() (which would DELETE the stored keys and kill
+    # RS256 issuance). It does NOT cover default_get, hence the override below.
     oauth_priv_key = fields.Char(
         string="OAuth Private Key",
         config_parameter="spp_oauth.oauth_priv_key",
+        groups="base.group_system",
     )
     oauth_pub_key = fields.Char(
         string="OAuth Public Key",
         config_parameter="spp_oauth.oauth_pub_key",
+        groups="base.group_system",
     )
 
+    # @api.model is dispatch metadata read off the MOST-DERIVED method by
+    # call_kw: without it here, every external RPC call to
+    # res.config.settings.default_get (for any module's settings) crashes
+    # with a TypeError. It is not inherited from the base method.
+    @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
         # default_get sources config_parameter values via sudo(), bypassing model
