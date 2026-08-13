@@ -117,7 +117,6 @@ class TestDrimsStock(DrimsTestCommon):
                 "incident_id": self.incident.id,
                 "destination_area_id": self.area.id,
                 "date_needed": future_date,
-                "source_warehouse_id": self.warehouse.id,
                 "line_ids": [
                     (
                         0,
