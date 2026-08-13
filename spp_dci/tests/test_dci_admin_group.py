@@ -50,11 +50,15 @@ class TestDCIAdminGroup(TransactionCase):
             "DCI Administrator membership must not confer system administration",
         )
 
-    def test_spp_admin_implies_dci_admin(self):
-        """OpenSPP admins (and thus system admins) keep PII visibility."""
+    def test_spp_admin_does_not_imply_dci_admin(self):
+        """PII display is opt-in per administrator: the group is deliberately
+        NOT implied by spp_security.group_spp_admin, so platform/system admins
+        must be granted it explicitly - a deliberate, reviewable Access Rights
+        entry instead of an automatic side effect of adminship. Guards
+        against a consistency sweep reintroducing the conventional link."""
         group = self.env.ref("spp_dci.group_dci_admin")
         spp_admin = self.env.ref("spp_security.group_spp_admin")
-        self.assertIn(group, spp_admin.all_implied_ids)
+        self.assertNotIn(group, spp_admin.all_implied_ids)
 
         admin_user = self.env["res.users"].create(
             {
@@ -63,7 +67,10 @@ class TestDCIAdminGroup(TransactionCase):
                 "group_ids": [Command.link(self.env.ref("base.group_system").id)],
             }
         )
-        self.assertTrue(admin_user.has_group("spp_dci.group_dci_admin"))
+        self.assertFalse(
+            admin_user.has_group("spp_dci.group_dci_admin"),
+            "System administration alone must not confer DCI PII visibility",
+        )
 
     def test_migration_removes_escalation(self):
         """The 19.0.2.0.2 migration strips base.group_system from the

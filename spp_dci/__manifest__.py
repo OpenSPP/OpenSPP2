@@ -10,6 +10,10 @@
     "depends": [
         "base",
         "spp_registry",
+        # Not referenced by data files, but the security tests pin design
+        # decisions against spp_security.group_spp_admin - keep the
+        # dependency explicit rather than transitive via spp_registry.
+        "spp_security",
     ],
     "external_dependencies": {
         "python": [

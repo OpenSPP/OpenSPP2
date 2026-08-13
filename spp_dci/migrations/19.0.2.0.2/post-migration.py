@@ -12,6 +12,7 @@ privileges from affected users.
 """
 
 import logging
+import re
 
 from odoo import SUPERUSER_ID, Command, api
 
@@ -32,17 +33,24 @@ def migrate(cr, version):
 
     vals = {}
     # The record is noupdate, so refresh the comment that documented the
-    # inverted mental model ("Members must already be system administrators")
-    # even on databases where the link was already removed manually.
+    # inverted mental model - even on databases where the link was already
+    # removed manually. Strip only the stale sentence: an operator who
+    # rewrote or extended the comment keeps their text (noupdate promises
+    # that); only the wrong claim goes.
+    stale_marker = "Members must already be system administrators"
     correct_comment = (
         "Grants visibility to raw DCI payloads, full identifiers, "
         "disability data, and other sensitive fields exposed by the "
         "DCI cache and log models."
     )
-    if group.comment != correct_comment:
-        vals["comment"] = correct_comment
+    if group.comment and stale_marker in group.comment:
+        cleaned = re.sub(r"\s*Members must already be system administrators\.?", "", group.comment).strip()
+        vals["comment"] = cleaned or correct_comment
     if escalated:
-        affected = len(group.user_ids)
+        # all_user_ids: transitive membership. Nothing implies this group
+        # (in shipped XML or this version), so this equals the direct
+        # members and matches the spp_key_management migration's counting.
+        affected = len(group.all_user_ids)
         vals["implied_ids"] = [Command.unlink(system.id)]
 
     if not vals:
