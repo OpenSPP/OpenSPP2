@@ -1,7 +1,7 @@
 import logging
 
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import AccessError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -139,6 +139,61 @@ class GRMEscalationRule(models.Model):
         help="Number of times this rule has triggered an escalation",
     )
 
+    eval_as_user_id = fields.Many2one(
+        "res.users",
+        string="Evaluated As",
+        readonly=True,
+        ondelete="restrict",
+        help="User whose record-rule visibility bounds this rule's evaluation and "
+        "the ticket writes it performs. Set to whoever last defined what the rule "
+        "targets, so an elevated cron can never apply a rule beyond its author's "
+        "reach. System-managed; not editable.",
+    )
+    # No Python `default` on purpose (see spp_alerts #364): a default makes
+    # _init_column backfill existing rows with the UPGRADE user before the
+    # migration runs, and lets a client forge the value via a
+    # default_eval_as_user_id context key. The identity is set explicitly in
+    # create(); the migration backfills existing rows from create_uid.
+
+    # Fields that decide what a rule matches or does. Changing any re-binds the
+    # evaluation identity to the editor (see write), so a rule can never be
+    # repointed to act beyond its editor's ticket scope. Deliberately excludes
+    # operational toggles (sequence, active): reordering or archiving/unarchiving
+    # a rule must not silently transfer ownership to the person doing that
+    # routine action (a manager cleaning up an officer's rule would otherwise
+    # re-bind it to the manager's broad scope).
+    _EVAL_TARGETING_FIELDS = (
+        "condition_cel",
+        "escalate_to_user_id",
+        "escalate_to_team_id",
+        "escalate_severity",
+        "escalate_priority",
+        "trigger_after_hours",
+        "should_send_notification",
+        "notification_template_id",
+        "create_case",
+        "case_type_id",
+    )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Force the evaluation identity to the creator; never client-supplied."""
+        vals_list = [dict(vals, eval_as_user_id=self.env.uid) for vals in vals_list]
+        return super().create(vals_list)
+
+    def write(self, vals):
+        """Re-bind the evaluation identity to the editor when targeting changes.
+
+        self.env.uid is the acting user, preserved even under sudo() (only an
+        explicit with_user(<elevated>) write re-widens scope).
+        """
+        if "eval_as_user_id" in vals or any(f in vals for f in self._EVAL_TARGETING_FIELDS):
+            vals = dict(vals)
+            vals.pop("eval_as_user_id", None)
+            if any(f in vals for f in self._EVAL_TARGETING_FIELDS):
+                vals["eval_as_user_id"] = self.env.uid
+        return super().write(vals)
+
     @api.constrains("condition_cel")
     def _check_condition_cel(self):
         """Validate CEL expression syntax using CEL parser."""
@@ -149,7 +204,9 @@ class GRMEscalationRule(models.Model):
                         # Use proper CEL parser for validation
                         P.parse(rule.condition_cel)
                     # If parser not available, skip validation
-                except SyntaxError as e:
+                except Exception as e:
+                    # Any parser failure (not only SyntaxError) is a bad
+                    # expression the user must fix, surfaced as a ValidationError.
                     raise ValidationError(
                         _(
                             "Invalid CEL expression in rule '%(rule_name)s': %(error)s",
@@ -288,8 +345,13 @@ class GRMEscalationRule(models.Model):
             _logger.warning("Expression evaluation error: %s", str(e))
             raise
 
+    @api.private
     def apply_escalation(self, ticket):
         """Apply this escalation rule to a ticket.
+
+        Private: not RPC-dispatchable. Callers must evaluate the rule with its
+        owner identity first (see apply_escalations); the ticket writes below
+        run in whatever context ``self``/``ticket`` carry.
 
         Args:
             ticket: spp.grm.ticket record
@@ -344,9 +406,15 @@ class GRMEscalationRule(models.Model):
         if self.create_case and self.case_type_id:
             self._create_case_from_ticket(ticket)
 
-        # Update escalation count
-        # nosemgrep: semgrep.odoo-sudo-without-context -- counter update needs sudo
-        self.sudo().write({"escalation_count": self.escalation_count + 1})
+        # Atomic increment: avoids lost updates under concurrent cron/UI
+        # escalation, and needs no sudo (raw SQL bypasses ACL). Invisible to
+        # spp_audit ORM write-hooks, which is acceptable for a stats counter.
+        self.flush_recordset(["escalation_count"])
+        self.env.cr.execute(
+            "UPDATE spp_grm_escalation_rule SET escalation_count = escalation_count + 1 WHERE id = %s",
+            (self.id,),
+        )
+        self.invalidate_recordset(["escalation_count"])
 
         # Post message to chatter
         ticket.message_post(
@@ -432,10 +500,12 @@ class GRMEscalationRule(models.Model):
             )
 
     @api.model
+    @api.private
     def check_escalations(self):
         """Cron job to check and apply escalation rules to open tickets.
 
         This should be called periodically (e.g., hourly) by a scheduled action.
+        Private: invoked server-side by ir.cron, never via RPC.
         """
         # Find all open tickets
         tickets = self.env["spp.grm.ticket"].search(
@@ -455,8 +525,14 @@ class GRMEscalationRule(models.Model):
         return escalated_count
 
     @api.model
+    @api.private
     def apply_escalations(self, ticket):
         """Apply all matching escalation rules to a ticket.
+
+        Each rule is evaluated and applied with the identity of whoever defined
+        it (``eval_as_user_id``), so an elevated caller (the hourly cron, the
+        sudo'd SLA-breach path) can never make a rule act beyond its author's
+        ticket scope. Private: not RPC-dispatchable.
 
         Args:
             ticket: spp.grm.ticket record
@@ -469,8 +545,26 @@ class GRMEscalationRule(models.Model):
 
         applied = False
         for rule in rules:
-            if rule.evaluate(ticket):
-                rule.apply_escalation(ticket)
+            owner = rule.eval_as_user_id or rule.create_uid
+            if not owner:
+                continue
+            # nosemgrep: semgrep.odoo-with-user-unvalidated -- owner is system-set in create()/write(), not client input
+            rule_as_owner = rule.with_user(owner.id)
+            # nosemgrep: semgrep.odoo-with-user-unvalidated -- owner is system-set; scopes ticket writes
+            ticket_as_owner = ticket.with_user(owner.id)
+            try:
+                matched = rule_as_owner.evaluate(ticket_as_owner)
+            except AccessError:
+                # The rule owner cannot see this ticket -> the rule does not
+                # apply to it. Correct behaviour, not an error.
+                continue
+            if matched:
+                try:
+                    rule_as_owner.apply_escalation(ticket_as_owner)
+                except AccessError:
+                    # Owner matched but cannot write this ticket -> skip rather
+                    # than apply with elevated rights.
+                    continue
                 applied = True
                 # Continue checking other rules (unlike routing, multiple escalations can apply)
 

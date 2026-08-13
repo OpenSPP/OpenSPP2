@@ -52,6 +52,7 @@
                         </group>
                         <group>
                             <field name="match_count" readonly="1" />
+                            <field name="eval_as_user_id" readonly="1" />
                         </group>
                     </group>
                     <notebook>

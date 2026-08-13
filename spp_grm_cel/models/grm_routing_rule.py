@@ -1,7 +1,7 @@
 import logging
 
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import AccessError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -105,6 +105,62 @@ class GRMRoutingRule(models.Model):
         help="Number of tickets this rule has matched",
     )
 
+    eval_as_user_id = fields.Many2one(
+        "res.users",
+        string="Evaluated As",
+        readonly=True,
+        ondelete="restrict",
+        help="User whose record-rule visibility bounds this rule's evaluation and "
+        "the ticket writes it performs. Set to whoever last defined what the rule "
+        "targets, so an elevated cron can never apply a rule beyond its author's "
+        "reach. System-managed; not editable.",
+    )
+    # No Python `default` on purpose (see spp_alerts #364): a default makes
+    # _init_column backfill existing rows with the UPGRADE user before the
+    # migration runs, and lets a client forge the value via a
+    # default_eval_as_user_id context key. The identity is set explicitly in
+    # create(); the migration backfills existing rows from create_uid.
+
+    # Fields that decide what a rule matches or does. Changing any re-binds the
+    # evaluation identity to the editor (see write), so a rule can never be
+    # repointed to act beyond its editor's ticket scope. Deliberately excludes
+    # operational toggles (sequence, active): reordering or archiving/unarchiving
+    # a rule must not silently transfer ownership to the person doing that
+    # routine action (a manager cleaning up an officer's rule would otherwise
+    # re-bind it to the manager's broad scope).
+    _EVAL_TARGETING_FIELDS = (
+        "condition_cel",
+        "assign_user_id",
+        "assign_team_id",
+        "set_severity",
+        "set_priority",
+    )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Force the evaluation identity to the creator; never client-supplied.
+
+        Setting the key explicitly (rather than popping it) keeps the field
+        present in vals so default_get — which honours a client
+        default_eval_as_user_id context key — is never consulted for it.
+        """
+        vals_list = [dict(vals, eval_as_user_id=self.env.uid) for vals in vals_list]
+        return super().create(vals_list)
+
+    def write(self, vals):
+        """Re-bind the evaluation identity to the editor when targeting changes.
+
+        eval_as_user_id is never client-writable directly; it tracks whoever last
+        defined what the rule targets. self.env.uid is the acting user, preserved
+        even under sudo() (only an explicit with_user(<elevated>) write re-widens).
+        """
+        if "eval_as_user_id" in vals or any(f in vals for f in self._EVAL_TARGETING_FIELDS):
+            vals = dict(vals)
+            vals.pop("eval_as_user_id", None)
+            if any(f in vals for f in self._EVAL_TARGETING_FIELDS):
+                vals["eval_as_user_id"] = self.env.uid
+        return super().write(vals)
+
     @api.constrains("condition_cel")
     def _check_condition_cel(self):
         """Validate CEL expression syntax using CEL parser."""
@@ -115,7 +171,9 @@ class GRMRoutingRule(models.Model):
                         # Use proper CEL parser for validation
                         P.parse(rule.condition_cel)
                     # If parser not available, skip validation
-                except SyntaxError as e:
+                except Exception as e:
+                    # Any parser failure (not only SyntaxError) is a bad
+                    # expression the user must fix, surfaced as a ValidationError.
                     raise ValidationError(
                         _(
                             "Invalid CEL expression in rule '%(rule_name)s': %(error)s",
@@ -218,9 +276,15 @@ class GRMRoutingRule(models.Model):
             _logger.warning("Expression evaluation error: %s", str(e))
             raise
 
-    @api.model
+    @api.private
     def apply_routing(self, ticket):
         """Apply the first matching routing rule to a ticket.
+
+        Each rule is evaluated and applied with the identity of whoever defined
+        it (``eval_as_user_id``), so an elevated caller (the sudo'd portal
+        controller, an admin) can never make a rule act beyond its author's
+        ticket scope. Private: not RPC-dispatchable; call from trusted server
+        code only.
 
         Args:
             ticket: spp.grm.ticket record
@@ -232,8 +296,22 @@ class GRMRoutingRule(models.Model):
         rules = self.search([("active", "=", True)], order="sequence, id")
 
         for rule in rules:
-            if rule.evaluate(ticket):
-                # Apply the rule's actions
+            owner = rule.eval_as_user_id or rule.create_uid
+            if not owner:
+                continue
+            # nosemgrep: semgrep.odoo-with-user-unvalidated -- owner is system-set in create()/write(), not client input
+            rule_as_owner = rule.with_user(owner.id)
+            # nosemgrep: semgrep.odoo-with-user-unvalidated -- owner is system-set; scopes ticket writes
+            ticket_as_owner = ticket.with_user(owner.id)
+            try:
+                matched = rule_as_owner.evaluate(ticket_as_owner)
+            except AccessError:
+                # The rule owner cannot see this ticket -> the rule does not
+                # apply to it. Correct behaviour, not an error.
+                continue
+            if matched:
+                # Apply the rule's actions as the owner: the ticket.write is
+                # bounded by the owner's record rules.
                 vals = {
                     "routing_rule_id": rule.id,  # Track which rule was applied
                 }
@@ -250,7 +328,12 @@ class GRMRoutingRule(models.Model):
                 if rule.set_priority:
                     vals["priority"] = rule.set_priority
 
-                ticket.write(vals)
+                try:
+                    ticket_as_owner.write(vals)
+                except AccessError:
+                    # Owner may match the ticket but not be allowed to write it
+                    # (e.g. read-only scope). Skip rather than apply elevated.
+                    continue
                 _logger.info(
                     "Applied routing rule '%s' to ticket %s: %s",
                     rule.name,
@@ -258,9 +341,16 @@ class GRMRoutingRule(models.Model):
                     vals,
                 )
 
-                # Update match count
-                # nosemgrep: semgrep.odoo-sudo-without-context -- counter update needs sudo
-                rule.sudo().write({"match_count": rule.match_count + 1})
+                # Atomic increment: avoids lost updates under concurrent
+                # cron/UI escalation, and needs no sudo (raw SQL bypasses ACL).
+                # Invisible to spp_audit ORM write-hooks, which is acceptable
+                # for a statistics counter.
+                rule.flush_recordset(["match_count"])
+                self.env.cr.execute(
+                    "UPDATE spp_grm_routing_rule SET match_count = match_count + 1 WHERE id = %s",
+                    (rule.id,),
+                )
+                rule.invalidate_recordset(["match_count"])
 
                 # Only apply the first matching rule
                 return True
