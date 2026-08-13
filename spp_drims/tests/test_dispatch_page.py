@@ -162,16 +162,30 @@ class TestDrimsDispatchPage(DrimsTestCommon):
         return bool(safe_eval(node.get("readonly", "False"), dict(record)))
 
     def _outside_list(self, arch, name):
-        """The header copy of a field, ignoring the moves-list copies.
+        """Header copies of a field, ignoring the moves-list copies.
 
         Core declares picking_type_id and location_id in the list as well, so a
         bare //field[@name=...] is ambiguous.
         """
-        nodes = [
+        return [
             n for n in arch.xpath(f"//field[@name='{name}']") if not any(a.tag == "list" for a in n.iterancestors())
         ]
-        self.assertEqual(len(nodes), 1, f"expected one header {name}, found {len(nodes)}")
-        return nodes[0]
+
+    def _shown_for(self, arch, name, **record):
+        """The one copy of ``name`` rendered for a picking with these values.
+
+        Some fields are declared twice with mutually exclusive ``invisible`` —
+        core's copy plus a dispatch-only replacement — so "the field" is only
+        meaningful once you say which kind of picking you are looking at.
+        """
+        record.setdefault("picking_type_code", "outgoing")
+        record.setdefault("state", "assigned")
+        shown = [n for n in self._outside_list(arch, name) if not self._hidden_for(n, **record)]
+        self.assertEqual(len(shown), 1, f"expected exactly one {name} visible for {record}, found {len(shown)}")
+        return shown[0]
+
+    def _shown_on_dispatch(self, arch, name):
+        return self._shown_for(arch, name, drims_type="request_dispatch")
 
     def test_header_fields_are_locked_on_a_dispatch(self):
         """Operation Type, Source Location and Source Document are set by the
@@ -184,29 +198,40 @@ class TestDrimsDispatchPage(DrimsTestCommon):
 
         for name in ("picking_type_id", "location_id", "origin"):
             with self.subTest(field=name):
-                node = self._outside_list(arch, name)
+                node = self._shown_on_dispatch(arch, name)
                 self.assertTrue(
                     self._readonly_for(node, state="assigned", drims_type="request_dispatch"),
                     f"{name} is still editable on a dispatch",
                 )
+                # An ordinary transfer keeps core's copy, which stays editable.
+                core = self._shown_for(arch, name, drims_type=False)
                 self.assertFalse(
-                    self._readonly_for(node, state="assigned", drims_type=False),
+                    self._readonly_for(core, state="assigned", drims_type=False),
                     f"{name} must stay editable on an ordinary transfer",
                 )
 
-    def test_source_location_lock_lands_on_the_visible_field(self):
-        """Guard the xpath, not just the outcome.
+    def test_source_location_is_inert_on_a_dispatch_not_merely_read_only(self):
+        """Read-only is not enough — it still renders as a link to the location.
 
-        Core declares location_id three times — an invisible copy for
-        single-location installs, the visible Source Location, and one in the
-        moves list. An unqualified xpath takes the first, which is the invisible
-        copy, and the lock would silently do nothing.
+        QA asked whether Source Location had become clickable. It had: making a
+        many2one read-only turns it into an internal link, and ``no_open``
+        cannot be conditional because ``options`` is a static dict. Core sets
+        no_open on picking_type_id already, which is why that one is inert; it
+        does not on location_id, so a dispatch gets its own copy.
         """
         self.env.user.group_ids = [(4, self.env.ref("stock.group_stock_multi_locations").id)]
-        node = self._outside_list(self._form_arch(), "location_id")
+        node = self._shown_on_dispatch(self._form_arch(), "location_id")
 
         self.assertNotEqual(node.get("invisible"), "1", "the lock landed on the hidden copy")
-        self.assertIn("request_dispatch", node.get("readonly") or "")
+        self.assertEqual(node.get("readonly"), "1")
+        self.assertIn("'no_open': True", node.get("options") or "", "Source Location still links out")
+
+    def test_operation_type_is_inert_too(self):
+        """picking_type_id is read-only and already carries core's no_open."""
+        self.env.user.group_ids = [(4, self.env.ref("stock.group_stock_multi_locations").id)]
+        node = self._shown_on_dispatch(self._form_arch(), "picking_type_id")
+
+        self.assertIn("'no_open': True", node.get("options") or "")
 
     def test_dispatch_product_is_locked_but_quantity_is_not(self):
         """The line-up is the request's; the quantity shipped is not.

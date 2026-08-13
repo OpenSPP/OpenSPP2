@@ -147,13 +147,40 @@
                     name="readonly"
                 >state in ('done', 'cancel') or drims_type == 'request_dispatch'</attribute>
             </xpath>
+            <!--
+                Source Location needs a second copy rather than just going
+                read-only. A read-only many2one still renders as a link to the
+                location, and ``no_open`` cannot be made conditional because
+                ``options`` is parsed as a static dict — the same constraint as
+                OP#1158's hazard category. Core sets no_open on
+                picking_type_id already, which is why that one is inert; it does
+                not on location_id.
+
+                So core's copy is hidden on a dispatch and an inert one shown in
+                its place. The replacement repeats the multi-locations group,
+                or a single-location installation would start seeing a Source
+                Location field it is not meant to have.
+            -->
             <xpath
                 expr="//field[@name='location_id'][@groups='stock.group_stock_multi_locations']"
                 position="attributes"
             >
                 <attribute
-                    name="readonly"
-                >state == 'done' or drims_type == 'request_dispatch'</attribute>
+                    name="invisible"
+                >picking_type_code == 'incoming' or drims_type == 'request_dispatch'</attribute>
+            </xpath>
+            <xpath
+                expr="//field[@name='location_id'][@groups='stock.group_stock_multi_locations']"
+                position="after"
+            >
+                <field
+                    name="location_id"
+                    string="Source Location"
+                    groups="stock.group_stock_multi_locations"
+                    readonly="1"
+                    invisible="drims_type != 'request_dispatch'"
+                    options="{'no_create': True, 'no_open': True}"
+                />
             </xpath>
             <xpath
                 expr="//field[@name='origin'][not(ancestor::list)]"
