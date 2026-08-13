@@ -155,15 +155,21 @@ class TestDrimsDispatchStatusbar(DrimsTestCommon):
         self.assertIn(request.picking_ids.state, ("confirmed", "assigned"))
 
     def test_waiting_state_is_reachable_for_a_dispatch(self):
-        """Waiting is NOT unreachable, contrary to the ticket's rationale.
+        """Waiting is NOT unreachable, which is why it is hidden only as a
+        *future* step rather than removed.
 
-        DRIMS allocation only records per-warehouse allocation rows against the
-        request line — it creates no Odoo reservation. So two requests can allocate the same
-        units, and whichever dispatches second has nothing to reserve and lands
-        in ``confirmed`` (Waiting). That is why Waiting is only hidden as a
-        *future* step: the statusbar widget always renders the current value even
-        when it is excluded from statusbar_visible, so a short dispatch still
-        shows Waiting.
+        DRIMS allocation records per-warehouse rows against the request line; it
+        creates no Odoo reservation. Since OP#1079 it will not promise the same
+        stock to two requests, but it still cannot guarantee the stock is there
+        when the dispatch is finally created — an inventory adjustment, a
+        transfer, or any other movement can empty the shelf in between. A
+        dispatch with nothing to reserve lands in ``confirmed``, which the UI
+        labels Waiting.
+
+        The statusbar widget always renders the current value even when it is
+        excluded from ``statusbar_visible`` (``getAllItems`` keeps any value
+        equal to the current one), so such a dispatch still shows Waiting to
+        warehouse staff. Hiding it as a future step costs them nothing.
         """
         self._stock_up(100)
         allocated_state = self.env["spp.vocabulary.code"].search(
@@ -173,17 +179,19 @@ class TestDrimsDispatchStatusbar(DrimsTestCommon):
             ],
             limit=1,
         )
-        first, second = self._allocated_request(), self._allocated_request()
-        # Both allocate before either dispatches — allocation reserves nothing.
-        first.action_allocate()
-        second.action_allocate()
-        self.assertEqual(first.line_ids[0].quantity_allocated, 100)
-        self.assertEqual(second.line_ids[0].quantity_allocated, 100)
+        request = self._allocated_request()
+        request.action_allocate()
+        self.assertEqual(request.line_ids[0].quantity_allocated, 100)
 
-        first.state_id = allocated_state
-        second.state_id = allocated_state
-        first.action_create_dispatch()
-        second.action_create_dispatch()
+        # The shelf empties between allocating and dispatching. Allocation
+        # reserved nothing, so nothing was holding it.
+        self.env["stock.quant"]._update_available_quantity(self.product, self.warehouse.lot_stock_id, -100)
 
-        self.assertEqual(first.picking_ids.state, "assigned")
-        self.assertEqual(second.picking_ids.state, "confirmed")
+        request.state_id = allocated_state
+        request.action_create_dispatch()
+
+        self.assertEqual(
+            request.picking_ids.state,
+            "confirmed",
+            "a dispatch with nothing left to reserve should sit in Waiting",
+        )
