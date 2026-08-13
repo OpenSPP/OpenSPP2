@@ -77,6 +77,11 @@ RUN --mount=type=cache,target=/root/.cache/uv,sharing=locked \
     -r /tmp/openspp-requirements.txt
 
 # Download and install Odoo (cache the tarball to avoid re-downloading)
+# --no-deps: Odoo's runtime dependencies are already installed above from its
+# requirements.txt, which carries the correct per-Python-version pins. Odoo's
+# setup.py additionally declares an unpinned PyPDF2; resolving it installs
+# legacy PyPDF2 3.x, which odoo.tools.pdf then selects over pypdf and which
+# crashes multi-record PDF printing (OP#1168).
 RUN --mount=type=cache,target=/root/.cache/uv,sharing=locked \
     --mount=type=cache,target=/tmp/downloads,sharing=locked \
     set -eux; \
@@ -91,7 +96,7 @@ RUN --mount=type=cache,target=/root/.cache/uv,sharing=locked \
     mv /opt/odoo /opt/odoo-src; \
     mkdir -p /opt/odoo; \
     mv /opt/odoo-src /opt/odoo/odoo; \
-    uv pip install -e /opt/odoo/odoo
+    uv pip install --no-deps -e /opt/odoo/odoo
 
 # Download OCA dependencies in builder (cache tarballs to avoid re-downloading)
 RUN --mount=type=cache,target=/tmp/downloads,sharing=locked \
