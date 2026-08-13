@@ -42,7 +42,7 @@
         that matters day to day: it is how a warehouse officer looking at a
         dispatch can see what a line is fulfilling.
     -->
-    <record id="view_stock_move_operations_drims" model="ir.ui.view">
+    <record id="view_move_form_operations_drims" model="ir.ui.view">
         <field name="name">stock.move.operations.form.drims</field>
         <field name="model">stock.move</field>
         <field name="inherit_id" ref="stock.view_stock_move_operations" />
