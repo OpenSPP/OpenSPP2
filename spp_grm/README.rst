@@ -153,6 +153,17 @@ Dependencies
 Changelog
 =========
 
+19.0.2.0.2
+~~~~~~~~~~
+
+- fix(security): portal users can now only access their OWN grievance
+  tickets. The ``spp.grm.ticket`` portal access was read/write/create
+  with no record rule, so any portal user could read and rewrite every
+  grievance in the system over RPC (#380). Added a portal record rule
+  scoping to the user's own partner and reduced the portal
+  access-control entry to read-only (submission is handled by the sudo'd
+  portal controller, which needs no direct model write).
+
 19.0.2.0.1
 ~~~~~~~~~~
 

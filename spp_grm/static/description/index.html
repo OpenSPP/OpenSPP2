@@ -536,6 +536,18 @@ matching conditions</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.2</h1>
+<ul class="simple">
+<li>fix(security): portal users can now only access their OWN grievance
+tickets. The <tt class="docutils literal">spp.grm.ticket</tt> portal access was read/write/create
+with no record rule, so any portal user could read and rewrite every
+grievance in the system over RPC (#380). Added a portal record rule
+scoping to the user’s own partner and reduced the portal
+access-control entry to read-only (submission is handled by the sudo’d
+portal controller, which needs no direct model write).</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix(views): gate the “Helpdesk” top-level menu
@@ -547,7 +559,7 @@ Program Viewer/Validator/Cycle Approver, Global Registrar, CR roles,
 Farm User/Manager).</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

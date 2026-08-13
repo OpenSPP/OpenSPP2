@@ -511,6 +511,30 @@ expressions:</p>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.2</h1>
+<ul class="simple">
+<li>fix(security): GRM routing and escalation rules now evaluate with the
+identity of whoever defined them (<tt class="docutils literal">eval_as_user_id</tt>,
+system-managed), not as the superuser cron. An officer’s rule can only
+route/escalate tickets within that officer’s own record-rule scope,
+closing the path where an always-match rule applied by the hourly cron
+could seize every ticket in the database (#379). Existing rules are
+backfilled from <tt class="docutils literal">create_uid</tt> by a migration.</li>
+<li>fix(security): the rule-engine entry points (<tt class="docutils literal">apply_routing</tt>,
+<tt class="docutils literal">apply_escalations</tt>, <tt class="docutils literal">apply_escalation</tt>, <tt class="docutils literal">check_escalations</tt>)
+are marked <tt class="docutils literal">&#64;api.private</tt> — no longer callable over RPC (#381).</li>
+<li>fix(security): drop the portal and internal-user read rows on both
+rule models. With owner-identity evaluation the acting user never
+reads the rules, so the rows only exposed the routing/escalation map
+(conditions, targets, thresholds) to enumeration (#380).</li>
+<li>fix: increment <tt class="docutils literal">match_count</tt> / <tt class="docutils literal">escalation_count</tt> with an atomic
+<tt class="docutils literal">UPDATE</tt> instead of a read-modify-write, so concurrent cron and UI
+escalations cannot lose counts.</li>
+<li>fix: rule CEL validation now reports any parser error as a
+<tt class="docutils literal">ValidationError</tt> (previously only <tt class="docutils literal">SyntaxError</tt> was caught).</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix(security): restrict GRM routing and escalation rules to GRM staff.
@@ -527,7 +551,7 @@ modes (a failing notification send or case creation is logged and
 skipped) are pre-existing and unchanged.</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

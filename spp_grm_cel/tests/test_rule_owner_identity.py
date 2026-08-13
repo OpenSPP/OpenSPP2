@@ -137,8 +137,10 @@ class TestGRMRuleOwnerIdentity(TransactionCase):
         must NOT transfer ownership: otherwise a manager cleaning up an
         officer's rule would silently re-bind it to the manager's broad scope
         (a confused-deputy escalation)."""
-        rule = self.env[ESCALATION].with_user(self.officer).create(
-            {"name": "Officer rule", "condition_cel": "severity == 'critical'"}
+        rule = (
+            self.env[ESCALATION]
+            .with_user(self.officer)
+            .create({"name": "Officer rule", "condition_cel": "severity == 'critical'"})
         )
         self.assertEqual(rule.eval_as_user_id, self.officer)
         # Manager archives then re-enables and reorders it — owner stays the officer.
@@ -154,8 +156,10 @@ class TestGRMRuleOwnerIdentity(TransactionCase):
     def test_escalation_counter_increments_under_owner_identity(self):
         """The escalation counter is incremented (atomically) when a manager's
         rule applies via the elevated cron path."""
-        rule = self.env[ESCALATION].with_user(self.manager).create(
-            {"name": "Counter rule", "condition_cel": "", "escalate_severity": "high"}
+        rule = (
+            self.env[ESCALATION]
+            .with_user(self.manager)
+            .create({"name": "Counter rule", "condition_cel": "", "escalate_severity": "high"})
         )
         before = rule.escalation_count
         self.env[ESCALATION].sudo().check_escalations()
