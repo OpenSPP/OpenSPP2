@@ -159,10 +159,6 @@ access_spp_change_request_log_user,spp.change.request.log user,model_spp_change_
 access_spp_change_request_log_validator,spp.change.request.log validator,model_spp_change_request_log,group_cr_validator,1,0,0,0
 access_spp_change_request_log_validator_hq,spp.change.request.log validator hq,model_spp_change_request_log,group_cr_validator_hq,1,0,0,0
 access_spp_change_request_log_manager,spp.change.request.log manager,model_spp_change_request_log,group_cr_manager,1,1,1,1
-access_spp_cr_detail_change_hoh_member_user,spp.cr.detail.change_hoh.member user,model_spp_cr_detail_change_hoh_member,group_cr_user,1,1,1,1
-access_spp_cr_detail_change_hoh_member_validator,spp.cr.detail.change_hoh.member validator,model_spp_cr_detail_change_hoh_member,group_cr_validator,1,1,1,1
-access_spp_cr_detail_change_hoh_member_validator_hq,spp.cr.detail.change_hoh.member validator hq,model_spp_cr_detail_change_hoh_member,group_cr_validator_hq,1,1,1,1
-access_spp_cr_detail_change_hoh_member_manager,spp.cr.detail.change_hoh.member manager,model_spp_cr_detail_change_hoh_member,group_cr_manager,1,1,1,1
 access_spp_cr_type_reason_document_user,spp.cr.type.reason.document user,model_spp_cr_type_reason_document,group_cr_user,1,0,0,0
 access_spp_cr_type_reason_document_validator,spp.cr.type.reason.document validator,model_spp_cr_type_reason_document,group_cr_validator,1,0,0,0
 access_spp_cr_type_reason_document_validator_hq,spp.cr.type.reason.document validator hq,model_spp_cr_type_reason_document,group_cr_validator_hq,1,0,0,0

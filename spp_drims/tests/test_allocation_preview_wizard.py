@@ -2,23 +2,22 @@
 from datetime import date, timedelta
 
 from odoo.exceptions import UserError
-from odoo.tests.common import tagged
+from odoo.tests.common import Form, tagged
 
 from .common import DrimsTestCommon
 
 
 @tagged("post_install", "-at_install")
 class TestDrimsAllocationPreviewWizard(DrimsTestCommon):
-    """Test cases for DRIMS Allocation Preview Wizard functionality."""
+    """Allocation Preview Wizard — per-warehouse auto-split (OP#1079)."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
-        # Link warehouse to incident
         cls.warehouse.incident_ids = [(4, cls.incident.id)]
 
-        # Create a second warehouse for alternative stock testing
+        # Second DRIMS warehouse for split / alternative-stock testing.
         cls.warehouse2 = cls.env["stock.warehouse"].create(
             {
                 "name": "Test DRIMS Warehouse 2",
@@ -28,25 +27,9 @@ class TestDrimsAllocationPreviewWizard(DrimsTestCommon):
         )
         cls.warehouse2.incident_ids = [(4, cls.incident.id)]
 
-        # Get state vocabulary codes
-        cls.state_pending = cls.vocab_code.search(
-            [
-                (
-                    "vocabulary_id.namespace_uri",
-                    "=",
-                    "urn:openspp:vocab:drims:request-states",
-                ),
-                ("code", "=", "pending"),
-            ],
-            limit=1,
-        )
         cls.state_allocated = cls.vocab_code.search(
             [
-                (
-                    "vocabulary_id.namespace_uri",
-                    "=",
-                    "urn:openspp:vocab:drims:request-states",
-                ),
+                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:request-states"),
                 ("code", "=", "allocated"),
             ],
             limit=1,
@@ -54,7 +37,6 @@ class TestDrimsAllocationPreviewWizard(DrimsTestCommon):
 
         cls.future_date = date.today() + timedelta(days=30)
 
-        # Create a stockable product for quant tests (consumables can't have quants in Odoo 19)
         product_vals = {
             "name": "Test Stockable Product",
             "type": "consu",
@@ -64,8 +46,8 @@ class TestDrimsAllocationPreviewWizard(DrimsTestCommon):
             product_vals["is_storable"] = True
         cls.stockable_product = cls.env["product.product"].create(product_vals)
 
+    # ── helpers ────────────────────────────────────────────────────────────
     def _create_request_with_lines(self, products_quantities):
-        """Helper to create a request with specified products and quantities."""
         line_vals = []
         for product, quantity in products_quantities:
             line_vals.append(
@@ -79,8 +61,7 @@ class TestDrimsAllocationPreviewWizard(DrimsTestCommon):
                     },
                 )
             )
-
-        request = self.env["spp.drims.request"].create(
+        return self.env["spp.drims.request"].create(
             {
                 "incident_id": self.incident.id,
                 "destination_area_id": self.area.id,
@@ -88,285 +69,289 @@ class TestDrimsAllocationPreviewWizard(DrimsTestCommon):
                 "line_ids": line_vals,
             }
         )
-        return request
 
-    def test_wizard_initialization(self):
-        """Test wizard lines populated from request lines."""
-        request = self._create_request_with_lines([(self.product, 100)])
-
-        # Create wizard
-        wizard = self.env["spp.drims.allocation.preview.wizard"].create(
-            {
-                "request_id": request.id,
-                "warehouse_id": self.warehouse.id,
-            }
-        )
-        wizard._populate_lines()
-
-        # Verify wizard is initialized correctly
-        self.assertEqual(wizard.request_id, request)
-        self.assertEqual(wizard.warehouse_id, self.warehouse)
-
-        # Verify lines are populated from request
-        self.assertEqual(len(wizard.line_ids), 1)
-        line = wizard.line_ids[0]
-        self.assertEqual(line.product_id, self.product)
-        self.assertEqual(line.quantity_requested, 100.0)
-
-    def test_insufficient_stock_detection(self):
-        """Test request more than available, verify shortfall computed."""
-        # Add some stock to warehouse (less than requested)
+    def _seed_stock(self, warehouse, qty, product=None):
         self.env["stock.quant"].create(
             {
-                "product_id": self.stockable_product.id,
-                "location_id": self.warehouse.lot_stock_id.id,
-                "quantity": 50.0,
+                "product_id": (product or self.stockable_product).id,
+                "location_id": warehouse.lot_stock_id.id,
+                "quantity": qty,
             }
         )
 
+    def _open_wizard(self, request):
+        return self.env["spp.drims.allocation.preview.wizard"].create({"request_id": request.id})
+
+    # ── auto-split proposal ──────────────────────────────────────────────────
+    def test_auto_split_single_warehouse(self):
+        """One warehouse holding enough stock yields a single full row."""
+        self._seed_stock(self.warehouse, 100.0)
         request = self._create_request_with_lines([(self.stockable_product, 100)])
 
-        wizard = self.env["spp.drims.allocation.preview.wizard"].create(
-            {
-                "request_id": request.id,
-                "warehouse_id": self.warehouse.id,
-            }
-        )
-        wizard._populate_lines()
+        wizard = self._open_wizard(request)
+        rows = wizard.line_ids.filtered(lambda line: line.product_id == self.stockable_product)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows.warehouse_id, self.warehouse)
+        self.assertEqual(rows.quantity_to_allocate, 100.0)
+        self.assertEqual(wizard.total_to_allocate, 100.0)
+        self.assertFalse(wizard.has_shortfall)
 
-        # Verify shortfall is detected
-        line = wizard.line_ids[0]
-        self.assertEqual(line.quantity_requested, 100.0)
-        self.assertEqual(line.available_qty, 50.0)
-        self.assertEqual(line.quantity_to_allocate, 50.0)  # Can only allocate what's available
-        self.assertEqual(line.shortfall, 50.0)
-        self.assertEqual(line.allocation_status, "partial")
+    def test_auto_split_across_two_warehouses(self):
+        """A line of 70 with 50 @ WH1 + 20 @ WH2 splits into two rows (OP#1079)."""
+        self._seed_stock(self.warehouse, 50.0)
+        self._seed_stock(self.warehouse2, 20.0)
+        request = self._create_request_with_lines([(self.stockable_product, 70)])
+
+        wizard = self._open_wizard(request)
+        by_wh = {row.warehouse_id: row.quantity_to_allocate for row in wizard.line_ids}
+        self.assertEqual(by_wh.get(self.warehouse), 50.0)
+        self.assertEqual(by_wh.get(self.warehouse2), 20.0)
+        self.assertEqual(wizard.total_to_allocate, 70.0)
+        self.assertFalse(wizard.has_shortfall)
+
+    def test_shortfall_when_insufficient(self):
+        """Total stock below requested is a shortfall; only available is proposed."""
+        self._seed_stock(self.warehouse, 30.0)
+        self._seed_stock(self.warehouse2, 20.0)
+        request = self._create_request_with_lines([(self.stockable_product, 100)])
+
+        wizard = self._open_wizard(request)
+        self.assertEqual(wizard.total_requested, 100.0)
+        self.assertEqual(wizard.total_to_allocate, 50.0)
         self.assertTrue(wizard.has_shortfall)
 
-    def test_alternative_warehouse_discovery(self):
-        """Test shortage in A, stock in B, verify B suggested."""
-        # No stock in warehouse1, stock in warehouse2
-        self.env["stock.quant"].create(
-            {
-                "product_id": self.stockable_product.id,
-                "location_id": self.warehouse2.lot_stock_id.id,
-                "quantity": 150.0,
-            }
-        )
+    def test_zero_stock_no_rows(self):
+        """No stock anywhere → no split rows, and confirm is rejected."""
+        request = self._create_request_with_lines([(self.stockable_product, 100)])
+        wizard = self._open_wizard(request)
+        self.assertFalse(wizard.line_ids)
+        # OP#1079 QA r2: with no stock at all, the "no stock available" flag is
+        # raised (not the shortfall / partial flags), so the UI can show a
+        # message that makes sense for an empty list.
+        self.assertTrue(wizard.no_stock_available)
+        self.assertFalse(wizard.has_shortfall)
+        self.assertFalse(wizard.is_partial_allocation)
+        with self.assertRaises(UserError):
+            wizard.action_confirm_allocation()
 
+    def test_partial_allocation_is_not_a_shortfall(self):
+        """OP#1079 QA r2: reducing To Allocate below requested when there is
+        enough stock is a deliberate partial allocation — not a stock shortfall.
+        The stock-shortfall flag must stay off and key off availability."""
+        self._seed_stock(self.warehouse, 100.0)
+        request = self._create_request_with_lines([(self.stockable_product, 70)])
+
+        wizard = self._open_wizard(request)
+        # Auto-split proposes the full 70; stock (100) covers the request.
+        self.assertEqual(wizard.total_to_allocate, 70.0)
+        self.assertFalse(wizard.has_shortfall)
+        self.assertFalse(wizard.is_partial_allocation)
+
+        # User dials the allocation down to 40 — stock is still plentiful.
+        wizard.line_ids[0].quantity_to_allocate = 40.0
+        wizard._onchange_line_ids()  # the form fires this on any row edit
+        self.assertEqual(wizard.total_to_allocate, 40.0)
+        self.assertFalse(wizard.has_shortfall, "Enough stock exists — not a shortfall")
+        self.assertFalse(wizard.no_stock_available)
+        self.assertTrue(wizard.is_partial_allocation, "Under-allocation should flag as partial")
+
+    # ── confirm → allocation records ─────────────────────────────────────────
+    def test_confirm_creates_allocation_records(self):
+        """Confirming writes per-warehouse allocation records and updates totals."""
+        self._seed_stock(self.warehouse, 100.0)
         request = self._create_request_with_lines([(self.stockable_product, 100)])
 
-        wizard = self.env["spp.drims.allocation.preview.wizard"].create(
-            {
-                "request_id": request.id,
-                "warehouse_id": self.warehouse.id,
-            }
-        )
-        wizard._populate_lines()
-
-        # Verify warehouse2 is suggested as alternative
-        self.assertTrue(wizard.has_shortfall)
-        self.assertIn(self.warehouse2, wizard.alternative_warehouse_ids)
-
-    def test_allocation_confirmation(self):
-        """Test apply allocation, verify request updated."""
-        # Add stock to warehouse
-        self.env["stock.quant"].create(
-            {
-                "product_id": self.stockable_product.id,
-                "location_id": self.warehouse.lot_stock_id.id,
-                "quantity": 100.0,
-            }
-        )
-
-        request = self._create_request_with_lines([(self.stockable_product, 100)])
-        initial_allocated = request.line_ids[0].quantity_allocated
-
-        wizard = self.env["spp.drims.allocation.preview.wizard"].create(
-            {
-                "request_id": request.id,
-                "warehouse_id": self.warehouse.id,
-            }
-        )
-        wizard._populate_lines()
-
-        # Confirm allocation
+        wizard = self._open_wizard(request)
         result = wizard.action_confirm_allocation()
-
-        # Verify result is a notification
         self.assertEqual(result["type"], "ir.actions.client")
-        self.assertEqual(result["tag"], "display_notification")
 
-        # Verify request was updated
-        self.assertEqual(request.source_warehouse_id, self.warehouse)
-        self.assertEqual(request.line_ids[0].quantity_allocated, initial_allocated + 100.0)
-
-        # Verify state changed to allocated
+        line = request.line_ids[0]
+        self.assertEqual(len(line.allocation_ids), 1)
+        self.assertEqual(line.allocation_ids.warehouse_id, self.warehouse)
+        self.assertEqual(line.quantity_allocated, 100.0)
         if self.state_allocated:
             self.assertEqual(request.state_id, self.state_allocated)
 
-    def test_zero_stock_handling(self):
-        """Test no stock available, verify allocation_status = 'none'."""
-        # No stock in any warehouse
-        request = self._create_request_with_lines([(self.product, 100)])
-
-        wizard = self.env["spp.drims.allocation.preview.wizard"].create(
-            {
-                "request_id": request.id,
-                "warehouse_id": self.warehouse.id,
-            }
-        )
-        wizard._populate_lines()
-
-        # Verify allocation status is "none"
-        line = wizard.line_ids[0]
-        self.assertEqual(line.available_qty, 0.0)
-        self.assertEqual(line.quantity_to_allocate, 0.0)
-        self.assertEqual(line.shortfall, 100.0)
-        self.assertEqual(line.allocation_status, "none")
-
-    def test_confirm_blocked_when_zero_stock(self):
-        """OP#1032: action_confirm_allocation refuses to advance the
-        request to allocated when the wizard's total quantity_to_allocate
-        is 0. Previously the wizard would silently confirm, set
-        quantity_allocated to 0 across all lines, and still advance the
-        request to Ready for Dispatch.
-        """
-        request = self._create_request_with_lines([(self.product, 100)])
-        initial_state = request.state
-
-        wizard = self.env["spp.drims.allocation.preview.wizard"].create(
-            {
-                "request_id": request.id,
-                "warehouse_id": self.warehouse.id,
-            }
-        )
-        wizard._populate_lines()
-        # No stock seeded — every line's quantity_to_allocate is 0.
-        with self.assertRaises(UserError):
-            wizard.action_confirm_allocation()
-        self.assertEqual(request.line_ids[0].quantity_allocated, 0)
-        self.assertEqual(request.state, initial_state)
-
-    def test_partial_allocation(self):
-        """Test partial allocation when stock is less than requested."""
-        # Add partial stock
-        self.env["stock.quant"].create(
-            {
-                "product_id": self.stockable_product.id,
-                "location_id": self.warehouse.lot_stock_id.id,
-                "quantity": 30.0,
-            }
-        )
-
+    def test_fulfillment_reflects_allocation(self):
+        """OP#1079 QA r2: the Fulfillment % tracks allocated / requested, so a
+        fully-allocated line reads 100% (it no longer sits at 0 until a delivery
+        quantity is entered), and a partial allocation reads pro-rata."""
+        self._seed_stock(self.warehouse, 100.0)
         request = self._create_request_with_lines([(self.stockable_product, 100)])
+        line = request.line_ids[0]
+        self.assertEqual(line.fulfillment_pct, 0.0)
 
-        wizard = self.env["spp.drims.allocation.preview.wizard"].create(
-            {
-                "request_id": request.id,
-                "warehouse_id": self.warehouse.id,
-            }
+        wizard = self._open_wizard(request)
+        # Allocate only 40 of 100 first → 40%.
+        wizard.line_ids[0].quantity_to_allocate = 40.0
+        wizard.action_confirm_allocation()
+        self.assertEqual(line.quantity_allocated, 40.0)
+        self.assertEqual(line.fulfillment_pct, 40.0)
+
+        # Allocate the remaining 60 → 100%.
+        wizard2 = self._open_wizard(request)
+        wizard2.action_confirm_allocation()
+        self.assertEqual(line.quantity_allocated, 100.0)
+        self.assertEqual(line.fulfillment_pct, 100.0)
+
+    def test_confirm_multi_warehouse_records_and_names(self):
+        """A split of 50 + 20 produces two allocation records and a joined
+        Source Warehouse(s) label on the request."""
+        self._seed_stock(self.warehouse, 50.0)
+        self._seed_stock(self.warehouse2, 20.0)
+        request = self._create_request_with_lines([(self.stockable_product, 70)])
+
+        wizard = self._open_wizard(request)
+        wizard.action_confirm_allocation()
+
+        allocations = request.line_ids.allocation_ids
+        self.assertEqual(len(allocations), 2)
+        self.assertEqual(request.line_ids.quantity_allocated, 70.0)
+        self.assertEqual(
+            request.source_warehouse_names,
+            ", ".join(sorted([self.warehouse.name, self.warehouse2.name])),
         )
-        wizard._populate_lines()
 
-        # Verify partial allocation
-        line = wizard.line_ids[0]
-        self.assertEqual(line.allocation_status, "partial")
-        self.assertEqual(line.quantity_to_allocate, 30.0)
-        self.assertEqual(line.shortfall, 70.0)
-
-    def test_full_allocation(self):
-        """Test full allocation when stock exceeds requested amount."""
-        # Add more than enough stock
-        self.env["stock.quant"].create(
-            {
-                "product_id": self.stockable_product.id,
-                "location_id": self.warehouse.lot_stock_id.id,
-                "quantity": 200.0,
-            }
-        )
-
-        request = self._create_request_with_lines([(self.stockable_product, 100)])
-
-        wizard = self.env["spp.drims.allocation.preview.wizard"].create(
-            {
-                "request_id": request.id,
-                "warehouse_id": self.warehouse.id,
-            }
-        )
-        wizard._populate_lines()
-
-        # Verify full allocation
-        line = wizard.line_ids[0]
-        self.assertEqual(line.allocation_status, "full")
-        self.assertEqual(line.quantity_to_allocate, 100.0)
-        self.assertEqual(line.shortfall, 0.0)
-        self.assertFalse(wizard.has_shortfall)
-
-    def test_reallocation_subtracts_already_allocated(self):
-        """OP#1033 r2 regression: re-opening the allocation wizard after a
-        partial allocation should subtract the pending allocation from the
-        available qty — otherwise the operator can keep allocating until
-        ``quantity_allocated == quantity_requested`` while physical stock
-        has not moved.
-        """
-        # Warehouse has 1000 units; request is for 5000.
-        self.env["stock.quant"].create(
-            {
-                "product_id": self.stockable_product.id,
-                "location_id": self.warehouse.lot_stock_id.id,
-                "quantity": 1000.0,
-            }
-        )
+    def test_reallocation_subtracts_pending(self):
+        """Re-opening after a partial allocation reflects that the physical
+        stock is already committed — available drops to 0 (OP#1033 r2)."""
+        self._seed_stock(self.warehouse, 1000.0)
         request = self._create_request_with_lines([(self.stockable_product, 5000)])
 
-        # First allocation — uses up the 1000 physical units.
-        wizard_1 = self.env["spp.drims.allocation.preview.wizard"].create(
-            {
-                "request_id": request.id,
-                "warehouse_id": self.warehouse.id,
-            }
-        )
-        wizard_1._populate_lines()
-        self.assertEqual(wizard_1.line_ids[0].available_qty, 1000.0)
-        self.assertEqual(wizard_1.line_ids[0].quantity_to_allocate, 1000.0)
+        wizard_1 = self._open_wizard(request)
+        self.assertEqual(wizard_1.total_to_allocate, 1000.0)
         wizard_1.action_confirm_allocation()
         self.assertEqual(request.line_ids[0].quantity_allocated, 1000.0)
 
-        # Re-open the wizard without any dispatch happening. The shortfall
-        # should remain 4000 and available should now report 0, NOT another
-        # 1000 (the physical stock is still in place but it's already
-        # committed to this request).
-        wizard_2 = self.env["spp.drims.allocation.preview.wizard"].create(
-            {
-                "request_id": request.id,
-                "warehouse_id": self.warehouse.id,
-            }
-        )
-        wizard_2._populate_lines()
-        self.assertEqual(wizard_2.line_ids[0].available_qty, 0.0)
-        self.assertEqual(wizard_2.line_ids[0].quantity_to_allocate, 0.0)
-        self.assertEqual(wizard_2.line_ids[0].shortfall, 4000.0)
-        # Confirming with nothing to allocate must raise.
+        # No dispatch happened; the 1000 physical units are still committed to
+        # this request, so a re-opened wizard must not offer them again.
+        wizard_2 = self._open_wizard(request)
+        self.assertFalse(wizard_2.line_ids)
+        self.assertEqual(wizard_2.total_to_allocate, 0.0)
+        self.assertEqual(wizard_2.total_requested, 4000.0)
         with self.assertRaises(UserError):
             wizard_2.action_confirm_allocation()
-        # request.quantity_allocated must NOT have been bumped up.
         self.assertEqual(request.line_ids[0].quantity_allocated, 1000.0)
 
-    def test_empty_allocation_error(self):
-        """Test that confirming allocation with no items raises error."""
+    def test_change_row_warehouse_recomputes_available(self):
+        """Changing a row's warehouse refreshes availability and clamps qty."""
+        self._seed_stock(self.warehouse, 40.0)
+        self._seed_stock(self.warehouse2, 200.0)
         request = self._create_request_with_lines([(self.stockable_product, 100)])
 
-        wizard = self.env["spp.drims.allocation.preview.wizard"].create(
+        wizard = self._open_wizard(request)
+        row = wizard.line_ids.filtered(lambda line: line.warehouse_id == self.warehouse)[:1]
+        self.assertTrue(row)
+        # Point the WH1 row (40 available) at WH2 (200 available).
+        row.warehouse_id = self.warehouse2
+        row._onchange_warehouse_id()
+        self.assertEqual(row.available_qty, 200.0)
+
+    def test_form_driven_open_and_confirm(self):
+        """Opening via Form with default_request_id auto-builds and confirms."""
+        self._seed_stock(self.warehouse2, 200.0)
+        request = self._create_request_with_lines([(self.stockable_product, 100)])
+
+        wizard_form = Form(self.env["spp.drims.allocation.preview.wizard"].with_context(default_request_id=request.id))
+        wizard = wizard_form.save()
+        self.assertTrue(wizard.line_ids)
+        self.assertEqual(wizard.line_ids[0].product_id, self.stockable_product)
+
+        result = wizard.action_confirm_allocation()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertEqual(request.line_ids[0].quantity_allocated, 100.0)
+        self.assertEqual(request.line_ids.allocation_ids.warehouse_id, self.warehouse2)
+
+    # ── OP#1079 round 4: add-a-warehouse + per-line cap ──────────────────────
+    def _wizard_with_rows(self, request, rows):
+        """Create a wizard with explicit rows (skips the auto-build)."""
+        line = request.line_ids[0]
+        return self.env["spp.drims.allocation.preview.wizard"].create(
             {
                 "request_id": request.id,
-                "warehouse_id": self.warehouse.id,
+                "line_ids": [
+                    (0, 0, {"request_line_id": line.id, "warehouse_id": wh.id, "quantity_to_allocate": qty})
+                    for wh, qty in rows
+                ],
             }
         )
-        # Populate lines but then clear them to simulate empty allocation
-        wizard._populate_lines()
-        wizard.line_ids = [(5, 0, 0)]  # Clear all lines
 
-        with self.assertRaises(UserError) as context:
+    def test_manual_split_across_two_warehouses(self):
+        """Confirming multiple hand-built rows for a line records a per-warehouse
+        split (the user can add a warehouse to cover the balance)."""
+        self._seed_stock(self.warehouse, 50.0)
+        self._seed_stock(self.warehouse2, 40.0)
+        request = self._create_request_with_lines([(self.stockable_product, 70)])
+
+        wizard = self._wizard_with_rows(request, [(self.warehouse, 50.0), (self.warehouse2, 20.0)])
+        wizard.action_confirm_allocation()
+
+        allocations = request.line_ids.allocation_ids
+        self.assertEqual(len(allocations), 2)
+        by_wh = {a.warehouse_id: a.quantity_allocated for a in allocations}
+        self.assertEqual(by_wh[self.warehouse], 50.0)
+        self.assertEqual(by_wh[self.warehouse2], 20.0)
+        self.assertEqual(request.line_ids[0].quantity_allocated, 70.0)
+
+    def test_confirm_rejects_over_allocation(self):
+        """Rows summing above the requested quantity are rejected at confirm."""
+        self._seed_stock(self.warehouse, 50.0)
+        self._seed_stock(self.warehouse2, 40.0)
+        request = self._create_request_with_lines([(self.stockable_product, 70)])
+
+        wizard = self._wizard_with_rows(request, [(self.warehouse, 50.0), (self.warehouse2, 40.0)])  # 90 > 70
+        with self.assertRaises(UserError):
             wizard.action_confirm_allocation()
-        self.assertIn("No items to allocate", str(context.exception))
+
+    def test_candidate_warehouses_stocked_only(self):
+        """A row's warehouse choices include stocked warehouses (and its own),
+        and exclude warehouses with no stock for the item."""
+        empty_wh = self.env["stock.warehouse"].create({"name": "Empty WH", "code": "EMP", "is_drims_warehouse": True})
+        self._seed_stock(self.warehouse, 50.0)
+        self._seed_stock(self.warehouse2, 40.0)
+        request = self._create_request_with_lines([(self.stockable_product, 70)])
+
+        wizard = self._wizard_with_rows(request, [(self.warehouse, 50.0)])
+        candidates = wizard.line_ids.candidate_warehouse_ids
+        self.assertIn(self.warehouse, candidates)  # own warehouse stays selectable
+        self.assertIn(self.warehouse2, candidates)  # has stock, not used elsewhere
+        self.assertNotIn(empty_wh, candidates)  # no stock -> not offered
+
+    def test_candidate_warehouses_exclude_used_by_other_row(self):
+        """A warehouse already used by another row isn't offered again (no
+        duplicate product+warehouse rows)."""
+        self._seed_stock(self.warehouse, 50.0)
+        self._seed_stock(self.warehouse2, 40.0)
+        request = self._create_request_with_lines([(self.stockable_product, 70)])
+
+        wizard = self._wizard_with_rows(request, [(self.warehouse, 50.0), (self.warehouse2, 20.0)])
+        row_wh1 = wizard.line_ids.filtered(lambda r: r.warehouse_id == self.warehouse)
+        self.assertNotIn(self.warehouse2, row_wh1.candidate_warehouse_ids)  # used by the other row
+
+    def test_onchange_clamps_to_available(self):
+        """Raising a row's To Allocate above the warehouse's available stock
+        clamps it back to available. (The per-line total is guarded live by
+        over_allocated and hard-blocked at confirm, not clamped per row — a row
+        reading its siblings in onchange sees stale values and snapped to 0.)"""
+        self._seed_stock(self.warehouse, 30.0)
+        request = self._create_request_with_lines([(self.stockable_product, 50)])
+
+        wizard = self._open_wizard(request)
+        row = wizard.line_ids[0]
+        self.assertEqual(row.available_qty, 30.0)
+        row.quantity_to_allocate = 999.0
+        row._onchange_quantity_to_allocate()
+        self.assertEqual(row.quantity_to_allocate, 30.0)
+
+    def test_over_allocated_flag(self):
+        """The wizard flags (but does not silently clamp) when a line's rows
+        total more than requested."""
+        self._seed_stock(self.warehouse, 50.0)
+        self._seed_stock(self.warehouse2, 40.0)
+        request = self._create_request_with_lines([(self.stockable_product, 70)])
+
+        ok = self._wizard_with_rows(request, [(self.warehouse, 50.0), (self.warehouse2, 20.0)])  # 70 == requested
+        self.assertFalse(ok.over_allocated)
+
+        over = self._wizard_with_rows(request, [(self.warehouse, 50.0), (self.warehouse2, 40.0)])  # 90 > 70
+        self.assertTrue(over.over_allocated)
