@@ -547,46 +547,132 @@ Replaces the technical manager configuration with intuitive sections.
                         </div>
                     </div>
 
-                    <!-- ==================== OPTIONAL FEATURES ==================== -->
-                    <separator string="Optional Features" />
-
-                    <group col="2">
-                        <!-- Deduplication -->
-                        <group string="Duplicate Detection">
-                            <div class="mb-2 text-muted small" colspan="2">
-                                Check for duplicate beneficiaries by phone, ID, etc.
+                    <!-- ==================== DEDUPLICATION SECTION ==================== -->
+                    <!--
+                        OP#1171: this was the last configuration block still
+                        shown as a bare group with an inline editable list,
+                        whose only column was the wrapper's Reference field —
+                        "Add a line" dropped the user onto "pick a model, then
+                        find or create a record of it". Now a card like
+                        Compliance and Payment, with Add opening a dialog that
+                        asks for the method and then a name.
+                    -->
+                    <div class="card mb-3 shadow-sm">
+                        <div
+                            class="card-header d-flex justify-content-between align-items-center py-2 bg-info-subtle"
+                        >
+                            <div class="d-flex align-items-center">
+                                <i
+                                    class="fa fa-copy fa-lg me-3 text-info"
+                                    title="Duplicate Detection"
+                                />
+                                <div>
+                                    <h5 class="mb-0">Duplicate Detection</h5>
+                                    <small
+                                        class="text-muted"
+                                    >Check for duplicate beneficiaries by phone, ID, etc.</small>
+                                </div>
                             </div>
-                            <field
-                                name="deduplication_manager_summary"
-                                string="Method"
-                                readonly="1"
-                                invisible="not deduplication_configured"
-                            />
+                            <div class="d-flex align-items-center gap-2">
+                                <span
+                                    class="badge rounded-pill bg-success"
+                                    invisible="not deduplication_configured"
+                                >
+                                    <i class="fa fa-check me-1" />Configured
+                                </span>
+                                <!-- Still offered once configured: a program may
+                                     legitimately check by ID and by phone. -->
+                                <button
+                                    name="action_add_deduplication_manager"
+                                    type="object"
+                                    class="btn btn-sm btn-primary"
+                                    invisible="not can_edit_configuration or state == 'ended'"
+                                    icon="fa-plus"
+                                >Add</button>
+                                <!--
+                                    Only offered when there is exactly one
+                                    method. With several there is nothing
+                                    sensible for a single button to open, and
+                                    each row in the body below carries its own
+                                    (OP#1171).
+                                -->
+                                <button
+                                    name="action_configure_deduplication"
+                                    type="object"
+                                    class="btn btn-sm btn-primary"
+                                    invisible="deduplication_manager_count != 1 or not can_edit_configuration"
+                                    icon="fa-edit"
+                                >Edit</button>
+                                <button
+                                    name="action_configure_deduplication"
+                                    type="object"
+                                    class="btn btn-sm btn-secondary"
+                                    invisible="deduplication_manager_count != 1 or can_edit_configuration"
+                                    icon="fa-eye"
+                                >View</button>
+                            </div>
+                        </div>
+                        <div class="card-body py-3">
+                            <field name="deduplication_manager_count" invisible="1" />
+                            <div
+                                class="text-muted py-3"
+                                invisible="deduplication_manager_count != 0"
+                            >
+                                <i class="fa fa-info-circle me-2" />
+                                No duplicate detection configured. It is optional — click <b
+                            >Add</b> above to check for duplicate beneficiaries.
+                            </div>
+                            <!--
+                                Every configured method, each with its own cog,
+                                rather than a summary line and a single Edit
+                                button. A program may check by ID and by phone,
+                                and the header Edit could only ever open one of
+                                them (OP#1171).
+
+                                no_open keeps the row itself inert: opening the
+                                wrapper would put the manager_ref_id Reference
+                                field back in front of the user, which is what
+                                this ticket set out to remove. The cog goes
+                                straight to the method's own form.
+                            -->
                             <field
                                 name="deduplication_manager_ids"
-                                readonly="state == 'ended' or not can_edit_configuration"
-                                context="{'default_program_id': id}"
                                 nolabel="1"
                                 colspan="2"
+                                invisible="not deduplication_configured"
+                                readonly="state == 'ended' or not can_edit_configuration"
+                                options="{'create': [('id', '&lt;', 0)]}"
                             >
-                                <list editable="bottom" create="1" delete="1">
-                                    <field
-                                        name="manager_ref_id"
-                                        string="Method"
-                                        options="{'no_quick_create':True}"
-                                        context="{'default_program_id': parent.id}"
-                                    />
+                                <!--
+                                    "Add a line" is suppressed through the
+                                    field's options rather than the list's
+                                    create attribute: the x2many passes options
+                                    through as crudOptions and evaluates each
+                                    entry as a domain against the parent record,
+                                    and the list attribute alone did not take
+                                    (the same trap as OP#1057). A program id is
+                                    always positive, so this never matches and
+                                    the row never appears — adding goes through
+                                    the Add button, which asks for the method.
+                                -->
+                                <list create="0" no_open="true">
+                                    <field name="display_name" string="Method" />
                                     <button
                                         name="open_manager_form"
                                         type="object"
                                         class="btn-link p-0"
                                         icon="fa-cog"
-                                        title="Configure"
+                                        title="Configure this method"
                                     />
                                 </list>
                             </field>
-                        </group>
+                        </div>
+                    </div>
 
+                    <!-- ==================== OPTIONAL FEATURES ==================== -->
+                    <separator string="Optional Features" />
+
+                    <group col="2">
                         <!-- Notifications -->
                         <group string="Notifications">
                             <div class="mb-2 text-muted small" colspan="2">

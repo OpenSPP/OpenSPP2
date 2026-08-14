@@ -241,6 +241,10 @@ class ProgramManagerUI(models.Model):
     payment_manager_display = fields.Char(compute="_compute_banner_layout_helpers")
     payment_manager_detail = fields.Text(compute="_compute_banner_layout_helpers")
 
+    deduplication_manager_count = fields.Integer(compute="_compute_banner_layout_helpers")
+    deduplication_manager_display = fields.Char(compute="_compute_banner_layout_helpers")
+    deduplication_manager_detail = fields.Text(compute="_compute_banner_layout_helpers")
+
     @api.depends("eligibility_manager_ids", "eligibility_manager_ids.manager_ref_id")
     def _compute_eligibility_summary(self):
         for rec in self:
@@ -413,6 +417,7 @@ class ProgramManagerUI(models.Model):
             ("cycle_manager_ids", "cycle"),
             ("compliance_manager_ids", "compliance"),
             ("payment_manager_ids", "payment"),
+            ("deduplication_manager_ids", "deduplication"),
         )
         for rec in self:
             for field_name, prefix in banners:
@@ -595,13 +600,35 @@ class ProgramManagerUI(models.Model):
         return False
 
     def action_configure_deduplication(self):
-        """Open deduplication manager configuration."""
+        """Open deduplication configuration.
+
+        Unlike compliance or payment, a program may have several deduplication
+        methods — by ID and by phone, say. Opening ``[0]`` would silently edit
+        the first and leave the rest unreachable, so the card only offers this
+        button when there is exactly one; with several, each method has its own
+        cog in the card body (OP#1171).
+        """
         self.ensure_one()
         readonly = not self.can_edit_configuration
-        if self.deduplication_manager_ids and self.deduplication_manager_ids[0].manager_ref_id:
-            return self.deduplication_manager_ids[0].open_manager_form(readonly=readonly, title=_("Deduplication"))
+        configured = self.deduplication_manager_ids.filtered(lambda wrapper: wrapper.manager_ref_id)
+        if len(configured) == 1:
+            return configured.open_manager_form(readonly=readonly, title=_("Deduplication"))
+        if len(configured) > 1:
+            # Not target="new": a list in a dialog cannot drill into a form, so
+            # it renders as a dead end — rows look clickable and do nothing.
+            # Opening it in the breadcrumb keeps the rows navigable. The card
+            # itself lists the methods with their own buttons, so this is a
+            # fallback for programmatic callers rather than the normal route.
+            return {
+                "type": "ir.actions.act_window",
+                "name": _("Duplicate Detection"),
+                "res_model": "spp.deduplication.manager",
+                "view_mode": "list,form",
+                "domain": [("id", "in", configured.ids)],
+                "context": {"create": False, "default_program_id": self.id},
+            }
         if not readonly:
-            return self._open_manager_setup_wizard("deduplication")
+            return self.action_add_deduplication_manager()
         return False
 
     def action_configure_notification(self):
@@ -690,6 +717,30 @@ class ProgramManagerUI(models.Model):
                 "_spp_wrapper_model": "spp.program.payment.manager",
                 "_spp_program_m2m_field": "payment_manager_ids",
             },
+        }
+
+    def action_add_deduplication_manager(self):
+        """Open the two-step dialog for adding a deduplication method (OP#1171).
+
+        Compliance and Payment open their single concrete model directly
+        (#952, #953). Deduplication has three methods rather than one, so the
+        dialog has to ask which before it can ask for a name — the wizard does
+        both, then creates the concrete record with the context that makes
+        `source_mixin.create()` build the wrapper alongside it.
+
+        Adding is offered even when a method already exists, because a program
+        may legitimately check by ID *and* by phone.
+        """
+        self.ensure_one()
+        if not self.can_edit_configuration:
+            return False
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Add a Deduplication Method"),
+            "res_model": "spp.deduplication.setup.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {"default_program_id": self.id},
         }
 
     def _open_manager_setup_wizard(self, manager_type):

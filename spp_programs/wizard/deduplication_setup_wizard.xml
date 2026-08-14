@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <record id="view_deduplication_setup_wizard_form" model="ir.ui.view">
+        <field name="name">spp.deduplication.setup.wizard.form</field>
+        <field name="model">spp.deduplication.setup.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Add a Deduplication Method">
+                <field name="program_id" invisible="1" />
+                <group>
+                    <!--
+                        OP#1171: method first, then the name — the order the
+                        ticket asks for. Radio rather than a dropdown so all
+                        three are visible without opening anything, and the
+                        description below explains the selected one instead of
+                        making the user guess from its label.
+                    -->
+                    <field name="method" widget="radio" />
+                    <div class="text-muted small mb-2" colspan="2">
+                        <i class="fa fa-info-circle me-1" title="About this method" />
+                        <field name="method_description" nolabel="1" readonly="1" />
+                    </div>
+                    <field name="name" placeholder="e.g. Phone number check" />
+                </group>
+                <footer>
+                    <button
+                        name="action_create_manager"
+                        string="Add"
+                        type="object"
+                        class="btn-primary"
+                        data-hotkey="q"
+                    />
+                    <button
+                        string="Cancel"
+                        class="btn-secondary"
+                        special="cancel"
+                        data-hotkey="x"
+                    />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

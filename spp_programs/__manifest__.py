@@ -109,6 +109,7 @@
         "wizard/reject_entitlement_wizard.xml",
         "wizard/reject_inkind_entitlement_wizard.xml",
         "wizard/reset_to_pending_wizard.xml",
+        "wizard/deduplication_setup_wizard.xml",
         "wizard/create_program_wizard_compliance_views.xml",
         "wizard/create_program_wizard_cel_views.xml",
         "wizard/enrollment_wizard_views.xml",

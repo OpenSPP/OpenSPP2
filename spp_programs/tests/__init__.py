@@ -5,6 +5,7 @@ from . import test_create_program_wizard_cash
 from . import test_create_program_wizard_cel
 from . import test_cycle
 from . import test_deduplication
+from . import test_deduplication_setup_wizard
 from . import test_eligibility_cel
 from . import test_eligibility_cel_integration
 from . import test_enrollment_wizard
