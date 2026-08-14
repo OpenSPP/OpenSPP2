@@ -3,7 +3,7 @@
 {
     "name": "OpenSPP Registry",
     "category": "OpenSPP/Core",
-    "version": "19.0.2.2.2",
+    "version": "19.0.2.2.3",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -33,6 +33,7 @@
         # "data/id_types.xml",
         "data/vocabularies.xml",
         "data/res_users.xml",
+        "data/ir_cron.xml",
         # Security
         "security/privileges.xml",
         "security/groups.xml",

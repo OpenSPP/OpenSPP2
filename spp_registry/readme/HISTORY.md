@@ -1,3 +1,7 @@
+### 19.0.2.2.3
+
+- fix(registry): add an hourly cron that repairs the stored `status`/`is_ended` computes on `spp.group.membership`. Both fields depend only on `ended_date` compared against *now*, so a future-dated departure never took effect once the clock crossed it — rosters, metrics, API search and downstream gates kept treating the member as active indefinitely. The cron finds rows whose stored values disagree with the clock (archived rows included) and re-triggers the computes; its first run self-heals any rows already stale in existing databases (#417)
+
 ### 19.0.2.2.2
 
 - fix(registry): let an ID type be used again after its ID was removed. Removing an ID through a change request keeps the row and marks it Invalid, and the old uniqueness rule counted those dead rows — so the registrant was left with an Invalid ID and no way to add a valid one of the same type. Uniqueness now applies to live IDs only, and is refused before the write so the message names the ID type rather than surfacing a database error (#1136)

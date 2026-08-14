@@ -211,6 +211,46 @@ class SPPGroupMembership(models.Model):
             else:
                 record.status = "active"
 
+    @api.model
+    def cron_recompute_ended_status(self):
+        """Repair stored ``status``/``is_ended`` on rows the clock has crossed.
+
+        Both computes depend only on ``ended_date`` and compare it against
+        *now*, so a recompute fires on a write to ``ended_date`` but never
+        when time passes it: a future-dated departure would stay stored as
+        active forever. This cron finds rows whose stored values disagree
+        with the clock and re-triggers the computes through the normal ORM
+        path. Archived rows are included — the UI onchange archives
+        memberships ended in the past, and those must be repaired too.
+        """
+        now = fields.Datetime.now()
+        memberships = self.with_context(active_test=False)
+        to_end = memberships.search(
+            [
+                ("ended_date", "<=", now),
+                "|",
+                ("is_ended", "=", False),
+                ("status", "!=", "inactive"),
+            ]
+        )
+        to_reactivate = memberships.search(
+            [
+                "|",
+                ("ended_date", "=", False),
+                ("ended_date", ">", now),
+                "|",
+                ("is_ended", "=", True),
+                ("status", "!=", "active"),
+            ]
+        )
+        stale = to_end | to_reactivate
+        if stale:
+            stale.modified(["ended_date"])
+            _logger.info(
+                "[spp.registry] Recomputed ended status for %d group membership(s)",
+                len(stale),
+            )
+
     @api.constrains("ended_date")
     def _check_ended_date(self):
         for record in self:

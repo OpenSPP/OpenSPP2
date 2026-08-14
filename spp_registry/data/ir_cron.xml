@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- status/is_ended are stored computes over ended_date compared against
+         now(); nothing recomputes them when the clock crosses the date, so a
+         future-dated departure would stay stored as active forever without
+         this hourly repair pass (issue #417). -->
+    <record id="cron_recompute_membership_ended_status" model="ir.cron">
+        <field name="name">Registry: Recompute Ended Group Memberships</field>
+        <field name="model_id" ref="model_spp_group_membership" />
+        <field name="state">code</field>
+        <field name="code">model.cron_recompute_ended_status()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="active">True</field>
+    </record>
+</odoo>
