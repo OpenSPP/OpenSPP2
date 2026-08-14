@@ -853,57 +853,19 @@ Before declaring a new CR type complete:
 Changelog
 =========
 
-19.0.3.1.5
+19.0.3.1.6
 ~~~~~~~~~~
 
-- fix(security): derive conflict and duplicate detection from the change
-  actually proposed rather than a user-writable label.
-  ``selected_field_name`` and the detail's ``field_to_modify`` are both
-  writable by the requester, so either could be re-pointed at an
-  unchanged field to clear a field-scoped conflict or drop duplicate
-  similarity to zero. Detection now compares the detail against the
-  registrant. Types whose apply strategy writes outside the configured
-  field mappings fall back to the full configured field set instead of
-  an empty one, so detection cannot silently disable itself.
-
-19.0.3.1.4
-~~~~~~~~~~
-
-- fix(security): scope the CR Requestor, Local Validator and HQ
-  Validator roles to Tier-3 registry read instead of Tier-2 registry
-  viewer. The viewer tier gates the Registry Search portal, a broad
-  registrant-PII enumeration surface these change-request roles do not
-  need; registrant read access is unchanged. A migration re-points the
-  roles and resynchronises existing users, since the role definitions
-  are ``noupdate``.
-
-19.0.3.1.3
-~~~~~~~~~~
-
-- fix(security): add ownership and area record rules to every concrete
-  change-request detail model. Detail rows were reachable by any
-  ``group_cr_user`` regardless of who owned the parent change request,
-  so a requester could read or tamper with another user's detail data
-  over RPC. Each detail model now carries
-  user/validator/validator-HQ/manager rules scoped through its parent
-  change request, plus a global rule mirroring the parent's area filter.
-  ``spp.cr.detail.split_household.member`` is additionally scoped on
-  delete, the one detail model whose access-control entry grants
-  ``unlink`` to change-request users: requesters may delete member rows
-  only on their own requests, while validators and managers keep the
-  unrestricted delete their access-control entries grant.
-
-19.0.3.1.2
-~~~~~~~~~~
-
-- fix(security): route and apply the same single field for
-  dynamic-approval change requests, and freeze the proposed change once
-  the request leaves draft. The selected field, its old/new values and
-  the detail pointer were writable after submission, so a requester
-  could re-route an approval or alter the value that had already been
-  approved. Note the mapped-source-field freeze applies to
-  ``field_mapping`` request types; ``custom``-strategy types freeze only
-  the routing selector.
+- fix(security): require change-request manager rights to apply a change
+  request. ``action_apply()`` runs the apply strategy with elevated
+  rights and is callable over RPC, but the manager restriction existed
+  only on the review button — so a change-request user could apply their
+  own approved request and drive privileged writes such as membership
+  changes. The public entry point is now gated and the mechanism moved
+  to an internal method, so approval-driven auto-apply is unaffected.
+  **Deployments using the API v2 change-request endpoints must grant the
+  API user the change-request manager role to keep using the apply
+  endpoint.**
 
 19.0.3.1.1
 ~~~~~~~~~~
