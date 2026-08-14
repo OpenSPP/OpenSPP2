@@ -12,19 +12,14 @@
         <field name="value">4</field>
     </record>
 
-    <record id="default_sla_hours_high" model="ir.config_parameter">
-        <field name="key">drims.sla.hours.high</field>
+    <record id="default_sla_hours_urgent" model="ir.config_parameter">
+        <field name="key">drims.sla.hours.urgent</field>
         <field name="value">8</field>
     </record>
 
     <record id="default_sla_hours_routine" model="ir.config_parameter">
         <field name="key">drims.sla.hours.routine</field>
         <field name="value">24</field>
-    </record>
-
-    <record id="default_sla_hours_low" model="ir.config_parameter">
-        <field name="key">drims.sla.hours.low</field>
-        <field name="value">48</field>
     </record>
 
     <record id="default_sla_warning_threshold_pct" model="ir.config_parameter">

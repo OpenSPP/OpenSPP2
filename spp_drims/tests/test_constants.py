@@ -8,6 +8,10 @@ raising — so a comparison against one would simply never match. These tests tu
 that silent drift into a build failure.
 """
 
+import re
+
+from lxml import etree
+
 from odoo.tests import tagged
 
 from ..models import constants
@@ -174,3 +178,62 @@ class TestDrimsConstants(DrimsTestCommon):
                 hasattr(constants, gone),
                 f"{gone} is back; it names a code that does not exist in the vocabulary",
             )
+
+    # ------------------------------------------------------------------
+    # the same mistake, in the consumers rather than the constants
+    # ------------------------------------------------------------------
+
+    def test_sla_hours_are_keyed_by_real_priority_codes(self):
+        """Every shipped priority must get its own approval SLA.
+
+        The lookup used to be keyed by 'high' and 'low', which no priority has,
+        so an urgent request silently fell through to the routine default of 24
+        hours instead of 8 — a wrong answer rather than an error, which is the
+        whole failure mode OP#1165 is about.
+        """
+        settings = self.env["res.config.settings"]
+        codes = self._codes_in(constants.VOCAB_PRIORITY_LEVELS)
+
+        hours = {code: settings.get_approval_sla_hours(code) for code in codes}
+        self.assertEqual(
+            hours,
+            {"routine": 24, "urgent": 8, "critical": 4},
+            f"a priority is not getting its own SLA: {hours}",
+        )
+
+        # Urgent must not silently share the routine fallback.
+        self.assertNotEqual(
+            hours["urgent"],
+            hours["routine"],
+            "urgent is falling through to the routine default",
+        )
+
+    def test_priority_views_reference_codes_that_exist(self):
+        """Decorations and filters keyed on a priority code must name a real one.
+
+        A decoration or a search filter naming a code that does not exist is
+        accepted silently and simply never matches — the filter returns nothing
+        and the highlight never appears.
+        """
+        codes = set(self._codes_in(constants.VOCAB_PRIORITY_LEVELS))
+        arch = etree.fromstring(self.env.ref("spp_drims.spp_drims_request_list").arch)
+        referenced = set(re.findall(r"priority_id\.code\s*==\s*'([a-z_]+)'", etree.tostring(arch, encoding="unicode")))
+
+        self.assertTrue(referenced, "no priority decorations found — has the view changed?")
+        self.assertFalse(
+            referenced - codes,
+            f"these decorations name priority codes that do not exist: {sorted(referenced - codes)}",
+        )
+
+    def test_priority_search_filters_reference_codes_that_exist(self):
+        search = etree.fromstring(self.env.ref("spp_drims.spp_drims_request_search").arch)
+        codes = set(self._codes_in(constants.VOCAB_PRIORITY_LEVELS))
+        referenced = set(
+            re.findall(r"'priority_id\.code',\s*'=',\s*'([a-z_]+)'", etree.tostring(search, encoding="unicode"))
+        )
+
+        self.assertTrue(referenced, "no priority filters found — has the search view changed?")
+        self.assertFalse(
+            referenced - codes,
+            f"these filters name priority codes that do not exist: {sorted(referenced - codes)}",
+        )

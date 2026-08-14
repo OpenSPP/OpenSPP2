@@ -310,7 +310,7 @@ class DrimsRequest(models.Model):
 
         SLA thresholds are configurable via Settings > DRIMS Configuration
         (requires spp_studio_drims module) or System Parameters:
-        - drims.sla.hours.critical/high/routine/low
+        - drims.sla.hours.critical/urgent/routine
         - drims.sla.warning_threshold_pct
         """
         now = fields.Datetime.now()
