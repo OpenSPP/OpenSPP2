@@ -103,6 +103,25 @@ Changelog
   multi-company scope. An ``@api.constrains`` now rejects a program the
   writing user cannot see (record rules) or that is outside their
   company scope.
+- fix(security): re-assert program access at the apply sink (defense in
+  depth). The write-time constraint cannot cover a value it never saw —
+  a record written before the constraint shipped (the module is in
+  released tags), an import, or a future sudo prefill. The apply
+  strategy now re-checks the program against the change-request
+  requester's company scope before creating the membership, so a
+  pre-existing out-of-scope ``program_id`` cannot be applied
+  cross-company, and ``preview()`` (which runs under sudo) redacts the
+  program name for such a record rather than leaking it. No-op in
+  single-company deployments.
+
+19.0.1.0.2
+~~~~~~~~~~
+
+- fix(security): add record rules to ``spp.cr.detail.assign_program``
+  enforcing parent change-request ownership and area scope. The model
+  previously had an ACL granting ``group_cr_user`` write/create but no
+  record rule, so a CR user could re-point ``program_id`` on
+  assign-program details of change requests they do not own via RPC.
 
 19.0.1.0.0
 ~~~~~~~~~~
