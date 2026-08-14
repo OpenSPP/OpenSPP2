@@ -853,6 +853,20 @@ Before declaring a new CR type complete:
 Changelog
 =========
 
+19.0.3.1.6
+~~~~~~~~~~
+
+- fix(security): require change-request manager rights to apply a change
+  request. ``action_apply()`` runs the apply strategy with elevated
+  rights and is callable over RPC, but the manager restriction existed
+  only on the review button — so a change-request user could apply their
+  own approved request and drive privileged writes such as membership
+  changes. The public entry point is now gated and the mechanism moved
+  to an internal method, so approval-driven auto-apply is unaffected.
+  **Deployments using the API v2 change-request endpoints must grant the
+  API user the change-request manager role to keep using the apply
+  endpoint.**
+
 19.0.3.1.5
 ~~~~~~~~~~
 

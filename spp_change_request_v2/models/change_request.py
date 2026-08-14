@@ -3,7 +3,7 @@ import logging
 from markupsafe import escape as html_escape
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -1066,7 +1066,11 @@ class SPPChangeRequest(models.Model):
         self._create_audit_event("approved", "pending", "approved")
         self._create_log("approved")
         if self.request_type_id.auto_apply_on_approve:
-            self.action_apply()
+            # Auto-apply is authorized by the approval workflow itself, so it
+            # goes through the internal mechanism rather than the manager-gated
+            # public action_apply (the approver may be a validator, not a
+            # manager).
+            self._apply_change_request()
 
     def _on_reject(self, reason):
         super()._on_reject(reason)
@@ -1411,32 +1415,56 @@ class SPPChangeRequest(models.Model):
         self.preview_json_snapshot = json.dumps(changes, indent=2, default=str)
 
     def action_apply(self):
-        """Apply the change request to the registrant."""
+        """Apply the change request(s) to the registrant.
+
+        Public entrypoint (review button / RPC). Applying runs the apply
+        strategy under sudo (see ``_do_apply``), which can write models CR
+        roles cannot (e.g. ``spp.group.membership``), so it must be gated
+        server-side to managers: the XML button ``groups=`` is NOT an
+        authorization boundary because Odoo object methods are callable over
+        RPC. Superuser (sudo) callers and the auto-apply-on-approve path (which
+        invokes ``_apply_change_request`` directly, already authorized by the
+        approval workflow) are unaffected.
+        """
+        if not (self.env.su or self.env.user.has_group("spp_change_request_v2.group_cr_manager")):
+            raise AccessError(_("Only Change Request managers can apply change requests."))
         for rec in self:
-            if rec.is_applied:
-                raise UserError(_("Changes have already been applied."))
-            if rec.approval_state != "approved":
-                raise UserError(_("Change request must be approved first."))
+            rec._apply_change_request()
 
-            try:
-                # Capture preview snapshot before applying
-                rec._capture_preview_snapshot()
+    def _apply_change_request(self):
+        """Apply a single approved change request (no authorization gate).
 
-                rec._do_apply()
-                rec.write(
-                    {
-                        "is_applied": True,
-                        "applied_date": fields.Datetime.now(),
-                        "applied_by_id": self.env.user.id,
-                        "apply_error": False,
-                    }
-                )
-                rec._create_audit_event("applied", "approved", "applied")
-                rec._create_log("applied")
-            except Exception as e:
-                _logger.exception("Failed to apply change request %s", rec.name)
-                rec.write({"apply_error": str(e)})
-                raise
+        Internal mechanism shared by ``action_apply`` (manager-gated public
+        entrypoint) and auto-apply-on-approve (``_on_approve``, already
+        authorized by the approval workflow). Underscore-prefixed so it is not
+        callable over RPC — the authorization boundary lives on
+        ``action_apply``.
+        """
+        self.ensure_one()
+        if self.is_applied:
+            raise UserError(_("Changes have already been applied."))
+        if self.approval_state != "approved":
+            raise UserError(_("Change request must be approved first."))
+
+        try:
+            # Capture preview snapshot before applying
+            self._capture_preview_snapshot()
+
+            self._do_apply()
+            self.write(
+                {
+                    "is_applied": True,
+                    "applied_date": fields.Datetime.now(),
+                    "applied_by_id": self.env.user.id,
+                    "apply_error": False,
+                }
+            )
+            self._create_audit_event("applied", "approved", "applied")
+            self._create_log("applied")
+        except Exception as e:
+            _logger.exception("Failed to apply change request %s", self.name)
+            self.write({"apply_error": str(e)})
+            raise
 
     def _do_apply(self):
         """Execute the apply strategy.

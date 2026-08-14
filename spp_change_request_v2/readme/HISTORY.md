@@ -1,3 +1,7 @@
+### 19.0.3.1.6
+
+- fix(security): require change-request manager rights to apply a change request. `action_apply()` runs the apply strategy with elevated rights and is callable over RPC, but the manager restriction existed only on the review button — so a change-request user could apply their own approved request and drive privileged writes such as membership changes. The public entry point is now gated and the mechanism moved to an internal method, so approval-driven auto-apply is unaffected. **Deployments using the API v2 change-request endpoints must grant the API user the change-request manager role to keep using the apply endpoint.**
+
 ### 19.0.3.1.5
 
 - fix(security): derive conflict and duplicate detection from the change actually proposed rather than a user-writable label. `selected_field_name` and the detail's `field_to_modify` are both writable by the requester, so either could be re-pointed at an unchanged field to clear a field-scoped conflict or drop duplicate similarity to zero. Detection now compares the detail against the registrant. Types whose apply strategy writes outside the configured field mappings fall back to the full configured field set instead of an empty one, so detection cannot silently disable itself.
