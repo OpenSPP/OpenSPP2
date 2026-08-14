@@ -291,12 +291,72 @@ class SPPCRConflictMixin(models.AbstractModel):
 
         return list(set(member_ids))
 
+    def _proposed_changed_fields(self):
+        """Return the detail (source) fields a dynamic-approval CR actually
+        proposes to change.
+
+        These are the mapped fields whose detail value differs from the
+        registrant's current value — exactly the set the ``field_mapping`` apply
+        strategy will write. This is derived server-side from the actual data,
+        NOT from a declared label: both ``selected_field_name`` (only
+        view-readonly) and the detail's ``field_to_modify`` (freely writable and
+        validated only to be a real field name, not tied to what apply changes)
+        are attacker-controlled. A user could otherwise clear a field-scoped
+        conflict/duplicate by labelling a different, unchanged field while still
+        changing a scoped field. Scoping to the real diff makes those labels
+        irrelevant to the security decision.
+
+        Returns a set of detail field names for dynamic-approval CR types that
+        use the ``field_mapping`` apply strategy, or ``None`` otherwise — for
+        non-dynamic types, and for dynamic types whose strategy writes outside
+        the mappings, the full configured field set must always be considered
+        (their details are not registrant-prefilled snapshots, and an empty
+        derived set would silently disable detection).
+        """
+        self.ensure_one()
+        cr_type = self.request_type_id
+        if not cr_type.use_dynamic_approval:
+            return None
+        # The derivation reads the configured field mappings, so it is only
+        # meaningful for the field_mapping apply strategy. A custom-strategy
+        # type writes fields the mappings do not describe, so deriving from an
+        # empty apply_mapping_ids would yield an empty set — which disables
+        # both field-scoped conflict detection and duplicate detection. Fall
+        # back to the full configured field set (None) instead of failing open.
+        if cr_type.apply_strategy != "field_mapping" or not cr_type.apply_mapping_ids:
+            return None
+        detail = self.get_detail()
+        registrant = self.registrant_id
+        if not detail or not registrant:
+            return set()
+        changed = set()
+        for mapping in self.request_type_id.apply_mapping_ids:
+            source_field = mapping.source_field
+            target_field = mapping.target_field
+            if source_field not in detail._fields or target_field not in registrant._fields:
+                continue
+            detail_value = self._normalize_field_value(getattr(detail, source_field, None))
+            registrant_value = self._normalize_field_value(getattr(registrant, target_field, None))
+            if detail_value != registrant_value:
+                changed.add(source_field)
+        return changed
+
+    def _effective_conflict_fields(self, conflict_fields):
+        """Return the subset of ``conflict_fields`` this CR actually proposes to
+        change (the security-relevant scope). Full set for non-dynamic types."""
+        self.ensure_one()
+        conflict_fields = set(conflict_fields)
+        proposed = self._proposed_changed_fields()
+        if proposed is None:
+            return conflict_fields
+        return proposed & conflict_fields
+
     def _filter_by_field_conflicts(self, candidates, rule):
         """Filter candidate CRs by checking if they modify the same fields.
 
-        For dynamic-approval CRs (where selected_field_name is set), only the
-        selected field is treated as a proposed change. Prefilled fields from
-        the registrant are ignored for conflict purposes.
+        For dynamic-approval CRs, the proposed changes are the conflict fields
+        whose value actually differs from the registrant (derived server-side),
+        not a user-writable label. Prefilled/unchanged fields are ignored.
         """
         self.ensure_one()
 
@@ -308,14 +368,10 @@ class SPPCRConflictMixin(models.AbstractModel):
         if not my_detail:
             return self.env["spp.change.request"]
 
-        # Dynamic approval: only the selected field is a proposed change
-        my_selected = self.selected_field_name
-        if my_selected:
-            if my_selected not in conflict_fields:
-                return self.env["spp.change.request"]
-            my_effective_fields = [my_selected]
-        else:
-            my_effective_fields = conflict_fields
+        my_effective_fields = self._effective_conflict_fields(conflict_fields)
+        if not my_effective_fields:
+            # This CR changes none of the rule's fields — nothing to conflict on.
+            return self.env["spp.change.request"]
 
         matching = self.env["spp.change.request"]
 
@@ -324,18 +380,10 @@ class SPPCRConflictMixin(models.AbstractModel):
             if not candidate_detail:
                 continue
 
-            # Determine candidate's effective fields
-            candidate_selected = candidate.selected_field_name
-            if candidate_selected:
-                # Both use dynamic approval: conflict only if same field
-                if my_selected and candidate_selected != my_selected:
-                    continue
-                candidate_effective = [candidate_selected]
-            else:
-                candidate_effective = conflict_fields
+            candidate_effective = candidate._effective_conflict_fields(conflict_fields)
 
-            # Check overlapping effective fields
-            fields_to_check = set(my_effective_fields) & set(candidate_effective)
+            # Overlap = fields BOTH CRs actually propose to change.
+            fields_to_check = my_effective_fields & candidate_effective
 
             for field_name in fields_to_check:
                 if field_name not in my_detail._fields:
@@ -439,9 +487,9 @@ class SPPCRConflictMixin(models.AbstractModel):
     def _calculate_similarity(self, other_cr, config):
         """Calculate similarity percentage between this CR and another.
 
-        For dynamic-approval CRs (where selected_field_name is set), only the
-        selected field is compared. Prefilled fields are ignored to prevent
-        inflated similarity scores.
+        For dynamic-approval CRs, only the selected field (derived server-side
+        from the detail's validated ``field_to_modify``) is compared. Prefilled
+        fields are ignored to prevent inflated similarity scores.
 
         Args:
             other_cr: Another spp.change.request record
@@ -458,22 +506,29 @@ class SPPCRConflictMixin(models.AbstractModel):
         if not my_detail or not other_detail:
             return 0.0
 
-        # Dynamic approval: compare only the selected field
-        my_selected = self.selected_field_name
-        other_selected = other_cr.selected_field_name
-        if my_selected and other_selected:
-            # Different fields selected = not duplicates
-            if my_selected != other_selected:
+        # Dynamic approval: compare only the fields actually changed (derived
+        # server-side from the detail-vs-registrant diff, not a writable label).
+        my_changed = self._proposed_changed_fields()
+        other_changed = other_cr._proposed_changed_fields()
+        if my_changed is not None and other_changed is not None:
+            # Different set of changed fields (or neither changed anything) =
+            # not duplicates.
+            if my_changed != other_changed or not my_changed:
                 return 0.0
-            # Same field: compare that field's value only
-            if my_selected in my_detail._fields and my_selected in other_detail._fields:
-                my_value = self._normalize_field_value(getattr(my_detail, my_selected, None))
-                other_value = self._normalize_field_value(getattr(other_detail, my_selected, None))
-                if my_value == other_value:
-                    return 100.0
-                elif self._are_similar(my_value, other_value):
-                    return 80.0
-            return 0.0
+            all_match = True
+            any_similar = False
+            for field_name in my_changed:
+                if field_name not in my_detail._fields or field_name not in other_detail._fields:
+                    continue
+                my_value = self._normalize_field_value(getattr(my_detail, field_name, None))
+                other_value = self._normalize_field_value(getattr(other_detail, field_name, None))
+                if my_value != other_value:
+                    all_match = False
+                    if self._are_similar(my_value, other_value):
+                        any_similar = True
+            if all_match:
+                return 100.0
+            return 80.0 if any_similar else 0.0
 
         # Static CRs (or mixed): original logic
         check_fields = config.get_check_fields_list()

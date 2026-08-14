@@ -1,3 +1,7 @@
+### 19.0.3.1.5
+
+- fix(security): derive conflict and duplicate detection from the change actually proposed rather than a user-writable label. `selected_field_name` and the detail's `field_to_modify` are both writable by the requester, so either could be re-pointed at an unchanged field to clear a field-scoped conflict or drop duplicate similarity to zero. Detection now compares the detail against the registrant. Types whose apply strategy writes outside the configured field mappings fall back to the full configured field set instead of an empty one, so detection cannot silently disable itself.
+
 ### 19.0.3.1.4
 
 - fix(security): scope the CR Requestor, Local Validator and HQ Validator roles to Tier-3 registry read instead of Tier-2 registry viewer. The viewer tier gates the Registry Search portal, a broad registrant-PII enumeration surface these change-request roles do not need; registrant read access is unchanged. A migration re-points the roles and resynchronises existing users, since the role definitions are `noupdate`.
