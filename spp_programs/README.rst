@@ -254,6 +254,19 @@ Dependencies
 Changelog
 =========
 
+19.0.2.2.2
+~~~~~~~~~~
+
+- fix(security): the Program Viewer role no longer carries the Tier-2
+  ``spp_registry.group_registry_viewer`` group, which gates the
+  standalone Registry Search portal menu and exposed a broad
+  registrant-PII enumeration surface to a read-only program role. It now
+  uses the Tier-3 ``spp_registry.group_registry_read`` group instead,
+  preserving the registrant read needed for program cross-references
+  (same read ACLs, defined in ``spp_base_common``) without the Registry
+  app menu. Includes a migration that re-points the role and re-syncs
+  already-assigned users on upgrade.
+
 19.0.2.2.1
 ~~~~~~~~~~
 

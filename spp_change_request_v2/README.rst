@@ -853,6 +853,17 @@ Before declaring a new CR type complete:
 Changelog
 =========
 
+19.0.3.1.4
+~~~~~~~~~~
+
+- fix(security): scope the CR Requestor, Local Validator and HQ
+  Validator roles to Tier-3 registry read instead of Tier-2 registry
+  viewer. The viewer tier gates the Registry Search portal, a broad
+  registrant-PII enumeration surface these change-request roles do not
+  need; registrant read access is unchanged. A migration re-points the
+  roles and resynchronises existing users, since the role definitions
+  are ``noupdate``.
+
 19.0.3.1.3
 ~~~~~~~~~~
 
