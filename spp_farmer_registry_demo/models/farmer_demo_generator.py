@@ -2297,7 +2297,7 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             try:
                 program_beneficiaries = program.get_beneficiaries("enrolled").mapped("partner_id.id")
                 cycle_manager._add_beneficiaries(cycle, program_beneficiaries, "enrolled", do_count=True)
-                cycle.write({"is_locked": False, "locked_reason": False})
+                cycle._release_operation_lock()
                 _logger.info(
                     "Synced beneficiary import for cycle (cycle_id=%s, count=%s)",
                     cycle.id,
@@ -2343,7 +2343,8 @@ class SPPFarmerDemoGenerator(models.TransientModel):
                 exc,
             )
             if cycle.state == "draft":
-                cycle.write({"state": "to_approve", "is_locked": False, "locked_reason": False})
+                cycle._release_operation_lock()
+                cycle.write({"state": "to_approve"})
 
         # Step 4: Approve cycle (to_approve -> approved)
         try:

@@ -1,3 +1,17 @@
+### 19.0.2.2.1
+
+- fix(security): make the async operation lock a server-side boundary. The
+  Force Unlock buttons were gated to `base.group_system` in the views, but
+  `action_force_unlock` on `spp.cycle` / `spp.program` — and direct writes to
+  the `is_locked` / `locked_reason` fields — had no server-side check, so any
+  role holding write access (program officers, managers, cycle approvers)
+  could clear an active operation lock via RPC while async entitlement /
+  payment / eligibility jobs were still running. Direct writes to the lock
+  fields now require `base.group_system` (via a `write()` guard), the manual
+  `action_force_unlock` override requires the same, and the async pipeline
+  manages the lock through `sudo()` helpers so legitimate acquire/release
+  from the initiating user keeps working.
+
 ### 19.0.2.1.3
 
 - fix(security): align Program Viewer / Validator / Cycle Approver roles with the OP#951 menu audit — Program Viewer additionally gets `group_registry_viewer` + `group_approval_viewer` (read-only Registry + Approvals access); all three program roles get `group_hazard_viewer` + `group_gis_report_user` so they retain Hazard / GIS Reports visibility once those menu roots are gated. Adds `spp_hazard` and `spp_gis_report` to module dependencies.
