@@ -16,6 +16,22 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     icon="fa-external-link"
                     class="btn-success"
                 />
+                <!--
+                    OP#1170: one-click reset for a single row. The "Back to
+                    Draft" server action below covers a whole selection, but
+                    select-then-cog is a lot of clicks for one record. Hidden
+                    unless the row is actually resettable, so this stays out of
+                    the way on every other membership list.
+                -->
+                <button
+                    name="back_to_draft"
+                    type="object"
+                    title="Back to draft"
+                    string="Back to Draft"
+                    class="btn-link"
+                    invisible="state not in ('duplicated', 'not_eligible')"
+                    groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator"
+                />
                 <field name="partner_id" />
                 <field name="program_id" />
                 <field name="enrollment_date" />
@@ -520,4 +536,35 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         sequence="20"
         groups="spp_security.group_spp_admin"
     /> -->
+
+    <!--
+        OP#1170: bulk reset from any membership list, including the Duplicates
+        list reached from a program's smart button. Follows the same shape as
+        spp_programs' "Reset to Draft" on entitlements: filter the selection to
+        what can actually move, act on that, and only complain when nothing in
+        the selection qualifies — so one stray row does not block the other
+        forty-nine.
+    -->
+    <record id="action_membership_back_to_draft_multi" model="ir.actions.server">
+        <field name="name">Back to Draft</field>
+        <field name="model_id" ref="model_spp_program_membership" />
+        <field name="binding_model_id" ref="model_spp_program_membership" />
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    eligible_records = records.filtered(lambda m: m.state in ("duplicated", "not_eligible"))
+    if eligible_records:
+        eligible_records.back_to_draft()
+    else:
+        raise UserError(
+            "No eligible memberships selected. Only duplicated or not-eligible "
+            "memberships can be returned to draft."
+        )
+        </field>
+        <field
+            name="group_ids"
+            eval="[(4, ref('spp_security.group_spp_admin')), (4, ref('spp_programs.group_programs_manager')), (4, ref('spp_programs.group_programs_validator'))]"
+        />
+    </record>
 </odoo>

@@ -10,6 +10,11 @@ from . import constants
 
 _logger = logging.getLogger(__name__)
 
+# States a membership may be returned to draft from. Both are dead ends
+# otherwise: deduplication and eligibility checks put a membership here and
+# nothing ever took it out again (OP#1170).
+RESETTABLE_TO_DRAFT = ("duplicated", "not_eligible")
+
 
 class SPPProgramMembership(models.Model):
     _inherit = [
@@ -379,13 +384,26 @@ class SPPProgramMembership(models.Model):
             }
 
     def back_to_draft(self):
-        """Reset membership to draft state."""
-        self.write(
-            {
-                "state": "draft",
-            }
-        )
-        return
+        """Return duplicated or not-eligible memberships to draft.
+
+        Deliberately recordset-safe: the "Back to Draft" server action hands
+        this a whole selection, and it is offered from lists as well as from
+        the membership form.
+
+        Guarded because this is now reachable from four places rather than one.
+        It used to write ``draft`` over any state at all, so a stray call could
+        quietly undo an enrolment or reopen an exit (OP#1170).
+        """
+        blocked = self.filtered(lambda membership: membership.state not in RESETTABLE_TO_DRAFT)
+        if blocked:
+            raise UserError(
+                _(
+                    "Only duplicated or not-eligible memberships can be returned to draft. "
+                    "%s of the selected memberships are in another state.",
+                    len(blocked),
+                )
+            )
+        self.write({"state": "draft"})
 
     def action_pause(self):
         """Pause the membership."""
