@@ -663,6 +663,52 @@ class SPPChangeRequest(models.Model):
                 record._run_conflict_checks()
         return records
 
+    # Fields that bind a submitted CR to exactly what was routed and approved:
+    # the dynamic-approval selection (synced from the detail's field_to_modify in
+    # draft) and the detail record pointer that get_detail() resolves for both
+    # routing and apply. Once the CR leaves draft/revision these are frozen — else
+    # a user could route on a low-risk field / benign detail and then swap the
+    # selection or repoint detail_res_id to a substituted detail before apply.
+    # Editing requires reset to draft, which re-routes. (These fields are never
+    # written by the apply strategies, so the guard needs no apply-path exemption.)
+    _FROZEN_ON_SUBMIT_FIELDS = (
+        "selected_field_name",
+        "selected_field_old_value",
+        "selected_field_new_value",
+        "detail_res_id",
+        "detail_res_model",
+    )
+
+    @staticmethod
+    def _normalize_frozen_value(value):
+        """Normalize a value for change detection: recordset -> id, None -> False.
+
+        Odoo stores unset fields as ``False``, but a write payload (JSON-RPC /
+        integrations) may pass ``None`` for the same field, or a Many2one as a
+        recordset. Normalizing both sides prevents an idempotent re-save from
+        being mistaken for a real change and wrongly locked out.
+        """
+        if hasattr(value, "id"):
+            value = value.id
+        return value if value is not None else False
+
+    def write(self, vals):
+        guarded = [f for f in self._FROZEN_ON_SUBMIT_FIELDS if f in vals]
+        if guarded:
+            norm = self._normalize_frozen_value
+            for rec in self:
+                if rec.approval_state in ("draft", "revision") or not rec.approval_state:
+                    continue
+                if any(norm(vals[f]) != norm(rec[f]) for f in guarded):
+                    raise UserError(
+                        _(
+                            "A submitted change request is locked to the change it was "
+                            "routed and approved for; its selected field and detail record "
+                            "cannot be changed. Reset the request to draft to re-route."
+                        )
+                    )
+        return super().write(vals)
+
     def unlink(self):
         """Delete associated detail records and archive DMS directory."""
         directories_to_archive = self.env["spp.dms.directory"]
