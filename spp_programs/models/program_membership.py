@@ -354,6 +354,12 @@ class SPPProgramMembership(models.Model):
         message = None
         kind = "success"
         if len(deduplication_managers):
+            # The managers work across the whole program, not just this
+            # membership, so clear the program's flags first and let the run
+            # re-apply them. Without this a membership stays "duplicated" long
+            # after the clash behind it was fixed (OP#796).
+            self.program_id._reset_duplicate_flags()
+
             states = ["draft", "enrolled", "eligible", "paused", "duplicated"]
             duplicates = 0
             for el in deduplication_managers:
