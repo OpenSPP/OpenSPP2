@@ -1,6 +1,6 @@
 {
     "name": "OpenSPP CR Type - Assign to Program",
-    "version": "19.0.1.0.1",
+    "version": "19.0.1.0.2",
     "sequence": 53,
     "category": "OpenSPP",
     "summary": "Change request type for assigning a registrant to a program",
@@ -14,6 +14,7 @@
     ],
     "data": [
         "security/ir.model.access.csv",
+        "security/rules.xml",
         "views/detail_assign_program_views.xml",
         "data/cr_types.xml",
     ],

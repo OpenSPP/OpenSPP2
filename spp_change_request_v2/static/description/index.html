@@ -1339,6 +1339,23 @@ registrant</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.3.1.3</h1>
+<ul class="simple">
+<li>fix(security): add ownership and area record rules to every concrete
+change-request detail model. Detail rows were reachable by any
+<tt class="docutils literal">group_cr_user</tt> regardless of who owned the parent change request,
+so a requester could read or tamper with another user’s detail data
+over RPC. Each detail model now carries
+user/validator/validator-HQ/manager rules scoped through its parent
+change request, plus a global rule mirroring the parent’s area filter.
+<tt class="docutils literal">spp.cr.detail.split_household.member</tt> is additionally scoped on
+delete, the one detail model whose access-control entry grants
+<tt class="docutils literal">unlink</tt> to change-request users: requesters may delete member rows
+only on their own requests, while validators and managers keep the
+unrestricted delete their access-control entries grant.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.3.1.2</h1>
 <ul class="simple">
 <li>fix(security): route and apply the same single field for
@@ -1351,7 +1368,7 @@ approved. Note the mapped-source-field freeze applies to
 the routing selector.</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.3.1.1</h1>
 <ul class="simple">
 <li>fix(change_request): enforce the <tt class="docutils literal">(cr_type_id, reason)</tt> uniqueness
@@ -1365,7 +1382,7 @@ lowest-id rule per pair is kept, matching which rule the runtime
 applied) so the constraint applies cleanly on upgrade.</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.3.1.0</h1>
 <ul class="simple">
 <li>revert(change_request): restore the create-a-new-individual <strong>Add
@@ -1383,7 +1400,7 @@ removed <tt class="docutils literal">spp_dci_demo</tt> Add Member birth-verifica
 <strong>not</strong> restored here; reinstate separately if needed.</li>
 </ul>
 </div>
-<div class="section" id="section-4">
+<div class="section" id="section-5">
 <h1>19.0.3.0.0</h1>
 <ul class="simple">
 <li>feat(change_request): redesign the group/membership CR flows (#242) —
@@ -1405,7 +1422,7 @@ create-a-new-individual fields (<tt class="docutils literal">created_individual_
 must adapt (see #1133).</li>
 </ul>
 </div>
-<div class="section" id="section-5">
+<div class="section" id="section-6">
 <h1>19.0.2.0.8</h1>
 <ul class="simple">
 <li>fix(views): disable inline creation of CR document types on the Change
@@ -1416,7 +1433,7 @@ only selects existing <tt class="docutils literal">cr_document_type</tt> vocabul
 Documents” modal (missing Name field) that blocked saving (#1125)</li>
 </ul>
 </div>
-<div class="section" id="section-6">
+<div class="section" id="section-7">
 <h1>19.0.2.0.7</h1>
 <ul class="simple">
 <li>fix(security): align CR Requestor / CR Local Validator / CR HQ
@@ -1428,7 +1445,7 @@ visibility once the menu root is gated. Adds <tt class="docutils literal">spp_ha
 dependencies.</li>
 </ul>
 </div>
-<div class="section" id="section-7">
+<div class="section" id="section-8">
 <h1>19.0.2.0.6</h1>
 <ul class="simple">
 <li>fix(views): route post-submit CRs (pending / approved / applied /
@@ -1443,7 +1460,7 @@ and wires <tt class="docutils literal"><span class="pre">action=&quot;action_ope
 list so row-click goes through the stage router.</li>
 </ul>
 </div>
-<div class="section" id="section-8">
+<div class="section" id="section-9">
 <h1>19.0.2.0.5</h1>
 <ul class="simple">
 <li>fix(security): add a global <tt class="docutils literal">ir.rule</tt> on <tt class="docutils literal">spp.change.request</tt> that
@@ -1456,27 +1473,27 @@ conditional domain is a no-op for users with no center areas (global
 roles).</li>
 </ul>
 </div>
-<div class="section" id="section-9">
+<div class="section" id="section-10">
 <h1>19.0.2.0.3</h1>
 <ul class="simple">
 <li>fix: add HTML escaping to all computed Html fields with
 <tt class="docutils literal">sanitize=False</tt> to prevent stored XSS (#50)</li>
 </ul>
 </div>
-<div class="section" id="section-10">
+<div class="section" id="section-11">
 <h1>19.0.2.0.2</h1>
 <ul class="simple">
 <li>fix: fix batch approval wizard line deletion (#130)</li>
 </ul>
 </div>
-<div class="section" id="section-11">
+<div class="section" id="section-12">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix: skip field types before getattr and isolate detail prefetch
 (#129)</li>
 </ul>
 </div>
-<div class="section" id="section-12">
+<div class="section" id="section-13">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
