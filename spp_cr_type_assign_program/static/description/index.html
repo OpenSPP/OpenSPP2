@@ -454,13 +454,17 @@ programs are independent and both proceed.</p>
 </div>
 </div>
 <div class="section" id="section-1">
-<h1>19.0.1.0.2</h1>
+<h1>19.0.1.0.3</h1>
 <ul class="simple">
-<li>fix(security): add record rules to <tt class="docutils literal">spp.cr.detail.assign_program</tt>
-enforcing parent change-request ownership and area scope. The model
-previously had an ACL granting <tt class="docutils literal">group_cr_user</tt> write/create but no
-record rule, so a CR user could re-point <tt class="docutils literal">program_id</tt> on
-assign-program details of change requests they do not own via RPC.</li>
+<li>fix(security): validate server-side that the user selecting a program
+on <tt class="docutils literal">spp.cr.detail.assign_program</tt> can actually access it. The
+<tt class="docutils literal">program_id</tt> domain only constrained the UI, so a raw RPC write
+could target a hidden or cross-company program; on apply the strategy
+runs under <tt class="docutils literal">sudo</tt>, which would assign the membership and leak the
+program name via preview while bypassing program record rules and
+multi-company scope. An <tt class="docutils literal">&#64;api.constrains</tt> now rejects a program the
+writing user cannot see (record rules) or that is outside their
+company scope.</li>
 </ul>
 </div>
 <div class="section" id="section-2">

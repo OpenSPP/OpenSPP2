@@ -91,14 +91,18 @@ Dependencies
 Changelog
 =========
 
-19.0.1.0.2
+19.0.1.0.3
 ~~~~~~~~~~
 
-- fix(security): add record rules to ``spp.cr.detail.assign_program``
-  enforcing parent change-request ownership and area scope. The model
-  previously had an ACL granting ``group_cr_user`` write/create but no
-  record rule, so a CR user could re-point ``program_id`` on
-  assign-program details of change requests they do not own via RPC.
+- fix(security): validate server-side that the user selecting a program
+  on ``spp.cr.detail.assign_program`` can actually access it. The
+  ``program_id`` domain only constrained the UI, so a raw RPC write
+  could target a hidden or cross-company program; on apply the strategy
+  runs under ``sudo``, which would assign the membership and leak the
+  program name via preview while bypassing program record rules and
+  multi-company scope. An ``@api.constrains`` now rejects a program the
+  writing user cannot see (record rules) or that is outside their
+  company scope.
 
 19.0.1.0.0
 ~~~~~~~~~~
