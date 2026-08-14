@@ -1,3 +1,7 @@
+### 19.0.3.1.4
+
+- fix(security): scope the CR Requestor, Local Validator and HQ Validator roles to Tier-3 registry read instead of Tier-2 registry viewer. The viewer tier gates the Registry Search portal, a broad registrant-PII enumeration surface these change-request roles do not need; registrant read access is unchanged. A migration re-points the roles and resynchronises existing users, since the role definitions are `noupdate`.
+
 ### 19.0.3.1.3
 
 - fix(security): add ownership and area record rules to every concrete change-request detail model. Detail rows were reachable by any `group_cr_user` regardless of who owned the parent change request, so a requester could read or tamper with another user's detail data over RPC. Each detail model now carries user/validator/validator-HQ/manager rules scoped through its parent change request, plus a global rule mirroring the parent's area filter. `spp.cr.detail.split_household.member` is additionally scoped on delete, the one detail model whose access-control entry grants `unlink` to change-request users: requesters may delete member rows only on their own requests, while validators and managers keep the unrestricted delete their access-control entries grant.

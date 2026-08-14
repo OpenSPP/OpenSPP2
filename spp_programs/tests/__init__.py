@@ -44,3 +44,4 @@ from . import test_membership_acl_bypass
 from . import test_cycle_null_entitlement_approval
 from . import test_approve_entitlements_program_isolation
 from . import test_payment_batch_payment_ids
+from . import test_program_viewer_registry_scope

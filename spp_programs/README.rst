@@ -254,21 +254,18 @@ Dependencies
 Changelog
 =========
 
-19.0.2.2.1
+19.0.2.2.2
 ~~~~~~~~~~
 
-- fix(security): make the async operation lock a server-side boundary.
-  The Force Unlock buttons were gated to ``base.group_system`` in the
-  views, but ``action_force_unlock`` on ``spp.cycle`` / ``spp.program``
-  — and direct writes to the ``is_locked`` / ``locked_reason`` fields —
-  had no server-side check, so any role holding write access (program
-  officers, managers, cycle approvers) could clear an active operation
-  lock via RPC while async entitlement / payment / eligibility jobs were
-  still running. Direct writes to the lock fields now require
-  ``base.group_system`` (via a ``write()`` guard), the manual
-  ``action_force_unlock`` override requires the same, and the async
-  pipeline manages the lock through ``sudo()`` helpers so legitimate
-  acquire/release from the initiating user keeps working.
+- fix(security): the Program Viewer role no longer carries the Tier-2
+  ``spp_registry.group_registry_viewer`` group, which gates the
+  standalone Registry Search portal menu and exposed a broad
+  registrant-PII enumeration surface to a read-only program role. It now
+  uses the Tier-3 ``spp_registry.group_registry_read`` group instead,
+  preserving the registrant read needed for program cross-references
+  (same read ACLs, defined in ``spp_base_common``) without the Registry
+  app menu. Includes a migration that re-points the role and re-syncs
+  already-assigned users on upgrade.
 
 19.0.2.1.3
 ~~~~~~~~~~
