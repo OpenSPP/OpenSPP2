@@ -51,7 +51,7 @@ class SPPGroupMembership(models.Model):
             rec.has_group_membership_type_codes = has_codes
 
     start_date = fields.Datetime(default=lambda self: fields.Datetime.now())
-    ended_date = fields.Datetime()
+    ended_date = fields.Datetime(index=True)
     status = fields.Selection(
         [("inactive", "Inactive"), ("active", " ")],
         compute="_compute_status",
@@ -212,7 +212,7 @@ class SPPGroupMembership(models.Model):
                 record.status = "active"
 
     @api.model
-    def cron_recompute_ended_status(self):
+    def _cron_recompute_ended_status(self, batch_size=10000):
         """Repair stored ``status``/``is_ended`` on rows the clock has crossed.
 
         Both computes depend only on ``ended_date`` and compare it against
@@ -222,6 +222,16 @@ class SPPGroupMembership(models.Model):
         with the clock and re-triggers the computes through the normal ORM
         path. Archived rows are included — the UI onchange archives
         memberships ended in the past, and those must be repaired too.
+        ``active`` itself is deliberately left untouched: archiving changes
+        record visibility everywhere and is a separate decision from the
+        stored computes (see issue #417).
+
+        At most ``batch_size`` rows per direction are repaired per run so a
+        large backlog (e.g. the first run on a database that predates this
+        cron) cannot exceed the cron time limit; the repaired rows drop out
+        of the domains, so subsequent runs drain the remainder.
+
+        Returns the repaired memberships.
         """
         now = fields.Datetime.now()
         memberships = self.with_context(active_test=False)
@@ -231,7 +241,8 @@ class SPPGroupMembership(models.Model):
                 "|",
                 ("is_ended", "=", False),
                 ("status", "!=", "inactive"),
-            ]
+            ],
+            limit=batch_size,
         )
         to_reactivate = memberships.search(
             [
@@ -241,15 +252,23 @@ class SPPGroupMembership(models.Model):
                 "|",
                 ("is_ended", "=", True),
                 ("status", "!=", "active"),
-            ]
+            ],
+            limit=batch_size,
         )
         stale = to_end | to_reactivate
         if stale:
             stale.modified(["ended_date"])
+            # The recompute flushes through low-level SQL and bypasses this
+            # model's write() override, so the metric-invalidation hook must
+            # be called explicitly.
+            self._invalidate_group_metrics(stale.mapped("group"))
             _logger.info(
-                "[spp.registry] Recomputed ended status for %d group membership(s)",
+                "[spp.registry] Scheduled ended-status recompute for %d group membership(s)",
                 len(stale),
             )
+        if len(to_end) == batch_size or len(to_reactivate) == batch_size:
+            _logger.info("[spp.registry] Ended-status backlog remains; the next cron run will continue")
+        return stale
 
     @api.constrains("ended_date")
     def _check_ended_date(self):
