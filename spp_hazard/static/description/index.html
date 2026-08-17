@@ -2463,6 +2463,14 @@ damage level, verification, notes) are readable only by hazard roles,
 Gate the impact UI on the registrant and incident forms (stat buttons,
 Emergency Response / Impacts pages, list columns, search filters) to
 users with impact read.</li>
+<li>fix(security): guard <tt class="docutils literal">spp.hazard.incident.affected_registrant_count</tt>
+with field-level <tt class="docutils literal">groups=</tt>. <tt class="docutils literal">spp.hazard.incident</tt> stays broadly
+readable (sibling modules read incidents), but this aggregate is
+derived from the sensitive impact table via raw ACL-bypassing SQL, so
+a plain internal user could read the affected-registrant count over
+RPC even without impact read. The field is now restricted to hazard
+read / <tt class="docutils literal">registry_viewer</tt> / admin, which also strips it from the
+incident list column for other users.</li>
 </ul>
 </div>
 <div class="section" id="section-2">

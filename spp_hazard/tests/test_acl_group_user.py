@@ -123,7 +123,9 @@ class TestHazardBaseUserNoAccess(HazardTestCase):
         with self.assertRaises(AccessError):
             incident_as_plain.read(["affected_registrant_count"])
         with self.assertRaises(AccessError):
-            incident_as_plain.affected_registrant_count  # noqa: B018
+            # Attribute access goes through Field.__get__, which enforces the
+            # field-level group guard independently of read().
+            _ = incident_as_plain.affected_registrant_count
 
     def test_hazard_viewer_can_read_affected_registrant_count(self):
         """A hazard-group user must still read the affected-registrant aggregate."""
