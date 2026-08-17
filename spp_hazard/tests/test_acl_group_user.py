@@ -94,6 +94,64 @@ class TestHazardBaseUserNoAccess(HazardTestCase):
         # which must not raise AccessError for a registry user.
         self.assertEqual(registrant_as_officer.hazard_impact_ids.mapped("damage_level"), ["moderate"])
 
+    def test_plain_internal_user_cannot_read_affected_registrant_count(self):
+        """spp.hazard.incident stays broadly readable, but its
+        ``affected_registrant_count`` aggregate is derived from the sensitive
+        impact table via raw ACL-bypassing SQL. A plain internal user must be
+        able to read the incident yet be denied that field over RPC."""
+        incident = self.env["spp.hazard.incident"].create(
+            {
+                "name": "Aggregate Leak Incident",
+                "code": "ALI-HAZ-001",
+                "category_id": self.category_typhoon.id,
+                "start_date": "2024-01-01",
+            }
+        )
+        self.env["spp.hazard.impact"].create(
+            {
+                "incident_id": incident.id,
+                "registrant_id": self.registrant.id,
+                "impact_type_id": self.impact_type_displacement.id,
+                "damage_level": "moderate",
+                "impact_date": "2024-01-02",
+            }
+        )
+        incident_as_plain = incident.with_user(self.plain_user)
+        # The incident itself remains readable (non-sensitive model)...
+        incident_as_plain.read(["name"])
+        # ...but the impact-derived aggregate must be denied.
+        with self.assertRaises(AccessError):
+            incident_as_plain.read(["affected_registrant_count"])
+        with self.assertRaises(AccessError):
+            incident_as_plain.affected_registrant_count  # noqa: B018
+
+    def test_hazard_viewer_can_read_affected_registrant_count(self):
+        """A hazard-group user must still read the affected-registrant aggregate."""
+        incident = self.env["spp.hazard.incident"].create(
+            {
+                "name": "Aggregate Visible Incident",
+                "code": "AVI-HAZ-001",
+                "category_id": self.category_typhoon.id,
+                "start_date": "2024-01-01",
+            }
+        )
+        self.env["spp.hazard.impact"].create(
+            {
+                "incident_id": incident.id,
+                "registrant_id": self.registrant.id,
+                "impact_type_id": self.impact_type_displacement.id,
+                "damage_level": "moderate",
+                "impact_date": "2024-01-02",
+            }
+        )
+        self.assertEqual(incident.with_user(self.hazard_viewer).affected_registrant_count, 1)
+
+    def test_affected_registrant_count_column_hidden_from_non_hazard_user(self):
+        """The incident list column reads the gated aggregate; it must be stripped
+        from the arch for a plain internal user."""
+        arch = self.env["spp.hazard.incident"].with_user(self.plain_user).get_view(view_type="list")["arch"]
+        self.assertNotIn("affected_registrant_count", arch)
+
     def test_incident_form_hides_impacts_from_non_hazard_user(self):
         """The incident form's Impacts O2M reads spp.hazard.impact; it must be
         stripped from the arch for a user without impact read (e.g. a DRIMS-only
