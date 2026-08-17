@@ -33,7 +33,7 @@ xlwt>=1.3.0
 
 # Data validation (phonenumbers is standard Odoo, stdnum for IDs)
 python-stdnum>=1.18
-phonenumbers>=8.13.0
+phonenumbers>=9.0.37
 
 # AWS integration (for spp_key_management AWS KMS provider - optional but included)
 boto3>=1.35.12
