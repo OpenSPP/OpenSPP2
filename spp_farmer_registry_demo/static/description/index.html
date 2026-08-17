@@ -499,7 +499,9 @@ Only for development or testing purpose, do not use in production.</p>
 (created with the well-known password <tt class="docutils literal">demo</tt>) when installed on a
 database without demo data, so the known credentials cannot be used to
 log in on a production instance; the accounts stay active on
-demo/evaluation databases. Also lowers <tt class="docutils literal">development_status</tt> from
+demo/evaluation databases. An upgrade migration applies the same
+deactivation to already-installed production databases, not just fresh
+installs. Also lowers <tt class="docutils literal">development_status</tt> from
 <tt class="docutils literal">Production/Stable</tt> to <tt class="docutils literal">Alpha</tt> so the demo module no longer
 signals production-readiness.</li>
 </ul>

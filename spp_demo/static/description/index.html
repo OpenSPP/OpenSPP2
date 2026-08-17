@@ -539,7 +539,10 @@ data, so the known credentials cannot be used to log in on a
 production instance. The accounts stay active on demo/evaluation
 databases. Also lowers <tt class="docutils literal">development_status</tt> from
 <tt class="docutils literal">Production/Stable</tt> to <tt class="docutils literal">Alpha</tt> so the demo module no longer
-signals production-readiness.</li>
+signals production-readiness. An upgrade migration applies the same
+deactivation to already-installed production databases (the install
+hook alone would leave existing deployments’ default-credential
+accounts active).</li>
 </ul>
 </div>
 <div class="section" id="section-2">

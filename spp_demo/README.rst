@@ -160,7 +160,10 @@ Changelog
   production instance. The accounts stay active on demo/evaluation
   databases. Also lowers ``development_status`` from
   ``Production/Stable`` to ``Alpha`` so the demo module no longer
-  signals production-readiness.
+  signals production-readiness. An upgrade migration applies the same
+  deactivation to already-installed production databases (the install
+  hook alone would leave existing deployments' default-credential
+  accounts active).
 
 19.0.2.1.0
 ~~~~~~~~~~

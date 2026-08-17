@@ -131,7 +131,9 @@ Changelog
   (created with the well-known password ``demo``) when installed on a
   database without demo data, so the known credentials cannot be used to
   log in on a production instance; the accounts stay active on
-  demo/evaluation databases. Also lowers ``development_status`` from
+  demo/evaluation databases. An upgrade migration applies the same
+  deactivation to already-installed production databases, not just fresh
+  installs. Also lowers ``development_status`` from
   ``Production/Stable`` to ``Alpha`` so the demo module no longer
   signals production-readiness.
 
