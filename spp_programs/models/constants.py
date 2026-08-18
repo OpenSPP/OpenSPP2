@@ -40,3 +40,56 @@ MANAGER_MODELS = {
         "spp.compliance.manager": "spp.compliance.manager.default",
     },
 }
+
+# The cards on a program's Configuration tab (OP#1172). Each names the field on
+# spp.program, the wrapper model behind it, and the wording the Add dialog uses.
+# The keys match MANAGER_TYPE_INFO's "category" so the two can be read together:
+# this map says where a category lives, MANAGER_TYPE_INFO describes the methods
+# inside it.
+#
+# The concrete methods themselves are deliberately absent. They come from the
+# wrapper's `_selection_manager_ref_id()`, which is what other modules extend
+# when they add one — spp_program_geofence adds an eligibility method that way,
+# and a hard-coded list here would never see it.
+MANAGER_CATEGORIES = {
+    "eligibility": {
+        "field": "eligibility_manager_ids",
+        "wrapper": "spp.eligibility.manager",
+        "label": "Eligibility Method",
+    },
+    "entitlement": {
+        "field": "entitlement_manager_ids",
+        "wrapper": "spp.program.entitlement.manager",
+        "label": "Entitlement Type",
+    },
+    "cycle": {
+        "field": "cycle_manager_ids",
+        "wrapper": "spp.cycle.manager",
+        "label": "Cycle Schedule",
+    },
+    "compliance": {
+        "field": "compliance_manager_ids",
+        "wrapper": "spp.compliance.manager",
+        "label": "Compliance Criteria",
+    },
+    "payment": {
+        "field": "payment_manager_ids",
+        "wrapper": "spp.program.payment.manager",
+        "label": "Payment Method",
+    },
+    "deduplication": {
+        "field": "deduplication_manager_ids",
+        "wrapper": "spp.deduplication.manager",
+        "label": "Deduplication Method",
+    },
+    "notification": {
+        "field": "notification_manager_ids",
+        "wrapper": "spp.program.notification.manager",
+        "label": "Notification Channel",
+    },
+    "program": {
+        "field": "program_manager_ids",
+        "wrapper": "spp.program.manager",
+        "label": "Program Manager",
+    },
+}

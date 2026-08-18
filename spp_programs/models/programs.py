@@ -2,7 +2,7 @@
 import logging
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 from . import constants
 
@@ -203,6 +203,77 @@ class SPPProgram(models.Model):
                 if existing:
                     raise UserError(_("A program with this name already exists. Program names must be unique."))
 
+    # ------------------------------------------------------------------
+    # configuration isolation (OP#1172)
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _configuration_fields():
+        """The Configuration tab's fields, in one place for the rules below."""
+        return [info["field"] for info in constants.MANAGER_CATEGORIES.values()]
+
+    def _check_configuration_is_own(self, field, wrappers):
+        """Refuse configuration that belongs to another program.
+
+        Every manager names the program it was created for and runs against
+        that program, so linking one into a second program does not configure
+        the second — it only makes the form lie about what will happen. The
+        Configuration tab no longer offers a picker that can do this; this
+        covers the API, data imports and duplicated programs.
+
+        Only what is being linked now is checked. A database that already holds
+        a cross-program link from the old picker stays loadable, and the row's
+        ✕ can still take it off.
+        """
+        self.ensure_one()
+        for wrapper in wrappers:
+            concrete = wrapper.manager_ref_id
+            owner = wrapper.program_id or (
+                concrete.program_id if concrete and "program_id" in concrete._fields else False
+            )
+            if owner and owner != self:
+                raise ValidationError(
+                    _(
+                        "%(method)s belongs to the program %(owner)s, so it cannot be used by "
+                        "%(program)s as well. Each program's configuration is its own — add a "
+                        "method to this program instead."
+                    )
+                    % {
+                        "method": wrapper.display_name or self.env[wrapper._name]._description,
+                        "owner": owner.display_name,
+                        "program": self.display_name,
+                    }
+                )
+
+    def copy(self, default=None):
+        """Duplicate the program with its own copy of the configuration.
+
+        These fields are mostly Many2many, so a plain copy would link the
+        source's managers into the duplicate — the sharing this ticket removes.
+        Each method is copied instead: the duplicate starts configured the same
+        way and owns what it runs.
+        """
+        default = dict(default or {})
+        fields_to_copy = [field for field in self._configuration_fields() if field in self._fields]
+        for field in fields_to_copy:
+            default.setdefault(field, False)
+        new_programs = super().copy(default)
+        for source, new_program in zip(self, new_programs, strict=False):
+            for field in fields_to_copy:
+                context = {
+                    "_spp_wrapper_model": source._fields[field].comodel_name,
+                    "default_program_id": new_program.id,
+                }
+                if source._fields[field].type == "many2many":
+                    # A Many2many does not resolve from the wrapper's program_id,
+                    # so the copy has to be linked explicitly — see the source mixin.
+                    context["_spp_program_m2m_field"] = field
+                for wrapper in source[field]:
+                    concrete = wrapper.manager_ref_id
+                    if concrete and concrete.exists():
+                        concrete.with_context(**context).copy({"program_id": new_program.id})
+        return new_programs
+
     @api.depends("program_membership_ids")
     def _compute_has_members(self):
         if self.env.context.get("skip_program_statistics"):
@@ -276,6 +347,13 @@ class SPPProgram(models.Model):
     @api.model
     def create(self, vals):
         res = super().create(vals)
+        # Everything linked at creation is being linked now, so all of it is
+        # checked. Reading `vals` instead would miss it: base create() is
+        # model_create_multi, so what arrives here is a list of dicts.
+        for record in res:
+            for field in record._configuration_fields():
+                if record[field]:
+                    record._check_configuration_is_own(field, record[field])
         if self.env.context.get("skip_default_managers"):
             return res
         if self.env.context.get("create_default_managers"):
@@ -284,6 +362,22 @@ class SPPProgram(models.Model):
             for man in man_ids:
                 res.update({man: [(4, man_ids[man])]})
         return res
+
+    def write(self, vals):
+        """Refuse configuration linked in from another program (OP#1172).
+
+        Only the links this write adds are checked, so a database that already
+        holds a cross-program link stays editable and the link can be removed.
+        """
+        touched = [field for field in self._configuration_fields() if field in vals]
+        before = {(rec.id, field): set(rec[field].ids) for rec in self for field in touched}
+        result = super().write(vals)
+        for rec in self:
+            for field in touched:
+                added = set(rec[field].ids) - before[(rec.id, field)]
+                if added:
+                    rec._check_configuration_is_own(field, rec[field].browse(sorted(added)))
+        return result
 
     @api.model
     def create_default_managers(self, program_id):

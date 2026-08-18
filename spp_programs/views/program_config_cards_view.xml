@@ -20,6 +20,25 @@ Replaces the technical manager configuration with intuitive sections.
                     string="Configuration"
                     groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator"
                 >
+                    <!--
+                        Every card here works the same way (OP#1172): a +Add
+                        button that asks which method and what to call it, a row
+                        per configured method with its own cog, and an Edit
+                        button only when there is exactly one — with several,
+                        one button has nothing sensible to open.
+
+                        The rows deliberately carry no "Add a line". These
+                        fields are mostly Many2many, and for those the list
+                        renderer decides that row from 'link', not 'create'
+                        (web/…/list_renderer.js), so the create attribute alone
+                        never suppressed it. The row that survived opened a
+                        picker listing every program's managers, and picking one
+                        wired another program's configuration into this one
+                        while it went on running against the program it was
+                        created for. Both keys are denied with a domain that
+                        never matches; 'unlink' is left alone, so the ✕ still
+                        removes a method.
+                    -->
                     <!-- Hidden field for access control -->
                     <field name="can_edit_configuration" invisible="1" />
 
@@ -47,24 +66,46 @@ Replaces the technical manager configuration with intuitive sections.
                                 >
                                     <i class="fa fa-check me-1" />Configured
                                 </span>
+                                <!--
+                                    Offered whenever configuration can be edited: a
+                                    program may legitimately run more than one method,
+                                    and this is the only way in now that the inline
+                                    Reference field is gone (OP#1172).
+                                -->
+                                <button
+                                    name="action_add_manager"
+                                    type="object"
+                                    context="{'manager_category': 'eligibility'}"
+                                    class="btn btn-sm btn-primary"
+                                    invisible="not can_edit_configuration or state == 'ended'"
+                                    icon="fa-plus"
+                                >Add</button>
                                 <button
                                     name="action_configure_eligibility"
                                     type="object"
                                     class="btn btn-sm btn-primary"
-                                    invisible="not eligibility_configured or not can_edit_configuration"
+                                    invisible="eligibility_manager_count != 1 or not can_edit_configuration"
                                     icon="fa-edit"
                                 >Edit</button>
                                 <button
                                     name="action_configure_eligibility"
                                     type="object"
                                     class="btn btn-sm btn-secondary"
-                                    invisible="not eligibility_configured or can_edit_configuration"
+                                    invisible="eligibility_manager_count != 1 or can_edit_configuration"
                                     icon="fa-eye"
                                 >View</button>
                             </div>
                         </div>
                         <div class="card-body py-3">
                             <field name="eligibility_manager_count" invisible="1" />
+                            <div
+                                class="text-muted py-3"
+                                invisible="eligibility_manager_count != 0"
+                            >
+                                <i class="fa fa-info-circle me-2" />
+                                No eligibility method configured — click <b
+                            >Add</b> above to choose who qualifies for this program.
+                            </div>
                             <group invisible="not eligibility_configured">
                                 <group>
                                     <field
@@ -92,24 +133,23 @@ Replaces the technical manager configuration with intuitive sections.
                                     placeholder="No eligibility rule configured yet — click Edit above."
                                 />
                             </group>
-                            <!-- Multi-manager list (0 or 2+ managers) -->
                             <separator
                                 string="Eligibility Method"
-                                invisible="eligibility_manager_count == 1"
+                                invisible="eligibility_manager_count == 0"
                             />
+                            <!-- Every method configured here, each with its own cog. Adding goes through +Add above; see the comment at the top of this page. -->
                             <field
                                 name="eligibility_manager_ids"
-                                invisible="eligibility_manager_count == 1"
+                                invisible="eligibility_manager_count == 0"
                                 readonly="state == 'ended' or not can_edit_configuration"
-                                context="{'default_program_id': id}"
                                 nolabel="1"
+                                colspan="2"
+                                options="{'create': [('id', '&lt;', 0)], 'link': [('id', '&lt;', 0)]}"
                             >
-                                <list editable="bottom" create="1" delete="1">
+                                <list create="0" no_open="true">
                                     <field
-                                        name="manager_ref_id"
+                                        name="display_name"
                                         string="Eligibility Method"
-                                        options="{'no_quick_create':True}"
-                                        context="{'default_program_id': parent.id}"
                                     />
                                     <button
                                         name="open_manager_form"
@@ -147,24 +187,46 @@ Replaces the technical manager configuration with intuitive sections.
                                 >
                                     <i class="fa fa-check me-1" />Configured
                                 </span>
+                                <!--
+                                    Offered whenever configuration can be edited: a
+                                    program may legitimately run more than one method,
+                                    and this is the only way in now that the inline
+                                    Reference field is gone (OP#1172).
+                                -->
+                                <button
+                                    name="action_add_manager"
+                                    type="object"
+                                    context="{'manager_category': 'entitlement'}"
+                                    class="btn btn-sm btn-primary"
+                                    invisible="not can_edit_configuration or state == 'ended'"
+                                    icon="fa-plus"
+                                >Add</button>
                                 <button
                                     name="action_configure_entitlement"
                                     type="object"
                                     class="btn btn-sm btn-primary"
-                                    invisible="not entitlement_configured or not can_edit_configuration"
+                                    invisible="entitlement_manager_count != 1 or not can_edit_configuration"
                                     icon="fa-edit"
                                 >Edit</button>
                                 <button
                                     name="action_configure_entitlement"
                                     type="object"
                                     class="btn btn-sm btn-secondary"
-                                    invisible="not entitlement_configured or can_edit_configuration"
+                                    invisible="entitlement_manager_count != 1 or can_edit_configuration"
                                     icon="fa-eye"
                                 >View</button>
                             </div>
                         </div>
                         <div class="card-body py-3">
                             <field name="entitlement_manager_count" invisible="1" />
+                            <div
+                                class="text-muted py-3"
+                                invisible="entitlement_manager_count != 0"
+                            >
+                                <i class="fa fa-info-circle me-2" />
+                                No entitlement type configured — click <b
+                            >Add</b> above to choose what beneficiaries receive.
+                            </div>
                             <group invisible="not entitlement_configured">
                                 <group>
                                     <field
@@ -192,24 +254,23 @@ Replaces the technical manager configuration with intuitive sections.
                                     placeholder="No entitlement configured yet — click Edit above."
                                 />
                             </group>
-                            <!-- Multi-manager list (0 or 2+ managers) -->
                             <separator
                                 string="Entitlement Type"
-                                invisible="entitlement_manager_count == 1"
+                                invisible="entitlement_manager_count == 0"
                             />
+                            <!-- Every method configured here, each with its own cog. Adding goes through +Add above; see the comment at the top of this page. -->
                             <field
                                 name="entitlement_manager_ids"
-                                invisible="entitlement_manager_count == 1"
+                                invisible="entitlement_manager_count == 0"
                                 readonly="state == 'ended' or not can_edit_configuration"
-                                context="{'default_program_id': id}"
                                 nolabel="1"
+                                colspan="2"
+                                options="{'create': [('id', '&lt;', 0)], 'link': [('id', '&lt;', 0)]}"
                             >
-                                <list editable="bottom" create="1" delete="1">
+                                <list create="0" no_open="true">
                                     <field
-                                        name="manager_ref_id"
+                                        name="display_name"
                                         string="Entitlement Type"
-                                        options="{'no_quick_create':True}"
-                                        context="{'default_program_id': parent.id}"
                                     />
                                     <button
                                         name="open_manager_form"
@@ -247,24 +308,46 @@ Replaces the technical manager configuration with intuitive sections.
                                 >
                                     <i class="fa fa-check me-1" />Configured
                                 </span>
+                                <!--
+                                    Offered whenever configuration can be edited: a
+                                    program may legitimately run more than one method,
+                                    and this is the only way in now that the inline
+                                    Reference field is gone (OP#1172).
+                                -->
+                                <button
+                                    name="action_add_manager"
+                                    type="object"
+                                    context="{'manager_category': 'cycle'}"
+                                    class="btn btn-sm btn-primary"
+                                    invisible="not can_edit_configuration or state == 'ended'"
+                                    icon="fa-plus"
+                                >Add</button>
                                 <button
                                     name="action_configure_cycle"
                                     type="object"
                                     class="btn btn-sm btn-primary"
-                                    invisible="not cycle_configured or not can_edit_configuration"
+                                    invisible="cycle_manager_count != 1 or not can_edit_configuration"
                                     icon="fa-edit"
                                 >Edit</button>
                                 <button
                                     name="action_configure_cycle"
                                     type="object"
                                     class="btn btn-sm btn-secondary"
-                                    invisible="not cycle_configured or can_edit_configuration"
+                                    invisible="cycle_manager_count != 1 or can_edit_configuration"
                                     icon="fa-eye"
                                 >View</button>
                             </div>
                         </div>
                         <div class="card-body py-3">
                             <field name="cycle_manager_count" invisible="1" />
+                            <div
+                                class="text-muted py-3"
+                                invisible="cycle_manager_count != 0"
+                            >
+                                <i class="fa fa-info-circle me-2" />
+                                No schedule configured — click <b
+                            >Add</b> above to choose how often this program runs.
+                            </div>
                             <group invisible="not cycle_configured">
                                 <group>
                                     <field
@@ -285,25 +368,21 @@ Replaces the technical manager configuration with intuitive sections.
                                     placeholder="No schedule configured yet — click Edit above."
                                 />
                             </group>
-                            <!-- Multi-manager list (0 or 2+ managers) -->
                             <separator
                                 string="Schedule Type"
-                                invisible="cycle_manager_count == 1"
+                                invisible="cycle_manager_count == 0"
                             />
+                            <!-- Every method configured here, each with its own cog. Adding goes through +Add above; see the comment at the top of this page. -->
                             <field
                                 name="cycle_manager_ids"
-                                invisible="cycle_manager_count == 1"
+                                invisible="cycle_manager_count == 0"
                                 readonly="state == 'ended' or not can_edit_configuration"
-                                context="{'default_program_id': id}"
                                 nolabel="1"
+                                colspan="2"
+                                options="{'create': [('id', '&lt;', 0)], 'link': [('id', '&lt;', 0)]}"
                             >
-                                <list editable="bottom" create="1" delete="1">
-                                    <field
-                                        name="manager_ref_id"
-                                        string="Schedule Type"
-                                        options="{'no_quick_create':True}"
-                                        context="{'default_program_id': parent.id}"
-                                    />
+                                <list create="0" no_open="true">
+                                    <field name="display_name" string="Schedule Type" />
                                     <button
                                         name="open_manager_form"
                                         type="object"
@@ -343,25 +422,32 @@ Replaces the technical manager configuration with intuitive sections.
                                 <!-- Zero-state: offer Add when compliance isn't set up.
                                      Compliance is optional, so the empty state shows an
                                      explicit Add button instead of the generic list. -->
+                                <!--
+                                    Offered whenever configuration can be edited: a
+                                    program may legitimately run more than one method,
+                                    and this is the only way in now that the inline
+                                    Reference field is gone (OP#1172).
+                                -->
                                 <button
-                                    name="action_add_compliance_manager"
+                                    name="action_add_manager"
                                     type="object"
+                                    context="{'manager_category': 'compliance'}"
                                     class="btn btn-sm btn-primary"
-                                    invisible="compliance_manager_count != 0 or not can_edit_configuration"
+                                    invisible="not can_edit_configuration or state == 'ended'"
                                     icon="fa-plus"
                                 >Add</button>
                                 <button
                                     name="action_configure_compliance"
                                     type="object"
                                     class="btn btn-sm btn-primary"
-                                    invisible="not compliance_configured or not can_edit_configuration"
+                                    invisible="compliance_manager_count != 1 or not can_edit_configuration"
                                     icon="fa-edit"
                                 >Edit</button>
                                 <button
                                     name="action_configure_compliance"
                                     type="object"
                                     class="btn btn-sm btn-secondary"
-                                    invisible="not compliance_configured or can_edit_configuration"
+                                    invisible="compliance_manager_count != 1 or can_edit_configuration"
                                     icon="fa-eye"
                                 >View</button>
                             </div>
@@ -405,24 +491,23 @@ Replaces the technical manager configuration with intuitive sections.
                                     placeholder="No compliance rule configured yet — click Edit above."
                                 />
                             </group>
-                            <!-- Multi-manager list (2+ managers only — zero-state handled above) -->
                             <separator
                                 string="Compliance Method"
-                                invisible="compliance_manager_count &lt;= 1"
+                                invisible="compliance_manager_count == 0"
                             />
+                            <!-- Every method configured here, each with its own cog. Adding goes through +Add above; see the comment at the top of this page. -->
                             <field
                                 name="compliance_manager_ids"
-                                invisible="compliance_manager_count &lt;= 1"
+                                invisible="compliance_manager_count == 0"
                                 readonly="state == 'ended' or not can_edit_configuration"
-                                context="{'default_program_id': id}"
                                 nolabel="1"
+                                colspan="2"
+                                options="{'create': [('id', '&lt;', 0)], 'link': [('id', '&lt;', 0)]}"
                             >
-                                <list editable="bottom" create="1" delete="1">
+                                <list create="0" no_open="true">
                                     <field
-                                        name="manager_ref_id"
+                                        name="display_name"
                                         string="Compliance Method"
-                                        options="{'no_quick_create':True}"
-                                        context="{'default_program_id': parent.id}"
                                     />
                                     <button
                                         name="open_manager_form"
@@ -462,25 +547,32 @@ Replaces the technical manager configuration with intuitive sections.
                                 </span>
                                 <!-- Zero-state: offer Add when payment isn't set up.
                                      Mirrors the Compliance pattern (#952). -->
+                                <!--
+                                    Offered whenever configuration can be edited: a
+                                    program may legitimately run more than one method,
+                                    and this is the only way in now that the inline
+                                    Reference field is gone (OP#1172).
+                                -->
                                 <button
-                                    name="action_add_payment_manager"
+                                    name="action_add_manager"
                                     type="object"
+                                    context="{'manager_category': 'payment'}"
                                     class="btn btn-sm btn-primary"
-                                    invisible="payment_manager_count != 0 or not can_edit_configuration"
+                                    invisible="not can_edit_configuration or state == 'ended'"
                                     icon="fa-plus"
                                 >Add</button>
                                 <button
                                     name="action_configure_payment"
                                     type="object"
                                     class="btn btn-sm btn-primary"
-                                    invisible="not payment_configured or not can_edit_configuration"
+                                    invisible="payment_manager_count != 1 or not can_edit_configuration"
                                     icon="fa-edit"
                                 >Edit</button>
                                 <button
                                     name="action_configure_payment"
                                     type="object"
                                     class="btn btn-sm btn-secondary"
-                                    invisible="not payment_configured or can_edit_configuration"
+                                    invisible="payment_manager_count != 1 or can_edit_configuration"
                                     icon="fa-eye"
                                 >View</button>
                             </div>
@@ -516,24 +608,23 @@ Replaces the technical manager configuration with intuitive sections.
                                     placeholder="No payment processing configured yet — click Edit above."
                                 />
                             </group>
-                            <!-- Multi-manager list (2+ managers only — zero-state handled above) -->
                             <separator
                                 string="Payment Method"
-                                invisible="payment_manager_count &lt;= 1"
+                                invisible="payment_manager_count == 0"
                             />
+                            <!-- Every method configured here, each with its own cog. Adding goes through +Add above; see the comment at the top of this page. -->
                             <field
                                 name="payment_manager_ids"
-                                invisible="payment_manager_count &lt;= 1"
+                                invisible="payment_manager_count == 0"
                                 readonly="state == 'ended' or not can_edit_configuration"
-                                context="{'default_program_id': id}"
                                 nolabel="1"
+                                colspan="2"
+                                options="{'create': [('id', '&lt;', 0)], 'link': [('id', '&lt;', 0)]}"
                             >
-                                <list editable="bottom" create="1" delete="1">
+                                <list create="0" no_open="true">
                                     <field
-                                        name="manager_ref_id"
+                                        name="display_name"
                                         string="Payment Method"
-                                        options="{'no_quick_create':True}"
-                                        context="{'default_program_id': parent.id}"
                                     />
                                     <button
                                         name="open_manager_form"
@@ -541,6 +632,115 @@ Replaces the technical manager configuration with intuitive sections.
                                         class="btn-link p-0"
                                         icon="fa-cog"
                                         title="Configure payment settings"
+                                    />
+                                </list>
+                            </field>
+                        </div>
+                    </div>
+
+                    <!-- ==================== NOTIFICATIONS SECTION ==================== -->
+                    <div class="card mb-3 shadow-sm">
+                        <div
+                            class="card-header d-flex justify-content-between align-items-center py-2 bg-secondary-subtle"
+                        >
+                            <div class="d-flex align-items-center">
+                                <i
+                                    class="fa fa-bell fa-lg me-3 text-secondary"
+                                    title="Notifications"
+                                />
+                                <div>
+                                    <h5 class="mb-0">Notifications</h5>
+                                    <small
+                                        class="text-muted"
+                                    >Send SMS or other notifications to beneficiaries</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span
+                                    class="badge rounded-pill bg-success"
+                                    invisible="not notification_configured"
+                                >
+                                    <i class="fa fa-check me-1" />Configured
+                                </span>
+                                <!--
+                                    Offered whenever configuration can be edited: a
+                                    program may legitimately run more than one method,
+                                    and this is the only way in now that the inline
+                                    Reference field is gone (OP#1172).
+                                -->
+                                <button
+                                    name="action_add_manager"
+                                    type="object"
+                                    context="{'manager_category': 'notification'}"
+                                    class="btn btn-sm btn-primary"
+                                    invisible="not can_edit_configuration or state == 'ended'"
+                                    icon="fa-plus"
+                                >Add</button>
+                                <button
+                                    name="action_configure_notification"
+                                    type="object"
+                                    class="btn btn-sm btn-primary"
+                                    invisible="notification_manager_count != 1 or not can_edit_configuration"
+                                    icon="fa-edit"
+                                >Edit</button>
+                                <button
+                                    name="action_configure_notification"
+                                    type="object"
+                                    class="btn btn-sm btn-secondary"
+                                    invisible="notification_manager_count != 1 or can_edit_configuration"
+                                    icon="fa-eye"
+                                >View</button>
+                            </div>
+                        </div>
+                        <div class="card-body py-3">
+                            <field name="notification_manager_count" invisible="1" />
+                            <field name="has_outgoing_mail_server" invisible="1" />
+                            <group>
+                                <field
+                                    name="send_email_notifications"
+                                    string="Email notifications"
+                                    readonly="not has_outgoing_mail_server or state == 'ended' or not can_edit_configuration"
+                                />
+                            </group>
+                            <div
+                                class="text-muted small"
+                                invisible="has_outgoing_mail_server"
+                            >
+                                <i class="fa fa-info-circle me-1" />
+                                No outgoing mail server is configured. Ask your administrator to set one up under
+                                <b
+                            >Settings → Technical → Email → Outgoing Mail Servers</b> before enabling email
+                                notifications.
+                            </div>
+                            <div
+                                class="text-muted py-3"
+                                invisible="notification_manager_count != 0"
+                            >
+                                <i class="fa fa-info-circle me-2" />
+                                No notification channel configured. It is optional — click <b
+                            >Add</b> above to message beneficiaries.
+                            </div>
+                            <separator
+                                string="Channel"
+                                invisible="notification_manager_count == 0"
+                            />
+                            <!-- Every channel configured here, each with its own cog. Adding goes through +Add above; see the comment at the top of this page. -->
+                            <field
+                                name="notification_manager_ids"
+                                invisible="notification_manager_count == 0"
+                                readonly="state == 'ended' or not can_edit_configuration"
+                                nolabel="1"
+                                colspan="2"
+                                options="{'create': [('id', '&lt;', 0)], 'link': [('id', '&lt;', 0)]}"
+                            >
+                                <list create="0" no_open="true">
+                                    <field name="display_name" string="Channel" />
+                                    <button
+                                        name="open_manager_form"
+                                        type="object"
+                                        class="btn-link p-0"
+                                        icon="fa-cog"
+                                        title="Configure this channel"
                                     />
                                 </list>
                             </field>
@@ -573,59 +773,6 @@ Replaces the technical manager configuration with intuitive sections.
                                     <field
                                         name="manager_ref_id"
                                         string="Method"
-                                        options="{'no_quick_create':True}"
-                                        context="{'default_program_id': parent.id}"
-                                    />
-                                    <button
-                                        name="open_manager_form"
-                                        type="object"
-                                        class="btn-link p-0"
-                                        icon="fa-cog"
-                                        title="Configure"
-                                    />
-                                </list>
-                            </field>
-                        </group>
-
-                        <!-- Notifications -->
-                        <group string="Notifications">
-                            <div class="mb-2 text-muted small" colspan="2">
-                                Send SMS or other notifications to beneficiaries.
-                            </div>
-                            <field name="has_outgoing_mail_server" invisible="1" />
-                            <field
-                                name="send_email_notifications"
-                                string="Email notifications"
-                                readonly="not has_outgoing_mail_server or state == 'ended' or not can_edit_configuration"
-                            />
-                            <div
-                                class="text-muted small"
-                                colspan="2"
-                                invisible="has_outgoing_mail_server"
-                            >
-                                <i class="fa fa-info-circle me-1" />
-                                No outgoing mail server is configured. Ask your administrator to set one up under
-                                <b
-                            >Settings → Technical → Email → Outgoing Mail Servers</b> before enabling email
-                                notifications.
-                            </div>
-                            <field
-                                name="notification_manager_summary"
-                                string="Channel"
-                                readonly="1"
-                                invisible="not notification_configured"
-                            />
-                            <field
-                                name="notification_manager_ids"
-                                readonly="state == 'ended' or not can_edit_configuration"
-                                context="{'default_program_id': id}"
-                                nolabel="1"
-                                colspan="2"
-                            >
-                                <list editable="bottom" create="1" delete="1">
-                                    <field
-                                        name="manager_ref_id"
-                                        string="Channel"
                                         options="{'no_quick_create':True}"
                                         context="{'default_program_id': parent.id}"
                                     />

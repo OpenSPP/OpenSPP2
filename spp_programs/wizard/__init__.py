@@ -15,3 +15,4 @@ from . import cel_builder_wizard
 from . import enrollment_wizard
 from . import exit_membership_wizard
 from . import prepare_entitlement_confirm_wizard
+from . import manager_setup_wizard
