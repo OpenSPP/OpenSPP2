@@ -48,15 +48,22 @@ class ExplainAnalyzer:
                 - total_time_ms: Total execution time in milliseconds
         """
         try:
-            # Run EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)
-            explain_query = f"EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) {query}"
+            # EXPLAIN ANALYZE executes the statement it analyzes. That is
+            # only safe for SELECTs: re-executing captured DML repeats its
+            # side effects (duplicate rows, unique-constraint violations).
+            # Non-SELECT statements get a plan-only EXPLAIN instead.
+            is_select = query.lstrip().upper().startswith("SELECT")
+            options = "ANALYZE, BUFFERS, FORMAT JSON" if is_select else "FORMAT JSON"
+            explain_query = f"EXPLAIN ({options}) {query}"
 
-            if params:
-                self.cursor.execute(explain_query, params)
-            else:
-                self.cursor.execute(explain_query)
+            # A failing EXPLAIN must never abort the caller's transaction
+            with self.cursor.savepoint():
+                if params:
+                    self.cursor.execute(explain_query, params)
+                else:
+                    self.cursor.execute(explain_query)
 
-            result = self.cursor.fetchone()
+                result = self.cursor.fetchone()
             if not result or not result[0]:
                 return {"plan": None, "issues": [], "total_time_ms": 0.0, "error": "No EXPLAIN output received"}
 
