@@ -78,3 +78,68 @@ class TestExplainAnalyzer(TransactionCase):
             0.0,
             "SELECT analysis lost ANALYZE instrumentation (no Execution Time)",
         )
+
+    def test_analyze_invalid_sql_returns_error_dict(self):
+        """Broken SQL must surface as an error result, not an exception —
+        and must not poison the transaction (savepoint protection)."""
+        result = self.analyzer.analyze_query("SELECT FROM no_such_table_xyz_123")
+
+        self.assertIsNotNone(result.get("error"), "invalid SQL did not produce an error result")
+        self.assertIsNone(result.get("plan"))
+
+        self.env.cr.execute("SELECT 1")
+        self.assertEqual(self.env.cr.fetchone()[0], 1)
+
+    def test_detect_issues_on_synthetic_plan(self):
+        """The plan walker must flag seq scans, slow nodes and index-less
+        nested loops, and recurse into child plans."""
+        plan = {
+            "Node Type": "Nested Loop",
+            "Actual Total Time": 250.0,
+            "Actual Rows": 500,
+            "Plans": [
+                {
+                    "Node Type": "Seq Scan",
+                    "Relation Name": "res_partner",
+                    "Actual Total Time": 150.0,
+                    "Actual Rows": 5000,
+                }
+            ],
+        }
+        issues = []
+        self.analyzer._detect_issues_recursive(plan, issues, path=[])
+
+        issue_types = {issue["type"] for issue in issues}
+        self.assertIn("sequential_scan_large_table", issue_types)
+        self.assertIn("slow_node", issue_types)
+        self.assertIn("nested_loop_no_index", issue_types)
+
+        # Empty nodes must be a no-op, not a crash
+        untouched = []
+        self.analyzer._detect_issues_recursive({}, untouched, path=[])
+        self.analyzer._detect_issues_recursive(None, untouched, path=[])
+        self.assertEqual(untouched, [])
+
+    def test_format_issues_report(self):
+        """The text report must cover every severity bucket."""
+        self.assertEqual(self.analyzer.format_issues_report([]), "No performance issues detected.")
+
+        issues = [
+            {"severity": "high", "type": "t1", "message": "high issue", "path": "A -> B"},
+            {"severity": "medium", "type": "t2", "message": "medium issue", "path": "A"},
+            {"severity": "low", "type": "t3", "message": "low issue", "path": "A"},
+        ]
+        report = self.analyzer.format_issues_report(issues)
+        self.assertIn("HIGH SEVERITY (1 issues)", report)
+        self.assertIn("MEDIUM SEVERITY (1 issues)", report)
+        self.assertIn("LOW SEVERITY (1 issues)", report)
+        self.assertIn("high issue", report)
+
+    def test_get_table_row_estimates(self):
+        """Row estimates come from pg_class; unknown tables report 0."""
+        self.assertEqual(self.analyzer.get_table_row_estimates([]), {})
+
+        estimates = self.analyzer.get_table_row_estimates(["res_partner", "no_such_table_xyz_123"])
+        self.assertIn("res_partner", estimates)
+        self.assertGreaterEqual(estimates["res_partner"], 0)
+        self.assertEqual(estimates["no_such_table_xyz_123"], 0)

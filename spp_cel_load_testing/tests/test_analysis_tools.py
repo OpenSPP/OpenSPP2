@@ -93,6 +93,20 @@ class TestQueryCapture(TransactionCase):
         self.assertEqual(self.env.cr.execute, original_execute, "Cursor execute was not restored")
         self.assertTrue(capture.get_queries())
 
+    def test_capture_extracts_join_tables_and_where_columns(self):
+        with capture_queries(self.env.cr) as capture:
+            self.env.cr.execute(
+                "SELECT p.id FROM res_partner p "
+                "JOIN res_users u ON u.partner_id = p.id "
+                "WHERE p.active = TRUE AND u.login = %s LIMIT 1",
+                ("__no_such_login__",),
+            )
+
+        stats = capture.get_query_stats()
+        self.assertIn("res_partner", stats["tables"])
+        self.assertIn("res_users", stats["tables"])
+        self.assertIn("login", stats["columns"])
+
 
 @tagged("post_install", "-at_install", "analysis")
 class TestSlowQueryTracking(TransactionCase):
@@ -121,6 +135,30 @@ class TestSlowQueryTracking(TransactionCase):
         slow = tracker.get_slow_queries()
         self.assertEqual(len(slow), 1)
         self.assertEqual(slow[0]["query"], "SELECT timed")
+
+    def test_tracker_end_timing_without_start_is_ignored(self):
+        tracker = SlowQueryTracker(threshold_ms=0.0)
+        tracker.end_timing("never-started", "SELECT ignored")
+        self.assertEqual(tracker.get_slow_queries(), [])
+
+    def test_empty_tracker_reports(self):
+        tracker = SlowQueryTracker(threshold_ms=100.0)
+        summary = tracker.get_summary()
+        self.assertEqual(summary["count"], 0)
+        self.assertIsNone(summary["worst_query"])
+
+        report = SlowQueryReport(tracker)
+        self.assertIn("No slow queries detected", report.generate_summary_report())
+        self.assertIn("No slow queries detected", report.generate_detailed_report())
+
+    def test_detailed_report_includes_params_and_truncates(self):
+        tracker = SlowQueryTracker(threshold_ms=1.0)
+        long_query = "SELECT col\n" * 40 + "FROM res_partner"
+        tracker.record_query_time(long_query, 50.0, params=("p1", "p2"))
+
+        detailed = SlowQueryReport(tracker).generate_detailed_report(limit=1)
+        self.assertIn("Parameters:", detailed)
+        self.assertIn("truncated", detailed)
 
     def test_report_generation(self):
         tracker = create_slow_query_tracker(threshold_ms=1.0)
@@ -197,6 +235,39 @@ class TestIndexAdvisor(TransactionCase):
             self.advisor.analyze_explain_issues([{"type": "unknown_issue_type"}]),
             list,
         )
+
+    def test_get_existing_indexes_survives_broken_cursor(self):
+        class BrokenCursor:
+            def execute(self, *args, **kwargs):
+                raise RuntimeError("cursor unavailable")
+
+        self.assertEqual(IndexAdvisor(BrokenCursor()).get_existing_indexes(), {})
+
+    def test_check_index_exists_prefix_match(self):
+        """A multi-column index must satisfy a lookup on its leading column."""
+        indexes = self.advisor.get_existing_indexes()
+        candidate = None
+        for table, table_indexes in indexes.items():
+            single = {idx["columns"][0] for idx in table_indexes if len(idx["columns"]) == 1}
+            for idx in table_indexes:
+                if len(idx["columns"]) >= 2 and idx["columns"][0] not in single:
+                    candidate = (table, idx["columns"][0])
+                    break
+            if candidate:
+                break
+        if not candidate:
+            self.skipTest("No multi-column index without a single-column twin found")
+        table, leading_column = candidate
+        self.assertTrue(self.advisor.check_index_exists(table, [leading_column]))
+
+    def test_analyze_explain_issues_nested_loop_logged_only(self):
+        recommendations = self.advisor.analyze_explain_issues(
+            [{"type": "nested_loop_no_index", "message": "nested loop probe"}]
+        )
+        self.assertEqual(recommendations, [])
+
+    def test_print_recommendations_report_empty(self):
+        self.advisor.print_recommendations_report([])
 
     def test_print_recommendations_report_smoke(self):
         # The printer expects analyze_missing_indexes() output (carries
