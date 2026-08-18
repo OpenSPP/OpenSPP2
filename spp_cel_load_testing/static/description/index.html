@@ -526,9 +526,33 @@ Only for development or testing purpose, do not use in production.</p>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.0</h1>
+<ul class="simple">
+<li>Initial migration to OpenSPP2</li>
+<li>fix(analysis): <tt class="docutils literal">ExplainAnalyzer</tt> no longer executes the statements
+it analyzes — non-SELECT statements get a plan-only <tt class="docutils literal">EXPLAIN</tt>
+(previously captured INSERTs were re-executed under
+<tt class="docutils literal">EXPLAIN ANALYZE</tt>, silently duplicating rows), and every analysis
+runs inside a savepoint so a failing EXPLAIN cannot abort the caller’s
+transaction</li>
+<li>fix(tests): the ADR-008 variable-resolver suite actually runs now (its
+availability guard compared a falsy empty recordset and skipped every
+test); the concurrency test exercises the shared LRU cache without
+racing the test cursor</li>
+<li>fix(tests): studio validation targets the OpenSPP2 studio
+(<tt class="docutils literal">spp.studio.pack</tt> models, <tt class="docutils literal">cel_expression</tt>-based <tt class="docutils literal">logic_data</tt>
+contract); the legacy <tt class="docutils literal">mode</tt>/<tt class="docutils literal">conditions</tt> schema is asserted
+absent</li>
+<li>test(analysis): unit coverage for the query-capture, slow-query-report
+and index-advisor helpers</li>
+<li>chore: performance thresholds calibrated to shared CI runners
+(order-of-magnitude regression guards, not tuning targets)</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.1.0.0</h1>
 <ul class="simple">
-<li>Initial migration from openspp-modules</li>
+<li>Initial release (openspp-modules)</li>
 </ul>
 <div class="section" id="bug-tracker">
 <h2>Bug Tracker</h2>
