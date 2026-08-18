@@ -2,7 +2,7 @@
 
 """Studio Logic Validation Tests.
 
-This module validates all variables and logic packs from spp_studio_logic
+This module validates all variables and logic packs from spp_studio
 to ensure they compile and work correctly. It checks:
 
 - Variable CEL accessors parse correctly
@@ -45,7 +45,7 @@ class TestStudioVariableValidation(PerformanceTestCase):
     def test_all_variables_have_cel_accessor(self):
         """Verify all active variables have a non-empty cel_accessor."""
         if not self._module_installed:
-            self.skipTest("spp_studio_logic not installed")
+            self.skipTest("spp_cel_domain not installed")
 
         start_time = time.perf_counter()
         variables = self.env["spp.cel.variable"].search([("active", "=", True)])
@@ -88,7 +88,7 @@ class TestStudioVariableValidation(PerformanceTestCase):
     def test_all_cel_accessors_parse(self):
         """Validate all variable CEL accessors can be parsed."""
         if not self._module_installed:
-            self.skipTest("spp_studio_logic not installed")
+            self.skipTest("spp_cel_domain not installed")
 
         start_time = time.perf_counter()
         variables = self.env["spp.cel.variable"].search([("active", "=", True)])
@@ -138,7 +138,7 @@ class TestStudioVariableValidation(PerformanceTestCase):
     def test_computed_variables_compile(self):
         """Verify computed variables have valid cel_expression."""
         if not self._module_installed:
-            self.skipTest("spp_studio_logic not installed")
+            self.skipTest("spp_cel_domain not installed")
 
         start_time = time.perf_counter()
         variables = self.env["spp.cel.variable"].search(
@@ -201,7 +201,7 @@ class TestStudioVariableValidation(PerformanceTestCase):
     def test_aggregate_variables_build_cel(self):
         """Verify aggregate variables build valid CEL expressions."""
         if not self._module_installed:
-            self.skipTest("spp_studio_logic not installed")
+            self.skipTest("spp_cel_domain not installed")
 
         start_time = time.perf_counter()
         variables = self.env["spp.cel.variable"].search(
@@ -259,7 +259,7 @@ class TestStudioVariableValidation(PerformanceTestCase):
     def test_variable_categories_exist(self):
         """Verify all referenced category_ids exist and are accessible."""
         if not self._module_installed:
-            self.skipTest("spp_studio_logic not installed")
+            self.skipTest("spp_cel_domain not installed")
 
         start_time = time.perf_counter()
         variables = self.env["spp.cel.variable"].search(
@@ -314,15 +314,13 @@ class TestStudioVariableValidation(PerformanceTestCase):
 
 @tagged("post_install", "-at_install", "studio_validation")
 class TestStudioLogicPackValidation(PerformanceTestCase):
-    """Validation tests for spp.logic.pack and spp.logic.pack.item records.
-
-    Note: spp.logic.pack is kept unchanged - only spp.logic -> spp.cel.expression."""
+    """Validation tests for spp.studio.pack and spp.studio.pack.item records."""
 
     @classmethod
     def setUpClass(cls):
         """Initialize test environment."""
         super().setUpClass()
-        if "spp.logic.pack" not in cls.env:
+        if "spp.studio.pack" not in cls.env:
             cls._module_installed = False
             return
         cls._module_installed = True
@@ -330,10 +328,10 @@ class TestStudioLogicPackValidation(PerformanceTestCase):
     def test_all_packs_have_items(self):
         """Verify all packs have at least one item."""
         if not self._module_installed:
-            self.skipTest("spp_studio_logic not installed")
+            self.skipTest("spp_studio not installed")
 
         start_time = time.perf_counter()
-        packs = self.env["spp.logic.pack"].search([])
+        packs = self.env["spp.studio.pack"].search([])
         empty = []
 
         for pack in packs:
@@ -374,10 +372,10 @@ class TestStudioLogicPackValidation(PerformanceTestCase):
     def test_all_pack_items_have_valid_json(self):
         """Verify all pack items have valid JSON in logic_data."""
         if not self._module_installed:
-            self.skipTest("spp_studio_logic not installed")
+            self.skipTest("spp_studio not installed")
 
         start_time = time.perf_counter()
-        items = self.env["spp.logic.pack.item"].search([])
+        items = self.env["spp.studio.pack.item"].search([])
         errors = []
 
         for item in items:
@@ -463,10 +461,10 @@ class TestStudioLogicPackValidation(PerformanceTestCase):
     def test_all_pack_cel_expressions_parse(self):
         """Verify CEL expressions in pack items parse correctly."""
         if not self._module_installed:
-            self.skipTest("spp_studio_logic not installed")
+            self.skipTest("spp_studio not installed")
 
         start_time = time.perf_counter()
-        items = self.env["spp.logic.pack.item"].search([])
+        items = self.env["spp.studio.pack.item"].search([])
         errors = []
 
         for item in items:
@@ -521,7 +519,7 @@ class TestStudioLogicPackValidation(PerformanceTestCase):
     def test_all_pack_cel_expressions_translate(self):
         """Verify CEL expressions can be translated to Python."""
         if not self._module_installed:
-            self.skipTest("spp_studio_logic not installed")
+            self.skipTest("spp_studio not installed")
 
         # Check if translator is available
         if "spp.cel.translator" not in self.env:
@@ -533,7 +531,7 @@ class TestStudioLogicPackValidation(PerformanceTestCase):
         # consistent with other CEL performance tests.
         cfg = self.cel_registry.load_profile("registry_individuals")
         model = cfg.get("root_model", "res.partner")
-        items = self.env["spp.logic.pack.item"].search([])
+        items = self.env["spp.studio.pack.item"].search([])
         errors = []
         translated_count = 0
 
@@ -592,10 +590,10 @@ class TestStudioLogicPackValidation(PerformanceTestCase):
     def test_pack_required_variables_exist(self):
         """Verify all required variables referenced by packs exist."""
         if not self._module_installed:
-            self.skipTest("spp_studio_logic not installed")
+            self.skipTest("spp_studio not installed")
 
         start_time = time.perf_counter()
-        packs = self.env["spp.logic.pack"].search(
+        packs = self.env["spp.studio.pack"].search(
             [
                 ("required_variable_ids", "!=", False),
             ]
@@ -653,10 +651,10 @@ class TestStudioLogicPackValidation(PerformanceTestCase):
     def test_simple_mode_conditions_compile(self):
         """Verify simple mode conditions can be converted to CEL."""
         if not self._module_installed:
-            self.skipTest("spp_studio_logic not installed")
+            self.skipTest("spp_studio not installed")
 
         start_time = time.perf_counter()
-        items = self.env["spp.logic.pack.item"].search([])
+        items = self.env["spp.studio.pack.item"].search([])
         errors = []
         checked_count = 0
 
@@ -764,7 +762,7 @@ class TestStudioLogicValidation(PerformanceTestCase):
     def test_all_published_logic_expressions_valid(self):
         """Verify all published logic records have valid expressions."""
         if not self._module_installed:
-            self.skipTest("spp_studio_logic not installed")
+            self.skipTest("spp_studio not installed")
 
         start_time = time.perf_counter()
         logic_records = self.env["spp.cel.expression"].search(
@@ -822,7 +820,7 @@ class TestStudioLogicValidation(PerformanceTestCase):
     def test_logic_variable_references_valid(self):
         """Verify referenced variables exist for all logic records."""
         if not self._module_installed:
-            self.skipTest("spp_studio_logic not installed")
+            self.skipTest("spp_studio not installed")
 
         start_time = time.perf_counter()
         logic_records = self.env["spp.cel.expression"].search([])
@@ -874,7 +872,7 @@ class TestStudioLogicValidation(PerformanceTestCase):
     def test_logic_output_types_consistent(self):
         """Verify output_type matches expression result type (basic check)."""
         if not self._module_installed:
-            self.skipTest("spp_studio_logic not installed")
+            self.skipTest("spp_studio not installed")
 
         start_time = time.perf_counter()
         logic_records = self.env["spp.cel.expression"].search(
