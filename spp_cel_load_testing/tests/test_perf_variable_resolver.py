@@ -41,7 +41,10 @@ class TestVariableResolverPerformance(common.PerformanceTestCase):
         cls.LogicVariableCategory = cls.env.get("spp.cel.variable.category")
         cls.LogicVariableResolver = cls.env.get("spp.cel.variable.resolver")
 
-        if not cls.LogicVariable or not cls.LogicVariableResolver:
+        # env.get returns None for unknown models but an (always falsy)
+        # empty recordset for known ones — a truthiness check would skip
+        # every test even when the models are available.
+        if cls.LogicVariable is None or cls.LogicVariableResolver is None:
             _logger.warning("Variable models not available, some tests will be skipped")
             return
 
@@ -61,7 +64,7 @@ class TestVariableResolverPerformance(common.PerformanceTestCase):
     @classmethod
     def _create_test_variables(cls):
         """Create test variables for performance testing."""
-        if not cls.LogicVariable:
+        if cls.LogicVariable is None:
             return
 
         # Simple field variables
@@ -146,7 +149,7 @@ class TestVariableResolverPerformance(common.PerformanceTestCase):
 
         Target: >10,000 resolutions per second for simple variables.
         """
-        if not self.LogicVariableResolver:
+        if self.LogicVariableResolver is None:
             self.skipTest("Variable resolver not available")
 
         expression = "perf_age >= 18"
@@ -182,7 +185,7 @@ class TestVariableResolverPerformance(common.PerformanceTestCase):
 
         Variables that reference other variables require recursive expansion.
         """
-        if not self.LogicVariableResolver:
+        if self.LogicVariableResolver is None:
             self.skipTest("Variable resolver not available")
 
         # Test increasingly nested expressions
@@ -236,7 +239,7 @@ class TestVariableResolverPerformance(common.PerformanceTestCase):
 
         Simulates access patterns typical of 4Ps batch processing.
         """
-        if not self.LogicVariableResolver:
+        if self.LogicVariableResolver is None:
             self.skipTest("Variable resolver not available")
 
         # Common expressions in 4Ps eligibility checking
@@ -298,7 +301,7 @@ class TestVariableResolverPerformance(common.PerformanceTestCase):
 
         Simulates complex eligibility rules with many conditions.
         """
-        if not self.LogicVariableResolver:
+        if self.LogicVariableResolver is None:
             self.skipTest("Variable resolver not available")
 
         # Build increasingly complex expressions
@@ -373,7 +376,10 @@ class TestVariableResolverAdversarial(common.PerformanceTestCase):
         cls.LogicVariableCategory = cls.env.get("spp.cel.variable.category")
         cls.LogicVariableResolver = cls.env.get("spp.cel.variable.resolver")
 
-        if not cls.LogicVariable or not cls.LogicVariableResolver:
+        # env.get returns None for unknown models but an (always falsy)
+        # empty recordset for known ones — a truthiness check would skip
+        # every test even when the models are available.
+        if cls.LogicVariable is None or cls.LogicVariableResolver is None:
             return
 
         # Create test category
@@ -389,7 +395,7 @@ class TestVariableResolverAdversarial(common.PerformanceTestCase):
 
         Critical: Must not cause infinite loops or stack overflow.
         """
-        if not self.LogicVariableResolver:
+        if self.LogicVariableResolver is None:
             self.skipTest("Variable resolver not available")
 
         # Create circular reference: A -> B -> A
@@ -439,7 +445,7 @@ class TestVariableResolverAdversarial(common.PerformanceTestCase):
 
         Creates a chain of 20 variables each referencing the next.
         """
-        if not self.LogicVariableResolver:
+        if self.LogicVariableResolver is None:
             self.skipTest("Variable resolver not available")
 
         # Create chain: deep_0 -> deep_1 -> ... -> deep_19 -> constant
@@ -499,7 +505,7 @@ class TestVariableResolverAdversarial(common.PerformanceTestCase):
 
         Should not crash, should return useful error messages.
         """
-        if not self.LogicVariableResolver:
+        if self.LogicVariableResolver is None:
             self.skipTest("Variable resolver not available")
 
         malformed_cases = [
@@ -551,7 +557,7 @@ class TestVariableResolverAdversarial(common.PerformanceTestCase):
 
         Simulates multiple workers processing eligibility in parallel.
         """
-        if not self.LogicVariableResolver:
+        if self.LogicVariableResolver is None:
             self.skipTest("Variable resolver not available")
 
         expressions = [
@@ -654,7 +660,10 @@ class TestVariableResolverCacheInvalidation(common.PerformanceTestCase):
         cls.LogicVariableCategory = cls.env.get("spp.cel.variable.category")
         cls.LogicVariableResolver = cls.env.get("spp.cel.variable.resolver")
 
-        if not cls.LogicVariable or not cls.LogicVariableResolver:
+        # env.get returns None for unknown models but an (always falsy)
+        # empty recordset for known ones — a truthiness check would skip
+        # every test even when the models are available.
+        if cls.LogicVariable is None or cls.LogicVariableResolver is None:
             return
 
         cls.test_category = cls.LogicVariableCategory.create(
@@ -666,7 +675,7 @@ class TestVariableResolverCacheInvalidation(common.PerformanceTestCase):
 
     def test_cache_invalidation_on_variable_update(self):
         """Test that cache is properly invalidated when variables are updated."""
-        if not self.LogicVariableResolver:
+        if self.LogicVariableResolver is None:
             self.skipTest("Variable resolver not available")
 
         # Create a variable
@@ -708,7 +717,7 @@ class TestVariableResolverCacheInvalidation(common.PerformanceTestCase):
 
         Simulates updating many variables at once (e.g., policy change).
         """
-        if not self.LogicVariableResolver:
+        if self.LogicVariableResolver is None:
             self.skipTest("Variable resolver not available")
 
         # Create many variables
