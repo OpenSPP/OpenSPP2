@@ -47,6 +47,7 @@ class CELService(models.AbstractModel):
         offset=0,
         fields=None,
         materialize_sql=False,
+        predicate_policy=None,
     ):
         """Compile a CEL expression and return results.
 
@@ -57,6 +58,12 @@ class CELService(models.AbstractModel):
             limit: Max number of IDs to return (0 = count only)
             fields: Optional list of field names to include in preview_records
             materialize_sql: If True, execute SQL subqueries to get actual IDs (needed for window actions)
+            predicate_policy: Optional dict to restrict externally-supplied
+                predicates. When set, the resolved expression is checked against
+                a positive allowlist (default-deny) before translation/execution.
+                Keys: allowed_fields (set[str]), allowed_functions (set[str]),
+                allowed_metric_prefixes (tuple[str]), allow_relations (bool).
+                A violation marks the result invalid with an explanatory error.
 
         Returns:
             dict with keys:
@@ -109,6 +116,13 @@ class CELService(models.AbstractModel):
             resolution = resolver.resolve_for_evaluation(expression, context_type=context_type)
             expanded_expression = resolution.get("expression", expression)
 
+            # Enforce a caller-supplied predicate allowlist on the resolved
+            # expression before it is translated or executed. Runs on the same
+            # expanded string the executor will use, so the gate cannot diverge
+            # from what actually runs (no time-of-check/time-of-use gap).
+            if predicate_policy is not None:
+                self._enforce_predicate_policy(expanded_expression, predicate_policy)
+
             # Execute compilation with expanded expression
             executor = self.env["spp.cel.executor"].with_context(cel_profile=profile, cel_cfg=cfg)
             exec_result = executor.compile_and_preview(
@@ -150,6 +164,43 @@ class CELService(models.AbstractModel):
             result["error"] = f"Compilation error: {str(e)}"
 
         return result
+
+    @api.model
+    def _enforce_predicate_policy(self, expression, policy):
+        """Reject a resolved predicate that references non-allowlisted symbols.
+
+        Walks the parsed AST and checks every referenced field, function,
+        relation/method and DCI metric against the positive allowlist in
+        ``policy`` (see ``compile_expression``). Raises ``CELValidationError``
+        naming every offending symbol; the caller (compile_expression) converts
+        that into an invalid-expression result. Default-deny: an unknown symbol
+        is rejected, so the gate fails closed.
+        """
+        from ..exceptions import CELValidationError
+        from ..services.cel_parser import parse
+        from ..services.cel_predicate_guard import collect_referenced_symbols
+
+        if not expression or not expression.strip():
+            return
+
+        allowed_fields = set(policy.get("allowed_fields") or ())
+        allowed_functions = set(policy.get("allowed_functions") or ())
+        allowed_metric_prefixes = tuple(policy.get("allowed_metric_prefixes") or ())
+        allow_relations = bool(policy.get("allow_relations"))
+
+        syms = collect_referenced_symbols(parse(expression))
+
+        denied = []
+        denied += [f"field:{f}" for f in syms.fields if f not in allowed_fields]
+        denied += [f"function:{fn}" for fn in syms.functions if fn not in allowed_functions]
+        if not allow_relations:
+            denied += [f"relation:{m}" for m in syms.methods]
+        denied += [f"metric:{m}" for m in syms.metrics if not m.startswith(allowed_metric_prefixes)]
+
+        if denied:
+            raise CELValidationError(
+                "Predicate references symbols that are not permitted in external searches: " + ", ".join(sorted(denied))
+            )
 
     @api.model
     def validate_expression(self, expression, profile):

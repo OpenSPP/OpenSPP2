@@ -64,11 +64,6 @@ class PackInstallWizard(models.TransientModel):
         string="Show Preview",
         default=False,
     )
-    program_id = fields.Many2one(
-        "spp.program",
-        string="Program",
-        help="Optional: Program for constant value lookups",
-    )
 
     # Results
     result_message = fields.Text(string="Result", readonly=True)
@@ -115,6 +110,15 @@ class PackInstallWizard(models.TransientModel):
                 wizard.missing_variables = _("All required variables are available.")
                 wizard.has_missing_variables = False
 
+    def _get_pack_program_id(self):
+        """Program id used for constant-value lookups during pack expansion.
+
+        None in the base module. The ``spp_studio_programs`` companion adds a
+        ``program_id`` field and returns it here, so program-scoped lookups work
+        without ``spp_studio`` depending on ``spp_programs`` (OP#1083).
+        """
+        return None
+
     def action_preview(self):
         """Generate preview showing original expressions and runtime resolution preview.
 
@@ -136,7 +140,7 @@ class PackInstallWizard(models.TransientModel):
 
         previews = []
         for item in self.item_ids:
-            result = resolver.expand_pack_item(item, program_id=self.program_id.id if self.program_id else None)
+            result = resolver.expand_pack_item(item, program_id=self._get_pack_program_id())
 
             previews.append(
                 Command.create(

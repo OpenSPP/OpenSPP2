@@ -2,9 +2,9 @@ name: Security Scanning
 
 on:
   pull_request:
-    branches: ["19.0"]
+    branches: ["19.0", "19.0-staging-*"]
   push:
-    branches: ["19.0"]
+    branches: ["19.0", "19.0-staging-*"]
   schedule:
     # Weekly full scan: Monday at 2am UTC
     - cron: "0 2 * * 1"
@@ -30,8 +30,12 @@ jobs:
         run: |
           GITLEAKS_VERSION="8.21.2"
           mkdir -p "$HOME/.local/bin"
-          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
-            | tar -xz -C "$HOME/.local/bin" gitleaks
+          # Download to a file (not a pipe) with retries so a transient 5xx
+          # from the release CDN doesn't fail the whole security gate.
+          curl -sSfL --retry 5 --retry-all-errors --retry-delay 3 \
+            -o /tmp/gitleaks.tar.gz \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          tar -xz -C "$HOME/.local/bin" gitleaks < /tmp/gitleaks.tar.gz
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Run Gitleaks

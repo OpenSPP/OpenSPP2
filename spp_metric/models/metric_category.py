@@ -59,7 +59,7 @@ class MetricCategory(models.Model):
         help="Parent category for hierarchical organization",
     )
 
-    _sql_constraints = [("code_unique", "UNIQUE(code)", "Category code must be unique!")]
+    _code_unique = models.Constraint("UNIQUE(code)", "Category code must be unique!")
 
     @api.constrains("parent_id")
     def _check_parent_recursion(self):

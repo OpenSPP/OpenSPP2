@@ -112,6 +112,12 @@ class TestRegistrantDisability(TransactionCase):
             limit=1,
         )
 
+        # Get an impairment type (severity is recorded on impairment lines)
+        cls.impairment_type = cls.env["spp.vocabulary.code"].search(
+            [("vocabulary_id.namespace_uri", "=", "urn:dci:cd:dr:01")],
+            limit=1,
+        )
+
         # Get device type
         cls.device_wheelchair = cls.env["spp.vocabulary.code"].search(
             [
@@ -135,7 +141,9 @@ class TestRegistrantDisability(TransactionCase):
                 "registrant_id": self.registrant.id,
                 "assessment_date": date.today(),
                 "wg_seeing": "a_lot",
-                "severity_level_id": self.severity_mild.id if self.severity_mild else False,
+                "impairment_line_ids": [
+                    (0, 0, {"impairment_type_id": self.impairment_type.id, "severity_level_id": self.severity_mild.id})
+                ],
             }
         )
         # Recompute
@@ -149,7 +157,13 @@ class TestRegistrantDisability(TransactionCase):
                 "registrant_id": self.registrant.id,
                 "assessment_date": date.today(),
                 "wg_seeing": "a_lot",
-                "severity_level_id": self.severity_severe.id if self.severity_severe else False,
+                "impairment_line_ids": [
+                    (
+                        0,
+                        0,
+                        {"impairment_type_id": self.impairment_type.id, "severity_level_id": self.severity_severe.id},
+                    )
+                ],
                 "review_category": "mip",
             }
         )
@@ -172,7 +186,9 @@ class TestRegistrantDisability(TransactionCase):
                 "registrant_id": self.registrant.id,
                 "assessment_date": date.today() - relativedelta(months=6),
                 "wg_seeing": "a_lot",
-                "severity_level_id": self.severity_mild.id if self.severity_mild else False,
+                "impairment_line_ids": [
+                    (0, 0, {"impairment_type_id": self.impairment_type.id, "severity_level_id": self.severity_mild.id})
+                ],
             }
         )
         old_assessment.write({"approval_state": "approved"})
@@ -183,7 +199,13 @@ class TestRegistrantDisability(TransactionCase):
                 "registrant_id": self.registrant.id,
                 "assessment_date": date.today(),
                 "wg_seeing": "cannot",
-                "severity_level_id": self.severity_severe.id if self.severity_severe else False,
+                "impairment_line_ids": [
+                    (
+                        0,
+                        0,
+                        {"impairment_type_id": self.impairment_type.id, "severity_level_id": self.severity_severe.id},
+                    )
+                ],
             }
         )
         new_assessment.write({"approval_state": "approved"})
@@ -306,7 +328,13 @@ class TestRegistrantDisability(TransactionCase):
                 "registrant_id": self.member1.id,
                 "assessment_date": date.today(),
                 "wg_walking": "cannot",
-                "severity_level_id": self.severity_severe.id if self.severity_severe else False,
+                "impairment_line_ids": [
+                    (
+                        0,
+                        0,
+                        {"impairment_type_id": self.impairment_type.id, "severity_level_id": self.severity_severe.id},
+                    )
+                ],
             }
         )
         assessment.write({"approval_state": "approved"})

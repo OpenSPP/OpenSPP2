@@ -98,6 +98,26 @@ After installing:
 3. Ensure the DCI queue_job cron is active under **Settings > Technical
    > Scheduled Actions**
 
+Deployment Prerequisites (read before exposing the server)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- **Endpoint user groups**: the Odoo user configured on the DCI
+  ``fastapi.endpoint`` must belong to
+  ``spp_registry.group_registry_viewer`` - every search fails with an
+  access error otherwise.
+- **queue_job worker**: event notifications are delivered through
+  delayed jobs on channels ``root.dci`` and ``dci``. A running queue_job
+  worker with those channels configured is a hard requirement - without
+  it, notifications are enqueued and silently never sent.
+- **Inbound auth**: searches go through ``spp_dci_server``'s
+  authenticated route (bearer token per ``dci.api_tokens`` plus DCI
+  envelope signature). This module deliberately ships no unauthenticated
+  routes.
+- **Client base URL**: DCI clients post to
+  ``{base_url}/registry/sync/search``; point their data source base URL
+  at ``.../api/v1/social`` so requests land on this server's
+  ``/social/registry/sync/search`` mount.
+
 UI Location
 ~~~~~~~~~~~
 
@@ -107,10 +127,17 @@ Notifications triggered automatically on registrant changes.
 Security
 ~~~~~~~~
 
-No new access rules. Search requires
+No new access rules. Search requires the
 ``spp_registry.group_registry_viewer`` group (enforced in
 ``DCISocialSearchService._process_search_item()``). Inherits access
 control from ``spp_registry`` and ``spp_dci_server``.
+
+Because the search runs under the DCI FastAPI endpoint's user, that user
+must hold ``spp_registry.group_registry_viewer``. The endpoint ships as
+the public user, which lacks it, so Social Registry searches are
+rejected until a registry-viewer service user is assigned to the
+endpoint — see **Endpoint user (required for Social Registry search)**
+in the ``spp_dci_server`` documentation.
 
 Extension Points
 ~~~~~~~~~~~~~~~~

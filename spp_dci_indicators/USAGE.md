@@ -63,8 +63,8 @@ variable in eligibility:
 Must be alive, severe mobility disability, 18+:
 
 ```python
-crvs.dci.is_alive == true and
-dr.dci.severity('Mobility') >= 3 and
+r.dci.crvs.is_alive == true and
+r.dci.dr.severity('Mobility') >= 3 and
 age_years(me.birthdate) >= 18
 ```
 
@@ -73,7 +73,7 @@ age_years(me.birthdate) >= 18
 Birth verified, under 5:
 
 ```python
-crvs.dci.birth_verified == true and
+r.dci.crvs.birth_verified == true and
 age_years(me.birthdate) < 5
 ```
 
@@ -82,28 +82,28 @@ age_years(me.birthdate) < 5
 Alive, and either disabled or elderly:
 
 ```python
-crvs.dci.is_alive == true and
-(dr.dci.has_disability == true or age_years(me.birthdate) >= 60)
+r.dci.crvs.is_alive == true and
+(r.dci.dr.has_disability == true or age_years(me.birthdate) >= 60)
 ```
 
 ## Variable Reference
 
 ### CRVS (Civil Registration and Vital Statistics)
 
-| Accessor                               | Type | Description               | Example                               |
-| -------------------------------------- | ---- | ------------------------- | ------------------------------------- |
-| `crvs.dci.is_alive`                    | bool | no death event in CRVS    | `crvs.dci.is_alive == true`           |
-| `crvs.dci.birth_verified`              | bool | birth registration exists | `crvs.dci.birth_verified == true`     |
-| `crvs.dci.has_event('birth'\|'death')` | bool | parameterized event check | `crvs.dci.has_event('death') == true` |
+| Accessor                                 | Type | Description               | Example                                 |
+| ---------------------------------------- | ---- | ------------------------- | --------------------------------------- |
+| `r.dci.crvs.is_alive`                    | bool | no death event in CRVS    | `r.dci.crvs.is_alive == true`           |
+| `r.dci.crvs.birth_verified`              | bool | birth registration exists | `r.dci.crvs.birth_verified == true`     |
+| `r.dci.crvs.has_event('birth'\|'death')` | bool | parameterized event check | `r.dci.crvs.has_event('death') == true` |
 
 ### DR (Disability Registry)
 
-| Accessor                                                      | Type   | Description                  | Example                          |
-| ------------------------------------------------------------- | ------ | ---------------------------- | -------------------------------- |
-| `dr.dci.has_disability`                                       | bool   | any registered disability    | `dr.dci.has_disability == true`  |
-| `dr.dci.assessed`                                             | bool   | functional assessment exists | `dr.dci.assessed == true`        |
-| `dr.dci.vision_severe` / `hearing_severe` / `mobility_severe` | bool   | score ≥ 3                    | `dr.dci.vision_severe == true`   |
-| `dr.dci.severity('Vision'\|'Hearing'\|'Mobility')`            | number | functional score (0–4)       | `dr.dci.severity('Vision') >= 3` |
+| Accessor                                                        | Type   | Description                  | Example                            |
+| --------------------------------------------------------------- | ------ | ---------------------------- | ---------------------------------- |
+| `r.dci.dr.has_disability`                                       | bool   | any registered disability    | `r.dci.dr.has_disability == true`  |
+| `r.dci.dr.assessed`                                             | bool   | functional assessment exists | `r.dci.dr.assessed == true`        |
+| `r.dci.dr.vision_severe` / `hearing_severe` / `mobility_severe` | bool   | score ≥ 3                    | `r.dci.dr.vision_severe == true`   |
+| `r.dci.dr.severity('Vision'\|'Hearing'\|'Mobility')`            | number | functional score (0–4)       | `r.dci.dr.severity('Vision') >= 3` |
 
 **Severity levels:** 1 no difficulty · 2 some difficulty · 3 a lot of difficulty · 4
 cannot do. (Scores depend on the registry returning functional assessment data.)
@@ -116,27 +116,27 @@ argument outside the enumerated set simply matches nothing.
 
 ### Planned (not yet wired)
 
-`crvs.dci.is_married` and the IBR / Social Registry variables (`ibr.dci.*`, `sr.dci.*`)
-exist as variable records but have no fetch handlers yet — they return no data until
-implemented.
+`r.dci.crvs.is_married` and the IBR / Social Registry variables (`r.dci.ibr.*`,
+`r.dci.sr.*`) exist as variable records but have no fetch handlers yet — they return no
+data until implemented.
 
 ## Common Patterns
 
 ```python
 # Alive and birth-verified
-crvs.dci.is_alive == true and crvs.dci.birth_verified == true
+r.dci.crvs.is_alive == true and r.dci.crvs.birth_verified == true
 
 # Any severe disability
-dr.dci.vision_severe == true or dr.dci.hearing_severe == true or dr.dci.mobility_severe == true
+r.dci.dr.vision_severe == true or r.dci.dr.hearing_severe == true or r.dci.dr.mobility_severe == true
 
 # Same, with explicit thresholds
-dr.dci.severity('Vision') >= 3 or dr.dci.severity('Hearing') >= 3
+r.dci.dr.severity('Vision') >= 3 or r.dci.dr.severity('Hearing') >= 3
 
 # Elderly OR disabled
-age_years(me.birthdate) >= 60 or dr.dci.has_disability == true
+age_years(me.birthdate) >= 60 or r.dci.dr.has_disability == true
 
 # Child with verified birth
-age_years(me.birthdate) < 18 and crvs.dci.birth_verified == true
+age_years(me.birthdate) < 18 and r.dci.crvs.birth_verified == true
 ```
 
 ## Troubleshooting
@@ -150,7 +150,7 @@ DCI variables only match registrants with a **fresh cached value**:
 2. Did you run **Sync DCI Values** for those registrants?
 3. Has the value's **TTL expired**? Re-sync.
 4. Inspect the cache: **Settings → Technical → CEL Domain → Data Management → Data
-   Values**, filter by Variable Name (e.g. `crvs.dci.is_alive`).
+   Values**, filter by Variable Name (e.g. `r.dci.crvs.is_alive`).
 
 ### Some registrants never get a value
 
@@ -180,7 +180,7 @@ variable exists and is active.
    (`_dci_metric_handlers` for simple metrics; `DCI_METHOD_ACCESSORS` +
    `_compute_method_values` for parameterized ones).
 2. Add the `spp.cel.variable` record (external source type, `ttl` cache strategy, the
-   `<registry>.dci.<metric>` accessor) in `data/indicator_data.xml`.
+   `r.dci.<registry>.<metric>` accessor) in `data/indicator_data.xml`.
 3. Link the variable to a DCI-backed provider and sync.
 
 ### How values are stored

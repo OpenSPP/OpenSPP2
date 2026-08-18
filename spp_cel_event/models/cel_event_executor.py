@@ -31,7 +31,13 @@ class CelEventExecutor(models.AbstractModel):
     # This prevents memory exhaustion from overly broad queries
     MAX_QUERY_RESULTS = 100000
 
-    def _execute_plan(self, model: str, plan: Any, metrics_info: list[dict[str, Any]] | None = None) -> list[int]:
+    def _execute_plan(
+        self,
+        model: str,
+        plan: Any,
+        metrics_info: list[dict[str, Any]] | None = None,
+        as_root: bool = False,
+    ) -> list[int]:
         """Execute query plan with event data support.
 
         Extends base executor to handle EventValueCompare, EventExists, and EventsAggregate nodes.
@@ -42,7 +48,7 @@ class CelEventExecutor(models.AbstractModel):
             return self._exec_event_exists(model, plan)
         if isinstance(plan, EventsAggregate):
             return self._exec_event_aggregate(model, plan)
-        return super()._execute_plan(model, plan, metrics_info)
+        return super()._execute_plan(model, plan, metrics_info, as_root=as_root)
 
     # ══════════════════════════════════════════════════════════════════════════════
     # EventValueCompare Execution

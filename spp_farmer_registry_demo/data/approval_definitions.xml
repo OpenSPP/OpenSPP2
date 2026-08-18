@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    Farmer Registry Demo - Approval Definitions
+
+    Cycle and entitlement approval definitions consumed by the demo wizard.
+    `farmer_demo_generator.py` wires these onto each program's cycle manager
+    and entitlement manager so the demo programs actually enter the approval
+    workflow when cycles are created or entitlements are disbursed.
+
+    Mirrors `spp_mis_demo_v2/data/approval_definitions.xml` in shape; we add
+    them in farmer demo because MIS demo never assigns these to the program
+    managers (a gap to be fixed in MIS via a separate ticket).
+-->
+<odoo noupdate="1">
+    <!-- Cycle approval — Cycle Approver.
+         Cycle approval is gated on the Cycle Approver functional role, which is
+         the group the "Approve Cycle" button is shown to and the role purpose-
+         built for this in spp_programs. A Program Manager is intentionally NOT
+         a Cycle Approver in the program group hierarchy, so cycle approval must
+         route through this group for the dedicated approver to approve (OP#915).
+         The xmlid is kept stable because farmer_demo_generator wires it onto
+         each program's cycle manager by id. -->
+    <record
+        id="approval_definition_farmer_cycle_manager"
+        model="spp.approval.definition"
+    >
+        <field name="name">Farmer: Cycle Approval - Cycle Approver</field>
+        <field name="model_id" ref="spp_programs.model_spp_cycle" />
+        <field name="approval_type">group</field>
+        <field
+            name="approval_group_id"
+            ref="spp_programs.group_programs_cycle_approver"
+        />
+        <field name="is_require_comment">False</field>
+        <field name="notify_on_submit">True</field>
+        <field name="sla_days">3</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- Entitlement approval — Program Manager -->
+    <record
+        id="approval_definition_farmer_entitlement_manager"
+        model="spp.approval.definition"
+    >
+        <field name="name">Farmer: Entitlement Approval - Program Manager</field>
+        <field name="model_id" ref="spp_programs.model_spp_entitlement" />
+        <field name="approval_type">group</field>
+        <field name="approval_group_id" ref="spp_programs.group_programs_manager" />
+        <field name="is_require_comment">False</field>
+        <field name="notify_on_submit">True</field>
+        <field name="sla_days">3</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- Entitlement approval — Cycle Approver (alternate path used by some
+         programs that route through cycle approvers rather than managers). -->
+    <record
+        id="approval_definition_farmer_entitlement_cycle_approver"
+        model="spp.approval.definition"
+    >
+        <field name="name">Farmer: Entitlement Approval - Cycle Approver</field>
+        <field name="model_id" ref="spp_programs.model_spp_entitlement" />
+        <field name="approval_type">group</field>
+        <field
+            name="approval_group_id"
+            ref="spp_programs.group_programs_cycle_approver"
+        />
+        <field name="is_require_comment">False</field>
+        <field name="notify_on_submit">True</field>
+        <field name="sla_days">3</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- In-kind entitlement approval — Program Manager. Farmer demo's
+         entitlements are cash-only today; we still ship the in-kind
+         definition so admins enabling in-kind variants of the demo
+         programs get the same approval coverage out of the box. -->
+    <record
+        id="approval_definition_farmer_entitlement_inkind_manager"
+        model="spp.approval.definition"
+    >
+        <field
+            name="name"
+        >Farmer: In-Kind Entitlement Approval - Program Manager</field>
+        <field name="model_id" ref="spp_programs.model_spp_entitlement_inkind" />
+        <field name="approval_type">group</field>
+        <field name="approval_group_id" ref="spp_programs.group_programs_manager" />
+        <field name="is_require_comment">False</field>
+        <field name="notify_on_submit">True</field>
+        <field name="sla_days">3</field>
+        <field name="active">True</field>
+    </record>
+</odoo>

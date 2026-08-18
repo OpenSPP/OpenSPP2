@@ -84,17 +84,24 @@ class TestE2EWorkflows(TransactionCase):
                 "registrant_id": placeholder.id,
             }
         )
+        head_kind = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", "head")
         detail1 = cr1.get_detail()
         detail1.write(
             {
                 "group_name": "Dela Cruz Household",
-                "create_new_head": True,
-                "head_given_name": "Juan",
-                "head_family_name": "Dela Cruz",
-                "head_name": "Juan Dela Cruz",
-                "address_line1": "123 Mabini St",
-                "city": "Quezon City",
-                "phone": "+639123456789",
+                "address": "123 Mabini St, Quezon City",
+                "phone_line_ids": [(0, 0, {"phone_no": "+639123456789", "is_primary": True})],
+                "member_new_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "given_name": "Juan",
+                            "family_name": "Dela Cruz",
+                            "membership_type_id": head_kind.id if head_kind else False,
+                        },
+                    )
+                ],
             }
         )
         self._approve_and_apply(cr1)
@@ -247,7 +254,7 @@ class TestE2EWorkflows(TransactionCase):
                 "start_date": fields.Datetime.now(),
             }
         )
-        mem_child = self.membership_model.create(
+        self.membership_model.create(
             {
                 "group": original.id,
                 "individual": child.id,
@@ -265,14 +272,10 @@ class TestE2EWorkflows(TransactionCase):
         detail1 = cr1.get_detail()
         detail1.write(
             {
-                "members_to_split_ids": [(6, 0, [mem_child.id])],
-                "new_head_membership_id": mem_child.id,
+                "member_line_ids": [(0, 0, {"individual_id": child.id})],
                 "new_group_name": "New Family",
                 "split_reason": "marriage",
-                "effective_date": fields.Date.today(),
-                "copy_address": False,
-                "address_line1": "456 New St",
-                "city": "Makati",
+                "new_address": "456 New St, Makati",
             }
         )
         self._approve_and_apply(cr1)
@@ -280,7 +283,6 @@ class TestE2EWorkflows(TransactionCase):
         new_household = detail1.created_group_id
         self.assertTrue(new_household)
         self.assertEqual(new_household.name, "New Family")
-        self.assertEqual(new_household.street, "456 New St")
 
         # Verify child is in new household
         child_membership = self.membership_model.search(
@@ -608,12 +610,22 @@ class TestE2EWorkflows(TransactionCase):
                 "registrant_id": placeholder.id,
             }
         )
+        head_kind = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", "head")
         detail1 = cr1.get_detail()
         detail1.write(
             {
                 "group_name": "Lifecycle Household",
-                "create_new_head": True,
-                "head_name": "Lifecycle Head",
+                "member_new_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "given_name": "Lifecycle",
+                            "family_name": "Head",
+                            "membership_type_id": head_kind.id if head_kind else False,
+                        },
+                    )
+                ],
             }
         )
         self._approve_and_apply(cr1)
@@ -637,6 +649,8 @@ class TestE2EWorkflows(TransactionCase):
         detail2 = cr2.get_detail()
         detail2.write(
             {
+                "given_name": "Lifecycle",
+                "family_name": "Member",
                 "member_name": "Lifecycle Member",
                 "relationship_id": self.spouse_kind.id,
             }
@@ -663,7 +677,6 @@ class TestE2EWorkflows(TransactionCase):
         detail3.write(
             {
                 "membership_id": member_mem.id,
-                "end_date": fields.Date.today(),
                 "end_reason": "left_household",
             }
         )

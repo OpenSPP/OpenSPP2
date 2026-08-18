@@ -34,7 +34,15 @@ class SPPRegistrantID(models.Model):
         string="Namespace",
     )
 
-    status = fields.Selection([("invalid", "Invalid"), ("valid", "Valid")])
+    status = fields.Selection(
+        [("invalid", "Invalid"), ("valid", "Valid")],
+        help=(
+            "Validity of this ID. Left empty for IDs added directly via the "
+            "registry UI (kept consistent across the system, OP#1110); set by "
+            "the ID-document change request flow — Valid on add, Invalid on "
+            "soft-remove."
+        ),
+    )
 
     description = fields.Char()
 

@@ -177,12 +177,15 @@ async def verify_dci_signature(
                     error_code="err.signature.missing",
                 )
 
-        # Look up sender in registry
+        # Look up sender in registry. Require an ACTIVE record: a deactivated
+        # sender must not authenticate (and downstream consent resolution also
+        # requires active, so accepting an inactive sender here would desync).
         # nosemgrep: odoo-sudo-without-context
-        sender_registry = env["spp.dci.sender.registry"].sudo().search([("sender_id", "=", sender_id)], limit=1)
+        SenderRegistry = env["spp.dci.sender.registry"].sudo()
+        sender_registry = SenderRegistry.search([("sender_id", "=", sender_id), ("active", "=", True)], limit=1)
 
         if not sender_registry:
-            _logger.warning("Unknown sender_id in DCI request: %s", sender_id)
+            _logger.warning("Unknown sender_id (inactive or unregistered) in DCI request: %s", sender_id)
             raise DCIHTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 error_message=f"Unknown sender_id: {sender_id}",
@@ -244,6 +247,40 @@ _bearer_bypass_warning_logged = False
 
 # Track if we've already logged the empty-tokens-but-not-required warning
 _empty_tokens_warning_logged = False
+
+
+def _validate_oauth2_jwt(env: Environment, token: str) -> str | None:
+    """Return the client_id when ``token`` is a valid OAuth2 access token.
+
+    Lets a DCI caller authenticate with an OAuth2 client-credentials JWT issued
+    by spp_api_v2 (``POST /api_v2/oauth/token``) instead of a static bearer
+    token. The JWT is validated with spp_api_v2's own verifier (HS256 signature,
+    ``iss``/``aud``, expiry), then the ``client_id`` claim must resolve to an
+    active ``spp.api.client``.
+
+    Returns the client_id on success, or ``None`` on any failure (bad signature,
+    expired, wrong issuer/audience, secret unset, unknown/inactive client, or a
+    non-JWT opaque token) so the caller can fall back to other auth paths.
+    """
+    try:
+        from odoo.addons.spp_api_v2.middleware.auth import _validate_jwt_token
+    except ImportError:
+        return None
+    try:
+        payload = _validate_jwt_token(env, token)
+    except Exception:
+        # Not a valid spp_api_v2 JWT — fall back to static-token handling.
+        return None
+    client_id = payload.get("client_id")
+    if not client_id:
+        return None
+    # nosemgrep: odoo-sudo-without-context
+    client = env["spp.api.client"].sudo().search([("client_id", "=", client_id), ("active", "=", True)], limit=1)
+    if not client:
+        _logger.warning("OAuth2 JWT names unknown/inactive client_id: %s", client_id)
+        return None
+    _logger.debug("DCI request authenticated via OAuth2 JWT for client %s", client_id)
+    return client_id
 
 
 async def verify_bearer_token(
@@ -332,15 +369,22 @@ async def verify_bearer_token(
         for candidate in accepted_tokens:
             if hmac.compare_digest(token, candidate):
                 matched = True
-        if not matched:
-            _logger.warning("DCI request has invalid Bearer token")
-            raise DCIHTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                error_message="Invalid Bearer token",
-                error_code="err.auth.invalid_token",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-        _logger.debug("Bearer token validated against configured tokens")
+        if matched:
+            _logger.debug("Bearer token validated against configured tokens")
+            return token
+        # Not a configured static token — it may be an OAuth2 access token.
+        if _validate_oauth2_jwt(env, token):
+            return token
+        _logger.warning("DCI request has invalid Bearer token")
+        raise DCIHTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            error_message="Invalid Bearer token",
+            error_code="err.auth.invalid_token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # No static tokens configured: still accept a valid OAuth2 access token.
+    if _validate_oauth2_jwt(env, token):
         return token
 
     # nosemgrep: odoo-timing-attack-password  # not a token compare; matches a config flag value

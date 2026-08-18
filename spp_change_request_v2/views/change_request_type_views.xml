@@ -64,6 +64,13 @@
                             <field name="is_requires_registrant" />
                             <field name="is_requires_applicant" />
                         </group>
+                        <group
+                            string="Group Membership"
+                            invisible="target_type == 'individual'"
+                        >
+                            <field name="allow_empty_members" />
+                            <field name="requires_head" />
+                        </group>
                     </group>
                     <notebook>
                         <page string="Customization" name="customization">
@@ -213,6 +220,7 @@
                             </group>
                         </page>
                         <page string="Documents" name="documents">
+                            <field name="supports_reason_documents" invisible="1" />
                             <group>
                                 <field name="document_validation_mode" />
                                 <field name="allow_document_download" />
@@ -222,7 +230,7 @@
                                     name="available_document_ids"
                                     widget="many2many_tags"
                                     placeholder="Select which document types can be uploaded..."
-                                    context="{'default_vocabulary_id': %(spp_vocabulary.vocabulary_cr_document_type)d}"
+                                    options="{'no_create': True, 'no_quick_create': True}"
                                 />
                                 <field
                                     name="required_document_ids"
@@ -231,6 +239,25 @@
                                     options="{'no_create': True, 'no_quick_create': True}"
                                 />
                             </group>
+                            <div invisible="not supports_reason_documents">
+                                <separator string="Required Documents by Reason" />
+                                <div class="text-muted mb-2">
+                                    Optional. When set, the request's
+                                    <strong>Reason for Change</strong> determines which
+                                    documents are required (overriding the flat
+                                    "Required Documents" list above for that reason).
+                                </div>
+                                <field name="reason_document_ids" nolabel="1">
+                                    <list editable="bottom">
+                                        <field name="reason" />
+                                        <field
+                                            name="required_document_ids"
+                                            widget="many2many_tags"
+                                            options="{'no_create': True, 'no_quick_create': True}"
+                                        />
+                                    </list>
+                                </field>
+                            </div>
                             <group
                                 string="Legacy Configuration (Deprecated)"
                                 invisible="not required_document_type_ids"

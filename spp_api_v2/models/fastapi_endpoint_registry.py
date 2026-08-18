@@ -5,6 +5,8 @@ from odoo import api, fields, models
 
 from fastapi import APIRouter, FastAPI
 
+from ..utils.openapi_polymorphic import install_polymorphic_openapi_hook
+
 _logger = logging.getLogger(__name__)
 
 
@@ -29,15 +31,11 @@ class SppApiV2Endpoint(models.Model):
             from ..routers.filter import (
                 group_filter_router,
                 individual_filter_router,
-                program_filter_router,
-                program_membership_filter_router,
             )
             from ..routers.group import group_router
             from ..routers.individual import individual_router
             from ..routers.metadata import metadata_router
             from ..routers.oauth import oauth_router
-            from ..routers.program import program_router
-            from ..routers.program_membership import program_membership_router
 
             routers.extend(
                 [
@@ -49,10 +47,6 @@ class SppApiV2Endpoint(models.Model):
                     group_filter_router,
                     batch_router,
                     bulk_router,
-                    program_router,
-                    program_filter_router,
-                    program_membership_router,
-                    program_membership_filter_router,
                     consent_router,
                 ]
             )
@@ -87,6 +81,13 @@ class SppApiV2Endpoint(models.Model):
             from ..middleware.version import VersionMiddleware
 
             app.add_middleware(VersionMiddleware)
+            # Install OpenAPI hook so polymorphic_body() schemas are injected
+            install_polymorphic_openapi_hook(app)
+            # Advertise the token endpoint with an absolute path (strict
+            # RFC 3986 clients would resolve a relative one to a 404).
+            from ..middleware.auth import absolutize_oauth_token_urls
+
+            absolutize_oauth_token_urls(app, self.root_path or "")
             # V2 API uses public endpoint with JWT authentication in middleware
             # No default authentication required at app level
             return app

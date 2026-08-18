@@ -30,7 +30,7 @@ class TestMetricCategory(TransactionCase):
         This test verifies the constraint is defined in the model.
         """
         # Verify the SQL constraint is defined
-        constraints = {name for name, _, _ in self.env["spp.metric.category"]._sql_constraints}
+        constraints = {obj.name for obj in self.env["spp.metric.category"]._table_objects.values()}
         self.assertIn("code_unique", constraints, "SQL unique constraint should be defined for code field")
 
     def test_category_parent_child(self):

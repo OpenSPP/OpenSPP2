@@ -80,18 +80,58 @@ class ResPartnerDCINotify(models.Model):
 
     def unlink(self):
         """Override unlink to trigger DCI delete notifications."""
-        # Capture registrant IDs before deletion
-        registrant_ids = self.filtered(lambda r: r.is_registrant).ids
+        # Snapshot identifiers before deletion - the records are gone by the
+        # time the notification job runs, and subscribers must receive
+        # external identifiers, never raw database ids.
+        registrants = self.filtered(lambda r: r.is_registrant)
+        registrant_ids = registrants.ids
+        delete_payloads = registrants._dci_delete_payloads()
 
         result = super().unlink()
 
-        # Queue delete notification (IDs only since records are gone)
         if registrant_ids:
-            self._schedule_dci_notification("delete", registrant_ids)
+            self._schedule_dci_notification("delete", registrant_ids, payloads=delete_payloads)
 
         return result
 
-    def _schedule_dci_notification(self, event_type, partner_ids):
+    def _dci_delete_payloads(self):
+        """Snapshot external identifiers + per-subscription eligibility for delete.
+
+        Returns one payload dict per registrant in ``self`` containing the
+        registrant's external identifiers (namespace URI preferred, falling
+        back to the vocabulary code) and the ids of the delete subscriptions
+        whose sender is allowed to be told about this registrant (consent +
+        filter), computed now while the record still exists. Raw database ids
+        are deliberately not included (api-design principle: never expose DB IDs).
+        """
+        delete_subs = self.env["spp.dci.subscription"]
+        if "spp.dci.subscription" in self.env:
+            delete_subs = delete_subs._matching_subscriptions("delete", "SOCIAL_REGISTRY")
+
+        payloads = []
+        for partner in self:
+            identifiers = [
+                {
+                    "identifier_type": reg_id.id_type_id.namespace_uri or reg_id.id_type_id.code,
+                    "identifier_value": reg_id.value,
+                }
+                for reg_id in partner.reg_ids
+                if reg_id.value and reg_id.id_type_id
+            ]
+            eligible_subscription_ids = [
+                sub.id
+                for sub in delete_subs
+                if sub._consent_allows_partner(partner.id) and sub._partner_matches_filter(partner.id)
+            ]
+            payloads.append(
+                {
+                    "identifiers": identifiers,
+                    "eligible_subscription_ids": eligible_subscription_ids,
+                }
+            )
+        return payloads
+
+    def _schedule_dci_notification(self, event_type, partner_ids, payloads=None):
         """Schedule DCI notification via post-commit hook.
 
         Uses post-commit to ensure notification only fires after
@@ -112,7 +152,7 @@ class ResPartnerDCINotify(models.Model):
         # Use post-commit hook to defer notification until transaction commits
         # This ensures we don't notify about rolled-back changes
         def notify_on_commit():
-            self._queue_dci_notification_job(event_type, partner_ids)
+            self._queue_dci_notification_job(event_type, partner_ids, payloads=payloads)
 
         # Register post-commit callback
         self.env.cr.postcommit.add(notify_on_commit)
@@ -134,7 +174,7 @@ class ResPartnerDCINotify(models.Model):
         enabled = config.get_param("dci.notifications_enabled", "true").lower() == "true"
         return enabled
 
-    def _queue_dci_notification_job(self, event_type, partner_ids):
+    def _queue_dci_notification_job(self, event_type, partner_ids, payloads=None):
         """Queue the actual notification job with deduplication.
 
         Uses queue_job with identity_key to deduplicate multiple
@@ -157,7 +197,7 @@ class ResPartnerDCINotify(models.Model):
                 channel="root.dci",
                 description=f"DCI {event_type} notification ({len(partner_ids)} records)",
                 identity_key=identity_key,
-            )._execute_dci_notification(event_type, partner_ids)
+            )._execute_dci_notification(event_type, partner_ids, payloads=payloads)
 
             _logger.debug(
                 "Queued DCI %s notification job for partner IDs: %s",
@@ -186,7 +226,7 @@ class ResPartnerDCINotify(models.Model):
         # Use hash to keep key length manageable
         return hashlib.sha256(key_data.encode()).hexdigest()[:32]
 
-    def _execute_dci_notification(self, event_type, partner_ids):
+    def _execute_dci_notification(self, event_type, partner_ids, payloads=None):
         """Execute the DCI notification (called by queue_job).
 
         Builds notification payload and calls subscription.notify_event().
@@ -194,6 +234,8 @@ class ResPartnerDCINotify(models.Model):
         Args:
             event_type: One of 'registration', 'update', 'delete'
             partner_ids: List of partner IDs to notify about
+            payloads: For delete events, identifier payloads snapshotted
+                before the records were removed
         """
         if not partner_ids:
             return
@@ -213,45 +255,19 @@ class ResPartnerDCINotify(models.Model):
             return
         Subscription = self.env["spp.dci.subscription"]
 
-        # For delete events, we only have IDs (records are gone)
+        # notify_event scopes delivery per subscription: each matching
+        # subscription only receives records its sender is permitted to see
+        # (consent/legal-basis) and that match its filter, with the payload
+        # built using that subscription's sender context. The record building
+        # and filter evaluation live in the per-subscription hooks
+        # (see dci_subscription_social.py), so this method only hands off the
+        # affected partner ids (create/update) or the eligibility-scoped
+        # identifier payloads snapshotted at unlink (delete).
         if event_type == "delete":
-            # Build minimal records with just identifiers
-            records = [{"id": pid} for pid in partner_ids]
-            Subscription.notify_event(event_type, records, "SOCIAL_REGISTRY")
+            # Jobs queued before eligibility snapshotting carry no payloads;
+            # emit nothing rather than leaking to unscoped subscribers.
+            delete_payloads = payloads if payloads is not None else []
+            Subscription.notify_event(event_type, partner_ids, "SOCIAL_REGISTRY", delete_payloads=delete_payloads)
             return
 
-        # For create/update, fetch current partner data and convert to DCI format
-        partners = self.env["res.partner"].browse(partner_ids).exists()
-        if not partners:
-            _logger.warning("No partners found for notification IDs: %s", partner_ids)
-            return
-
-        # Import search service to convert to DCI format
-        try:
-            from ..services.search_service import DCISocialSearchService
-
-            search_service = DCISocialSearchService(self.env)
-
-            records = []
-            for partner in partners:
-                try:
-                    if partner.is_group:
-                        dci_record = search_service._to_dci_group(partner)
-                    else:
-                        dci_record = search_service._to_dci_person(partner)
-                    # Convert to dict
-                    records.append(dci_record.model_dump(mode="json", by_alias=True, exclude_none=True))
-                except Exception as e:
-                    _logger.warning(
-                        "Failed to convert partner %d to DCI format: %s",
-                        partner.id,
-                        str(e),
-                    )
-
-            if records:
-                Subscription.notify_event(event_type, records, "SOCIAL_REGISTRY")
-
-        except ImportError:
-            _logger.error("DCISocialSearchService not available for notification conversion")
-        except Exception as e:
-            _logger.exception("Error executing DCI notification: %s", str(e))
+        Subscription.notify_event(event_type, partner_ids, "SOCIAL_REGISTRY")

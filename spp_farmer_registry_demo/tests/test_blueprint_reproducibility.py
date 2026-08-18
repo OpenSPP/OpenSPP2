@@ -385,6 +385,45 @@ class TestSeededFarmGeneratorDeterminism(TransactionCase):
             f"Generated names collide with reserved: {collisions}",
         )
 
+    def test_farm_names_and_registry_ids_unique(self):
+        """OP#1114: generated farm names — and the registry IDs derived from
+        them — must be unique even when the 86-surname pool is exhausted by a
+        much larger farm count."""
+        from odoo.addons.spp_farmer_registry_demo.models.seeded_farm_generator import (
+            SeededFarmGenerator,
+        )
+
+        test_blueprints = [
+            {
+                "id": "test_bp_unique",
+                "label": "Unique",
+                "count": 40,
+                "zone": "rural",
+                "farm_type": "crop",
+                "size_range": (1.0, 3.0),
+                "experience_range": (3, 15),
+                "head_gender": "male",
+                "members": [
+                    {"role": "head", "gender": "male", "age_range": (25, 55)},
+                ],
+                "activities": [],
+                "land_tenure": "self",
+                "land_use": "cultivation",
+                "eligibility": {},
+            },
+        ]
+
+        gen = SeededFarmGenerator(self.env, locale="fil_PH", seed=42)
+        results = gen.generate_all_farms(test_blueprints)
+
+        names = [r["group"].name for r in results]
+        self.assertEqual(len(names), len(set(names)), f"Duplicate farm names generated: {sorted(names)}")
+
+        group_ids = [r["group"].id for r in results]
+        reg_values = self.env["spp.registry.id"].search([("partner_id", "in", group_ids)]).mapped("value")
+        self.assertTrue(reg_values, "expected registry IDs to be created for the farms")
+        self.assertEqual(len(reg_values), len(set(reg_values)), "Duplicate registry ID values across farms")
+
     def test_farms_are_groups_with_members(self):
         """Generated farms must be groups with at least one member."""
         from odoo.addons.spp_farmer_registry_demo.models.seeded_farm_generator import (

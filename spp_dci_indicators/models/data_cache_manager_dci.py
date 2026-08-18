@@ -22,7 +22,7 @@ class DataCacheManagerDCI(models.AbstractModel):
 
         The base method keys the cache on variable.name, but the CEL resolver
         emits metric('<the token the author typed>', me) - i.e. the cel_accessor
-        (e.g. crvs.dci.is_alive), which differs from the name (dci.crvs.is_alive)
+        (e.g. r.dci.crvs.is_alive), which differs from the name (dci.crvs.is_alive)
         for DCI variables. Keying on cel_accessor keeps the written value
         readable by the compiled metric() subquery.
         """

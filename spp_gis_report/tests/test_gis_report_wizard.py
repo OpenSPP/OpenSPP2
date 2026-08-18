@@ -349,6 +349,18 @@ class TestGISReportWizard(TransactionCase):
 
     def test_15_wizard_prepare_report_vals(self):
         """Test preparation of report values from wizard."""
+        # Get or create a gender dimension for test
+        gender_dim = self.env["spp.demographic.dimension"].search([("name", "=", "gender")], limit=1)
+        if not gender_dim:
+            gender_dim = self.env["spp.demographic.dimension"].create(
+                {
+                    "name": "gender",
+                    "label": "Gender",
+                    "dimension_type": "field",
+                    "field_path": "gender_id.code",
+                }
+            )
+
         wizard = self.env["spp.gis.report.wizard"].create(
             {
                 "template_id": self.template.id,
@@ -357,7 +369,7 @@ class TestGISReportWizard(TransactionCase):
                 "base_area_level": 2,
                 "normalization_method": "per_area_sqkm",
                 "enable_rollup": True,
-                "disaggregate_by_gender": True,
+                "dimension_ids": [(6, 0, [gender_dim.id])],
                 "threshold_mode": "auto_quartile",
                 "refresh_mode": "scheduled",
                 "refresh_interval": "hourly",
@@ -376,7 +388,8 @@ class TestGISReportWizard(TransactionCase):
         self.assertEqual(vals["base_area_level"], 2)
         self.assertEqual(vals["normalization_method"], "per_area_sqkm")
         self.assertTrue(vals["enable_rollup"])
-        self.assertTrue(vals["disaggregate_by_gender"])
+        # dimension_ids should be a Command tuple
+        self.assertIn("dimension_ids", vals)
 
         # Check threshold fields
         self.assertEqual(vals["threshold_mode"], "auto_quartile")
@@ -418,22 +431,44 @@ class TestGISReportWizard(TransactionCase):
         self.assertIn("template", str(cm.exception).lower())
 
     def test_18_wizard_disaggregation_options(self):
-        """Test disaggregation options are properly set."""
+        """Test disaggregation dimension_ids are properly set."""
+        # Get or create dimensions for test
+        gender_dim = self.env["spp.demographic.dimension"].search([("name", "=", "gender")], limit=1)
+        if not gender_dim:
+            gender_dim = self.env["spp.demographic.dimension"].create(
+                {
+                    "name": "gender",
+                    "label": "Gender",
+                    "dimension_type": "field",
+                    "field_path": "gender_id.code",
+                }
+            )
+        age_dim = self.env["spp.demographic.dimension"].search([("name", "=", "age_group")], limit=1)
+        if not age_dim:
+            age_dim = self.env["spp.demographic.dimension"].create(
+                {
+                    "name": "age_group",
+                    "label": "Age Group",
+                    "dimension_type": "expression",
+                    "cel_expression": "age_bucket(r.birthdate)",
+                }
+            )
+
         wizard = self.env["spp.gis.report.wizard"].create(
             {
                 "template_id": self.template.id,
                 "name": "Disaggregation Test",
                 "base_area_level": 2,
-                "disaggregate_by_gender": True,
-                "disaggregate_by_age": True,
+                "dimension_ids": [(6, 0, [gender_dim.id, age_dim.id])],
             }
         )
 
         result = wizard.action_create_report()
         report = self.env["spp.gis.report"].browse(result["res_id"])
 
-        self.assertTrue(report.disaggregate_by_gender)
-        self.assertTrue(report.disaggregate_by_age)
+        self.assertEqual(len(report.dimension_ids), 2)
+        self.assertIn(gender_dim, report.dimension_ids)
+        self.assertIn(age_dim, report.dimension_ids)
 
     def test_19_wizard_color_schemes(self):
         """Test different color scheme options."""

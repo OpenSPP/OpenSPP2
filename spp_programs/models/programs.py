@@ -89,6 +89,23 @@ class SPPProgram(models.Model):
 
     reconciliation_managers = fields.Selection([])
 
+    # Email notifications
+    send_email_notifications = fields.Boolean(
+        string="Send email notifications",
+        default=False,
+        tracking=True,
+        help=(
+            "When enabled, approval workflows on this program (entitlement and cycle "
+            "submit-for-approval, approval result, revision requests) will send email "
+            "notifications through Odoo's mail framework. Requires a configured outgoing "
+            "mail server."
+        ),
+    )
+    has_outgoing_mail_server = fields.Boolean(
+        compute="_compute_has_outgoing_mail_server",
+        help="True when at least one ir.mail_server record is configured.",
+    )
+
     program_membership_ids = fields.One2many("spp.program.membership", "program_id", "Program Memberships")
     has_members = fields.Boolean(
         string="Have Beneficiaries",
@@ -212,6 +229,25 @@ class SPPProgram(models.Model):
         for rec in self:
             rec.has_compliance_criteria = bool(rec.compliance_manager_ids)
 
+    def _compute_has_outgoing_mail_server(self):
+        # sudo is required: non-admin users can't read ir.mail_server but need to
+        # know whether email notifications are sendable. We only return a bool,
+        # no server details leak.
+        has_server = bool(
+            self.env["ir.mail_server"].sudo().search_count([], limit=1)  # nosemgrep: odoo-sudo-without-context
+        )
+        for rec in self:
+            rec.has_outgoing_mail_server = has_server
+
+    def _should_send_email_notifications(self):
+        """Gate for approval-workflow email notifications.
+
+        Returns True only when this program has the toggle enabled AND the
+        environment has at least one configured outgoing mail server.
+        """
+        self.ensure_one()
+        return bool(self.send_email_notifications and self.has_outgoing_mail_server)
+
     def _get_compliance_managers(self):
         """Get compliance managers with their implementations.
 
@@ -254,12 +290,14 @@ class SPPProgram(models.Model):
         ret_vals = {}
         for mgr_fld in self.MANAGER_MODELS:
             for mgr_obj in self.MANAGER_MODELS[mgr_fld]:
-                # Add a new record to default manager models
+                # Add a new record to default manager models. The concrete
+                # model's default_get() supplies a method-specific name (e.g.
+                # "CEL Eligibility Criteria") so we don't pass the placeholder
+                # "Default" anymore — see #941 round 2.
                 def_mgr_obj = self.MANAGER_MODELS[mgr_fld][mgr_obj]
                 _logger.debug("DEBUG: %s", def_mgr_obj)
                 def_mgr = self.env[def_mgr_obj].create(
                     {
-                        "name": "Default",
                         "program_id": program_id,
                     }
                 )

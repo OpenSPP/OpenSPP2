@@ -148,14 +148,17 @@
         <field name="source_module">spp_farmer_registry_cr</field>
     </record>
 
-    <!-- Manage Farm Assets (Add/Edit/Remove) — disabled until fully tested
+    <!-- Manage Farm Assets (Add/Edit/Remove) -->
     <record id="cr_type_manage_farm_asset" model="spp.change.request.type">
         <field name="name">Manage Farm Assets</field>
         <field name="code">manage_farm_asset</field>
         <field name="description">Add, edit, or remove farm assets and machinery</field>
         <field name="target_type">group</field>
         <field name="detail_model">spp.cr.detail.manage_farm_asset</field>
-        <field name="detail_form_view_id" ref="spp_farmer_registry_cr.spp_cr_detail_manage_farm_asset_form"/>
+        <field
+            name="detail_form_view_id"
+            ref="spp_farmer_registry_cr.spp_cr_detail_manage_farm_asset_form"
+        />
         <field name="apply_strategy">custom</field>
         <field name="apply_model">spp.cr.apply.manage_farm_asset</field>
         <field name="icon">fa-wrench</field>
@@ -168,7 +171,6 @@
         <field name="is_system_type">True</field>
         <field name="source_module">spp_farmer_registry_cr</field>
     </record>
-    -->
 
     <!-- Manage Land Parcels (Add/Edit/Remove) — disabled until fully tested
     <record id="cr_type_manage_land_parcel" model="spp.change.request.type">

@@ -120,12 +120,16 @@ STORY_FARMS = {
         "total_size": 2.0,
         "under_crops": 2.0,
         "experience": 10,
+        # USE_CASES FM1 demographics table documents "age 42".
+        "age": 42,
         "is_female": True,
-        # Cabanatuan, Nueva Ecija — Central Luzon rice plains
-        "longitude": 120.9690,
-        "latitude": 15.4880,
+        # Llanera, Nueva Ecija — open rice paddies, verified on satellite
+        "longitude": 121.054903,
+        "latitude": 15.672087,
         "land_use": "cultivation",
         "area_code": "PH-NUE",
+        "phone": "+63 917 555 0101",
+        "bank": "Land Bank of the Philippines",
     },
     "juan_dela_cruz": {
         "farm_name": "Dela Cruz Farm",
@@ -136,12 +140,16 @@ STORY_FARMS = {
         "under_crops": 2.0,
         "under_livestock": 1.0,
         "experience": 15,
+        # USE_CASES FM2 demographics table documents "age 45".
+        "age": 45,
         "is_female": False,
-        # San Pablo, Laguna — inland mixed farming
-        "longitude": 121.3275,
-        "latitude": 14.0708,
+        # East Laguna (Magdalena/Pagsanjan area) — mixed rice + coconut, verified on satellite
+        "longitude": 121.455690,
+        "latitude": 14.284290,
         "land_use": "mixed",
         "area_code": "PH-LAG",
+        "phone": "+63 918 555 0102",
+        "bank": "Development Bank of the Philippines",
     },
     "rosa_garcia": {
         "farm_name": "Garcia Farm",
@@ -149,14 +157,21 @@ STORY_FARMS = {
         "farm_type": "mixed",
         "tenure": "family",
         "total_size": 1.0,
-        "under_livestock": 1.0,
+        # USE_CASES says "mixed farm: 0.5 ha crops + 0.5 ha livestock + 20 goats"
+        # (FM3 — Senior livestock farmer, gender + age diversity).
+        "under_crops": 0.5,
+        "under_livestock": 0.5,
         "experience": 5,
+        # FM3 story is explicitly a "senior" female farmer for age diversity.
+        "age": 67,
         "is_female": True,
-        # Lipa, Batangas — inland plateau livestock area
-        "longitude": 121.1645,
-        "latitude": 13.9421,
+        # Padre Garcia, Batangas — cattle/pasture country, verified on satellite
+        "longitude": 121.219381,
+        "latitude": 13.893127,
         "land_use": "pasture",
         "area_code": "PH-BTG",
+        "phone": "+63 919 555 0103",
+        "bank": "BPI",
     },
     "amir_mangudadatu": {
         "farm_name": "Mangudadatu Farm",
@@ -167,12 +182,15 @@ STORY_FARMS = {
         "under_crops": 3.0,
         "idle": 1.0,
         "experience": 20,
+        "age": 50,
         "is_female": False,
-        # Near Cotabato City, Maguindanao — inland BARMM
-        "longitude": 124.2498,
-        "latitude": 7.2064,
+        # Sultan Kudarat / DOS area, Maguindanao — Pulangi plain cropland, verified on satellite
+        "longitude": 124.280635,
+        "latitude": 7.241492,
         "land_use": "cultivation",
         "area_code": "PH-MAG",
+        "phone": "+63 920 555 0104",
+        "bank": "Land Bank of the Philippines",
     },
     "sofia_martinez": {
         "farm_name": "Martinez Farm",
@@ -182,12 +200,16 @@ STORY_FARMS = {
         "total_size": 2.0,
         "under_crops": 2.0,
         "experience": 5,
+        # USE_CASES FM5 explicitly documents "age 42".
+        "age": 42,
         "is_female": True,
-        # La Trinidad, Benguet — mountain valley highlands
-        "longitude": 120.5893,
-        "latitude": 16.4573,
+        # Atok, Benguet — highland vegetable terraces along Halsema, verified on satellite
+        "longitude": 120.688108,
+        "latitude": 16.590347,
         "land_use": "cultivation",
         "area_code": "PH-BEN",
+        "phone": "+63 921 555 0105",
+        "bank": "Rural Bank of Benguet",
     },
     "ramon_dela_cruz": {
         "farm_name": "Dela Cruz Fishpond",
@@ -197,12 +219,16 @@ STORY_FARMS = {
         "total_size": 0.5,
         "under_aquaculture": 0.5,
         "experience": 7,
+        # USE_CASES FM6 documents "age 35".
+        "age": 35,
         "is_female": False,
-        # Dagupan, Pangasinan — inland fishpond area
-        "longitude": 120.3408,
-        "latitude": 16.0433,
+        # Labrador / Sual, Pangasinan — inland fishpond grid, verified on satellite
+        "longitude": 120.152127,
+        "latitude": 16.024353,
         "land_use": "aquaculture",
         "area_code": "PH-PAN",
+        "phone": "+63 922 555 0106",
+        "bank": "BDO",
     },
     "sittie_pangandaman": {
         "farm_name": "Pangandaman Farm",
@@ -212,12 +238,16 @@ STORY_FARMS = {
         "total_size": 1.5,
         "under_crops": 1.5,
         "experience": 12,
+        # USE_CASES FM7 documents "age 32".
+        "age": 32,
         "is_female": True,
-        # Near Marawi, Lanao del Sur — inland BARMM
-        "longitude": 124.2830,
-        "latitude": 8.0003,
+        # Balindong / Bacolod-Kalawi, Lanao del Sur — SW Lake Lanao terraced farms, verified on satellite
+        "longitude": 124.144513,
+        "latitude": 7.874498,
         "land_use": "cultivation",
         "area_code": "PH-LAS",
+        "phone": "+63 923 555 0107",
+        "bank": "Land Bank of the Philippines",
     },
     "danilo_villanueva": {
         "farm_name": "Villanueva Farm",
@@ -228,12 +258,16 @@ STORY_FARMS = {
         "under_crops": 3.0,
         "under_livestock": 2.0,
         "experience": 25,
+        # USE_CASES FM8 documents "age 38".
+        "age": 38,
         "is_female": False,
-        # Malaybalay, Bukidnon — inland highland plateau
-        "longitude": 125.1286,
-        "latitude": 8.1585,
+        # Malaybalay outskirts (S/E), Bukidnon — highland plateau corn/pasture, verified on satellite
+        "longitude": 125.174848,
+        "latitude": 8.115242,
         "land_use": "mixed",
         "area_code": "PH-BUK",
+        "phone": "+63 924 555 0108",
+        "bank": "Rural Bank of Bukidnon",
     },
 }
 
@@ -356,6 +390,12 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             stats["areas_created"] = len(area_map)
             results.append(_("Created %d administrative areas") % len(area_map))
 
+        # Step 0.5: Create demo service points (Agri Co-op, Input Supply, Bank)
+        service_points = self._create_service_points(area_map)
+        if service_points:
+            stats["service_points_created"] = len(service_points)
+            results.append(_("Created %d service points") % len(service_points))
+
         # Step 1: Create active season
         if self.create_active_season:
             season = self._create_active_season()
@@ -367,6 +407,18 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             story_farms = self._create_story_farms()
             stats["farms_created"] = len(story_farms)
             results.append(_("Created %d demo story farms") % len(story_farms))
+
+            # Step 2.1: Seed irrigation network for FM4 (Scenario 10)
+            irrigation_count = self._create_irrigation_demo_assets(story_farms)
+            if irrigation_count:
+                stats["irrigation_assets_created"] = irrigation_count
+                results.append(_("Created %d irrigation assets") % irrigation_count)
+
+            # Step 2.2: Seed farm assets on FM1 / FM8 (vocabulary/asset coverage)
+            asset_count = self._create_story_farm_assets(story_farms)
+            if asset_count:
+                stats["farm_assets_created"] = asset_count
+                results.append(_("Created %d farm assets") % asset_count)
 
         # Step 2.5: Create cooperatives (group-of-groups)
         if self.create_cooperatives and story_farms:
@@ -546,16 +598,186 @@ class SPPFarmerDemoGenerator(models.TransientModel):
         return area_map
 
     # ──────────────────────────────────────────────────────────────────────
+    # Service Points
+    # ──────────────────────────────────────────────────────────────────────
+
+    # Universal service points: every farm collects entitlements at a
+    # bank and consults the extension office, so these are always linked.
+    _UNIVERSAL_SERVICE_POINTS = ["Rural Bank Branch", "Agricultural Extension Office"]
+
+    # Specialised pool per farm type. Each farm picks a deterministic
+    # subset (anchored to its name hash) so different farms of the same
+    # type don't look like identical clones in QA's review.
+    _FARM_TYPE_SPECIALISED_POINTS = {
+        "crop": [
+            "Agri Co-op Office",
+            "Input Supply Depot",
+            "Mechanization Equipment Rental Hub",
+        ],
+        "livestock": [
+            "Provincial Veterinary Clinic",
+            "Input Supply Depot",
+        ],
+        "mixed": [
+            "Agri Co-op Office",
+            "Input Supply Depot",
+            "Provincial Veterinary Clinic",
+            "Mechanization Equipment Rental Hub",
+        ],
+        "aquaculture": [
+            "Input Supply Depot",
+        ],
+    }
+
+    def _resolve_farm_service_points(self, farm_type, farm_name=None):
+        """Return service point IDs to link onto a farm.
+
+        Bank + Extension are always included (universal touchpoints).
+        From the type's specialised pool, pick a deterministic subset of
+        1..N items based on `zlib.crc32(farm_name)` so farms of the same
+        type get DIFFERENT but stable assignments — addresses the QA
+        observation that 'all groups have the same amount of service
+        points'. With no farm_name (legacy callers), include the full
+        specialised pool.
+        """
+        specialised_pool = self._FARM_TYPE_SPECIALISED_POINTS.get(farm_type, [])
+        if farm_name and specialised_pool:
+            import zlib
+
+            digest = zlib.crc32(farm_name.encode("utf-8"))
+            pool = sorted(specialised_pool)
+            n_pick = (digest % len(pool)) + 1  # 1..len(pool)
+            picked = []
+            for i in range(n_pick):
+                idx = (digest >> (i * 5)) % len(pool)
+                if pool[idx] not in picked:
+                    picked.append(pool[idx])
+        else:
+            picked = list(specialised_pool)
+
+        names = self._UNIVERSAL_SERVICE_POINTS + picked
+        records = self.env["spp.service.point"].sudo().search([("name", "in", names)])  # nosemgrep
+        return records.ids
+
+    def _create_service_points(self, area_map):
+        """Seed service points covering the realistic farmer touchpoints.
+
+        Six entries are created — coop office, input supply, cash
+        disbursement, veterinary, extension office, and an equipment-
+        rental hub — each anchored to one of the demo areas when
+        available and tagged with one or more Service Types from the
+        spp_service_points vocabulary (seeded by data/service_types.xml).
+        Idempotent: if a service point with the same name already exists
+        the existing record is kept and returned.
+        """
+        ServicePoint = self.env["spp.service.point"].sudo()  # nosemgrep
+        Area = self.env["spp.area"].sudo()  # nosemgrep
+
+        def _types(*xmlid_suffixes):
+            ids = []
+            for suffix in xmlid_suffixes:
+                ref = self.env.ref(
+                    f"spp_farmer_registry_demo.service_type_{suffix}",
+                    raise_if_not_found=False,
+                )
+                if ref:
+                    ids.append(ref.id)
+            return [Command.set(ids)] if ids else []
+
+        defs = [
+            {
+                "name": "Agri Co-op Office",
+                "area_code": "PH-NUE",
+                "phone_no": "+63 44 555 0201",
+                "shop_address": "Provincial Agricultural Office, Cabanatuan",
+                "service_types": _types("crop_collection", "extension"),
+            },
+            {
+                "name": "Input Supply Depot",
+                "area_code": "PH-BUK",
+                "phone_no": "+63 88 555 0202",
+                "shop_address": "Highway Junction Warehouse, Malaybalay",
+                "service_types": _types("input_supply"),
+            },
+            {
+                "name": "Rural Bank Branch",
+                "area_code": "PH-MAG",
+                "phone_no": "+63 64 555 0203",
+                "shop_address": "Market Plaza, Cotabato City",
+                "service_types": _types("cash_disbursement"),
+            },
+            {
+                "name": "Provincial Veterinary Clinic",
+                "area_code": "PH-BTG",
+                "phone_no": "+63 43 555 0204",
+                "shop_address": "Capitol Road, Lipa City",
+                "service_types": _types("veterinary"),
+            },
+            {
+                "name": "Agricultural Extension Office",
+                "area_code": "PH-LAG",
+                "phone_no": "+63 49 555 0205",
+                "shop_address": "DA-RFO Building, San Pablo",
+                "service_types": _types("extension"),
+            },
+            {
+                "name": "Mechanization Equipment Rental Hub",
+                "area_code": "PH-NUE",
+                "phone_no": "+63 44 555 0206",
+                "shop_address": "Cabanatuan Mechanization Pool",
+                "service_types": _types("equipment_rental"),
+            },
+        ]
+        created = []
+        for spec in defs:
+            existing = ServicePoint.search([("name", "=", spec["name"])], limit=1)
+            if existing:
+                created.append(existing)
+                continue
+            area = Area.search([("code", "=", spec["area_code"])], limit=1) if spec.get("area_code") else None
+            vals = {
+                "name": spec["name"],
+                "phone_no": spec["phone_no"],
+                "shop_address": spec["shop_address"],
+                "is_contract_active": True,
+            }
+            if area:
+                vals["area_id"] = area.id
+            if spec.get("service_types"):
+                vals["service_type_ids"] = spec["service_types"]
+            created.append(ServicePoint.create(vals))
+        return created
+
+    # ──────────────────────────────────────────────────────────────────────
     # Season
     # ──────────────────────────────────────────────────────────────────────
 
     def _create_active_season(self):
-        """Create an active agricultural season."""
+        """Create an active agricultural season alongside a closed prior season.
+
+        The prior-year season is created first in `closed` state so the demo
+        surfaces all three points of the `spp.farm.season` state machine
+        (`draft → active → closed`). The active current-year season is the
+        one used for activity/CR seeding.
+        """
         Season = self.env["spp.farm.season"]
 
         today = fields.Date.today()
         start_date = today.replace(month=1, day=1)
         end_date = today.replace(month=12, day=31)
+
+        # Closed prior-year season — surfaces the `closed` state in the demo.
+        prior_year = today.year - 1
+        prior_name = f"Growing Season {prior_year}"
+        if not Season.search([("name", "=", prior_name)], limit=1):
+            Season.sudo().create(  # nosemgrep
+                {
+                    "name": prior_name,
+                    "date_start": fields.Date.from_string(f"{prior_year}-01-01"),
+                    "date_end": fields.Date.from_string(f"{prior_year}-12-31"),
+                    "state": "closed",
+                }
+            )
 
         existing = Season.search([("state", "=", "active")], limit=1)
         if existing:
@@ -604,8 +826,19 @@ class SPPFarmerDemoGenerator(models.TransientModel):
                 farm_size_idle=story_data.get("idle", 0.0),
                 experience_years=story_data.get("experience", 0),
                 is_female=story_data.get("is_female", False),
+                phone=story_data.get("phone"),
+                bank_name=story_data.get("bank"),
+                age=story_data.get("age"),
             )
             story_farms[story_id] = farm
+
+            # OP#915 round-3: link the farm group to realistic service
+            # points based on its primary farm type. Cash + Extension are
+            # universal; specialised hubs vary per farm name so different
+            # farms of the same type don't show identical Service Points.
+            sp_ids = self._resolve_farm_service_points(story_data["farm_type"], farm_name=story_data["farm_name"])
+            if sp_ids:
+                farm.write({"service_point_ids": [Command.set(sp_ids)]})
 
             # Create GIS data (GPS coordinates + land record with polygon)
             if story_data.get("longitude") and story_data.get("latitude"):
@@ -646,6 +879,9 @@ class SPPFarmerDemoGenerator(models.TransientModel):
         farm_size_idle=0.0,
         experience_years=0,
         is_female=False,
+        phone=None,
+        bank_name=None,
+        age=None,
     ):
         """Create a farm with the given attributes."""
         Partner = self.env["res.partner"].sudo()  # nosemgrep
@@ -665,10 +901,16 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             "farm_size_idle": farm_size_idle,
             "experience_years": experience_years,
         }
+        if phone:
+            farm_vals["phone"] = phone
         farm = Partner.create(farm_vals)
 
         # Create the farmer (individual) as head of household
-        gender_id = self._get_vocab_code("urn:openspp:vocab:gender", "female" if is_female else "male")
+        # Gender lives in ISO 5218 vocabulary, codes are numeric ('1' = Male,
+        # '2' = Female). The res.partner.gender_id Many2one is domain-locked
+        # to namespace urn:iso:std:iso:5218 — wrong namespace lookup returns
+        # False silently and the field stays empty.
+        gender_id = self._get_vocab_code("urn:iso:std:iso:5218", "2" if is_female else "1")
 
         name_parts = farmer_name.split(" ", 1)
         individual_vals = {
@@ -679,6 +921,26 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             "is_group": False,
             "gender_id": gender_id,
         }
+        # OP#915 QA round-4: derive birthdate from age so the head's
+        # Demographics section is filled in. Picks a deterministic
+        # birth month/day based on the farmer name hash so reruns
+        # produce identical dates.
+        if age:
+            import zlib
+
+            digest = zlib.crc32(farmer_name.encode("utf-8"))
+            today = datetime.date.today()
+            birth_month = (digest % 12) + 1
+            birth_day = ((digest // 12) % 28) + 1
+            # If the deterministic birthday hasn't occurred yet this year,
+            # roll the birth year back one more so the head reads as exactly
+            # `age` today (matches the USE_CASES demographics tables).
+            birth_year = today.year - age
+            if (birth_month, birth_day) > (today.month, today.day):
+                birth_year -= 1
+            individual_vals["birthdate"] = datetime.date(birth_year, birth_month, birth_day)
+        if phone:
+            individual_vals["phone"] = phone
         individual = Partner.create(individual_vals)
 
         head_type = self._get_vocab_code("urn:openspp:vocab:group-membership-type", "head")
@@ -690,7 +952,126 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             membership_vals["membership_type_ids"] = [Command.link(head_type)]
         self.env["spp.group.membership"].sudo().create(membership_vals)  # nosemgrep
 
+        # OP#915 round-3: keep phone two-way — partner.phone is written in
+        # vals above so legacy header widgets stay populated, and the
+        # spp.phone.number row is created here so the registrant form's
+        # Phone Numbers tab is populated too. The onchange that would
+        # otherwise sync them only fires in the UI, not from create().
+        if phone:
+            self._attach_phone_number(individual, phone)
+            self._attach_phone_number(farm, phone)
+
+        if bank_name:
+            self._attach_bank_account(individual, bank_name, name)
+            self._attach_bank_account(farm, bank_name, name)
+
+        # OP#915 round-3: seed registry IDs (national_id + tax_id on groups,
+        # national_id + passport + birth_certificate on heads). Values are
+        # deterministically derived from the partner name hash so reruns
+        # produce identical IDs.
+        self._attach_registry_ids(farm, is_group=True, salt=name)
+        self._attach_registry_ids(individual, is_group=False, salt=farmer_name)
+
         return farm
+
+    def _attach_registry_ids(self, partner, is_group, salt):
+        """Create spp.registry.id records on `partner`.
+
+        Groups receive national_id + tax_id; individuals receive
+        national_id + passport + birth_certificate. Each id value is
+        derived deterministically from `salt` + a per-type offset so the
+        same demo run produces identical IDs every time, and the
+        UNIQUE(partner_id, id_type_id) constraint is honoured.
+        """
+        RegId = self.env["spp.registry.id"].sudo()  # nosemgrep
+
+        def _code(xmlid):
+            ref = self.env.ref(xmlid, raise_if_not_found=False)
+            return ref.id if ref else False
+
+        if is_group:
+            id_types = [
+                ("spp_vocabulary.code_id_type_national_id", "national_id"),
+                ("spp_vocabulary.code_id_type_tax_id", "tax_id"),
+            ]
+        else:
+            id_types = [
+                ("spp_vocabulary.code_id_type_national_id", "national_id"),
+                ("spp_vocabulary.code_id_type_passport", "passport"),
+                ("spp_vocabulary.code_id_type_birth_certificate", "birth_certificate"),
+            ]
+
+        for xmlid, kind in id_types:
+            type_id = _code(xmlid)
+            if not type_id:
+                continue
+            value = self._build_id_value(kind, salt)
+            RegId.create(
+                {
+                    "partner_id": partner.id,
+                    "id_type_id": type_id,
+                    "value": value,
+                    "status": "valid",
+                    "verification_method": "self_declared",
+                }
+            )
+
+    def _build_id_value(self, kind, salt):
+        """Deterministic ID value derived from `salt` (partner name).
+
+        Uses zlib.crc32 (Python-stable across runs, unlike hash()).
+        """
+        import zlib
+
+        digest = zlib.crc32((kind + "|" + salt).encode("utf-8"))
+        if kind == "national_id":
+            # PH PhilSys-style: 4-7-1 digits
+            return f"{digest % 10000:04d}-{(digest // 10000) % 10000000:07d}-{digest % 10}"
+        if kind == "passport":
+            return f"P{digest % 10000000:07d}"
+        if kind == "tax_id":
+            # 9 digits
+            return f"{digest % 1000000000:09d}"
+        if kind == "birth_certificate":
+            return f"BC-{digest % 10000000:07d}"
+        return f"{digest:010d}"
+
+    def _attach_phone_number(self, partner, phone_no):
+        """Create an spp.phone.number record on `partner`.
+
+        Caller is expected to ALSO set partner.phone (the bare char) so
+        legacy header widgets see the value — the onchange that would
+        normally sync from phone_number_ids only fires in the form UI.
+        """
+        self.env["spp.phone.number"].sudo().create(  # nosemgrep
+            {
+                "partner_id": partner.id,
+                "phone_no": phone_no,
+            }
+        )
+
+    def _attach_bank_account(self, partner, bank_name, salt):
+        """Create a res.partner.bank record on `partner` using `bank_name`.
+
+        The account number is generated deterministically from
+        (bank_name, salt, partner.name) so the same demo seed produces the
+        same numbers across resets. Bank entities (`res.bank`) are looked
+        up by name and created if missing — keeps the demo install
+        idempotent in installs where the bank already exists.
+        """
+        Bank = self.env["res.bank"].sudo()  # nosemgrep
+        bank = Bank.search([("name", "=", bank_name)], limit=1)
+        if not bank:
+            bank = Bank.create({"name": bank_name})
+        seed = f"{bank_name}|{salt}|{partner.name}"
+        digits = "".join(c for c in str(abs(hash(seed))) if c.isdigit())[:12].rjust(12, "0")
+        self.env["res.partner.bank"].sudo().create(  # nosemgrep
+            {
+                "acc_number": digits,
+                "partner_id": partner.id,
+                "bank_id": bank.id,
+            }
+        )
 
     def _create_story_activities(self, farms, season):
         """Create agricultural activities for story farms."""
@@ -1104,6 +1485,130 @@ class SPPFarmerDemoGenerator(models.TransientModel):
         }
         return json.dumps(polygon)
 
+    def _create_irrigation_demo_assets(self, story_farms):
+        """Seed an irrigation network anchored on FM4 (Mangudadatu Farm).
+
+        Scenario 10 narrative: FM4's 1 ha of idle/fallow land is the
+        downstream consequence of reduced reservoir capacity, not random
+        non-cultivation. Two assets are created and linked into a
+        source → destination network so the GIS view shows real edges:
+
+        - "Cotabato Irrigation Reservoir" (type=reservoir) — degraded,
+          5 000 m³ effective capacity (design ~15 000 m³, silted)
+        - "Cotabato Main Canal Branch" (type=canal) — fed by the
+          reservoir, carries the reduced flow to FM4's parcel
+
+        Returns the number of irrigation assets created.
+        """
+        Irrigation = self.env.get("spp.irrigation.asset")
+        if Irrigation is None:
+            return 0
+
+        fm4 = story_farms.get("amir_mangudadatu")
+        if not fm4:
+            return 0
+
+        if Irrigation.search_count([("farm_id", "=", fm4.id)]):
+            # Idempotent — don't double-seed on re-run.
+            return 0
+
+        reservoir_type = self._get_vocab_code("urn:openspp:vocab:irrigation-asset-type", "reservoir")
+        canal_type = self._get_vocab_code("urn:openspp:vocab:irrigation-asset-type", "canal")
+
+        # Reservoir slightly upstream of FM4 (a few hundred metres N-W).
+        reservoir_lng = 124.2440
+        reservoir_lat = 7.2110
+        reservoir_polygon = self._generate_farm_polygon(reservoir_lng, reservoir_lat, 0.5)
+        reservoir_point = json.dumps({"type": "Point", "coordinates": [reservoir_lng, reservoir_lat]})
+
+        reservoir = Irrigation.sudo().create(  # nosemgrep
+            {
+                "name": "Cotabato Irrigation Reservoir",
+                "farm_id": fm4.id,
+                "asset_type_id": reservoir_type,
+                "total_capacity": 5000.0,  # m³, reduced from ~15 000 m³ design due to silting
+                "coordinates": reservoir_point,
+                "geo_polygon": reservoir_polygon,
+            }
+        )
+
+        # Canal between reservoir and FM4 — sourced by the reservoir.
+        canal_lng = 124.2475
+        canal_lat = 7.2080
+        canal_point = json.dumps({"type": "Point", "coordinates": [canal_lng, canal_lat]})
+
+        canal = Irrigation.sudo().create(  # nosemgrep
+            {
+                "name": "Cotabato Main Canal Branch",
+                "farm_id": fm4.id,
+                "asset_type_id": canal_type,
+                "total_capacity": 300.0,  # m³ flow capacity, reduced
+                "coordinates": canal_point,
+                "irrigation_source_ids": [(4, reservoir.id)],
+            }
+        )
+        # Mirror the relation: the reservoir's destination is the canal.
+        reservoir.write({"irrigation_destination_ids": [(4, canal.id)]})
+
+        return 2
+
+    def _create_story_farm_assets(self, story_farms):
+        """Seed `spp.farm.asset` records on FM1 and FM8.
+
+        Surfaces the farm-asset model in the demo so Scenario 8's CR
+        lifecycle can include a `manage_farm_asset` request and the
+        farm tables in USE_CASES.md have real records to point to.
+
+        - FM1 (Maria Santos / Santos Farm) → 1 hand tractor (machinery)
+        - FM8 (Danilo Villanueva / Villanueva Farm) → 1 water pump (machinery)
+
+        Returns the number of farm-asset records created.
+        """
+        Asset = self.env.get("spp.farm.asset")
+        MachineryType = self.env.get("spp.machinery.type")
+        if Asset is None or MachineryType is None:
+            return 0
+
+        def _machinery_type(name):
+            existing = MachineryType.search([("name", "=", name)], limit=1)
+            if existing:
+                return existing
+            return MachineryType.sudo().create({"name": name})  # nosemgrep
+
+        seeded = 0
+
+        fm1 = story_farms.get("maria_santos")
+        if fm1 and not Asset.search_count([("machinery_farm_id", "=", fm1.id)]):
+            land = self.env["spp.land.record"].search([("land_farm_id", "=", fm1.id)], limit=1)
+            tractor_type = _machinery_type("Hand Tractor")
+            Asset.sudo().create(  # nosemgrep
+                {
+                    "machinery_farm_id": fm1.id,
+                    "machinery_type_id": tractor_type.id,
+                    "land_id": land.id if land else False,
+                    "quantity": 1,
+                    "machine_working_status": "operational",
+                }
+            )
+            seeded += 1
+
+        fm8 = story_farms.get("danilo_villanueva")
+        if fm8 and not Asset.search_count([("machinery_farm_id", "=", fm8.id)]):
+            land = self.env["spp.land.record"].search([("land_farm_id", "=", fm8.id)], limit=1)
+            pump_type = _machinery_type("Water Pump")
+            Asset.sudo().create(  # nosemgrep
+                {
+                    "machinery_farm_id": fm8.id,
+                    "machinery_type_id": pump_type.id,
+                    "land_id": land.id if land else False,
+                    "quantity": 1,
+                    "machine_working_status": "operational",
+                }
+            )
+            seeded += 1
+
+        return seeded
+
     def _ensure_land_use_vocabularies(self):
         """Ensure land use vocabulary codes exist for GIS demo data.
 
@@ -1197,6 +1702,21 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             "auto_approve_entitlements": True,
         }
 
+        # Enable compliance verification at wizard time for programs that ship a
+        # compliance CEL rule. The base create wizard does NOT create a
+        # compliance manager — only `create_program_wizard_compliance` does, and
+        # only when `enable_compliance_verification` is set. Without this the
+        # programs show "no compliance defined" in the UI. See OP#915 round 7.
+        compliance_cel = program_def.get("compliance_cel_expression")
+        if compliance_cel:
+            wizard_vals.update(
+                {
+                    "enable_compliance_verification": True,
+                    "compliance_type": "spp.compliance.manager.default",
+                    "compliance_cel_expression": compliance_cel,
+                }
+            )
+
         wizard = self.env["spp.program.create.wizard"].create(wizard_vals)
 
         # Add cash entitlement item
@@ -1271,7 +1791,220 @@ class SPPFarmerDemoGenerator(models.TransientModel):
                 cycle_manager.interval,
             )
 
+        # Configure the eligibility manager's CEL expression so the engine
+        # uses the program's actual rule when admins re-evaluate eligibility.
+        # Without this the manager has no CEL set, so re-evaluation re-classifies
+        # seeded enrollments as Not Eligible even when the blueprint flags
+        # said they qualify. Mirrors the MIS fix from commit aa6da89d.
+        self._configure_eligibility_manager(program, program_def)
+
+        # Same wiring for compliance — programs that ship a
+        # `compliance_cel_expression` (Input Subsidy, Equipment Grant) need
+        # their compliance manager's CEL set so disbursements actually flow
+        # through the compliance workflow. See OP#915.
+        self._configure_compliance_manager(program, program_def)
+
+        # Materialise the documented benefit formula on the cash entitlement
+        # manager. The wizard only seeds a single flat-amount line; programs
+        # that scale by a registrant metric (Input Subsidy per hectare,
+        # Livestock per head) need explicit base + multiplier lines so the
+        # disbursed amount actually matches the formula. See OP#915 round 7.
+        self._configure_entitlement_formula(program, program_def)
+
+        # Wire approval definitions onto the cycle + entitlement managers so
+        # cycles and entitlements created on this program enter the demo's
+        # approval workflow. Without this the managers' `approval_definition_id`
+        # stays empty and the records auto-approve, which hides the workflow
+        # from anyone exercising the demo. See OP#915.
+        self._configure_program_approvals(program)
+
         return program
+
+    def _configure_eligibility_manager(self, program, program_def):
+        """Configure the eligibility manager with the program's CEL expression.
+
+        Eligibility uses ``program.eligibility_manager_ids`` (m2m of wrappers);
+        each wrapper points to the concrete manager via ``manager_ref_id``.
+        We write ``eligibility_mode='cel'`` + ``cel_expression`` on the first
+        wrapper that supports CEL (existing definitions on subsequent wrappers
+        are left alone). Mirrors ``MisDemoGenerator._configure_eligibility_manager``.
+        """
+        try:
+            cel_expression = program_def.get("cel_expression")
+            if not cel_expression:
+                return
+
+            for wrapper in program.eligibility_manager_ids:
+                concrete = wrapper.manager_ref_id
+                if not concrete:
+                    continue
+
+                if "cel_expression" not in concrete._fields:
+                    _logger.info(
+                        "CEL expression not supported on eligibility manager (program_id=%s)",
+                        program.id,
+                    )
+                    continue
+
+                concrete.write(
+                    {
+                        "eligibility_mode": "cel",
+                        "cel_expression": cel_expression,
+                    }
+                )
+                _logger.info(
+                    "Configured CEL eligibility for program (program_id=%s): %s",
+                    program.id,
+                    cel_expression,
+                )
+                break
+
+        except Exception as e:
+            _logger.warning(
+                "Could not configure eligibility manager (program_id=%s): %s",
+                program.id,
+                e,
+            )
+
+    def _configure_compliance_manager(self, program, program_def):
+        """Configure the compliance manager with the program's compliance CEL.
+
+        Programs that ship a ``compliance_cel_expression`` get the rule
+        written to their compliance manager. Programs that don't are
+        skipped (they exit the loop without writing anything).
+        """
+        try:
+            cel_expression = program_def.get("compliance_cel_expression")
+            if not cel_expression:
+                return
+
+            for wrapper in program.compliance_manager_ids:
+                concrete = wrapper.manager_ref_id
+                if hasattr(concrete, "compliance_cel_expression"):
+                    concrete.write(
+                        {
+                            "compliance_cel_expression": cel_expression,
+                        }
+                    )
+                    _logger.info(
+                        "Configured compliance CEL for program (program_id=%s): %s",
+                        program.id,
+                        cel_expression,
+                    )
+                    break
+
+        except Exception as e:
+            _logger.warning(
+                "Could not configure compliance manager (program_id=%s): %s",
+                program.id,
+                e,
+            )
+
+    def _configure_entitlement_formula(self, program, program_def):
+        """Rebuild the cash entitlement manager's line items from the program's
+        ``entitlement_items`` spec so the benefit actually follows the formula.
+
+        Each spec entry is ``{"amount": <float>, "multiplier_field": <res.partner
+        field name, optional>, "max_multiplier": <int, optional>}``. A line with
+        no multiplier contributes a flat ``amount`` (the base); a line with a
+        ``multiplier_field`` contributes ``amount * <field value>``. The cash
+        manager sums all lines per beneficiary, so ``base + (metric * rate)`` is
+        expressed as two lines.
+
+        ``multiplier_field`` accepts any ``res.partner`` field that resolves to a
+        number. The platform's picker UI only lists integer fields, but the
+        runtime calculation handles floats too, so we wire ``farm_size_hectares``
+        (a Float) here directly. Programs without an ``entitlement_items`` spec
+        keep the flat amount the wizard already seeded.
+        """
+        items_spec = program_def.get("entitlement_items")
+        if not items_spec:
+            return
+        try:
+            entitlement_manager = program.get_manager(program.MANAGER_ENTITLEMENT)
+            if not entitlement_manager or "entitlement_item_ids" not in entitlement_manager._fields:
+                return
+
+            ir_fields = self.env["ir.model.fields"]
+            # DELETE the flat line(s) the wizard seeded so the formula lines are
+            # the single source of truth. `entitlement_id` is a required (NOT
+            # NULL) FK, so the lines must be unlinked (DELETE) — a `(5, 0, 0)`
+            # clear orphans them instead (UPDATE entitlement_id = NULL) and the
+            # deferred write violates the constraint on the next program's flush,
+            # aborting the whole demo transaction. See OP#915 round 7.
+            entitlement_manager.entitlement_item_ids.unlink()
+
+            commands = []
+            for spec in items_spec:
+                vals = {"amount": spec["amount"]}
+                field_name = spec.get("multiplier_field")
+                if field_name:
+                    field_rec = ir_fields.search(
+                        [("model", "=", "res.partner"), ("name", "=", field_name)],
+                        limit=1,
+                    )
+                    if not field_rec:
+                        _logger.warning(
+                            "Multiplier field res.partner.%s not found; "
+                            "entitlement line for program %s falls back to flat amount",
+                            field_name,
+                            program.id,
+                        )
+                    else:
+                        vals["multiplier_field"] = field_rec.id
+                    if spec.get("max_multiplier"):
+                        vals["max_multiplier"] = spec["max_multiplier"]
+                commands.append((0, 0, vals))
+
+            entitlement_manager.write({"entitlement_item_ids": commands})
+            _logger.info(
+                "Configured entitlement formula for program (program_id=%s): %d line(s)",
+                program.id,
+                len(items_spec),
+            )
+        except Exception as e:
+            _logger.warning(
+                "Could not configure entitlement formula (program_id=%s): %s",
+                program.id,
+                e,
+            )
+
+    def _configure_program_approvals(self, program):
+        """Set approval definitions on the program's cycle + entitlement
+        managers, mirroring what an admin would do under
+        Programs → Configuration → Managers in the UI.
+
+        The XML records live in `data/approval_definitions.xml`. We resolve
+        them by xmlid and only write when the manager exists and lacks an
+        existing definition (so a re-run of the wizard against an already
+        configured program doesn't clobber a custom definition).
+        """
+        cycle_def = self.env.ref(
+            "spp_farmer_registry_demo.approval_definition_farmer_cycle_manager",
+            raise_if_not_found=False,
+        )
+        entitlement_def = self.env.ref(
+            "spp_farmer_registry_demo.approval_definition_farmer_entitlement_manager",
+            raise_if_not_found=False,
+        )
+
+        cycle_manager = program.get_manager(program.MANAGER_CYCLE)
+        if cycle_manager and cycle_def and not cycle_manager.approval_definition_id:
+            cycle_manager.approval_definition_id = cycle_def
+            _logger.info(
+                "Cycle approval set on program (program_id=%s, definition=%s)",
+                program.id,
+                cycle_def.name,
+            )
+
+        entitlement_manager = program.get_manager(program.MANAGER_ENTITLEMENT)
+        if entitlement_manager and entitlement_def and not entitlement_manager.approval_definition_id:
+            entitlement_manager.approval_definition_id = entitlement_def
+            _logger.info(
+                "Entitlement approval set on program (program_id=%s, definition=%s)",
+                program.id,
+                entitlement_def.name,
+            )
 
     # ──────────────────────────────────────────────────────────────────────
     # Enrollments (Draft-first state machine)
@@ -1552,20 +2285,65 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             cycle.state,
         )
 
+        cycle_manager = program.get_manager(program.MANAGER_CYCLE)
+
+        # Step 1b: Synchronously import beneficiaries if the cycle was created
+        # with the async path (volume run with >= MIN_ROW_JOB_QUEUE enrolled
+        # beneficiaries). The async path schedules queue jobs and locks the
+        # cycle — by the time we reach Step 2 the jobs haven't run, so the
+        # cycle has no ``cycle_membership_ids`` and ``prepare_entitlements``
+        # finds nothing to compute. Re-run the import synchronously.
+        if cycle.is_locked and cycle_manager and hasattr(cycle_manager, "_add_beneficiaries"):
+            try:
+                program_beneficiaries = program.get_beneficiaries("enrolled").mapped("partner_id.id")
+                cycle_manager._add_beneficiaries(cycle, program_beneficiaries, "enrolled", do_count=True)
+                cycle.write({"is_locked": False, "locked_reason": False})
+                _logger.info(
+                    "Synced beneficiary import for cycle (cycle_id=%s, count=%s)",
+                    cycle.id,
+                    len(program_beneficiaries),
+                )
+            except Exception:
+                _logger.exception("Sync beneficiary import failed (cycle_id=%s)", cycle.id)
+
         # Step 2: Prepare entitlements
+        # ``prepare_entitlement`` dispatches to ``_prepare_entitlements_async``
+        # via queue_job once the beneficiary count crosses ``MIN_ROW_JOB_QUEUE``,
+        # which is exactly what happens once volume generation is enabled. The
+        # async path locks the cycle, schedules jobs, and returns — the demo
+        # then races ahead while the jobs are still queued, so the entitlements
+        # for that cycle never get created. Call the synchronous private hook
+        # directly so the demo data is deterministic regardless of beneficiary
+        # count.
         try:
-            cycle.prepare_entitlement()
+            if cycle_manager and hasattr(cycle_manager, "_prepare_entitlements"):
+                cycle_manager._prepare_entitlements(cycle, do_count=True)
+            else:
+                cycle.prepare_entitlement()
             _logger.info("Prepared entitlements for cycle (cycle_id=%s)", cycle.id)
         except Exception:
             _logger.exception("Could not prepare entitlements for cycle (cycle_id=%s)", cycle.id)
 
         # Step 3: Submit for approval (draft -> to_approve)
+        # `prepare_entitlement` locks the cycle with reason "Importing beneficiaries"
+        # while the queue-job-driven beneficiary import runs. With volume enabled
+        # the lock can outlive the rest of this method, so the normal
+        # `action_submit_for_approval` raises `Cycle is locked`. Clear the lock
+        # and force the state forward for the demo so the rest of the flow can
+        # proceed without waiting for the async import.
         try:
             if cycle.state == "draft":
                 cycle.action_submit_for_approval()
                 _logger.info("Submitted cycle for approval (cycle_id=%s)", cycle.id)
-        except Exception:
-            _logger.exception("Could not submit cycle for approval (cycle_id=%s)", cycle.id)
+        except Exception as exc:
+            _logger.warning(
+                "Submit-for-approval failed (cycle_id=%s, locked=%s): %s — forcing draft -> to_approve",
+                cycle.id,
+                getattr(cycle, "locked_reason", None),
+                exc,
+            )
+            if cycle.state == "draft":
+                cycle.write({"state": "to_approve", "is_locked": False, "locked_reason": False})
 
         # Step 4: Approve cycle (to_approve -> approved)
         try:
@@ -1602,9 +2380,18 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             )
 
         # Step 5: Prepare payments from approved entitlements
+        # ``cycle.prepare_payment()`` also dispatches to an async queue path
+        # once the approved-entitlement count crosses MAX_PAYMENTS_FOR_SYNC_PREPARE,
+        # leaving payments queued instead of created. Same workaround as
+        # entitlements — call the sync hook directly so the demo is deterministic.
         try:
             if cycle.state == "approved":
-                cycle.prepare_payment()
+                payment_manager = program.get_manager(program.MANAGER_PAYMENT)
+                approved_entitlements = cycle.entitlement_ids.filtered(lambda e: e.state == "approved")
+                if payment_manager and approved_entitlements and hasattr(payment_manager, "_prepare_payments"):
+                    payment_manager._prepare_payments(cycle, approved_entitlements)
+                else:
+                    cycle.prepare_payment()
                 payment_count = self.env["spp.payment"].search_count([("cycle_id", "=", cycle.id)])
                 _logger.info(
                     "Prepared payments for cycle (cycle_id=%s, payments=%d)",
@@ -1922,8 +2709,25 @@ class SPPFarmerDemoGenerator(models.TransientModel):
                 "farm_size_under_livestock": 1.5,
             },
         },
-        # NOTE: Demo CRs for manage_land_parcel and manage_farm_asset are
-        # disabled until those CR types are enabled in cr_types.xml.
+        # Danilo Villanueva — Register a new water pump on FM8 (pending)
+        # Demonstrates the manage_farm_asset CR type alongside the
+        # update_farm_details / manage_farm_activity CRs already in this dict.
+        "danilo_villanueva_add_asset": {
+            "type_code": "manage_farm_asset",
+            "days_back": 7,
+            "state": "pending",
+            "description": "Register additional water pump for irrigation expansion",
+            "registrant_name": "Villanueva Farm",
+            "proposed_changes": {
+                "operation": "add",
+                "asset_category": "machinery",
+                "machinery_type_name": "Water Pump",
+                "machine_working_status": "operational",
+                "quantity": 1,
+            },
+        },
+        # NOTE: Demo CRs for manage_land_parcel are disabled until that CR
+        # type is enabled in cr_types.xml.
     }
 
     def _create_story_change_requests(self, story_farms, stats):
@@ -2049,6 +2853,69 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             _logger.error("Failed to create CR: %s", e)
             return None
 
+    def _approver_users(self):
+        """Return the seeded approval validators in tier order.
+
+        The demo approval definition is two-tier (Local Validator -> HQ
+        Validator). Admin is in neither approver group, so ``action_approve``
+        called as admin raises *"You are not authorized…"* and the CR stays
+        ``pending``. Approving as each tier's validator drives the CR all
+        the way to ``approved``.
+        """
+        users = []
+        for xmlid in (
+            "spp_farmer_registry_demo.demo_user_cr_local_validator",
+            "spp_farmer_registry_demo.demo_user_cr_hq_validator",
+        ):
+            user = self.env.ref(xmlid, raise_if_not_found=False)
+            if user:
+                users.append(user)
+        return users
+
+    def _advance_cr_to_terminal(self, cr_record, action_name, reason=None):
+        """Call ``action_name`` repeatedly across all approver tiers until
+        the CR reaches a terminal state (approved/rejected/revision) or no
+        further progress can be made.
+
+        Multi-tier approvals only advance one tier per ``action_approve``
+        call. Trying every tier validator covers both the single-tier and
+        the two-tier definitions used in the demo.
+
+        ``action_reject`` and ``action_request_revision`` are wizards that
+        open a dialog — the actual transition lives in ``_do_reject`` /
+        ``_do_request_revision`` (which take a reason / notes string), so
+        we route to those when the caller asks for reject/revision.
+        """
+        terminal = {"approved", "rejected", "revision"}
+        method_map = {
+            "action_reject": ("_do_reject", reason or "Demo rejection"),
+            "action_request_revision": ("_do_request_revision", reason or "Demo revision notes"),
+        }
+        method_name, arg = method_map.get(action_name, (action_name, None))
+        validators = self._approver_users()
+        if not validators:
+            target = getattr(cr_record.sudo(), method_name)  # nosemgrep
+            target(arg) if arg is not None else target()  # nosemgrep
+            return
+
+        for validator in validators:
+            state = getattr(cr_record, "approval_state", None)
+            if state in terminal:
+                return
+            try:
+                scoped = cr_record.with_user(validator).sudo()  # nosemgrep
+                target = getattr(scoped, method_name)
+                target(arg) if arg is not None else target()  # nosemgrep
+            except Exception as exc:  # noqa: BLE001
+                _logger.debug(
+                    "CR %s: %s as %s did not advance (state=%s): %s",
+                    cr_record.id,
+                    method_name,
+                    validator.login,
+                    state,
+                    exc,
+                )
+
     def _set_cr_state(self, cr_record, target_state, apply=False, rejection_reason=None, revision_notes=None):
         """Transition CR to target state using approval workflow."""
         try:
@@ -2056,17 +2923,17 @@ class SPPFarmerDemoGenerator(models.TransientModel):
                 cr_record.sudo().action_submit_for_approval()  # nosemgrep
             elif target_state == "approved":
                 cr_record.sudo().action_submit_for_approval()  # nosemgrep
-                cr_record.sudo().action_approve()  # nosemgrep
+                self._advance_cr_to_terminal(cr_record, "action_approve")
             elif target_state == "rejected":
                 cr_record.sudo().action_submit_for_approval()  # nosemgrep
                 if hasattr(cr_record, "action_reject"):
-                    cr_record.sudo().action_reject()  # nosemgrep
+                    self._advance_cr_to_terminal(cr_record, "action_reject", reason=rejection_reason)
                 if rejection_reason and "rejection_reason" in cr_record._fields:
                     cr_record.sudo().write({"rejection_reason": rejection_reason})  # nosemgrep
             elif target_state == "revision":
                 cr_record.sudo().action_submit_for_approval()  # nosemgrep
                 if hasattr(cr_record, "action_request_revision"):
-                    cr_record.sudo().action_request_revision()  # nosemgrep
+                    self._advance_cr_to_terminal(cr_record, "action_request_revision", reason=revision_notes)
                 if revision_notes and "revision_notes" in cr_record._fields:
                     cr_record.sudo().write({"revision_notes": revision_notes})  # nosemgrep
 

@@ -5,7 +5,7 @@
     "and distribution tracking. Links to hazard incidents with multi-tier "
     "approval workflows and warehouse operations.",
     "category": "OpenSPP/Inventory",
-    "version": "19.0.2.0.0",
+    "version": "19.0.3.0.0",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -17,6 +17,7 @@
         "mail",
         "stock",
         "spp_alerts",
+        "spp_base_common",
         "spp_security",
         "spp_vocabulary",
         "spp_area",
@@ -51,6 +52,8 @@
         "views/menu_structure.xml",
         # Wizards (before views, as views may reference wizard actions)
         "wizard/bulk_approve_wizard.xml",
+        "wizard/request_reject_wizard_views.xml",
+        "wizard/request_revision_wizard_views.xml",
         "wizard/report_4w_wizard_views.xml",
         "wizard/stock_adjustment_wizard_views.xml",
         "wizard/inter_warehouse_transfer_wizard_views.xml",
@@ -79,7 +82,16 @@
         # Menus with actions (loaded last, after all views define their actions)
         "views/menus.xml",
     ],
-    "assets": {},
+    "assets": {
+        "web.assets_backend": [
+            "spp_drims/static/src/js/hide_dispatch_form_create.js",
+            "spp_drims/static/src/js/inspection_list_renderer.js",
+            "spp_drims/static/src/js/qty_split_progress_field.js",
+            "spp_drims/static/src/xml/qty_split_progress_field.xml",
+            "spp_drims/static/src/css/inspection_wizard.css",
+            "spp_drims/static/src/css/request_form.css",
+        ],
+    },
     "application": True,
     "installable": True,
     "auto_install": False,

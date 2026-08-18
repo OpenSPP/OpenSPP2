@@ -12,6 +12,8 @@ from unittest.mock import patch
 
 from odoo.tests import tagged
 
+from odoo.addons.spp_cel_domain.exceptions import CELValidationError
+
 from ..services.search_service import DCISocialSearchService
 from .common import DCISocialServerCommon
 
@@ -39,9 +41,22 @@ class TestSearchServiceInternals(DCISocialServerCommon):
             field, _op, _val = self.service._condition_to_domain(dci_attr, "=", "x")
             self.assertEqual(field, odoo_field)
 
-    def test_condition_unknown_attribute_passthrough(self):
-        field, _, _ = self.service._condition_to_domain("custom_field", "=", "x")
-        self.assertEqual(field, "custom_field")
+    def test_condition_unknown_attribute_rejected(self):
+        # Default-deny: an attribute outside the safe person-field allowlist is
+        # rejected (previously it passed through as a raw field name, which let
+        # expression searches oracle sensitive partner fields).
+        with self.assertRaises(ValueError):
+            self.service._condition_to_domain("custom_field", "=", "x")
+
+    def test_condition_rejects_sensitive_partner_fields(self):
+        for attribute in (
+            "disability_severity_id",
+            "has_disability",
+            "disability_review_category",
+            "has_unmet_device_need",
+        ):
+            with self.assertRaises(ValueError):
+                self.service._condition_to_domain(attribute, "=", "x")
 
     def test_condition_operator_mapping(self):
         cases = {"==": "=", "contains": "ilike", "like": "ilike", ">=": ">="}
@@ -83,6 +98,82 @@ class TestSearchServiceInternals(DCISocialServerCommon):
             with self.assertRaises(ValueError) as ctx:
                 self.service._parse_predicate("r.broken ==")
         self.assertIn("bad syntax", str(ctx.exception))
+
+    def test_parse_predicate_rejects_sensitive_dci_method_metrics(self):
+        blocked = [
+            # Parameterized methods (accessor-call + metric() forms, incl. spaced dots)
+            "r.dci.dr.severity('Vision') >= 3",
+            "r . dci . dr . severity('Vision') >= 3",
+            "r.dci.crvs.has_event('death') == true",
+            "metric('r.dci.dr.severity', me, arg='Vision') >= 3",
+            'metric("r.dci.crvs.has_event", me, arg="death") == true',
+            # Backslash-escaped dots: the lexer decodes \. -> . so the metric
+            # still resolves; the AST guard sees the decoded name (the regex
+            # denylist this replaced did not).
+            r"metric('r\.dci\.dr\.severity', me, arg='Vision') >= 3",
+            # Non-parameterized disability flags (boolean oracles)
+            "r.dci.dr.has_disability == true",
+            "r.dci.dr.vision_severe == true",
+            "metric('r.dci.dr.mobility_severe', me) == true",
+            # Non-parameterized CRVS vital/civil status (boolean oracles)
+            "r.dci.crvs.is_alive == false",
+            "r.dci.crvs.is_married == true",
+            "metric('r.dci.crvs.birth_verified', me) == true",
+        ]
+        for expression in blocked:
+            # Through _parse_predicate so the test also pins that the guard is
+            # wired in ahead of CEL execution (it rejects before the query runs).
+            with self.assertRaises(ValueError) as ctx:
+                self.service._parse_predicate(expression)
+            self.assertIn("not permitted in external searches", str(ctx.exception))
+
+    def test_parse_predicate_rejects_sensitive_partner_fields(self):
+        # The disability data is also reachable via plain partner field paths
+        # (stored on res.partner) and disability CEL functions -- not just DCI
+        # metrics. Default-deny rejects these too.
+        blocked = [
+            "r.disability_severity_id == 5",
+            "r.has_disability == true",
+            "r.disability_review_category == 'high'",
+            "r.has_unmet_device_need == true",
+            "disability_severity(r) == 2",
+            "is_severe_disability(r) == true",
+            # Relation traversal that navigates back to the root partner's
+            # disability via a child predicate.
+            "enrollments.exists(m, m.partner_id.disability_severity_id == 5)",
+        ]
+        for expression in blocked:
+            with self.assertRaises(ValueError) as ctx:
+                self.service._parse_predicate(expression)
+            self.assertIn("not permitted in external searches", str(ctx.exception))
+
+    def test_external_predicate_policy_allows_benign_and_lower_risk_metrics(self):
+        # The allowlist must permit benign person predicates, safe scalar
+        # functions, and the intentionally-allowed lower-risk SR/IBR metrics.
+        policy = self.service._external_predicate_policy()
+        cel = self.env["spp.cel.service"]
+        allowed = [
+            "r.gender == 'female'",
+            "r.name == 'John'",
+            "age_years(r.birthdate) >= 18",
+            "r.dci.sr.household_size >= 5",
+            "r.dci.ibr.has_duplicate == true",
+        ]
+        for expression in allowed:
+            # Should not raise.
+            cel._enforce_predicate_policy(expression, policy)
+
+    def test_external_predicate_policy_denies_disability_namespace_and_fields(self):
+        # Behaviour change vs the old regex: anything in the disability metric
+        # namespace, and any non-allowlisted partner field, is now denied.
+        policy = self.service._external_predicate_policy()
+        cel = self.env["spp.cel.service"]
+        for expression in (
+            "r.dci.dr.severity_score >= 3",  # disability namespace
+            "r.poverty_score >= 50",  # arbitrary non-allowlisted field
+        ):
+            with self.assertRaises(CELValidationError):
+                cel._enforce_predicate_policy(expression, policy)
 
     # --- _to_dci_member ------------------------------------------------------
 

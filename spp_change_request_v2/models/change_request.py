@@ -392,10 +392,43 @@ class SPPChangeRequest(models.Model):
                 )
             rec.stage_banner_html = html
 
-    @api.depends("document_ids", "document_ids.document_type_id", "request_type_id.required_document_ids")
+    def _get_effective_required_document_ids(self):
+        """Return the document types required for this request.
+
+        When the request type defines per-reason document rules (OP#873) and the
+        request's detail exposes a matching reason, that rule's documents take
+        precedence over the flat ``required_document_ids`` list. A configured
+        rule with no documents means nothing is required for that reason."""
+        self.ensure_one()
+        empty = self.env["spp.vocabulary.code"]
+        rt = self.request_type_id
+        if not rt:
+            return empty
+        reason_rules = rt.reason_document_ids
+        if reason_rules:
+            detail = self.get_detail()
+            # The reason lives on `reason` (Change HoH), `split_reason` (Split)
+            # or `end_reason` (Remove Member).
+            reason = False
+            if detail:
+                for rfield in ("reason", "split_reason", "end_reason"):
+                    if rfield in detail._fields and detail[rfield]:
+                        reason = detail[rfield]
+                        break
+            if reason:
+                rule = reason_rules.filtered(lambda r: r.reason == reason)
+                return rule[:1].required_document_ids if rule else empty
+        return rt.required_document_ids
+
+    @api.depends(
+        "document_ids",
+        "document_ids.document_type_id",
+        "request_type_id.required_document_ids",
+        "request_type_id.reason_document_ids",
+    )
     def _compute_missing_required_documents(self):
         for rec in self:
-            required = rec.request_type_id.required_document_ids if rec.request_type_id else None
+            required = rec._get_effective_required_document_ids() if rec.request_type_id else None
             if not required:
                 rec.missing_required_document_ids = self.env["spp.vocabulary.code"]
                 rec.documents_complete = True
@@ -405,10 +438,15 @@ class SPPChangeRequest(models.Model):
             rec.missing_required_document_ids = missing
             rec.documents_complete = not bool(missing)
 
-    @api.depends("document_ids", "document_ids.document_type_id", "request_type_id.required_document_ids")
+    @api.depends(
+        "document_ids",
+        "document_ids.document_type_id",
+        "request_type_id.required_document_ids",
+        "request_type_id.reason_document_ids",
+    )
     def _compute_required_documents_html(self):
         for rec in self:
-            required = rec.request_type_id.required_document_ids if rec.request_type_id else None
+            required = rec._get_effective_required_document_ids() if rec.request_type_id else None
             if not required:
                 rec.required_documents_html = (
                     '<div class="alert alert-info mb-3 py-2">'
@@ -1154,13 +1192,74 @@ class SPPChangeRequest(models.Model):
 
         action = changes.pop("_action", None)
         header = changes.pop("_header", None)
+        tables = changes.pop("_tables", None)
+        sections = changes.pop("_sections", None)
 
         # Determine if this is a field-mapping type (has old/new dicts)
         has_comparison = any(isinstance(v, dict) and "old" in v and "new" in v for v in changes.values())
 
         if has_comparison:
-            return self._render_comparison_table(changes, header=header)
-        return self._render_action_summary(action, changes, header=header)
+            html = self._render_comparison_table(changes, header=header)
+        else:
+            html = self._render_action_summary(action, changes, header=header)
+        if tables:
+            html += self._render_data_tables(tables)
+        if sections:
+            html += self._render_data_sections(sections)
+        return html
+
+    def _render_data_tables(self, tables):
+        """Render preview() ``_tables`` entries as separate HTML tables.
+
+        Each entry is ``{"title", "columns", "rows"}`` where ``rows`` is a list
+        of cell-string lists. Used to show one2many data (phones, bank accounts,
+        ID documents, ...) on the review page instead of a bare count (OP#876).
+        """
+        out = []
+        for table in tables:
+            columns = table.get("columns") or []
+            rows = table.get("rows") or []
+            out.append(f'<h6 class="mt-3 mb-1">{html_escape(table.get("title") or "")}</h6>')
+            if not rows:
+                out.append('<div class="text-muted small mb-0"><i class="fa fa-info-circle me-2"></i>None.</div>')
+                continue
+            out.append('<table class="table table-sm table-bordered mb-0" style="width:100%">')
+            out.append(
+                "<thead><tr>"
+                + "".join(f'<th class="bg-light">{html_escape(c)}</th>' for c in columns)
+                + "</tr></thead>"
+            )
+            out.append("<tbody>")
+            for row in rows:
+                out.append(
+                    "<tr>" + "".join(f"<td>{html_escape('' if c is None else str(c))}</td>" for c in row) + "</tr>"
+                )
+            out.append("</tbody></table>")
+        return "".join(out)
+
+    def _render_data_sections(self, sections):
+        """Render preview() ``_sections`` entries — one labelled detail block per
+        entity (e.g. each new group member): its fields as a key/value table plus
+        any nested ``tables`` (e.g. that member's phone numbers) (OP#876).
+        """
+        out = []
+        for section in sections:
+            out.append(f'<h6 class="mt-3 mb-1">{html_escape(section.get("title") or "")}</h6>')
+            field_rows = section.get("fields") or []
+            if field_rows:
+                out.append('<table class="table table-sm table-bordered mb-0" style="width:100%">')
+                out.append("<tbody>")
+                for label, value in field_rows:
+                    display = html_escape(value) if value else '<span class="text-muted">—</span>'
+                    out.append(
+                        f'<tr><td class="bg-light" style="width:30%"><strong>{html_escape(label)}</strong></td>'
+                        f"<td>{display}</td></tr>"
+                    )
+                out.append("</tbody></table>")
+            nested = section.get("tables")
+            if nested:
+                out.append(self._render_data_tables(nested))
+        return "".join(out)
 
     def _render_comparison_table(self, changes, header=None):
         """Render a three-column comparison table for field-mapping CR types."""

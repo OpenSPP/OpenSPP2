@@ -28,5 +28,6 @@ comment:
 
 ignore:
   - "**/tests/**"
+  - "**/__manifest__.py"
   - "**/migrations/**"
   - "scripts/**"

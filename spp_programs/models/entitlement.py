@@ -84,7 +84,7 @@ class SPPEntitlement(models.Model):
 
     is_cash_entitlement = fields.Boolean("Cash Entitlement", default=False)
     currency_id = fields.Many2one("res.currency", readonly=True, related="journal_id.currency_id")
-    initial_amount = fields.Monetary(required=True, currency_field="currency_id")
+    initial_amount = fields.Monetary(string="Amount", required=True, currency_field="currency_id")
     transfer_fee = fields.Monetary(currency_field="currency_id", default=0.0)
     balance = fields.Monetary(compute="_compute_balance")  # in company currency
     # TODO: implement transactions against this entitlement
@@ -389,6 +389,29 @@ class SPPEntitlement(models.Model):
         """Override to return the entitlement's approval definition."""
         self.ensure_one()
         return self.entitlement_approval_definition_id
+
+    def _notify_thread_by_email(self, message, recipients_data, **kwargs):
+        """Suppress outgoing email when the parent program has email
+        notifications disabled. Chatter logging and in-app notifications are
+        unaffected — only the email dispatch is short-circuited."""
+        self.ensure_one()
+        program = self.cycle_id.program_id
+        if program and not program._should_send_email_notifications():
+            return
+        return super()._notify_thread_by_email(message, recipients_data, **kwargs)
+
+    def _create_approval_activity(self, definition, review):
+        """Gate the approver-email path on the parent program's toggle.
+
+        spp.approval.mixin schedules a mail.activity for each approver on
+        submit; the activity dispatch sends email through the assignee's
+        notification preferences. Skip the scheduling entirely when the
+        program has email notifications turned off."""
+        self.ensure_one()
+        program = self.cycle_id.program_id
+        if program and not program._should_send_email_notifications():
+            return
+        return super()._create_approval_activity(definition, review)
 
     def action_submit_for_approval(self):
         """Submit entitlement for approval using standardized workflow."""
@@ -884,6 +907,24 @@ class InKindEntitlement(models.Model):
         """Resolve approval definition for the mixin."""
         self.ensure_one()
         return self._get_approval_definition()
+
+    def _notify_thread_by_email(self, message, recipients_data, **kwargs):
+        """Suppress outgoing email when the parent program has email
+        notifications disabled. Chatter logging and in-app notifications are
+        unaffected — only the email dispatch is short-circuited."""
+        self.ensure_one()
+        program = self.cycle_id.program_id
+        if program and not program._should_send_email_notifications():
+            return
+        return super()._notify_thread_by_email(message, recipients_data, **kwargs)
+
+    def _create_approval_activity(self, definition, review):
+        """Gate the approver-email path on the parent program's toggle."""
+        self.ensure_one()
+        program = self.cycle_id.program_id
+        if program and not program._should_send_email_notifications():
+            return
+        return super()._create_approval_activity(definition, review)
 
     def action_submit_for_approval(self):
         """Submit in-kind entitlement for approval using standardized workflow."""

@@ -12,7 +12,7 @@ from odoo.addons.fastapi.dependencies import odoo_env
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..middleware.auth import get_authenticated_client
-from ..schemas.bundle import Bundle
+from ..schemas.bundle import RegistrantBundle
 from ..services.bundle_service import BundleProcessor
 
 _logger = logging.getLogger(__name__)
@@ -20,9 +20,9 @@ _logger = logging.getLogger(__name__)
 batch_router = APIRouter(tags=["Batch"], prefix="/$batch")
 
 
-@batch_router.post("", response_model=Bundle)
+@batch_router.post("", response_model=RegistrantBundle)
 async def process_bundle(
-    bundle: Bundle,
+    bundle: RegistrantBundle,
     env: Annotated[Environment, Depends(odoo_env)],
     api_client: Annotated[dict, Depends(get_authenticated_client)],
 ):

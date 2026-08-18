@@ -74,7 +74,7 @@ class TestDCICelFetcherErrors(TransactionCase):
             {
                 "name": "zz_test_edge.handler_none",
                 "label": "Handler None Test",
-                "cel_accessor": "dr.dci.has_disability",
+                "cel_accessor": "r.dci.dr.has_disability",
                 "source_type": "external",
                 "value_type": "boolean",
                 "external_provider_id": self.provider.id,
@@ -100,7 +100,7 @@ class TestDCICelFetcherErrors(TransactionCase):
             {
                 "name": "zz_test_edge.no_ds_var",
                 "label": "No DS var",
-                "cel_accessor": "dr.dci.assessed",
+                "cel_accessor": "r.dci.dr.assessed",
                 "source_type": "external",
                 "value_type": "boolean",
                 "external_provider_id": provider_no_ds.id,
@@ -248,20 +248,20 @@ class TestComputeMethodValuesEdge(TransactionCase):
         """
         from odoo.addons.spp_dci_indicators.models.dci_cel_fetcher import DCI_METHOD_ACCESSORS
 
-        original_args = list(DCI_METHOD_ACCESSORS["crvs.dci.has_event"]["args"])
-        DCI_METHOD_ACCESSORS["crvs.dci.has_event"]["args"] = ["birth", "unknown_event", "death"]
+        original_args = list(DCI_METHOD_ACCESSORS["r.dci.crvs.has_event"]["args"])
+        DCI_METHOD_ACCESSORS["r.dci.crvs.has_event"]["args"] = ["birth", "unknown_event", "death"]
         try:
             with patch(VERIFY_BIRTH, return_value={"x": 1}), patch(CHECK_DEATH, return_value=False):
                 partner = self.env["res.partner"].browse([])
                 pairs = self.Fetcher._compute_method_values(
-                    "crvs.dci.has_event",
+                    "r.dci.crvs.has_event",
                     self.dci_source,
                     partner,
                     "NID",
                     "VAL-EDGE",
                 )
         finally:
-            DCI_METHOD_ACCESSORS["crvs.dci.has_event"]["args"] = original_args
+            DCI_METHOD_ACCESSORS["r.dci.crvs.has_event"]["args"] = original_args
 
         arg_keys = [p[0]["arg"] for p in pairs]
         self.assertIn("birth", arg_keys)
@@ -300,7 +300,7 @@ class TestCronSyncAllRegistrants(TransactionCase):
             {
                 "name": "zz_cron_edge.crvs.is_alive",
                 "label": "DCI: Is Alive (cron edge)",
-                "cel_accessor": "crvs.dci.is_alive",
+                "cel_accessor": "r.dci.crvs.is_alive",
                 "source_type": "external",
                 "value_type": "boolean",
                 "external_provider_id": cls.provider.id,
@@ -330,7 +330,7 @@ class TestCronSyncAllRegistrants(TransactionCase):
             # Use a very large batch_size so the loop runs exactly once.
             self.Fetcher.cron_sync_all_registrants(batch_size=10000)
         cached = self.env["spp.data.value"].search(
-            [("variable_name", "=", "crvs.dci.is_alive"), ("subject_id", "=", self.partner.id)]
+            [("variable_name", "=", "r.dci.crvs.is_alive"), ("subject_id", "=", self.partner.id)]
         )
         self.assertTrue(cached)
 
@@ -362,13 +362,13 @@ class TestSyncForPartnersNonMethodAccessor(TransactionCase):
                 "dci_data_source_id": cls.dci_source.id,
             }
         )
-        # crvs.dci.is_alive is NOT in DCI_METHOD_ACCESSORS, so it goes through
+        # r.dci.crvs.is_alive is NOT in DCI_METHOD_ACCESSORS, so it goes through
         # the precompute_variable path in sync_for_partners.
         cls.var_is_alive = cls.env["spp.cel.variable"].create(
             {
                 "name": "zz_precomp_edge.crvs.is_alive",
                 "label": "DCI: Is Alive (precompute edge)",
-                "cel_accessor": "crvs.dci.is_alive",
+                "cel_accessor": "r.dci.crvs.is_alive",
                 "source_type": "external",
                 "value_type": "boolean",
                 "external_provider_id": cls.provider.id,

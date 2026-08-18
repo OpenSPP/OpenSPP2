@@ -713,6 +713,13 @@
                                         />
                                         <field name="value" string="ID Number" />
                                         <field name="expiry_date" />
+                                        <field
+                                            name="status"
+                                            decoration-danger="status == 'invalid'"
+                                            decoration-success="status == 'valid'"
+                                            widget="badge"
+                                        />
+                                        <field name="description" optional="hide" />
                                     </list>
                                 </field>
                             </group>

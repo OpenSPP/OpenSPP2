@@ -26,6 +26,53 @@ class DisabilityInfo(BaseModel):
     )
 
 
+class ProgramEnrollment(BaseModel):
+    """A person's enrollment in a social protection programme.
+
+    Field names follow the SPDCI social profile (programme_name,
+    enrolment_status, ...). No internal database ids are carried.
+    """
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    programme_identifier: str | None = Field(
+        None,
+        description="External programme identifier, when one exists",
+    )
+    programme_name: str = Field(
+        ...,
+        description="Human-readable programme name",
+    )
+    enrolment_status: str | None = Field(
+        None,
+        description="Enrollment status (enrolled, paused, ...)",
+    )
+    enrolment_date: date | None = Field(
+        None,
+        description="Date the person was enrolled",
+    )
+
+
+class HouseholdInfo(BaseModel):
+    """Summary of the person's household (OpenSPP extension).
+
+    Carried inside the person record so one search answers household-level
+    questions (size, headship) without a second group query.
+    """
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    household_size: int | None = Field(
+        None,
+        ge=1,
+        description="Number of active members in the person's household",
+    )
+    is_household_head: bool | None = Field(
+        None,
+        description="Whether the person is the head of the household",
+    )
+
+
 class RelatedPerson(BaseModel):
     """DCI RelatedPerson schema - family relationship information."""
 
@@ -95,6 +142,14 @@ class Person(BaseModel):
     last_updated: datetime | None = Field(
         None,
         description="Date when person details were last updated",
+    )
+    enrolled_programs: list[ProgramEnrollment] | None = Field(
+        None,
+        description="Active social protection programme enrollments",
+    )
+    household_info: HouseholdInfo | None = Field(
+        None,
+        description="Summary of the person's household (OpenSPP extension)",
     )
 
 

@@ -135,6 +135,27 @@ class TestSppDciServerEndpoint(DCIServerCommon):
         keys = [k for k, _ in field.selection]
         self.assertIn("dci_api", keys)
 
+    def test_registry_routes_mounted_at_spec_path(self):
+        """SPDCI defines /registry/sync/search relative to the deployment
+        base URL - the registry type travels in the message reg_type, not in
+        the URL. The non-spec /social/registry mount stays for backward
+        compatibility, but the spec path must exist."""
+        endpoint = self.Endpoint.create(
+            {
+                "name": "test-dci-spec-paths",
+                "app": "dci_api",
+                "root_path": "/test-dci-spec",
+            }
+        )
+        all_paths = []
+        for router in endpoint._get_fastapi_routers():
+            if isinstance(router, APIRouter):
+                for route in router.routes:
+                    all_paths.append(getattr(route, "path", ""))
+        self.assertIn("/registry/sync/search", all_paths, f"spec path missing: {all_paths}")
+        # Backward-compatible long form is still served
+        self.assertIn("/social/registry/sync/search", all_paths)
+
     def test_get_fastapi_routers_returns_dci_routers(self):
         """A DCI endpoint must include the JWKS and registry-aliases routers."""
         endpoint = self.Endpoint.create(

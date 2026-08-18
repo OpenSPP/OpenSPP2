@@ -1258,3 +1258,20 @@ class TestCelEventIntegration(TransactionCase):
         self.assertEqual(executor._compute_aggregation(events, "count", None), 2)
         # Unknown agg type returns 0
         self.assertEqual(executor._compute_aggregation(events, "unknown_agg", "score"), 0)
+
+
+@tagged("post_install", "-at_install")
+class TestEventExecutorPassthrough(TransactionCase):
+    """Non-event plan nodes fall through the event executor's _execute_plan
+    override to the base implementation (with the as_root parameter intact)."""
+
+    def test_non_event_plan_falls_through_to_base(self):
+        from odoo.addons.spp_cel_domain.models.cel_queryplan import LeafDomain
+
+        partner = self.env["res.partner"].create(
+            {"name": "Passthrough Person", "is_registrant": True, "is_group": False}
+        )
+        plan = LeafDomain(model="res.partner", domain=[("id", "=", partner.id)])
+        executor = self.env["spp.cel.executor"]
+        self.assertEqual(executor._execute_plan("res.partner", plan), [partner.id])
+        self.assertEqual(executor._execute_plan("res.partner", plan, as_root=True), [partner.id])

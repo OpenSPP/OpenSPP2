@@ -139,6 +139,27 @@ Dependencies
 Changelog
 =========
 
+19.0.2.1.4
+~~~~~~~~~~
+
+- fix(registry): remove the dead ``@api.constrains("age")``
+  ``_check_age_is_integer`` guard. ``age`` is a non-stored compute
+  derived from ``birthdate``, so the constraint never fired and only
+  emitted the registry-load warning
+  ``@constrains parameter 'age' is not writeable``. Computed ``age``
+  values are unchanged; stale i18n entries for the removed message are
+  dropped
+
+19.0.2.1.3
+~~~~~~~~~~
+
+- fix(registry): show an ID **Status** column on the group form
+  (Valid/Invalid badge) so a soft-removed ID is distinguishable from a
+  valid one. IDs added directly via the registry UI keep an **empty**
+  status (Valid/Invalid is set only by the ID-document change request
+  flow) — per the #1110 decision to stay consistent across the system
+  (#1110)
+
 19.0.2.1.1
 ~~~~~~~~~~
 

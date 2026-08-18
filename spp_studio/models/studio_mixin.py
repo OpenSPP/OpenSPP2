@@ -78,13 +78,6 @@ class StudioMixin(models.AbstractModel):
         copy=False,
     )
 
-    # Link to programs (optional, for program-specific configs)
-    program_ids = fields.Many2many(
-        "spp.program",
-        string="Programs",
-        help="If set, this configuration is only visible in these programs. Leave empty for global visibility.",
-    )
-
     def action_activate(self):
         """Activate the configuration, making it available for use."""
         self.ensure_one()

@@ -56,6 +56,16 @@ class DefaultEligibilityManagerCEL(models.Model):
         help="True if the local expression differs from the source template",
     )
 
+    @api.model
+    def default_get(self, fields_list):
+        """Default the manager name to its method-specific label so the
+        record's actual `name` (visible on the Edit form) reads "CEL
+        Eligibility Criteria" instead of the placeholder "Default"."""
+        res = super().default_get(fields_list)
+        if "name" in fields_list:
+            res.setdefault("name", _("CEL Eligibility Criteria"))
+        return res
+
     # -------------------------------------------------------------------------
     # CEL Profile (computed for widget context)
     # -------------------------------------------------------------------------

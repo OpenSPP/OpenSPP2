@@ -190,7 +190,7 @@ class MultiEntitlementApproval(models.TransientModel):
     )
     code = fields.Char(related="entitlement_id.code")
     initial_amount = fields.Monetary(
-        string="Initial Amount",
+        string="Amount",
         currency_field="currency_id",
         related="entitlement_id.initial_amount",
     )

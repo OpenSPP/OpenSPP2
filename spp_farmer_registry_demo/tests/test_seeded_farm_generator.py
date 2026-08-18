@@ -130,14 +130,16 @@ class TestSeededFarmGeneratorNames(TransactionCase):
         self.assertTrue(name.endswith(" Farm"), f"Expected 'X Farm', got '{name}'")
 
     def test_generate_farm_name_uses_filipino_surnames(self):
-        """Farm names should use a Filipino last name."""
+        """Farm names are owner-style ("{given} {family} Farm") and use a
+        Filipino last name as the family component (OP#1114)."""
         from odoo.addons.spp_farmer_registry_demo.models.seeded_farm_generator import (
             _FILIPINO_LAST_NAMES,
         )
 
         gen = self._make_generator()
         name = gen._generate_farm_name()
-        surname = name.replace(" Farm", "")
+        # Default descriptor is "Farm"; the family name is the token before it.
+        surname = name.replace(" Farm", "").split()[-1]
         self.assertIn(surname, _FILIPINO_LAST_NAMES)
 
     def test_generate_farm_name_avoids_reserved(self):
@@ -147,35 +149,60 @@ class TestSeededFarmGeneratorNames(TransactionCase):
             name = gen._generate_farm_name()
             self.assertNotIn(name, gen._reserved_names)
 
-    def test_generate_member_name_male(self):
-        """Male member names should come from the male first name pool."""
+    def test_pick_given_name_male(self):
+        """Male member given names should come from the male first name pool."""
         from odoo.addons.spp_farmer_registry_demo.models.seeded_farm_generator import (
             _FILIPINO_MALE_FIRST_NAMES,
         )
 
         gen = self._make_generator()
-        given, family = gen._generate_member_name("male")
+        given = gen._pick_given_name("male")
         self.assertIn(given, _FILIPINO_MALE_FIRST_NAMES)
-        self.assertIsInstance(family, str)
-        self.assertTrue(len(family) > 0)
 
-    def test_generate_member_name_female(self):
-        """Female member names should come from the female first name pool."""
+    def test_pick_given_name_female(self):
+        """Female member given names should come from the female first name pool."""
         from odoo.addons.spp_farmer_registry_demo.models.seeded_farm_generator import (
             _FILIPINO_FEMALE_FIRST_NAMES,
         )
 
         gen = self._make_generator()
-        given, family = gen._generate_member_name("female")
+        given = gen._pick_given_name("female")
         self.assertIn(given, _FILIPINO_FEMALE_FIRST_NAMES)
 
-    def test_generate_member_name_avoids_reserved(self):
-        """Generated full names must not collide with reserved names."""
+    def test_pick_given_name_avoids_excluded(self):
+        """Excluding the name that would otherwise be picked yields a different one."""
+        from odoo.addons.spp_farmer_registry_demo.models.seeded_farm_generator import (
+            _FILIPINO_MALE_FIRST_NAMES,
+        )
+
+        # Same seed -> the un-excluded pick is deterministic; excluding it on an
+        # identically-seeded generator must produce a different, valid name.
+        first = self._make_generator()._pick_given_name("male")
+        picked = self._make_generator()._pick_given_name("male", {first})
+        self.assertNotEqual(picked, first)
+        self.assertIn(picked, _FILIPINO_MALE_FIRST_NAMES)
+
+    def test_household_identity_returns_owner_parts(self):
+        """The identity's farm name is '{head_given} {family} {descriptor}'."""
         gen = self._make_generator()
-        for _ in range(50):
-            given, family = gen._generate_member_name("male")
-            full = f"{given} {family}"
-            self.assertNotIn(full, gen._reserved_names)
+        name, head_given, family, resolved_gender = gen._generate_household_identity("crop", "female")
+        self.assertTrue(name.startswith(f"{head_given} {family} "))
+        self.assertNotIn(name, gen._reserved_names)
+        self.assertEqual(resolved_gender, "female")
+
+    def test_household_identity_resolves_any_gender(self):
+        """An 'any' head_gender is resolved to a concrete gender and the given
+        name is drawn from that gender's pool (OP#1114 — no name/gender mismatch)."""
+        from odoo.addons.spp_farmer_registry_demo.models.seeded_farm_generator import (
+            _FILIPINO_FEMALE_FIRST_NAMES,
+            _FILIPINO_MALE_FIRST_NAMES,
+        )
+
+        gen = self._make_generator()
+        _name, head_given, _family, resolved_gender = gen._generate_household_identity("crop", "any")
+        self.assertIn(resolved_gender, ("male", "female"))
+        pool = _FILIPINO_MALE_FIRST_NAMES if resolved_gender == "male" else _FILIPINO_FEMALE_FIRST_NAMES
+        self.assertIn(head_given, pool)
 
     def test_resolve_gender_male(self):
         """Specifying 'male' returns 'male'."""
@@ -224,45 +251,78 @@ class TestSeededFarmGeneratorGPS(TransactionCase):
 
         return SeededFarmGenerator(self.env, locale="fil_PH", seed=seed)
 
-    def test_gps_rural_zone_returns_tuple(self):
-        """Rural zone GPS must return a (lng, lat) tuple."""
-        gen = self._make_generator()
-        result = gen._generate_gps_for_zone("rural")
-        self.assertIsInstance(result, tuple)
-        self.assertEqual(len(result), 2)
+    def _area_map(self):
+        """Synthetic {area_code: id} map covering every farmland anchor.
 
-    def test_gps_rural_zone_within_bounds(self):
-        """Rural zone GPS must be within Philippine rural bounds."""
-        gen = self._make_generator()
-        lng, lat = gen._generate_gps_for_zone("rural")
-        self.assertGreaterEqual(lat, 7.0)
-        self.assertLessEqual(lat, 16.5)
-        self.assertGreaterEqual(lng, 120.3)
-        self.assertLessEqual(lng, 125.5)
+        `_pick_area_and_gps` only echoes the id back — it never reads the
+        area record — so synthetic ids exercise the GPS logic without a DB.
+        """
+        from odoo.addons.spp_farmer_registry_demo.models.seeded_farm_generator import (
+            _AREA_CENTERS,
+        )
 
-    def test_gps_peri_urban_zone_within_bounds(self):
-        """Peri-urban zone GPS must be within peri-urban bounds."""
-        gen = self._make_generator()
-        lng, lat = gen._generate_gps_for_zone("peri_urban")
-        self.assertGreaterEqual(lat, 13.5)
-        self.assertLessEqual(lat, 15.5)
-        self.assertGreaterEqual(lng, 120.5)
-        self.assertLessEqual(lng, 121.5)
+        return {code: idx + 1 for idx, code in enumerate(_AREA_CENTERS)}
 
-    def test_gps_unknown_zone_defaults_to_rural(self):
-        """Unknown zone should fall back to rural bounds."""
+    def test_pick_area_and_gps_returns_area_and_point(self):
+        """Rural pick returns an area id and a (lng, lat) point."""
         gen = self._make_generator()
-        lng, lat = gen._generate_gps_for_zone("unknown_zone")
-        self.assertGreaterEqual(lat, 7.0)
-        self.assertLessEqual(lat, 16.5)
+        area_id, gps = gen._pick_area_and_gps("rural", self._area_map())
+        self.assertIn(area_id, self._area_map().values())
+        self.assertIsInstance(gps, tuple)
+        self.assertEqual(len(gps), 2)
+
+    def test_gps_within_zone_anchor_bounds(self):
+        """The point must sit within jitter of one of the zone's anchors."""
+        from odoo.addons.spp_farmer_registry_demo.models.seeded_farm_generator import (
+            _AREA_CENTERS,
+            _AREAS_BY_ZONE,
+            _GPS_JITTER,
+        )
+
+        gen = self._make_generator()
+        _, (lng, lat) = gen._pick_area_and_gps("rural", self._area_map())
+        near = any(
+            abs(lng - _AREA_CENTERS[code][0]) <= _GPS_JITTER + 1e-6
+            and abs(lat - _AREA_CENTERS[code][1]) <= _GPS_JITTER + 1e-6
+            for code in _AREAS_BY_ZONE["rural"]
+        )
+        self.assertTrue(near, "GPS point must be within jitter of a rural anchor")
+
+    def test_peri_urban_picks_peri_urban_area(self):
+        """Peri-urban zone must pick from the peri-urban candidate areas."""
+        from odoo.addons.spp_farmer_registry_demo.models.seeded_farm_generator import (
+            _AREAS_BY_ZONE,
+        )
+
+        gen = self._make_generator()
+        area_map = self._area_map()
+        area_id, _ = gen._pick_area_and_gps("peri_urban", area_map)
+        peri_ids = {area_map[c] for c in _AREAS_BY_ZONE["peri_urban"]}
+        self.assertIn(area_id, peri_ids)
+
+    def test_unknown_zone_defaults_to_rural(self):
+        """Unknown zone falls back to the rural candidate set."""
+        gen = self._make_generator()
+        area_id, gps = gen._pick_area_and_gps("unknown_zone", self._area_map())
+        self.assertIsNotNone(gps)
+        self.assertIn(area_id, self._area_map().values())
+
+    def test_no_eligible_areas_returns_none(self):
+        """With no matching demo areas, pick returns (None, None)."""
+        gen = self._make_generator()
+        area_id, gps = gen._pick_area_and_gps("rural", {})
+        self.assertIsNone(area_id)
+        self.assertIsNone(gps)
 
     def test_gps_is_deterministic(self):
-        """Same seed must produce identical GPS coordinates."""
+        """Same seed must produce identical area + GPS."""
+        area_map = self._area_map()
         gen1 = self._make_generator(seed=77)
         gen2 = self._make_generator(seed=77)
-        gps1 = gen1._generate_gps_for_zone("rural")
-        gps2 = gen2._generate_gps_for_zone("rural")
-        self.assertEqual(gps1, gps2)
+        self.assertEqual(
+            gen1._pick_area_and_gps("rural", area_map),
+            gen2._pick_area_and_gps("rural", area_map),
+        )
 
 
 @tagged("post_install", "-at_install")
@@ -378,31 +438,32 @@ class TestSeededFarmGeneratorVocab(TransactionCase):
         self.assertIn("rice_irrigated", gen._species_cache)
 
     def test_get_gender_id(self):
-        """Gender lookup should delegate to _get_vocab_code."""
+        """Gender lookup maps the human label to its ISO 5218 numeric code.
+
+        ``res.partner.gender_id`` is domain-locked to ISO 5218
+        (`urn:iso:std:iso:5218`), where '1' = Male, '2' = Female. The helper
+        translates 'male' → the vocab code whose ``code`` is '1'.
+        """
         gen = self._make_generator()
-        # Create gender vocab if not exists
         Vocabulary = self.env["spp.vocabulary"]
         VocabCode = self.env["spp.vocabulary.code"]
-        vocab = Vocabulary.search([("namespace_uri", "=", "urn:openspp:vocab:gender")], limit=1)
+        iso_ns = "urn:iso:std:iso:5218"
+        vocab = Vocabulary.search([("namespace_uri", "=", iso_ns)], limit=1)
         if not vocab:
-            vocab = Vocabulary.create(
-                {
-                    "name": "Gender",
-                    "namespace_uri": "urn:openspp:vocab:gender",
-                }
-            )
+            vocab = Vocabulary.create({"name": "ISO 5218 Gender", "namespace_uri": iso_ns})
+        if not VocabCode.search([("namespace_uri", "=", iso_ns), ("code", "=", "1")], limit=1):
             VocabCode.create(
                 {
                     "vocabulary_id": vocab.id,
-                    "namespace_uri": "urn:openspp:vocab:gender",
-                    "code": "male",
+                    "namespace_uri": iso_ns,
+                    "code": "1",
                     "display": "Male",
                 }
             )
         gender_id = gen._get_gender_id("male")
-        if gender_id:
-            code = self.env["spp.vocabulary.code"].browse(gender_id)
-            self.assertEqual(code.code, "male")
+        self.assertTrue(gender_id, "'male' should resolve to the ISO 5218 code '1'")
+        code = self.env["spp.vocabulary.code"].browse(gender_id)
+        self.assertEqual(code.code, "1")
 
     def test_get_head_type_id(self):
         """Head type lookup should return ID and cache it."""
@@ -797,6 +858,11 @@ class TestSeededFarmGeneratorActivities(TransactionCase):
         """Generated farms should have land records with polygons."""
         gen = self._make_generator()
         self._create_season()
+        # Land records are anchored to the farm's GPS point, which is only
+        # generated when the farm lands inside a known demo area. Seed one of
+        # the rural anchor areas so a GPS point (and thus a parcel) is created.
+        if not self.env["spp.area"].search([("code", "=", "PH-NUE")], limit=1):
+            self.env["spp.area"].create({"draft_name": "Nueva Ecija", "code": "PH-NUE"})
 
         bp = {
             "id": "test_land_rec",
@@ -974,10 +1040,11 @@ class TestSeededFarmGeneratorPhases(TransactionCase):
         """Farms should be assigned to demo areas if any exist."""
         gen = self._make_generator()
 
-        # Create a demo area
-        area = self.env["spp.area"].search([("code", "like", "PH-%")], limit=1)
-        if not area:
-            area = self.env["spp.area"].create({"draft_name": "Test Province", "code": "PH-TEST"})
+        # Seed one of the known anchor areas. The farm is only assigned an
+        # area when its zone's candidate code (e.g. PH-NUE for rural) exists;
+        # an arbitrary PH-* code that isn't an anchor would never be picked.
+        if not self.env["spp.area"].search([("code", "=", "PH-NUE")], limit=1):
+            self.env["spp.area"].create({"draft_name": "Nueva Ecija", "code": "PH-NUE"})
 
         bp = {
             "id": "test_area",
@@ -1029,6 +1096,51 @@ class TestSeededFarmGeneratorPhases(TransactionCase):
         self.assertIn("size", result)
         self.assertIn("gps", result)
         self.assertEqual(result["blueprint"]["id"], "test_struct")
+
+    def test_farm_named_after_head_and_family_shares_surname(self):
+        """OP#1114: the farm is named after its head member, and every member
+        shares the head's family name (the household is a family of the head)."""
+        gen = self._make_generator()
+
+        bp = {
+            "id": "test_family",
+            "label": "Test Family",
+            "count": 3,
+            "zone": "rural",
+            "farm_type": "crop",
+            "size_range": (2.0, 2.0),
+            "experience_range": (5, 5),
+            "head_gender": "female",
+            "members": [
+                {"role": "head", "gender": "female", "age_range": (35, 35)},
+                {"role": "spouse", "gender": "male", "age_range": (38, 38)},
+                {"role": "child", "gender": "any", "age_range": (10, 10)},
+            ],
+            "activities": [],
+            "land_tenure": "self",
+            "land_use": "cultivation",
+            "eligibility": {},
+        }
+        results = gen.generate_all_farms([bp])
+        self.assertEqual(len(results), 3)
+
+        for result in results:
+            farm = result["group"]
+            members = result["members"]
+            head = members[0]  # blueprint lists the head first
+
+            # 1) The farm is named after its head member.
+            self.assertTrue(
+                farm.name.startswith(head.name + " "),
+                f"Farm '{farm.name}' should be named after head '{head.name}'",
+            )
+            # The head named in the farm is an actual member of the group.
+            self.assertIn(head.name, [m.name for m in members])
+
+            # 2) Every member shares the head's family name (one family).
+            self.assertTrue(head.family_name)
+            for member in members:
+                self.assertEqual(member.family_name, head.family_name)
 
 
 @tagged("post_install", "-at_install")

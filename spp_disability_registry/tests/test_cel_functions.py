@@ -95,6 +95,11 @@ class TestDisabilityCelFunctions(TransactionCase):
             ],
             limit=1,
         )
+        # Severity is recorded on impairment lines; grab an impairment type.
+        cls.impairment_type = cls.env["spp.vocabulary.code"].search(
+            [("vocabulary_id.namespace_uri", "=", "urn:dci:cd:dr:01")],
+            limit=1,
+        )
 
         # Create approved assessment for member_with_disability (mild)
         assessment1 = cls.env["spp.disability.assessment"].create(
@@ -102,7 +107,9 @@ class TestDisabilityCelFunctions(TransactionCase):
                 "registrant_id": cls.member_with_disability.id,
                 "assessment_date": date.today(),
                 "wg_walking": "a_lot",
-                "severity_level_id": cls.severity_mild.id if cls.severity_mild else False,
+                "impairment_line_ids": [
+                    (0, 0, {"impairment_type_id": cls.impairment_type.id, "severity_level_id": cls.severity_mild.id})
+                ],
             }
         )
         assessment1.write({"approval_state": "approved"})
@@ -114,7 +121,9 @@ class TestDisabilityCelFunctions(TransactionCase):
                 "assessment_date": date.today(),
                 "wg_seeing": "cannot",
                 "wg_hearing": "cannot",
-                "severity_level_id": cls.severity_severe.id if cls.severity_severe else False,
+                "impairment_line_ids": [
+                    (0, 0, {"impairment_type_id": cls.impairment_type.id, "severity_level_id": cls.severity_severe.id})
+                ],
                 "review_category": "mine",
             }
         )
@@ -300,7 +309,9 @@ class TestDisabilityCelFunctions(TransactionCase):
                 "registrant_id": overdue_registrant.id,
                 "assessment_date": date.today() - relativedelta(years=2),
                 "wg_walking": "a_lot",
-                "severity_level_id": self.severity_mild.id if self.severity_mild else False,
+                "impairment_line_ids": [
+                    (0, 0, {"impairment_type_id": self.impairment_type.id, "severity_level_id": self.severity_mild.id})
+                ],
                 "review_category": "mie",  # 12 months, so overdue
             }
         )

@@ -36,13 +36,13 @@ Key Capabilities
   Integration** tab, making the provider "DCI-backed"
 - Fetch and cache registry values per registrant via the **Sync DCI
   Values** action (or the disabled-by-default daily cron)
-- Query Civil Registration via ``crvs.dci.is_alive``,
-  ``crvs.dci.birth_verified``, and the parameterized
-  ``crvs.dci.has_event('birth'|'death')``
-- Query the Disability Registry via ``dr.dci.has_disability``,
-  ``dr.dci.assessed``,
-  ``dr.dci.vision_severe``/``hearing_severe``/``mobility_severe``, and
-  the parameterized ``dr.dci.severity('Vision'|'Hearing'|'Mobility')``
+- Query Civil Registration via ``r.dci.crvs.is_alive``,
+  ``r.dci.crvs.birth_verified``, and the parameterized
+  ``r.dci.crvs.has_event('birth'|'death')``
+- Query the Disability Registry via ``r.dci.dr.has_disability``,
+  ``r.dci.dr.assessed``,
+  ``r.dci.dr.vision_severe``/``hearing_severe``/``mobility_severe``, and
+  the parameterized ``r.dci.dr.severity('Vision'|'Hearing'|'Mobility')``
 - Parameterized methods cache one value per (registrant, argument),
   keyed via ``params_hash``; arguments come from a fixed, pre-synced set
 
@@ -98,7 +98,7 @@ Extension Points
   (``_dci_metric_handlers`` for simple metrics, ``DCI_METHOD_ACCESSORS``
   + ``_compute_method_values`` for parameterized ones)
 - Create the matching ``spp.cel.variable`` record (external source type,
-  ``ttl`` cache strategy, ``<registry>.dci.<metric>`` accessor)
+  ``ttl`` cache strategy, ``r.dci.<registry>.<metric>`` accessor)
 
 CEL Expression Examples
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -106,16 +106,16 @@ CEL Expression Examples
 .. code:: python
 
    # Vital statistics verification
-   crvs.dci.is_alive == true and crvs.dci.birth_verified == true
+   r.dci.crvs.is_alive == true and r.dci.crvs.birth_verified == true
 
    # Parameterized event check
-   crvs.dci.has_event('death') == true
+   r.dci.crvs.has_event('death') == true
 
    # Disability-based eligibility
-   dr.dci.has_disability == true and dr.dci.severity('Mobility') >= 3
+   r.dci.dr.has_disability == true and r.dci.dr.severity('Mobility') >= 3
 
    # Multi-registry combined criteria
-   crvs.dci.is_alive == true and dr.dci.has_disability == true and age_years(me.birthdate) >= 18
+   r.dci.crvs.is_alive == true and r.dci.dr.has_disability == true and age_years(me.birthdate) >= 18
 
 Dependencies
 ~~~~~~~~~~~~

@@ -142,19 +142,6 @@ class TestDataSourceOAuth(TransactionCase):
         )
         self.assertEqual(ds.get_headers()["Authorization"], "Bearer btok")
 
-    def test_get_headers_basic_not_implemented(self):
-        ds = self.DataSource.create(
-            {
-                "name": "Basic DS",
-                "code": "basic_ds",
-                "base_url": "https://dci.example.org/api",
-                "auth_type": "basic",
-                "our_sender_id": "openspp.test",
-            }
-        )
-        with self.assertRaises(UserError):
-            ds.get_headers()
-
     # --- test_connection -----------------------------------------------------
 
     def test_connection_success_activates(self):
@@ -172,6 +159,41 @@ class TestDataSourceOAuth(TransactionCase):
         self.assertEqual(result["params"]["type"], "success")
         self.assertEqual(ds.state, "active")
         self.assertTrue(ds.last_test_date)
+
+    def test_connection_unauthorized_sets_error_state(self):
+        """A 401 from the ping endpoint means the credentials were rejected;
+        Test Connection must surface this as a failure, not a success."""
+        ds = self.DataSource.create(
+            {
+                "name": "Conn Auth DS",
+                "code": "conn_auth_ds",
+                "base_url": "https://dci.example.org/api",
+                "auth_type": "none",
+            }
+        )
+        resp = MagicMock(status_code=401, text="unauthorized", request=MagicMock())
+        with patch(HTTPX_CLIENT, return_value=_client_cm(resp)):
+            result = ds.test_connection()
+        self.assertEqual(result["params"]["type"], "danger")
+        self.assertEqual(ds.state, "error")
+        self.assertTrue(ds.last_error)
+
+    def test_connection_no_ping_endpoint_warns_but_reachable(self):
+        """A 404/405 means the server is reachable but has no ping endpoint, so
+        credentials are unverified: reachable (active) with a warning."""
+        ds = self.DataSource.create(
+            {
+                "name": "Conn NoPing DS",
+                "code": "conn_noping_ds",
+                "base_url": "https://dci.example.org/api",
+                "auth_type": "none",
+            }
+        )
+        resp = MagicMock(status_code=404)
+        with patch(HTTPX_CLIENT, return_value=_client_cm(resp)):
+            result = ds.test_connection()
+        self.assertEqual(result["params"]["type"], "warning")
+        self.assertEqual(ds.state, "active")
 
     def test_connection_http_error_sets_error_state(self):
         ds = self.DataSource.create(

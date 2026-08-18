@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="res_config_settings_dci_server_view_form" model="ir.ui.view">
+        <field name="name">
+            res.config.settings.view.form.inherit.dci.server
+        </field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="10" />
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app
+                    string="DCI Server"
+                    name="dci_server_settings"
+                    logo="/spp_dci_server/static/description/icon.png"
+                >
+                    <block title="API Authentication" name="dci_server_auth">
+                        <setting
+                            string="DCI API Bearer Tokens"
+                            help="Comma-separated list of accepted bearer tokens. Each must match the Bearer Token on the calling client's data source."
+                        >
+                            <field name="dci_api_tokens" />
+                        </setting>
+                        <setting
+                            string="Require DCI API Tokens"
+                            help="Fail closed: reject every request when no tokens are configured. Disable only for development."
+                        >
+                            <field name="dci_api_tokens_required" />
+                        </setting>
+                        <setting
+                            string="DCI Server Sender ID"
+                            help="This server's own DCI sender id, stamped on outgoing envelopes."
+                        >
+                            <field name="dci_sender_id" />
+                        </setting>
+                    </block>
+                    <block title="Development / Insecure Options" name="dci_server_dev">
+                        <div class="text-warning mb-3" colspan="2">
+                            <i class="fa fa-warning" /> These options weaken or
+                            disable DCI security checks. Enable them only in
+                            development — never in production.
+                        </div>
+                        <setting
+                            string="Allow Unsigned Requests"
+                            help="Accept DCI envelopes that carry no signature, skipping signature verification."
+                        >
+                            <field name="dci_allow_unsigned_requests" />
+                        </setting>
+                        <setting
+                            string="Bypass Bearer Authentication"
+                            help="Skip the bearer-token check entirely."
+                        >
+                            <field name="dci_bypass_bearer_auth" />
+                        </setting>
+                        <setting
+                            string="Allow HTTP Callbacks"
+                            help="Permit plain-http (non-TLS) callback URLs."
+                        >
+                            <field name="dci_allow_http_callbacks" />
+                        </setting>
+                        <setting
+                            string="Allow Internal Callback IPs"
+                            help="Permit callbacks to internal/private IP addresses."
+                        >
+                            <field name="dci_allow_internal_callback_ips" />
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="res_config_settings_dci_server_action" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_id" ref="res_config_settings_dci_server_view_form" />
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="context">{'module': 'spp_dci_server'}</field>
+    </record>
+
+    <menuitem
+        id="menu_spp_dci_server_settings"
+        name="Server Settings"
+        parent="spp_dci_client.menu_spp_dci_config"
+        sequence="5"
+        action="res_config_settings_dci_server_action"
+        groups="base.group_system"
+    />
+</odoo>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="spp_drims.QtySplitProgressField">
+        <t t-if="hasSplits">
+            <span t-att-class="splitTotalClass" t-esc="splitTotalFormatted" />
+            <span> / </span>
+            <span t-esc="expectedFormatted" />
+        </t>
+        <t t-elif="props.readonly">
+            <span t-esc="formattedValue" />
+        </t>
+        <input
+            t-else=""
+            t-on-focusin="onFocusIn"
+            t-on-focusout="onFocusOut"
+            t-att-id="props.id"
+            t-ref="numpadDecimal"
+            t-att-type="props.inputType"
+            inputmode="decimal"
+            class="o_input"
+            autocomplete="off"
+            t-att-step="props.step"
+        />
+    </t>
+
+</templates>

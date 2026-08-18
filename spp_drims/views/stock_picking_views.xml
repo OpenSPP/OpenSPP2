@@ -77,6 +77,62 @@
                 />
             </xpath>
 
+            <!--
+                OP#970: hide the standard Print + Return buttons when this is
+                a DRIMS picking. The dispatch already exposes Print Waybill
+                (above) and Create Return (above) which route through the
+                DRIMS-specific report + return wizard; the standard ones
+                produce duplicates that confuse users.
+
+                The action-button names for the standard Print + Return
+                buttons use the percent-paren xmlid-resolution sigil and
+                get rewritten to numeric IDs at view-parse time, so xpath
+                cannot match them by name. We discriminate by `data-hotkey`
+                + the button's existing `invisible` expression instead.
+                (Avoid writing the literal sigil here — Odoo's parser
+                runs the regex over comments too and tries to resolve.)
+            -->
+            <xpath
+                expr="//header/button[@name='do_print_picking']"
+                position="attributes"
+            >
+                <attribute
+                    name="invisible"
+                >state != 'assigned' or drims_type_id</attribute>
+            </xpath>
+            <!-- Target the core buttons by their action XML ID rather than by
+                 data-hotkey / invisible-text matching, which breaks if core
+                 changes a hotkey or modifier. The done-state delivery "Print"
+                 and the "Return" buttons are both hidden for DRIMS pickings. -->
+            <xpath
+                expr="//header/button[@name='%(stock.action_report_delivery)d']"
+                position="attributes"
+            >
+                <attribute name="invisible">state != 'done' or drims_type_id</attribute>
+            </xpath>
+            <xpath
+                expr="//header/button[@name='%(stock.act_stock_return_picking)d']"
+                position="attributes"
+            >
+                <attribute name="invisible">state != 'done' or drims_type_id</attribute>
+            </xpath>
+
+            <!--
+                OP#1075 originally locked the Operations moves list on a dispatch
+                by making the whole field readonly, so that users could not add
+                products. That attribute has been removed: a readonly list also
+                blocks editing Quantity, and entering less than Demand is how a
+                partial dispatch and its backorder are produced (OP#1087) — so it
+                took the short-shipment flow out with it.
+
+                The lock now lives in OP#1057, which sets create/delete domains
+                in the field's ``options`` so lines cannot be added or removed
+                while Quantity stays editable, and adds
+                stock.picking._check_drims_dispatch_matches_request to refuse at
+                validation anything the request never approved. That guard also
+                covers RPC and imports, which a view attribute cannot.
+            -->
+
             <!-- Add DRIMS tab -->
             <xpath expr="//notebook" position="inside">
                 <page string="DRIMS" name="drims" invisible="drims_type_id == False">
@@ -111,7 +167,22 @@
                                 options="{'no_create': True}"
                                 required="drims_type == 'request_dispatch'"
                             />
-                            <field name="beneficiary_count" />
+                            <!--
+                                OP#967 round-3: use spp_base_common's
+                                integer_positive_required widget so the
+                                field reports as empty when value is 0
+                                (standard IntegerField considers any int
+                                "set", which suppresses the required
+                                asterisk + pink-highlight on 0). The
+                                model-side button_validate check still
+                                rejects beneficiary_count <= 0 — the
+                                widget just provides the visual cue.
+                            -->
+                            <field
+                                name="beneficiary_count"
+                                widget="integer_positive_required"
+                                required="drims_type == 'request_dispatch'"
+                            />
                             <field
                                 name="distribution_type_id"
                                 options="{'no_create': True}"
@@ -291,11 +362,44 @@
         </field>
     </record>
 
+    <!--
+        DRIMS Dispatch List View (OP#968): primary-mode inherited list view
+        used only by the DRIMS Dispatches action. Disables Create + Delete on
+        the list so users can't manually spawn a picking that bypasses the
+        approved-request → dispatch pathway (which leaves the DRIMS tab
+        hidden and strands the user). The standard stock.picking list view
+        on Inventory > Operations is unaffected.
+    -->
+    <record id="view_picking_list_drims_dispatch" model="ir.ui.view">
+        <field name="name">stock.picking.list.drims.dispatch</field>
+        <field name="model">stock.picking</field>
+        <field name="mode">primary</field>
+        <field name="inherit_id" ref="stock.vpicktree" />
+        <field name="arch" type="xml">
+            <list position="attributes">
+                <attribute name="create">0</attribute>
+                <attribute name="delete">0</attribute>
+            </list>
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="waybill_number" optional="hide" />
+                <field name="drims_type_id" optional="hide" />
+                <field name="incident_id" optional="hide" />
+            </xpath>
+        </field>
+    </record>
+
     <!-- DRIMS Dispatch Action -->
     <record id="action_drims_dispatch" model="ir.actions.act_window">
         <field name="name">DRIMS Dispatches</field>
         <field name="res_model">stock.picking</field>
         <field name="view_mode">list,pivot,graph,form</field>
+        <field
+            name="view_ids"
+            eval="[(5, 0, 0),
+                   (0, 0, {'view_mode': 'list', 'view_id': ref('view_picking_list_drims_dispatch')}),
+                   (0, 0, {'view_mode': 'pivot', 'view_id': ref('view_picking_pivot_drims')}),
+                   (0, 0, {'view_mode': 'graph', 'view_id': ref('view_picking_graph_drims')})]"
+        />
         <field name="path">drims-dispatches</field>
         <field name="domain">[('drims_type', '=', 'request_dispatch')]</field>
         <field name="context">{
@@ -304,11 +408,12 @@
         }</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Create a DRIMS Dispatch
+                No DRIMS Dispatches yet
             </p>
             <p>
-                DRIMS dispatches are stock transfers that fulfill disaster relief requests.
-                They include waybill tracking, transport details, and proof of delivery.
+                Dispatches are auto-generated when stock is allocated from an approved
+                request. They include waybill tracking, transport details, and proof
+                of delivery.
             </p>
         </field>
     </record>

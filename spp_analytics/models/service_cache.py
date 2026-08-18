@@ -413,13 +413,10 @@ class AnalyticsCacheEntry(models.Model):
         help="When this result was computed",
     )
 
-    _sql_constraints = [
-        (
-            "cache_key_unique",
-            "UNIQUE(cache_key)",
-            "Cache key must be unique",
-        ),
-    ]
+    _cache_key_unique = models.Constraint(
+        "UNIQUE(cache_key)",
+        "Cache key must be unique",
+    )
 
     @api.model
     def cron_cleanup_expired(self):

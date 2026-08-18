@@ -249,7 +249,7 @@ class TestAggregationIntegrationDemo(TransactionCase):
             {
                 "name": "Test Researcher",
                 "login": "test_researcher",
-                "groups_id": [(6, 0, [self.ref("base.group_user")])],
+                "group_ids": [(6, 0, [self.ref("base.group_user")])],
             }
         )
 
@@ -423,7 +423,7 @@ class TestAggregationIntegrationDemo(TransactionCase):
             {
                 "name": "Test Attacker",
                 "login": "test_attacker",
-                "groups_id": [(6, 0, [self.ref("base.group_user")])],
+                "group_ids": [(6, 0, [self.ref("base.group_user")])],
             }
         )
 
@@ -633,7 +633,7 @@ class TestAggregationIntegrationDemo(TransactionCase):
             {
                 "name": "Test Complement User",
                 "login": "test_complement",
-                "groups_id": [(6, 0, [self.ref("base.group_user")])],
+                "group_ids": [(6, 0, [self.ref("base.group_user")])],
             }
         )
 

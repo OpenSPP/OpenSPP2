@@ -238,14 +238,15 @@ class TestDataSource(TransactionCase):
 
     def test_sender_id_required_for_auth(self):
         """Test sender ID is required when auth_type is not 'none'"""
-        # Should fail for basic auth without sender_id
+        # Should fail for bearer auth without sender_id
         with self.assertRaises(ValidationError) as cm:
             self.DataSource.create(
                 {
                     "name": "Test CRVS",
                     "code": "test_crvs",
                     "base_url": "https://crvs.example.org/api",
-                    "auth_type": "basic",
+                    "auth_type": "bearer",
+                    "bearer_token": "tok",
                 }
             )
         self.assertIn("sender id", str(cm.exception).lower())

@@ -376,3 +376,47 @@ class TestNameSearch(RegIdCommon):
         # Both seeded records should appear (limit defaults to 100).
         self.assertIn(self.rec_alice_national.id, ids)
         self.assertIn(self.rec_bob_tax.id, ids)
+
+
+@tagged("post_install", "-at_install")
+class TestStatusEmptyOnRegistryAdd(RegIdCommon):
+    """``status`` is left empty for IDs added via the registry UI (OP#1110).
+
+    Per the #1110 decision, IDs added directly through the registry (admin)
+    keep an empty status to stay consistent across the system; Valid/Invalid
+    is set only by the ID-document change request flow.
+    """
+
+    def test_new_id_status_empty(self):
+        """A directly-created ID (as the registry form does) has no status."""
+        rec = self.RegId.create(
+            {
+                "partner_id": self.individual_a.id,
+                "id_type_id": self.id_type_national.id,
+                "value": "NAT-123",
+            }
+        )
+        self.assertFalse(rec.status)
+
+    def test_group_id_status_empty(self):
+        """Same applies to IDs added on a group profile."""
+        rec = self.RegId.create(
+            {
+                "partner_id": self.group.id,
+                "id_type_id": self.id_type_national.id,
+                "value": "GRP-123",
+            }
+        )
+        self.assertFalse(rec.status)
+
+    def test_explicit_status_is_preserved(self):
+        """An explicit status (e.g. set by the CR flow) is respected."""
+        rec = self.RegId.create(
+            {
+                "partner_id": self.individual_a.id,
+                "id_type_id": self.id_type_national.id,
+                "value": "NAT-456",
+                "status": "invalid",
+            }
+        )
+        self.assertEqual(rec.status, "invalid")

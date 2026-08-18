@@ -1,6 +1,6 @@
 {
     "name": "OpenSPP Disability Registry",
-    "version": "19.0.2.0.1",
+    "version": "19.0.3.0.1",
     "category": "OpenSPP",
     "summary": "Disability assessment and registry management for social protection",
     "author": "OpenSPP.org",
@@ -31,6 +31,7 @@
         "views/assessment_views.xml",
         "views/assistive_device_views.xml",
         "views/registrant_views.xml",
+        "views/res_config_settings_views.xml",
         "views/menus.xml",
     ],
     "demo": [

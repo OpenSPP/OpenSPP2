@@ -152,6 +152,26 @@ class TestCreateAppliesFormattedName(RegistryCommon):
         rec = self.Partner.create({"is_registrant": True, "addl_name": "Marie"})
         self.assertEqual(rec.name, "MARIE")
 
+    def test_create_explicit_name_with_parts_preserved(self):
+        """Explicit ``name`` alongside name parts → the explicit name wins.
+
+        The demo story generator deliberately sets a human-friendly display
+        ``name`` ("Rosa Garcia") together with given/family parts; that
+        explicit name must not be reformatted to "GARCIA, ROSA". The parts
+        are still stored as given.
+        """
+        rec = self.Partner.create(
+            {
+                "is_registrant": True,
+                "name": "Rosa Garcia",
+                "given_name": "Rosa",
+                "family_name": "Garcia",
+            }
+        )
+        self.assertEqual(rec.name, "Rosa Garcia")
+        self.assertEqual(rec.given_name, "Rosa")
+        self.assertEqual(rec.family_name, "Garcia")
+
 
 @tagged("post_install", "-at_install")
 class TestWriteAppliesFormattedName(RegistryCommon):
@@ -178,6 +198,13 @@ class TestWriteAppliesFormattedName(RegistryCommon):
     def test_write_addl_name_reformats(self):
         self.rec.write({"addl_name": "Marie"})
         self.assertEqual(self.rec.name, "DOE, JANE MARIE")
+
+    def test_write_explicit_name_with_parts_preserved(self):
+        """Writing an explicit ``name`` together with a name part keeps the
+        explicit name; the part still updates underneath."""
+        self.rec.write({"name": "Custom Display", "family_name": "Smith"})
+        self.assertEqual(self.rec.name, "Custom Display")
+        self.assertEqual(self.rec.family_name, "Smith")
 
     def test_write_non_name_field_does_not_reformat(self):
         """Writing ``email`` (not in ``_name_fields``) leaves ``name`` alone."""
@@ -251,22 +278,26 @@ class TestComputeCalcAge(RegistryCommon):
 
 
 @tagged("post_install", "-at_install")
-class TestCheckAgeIsInteger(RegistryCommon):
-    """``_check_age_is_integer`` — constraint on the ``age`` field.
+class TestAgeCreationBehavior(RegistryCommon):
+    """Creation behavior around the computed ``age`` field.
 
-    Note: ``age`` is a NON-stored compute, so ``@api.constrains("age")``
-    only fires when ``age`` is read after a dependency change. In
-    practice, creating an individual with no birthdate yields
-    ``age = "No Birthdate!"`` (not isdigit), but the constraint does NOT
-    fire because Odoo's constrains hooks only trigger on stored writes.
+    ``age`` is a NON-stored compute derived from ``birthdate``
+    (``str(years)`` when set, else ``"No Birthdate!"``), so it can never
+    carry a user-supplied non-integer. The former ``@api.constrains("age")``
+    ``_check_age_is_integer`` guard therefore never fired (Odoo's constrains
+    hooks only trigger on stored writes) and only emitted the registry-load
+    warning ``@constrains parameter 'age' is not writeable`` — it was removed
+    as dead code.
 
-    These tests pin the current observable behavior. If the constraint
-    is ever made to fire (e.g., by storing the compute), the second test
-    will need to flip to ``assertRaises(ValidationError)``.
+    These tests pin the observable behavior the removal must preserve:
+    an individual can be created with or without a birthdate. They also
+    guard against a naive re-introduction that stores the compute and
+    keeps an isdigit-style constraint, which would make the birthdate-less
+    case raise on ``age == "No Birthdate!"`` at create time.
     """
 
     def test_individual_without_birthdate_can_be_created(self):
-        """Despite age=='No Birthdate!' (not isdigit), no error."""
+        """age=='No Birthdate!' (not isdigit) must not block creation."""
         rec = self.Partner.create({"name": "Ageless", "is_registrant": True})
         self.assertTrue(rec.id)
 

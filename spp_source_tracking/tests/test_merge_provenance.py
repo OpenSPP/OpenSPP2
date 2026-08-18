@@ -17,8 +17,12 @@ class TestMergeProvenance(TransactionCase):
         cls.RegistryId = cls.env["spp.registry.id"]
         cls.VocabularyCode = cls.env["spp.vocabulary.code"]
         cls.Vocabulary = cls.env["spp.vocabulary"]
-        cls.Program = cls.env["spp.program"]
-        cls.Membership = cls.env["spp.program.membership"]
+        # spp.program lives in spp_programs; program-membership merge handling
+        # is exercised only when the programs stack is installed.
+        cls.has_programs = "spp.program" in cls.env
+        if cls.has_programs:
+            cls.Program = cls.env["spp.program"]
+            cls.Membership = cls.env["spp.program.membership"]
 
         # Create a vocabulary for ID types (id_type_id expects spp.vocabulary.code)
         cls.test_vocab = cls.Vocabulary.create(
@@ -36,13 +40,14 @@ class TestMergeProvenance(TransactionCase):
             }
         )
 
-        # Create a test program with unique name
-        cls.program = cls.Program.create(
-            {
-                "name": f"Test Social Program {uuid.uuid4().hex[:8]}",
-                "target_type": "individual",
-            }
-        )
+        # Create a test program with unique name (only when programs installed)
+        if cls.has_programs:
+            cls.program = cls.Program.create(
+                {
+                    "name": f"Test Social Program {uuid.uuid4().hex[:8]}",
+                    "target_type": "individual",
+                }
+            )
 
     def _create_registrant(self, name, source_system="test-source", **kwargs):
         """Helper to create a registrant with source tracking."""
@@ -106,6 +111,8 @@ class TestMergeProvenance(TransactionCase):
 
     def test_merge_into_transfers_memberships(self):
         """Test that merge_into transfers program memberships."""
+        if not self.has_programs:
+            self.skipTest("spp.program not installed (see spp_source_tracking_programs)")
         source = self._create_registrant("Source Partner")
         target = self._create_registrant("Target Partner")
 
@@ -123,6 +130,8 @@ class TestMergeProvenance(TransactionCase):
 
     def test_merge_into_handles_duplicate_memberships(self):
         """Test that duplicate memberships are archived during merge."""
+        if not self.has_programs:
+            self.skipTest("spp.program not installed (see spp_source_tracking_programs)")
         source = self._create_registrant("Source Partner")
         target = self._create_registrant("Target Partner")
 
