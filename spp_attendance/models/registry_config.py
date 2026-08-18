@@ -7,6 +7,7 @@ class RegistryConfig(models.TransientModel):
     server_url = fields.Char(
         string="Server URL",
         config_parameter="spp_attendance.server_url",
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         default=lambda self: self.env["ir.config_parameter"].sudo().get_param("web.base.url"),
     )
 
@@ -114,6 +115,9 @@ class RegistryConfig(models.TransientModel):
 
     @api.model
     def set_server_url(self):
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         if not self.env["ir.config_parameter"].sudo().get_param("spp_attendance.server_url"):
+            # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
             web_base_url = self.env["ir.config_parameter"].sudo().get_param("web.base.url")
+            # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
             self.env["ir.config_parameter"].sudo().set_param("spp_attendance.server_url", web_base_url)

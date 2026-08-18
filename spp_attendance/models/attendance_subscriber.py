@@ -125,10 +125,12 @@ class AttendanceSubscriber(models.Model):
         attendance_list_ids = self.env["spp.attendance.list"].search(
             domain, offset=offset, limit=limit, order="attendance_date desc, attendance_time desc"
         )
+        # nosemgrep: odoo-sudo-without-context — count/read of the subscriber's own attendance for API serialization
         total_attendances = self.env["spp.attendance.list"].sudo().search_count(domain)
 
         present_domain = domain + [("attendance_category", "=", "present")]
         number_of_days_present = list(
+            # nosemgrep: odoo-sudo-without-context — count/read of the subscriber's own attendance for API serialization
             set(self.env["spp.attendance.list"].sudo().search(present_domain).mapped("attendance_date"))
         )
 

@@ -369,11 +369,19 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:f14cdc55cd485da151349989e21bdafb68dcad327eef90ac39756a284a0d3779
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Alpha" src="https://img.shields.io/badge/maturity-Alpha-red.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/openspp-modules/tree/19.0/spp_attendance"><img alt="OpenSPP/openspp-modules" src="https://img.shields.io/badge/github-OpenSPP%2Fopenspp--modules-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Alpha" src="https://img.shields.io/badge/maturity-Alpha-red.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_attendance"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Tracks participant attendance for social protection program activities.
 Records presence/absence with date, time, location, and activity type.
 Provides OAuth-secured API endpoints for external systems to submit
 attendance data and import participants from external registries.</p>
+<p><strong>Positioning vs ``spp_session_tracking``:</strong> this module is a
+standalone, API-first attendance service — it keeps its own participant
+registry (synced from an external registry) and receives attendance
+events from external systems over REST, so it can run on a bare instance
+without the program stack. <tt class="docutils literal">spp_session_tracking</tt> covers the
+complementary case: attendance at sessions and trainings managed
+<em>inside</em> a program instance. The two do not share models and can
+coexist.</p>
 <div class="section" id="key-capabilities">
 <h1>Key Capabilities</h1>
 <ul class="simple">
@@ -392,8 +400,8 @@ to prevent duplicate records</li>
 <h1>Key Models</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="55%" />
+<col width="45%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -417,8 +425,7 @@ types</td>
 <td>Configurable attendance
 locations</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.at
-tendance.api.client.credential</tt></td>
+<tr><td><tt class="docutils literal">spp.attendance.api.client.credential</tt></td>
 <td>OAuth credentials for external
 API clients</td>
 </tr>
@@ -503,35 +510,101 @@ Only for development or testing purpose, do not use in production.</p>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><a class="reference internal" href="#bug-tracker" id="toc-entry-1">Bug Tracker</a></li>
-<li><a class="reference internal" href="#credits" id="toc-entry-2">Credits</a><ul>
-<li><a class="reference internal" href="#authors" id="toc-entry-3">Authors</a></li>
-<li><a class="reference internal" href="#maintainers" id="toc-entry-4">Maintainers</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#usage" id="toc-entry-1">Usage</a></li>
 </ul>
 </div>
+<div class="section" id="usage">
+<h2><a class="toc-backref" href="#toc-entry-1">Usage</a></h2>
+</div>
+</div>
+<div class="section" id="syncing-participants-from-a-registry">
+<h1>Syncing participants from a registry</h1>
+<p>The participant import (Settings &gt; SPP Attendance Settings, used by the
+<em>Import Attendance</em> wizard) is fully configuration-driven: an auth
+endpoint, a search endpoint, and JSON-path mappings into the response.
+The shipped defaults target the SPDCI-style interface of a legacy
+openspp-modules registry (<tt class="docutils literal">/oauth2/client/token</tt> +
+<tt class="docutils literal">/registry/sync/search</tt>).</p>
+<p>To sync from an <strong>OpenSPP2</strong> registry instead, point the settings at the
+DCI server modules (<tt class="docutils literal">spp_dci_server</tt> + <tt class="docutils literal">spp_dci_server_social</tt> must
+be installed on the registry instance):</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Setting</th>
+<th class="head">Value for an OpenSPP2 registry</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>Server URL</td>
+<td><tt class="docutils literal"><span class="pre">https://&lt;registry-host&gt;</span></tt></td>
+</tr>
+<tr><td>Auth Endpoint</td>
+<td><tt class="docutils literal">/api/v2/spp/oauth/token</tt> (spp_api_v2
+client-credentials endpoint)</td>
+</tr>
+<tr><td>Import Endpoint</td>
+<td><tt class="docutils literal">/dci_api/v1/registry/sync/search</tt></td>
+</tr>
+</tbody>
+</table>
+<p>The JSON-path mappings (personal information, identifier, names, contact
+fields) must match the DCI search response envelope of the target
+registry; adjust them from the defaults as needed.</p>
+</div>
+<div class="section" id="api-access-for-external-systems">
+<h1>API access for external systems</h1>
+<ol class="arabic simple">
+<li>Create client credentials under <strong>Attendance &gt; Configuration &gt; API
+Clients</strong>. The client secret is displayed <strong>once</strong> at creation (and
+on regeneration) — store it securely; only a hash is kept.</li>
+<li>Obtain a token: <tt class="docutils literal">POST /auth/token</tt> with
+<tt class="docutils literal">client_id</tt>/<tt class="docutils literal">client_secret</tt>.</li>
+<li>Call the attendance endpoints with <tt class="docutils literal">Authorization: ***;token&gt;</tt>.</li>
+</ol>
+<p>Signing keys come from <tt class="docutils literal">spp_oauth</tt> (Settings &gt; General Settings &gt;
+OpenSPP OAuth); the RSA keypair must be configured before tokens can be
+issued.</p>
+<div class="section" id="changelog">
+<h2>Changelog</h2>
+</div>
+</div>
+<div class="section" id="section-1">
+<h1>19.0.2.0.0</h1>
+<ul class="simple">
+<li>Initial migration from openspp-modules</li>
+<li>fix(security): store API client secrets as scrypt hashes instead of
+plaintext. Secrets are shown once at creation/regeneration and can no
+longer be read back afterwards — including secrets that existed before
+the upgrade, which a migration hashes in place. Clients keep
+authenticating with their unchanged secrets. The Attendance Viewer
+group’s read access to the credential model is removed.</li>
+<li>fix: <tt class="docutils literal">gender_char</tt> on <tt class="docutils literal">res.partner</tt> no longer defaults to “Male”</li>
+</ul>
 <div class="section" id="bug-tracker">
-<h2><a class="toc-backref" href="#toc-entry-1">Bug Tracker</a></h2>
-<p>Bugs are tracked on <a class="reference external" href="https://github.com/OpenSPP/openspp-modules/issues">GitHub Issues</a>.
+<h2>Bug Tracker</h2>
+<p>Bugs are tracked on <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/issues">GitHub Issues</a>.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
-<a class="reference external" href="https://github.com/OpenSPP/openspp-modules/issues/new?body=module:%20spp_attendance%0Aversion:%2019.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**">feedback</a>.</p>
+<a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/issues/new?body=module:%20spp_attendance%0Aversion:%2019.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**">feedback</a>.</p>
 <p>Do not contact contributors directly about support or help with technical issues.</p>
 </div>
 <div class="section" id="credits">
-<h2><a class="toc-backref" href="#toc-entry-2">Credits</a></h2>
+<h2>Credits</h2>
 <div class="section" id="authors">
-<h3><a class="toc-backref" href="#toc-entry-3">Authors</a></h3>
+<h3>Authors</h3>
 <ul class="simple">
 <li>OpenSPP.org</li>
 </ul>
 </div>
 <div class="section" id="maintainers">
-<h3><a class="toc-backref" href="#toc-entry-4">Maintainers</a></h3>
+<h3>Maintainers</h3>
 <p>Current maintainer:</p>
 <p><a class="reference external image-reference" href="https://github.com/reichie020212"><img alt="reichie020212" src="https://github.com/reichie020212.png?size=40px" /></a></p>
-<p>This module is part of the <a class="reference external" href="https://github.com/OpenSPP/openspp-modules/tree/19.0/spp_attendance">OpenSPP/openspp-modules</a> project on GitHub.</p>
+<p>This module is part of the <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_attendance">OpenSPP/OpenSPP2</a> project on GitHub.</p>
 <p>You are welcome to contribute.</p>
 </div>
 </div>

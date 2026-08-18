@@ -16,9 +16,9 @@ OpenSPP Attendance
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2Fopenspp--modules-lightgray.png?logo=github
-    :target: https://github.com/OpenSPP/openspp-modules/tree/19.0/spp_attendance
-    :alt: OpenSPP/openspp-modules
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+    :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_attendance
+    :alt: OpenSPP/OpenSPP2
 
 |badge1| |badge2| |badge3|
 
@@ -26,6 +26,15 @@ Tracks participant attendance for social protection program activities.
 Records presence/absence with date, time, location, and activity type.
 Provides OAuth-secured API endpoints for external systems to submit
 attendance data and import participants from external registries.
+
+**Positioning vs ``spp_session_tracking``:** this module is a
+standalone, API-first attendance service — it keeps its own participant
+registry (synced from an external registry) and receives attendance
+events from external systems over REST, so it can run on a bare instance
+without the program stack. ``spp_session_tracking`` covers the
+complementary case: attendance at sessions and trainings managed
+*inside* a program instance. The two do not share models and can
+coexist.
 
 Key Capabilities
 ~~~~~~~~~~~~~~~~
@@ -43,27 +52,27 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Model                            | Description                      |
-+==================================+==================================+
-| ``spp.attendance.subscriber``    | Participant registry, inherits   |
-|                                  | res.partner                      |
-+----------------------------------+----------------------------------+
-| ``spp.attendance.list``          | Attendance record with date,     |
-|                                  | time, type, location             |
-+----------------------------------+----------------------------------+
-| ``spp.attendance.type``          | Configurable attendance event    |
-|                                  | types                            |
-+----------------------------------+----------------------------------+
-| ``spp.attendance.location``      | Configurable attendance          |
-|                                  | locations                        |
-+----------------------------------+----------------------------------+
-| ``spp.at                         | OAuth credentials for external   |
-| tendance.api.client.credential`` | API clients                      |
-+----------------------------------+----------------------------------+
-| ``spp.import.attendance.wizard`` | Wizard for importing from        |
-|                                  | external registries              |
-+----------------------------------+----------------------------------+
++------------------------------------------+----------------------------------+
+| Model                                    | Description                      |
++==========================================+==================================+
+| ``spp.attendance.subscriber``            | Participant registry, inherits   |
+|                                          | res.partner                      |
++------------------------------------------+----------------------------------+
+| ``spp.attendance.list``                  | Attendance record with date,     |
+|                                          | time, type, location             |
++------------------------------------------+----------------------------------+
+| ``spp.attendance.type``                  | Configurable attendance event    |
+|                                          | types                            |
++------------------------------------------+----------------------------------+
+| ``spp.attendance.location``              | Configurable attendance          |
+|                                          | locations                        |
++------------------------------------------+----------------------------------+
+| ``spp.attendance.api.client.credential`` | OAuth credentials for external   |
+|                                          | API clients                      |
++------------------------------------------+----------------------------------+
+| ``spp.import.attendance.wizard``         | Wizard for importing from        |
+|                                          | external registries              |
++------------------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -128,13 +137,74 @@ Dependencies
 .. contents::
    :local:
 
+Usage
+=====
+
+Syncing participants from a registry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The participant import (Settings > SPP Attendance Settings, used by the
+*Import Attendance* wizard) is fully configuration-driven: an auth
+endpoint, a search endpoint, and JSON-path mappings into the response.
+The shipped defaults target the SPDCI-style interface of a legacy
+openspp-modules registry (``/oauth2/client/token`` +
+``/registry/sync/search``).
+
+To sync from an **OpenSPP2** registry instead, point the settings at the
+DCI server modules (``spp_dci_server`` + ``spp_dci_server_social`` must
+be installed on the registry instance):
+
++-----------------+----------------------------------------------------+
+| Setting         | Value for an OpenSPP2 registry                     |
++=================+====================================================+
+| Server URL      | ``https://<registry-host>``                        |
++-----------------+----------------------------------------------------+
+| Auth Endpoint   | ``/api/v2/spp/oauth/token`` (spp_api_v2            |
+|                 | client-credentials endpoint)                       |
++-----------------+----------------------------------------------------+
+| Import Endpoint | ``/dci_api/v1/registry/sync/search``               |
++-----------------+----------------------------------------------------+
+
+The JSON-path mappings (personal information, identifier, names, contact
+fields) must match the DCI search response envelope of the target
+registry; adjust them from the defaults as needed.
+
+API access for external systems
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. Create client credentials under **Attendance > Configuration > API
+   Clients**. The client secret is displayed **once** at creation (and
+   on regeneration) — store it securely; only a hash is kept.
+2. Obtain a token: ``POST /auth/token`` with
+   ``client_id``/``client_secret``.
+3. Call the attendance endpoints with ``Authorization: ***
+
+Signing keys come from ``spp_oauth`` (Settings > General Settings >
+OpenSPP OAuth); the RSA keypair must be configured before tokens can be
+issued.
+
+Changelog
+=========
+
+19.0.2.0.0
+~~~~~~~~~~
+
+- Initial migration from openspp-modules
+- fix(security): store API client secrets as scrypt hashes instead of
+  plaintext. Secrets are shown once at creation/regeneration and can no
+  longer be read back afterwards — including secrets that existed before
+  the upgrade, which a migration hashes in place. Clients keep
+  authenticating with their unchanged secrets. The Attendance Viewer
+  group's read access to the credential model is removed.
+- fix: ``gender_char`` on ``res.partner`` no longer defaults to "Male"
+
 Bug Tracker
 ===========
 
-Bugs are tracked on `GitHub Issues <https://github.com/OpenSPP/openspp-modules/issues>`_.
+Bugs are tracked on `GitHub Issues <https://github.com/OpenSPP/OpenSPP2/issues>`_.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
-`feedback <https://github.com/OpenSPP/openspp-modules/issues/new?body=module:%20spp_attendance%0Aversion:%2019.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
+`feedback <https://github.com/OpenSPP/OpenSPP2/issues/new?body=module:%20spp_attendance%0Aversion:%2019.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
 
 Do not contact contributors directly about support or help with technical issues.
 
@@ -157,6 +227,6 @@ Current maintainer:
 
 |maintainer-reichie020212| 
 
-This module is part of the `OpenSPP/openspp-modules <https://github.com/OpenSPP/openspp-modules/tree/19.0/spp_attendance>`_ project on GitHub.
+This module is part of the `OpenSPP/OpenSPP2 <https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_attendance>`_ project on GitHub.
 
 You are welcome to contribute.

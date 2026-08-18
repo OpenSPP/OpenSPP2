@@ -32,9 +32,13 @@ class Attendance(models.Model):
 
     def get_unique_domain(self):
         self.ensure_one()
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         date_unique = self.env["ir.config_parameter"].sudo().get_param("spp_attendance.date_unique")
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         time_unique = self.env["ir.config_parameter"].sudo().get_param("spp_attendance.time_unique")
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         type_unique = self.env["ir.config_parameter"].sudo().get_param("spp_attendance.type_unique")
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         location_unique = self.env["ir.config_parameter"].sudo().get_param("spp_attendance.location_unique")
 
         domain = []
