@@ -563,7 +563,8 @@ Clients</strong>. The client secret is displayed <strong>once</strong> at creati
 on regeneration) — store it securely; only a hash is kept.</li>
 <li>Obtain a token: <tt class="docutils literal">POST /auth/token</tt> with
 <tt class="docutils literal">client_id</tt>/<tt class="docutils literal">client_secret</tt>.</li>
-<li>Call the attendance endpoints with <tt class="docutils literal">Authorization: ***;token&gt;</tt>.</li>
+<li>Call the attendance endpoints with the token in the
+<tt class="docutils literal">Authorization</tt> header (<tt class="docutils literal">Bearer</tt> scheme).</li>
 </ol>
 <p>Signing keys come from <tt class="docutils literal">spp_oauth</tt> (Settings &gt; General Settings &gt;
 OpenSPP OAuth); the RSA keypair must be configured before tokens can be

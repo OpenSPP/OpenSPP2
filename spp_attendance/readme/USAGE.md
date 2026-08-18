@@ -22,7 +22,7 @@ DCI search response envelope of the target registry; adjust them from the defaul
 1. Create client credentials under **Attendance > Configuration > API Clients**. The client secret
    is displayed **once** at creation (and on regeneration) — store it securely; only a hash is kept.
 2. Obtain a token: `POST /auth/token` with `client_id`/`client_secret`.
-3. Call the attendance endpoints with `Authorization: Bearer <token>`.
+3. Call the attendance endpoints with the token in the `Authorization` header (`Bearer` scheme).
 
 Signing keys come from `spp_oauth` (Settings > General Settings > OpenSPP OAuth); the RSA keypair
 must be configured before tokens can be issued.
