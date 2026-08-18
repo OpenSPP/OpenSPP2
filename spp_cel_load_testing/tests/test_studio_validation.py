@@ -370,7 +370,12 @@ class TestStudioLogicPackValidation(PerformanceTestCase):
         )
 
     def test_all_pack_items_have_valid_json(self):
-        """Verify all pack items have valid JSON in logic_data."""
+        """Verify all pack items have valid JSON in logic_data.
+
+        OpenSPP2 contract (see spp_studio pack_install_wizard): logic_data
+        is a JSON object whose 'cel_expression' key holds the CEL source
+        installed into spp.cel.expression. There is no 'mode' key.
+        """
         if not self._module_installed:
             self.skipTest("spp_studio not installed")
 
@@ -393,32 +398,14 @@ class TestStudioLogicPackValidation(PerformanceTestCase):
             try:
                 data = json.loads(item.logic_data)
 
-                # Check for required keys
-                if "mode" not in data:
+                cel_expr = data.get("cel_expression")
+                if not cel_expr or not isinstance(cel_expr, str):
                     errors.append(
                         {
                             "id": item.id,
                             "name": item.name,
                             "pack": item.pack_id.name if item.pack_id else "N/A",
-                            "error": "Missing 'mode' in JSON",
-                        }
-                    )
-                elif data["mode"] == "advanced" and "cel_expression" not in data:
-                    errors.append(
-                        {
-                            "id": item.id,
-                            "name": item.name,
-                            "pack": item.pack_id.name if item.pack_id else "N/A",
-                            "error": "Advanced mode missing 'cel_expression'",
-                        }
-                    )
-                elif data["mode"] == "simple" and "conditions" not in data:
-                    errors.append(
-                        {
-                            "id": item.id,
-                            "name": item.name,
-                            "pack": item.pack_id.name if item.pack_id else "N/A",
-                            "error": "Simple mode missing 'conditions'",
+                            "error": "Missing or empty 'cel_expression' in JSON",
                         }
                     )
 
@@ -471,10 +458,9 @@ class TestStudioLogicPackValidation(PerformanceTestCase):
             data = {}
             try:
                 data = item.get_logic_dict()
-                if data.get("mode") == "advanced":
-                    cel_expr = data.get("cel_expression")
-                    if cel_expr:
-                        parse(cel_expr)
+                cel_expr = data.get("cel_expression")
+                if cel_expr:
+                    parse(cel_expr)
             except json.JSONDecodeError:
                 # JSON errors are caught in previous test
                 pass
@@ -527,6 +513,7 @@ class TestStudioLogicPackValidation(PerformanceTestCase):
 
         start_time = time.perf_counter()
         translator = self.env["spp.cel.translator"]
+        resolver = self.env["spp.cel.variable.resolver"]
         # Use the standard registry_individuals profile for translation,
         # consistent with other CEL performance tests.
         cfg = self.cel_registry.load_profile("registry_individuals")
@@ -534,17 +521,26 @@ class TestStudioLogicPackValidation(PerformanceTestCase):
         items = self.env["spp.studio.pack.item"].search([])
         errors = []
         translated_count = 0
+        unresolved_count = 0
 
         for item in items:
             data = {}
+            resolved_expr = "N/A"
             try:
                 data = item.get_logic_dict()
-                if data.get("mode") == "advanced":
-                    cel_expr = data.get("cel_expression")
-                    if cel_expr:
-                        # Try to translate with registry_individuals profile
-                        translator.translate(model, cel_expr, cfg)
-                        translated_count += 1
+                cel_expr = data.get("cel_expression")
+                if cel_expr:
+                    # Pack expressions reference studio variables; expand
+                    # them the same way installation does before translating.
+                    resolution = resolver.preview_resolution(cel_expr, context_type="individual")
+                    if resolution.get("missing_variables"):
+                        # Variable availability is asserted separately by
+                        # test_pack_required_variables_exist
+                        unresolved_count += 1
+                        continue
+                    resolved_expr = resolution.get("expression") or cel_expr
+                    translator.translate(model, resolved_expr, cfg)
+                    translated_count += 1
             except json.JSONDecodeError:
                 # JSON errors are caught in previous test
                 pass
@@ -554,7 +550,7 @@ class TestStudioLogicPackValidation(PerformanceTestCase):
                         "id": item.id,
                         "name": item.name,
                         "pack": item.pack_id.name if item.pack_id else "N/A",
-                        "expression": data.get("cel_expression", "N/A"),
+                        "expression": resolved_expr,
                         "error": str(e),
                     }
                 )
@@ -574,11 +570,12 @@ class TestStudioLogicPackValidation(PerformanceTestCase):
                 _logger.warning("    Error: %s", err["error"])
 
         _logger.info(
-            "Translated %d/%d CEL expressions in %.3fs (%d errors)",
+            "Translated %d/%d CEL expressions in %.3fs (%d errors, %d with unresolved variables)",
             translated_count,
             len(items),
             elapsed,
             len(errors),
+            unresolved_count,
         )
 
         self.assertEqual(
@@ -648,97 +645,63 @@ class TestStudioLogicPackValidation(PerformanceTestCase):
             f"{len(missing)} required variable dependencies are missing",
         )
 
-    def test_simple_mode_conditions_compile(self):
-        """Verify simple mode conditions can be converted to CEL."""
+    def test_no_legacy_logic_data_schema(self):
+        """Verify no pack item still carries the legacy logic_data schema.
+
+        The pre-OpenSPP2 studio stored logic_data as {'mode': 'simple'|
+        'advanced', 'conditions': [...], ...}. OpenSPP2 consumes only
+        'cel_expression' (plus optional metadata); a 'mode' or 'conditions'
+        key indicates data that installation would silently ignore.
+        """
         if not self._module_installed:
             self.skipTest("spp_studio not installed")
 
         start_time = time.perf_counter()
         items = self.env["spp.studio.pack.item"].search([])
-        errors = []
-        checked_count = 0
+        legacy = []
 
         for item in items:
             try:
                 data = item.get_logic_dict()
-                if data.get("mode") == "simple":
-                    conditions = data.get("conditions", [])
-                    if conditions:
-                        # Simple mode conditions should be a list
-                        if not isinstance(conditions, list):
-                            errors.append(
-                                {
-                                    "id": item.id,
-                                    "name": item.name,
-                                    "pack": item.pack_id.name if item.pack_id else "N/A",
-                                    "error": "Conditions must be a list",
-                                }
-                            )
-                            continue
-
-                        # Each condition should have required fields
-                        for idx, cond in enumerate(conditions):
-                            if not isinstance(cond, dict):
-                                errors.append(
-                                    {
-                                        "id": item.id,
-                                        "name": item.name,
-                                        "pack": item.pack_id.name if item.pack_id else "N/A",
-                                        "error": f"Condition {idx} is not a dict",
-                                    }
-                                )
-                                continue
-
-                            # Check for required condition fields
-                            if "variable" not in cond or "operator" not in cond:
-                                errors.append(
-                                    {
-                                        "id": item.id,
-                                        "name": item.name,
-                                        "pack": item.pack_id.name if item.pack_id else "N/A",
-                                        "error": f"Condition {idx} missing variable/operator",
-                                    }
-                                )
-
-                        checked_count += 1
-
             except json.JSONDecodeError:
-                # JSON errors are caught in previous test
-                pass
-            except Exception as e:
-                errors.append(
+                # JSON errors are caught in test_all_pack_items_have_valid_json
+                continue
+
+            legacy_keys = {"mode", "conditions"} & set(data)
+            if legacy_keys:
+                legacy.append(
                     {
                         "id": item.id,
                         "name": item.name,
                         "pack": item.pack_id.name if item.pack_id else "N/A",
-                        "error": str(e),
+                        "keys": sorted(legacy_keys),
                     }
                 )
 
         elapsed = time.perf_counter() - start_time
 
-        if errors:
-            _logger.warning("Pack items with invalid simple mode conditions:")
-            for err in errors:
+        if legacy:
+            _logger.warning("Pack items with legacy logic_data keys:")
+            for leg in legacy:
                 _logger.warning(
                     "  - %s (ID %s, pack: %s): %s",
-                    err["name"],
-                    err["id"],
-                    err["pack"],
-                    err["error"],
+                    leg["name"],
+                    leg["id"],
+                    leg["pack"],
+                    leg["keys"],
                 )
 
         _logger.info(
-            "Checked %d simple mode items in %.3fs (%d errors)",
-            checked_count,
+            "Checked %d pack items for legacy schema in %.3fs (%d legacy)",
+            len(items),
             elapsed,
-            len(errors),
+            len(legacy),
         )
 
         self.assertEqual(
-            len(errors),
+            len(legacy),
             0,
-            f"{len(errors)} pack items have invalid simple mode conditions",
+            f"{len(legacy)} pack items still use the legacy logic_data schema",
         )
 
 
