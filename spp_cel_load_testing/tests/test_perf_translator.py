@@ -459,10 +459,9 @@ class TestCELTranslatorPerformance(common.PerformanceTestCase):
                 cel_translator.invalidate_translation_cache()
 
                 count = 0
-                # Capture cfg in closure to avoid B023
-                profile_cfg = cfg
 
-                def translate_profile():
+                # Bind cfg as a default argument to avoid B023
+                def translate_profile(profile_cfg=cfg):
                     nonlocal count
                     expr = medium_exprs[count % len(medium_exprs)]
                     self.translator.translate(model, expr, profile_cfg)

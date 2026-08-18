@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+# Standalone CLI tool: report output goes to stdout by design.
+# pylint: disable=print-used
 
 """Database Index Analysis CLI for CEL Expression Performance.
 
@@ -173,7 +175,7 @@ class IndexAnalysisCLI:
         """
         _logger.info("Running expression analysis (requires Odoo environment)...")
         _logger.warning(
-            "Expression analysis requires Odoo environment. " "This feature is not yet implemented in standalone mode."
+            "Expression analysis requires Odoo environment. This feature is not yet implemented in standalone mode."
         )
 
         # This would require:
@@ -260,9 +262,7 @@ class IndexAnalysisCLI:
         for table, stats in sorted(results["coverage_by_table"].items()):
             coverage = stats["coverage_pct"]
             status = "✅" if coverage == 100 else "❌" if coverage < 50 else "⚠️"
-            lines.append(
-                f"{table:<30} {stats['recommended']:<15} {stats['missing']:<15} " f"{status} {coverage:>5.1f}%"
-            )
+            lines.append(f"{table:<30} {stats['recommended']:<15} {stats['missing']:<15} {status} {coverage:>5.1f}%")
 
         lines.append("-" * 80)
         lines.append("")
@@ -371,7 +371,7 @@ Environment Variables:
 
     # Validate args
     if not any([args.check_existing, args.run_expressions, args.generate_ddl]):
-        parser.error("At least one analysis mode required: " "--check-existing, --run-expressions, or --generate-ddl")
+        parser.error("At least one analysis mode required: --check-existing, --run-expressions, or --generate-ddl")
 
     # Connect to database
     with DatabaseConnection(

@@ -128,8 +128,7 @@ class ExplainAnalyzer:
                     "severity": "medium",
                     "type": "slow_node",
                     "message": (
-                        f"Slow {node_type} operation: {actual_time:.2f}ms "
-                        f"(threshold: {self.SLOW_NODE_MS_THRESHOLD}ms)"
+                        f"Slow {node_type} operation: {actual_time:.2f}ms (threshold: {self.SLOW_NODE_MS_THRESHOLD}ms)"
                     ),
                     "node_type": node_type,
                     "time_ms": actual_time,
@@ -147,7 +146,7 @@ class ExplainAnalyzer:
                         "severity": "high",
                         "type": "nested_loop_no_index",
                         "message": (
-                            f"Nested loop without index scan processing {actual_rows:,} rows " f"({actual_time:.2f}ms)"
+                            f"Nested loop without index scan processing {actual_rows:,} rows ({actual_time:.2f}ms)"
                         ),
                         "rows": actual_rows,
                         "time_ms": actual_time,

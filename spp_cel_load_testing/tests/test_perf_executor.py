@@ -374,7 +374,7 @@ class TestCELExecutorPerformance(common.PerformanceTestCase):
         Evaluates '(age_years(r.birthdate) >= 18 && r.income < 5000) || r.income < 2000'
         to measure performance of complex boolean expressions.
         """
-        expression = "(age_years(r.birthdate) >= 18 && r.income < 5000) || " "r.income < 2000"
+        expression = "(age_years(r.birthdate) >= 18 && r.income < 5000) || r.income < 2000"
         profile = "registry_individuals"
         base_domain = [("id", "in", self.registrants_1000.ids)]
 
@@ -674,7 +674,7 @@ class TestCELAreaHelpersPerformance(common.PerformanceTestCase):
         cls.all_registrants = cls.registrants_remote | cls.registrants_urban
 
         _logger.info(
-            "Created %s registrants for area helper tests " "(%s remote, %s urban)",
+            "Created %s registrants for area helper tests (%s remote, %s urban)",
             len(cls.all_registrants),
             len(cls.registrants_remote),
             len(cls.registrants_urban),

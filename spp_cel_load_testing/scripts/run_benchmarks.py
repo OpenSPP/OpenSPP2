@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+# Standalone CLI tool: report output goes to stdout by design.
+# pylint: disable=print-used
 """CLI Benchmark Runner for CEL Performance Tests.
 
 This standalone script runs CEL expression performance benchmarks and generates

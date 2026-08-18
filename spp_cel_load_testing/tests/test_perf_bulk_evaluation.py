@@ -254,7 +254,7 @@ class TestBulkEvaluationPerformance(common.PerformanceTestCase):
         _logger.info("-" * 70)
 
         for r in results:
-            _logger.info(f"{r['count']:<10} {r['elapsed_ms']:<12.2f} " f"{r['throughput']:<15.0f} {r['matched']:<10}")
+            _logger.info(f"{r['count']:<10} {r['elapsed_ms']:<12.2f} {r['throughput']:<15.0f} {r['matched']:<10}")
 
         _logger.info("=" * 70 + "\n")
 
@@ -498,8 +498,7 @@ class TestBulkEvaluationPerformance(common.PerformanceTestCase):
 
         for r in results:
             _logger.info(
-                f"{r['name']:<20} {r['limit']:<10} {r['count']:<10} "
-                f"{r['ids_returned']:<10} {r['elapsed_ms']:<12.2f}"
+                f"{r['name']:<20} {r['limit']:<10} {r['count']:<10} {r['ids_returned']:<10} {r['elapsed_ms']:<12.2f}"
             )
 
         _logger.info("=" * 70 + "\n")
