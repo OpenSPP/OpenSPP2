@@ -6,6 +6,7 @@ import werkzeug.wrappers
 
 from odoo.http import Controller, request, route
 from odoo.osv import expression
+from odoo.tools import json_default
 
 from odoo.addons.spp_oauth.tools import OpenSPPOAuthJWTException, verify_and_decode_signature
 

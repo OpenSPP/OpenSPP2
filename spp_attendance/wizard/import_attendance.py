@@ -138,7 +138,7 @@ class ImportAttendanceWiz(models.TransientModel):
         else:
             access_token = r.text
 
-        if not access_token.startswith("Bearer") or access_token.startswith("Basic"):
+        if not (access_token.startswith("Bearer") or access_token.startswith("Basic")):
             access_token = f"{self.auth_type} {access_token}"
 
         params = {
@@ -288,10 +288,14 @@ class ImportAttendanceWiz(models.TransientModel):
         return subscriber_id
 
     def check_required_fields(self, required_fields):
+        # The names are res.config.settings fields (spp_attendance.* params);
+        # use their labels for the message, falling back to the raw name.
+        settings_fields = self.env["res.config.settings"]._fields
         missing_required_fields = []
         for field in required_fields:
             if not self.env["ir.config_parameter"].get_param(f"spp_attendance.{field}"):
-                missing_required_fields.append(self.env["ir.config_parameter"]._fields[field].string)
+                label = settings_fields[field].string if field in settings_fields else field
+                missing_required_fields.append(label)
         return missing_required_fields
 
     def element_mapper(self, data, elements):
