@@ -2,11 +2,11 @@
 {
     "name": "OpenSPP Attendance",
     "category": "OpenSPP",
-    "version": "19.0.1.3.1",
+    "version": "19.0.2.0.0",
     "summary": "This module accurately tracks participant attendance for social protection program activities, capturing essential details like date, time, location, and activity type. It integrates attendance records to inform conditional benefit eligibility and leverages spp_oauth to secure API endpoints for external data submission.",
     "sequence": 1,
     "author": "OpenSPP.org",
-    "website": "https://github.com/OpenSPP/openspp-modules",
+    "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
     "development_status": "Alpha",
     "maintainers": ["reichie020212"],

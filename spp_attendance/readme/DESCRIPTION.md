@@ -1,5 +1,11 @@
 Tracks participant attendance for social protection program activities. Records presence/absence with date, time, location, and activity type. Provides OAuth-secured API endpoints for external systems to submit attendance data and import participants from external registries.
 
+**Positioning vs `spp_session_tracking`:** this module is a standalone, API-first attendance
+service — it keeps its own participant registry (synced from an external registry) and receives
+attendance events from external systems over REST, so it can run on a bare instance without the
+program stack. `spp_session_tracking` covers the complementary case: attendance at sessions and
+trainings managed *inside* a program instance. The two do not share models and can coexist.
+
 ### Key Capabilities
 
 - Record attendance with date, time, type, location, and category (present/absent)
