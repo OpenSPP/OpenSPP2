@@ -12,12 +12,18 @@ Compliance and Payment were converted to an "Add" button opening a dialog
 has three methods where those have one: pick the method, then name it.
 """
 
-from odoo import _, api, fields, models
+from odoo import Command, _, api, fields, models
 from odoo.exceptions import UserError
 
 # The concrete model behind each method, with the wording shown to the user.
 # Kept here rather than read from MANAGER_TYPE_INFO so the selection stays a
 # static list — Odoo needs the values at field-definition time.
+# Deduplicating on ID documents needs to know *which* documents count. The
+# check is `id_type_id in supported_id_document_type_ids`, so a manager with
+# none set matches nothing and reports no duplicates at all — silently. The
+# dialog therefore asks for them, and only for this method (OP#1171 round 2).
+ID_DOCUMENT_METHOD = "spp.deduplication.manager.id_dedup"
+
 DEDUPLICATION_METHODS = [
     (
         "spp.deduplication.manager.default",
@@ -58,6 +64,12 @@ class DeduplicationSetupWizard(models.TransientModel):
         string="Name",
         required=True,
         help="Shown on the program's configuration page.",
+    )
+    supported_id_document_type_ids = fields.Many2many(
+        "spp.vocabulary.code",
+        string="ID document types",
+        domain=[("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:id-type")],
+        help="Which ID documents are compared. Registrants sharing a number on any of these are flagged.",
     )
 
     @api.depends("method")
@@ -124,6 +136,12 @@ class DeduplicationSetupWizard(models.TransientModel):
         keeps saying nothing is configured and deduplication never runs.
         """
         self.ensure_one()
+        if self.method == ID_DOCUMENT_METHOD and not self.supported_id_document_type_ids:
+            # The view marks this required, which covers the dialog; a
+            # programmatic caller does not go through the client, and a manager
+            # with no types set reports no duplicates rather than failing.
+            raise UserError(_("Choose at least one ID document type for this method to compare."))
+
         self._sweep_removed_methods()
 
         configured = self.program_id.deduplication_manager_ids.filtered(
@@ -135,14 +153,12 @@ class DeduplicationSetupWizard(models.TransientModel):
                 % dict(self._fields["method"].selection)[self.method]
             )
 
+        values = {"name": self.name, "program_id": self.program_id.id}
+        if self.method == ID_DOCUMENT_METHOD:
+            values["supported_id_document_type_ids"] = [Command.set(self.supported_id_document_type_ids.ids)]
         self.env[self.method].with_context(
             default_program_id=self.program_id.id,
             _spp_wrapper_model="spp.deduplication.manager",
             _spp_program_m2m_field="deduplication_manager_ids",
-        ).create(
-            {
-                "name": self.name,
-                "program_id": self.program_id.id,
-            }
-        )
+        ).create(values)
         return {"type": "ir.actions.act_window_close"}

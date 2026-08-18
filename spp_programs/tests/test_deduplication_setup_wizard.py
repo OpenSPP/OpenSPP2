@@ -20,9 +20,21 @@ class TestDeduplicationSetupWizard(TransactionCase):
         super().setUpClass()
         cls.program = cls.env["spp.program"].create({"name": "Dedup Setup Wizard [TEST]"})
 
-    def _wizard(self, method, name):
-        return self.env["spp.deduplication.setup.wizard"].create(
+    def _wizard(self, method, name, with_id_types=True):
+        wizard = self.env["spp.deduplication.setup.wizard"].create(
             {"program_id": self.program.id, "method": method, "name": name}
+        )
+        if with_id_types and method == "spp.deduplication.manager.id_dedup":
+            # The dialog requires these for the ID method, so the helper fills
+            # them in the way a user would. An ID manager with none set compares
+            # nothing (OP#1171 round 2).
+            wizard.supported_id_document_type_ids = self._id_types()
+        return wizard
+
+    def _id_types(self, limit=2):
+        return self.env["spp.vocabulary.code"].search(
+            [("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:id-type")],
+            limit=limit,
         )
 
     def _wrappers(self):
@@ -227,6 +239,53 @@ class TestDeduplicationSetupWizard(TransactionCase):
         self.assertIn("'create'", options, "create must be denied too")
         self.assertNotIn("'unlink'", options, "removing a method must stay possible")
         self.assertEqual(field.xpath("./list")[0].get("create"), "0")
+
+    # ------------------------------------------------------------------
+    # the ID document method
+    # ------------------------------------------------------------------
+
+    def test_the_dialog_asks_which_id_types_to_compare(self):
+        """The field belongs to this method, so the dialog has to carry it.
+
+        `deduplicate_beneficiaries` keeps only documents whose type is in
+        supported_id_document_type_ids, so a manager created without any finds
+        no duplicates at all and says nothing about why (OP#1171 round 2).
+        """
+        arch = etree.fromstring(self.env.ref("spp_programs.view_deduplication_setup_wizard_form").arch)
+        field = arch.xpath("//field[@name='supported_id_document_type_ids']")[0]
+
+        self.assertIn("id_dedup", field.get("invisible") or "", "only the ID method compares documents")
+        self.assertIn("id_dedup", field.get("required") or "", "an empty list would match nothing")
+
+    def test_the_chosen_id_types_reach_the_manager(self):
+        id_types = self._id_types()
+        self.assertTrue(id_types, "spp_vocabulary seeds ID types; the dialog needs them")
+        wizard = self._wizard("spp.deduplication.manager.id_dedup", "By ID")
+        wizard.supported_id_document_type_ids = id_types
+
+        wizard.action_create_manager()
+
+        concrete = self._wrappers().manager_ref_id
+        self.assertEqual(concrete.supported_id_document_type_ids, id_types)
+
+    def test_the_id_method_is_refused_without_a_type(self):
+        """Required in the view covers the dialog, not a programmatic caller."""
+        with self.assertRaises(UserError):
+            self._wizard("spp.deduplication.manager.id_dedup", "By ID", with_id_types=False).action_create_manager()
+
+        self.assertFalse(self._wrappers(), "nothing should be created")
+
+    def test_the_other_methods_do_not_ask_for_id_types(self):
+        for method in ("spp.deduplication.manager.default", "spp.deduplication.manager.phone_number"):
+            with self.subTest(method=method):
+                program = self.env["spp.program"].create({"name": f"No ID types {method} [TEST]"})
+                wizard = self.env["spp.deduplication.setup.wizard"].create(
+                    {"program_id": program.id, "method": method, "name": "No types"}
+                )
+
+                wizard.action_create_manager()
+
+                self.assertEqual(len(program.deduplication_manager_ids), 1)
 
     # ------------------------------------------------------------------
     # removing a method

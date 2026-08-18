@@ -23,6 +23,27 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         <field name="method_description" nolabel="1" readonly="1" />
                     </div>
                     <field name="name" placeholder="e.g. Phone number check" />
+                    <!--
+                        Only the ID method compares documents, and it compares
+                        only the types listed here: the check is
+                        `id_type_id in supported_id_document_type_ids`, so
+                        leaving it empty makes the method match nothing and
+                        report no duplicates without saying why. QA asked for
+                        the list to appear on selecting ID document (OP#1171
+                        round 2), and it is required for the same reason.
+
+                        Same widget and options as the manager's own form, so
+                        the two places look alike: tags, and no creating
+                        vocabulary codes from here.
+                    -->
+                    <field
+                        name="supported_id_document_type_ids"
+                        widget="many2many_tags"
+                        invisible="method != 'spp.deduplication.manager.id_dedup'"
+                        required="method == 'spp.deduplication.manager.id_dedup'"
+                        options="{'no_open':True,'no_quick_create':True,'no_create_edit':True,'no_create':True}"
+                        placeholder="e.g. National ID, Passport"
+                    />
                 </group>
                 <footer>
                     <button
