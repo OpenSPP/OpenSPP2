@@ -42,9 +42,11 @@ class TestExplainAnalyzer(TransactionCase):
         count = self.env.cr.fetchone()[0]
         self.assertEqual(count, 0, "analyze_query executed the INSERT it was analyzing")
 
-        # A plan must still be produced (plain EXPLAIN, without ANALYZE)
+        # A plan must still be produced (plain EXPLAIN, without ANALYZE),
+        # and the result must disclose that it was not instrumented
         self.assertIsNone(result.get("error"), f"analyze_query errored: {result.get('error')}")
         self.assertIsNotNone(result.get("plan"), "analyze_query returned no plan for the INSERT")
+        self.assertFalse(result["analyzed"], "plan-only results must carry analyzed=False")
 
     def test_analyze_conflicting_insert_keeps_transaction_alive(self):
         """A DML that would violate a constraint must not abort the transaction.
@@ -72,6 +74,7 @@ class TestExplainAnalyzer(TransactionCase):
 
         self.assertIsNone(result.get("error"), f"analyze_query errored: {result.get('error')}")
         self.assertIsNotNone(result.get("plan"), "analyze_query returned no plan for the SELECT")
+        self.assertTrue(result["analyzed"], "SELECT analysis must carry analyzed=True")
         # ANALYZE output carries an Execution Time; plan-only output does not
         self.assertGreater(
             result.get("total_time_ms", 0.0),

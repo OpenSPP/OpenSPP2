@@ -98,23 +98,27 @@ class QueryCapture:
             Wrapped execute method that captures queries
         """
 
-        def wrapper(query, params=None):
-            # Call original method first
-            result = original_method(query, params)
+        def wrapper(query, params=None, *args, **kwargs):
+            # Call original method first, passing through every argument
+            # (Cursor.execute also takes log_exceptions)
+            result = original_method(query, params, *args, **kwargs)
 
-            # Capture SELECT queries only if enabled
-            if self._capture_enabled and isinstance(query, str):
-                query_upper = query.strip().upper()
-                if query_upper.startswith("SELECT"):
+            # Capture SELECT queries only if enabled. On Odoo 19 the ORM
+            # passes odoo.tools.SQL objects, which the real execute()
+            # unwraps only after this wrapper ran — unwrap them here too,
+            # or all ORM traffic would be silently dropped.
+            if self._capture_enabled:
+                query_text = query if isinstance(query, str) else getattr(query, "code", None)
+                if isinstance(query_text, str) and query_text.strip().upper().startswith("SELECT"):
                     with self._lock:
                         try:
-                            tables = self._extract_tables(query)
-                            columns = self._extract_columns(query)
+                            tables = self._extract_tables(query_text)
+                            columns = self._extract_columns(query_text)
 
                             self.queries.append(
                                 {
-                                    "query": query,
-                                    "params": params,
+                                    "query": query_text,
+                                    "params": params if isinstance(query, str) else getattr(query, "params", params),
                                     "tables": tables,
                                     "columns": columns,
                                 }
@@ -147,7 +151,13 @@ class QueryCapture:
         """
         with self._lock:
             if self._capture_enabled and self._original_execute:
-                cursor.execute = self._original_execute
+                # A true restore: remove the instance attribute so lookup
+                # falls back to the class method, instead of shadowing it
+                # with a stored bound method forever.
+                try:
+                    delattr(cursor, "execute")
+                except AttributeError:
+                    cursor.execute = self._original_execute
                 self._original_execute = None
                 self._capture_enabled = False
                 _logger.debug("Query capture stopped. Captured %d queries", len(self.queries))

@@ -46,13 +46,16 @@ class ExplainAnalyzer:
                 - plan: Full execution plan as JSON
                 - issues: List of detected performance issues
                 - total_time_ms: Total execution time in milliseconds
+                - analyzed: True when EXPLAIN ANALYZE ran (SELECTs only);
+                  False means plan-only — no runtime metrics, and issue
+                  detection based on actual rows/times cannot fire
         """
+        is_select = query.lstrip().upper().startswith("SELECT")
         try:
             # EXPLAIN ANALYZE executes the statement it analyzes. That is
             # only safe for SELECTs: re-executing captured DML repeats its
             # side effects (duplicate rows, unique-constraint violations).
             # Non-SELECT statements get a plan-only EXPLAIN instead.
-            is_select = query.lstrip().upper().startswith("SELECT")
             options = "ANALYZE, BUFFERS, FORMAT JSON" if is_select else "FORMAT JSON"
             explain_query = f"EXPLAIN ({options}) {query}"
 
@@ -65,7 +68,13 @@ class ExplainAnalyzer:
 
                 result = self.cursor.fetchone()
             if not result or not result[0]:
-                return {"plan": None, "issues": [], "total_time_ms": 0.0, "error": "No EXPLAIN output received"}
+                return {
+                    "plan": None,
+                    "issues": [],
+                    "total_time_ms": 0.0,
+                    "analyzed": is_select,
+                    "error": "No EXPLAIN output received",
+                }
 
             # Parse JSON plan
             plan_json = result[0]
@@ -85,11 +94,12 @@ class ExplainAnalyzer:
                 "plan": plan,
                 "issues": issues,
                 "total_time_ms": total_time,
+                "analyzed": is_select,
             }
 
         except Exception as e:
             _logger.warning("Failed to analyze query: %s", e, exc_info=True)
-            return {"plan": None, "issues": [], "total_time_ms": 0.0, "error": str(e)}
+            return {"plan": None, "issues": [], "total_time_ms": 0.0, "analyzed": is_select, "error": str(e)}
 
     def _detect_issues_recursive(self, node: dict[str, Any], issues: list[dict[str, Any]], path: list[str]):
         """Recursively traverse plan tree to detect performance issues.

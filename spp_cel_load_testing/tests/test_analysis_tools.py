@@ -93,6 +93,29 @@ class TestQueryCapture(TransactionCase):
         self.assertEqual(self.env.cr.execute, original_execute, "Cursor execute was not restored")
         self.assertTrue(capture.get_queries())
 
+    def test_capture_sees_orm_sql_objects(self):
+        """The Odoo 19 ORM passes SQL objects, not strings — they must be
+        captured too, or the tool records nothing for real ORM traffic."""
+        capture = QueryCapture()
+        capture.start_capture(self.env.cr)
+        try:
+            self.env["res.partner"].search([("id", ">", 0)], limit=1)
+        finally:
+            capture.stop_capture(self.env.cr)
+
+        stats = capture.get_query_stats()
+        self.assertIn("res_partner", stats["tables"], "ORM SELECT traffic was not captured")
+
+    def test_capture_passes_through_log_exceptions(self):
+        """Cursor.execute takes log_exceptions; the wrapper must not choke."""
+        capture = QueryCapture()
+        capture.start_capture(self.env.cr)
+        try:
+            self.env.cr.execute("SELECT 1", log_exceptions=False)
+        finally:
+            capture.stop_capture(self.env.cr)
+        self.assertTrue(capture.get_queries())
+
     def test_capture_extracts_join_tables_and_where_columns(self):
         with capture_queries(self.env.cr) as capture:
             self.env.cr.execute(

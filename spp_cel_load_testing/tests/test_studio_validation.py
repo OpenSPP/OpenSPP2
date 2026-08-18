@@ -35,17 +35,20 @@ class TestStudioVariableValidation(PerformanceTestCase):
 
     @classmethod
     def setUpClass(cls):
-        """Initialize test environment."""
+        """Initialize test environment.
+
+        spp.cel.variable itself always exists via the spp_cel_domain hard
+        dependency, but spp_cel_domain ships no variable records — data
+        comes from spp_studio (or others). Without any records these
+        validations would pass vacuously, so skip honestly instead.
+        """
         super().setUpClass()
-        if "spp.cel.variable" not in cls.env:
-            cls._module_installed = False
-            return
-        cls._module_installed = True
+        cls._module_installed = "spp.cel.variable" in cls.env and bool(cls.env["spp.cel.variable"].search_count([]))
 
     def test_all_variables_have_cel_accessor(self):
         """Verify all active variables have a non-empty cel_accessor."""
         if not self._module_installed:
-            self.skipTest("spp_cel_domain not installed")
+            self.skipTest("no spp.cel.variable records to validate")
 
         start_time = time.perf_counter()
         variables = self.env["spp.cel.variable"].search([("active", "=", True)])
@@ -88,7 +91,7 @@ class TestStudioVariableValidation(PerformanceTestCase):
     def test_all_cel_accessors_parse(self):
         """Validate all variable CEL accessors can be parsed."""
         if not self._module_installed:
-            self.skipTest("spp_cel_domain not installed")
+            self.skipTest("no spp.cel.variable records to validate")
 
         start_time = time.perf_counter()
         variables = self.env["spp.cel.variable"].search([("active", "=", True)])
@@ -138,7 +141,7 @@ class TestStudioVariableValidation(PerformanceTestCase):
     def test_computed_variables_compile(self):
         """Verify computed variables have valid cel_expression."""
         if not self._module_installed:
-            self.skipTest("spp_cel_domain not installed")
+            self.skipTest("no spp.cel.variable records to validate")
 
         start_time = time.perf_counter()
         variables = self.env["spp.cel.variable"].search(
@@ -201,7 +204,7 @@ class TestStudioVariableValidation(PerformanceTestCase):
     def test_aggregate_variables_build_cel(self):
         """Verify aggregate variables build valid CEL expressions."""
         if not self._module_installed:
-            self.skipTest("spp_cel_domain not installed")
+            self.skipTest("no spp.cel.variable records to validate")
 
         start_time = time.perf_counter()
         variables = self.env["spp.cel.variable"].search(
@@ -259,7 +262,7 @@ class TestStudioVariableValidation(PerformanceTestCase):
     def test_variable_categories_exist(self):
         """Verify all referenced category_ids exist and are accessible."""
         if not self._module_installed:
-            self.skipTest("spp_cel_domain not installed")
+            self.skipTest("no spp.cel.variable records to validate")
 
         start_time = time.perf_counter()
         variables = self.env["spp.cel.variable"].search(
@@ -525,31 +528,38 @@ class TestStudioLogicPackValidation(PerformanceTestCase):
         items = self.env["spp.studio.pack.item"].search([("expression_type", "=", "filter")])
         errors = []
         translated_count = 0
-        unresolved_count = 0
+        unresolved = []
 
         for item in items:
             data = {}
             resolved_expr = "N/A"
-            context_type = "group" if item.context_type == "group" else "individual"
-            cfg = profiles[context_type]
-            model = cfg.get("root_model", "res.partner")
+            # 'both' (Shared) items must translate in every context they
+            # can be evaluated in.
+            context_types = ["individual", "group"] if item.context_type == "both" else [item.context_type]
             try:
                 data = item.get_logic_dict()
                 cel_expr = data.get("cel_expression")
-                if cel_expr:
+                if not cel_expr:
+                    continue
+                for context_type in context_types:
+                    cfg = profiles[context_type]
+                    model = cfg.get("root_model", "res.partner")
                     # Pack expressions reference studio variables; expand
                     # them the same way installation does before translating.
                     resolution = resolver.preview_resolution(cel_expr, context_type=context_type)
                     if resolution.get("missing_variables"):
-                        # Variable availability is asserted separately by
-                        # test_pack_required_variables_exist
-                        unresolved_count += 1
-                        _logger.warning(
-                            "Unresolved variables in pack item '%s' (ID %s, pack: %s): %s",
-                            item.name,
-                            item.id,
-                            item.pack_id.name if item.pack_id else "N/A",
-                            resolution["missing_variables"],
+                        # NOTE: declared required_variable_ids are checked by
+                        # test_pack_required_variables_exist, but variables
+                        # actually referenced inside expressions are only
+                        # caught here — so unresolved items must FAIL.
+                        unresolved.append(
+                            {
+                                "id": item.id,
+                                "name": item.name,
+                                "pack": item.pack_id.name if item.pack_id else "N/A",
+                                "context": context_type,
+                                "missing": resolution["missing_variables"],
+                            }
                         )
                         continue
                     resolved_expr = resolution.get("expression") or cel_expr
@@ -583,19 +593,36 @@ class TestStudioLogicPackValidation(PerformanceTestCase):
                 _logger.warning("    Expression: %s", err["expression"][:100])
                 _logger.warning("    Error: %s", err["error"])
 
+        if unresolved:
+            _logger.warning("Pack items with unresolved variables:")
+            for item_info in unresolved:
+                _logger.warning(
+                    "  - %s (ID %s, pack: %s, context: %s): %s",
+                    item_info["name"],
+                    item_info["id"],
+                    item_info["pack"],
+                    item_info["context"],
+                    item_info["missing"],
+                )
+
         _logger.info(
             "Translated %d/%d CEL expressions in %.3fs (%d errors, %d with unresolved variables)",
             translated_count,
             len(items),
             elapsed,
             len(errors),
-            unresolved_count,
+            len(unresolved),
         )
 
         self.assertEqual(
             len(errors),
             0,
             f"{len(errors)} pack items have translation errors",
+        )
+        self.assertEqual(
+            len(unresolved),
+            0,
+            f"{len(unresolved)} pack items reference variables that do not resolve (see #431)",
         )
 
     def test_pack_required_variables_exist(self):

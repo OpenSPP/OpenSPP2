@@ -556,9 +556,13 @@ class TestVariableResolverAdversarial(common.PerformanceTestCase):
             )
 
     def test_concurrent_cache_access(self):
-        """Test thread safety of cache under concurrent access.
+        """Test thread safety of the shared class-level LRU cache.
 
-        Simulates multiple workers processing eligibility in parallel.
+        Covers concurrent pure-Python cache *hits* only: the cache version
+        is pinned and the cache pre-warmed because the TransactionCase
+        cursor is not thread-safe, so SQL-backed resolution cannot run in
+        worker threads here. Full multi-worker resolution would need
+        per-thread cursors/envs against committed data.
         """
         if self.LogicVariableResolver is None:
             self.skipTest("Variable resolver not available")
