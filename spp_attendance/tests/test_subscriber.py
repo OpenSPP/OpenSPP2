@@ -1,8 +1,8 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
+
 from psycopg2.errors import UniqueViolation
 
-from odoo.exceptions import ValidationError
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 from odoo.tools import mute_logger
@@ -46,7 +46,10 @@ class TestSubscriber(TransactionCase):
 
     def test_person_identifier_unique(self):
         self._create(identifier="PID-DUP")
-        with self.assertRaises((ValidationError, UniqueViolation)), mute_logger("odoo.sql_db"):
+        # The INSERT is flushed inside create() (the person_identifier
+        # inverse touches the partner), so the raw UniqueViolation
+        # propagates instead of being converted to a ValidationError.
+        with self.assertRaises(UniqueViolation), mute_logger("odoo.sql_db"):
             with self.env.cr.savepoint():
                 self._create(identifier="PID-DUP", family_name="Other", given_name="Person")
                 self.env.flush_all()
