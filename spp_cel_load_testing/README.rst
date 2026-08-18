@@ -160,6 +160,15 @@ Changelog
   (``spp.studio.pack`` models, ``cel_expression``-based ``logic_data``
   contract); the legacy ``mode``/``conditions`` schema is asserted
   absent
+- fix(analysis): ``QueryCapture`` handles the ``SQL`` objects the Odoo
+  19 ORM passes to ``Cursor.execute`` (previously all ORM traffic was
+  silently dropped and only hand-written string SQL was captured),
+  passes through ``log_exceptions`` instead of raising ``TypeError``,
+  and restores the cursor's real ``execute`` on stop instead of
+  shadowing it
+- fix(analysis): ``analyze_query`` results carry an ``analyzed`` flag so
+  plan-only (non-SELECT) results are distinguishable from instrumented
+  clean runs
 - test(analysis): unit coverage for the query-capture, slow-query-report
   and index-advisor helpers
 - chore: performance thresholds calibrated to shared CI runners

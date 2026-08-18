@@ -543,6 +543,15 @@ racing the test cursor</li>
 (<tt class="docutils literal">spp.studio.pack</tt> models, <tt class="docutils literal">cel_expression</tt>-based <tt class="docutils literal">logic_data</tt>
 contract); the legacy <tt class="docutils literal">mode</tt>/<tt class="docutils literal">conditions</tt> schema is asserted
 absent</li>
+<li>fix(analysis): <tt class="docutils literal">QueryCapture</tt> handles the <tt class="docutils literal">SQL</tt> objects the Odoo
+19 ORM passes to <tt class="docutils literal">Cursor.execute</tt> (previously all ORM traffic was
+silently dropped and only hand-written string SQL was captured),
+passes through <tt class="docutils literal">log_exceptions</tt> instead of raising <tt class="docutils literal">TypeError</tt>,
+and restores the cursor’s real <tt class="docutils literal">execute</tt> on stop instead of
+shadowing it</li>
+<li>fix(analysis): <tt class="docutils literal">analyze_query</tt> results carry an <tt class="docutils literal">analyzed</tt> flag so
+plan-only (non-SELECT) results are distinguishable from instrumented
+clean runs</li>
 <li>test(analysis): unit coverage for the query-capture, slow-query-report
 and index-advisor helpers</li>
 <li>chore: performance thresholds calibrated to shared CI runners
