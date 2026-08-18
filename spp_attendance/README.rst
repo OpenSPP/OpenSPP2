@@ -177,8 +177,8 @@ API access for external systems
    on regeneration) — store it securely; only a hash is kept.
 2. Obtain a token: ``POST /auth/token`` with
    ``client_id``/``client_secret``.
-3. Call the attendance endpoints with the token in the
-   ``Authorization`` header (``Bearer`` scheme).
+3. Call the attendance endpoints with the token in the ``Authorization``
+   header (``Bearer`` scheme).
 
 Signing keys come from ``spp_oauth`` (Settings > General Settings >
 OpenSPP OAuth); the RSA keypair must be configured before tokens can be
