@@ -78,6 +78,37 @@ class DeduplicationSetupWizard(models.TransientModel):
         if not self.name or self.name in suggestions:
             self.name = labels.get(self.method, "")
 
+    def _sweep_removed_methods(self):
+        """Delete the methods the card no longer shows.
+
+        ``spp.program.deduplication_manager_ids`` is a Many2many, so the ✕ on a
+        row removes the *relation* and leaves the wrapper behind with its
+        ``program_id`` still pointing here. Those leftovers never run — the
+        program deduplicates through its own field, not through the wrappers'
+        ``program_id`` — but ``action_create_manager`` used to look for
+        duplicates with a search on ``program_id``, so a method the user had
+        removed still refused to be added back (OP#1171 round 1).
+
+        Only wrappers that no program links are swept. The relation is a
+        Many2many: one this program created but another program links is that
+        program's method now, not something to delete.
+        """
+        self.ensure_one()
+        removed = (
+            self.env["spp.deduplication.manager"].search([("program_id", "=", self.program_id.id)])
+            - self.program_id.deduplication_manager_ids
+        )
+        if not removed:
+            return
+        linked = self.env["spp.program"].search([("deduplication_manager_ids", "in", removed.ids)])
+        for leftover in removed - linked.deduplication_manager_ids:
+            # The concrete record owns the wrapper: spp.manager.source.mixin's
+            # unlink() takes the wrapper with it. manager_ref_id is a Reference,
+            # so it carries no foreign key and can outlive what it points at —
+            # unlinking that blind would raise MissingError on the Add button.
+            concrete = leftover.manager_ref_id
+            ((concrete and concrete.exists()) or leftover).unlink()
+
     def action_create_manager(self):
         """Create the concrete manager; the wrapper follows automatically.
 
@@ -93,12 +124,15 @@ class DeduplicationSetupWizard(models.TransientModel):
         keeps saying nothing is configured and deduplication never runs.
         """
         self.ensure_one()
-        existing = self.env["spp.deduplication.manager"].search(
-            [("program_id", "=", self.program_id.id)],
+        self._sweep_removed_methods()
+
+        configured = self.program_id.deduplication_manager_ids.filtered(
+            lambda wrapper: wrapper.manager_ref_id and wrapper.manager_ref_id._name == self.method
         )
-        if any(wrapper.manager_ref_id and wrapper.manager_ref_id._name == self.method for wrapper in existing):
+        if configured:
             raise UserError(
-                _("This program already has a %s deduplication method.") % dict(self._fields["method"].selection)[self.method]
+                _("This program already has a %s deduplication method.")
+                % dict(self._fields["method"].selection)[self.method]
             )
 
         self.env[self.method].with_context(

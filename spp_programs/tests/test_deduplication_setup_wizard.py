@@ -210,14 +210,81 @@ class TestDeduplicationSetupWizard(TransactionCase):
     def test_the_card_does_not_offer_add_a_line(self):
         """Adding goes through the Add button, which asks for the method.
 
-        An inline "Add a line" would create a bare wrapper with no method set —
-        the Reference-field trap this ticket removes. The list attribute alone
-        did not suppress it, so the field carries a create domain that never
-        matches (the same mechanism OP#1057 needed).
+        The row has to be denied through ``link``. The field is a Many2many,
+        and for those the list renderer reads
+        ``"link" in activeActions ? link : create`` — so the list's create="0"
+        and a create domain were both ignored, the row stayed, and it opened
+        the link picker: every deduplication manager in the database, other
+        programs' included (OP#1171 round 1).
+
+        ``unlink`` is deliberately left out: removing a method stays available.
         """
         arch = etree.fromstring(self.env.ref("spp_programs.view_program_form_config_cards").arch)
         field = arch.xpath("//field[@name='deduplication_manager_ids']")[0]
+        options = field.get("options") or ""
 
-        self.assertIn("'create'", field.get("options") or "", "create must be denied through options")
+        self.assertIn("'link'", options, "the link row is what the renderer shows for a Many2many")
+        self.assertIn("'create'", options, "create must be denied too")
+        self.assertNotIn("'unlink'", options, "removing a method must stay possible")
         self.assertEqual(field.xpath("./list")[0].get("create"), "0")
 
+    # ------------------------------------------------------------------
+    # removing a method
+    # ------------------------------------------------------------------
+
+    def test_a_method_can_be_added_again_after_it_is_removed(self):
+        """The ✕ removes the relation, not the record.
+
+        QA removed a method and could not add it back: the duplicate check
+        searched wrappers by ``program_id`` and found the one the card no
+        longer showed (OP#1171 round 1).
+        """
+        self._wizard("spp.deduplication.manager.default", "Shared members").action_create_manager()
+        self.program.invalidate_recordset()
+        removed = self.program.deduplication_manager_ids
+        concrete = removed.manager_ref_id
+        self.program.write({"deduplication_manager_ids": [(3, removed.id)]})
+
+        self._wizard("spp.deduplication.manager.default", "Shared members").action_create_manager()
+        self.program.invalidate_recordset()
+
+        self.assertEqual(len(self.program.deduplication_manager_ids), 1, "the method should be back")
+        self.assertFalse(removed.exists(), "the removed wrapper should not linger")
+        self.assertFalse(concrete.exists(), "nor the method behind it")
+
+    def test_the_sweep_survives_a_reference_pointing_nowhere(self):
+        """manager_ref_id is a Reference: no foreign key, so it can dangle.
+
+        Unlinking it blind would raise MissingError, and it would raise it on
+        the Add button — the one place this sweep runs.
+        """
+        self._wizard("spp.deduplication.manager.default", "Shared members").action_create_manager()
+        self.program.invalidate_recordset()
+        dangling = self.program.deduplication_manager_ids
+        dangling.manager_ref_id.unlink()  # takes the wrapper with it
+        dangling = self.env["spp.deduplication.manager"].create(
+            {
+                "program_id": self.program.id,
+                "manager_ref_id": "spp.deduplication.manager.default,999999999",
+            }
+        )
+
+        self._wizard("spp.deduplication.manager.default", "Shared members").action_create_manager()
+        self.program.invalidate_recordset()
+
+        self.assertFalse(dangling.exists(), "the stale wrapper should be swept")
+        self.assertEqual(len(self.program.deduplication_manager_ids), 1)
+
+    def test_the_sweep_spares_a_method_another_program_uses(self):
+        """The relation is a Many2many; a linked wrapper is not garbage."""
+        self._wizard("spp.deduplication.manager.id_dedup", "By ID").action_create_manager()
+        self.program.invalidate_recordset()
+        shared = self.program.deduplication_manager_ids
+        other = self.env["spp.program"].create({"name": "Dedup Sweep Bystander [TEST]"})
+        self.program.write({"deduplication_manager_ids": [(3, shared.id)]})
+        other.write({"deduplication_manager_ids": [(4, shared.id)]})
+
+        self._wizard("spp.deduplication.manager.phone_number", "By phone").action_create_manager()
+
+        self.assertTrue(shared.exists(), "another program still uses this method")
+        self.assertIn(shared, other.deduplication_manager_ids)

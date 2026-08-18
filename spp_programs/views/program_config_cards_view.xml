@@ -641,19 +641,26 @@ Replaces the technical manager configuration with intuitive sections.
                                 colspan="2"
                                 invisible="not deduplication_configured"
                                 readonly="state == 'ended' or not can_edit_configuration"
-                                options="{'create': [('id', '&lt;', 0)]}"
+                                options="{'create': [('id', '&lt;', 0)], 'link': [('id', '&lt;', 0)]}"
                             >
                                 <!--
-                                    "Add a line" is suppressed through the
-                                    field's options rather than the list's
-                                    create attribute: the x2many passes options
-                                    through as crudOptions and evaluates each
-                                    entry as a domain against the parent record,
-                                    and the list attribute alone did not take
-                                    (the same trap as OP#1057). A program id is
-                                    always positive, so this never matches and
-                                    the row never appears — adding goes through
-                                    the Add button, which asks for the method.
+                                    "Add a line" is denied through 'link', not
+                                    'create'. This field is a Many2many, and for
+                                    those the list renderer reads
+                                    `"link" in activeActions ? link : create`
+                                    (web/…/list_renderer.js) — so create="0" on
+                                    the list and a create domain here were both
+                                    dead letters, and the row that survived
+                                    opened the *link* dialog: every deduplication
+                                    manager in the database, other programs'
+                                    included, ready to be mis-wired into this one
+                                    (OP#1171 round 1).
+
+                                    Both keys take a domain evaluated against the
+                                    parent record. A program id is always
+                                    positive, so neither ever matches. 'unlink'
+                                    is left alone: removing a method with the ✕
+                                    stays available.
                                 -->
                                 <list create="0" no_open="true">
                                     <field name="display_name" string="Method" />
