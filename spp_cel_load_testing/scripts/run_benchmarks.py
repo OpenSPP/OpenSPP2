@@ -38,15 +38,15 @@ def _ensure_module_on_path() -> None:
 
     When this script is executed directly (e.g. ``python scripts/run_benchmarks.py``)
     Python sets ``sys.path[0]`` to the ``scripts`` directory. In that case the
-    ``spp_cel_load_testing`` package is *not* importable unless the parent
-    ``openspp_modules`` directory is also on ``sys.path``.
+    ``spp_cel_load_testing`` package is *not* importable unless the addons
+    root (the directory containing the module) is also on ``sys.path``.
 
-    This helper adds the openspp_modules directory to ``sys.path`` when needed
+    This helper adds the addons root to ``sys.path`` when needed
     so imports like ``spp_cel_load_testing.tests.*`` work both inside and
     outside Docker.
     """
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    # .../openspp_modules/spp_cel_load_testing/scripts -> .../openspp_modules
+    # .../<addons root>/spp_cel_load_testing/scripts -> .../<addons root>
     addons_root = os.path.abspath(os.path.join(script_dir, os.pardir, os.pardir))
     if os.path.isdir(addons_root) and addons_root not in sys.path:
         sys.path.insert(0, addons_root)

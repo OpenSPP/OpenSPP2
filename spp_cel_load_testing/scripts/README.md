@@ -201,19 +201,21 @@ fi
 
 ### See Also
 
-- `/home/user/openspp-modules-v2/spp_cel_load_testing/analysis/index_advisor.py` - Index recommendation engine
-- `/home/user/openspp-modules-v2/spp_cel_load_testing/analysis/explain_analyzer.py` - Query analysis
-- `/home/user/openspp-modules-v2/spp_cel_load_testing/data/expression_templates.py` - Sample CEL expressions
+- `../analysis/index_advisor.py` - Index recommendation engine
+- `../analysis/explain_analyzer.py` - Query analysis
+- `../data/expression_templates.py` - Sample CEL expressions
 
 ---
 
 ## run_benchmarks.py
 
-A comprehensive CLI benchmark runner that executes CEL performance tests and generates detailed reports.
+A comprehensive CLI benchmark runner that executes CEL performance tests and generates
+detailed reports.
 
 ### Features
 
-- **Multiple test suites**: Run parser, translator, executor, eligibility, bulk evaluation, and event data tests
+- **Multiple test suites**: Run parser, translator, executor, eligibility, bulk
+  evaluation, and event data tests
 - **Flexible output formats**: Table (ASCII), JSON, and CSV
 - **Detailed metrics**: Execution time, pass/fail status, performance regressions
 - **Odoo integration**: Connects to real Odoo database for realistic testing
@@ -451,23 +453,25 @@ Some tests with large datasets may take time. Use `--verbose` to see progress:
 
 ### Recommended SLOs / Interpretation
 
-The built-in thresholds in the tests target the following ballpark SLOs on typical hardware (per run of the suite):
+The built-in thresholds in the tests target the following ballpark SLOs on typical
+hardware (per run of the suite):
 
 - Parser / translator:
   - Multi-thousand expression parsing / translation in **≤ a few seconds**.
   - Individual operations usually complete in **sub-millisecond to low-ms**.
 - Executor:
   - Simple expressions on up to **10k registrants**: **≪ 1s** end-to-end.
-  - Complex nested expressions and EXISTS/COUNT patterns: **≤ a few seconds** on 10k registrants.
+  - Complex nested expressions and EXISTS/COUNT patterns: **≤ a few seconds** on 10k
+    registrants.
 - Eligibility:
-  - End-to-end eligibility checks on a 10k registrant dataset in **≤ a few seconds**, including domain preparation and
-    execution.
+  - End-to-end eligibility checks on a 10k registrant dataset in **≤ a few seconds**,
+    including domain preparation and execution.
 - Bulk evaluation:
   - Compile + execute against 2.5k–10k registrants: **≤ a few seconds**.
   - Average time per expression in multi-expression tests: **≪ 200ms**.
 
-If tests start failing, they will point to the specific area (parser, translator, executor, eligibility, bulk, or event
-data) where the SLO is not met.
+If tests start failing, they will point to the specific area (parser, translator,
+executor, eligibility, bulk, or event data) where the SLO is not met.
 
 ### Examples
 
