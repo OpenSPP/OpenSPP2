@@ -6,11 +6,10 @@
     "category": "OpenSPP",
     "version": "19.0.1.0.0",
     "author": "OpenSPP.org",
-    "website": "https://github.com/OpenSPP/openspp-modules",
+    "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
     "development_status": "Alpha",
     "depends": [
-        "spp_load_testing",
         "spp_cel_domain",
         "spp_programs",
     ],

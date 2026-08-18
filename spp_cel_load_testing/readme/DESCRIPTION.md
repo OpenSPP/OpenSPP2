@@ -61,6 +61,6 @@ No security groups or access control. Tests run with the executing user's permis
 
 ### Dependencies
 
-`spp_load_testing`, `spp_cel_domain`, `spp_programs`
+`spp_cel_domain`, `spp_programs`
 
 External Python dependencies: `faker`
