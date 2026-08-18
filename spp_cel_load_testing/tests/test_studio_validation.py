@@ -514,11 +514,15 @@ class TestStudioLogicPackValidation(PerformanceTestCase):
         start_time = time.perf_counter()
         translator = self.env["spp.cel.translator"]
         resolver = self.env["spp.cel.variable.resolver"]
-        # Use the standard registry_individuals profile for translation,
-        # consistent with other CEL performance tests.
-        cfg = self.cel_registry.load_profile("registry_individuals")
-        model = cfg.get("root_model", "res.partner")
-        items = self.env["spp.studio.pack.item"].search([])
+        # Only 'filter' items are search predicates the domain translator
+        # can compile; formulas/scoring return values, not domains, and are
+        # covered by the parse test. Pick the profile from the item's
+        # intended evaluation context.
+        profiles = {
+            "individual": self.cel_registry.load_profile("registry_individuals"),
+            "group": self.cel_registry.load_profile("registry_groups"),
+        }
+        items = self.env["spp.studio.pack.item"].search([("expression_type", "=", "filter")])
         errors = []
         translated_count = 0
         unresolved_count = 0
@@ -526,13 +530,16 @@ class TestStudioLogicPackValidation(PerformanceTestCase):
         for item in items:
             data = {}
             resolved_expr = "N/A"
+            context_type = "group" if item.context_type == "group" else "individual"
+            cfg = profiles[context_type]
+            model = cfg.get("root_model", "res.partner")
             try:
                 data = item.get_logic_dict()
                 cel_expr = data.get("cel_expression")
                 if cel_expr:
                     # Pack expressions reference studio variables; expand
                     # them the same way installation does before translating.
-                    resolution = resolver.preview_resolution(cel_expr, context_type="individual")
+                    resolution = resolver.preview_resolution(cel_expr, context_type=context_type)
                     if resolution.get("missing_variables"):
                         # Variable availability is asserted separately by
                         # test_pack_required_variables_exist
