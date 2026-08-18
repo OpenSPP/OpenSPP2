@@ -28,9 +28,7 @@ class AttendanceSubscriber(models.Model):
     mobile = fields.Char(
         related="partner_id.phone", inherited=True, compute="_compute_partner", inverse="_inverse_partner", store=True
     )
-    gender_char = fields.Char(
-        string="Gender", related="partner_id.gender_char", inherited=True, readonly=False, default="Male"
-    )
+    gender_char = fields.Char(string="Gender", related="partner_id.gender_char", inherited=True, readonly=False)
 
     _partner_id_uniq = models.Constraint("unique(partner_id)", "A subscriber with the same partner already exists.")
     _person_identifier_uniq = models.Constraint(
@@ -68,7 +66,7 @@ class AttendanceSubscriber(models.Model):
                             "email": vals.get("email"),
                             "phone": vals.get("phone") or vals.get("mobile"),
                             "identifier": vals.get("person_identifier"),
-                            "gender_char": vals.get("gender_char", "").title() or "Male",
+                            "gender_char": (vals.get("gender_char") or "").title() or False,
                         }
                     )
                     vals["partner_id"] = partner_id.id
