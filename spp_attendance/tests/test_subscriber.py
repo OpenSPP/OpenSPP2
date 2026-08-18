@@ -2,6 +2,7 @@
 
 from psycopg2.errors import UniqueViolation
 
+from odoo.exceptions import ValidationError
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 from odoo.tools import mute_logger

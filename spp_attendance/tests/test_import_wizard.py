@@ -140,7 +140,9 @@ class TestImportWizard(TransactionCase):
         with self.assertRaises(UserError):
             wizard.element_mapper({"a": {"b": 1}}, ["a", "0"])
         with self.assertRaises(UserError):
-            wizard.element_mapper({"a": []}, ["a", "5"])
+            wizard.element_mapper({"a": [1]}, ["a", "5"])
+        # empty containers short-circuit to None rather than raising
+        self.assertIsNone(wizard.element_mapper({"a": []}, ["a", "5"]))
 
     def test_missing_config_raises_friendly_error(self):
         """A missing mapping parameter must produce the intended UserError,

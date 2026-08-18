@@ -6,7 +6,6 @@ import werkzeug.wrappers
 
 from odoo.http import Controller, request, route
 from odoo.osv import expression
-from odoo.tools import date_utils
 
 from odoo.addons.spp_oauth.tools import OpenSPPOAuthJWTException, verify_and_decode_signature
 
@@ -18,7 +17,7 @@ class SppAttendanceController(Controller):
         return werkzeug.wrappers.Response(
             status=status,
             content_type="application/json; charset=utf-8",
-            response=json.dumps(data, default=date_utils.json_default) if data else None,
+            response=json.dumps(data, default=json_default) if data else None,
         )
 
     def error_wrapper(self, code, message):
