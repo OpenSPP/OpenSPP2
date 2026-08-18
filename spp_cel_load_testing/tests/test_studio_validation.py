@@ -544,6 +544,13 @@ class TestStudioLogicPackValidation(PerformanceTestCase):
                         # Variable availability is asserted separately by
                         # test_pack_required_variables_exist
                         unresolved_count += 1
+                        _logger.warning(
+                            "Unresolved variables in pack item '%s' (ID %s, pack: %s): %s",
+                            item.name,
+                            item.id,
+                            item.pack_id.name if item.pack_id else "N/A",
+                            resolution["missing_variables"],
+                        )
                         continue
                     resolved_expr = resolution.get("expression") or cel_expr
                     translator.translate(model, resolved_expr, cfg)
