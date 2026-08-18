@@ -16,8 +16,11 @@ import logging
 import random
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from unittest.mock import patch
 
 from odoo.tests import tagged
+
+from odoo.addons.spp_cel_domain.models.cel_variable_resolver import CELVariableResolver
 
 from . import common
 
@@ -605,14 +608,27 @@ class TestVariableResolverAdversarial(common.PerformanceTestCase):
         # Clear cache before test
         self.LogicVariableResolver.invalidate_variable_cache()
 
-        # Run concurrent test
-        with self.benchmark(f"Concurrent access ({num_threads} threads, {total_requests} requests)", print_result=True):
-            with ThreadPoolExecutor(max_workers=num_threads) as executor:
-                futures = [executor.submit(worker, i) for i in range(num_threads)]
-                for future in as_completed(futures):
-                    thread_results = future.result()
-                    results.extend(thread_results)
-                    errors.extend([r for r in thread_results if not r["success"]])
+        # The subject under test is the shared class-level LRU cache, which
+        # production threads access concurrently. The shared TransactionCase
+        # cursor however is NOT thread-safe, and _get_cache_key runs a SQL
+        # version lookup on every call (even cache hits), so the cursor must
+        # be taken out of the equation: pin the cache version for the whole
+        # phase, then warm the cache so worker threads only ever exercise
+        # the pure-Python cache-hit path.
+        with patch.object(CELVariableResolver, "_get_cache_version", return_value=0):
+            for expr in expressions:
+                self.LogicVariableResolver.resolve_for_evaluation(expr, context_type="individual")
+
+            # Run concurrent test
+            with self.benchmark(
+                f"Concurrent access ({num_threads} threads, {total_requests} requests)", print_result=True
+            ):
+                with ThreadPoolExecutor(max_workers=num_threads) as executor:
+                    futures = [executor.submit(worker, i) for i in range(num_threads)]
+                    for future in as_completed(futures):
+                        thread_results = future.result()
+                        results.extend(thread_results)
+                        errors.extend([r for r in thread_results if not r["success"]])
 
         # Analyze results
         successful = [r for r in results if r["success"]]
