@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <record id="attendance_subscriber_tree" model="ir.ui.view">
         <field name="name">attendance_subscriber_tree</field>
         <field name="model">spp.attendance.subscriber</field>
@@ -36,9 +35,18 @@
                                     <field name="attendance_time" />
                                     <field name="attendance_type_id" />
                                     <field name="attendance_category" />
-                                    <field name="attendance_location_id" optional="hide" />
-                                    <field name="attendance_description" optional="hide" />
-                                    <field name="attendance_external_url" optional="hide" />
+                                    <field
+                                        name="attendance_location_id"
+                                        optional="hide"
+                                    />
+                                    <field
+                                        name="attendance_description"
+                                        optional="hide"
+                                    />
+                                    <field
+                                        name="attendance_external_url"
+                                        optional="hide"
+                                    />
                                     <field name="submission_source" />
                                     <field name="submitted_by" />
                                     <field name="submitted_datetime" />
@@ -94,5 +102,4 @@
         action="attendance_subscriber_action_window"
         sequence="10"
     />
-
 </odoo>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
-
     <!-- <record id="server_url" model="ir.config_parameter">
         <field name="key">spp_attendance.server_url</field>
         <field name="value" eval="env['ir.config_parameter'].sudo().get_param('web.base.url')"/>

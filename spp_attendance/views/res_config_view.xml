@@ -17,20 +17,32 @@
                             <field name="is_date_unique" />
                         </setting>
                         <setting string="Time">
-                            <field name="is_time_unique" readonly="not is_date_unique" />
+                            <field
+                                name="is_time_unique"
+                                readonly="not is_date_unique"
+                            />
                         </setting>
                         <setting string="Attendance Type">
-                            <field name="is_type_unique" readonly="not is_time_unique" />
+                            <field
+                                name="is_type_unique"
+                                readonly="not is_time_unique"
+                            />
                         </setting>
                         <setting string="Attendance Location">
-                            <field name="is_location_unique" readonly="not is_type_unique" />
+                            <field
+                                name="is_location_unique"
+                                readonly="not is_type_unique"
+                            />
                         </setting>
                     </block>
                     <block title="URL and Auth Settings">
                         <setting string="Server URL" help="Server URL of the API.">
                             <field name="server_url" />
                         </setting>
-                        <setting string="Auth Endpoint" help="Endpoing of the API to Authenticate.">
+                        <setting
+                            string="Auth Endpoint"
+                            help="Endpoing of the API to Authenticate."
+                        >
                             <field name="attendance_auth_endpoint" />
                         </setting>
                         <setting
@@ -39,7 +51,10 @@
                         >
                             <field name="access_token_mapping" />
                         </setting>
-                        <setting string="Import Endpoint" help="Endpoint of the API to import attendance.">
+                        <setting
+                            string="Import Endpoint"
+                            help="Endpoint of the API to import attendance."
+                        >
                             <field name="attendance_import_endpoint" />
                         </setting>
                     </block>
@@ -50,7 +65,10 @@
                         >
                             <field name="personal_information_mapping" />
                         </setting>
-                        <setting string="Person Identifier" help="Mapping for person identifier.">
+                        <setting
+                            string="Person Identifier"
+                            help="Mapping for person identifier."
+                        >
                             <field name="person_identifier_mapping" />
                         </setting>
                         <setting string="Family Name" help="Mapping for family name.">
@@ -68,7 +86,12 @@
                         <setting string="Phone" help="Mapping for phone.">
                             <field name="phone_mapping" />
                         </setting>
-                        <button string="Import" type="object" name="action_import" class="btn btn-success" />
+                        <button
+                            string="Import"
+                            type="object"
+                            name="action_import"
+                            class="btn btn-success"
+                        />
                     </block>
                 </app>
             </xpath>

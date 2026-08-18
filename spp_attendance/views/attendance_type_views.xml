@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <record id="attendance_type_tree" model="ir.ui.view">
         <field name="name">attendance_location_tree</field>
         <field name="model">spp.attendance.type</field>
@@ -41,5 +40,4 @@
         action="attendance_type_action_windown"
         sequence="10"
     />
-
 </odoo>

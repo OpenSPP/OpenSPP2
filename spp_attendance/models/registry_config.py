@@ -16,7 +16,6 @@ class RegistryConfig(models.TransientModel):
         default="/oauth2/client/token",
     )
     access_token_mapping = fields.Char(
-        string="Access Token Mapping",
         config_parameter="spp_attendance.access_token_mapping",
         default="access_token",
     )
@@ -66,19 +65,19 @@ class RegistryConfig(models.TransientModel):
         string="Unique Date",
         config_parameter="spp_attendance.date_unique",
         default=False,
-        inverse="_onchange_unique_fields",
+        inverse="_inverse_unique_fields",
     )
     is_time_unique = fields.Boolean(
         string="Unique Time",
         config_parameter="spp_attendance.time_unique",
         default=False,
-        inverse="_onchange_unique_fields",
+        inverse="_inverse_unique_fields",
     )
     is_type_unique = fields.Boolean(
         string="Unique Type",
         config_parameter="spp_attendance.type_unique",
         default=False,
-        inverse="_onchange_unique_fields",
+        inverse="_inverse_unique_fields",
     )
     is_location_unique = fields.Boolean(
         string="Unique Location",
@@ -102,7 +101,7 @@ class RegistryConfig(models.TransientModel):
         return action
 
     @api.onchange("is_date_unique", "is_time_unique", "is_type_unique")
-    def _onchange_unique_fields(self):
+    def _inverse_unique_fields(self):
         if not self.is_date_unique:
             self.is_time_unique = False
             self.is_type_unique = False

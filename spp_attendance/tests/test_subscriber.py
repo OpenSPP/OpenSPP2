@@ -22,7 +22,9 @@ class TestSubscriber(TransactionCase):
     def test_create_builds_partner(self):
         subscriber = self._create()
         self.assertTrue(subscriber.partner_id)
-        self.assertEqual(subscriber.partner_id.name, "Santos, Ana")
+        # spp_registry (when co-installed) normalizes partner names to
+        # uppercase; compare case-insensitively so both configs pass
+        self.assertEqual(subscriber.partner_id.name.upper(), "SANTOS, ANA")
         self.assertEqual(subscriber.partner_name, "Santos, Ana")
         # inverse pushes the identifier onto the partner
         self.assertEqual(subscriber.partner_id.identifier, "PID-S1")

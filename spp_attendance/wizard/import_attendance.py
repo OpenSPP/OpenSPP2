@@ -66,13 +66,12 @@ class ImportAttendanceWiz(models.TransientModel):
 
     auth_type = fields.Selection(
         selection=[("Basic", "Basic"), ("Bearer", "Bearer")],
-        string="Auth Type",
         default="Bearer",
     )
     raw_body = fields.Text(
         string="Raw Body for Authentication",
         required=True,
-        help=_("The raw body to be sent to the auth URL. Must be in JSON format."),
+        help="The raw body to be sent to the auth URL. Must be in JSON format.",
         default=DEFAULT_RAW_BODY_FOR_AUTH,
     )
     auth_header = fields.Text(string="Auth Headers", default="{}")
@@ -80,11 +79,11 @@ class ImportAttendanceWiz(models.TransientModel):
     raw_body_for_import = fields.Text(
         string="Raw Body for Import",
         required=True,
-        help=_("The raw body to be sent to the import URL. Must be in JSON format."),
+        help="The raw body to be sent to the import URL. Must be in JSON format.",
         default=_get_default_raw_body_for_import,
     )
-    import_header = fields.Text(string="Import Headers", default="{}")
-    page = fields.Integer(string="Page", default=1)
+    import_header = fields.Text(default="{}")
+    page = fields.Integer(default=1)
     limit = fields.Integer(string="Limit", default=30)
 
     def _check_and_retrieve_config_parameter(self, param, name):
@@ -121,7 +120,7 @@ class ImportAttendanceWiz(models.TransientModel):
             raise UserError(_("Import Headers must be in JSON format")) from e
 
         try:
-            r = requests.post(auth_url, data=self.raw_body, headers=auth_header)
+            r = requests.post(auth_url, data=self.raw_body, headers=auth_header, timeout=30)
         except requests.exceptions.ConnectionError as e:
             raise UserError(_("Unable to connect to the server. Please check your internet connection.")) from e
 
@@ -155,7 +154,7 @@ class ImportAttendanceWiz(models.TransientModel):
             )
             if "Content-Type" not in import_header:
                 import_header["Content-Type"] = "application/json"
-            r = requests.post(full_import_url, headers=import_header, data=self.raw_body_for_import)
+            r = requests.post(full_import_url, headers=import_header, data=self.raw_body_for_import, timeout=30)
         except requests.exceptions.ConnectionError as e:
             raise UserError(_("Unable to connect to the server. Please check your internet connection.")) from e
 

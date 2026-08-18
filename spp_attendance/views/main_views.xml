@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <menuitem name="Attendance" id="spp_attendance.menu_root" />
 
     <menuitem
@@ -9,5 +8,4 @@
         parent="spp_attendance.menu_root"
         sequence="20"
     />
-
 </odoo>
