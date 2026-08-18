@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- DRIMS Request Revision Wizard Form (OP#1161) -->
+    <record id="view_drims_request_revision_wizard_form" model="ir.ui.view">
+        <field name="name">spp.drims.request.revision.wizard.form</field>
+        <field name="model">spp.drims.request.revision.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Request Changes">
+                <sheet>
+                    <div class="alert alert-info" role="status">
+                        You are requesting changes to request <field
+                        name="request_id"
+                        readonly="1"
+                        class="oe_inline"
+                    />. Describe what needs to change — it will be saved on the
+                        request and shown to the submitter.
+                    </div>
+                    <group>
+                        <field
+                            name="notes"
+                            nolabel="1"
+                            colspan="2"
+                            placeholder="What does the submitter need to change?"
+                        />
+                    </group>
+                </sheet>
+                <footer>
+                    <button
+                        name="action_request_revision"
+                        string="Request Changes"
+                        type="object"
+                        class="btn-primary"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
