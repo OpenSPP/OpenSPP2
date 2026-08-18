@@ -1,6 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
 from . import common
+from . import test_analysis_tools
 from . import test_explain_analyzer
 from . import test_perf_parser
 from . import test_perf_translator

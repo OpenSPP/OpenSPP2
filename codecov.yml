@@ -31,3 +31,6 @@ ignore:
   - "**/__manifest__.py"
   - "**/migrations/**"
   - "scripts/**"
+  # Module-level CLI tooling (e.g. spp_cel_load_testing/scripts/) is never
+  # executed in CI; the root pattern above does not match nested dirs.
+  - "**/scripts/**"
