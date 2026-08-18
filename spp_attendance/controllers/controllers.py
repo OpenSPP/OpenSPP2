@@ -151,14 +151,7 @@ class SppAttendanceController(Controller):
             }
             return self.response_wrapper(400, error)
 
-        client = (
-            req.env["spp.attendance.api.client.credential"]
-            .sudo()
-            .search(
-                [("client_id", "=", client_id), ("client_secret", "=", client_secret)],
-                limit=1,
-            )
-        )
+        client = req.env["spp.attendance.api.client.credential"].sudo().authenticate(client_id, client_secret)
 
         if not client:
             error = {

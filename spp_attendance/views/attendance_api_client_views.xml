@@ -23,7 +23,6 @@
                     </group>
                     <group name="bearer_auth_info">
                         <field name="client_id" password="True" string="Client ID" />
-                        <field name="client_secret" password="True" />
                     </group>
                     <field name="show_button_clicked" invisible="1" />
                     <button
@@ -33,22 +32,32 @@
                         class="oe_highlight btn-primary"
                         invisible="show_button_clicked or not id"
                     />
+                    <button
+                        name="action_regenerate_secret"
+                        string="Regenerate Secret"
+                        type="object"
+                        confirm="Regenerating invalidates the current secret immediately. Continue?"
+                        invisible="not show_button_clicked"
+                    />
                 </sheet>
             </form>
         </field>
     </record>
 
-    <record id="view_spp_attendance_api_client_credential_form" model="ir.ui.view">
-        <field name="name">spp_attendance_api_client_credential_form</field>
-        <field name="model">spp.attendance.api.client.credential</field>
+    <record id="view_spp_attendance_show_credential_wizard_form" model="ir.ui.view">
+        <field name="name">spp_attendance_show_credential_wizard_form</field>
+        <field name="model">spp.attendance.show.credential.wizard</field>
         <field name="arch" type="xml">
             <form string="Attendance Client Credentials">
                 <sheet>
                     <h2
                     >Make sure to copy your client id and client secret now. You won't be able to see it again!</h2>
                     <group name="bearer_auth_info">
-                        <field name="client_id" widget="CopyClipboardChar" string="Client ID" />
-                        <field name="client_secret" widget="CopyClipboardChar" />
+                        <field name="display_client_id" widget="CopyClipboardChar" />
+                        <field
+                            name="display_client_secret"
+                            widget="CopyClipboardChar"
+                        />
                     </group>
                     <footer>
                         <button string="OK" special="cancel" class="oe_highlight" />
@@ -58,11 +67,16 @@
         </field>
     </record>
 
-    <record id="action_spp_attendance_api_client_credential" model="ir.actions.act_window">
+    <record
+        id="action_spp_attendance_api_client_credential"
+        model="ir.actions.act_window"
+    >
         <field name="name">Attendance Client Credentials</field>
         <field name="res_model">spp.attendance.api.client.credential</field>
         <field name="view_mode">list,form</field>
-        <field name="help">Create and manage the Attendance API Client Credentials.</field>
+        <field
+            name="help"
+        >Create and manage the Attendance API Client Credentials.</field>
     </record>
 
     <menuitem
