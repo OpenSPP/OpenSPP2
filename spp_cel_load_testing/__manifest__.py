@@ -4,7 +4,7 @@
     "name": "OpenSPP CEL Load Testing",
     "summary": "Performance and validation testing for CEL expressions and studio logic",
     "category": "OpenSPP",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
