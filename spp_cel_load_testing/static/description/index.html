@@ -369,7 +369,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:3785b79bfe5a17c32df8bc02460536a436031b5130aa183ea0513122d0f7844a
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Alpha" src="https://img.shields.io/badge/maturity-Alpha-red.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/openspp-modules/tree/19.0/spp_cel_load_testing"><img alt="OpenSPP/openspp-modules" src="https://img.shields.io/badge/github-OpenSPP%2Fopenspp--modules-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Alpha" src="https://img.shields.io/badge/maturity-Alpha-red.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_cel_load_testing"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Performance testing and benchmarking framework for CEL expression
 evaluation. Provides test suites for parser, translator, executor,
 eligibility, and bulk evaluation performance. Includes database query
@@ -443,8 +443,8 @@ scripts.</p>
 <h1>Analysis Tools</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="29%" />
-<col width="71%" />
+<col width="32%" />
+<col width="68%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Tool</th>
@@ -453,16 +453,20 @@ scripts.</p>
 </thead>
 <tbody valign="top">
 <tr><td><tt class="docutils literal">QueryCapture</tt></td>
-<td>Intercept and capture SQL queries for analysis</td>
+<td>Intercept and capture SQL queries for
+analysis</td>
 </tr>
 <tr><td><tt class="docutils literal">ExplainAnalyzer</tt></td>
-<td>Parse EXPLAIN ANALYZE output and identify issues</td>
+<td>Parse EXPLAIN ANALYZE output and identify
+issues</td>
 </tr>
 <tr><td><tt class="docutils literal">IndexAdvisor</tt></td>
-<td>Recommend missing database indexes for CEL queries</td>
+<td>Recommend missing database indexes for CEL
+queries</td>
 </tr>
 <tr><td><tt class="docutils literal">SlowQueryTracker</tt></td>
-<td>Track queries exceeding configurable time thresholds</td>
+<td>Track queries exceeding configurable time
+thresholds</td>
 </tr>
 </tbody>
 </table>
@@ -504,7 +508,7 @@ domain-specific index recommendations</li>
 </div>
 <div class="section" id="dependencies">
 <h1>Dependencies</h1>
-<p><tt class="docutils literal">spp_load_testing</tt>, <tt class="docutils literal">spp_cel_domain</tt>, <tt class="docutils literal">spp_programs</tt></p>
+<p><tt class="docutils literal">spp_cel_domain</tt>, <tt class="docutils literal">spp_programs</tt></p>
 <p>External Python dependencies: <tt class="docutils literal">faker</tt></p>
 <div class="admonition important">
 <p class="first admonition-title">Important</p>
@@ -514,33 +518,37 @@ Only for development or testing purpose, do not use in production.</p>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><a class="reference internal" href="#bug-tracker" id="toc-entry-1">Bug Tracker</a></li>
-<li><a class="reference internal" href="#credits" id="toc-entry-2">Credits</a><ul>
-<li><a class="reference internal" href="#authors" id="toc-entry-3">Authors</a></li>
-<li><a class="reference internal" href="#maintainers" id="toc-entry-4">Maintainers</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#changelog" id="toc-entry-1">Changelog</a></li>
 </ul>
 </div>
+<div class="section" id="changelog">
+<h2><a class="toc-backref" href="#toc-entry-1">Changelog</a></h2>
+</div>
+</div>
+<div class="section" id="section-1">
+<h1>19.0.1.0.0</h1>
+<ul class="simple">
+<li>Initial migration from openspp-modules</li>
+</ul>
 <div class="section" id="bug-tracker">
-<h2><a class="toc-backref" href="#toc-entry-1">Bug Tracker</a></h2>
-<p>Bugs are tracked on <a class="reference external" href="https://github.com/OpenSPP/openspp-modules/issues">GitHub Issues</a>.
+<h2>Bug Tracker</h2>
+<p>Bugs are tracked on <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/issues">GitHub Issues</a>.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
-<a class="reference external" href="https://github.com/OpenSPP/openspp-modules/issues/new?body=module:%20spp_cel_load_testing%0Aversion:%2019.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**">feedback</a>.</p>
+<a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/issues/new?body=module:%20spp_cel_load_testing%0Aversion:%2019.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**">feedback</a>.</p>
 <p>Do not contact contributors directly about support or help with technical issues.</p>
 </div>
 <div class="section" id="credits">
-<h2><a class="toc-backref" href="#toc-entry-2">Credits</a></h2>
+<h2>Credits</h2>
 <div class="section" id="authors">
-<h3><a class="toc-backref" href="#toc-entry-3">Authors</a></h3>
+<h3>Authors</h3>
 <ul class="simple">
 <li>OpenSPP.org</li>
 </ul>
 </div>
 <div class="section" id="maintainers">
-<h3><a class="toc-backref" href="#toc-entry-4">Maintainers</a></h3>
-<p>This module is part of the <a class="reference external" href="https://github.com/OpenSPP/openspp-modules/tree/19.0/spp_cel_load_testing">OpenSPP/openspp-modules</a> project on GitHub.</p>
+<h3>Maintainers</h3>
+<p>This module is part of the <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_cel_load_testing">OpenSPP/OpenSPP2</a> project on GitHub.</p>
 <p>You are welcome to contribute.</p>
 </div>
 </div>
