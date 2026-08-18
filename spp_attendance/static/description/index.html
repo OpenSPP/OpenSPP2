@@ -582,7 +582,19 @@ longer be read back afterwards — including secrets that existed before
 the upgrade, which a migration hashes in place. Clients keep
 authenticating with their unchanged secrets. The Attendance Viewer
 group’s read access to the credential model is removed.</li>
-<li>fix: <tt class="docutils literal">gender_char</tt> on <tt class="docutils literal">res.partner</tt> no longer defaults to “Male”</li>
+<li>fix: the REST API works on Odoo 19 again — every response with a body
+crashed with <tt class="docutils literal">AttributeError</tt> because <tt class="docutils literal">date_utils.json_default</tt>
+was removed from Odoo</li>
+<li>fix: gender is never fabricated as “Male” — the res.partner field
+default, the subscriber related-field default, the registry-import
+fallback and the subscriber-create fallback all stamped it when gender
+was unknown; the value now comes only from source data</li>
+<li>fix(wizard): a missing sync-configuration parameter raises the
+intended error message instead of crashing with <tt class="docutils literal">KeyError</tt>; access
+tokens already carrying a <tt class="docutils literal">Basic</tt> scheme are no longer
+double-prefixed</li>
+<li>fix(wizard): registry sync requests carry a 30s timeout so a hung
+remote registry cannot freeze the worker</li>
 </ul>
 <div class="section" id="bug-tracker">
 <h2>Bug Tracker</h2>

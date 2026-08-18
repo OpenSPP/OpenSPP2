@@ -104,10 +104,10 @@ class SppAttendanceController(Controller):
             except ValueError:
                 return self.error_wrapper(400, f"{model_label} must be an integer.")
 
-            # nosemgrep: odoo-sudo-without-context — auth=none API route; JWT bearer verified upstream, sudo is the designed access path
+            # nosemgrep: odoo-sudo-without-context — auth=none route: JWT bearer verified upstream
             entity = request.env[model_name].sudo().search([("id", "=", model_id)], limit=1)
             if not entity:
-                # nosemgrep: odoo-sudo-without-context — auth=none API route; JWT bearer verified upstream, sudo is the designed access path
+                # nosemgrep: odoo-sudo-without-context — auth=none route: JWT bearer verified upstream
                 model_ids = request.env[model_name].sudo().search([])
                 error_message = f"{model_label} does not exist."
                 if model_ids:
@@ -153,7 +153,7 @@ class SppAttendanceController(Controller):
             }
             return self.response_wrapper(400, error)
 
-        # nosemgrep: odoo-sudo-without-context — auth=none API route; JWT bearer verified upstream, sudo is the designed access path
+        # nosemgrep: odoo-sudo-without-context — auth=none route: JWT bearer verified upstream
         client = req.env["spp.attendance.api.client.credential"].sudo().authenticate(client_id, client_secret)
 
         if not client:
@@ -210,7 +210,7 @@ class SppAttendanceController(Controller):
 
             person_id = person_data.get("person_id")
             subscriber_id = (
-                # nosemgrep: odoo-sudo-without-context — auth=none API route; JWT bearer verified upstream, sudo is the designed access path
+                # nosemgrep: odoo-sudo-without-context — auth=none route: JWT bearer verified upstream
                 req.env["spp.attendance.subscriber"].sudo().search([("person_identifier", "=", person_id)], limit=1)
             )
             if not subscriber_id:
@@ -263,7 +263,7 @@ class SppAttendanceController(Controller):
                     "submission_source": submission_source,
                 }
 
-                # nosemgrep: odoo-sudo-without-context — auth=none API route; JWT bearer verified upstream, sudo is the designed access path
+                # nosemgrep: odoo-sudo-without-context — auth=none route: JWT bearer verified upstream
                 new_attendance_list_ids = req.env["spp.attendance.list"].sudo().new(attendane_list_vals)
                 if person_id not in person_id_list:
                     person_id_list.append(person_id)
@@ -276,7 +276,7 @@ class SppAttendanceController(Controller):
 
                 attendance_list_data.append(attendane_list_vals)
 
-        # nosemgrep: odoo-sudo-without-context — auth=none API route; JWT bearer verified upstream, sudo is the designed access path
+        # nosemgrep: odoo-sudo-without-context — auth=none route: JWT bearer verified upstream
         req.env["spp.attendance.list"].sudo().create(attendance_list_data)
 
         return self.response_wrapper(
@@ -362,7 +362,7 @@ class SppAttendanceController(Controller):
             if not isinstance(attendance_id, int):
                 return self.error_wrapper(400, "id must be an integer.")
 
-            # nosemgrep: odoo-sudo-without-context — auth=none API route; JWT bearer verified upstream, sudo is the designed access path
+            # nosemgrep: odoo-sudo-without-context — auth=none route: JWT bearer verified upstream
             attendance_list_id = req.env["spp.attendance.list"].sudo().search([("id", "=", attendance_id)], limit=1)
 
             if not attendance_list_id:
@@ -406,7 +406,7 @@ class SppAttendanceController(Controller):
                 return self.error_wrapper(400, "ids must be a list of integers.")
 
         req = request
-        # nosemgrep: odoo-sudo-without-context — auth=none API route; JWT bearer verified upstream, sudo is the designed access path
+        # nosemgrep: odoo-sudo-without-context — auth=none route: JWT bearer verified upstream
         attendance_list_ids = req.env["spp.attendance.list"].sudo().search([("id", "in", ids)])
 
         if not attendance_list_ids:
@@ -431,7 +431,7 @@ class SppAttendanceController(Controller):
         data = json.loads(data)
 
         subscriber_id = (
-            # nosemgrep: odoo-sudo-without-context — auth=none API route; JWT bearer verified upstream, sudo is the designed access path
+            # nosemgrep: odoo-sudo-without-context — auth=none route: JWT bearer verified upstream
             req.env["spp.attendance.subscriber"].sudo().search([("person_identifier", "=", person_identifier)], limit=1)
         )
 
@@ -543,7 +543,7 @@ class SppAttendanceController(Controller):
         if last_id is not None:
             domain = expression.AND([domain, [("id", ">", last_id)]])
 
-        # nosemgrep: odoo-sudo-without-context — auth=none API route; JWT bearer verified upstream, sudo is the designed access path
+        # nosemgrep: odoo-sudo-without-context — auth=none route: JWT bearer verified upstream
         subscriber_model = request.env["spp.attendance.subscriber"].sudo()
         subscriber_ids = subscriber_model.search(domain, limit=limit, order="id")
         total_records = subscriber_model.search_count(domain)
@@ -588,7 +588,7 @@ class SppAttendanceController(Controller):
         data = req.httprequest.data or "{}"
         data = json.loads(data)
 
-        # nosemgrep: odoo-sudo-without-context — auth=none API route; JWT bearer verified upstream, sudo is the designed access path
+        # nosemgrep: odoo-sudo-without-context — auth=none route: JWT bearer verified upstream
         attendance_type_ids = req.env["spp.attendance.type"].sudo().search([])
 
         return self.response_wrapper(
@@ -620,7 +620,7 @@ class SppAttendanceController(Controller):
         data = req.httprequest.data or "{}"
         data = json.loads(data)
 
-        # nosemgrep: odoo-sudo-without-context — auth=none API route; JWT bearer verified upstream, sudo is the designed access path
+        # nosemgrep: odoo-sudo-without-context — auth=none route: JWT bearer verified upstream
         attendance_location_ids = req.env["spp.attendance.location"].sudo().search([])
 
         return self.response_wrapper(
@@ -667,7 +667,7 @@ class SppAttendanceController(Controller):
         if last_id is not None:
             domain = expression.AND([domain, [("id", ">", last_id)]])
 
-        # nosemgrep: odoo-sudo-without-context — auth=none API route; JWT bearer verified upstream, sudo is the designed access path
+        # nosemgrep: odoo-sudo-without-context — auth=none route: JWT bearer verified upstream
         subscriber_model = request.env["spp.attendance.subscriber"].sudo()
         subscriber_ids = subscriber_model.search(domain, limit=limit, order="id")
         total_records = subscriber_model.search_count(domain)
@@ -700,7 +700,7 @@ class SppAttendanceController(Controller):
         if error := self.validate_request_header_and_body():
             return error
         subscriber_id = (
-            # nosemgrep: odoo-sudo-without-context — auth=none API route; JWT bearer verified upstream, sudo is the designed access path
+            # nosemgrep: odoo-sudo-without-context — auth=none route: JWT bearer verified upstream
             request.env["spp.attendance.subscriber"]
             .sudo()
             .search([("person_identifier", "=", person_identifier)], limit=1)
