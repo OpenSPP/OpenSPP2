@@ -1,3 +1,7 @@
+### 19.0.2.1.4
+
+- feat(farmer_demo): seed EC1, a 50 ha commercial farm carrying idle land. Story 9 needs a farm that has the positive Climate Resilience signal (idle land) but is still rejected for not being a smallholder, so the targeting rule can be demonstrated turning one down (#1119)
+
 ### 19.0.2.1.1
 
 - fix(demo): name each farm after its head member and give every member the head's family name so a household reads as one family; farm names and registry IDs stay unique and generation remains seed-deterministic, resolving duplicate farm names and duplicate Tax/National IDs (#1114)
