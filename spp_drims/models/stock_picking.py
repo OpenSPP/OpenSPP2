@@ -311,7 +311,6 @@ class StockPicking(models.Model):
 
         # Get incidents before validation changes state
         incident_ids = list(set(p.incident_id.id for p in self if p.incident_id and p.drims_type == "request_dispatch"))
-        requests = self.filtered(lambda p: p.drims_type == "request_dispatch").drims_request_id
 
         result = super().button_validate()
 
@@ -319,10 +318,25 @@ class StockPicking(models.Model):
         if incident_ids:
             self._invalidate_drims_kpi_cache(incident_ids)
 
-        # ``result`` is only ``True`` once the transfer is actually done; a dict
-        # means Odoo returned a wizard (e.g. "Create Backorder?") and nothing has
-        # been validated yet, so there is no state change to settle.
-        if result is True and requests:
+        return result
+
+    def _action_done(self):
+        """Settle the request's state once a dispatch is really done.
+
+        This used to hang off button_validate, which only covers the web
+        client's Validate button: a backorder released through the API, the
+        barcode flow or a direct _action_done reconciled its quantities through
+        the move hook but never re-advanced the request, leaving it at
+        "allocated" with everything already shipped (OP#1087 review).
+
+        _action_done is the point every path goes through, and calling it after
+        super() means Odoo has already split off any backorder — which is what
+        _sync_state_after_dispatch_done inspects before advancing.
+        """
+        result = super()._action_done()
+
+        requests = self.filtered(lambda p: p.drims_type == "request_dispatch").drims_request_id
+        if requests:
             requests._sync_state_after_dispatch_done()
 
         return result

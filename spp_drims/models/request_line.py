@@ -188,10 +188,8 @@ class DrimsRequestLine(models.Model):
         have write access to the request under the area record rules, and this is
         system bookkeeping rather than a user edit.
         """
-        # nosemgrep: odoo-sudo-without-context
-        Move = self.env["stock.move"].sudo()
-        # nosemgrep: odoo-sudo-without-context
-        for allocation in self.sudo().mapped("allocation_ids"):
+        Move = self.env["stock.move"].sudo()  # nosemgrep: odoo-sudo-without-context
+        for allocation in self.sudo().mapped("allocation_ids"):  # nosemgrep: odoo-sudo-without-context
             dispatched = 0.0
             for move in Move.search(
                 [

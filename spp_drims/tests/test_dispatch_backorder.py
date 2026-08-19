@@ -195,6 +195,43 @@ class TestDrimsDispatchBackorder(DrimsTestCommon):
         self.assertEqual(backorder.state, "done")
         self.assertEqual(request.state, "dispatched")
 
+    def test_backorder_validated_outside_the_web_client_still_advances(self):
+        """The re-advance hangs off _action_done, not the Validate button.
+
+        A backorder released through the API, the barcode flow or a direct
+        _action_done reconciles its quantities through the move hook; when the
+        state sync hung off button_validate, none of those paths re-advanced the
+        request, leaving it at "allocated" with everything already shipped
+        (OP#1087 review).
+        """
+        self._stock_up(100)
+        request, picking = self._dispatch_for()
+        backorder = self._validate_short(picking, 90)
+        self.assertEqual(request.state, "allocated")
+
+        backorder.write({"beneficiary_count": 40, "beneficiary_area_id": self.area.id})
+        backorder.move_ids.write({"quantity": 10, "picked": True})
+        # Deliberately not button_validate(): this is the path a non-UI caller
+        # takes into the same transfer.
+        backorder._action_done()
+
+        self.assertEqual(backorder.state, "done")
+        self.assertEqual(request.state, "dispatched")
+
+    def test_the_backorder_note_names_who_shipped_short(self):
+        """The note is posted through sudo, so OdooBot authors it.
+
+        Without naming the acting user in the body, the audit trail records that
+        a dispatch went short but not who validated it (OP#1087 review).
+        """
+        self._stock_up(100)
+        request, picking = self._dispatch_for()
+        self._validate_short(picking, 90)
+
+        notes = request.message_ids.filtered(lambda m: "short of its demand" in (m.body or ""))
+        self.assertTrue(notes, "the short dispatch should be announced on the request")
+        self.assertIn(self.env.user.display_name, notes[0].body)
+
     def test_incident_beneficiaries_are_not_double_counted(self):
         """The whole point: 100 units to 500 people stays 500, not 1000."""
         self._stock_up(100)

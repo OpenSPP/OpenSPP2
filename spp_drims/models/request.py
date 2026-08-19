@@ -611,13 +611,7 @@ class DrimsRequest(models.Model):
     def _set_state_by_code(self, code):
         """Set the request state to the vocab code, if it exists."""
         self.ensure_one()
-        state = self.env["spp.vocabulary.code"].search(
-            [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:request-states"),
-                ("code", "=", code),
-            ],
-            limit=1,
-        )
+        state = self._get_state_by_code(code)
         if state:
             self.state_id = state
         return state
@@ -924,16 +918,12 @@ class DrimsRequest(models.Model):
         # collect recipient ids for a message; the acting warehouse officer has
         # no reason to be able to search users, and nothing about them is
         # exposed beyond being messaged.
-        return (
-            # nosemgrep: odoo-sudo-on-sensitive-models,odoo-sudo-without-context
-            self.env["res.users"]
-            .sudo()
-            .search(
-                [
-                    ("all_group_ids", "in", group.id),
-                    ("drims_area_ids", "in", list(area_ids)),
-                ]
-            )
+        users = self.env["res.users"].sudo()  # nosemgrep: odoo-sudo-on-sensitive-models
+        return users.search(
+            [
+                ("all_group_ids", "in", group.id),
+                ("drims_area_ids", "in", list(area_ids)),
+            ]
         )
 
     def _notify_dispatch_backorder(self, backorder):
@@ -955,11 +945,15 @@ class DrimsRequest(models.Model):
             )
             for move in backorder.move_ids
         )
+        # Named explicitly because the note is posted through sudo, which makes
+        # OdooBot its author. In a humanitarian-accountability trail, "who
+        # shipped short" is part of the record (OP#1087 review).
         body = Markup("<p>%s</p><ul>%s</ul>") % (
             _(
-                "Dispatch %(parent)s was validated short of its demand. Backorder "
+                "Dispatch %(parent)s was validated short of its demand by %(user)s. Backorder "
                 "%(backorder)s holds the remaining balance and has not been dispatched yet.",
                 parent=backorder.backorder_id.name or _("(unknown)"),
+                user=self.env.user.display_name,
                 backorder=backorder.name,
             ),
             items,
@@ -988,8 +982,7 @@ class DrimsRequest(models.Model):
         edit.
         """
         self.ensure_one()
-        # nosemgrep: odoo-sudo-without-context
-        request = self.sudo()
+        request = self.sudo()  # nosemgrep: odoo-sudo-without-context
         request._notify_dispatch_backorder(backorder)
         if request.state == "dispatched":
             allocated_state = request._get_state_by_code("allocated")
@@ -1009,8 +1002,7 @@ class DrimsRequest(models.Model):
         quantity may sit outside the request's area scope, and moving the
         request back to actionable is bookkeeping rather than a user edit.
         """
-        # nosemgrep: odoo-sudo-without-context
-        for rec in self.sudo():
+        for rec in self.sudo():  # nosemgrep: odoo-sudo-without-context
             if rec.state != "dispatched" or not rec.line_ids:
                 continue
             if all(line.quantity_dispatched >= line.quantity_requested for line in rec.line_ids):
@@ -1028,8 +1020,7 @@ class DrimsRequest(models.Model):
         Runs sudo for the same reason as its counterpart: the validating officer
         need not have write access to the request under the area record rules.
         """
-        # nosemgrep: odoo-sudo-without-context
-        for rec in self.sudo():
+        for rec in self.sudo():  # nosemgrep: odoo-sudo-without-context
             if rec.state != "allocated":
                 continue
             pending = rec.picking_ids.filtered(

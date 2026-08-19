@@ -565,6 +565,18 @@ hooks to add custom approval actions</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.3.0.1</h1>
+<ul class="simple">
+<li>fix(drims): a dispatch validated short no longer leaves the request
+looking fully dispatched. The backorder is announced on the request
+with a to-do for the coordinators, the request reopens as Ready for
+Dispatch so the remaining balance can be dispatched again, and the
+dispatched totals are rebuilt on the allocation rows. Applies however
+the transfer is validated — the web client, the barcode flow or the
+API (#1087)</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.3.0.0</h1>
 <ul class="simple">
 <li>feat(drims): allocate stock per source warehouse. The Allocate Stock
@@ -584,7 +596,7 @@ fulfillment lanes, allocation shortfall indicators, and a
 destination-type selector (#1075)</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
