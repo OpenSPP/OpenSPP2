@@ -188,7 +188,20 @@ class TestDrimsIncident(DrimsTestCommon):
         )
         self.incident.drims_warehouse_ids = [(6, 0, [self.warehouse.id])]
         donation = self.env["spp.drims.donation"].create(
-            {"incident_id": self.incident.id, "warehouse_id": self.warehouse.id, "donor_name": "D"}
+            {
+                "incident_id": self.incident.id,
+                "warehouse_id": self.warehouse.id,
+                "donor_name": "D",
+                # A donation needs at least one item (_check_has_lines, added by
+                # the donations review on fix/1076-drims-donations-review). This
+                # test is about warehouse choices, so the line is only there to
+                # make the donation valid — without it, whichever of the two
+                # branches merges second turns 19.0 red with no textual conflict
+                # to warn either author.
+                "line_ids": [
+                    (0, 0, {"product_id": self.product.id, "quantity_pledged": 100, "uom_id": self.product.uom_id.id})
+                ],
+            }
         )
         # Filter ON (default): only the incident's warehouse.
         self.assertIn(self.warehouse, donation.allowed_warehouse_ids)
@@ -204,7 +217,15 @@ class TestDrimsIncident(DrimsTestCommon):
         self.warehouse.is_drims_warehouse = True
         self.incident.drims_warehouse_ids = [(5, 0, 0)]  # ensure none linked
         donation = self.env["spp.drims.donation"].create(
-            {"incident_id": self.incident.id, "warehouse_id": self.warehouse.id, "donor_name": "D"}
+            {
+                "incident_id": self.incident.id,
+                "warehouse_id": self.warehouse.id,
+                "donor_name": "D",
+                # See the note above: a donation must carry at least one item.
+                "line_ids": [
+                    (0, 0, {"product_id": self.product.id, "quantity_pledged": 100, "uom_id": self.product.uom_id.id})
+                ],
+            }
         )
         self.assertIn(self.warehouse, donation.allowed_warehouse_ids)
 
