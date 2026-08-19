@@ -1,3 +1,7 @@
+### 19.0.2.1.2
+
+- fix(demo): put the Input Subsidy Program on **manual** entitlement approval (`auto_approve_entitlements=False`) so a demo user can walk the full cycle → entitlement approval chain, not just cycle approval. The flag is now per-program (every other demo program stays auto-approve), and historically seeded cycles are unaffected because the generator force-approves their pending entitlements (#1122)
+
 ### 19.0.2.1.1
 
 - fix(demo): name each farm after its head member and give every member the head's family name so a household reads as one family; farm names and registry IDs stay unique and generation remains seed-deterministic, resolving duplicate farm names and duplicate Tax/National IDs (#1114)

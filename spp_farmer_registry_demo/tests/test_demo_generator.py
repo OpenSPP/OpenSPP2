@@ -377,6 +377,19 @@ class TestDemoProgramsHelpers(TransactionCase):
             self.assertIn("id", prog)
             self.assertIn("name", prog)
 
+    def test_at_least_one_program_uses_manual_entitlement_approval(self):
+        """OP#1122: at least one demo program must opt out of auto-approve so
+        the cycle -> entitlement approval chain is demonstrable end-to-end."""
+        from odoo.addons.spp_farmer_registry_demo.models.demo_programs import (
+            get_all_demo_programs,
+        )
+
+        manual = [p for p in get_all_demo_programs() if p.get("auto_approve_entitlements") is False]
+        self.assertTrue(
+            manual,
+            "At least one demo program must set auto_approve_entitlements=False (OP#1122)",
+        )
+
     def test_get_demo_program_by_id_found(self):
         """get_demo_program_by_id should find existing program."""
         from odoo.addons.spp_farmer_registry_demo.models.demo_programs import (
@@ -657,6 +670,34 @@ class TestFarmerDemoProgramConfiguration(TransactionCase):
         items = entitlement_manager.entitlement_item_ids
         self.assertEqual(len(items), 1, "Equipment Grant is a flat grant — one line")
         self.assertFalse(items.multiplier_field, "Flat grant line has no multiplier")
+
+    def test_input_subsidy_requires_manual_entitlement_approval(self):
+        """OP#1122: Input Subsidy opts out of auto-approve so the demo can show
+        the entitlement-approval stage of a cycle, not just cycle approval.
+
+        The wizard flag propagates to the default cycle manager, which is what
+        new cycles inherit their auto_approve_entitlements behaviour from.
+        """
+        wizard = self.Generator.create({"name": _unique("Manual Approve Test")})
+        program = wizard._create_program_via_wizard(self._program_def("input_subsidy"))
+
+        cycle_manager = program.get_manager(program.MANAGER_CYCLE)
+        self.assertFalse(
+            cycle_manager.auto_approve_entitlements,
+            "Input Subsidy must NOT auto-approve entitlements (OP#1122)",
+        )
+
+    def test_other_programs_keep_auto_approve_entitlements(self):
+        """Programs that do not opt out keep auto-approve, so their demo cycles
+        still flow straight through without a manual entitlement step."""
+        wizard = self.Generator.create({"name": _unique("Auto Approve Test")})
+        program = wizard._create_program_via_wizard(self._program_def("livestock_support"))
+
+        cycle_manager = program.get_manager(program.MANAGER_CYCLE)
+        self.assertTrue(
+            cycle_manager.auto_approve_entitlements,
+            "Programs without an opt-out must keep auto-approve entitlements",
+        )
 
     def test_program_manager_demo_user_can_approve_and_enqueue(self):
         """The Program Manager demo user holds the groups needed to approve a
