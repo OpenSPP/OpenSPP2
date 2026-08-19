@@ -179,6 +179,15 @@ Dependencies
 Changelog
 =========
 
+19.0.3.0.2
+~~~~~~~~~~
+
+- fix(drims): only let a dispatch ship what its request approved.
+  Products cannot be added to a request dispatch and quantities cannot
+  be raised past what was allocated — enforced on the model, so imports
+  and API callers are covered too, with the Operations tab's Add a line
+  and delete affordances hidden to match (#1057)
+
 19.0.3.0.0
 ~~~~~~~~~~
 

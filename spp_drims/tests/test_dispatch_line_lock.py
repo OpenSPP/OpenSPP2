@@ -1,6 +1,8 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 from datetime import date, timedelta
 
+from lxml import etree
+
 from odoo.exceptions import UserError
 from odoo.tests import tagged
 
@@ -281,3 +283,22 @@ class TestDrimsDispatchLineLock(DrimsTestCommon):
         picking.button_validate()
 
         self.assertEqual(picking.state, "done")
+
+    def test_the_operations_field_denies_create_and_delete_on_a_dispatch(self):
+        """Pin the options dict, because the first attempt at this was silent.
+
+        Bare create/delete attributes on the field tag are ignored — QA caught
+        that — so the guard rides on `options`, whose entries are domains
+        evaluated against the picking. A regression here would restore the Add
+        a line and trash affordances with nothing failing to say so
+        (OP#1057 review).
+        """
+        view = self.env.ref("stock.view_picking_form")
+        arch = etree.fromstring(self.env["stock.picking"].get_view(view.id, "form")["arch"])
+        moves = arch.xpath("//page[@name='operations']/field[@name='move_ids']")
+
+        self.assertTrue(moves, "the Operations page should still carry move_ids")
+        options = moves[0].get("options") or ""
+        for action in ("create", "delete"):
+            self.assertIn(f"'{action}'", options, f"{action} must be denied through options")
+        self.assertIn("request_dispatch", options, "the denial is scoped to DRIMS dispatches")
