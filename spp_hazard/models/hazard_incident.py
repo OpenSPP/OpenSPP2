@@ -3,7 +3,7 @@
 import logging
 
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -190,16 +190,53 @@ class HazardIncident(models.Model):
         for rec in self:
             rec.affected_registrant_count = mapped.get(rec.id, 0)
 
+    def _ensure_status_change_allowed(self, target):
+        """Refuse a lifecycle move the state machine does not allow (OP#1100).
+
+        The header buttons already hide the moves that make no sense, but a
+        view attribute is not enforcement: over RPC, an import or the shell,
+        a draft could be closed and a closed incident flipped back to active,
+        which would sidestep every guard that keys off `closed`.
+
+        Two rules, both from the lifecycle described on `status`:
+
+        * a draft is not closed — a mistakenly entered one is deleted;
+        * a closed incident does not reopen, so nothing moves out of it.
+
+        Field edits on a closed incident stay a UI-level rule. A blanket
+        `write()` guard would have to allowlist its way around the stored KPI
+        computes, which legitimately write to closed incidents; the guarding
+        that matters is on the DRIMS operations, which have their own
+        server-side checks.
+        """
+        for rec in self:
+            if rec.status == "closed":
+                raise UserError(
+                    _("Incident '%(name)s' is closed and cannot be moved to %(target)s.")
+                    % {"name": rec.display_name, "target": target}
+                )
+            if target == "closed" and rec.status == "draft":
+                raise UserError(
+                    _(
+                        "Incident '%(name)s' is still a draft, so there is nothing to close. "
+                        "Delete it instead, or set it Active or Alert first."
+                    )
+                    % {"name": rec.display_name}
+                )
+
     def action_set_active(self):
         """Set incident status to active."""
+        self._ensure_status_change_allowed("active")
         self.write({"status": "active"})
 
     def action_set_recovery(self):
         """Set incident status to recovery."""
+        self._ensure_status_change_allowed("recovery")
         self.write({"status": "recovery"})
 
     def action_close(self):
         """Close the incident."""
+        self._ensure_status_change_allowed("closed")
         for rec in self:
             rec.write(
                 {

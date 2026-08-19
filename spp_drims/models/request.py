@@ -366,12 +366,8 @@ class DrimsRequest(models.Model):
         incident-filtering is on (and the incident has any), else all DRIMS
         warehouses. The fallback avoids locking out allocation/dispatch when an
         incident has no warehouses linked yet."""
-        Warehouse = self.env["stock.warehouse"]
-        filter_on = self.env["res.config.settings"].is_warehouse_filter_by_incident_enabled()
-        all_drims = Warehouse.search([("is_drims_warehouse", "=", True)])
         for rec in self:
-            incident_whs = rec.incident_id.drims_warehouse_ids
-            rec.allowed_warehouse_ids = incident_whs if (filter_on and incident_whs) else all_drims
+            rec.allowed_warehouse_ids = rec.incident_id._drims_allowed_warehouses()
 
     @api.depends("picking_ids")
     def _compute_picking_count(self):

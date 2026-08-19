@@ -642,6 +642,62 @@ class TestDrimsIncidentClosedGuards(DrimsTestCommon):
         )
         self.assertTrue(donation.exists())
 
+    # ── lifecycle: the state machine is enforced on the server, not just hidden ──
+    def test_1100_closed_incident_cannot_be_reopened(self):
+        """The header hides these buttons; hiding is not enforcement.
+
+        Over RPC, an import or the shell, flipping a closed incident back to
+        active or alert would sidestep every guard above, all of which key off
+        `closed` (OP#1100 review).
+        """
+        for action in ("action_set_active", "action_set_alert", "action_set_recovery"):
+            with self.subTest(action=action):
+                with self.assertRaises(UserError):
+                    getattr(self.closed_incident, action)()
+
+        self.assertEqual(self.closed_incident.status, "closed")
+
+    def test_1100_closed_incident_cannot_be_closed_again(self):
+        with self.assertRaises(UserError):
+            self.closed_incident.action_close()
+
+    def test_1100_a_draft_is_not_closed_but_deleted(self):
+        """QA's rule: a mistakenly entered incident is deleted, not closed."""
+        draft = self.env["spp.hazard.incident"].create(
+            {
+                "name": "Draft Incident 1100",
+                "code": "DRAFT-1100",
+                "category_id": self.hazard_category.id,
+                "start_date": "2024-01-01",
+            }
+        )
+        self.assertEqual(draft.status, "draft")
+
+        with self.assertRaises(UserError):
+            draft.action_close()
+
+        draft.unlink()
+
+    def test_1100_an_open_incident_still_moves_through_its_lifecycle(self):
+        """The guard must not block the transitions that are the point of it."""
+        incident = self.env["spp.hazard.incident"].create(
+            {
+                "name": "Lifecycle Incident 1100",
+                "code": "LIFE-1100",
+                "category_id": self.hazard_category.id,
+                "start_date": "2024-01-01",
+            }
+        )
+
+        incident.action_set_alert()
+        self.assertEqual(incident.status, "alert")
+        incident.action_set_active()
+        self.assertEqual(incident.status, "active")
+        incident.action_set_recovery()
+        self.assertEqual(incident.status, "recovery")
+        incident.action_close()
+        self.assertEqual(incident.status, "closed")
+
     # ── personnel: cannot deploy to a closed incident ──
     def test_1158_personnel_blocked_when_closed(self):
         with self.assertRaises(UserError):

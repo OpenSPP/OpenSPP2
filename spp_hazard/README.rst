@@ -1186,6 +1186,15 @@ encounter unexpected behavior, please report it as a new issue.
 Changelog
 =========
 
+19.0.2.1.0
+~~~~~~~~~~
+
+- feat(hazard): incidents start as a **Draft** and reach Alert or Active
+  deliberately, rather than being assumed active on entry. Lifecycle
+  moves are now refused server-side as well as hidden in the form: a
+  draft cannot be closed (delete it instead) and a closed incident
+  cannot be reopened (#1157, #1158)
+
 19.0.2.0.2
 ~~~~~~~~~~
 

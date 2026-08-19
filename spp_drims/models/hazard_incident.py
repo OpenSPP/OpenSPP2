@@ -385,8 +385,35 @@ class HazardIncident(models.Model):
 
         The 'alert' status exists in the base state machine but had no setter;
         this exposes it via the "Flag As Alert" header button.
+
+        Goes through the base gate so a closed incident cannot be flagged back
+        into alert over RPC, which would sidestep every OP#1158 guard that keys
+        off `closed` (OP#1100 review).
         """
+        self._ensure_status_change_allowed("alert")
         self.write({"status": "alert"})
+
+    def _drims_allowed_warehouses(self):
+        """OP#1164: the warehouses selectable for work on this incident.
+
+        The incident's own warehouses when incident-filtering is on and it has
+        any, otherwise every DRIMS warehouse. The fallback is what stops an
+        incident with nothing linked yet from locking out donation and request
+        creation.
+
+        Lives here rather than in donation.py and request.py, which each held a
+        verbatim copy, so the policy has one home (OP#1100 review).
+
+        Callable on an empty incident — a donation or request that has not been
+        pointed at one yet — which then gets the full DRIMS list. The warehouse
+        search only runs on the fallback path, so the common case (filtering on,
+        incident has warehouses) costs no query per row when a list computes
+        this field.
+        """
+        filter_on = self.env["res.config.settings"].is_warehouse_filter_by_incident_enabled()
+        if filter_on and self.drims_warehouse_ids:
+            return self.drims_warehouse_ids
+        return self.env["stock.warehouse"].search([("is_drims_warehouse", "=", True)])
 
     def _drims_ensure_open(self, action):
         """OP#1158: block DRIMS operations once an incident is closed.
@@ -649,7 +676,7 @@ class HazardIncident(models.Model):
         Called by scheduled action (recommended frequency: every 30 minutes).
         """
         # Find active incidents (not closed)
-        # status field values: alert, active, recovery, closed
+        # status field values: draft, alert, active, recovery, closed
         active_incidents = self.search(
             [
                 ("status", "!=", "closed"),

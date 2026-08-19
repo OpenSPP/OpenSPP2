@@ -52,7 +52,7 @@ class TestRegistrant(HazardTestCase):
 
     def test_has_active_impact_with_active_incident(self):
         """Test flag is True when incident is active."""
-        # OP#1157: incidents now start in alert, so confirm it first.
+        # OP#1157: incidents now start in draft, so set it active first.
         self.incident.action_set_active()
         self.assertEqual(self.incident.status, "active")
         self.assertTrue(self.registrant.has_active_impact)

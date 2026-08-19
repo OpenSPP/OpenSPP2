@@ -286,6 +286,8 @@ class TestHazardIncident(HazardTestCase):
             }
         )
         self.assertFalse(incident.end_date)
+        # OP#1100: a draft is deleted, not closed — take it through the lifecycle first.
+        incident.action_set_active()
         incident.action_close()
         self.assertTrue(incident.end_date)
         self.assertEqual(incident.status, "closed")
@@ -301,6 +303,8 @@ class TestHazardIncident(HazardTestCase):
                 "end_date": "2024-02-01",
             }
         )
+        # OP#1100: a draft is deleted, not closed — take it through the lifecycle first.
+        incident.action_set_active()
         incident.action_close()
         self.assertEqual(str(incident.end_date), "2024-02-01")
         self.assertEqual(incident.status, "closed")
@@ -415,6 +419,8 @@ class TestHazardIncident(HazardTestCase):
                 "end_date": "2024-04-01",
             }
         )
+        # OP#1100: a draft is deleted, not closed — take it through the lifecycle first.
+        (inc1 | inc2).action_set_active()
         (inc1 | inc2).action_close()
         self.assertEqual(inc1.status, "closed")
         self.assertEqual(inc2.status, "closed")
