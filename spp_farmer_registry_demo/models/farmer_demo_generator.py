@@ -1740,7 +1740,10 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             "rrule_type": program_def.get("rrule_type", "monthly"),
             "month_by": "date",
             "day": 1,
-            "auto_approve_entitlements": True,
+            # Auto-approve entitlements by default, but let a program opt out
+            # (OP#1122) so a demo user can walk the entitlement-approval stage
+            # of a cycle, not just the cycle-approval stage.
+            "auto_approve_entitlements": program_def.get("auto_approve_entitlements", True),
         }
 
         # Enable compliance verification at wizard time for programs that ship a

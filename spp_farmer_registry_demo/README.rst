@@ -128,6 +128,16 @@ Changelog
   registry; a farm stays typed FARM even when it joins a cooperative,
   and only the cooperative container is typed COOPERATIVE (#1120)
 
+19.0.2.1.2
+~~~~~~~~~~
+
+- fix(demo): put the Input Subsidy Program on **manual** entitlement
+  approval (``auto_approve_entitlements=False``) so a demo user can walk
+  the full cycle → entitlement approval chain, not just cycle approval.
+  The flag is now per-program (every other demo program stays
+  auto-approve), and historically seeded cycles are unaffected because
+  the generator force-approves their pending entitlements (#1122)
+
 19.0.2.1.1
 ~~~~~~~~~~
 
