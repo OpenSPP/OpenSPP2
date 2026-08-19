@@ -216,13 +216,25 @@
                                         OP#1076: Received is entered MANUALLY on the
                                         announced donation (no auto-copy from Pledged)
                                         and is mandatory before "Mark Received".
+
+                                        Deliberately not required: the web client
+                                        treats 0.0 on a float as "not set", so a
+                                        required attribute here refuses to save a
+                                        line for an item that was pledged and never
+                                        arrived — received 0, variance the full
+                                        shortfall — which is a case the flow has to
+                                        record. The rule that matters lives in
+                                        action_mark_received (at least one line above
+                                        zero) and applies to the wizard and the inline
+                                        list alike; requiring it here made the same
+                                        entry legal in one surface and impossible in
+                                        the other (OP#1076 review).
                                     -->
                                     <field
                                         name="quantity_received"
                                         string="Received"
                                         column_invisible="parent.state == 'draft'"
                                         readonly="parent.state != 'announced'"
-                                        required="parent.state == 'announced'"
                                     />
                                     <field
                                         name="receipt_variance"

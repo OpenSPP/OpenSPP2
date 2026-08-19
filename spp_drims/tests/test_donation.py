@@ -1357,15 +1357,71 @@ class TestDrimsDonationOP1076(DrimsTestCommon):
 
     # ---------- OP#1108: inline-created products are storable ----------
 
+    def _donation_items_list(self):
+        """The items list on the donation form, identified by its own columns.
+
+        The form holds several lists — pickings and disposal follow-up among
+        them — and some carry a product_id of their own with no such context,
+        so a test that swept every list would fail on the wrong one.
+        """
+        arch = etree.fromstring(self.env.ref("spp_drims.view_drims_donation_form").arch)
+        for lst in arch.iter("list"):
+            if any(field.get("name") == "quantity_pledged" for field in lst.findall("field")):
+                return lst
+        self.fail("the donation form should have an items list with a Pledged column")
+
+    def test_1108_the_line_asks_for_a_storable_product(self):
+        """The defaults live on the field's context, so assert them there.
+
+        Building the context by hand exercises Odoo's defaulting machinery
+        rather than the fix: that version passed whether or not the view still
+        carried the context, which is the only thing OP#1108 changed
+        (OP#1076 review).
+        """
+        product = [f for f in self._donation_items_list().findall("field") if f.get("name") == "product_id"]
+
+        self.assertTrue(product, "the donation items list should offer a product")
+        context = product[0].get("context") or ""
+        self.assertIn("default_type", context, "a quick-created product must be a Good")
+        self.assertIn("'consu'", context)
+        self.assertIn("default_is_storable", context, "it must be trackable in inventory")
+
     def test_1108_inline_product_defaults_to_storable(self):
-        """A product quick-created from a donation line carries the field's
-        context defaults (default_type / default_is_storable), so it is a
-        storable Good and can be tracked in inventory / Stock on Hand."""
+        """And the defaults the view asks for do produce a storable Good."""
         product_model = self.env["product.product"].with_context(default_type="consu", default_is_storable=True)
         pid, _name = product_model.name_create("QA Inline Donated Item 1108")
         product = self.env["product.product"].browse(pid)
         self.assertEqual(product.type, "consu")
         self.assertTrue(product.is_storable)
+
+    def test_1076_received_quantity_may_be_zero_but_not_negative(self):
+        """Zero is a real answer — pledged and never arrived.
+
+        The view no longer marks Received required, because the web client
+        reads 0.0 on a float as "not set" and refused to save that line. What
+        must not pass is a negative, which slips through the "at least one line
+        above zero" rule whenever another line is positive and then fails deep
+        in the receipt picking (OP#1076 review).
+        """
+        donation = self._draft_donation()
+        donation.action_mark_announced()
+        line = donation.line_ids[0]
+
+        line.quantity_received = 0
+        self.assertEqual(line.quantity_received, 0, "a shortfall of the whole line must be recordable")
+
+        with self.assertRaises(ValidationError):
+            line.quantity_received = -1
+
+    def test_1076_received_is_not_required_by_the_list(self):
+        """Guards the attribute that made a legitimate zero unsaveable."""
+        received = [f for f in self._donation_items_list().findall("field") if f.get("name") == "quantity_received"]
+
+        self.assertTrue(received, "the donation items list should show Received")
+        self.assertIsNone(
+            received[0].get("required"),
+            "a required float cannot be saved as 0, which is a valid receipt",
+        )
 
     # ---------- OP#1058: non-accepted items follow-up tracking ----------
 

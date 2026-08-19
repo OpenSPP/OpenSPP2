@@ -146,6 +146,20 @@ class DrimsDonationLine(models.Model):
             if line.quantity_pledged <= 0:
                 raise ValidationError(_("Pledged quantity must be greater than zero."))
 
+    @api.constrains("quantity_received")
+    def _check_quantity_received(self):
+        """A received quantity may be zero, but never negative (OP#1076 review).
+
+        Zero is meaningful — an item that was pledged and never arrived — and
+        `action_mark_received` already requires at least one line above zero. A
+        negative slips past that check whenever another line is positive, and
+        then reaches the receipt picking, where it fails as an obscure stock
+        error a long way from the field that caused it.
+        """
+        for line in self:
+            if line.quantity_received < 0:
+                raise ValidationError(_("Received quantity cannot be negative."))
+
     def action_mark_disposal_resolved(self):
         """OP#1058: record that an excluded item has been handled.
 

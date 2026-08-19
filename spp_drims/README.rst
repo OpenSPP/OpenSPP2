@@ -179,6 +179,25 @@ Dependencies
 Changelog
 =========
 
+19.0.4.0.0
+~~~~~~~~~~
+
+- feat(drims): Donations review — creation, receipt, inspection and
+  follow-up. Donations start in a new **Draft** state; the donor list is
+  limited to organisations whose role is Donor and a donation cannot be
+  recorded against a closed incident; at least one item is required to
+  save, Pledged must be entered and be greater than zero, and Received
+  is entered manually rather than copied from Pledged. Line columns
+  appear progressively through the lifecycle (Received and Variance from
+  Announced; Condition and Action from Inspected), non-accepted items
+  gain a follow-up/disposal trail, and adding an item is blocked once
+  the donation has moved past its editable states (#1055, #1058, #1108,
+  #1163)
+- **Breaking:** the donation line's **Description** field is removed. It
+  was replaced by the product and quantity columns during this rework;
+  the database column is left in place, so existing values are retained
+  but no longer readable through the ORM or shown in any view (#1076)
+
 19.0.3.0.0
 ~~~~~~~~~~
 
