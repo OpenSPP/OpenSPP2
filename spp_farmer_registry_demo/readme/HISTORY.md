@@ -1,3 +1,7 @@
+### 19.0.2.1.3
+
+- fix(farmer_demo): type demo farm groups as FARM. Farm groups were created with no group type, so they did not read as farms in the registry; a farm stays typed FARM even when it joins a cooperative, and only the cooperative container is typed COOPERATIVE (#1120)
+
 ### 19.0.2.1.1
 
 - fix(demo): name each farm after its head member and give every member the head's family name so a household reads as one family; farm names and registry IDs stay unique and generation remains seed-deterministic, resolving duplicate farm names and duplicate Tax/National IDs (#1114)
