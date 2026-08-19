@@ -918,7 +918,7 @@ class DrimsRequest(models.Model):
         # collect recipient ids for a message; the acting warehouse officer has
         # no reason to be able to search users, and nothing about them is
         # exposed beyond being messaged.
-        users = self.env["res.users"].sudo()  # nosemgrep: odoo-sudo-on-sensitive-models
+        users = self.env["res.users"].sudo()  # nosemgrep: odoo-sudo-on-sensitive-models,odoo-sudo-without-context
         return users.search(
             [
                 ("all_group_ids", "in", group.id),
