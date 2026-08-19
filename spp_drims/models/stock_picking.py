@@ -188,6 +188,18 @@ class StockPicking(models.Model):
             raise UserError(
                 _("Dispatch %s has not departed yet. Confirm departure before confirming delivery.") % self.name
             )
+        if self.state != "done":
+            # The wizard's lines come from *done* moves, so on a departed but
+            # unvalidated transfer it would open empty — and confirming an empty
+            # wizard writes the POD block, sets is_pod_confirmed and records no
+            # delivered quantities at all, after which the guard above prevents
+            # ever recording them. Reachable by following the documented flow of
+            # OP#1087, which confirms departure before validating (OP#1088
+            # review).
+            raise UserError(
+                _("Dispatch %s has not been validated yet. Validate the transfer before confirming delivery.")
+                % self.name
+            )
         if self.is_pod_confirmed:
             raise UserError(_("Delivery for dispatch %s is already confirmed.") % self.name)
 

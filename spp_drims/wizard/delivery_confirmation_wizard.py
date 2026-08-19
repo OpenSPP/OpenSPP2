@@ -157,6 +157,11 @@ class DeliveryConfirmationWizard(models.TransientModel):
             raise UserError(_("Delivery for dispatch %s is already confirmed.") % picking.name)
         if self.date_arrived < picking.date_departed:
             raise UserError(_("The arrival time cannot be before the departure time."))
+        if not self.line_ids:
+            # Belt and braces with the state check on the opener: confirming with
+            # nothing to record burns the one-shot is_pod_confirmed flag and
+            # leaves fulfillment at zero with no way back (OP#1088 review).
+            raise UserError(_("There is nothing to confirm for dispatch %s: it has no delivered lines.") % picking.name)
 
         picking.write(
             {
@@ -174,6 +179,13 @@ class DeliveryConfirmationWizard(models.TransientModel):
                 "is_pod_confirmed": True,
             }
         )
+
+        if self.pod_photo_ids:
+            # Uploaded through the wizard form, so the attachments were filed
+            # against this transient model. The evidence belongs to the dispatch:
+            # re-point it so the provenance is right and access follows the
+            # picking rather than transient-model semantics (OP#1088 review).
+            self.pod_photo_ids.write({"res_model": picking._name, "res_id": picking.id})
 
         self._record_delivered_quantities()
 

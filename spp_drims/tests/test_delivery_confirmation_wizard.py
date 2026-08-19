@@ -1,4 +1,5 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+import base64
 from datetime import date, timedelta
 
 from lxml import etree
@@ -97,6 +98,14 @@ class TestDrimsDeliveryConfirmation(DrimsTestCommon):
         picking.action_confirm_departure()
         return request, picking
 
+    def _departed_but_unvalidated_dispatch(self):
+        """The order OP#1087 documents: confirm departure, validate later."""
+        request, picking = self._delivered_dispatch()
+        # Undo the validation the shared fixture performs, keeping departure.
+        picking.state = "assigned"
+        picking.move_ids.write({"state": "assigned"})
+        return request, picking
+
     def _wizard_for(self, picking, **overrides):
         vals = {
             "pod_received_by": "Barangay Captain Reyes",
@@ -134,6 +143,48 @@ class TestDrimsDeliveryConfirmation(DrimsTestCommon):
         picking.pod_received_by = "Someone"
         with self.assertRaises(UserError):
             picking.action_confirm_pod()
+
+    def test_cannot_confirm_delivery_before_the_transfer_is_validated(self):
+        """Departed but not validated is a reachable, unrecoverable trap.
+
+        OP#1087's documented flow confirms departure *before* validating. Taken
+        in that order, the wizard's lines come from done moves and there are
+        none, so confirming would write the POD block, burn the one-shot
+        is_pod_confirmed flag and record no delivered quantities — leaving
+        fulfilment at zero with no way to correct it (OP#1088 review).
+        """
+        _request, picking = self._departed_but_unvalidated_dispatch()
+
+        with self.assertRaises(UserError) as cm:
+            picking.action_open_delivery_confirmation()
+        self.assertIn("has not been validated", str(cm.exception))
+
+    def test_confirming_with_no_lines_is_refused(self):
+        """The same trap reached directly, without going through the button."""
+        _request, picking = self._delivered_dispatch()
+        wizard = self._wizard_for(picking)
+        wizard.line_ids = [(5, 0, 0)]
+
+        with self.assertRaises(UserError) as cm:
+            wizard.action_confirm()
+        self.assertIn("nothing to confirm", str(cm.exception))
+        self.assertFalse(picking.is_pod_confirmed, "the one-shot flag must not be burned")
+
+    def test_delivery_photos_are_filed_against_the_dispatch(self):
+        """They upload against the transient wizard; the evidence belongs here."""
+        _request, picking = self._delivered_dispatch()
+        photo = self.env["ir.attachment"].create(
+            {
+                "name": "pod-photo-1088.png",
+                "datas": base64.b64encode(b"not really a png"),
+                "res_model": "spp.drims.delivery.confirmation.wizard",
+            }
+        )
+
+        self._wizard_for(picking, pod_photo_ids=[(6, 0, photo.ids)]).action_confirm()
+
+        self.assertEqual(photo.res_model, "stock.picking")
+        self.assertEqual(photo.res_id, picking.id)
 
     def test_cannot_confirm_delivery_twice(self):
         _request, picking = self._delivered_dispatch()
