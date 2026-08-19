@@ -34,6 +34,25 @@ class ResPartner(models.Model):
             )
         )
 
+    def write(self, vals):
+        """Refuse promoting a plain contact into the registry (OP#1142 review).
+
+        ``_check_access('write')`` filters on the record's *current* values, and
+        there is no post-write pass, so a restricted user could create a plain
+        contact and then flip ``is_registrant`` on it — two allowed steps adding
+        up to a registrant they were never allowed to create. The same move
+        promotes any existing contact. Unflagging needs no guard: the record is
+        already a registrant when the check runs.
+        """
+        if vals.get("is_registrant") and self._is_registry_crud_restricted():
+            # Reading the current flag to find what is being promoted; filtering
+            # as the user would recurse back into the access check.
+            # nosemgrep: odoo-sudo-without-context
+            promoted = self.sudo().filtered(lambda partner: not partner.is_registrant)
+            if promoted:
+                raise self._make_registry_access_error()
+        return super().write(vals)
+
     def _check_access(self, operation):
         """Withhold registrant create/write/unlink from non-admins (OP#1142).
 

@@ -173,6 +173,61 @@ class TestRegistryRestrictionEnforcement(RegistryRestrictionCommon):
         with self.assertRaises(AccessError):
             blocked.with_user(self.manager).unlink()
 
+    def test_non_admin_cannot_promote_a_contact_into_the_registry(self):
+        """Two allowed steps that add up to a forbidden one (OP#1142 review).
+
+        The access check filters on the record's *current* values and there is
+        no post-write pass, so creating a plain contact and then flipping
+        is_registrant would have produced a registrant the user was never
+        allowed to create — and would promote any existing contact the same way.
+        """
+        self._restrict(True)
+        contact = self.Partner.with_user(self.registrar).create({"name": "Contact To Promote"})
+
+        with self.assertRaises(AccessError):
+            contact.with_user(self.registrar).write({"is_registrant": True})
+
+        self.assertFalse(contact.is_registrant)
+
+    def test_promotion_is_allowed_when_the_setting_is_off(self):
+        self._restrict(False)
+        contact = self.Partner.with_user(self.registrar).create({"name": "Contact To Promote Freely"})
+
+        contact.with_user(self.registrar).write({"is_registrant": True})
+
+        self.assertTrue(contact.is_registrant)
+
+    def test_admin_can_still_promote_a_contact(self):
+        self._restrict(True)
+        contact = self.Partner.with_user(self.spp_admin).create({"name": "Contact For Admin"})
+
+        contact.with_user(self.spp_admin).write({"is_registrant": True})
+
+        self.assertTrue(contact.is_registrant)
+
+    def test_unflagging_a_registrant_is_still_refused(self):
+        """No guard needed for this direction, but it must not have regressed."""
+        self._restrict(True)
+        registrant = self._new_registrant()
+
+        with self.assertRaises(AccessError):
+            registrant.with_user(self.registrar).write({"is_registrant": False})
+
+    def test_the_setting_row_is_marked_noupdate(self):
+        """Otherwise every upgrade re-applies value=True and re-locks the registry.
+
+        Declaring noupdate in the data file only governs xml_ids created from
+        then on — the upsert never rewrites an existing row's flag — so the
+        migration flips it for databases that already have this one.
+        """
+        record = self.env["ir.model.data"].search(
+            [("module", "=", "spp_starter_sp_mis"), ("name", "=", "config_registry_admin_only_crud")],
+            limit=1,
+        )
+
+        self.assertTrue(record, "the config parameter should be an xml_id-tracked record")
+        self.assertTrue(record.noupdate, "an administrator's choice must survive an upgrade")
+
     def test_plain_contacts_are_not_restricted(self):
         """The setting governs registrants — it must not lock the Contacts app."""
         self._restrict(True)
