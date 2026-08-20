@@ -2,7 +2,7 @@
 {
     "name": "OpenSPP GIS API",
     "category": "OpenSPP/Integration",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.1.0",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -18,9 +18,13 @@
         "spp_vocabulary",
         "spp_indicator",
         "spp_analytics",
+        "spp_programs",
+        "spp_cel_domain",
+        "job_worker",
     ],
     "data": [
         "security/ir.model.access.csv",
+        "data/cron_job_cleanup.xml",
     ],
     "assets": {},
     "demo": [],

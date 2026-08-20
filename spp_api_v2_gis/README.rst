@@ -51,36 +51,55 @@ performs all computation:
 API Endpoints
 -------------
 
-**OGC API - Features (primary interface)**
+**OGC API - Features**
 
-+-------------------------------------------+--------+-----------------------------+
-| Endpoint                                  | Method | Description                 |
-+===========================================+========+=============================+
-| ``/gis/ogc/``                             | GET    | OGC API landing page        |
-+-------------------------------------------+--------+-----------------------------+
-| ``/gis/ogc/conformance``                  | GET    | OGC conformance classes     |
-+-------------------------------------------+--------+-----------------------------+
-| ``/gis/ogc/collections``                  | GET    | List feature collections    |
-+-------------------------------------------+--------+-----------------------------+
-| ``/gis/ogc/collections/{id}``             | GET    | Collection metadata         |
-+-------------------------------------------+--------+-----------------------------+
-| ``/gis/ogc/collections/{id}/items``       | GET    | Feature items (GeoJSON)     |
-+-------------------------------------------+--------+-----------------------------+
-| ``/gis/ogc/collections/{id}/items/{fid}`` | GET    | Single feature              |
-+-------------------------------------------+--------+-----------------------------+
-| ``/gis/ogc/collections/{id}/qml``         | GET    | QGIS style file (extension) |
-+-------------------------------------------+--------+-----------------------------+
++-------------------------------------------+----------------+--------------------------+
+| Endpoint                                  | Method         | Description              |
++===========================================+================+==========================+
+| ``/gis/ogc/``                             | GET            | OGC API landing page     |
++-------------------------------------------+----------------+--------------------------+
+| ``/gis/ogc/conformance``                  | GET            | OGC conformance classes  |
++-------------------------------------------+----------------+--------------------------+
+| ``/gis/ogc/collections``                  | GET            | List feature collections |
++-------------------------------------------+----------------+--------------------------+
+| ``/gis/ogc/collections/{id}``             | GET            | Collection metadata      |
++-------------------------------------------+----------------+--------------------------+
+| ``/gis/ogc/collections/{id}/items``       | GET/POST       | Feature items (GeoJSON)  |
++-------------------------------------------+----------------+--------------------------+
+| ``/gis/ogc/collections/{id}/items/{fid}`` | GET/PUT/DELETE | Single feature (CRUD for |
+|                                           |                | geofences)               |
++-------------------------------------------+----------------+--------------------------+
+| ``/gis/ogc/collections/{id}/qml``         | GET            | QGIS style file          |
+|                                           |                | (extension)              |
++-------------------------------------------+----------------+--------------------------+
 
-**Additional endpoints**
+**OGC API - Processes**
 
-========================== ========== =======================
-Endpoint                   Method     Description
-========================== ========== =======================
-``/gis/query/statistics``  POST       Query stats for polygon
-``/gis/geofences``         POST/GET   Geofence management
-``/gis/geofences/{id}``    GET/DELETE Single geofence
-``/gis/export/geopackage`` GET        Export for offline use
-========================== ========== =======================
++---------------------------------------+------------+----------------------------+
+| Endpoint                              | Method     | Description                |
++=======================================+============+============================+
+| ``/gis/ogc/processes``                | GET        | List available processes   |
++---------------------------------------+------------+----------------------------+
+| ``/gis/ogc/processes/{id}``           | GET        | Process description        |
++---------------------------------------+------------+----------------------------+
+| ``/gis/ogc/processes/{id}/execution`` | POST       | Execute process            |
+|                                       |            | (sync/async)               |
++---------------------------------------+------------+----------------------------+
+| ``/gis/ogc/jobs``                     | GET        | List jobs                  |
++---------------------------------------+------------+----------------------------+
+| ``/gis/ogc/jobs/{id}``                | GET/DELETE | Job status / dismiss       |
++---------------------------------------+------------+----------------------------+
+| ``/gis/ogc/jobs/{id}/results``        | GET        | Job results                |
++---------------------------------------+------------+----------------------------+
+
+**Utility endpoints**
+
+========================== ====== =========================
+Endpoint                   Method Description
+========================== ====== =========================
+``/gis/export/geopackage`` GET    Export for offline use
+``/gis/statistics``        GET    List published statistics
+========================== ====== =========================
 
 Scopes and Data Privacy
 -----------------------
@@ -105,11 +124,11 @@ individual registrant records.
 - **OGC collections/items**: Return GeoJSON features organized by
   administrative area, with pre-computed aggregate values (counts,
   percentages). Each feature represents an *area*, not a person.
-- **Spatial query statistics** (``POST /gis/query/statistics``): Accepts
-  a GeoJSON polygon and returns configured aggregate statistics computed
-  by ``spp.analytics.service``. Individual registrant IDs are computed
+- **Spatial query statistics** (via OGC Processes): Accepts a GeoJSON
+  polygon and returns configured aggregate statistics computed by
+  ``spp.analytics.service``. Individual registrant IDs are computed
   internally for aggregation but are **explicitly stripped** from the
-  response before it is sent (see ``spatial_query.py``).
+  response before it is sent.
 - **Exports** (GeoPackage/GeoJSON): Contain the same area-level
   aggregated layer data, not registrant-level records.
 - **Geofences**: Store only geometry and metadata — no registrant data.
@@ -155,6 +174,14 @@ Dependencies
 
 Changelog
 =========
+
+19.0.2.1.0
+~~~~~~~~~~
+
+- feat: OGC API Processes/Jobs framework (async process execution with
+  job cleanup cron), incidents collection (CAP severity/event filters),
+  router consolidation replacing the geofence/proximity/spatial_query
+  routers (re-land from #76).
 
 19.0.2.0.0
 ~~~~~~~~~~

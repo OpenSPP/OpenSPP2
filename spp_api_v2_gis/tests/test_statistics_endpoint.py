@@ -64,9 +64,9 @@ class TestStatisticsEndpoint(TransactionCase):
 
         cls.gis_stat_2 = cls.env["spp.indicator"].create(
             {
-                "name": "disabled_members_disc",
-                "label": "Disabled Members",
-                "description": "Count of members with disability",
+                "name": "pwd_members_disc",
+                "label": "Members with Disability",
+                "description": "Count of members with a recorded disability",
                 "variable_id": cls.cel_variable.id,
                 "format": "count",
                 "unit": "people",
@@ -100,9 +100,9 @@ class TestStatisticsEndpoint(TransactionCase):
         demo_names = [s.name for s in by_category["demographics"]]
         self.assertIn("total_households_disc", demo_names)
 
-        # Vulnerability should contain disabled_members
+        # Vulnerability should contain pwd_members
         vuln_names = [s.name for s in by_category["vulnerability"]]
-        self.assertIn("disabled_members_disc", vuln_names)
+        self.assertIn("pwd_members_disc", vuln_names)
 
     def test_non_gis_stats_excluded(self):
         """Test that non-GIS statistics are excluded."""
