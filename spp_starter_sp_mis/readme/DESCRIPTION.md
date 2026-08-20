@@ -1,11 +1,11 @@
-Starter bundle for Social Protection Management Information System (SP-MIS) deployments. Extends `spp_starter_social_registry` with program management, approval workflows, and service delivery capabilities. Adds optional client-side registry access control to restrict registrant editing to administrators.
+Starter bundle for Social Protection Management Information System (SP-MIS) deployments. Extends `spp_starter_social_registry` with program management, approval workflows, and service delivery capabilities. Adds optional registry access control, enforced on the server, to restrict registrant editing to administrators.
 
 ### Key Capabilities
 
 - **Bundle Management**: Installs social registry foundation plus program management modules in a single deployment
 - **Starter Type Configuration**: Sets system identifier to "sp_mis" for deployment classification
-- **Registry Access Control**: Optional JavaScript-based restriction that makes registrant forms read-only for non-admin users
-- **Client-Side Enforcement**: Patches `FormController` and `ListController` to hide Create/Edit/Delete buttons and force readonly mode
+- **Registry Access Control**: Optional restriction withholding create, write and delete on registrant records from non-admin users
+- **Server-Side Enforcement**: Applied in the access check every write passes through, so it holds over RPC and data import as well as in the web client — the New, Edit and Delete buttons disappear because Odoo stamps the view from the same access result
 
 ### Key Models
 
@@ -21,7 +21,7 @@ After installing:
 
 1. Navigate to **Settings > SP-MIS Settings**
 2. Enable **Restrict Registry Edits to Admin Only** to enforce read-only registry access for non-admin users
-3. When enabled, non-admin users see registrant forms in readonly mode with hidden create/edit/delete buttons
+3. When enabled, non-admin users can still read the registry, but creating, editing and deleting registrants is refused — and the corresponding buttons are not shown
 4. Restriction applies only to `res.partner` views; program-related operations remain available based on role
 
 ### UI Location
@@ -34,11 +34,11 @@ After installing:
 
 The registry restriction uses:
 
-- **Config Parameter**: `spp_starter.registry_admin_only_crud` (default: True)
-- **JSON-RPC Endpoint**: `/spp_starter_sp_mis/registry_restriction` checks restriction status
-- **JavaScript Patches**: Modifies `FormController` and `ListController` for `res.partner` model
+- **Config Parameter**: `spp_starter.registry_admin_only_crud` (default: True), marked `noupdate` so an administrator's choice survives module upgrades
+- **Access Check**: `res.partner._check_access` withholds create, write and unlink on records flagged `is_registrant`
+- **Promotion Guard**: `write` refuses setting `is_registrant` on a plain contact, which would otherwise add a registrant in two allowed steps
 - **Admin Check**: Users in `spp_security.group_spp_admin` bypass all restrictions
-- **MutationObserver**: Monitors DOM changes to re-apply restrictions dynamically
+- **Scope**: Only registrant records are affected, so the Contacts app stays usable
 
 ### Included Modules
 

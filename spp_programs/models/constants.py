@@ -7,6 +7,18 @@ STATE_DISTRIBUTED = "distributed"
 STATE_ENDED = "ended"
 STATE_CANCELLED = "cancelled"
 
+#: Membership states that only their own workflow may move a member out of.
+#: Re-running eligibility — "Enroll Eligible" / "Verify Eligibility" — must step
+#: over these rather than re-deciding them:
+#:
+#: - ``duplicated`` is resolved by deduplication
+#: - ``exited`` is a closed record, reopened only by re-enrolling deliberately
+#: - ``paused`` is a program officer's explicit decision, undone only by Resume
+#:
+#: ``paused`` was missing here, so Enroll Eligible silently resumed paused
+#: members and, on the other branch, demoted them to not_eligible (OP#1117).
+PROTECTED_MEMBERSHIP_STATES = ("duplicated", "exited", "paused")
+
 MANAGER_ELIGIBILITY = 1
 MANAGER_CYCLE = 2
 MANAGER_PROGRAM = 3
