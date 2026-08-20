@@ -15,7 +15,7 @@
 //   12 - Assigns an area to each group registrant
 //   13 - Creates an Approval Definition (Change request → HQ validator) and assigns it as the Approval Workflow for Edit Individual Information, Edit Group Information, and Update ID Document change request types
 //   14 - Manually defines 5 Change Request Document Type vocabulary codes for the Philippines (PSA Birth Certificate, PhilSys National ID, Barangay Certificate of Residency, PSA Marriage Certificate, Proof of Income), matching what spp_mis_demo_v2's demo generator seeds for "phl", by adding rows to the existing vocabulary's Codes tab via Settings > Vocabularies
-//   15 - (disabled) Defines the ValidID required document type for change requests — needs the document type set up first; will be replaced by a separate automation
+//   15 - Manually defines 5 more Change Request Document Type vocabulary codes for the Philippines (BIR Form 2316, Academic Calendar, Authorization Letter, Certificate of Enrolment, Valid ID of Parent), matching the e2e fixture PDFs in e2e/fixtures/, by adding rows to the same vocabulary's Codes tab as test 14
 //
 // All tests run in order and share a single browser session (test.describe.serial).
 // A fresh Docker stack is spun up in beforeAll so every run starts from a clean database.
@@ -719,6 +719,11 @@ test.describe.serial('OpenSPP Starter SP-MIS', () => {
     await page.getByRole('menuitem', { name: 'Settings' }).click();
     await page.waitForLoadState('domcontentloaded');
     await page.getByRole('button', { name: 'Vocabularies' }).click();
+    await page.getByRole('menuitem', { name: 'Manage Vocabularies' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    await page.getByRole('button', { name: 'Remove' }).click();
+    await page.getByRole('searchbox', { name: 'Search...' }).fill('change');
+    await page.getByRole('searchbox', { name: 'Search...' }).press('Enter');
     await page.waitForLoadState('domcontentloaded');
     await page.getByRole('cell', { name: 'Change Request Document Types' }).click();
     await page.waitForLoadState('domcontentloaded');
@@ -726,8 +731,9 @@ test.describe.serial('OpenSPP Starter SP-MIS', () => {
 
     for (const { code, display } of documentTypes) {
       await page.getByRole('button', { name: 'Add a line' }).click();
-      await page.getByRole('textbox', { name: 'Code', exact: true }).fill(code);
-      await page.getByRole('textbox', { name: 'Display Name' }).fill(display);
+      const row = page.locator('.o_data_row').last();
+      await row.getByRole('textbox').first().fill(code);
+      await row.getByRole('textbox').nth(1).fill(display);
       console.log(`✅ Vocabulary code row filled: ${display} (${code})`);
     }
 
@@ -738,15 +744,31 @@ test.describe.serial('OpenSPP Starter SP-MIS', () => {
     console.log('✅ All 5 CR document types saved under the Change Request Document Types vocabulary');
   });
 
-  // 15 - disabled: needs the ValidID document type set up first (spp_starter_sp_mis doesn't ship it by
-  // default). Will be replaced by a separate automation that sets up the document type before this runs.
-  // test('15 - define ValidID required document type for change requests', async () => {
-  //   await page.getByRole('menuitem', { name: 'Approvals' }).click();
-  //   await page.getByRole('menuitem', { name: 'Change Requests' }).click();
-  //   await page.getByRole('button', { name: 'Configuration' }).click();
-  //   await page.waitForLoadState('domcontentloaded');
-  //   await page.getByRole('textbox', { name: 'Code', exact: true }).fill('ValidID');
-  //   await page.getByRole('button', { name: 'Save manually' }).click();
-  //   console.log('✅ Document type defined: ValidID');
-  // });
+  test('15 - define additional CR document types for the Philippines (BIR 2316, Academic Calendar, Authorization Letter, Certificate of Enrolment, Valid ID of Parent)', async () => {
+    // Matches the e2e fixture PDFs in e2e/fixtures/, added to the same "Change Request Document Types"
+    // vocabulary as test 14, ahead of a later test that uploads these files via the Update ID Document
+    // change request flow. Test 14 leaves the page sitting on this same record's Codes tab after saving,
+    // so no re-navigation is needed here (and re-clicking "Settings" from inside Settings is ambiguous).
+    const documentTypes = [
+      { code: 'bir_2316', display: 'BIR Form 2316' },
+      { code: 'academic_calendar', display: 'Academic Calendar' },
+      { code: 'authorization_letter', display: 'Authorization Letter' },
+      { code: 'certificate_of_enrolment', display: 'Certificate of Enrolment' },
+      { code: 'valid_id_parent', display: 'Valid ID of Parent' },
+    ];
+
+    for (const { code, display } of documentTypes) {
+      await page.getByRole('button', { name: 'Add a line' }).click();
+      const row = page.locator('.o_data_row').last();
+      await row.getByRole('textbox').first().fill(code);
+      await row.getByRole('textbox').nth(1).fill(display);
+      console.log(`✅ Vocabulary code row filled: ${display} (${code})`);
+    }
+
+    await page.getByRole('button', { name: 'Save manually' }).click();
+    for (const { display } of documentTypes) {
+      await expect(page.getByRole('cell', { name: display })).toBeVisible({ timeout: 10_000 });
+    }
+    console.log('✅ All 5 additional CR document types saved under the Change Request Document Types vocabulary');
+  });
 });

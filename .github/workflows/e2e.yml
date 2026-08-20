@@ -67,3 +67,55 @@ jobs:
           name: playwright-report-${{ strategy.job-index }}
           path: e2e/reports/html
           retention-days: 7
+
+      - name: Record spec result
+        if: always()
+        run: |
+          case "${{ matrix.spec }}" in
+            *spmis*) NAME="SP-MIS" ;;
+            *farmer*) NAME="Farmer Registry" ;;
+            *) NAME="${{ matrix.spec }}" ;;
+          esac
+          mkdir -p status
+          echo "{\"name\": \"$NAME\", \"result\": \"${{ job.status }}\"}" > status/result.json
+
+      - name: Upload spec result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-status-${{ strategy.job-index }}
+          path: status/result.json
+
+  notify:
+    needs: e2e
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download spec results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: test-status-*
+          path: statuses
+          merge-multiple: true
+
+      - name: Post result to Discord
+        run: |
+          COLOR=3066993
+          if [ "${{ needs.e2e.result }}" != "success" ]; then COLOR=15158332; fi
+
+          FIELDS="[]"
+          for f in statuses/*.json; do
+            NAME=$(jq -r .name "$f")
+            RESULT=$(jq -r .result "$f")
+            if [ "$RESULT" == "success" ]; then EMOJI="✅"; else EMOJI="❌"; fi
+            FIELDS=$(echo "$FIELDS" | jq --arg n "$NAME" --arg v "$RESULT $EMOJI" '. + [{"name": $n, "value": $v, "inline": false}]')
+          done
+
+          PAYLOAD=$(jq -n \
+            --arg title "OpenSPP E2E Tests" \
+            --arg url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --argjson color "$COLOR" \
+            --argjson fields "$FIELDS" \
+            '{embeds: [{title: $title, url: $url, color: $color, fields: $fields}]}')
+
+          curl -sf -H "Content-Type: application/json" -X POST -d "$PAYLOAD" "${{ secrets.DISCORD_WEBHOOK }}"
