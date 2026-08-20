@@ -9,3 +9,5 @@ from . import allocation_preview_wizard
 from . import request_from_template_wizard
 from . import create_return_wizard
 from . import inspection_wizard
+from . import delivery_confirmation_wizard
+from . import receive_wizard

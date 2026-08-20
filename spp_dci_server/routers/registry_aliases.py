@@ -11,24 +11,76 @@ For now, they return appropriate "not implemented" responses for SPDCI complianc
 """
 
 import logging
-from datetime import datetime
+import uuid
+from datetime import UTC, datetime
 from typing import Annotated
 
 from odoo.api import Environment
 
 from odoo.addons.fastapi.dependencies import odoo_env
+from odoo.addons.spp_dci.schemas import DCIEnvelope
 from odoo.addons.spp_dci.schemas.constants import MsgHeaderStatusReasonCode
 from odoo.addons.spp_dci.schemas.search import (
     SearchRequest,
     SearchResponse,
     SearchResponseItem,
 )
+from odoo.addons.spp_dci.services import build_signed_envelope
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..middleware.signature import verify_bearer_token
 
 _logger = logging.getLogger(__name__)
+
+
+def _build_stub_search_envelope(
+    request_envelope: DCIEnvelope,
+    env: Environment,
+    not_implemented_message: str,
+) -> DCIEnvelope:
+    """Return a signed DCI on-search envelope with per-item rjct stubs."""
+    try:
+        search_request = SearchRequest.model_validate(request_envelope.message)
+    except Exception as e:
+        _logger.error("Invalid SearchRequest message: %s", str(e))
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid search request message: {str(e)}",
+        ) from e
+
+    response_items = []
+    for req_item in search_request.search_request:
+        response_items.append(
+            SearchResponseItem(
+                reference_id=req_item.reference_id,
+                timestamp=datetime.now(UTC),
+                status="rjct",
+                status_reason_code=MsgHeaderStatusReasonCode.ACTION_NOT_SUPPORTED.value,
+                status_reason_message=not_implemented_message,
+                data=None,
+                pagination=None,
+                locale=req_item.locale,
+            )
+        )
+
+    search_response = SearchResponse(
+        transaction_id=search_request.transaction_id,
+        correlation_id=str(uuid.uuid4()),
+        search_response=response_items,
+    )
+    response_message = search_response.model_dump(mode="json", exclude_none=True)
+
+    return build_signed_envelope(
+        env,
+        request_envelope.header,
+        response_message,
+        status_code="rjct",
+        status_reason_code=MsgHeaderStatusReasonCode.ACTION_NOT_SUPPORTED.value,
+        status_reason_message=not_implemented_message,
+        completed_count=0,
+    )
+
 
 # Disability Registry router
 disability_router = APIRouter(tags=["Disability Registry"], prefix="/disability/registry")
@@ -36,12 +88,11 @@ disability_router = APIRouter(tags=["Disability Registry"], prefix="/disability/
 
 @disability_router.post(
     "/sync/search",
-    response_model=SearchResponse,
+    response_model=DCIEnvelope,
     response_model_exclude_none=True,
-    status_code=status.HTTP_501_NOT_IMPLEMENTED,
 )
 async def disability_sync_search(
-    request: SearchRequest,
+    request_envelope: DCIEnvelope,
     env: Annotated[Environment, Depends(odoo_env)],
     _bearer_token: Annotated[str, Depends(verify_bearer_token)],
 ):
@@ -54,29 +105,10 @@ async def disability_sync_search(
     For now, returns "not implemented" response for SPDCI compliance testing.
     """
     _logger.warning("Disability Registry search endpoint called but not yet implemented")
-
-    # Build response items with "not implemented" status
-    response_items = []
-    for req_item in request.search_request:
-        response_items.append(
-            SearchResponseItem(
-                reference_id=req_item.reference_id,
-                timestamp=datetime.utcnow(),
-                status="rjct",
-                status_reason_code=MsgHeaderStatusReasonCode.ACTION_NOT_SUPPORTED.value,
-                status_reason_message=(
-                    "Disability Registry not yet implemented. Will be available in spp_dci_server_disability module."
-                ),
-                data=None,
-                pagination=None,
-                locale=req_item.locale,
-            )
-        )
-
-    return SearchResponse(
-        transaction_id=request.transaction_id,
-        correlation_id=None,
-        search_response=response_items,
+    return _build_stub_search_envelope(
+        request_envelope,
+        env,
+        "Disability Registry not yet implemented. Will be available in spp_dci_server_disability module.",
     )
 
 
@@ -99,7 +131,7 @@ async def disability_sync_notify(
     return {
         "status": "rjct",
         "message": "Disability Registry not yet implemented",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -109,12 +141,11 @@ crvs_router = APIRouter(tags=["Civil Registry"], prefix="/crvs/registry")
 
 @crvs_router.post(
     "/sync/search",
-    response_model=SearchResponse,
+    response_model=DCIEnvelope,
     response_model_exclude_none=True,
-    status_code=status.HTTP_501_NOT_IMPLEMENTED,
 )
 async def crvs_sync_search(
-    request: SearchRequest,
+    request_envelope: DCIEnvelope,
     env: Annotated[Environment, Depends(odoo_env)],
     _bearer_token: Annotated[str, Depends(verify_bearer_token)],
 ):
@@ -127,29 +158,10 @@ async def crvs_sync_search(
     For now, returns "not implemented" response for SPDCI compliance testing.
     """
     _logger.warning("Civil Registry search endpoint called but not yet implemented")
-
-    # Build response items with "not implemented" status
-    response_items = []
-    for req_item in request.search_request:
-        response_items.append(
-            SearchResponseItem(
-                reference_id=req_item.reference_id,
-                timestamp=datetime.utcnow(),
-                status="rjct",
-                status_reason_code=MsgHeaderStatusReasonCode.ACTION_NOT_SUPPORTED.value,
-                status_reason_message=(
-                    "Civil Registry not yet implemented. Will be available in spp_dci_server_crvs module."
-                ),
-                data=None,
-                pagination=None,
-                locale=req_item.locale,
-            )
-        )
-
-    return SearchResponse(
-        transaction_id=request.transaction_id,
-        correlation_id=None,
-        search_response=response_items,
+    return _build_stub_search_envelope(
+        request_envelope,
+        env,
+        "Civil Registry not yet implemented. Will be available in spp_dci_server_crvs module.",
     )
 
 
@@ -172,7 +184,7 @@ async def crvs_sync_notify(
     return {
         "status": "rjct",
         "message": "Civil Registry not yet implemented",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -182,12 +194,11 @@ farmer_router = APIRouter(tags=["Farmer Registry"], prefix="/farmer/registry")
 
 @farmer_router.post(
     "/sync/search",
-    response_model=SearchResponse,
+    response_model=DCIEnvelope,
     response_model_exclude_none=True,
-    status_code=status.HTTP_501_NOT_IMPLEMENTED,
 )
 async def farmer_sync_search(
-    request: SearchRequest,
+    request_envelope: DCIEnvelope,
     env: Annotated[Environment, Depends(odoo_env)],
     _bearer_token: Annotated[str, Depends(verify_bearer_token)],
 ):
@@ -200,29 +211,10 @@ async def farmer_sync_search(
     For now, returns "not implemented" response for SPDCI compliance testing.
     """
     _logger.warning("Farmer Registry search endpoint called but not yet implemented")
-
-    # Build response items with "not implemented" status
-    response_items = []
-    for req_item in request.search_request:
-        response_items.append(
-            SearchResponseItem(
-                reference_id=req_item.reference_id,
-                timestamp=datetime.utcnow(),
-                status="rjct",
-                status_reason_code=MsgHeaderStatusReasonCode.ACTION_NOT_SUPPORTED.value,
-                status_reason_message=(
-                    "Farmer Registry not yet implemented. Will be available in spp_dci_server_farmer module."
-                ),
-                data=None,
-                pagination=None,
-                locale=req_item.locale,
-            )
-        )
-
-    return SearchResponse(
-        transaction_id=request.transaction_id,
-        correlation_id=None,
-        search_response=response_items,
+    return _build_stub_search_envelope(
+        request_envelope,
+        env,
+        "Farmer Registry not yet implemented. Will be available in spp_dci_server_farmer module.",
     )
 
 
@@ -245,5 +237,5 @@ async def farmer_sync_notify(
     return {
         "status": "rjct",
         "message": "Farmer Registry not yet implemented",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }

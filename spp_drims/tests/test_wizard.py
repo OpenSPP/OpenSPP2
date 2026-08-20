@@ -331,7 +331,7 @@ class TestInspectionWizard(DrimsTestCommon):
                 ],
             }
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         return donation
 
     def _open_inspection_wizard(self, donation):

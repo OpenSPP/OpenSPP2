@@ -488,7 +488,7 @@ output.</p>
 </div>
 </div>
 <div class="section" id="section-1">
-<h1>19.0.2.1.2</h1>
+<h1>19.0.2.1.5</h1>
 <ul class="simple">
 <li>fix(demo): release/force the cycle operation lock through the
 <tt class="docutils literal">_release_operation_lock</tt> helper instead of writing <tt class="docutils literal">is_locked</tt>
@@ -498,6 +498,35 @@ lock fields to system admins.</li>
 </ul>
 </div>
 <div class="section" id="section-2">
+<h1>19.0.2.1.4</h1>
+<ul class="simple">
+<li>feat(farmer_demo): seed EC1, a 50 ha commercial farm carrying idle
+land. Story 9 needs a farm that has the positive Climate Resilience
+signal (idle land) but is still rejected for not being a smallholder,
+so the targeting rule can be demonstrated turning one down (#1119)</li>
+</ul>
+</div>
+<div class="section" id="section-3">
+<h1>19.0.2.1.3</h1>
+<ul class="simple">
+<li>fix(farmer_demo): type demo farm groups as FARM. Farm groups were
+created with no group type, so they did not read as farms in the
+registry; a farm stays typed FARM even when it joins a cooperative,
+and only the cooperative container is typed COOPERATIVE (#1120)</li>
+</ul>
+</div>
+<div class="section" id="section-4">
+<h1>19.0.2.1.2</h1>
+<ul class="simple">
+<li>fix(demo): put the Input Subsidy Program on <strong>manual</strong> entitlement
+approval (<tt class="docutils literal">auto_approve_entitlements=False</tt>) so a demo user can walk
+the full cycle → entitlement approval chain, not just cycle approval.
+The flag is now per-program (every other demo program stays
+auto-approve), and historically seeded cycles are unaffected because
+the generator force-approves their pending entitlements (#1122)</li>
+</ul>
+</div>
+<div class="section" id="section-5">
 <h1>19.0.2.1.1</h1>
 <ul class="simple">
 <li>fix(demo): name each farm after its head member and give every member
@@ -512,7 +541,7 @@ recorded gender (no more e.g. a male-gendered head named “Maria”)
 (#1114)</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-6">
 <h1>19.0.2.1.0</h1>
 <ul class="simple">
 <li>feat(demo): add GIS + irrigation scenario (FM4) with reservoir + canal
@@ -531,7 +560,7 @@ farm-season state-machine sub-step; refresh FM1/FM4/FM8 farm story
 tables and the CR overview</li>
 </ul>
 </div>
-<div class="section" id="section-4">
+<div class="section" id="section-7">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
