@@ -697,6 +697,22 @@
         <field name="is_system">True</field>
     </record>
 
+    <record id="var_in_institutional_care" model="spp.cel.variable">
+        <field name="name">in_institutional_care</field>
+        <field name="label">In Institutional Care</field>
+        <field
+            name="description"
+        >Whether the individual currently resides in institutional care (e.g., nursing home, care facility, orphanage)</field>
+        <field name="category_id" ref="variable_category_demographics" />
+        <field name="value_type">boolean</field>
+        <field name="source_type">field</field>
+        <field name="source_model">res.partner</field>
+        <field name="source_field">in_institutional_care</field>
+        <field name="cel_accessor">in_institutional_care</field>
+        <field name="applies_to">both</field>
+        <field name="is_system">True</field>
+    </record>
+
     <!-- NOTE: var_is_registered removed.
              Registry-level selection should use is_registrant/is_group directly,
              and logic should not need an is_registered variable. -->

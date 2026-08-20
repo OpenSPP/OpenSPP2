@@ -10,6 +10,12 @@ is corrected - this migration applies the same fix directly:
 - items whose expression has no working near-equivalent are deleted;
 - items where a meaningful sub-expression survives are rewritten to it
   (matching the corrected pack data files).
+
+One flagged item needs no handling here: Institutional Residence Exclusion
+keeps its shipped expression - it only lacked a variable definition, and the
+new ``in_institutional_care`` standard variable (over the existing
+``spp_registry`` field) is created by the regular data load, which is not
+``noupdate`` for ``standard_variables.xml``.
 """
 
 import json
@@ -39,7 +45,6 @@ REMOVED_ITEMS = [
     "spp_studio.pack_excl_item_tax",
     "spp_studio.pack_excl_item_bank_balance",
     "spp_studio.pack_excl_item_livestock",
-    "spp_studio.pack_excl_item_institutional",
 ]
 
 # xmlid -> (new cel_expression, new description)

@@ -25,4 +25,17 @@
         <field name="logic_data">{"cel_expression": "land_hectares &lt;= 2"}</field>
         <field name="sequence">40</field>
     </record>
+
+    <!-- Exclusion: Institutional Residence -->
+    <record id="pack_excl_item_institutional" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_exclusion_criteria" />
+        <field name="name">Institutional Residence Exclusion</field>
+        <field name="context_type">both</field>
+        <field
+            name="description"
+        >Exclude individuals residing in institutions (prisons, care homes with full support).</field>
+        <field name="expression_type">filter</field>
+        <field name="logic_data">{"cel_expression": "!in_institutional_care"}</field>
+        <field name="sequence">120</field>
+    </record>
 </odoo>
