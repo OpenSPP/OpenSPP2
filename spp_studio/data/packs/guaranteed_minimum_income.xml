@@ -28,21 +28,6 @@
         <field name="sequence">10</field>
     </record>
 
-    <!-- Eligibility: Working Age with Barriers -->
-    <record id="pack_gmi_item_work_barriers" model="spp.studio.pack.item">
-        <field name="pack_id" ref="pack_guaranteed_minimum" />
-        <field name="name">Employment Barriers Check</field>
-        <field name="context_type">group</field>
-        <field
-            name="description"
-        >Working-age members have legitimate barriers to employment.</field>
-        <field name="expression_type">filter</field>
-        <field
-            name="logic_data"
-        >{"cel_expression": "has_disabled_member || has_caregiver_responsibilities || is_single_parent || no_working_age_members"}</field>
-        <field name="sequence">20</field>
-    </record>
-
     <!-- Eligibility: Asset Test -->
     <record id="pack_gmi_item_asset_test" model="spp.studio.pack.item">
         <field name="pack_id" ref="pack_guaranteed_minimum" />
@@ -65,11 +50,9 @@
         <field name="context_type">individual</field>
         <field
             name="description"
-        >Legal residency and minimum duration requirement.</field>
+        >Minimum residency duration requirement (12 months).</field>
         <field name="expression_type">filter</field>
-        <field
-            name="logic_data"
-        >{"cel_expression": "is_legal_resident &amp;&amp; residency_months >= 12"}</field>
+        <field name="logic_data">{"cel_expression": "residency_months >= 12"}</field>
         <field name="sequence">40</field>
     </record>
 

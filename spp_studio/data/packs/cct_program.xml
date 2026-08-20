@@ -58,21 +58,6 @@
         <field name="sequence">30</field>
     </record>
 
-    <!-- Eligibility: Health Conditionality -->
-    <record id="pack_cct_item_health_compliance" model="spp.studio.pack.item">
-        <field name="pack_id" ref="pack_cct_program" />
-        <field name="name">Health Conditionality Compliance</field>
-        <field name="context_type">group</field>
-        <field
-            name="description"
-        >Children under 5 meeting health checkup and vaccination requirements.</field>
-        <field name="expression_type">filter</field>
-        <field
-            name="logic_data"
-        >{"cel_expression": "children_0_5 == 0 || (health_checkups_completed &amp;&amp; vaccinations_current)"}</field>
-        <field name="sequence">40</field>
-    </record>
-
     <!-- Scoring: Poverty Depth Score -->
     <record id="pack_cct_item_poverty_depth" model="spp.studio.pack.item">
         <field name="pack_id" ref="pack_cct_program" />
