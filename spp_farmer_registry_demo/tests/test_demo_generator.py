@@ -219,6 +219,8 @@ class TestFarmerDemoGeneratorStoryFarms(TransactionCase):
         for farm in story_farms.values():
             self.assertTrue(farm.is_group)
             self.assertTrue(farm.is_registrant)
+            # OP#1120: story farm groups are typed FARM.
+            self.assertEqual(farm.group_type_id.code, "farm")
 
     def test_create_story_farms_have_members(self):
         """Test story farms have farmer members."""
@@ -262,6 +264,24 @@ class TestFarmerDemoGeneratorStoryFarms(TransactionCase):
             self.assertEqual(farm.name, "Test Farm")
             self.assertTrue(farm.is_group)
             self.assertEqual(farm.farm_total_size, 3.0)
+            # OP#1120: farm groups default to the FARM group type.
+            self.assertEqual(farm.group_type_id.code, "farm")
+
+    def test_1120_cooperative_container_typed_cooperative(self):
+        """OP#1120: the cooperative container is typed COOPERATIVE, while its
+        member farms stay FARM (a farm is still a farm inside a cooperative)."""
+        wizard = self.Generator.create({"name": _unique("Coop Type Test")})
+        story_farms = wizard._create_story_farms()
+
+        cooperatives = wizard._create_cooperatives(story_farms)
+        self.assertTrue(cooperatives, "expected at least one cooperative")
+
+        for coop in cooperatives.values():
+            self.assertEqual(coop.group_type_id.code, "cooperative")
+            members = self.env["spp.group.membership"].search([("group", "=", coop.id)])
+            self.assertTrue(members, "cooperative should have member farms")
+            for membership in members:
+                self.assertEqual(membership.individual.group_type_id.code, "farm")
 
     def test_maria_santos_profile(self):
         """Test Maria Santos persona - smallholder rice farmer."""

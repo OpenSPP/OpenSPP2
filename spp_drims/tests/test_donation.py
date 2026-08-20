@@ -1,5 +1,9 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+import re
 from datetime import date, timedelta
+from pathlib import Path
+
+from lxml import etree
 
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
@@ -18,10 +22,21 @@ class TestDrimsDonation(DrimsTestCommon):
                 "incident_id": self.incident.id,
                 "warehouse_id": self.warehouse.id,
                 "donor_name": "Test Donor",
+                "line_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "product_id": self.product.id,
+                            "quantity_pledged": 10,
+                            "uom_id": self.product.uom_id.id,
+                        },
+                    )
+                ],
             }
         )
         self.assertTrue(donation.reference.startswith("DON-"))
-        self.assertEqual(donation.state, "announced")
+        self.assertEqual(donation.state, "draft")
 
     def test_donation_with_lines(self):
         """Test donation with line items."""
@@ -94,7 +109,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 ],
             }
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         self.assertEqual(donation.state, "received")
         self.assertTrue(donation.date_received)
         # Check line received quantity is set
@@ -122,7 +137,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 ],
             }
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         picking = donation.picking_ids[0]
         self.assertEqual(picking.drims_donation_id, donation)
         self.assertEqual(picking.incident_id, self.incident)
@@ -154,7 +169,7 @@ class TestDrimsDonation(DrimsTestCommon):
         with self.assertRaises(UserError):
             donation.action_inspect()
         # After receiving
-        donation.action_mark_received()
+        self._receive_donation(donation)
         donation.action_inspect()
         self.assertEqual(donation.state, "inspected")
 
@@ -194,6 +209,17 @@ class TestDrimsDonation(DrimsTestCommon):
                 "incident_id": self.incident.id,
                 "warehouse_id": self.warehouse.id,
                 "donor_id": partner.id,
+                "line_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "product_id": self.product.id,
+                            "quantity_pledged": 10,
+                            "uom_id": self.product.uom_id.id,
+                        },
+                    )
+                ],
             }
         )
         self.assertEqual(donation.donor_id, partner)
@@ -219,6 +245,17 @@ class TestDrimsDonation(DrimsTestCommon):
                     "warehouse_id": self.warehouse.id,
                     "donor_name": "NGO Donor",
                     "source_type_id": donor_type.id,
+                    "line_ids": [
+                        (
+                            0,
+                            0,
+                            {
+                                "product_id": self.product.id,
+                                "quantity_pledged": 10,
+                                "uom_id": self.product.uom_id.id,
+                            },
+                        )
+                    ],
                 }
             )
             self.assertEqual(donation.source_type_id, donor_type)
@@ -254,6 +291,9 @@ class TestDrimsDonation(DrimsTestCommon):
                 "incident_id": self.incident.id,
                 "warehouse_id": self.warehouse.id,
                 "donor_name": "Test Donor 1",
+                "line_ids": [
+                    (0, 0, {"product_id": self.product.id, "quantity_pledged": 10, "uom_id": self.product.uom_id.id})
+                ],
             }
         )
         # Verify reference was generated
@@ -265,6 +305,9 @@ class TestDrimsDonation(DrimsTestCommon):
                 "incident_id": self.incident.id,
                 "warehouse_id": self.warehouse.id,
                 "donor_name": "Test Donor 2",
+                "line_ids": [
+                    (0, 0, {"product_id": self.product.id, "quantity_pledged": 10, "uom_id": self.product.uom_id.id})
+                ],
             }
         )
         self.assertNotEqual(donation1.reference, donation2.reference)
@@ -313,7 +356,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 ],
             }
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         action = donation.action_view_pickings()
         self.assertEqual(action["res_model"], "stock.picking")
         self.assertEqual(action["domain"], [("drims_donation_id", "=", donation.id)])
@@ -340,7 +383,7 @@ class TestDrimsDonation(DrimsTestCommon):
         )
         # Manually set received quantity before marking received
         donation.line_ids[0].quantity_received = 75
-        donation.action_mark_received()
+        self._receive_donation(donation)
         # Should keep the manually set quantity
         self.assertEqual(donation.line_ids[0].quantity_received, 75)
 
@@ -406,7 +449,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 ],
             }
         )
-        self.assertEqual(donation.state, "announced")
+        self.assertEqual(donation.state, "draft")
 
         # Try to skip to 'stocked' state (should fail)
         stocked_state = self.env["spp.vocabulary.code"].search(
@@ -446,10 +489,13 @@ class TestDrimsDonation(DrimsTestCommon):
             }
         )
 
-        # Follow valid sequence: announced -> received -> inspected -> stocked
+        # Follow valid sequence: draft -> announced -> received -> inspected -> stocked
+        self.assertEqual(donation.state, "draft")
+
+        donation.action_mark_announced()
         self.assertEqual(donation.state, "announced")
 
-        donation.action_mark_received()
+        self._receive_donation(donation)
         self.assertEqual(donation.state, "received")
 
         donation.action_inspect()
@@ -483,7 +529,7 @@ class TestDrimsDonation(DrimsTestCommon):
             donation.action_reject()
 
         # Go through the workflow
-        donation.action_mark_received()
+        self._receive_donation(donation)
         self.assertEqual(donation.state, "received")
 
         # Cannot reject from received state
@@ -521,7 +567,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 ],
             }
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         donation.action_inspect()
 
         # Verify we have a picking in progress
@@ -555,6 +601,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 ],
             }
         )
+        donation.action_mark_announced()
         self.assertEqual(donation.state, "announced")
         donation.action_cancel()
         self.assertEqual(donation.state, "cancelled")
@@ -579,7 +626,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 ],
             }
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         self.assertEqual(donation.state, "received")
         donation.action_cancel()
         self.assertEqual(donation.state, "cancelled")
@@ -607,7 +654,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 ],
             }
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         donation.action_inspect()
         self.assertEqual(donation.state, "inspected")
         donation.action_cancel()
@@ -633,7 +680,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 ],
             }
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         donation.action_inspect()
         donation.action_stock()
         self.assertEqual(donation.state, "stocked")
@@ -661,7 +708,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 ],
             }
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         donation.action_inspect()
         donation.action_reject()
         self.assertEqual(donation.state, "rejected")
@@ -692,6 +739,38 @@ class TestDrimsDonation(DrimsTestCommon):
             }
         )
 
+    # ---------- OP#1163: Mark Received wizard ----------
+    def test_1163_receive_wizard_writes_qty_and_marks_received(self):
+        """OP#1163: the receive wizard pre-fills received from pledged, writes the
+        entered quantities back, and marks the donation received."""
+        donation = self._make_donation(
+            [{"product_id": self.product.id, "quantity_pledged": 10, "uom_id": self.product.uom_id.id}]
+        )
+        donation.action_mark_announced()
+
+        action = donation.action_open_receive_wizard()
+        self.assertEqual(action["res_model"], "spp.drims.receive.wizard")
+        wizard = self.env["spp.drims.receive.wizard"].browse(action["res_id"])
+        self.assertEqual(len(wizard.line_ids), 1)
+        # Received pre-filled from pledged.
+        self.assertEqual(wizard.line_ids.quantity_received, 10)
+
+        # Adjust and confirm.
+        wizard.line_ids.quantity_received = 8
+        wizard.action_confirm_received()
+        self.assertEqual(donation.state, "received")
+        self.assertEqual(donation.line_ids[0].quantity_received, 8)
+        self.assertEqual(donation.picking_count, 1)
+
+    def test_1163_receive_wizard_only_announced(self):
+        """OP#1163: opening the receive wizard on a non-announced donation raises."""
+        donation = self._make_donation(
+            [{"product_id": self.product.id, "quantity_pledged": 10, "uom_id": self.product.uom_id.id}]
+        )
+        # Still draft, not announced.
+        with self.assertRaises(UserError):
+            donation.action_open_receive_wizard()
+
     def test_action_stock_creates_lot_for_lot_tracked_product(self):
         """Lot-tracked product validates and a stock.lot is created from lot_number."""
         product = self._make_tracked_product("lot", "Rice 25kg (lot)")
@@ -705,7 +784,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 }
             ]
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         donation.action_inspect()
         donation.action_stock()
         self.assertEqual(donation.state, "stocked")
@@ -732,7 +811,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 }
             ]
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         donation.action_inspect()
         donation.action_stock()
         lot = self.env["stock.lot"].search(
@@ -766,7 +845,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 }
             ]
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         donation.action_inspect()
         donation.action_stock()
         lots = self.env["stock.lot"].search([("name", "=", "LOT-RICE-EXISTING"), ("product_id", "=", product.id)])
@@ -786,7 +865,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 }
             ]
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         donation.action_inspect()
         donation.action_stock()
         self.assertEqual(donation.state, "stocked")
@@ -804,7 +883,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 }
             ]
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         donation.action_inspect()
         with self.assertRaises(UserError):
             donation.action_stock()
@@ -822,7 +901,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 }
             ]
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         donation.action_inspect()
         with self.assertRaises(UserError):
             donation.action_stock()
@@ -839,7 +918,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 }
             ]
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         donation.action_inspect()
         donation.action_stock()
         self.assertEqual(donation.state, "stocked")
@@ -882,7 +961,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 }
             ]
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         donation.action_inspect()
         donation.line_ids[0].disposition_id = disposition_return
 
@@ -913,7 +992,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 }
             ]
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         donation.action_inspect()
         donation.line_ids[0].disposition_id = disposition_dispose
 
@@ -941,7 +1020,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 },
             ]
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         donation.action_inspect()
         donation.line_ids[0].disposition_id = disposition_accept
         donation.line_ids[1].disposition_id = disposition_return
@@ -953,6 +1032,38 @@ class TestDrimsDonation(DrimsTestCommon):
         # Warning lists the 200 excluded units.
         self.assertIsNotNone(result)
         self.assertIn("200", result["params"]["message"])
+
+    def test_1058_accepted_and_non_accepted_line_split(self):
+        """OP#1058: a non-accepted line appears only in non_accepted_line_ids
+        (the "Items Not Accepted for Stock" table), not in accepted_line_ids
+        (the "Donation Items" table) — no duplication across the two tables."""
+        disposition_accept = self._disposition("accept")
+        disposition_return = self._disposition("return")
+        if not (disposition_accept and disposition_return):
+            self.skipTest("required disposition codes missing")
+
+        donation = self._make_donation(
+            [
+                {"product_id": self.product.id, "quantity_pledged": 3, "uom_id": self.product.uom_id.id},
+                {"product_id": self.product.id, "quantity_pledged": 1, "uom_id": self.product.uom_id.id},
+            ]
+        )
+        self._receive_donation(donation)
+        donation.action_inspect()
+        accepted_line = donation.line_ids[0]
+        returned_line = donation.line_ids[1]
+        accepted_line.disposition_id = disposition_accept
+        returned_line.disposition_id = disposition_return
+
+        # The split covers every line, with no overlap.
+        self.assertIn(accepted_line, donation.accepted_line_ids)
+        self.assertNotIn(returned_line, donation.accepted_line_ids)
+        self.assertIn(returned_line, donation.non_accepted_line_ids)
+        self.assertNotIn(accepted_line, donation.non_accepted_line_ids)
+        self.assertEqual(
+            donation.accepted_line_ids | donation.non_accepted_line_ids,
+            donation.line_ids,
+        )
 
     def test_action_stock_mixed_dispositions_partial_receive_only_stocks_accept(self):
         """OP#1030 regression: even when Odoo merges the receipt moves and
@@ -984,7 +1095,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 },
             ]
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         # Simulate the OP#964 scenario: line 1's received is reduced after
         # receipt (e.g. the actual delivery was short of the pledged amount).
         donation.line_ids[0].quantity_received = 200
@@ -1021,7 +1132,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 },
             ]
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         donation.action_inspect()
         donation.line_ids[0].disposition_id = disposition_return
         donation.line_ids[1].disposition_id = disposition_dispose
@@ -1052,7 +1163,7 @@ class TestDrimsDonation(DrimsTestCommon):
                 },
             ]
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         donation.action_inspect()
         donation.line_ids[0].disposition_id = disposition_accept
         donation.line_ids[1].disposition_id = disposition_return
@@ -1074,10 +1185,348 @@ class TestDrimsDonation(DrimsTestCommon):
                 }
             ]
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         donation.action_inspect()
         donation.line_ids[0].disposition_id = disposition_accept
 
         result = donation.action_stock()
         self.assertIsNone(result, "no excluded units → no notification")
         self.assertEqual(self._qty_in_warehouse(self.product, self.warehouse), 500.0)
+
+
+@tagged("post_install", "-at_install")
+class TestDrimsDonationOP1076(DrimsTestCommon):
+    """OP#1076 — donation creation rules and the draft→announced lifecycle."""
+
+    def _draft_donation(self, **overrides):
+        vals = {
+            "incident_id": self.incident.id,
+            "warehouse_id": self.warehouse.id,
+            "donor_name": "Test Donor",
+            "line_ids": [
+                (0, 0, {"product_id": self.product.id, "quantity_pledged": 100, "uom_id": self.product.uom_id.id})
+            ],
+        }
+        vals.update(overrides)
+        return self.env["spp.drims.donation"].create(vals)
+
+    def test_default_state_is_draft(self):
+        """A new donation starts in the draft state (not announced)."""
+        self.assertEqual(self._draft_donation().state, "draft")
+
+    def test_mark_announced_transitions_draft_to_announced(self):
+        donation = self._draft_donation()
+        donation.action_mark_announced()
+        self.assertEqual(donation.state, "announced")
+
+    def test_mark_announced_only_from_draft(self):
+        donation = self._draft_donation()
+        donation.action_mark_announced()
+        with self.assertRaises(UserError):
+            donation.action_mark_announced()
+
+    def test_mark_received_requires_announced(self):
+        """Mark Received is not available before the donation is announced."""
+        donation = self._draft_donation()
+        with self.assertRaises(UserError):
+            donation.action_mark_received()
+
+    def test_mark_received_requires_received_qty(self):
+        """Received quantities must be entered before marking received."""
+        donation = self._draft_donation()
+        donation.action_mark_announced()
+        with self.assertRaises(UserError):
+            donation.action_mark_received()
+
+    def test_received_is_manual_not_autocopied(self):
+        """Received is taken from manual entry, not auto-copied from pledged."""
+        donation = self._draft_donation()  # pledged 100
+        donation.action_mark_announced()
+        donation.line_ids[0].quantity_received = 40
+        donation.action_mark_received()
+        self.assertEqual(donation.state, "received")
+        self.assertEqual(donation.line_ids[0].quantity_received, 40)
+        self.assertEqual(donation.line_ids[0].receipt_variance, -60)
+        self.assertEqual(donation.picking_count, 1)
+
+    def test_pledged_must_be_positive(self):
+        with self.assertRaises(ValidationError):
+            self._draft_donation(
+                line_ids=[
+                    (0, 0, {"product_id": self.product.id, "quantity_pledged": 0, "uom_id": self.product.uom_id.id})
+                ]
+            )
+
+    def test_at_least_one_line_required(self):
+        with self.assertRaises(ValidationError):
+            self.env["spp.drims.donation"].create(
+                {
+                    "incident_id": self.incident.id,
+                    "warehouse_id": self.warehouse.id,
+                    "donor_name": "No lines",
+                }
+            )
+
+    def test_cannot_donate_to_closed_incident(self):
+        closed_incident = self.env["spp.hazard.incident"].create(
+            {
+                "name": "Closed Incident",
+                "code": "CLOSED-2026-TEST",
+                "category_id": self.hazard_category.id,
+                "start_date": "2024-01-01",
+                "status": "closed",
+            }
+        )
+        with self.assertRaises(ValidationError):
+            self._draft_donation(incident_id=closed_incident.id)
+
+    def test_non_accepted_lines_computed(self):
+        """Lines with a non-accept disposition surface in non_accepted_line_ids."""
+        disposition_return = self.env["spp.vocabulary.code"].search(
+            [
+                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:item-dispositions"),
+                ("code", "=", "return"),
+            ],
+            limit=1,
+        )
+        if not disposition_return:
+            self.skipTest("return disposition vocab code missing")
+        donation = self._draft_donation()
+        self._receive_donation(donation)
+        donation.action_inspect()
+        self.assertFalse(donation.non_accepted_line_ids)
+        donation.line_ids[0].disposition_id = disposition_return
+        self.assertIn(donation.line_ids[0], donation.non_accepted_line_ids)
+
+    # ---------- OP#1055: items can be added/removed while draft or announced,
+    #            but the list is locked once the donation is received ----------
+
+    def test_1055_can_add_and_remove_lines_in_draft(self):
+        donation = self._draft_donation()
+        line = self.env["spp.drims.donation.line"].create(
+            {
+                "donation_id": donation.id,
+                "product_id": self.product.id,
+                "quantity_pledged": 5,
+                "uom_id": self.product.uom_id.id,
+            }
+        )
+        self.assertIn(line, donation.line_ids)
+        line.unlink()
+        self.assertNotIn(line, donation.line_ids)
+
+    def test_1055_can_add_and_remove_lines_when_announced(self):
+        """OP#1055 (round 2): a line can still be added — with a selectable
+        product — while the donation is announced (QA adds late-announced items
+        during receiving). Adding/removing is allowed up to the announced state.
+        """
+        donation = self._draft_donation()
+        donation.action_mark_announced()
+        line = self.env["spp.drims.donation.line"].create(
+            {
+                "donation_id": donation.id,
+                "product_id": self.product.id,
+                "quantity_pledged": 5,
+                "uom_id": self.product.uom_id.id,
+            }
+        )
+        self.assertIn(line, donation.line_ids)
+        line.unlink()
+        self.assertNotIn(line, donation.line_ids)
+
+    def test_1055_cannot_add_line_after_received(self):
+        """The original bug: no new items once the donation is received."""
+        donation = self._draft_donation()
+        self._receive_donation(donation)
+        self.assertEqual(donation.state, "received")
+        with self.assertRaises(ValidationError):
+            self.env["spp.drims.donation.line"].create(
+                {
+                    "donation_id": donation.id,
+                    "product_id": self.product.id,
+                    "quantity_pledged": 5,
+                    "uom_id": self.product.uom_id.id,
+                }
+            )
+
+    def test_1055_cannot_remove_line_after_received(self):
+        donation = self._draft_donation()
+        self._receive_donation(donation)
+        with self.assertRaises(ValidationError):
+            donation.line_ids[0].unlink()
+
+    # ---------- OP#1108: inline-created products are storable ----------
+
+    def _donation_items_list(self):
+        """The items list on the donation form, identified by its own columns.
+
+        The form holds several lists — pickings and disposal follow-up among
+        them — and some carry a product_id of their own with no such context,
+        so a test that swept every list would fail on the wrong one.
+        """
+        arch = etree.fromstring(self.env.ref("spp_drims.view_drims_donation_form").arch)
+        for lst in arch.iter("list"):
+            if any(field.get("name") == "quantity_pledged" for field in lst.findall("field")):
+                return lst
+        self.fail("the donation form should have an items list with a Pledged column")
+
+    def test_1108_the_line_asks_for_a_storable_product(self):
+        """The defaults live on the field's context, so assert them there.
+
+        Building the context by hand exercises Odoo's defaulting machinery
+        rather than the fix: that version passed whether or not the view still
+        carried the context, which is the only thing OP#1108 changed
+        (OP#1076 review).
+        """
+        product = [f for f in self._donation_items_list().findall("field") if f.get("name") == "product_id"]
+
+        self.assertTrue(product, "the donation items list should offer a product")
+        context = product[0].get("context") or ""
+        self.assertIn("default_type", context, "a quick-created product must be a Good")
+        self.assertIn("'consu'", context)
+        self.assertIn("default_is_storable", context, "it must be trackable in inventory")
+
+    def test_1108_inline_product_defaults_to_storable(self):
+        """And the defaults the view asks for do produce a storable Good."""
+        product_model = self.env["product.product"].with_context(default_type="consu", default_is_storable=True)
+        pid, _name = product_model.name_create("QA Inline Donated Item 1108")
+        product = self.env["product.product"].browse(pid)
+        self.assertEqual(product.type, "consu")
+        self.assertTrue(product.is_storable)
+
+    def test_1076_received_quantity_may_be_zero_but_not_negative(self):
+        """Zero is a real answer — pledged and never arrived.
+
+        The view no longer marks Received required, because the web client
+        reads 0.0 on a float as "not set" and refused to save that line. What
+        must not pass is a negative, which slips through the "at least one line
+        above zero" rule whenever another line is positive and then fails deep
+        in the receipt picking (OP#1076 review).
+        """
+        donation = self._draft_donation()
+        donation.action_mark_announced()
+        line = donation.line_ids[0]
+
+        line.quantity_received = 0
+        self.assertEqual(line.quantity_received, 0, "a shortfall of the whole line must be recordable")
+
+        with self.assertRaises(ValidationError):
+            line.quantity_received = -1
+
+    def test_1076_received_is_not_required_by_the_list(self):
+        """Guards the attribute that made a legitimate zero unsaveable."""
+        received = [f for f in self._donation_items_list().findall("field") if f.get("name") == "quantity_received"]
+
+        self.assertTrue(received, "the donation items list should show Received")
+        self.assertIsNone(
+            received[0].get("required"),
+            "a required float cannot be saved as 0, which is a valid receipt",
+        )
+
+    # ---------- OP#1058: non-accepted items follow-up tracking ----------
+
+    def _disposition(self, code):
+        return self.env["spp.vocabulary.code"].search(
+            [
+                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:item-dispositions"),
+                ("code", "=", code),
+            ],
+            limit=1,
+        )
+
+    def test_1058_excluded_item_pending_after_stock(self):
+        """Stocking flags non-accept items as Pending disposal; accepted ones aren't."""
+        disp_accept = self._disposition("accept")
+        disp_return = self._disposition("return")
+        if not (disp_accept and disp_return):
+            self.skipTest("required disposition codes missing")
+        donation = self._draft_donation(
+            line_ids=[
+                (0, 0, {"product_id": self.product.id, "quantity_pledged": 100, "uom_id": self.product.uom_id.id}),
+                (0, 0, {"product_id": self.product.id, "quantity_pledged": 40, "uom_id": self.product.uom_id.id}),
+            ]
+        )
+        self._receive_donation(donation)
+        donation.action_inspect()
+        donation.line_ids[0].disposition_id = disp_accept
+        donation.line_ids[1].disposition_id = disp_return
+        donation.action_stock()
+
+        self.assertEqual(donation.state, "stocked")
+        self.assertFalse(donation.line_ids[0].disposal_state, "accepted line needs no disposal")
+        self.assertEqual(donation.line_ids[1].disposal_state, "pending")
+        self.assertTrue(donation.line_ids[1].is_non_accept)
+
+    def test_1058_mark_resolved_records_and_audits(self):
+        """Resolving a non-accept item records who/when and posts an audit note."""
+        disp_return = self._disposition("return")
+        if not disp_return:
+            self.skipTest("return disposition code missing")
+        donation = self._draft_donation()
+        self._receive_donation(donation)
+        donation.action_inspect()
+        donation.line_ids[0].disposition_id = disp_return
+        donation.action_stock()
+        line = donation.line_ids[0]
+        self.assertEqual(line.disposal_state, "pending")
+
+        messages_before = len(donation.message_ids)
+        line.disposal_notes = "Returned to donor on truck #5"
+        line.action_mark_disposal_resolved()
+
+        self.assertEqual(line.disposal_state, "resolved")
+        self.assertEqual(line.disposal_date, date.today())
+        self.assertEqual(line.disposal_user_id, self.env.user)
+        self.assertGreater(len(donation.message_ids), messages_before, "an audit note should be posted")
+
+    # ------------------------------------------------------------------
+    # round 2: the form has to let you enter items in the first place
+    # ------------------------------------------------------------------
+
+    def test_filler_row_css_does_not_hide_add_a_line(self):
+        """The stylesheet must hide Odoo's blank filler rows and nothing else.
+
+        It previously excluded ``.o_field_x2many_list_row_add`` from the rows it
+        hid, on the assumption that class sits on the ``<tr>``. In Odoo 19 it is
+        on the ``<td>`` — the row is ``<tr class="d-print-none">`` — so the
+        exclusion never matched and the rule hid the "Add a line" row itself.
+        A new donation then offered no way to add items at all.
+
+        Filler rows are the only ones rendered without a class, which is what
+        the rule keys on now.
+        """
+        css = (Path(__file__).parents[1] / "static/src/css/donation_form.css").read_text()
+        # Comments explain the trap by name, so check the rules themselves.
+        rules = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+
+        self.assertIn(
+            "tr:not([class])",
+            rules,
+            "filler rows should be matched by having no class",
+        )
+        self.assertNotIn(
+            "o_field_x2many_list_row_add",
+            rules,
+            "that class is on the <td>, not the <tr> — excluding it on the row never matches "
+            "and the Add a line row gets hidden instead",
+        )
+
+    def test_donation_lists_use_column_invisible_not_invisible(self):
+        """Inside a list, ``invisible`` blanks the cells but keeps the column.
+
+        A field hidden that way leaves an empty titled column in the table —
+        which is how a stray "Quantity" column appeared between Pledged and
+        Unit on the donation items table.
+        """
+        arch = etree.fromstring(self.env.ref("spp_drims.view_drims_donation_form").arch)
+
+        offenders = [
+            field.get("name")
+            for lst in arch.iter("list")
+            for field in lst.findall("field")
+            if field.get("invisible") == "1"
+        ]
+        self.assertFalse(
+            offenders,
+            f"these list fields should use column_invisible instead of invisible: {offenders}",
+        )
