@@ -115,12 +115,6 @@ msgid "Age"
 msgstr "Âge"
 
 #. module: spp_registry
-#. odoo-python
-#: code:addons/spp_registry/models/individual.py:0
-msgid "Age must be a valid integer."
-msgstr "L’âge doit être un nombre entier valide."
-
-#. module: spp_registry
 #: model:ir.model.fields,field_description:spp_registry.field_res_partner__birthdate_not_exact
 #: model:ir.model.fields,field_description:spp_registry.field_res_users__birthdate_not_exact
 msgid "Approximate Birthdate"
