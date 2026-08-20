@@ -20,10 +20,15 @@ class SpatialQueryRequest(BaseModel):
 class SpatialQueryResponse(BaseModel):
     """Response from spatial query."""
 
-    total_count: int = Field(..., description="Total number of registrants in query area")
+    total_count: int = Field(..., description="Total number of registrants in query area (0 when suppressed)")
+    count_suppressed: bool = Field(
+        default=False,
+        description="True when the count is withheld for k-anonymity (fewer than the "
+        "minimum threshold); total_count is reported as 0 and cannot be distinguished from empty",
+    )
     query_method: str = Field(
         ...,
-        description="Method used for query (coordinates, area_fallback)",
+        description="Query method: coordinates, area_fallback, or 'suppressed' (count withheld for k-anonymity)",
     )
     areas_matched: int = Field(..., description="Number of areas intersecting query polygon")
     statistics: dict = Field(..., description="Computed aggregate statistics")
@@ -70,10 +75,15 @@ class BatchResultItem(BaseModel):
     """Result for a single geometry in a batch query."""
 
     id: str = Field(..., description="Geometry identifier matching the request")
-    total_count: int = Field(..., description="Total number of registrants in this geometry")
+    total_count: int = Field(..., description="Total number of registrants in this geometry (0 when suppressed)")
+    count_suppressed: bool = Field(
+        default=False,
+        description="True when the count is withheld for k-anonymity (fewer than the "
+        "minimum threshold); total_count is reported as 0 and cannot be distinguished from empty",
+    )
     query_method: str = Field(
         ...,
-        description="Method used for query (coordinates, area_fallback)",
+        description="Query method: coordinates, area_fallback, or 'suppressed' (count withheld for k-anonymity)",
     )
     areas_matched: int = Field(..., description="Number of areas intersecting this geometry")
     statistics: dict = Field(..., description="Statistics computed for this geometry")
@@ -94,7 +104,12 @@ class BatchResultItem(BaseModel):
 class BatchSummary(BaseModel):
     """Aggregated summary across all geometries in a batch query."""
 
-    total_count: int = Field(..., description="Combined total registrants across all geometries")
+    total_count: int = Field(..., description="Combined total registrants across all geometries (0 when suppressed)")
+    count_suppressed: bool = Field(
+        default=False,
+        description="True when the combined count is withheld for k-anonymity (fewer than the "
+        "minimum threshold); total_count is reported as 0 and cannot be distinguished from empty",
+    )
     geometries_queried: int = Field(..., description="Number of geometries in the batch")
     statistics: dict = Field(..., description="Combined statistics across all geometries")
     access_level: str | None = Field(
@@ -165,10 +180,17 @@ class ProximityQueryRequest(BaseModel):
 class ProximityQueryResponse(BaseModel):
     """Response from proximity-based spatial query."""
 
-    total_count: int = Field(..., description="Number of registrants matching the proximity criteria")
+    total_count: int = Field(
+        ..., description="Number of registrants matching the proximity criteria (0 when suppressed)"
+    )
+    count_suppressed: bool = Field(
+        default=False,
+        description="True when the count is withheld for k-anonymity (fewer than the "
+        "minimum threshold); total_count is reported as 0 and cannot be distinguished from empty",
+    )
     query_method: str = Field(
         ...,
-        description="Method used for query (coordinates, area_fallback)",
+        description="Query method: coordinates, area_fallback, or 'suppressed' (count withheld for k-anonymity)",
     )
     areas_matched: int = Field(
         ...,

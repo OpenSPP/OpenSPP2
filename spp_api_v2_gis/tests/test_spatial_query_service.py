@@ -521,3 +521,124 @@ class TestSpatialQueryServiceMetadata(TransactionCase):
         self.assertIsNone(result["access_level"])
         self.assertFalse(result["from_cache"])
         self.assertIsNone(result["computed_at"])
+
+
+class TestSpatialQueryCountSuppression(TransactionCase):
+    """k-anonymity suppression of registrant counts (location/presence leak fix)."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # Area with no geo_polygon -> spatial queries match nobody (count 0),
+        # which must still be reported as suppressed (indistinguishable from small).
+        cls.area = cls.env["spp.area"].create({"draft_name": "Suppression Test District", "code": "SUP-DIST-001"})
+
+    def _service(self):
+        from ..services.spatial_query_service import SpatialQueryService
+
+        return SpatialQueryService(self.env)
+
+    def test_apply_suppression_canonicalizes_below_k(self):
+        """A below-k result collapses to a fixed canonical form; >=k is untouched.
+
+        The canonical form must be identical for a genuinely empty region (0) and
+        a small one (1..k-1): floored count AND blanked people-correlated metadata
+        (statistics, access_level, from_cache, computed_at, query_method,
+        areas_matched). Otherwise those fields reconstruct the presence bit.
+        """
+        service = self._service()
+        k = 5
+
+        def populated(count, method):
+            return {
+                "total_count": count,
+                "query_method": method,
+                "areas_matched": 3,
+                "statistics": {"total_individuals": 2},
+                "access_level": "aggregate",
+                "from_cache": True,
+                "computed_at": "2024-01-01T00:00:00Z",
+            }
+
+        empty = service._apply_suppression(populated(0, "area_fallback"), k)
+        small = service._apply_suppression(populated(3, "coordinates"), k)
+        canonical = {
+            "total_count": 0,
+            "count_suppressed": True,
+            "query_method": "suppressed",
+            "areas_matched": 0,
+            "statistics": {},
+            "access_level": None,
+            "from_cache": False,
+            "computed_at": None,
+        }
+        # Empty and small must be byte-identical (no field distinguishes them).
+        self.assertEqual(empty, canonical)
+        self.assertEqual(small, canonical)
+
+        # A count at/above the threshold is untouched except for the flag.
+        big = service._apply_suppression(populated(10, "coordinates"), k)
+        self.assertEqual(big["total_count"], 10)
+        self.assertFalse(big["count_suppressed"])
+        self.assertEqual(big["query_method"], "coordinates")
+        self.assertEqual(big["statistics"], {"total_individuals": 2})
+
+    def test_get_k_threshold_default(self):
+        """With no access rule, the privacy-service default threshold applies."""
+        default_k = self.env["spp.metric.privacy"].DEFAULT_K_THRESHOLD
+        self.assertEqual(self._service()._get_k_threshold(), default_k)
+
+    def test_get_k_threshold_reads_access_rule(self):
+        """The caller's access-rule minimum_k_anonymity is used."""
+        self.env["spp.analytics.access.rule"].create(
+            {
+                "name": "GIS Count Rule k9",
+                "access_level": "aggregate",
+                "user_id": self.env.user.id,
+                "minimum_k_anonymity": 9,
+                "allow_inline_scopes": True,
+            }
+        )
+        self.assertEqual(self._service()._get_k_threshold(), 9)
+
+    def _assert_canonical_suppressed(self, result):
+        """The response must not carry any people-correlated field that could
+        distinguish a small region from an empty one."""
+        self.assertEqual(result["total_count"], 0)
+        self.assertTrue(result["count_suppressed"])
+        self.assertEqual(result["statistics"], {})
+        self.assertIsNone(result["access_level"])
+        self.assertFalse(result["from_cache"])
+        self.assertIsNone(result["computed_at"])
+        self.assertEqual(result["query_method"], "suppressed")
+        self.assertEqual(result["areas_matched"], 0)
+
+    def test_query_statistics_suppresses_small_result(self):
+        """query_statistics returns the canonical suppressed response below threshold."""
+        geometry = {"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]}
+        result = self._service().query_statistics(geometry=geometry, filters=None, variables=None)
+        self._assert_canonical_suppressed(result)
+
+    def test_batch_suppresses_items_and_summary(self):
+        """Batch per-geometry results and the summary both carry suppression."""
+        geometries = [
+            {"id": "a", "geometry": {"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]}},
+        ]
+        result = self._service().query_statistics_batch(geometries=geometries, filters=None, variables=None)
+        self.assertTrue(result["summary"]["count_suppressed"])
+        self.assertEqual(result["summary"]["total_count"], 0)
+        self.assertEqual(result["summary"]["statistics"], {})
+        self.assertIsNone(result["summary"]["access_level"])
+        self.assertIsNone(result["summary"]["computed_at"])
+        self._assert_canonical_suppressed(result["results"][0])
+
+    def test_proximity_suppresses_small_result(self):
+        """query_proximity returns the canonical suppressed response below threshold."""
+        result = self._service().query_proximity(
+            reference_points=[{"longitude": 0.5, "latitude": 0.5}],
+            radius_km=1.0,
+            relation="within",
+            filters=None,
+            variables=None,
+        )
+        self._assert_canonical_suppressed(result)

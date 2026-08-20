@@ -30,6 +30,62 @@ class SpatialQueryService:
         """
         self.env = env
 
+    def _get_k_threshold(self):
+        """Return the k-anonymity threshold that applies to the calling user.
+
+        Reuses the analytics access-rule threshold (the same value the
+        aggregation engine applies to statistics), falling back to the privacy
+        service default. Resolved once per query so all counts in the response
+        are suppressed consistently.
+
+        Returns:
+            int: k-anonymity threshold
+        """
+        return self.env["spp.analytics.service"].get_effective_k_threshold()
+
+    # People-correlated response fields that must be canonicalized when a count
+    # is suppressed. Fixed values so that an empty region (0) and a small one
+    # (1..k-1) are byte-identical — otherwise these fields reconstruct the exact
+    # presence bit the count suppression is meant to hide (a non-null computed_at,
+    # a populated statistics dict, or query_method="coordinates" each imply >=1
+    # beneficiary is present at an attacker-chosen location).
+    _SUPPRESSED_RESPONSE_FIELDS = {
+        "statistics": {},
+        "access_level": None,
+        "from_cache": False,
+        "computed_at": None,
+        "query_method": "suppressed",
+        "areas_matched": 0,
+    }
+
+    def _apply_suppression(self, result, k_threshold):
+        """Canonicalize a query result in place when its count is below k.
+
+        Sets ``count_suppressed`` and, when suppression fires, floors
+        ``total_count`` to 0 and overwrites every people-correlated field with a
+        fixed value (see ``_SUPPRESSED_RESPONSE_FIELDS``). Request echoes
+        (reference_points_count, radius_km, relation, geometries_queried, id) and
+        geography that does not imply presence are left untouched. Returns the
+        same dict for convenience.
+
+        Args:
+            result: Query result dict (mutated in place)
+            k_threshold: Minimum count before suppression
+
+        Returns:
+            dict: the mutated result
+        """
+        privacy = self.env["spp.metric.privacy"]
+        if not privacy.is_count_suppressed(result.get("total_count", 0), k_threshold):
+            result["count_suppressed"] = False
+            return result
+        result["total_count"] = 0
+        result["count_suppressed"] = True
+        for field, value in self._SUPPRESSED_RESPONSE_FIELDS.items():
+            if field in result:
+                result[field] = value
+        return result
+
     def query_statistics_batch(self, geometries, filters=None, variables=None):
         """Execute spatial query for multiple geometries.
 
@@ -47,6 +103,7 @@ class SpatialQueryService:
         """
         results = []
         all_registrant_ids = set()
+        k_threshold = self._get_k_threshold()
 
         for item in geometries:
             geometry_id = item["id"]
@@ -62,10 +119,13 @@ class SpatialQueryService:
                 registrant_ids = result.pop("registrant_ids", [])
                 all_registrant_ids.update(registrant_ids)
 
+                # total_count / count_suppressed are already k-anonymity
+                # suppressed by query_statistics for this geometry.
                 results.append(
                     {
                         "id": geometry_id,
                         "total_count": result["total_count"],
+                        "count_suppressed": result.get("count_suppressed", False),
                         "query_method": result["query_method"],
                         "areas_matched": result["areas_matched"],
                         "statistics": result["statistics"],
@@ -80,6 +140,8 @@ class SpatialQueryService:
                     {
                         "id": geometry_id,
                         "total_count": 0,
+                        # A failed query is not a disclosed exact count.
+                        "count_suppressed": True,
                         "query_method": "error",
                         "areas_matched": 0,
                         "statistics": {},
@@ -102,6 +164,8 @@ class SpatialQueryService:
             "from_cache": summary_stats_with_metadata.get("from_cache", False),
             "computed_at": summary_stats_with_metadata.get("computed_at"),
         }
+        # k-anonymity: canonicalize the deduplicated summary when below threshold
+        self._apply_suppression(summary, k_threshold)
 
         return {
             "results": results,
@@ -128,6 +192,7 @@ class SpatialQueryService:
         """
         filters = filters or {}
         variables = variables or []
+        k_threshold = self._get_k_threshold()
 
         # Convert GeoJSON to PostGIS-compatible format
         geometry_json = json.dumps(geometry)
@@ -143,6 +208,8 @@ class SpatialQueryService:
                 # Compute statistics for the matched registrants with metadata
                 stats_with_metadata = self._compute_statistics(result["registrant_ids"], variables)
                 result.update(stats_with_metadata)
+                # k-anonymity: canonicalize the response when the count is small
+                self._apply_suppression(result, k_threshold)
                 return result
         except Exception as e:
             _logger.warning(
@@ -159,6 +226,9 @@ class SpatialQueryService:
         # Compute statistics for the matched registrants with metadata
         stats_with_metadata = self._compute_statistics(result["registrant_ids"], variables)
         result.update(stats_with_metadata)
+
+        # k-anonymity: canonicalize the response when the count is small
+        self._apply_suppression(result, k_threshold)
 
         return result
 
@@ -482,6 +552,7 @@ class SpatialQueryService:
         filters = filters or {}
         variables = variables or []
         radius_meters = radius_km * 1000
+        k_threshold = self._get_k_threshold()
 
         # Try coordinate-based query first
         try:
@@ -499,6 +570,8 @@ class SpatialQueryService:
                 result["reference_points_count"] = len(reference_points)
                 result["radius_km"] = radius_km
                 result["relation"] = relation
+                # k-anonymity: canonicalize the response when the count is small
+                self._apply_suppression(result, k_threshold)
                 return result
         except Exception as e:
             _logger.warning(
@@ -521,6 +594,8 @@ class SpatialQueryService:
         result["reference_points_count"] = len(reference_points)
         result["radius_km"] = radius_km
         result["relation"] = relation
+        # k-anonymity: canonicalize the response when the count is small
+        self._apply_suppression(result, k_threshold)
         return result
 
     def _create_proximity_temp_table(self, reference_points, radius_meters):
