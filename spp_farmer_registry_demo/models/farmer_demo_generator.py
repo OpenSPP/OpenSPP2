@@ -808,12 +808,16 @@ class SPPFarmerDemoGenerator(models.TransientModel):
 
         story_farms = {}
 
+        # OP#1120 review: resolved once for the run rather than per farm.
+        farm_group_type_id = self._ensure_farm_group_type()
+
         for story_id, story_data in STORY_FARMS.items():
             farm_type_id = self._get_vocab_code("urn:openspp:vocab:farm-type", story_data["farm_type"])
             tenure_id = self._get_vocab_code("urn:openspp:vocab:land-tenure", story_data["tenure"])
             holder_id = self._get_vocab_code("urn:openspp:vocab:holder-type", "individual")
 
             farm = self._create_farm(
+                farm_group_type_id=farm_group_type_id,
                 name=story_data["farm_name"],
                 farmer_name=story_data["farmer_name"],
                 farm_type_id=farm_type_id,
@@ -882,8 +886,13 @@ class SPPFarmerDemoGenerator(models.TransientModel):
         phone=None,
         bank_name=None,
         age=None,
+        farm_group_type_id=None,
     ):
-        """Create a farm with the given attributes."""
+        """Create a farm with the given attributes.
+
+        ``farm_group_type_id`` is resolved by the caller once per run; left None
+        (a direct call, as in the tests) it is looked up here.
+        """
         Partner = self.env["res.partner"].sudo()  # nosemgrep
 
         farm_vals = {
@@ -901,6 +910,13 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             "farm_size_idle": farm_size_idle,
             "experience_years": experience_years,
         }
+        # OP#1120: farm groups default to the FARM group type (a farm stays a
+        # farm even when it becomes a member of a cooperative — only the
+        # cooperative container is typed COOPERATIVE, in _create_cooperatives).
+        if farm_group_type_id is None:
+            farm_group_type_id = self._ensure_farm_group_type()
+        if farm_group_type_id:
+            farm_vals["group_type_id"] = farm_group_type_id
         if phone:
             farm_vals["phone"] = phone
         farm = Partner.create(farm_vals)
@@ -1393,6 +1409,31 @@ class SPPFarmerDemoGenerator(models.TransientModel):
             return code.id
         except Exception:
             _logger.warning("Could not create cooperative group type vocabulary code")
+            return False
+
+    def _ensure_farm_group_type(self):
+        """Ensure the 'farm' group type vocabulary code exists (OP#1120).
+
+        Farm groups default to this type. Mirrors _ensure_cooperative_group_type
+        (ADR-016: local codes with is_local=True bypass system protection).
+
+        Resolved once per run by the caller and passed down, rather than looked
+        up per farm: recordsets use __slots__, so the run-scoped attribute the
+        seeded generator caches on (it is a plain utility class, not a model)
+        is not available here (OP#1120 review).
+
+        Returns:
+            int: vocabulary code ID for the farm group type, or False.
+        """
+        try:
+            code = self.env["spp.vocabulary.code"].get_or_create_local(
+                "urn:openspp:vocab:group-type",
+                "farm",
+                display="Farm",
+            )
+            return code.id
+        except Exception:
+            _logger.warning("Could not create farm group type vocabulary code")
             return False
 
     # ──────────────────────────────────────────────────────────────────────

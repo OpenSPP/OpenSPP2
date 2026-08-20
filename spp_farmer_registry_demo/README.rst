@@ -120,6 +120,14 @@ Dependencies
 Changelog
 =========
 
+19.0.2.1.3
+~~~~~~~~~~
+
+- fix(farmer_demo): type demo farm groups as FARM. Farm groups were
+  created with no group type, so they did not read as farms in the
+  registry; a farm stays typed FARM even when it joins a cooperative,
+  and only the cooperative container is typed COOPERATIVE (#1120)
+
 19.0.2.1.2
 ~~~~~~~~~~
 
