@@ -565,6 +565,26 @@ hooks to add custom approval actions</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.4.0.0</h1>
+<ul class="simple">
+<li>feat(drims): Donations review — creation, receipt, inspection and
+follow-up. Donations start in a new <strong>Draft</strong> state; the donor list is
+limited to organisations whose role is Donor and a donation cannot be
+recorded against a closed incident; at least one item is required to
+save, Pledged must be entered and be greater than zero, and Received
+is entered manually rather than copied from Pledged. Line columns
+appear progressively through the lifecycle (Received and Variance from
+Announced; Condition and Action from Inspected), non-accepted items
+gain a follow-up/disposal trail, and adding an item is blocked once
+the donation has moved past its editable states (#1055, #1058, #1108,
+#1163)</li>
+<li><strong>Breaking:</strong> the donation line’s <strong>Description</strong> field is removed. It
+was replaced by the product and quantity columns during this rework;
+the database column is left in place, so existing values are retained
+but no longer readable through the ORM or shown in any view (#1076)</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.3.1.0</h1>
 <ul class="simple">
 <li>feat(drims): Incident Management review — incidents are entered as a
@@ -581,7 +601,7 @@ recomputes them for every incident — including closed ones, which the
 refresh cron skips (#1100)</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.3.0.4</h1>
 <ul class="simple">
 <li>feat(drims): rework the dispatch page and correct the waybill.
@@ -601,7 +621,7 @@ HTTP 500. The waybill itself still prints without it, minus the
 barcode (#1151)</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.3.0.1</h1>
 <ul class="simple">
 <li>fix(drims): a dispatch validated short no longer leaves the request
@@ -613,7 +633,7 @@ the transfer is validated — the web client, the barcode flow or the
 API (#1087)</li>
 </ul>
 </div>
-<div class="section" id="section-4">
+<div class="section" id="section-5">
 <h1>19.0.3.0.0</h1>
 <ul class="simple">
 <li>feat(drims): allocate stock per source warehouse. The Allocate Stock
@@ -633,7 +653,7 @@ fulfillment lanes, allocation shortfall indicators, and a
 destination-type selector (#1075)</li>
 </ul>
 </div>
-<div class="section" id="section-5">
+<div class="section" id="section-6">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

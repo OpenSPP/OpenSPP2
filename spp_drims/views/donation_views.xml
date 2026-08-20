@@ -42,7 +42,16 @@
             <form string="Donation">
                 <header>
                     <button
-                        name="action_mark_received"
+                        name="action_mark_announced"
+                        string="Mark Announced"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'draft'"
+                    />
+                    <!-- OP#1163: open a wizard to enter received quantities
+                         instead of erroring when they aren't filled in yet. -->
+                    <button
+                        name="action_open_receive_wizard"
                         string="Mark Received"
                         type="object"
                         class="btn-primary"
@@ -72,9 +81,10 @@
                         confirm="Reject this donation? Items will not be added to inventory."
                     />
                     <field name="has_acceptable_items" invisible="1" />
+                    <field name="product_expiry_installed" invisible="1" />
                     <button
                         name="action_cancel"
-                        string="Cancel"
+                        string="Cancel Donation"
                         type="object"
                         class="btn-secondary"
                         invisible="state in ('stocked', 'rejected', 'cancelled')"
@@ -151,53 +161,95 @@
                     </group>
                     <notebook>
                         <page string="Donation Items" name="items">
-                            <field name="line_ids">
+                            <!--
+                                OP#1055: items can be added/edited/removed while
+                                the donation is in draft or announced (during
+                                receiving a late-announced item can still be added
+                                with a selectable product). Making the field
+                                read-only from 'received' onward removes the
+                                "Add a line" row that otherwise let users create
+                                empty, product-less lines on an already-received
+                                donation.
+                            -->
+                            <!--
+                                OP#1058: entry table for building the donation
+                                (editable in draft/announced, read-only while
+                                received). Once inspected it is hidden and
+                                replaced by the accepted_line_ids table below, so
+                                non-accepted items are not duplicated across both
+                                this table and "Items Not Accepted for Stock".
+                            -->
+                            <field
+                                name="line_ids"
+                                class="o_drims_donation_list"
+                                readonly="state not in ('draft', 'announced')"
+                                invisible="state in ('inspected', 'stocked')"
+                            >
+                                <!--
+                                    OP#1076: columns appear progressively with the
+                                    donation lifecycle.
+                                    - draft: product, Pledged (entered here)
+                                    - announced: + Received (manual, mandatory) + Variance
+                                    - inspected/stocked: + Condition + Action (from inspection)
+                                    "Expiry Date" only when the product_expiry module
+                                    is installed.
+                                -->
                                 <list editable="bottom">
                                     <field name="sequence" widget="handle" />
+                                    <!--
+                                        OP#1108: a product added inline here must
+                                        be a storable Good, otherwise it never
+                                        tracks in inventory / shows in Stock on
+                                        Hand. The context defaults make any
+                                        quick-created product storable.
+                                    -->
                                     <field
                                         name="product_id"
                                         options="{'no_create_edit': True}"
-                                        readonly="parent.state != 'announced'"
-                                    />
-                                    <field
-                                        name="description"
-                                        readonly="parent.state != 'announced'"
+                                        context="{'default_type': 'consu', 'default_is_storable': True}"
+                                        readonly="parent.state not in ('draft', 'announced')"
                                     />
                                     <field
                                         name="quantity_pledged"
                                         string="Pledged"
-                                        readonly="parent.state != 'announced'"
+                                        readonly="parent.state not in ('draft', 'announced')"
                                     />
                                     <!--
-                                        OP#962: `quantity_received` is editable
-                                        only in the `received` state — never
-                                        during `announced`. Allowing edits at
-                                        announce-time let pre-entered values
-                                        silently flow through
-                                        `action_mark_received()` (which only
-                                        auto-copies pledged→received for lines
-                                        where quantity_received == 0), driving
-                                        the stock picking with values the user
-                                        hadn't necessarily confirmed.
+                                        OP#1076: Received is entered MANUALLY on the
+                                        announced donation (no auto-copy from Pledged)
+                                        and is mandatory before "Mark Received".
 
-                                        Note: edits in the `received` state
-                                        after the picking exists still don't
-                                        update the picking — that picking-sync
-                                        question is out of scope here and
-                                        should be tracked separately.
+                                        Deliberately not required: the web client
+                                        treats 0.0 on a float as "not set", so a
+                                        required attribute here refuses to save a
+                                        line for an item that was pledged and never
+                                        arrived — received 0, variance the full
+                                        shortfall — which is a case the flow has to
+                                        record. The rule that matters lives in
+                                        action_mark_received (at least one line above
+                                        zero) and applies to the wizard and the inline
+                                        list alike; requiring it here made the same
+                                        entry legal in one surface and impossible in
+                                        the other (OP#1076 review).
                                     -->
                                     <field
                                         name="quantity_received"
                                         string="Received"
-                                        readonly="parent.state != 'received'"
+                                        column_invisible="parent.state == 'draft'"
+                                        readonly="parent.state != 'announced'"
                                     />
                                     <field
                                         name="receipt_variance"
                                         string="Variance"
+                                        column_invisible="parent.state == 'draft'"
                                         decoration-danger="receipt_variance &lt; 0"
-                                        optional="show"
                                     />
-                                    <field name="quantity" invisible="1" />
+                                    <!-- column_invisible, not invisible: inside a
+                                         list the latter blanks the cells but
+                                         still renders the column, which is why
+                                         an empty "Quantity" column was showing
+                                         between Pledged and Unit (OP#1076). -->
+                                    <field name="quantity" column_invisible="1" />
                                     <field
                                         name="uom_id"
                                         options="{'no_create': True}"
@@ -206,17 +258,96 @@
                                     <field name="value" />
                                     <field
                                         name="condition_id"
-                                        optional="show"
-                                        options="{'no_create': True}"
-                                        readonly="parent.state != 'inspected'"
+                                        string="Condition"
+                                        column_invisible="parent.state not in ('inspected', 'stocked')"
+                                        readonly="1"
                                     />
                                     <field
                                         name="disposition_id"
-                                        optional="hide"
-                                        options="{'no_create': True}"
+                                        string="Action"
+                                        column_invisible="parent.state not in ('inspected', 'stocked')"
+                                        readonly="1"
                                     />
                                     <field name="lot_number" optional="show" />
-                                    <field name="expiry_date" optional="show" />
+                                    <field
+                                        name="expiry_date"
+                                        column_invisible="not parent.product_expiry_installed or parent.state == 'draft'"
+                                    />
+                                </list>
+                            </field>
+                            <!--
+                                OP#1058: once inspected, the "Donation Items"
+                                table shows the accepted items only; the excluded
+                                ones appear solely in "Items Not Accepted for
+                                Stock" below (no duplication).
+                            -->
+                            <field
+                                name="accepted_line_ids"
+                                readonly="1"
+                                class="o_drims_donation_list"
+                                invisible="state not in ('inspected', 'stocked')"
+                            >
+                                <list>
+                                    <field name="product_id" />
+                                    <field name="quantity_pledged" string="Pledged" />
+                                    <field name="quantity_received" string="Received" />
+                                    <field
+                                        name="receipt_variance"
+                                        string="Variance"
+                                        decoration-danger="receipt_variance &lt; 0"
+                                    />
+                                    <field name="uom_id" />
+                                    <field name="unit_value" />
+                                    <field name="value" />
+                                    <field name="condition_id" string="Condition" />
+                                    <field name="disposition_id" string="Action" />
+                                    <field name="lot_number" optional="show" />
+                                </list>
+                            </field>
+                            <!--
+                                OP#1076: once inspected, any items whose
+                                disposition excludes them from stock (return /
+                                dispose / quarantine) are listed separately so
+                                it is clear what will NOT enter inventory.
+                            -->
+                            <separator
+                                string="Items Not Accepted for Stock"
+                                invisible="state not in ('inspected', 'stocked') or not non_accepted_line_ids"
+                            />
+                            <field
+                                name="non_accepted_line_ids"
+                                readonly="1"
+                                class="o_drims_donation_list"
+                                invisible="state not in ('inspected', 'stocked') or not non_accepted_line_ids"
+                            >
+                                <list>
+                                    <field name="product_id" />
+                                    <field name="quantity_pledged" string="Pledged" />
+                                    <field name="quantity_received" string="Received" />
+                                    <field
+                                        name="receipt_variance"
+                                        string="Variance"
+                                        decoration-danger="receipt_variance &lt; 0"
+                                    />
+                                    <field name="uom_id" />
+                                    <field name="condition_id" string="Condition" />
+                                    <field name="disposition_id" string="Action" />
+                                    <!-- OP#1058: follow-up disposal tracking -->
+                                    <field
+                                        name="disposal_state"
+                                        string="Disposal"
+                                        widget="badge"
+                                        decoration-warning="disposal_state == 'pending'"
+                                        decoration-success="disposal_state == 'resolved'"
+                                    />
+                                    <field name="disposal_date" optional="show" />
+                                    <button
+                                        name="action_mark_disposal_resolved"
+                                        type="object"
+                                        string="Mark Resolved"
+                                        icon="fa-check"
+                                        invisible="disposal_state != 'pending'"
+                                    />
                                 </list>
                             </field>
                         </page>
@@ -267,6 +398,11 @@
                 <field name="donor_name" />
                 <field name="warehouse_id" />
                 <separator />
+                <filter
+                    name="draft"
+                    string="Draft"
+                    domain="[('state', '=', 'draft')]"
+                />
                 <filter
                     name="announced"
                     string="Announced"
@@ -482,8 +618,10 @@
             <list editable="bottom">
                 <field name="donation_id" readonly="1" />
                 <field name="sequence" widget="handle" />
-                <field name="product_id" />
-                <field name="description" />
+                <field
+                    name="product_id"
+                    context="{'default_type': 'consu', 'default_is_storable': True}"
+                />
                 <field name="quantity" />
                 <field name="uom_id" />
                 <field name="unit_value" />
@@ -505,8 +643,10 @@
                     <group>
                         <group name="product_info">
                             <field name="donation_id" />
-                            <field name="product_id" />
-                            <field name="description" />
+                            <field
+                                name="product_id"
+                                context="{'default_type': 'consu', 'default_is_storable': True}"
+                            />
                             <field name="sequence" />
                         </group>
                         <group name="quantity_info">
@@ -534,6 +674,109 @@
                     </group>
                 </sheet>
             </form>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         OP#1058: Non-Accepted Items tracking (Return / Dispose / Quarantine)
+         ══════════════════════════════════════════════════════════════════════════ -->
+    <record id="view_drims_non_accepted_line_list" model="ir.ui.view">
+        <field name="name">spp.drims.donation.line.non.accepted.list</field>
+        <field name="model">spp.drims.donation.line</field>
+        <field name="arch" type="xml">
+            <list
+                string="Non-Accepted Items"
+                editable="bottom"
+                create="0"
+                delete="0"
+                decoration-warning="disposal_state == 'pending'"
+                decoration-muted="disposal_state == 'resolved'"
+            >
+                <field name="donation_id" readonly="1" />
+                <field name="product_id" readonly="1" />
+                <field name="quantity_received" string="Quantity" readonly="1" />
+                <field name="uom_id" readonly="1" groups="uom.group_uom" />
+                <field name="condition_id" string="Condition" readonly="1" />
+                <field name="disposition_id" string="Action" readonly="1" />
+                <field
+                    name="disposal_state"
+                    string="Status"
+                    widget="badge"
+                    decoration-warning="disposal_state == 'pending'"
+                    decoration-success="disposal_state == 'resolved'"
+                />
+                <field
+                    name="disposal_notes"
+                    placeholder="What was done with this item..."
+                />
+                <field name="disposal_date" readonly="1" optional="show" />
+                <field name="disposal_user_id" readonly="1" optional="show" />
+                <button
+                    name="action_mark_disposal_resolved"
+                    type="object"
+                    string="Mark Resolved"
+                    icon="fa-check"
+                    invisible="disposal_state != 'pending'"
+                />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_drims_non_accepted_line_search" model="ir.ui.view">
+        <field name="name">spp.drims.donation.line.non.accepted.search</field>
+        <field name="model">spp.drims.donation.line</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="donation_id" />
+                <field name="product_id" />
+                <field name="disposition_id" string="Action" />
+                <filter
+                    name="pending"
+                    string="Pending"
+                    domain="[('disposal_state', '=', 'pending')]"
+                />
+                <filter
+                    name="resolved"
+                    string="Resolved"
+                    domain="[('disposal_state', '=', 'resolved')]"
+                />
+                <separator />
+                <!-- Group By -->
+                <group>
+                    <filter
+                        name="group_action"
+                        string="Action"
+                        context="{'group_by': 'disposition_id'}"
+                    />
+                    <filter
+                        name="group_status"
+                        string="Status"
+                        context="{'group_by': 'disposal_state'}"
+                    />
+                    <filter
+                        name="group_donation"
+                        string="Donation"
+                        context="{'group_by': 'donation_id'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_drims_non_accepted_items" model="ir.actions.act_window">
+        <field name="name">Non-Accepted Items</field>
+        <field name="res_model">spp.drims.donation.line</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_drims_non_accepted_line_list" />
+        <field name="search_view_id" ref="view_drims_non_accepted_line_search" />
+        <field name="domain">[('disposal_state', '!=', False)]</field>
+        <field name="context">{'search_default_pending': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Nothing to follow up</p>
+            <p>
+                Items excluded from stock during inspection (Return, Dispose or
+                Quarantine) appear here so their handling can be recorded and audited.
+            </p>
         </field>
     </record>
 </odoo>

@@ -3,7 +3,7 @@ from datetime import date, timedelta
 
 from lxml import etree
 
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
 from odoo.tools.safe_eval import safe_eval
 
@@ -29,6 +29,9 @@ class TestDrimsIncident(DrimsTestCommon):
                 "incident_id": self.incident.id,
                 "warehouse_id": self.warehouse.id,
                 "donor_name": "Test Donor",
+                "line_ids": [
+                    (0, 0, {"product_id": self.product.id, "quantity_pledged": 10, "uom_id": self.product.uom_id.id})
+                ],
             }
         )
         self.incident.invalidate_recordset()
@@ -617,7 +620,10 @@ class TestDrimsIncidentClosedGuards(DrimsTestCommon):
 
     # ── donations: no new donations accepted on a closed incident ──
     def test_1158_donation_blocked_when_closed(self):
-        with self.assertRaises(UserError):
+        # Now raised by _check_incident_not_closed (a ValidationError) rather
+        # than the create-time guard this branch removed; the rule is unchanged
+        # and the constraint also covers re-pointing an existing donation.
+        with self.assertRaises(ValidationError):
             self.env["spp.drims.donation"].create(
                 {
                     "incident_id": self.closed_incident.id,
