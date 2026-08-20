@@ -179,6 +179,15 @@ Dependencies
 Changelog
 =========
 
+19.0.4.0.3
+~~~~~~~~~~
+
+- fix(drims): show only the states a dispatch can reach on its status
+  bar. A request dispatch is confirmed the moment it is created, so
+  Draft never applies to it; the shared status bar keeps Draft for every
+  other outgoing transfer. Waiting is hidden as a future step but still
+  shows when a dispatch is actually in it (#1086)
+
 19.0.4.0.2
 ~~~~~~~~~~
 
