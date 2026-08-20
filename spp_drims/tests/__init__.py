@@ -6,6 +6,8 @@ from . import test_allocation_preview_wizard
 from . import test_approval
 from . import test_coordination
 from . import test_dispatch_line_lock
+from . import test_dispatch_page
+from . import test_dispatch_backorder
 from . import test_donation
 from . import test_incident
 from . import test_personnel
@@ -14,5 +16,6 @@ from . import test_request_from_template_wizard
 from . import test_return
 from . import test_return_wizard
 from . import test_stock
+from . import test_waybill_report
 from . import test_template
 from . import test_wizard

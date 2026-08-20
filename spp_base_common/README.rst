@@ -120,6 +120,17 @@ Dependencies
 Changelog
 =========
 
+19.0.2.0.2
+~~~~~~~~~~
+
+- test: add a regression test guarding the PDF backend selected by
+  ``odoo.tools.pdf``. The Docker image accidentally shipped legacy
+  PyPDF2 3.x next to pypdf; Odoo prefers PyPDF2 when importable, and its
+  removed 1.x API (``numPages``/``getPage``) crashes multi-record PDF
+  printing with a ``DeprecationError`` (OP#1168). The fix is in
+  ``docker/Dockerfile`` (``--no-deps`` on the Odoo editable install);
+  this test fails on any image that regresses.
+
 19.0.2.0.1
 ~~~~~~~~~~
 
