@@ -1,3 +1,7 @@
+### 19.0.4.0.2
+
+- feat(drims): confirm a delivery through a popup rather than the dispatch form. Confirm Delivery now collects the receiver, signature, photos and GPS together with what actually arrived per line, and records the delivered quantities against the request so fulfilment reflects what was received rather than what was sent (#1088)
+
 ### 19.0.4.0.1
 
 - fix(drims): only let a dispatch ship what its request approved. Products cannot be added to a request dispatch and quantities cannot be raised past what was allocated — enforced on the model, so imports and API callers are covered too, with the Operations tab's Add a line and delete affordances hidden to match (#1057)

@@ -223,13 +223,65 @@ class StockPicking(models.Model):
     def action_confirm_departure(self):
         """Confirm dispatch departure."""
         for rec in self:
+            if rec.is_pod_confirmed:
+                raise UserError(
+                    _("Dispatch %s is already marked delivered; its departure cannot be re-recorded.") % rec.name
+                )
             rec.date_departed = fields.Datetime.now()
 
+    def action_open_delivery_confirmation(self):
+        """Open the delivery confirmation popup (OP#1088).
+
+        Replaces typing the receiver's details into the form and then pressing a
+        button that refused if they were missing. The wizard collects proof of
+        delivery and what actually arrived per line, then writes both back here.
+        """
+        self.ensure_one()
+        if self.drims_type != "request_dispatch":
+            raise UserError(_("Deliveries can only be confirmed on dispatch pickings."))
+        if not self.date_departed:
+            raise UserError(
+                _("Dispatch %s has not departed yet. Confirm departure before confirming delivery.") % self.name
+            )
+        if self.state != "done":
+            # The wizard's lines come from *done* moves, so on a departed but
+            # unvalidated transfer it would open empty — and confirming an empty
+            # wizard writes the POD block, sets is_pod_confirmed and records no
+            # delivered quantities at all, after which the guard above prevents
+            # ever recording them. Reachable by following the documented flow of
+            # OP#1087, which confirms departure before validating (OP#1088
+            # review).
+            raise UserError(
+                _("Dispatch %s has not been validated yet. Validate the transfer before confirming delivery.")
+                % self.name
+            )
+        if self.is_pod_confirmed:
+            raise UserError(_("Delivery for dispatch %s is already confirmed.") % self.name)
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Confirm Delivery"),
+            "res_model": "spp.drims.delivery.confirmation.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {"default_picking_id": self.id},
+        }
+
     def action_confirm_pod(self):
-        """Confirm proof of delivery."""
+        """Confirm proof of delivery directly, without the wizard.
+
+        Kept for programmatic callers; the form routes through
+        ``action_open_delivery_confirmation`` instead (OP#1088). The departure
+        check is enforced here too, so no path can record an arrival for goods
+        that never left.
+        """
         for rec in self:
             if not rec.pod_received_by:
                 raise UserError(_("Please enter the receiver's name."))
+            if not rec.date_departed:
+                raise UserError(
+                    _("Dispatch %s has not departed yet. Confirm departure before confirming delivery.") % rec.name
+                )
             rec.is_pod_confirmed = True
             rec.date_arrived = fields.Datetime.now()
 

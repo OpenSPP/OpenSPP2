@@ -5,7 +5,7 @@
     "and distribution tracking. Links to hazard incidents with multi-tier "
     "approval workflows and warehouse operations.",
     "category": "OpenSPP/Inventory",
-    "version": "19.0.4.0.1",
+    "version": "19.0.4.0.2",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -60,6 +60,7 @@
         "wizard/allocation_preview_wizard_views.xml",
         "wizard/create_return_wizard_views.xml",
         "wizard/inspection_wizard_views.xml",
+        "wizard/delivery_confirmation_wizard_views.xml",
         "wizard/receive_wizard_views.xml",
         # Views
         "views/alert_views.xml",
