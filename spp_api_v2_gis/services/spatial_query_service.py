@@ -354,14 +354,26 @@ class SpatialQueryService:
         # Create an explicit scope for the registrant IDs
         scope = build_explicit_scope(registrant_ids)
 
-        # Determine statistics to compute
-        statistics_to_compute = variables
-        if not statistics_to_compute:
-            # Use GIS-published statistics
-            # nosemgrep: odoo-sudo-without-context
-            Statistic = self.env["spp.indicator"].sudo()
-            gis_stats = Statistic.get_published_for_context("gis")
-            statistics_to_compute = [stat.name for stat in gis_stats] if gis_stats else None
+        # Enforce the GIS publication boundary as a positive allowlist: only
+        # indicators an admin published to GIS may be computed here. Client-
+        # supplied `variables` are otherwise resolved by the aggregation
+        # registry via sudo() against ALL indicators and CEL variables, which
+        # would let a caller with only gis/statistics read pull aggregates for
+        # names never published to GIS. Restrict both the supplied and default
+        # paths to the same published set; unknown/unpublished names are dropped
+        # (matching the existing "unknown variables -> valid response" contract
+        # and avoiding an existence oracle).
+        # nosemgrep: odoo-sudo-without-context
+        Statistic = self.env["spp.indicator"].sudo()
+        # Keep the recordset order (spp.indicator _order) for a deterministic
+        # default result; use the set only for the supplied-path membership test.
+        published_gis = Statistic.get_published_for_context("gis").mapped("name")
+        published_gis_names = set(published_gis)
+
+        if variables:
+            statistics_to_compute = [name for name in variables if name in published_gis_names]
+        else:
+            statistics_to_compute = published_gis
 
         if not statistics_to_compute:
             return {
@@ -400,6 +412,9 @@ class SpatialQueryService:
         result = {}
         grouped_stats = {}
 
+        # These names are already restricted to GIS-published indicators by
+        # _compute_via_aggregation_service, so this metadata lookup only ever
+        # sees published names (no is_published_gis filter needed here).
         # nosemgrep: odoo-sudo-without-context
         Statistic = self.env["spp.indicator"].sudo()
         statistic_by_name = {stat.name: stat for stat in Statistic.search([("name", "in", list(statistics.keys()))])}
