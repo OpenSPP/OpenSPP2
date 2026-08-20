@@ -325,10 +325,11 @@ class DrimsReturn(models.Model):
         incident_ids = list(set(rec.incident_id.id for rec in records if rec.incident_id))
         if incident_ids:
             DataValue = self.env["spp.data.value"]
-            # Delete stale cache entries for return KPI
+            # Delete stale cache entries for the return KPI and, since a return
+            # reduces the distributed total (OP#1160), the distributed KPI too.
             DataValue.search(
                 [
-                    ("variable_name", "=", "drims_return_value"),
+                    ("variable_name", "in", ["drims_return_value", "drims_distributed_value"]),
                     ("subject_model", "=", "spp.hazard.incident"),
                     ("subject_id", "in", incident_ids),
                 ]

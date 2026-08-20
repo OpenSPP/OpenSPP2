@@ -181,3 +181,21 @@ class ResConfigSettings(models.TransientModel):
         # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         ICP = self.env["ir.config_parameter"].sudo()
         return int(ICP.get_param("drims.performance.kpi_cache_ttl_minutes", 30))
+
+    # =========================================================================
+    # WAREHOUSE HELPERS
+    # =========================================================================
+
+    @api.model
+    def is_warehouse_filter_by_incident_enabled(self):
+        """Whether donation/request warehouse pickers are restricted to the
+        incident's linked warehouses (OP#1164).
+
+        Returns:
+            bool: True if filtering is enabled (default True). Set the
+            ``drims.warehouse.filter_by_incident`` parameter to False to allow
+            selecting from any DRIMS warehouse.
+        """
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
+        ICP = self.env["ir.config_parameter"].sudo()
+        return ICP.get_param("drims.warehouse.filter_by_incident", "True") == "True"

@@ -142,6 +142,8 @@
                             />
                         </group>
                         <group name="logistics_info">
+                            <!-- OP#1164: domain source for warehouse_id -->
+                            <field name="allowed_warehouse_ids" invisible="1" />
                             <field name="warehouse_id" options="{'no_create': True}" />
                             <field name="date_announced" />
                             <field name="date_expected" />

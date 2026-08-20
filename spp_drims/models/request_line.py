@@ -153,6 +153,55 @@ class DrimsRequestLine(models.Model):
             else:
                 line.fulfillment_pct = 0.0
 
+    def _reconcile_quantity_dispatched(self):
+        """Recompute ``quantity_dispatched`` from the dispatch moves that still stand.
+
+        ``quantity_dispatched`` counts quantity committed to a dispatch picking,
+        which ``spp.drims.request.action_create_dispatch`` increments when the
+        picking is created rather than when it ships. Once moves are validated or
+        cancelled that running total can drift from reality, so it is rebuilt
+        here (OP#1087):
+
+        - a cancelled move never shipped and no longer counts at all;
+        - a done move counts what actually moved, not what was demanded, which is
+          what makes declining "Create Backorder" release the balance;
+        - a move still in progress keeps counting its demand, so a pending
+          backorder stays committed to the request.
+
+        Rebuilt onto the **per-warehouse allocation rows** rather than onto the
+        line (OP#1079). The line's ``quantity_dispatched`` is a stored compute
+        summing ``allocation_ids.quantity_dispatched``, so assigning to it
+        directly no longer registers at all — the write is silently discarded
+        and the released quantity never comes back, which is what broke the
+        backorder flow after the per-warehouse allocation model landed.
+
+        Splitting by allocation is unambiguous because every dispatch move
+        carries the allocation it draws from: ``action_create_dispatch`` creates
+        one move per allocation and stamps ``drims_allocation_id`` on it, and a
+        backorder copies that link along with the rest of the move.
+
+        ``quantity`` and ``product_uom_qty`` are both expressed in the move's
+        ``product_uom``, which the dispatch sets from the allocation's
+        ``uom_id``, so the two are directly comparable.
+
+        Runs sudo: warehouse staff validating or cancelling a dispatch need not
+        have write access to the request under the area record rules, and this is
+        system bookkeeping rather than a user edit.
+        """
+        Move = self.env["stock.move"].sudo()  # nosemgrep: odoo-sudo-without-context
+        for allocation in self.sudo().mapped("allocation_ids"):  # nosemgrep: odoo-sudo-without-context
+            dispatched = 0.0
+            for move in Move.search(
+                [
+                    ("drims_allocation_id", "=", allocation.id),
+                    ("state", "!=", "cancel"),
+                ]
+            ):
+                dispatched += move.quantity if move.state == "done" else move.product_uom_qty
+            allocation.quantity_dispatched = dispatched
+        # nosemgrep: odoo-sudo-without-context
+        self.sudo().request_id._reopen_if_not_fully_dispatched()
+
     @api.onchange("product_id")
     def _onchange_product_id(self):
         if self.product_id:
