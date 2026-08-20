@@ -285,7 +285,10 @@ class SPPProgramMembership(models.Model):
         member = self
         for em in eligibility_managers:
             member = em.enroll_eligible_registrants(member)
-        if len(member) == 0:
+        if len(member) == 0 and self.state not in constants.PROTECTED_MEMBERSHIP_STATES:
+            # Leave duplicated / exited / paused alone: each is owned by its own
+            # workflow, and demoting a paused member to not_eligible would undo a
+            # deliberate pause just as surely as re-enrolling it (OP#1117).
             self.state = "not_eligible"
         return
 
@@ -298,7 +301,9 @@ class SPPProgramMembership(models.Model):
             member = em.enroll_eligible_registrants(member)
 
         if len(member) > 0:
-            if self.state in ("duplicated", "exited"):
+            if self.state in constants.PROTECTED_MEMBERSHIP_STATES:
+                # Includes paused: resuming is the Resume button's job, not
+                # something re-running eligibility may decide (OP#1117).
                 message = _(
                     "Cannot enroll: beneficiary is currently %s.",
                     dict(self._fields["state"].selection).get(self.state, self.state),

@@ -9,7 +9,7 @@
         <field name="arch" type="xml">
             <list
                 decoration-danger="is_life_threatening"
-                decoration-warning="priority_id and priority_id.code == 'high'"
+                decoration-warning="priority_id and priority_id.code == 'urgent'"
                 decoration-muted="state == 'rejected'"
                 decoration-success="state == 'approved'"
                 sample="1"
@@ -22,8 +22,8 @@
                     name="priority_id"
                     widget="badge"
                     decoration-danger="priority_id.code == 'critical'"
-                    decoration-warning="priority_id.code == 'high'"
-                    decoration-info="priority_id.code == 'medium'"
+                    decoration-warning="priority_id.code == 'urgent'"
+                    decoration-info="priority_id.code == 'routine'"
                 />
                 <field
                     name="is_life_threatening"
@@ -315,6 +315,10 @@
                                 name="destination_type"
                                 readonly="approval_state not in ('draft', 'revision')"
                             />
+                            <!-- OP#1164: domain source for destination_warehouse_id. The
+                                 Fulfillment group and source_warehouse_id that used to sit
+                                 here went with OP#1079's per-warehouse allocation. -->
+                            <field name="allowed_warehouse_ids" invisible="1" />
                             <field
                                 name="destination_warehouse_id"
                                 invisible="destination_type != 'warehouse'"
@@ -615,9 +619,9 @@
                     domain="[('priority_id.code', '=', 'critical')]"
                 />
                 <filter
-                    name="high"
-                    string="High Priority"
-                    domain="[('priority_id.code', '=', 'high')]"
+                    name="urgent"
+                    string="Urgent"
+                    domain="[('priority_id.code', '=', 'urgent')]"
                 />
                 <separator />
 
