@@ -254,6 +254,15 @@ Dependencies
 Changelog
 =========
 
+19.0.2.2.1
+~~~~~~~~~~
+
+- fix(spp_programs): stop Enroll Eligible undoing a deliberate pause. A
+  paused membership is now left alone wherever eligibility is re-run —
+  the enrol pass, the disenrol sweep that would otherwise have moved it
+  to Not Eligible, and the per-membership methods reachable over RPC.
+  Pausing is a decision that only Resume reverses (#1117)
+
 19.0.2.1.3
 ~~~~~~~~~~
 
