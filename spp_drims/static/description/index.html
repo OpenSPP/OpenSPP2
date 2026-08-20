@@ -565,6 +565,26 @@ hooks to add custom approval actions</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.3.0.4</h1>
+<ul class="simple">
+<li>feat(drims): rework the dispatch page and correct the waybill.
+<strong>Dispatch &amp; Delivery</strong> leads the form instead of sitting behind
+Additional Info, a dispatch shows its destination location rather than
+an empty Delivery Address, and everything the request already decided
+— operation type, source document, source location and the DRIMS
+fields — is locked, with Quantity left editable so a partial dispatch
+and its backorder can still be produced. The waybill prints on one
+page with the signature block intact and the TO box filled in (#1150,
+#1151)</li>
+<li><strong>Deployment note:</strong> the waybill’s barcode needs the <tt class="docutils literal">rlPyCairo</tt>
+renderer, added to <tt class="docutils literal">docker/requirements.txt</tt> in this change.
+Upgrading the module is not enough — the container image has to be
+<strong>rebuilt</strong>, or every report containing a barcode or QR code answers
+HTTP 500. The waybill itself still prints without it, minus the
+barcode (#1151)</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.3.0.1</h1>
 <ul class="simple">
 <li>fix(drims): a dispatch validated short no longer leaves the request
@@ -576,7 +596,7 @@ the transfer is validated — the web client, the barcode flow or the
 API (#1087)</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.3.0.0</h1>
 <ul class="simple">
 <li>feat(drims): allocate stock per source warehouse. The Allocate Stock
@@ -596,7 +616,7 @@ fulfillment lanes, allocation shortfall indicators, and a
 destination-type selector (#1075)</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

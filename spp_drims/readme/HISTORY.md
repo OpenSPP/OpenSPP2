@@ -1,3 +1,8 @@
+### 19.0.3.0.4
+
+- feat(drims): rework the dispatch page and correct the waybill. **Dispatch & Delivery** leads the form instead of sitting behind Additional Info, a dispatch shows its destination location rather than an empty Delivery Address, and everything the request already decided — operation type, source document, source location and the DRIMS fields — is locked, with Quantity left editable so a partial dispatch and its backorder can still be produced. The waybill prints on one page with the signature block intact and the TO box filled in (#1150, #1151)
+- **Deployment note:** the waybill's barcode needs the `rlPyCairo` renderer, added to `docker/requirements.txt` in this change. Upgrading the module is not enough — the container image has to be **rebuilt**, or every report containing a barcode or QR code answers HTTP 500. The waybill itself still prints without it, minus the barcode (#1151)
+
 ### 19.0.3.0.1
 
 - fix(drims): a dispatch validated short no longer leaves the request looking fully dispatched. The backorder is announced on the request with a to-do for the coordinators, the request reopens as Ready for Dispatch so the remaining balance can be dispatched again, and the dispatched totals are rebuilt on the allocation rows. Applies however the transfer is validated — the web client, the barcode flow or the API (#1087)
