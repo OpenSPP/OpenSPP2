@@ -14,158 +14,355 @@
         <field name="binding_type">report</field>
     </record>
 
-    <!-- Waybill QWeb Template -->
+    <!--
+        Waybill QWeb Template
+
+        OP#1151: laid out with tables, not Bootstrap's grid. Reports are rendered
+        by wkhtmltopdf 0.12.6, a WebKit build with no flexbox support, so
+        `row`/`col-*` and `card` (all display:flex in Bootstrap 5) collapse and
+        every column stacks vertically — which used to push the signature row
+        onto a second page. Tables and inline styles are what this engine
+        renders reliably, so please keep it that way and check the generated PDF
+        rather than the on-screen HTML when editing.
+    -->
     <template id="report_waybill">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="doc">
                 <t t-call="web.external_layout">
+                    <!-- Only one of Request / Donation applies, decided by the
+                         transaction type rather than by which field happens to
+                         be filled. -->
+                    <t
+                        t-set="is_donation"
+                        t-value="doc.drims_type == 'donation_receipt' or (not doc.drims_request_id and doc.drims_donation_id)"
+                    />
+                    <t t-set="dest_location" t-value="doc.location_dest_id" />
+                    <t t-set="dest_warehouse" t-value="dest_location.warehouse_id" />
+                    <t t-set="src_warehouse" t-value="doc.location_id.warehouse_id" />
                     <div class="page">
                         <!-- Header -->
-                        <div class="row mb-4">
-                            <div class="col-8">
-                                <h2>WAYBILL</h2>
-                                <h3 t-field="doc.waybill_number" />
-                            </div>
-                            <div class="col-4 text-end">
-                                <img
-                                    t-if="doc.company_id.logo"
-                                    t-att-src="image_data_uri(doc.company_id.logo)"
-                                    style="max-height: 80px;"
-                                />
-                            </div>
-                        </div>
+                        <table style="width: 100%; margin-bottom: 18px;">
+                            <tr>
+                                <td style="vertical-align: top;">
+                                    <div
+                                        style="font-size: 26px; font-weight: bold; letter-spacing: 1px;"
+                                    >WAYBILL</div>
+                                    <div
+                                        style="font-size: 15px;"
+                                        t-field="doc.waybill_number"
+                                    />
+                                    <div
+                                        style="font-size: 11px; color: #444;"
+                                        t-field="doc.drims_type_id.display"
+                                    />
+                                </td>
+                                <td style="vertical-align: top; text-align: right;">
+                                    <img
+                                        t-if="doc.company_id.logo"
+                                        t-att-src="image_data_uri(doc.company_id.logo)"
+                                        style="max-height: 70px;"
+                                    />
+                                </td>
+                            </tr>
+                        </table>
 
-                        <!-- Info Row -->
-                        <div class="row mb-4">
-                            <div class="col-6">
-                                <table class="table table-sm table-borderless">
-                                    <tr>
-                                        <th style="width: 40%;">Date:</th>
-                                        <td>
-                                            <span
-                                                t-field="doc.scheduled_date"
-                                                t-options='{"widget": "date"}'
-                                            />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>Incident:</th>
-                                        <td>
-                                            <span t-field="doc.incident_id.name" />
-                                        </td>
-                                    </tr>
-                                    <tr t-if="doc.drims_request_id">
-                                        <th>Request:</th>
-                                        <td>
-                                            <span
-                                                t-field="doc.drims_request_id.reference"
-                                            />
-                                        </td>
-                                    </tr>
-                                    <tr t-if="doc.drims_donation_id">
-                                        <th>Donation:</th>
-                                        <td>
-                                            <span
-                                                t-field="doc.drims_donation_id.reference"
-                                            />
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <div class="col-6">
-                                <table class="table table-sm table-borderless">
-                                    <tr>
-                                        <th style="width: 40%;">Transport:</th>
-                                        <td>
-                                            <span
-                                                t-field="doc.transport_mode_id.display"
-                                            />
-                                        </td>
-                                    </tr>
-                                    <tr t-if="doc.vehicle_registration">
-                                        <th>Vehicle:</th>
-                                        <td>
-                                            <span t-field="doc.vehicle_registration" />
-                                        </td>
-                                    </tr>
-                                    <tr t-if="doc.driver_name">
-                                        <th>Driver:</th>
-                                        <td>
-                                            <span t-field="doc.driver_name" />
-                                            <t t-if="doc.driver_phone">
-                                                (<span t-field="doc.driver_phone" />)
-                                            </t>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
+                        <!-- Consignment / transport details -->
+                        <table style="width: 100%; margin-bottom: 18px;">
+                            <tr>
+                                <td style="width: 50%; vertical-align: top;">
+                                    <table style="width: 100%; font-size: 12px;">
+                                        <tr>
+                                            <th
+                                                style="width: 42%; text-align: left; padding: 2px 0;"
+                                            >Date:</th>
+                                            <td style="padding: 2px 0;">
+                                                <span
+                                                    t-field="doc.scheduled_date"
+                                                    t-options='{"widget": "date"}'
+                                                />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th
+                                                style="text-align: left; padding: 2px 0;"
+                                            >Incident:</th>
+                                            <td style="padding: 2px 0;">
+                                                <span t-field="doc.incident_id.name" />
+                                            </td>
+                                        </tr>
+                                        <!-- Always rendered, so a blank means
+                                             "not recorded" rather than the row
+                                             silently disappearing. -->
+                                        <tr t-if="not is_donation">
+                                            <th
+                                                style="text-align: left; padding: 2px 0;"
+                                            >Request:</th>
+                                            <td style="padding: 2px 0;">
+                                                <span
+                                                    t-field="doc.drims_request_id.reference"
+                                                />
+                                            </td>
+                                        </tr>
+                                        <tr t-if="is_donation">
+                                            <th
+                                                style="text-align: left; padding: 2px 0;"
+                                            >Donation:</th>
+                                            <td style="padding: 2px 0;">
+                                                <span
+                                                    t-field="doc.drims_donation_id.reference"
+                                                />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td style="width: 50%; vertical-align: top;">
+                                    <table style="width: 100%; font-size: 12px;">
+                                        <tr>
+                                            <th
+                                                style="width: 42%; text-align: left; padding: 2px 0;"
+                                            >Transport:</th>
+                                            <td style="padding: 2px 0;">
+                                                <span
+                                                    t-field="doc.transport_mode_id.display"
+                                                />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th
+                                                style="text-align: left; padding: 2px 0;"
+                                            >Vehicle:</th>
+                                            <td style="padding: 2px 0;">
+                                                <span
+                                                    t-field="doc.vehicle_registration"
+                                                />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th
+                                                style="text-align: left; padding: 2px 0;"
+                                            >Driver:</th>
+                                            <td style="padding: 2px 0;">
+                                                <span t-field="doc.driver_name" />
+                                                <t t-if="doc.driver_phone">
+                                                    (<span
+                                                    t-field="doc.driver_phone"
+                                                />)
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
 
                         <!-- Origin / Destination -->
-                        <div class="row mb-4">
-                            <div class="col-6">
-                                <div class="card">
-                                    <div class="card-header bg-secondary text-white">
-                                        <strong>FROM (Origin)</strong>
-                                    </div>
-                                    <div class="card-body">
-                                        <strong
-                                            t-field="doc.location_id.warehouse_id.name"
-                                        />
-                                        <br />
-                                        <span
-                                            t-field="doc.location_id.warehouse_id.partner_id"
-                                            t-options='{"widget": "contact", "fields": ["address"]}'
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="card">
-                                    <div class="card-header bg-primary text-white">
-                                        <strong>TO (Destination)</strong>
-                                    </div>
-                                    <div class="card-body">
-                                        <strong t-field="doc.partner_id" />
-                                        <br />
-                                        <span
-                                            t-field="doc.partner_id"
-                                            t-options='{"widget": "contact", "fields": ["address"]}'
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <table style="width: 100%; margin-bottom: 18px;">
+                            <tr>
+                                <td
+                                    style="width: 50%; vertical-align: top; padding-right: 8px;"
+                                >
+                                    <table
+                                        style="width: 100%; border: 1px solid #333; border-collapse: collapse; font-size: 12px;"
+                                    >
+                                        <tr>
+                                            <th
+                                                style="background-color: #6c757d; color: #ffffff; -webkit-print-color-adjust: exact; padding: 4px 6px; text-align: left;"
+                                            >FROM (Origin)</th>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 6px;">
+                                                <strong
+                                                    t-if="src_warehouse"
+                                                    t-field="src_warehouse.name"
+                                                />
+                                                <strong
+                                                    t-else=""
+                                                    t-field="doc.location_id.complete_name"
+                                                />
+                                                <div
+                                                    style="font-size: 11px; color: #555;"
+                                                    t-field="doc.location_id.complete_name"
+                                                />
+                                                <!-- Only print an address when one is
+                                                     actually recorded. The contact
+                                                     widget on a partner with no street
+                                                     renders the bare name wrapped in
+                                                     dashes, which reads as noise on a
+                                                     waybill. -->
+                                                <div
+                                                    t-if="src_warehouse.partner_id.street"
+                                                    style="font-size: 11px;"
+                                                >
+                                                    <span
+                                                        t-field="src_warehouse.partner_id"
+                                                        t-options='{"widget": "contact", "fields": ["address"]}'
+                                                    />
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td
+                                    style="width: 50%; vertical-align: top; padding-left: 8px;"
+                                >
+                                    <table
+                                        style="width: 100%; border: 1px solid #333; border-collapse: collapse; font-size: 12px;"
+                                    >
+                                        <tr>
+                                            <th
+                                                style="background-color: #0d6efd; color: #ffffff; -webkit-print-color-adjust: exact; padding: 4px 6px; text-align: left;"
+                                            >TO (Destination)</th>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 6px;">
+                                                <!-- partner_id is normally blank on a
+                                                     DRIMS dispatch, which left this box
+                                                     empty. The destination location is
+                                                     what actually identifies where the
+                                                     goods are going. -->
+                                                <strong
+                                                    t-if="dest_warehouse"
+                                                    t-field="dest_warehouse.name"
+                                                />
+                                                <strong
+                                                    t-elif="doc.partner_id"
+                                                    t-field="doc.partner_id"
+                                                />
+                                                <strong
+                                                    t-else=""
+                                                    t-field="dest_location.complete_name"
+                                                />
+                                                <div
+                                                    style="font-size: 11px; color: #555;"
+                                                    t-field="dest_location.complete_name"
+                                                />
+                                                <div
+                                                    t-if="dest_warehouse.partner_id.street"
+                                                    style="font-size: 11px;"
+                                                >
+                                                    <span
+                                                        t-field="dest_warehouse.partner_id"
+                                                        t-options='{"widget": "contact", "fields": ["address"]}'
+                                                    />
+                                                </div>
+                                                <div
+                                                    t-if="doc.partner_id.street"
+                                                    style="font-size: 11px;"
+                                                >
+                                                    <span
+                                                        t-field="doc.partner_id"
+                                                        t-options='{"widget": "contact", "fields": ["address"]}'
+                                                    />
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Distribution details: who this consignment is for.
+                             Especially useful because partner_id is usually blank. -->
+                        <table
+                            t-if="doc.drims_type == 'request_dispatch'"
+                            style="width: 100%; border: 1px solid #333; border-collapse: collapse; font-size: 12px; margin-bottom: 18px;"
+                        >
+                            <tr>
+                                <th
+                                    colspan="4"
+                                    style="background-color: #e9ecef; -webkit-print-color-adjust: exact; padding: 4px 6px; text-align: left;"
+                                >Distribution</th>
+                            </tr>
+                            <tr>
+                                <th
+                                    style="width: 20%; text-align: left; padding: 4px 6px;"
+                                >Distribution Area:</th>
+                                <td style="width: 30%; padding: 4px 6px;">
+                                    <span t-field="doc.beneficiary_area_id.name" />
+                                </td>
+                                <th
+                                    style="width: 22%; text-align: left; padding: 4px 6px;"
+                                >Est. Beneficiaries:</th>
+                                <td style="width: 28%; padding: 4px 6px;">
+                                    <span t-field="doc.beneficiary_count" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th
+                                    style="text-align: left; padding: 4px 6px;"
+                                >Distribution Type:</th>
+                                <td colspan="3" style="padding: 4px 6px;">
+                                    <span t-field="doc.distribution_type_id.display" />
+                                </td>
+                            </tr>
+                        </table>
 
                         <!-- Items Table -->
-                        <h4>Items</h4>
-                        <table class="table table-sm table-bordered">
-                            <thead class="table-light">
+                        <h4 style="font-size: 14px; margin-bottom: 4px;">Items</h4>
+                        <table
+                            style="width: 100%; border: 1px solid #333; border-collapse: collapse; font-size: 12px;"
+                        >
+                            <thead>
                                 <tr>
-                                    <th>#</th>
-                                    <th>Product</th>
-                                    <th class="text-end">Quantity</th>
-                                    <th>Unit</th>
-                                    <th>Lot/Batch</th>
+                                    <th
+                                        style="background-color: #e9ecef; -webkit-print-color-adjust: exact; border: 1px solid #333; padding: 4px 6px; width: 5%;"
+                                    >#</th>
+                                    <th
+                                        style="background-color: #e9ecef; -webkit-print-color-adjust: exact; border: 1px solid #333; padding: 4px 6px; text-align: left;"
+                                    >Product</th>
+                                    <th
+                                        style="background-color: #e9ecef; -webkit-print-color-adjust: exact; border: 1px solid #333; padding: 4px 6px; text-align: right; width: 13%;"
+                                    >Demand</th>
+                                    <th
+                                        style="background-color: #e9ecef; -webkit-print-color-adjust: exact; border: 1px solid #333; padding: 4px 6px; text-align: right; width: 13%;"
+                                    >Shipped</th>
+                                    <th
+                                        style="background-color: #e9ecef; -webkit-print-color-adjust: exact; border: 1px solid #333; padding: 4px 6px; width: 10%;"
+                                    >Unit</th>
+                                    <th
+                                        style="background-color: #e9ecef; -webkit-print-color-adjust: exact; border: 1px solid #333; padding: 4px 6px; text-align: left; width: 18%;"
+                                    >Lot/Batch</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <t t-set="line_num" t-value="0" />
-                                <tr t-foreach="doc.move_ids" t-as="move">
+                                <tr
+                                    t-foreach="doc.move_ids.filtered(lambda m: m.state != 'cancel')"
+                                    t-as="move"
+                                >
                                     <t t-set="line_num" t-value="line_num + 1" />
-                                    <td>
+                                    <td
+                                        style="border: 1px solid #333; padding: 4px 6px; text-align: center;"
+                                    >
                                         <t t-esc="line_num" />
                                     </td>
-                                    <td>
+                                    <td
+                                        style="border: 1px solid #333; padding: 4px 6px;"
+                                    >
                                         <span t-field="move.product_id.display_name" />
                                     </td>
-                                    <td class="text-end">
+                                    <td
+                                        style="border: 1px solid #333; padding: 4px 6px; text-align: right;"
+                                    >
                                         <span t-field="move.product_uom_qty" />
                                     </td>
-                                    <td>
+                                    <!-- What is physically on the vehicle, which is
+                                         the whole point of a waybill. The demand stays
+                                         alongside it so the receiving end can
+                                         reconcile a short delivery. -->
+                                    <td
+                                        style="border: 1px solid #333; padding: 4px 6px; text-align: right; font-weight: bold;"
+                                    >
+                                        <span t-field="move.quantity" />
+                                    </td>
+                                    <td
+                                        style="border: 1px solid #333; padding: 4px 6px;"
+                                    >
                                         <span t-field="move.product_uom" />
                                     </td>
-                                    <td>
+                                    <td
+                                        style="border: 1px solid #333; padding: 4px 6px;"
+                                    >
                                         <t t-foreach="move.move_line_ids" t-as="ml">
                                             <span t-field="ml.lot_id.name" />
                                             <t t-if="not ml_last">, </t>
@@ -173,66 +370,47 @@
                                     </td>
                                 </tr>
                             </tbody>
-                            <tfoot>
-                                <tr class="fw-bold">
-                                    <td colspan="2">Total Items</td>
-                                    <td class="text-end">
-                                        <t t-esc="len(doc.move_ids)" />
-                                    </td>
-                                    <td colspan="2" />
-                                </tr>
-                            </tfoot>
                         </table>
 
-                        <!-- Signatures Section -->
-                        <div class="row mt-5">
-                            <div class="col-4 text-center">
-                                <div
-                                    style="border-top: 1px solid #000; margin-top: 120px; padding-top: 8px;"
+                        <!-- Signatures -->
+                        <table style="width: 100%; margin-top: 40px;">
+                            <tr>
+                                <td
+                                    t-foreach="['Dispatched By', 'Transported By', 'Received By']"
+                                    t-as="role"
+                                    style="width: 33%; vertical-align: bottom; text-align: center; padding: 0 10px;"
                                 >
-                                    <strong>Dispatched By</strong>
-                                    <br />
-                                    <small>Name / Signature / Date</small>
-                                </div>
-                            </div>
-                            <div class="col-4 text-center">
-                                <div
-                                    style="border-top: 1px solid #000; margin-top: 120px; padding-top: 8px;"
-                                >
-                                    <strong>Transported By</strong>
-                                    <br />
-                                    <small>Name / Signature / Date</small>
-                                </div>
-                            </div>
-                            <div class="col-4 text-center">
-                                <div
-                                    style="border-top: 1px solid #000; margin-top: 120px; padding-top: 8px;"
-                                >
-                                    <strong>Received By</strong>
-                                    <br />
-                                    <small>Name / Signature / Date</small>
-                                </div>
-                            </div>
-                        </div>
+                                    <div
+                                        style="border-top: 1px solid #000; margin-top: 70px; padding-top: 6px; font-size: 12px;"
+                                    >
+                                        <strong t-esc="role" />
+                                        <div
+                                            style="font-size: 10px;"
+                                        >Name / Signature / Date</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
 
-                        <!-- Notes -->
-                        <div class="row mt-4" t-if="doc.note">
-                            <div class="col-12">
-                                <strong>Notes:</strong>
-                                <p t-field="doc.note" />
-                            </div>
-                        </div>
-
-                        <!-- Barcode -->
-                        <div class="row mt-4">
-                            <div class="col-12 text-center">
-                                <img
-                                    t-if="doc.waybill_number"
-                                    t-att-src="'/report/barcode/?barcode_type=Code128&amp;value=%s&amp;width=300&amp;height=50' % doc.waybill_number"
-                                />
-                                <br />
-                                <small t-field="doc.waybill_number" />
-                            </div>
+                        <!--
+                            Barcode embedded as a data URI rather than pointed at
+                            /report/barcode/. An <img> with a relative URL requires
+                            wkhtmltopdf to fetch it over HTTP, which silently fails
+                            whenever web.base.url is not reachable from inside the
+                            rendering process — the normal case in a container.
+                            Needs reportlab's renderPM backend; see
+                            docker/requirements.txt.
+                        -->
+                        <t
+                            t-set="barcode_src"
+                            t-value="doc._get_waybill_barcode_data_uri()"
+                        />
+                        <div style="text-align: center; margin-top: 24px;">
+                            <img t-if="barcode_src" t-att-src="barcode_src" />
+                            <div
+                                style="font-size: 11px;"
+                                t-field="doc.waybill_number"
+                            />
                         </div>
                     </div>
                 </t>
