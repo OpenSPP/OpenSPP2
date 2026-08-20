@@ -964,6 +964,9 @@ class TestSeededFarmGeneratorPhases(TransactionCase):
             self.assertTrue(farm.is_group)
             self.assertTrue(farm.is_registrant)
             self.assertEqual(len(result["members"]), 2)
+            # OP#1120: seeded farm groups are typed FARM.
+            self.assertTrue(farm.group_type_id, "farm group must have a group type")
+            self.assertEqual(farm.group_type_id.code, "farm")
 
             # Verify farm details
             details = farm.farm_details_id

@@ -24,6 +24,11 @@ DEMO_PROGRAMS = [
         "Eligibility: Farms ≤5 hectares with productive land. "
         "Benefit: Base amount plus per-hectare top-up.",
         "target_type": "group",
+        # OP#1122: keep this program on MANUAL entitlement approval (cycles
+        # still go through their own approval stage) so the demo can show the
+        # full cycle -> entitlement approval chain, not just cycle approval.
+        # Every other demo program stays auto-approve.
+        "auto_approve_entitlements": False,
         "entitlement_amount": 200.0,
         "entitlement_formula": "input_subsidy_base + (farm_size_hectares * per_hectare_subsidy)",
         # Benefit lines: ₱100 base + ₱50 per hectare. Example: a 2 ha farm gets

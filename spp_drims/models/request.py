@@ -2,6 +2,8 @@
 import logging
 from datetime import timedelta
 
+from markupsafe import Markup
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
@@ -628,13 +630,7 @@ class DrimsRequest(models.Model):
     def _set_state_by_code(self, code):
         """Set the request state to the vocab code, if it exists."""
         self.ensure_one()
-        state = self.env["spp.vocabulary.code"].search(
-            [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:request-states"),
-                ("code", "=", code),
-            ],
-            limit=1,
-        )
+        state = self._get_state_by_code(code)
         if state:
             self.state_id = state
         return state
@@ -898,3 +894,161 @@ class DrimsRequest(models.Model):
             "view_mode": "list,form",
             "domain": [("drims_request_id", "=", self.id)],
         }
+
+    # ------------------------------------------------------------------
+    # Dispatch backorders (OP#1087)
+    # ------------------------------------------------------------------
+
+    def _get_state_by_code(self, code):
+        """Return the request-state vocabulary code record matching ``code``."""
+        return self.env["spp.vocabulary.code"].search(
+            [
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:request-states",
+                ),
+                ("code", "=", code),
+            ],
+            limit=1,
+        )
+
+    def _get_drims_coordinators(self):
+        """Coordinators accountable for this request's destination area.
+
+        Mirrors ``rule_request_coordinator_scope`` (security/rules.xml), which
+        grants a coordinator access when ``destination_area_id`` is a descendant
+        of one of their ``drims_area_ids``. The reverse lookup therefore matches
+        coordinators assigned to the destination area itself or to any of its
+        ancestors. Runs sudo because the warehouse officer triggering this has no
+        read access to other users' area assignments.
+        """
+        self.ensure_one()
+        group = self.env.ref(
+            "spp_drims.group_drims_coordinator_supervisor",
+            raise_if_not_found=False,
+        )
+        area = self.destination_area_id
+        if not group or not area:
+            return self.env["res.users"]
+        # ``parent_path`` is a "1/4/9/" style chain that already includes self.
+        area_ids = {int(part) for part in (area.parent_path or "").split("/") if part}
+        area_ids.add(area.id)
+        # Resolving who to notify about a backorder. Reads res.users only to
+        # collect recipient ids for a message; the acting warehouse officer has
+        # no reason to be able to search users, and nothing about them is
+        # exposed beyond being messaged.
+        users = self.env["res.users"].sudo()  # nosemgrep: odoo-sudo-on-sensitive-models,odoo-sudo-without-context
+        return users.search(
+            [
+                ("all_group_ids", "in", group.id),
+                ("drims_area_ids", "in", list(area_ids)),
+            ]
+        )
+
+    def _notify_dispatch_backorder(self, backorder):
+        """Announce a dispatch backorder on the request and assign a follow-up.
+
+        Odoo creates backorders silently, so without this the coordinator gets no
+        signal that part of an approved request never left the warehouse. Posted
+        as an internal note addressed to the coordinators (rather than a customer
+        message) so they are notified without mailing external partners, plus a
+        to-do activity so the outstanding balance is owned by somebody.
+        """
+        self.ensure_one()
+        items = Markup("").join(
+            Markup("<li>%s: %s %s</li>")
+            % (
+                move.product_id.display_name,
+                move.product_uom_qty,
+                move.product_uom.name,
+            )
+            for move in backorder.move_ids
+        )
+        # Named explicitly because the note is posted through sudo, which makes
+        # OdooBot its author. In a humanitarian-accountability trail, "who
+        # shipped short" is part of the record (OP#1087 review).
+        body = Markup("<p>%s</p><ul>%s</ul>") % (
+            _(
+                "Dispatch %(parent)s was validated short of its demand by %(user)s. Backorder "
+                "%(backorder)s holds the remaining balance and has not been dispatched yet.",
+                parent=backorder.backorder_id.name or _("(unknown)"),
+                user=self.env.user.display_name,
+                backorder=backorder.name,
+            ),
+            items,
+        )
+        coordinators = self._get_drims_coordinators()
+        self.message_post(
+            body=body,
+            partner_ids=coordinators.partner_id.ids,
+            subtype_xmlid="mail.mt_note",
+        )
+        for coordinator in coordinators:
+            self.activity_schedule(
+                "mail.mail_activity_data_todo",
+                summary=_("Release dispatch backorder %s", backorder.name),
+                user_id=coordinator.id,
+            )
+
+    def _on_dispatch_backorder_created(self, backorder):
+        """React to Odoo splitting off a backorder from one of this request's dispatches.
+
+        The backordered quantity never left the warehouse, so a request that had
+        already advanced to ``dispatched`` reopens at ``allocated`` (Ready for
+        Dispatch) until the backorder is validated too. Runs sudo because the
+        warehouse officer validating the short dispatch may sit outside the
+        request's area scope, and this is system bookkeeping rather than a user
+        edit.
+        """
+        self.ensure_one()
+        request = self.sudo()  # nosemgrep: odoo-sudo-without-context
+        request._notify_dispatch_backorder(backorder)
+        if request.state == "dispatched":
+            allocated_state = request._get_state_by_code("allocated")
+            if allocated_state:
+                request.state_id = allocated_state
+
+    def _reopen_if_not_fully_dispatched(self):
+        """Drop back to ``allocated`` when the dispatched balance no longer covers
+        the request.
+
+        Called after a dispatch quantity is released (see
+        ``stock.move._action_cancel``): a request that reads ``dispatched`` while
+        part of it was cancelled rather than shipped has to become actionable
+        again.
+
+        Runs sudo for the same reason as the caller: the officer releasing the
+        quantity may sit outside the request's area scope, and moving the
+        request back to actionable is bookkeeping rather than a user edit.
+        """
+        for rec in self.sudo():  # nosemgrep: odoo-sudo-without-context
+            if rec.state != "dispatched" or not rec.line_ids:
+                continue
+            if all(line.quantity_dispatched >= line.quantity_requested for line in rec.line_ids):
+                continue
+            allocated_state = rec._get_state_by_code("allocated")
+            if allocated_state:
+                rec.state_id = allocated_state
+
+    def _sync_state_after_dispatch_done(self):
+        """Re-advance to ``dispatched`` once no dispatch of this request is pending.
+
+        Counterpart to ``_on_dispatch_backorder_created``: when the outstanding
+        backorder is finally validated, the request returns to ``dispatched``.
+
+        Runs sudo for the same reason as its counterpart: the validating officer
+        need not have write access to the request under the area record rules.
+        """
+        for rec in self.sudo():  # nosemgrep: odoo-sudo-without-context
+            if rec.state != "allocated":
+                continue
+            pending = rec.picking_ids.filtered(
+                lambda p: p.drims_type == "request_dispatch" and p.state not in ("done", "cancel")
+            )
+            if pending:
+                continue
+            if rec.line_ids and all(line.quantity_dispatched >= line.quantity_requested for line in rec.line_ids):
+                dispatched_state = rec._get_state_by_code("dispatched")
+                if dispatched_state:
+                    rec.state_id = dispatched_state

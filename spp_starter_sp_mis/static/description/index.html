@@ -373,8 +373,8 @@ ul.auto-toc {
 <p>Starter bundle for Social Protection Management Information System
 (SP-MIS) deployments. Extends <tt class="docutils literal">spp_starter_social_registry</tt> with
 program management, approval workflows, and service delivery
-capabilities. Adds optional client-side registry access control to
-restrict registrant editing to administrators.</p>
+capabilities. Adds optional registry access control, enforced on the
+server, to restrict registrant editing to administrators.</p>
 <div class="section" id="key-capabilities">
 <h1>Key Capabilities</h1>
 <ul class="simple">
@@ -382,11 +382,12 @@ restrict registrant editing to administrators.</p>
 program management modules in a single deployment</li>
 <li><strong>Starter Type Configuration</strong>: Sets system identifier to “sp_mis” for
 deployment classification</li>
-<li><strong>Registry Access Control</strong>: Optional JavaScript-based restriction
-that makes registrant forms read-only for non-admin users</li>
-<li><strong>Client-Side Enforcement</strong>: Patches <tt class="docutils literal">FormController</tt> and
-<tt class="docutils literal">ListController</tt> to hide Create/Edit/Delete buttons and force
-readonly mode</li>
+<li><strong>Registry Access Control</strong>: Optional restriction withholding create,
+write and delete on registrant records from non-admin users</li>
+<li><strong>Server-Side Enforcement</strong>: Applied in the access check every write
+passes through, so it holds over RPC and data import as well as in the
+web client — the New, Edit and Delete buttons disappear because Odoo
+stamps the view from the same access result</li>
 </ul>
 </div>
 <div class="section" id="key-models">
@@ -417,8 +418,9 @@ boolean field</td>
 <li>Navigate to <strong>Settings &gt; SP-MIS Settings</strong></li>
 <li>Enable <strong>Restrict Registry Edits to Admin Only</strong> to enforce read-only
 registry access for non-admin users</li>
-<li>When enabled, non-admin users see registrant forms in readonly mode
-with hidden create/edit/delete buttons</li>
+<li>When enabled, non-admin users can still read the registry, but
+creating, editing and deleting registrants is refused — and the
+corresponding buttons are not shown</li>
 <li>Restriction applies only to <tt class="docutils literal">res.partner</tt> views; program-related
 operations remain available based on role</li>
 </ol>
@@ -439,15 +441,17 @@ transitive dependency</li>
 <p>The registry restriction uses:</p>
 <ul class="simple">
 <li><strong>Config Parameter</strong>: <tt class="docutils literal">spp_starter.registry_admin_only_crud</tt>
-(default: True)</li>
-<li><strong>JSON-RPC Endpoint</strong>: <tt class="docutils literal">/spp_starter_sp_mis/registry_restriction</tt>
-checks restriction status</li>
-<li><strong>JavaScript Patches</strong>: Modifies <tt class="docutils literal">FormController</tt> and
-<tt class="docutils literal">ListController</tt> for <tt class="docutils literal">res.partner</tt> model</li>
+(default: True), marked <tt class="docutils literal">noupdate</tt> so an administrator’s choice
+survives module upgrades</li>
+<li><strong>Access Check</strong>: <tt class="docutils literal">res.partner._check_access</tt> withholds create,
+write and unlink on records flagged <tt class="docutils literal">is_registrant</tt></li>
+<li><strong>Promotion Guard</strong>: <tt class="docutils literal">write</tt> refuses setting <tt class="docutils literal">is_registrant</tt> on a
+plain contact, which would otherwise add a registrant in two allowed
+steps</li>
 <li><strong>Admin Check</strong>: Users in <tt class="docutils literal">spp_security.group_spp_admin</tt> bypass all
 restrictions</li>
-<li><strong>MutationObserver</strong>: Monitors DOM changes to re-apply restrictions
-dynamically</li>
+<li><strong>Scope</strong>: Only registrant records are affected, so the Contacts app
+stays usable</li>
 </ul>
 </div>
 <div class="section" id="included-modules">
@@ -478,6 +482,18 @@ dependency)</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.0</h1>
+<ul class="simple">
+<li>fix(starter_sp_mis): make the registry restriction hold and stop it
+re-locking itself. Enforcement moves from a JavaScript patch Odoo 19
+no longer reads to the access check every create, write and delete
+passes through, so it applies over RPC and data import too; promoting
+a plain contact into the registry is refused as well. The setting is
+marked <tt class="docutils literal">noupdate</tt>, with a migration for databases where an upgrade
+would otherwise keep switching it back on (#1142)</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
