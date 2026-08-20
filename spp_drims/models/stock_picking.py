@@ -39,6 +39,7 @@ class StockPicking(models.Model):
         "spp.drims.return",
         string="DRIMS Return",
         index=True,
+        copy=False,
     )
     incident_id = fields.Many2one(
         "spp.hazard.incident",
@@ -54,6 +55,7 @@ class StockPicking(models.Model):
     )
     beneficiary_count = fields.Integer(
         string="Estimated Beneficiaries Reached",
+        copy=False,
         help="Estimated number of beneficiaries who received items (exact counts often unknown in emergencies)",
     )
     distribution_type_id = fields.Many2one(
@@ -85,49 +87,61 @@ class StockPicking(models.Model):
     )
 
     # Transport
+    # Every field below records what happened on one physical shipment, so none
+    # of them may be carried onto a copy of the picking. Odoo builds a backorder
+    # with ``picking.copy()`` (``stock.picking._create_backorder_picking``), so
+    # without ``copy=False`` a backorder inherits the parent's departure
+    # timestamp, driver, POD and beneficiary count — claiming a delivery for
+    # goods still sitting in the warehouse, and double-counting the parent's
+    # beneficiaries in ``spp.hazard.incident.drims_beneficiaries_served``
+    # (OP#1087). The same applies to the Duplicate action.
     transport_mode_id = fields.Many2one(
         "spp.vocabulary.code",
         string="Transport Mode",
         domain="[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:drims:transport-modes')]",
+        copy=False,
     )
-    vehicle_registration = fields.Char(string="Vehicle Registration")
-    driver_name = fields.Char(string="Driver Name")
-    driver_phone = fields.Char(string="Driver Phone")
+    vehicle_registration = fields.Char(string="Vehicle Registration", copy=False)
+    driver_name = fields.Char(string="Driver Name", copy=False)
+    driver_phone = fields.Char(string="Driver Phone", copy=False)
 
     # Proof of Delivery (POD)
     pod_status_id = fields.Many2one(
         "spp.vocabulary.code",
         string="POD Status",
         domain="[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:drims:pod-statuses')]",
+        copy=False,
     )
     is_pod_confirmed = fields.Boolean(
         string="POD Confirmed",
         default=False,
+        copy=False,
     )
-    pod_received_by = fields.Char(string="Received By")
-    pod_receiver_title = fields.Char(string="Receiver Title")
-    pod_receiver_id_number = fields.Char(string="Receiver ID Number")
-    pod_signature = fields.Binary(string="Signature")
+    pod_received_by = fields.Char(string="Received By", copy=False)
+    pod_receiver_title = fields.Char(string="Receiver Title", copy=False)
+    pod_receiver_id_number = fields.Char(string="Receiver ID Number", copy=False)
+    pod_signature = fields.Binary(string="Signature", copy=False)
     pod_photo_ids = fields.Many2many(
         "ir.attachment",
         string="Delivery Photos",
+        copy=False,
     )
-    pod_gps_latitude = fields.Float(string="GPS Latitude", digits=(10, 6))
-    pod_gps_longitude = fields.Float(string="GPS Longitude", digits=(10, 6))
+    pod_gps_latitude = fields.Float(string="GPS Latitude", digits=(10, 6), copy=False)
+    pod_gps_longitude = fields.Float(string="GPS Longitude", digits=(10, 6), copy=False)
     pod_gps_point = fields.GeoPointField(
         string="POD GPS Point",
         compute="_compute_pod_gps_point",
         store=True,
         help="Computed geographic point from POD GPS coordinates for GIS mapping",
     )
-    pod_notes = fields.Text(string="POD Notes")
+    pod_notes = fields.Text(string="POD Notes", copy=False)
 
     # Dates
-    date_departed = fields.Datetime(string="Departed At")
-    date_arrived = fields.Datetime(string="Arrived At")
+    date_departed = fields.Datetime(string="Departed At", copy=False)
+    date_arrived = fields.Datetime(string="Arrived At", copy=False)
 
     # Discrepancy
-    discrepancy_notes = fields.Text(string="Discrepancy Notes")
+    discrepancy_notes = fields.Text(string="Discrepancy Notes", copy=False)
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -346,6 +360,40 @@ class StockPicking(models.Model):
             self._invalidate_drims_kpi_cache(incident_ids)
 
         return result
+
+    def _action_done(self):
+        """Settle the request's state once a dispatch is really done.
+
+        This used to hang off button_validate, which only covers the web
+        client's Validate button: a backorder released through the API, the
+        barcode flow or a direct _action_done reconciled its quantities through
+        the move hook but never re-advanced the request, leaving it at
+        "allocated" with everything already shipped (OP#1087 review).
+
+        _action_done is the point every path goes through, and calling it after
+        super() means Odoo has already split off any backorder — which is what
+        _sync_state_after_dispatch_done inspects before advancing.
+        """
+        result = super()._action_done()
+
+        requests = self.filtered(lambda p: p.drims_type == "request_dispatch").drims_request_id
+        if requests:
+            requests._sync_state_after_dispatch_done()
+
+        return result
+
+    def _create_backorder(self, backorder_moves=None):
+        """Surface DRIMS dispatch backorders on their request (OP#1087).
+
+        Odoo creates the backorder picking silently, so on its own a partially
+        validated dispatch leaves the coordinator with no notification and the
+        request still reading as fully dispatched.
+        """
+        backorders = super()._create_backorder(backorder_moves=backorder_moves)
+        for backorder in backorders:
+            if backorder.drims_type == "request_dispatch" and backorder.drims_request_id:
+                backorder.drims_request_id._on_dispatch_backorder_created(backorder)
+        return backorders
 
     def _invalidate_drims_kpi_cache(self, incident_ids):
         """Invalidate DRIMS KPI cache for distributed and stock values.

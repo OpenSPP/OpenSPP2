@@ -198,6 +198,17 @@ Changelog
   HTTP 500. The waybill itself still prints without it, minus the
   barcode (#1151)
 
+19.0.3.0.1
+~~~~~~~~~~
+
+- fix(drims): a dispatch validated short no longer leaves the request
+  looking fully dispatched. The backorder is announced on the request
+  with a to-do for the coordinators, the request reopens as Ready for
+  Dispatch so the remaining balance can be dispatched again, and the
+  dispatched totals are rebuilt on the allocation rows. Applies however
+  the transfer is validated — the web client, the barcode flow or the
+  API (#1087)
+
 19.0.3.0.0
 ~~~~~~~~~~
 
