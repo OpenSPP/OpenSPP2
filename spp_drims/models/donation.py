@@ -337,9 +337,13 @@ class DrimsDonation(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            # OP#1158: no new donations may be accepted for a closed incident.
-            if vals.get("incident_id"):
-                self.env["spp.hazard.incident"].browse(vals["incident_id"])._drims_ensure_open(_("accept a donation"))
+            # OP#1158's create-time closed-incident guard used to sit here. It is
+            # gone in favour of _check_incident_not_closed, the @api.constrains
+            # added by this branch, which is strictly broader: it also fires when
+            # an existing donation is re-pointed at a closed incident, which a
+            # create-only check cannot see. Keeping both meant two errors for one
+            # rule, and the create-time one won — masking the constraint the
+            # tests here assert (OP#1076 / OP#1100 review).
             if vals.get("reference", _("New")) == _("New"):
                 vals["reference"] = self.env["ir.sequence"].next_by_code("spp.drims.donation") or _("New")
         records = super().create(vals_list)
