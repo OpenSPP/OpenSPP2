@@ -14,6 +14,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 from odoo.tests import tagged
 
+from odoo.addons.spp_dci.schemas import DCIEnvelope
 from odoo.addons.spp_dci.schemas.constants import MsgHeaderStatusReasonCode
 from odoo.addons.spp_dci.schemas.envelope import DCIMessageHeader
 from odoo.addons.spp_dci.schemas.search import (
@@ -22,7 +23,6 @@ from odoo.addons.spp_dci.schemas.search import (
     SearchRequestItem,
     SearchResponse,
 )
-from odoo.addons.spp_dci.schemas import DCIEnvelope
 
 from .common import DCIServerCommon
 
