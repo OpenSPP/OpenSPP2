@@ -254,6 +254,30 @@ Dependencies
 Changelog
 =========
 
+19.0.2.3.0
+~~~~~~~~~~
+
+- feat(spp_programs): **Duplicate Detection is a card with an Add
+  dialog.** Adding a method asks which method and what to call it,
+  instead of editing a Reference field that exposed the model/record
+  plumbing — and could quietly wire another program's method into this
+  one. Selecting **ID document** now also asks which ID types to
+  compare, without which the method matched nothing and reported no
+  duplicates at all (#1171)
+- fix(spp_programs): **Deduplicate now clears flags it no longer
+  finds.** A membership marked as duplicated stayed that way after the
+  clash behind it was fixed, because a membership already in that state
+  was never re-evaluated. Each run recomputes rather than accumulates
+  (#796)
+- feat(spp_programs): **validators can return duplicated memberships to
+  draft in bulk** — a row button on the membership list and a Back to
+  Draft server action bound to it, so a whole selection can be cleared
+  instead of opening records one at a time (#1170)
+- fix(spp_programs): a removed deduplication method can be added again.
+  Removing a row unlinked it without deleting it, and the duplicate
+  check counted the leftover, so the method the card no longer showed
+  still blocked its own re-adding (#1171)
+
 19.0.2.2.1
 ~~~~~~~~~~
 
