@@ -315,6 +315,10 @@
                                 name="destination_type"
                                 readonly="approval_state not in ('draft', 'revision')"
                             />
+                            <!-- OP#1164: domain source for destination_warehouse_id. The
+                                 Fulfillment group and source_warehouse_id that used to sit
+                                 here went with OP#1079's per-warehouse allocation. -->
+                            <field name="allowed_warehouse_ids" invisible="1" />
                             <field
                                 name="destination_warehouse_id"
                                 invisible="destination_type != 'warehouse'"
