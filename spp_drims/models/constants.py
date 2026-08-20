@@ -54,7 +54,13 @@ STATE_DELIVERED = "delivered"
 STATE_FULFILLED = "fulfilled"
 STATE_CANCELLED = "cancelled"
 
+# Donation-line disposition codes that should NOT be stocked. Moves for these
+# get cancelled at stocking, and the items then need a follow-up disposal
+# (return / dispose / quarantine) tracked on the line — see OP#1058.
+NON_ACCEPT_DISPOSITIONS = ("return", "dispose", "quarantine")
+
 # Donation state codes (spp.drims.donation)
+DONATION_STATE_DRAFT = "draft"
 DONATION_STATE_ANNOUNCED = "announced"
 DONATION_STATE_RECEIVED = "received"
 DONATION_STATE_INSPECTED = "inspected"

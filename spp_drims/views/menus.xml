@@ -151,6 +151,14 @@
         sequence="30"
     />
 
+    <menuitem
+        id="menu_drims_non_accepted_items"
+        name="Non-Accepted Items"
+        parent="menu_drims_monitoring"
+        action="action_drims_non_accepted_items"
+        sequence="40"
+    />
+
     <!-- ============================================ -->
     <!-- CONFIGURATION -->
     <!-- ============================================ -->
