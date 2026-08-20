@@ -369,6 +369,7 @@ class SeededFarmGenerator:
         self._vocab_cache = {}
         self._species_cache = {}
         self._head_type_id = None
+        self._farm_group_type_id = None  # OP#1120
 
         # OP#1114: names already handed out this run, so the ~730 farms drawn
         # from an 86-surname pool don't end up with duplicate farm names (and,
@@ -500,6 +501,10 @@ class SeededFarmGenerator:
                     "farm_size_idle": idle,
                     "experience_years": experience,
                 }
+                # OP#1120: seeded farm groups default to the FARM group type.
+                farm_group_type_id = self._ensure_farm_group_type()
+                if farm_group_type_id:
+                    gvals["group_type_id"] = farm_group_type_id
                 if gps:
                     gvals["coordinates"] = json.dumps({"type": "Point", "coordinates": [gps[0], gps[1]]})
                 if area_id:
@@ -1150,6 +1155,26 @@ class SeededFarmGenerator:
             )
             self._vocab_cache[cache_key] = vocab.id if vocab else False
         return self._vocab_cache[cache_key]
+
+    def _ensure_farm_group_type(self):
+        """Ensure and return the 'farm' group type vocabulary code ID (OP#1120).
+
+        Seeded farm groups default to this type. Created via get_or_create_local
+        so it exists even if the wizard hasn't already made it, and cached for
+        the run.
+        """
+        if self._farm_group_type_id is None:
+            try:
+                code = self.env["spp.vocabulary.code"].get_or_create_local(
+                    "urn:openspp:vocab:group-type",
+                    "farm",
+                    display="Farm",
+                )
+                self._farm_group_type_id = code.id
+            except Exception:
+                _logger.warning("Could not create farm group type vocabulary code")
+                self._farm_group_type_id = False
+        return self._farm_group_type_id
 
     def _resolve_species(self, species_code):
         """Map a species code string to a vocabulary code ID."""

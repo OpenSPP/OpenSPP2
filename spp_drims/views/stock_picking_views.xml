@@ -118,6 +118,99 @@
             </xpath>
 
             <!--
+                OP#1150 round 2: a request dispatch is generated from its
+                request — action_create_dispatch sets the operation type, the
+                source location and the source document — so none of them is
+                the dispatcher's to change. Core only locks them once the
+                picking is done or cancelled, which left them editable for the
+                whole working life of a dispatch.
+
+                Each condition restates core's own rule and adds the dispatch
+                case, because position="attributes" replaces the attribute
+                outright rather than extending it. Ordinary transfers, donation
+                receipts and returns keep core's behaviour untouched.
+
+                Both header fields need disambiguating. Core declares
+                picking_type_id twice — once here and once column_invisible in
+                the moves list — and location_id three times: a copy hidden
+                behind !stock.group_stock_multi_locations, the visible Source
+                Location behind that same group, and another in the list. An
+                unqualified //field[@name='...'] takes the first match, which
+                for location_id is the invisible copy, so the lock would have
+                silently applied to a field nobody can see.
+            -->
+            <xpath
+                expr="//field[@name='picking_type_id'][not(ancestor::list)]"
+                position="attributes"
+            >
+                <attribute
+                    name="readonly"
+                >state in ('done', 'cancel') or drims_type == 'request_dispatch'</attribute>
+            </xpath>
+            <!--
+                Source Location needs a second copy rather than just going
+                read-only. A read-only many2one still renders as a link to the
+                location, and ``no_open`` cannot be made conditional because
+                ``options`` is parsed as a static dict — the same constraint as
+                OP#1158's hazard category. Core sets no_open on
+                picking_type_id already, which is why that one is inert; it does
+                not on location_id.
+
+                So core's copy is hidden on a dispatch and an inert one shown in
+                its place. The replacement repeats the multi-locations group,
+                or a single-location installation would start seeing a Source
+                Location field it is not meant to have.
+            -->
+            <xpath
+                expr="//field[@name='location_id'][@groups='stock.group_stock_multi_locations']"
+                position="attributes"
+            >
+                <attribute
+                    name="invisible"
+                >picking_type_code == 'incoming' or drims_type == 'request_dispatch'</attribute>
+            </xpath>
+            <xpath
+                expr="//field[@name='location_id'][@groups='stock.group_stock_multi_locations']"
+                position="after"
+            >
+                <field
+                    name="location_id"
+                    string="Source Location"
+                    groups="stock.group_stock_multi_locations"
+                    readonly="1"
+                    invisible="drims_type != 'request_dispatch'"
+                    options="{'no_create': True, 'no_open': True}"
+                />
+            </xpath>
+            <xpath
+                expr="//field[@name='origin'][not(ancestor::list)]"
+                position="attributes"
+            >
+                <attribute
+                    name="readonly"
+                >state in ['cancel', 'done'] or drims_type == 'request_dispatch'</attribute>
+            </xpath>
+
+            <!--
+                OP#1150 round 2: the products on a dispatch are whatever the
+                request approved, so the line's product must not be swapped for
+                another. Quantity deliberately stays editable — entering less
+                than Demand is how a partial dispatch and its backorder are
+                produced (OP#1087).
+
+                ``parent.`` because the modifier is evaluated against the move
+                line, and drims_type belongs to the picking.
+            -->
+            <xpath
+                expr="//page[@name='operations']/field[@name='move_ids']/list/field[@name='product_id']"
+                position="attributes"
+            >
+                <attribute
+                    name="readonly"
+                >(state != 'draft' and not additional) or move_lines_count &gt; 0 or parent.drims_type == 'request_dispatch'</attribute>
+            </xpath>
+
+            <!--
                 OP#1075 originally locked the Operations moves list on a dispatch
                 by making the whole field readonly, so that users could not add
                 products. That attribute has been removed: a readonly list also
@@ -125,22 +218,115 @@
                 partial dispatch and its backorder are produced (OP#1087) — so it
                 took the short-shipment flow out with it.
 
-                The lock now lives in OP#1057, which sets create/delete domains
-                in the field's ``options`` so lines cannot be added or removed
-                while Quantity stays editable, and adds
-                stock.picking._check_drims_dispatch_matches_request to refuse at
-                validation anything the request never approved. That guard also
-                covers RPC and imports, which a view attribute cannot.
-            -->
+                OP#1057: a request dispatch may only ship what its request
+                approved, so its line-up is locked — no "Add a Product" row and
+                no deleting lines.
 
-            <!-- Add DRIMS tab -->
-            <xpath expr="//notebook" position="inside">
-                <page string="DRIMS" name="drims" invisible="drims_type_id == False">
+                Quantity stays editable on purpose. OP#1075 first locked this
+                list by making the whole field readonly, but a readonly x2many
+                also blocks editing Quantity, and entering less than Demand is
+                how a partial dispatch and its backorder are produced (OP#1087)
+                — so that attribute took the short-shipment flow out with it and
+                has since been removed. Hence create/delete domains rather than
+                a wholesale readonly.
+
+                These have to go in ``options`` rather than being bare
+                ``create``/``delete`` attributes on the field. The x2many field
+                passes its ``options`` dict through as ``crudOptions``
+                (``x2ManyField.extractProps``), and useActiveActions evaluates
+                each entry as a *domain* against the parent record
+                (``new Domain(action).contains(evalContext)`` in the web client's
+                relational_utils.js) — which is what lets them depend on
+                drims_type. Bare create/delete attributes on the field tag are
+                ignored; only the inner <list> honours those, and only as static
+                booleans. ``drims_type`` is in the DRIMS page below, so it is
+                loaded and present in the eval context.
+
+                The model-side guard in _check_drims_dispatch_matches_request is
+                what actually enforces this — it refuses at validation anything
+                the request never approved, covering RPC and imports too. These
+                options only keep the UI from inviting the mistake.
+            -->
+            <xpath
+                expr="//page[@name='operations']/field[@name='move_ids']"
+                position="attributes"
+            >
+                <attribute
+                    name="options"
+                >{'create': [('drims_type', '!=', 'request_dispatch')], 'delete': [('drims_type', '!=', 'request_dispatch')]}</attribute>
+            </xpath>
+
+            <!--
+                OP#1150: on a dispatch, "Delivery Address" is dead weight —
+                partner_id is left blank because relief goods go to a location,
+                not a customer, so the field only invited people to fill in
+                something meaningless. Show the destination location instead.
+
+                Core hides location_dest_id for outgoing pickings
+                (invisible="picking_type_code == 'outgoing'") and keeps an
+                ungated copy at invisible="1", which is why a dispatch had no
+                destination on screen at all. Rather than un-hide core's copy —
+                which is behind stock.group_stock_multi_locations and so would
+                stay invisible wherever that group is off — add a read-only one
+                scoped to dispatches. It is populated by
+                spp.drims.request.action_create_dispatch, from the request's
+                destination warehouse where one is set.
+            -->
+            <xpath
+                expr="//div[hasclass('o_td_label')][label[@for='partner_id']]"
+                position="attributes"
+            >
+                <attribute name="invisible">drims_type == 'request_dispatch'</attribute>
+            </xpath>
+            <xpath
+                expr="//field[@name='partner_id'][@nolabel='1']"
+                position="attributes"
+            >
+                <attribute name="invisible">drims_type == 'request_dispatch'</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_id'][@nolabel='1']" position="after">
+                <field
+                    name="location_dest_id"
+                    string="Destination Location"
+                    readonly="1"
+                    invisible="drims_type != 'request_dispatch'"
+                    options="{'no_open': True, 'no_create': True}"
+                />
+            </xpath>
+
+            <!--
+                OP#1150: the DRIMS tab is where the dispatch is actually worked,
+                so it sits second, right after Operations, instead of last. Added
+                after the Operations page rather than appended to the notebook.
+            -->
+            <xpath expr="//page[@name='operations']" position="after">
+                <page
+                    string="Dispatch &amp; Delivery"
+                    name="drims"
+                    invisible="drims_type_id == False"
+                >
                     <group>
+                        <!--
+                            OP#1150 round 2: on a request dispatch every one of
+                            these is set by the system, not the dispatcher —
+                            the type, request and incident come from
+                            action_create_dispatch and the waybill number from
+                            the spp.drims.waybill sequence. They are shown so
+                            the dispatch can be identified, not edited.
+
+                            Scoped to dispatches so a donation receipt keeps its
+                            editable donation link.
+                        -->
                         <group string="DRIMS Information" name="drims_info">
-                            <field name="drims_type_id" />
+                            <field
+                                name="drims_type_id"
+                                readonly="drims_type == 'request_dispatch'"
+                            />
                             <field name="drims_type" invisible="1" />
-                            <field name="waybill_number" />
+                            <field
+                                name="waybill_number"
+                                readonly="drims_type == 'request_dispatch'"
+                            />
                             <field
                                 name="drims_donation_id"
                                 invisible="drims_type not in ['donation_receipt']"
@@ -148,8 +334,12 @@
                             <field
                                 name="drims_request_id"
                                 invisible="drims_type not in ['request_dispatch']"
+                                readonly="drims_type == 'request_dispatch'"
                             />
-                            <field name="incident_id" />
+                            <field
+                                name="incident_id"
+                                readonly="drims_type == 'request_dispatch'"
+                            />
                         </group>
                         <group string="Transport Details" name="transport">
                             <field name="transport_mode_id" />
