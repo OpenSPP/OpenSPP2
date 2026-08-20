@@ -96,6 +96,15 @@ class DrimsDonation(models.Model):
         string="Receiving Warehouse",
         required=True,
         tracking=True,
+        domain="[('id', 'in', allowed_warehouse_ids)]",
+    )
+    # OP#1164: warehouses selectable for this donation — the incident's linked
+    # warehouses when incident-filtering is enabled, otherwise all DRIMS
+    # warehouses. Used to domain the Receiving Warehouse field.
+    allowed_warehouse_ids = fields.Many2many(
+        "stock.warehouse",
+        compute="_compute_allowed_warehouse_ids",
+        string="Allowed Warehouses",
     )
 
     # Dates
@@ -245,6 +254,15 @@ class DrimsDonation(models.Model):
                 for line in rec.line_ids
             )
 
+    @api.depends("incident_id", "incident_id.drims_warehouse_ids")
+    def _compute_allowed_warehouse_ids(self):
+        """OP#1164: selectable warehouses = the incident's warehouses when
+        incident-filtering is on (and the incident has any), else all DRIMS
+        warehouses. The fallback avoids locking out donation creation when an
+        incident has no warehouses linked yet."""
+        for rec in self:
+            rec.allowed_warehouse_ids = rec.incident_id._drims_allowed_warehouses()
+
     @api.depends("picking_ids")
     def _compute_picking_count(self):
         for rec in self:
@@ -253,6 +271,9 @@ class DrimsDonation(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            # OP#1158: no new donations may be accepted for a closed incident.
+            if vals.get("incident_id"):
+                self.env["spp.hazard.incident"].browse(vals["incident_id"])._drims_ensure_open(_("accept a donation"))
             if vals.get("reference", _("New")) == _("New"):
                 vals["reference"] = self.env["ir.sequence"].next_by_code("spp.drims.donation") or _("New")
         records = super().create(vals_list)

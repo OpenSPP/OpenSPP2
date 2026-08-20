@@ -155,9 +155,17 @@ class DrimsRequest(models.Model):
     destination_warehouse_id = fields.Many2one(
         "stock.warehouse",
         string="Destination Warehouse",
-        domain="[('is_drims_warehouse', '=', True), ('area_id', '=', destination_area_id)]",
+        domain="[('id', 'in', allowed_warehouse_ids), ('area_id', '=', destination_area_id)]",
         tracking=True,
         help="Warehouse in the destination area to receive the dispatch",
+    )
+    # OP#1164: warehouses selectable for this request — the incident's linked
+    # warehouses when incident-filtering is enabled, otherwise all DRIMS
+    # warehouses. Used to domain the source/destination warehouse fields.
+    allowed_warehouse_ids = fields.Many2many(
+        "stock.warehouse",
+        compute="_compute_allowed_warehouse_ids",
+        string="Allowed Warehouses",
     )
 
     # Contact
@@ -354,6 +362,15 @@ class DrimsRequest(models.Model):
                 rec.allocation_pct = 0
                 rec.fulfillment_pct = 0
 
+    @api.depends("incident_id", "incident_id.drims_warehouse_ids")
+    def _compute_allowed_warehouse_ids(self):
+        """OP#1164: selectable warehouses = the incident's warehouses when
+        incident-filtering is on (and the incident has any), else all DRIMS
+        warehouses. The fallback avoids locking out allocation/dispatch when an
+        incident has no warehouses linked yet."""
+        for rec in self:
+            rec.allowed_warehouse_ids = rec.incident_id._drims_allowed_warehouses()
+
     @api.depends("picking_ids")
     def _compute_picking_count(self):
         for rec in self:
@@ -435,6 +452,7 @@ class DrimsRequest(models.Model):
             limit=1,
         )
         for rec in self:
+            rec.incident_id._drims_ensure_open(_("submit a request"))  # OP#1158
             if not rec.line_ids:
                 raise UserError(_("Cannot submit request without items."))
             rec.state_id = submitted_state
@@ -481,6 +499,7 @@ class DrimsRequest(models.Model):
     def action_approve(self):
         """Approve the request (for direct approval without workflow)."""
         for rec in self:
+            rec.incident_id._drims_ensure_open(_("approve a request"))  # OP#1158
             if rec.approval_state not in ("pending", "submitted"):
                 raise UserError(_("Only pending requests can be approved."))
             rec.approval_state = "approved"
@@ -630,6 +649,7 @@ class DrimsRequest(models.Model):
         state stays at Ready for Allocation.
         """
         for rec in self:
+            rec.incident_id._drims_ensure_open(_("allocate a request"))  # OP#1158
             if rec.approval_state != "approved":
                 raise UserError(_("Only approved requests can be allocated."))
             rec._auto_allocate()

@@ -1,7 +1,11 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 from datetime import date, timedelta
 
+from lxml import etree
+
+from odoo.exceptions import UserError
 from odoo.tests import tagged
+from odoo.tools.safe_eval import safe_eval
 
 from .common import DrimsTestCommon
 
@@ -162,6 +166,107 @@ class TestDrimsIncident(DrimsTestCommon):
         self.incident.invalidate_recordset()
         self.assertIn(self.warehouse, self.incident.drims_warehouse_ids)
 
+    def test_1164_link_warehouses_from_incident_side(self):
+        """OP#1164: editing drims_warehouse_ids on the incident links/unlinks the
+        warehouse both ways (via stock.warehouse.incident_ids)."""
+        self.warehouse.is_drims_warehouse = True
+        # Link from the incident side.
+        self.incident.drims_warehouse_ids = [(4, self.warehouse.id)]
+        self.assertIn(self.incident, self.warehouse.incident_ids)
+        self.incident.invalidate_recordset()
+        self.assertIn(self.warehouse, self.incident.drims_warehouse_ids)
+        # Unlink from the incident side.
+        self.incident.drims_warehouse_ids = [(3, self.warehouse.id)]
+        self.assertNotIn(self.incident, self.warehouse.incident_ids)
+
+    def test_1164_donation_allowed_warehouses_respects_filter(self):
+        """OP#1164: donation warehouse choices = the incident's warehouses when
+        filtering is on; all DRIMS warehouses when off."""
+        self.warehouse.is_drims_warehouse = True
+        other = self.env["stock.warehouse"].create(
+            {"name": "Other WH 1164", "code": "O1164", "is_drims_warehouse": True}
+        )
+        self.incident.drims_warehouse_ids = [(6, 0, [self.warehouse.id])]
+        donation = self.env["spp.drims.donation"].create(
+            {
+                "incident_id": self.incident.id,
+                "warehouse_id": self.warehouse.id,
+                "donor_name": "D",
+                # A donation needs at least one item (_check_has_lines, added by
+                # the donations review on fix/1076-drims-donations-review). This
+                # test is about warehouse choices, so the line is only there to
+                # make the donation valid — without it, whichever of the two
+                # branches merges second turns 19.0 red with no textual conflict
+                # to warn either author.
+                "line_ids": [
+                    (0, 0, {"product_id": self.product.id, "quantity_pledged": 100, "uom_id": self.product.uom_id.id})
+                ],
+            }
+        )
+        # Filter ON (default): only the incident's warehouse.
+        self.assertIn(self.warehouse, donation.allowed_warehouse_ids)
+        self.assertNotIn(other, donation.allowed_warehouse_ids)
+        # Filter OFF: all DRIMS warehouses.
+        self.env["ir.config_parameter"].sudo().set_param("drims.warehouse.filter_by_incident", "False")
+        donation.invalidate_recordset(["allowed_warehouse_ids"])
+        self.assertIn(other, donation.allowed_warehouse_ids)
+
+    def test_1164_allowed_warehouses_fallback_when_incident_has_none(self):
+        """OP#1164: with filtering on but no warehouses linked, fall back to all
+        DRIMS warehouses (so donation/request creation isn't locked out)."""
+        self.warehouse.is_drims_warehouse = True
+        self.incident.drims_warehouse_ids = [(5, 0, 0)]  # ensure none linked
+        donation = self.env["spp.drims.donation"].create(
+            {
+                "incident_id": self.incident.id,
+                "warehouse_id": self.warehouse.id,
+                "donor_name": "D",
+                # See the note above: a donation must carry at least one item.
+                "line_ids": [
+                    (0, 0, {"product_id": self.product.id, "quantity_pledged": 100, "uom_id": self.product.uom_id.id})
+                ],
+            }
+        )
+        self.assertIn(self.warehouse, donation.allowed_warehouse_ids)
+
+    def test_1157_flag_as_alert(self):
+        """OP#1157: action_set_alert moves the incident into the Alert state."""
+        self.assertNotEqual(self.incident.status, "alert")
+        self.incident.action_set_alert()
+        self.assertEqual(self.incident.status, "alert")
+
+    def test_1094_stock_kpi_refreshes_on_warehouse_link(self):
+        """OP#1094: linking a warehouse to an incident refreshes the stock KPI,
+        even when the stock existed before the link (cache was populated with 0)."""
+        wh = self.env["stock.warehouse"].create({"name": "KPI WH 1094", "code": "K1094", "is_drims_warehouse": True})
+        self.product.standard_price = 25.0
+        self.env["stock.quant"].create(
+            {"product_id": self.product.id, "location_id": wh.lot_stock_id.id, "quantity": 100}
+        )
+        incident = self.env["spp.hazard.incident"].create(
+            {
+                "name": "KPI Incident 1094",
+                "code": "KPI-1094",
+                "category_id": self.hazard_category.id,
+                "start_date": "2024-01-01",
+                "status": "active",
+            }
+        )
+        # Not linked yet -> stock KPI is 0 (and this stores 0).
+        self.assertEqual(incident.drims_stock_value, 0.0)
+
+        # Link the warehouse AFTER stock already exists.
+        wh.write({"incident_ids": [(4, incident.id)]})
+        self.env.flush_all()
+        incident.invalidate_recordset()
+        self.assertEqual(incident.drims_stock_value, 2500.0)  # 100 * 25
+
+        # Unlinking refreshes back to 0.
+        wh.write({"incident_ids": [(3, incident.id)]})
+        self.env.flush_all()
+        incident.invalidate_recordset()
+        self.assertEqual(incident.drims_stock_value, 0.0)
+
     def test_incident_stock_value_initially_zero(self):
         """Test stock value is zero when no warehouse linked."""
         self.incident.invalidate_recordset()
@@ -223,6 +328,143 @@ class TestDrimsIncident(DrimsTestCommon):
         # 10 * 25 = 250
         self.assertEqual(self.incident.drims_distributed_value, 250.0)
 
+    # ── OP#1160: Units/Products = incident-related stock (stocked − allocated) ──
+    def _drims_type(self, code):
+        return self.env["spp.vocabulary.code"].search(
+            [
+                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:drims-types"),
+                ("code", "=", code),
+            ],
+            limit=1,
+        )
+
+    def _stock_in_receipt(self, qty):
+        """Create + validate a done donation-receipt picking into the warehouse."""
+        drims_type = self._drims_type("donation_receipt")
+        if not drims_type:
+            self.skipTest("donation_receipt vocabulary code not found")
+        picking = self.env["stock.picking"].create(
+            {
+                "picking_type_id": self.warehouse.in_type_id.id,
+                "location_id": self.env.ref("stock.stock_location_suppliers").id,
+                "location_dest_id": self.warehouse.lot_stock_id.id,
+                "incident_id": self.incident.id,
+                "drims_type_id": drims_type.id,
+            }
+        )
+        move = self.env["stock.move"].create(
+            {
+                "product_id": self.product.id,
+                "product_uom_qty": qty,
+                "product_uom": self.product.uom_id.id,
+                "picking_id": picking.id,
+                "location_id": picking.location_id.id,
+                "location_dest_id": picking.location_dest_id.id,
+            }
+        )
+        picking.action_confirm()
+        move.quantity = qty
+        picking.button_validate()
+        return picking
+
+    def _request_with_allocation(self, requested, allocated):
+        request = self.env["spp.drims.request"].create(
+            {
+                "incident_id": self.incident.id,
+                "destination_area_id": self.area.id,
+                "date_needed": self.future_date,
+                "line_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "product_id": self.product.id,
+                            "quantity_requested": requested,
+                            "uom_id": self.product.uom_id.id,
+                        },
+                    )
+                ],
+            }
+        )
+        # OP#1079 made the line's quantity_allocated a stored compute over
+        # per-warehouse allocation rows, so allocating means recording a row —
+        # writing the total directly no longer registers at all.
+        self.env["spp.drims.request.allocation"].create(
+            {
+                "request_line_id": request.line_ids[0].id,
+                "warehouse_id": self.warehouse.id,
+                "quantity_allocated": allocated,
+            }
+        )
+        return request
+
+    def test_incident_units_net_of_allocation(self):
+        """Units/Products = stocked-in from this incident's donations minus what
+        its requests have allocated (OP#1160)."""
+        self._stock_in_receipt(100)
+        self._request_with_allocation(requested=100, allocated=30)
+        self.incident.invalidate_recordset()
+        self.assertEqual(self.incident.drims_total_stock_units, 70.0)
+        self.assertEqual(self.incident.drims_stock_item_count, 1)
+
+    def test_incident_units_zero_when_fully_allocated(self):
+        """A product fully allocated away drops out of the incident stock count."""
+        self._stock_in_receipt(50)
+        self._request_with_allocation(requested=50, allocated=50)
+        self.incident.invalidate_recordset()
+        self.assertEqual(self.incident.drims_total_stock_units, 0.0)
+        self.assertEqual(self.incident.drims_stock_item_count, 0)
+
+    def test_incident_distributed_net_of_returns(self):
+        """Distributed value is reduced by returned items (OP#1160)."""
+        # Dispatch 10 @ 25 = 250 distributed (mirrors the dispatch test).
+        drims_type = self._drims_type("request_dispatch")
+        if not drims_type:
+            self.skipTest("request_dispatch vocabulary code not found")
+        self.product.standard_price = 25.0
+        dispatch = self.env["stock.picking"].create(
+            {
+                "picking_type_id": self.warehouse.out_type_id.id,
+                "location_id": self.warehouse.lot_stock_id.id,
+                "location_dest_id": self.env.ref("stock.stock_location_customers").id,
+                "incident_id": self.incident.id,
+                "drims_type_id": drims_type.id,
+            }
+        )
+        move = self.env["stock.move"].create(
+            {
+                "product_id": self.product.id,
+                "product_uom_qty": 10,
+                "product_uom": self.product.uom_id.id,
+                "picking_id": dispatch.id,
+                "location_id": dispatch.location_id.id,
+                "location_dest_id": dispatch.location_dest_id.id,
+            }
+        )
+        dispatch.action_confirm()
+        move.quantity = 10
+        dispatch.beneficiary_count = 50
+        dispatch.beneficiary_area_id = self.area.id
+        dispatch.button_validate()
+
+        # A draft return does not yet reduce distributed.
+        return_rec = self.env["spp.drims.return"].create(
+            {
+                "incident_id": self.incident.id,
+                "original_picking_id": dispatch.id,
+                "warehouse_id": self.warehouse.id,
+                "line_ids": [(0, 0, {"product_id": self.product.id, "quantity_returned": 4})],
+            }
+        )
+        self.assertEqual(return_rec.total_value, 100.0)  # 4 * 25
+        self.incident.invalidate_recordset()
+        self.assertEqual(self.incident.drims_distributed_value, 250.0)
+
+        # Once the return is active, 100 of the 250 is no longer distributed.
+        return_rec.state = "confirmed"
+        self.incident.invalidate_recordset()
+        self.assertEqual(self.incident.drims_distributed_value, 150.0)
+
     def test_incident_picking_ids_relation(self):
         """Test incident has access to related pickings."""
         picking = self.env["stock.picking"].create(
@@ -234,3 +476,235 @@ class TestDrimsIncident(DrimsTestCommon):
             }
         )
         self.assertIn(picking, self.incident.drims_picking_ids)
+
+    # ── OP#1157 QA round 1: header button order and Alert entry state ──
+
+    def _incident_form_buttons(self):
+        """Header action buttons of the incident form, in rendered order."""
+        view = self.env["spp.hazard.incident"].get_view(self.env.ref("spp_hazard.view_hazard_incident_form").id, "form")
+        tree = etree.fromstring(view["arch"])
+        return [b.get("name") for b in tree.xpath("//header/button[@name]")]
+
+    def test_flag_as_alert_is_the_leftmost_header_button(self):
+        """QA asked for Flag As Alert · Start Recovery · Close Incident.
+
+        It was inserted before the statusbar, which put it last. Anchoring it
+        on the first base button puts it where the workflow starts.
+        """
+        buttons = self._incident_form_buttons()
+
+        self.assertIn("action_set_alert", buttons, "Flag As Alert is missing from the header")
+        self.assertEqual(
+            buttons[0],
+            "action_set_alert",
+            f"Flag As Alert should lead the header, got {buttons}",
+        )
+        # The rest keep their base order behind it.
+        self.assertLess(buttons.index("action_set_recovery"), buttons.index("action_close"))
+
+    def test_close_incident_hidden_only_outside_the_open_states(self):
+        """QA asked to confirm Close shows only for alert / active / recovery."""
+        view = self.env["spp.hazard.incident"].get_view(self.env.ref("spp_hazard.view_hazard_incident_form").id, "form")
+        tree = etree.fromstring(view["arch"])
+        close = tree.xpath("//header/button[@name='action_close']")[0]
+        condition = close.get("invisible")
+
+        for status in ("alert", "active", "recovery"):
+            self.assertFalse(
+                safe_eval(condition, {"status": status}),
+                f"Close Incident should be offered while {status}",
+            )
+        self.assertTrue(safe_eval(condition, {"status": "closed"}))
+
+    def test_new_drims_incident_starts_in_draft(self):
+        """The entry state, seen from DRIMS rather than the base module."""
+        incident = self.env["spp.hazard.incident"].create(
+            {
+                "name": "DRIMS Fresh Incident",
+                "code": "DRIMS-ALERT-1157",
+                "category_id": self.hazard_category.id,
+                "start_date": "2026-08-01",
+            }
+        )
+        self.assertEqual(incident.status, "draft")
+
+    def test_draft_offers_exactly_flag_as_alert_and_set_active(self):
+        """OP#1157 round 3: a draft presents those two choices and no others.
+
+        Evaluated off the form arch because button visibility is a view
+        concern; the buttons themselves are contributed by two modules, which
+        is precisely why the combined header is worth asserting.
+        """
+        arch = etree.fromstring(
+            self.env["spp.hazard.incident"].get_view(self.env.ref("spp_hazard.view_hazard_incident_form").id, "form")[
+                "arch"
+            ]
+        )
+        shown = [
+            b.get("name")
+            for b in arch.xpath("//header/button")
+            if not safe_eval(b.get("invisible", "False"), {"status": "draft"})
+        ]
+        self.assertEqual(
+            shown,
+            ["action_set_alert", "action_set_active"],
+            f"a draft should offer Flag As Alert then Set Active, got {shown}",
+        )
+
+    def test_flag_as_alert_returns_an_incident_to_alert(self):
+        """The button itself still does its job from active and recovery."""
+        self.incident.action_set_active()
+        self.incident.action_set_alert()
+        self.assertEqual(self.incident.status, "alert")
+
+        self.incident.action_set_active()
+        self.incident.action_set_recovery()
+        self.incident.action_set_alert()
+        self.assertEqual(self.incident.status, "alert")
+
+
+@tagged("post_install", "-at_install")
+class TestDrimsIncidentClosedGuards(DrimsTestCommon):
+    """OP#1158: limit DRIMS operations on incidents in the 'closed' state."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.future_date = date.today() + timedelta(days=30)
+        cls.closed_incident = cls.env["spp.hazard.incident"].create(
+            {
+                "name": "Closed Incident 1158",
+                "code": "CLOSED-1158",
+                "category_id": cls.hazard_category.id,
+                "start_date": "2024-01-01",
+                "status": "closed",
+            }
+        )
+
+    def _new_request(self, incident):
+        return self.env["spp.drims.request"].create(
+            {
+                "incident_id": incident.id,
+                "destination_area_id": self.area.id,
+                "date_needed": self.future_date,
+                "line_ids": [
+                    (0, 0, {"product_id": self.product.id, "quantity_requested": 10, "uom_id": self.product.uom_id.id})
+                ],
+            }
+        )
+
+    # ── requests: submit / approve / allocate blocked on a closed incident ──
+    def test_1158_submit_blocked_when_closed(self):
+        req = self._new_request(self.closed_incident)
+        with self.assertRaises(UserError):
+            req.action_submit()
+
+    def test_1158_approve_blocked_when_closed(self):
+        req = self._new_request(self.closed_incident)
+        with self.assertRaises(UserError):
+            req.action_approve()
+
+    def test_1158_allocate_blocked_when_closed(self):
+        req = self._new_request(self.closed_incident)
+        with self.assertRaises(UserError):
+            req.action_allocate()
+
+    def test_1158_submit_allowed_when_open(self):
+        """Sanity: the guard does not block an open incident."""
+        req = self._new_request(self.incident)  # common incident is active
+        req.action_submit()  # should not raise
+        self.assertIn(req.approval_state, ("pending", "submitted"))
+
+    # ── donations: no new donations accepted on a closed incident ──
+    def test_1158_donation_blocked_when_closed(self):
+        with self.assertRaises(UserError):
+            self.env["spp.drims.donation"].create(
+                {
+                    "incident_id": self.closed_incident.id,
+                    "warehouse_id": self.warehouse.id,
+                    "donor_name": "Closed Donor",
+                    "line_ids": [
+                        (0, 0, {"product_id": self.product.id, "quantity_pledged": 5, "uom_id": self.product.uom_id.id})
+                    ],
+                }
+            )
+
+    def test_1158_donation_allowed_when_open(self):
+        donation = self.env["spp.drims.donation"].create(
+            {
+                "incident_id": self.incident.id,
+                "warehouse_id": self.warehouse.id,
+                "donor_name": "Open Donor",
+                "line_ids": [
+                    (0, 0, {"product_id": self.product.id, "quantity_pledged": 5, "uom_id": self.product.uom_id.id})
+                ],
+            }
+        )
+        self.assertTrue(donation.exists())
+
+    # ── lifecycle: the state machine is enforced on the server, not just hidden ──
+    def test_1100_closed_incident_cannot_be_reopened(self):
+        """The header hides these buttons; hiding is not enforcement.
+
+        Over RPC, an import or the shell, flipping a closed incident back to
+        active or alert would sidestep every guard above, all of which key off
+        `closed` (OP#1100 review).
+        """
+        for action in ("action_set_active", "action_set_alert", "action_set_recovery"):
+            with self.subTest(action=action):
+                with self.assertRaises(UserError):
+                    getattr(self.closed_incident, action)()
+
+        self.assertEqual(self.closed_incident.status, "closed")
+
+    def test_1100_closed_incident_cannot_be_closed_again(self):
+        with self.assertRaises(UserError):
+            self.closed_incident.action_close()
+
+    def test_1100_a_draft_is_not_closed_but_deleted(self):
+        """QA's rule: a mistakenly entered incident is deleted, not closed."""
+        draft = self.env["spp.hazard.incident"].create(
+            {
+                "name": "Draft Incident 1100",
+                "code": "DRAFT-1100",
+                "category_id": self.hazard_category.id,
+                "start_date": "2024-01-01",
+            }
+        )
+        self.assertEqual(draft.status, "draft")
+
+        with self.assertRaises(UserError):
+            draft.action_close()
+
+        draft.unlink()
+
+    def test_1100_an_open_incident_still_moves_through_its_lifecycle(self):
+        """The guard must not block the transitions that are the point of it."""
+        incident = self.env["spp.hazard.incident"].create(
+            {
+                "name": "Lifecycle Incident 1100",
+                "code": "LIFE-1100",
+                "category_id": self.hazard_category.id,
+                "start_date": "2024-01-01",
+            }
+        )
+
+        incident.action_set_alert()
+        self.assertEqual(incident.status, "alert")
+        incident.action_set_active()
+        self.assertEqual(incident.status, "active")
+        incident.action_set_recovery()
+        self.assertEqual(incident.status, "recovery")
+        incident.action_close()
+        self.assertEqual(incident.status, "closed")
+
+    # ── personnel: cannot deploy to a closed incident ──
+    def test_1158_personnel_blocked_when_closed(self):
+        with self.assertRaises(UserError):
+            self.env["spp.drims.personnel"].create(
+                {"name": "Closed Deployment", "incident_id": self.closed_incident.id}
+            )
+
+    def test_1158_personnel_allowed_when_open(self):
+        person = self.env["spp.drims.personnel"].create({"name": "Open Deployment", "incident_id": self.incident.id})
+        self.assertTrue(person.exists())
