@@ -565,6 +565,16 @@ hooks to add custom approval actions</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.4.0.1</h1>
+<ul class="simple">
+<li>fix(drims): only let a dispatch ship what its request approved.
+Products cannot be added to a request dispatch and quantities cannot
+be raised past what was allocated — enforced on the model, so imports
+and API callers are covered too, with the Operations tab’s Add a line
+and delete affordances hidden to match (#1057)</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.4.0.0</h1>
 <ul class="simple">
 <li>feat(drims): Donations review — creation, receipt, inspection and
@@ -584,7 +594,7 @@ the database column is left in place, so existing values are retained
 but no longer readable through the ORM or shown in any view (#1076)</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.3.1.0</h1>
 <ul class="simple">
 <li>feat(drims): Incident Management review — incidents are entered as a
@@ -601,7 +611,7 @@ recomputes them for every incident — including closed ones, which the
 refresh cron skips (#1100)</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.3.0.4</h1>
 <ul class="simple">
 <li>feat(drims): rework the dispatch page and correct the waybill.
@@ -621,7 +631,7 @@ HTTP 500. The waybill itself still prints without it, minus the
 barcode (#1151)</li>
 </ul>
 </div>
-<div class="section" id="section-4">
+<div class="section" id="section-5">
 <h1>19.0.3.0.1</h1>
 <ul class="simple">
 <li>fix(drims): a dispatch validated short no longer leaves the request
@@ -633,7 +643,7 @@ the transfer is validated — the web client, the barcode flow or the
 API (#1087)</li>
 </ul>
 </div>
-<div class="section" id="section-5">
+<div class="section" id="section-6">
 <h1>19.0.3.0.0</h1>
 <ul class="simple">
 <li>feat(drims): allocate stock per source warehouse. The Allocate Stock
@@ -653,7 +663,7 @@ fulfillment lanes, allocation shortfall indicators, and a
 destination-type selector (#1075)</li>
 </ul>
 </div>
-<div class="section" id="section-6">
+<div class="section" id="section-7">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

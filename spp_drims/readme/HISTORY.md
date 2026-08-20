@@ -1,3 +1,7 @@
+### 19.0.4.0.1
+
+- fix(drims): only let a dispatch ship what its request approved. Products cannot be added to a request dispatch and quantities cannot be raised past what was allocated — enforced on the model, so imports and API callers are covered too, with the Operations tab's Add a line and delete affordances hidden to match (#1057)
+
 ### 19.0.4.0.0
 
 - feat(drims): Donations review — creation, receipt, inspection and follow-up. Donations start in a new **Draft** state; the donor list is limited to organisations whose role is Donor and a donation cannot be recorded against a closed incident; at least one item is required to save, Pledged must be entered and be greater than zero, and Received is entered manually rather than copied from Pledged. Line columns appear progressively through the lifecycle (Received and Variance from Announced; Condition and Action from Inspected), non-accepted items gain a follow-up/disposal trail, and adding an item is blocked once the donation has moved past its editable states (#1055, #1058, #1108, #1163)

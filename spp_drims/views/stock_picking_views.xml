@@ -218,13 +218,43 @@
                 partial dispatch and its backorder are produced (OP#1087) — so it
                 took the short-shipment flow out with it.
 
-                The lock now lives in OP#1057, which sets create/delete domains
-                in the field's ``options`` so lines cannot be added or removed
-                while Quantity stays editable, and adds
-                stock.picking._check_drims_dispatch_matches_request to refuse at
-                validation anything the request never approved. That guard also
-                covers RPC and imports, which a view attribute cannot.
+                OP#1057: a request dispatch may only ship what its request
+                approved, so its line-up is locked — no "Add a Product" row and
+                no deleting lines.
+
+                Quantity stays editable on purpose. OP#1075 first locked this
+                list by making the whole field readonly, but a readonly x2many
+                also blocks editing Quantity, and entering less than Demand is
+                how a partial dispatch and its backorder are produced (OP#1087)
+                — so that attribute took the short-shipment flow out with it and
+                has since been removed. Hence create/delete domains rather than
+                a wholesale readonly.
+
+                These have to go in ``options`` rather than being bare
+                ``create``/``delete`` attributes on the field. The x2many field
+                passes its ``options`` dict through as ``crudOptions``
+                (``x2ManyField.extractProps``), and useActiveActions evaluates
+                each entry as a *domain* against the parent record
+                (``new Domain(action).contains(evalContext)`` in the web client's
+                relational_utils.js) — which is what lets them depend on
+                drims_type. Bare create/delete attributes on the field tag are
+                ignored; only the inner <list> honours those, and only as static
+                booleans. ``drims_type`` is in the DRIMS page below, so it is
+                loaded and present in the eval context.
+
+                The model-side guard in _check_drims_dispatch_matches_request is
+                what actually enforces this — it refuses at validation anything
+                the request never approved, covering RPC and imports too. These
+                options only keep the UI from inviting the mistake.
             -->
+            <xpath
+                expr="//page[@name='operations']/field[@name='move_ids']"
+                position="attributes"
+            >
+                <attribute
+                    name="options"
+                >{'create': [('drims_type', '!=', 'request_dispatch')], 'delete': [('drims_type', '!=', 'request_dispatch')]}</attribute>
+            </xpath>
 
             <!--
                 OP#1150: on a dispatch, "Delivery Address" is dead weight —
