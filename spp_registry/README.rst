@@ -139,6 +139,17 @@ Dependencies
 Changelog
 =========
 
+19.0.2.2.0
+~~~~~~~~~~
+
+- fix(registry): let an ID type be used again after its ID was removed.
+  Removing an ID through a change request keeps the row and marks it
+  Invalid, and the old uniqueness rule counted those dead rows — so the
+  registrant was left with an Invalid ID and no way to add a valid one
+  of the same type. Uniqueness now applies to live IDs only, and is
+  refused before the write so the message names the ID type rather than
+  surfacing a database error (#1136)
+
 19.0.2.1.4
 ~~~~~~~~~~
 

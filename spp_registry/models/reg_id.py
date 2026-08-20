@@ -89,23 +89,13 @@ class SPPRegistrantID(models.Model):
     # the rule needs a WHERE clause. Note IS DISTINCT FROM, not != : a NULL
     # status means an ID added straight through the registry, which is live and
     # must still reserve its type.
-    _UNIQUE_ACTIVE_INDEX = "spp_registry_id_active_id_type_uniq"
-
-    def init(self):
-        super().init()
-        # Drop the unconditional constraint this replaces. Odoo removes
-        # constraints it no longer finds declared, but an explicit drop keeps
-        # upgrades of existing databases predictable.
-        self.env.cr.execute(
-            "ALTER TABLE spp_registry_id DROP CONSTRAINT IF EXISTS spp_registry_id_unique_partner_id_type"
-        )
-        self.env.cr.execute(
-            f"""
-            CREATE UNIQUE INDEX IF NOT EXISTS {self._UNIQUE_ACTIVE_INDEX}
-                ON spp_registry_id (partner_id, id_type_id)
-             WHERE status IS DISTINCT FROM 'invalid'
-            """
-        )
+    # Declared rather than built with raw SQL in init(): models.UniqueIndex
+    # takes a WHERE clause, so the framework creates, drops and recreates the
+    # index as this definition changes, and there is no SQL string for the
+    # injection check to flag (OP#1136 review). The old unconditional
+    # constraint is dropped by migrations/19.0.2.2.0/pre-migration.py, since
+    # Odoo does not remove constraints that simply stop being declared.
+    _unique_active_id_type = models.UniqueIndex("(partner_id, id_type_id) WHERE status IS DISTINCT FROM 'invalid'")
 
     def _assert_id_type_free(self, partner_id, id_type_id, status, exclude_id=None):
         """Raise unless this registrant has no live ID of that type.
@@ -128,7 +118,13 @@ class SPPRegistrantID(models.Model):
         ]
         if exclude_id:
             domain.append(("id", "!=", exclude_id))
-        clash = self.sudo().search(domain, limit=1)
+        # Runs sudo because the rule is about the registrant's data, not the
+        # acting user's visibility: a clashing ID the user cannot read must
+        # still block the write, otherwise the partial index refuses the INSERT
+        # afterwards with a raw database error — the outcome this check exists to
+        # replace. Only the clashing row's type and registrant name are used, in
+        # the message the user already knows they are editing.
+        clash = self.sudo().search(domain, limit=1)  # nosemgrep: odoo-sudo-without-context
         if clash:
             raise ValidationError(
                 _(
