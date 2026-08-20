@@ -179,6 +179,27 @@ Dependencies
 Changelog
 =========
 
+19.0.4.0.4
+~~~~~~~~~~
+
+- fix(drims): name constants after codes the vocabulary actually ships,
+  and fix the three places that used the wrong ones. An urgent request
+  answered a 24-hour approval SLA instead of 8 hours, the priority badge
+  and list decorations never fired, and the High Priority search filter
+  always returned nothing — all because the code asked for priorities
+  the data does not contain. A test now walks every code constant
+  against its vocabulary, so one naming a code that does not exist fails
+  the build instead of silently matching nothing (#1165)
+
+19.0.4.0.3
+~~~~~~~~~~
+
+- fix(drims): show only the states a dispatch can reach on its status
+  bar. A request dispatch is confirmed the moment it is created, so
+  Draft never applies to it; the shared status bar keeps Draft for every
+  other outgoing transfer. Waiting is hidden as a future step but still
+  shows when a dispatch is actually in it (#1086)
+
 19.0.4.0.2
 ~~~~~~~~~~
 

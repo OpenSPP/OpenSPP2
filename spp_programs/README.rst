@@ -254,7 +254,7 @@ Dependencies
 Changelog
 =========
 
-19.0.2.2.2
+19.0.2.2.3
 ~~~~~~~~~~
 
 - fix(security): the Program Viewer role no longer carries the Tier-2
@@ -267,7 +267,7 @@ Changelog
   app menu. Includes a migration that re-points the role and re-syncs
   already-assigned users on upgrade.
 
-19.0.2.2.1
+19.0.2.2.2
 ~~~~~~~~~~
 
 - fix(security): make the async operation lock a server-side boundary.
@@ -282,6 +282,15 @@ Changelog
   ``action_force_unlock`` override requires the same, and the async
   pipeline manages the lock through ``sudo()`` helpers so legitimate
   acquire/release from the initiating user keeps working.
+
+19.0.2.2.1
+~~~~~~~~~~
+
+- fix(spp_programs): stop Enroll Eligible undoing a deliberate pause. A
+  paused membership is now left alone wherever eligibility is re-run —
+  the enrol pass, the disenrol sweep that would otherwise have moved it
+  to Not Eligible, and the per-membership methods reachable over RPC.
+  Pausing is a decision that only Resume reverses (#1117)
 
 19.0.2.1.3
 ~~~~~~~~~~

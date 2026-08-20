@@ -9,7 +9,7 @@
         <field name="arch" type="xml">
             <list
                 decoration-danger="is_life_threatening"
-                decoration-warning="priority_id and priority_id.code == 'high'"
+                decoration-warning="priority_id and priority_id.code == 'urgent'"
                 decoration-muted="state == 'rejected'"
                 decoration-success="state == 'approved'"
                 sample="1"
@@ -22,8 +22,8 @@
                     name="priority_id"
                     widget="badge"
                     decoration-danger="priority_id.code == 'critical'"
-                    decoration-warning="priority_id.code == 'high'"
-                    decoration-info="priority_id.code == 'medium'"
+                    decoration-warning="priority_id.code == 'urgent'"
+                    decoration-info="priority_id.code == 'routine'"
                 />
                 <field
                     name="is_life_threatening"
@@ -619,9 +619,9 @@
                     domain="[('priority_id.code', '=', 'critical')]"
                 />
                 <filter
-                    name="high"
-                    string="High Priority"
-                    domain="[('priority_id.code', '=', 'high')]"
+                    name="urgent"
+                    string="Urgent"
+                    domain="[('priority_id.code', '=', 'urgent')]"
                 />
                 <separator />
 
