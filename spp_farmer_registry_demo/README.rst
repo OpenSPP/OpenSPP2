@@ -120,6 +120,14 @@ Dependencies
 Changelog
 =========
 
+19.0.2.1.4
+~~~~~~~~~~
+
+- feat(farmer_demo): seed EC1, a 50 ha commercial farm carrying idle
+  land. Story 9 needs a farm that has the positive Climate Resilience
+  signal (idle land) but is still rejected for not being a smallholder,
+  so the targeting rule can be demonstrated turning one down (#1119)
+
 19.0.2.1.3
 ~~~~~~~~~~
 

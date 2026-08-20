@@ -1039,6 +1039,26 @@ class TestSeededFarmGeneratorPhases(TransactionCase):
         self.assertAlmostEqual(details.farm_size_idle, 1.0, places=1)
         self.assertAlmostEqual(details.farm_size_under_crops, 3.0, places=1)
 
+    def test_1119_ec1_large_commercial_not_smallholder_with_idle(self):
+        """OP#1119: the EC1 blueprint seeds a large commercial farm that is NOT
+        a smallholder yet has idle land > 0 — the contrast case for Scenario 5,
+        where the Climate Resilience CEL (is_smallholder AND farm_size_idle > 0)
+        rejects it on is_smallholder despite the idle land."""
+        from odoo.addons.spp_farmer_registry_demo.models.farmer_blueprints import (
+            FARMER_BLUEPRINTS,
+        )
+
+        ec1 = next((bp for bp in FARMER_BLUEPRINTS if bp["id"] == "bp_22_ec1_large_commercial_idle"), None)
+        self.assertIsNotNone(ec1, "EC1 large-commercial blueprint must exist")
+
+        gen = self._make_generator()
+        farm = gen.generate_all_farms([ec1])[0]["group"]
+
+        threshold = float(self.env["ir.config_parameter"].sudo().get_param("spp.farmer.smallholder_threshold", "5.0"))
+        self.assertGreater(farm.farm_total_size, threshold, "EC1 must be above the smallholder threshold")
+        self.assertFalse(farm.is_smallholder, "EC1 must not be a smallholder")
+        self.assertGreater(farm.farm_size_idle, 0.0, "EC1 must have idle/fallow land > 0")
+
     def test_generate_all_farms_assigns_areas(self):
         """Farms should be assigned to demo areas if any exist."""
         gen = self._make_generator()
