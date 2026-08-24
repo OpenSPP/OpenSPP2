@@ -177,14 +177,12 @@ class TestProximityQueryFallback(TransactionCase):
 class TestProximityAreaFallbackDoesNotPoisonTransaction(TransactionCase):
     """query_proximity's own area fallback must not leave the transaction aborted.
 
-    ``query_proximity`` wraps its coordinate attempt in a savepoint, but the
-    area fallback it calls into afterwards (``_proximity_by_area``) runs
-    unguarded. If that fallback hits a genuine database error, the whole
-    transaction is left aborted, and every later query on the same cursor
-    fails too, since even opening a new savepoint requires a live
-    transaction. query_proximity has no batch caller to observe this
-    through today, so it surfaces as an exception from query_proximity
-    itself followed by a poisoned cursor for whatever runs next.
+    Both legs of ``query_proximity`` run raw SQL. The area fallback
+    (``_proximity_by_area``) has to run inside a savepoint just like the
+    coordinate attempt: a genuine database error there still raises out of
+    query_proximity, but the savepoint keeps the cursor usable for whatever
+    runs next, instead of every later query failing with
+    ``InFailedSqlTransaction``.
     """
 
     def test_non_finite_radius_does_not_abort_the_transaction(self):
@@ -193,11 +191,12 @@ class TestProximityAreaFallbackDoesNotPoisonTransaction(TransactionCase):
 
         service = SpatialQueryService(self.env)
 
-        # _proximity_by_coordinates raises a plain ValueError before it ever
-        # touches the database, since res.partner has no "coordinates" field
-        # in this module's own test environment (spp_registrant_gis is not
-        # installed). That failure is caught and recovered by the
-        # coordinate leg's own savepoint, exactly as intended.
+        # The coordinate attempt fails whether or not res.partner has a real
+        # "coordinates" field: without one (this module's own test stack) it
+        # raises a plain ValueError before touching the database, with one
+        # (e.g. spp_registrant_gis installed) ST_Buffer rejects the
+        # non-finite radius. Either way the coordinate leg's savepoint
+        # recovers it, exactly as intended.
         #
         # query_proximity then falls back to _proximity_by_area, which
         # shares the same temp-table helper and is therefore handed the same
@@ -207,9 +206,9 @@ class TestProximityAreaFallbackDoesNotPoisonTransaction(TransactionCase):
         # one: unlike an out-of-range or non-finite *coordinate*, which
         # PostGIS/GEOS only coerces or fails on inconsistently depending on
         # the exact computation involved, a non-finite *buffer distance* is
-        # rejected by a straightforward argument check every time. Only the
-        # coordinate leg is savepoint-protected, so this second failure (in
-        # the fallback) aborts the transaction.
+        # rejected by a straightforward argument check every time. Without a
+        # savepoint around the fallback, this second failure would abort the
+        # transaction.
         reference_points = [{"longitude": 28.0, "latitude": -2.0}]
 
         # Deliberately not self.assertRaises: TransactionCase overrides
