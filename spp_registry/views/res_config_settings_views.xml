@@ -50,20 +50,22 @@
     />
 
     <!--
-        Gated on base.group_erp_manager rather than the OpenSPP admin group,
-        because res.config.settings.execute() refuses anyone who is not an Odoo
-        administrator: `if not self.env.is_admin(): raise AccessError(...)`, and
-        is_admin means superuser or base.group_erp_manager. Neither
-        group_spp_admin nor group_registry_config_admin has or implies it — the
-        implication deliberately runs the other way — so offering this menu to
-        them produced a form that threw "Only administrators can change the
-        settings" on Save (OP#1009 review).
+        Gated on base.group_system rather than the OpenSPP admin group.
 
-        Granting those groups base.group_erp_manager instead would be a real
-        privilege escalation, so the menu follows the permission rather than the
-        permission following the menu. The relocated configuration menus below
-        stay available to both personas: they are ordinary actions with their own
-        access rules and they do work.
+        The review identified execute() as the barrier — it refuses anyone who is
+        not an Odoo administrator (`if not self.env.is_admin()`, i.e. superuser or
+        base.group_erp_manager). Testing it showed the wall is earlier and higher:
+        res.config.settings' own ACL grants *create* to base.group_system alone,
+        so a persona without it cannot even open the form, and an
+        erp_manager-only user would still have been stuck. group_system implies
+        erp_manager, so it satisfies both gates.
+
+        Neither group_spp_admin nor group_registry_config_admin has or implies
+        group_system — the implication deliberately runs the other way — and
+        granting it would be a real privilege escalation. So the menu follows the
+        permission rather than the permission following the menu. The relocated
+        configuration menus below stay available to both personas: they are
+        ordinary actions with their own access rules and they do work.
     -->
     <menuitem
         id="menu_registry_settings_general"
@@ -71,7 +73,7 @@
         parent="menu_registry_settings_root"
         sequence="0"
         action="res_config_settings_menu_registry_action"
-        groups="base.group_erp_manager"
+        groups="base.group_system"
     />
 
     <!--

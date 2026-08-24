@@ -78,11 +78,12 @@ class TestRegistryResConfigSettings(TransactionCase):
     def test_saving_requires_a_settings_administrator(self):
         """res.config.settings.execute() refuses anyone who is not an Odoo admin.
 
-        `if not self.env.is_admin(): raise AccessError(...)`, and is_admin means
-        superuser or base.group_erp_manager. The OpenSPP admin and
-        registry-config-admin groups have neither, and granting them
-        group_erp_manager would be a privilege escalation — so the menu is gated
-        to match, and this pins the behaviour that gating reflects.
+        Two gates, and the earlier one is the harder: res.config.settings' ACL
+        grants create only to base.group_system, so these personas cannot even
+        open the form — and execute() would refuse them afterwards anyway,
+        since is_admin means superuser or base.group_erp_manager. Neither group
+        has either, and granting one would be a privilege escalation, so the
+        menu is gated to match and this pins the behaviour it reflects.
         """
         for groups in (
             ("spp_security.group_spp_admin",),
@@ -90,13 +91,12 @@ class TestRegistryResConfigSettings(TransactionCase):
         ):
             with self.subTest(groups=groups):
                 user = self._user("cfg_" + groups[0].split(".")[-1][:20], *groups)
-                settings = self.env["res.config.settings"].with_user(user).create({})
 
                 with self.assertRaises(AccessError):
-                    settings.execute()
+                    self.env["res.config.settings"].with_user(user).create({}).execute()
 
     def test_a_settings_administrator_can_save(self):
-        admin = self._user("cfg_erp_manager", "base.group_erp_manager")
+        admin = self._user("cfg_settings_admin", "base.group_system")
         settings = self.env["res.config.settings"].with_user(admin).create(
             {"is_registry_admin_only_crud": False}
         )
@@ -110,7 +110,7 @@ class TestRegistryResConfigSettings(TransactionCase):
         """Offering the menu more widely means a form that throws on Save."""
         menu = self.env.ref("spp_registry.menu_registry_settings_general")
 
-        self.assertIn(self.env.ref("base.group_erp_manager"), menu.group_ids)
+        self.assertIn(self.env.ref("base.group_system"), menu.group_ids)
 
     def test_the_relocated_configuration_menus_stay_available(self):
         """Those are ordinary actions with their own gates — they do work."""
