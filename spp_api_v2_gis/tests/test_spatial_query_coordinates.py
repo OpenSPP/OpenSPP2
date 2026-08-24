@@ -15,6 +15,8 @@ from unittest.mock import patch
 from odoo import fields
 from odoo.tests.common import TransactionCase
 
+SERVICE_LOGGER = "odoo.addons.spp_api_v2_gis.services.spatial_query_service"
+
 # Polygon covering roughly lon 27.9..28.1 / lat -2.1..-1.9 (East Africa).
 QUERY_POLYGON = {
     "type": "Polygon",
@@ -29,8 +31,14 @@ def declared_coordinates_field(env):
     ``_query_by_coordinates`` refuses to run when the field is absent, so the
     field has to be visible on the model while the query runs. ``_fields`` is a
     read-only mapping, so the whole mapping is swapped for a widened copy.
+
+    When ``spp_registrant_gis`` is installed (e.g. the full SP-MIS stack), the
+    real field is already there and must not be shadowed by an un-set-up copy.
     """
     partner_cls = type(env["res.partner"])
+    if "coordinates" in partner_cls._fields:
+        yield
+        return
     widened = MappingProxyType({**partner_cls._fields, "coordinates": fields.GeoPointField()})
     with patch.object(partner_cls, "_fields", widened):
         yield
@@ -45,7 +53,8 @@ class TestQueryByCoordinates(TransactionCase):
         super().setUpClass()
 
         # Mirrors the geometry(Point, 4326) column created by GeoPointField.
-        cls.env.cr.execute("ALTER TABLE res_partner ADD COLUMN coordinates geometry(Point, 4326)")
+        # IF NOT EXISTS: the column is real when spp_registrant_gis is installed.
+        cls.env.cr.execute("ALTER TABLE res_partner ADD COLUMN IF NOT EXISTS coordinates geometry(Point, 4326)")
 
         cls.group_inside = cls.env["res.partner"].create(
             {
@@ -137,3 +146,61 @@ class TestQueryByCoordinates(TransactionCase):
         self.assertIn(self.group_inside.id, result["registrant_ids"])
         self.assertNotIn(self.individual_inside.id, result["registrant_ids"])
         self.assertNotIn(self.group_outside.id, result["registrant_ids"])
+
+    def test_query_statistics_uses_coordinates(self):
+        """End to end, query_statistics prefers the coordinate method."""
+        service = self._get_service()
+
+        with declared_coordinates_field(self.env):
+            result = service.query_statistics(geometry=QUERY_POLYGON)
+
+        self.assertEqual(result["query_method"], "coordinates")
+        self.assertIn(self.group_inside.id, result["registrant_ids"])
+        self.assertIn(self.individual_inside.id, result["registrant_ids"])
+        self.assertNotIn(self.group_outside.id, result["registrant_ids"])
+
+    def test_query_proximity_uses_coordinates(self):
+        """End to end, query_proximity prefers the coordinate method."""
+        service = self._get_service()
+
+        with declared_coordinates_field(self.env):
+            result = service.query_proximity(
+                reference_points=[{"longitude": 28.0, "latitude": -2.0}],
+                radius_km=10,
+            )
+
+        self.assertEqual(result["query_method"], "coordinates")
+        self.assertIn(self.group_inside.id, result["registrant_ids"])
+        self.assertIn(self.individual_inside.id, result["registrant_ids"])
+        self.assertNotIn(self.group_outside.id, result["registrant_ids"])
+        self.assertEqual(result["relation"], "within")
+        self.assertEqual(result["radius_km"], 10)
+
+    def test_statistics_failure_propagates_instead_of_retrying_via_fallback(self):
+        """A statistics failure after a successful coordinate query propagates.
+
+        It is not a spatial failure, so it must not be logged as a
+        coordinate-query failure and silently retried through the area
+        fallback (which would recompute the same statistics anyway).
+        """
+        from ..services.spatial_query_service import SpatialQueryService
+
+        service = self._get_service()
+
+        def exploding_statistics(service_self, registrant_ids, variables):
+            raise RuntimeError("statistics exploded")
+
+        # Deliberately not self.assertRaises: TransactionCase overrides it to
+        # wrap the block in a *flushing* savepoint, and the flush runs pending
+        # precommit hooks against the temporarily widened _fields mapping.
+        raised = None
+        with (
+            declared_coordinates_field(self.env),
+            patch.object(SpatialQueryService, "_compute_statistics", exploding_statistics),
+            self.assertNoLogs(SERVICE_LOGGER, level="WARNING"),
+        ):
+            try:
+                service.query_statistics(geometry=QUERY_POLYGON)
+            except RuntimeError as exc:
+                raised = exc
+        self.assertIsNotNone(raised, "a statistics failure must propagate to the caller")
