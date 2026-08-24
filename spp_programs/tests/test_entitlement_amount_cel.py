@@ -1,6 +1,8 @@
 import logging
 from datetime import timedelta
 
+from lxml import etree
+
 from odoo import fields
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import TransactionCase, tagged
@@ -369,3 +371,61 @@ class TestEntitlementAmountCEL(TransactionCase):
 
         result = item._calculate_cel_amount(self.beneficiary1)
         self.assertEqual(result, 100.0)
+
+
+@tagged("post_install", "-at_install")
+class TestEntitlementAmountCELForm(TransactionCase):
+    """OP#1172 round 1: what the amount item form must offer.
+
+    QA could not add a cash entitlement line: the form had no field for the base
+    amount, and a formula built from the widget's symbol browser failed to
+    compile. Both came from this view rather than from the entitlement logic.
+    """
+
+    def _item_form(self):
+        arch = etree.fromstring(
+            self.env["spp.program.entitlement.manager.cash"].get_view(
+                self.env.ref("spp_programs.view_entitlement_manager_cash_form").id, "form"
+            )["arch"]
+        )
+        forms = arch.xpath("//field[@name='entitlement_item_ids']/form")
+        self.assertTrue(forms, "the items list should still open a form")
+        return forms[0]
+
+    def test_the_base_amount_stays_on_the_form(self):
+        """Formulas are documented to build on it, so it must be settable.
+
+        The CEL view used to hide it outright, which left base_amount
+        permanently unset and every documented "base_amount * ..." formula
+        unusable.
+        """
+        amounts = [f for f in self._item_form().iter("field") if f.get("name") == "amount"]
+
+        self.assertTrue(amounts, "the item form should offer the base amount")
+        self.assertNotEqual(amounts[0].get("invisible"), "1", "hiding it is what QA reported")
+
+    def test_the_formula_field_does_not_advertise_the_wrong_symbols(self):
+        """The evaluator receives `me` and `base_amount`, not the entitlements profile.
+
+        _validate_cel_expression and _calculate_cel_amount build their own
+        context, so a symbol browser listing spp.entitlement's fields offers
+        names that never arrive — `r.birthdate` compiles against
+        spp.entitlement and fails.
+        """
+        expressions = [f for f in self._item_form().iter("field") if f.get("name") == "amount_cel_expression"]
+
+        self.assertTrue(expressions, "the formula field should be on the form")
+        self.assertEqual(expressions[0].get("show_symbol_browser"), "false")
+        self.assertIsNone(expressions[0].get("cel_profile"), "no profile matches this evaluator yet")
+
+    def test_the_documented_vocabulary_actually_validates(self):
+        """A plain number and a base_amount formula both pass the model's own check."""
+        manager = self.env["spp.program.entitlement.manager.cash"].create(
+            {"name": "CEL Form [TEST]", "program_id": self.env["spp.program"].create({"name": "CEL Form P [TEST]"}).id}
+        )
+        for expression in ("500", "base_amount * 1.1", "me.household_size * 100"):
+            with self.subTest(expression=expression):
+                item = self.env["spp.program.entitlement.manager.cash.item"].create(
+                    {"entitlement_id": manager.id, "amount": 100.0, "amount_cel_expression": expression}
+                )
+                item._validate_cel_expression()
