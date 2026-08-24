@@ -6,6 +6,8 @@ so ``geofence`` has to be a selectable value of the ``action`` field. Otherwise
 the only client able to reach those endpoints is one holding ``action = all``.
 """
 
+from uuid import uuid4
+
 from odoo.tests.common import TransactionCase
 
 
@@ -29,10 +31,13 @@ class TestGisActionScopes(TransactionCase):
 
     def _create_client_with_scopes(self, scopes):
         """Create an API client holding the given (resource, action) scopes."""
+        # uuid4, not id(scopes): CPython reuses freed addresses, so two
+        # throwaway scope lists can collide on the unique client_id.
+        unique = uuid4().hex
         client = self.ApiClient.create(
             {
-                "name": f"Geofence Scope Client {id(scopes)}",
-                "client_id": f"test_geofence_client_{id(scopes)}",
+                "name": f"Geofence Scope Client {unique}",
+                "client_id": f"test_geofence_client_{unique}",
                 "partner_id": self.test_partner.id,
                 "organization_type_id": self.org_type.id,
             }
