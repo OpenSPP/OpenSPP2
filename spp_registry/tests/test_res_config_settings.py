@@ -97,9 +97,7 @@ class TestRegistryResConfigSettings(TransactionCase):
 
     def test_a_settings_administrator_can_save(self):
         admin = self._user("cfg_settings_admin", "base.group_system")
-        settings = self.env["res.config.settings"].with_user(admin).create(
-            {"is_registry_admin_only_crud": False}
-        )
+        settings = self.env["res.config.settings"].with_user(admin).create({"is_registry_admin_only_crud": False})
 
         settings.execute()
 
