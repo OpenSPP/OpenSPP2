@@ -94,6 +94,111 @@ class TestProgramEnrollment(TransactionCase):
         membership.invalidate_recordset()
         self.assertEqual(membership.state, "exited")
 
+    def test_enrollment_skips_paused(self):
+        """OP#1117: enrollment does not change paused state to enrolled.
+
+        A pause is a deliberate decision by a program officer and may only be
+        undone through Resume, so re-running eligibility must step over it —
+        the same treatment duplicated and exited already get above.
+        """
+        group = self._create_group("Paused Group")
+        membership = self._enroll(group, "paused")
+
+        self.pm_default._enroll_eligible_registrants(["paused"])
+
+        membership.invalidate_recordset()
+        self.assertEqual(membership.state, "paused")
+
+    def test_enroll_eligible_button_leaves_paused_alone(self):
+        """OP#1117 as reported: via the program's Enroll Eligible button.
+
+        The button passes no state, so every membership is considered — which
+        is how a paused one was being swept back into enrolled.
+        """
+        group = self._create_group("Paused Via Button")
+        membership = self._enroll(group, "enrolled")
+        membership.action_pause()
+        self.assertEqual(membership.state, "paused", "precondition: membership is paused")
+
+        self.program.enroll_eligible_registrants()
+
+        membership.invalidate_recordset()
+        self.assertEqual(
+            membership.state,
+            "paused",
+            "Enroll Eligible re-enrolled a paused membership, undoing the pause",
+        )
+
+    def test_paused_is_not_demoted_to_not_eligible(self):
+        """OP#1117, second path: the disenrollment sweep must skip paused too.
+
+        A paused member the eligibility manager does not return was being
+        written to not_eligible, which destroys the pause just as thoroughly as
+        re-enrolling it.
+        """
+        group = self._create_group("Paused Ineligible")
+        membership = self._enroll(group, "paused")
+
+        # Empty state list -> the manager returns nothing, so every member is a
+        # demotion candidate.
+        self.pm_default._enroll_eligible_registrants(["paused"])
+
+        membership.invalidate_recordset()
+        self.assertEqual(membership.state, "paused")
+
+    def test_paused_skip_does_not_block_other_members(self):
+        """Guard the fix: skipping paused must not skip everyone else."""
+        draft_group = self._create_group("Draft Alongside Paused")
+        draft = self._enroll(draft_group, "draft")
+        paused_group = self._create_group("Paused Alongside Draft")
+        paused = self._enroll(paused_group, "paused")
+
+        self.pm_default._enroll_eligible_registrants(["draft", "paused"])
+
+        draft.invalidate_recordset()
+        paused.invalidate_recordset()
+        self.assertEqual(draft.state, "enrolled", "a draft member should still be enrolled")
+        self.assertEqual(paused.state, "paused")
+
+    def test_membership_level_enroll_refuses_a_paused_member(self):
+        """OP#1117, third path: the per-membership Enroll button.
+
+        Its button is hidden unless the membership is draft, but the method is
+        public and reachable over RPC or from a server action, so it is guarded
+        rather than left to the view.
+        """
+        group = self._create_group("Paused Single Enroll")
+        membership = self._enroll(group, "enrolled")
+        membership.action_pause()
+
+        membership.enroll_eligible_registrants()
+
+        membership.invalidate_recordset()
+        self.assertEqual(membership.state, "paused")
+
+    def test_membership_level_verify_does_not_demote_a_paused_member(self):
+        """OP#1117: per-membership Verify must not push paused to not_eligible."""
+        group = self._create_group("Paused Single Verify")
+        membership = self._enroll(group, "enrolled")
+        membership.action_pause()
+
+        membership.verify_eligibility()
+
+        membership.invalidate_recordset()
+        self.assertEqual(membership.state, "paused")
+
+    def test_resume_remains_the_only_way_back(self):
+        """Pause is undone deliberately, through Resume."""
+        group = self._create_group("Resumable Group")
+        membership = self._enroll(group, "enrolled")
+        membership.action_pause()
+        self.program.enroll_eligible_registrants()
+
+        membership.invalidate_recordset()
+        membership.action_resume()
+
+        self.assertEqual(membership.state, "enrolled")
+
     def test_enrollment_enrolls_draft(self):
         """Enrollment changes draft state to enrolled."""
         group = self._create_group("Draft Group")

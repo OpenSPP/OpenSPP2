@@ -195,6 +195,58 @@ class TestDrimsWizard(DrimsTestCommon):
         # Request stays pending
         self.assertEqual(request.approval_state, "pending")
 
+    # ---------- OP#1161: single-record request-changes (revision) wizard ----------
+
+    def test_action_open_revision_wizard_returns_act_window(self):
+        """OP#1161: action_open_revision_wizard returns the wizard action."""
+        request = self._create_pending_request()
+        action = request.action_open_revision_wizard()
+        self.assertEqual(action["type"], "ir.actions.act_window")
+        self.assertEqual(action["res_model"], "spp.drims.request.revision.wizard")
+        self.assertEqual(action["target"], "new")
+        self.assertEqual(action["context"]["default_request_id"], request.id)
+
+    def test_action_open_revision_wizard_only_pending(self):
+        """OP#1161: opening the wizard on a non-pending (draft) request raises."""
+        request = self.env["spp.drims.request"].create(
+            {
+                "incident_id": self.incident.id,
+                "destination_area_id": self.area.id,
+                "date_needed": self.future_date,
+                "line_ids": [
+                    (0, 0, {"product_id": self.product.id, "quantity_requested": 10, "uom_id": self.product.uom_id.id})
+                ],
+            }
+        )
+        with self.assertRaises(UserError):
+            request.action_open_revision_wizard()
+
+    def test_request_revision_wizard_writes_notes_and_requests_revision(self):
+        """OP#1161: the wizard writes revision_notes and moves to revision."""
+        request = self._create_pending_request()
+        wizard = self.env["spp.drims.request.revision.wizard"].create(
+            {
+                "request_id": request.id,
+                "notes": "Please attach the beneficiary breakdown",
+            }
+        )
+        wizard.action_request_revision()
+        self.assertEqual(request.approval_state, "revision")
+        self.assertEqual(request.revision_notes, "Please attach the beneficiary breakdown")
+
+    def test_request_revision_wizard_blank_notes_raises(self):
+        """OP#1161: whitespace-only notes raises UserError, request stays pending."""
+        request = self._create_pending_request()
+        wizard = self.env["spp.drims.request.revision.wizard"].create(
+            {
+                "request_id": request.id,
+                "notes": "   ",
+            }
+        )
+        with self.assertRaises(UserError):
+            wizard.action_request_revision()
+        self.assertEqual(request.approval_state, "pending")
+
 
 @tagged("post_install", "-at_install")
 class TestInspectionWizard(DrimsTestCommon):
@@ -279,7 +331,7 @@ class TestInspectionWizard(DrimsTestCommon):
                 ],
             }
         )
-        donation.action_mark_received()
+        self._receive_donation(donation)
         return donation
 
     def _open_inspection_wizard(self, donation):

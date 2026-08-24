@@ -507,6 +507,28 @@ in API controllers</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.1</h1>
+<ul class="simple">
+<li>fix(security): restrict the OAuth signing keys (<tt class="docutils literal">oauth_priv_key</tt>,
+<tt class="docutils literal">oauth_pub_key</tt>) to <tt class="docutils literal">base.group_system</tt>. The settings ACL row
+granting <tt class="docutils literal">base.group_user</tt> access to <tt class="docutils literal">res.config.settings</tt> is
+removed, and <tt class="docutils literal">default_get()</tt> no longer returns the key values to
+non-system users. Deployments must treat the currently deployed RSA
+keypair as compromised: rotate it and invalidate outstanding tokens,
+because every internal user could previously read the private key.</li>
+<li>fix(security): field-gate the signing keys with
+<tt class="docutils literal"><span class="pre">groups=&quot;base.group_system&quot;</span></tt> so a settings save by an unauthorized
+principal fails with <tt class="docutils literal">AccessError</tt> instead of silently deleting the
+stored key parameters (<tt class="docutils literal">set_param(False)</tt> unlinks them), and so
+<tt class="docutils literal">read</tt>/<tt class="docutils literal">search</tt> on the fields is denied independently of the model
+ACL.</li>
+<li>fix: restore <tt class="docutils literal">&#64;api.model</tt> on the <tt class="docutils literal">default_get()</tt> override. Without
+it, external RPC calls to <tt class="docutils literal">res.config.settings.default_get</tt> (for any
+module’s settings) crashed with a <tt class="docutils literal">TypeError</tt> once this module was
+installed; the web Settings UI was unaffected.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

@@ -3,9 +3,9 @@ access_spp_grm_routing_rule_viewer,GRM Routing Rule Viewer Access,model_spp_grm_
 access_spp_grm_routing_rule_officer,GRM Routing Rule Officer Access,model_spp_grm_routing_rule,spp_grm.group_grm_officer,1,1,1,0
 access_spp_grm_routing_rule_manager,GRM Routing Rule Manager Access,model_spp_grm_routing_rule,spp_grm.group_grm_manager,1,1,1,1
 access_spp_grm_routing_rule_base_user,GRM Routing Rule Base User Access,model_spp_grm_routing_rule,base.group_user,1,0,0,0
-access_spp_grm_routing_rule_portal_user,GRM Routing Rule Portal User Access,model_spp_grm_routing_rule,base.group_portal,1,1,1,0
+access_spp_grm_routing_rule_portal_user,GRM Routing Rule Portal User Access,model_spp_grm_routing_rule,base.group_portal,1,0,0,0
 access_spp_grm_escalation_rule_viewer,GRM Escalation Rule Viewer Access,model_spp_grm_escalation_rule,spp_grm.group_grm_viewer,1,0,0,0
 access_spp_grm_escalation_rule_officer,GRM Escalation Rule Officer Access,model_spp_grm_escalation_rule,spp_grm.group_grm_officer,1,1,1,0
 access_spp_grm_escalation_rule_manager,GRM Escalation Rule Manager Access,model_spp_grm_escalation_rule,spp_grm.group_grm_manager,1,1,1,1
 access_spp_grm_escalation_rule_base_user,GRM Escalation Rule Base User Access,model_spp_grm_escalation_rule,base.group_user,1,0,0,0
-access_spp_grm_escalation_rule_portal_user,GRM Escalation Rule Portal User Access,model_spp_grm_escalation_rule,base.group_portal,1,1,1,0
+access_spp_grm_escalation_rule_portal_user,GRM Escalation Rule Portal User Access,model_spp_grm_escalation_rule,base.group_portal,1,0,0,0
