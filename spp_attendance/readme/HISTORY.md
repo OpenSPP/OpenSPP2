@@ -1,11 +1,14 @@
 ### 19.0.2.0.0
 
-- Initial migration from openspp-modules
-- fix(security): store API client secrets as scrypt hashes instead of plaintext. Secrets are shown
-  once at creation/regeneration and can no longer be read back afterwards — including secrets that
-  existed before the upgrade, which a migration hashes in place. Clients keep authenticating with
+- Initial migration to OpenSPP2
+- fix(security): store API client secrets as scrypt hashes instead of plaintext. Each secret is
+  shown once via the Show Credentials dialog and cannot be read back after that display (until the
+  dialog is used, the stored plaintext remains readable by attendance managers). Secrets that
+  existed before the upgrade are hashed in place by a migration. Clients keep authenticating with
   their unchanged secrets. The Attendance Viewer group's read access to the credential model is
   removed.
+- fix(security): the one-time credential display wizard is readable only by the user who opened
+  it — previously any attendance manager could read a secret another manager had just issued
 - fix: the REST API works on Odoo 19 again — every response with a body crashed with
   `AttributeError` because `date_utils.json_default` was removed from Odoo
 - fix: gender is never fabricated as "Male" — the res.partner field default, the subscriber

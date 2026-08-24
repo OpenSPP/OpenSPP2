@@ -27,6 +27,15 @@
         />
     </record>
 
+    <!-- The one-time credential display must not leak across users: without this
+         rule any attendance manager could search() the transient model and read a
+         secret another manager just issued, until the vacuum runs. -->
+    <record id="rule_show_credential_wizard_own" model="ir.rule">
+        <field name="name">Show Credential Wizard: creator only</field>
+        <field name="model_id" ref="model_spp_attendance_show_credential_wizard" />
+        <field name="domain_force">[('create_uid', '=', user.id)]</field>
+    </record>
+
     <!-- Backward compatibility (keep until all dependent modules migrated) -->
     <record id="attendance_viewer" model="res.groups">
         <field name="name">Attendance Viewer (Deprecated)</field>

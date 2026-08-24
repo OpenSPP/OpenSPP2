@@ -153,7 +153,8 @@ class SppAttendanceController(Controller):
             }
             return self.response_wrapper(400, error)
 
-        # nosemgrep: odoo-sudo-without-context — auth=none route: JWT bearer verified upstream
+        # Unauthenticated token request by design: this line IS the authentication step.
+        # nosemgrep: odoo-sudo-without-context — secret verified against the stored scrypt hash, not read back
         client = req.env["spp.attendance.api.client.credential"].sudo().authenticate(client_id, client_secret)
 
         if not client:

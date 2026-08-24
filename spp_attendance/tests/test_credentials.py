@@ -1,8 +1,8 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 from odoo.tests import tagged
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import TransactionCase, new_test_user
 
 from .common import AttendanceFixtureMixin
 
@@ -60,6 +60,26 @@ class TestClientCredentials(AttendanceFixtureMixin, TransactionCase):
 
         with self.assertRaises(UserError):
             credential.show_credentials()
+
+    def test_show_credential_wizard_private_to_creator(self):
+        manager_a = new_test_user(
+            self.env, "attendance_mgr_a", groups="base.group_user,spp_attendance.group_attendance_manager"
+        )
+        manager_b = new_test_user(
+            self.env, "attendance_mgr_b", groups="base.group_user,spp_attendance.group_attendance_manager"
+        )
+
+        credential = self._create()
+        action = credential.with_user(manager_a).show_credentials()
+        wizard_id = action["res_id"]
+
+        Wizard = self.env["spp.attendance.show.credential.wizard"]
+        # the creator can read their own one-time display
+        self.assertTrue(Wizard.with_user(manager_a).browse(wizard_id).display_client_secret)
+        # another manager must neither find nor read it
+        self.assertFalse(Wizard.with_user(manager_b).search([("id", "=", wizard_id)]))
+        with self.assertRaises(AccessError):
+            Wizard.with_user(manager_b).browse(wizard_id).read(["display_client_secret"])
 
     def test_regenerate_rotates_secret_without_storing_plaintext(self):
         credential = self._create()
