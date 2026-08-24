@@ -1,6 +1,7 @@
 import { execSync } from 'child_process';
+import * as path from 'path';
 
-const COMPOSE_CWD = '/home/penn_ubuntu/OpenSPP2';
+const COMPOSE_CWD = path.resolve(__dirname, '..', '..');
 const HEALTH_URL = 'http://localhost:8069/web/health';
 
 export async function resetStack() {
