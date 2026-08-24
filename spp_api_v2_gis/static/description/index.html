@@ -501,6 +501,13 @@ statistics, export data</td>
 <td>Create and archive geofences (also
 requires <tt class="docutils literal">gis:read</tt> for listing)</td>
 </tr>
+<tr><td><tt class="docutils literal">gis:incident</tt></td>
+<td>Reserved</td>
+<td>No endpoint checks it yet;
+selectable so incident-scoped
+clients can be provisioned ahead
+of the incidents API</td>
+</tr>
 </tbody>
 </table>
 <p><strong>What data is exposed</strong></p>
@@ -575,8 +582,15 @@ Only for development or testing purpose, do not use in production.</p>
 area fallback stays reachable</li>
 <li>fix: run the coordinate proximity query inside a savepoint so the area
 fallback stays reachable</li>
+<li>fix: run the area fallback queries inside savepoints so a failed
+geometry cannot abort the transaction</li>
+<li>fix: run each batch geometry and the batch summary inside savepoints
+so one failed geometry cannot poison the rest of the batch</li>
+<li>fix: propagate statistics failures instead of mislabelling them as
+coordinate-query failures and retrying via the area fallback</li>
 <li>fix: add <tt class="docutils literal">geofence</tt> and <tt class="docutils literal">incident</tt> scope actions so geofence
-endpoints can be granted</li>
+endpoints can be granted (<tt class="docutils literal">incident</tt> prepares for the incidents API
+re-land)</li>
 </ul>
 </div>
 <div class="section" id="section-2">

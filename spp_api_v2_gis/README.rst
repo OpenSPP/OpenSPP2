@@ -96,6 +96,11 @@ Scopes and Data Privacy
 | ``gis:geofence`` | Read + Write | Create and archive geofences (also |
 |                  |              | requires ``gis:read`` for listing) |
 +------------------+--------------+------------------------------------+
+| ``gis:incident`` | Reserved     | No endpoint checks it yet;         |
+|                  |              | selectable so incident-scoped      |
+|                  |              | clients can be provisioned ahead   |
+|                  |              | of the incidents API               |
++------------------+--------------+------------------------------------+
 
 **What data is exposed**
 
@@ -164,8 +169,15 @@ Changelog
   area fallback stays reachable
 - fix: run the coordinate proximity query inside a savepoint so the area
   fallback stays reachable
+- fix: run the area fallback queries inside savepoints so a failed
+  geometry cannot abort the transaction
+- fix: run each batch geometry and the batch summary inside savepoints
+  so one failed geometry cannot poison the rest of the batch
+- fix: propagate statistics failures instead of mislabelling them as
+  coordinate-query failures and retrying via the area fallback
 - fix: add ``geofence`` and ``incident`` scope actions so geofence
-  endpoints can be granted
+  endpoints can be granted (``incident`` prepares for the incidents API
+  re-land)
 
 19.0.2.0.0
 ~~~~~~~~~~
