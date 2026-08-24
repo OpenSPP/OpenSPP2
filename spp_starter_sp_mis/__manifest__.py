@@ -4,7 +4,7 @@
     "name": "OpenSPP Starter: SP-MIS",
     "summary": "Complete SP-MIS bundle with Social Registry, Programs, and Service Points",
     "category": "OpenSPP",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.1.1",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -23,11 +23,6 @@
     "data": [
         "data/config_parameters.xml",
     ],
-    "assets": {
-        "web.assets_backend": [
-            "spp_starter_sp_mis/static/src/js/registry_restriction.js",
-        ],
-    },
     "demo": [],
     "images": [],
     "application": False,

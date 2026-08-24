@@ -6,6 +6,9 @@ keeps both legacy config-parameter keys in sync so whichever starter
 controller is installed reads the operator's choice.
 """
 
+from lxml import etree
+
+from odoo.exceptions import AccessError
 from odoo.tests import TransactionCase, tagged
 
 FARMER_KEY = "spp_farmer_registry.registry_admin_only_crud"
@@ -51,3 +54,74 @@ class TestRegistryResConfigSettings(TransactionCase):
         self._icp().set_param(FARMER_KEY, "True")
         settings = self.env["res.config.settings"].create({})
         self.assertTrue(settings.is_registry_admin_only_crud)
+
+    # ------------------------------------------------------------------
+    # who can actually change it (OP#1009 review)
+    # ------------------------------------------------------------------
+
+    def _user(self, login, *group_xmlids):
+        return (
+            self.env["res.users"]
+            .with_context(no_reset_password=True)
+            .create(
+                {
+                    "name": login,
+                    "login": login,
+                    "email": f"{login}@example.test",
+                    "group_ids": [
+                        (6, 0, [self.env.ref("base.group_user").id] + [self.env.ref(g).id for g in group_xmlids])
+                    ],
+                }
+            )
+        )
+
+    def test_saving_requires_a_settings_administrator(self):
+        """res.config.settings.execute() refuses anyone who is not an Odoo admin.
+
+        `if not self.env.is_admin(): raise AccessError(...)`, and is_admin means
+        superuser or base.group_erp_manager. The OpenSPP admin and
+        registry-config-admin groups have neither, and granting them
+        group_erp_manager would be a privilege escalation — so the menu is gated
+        to match, and this pins the behaviour that gating reflects.
+        """
+        for groups in (
+            ("spp_security.group_spp_admin",),
+            ("spp_registry.group_registry_config_admin",),
+        ):
+            with self.subTest(groups=groups):
+                user = self._user("cfg_" + groups[0].split(".")[-1][:20], *groups)
+                settings = self.env["res.config.settings"].with_user(user).create({})
+
+                with self.assertRaises(AccessError):
+                    settings.execute()
+
+    def test_a_settings_administrator_can_save(self):
+        admin = self._user("cfg_erp_manager", "base.group_erp_manager")
+        settings = self.env["res.config.settings"].with_user(admin).create(
+            {"is_registry_admin_only_crud": False}
+        )
+
+        settings.execute()
+
+        self.assertEqual(self._icp().get_param(FARMER_KEY), "False")
+        self.assertEqual(self._icp().get_param(SPMIS_KEY), "False")
+
+    def test_the_general_settings_menu_is_gated_on_who_can_save(self):
+        """Offering the menu more widely means a form that throws on Save."""
+        menu = self.env.ref("spp_registry.menu_registry_settings_general")
+
+        self.assertIn(self.env.ref("base.group_erp_manager"), menu.group_ids)
+
+    def test_the_relocated_configuration_menus_stay_available(self):
+        """Those are ordinary actions with their own gates — they do work."""
+        root = self.env.ref("spp_registry.menu_registry_settings_root")
+        groups = root.group_ids
+
+        self.assertIn(self.env.ref("spp_security.group_spp_admin"), groups)
+        self.assertIn(self.env.ref("spp_registry.group_registry_config_admin"), groups)
+
+    def test_the_settings_help_says_who_can_change_it(self):
+        arch = etree.fromstring(self.env.ref("spp_registry.res_config_settings_registry_view_form").arch)
+        setting = arch.xpath("//setting[contains(@string, 'Restrict Registry Edits')]")[0]
+
+        self.assertIn("Settings administrator", setting.get("help") or "")

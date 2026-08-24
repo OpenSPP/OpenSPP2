@@ -5,7 +5,7 @@
     "name": "OpenSPP Import Match",
     "summary": "OpenSPP Import Match enhances data import processes by intelligently matching incoming records against existing data, preventing duplication and ensuring registry integrity. It provides configurable matching logic and supports seamless updates to existing records during bulk data onboarding.",
     "category": "OpenSPP/Integration",
-    "version": "19.0.2.0.2",
+    "version": "19.0.2.0.3",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
