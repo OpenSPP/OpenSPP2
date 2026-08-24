@@ -144,6 +144,43 @@ class TestManagerSetupWizard(TransactionCase):
         self.assertEqual(action.get("res_model"), "spp.manager.setup.wizard")
 
     # ------------------------------------------------------------------
+    # entitlements: one per program, for now (OP#1172 round 1)
+    # ------------------------------------------------------------------
+
+    def test_a_second_entitlement_method_is_refused_with_the_real_reason(self):
+        """QA asked for several cash entitlements; the engine allows one.
+
+        spp.program.check_managers_limit refuses a second entitlement manager,
+        and the cycle machinery reaches for exactly one — get_manager() calls
+        ensure_one(), and get_managers() raises NotImplementedError for this
+        kind. Accepting a second here would create a program every cycle
+        operation then failed on, so the dialog refuses and says why.
+
+        This test pins today's limit rather than blessing it: when the engine
+        learns to iterate entitlement managers, this is the test that changes.
+        """
+        program = self.env["spp.program"].create({"name": "One Entitlement [TEST]"})
+        self._add("entitlement", method="spp.program.entitlement.manager.cash", name="First cash", program=program)
+
+        with self.assertRaises(UserError) as cm:
+            self._add("entitlement", method="spp.program.entitlement.manager.cash", name="Second cash", program=program)
+        self.assertIn("supports one", str(cm.exception))
+
+        with self.assertRaises(UserError):
+            self._add("entitlement", method="spp.program.entitlement.manager.inkind", name="Goods", program=program)
+
+        self.assertEqual(len(program.entitlement_manager_ids), 1, "the program keeps the method it had")
+
+    def test_the_engine_still_reaches_for_exactly_one_entitlement_manager(self):
+        """Guards the reason above: if this stops being true, revisit the limit."""
+        program = self.env["spp.program"].create({"name": "Engine Assumption [TEST]"})
+        self._add("entitlement", method="spp.program.entitlement.manager.cash", name="Cash", program=program)
+
+        self.assertTrue(program.get_manager(program.MANAGER_ENTITLEMENT))
+        with self.assertRaises(NotImplementedError):
+            program.get_managers(program.MANAGER_ENTITLEMENT)
+
+    # ------------------------------------------------------------------
     # isolation
     # ------------------------------------------------------------------
 

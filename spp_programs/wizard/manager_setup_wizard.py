@@ -155,17 +155,31 @@ class ManagerSetupWizard(models.TransientModel):
         self.ensure_one()
         self._sweep_removed_methods()
 
-        field = MANAGER_CATEGORIES[self.category]["field"]
-        configured = self.program_id[field].filtered(
-            lambda wrapper: wrapper.manager_ref_id and wrapper.manager_ref_id._name == self.method
-        )
-        if configured:
+        info = MANAGER_CATEGORIES[self.category]
+        field = info["field"]
+        labels = dict(self._methods_for_category(self.category))
+        configured = self.program_id[field].filtered(lambda wrapper: wrapper.manager_ref_id)
+
+        if info.get("single_manager") and configured:
+            # Say what the limit actually is. This is not a duplicate rule: a
+            # program supports one entitlement method whatever its kind, because
+            # the cycle machinery reaches for exactly one (OP#1172 round 1).
+            raise UserError(
+                _(
+                    "%(program)s already has a %(category)s: %(existing)s. A program supports one "
+                    "for now — change that one, or remove it before adding another."
+                )
+                % {
+                    "program": self.program_id.display_name,
+                    "category": info["label"].lower(),
+                    "existing": ", ".join(configured.mapped("display_name")),
+                }
+            )
+
+        if configured.filtered(lambda wrapper: wrapper.manager_ref_id._name == self.method):
             raise UserError(
                 _("This program already has a %(method)s %(category)s.")
-                % {
-                    "method": dict(self._methods_for_category(self.category)).get(self.method, self.method),
-                    "category": MANAGER_CATEGORIES[self.category]["label"].lower(),
-                }
+                % {"method": labels.get(self.method, self.method), "category": info["label"].lower()}
             )
 
         context = {

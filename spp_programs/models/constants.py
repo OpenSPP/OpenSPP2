@@ -61,6 +61,15 @@ MANAGER_CATEGORIES = {
         "field": "entitlement_manager_ids",
         "wrapper": "spp.program.entitlement.manager",
         "label": "Entitlement Type",
+        # One per program, and not by choice of this dialog: spp.program's
+        # check_managers_limit refuses a second entitlement manager, and the
+        # cycle machinery reaches for exactly one — get_manager() calls
+        # ensure_one(), and get_managers() raises NotImplementedError for this
+        # kind. QA asked for several of the same kind (OP#1172 round 1); that
+        # needs the entitlement engine to iterate managers first, so the dialog
+        # says what the program can actually do rather than accepting a second
+        # method the cycle would then choke on.
+        "single_manager": True,
     },
     "cycle": {
         "field": "cycle_manager_ids",
