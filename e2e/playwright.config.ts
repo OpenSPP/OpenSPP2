@@ -1,16 +1,16 @@
-import { defineConfig, devices } from '@playwright/test';
+import {defineConfig, devices} from "@playwright/test";
 
 export default defineConfig({
-  testDir: './tests',
+  testDir: "./tests",
   timeout: 600_000, // 10 min — covers 2x app installs + 3 min wait
   workers: 1,
   retries: 0,
-  reporter: [['list'], ['html', { outputFolder: 'reports/html', open: 'never' }]],
+  reporter: [["list"], ["html", {outputFolder: "reports/html", open: "never"}]],
 
   use: {
-    baseURL: process.env.ODOO_URL ?? 'http://localhost:8069',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    baseURL: process.env.ODOO_URL ?? "http://localhost:8069",
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
     launchOptions: {
       slowMo: 500, // 0.5s delay between actions
     },
@@ -18,8 +18,8 @@ export default defineConfig({
 
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: "chromium",
+      use: {...devices["Desktop Chrome"]},
     },
   ],
 });
