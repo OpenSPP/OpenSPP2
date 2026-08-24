@@ -535,25 +535,33 @@ and overriding discovery methods</li>
 <h1>19.0.2.0.2</h1>
 <ul class="simple">
 <li>fix(data): repair the 24 shipped logic-pack filter items whose CEL
-expressions referenced registrant fields or studio variables that
-exist in no module, so they could never translate or evaluate (#431).
-1 item is fixed properly: Institutional Residence Exclusion keeps its
+expressions referenced registrant fields that exist in no module — in
+several cases through catalogued variables whose <tt class="docutils literal">source_field</tt> is
+dangling (#446) — so they could never translate or evaluate (#431). 1
+item is fixed properly: Institutional Residence Exclusion keeps its
 expression, backed by a new <tt class="docutils literal">in_institutional_care</tt> standard
-variable over the existing <tt class="docutils literal">spp_registry</tt> field of the same name. 4
-items are rewritten to the working part of their expression (OVC Child
-Age Eligibility, OVC Vulnerable Household Check, GMI Residency
-Requirement, Public Works Poverty Status Check). The other 19 are
-removed because no near-equivalent field or variable exists anywhere
-in the platform (Disability Status Verification, OVC Orphan Status
-Check, OVC School Enrollment Requirement, Social Pension No Formal
-Pension Check, GMI Employment Barriers Check, Public Works Physical
-Work Capability and Seasonal Availability, CCT Health Conditionality
-Compliance, Geographic Limited Service Access, and 10 Exclusion
-Criteria items: Government Employee, Formal Sector, Vehicle Ownership,
-Business Ownership, Housing Quality, Pension Receipt, Duplicate
-Program, Income Tax Payer, Bank Balance, Livestock Ownership). Pack
-data is <tt class="docutils literal">noupdate</tt>, so a migration applies the same
-removals/rewrites to existing databases.</li>
+variable over the existing <tt class="docutils literal">spp_registry</tt> field of the same name
+(both scoped to individual context). 3 items are rewritten to the
+stricter working part of their expression (OVC Child Age Eligibility,
+OVC Vulnerable Household Check, Public Works Poverty Status Check).
+The other 20 are removed because no working near-equivalent exists,
+or, for GMI Residency Requirement, because the only surviving
+sub-expression would be more permissive than the shipped rule
+(Disability Status Verification, OVC Orphan Status Check, OVC School
+Enrollment Requirement, Social Pension No Formal Pension Check, GMI
+Employment Barriers Check and Residency Requirement, Public Works
+Physical Work Capability and Seasonal Availability, CCT Health
+Conditionality Compliance, Geographic Limited Service Access, and 10
+Exclusion Criteria items: Government Employee, Formal Sector, Vehicle
+Ownership, Business Ownership, Housing Quality, Pension Receipt,
+Duplicate Program, Income Tax Payer, Bank Balance, Livestock
+Ownership). Pack data is <tt class="docutils literal">noupdate</tt>, so a migration applies the same
+removals/rewrites to existing databases; every migration write is
+guarded on the item still carrying the known-broken shipped
+expression, so locally repaired items are left untouched. Logic
+already installed from removed items (<tt class="docutils literal">installed_logic_id</tt>) is
+deliberately not deleted — once installed it is the deployment’s own
+data.</li>
 </ul>
 </div>
 <div class="section" id="section-2">
