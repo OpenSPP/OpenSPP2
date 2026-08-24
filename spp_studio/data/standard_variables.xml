@@ -709,7 +709,7 @@
         <field name="source_model">res.partner</field>
         <field name="source_field">in_institutional_care</field>
         <field name="cel_accessor">in_institutional_care</field>
-        <field name="applies_to">both</field>
+        <field name="applies_to">individual</field>
         <field name="is_system">True</field>
     </record>
 

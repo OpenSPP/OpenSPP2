@@ -30,7 +30,7 @@
     <record id="pack_excl_item_institutional" model="spp.studio.pack.item">
         <field name="pack_id" ref="pack_exclusion_criteria" />
         <field name="name">Institutional Residence Exclusion</field>
-        <field name="context_type">both</field>
+        <field name="context_type">individual</field>
         <field
             name="description"
         >Exclude individuals residing in institutions (prisons, care homes with full support).</field>
