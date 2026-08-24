@@ -44,11 +44,15 @@
         <field name="arch" type="xml">
             <form string="Hazard Incident">
                 <header>
+                    <!-- OP#1157 round 3: also offered from Draft, so a new
+                         incident can go straight to Active when the response is
+                         already under way, without being flagged as an alert
+                         first. -->
                     <button
                         name="action_set_active"
                         type="object"
                         string="Set Active"
-                        invisible="status not in ('alert', 'recovery')"
+                        invisible="status not in ('draft', 'alert', 'recovery')"
                         class="btn-primary"
                     />
                     <button
@@ -58,17 +62,20 @@
                         invisible="status != 'active'"
                         class="btn-primary"
                     />
+                    <!-- OP#1157: stated positively, so the button stays correct
+                         if another state is ever added to the selection. Same
+                         effect today as the previous "not closed". -->
                     <button
                         name="action_close"
                         type="object"
                         string="Close Incident"
-                        invisible="status in ('closed',)"
+                        invisible="status not in ('alert', 'active', 'recovery')"
                         class="btn-secondary"
                     />
                     <field
                         name="status"
                         widget="statusbar"
-                        statusbar_visible="alert,active,recovery,closed"
+                        statusbar_visible="draft,alert,active,recovery,closed"
                     />
                 </header>
                 <sheet>
@@ -140,10 +147,28 @@
                                 placeholder="e.g., 2013-YOLANDA"
                                 readonly="status == 'closed'"
                             />
+                            <!--
+                                OP#1158: a closed incident must not offer a way
+                                out to its hazard category. Making the field
+                                readonly is not enough — a readonly many2one
+                                still renders as an internal link — and
+                                ``no_open`` cannot be made conditional, because
+                                ``options`` is parsed as a static dict and
+                                cannot reference ``status``. So the field is
+                                declared twice, exactly one of which is ever
+                                visible: the open incident keeps its link, the
+                                closed one is inert text.
+                            -->
                             <field
                                 name="category_id"
                                 options="{'no_create': True}"
-                                readonly="status == 'closed'"
+                                invisible="status == 'closed'"
+                            />
+                            <field
+                                name="category_id"
+                                options="{'no_create': True, 'no_open': True}"
+                                readonly="1"
+                                invisible="status != 'closed'"
                             />
                             <field name="severity" readonly="status == 'closed'" />
                         </group>
@@ -247,6 +272,11 @@
                 <field name="category_id" />
                 <separator />
                 <filter
+                    name="draft"
+                    string="Draft"
+                    domain="[('status', '=', 'draft')]"
+                />
+                <filter
                     name="alert"
                     string="Alert"
                     domain="[('status', '=', 'alert')]"
@@ -308,7 +338,7 @@
         <field name="path">hazard-incidents</field>
         <field
             name="context"
-        >{'search_default_alert': 1, 'search_default_active': 1, 'search_default_recovery': 1}</field>
+        >{'search_default_draft': 1, 'search_default_alert': 1, 'search_default_active': 1, 'search_default_recovery': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Record your first hazard incident
