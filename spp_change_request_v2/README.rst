@@ -853,6 +853,22 @@ Before declaring a new CR type complete:
 Changelog
 =========
 
+19.0.3.1.9
+~~~~~~~~~~
+
+- fix(security): duplicate detection now scores the fields both change
+  requests actually propose to change, instead of demanding the two
+  derived change sets be identical. Because a dynamic-approval type
+  applies only the routed field, a requester could add a throwaway edit
+  to another mapped field, make the two sets unequal and drop similarity
+  to zero, while apply discarded that edit — so the evasion cost
+  nothing. Similarity is now computed over the shared changed fields,
+  proportionally, on the same scale the static path uses, which also
+  stops a mostly identical multi-field request collapsing to zero as
+  soon as one shared field differs. The change set is still derived from
+  the detail-versus-registrant diff and never from the
+  requester-writable ``selected_field_name`` / ``field_to_modify``.
+
 19.0.3.1.8
 ~~~~~~~~~~
 

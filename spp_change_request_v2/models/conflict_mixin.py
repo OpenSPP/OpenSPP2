@@ -511,24 +511,36 @@ class SPPCRConflictMixin(models.AbstractModel):
         my_changed = self._proposed_changed_fields()
         other_changed = other_cr._proposed_changed_fields()
         if my_changed is not None and other_changed is not None:
-            # Different set of changed fields (or neither changed anything) =
-            # not duplicates.
-            if my_changed != other_changed or not my_changed:
+            # Score the fields BOTH requests actually propose to change.
+            #
+            # Requiring the two change sets to be *equal* made detection
+            # trivially evadable: apply writes only the routed field for a
+            # dynamic-approval type, so a requester could add a throwaway edit
+            # to another mapped field, make the sets unequal, drop similarity to
+            # zero and still have their real change applied unaltered. Scoring
+            # the intersection ignores such padding, and scoring it
+            # proportionally (the same 1.0 exact / 0.8 fuzzy scale the static
+            # path uses) avoids collapsing a mostly identical request to zero
+            # the moment one shared field differs.
+            #
+            # Deliberately not derived from ``selected_field_name`` or
+            # ``field_to_modify``: both are requester-writable, which is the
+            # bypass the diff-derived change set exists to close.
+            shared = my_changed & other_changed
+            if not shared:
                 return 0.0
-            all_match = True
-            any_similar = False
-            for field_name in my_changed:
-                if field_name not in my_detail._fields or field_name not in other_detail._fields:
-                    continue
+            comparable = [f for f in shared if f in my_detail._fields and f in other_detail._fields]
+            if not comparable:
+                return 0.0
+            matching_score = 0.0
+            for field_name in comparable:
                 my_value = self._normalize_field_value(getattr(my_detail, field_name, None))
                 other_value = self._normalize_field_value(getattr(other_detail, field_name, None))
-                if my_value != other_value:
-                    all_match = False
-                    if self._are_similar(my_value, other_value):
-                        any_similar = True
-            if all_match:
-                return 100.0
-            return 80.0 if any_similar else 0.0
+                if my_value == other_value:
+                    matching_score += 1.0
+                elif self._are_similar(my_value, other_value):
+                    matching_score += 0.8
+            return (matching_score / len(comparable)) * 100.0
 
         # Static CRs (or mixed): original logic
         check_fields = config.get_check_fields_list()
