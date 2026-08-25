@@ -458,12 +458,19 @@ Patterns</li>
 <tbody valign="top">
 <tr><td><tt class="docutils literal">spp_data_classification.group_classification_admin</tt></td>
 <td>Full CRUD on levels, patterns,
-and field classifications</td>
+and field classifications;
+implies Manager</td>
 </tr>
 <tr><td><tt class="docutils literal">spp_data_classification.group_classification_manager</tt></td>
 <td>Read/Write/Create field
 classifications (no delete);
 read-only on levels and patterns</td>
+</tr>
+<tr><td><tt class="docutils literal">base.group_system</tt></td>
+<td>Full CRUD via explicit ACLs. The
+admin group deliberately does
+<strong>not</strong> imply system
+administration (and vice versa)</td>
 </tr>
 <tr><td><tt class="docutils literal">base.group_user</tt></td>
 <td>Read-only access to

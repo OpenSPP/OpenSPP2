@@ -89,11 +89,17 @@ Security
 | Group                                                    | Access                           |
 +==========================================================+==================================+
 | ``spp_data_classification.group_classification_admin``   | Full CRUD on levels, patterns,   |
-|                                                          | and field classifications        |
+|                                                          | and field classifications;       |
+|                                                          | implies Manager                  |
 +----------------------------------------------------------+----------------------------------+
 | ``spp_data_classification.group_classification_manager`` | Read/Write/Create field          |
 |                                                          | classifications (no delete);     |
 |                                                          | read-only on levels and patterns |
++----------------------------------------------------------+----------------------------------+
+| ``base.group_system``                                    | Full CRUD via explicit ACLs. The |
+|                                                          | admin group deliberately does    |
+|                                                          | **not** imply system             |
+|                                                          | administration (and vice versa)  |
 +----------------------------------------------------------+----------------------------------+
 | ``base.group_user``                                      | Read-only access to              |
 |                                                          | classifications                  |
