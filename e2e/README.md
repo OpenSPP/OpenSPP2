@@ -43,6 +43,27 @@ Tests run sequentially (1 worker). Each test file resets the database before run
 6. Waits 1 minute for nav menus to settle
 7. Verifies nav menus are present and takes a screenshot
 
+## Running tests in a container (`e2e-runner`)
+
+Instead of installing Node/Playwright locally, you can run the suite inside a
+container defined in the repo root's `docker-compose.yml`:
+
+```bash
+docker compose --profile e2e up -d
+docker compose --profile e2e run --rm e2e-runner
+```
+
+The first command brings up `db` + `openspp` and waits for `openspp` to report
+healthy. The second builds `e2e/Dockerfile` and runs `npx playwright test`
+inside it, pointed at the already-running `openspp` service over the shared
+Docker network (`ODOO_URL=http://openspp:8069`).
+
+Because `openspp`'s healthcheck already guarantees a fresh stack before
+`e2e-runner` starts — and because that container has no Docker CLI/socket to
+run `docker compose` with — `resetStack()` skips its own teardown/rebuild
+whenever `E2E_SKIP_STACK_RESET=true` is set (already configured on the
+`e2e-runner` service). It only waits for health there.
+
 ## Why `docker compose down -v && up` instead of `spp resetdb`
 
 The `spp` CLI has a `resetdb` command that resets only the database (faster, keeps

@@ -2,9 +2,20 @@ import {execSync} from "child_process";
 import * as path from "path";
 
 const COMPOSE_CWD = path.resolve(__dirname, "..", "..");
-const HEALTH_URL = "http://localhost:8069/web/health";
+const HEALTH_URL = `${process.env.ODOO_URL ?? "http://localhost:8069"}/web/health`;
 
 export async function resetStack() {
+  if (process.env.E2E_SKIP_STACK_RESET === "true") {
+    // Running inside the e2e-runner container: docker-compose's
+    // `depends_on: openspp: condition: service_healthy` already guarantees a
+    // fresh, healthy stack before this container starts, and there's no
+    // Docker CLI/socket in here to run `docker compose` against anyway.
+    console.log("⏳ Waiting for Odoo to be healthy...");
+    await waitForHealth();
+    console.log("✅ Odoo is ready");
+    return;
+  }
+
   console.log("🔄 Tearing down stack and volumes...");
   execSync("docker compose --profile ui down -v", {stdio: "inherit", cwd: COMPOSE_CWD});
 

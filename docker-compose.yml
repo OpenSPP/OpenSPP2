@@ -256,6 +256,10 @@ services:
       PGUSER: odoo
       PGPASSWORD: odoo
       CI: "${CI:-true}"
+      # openspp's own `depends_on: condition: service_healthy` already
+      # guarantees a fresh, healthy stack before this container starts, and
+      # there's no Docker CLI/socket in here for resetStack() to use anyway.
+      E2E_SKIP_STACK_RESET: "true"
     volumes:
       - ./e2e:/app:ro,z
       - ./e2e/reports:/app/reports
