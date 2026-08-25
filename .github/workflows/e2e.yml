@@ -23,35 +23,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Start OpenSPP stack
-        run: docker compose --profile ui up -d --build
-
-      - name: Wait for OpenSPP to be healthy
-        run: |
-          echo "Waiting for http://localhost:8069/web/health ..."
-          for i in $(seq 1 30); do
-            if curl -sf http://localhost:8069/web/health; then
-              echo "OpenSPP is ready"
-              exit 0
-            fi
-            echo "Attempt $i/30 — sleeping 10s"
-            sleep 10
-          done
-          echo "OpenSPP did not become healthy in time"
-          docker compose --profile ui logs
-          exit 1
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: e2e/package.json
+          cache-dependency-path: e2e/package-lock.json
 
       - name: Install Playwright
         working-directory: e2e
         run: |
-          npm install
+          npm ci
           npx playwright install chromium --with-deps
 
       - name: Run E2E tests
@@ -99,7 +81,14 @@ jobs:
           merge-multiple: true
 
       - name: Post result to Discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
+          if [ -z "$DISCORD_WEBHOOK" ]; then
+            echo "DISCORD_WEBHOOK secret not configured, skipping notification"
+            exit 0
+          fi
+
           COLOR=3066993
           if [ "${{ needs.e2e.result }}" != "success" ]; then COLOR=15158332; fi
 
@@ -118,4 +107,4 @@ jobs:
             --argjson fields "$FIELDS" \
             '{embeds: [{title: $title, url: $url, color: $color, fields: $fields}]}')
 
-          curl -sf -H "Content-Type: application/json" -X POST -d "$PAYLOAD" "${{ secrets.DISCORD_WEBHOOK }}"
+          curl -sf -H "Content-Type: application/json" -X POST -d "$PAYLOAD" "$DISCORD_WEBHOOK"
