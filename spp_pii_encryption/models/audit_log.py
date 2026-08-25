@@ -1,6 +1,7 @@
 import logging
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -88,7 +89,38 @@ class PIIAuditLog(models.Model):
 
         Returns:
             The created audit log record
+
+        Raises:
+            ValidationError: if the target model, record or field does not
+                exist (prevents forged audit entries pointing at nothing)
+            AccessError: if the caller cannot read the target record
         """
+        # This method is RPC-reachable and creates rows with sudo(), so the
+        # target must be validated: only real, readable records with real
+        # fields may be logged against. Otherwise any authenticated user
+        # could flood the audit trail with plausible-looking forgeries.
+        target_model = self.env.get(model_name)
+        if target_model is None:
+            raise ValidationError(_("Cannot log PII access: unknown model '%(model)s'.", model=model_name))
+        if field_name not in target_model._fields:
+            raise ValidationError(
+                _(
+                    "Cannot log PII access: field '%(field)s' does not exist on '%(model)s'.",
+                    field=field_name,
+                    model=model_name,
+                )
+            )
+        target_record = target_model.browse(record_id).exists()
+        if not target_record:
+            raise ValidationError(
+                _(
+                    "Cannot log PII access: record %(record_id)s does not exist on '%(model)s'.",
+                    record_id=record_id,
+                    model=model_name,
+                )
+            )
+        target_record.check_access("read")
+
         # Get IP and user agent from request if available
         ip_address = None
         user_agent = None
