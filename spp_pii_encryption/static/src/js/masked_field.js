@@ -2,10 +2,25 @@
 
 import {registry} from "@web/core/registry";
 import {CharField} from "@web/views/fields/char/char_field";
+import {ListRenderer} from "@web/views/list/list_renderer";
+import {patch} from "@web/core/utils/patch";
 import {useState} from "@odoo/owl";
 import {useService} from "@web/core/utils/hooks";
 import {user} from "@web/core/user";
 import {_t} from "@web/core/l10n/translation";
+
+// The list renderer copies every char cell's FORMATTED (raw) value into the
+// cell's data-tooltip so truncated columns stay readable — which would leak
+// the plaintext of a masked column on hover, bypassing the widget entirely.
+// Masked columns get no tooltip.
+patch(ListRenderer.prototype, {
+    getCellTitle(column, record) {
+        if (column.widget === "masked_char") {
+            return undefined;
+        }
+        return super.getCellTitle(column, record);
+    },
+});
 
 /**
  * MaskedCharField - A field widget that displays masked PII values
