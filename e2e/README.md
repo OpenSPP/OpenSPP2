@@ -78,6 +78,44 @@ merge to `branch 19.0` via GitHub Actions. In that context, a full
 Use `spp resetdb` for local dev iteration only. Do not replace the `docker compose`
 reset in `helpers.ts` for CI purposes.
 
+## Known frontend timing races (why `slowMo: 500` is always-on)
+
+`playwright.config.ts` runs every action with a fixed 0.5s delay. This is
+deliberate and always-on — not opt-in for debugging — because running this
+suite without it doesn't just make tests faster, it reliably (not rarely)
+exposes real races in Odoo's own OWL frontend. Confirmed via 5 clean runs
+with the delay vs. repeated failures without it, on the same code:
+
+1. **Navbar "Configuration" button ambiguity.** Switching between two apps
+   that each have a same-named top-level Configuration menu — e.g.
+   `spp_approval`'s `menu_approval_config`
+   (`spp_approval/views/menus.xml:38-44`) and `spp_change_request_v2`'s
+   `menu_change_request_config`
+   (`spp_change_request_v2/views/menus.xml:59-65`) — can transiently leave
+   both apps' "Configuration" buttons mounted in the DOM at once. Odoo's
+   navbar is a single persistent OWL component; switching apps means a keyed
+   diff removes the old section and inserts the new one, and that isn't
+   guaranteed atomic with the rest of the app-switch flow. A `getByRole`
+   locator that resolves to 2 elements throws a strict-mode violation instead
+   of picking one.
+2. **Vocabulary "Add a line" row-insertion race.** Filling a newly-added row
+   immediately via `page.locator(".o_data_row").last()` can race Odoo's own
+   row insertion, scrambling which code/display pair lands in which row.
+3. **sessionStorage action-restore race.** Odoo's webclient persists the last
+   visited `current_action`/`menu_id` to sessionStorage to restore your place
+   on reload. On a fresh login, it can read that stale value and render it
+   instead of waiting for the server's actual default-action response —
+   landing on a leftover page from a previous session.
+
+None of these are reachable by an actual human — nobody clicks fast enough to
+land inside a sub-100ms rendering window. The delay isn't papering over a
+missing wait in this suite; it's keeping tests running at a human-realistic
+pace so they test real user-facing behavior instead of Odoo's frontend
+internals. **Do not make this opt-in again** without addressing all three
+races directly (e.g. scoping ambiguous locators to the currently-active app,
+waiting for the previous app's elements to actually detach, or asserting the
+row count before filling a newly-added row).
+
 ## Adding new tests
 
 When adding a new test to any spec file:

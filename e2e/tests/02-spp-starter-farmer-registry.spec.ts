@@ -48,6 +48,15 @@ test.describe("OpenSPP", () => {
     await resetStack();
   });
 
+  test.afterEach(async ({page}, testInfo) => {
+    if (testInfo.status !== testInfo.expectedStatus && !process.env.CI) {
+      console.log(
+        `❌ "${testInfo.title}" failed — pausing for investigation (set CI=1 to skip)`
+      );
+      await page.pause();
+    }
+  });
+
   test("login and install OpenSPP Starter Farmer Registry, then verify nav menus", async ({
     page,
   }) => {

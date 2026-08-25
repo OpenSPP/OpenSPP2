@@ -87,6 +87,15 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await page.close();
   });
 
+  test.afterEach(async ({}, testInfo) => {
+    if (testInfo.status !== testInfo.expectedStatus && !process.env.CI) {
+      console.log(
+        `❌ "${testInfo.title}" failed — pausing for investigation (set CI=1 to skip)`
+      );
+      await page.pause();
+    }
+  });
+
   test("01 - login and install OpenSPP Starter SP-MIS", async () => {
     await login(page);
     await installApp(page, "spp_starter_sp_mis");
