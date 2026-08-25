@@ -448,36 +448,65 @@ class SPPProgram(models.Model):
             else:
                 raise UserError(_("No Program Manager defined."))
 
+    def _duplicated_memberships(self):
+        """The memberships this program currently has flagged as duplicates."""
+        self.ensure_one()
+        return self.env["spp.program.membership"].search([("program_id", "=", self.id), ("state", "=", "duplicated")])
+
+    def _reset_duplicate_flags(self):
+        """Clear every duplicate flag so a run can re-apply it (OP#796).
+
+        Deduplication only ever added the flag. A membership marked duplicated
+        stayed that way even once the clash behind it was fixed — correct the
+        ID or the phone number, run Deduplicate again, and nothing happened,
+        because a membership already in ``duplicated`` is never re-evaluated
+        out of it.
+
+        Clearing first turns the run into a recompute: whoever still clashes is
+        flagged again by the managers a moment later, and whoever no longer does
+        is simply left in draft. The whole thing is one transaction, so a run
+        that fails part-way leaves the flags as they were.
+
+        Returns the memberships that were flagged going in, so the caller can
+        report what the run actually resolved.
+        """
+        self.ensure_one()
+        flagged = self._duplicated_memberships()
+        if flagged:
+            flagged.back_to_draft()
+        return flagged
+
     def deduplicate_beneficiaries(self):
         for rec in self:
             deduplication_managers = rec.get_managers(self.MANAGER_DEDUPLICATION)
             message = None
             kind = "success"
             if len(deduplication_managers):
-                # Count already-flagged duplicates before running
-                already_duplicated = self.env["spp.program.membership"].search_count(
-                    [("program_id", "=", rec.id), ("state", "=", "duplicated")]
-                )
+                # Flagged going in — cleared now, and re-applied below to
+                # whoever is still a duplicate.
+                previously_flagged = rec._reset_duplicate_flags()
 
                 states = ["draft", "enrolled", "eligible", "paused", "duplicated"]
                 duplicates = 0
                 for el in deduplication_managers:
                     duplicates += el.deduplicate_beneficiaries(states)
 
-                # Count total duplicates after running
-                total_duplicated = self.env["spp.program.membership"].search_count(
-                    [("program_id", "=", rec.id), ("state", "=", "duplicated")]
-                )
-                new_duplicates = total_duplicated - already_duplicated
+                currently_flagged = rec._duplicated_memberships()
+                total_duplicated = len(currently_flagged)
+                still_flagged = len(previously_flagged & currently_flagged)
+                new_duplicates = len(currently_flagged - previously_flagged)
+                resolved = len(previously_flagged - currently_flagged)
 
-                if total_duplicated > 0:
+                if total_duplicated > 0 or resolved:
                     parts = []
                     if new_duplicates > 0:
                         parts.append(_("%(new)s new duplicate(s) found", new=new_duplicates))
-                    if already_duplicated > 0:
-                        parts.append(_("%(existing)s already flagged", existing=already_duplicated))
+                    if still_flagged > 0:
+                        parts.append(_("%(existing)s still flagged", existing=still_flagged))
+                    if resolved > 0:
+                        parts.append(_("%(resolved)s no longer duplicate(s)", resolved=resolved))
                     message = ", ".join(parts) + "."
-                    kind = "warning"
+                    kind = "warning" if total_duplicated else "success"
                 elif duplicates > 0:
                     message = _(
                         "Found %(count)s duplicate beneficiaries.",
