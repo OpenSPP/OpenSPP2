@@ -1,6 +1,8 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Tests for statistics discovery endpoint."""
 
+from uuid import uuid4
+
 from odoo.tests.common import TransactionCase
 
 
@@ -250,7 +252,9 @@ class TestStatisticsScopeAccess(TransactionCase):
         client = self.ApiClient.create(
             {
                 "name": f"Test Client {len(scopes)}",
-                "client_id": f"test_client_{id(scopes)}",
+                # uuid4, not id(scopes): CPython reuses freed addresses, so two
+                # throwaway scope lists can collide on the unique client_id.
+                "client_id": f"test_client_{uuid4().hex}",
                 "partner_id": self.test_partner.id,
                 "organization_type_id": self.org_type.id,
             }

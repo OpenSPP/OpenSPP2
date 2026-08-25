@@ -1,3 +1,7 @@
+### 19.0.2.0.4
+
+- chore(farmer_registry): the duplicate Farmer Registry Settings section is removed — the toggle it carried now lives in Registry Settings, and this module's storage key is written in step with it, so enforcement is unchanged (#1009)
+
 ### 19.0.2.0.3
 
 - fix(farm): remove the farm membership-completeness warnings entirely — both the "No head member designated" and "No members linked to this group yet" banners, their "No Head Member" / "No Members" search filters, the `member_count` and head-member list columns, and the backing `has_head_member` / `member_count` computed fields. The head-member check misfired on farm groups that did have a head, and per #1113 no such warnings should be shown (#1113)

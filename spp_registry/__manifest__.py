@@ -3,7 +3,7 @@
 {
     "name": "OpenSPP Registry",
     "category": "OpenSPP/Core",
-    "version": "19.0.2.2.0",
+    "version": "19.0.2.2.2",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -41,6 +41,10 @@
         # Wizards
         "wizard/disable_registrant_view.xml",
         # Views - Base
+        # res_config_settings_views.xml defines menu_registry_settings_root, which
+        # main_view.xml reparents the Configuration menu under (OP#1009), so it
+        # must load first.
+        "views/res_config_settings_views.xml",
         "views/main_view.xml",
         "views/reg_relationship_view.xml",
         "views/reg_id_view.xml",

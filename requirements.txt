@@ -22,6 +22,7 @@ pyproj
 python-dateutil
 python-magic
 python-multipart
+pytz
 qrcode
 requests
 schwifty

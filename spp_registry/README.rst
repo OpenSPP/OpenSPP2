@@ -139,7 +139,7 @@ Dependencies
 Changelog
 =========
 
-19.0.2.2.0
+19.0.2.2.2
 ~~~~~~~~~~
 
 - fix(registry): let an ID type be used again after its ID was removed.
@@ -149,6 +149,16 @@ Changelog
   of the same type. Uniqueness now applies to live IDs only, and is
   refused before the write so the message names the ID type rather than
   surfacing a database error (#1136)
+
+19.0.2.2.1
+~~~~~~~~~~
+
+- feat(registry): registry configuration is consolidated into one
+  **Registry Settings** section in the Settings app, with the Restrict
+  Registry Edits toggle and the relocated superuser configuration menus
+  (API V2, Import Match). Changing the toggle needs a Settings
+  administrator; the section's menu is gated to match, since the
+  framework refuses a settings save from anyone else (#1009)
 
 19.0.2.1.4
 ~~~~~~~~~~

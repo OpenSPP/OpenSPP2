@@ -4,7 +4,7 @@
     "name": "OpenSPP Starter: SP-MIS",
     "summary": "Complete SP-MIS bundle with Social Registry, Programs, and Service Points",
     "category": "OpenSPP",
-    "version": "19.0.2.1.0",
+    "version": "19.0.2.1.1",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -22,7 +22,6 @@
     ],
     "data": [
         "data/config_parameters.xml",
-        "views/res_config_settings_views.xml",
     ],
     "demo": [],
     "images": [],
