@@ -2,6 +2,7 @@
 """Tests for the encrypted field mixin with spp_key_management integration."""
 
 import base64
+from unittest.mock import patch
 
 from odoo.tests.common import TransactionCase
 from odoo.tools import config, mute_logger
@@ -155,3 +156,99 @@ class TestEncryptedFieldMixin(TransactionCase):
         with mute_logger("odoo.addons.spp_pii_encryption.models.encrypted_field_mixin"):
             self.assertFalse(self.Mixin.search_by_blind_index("national_id", "123"))
             self.assertFalse(self.Mixin.search_by_partial("national_id", "0123"))
+
+    def _mixin_with_index_fields(self):
+        """Return a patcher exposing national_id blind-index fields on the mixin.
+
+        The vals-preparation helper only checks field *presence* in
+        ``self._fields``, so registering placeholder entries is enough to
+        exercise the index-maintenance branches on the abstract mixin.
+        """
+        mixin_cls = type(self.Mixin)
+        fields_map = dict(mixin_cls._fields)
+        # Reuse a real Field object as placeholder in case anything iterates
+        # the mapping while the patch is active.
+        placeholder = next(iter(fields_map.values()))
+        fields_map["national_id_index"] = placeholder
+        fields_map["national_id_last4"] = placeholder
+        return patch.object(mixin_cls, "_fields", fields_map)
+
+    def test_apply_encryption_to_vals_encrypts_and_indexes(self):
+        """Truthy values are encrypted and both blind indexes are computed."""
+        mixin = self.Mixin
+        plaintext = "123-456-7890"
+        # Materialize key and salt records before patching _fields so no ORM
+        # writes happen while the placeholder mapping is active.
+        mixin._get_encryption_key("national_id")
+        mixin._get_index_salt("national_id")
+
+        with self._mixin_with_index_fields():
+            vals = {"national_id": plaintext, "other": "untouched"}
+            mixin._apply_encryption_to_vals(vals, ["national_id"])
+
+        self.assertNotEqual(vals["national_id"], plaintext)
+        self.assertEqual(mixin._decrypt_value(vals["national_id"], "national_id"), plaintext)
+        self.assertEqual(
+            vals["national_id_index"],
+            mixin._compute_blind_index(plaintext, "national_id", "exact"),
+        )
+        self.assertEqual(
+            vals["national_id_last4"],
+            mixin._compute_blind_index(plaintext, "national_id", "partial"),
+        )
+        self.assertEqual(vals["other"], "untouched")
+
+    def test_apply_encryption_to_vals_clears_stale_indexes(self):
+        """Clearing an encrypted field must also clear its blind indexes.
+
+        Otherwise the old HMAC hashes stay searchable after the PII itself
+        has been removed.
+        """
+        mixin = self.Mixin
+        for cleared in (False, "", None):
+            with self._mixin_with_index_fields():
+                vals = {"national_id": cleared}
+                mixin._apply_encryption_to_vals(vals, ["national_id"])
+            self.assertFalse(vals["national_id"])
+            self.assertIn("national_id_index", vals)
+            self.assertFalse(vals["national_id_index"])
+            self.assertIn("national_id_last4", vals)
+            self.assertFalse(vals["national_id_last4"])
+
+    def test_write_encrypts_via_db_config(self):
+        """The write() override picks up spp.field.encryption.config rows.
+
+        Uses the mixin's own reflected display_name char field so the whole
+        config-lookup -> vals-encryption path runs through the real ORM
+        override (write on an empty recordset is a no-op past that point).
+        """
+        model = self.env["ir.model"]._get("spp.encrypted.field.mixin")
+        self.assertTrue(model, "abstract mixin should be reflected in ir.model")
+        field = self.env["ir.model.fields"]._get("spp.encrypted.field.mixin", "display_name")
+        self.assertTrue(field, "display_name should be reflected in ir.model.fields")
+        cfg = self.env["spp.field.encryption.config"].create(
+            {
+                "model_id": model.id,
+                "field_id": field.id,
+            }
+        )
+        self.assertEqual(cfg.model_name, "spp.encrypted.field.mixin")
+        self.assertEqual(cfg.field_name, "display_name")
+
+        self.assertEqual(self.Mixin._get_encrypted_fields(), ["display_name"])
+
+        vals = {"display_name": "secret-123"}
+        self.Mixin.browse().write(vals)
+        self.assertNotEqual(vals["display_name"], "secret-123")
+        self.assertEqual(
+            self.Mixin._decrypt_value(vals["display_name"], "display_name"),
+            "secret-123",
+        )
+
+    def test_apply_encryption_to_vals_untouched_field_stays_untouched(self):
+        """A field absent from vals is left alone entirely."""
+        mixin = self.Mixin
+        with self._mixin_with_index_fields():
+            vals = {"other": "abc"}
+            mixin._apply_encryption_to_vals(vals, ["national_id"])
+        self.assertEqual(vals, {"other": "abc"})

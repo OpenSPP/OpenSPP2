@@ -77,9 +77,11 @@ class EncryptedFieldMixin(models.AbstractModel):
         Returns:
             list: Field names to encrypt
         """
-        # Check database configuration
+        # Check database configuration.
+        # env.get() returns an (always falsy) empty recordset when the model
+        # exists, so the presence test must compare against None.
         FieldConfig = self.env.get("spp.field.encryption.config")
-        if FieldConfig:
+        if FieldConfig is not None:
             db_fields = FieldConfig.get_encrypted_fields(self._name)
             if db_fields:
                 return db_fields
@@ -130,7 +132,7 @@ class EncryptedFieldMixin(models.AbstractModel):
             str: Index type ('exact', 'partial', 'phonetic') or 'exact' as default
         """
         FieldConfig = self.env.get("spp.field.encryption.config")
-        if FieldConfig:
+        if FieldConfig is not None:
             config_type = FieldConfig.get_index_type(self._name, field_name)
             if config_type:
                 return config_type
@@ -315,46 +317,26 @@ class EncryptedFieldMixin(models.AbstractModel):
 
         return (soundex + "0000")[:4]
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        """Encrypt fields before create."""
-        encrypted_fields = self._get_encrypted_fields()
-        if not encrypted_fields:
-            return super().create(vals_list)
+    def _apply_encryption_to_vals(self, vals, encrypted_fields):
+        """Encrypt configured fields in a vals dict and maintain blind indexes.
 
-        for vals in vals_list:
-            for field_name in encrypted_fields:
-                if field_name in vals and vals[field_name]:
-                    plaintext = vals[field_name]
+        Mutates ``vals`` in place. Clearing an encrypted field (falsy value)
+        also clears its blind index fields — otherwise the stale HMAC hashes
+        would keep matching searches after the PII itself has been removed.
 
-                    # Encrypt
-                    vals[field_name] = self._encrypt_value(plaintext, field_name)
-
-                    # Get configured index type
-                    index_type = self._get_index_type(field_name)
-
-                    # Compute blind indexes if fields exist
-                    index_field = f"{field_name}_index"
-                    if index_field in self._fields:
-                        vals[index_field] = self._compute_blind_index(plaintext, field_name, index_type)
-
-                    last4_field = f"{field_name}_last4"
-                    if last4_field in self._fields:
-                        # SECURITY: Store hashed partial index, not plaintext
-                        vals[last4_field] = self._compute_blind_index(plaintext, field_name, "partial")
-
-        return super().create(vals_list)
-
-    def write(self, vals):
-        """Encrypt fields before write."""
-        encrypted_fields = self._get_encrypted_fields()
-        if not encrypted_fields:
-            return super().write(vals)
-
+        Args:
+            vals: create/write values dict
+            encrypted_fields: field names configured for encryption
+        """
         for field_name in encrypted_fields:
-            if field_name in vals and vals[field_name]:
-                plaintext = vals[field_name]
+            if field_name not in vals:
+                continue
 
+            index_field = f"{field_name}_index"
+            last4_field = f"{field_name}_last4"
+            plaintext = vals[field_name]
+
+            if plaintext:
                 # Encrypt
                 vals[field_name] = self._encrypt_value(plaintext, field_name)
 
@@ -362,15 +344,35 @@ class EncryptedFieldMixin(models.AbstractModel):
                 index_type = self._get_index_type(field_name)
 
                 # Compute blind indexes if fields exist
-                index_field = f"{field_name}_index"
                 if index_field in self._fields:
                     vals[index_field] = self._compute_blind_index(plaintext, field_name, index_type)
 
-                last4_field = f"{field_name}_last4"
                 if last4_field in self._fields:
                     # SECURITY: Store hashed partial index, not plaintext
                     vals[last4_field] = self._compute_blind_index(plaintext, field_name, "partial")
+            else:
+                # Field is being cleared: clear the blind indexes too
+                if index_field in self._fields:
+                    vals[index_field] = False
+                if last4_field in self._fields:
+                    vals[last4_field] = False
 
+        return vals
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Encrypt fields before create."""
+        encrypted_fields = self._get_encrypted_fields()
+        if encrypted_fields:
+            for vals in vals_list:
+                self._apply_encryption_to_vals(vals, encrypted_fields)
+        return super().create(vals_list)
+
+    def write(self, vals):
+        """Encrypt fields before write."""
+        encrypted_fields = self._get_encrypted_fields()
+        if encrypted_fields:
+            self._apply_encryption_to_vals(vals, encrypted_fields)
         return super().write(vals)
 
     def read(self, fields_list=None, load="_classic_read"):
