@@ -4,6 +4,8 @@ import {registry} from "@web/core/registry";
 import {CharField} from "@web/views/fields/char/char_field";
 import {useState} from "@odoo/owl";
 import {useService} from "@web/core/utils/hooks";
+import {user} from "@web/core/user";
+import {_t} from "@web/core/l10n/translation";
 
 /**
  * MaskedCharField - A field widget that displays masked PII values
@@ -32,9 +34,8 @@ export class MaskedCharField extends CharField {
             isRevealed: false,
             isLoading: false,
         });
-        this.rpc = useService("rpc");
+        this.orm = useService("orm");
         this.notification = useService("notification");
-        this.user = useService("user");
     }
 
     get maskedValue() {
@@ -72,9 +73,13 @@ export class MaskedCharField extends CharField {
         const patternChars = pattern.split("");
         let result = "";
 
-        // Count # in pattern to know how many chars to show from end
+        // Count # in pattern to know how many chars to show from end.
+        // The masked output is deliberately pattern-length, not value-length,
+        // so the mask does not leak how long the real value is.
         const hashCount = patternChars.filter((c) => c === "#").length;
-        let showFromEnd = hashCount;
+        // SECURITY: never reveal the tail of a value so short that the
+        // tail would be the entire value.
+        let showFromEnd = value.length > hashCount ? hashCount : 0;
 
         for (const patternChar of patternChars) {
             if (patternChar === "*") {
@@ -82,11 +87,12 @@ export class MaskedCharField extends CharField {
                 result += "•";
             } else if (patternChar === "#") {
                 // Show character from end
-                const showIdx = value.length - showFromEnd;
-                if (showIdx >= 0 && showIdx < value.length) {
-                    result += value[showIdx];
+                if (showFromEnd > 0) {
+                    result += value[value.length - showFromEnd];
+                    showFromEnd--;
+                } else {
+                    result += "•";
                 }
-                showFromEnd--;
             } else {
                 // Literal character (like - or space)
                 result += patternChar;
@@ -106,7 +112,7 @@ export class MaskedCharField extends CharField {
         // Check if user can reveal
         const canReveal = await this.checkRevealPermission();
         if (!canReveal) {
-            this.notification.add("You don't have permission to view this data.", {
+            this.notification.add(_t("You don't have permission to view this data."), {
                 type: "warning",
             });
             return;
@@ -122,7 +128,7 @@ export class MaskedCharField extends CharField {
 
             this.state.isRevealed = true;
         } catch {
-            this.notification.add("Failed to reveal value.", {
+            this.notification.add(_t("Failed to reveal value."), {
                 type: "danger",
             });
         } finally {
@@ -138,7 +144,7 @@ export class MaskedCharField extends CharField {
         }
 
         // Check if user has the required group
-        return await this.user.hasGroup(revealGroup);
+        return await user.hasGroup(revealGroup);
     }
 
     async auditRevealAction() {
@@ -146,16 +152,14 @@ export class MaskedCharField extends CharField {
         const modelName = this.props.record.resModel;
         const fieldName = this.props.name;
 
-        await this.rpc("/web/dataset/call_kw", {
-            model: "spp.pii.audit.log",
-            method: "log_field_access",
-            args: [modelName, recordId, fieldName, "reveal"],
-            kwargs: {},
-        });
+        await this.orm.call("spp.pii.audit.log", "log_field_access", [
+            modelName,
+            recordId,
+            fieldName,
+            "reveal",
+        ]);
     }
 }
-
-MaskedCharField.template = "spp_pii_encryption.MaskedCharField";
 
 // Register the widget
 registry.category("fields").add("masked_char", {
