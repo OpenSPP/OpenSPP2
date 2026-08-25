@@ -382,8 +382,10 @@ encryption</li>
 <li>Search encrypted data via blind indexes without decryption (exact,
 partial, or phonetic matching)</li>
 <li>Configure field encryption through UI instead of code changes</li>
-<li>Audit all PII field access (reveal, export, decrypt, modify, delete)
-with IP and user agent tracking</li>
+<li>Audit logging of PII field access events (reveal, export, decrypt,
+modify, delete) with IP and user agent tracking; logging is invoked by
+cooperating UI widgets and code paths, it does not intercept every
+read</li>
 </ul>
 </div>
 <div class="section" id="key-models">
@@ -419,8 +421,7 @@ events</td>
 <h1>Configuration</h1>
 <p>After installing:</p>
 <ol class="arabic simple">
-<li>Navigate to <strong>Settings &gt; Key Management &gt; PII Encryption &gt; Field
-Configuration</strong></li>
+<li>Navigate to <strong>Key Management &gt; PII Encryption &gt; Field Configuration</strong></li>
 <li>Create a new configuration selecting the model and field to encrypt</li>
 <li>Choose the blind index type: Exact (full normalized match), Partial
 (last 4 characters), or Phonetic (Soundex for names)</li>
@@ -433,9 +434,9 @@ module.</p>
 <div class="section" id="ui-location">
 <h1>UI Location</h1>
 <ul class="simple">
-<li><strong>Configuration</strong>: Settings &gt; Key Management &gt; PII Encryption &gt; Field
+<li><strong>Configuration</strong>: Key Management &gt; PII Encryption &gt; Field
 Configuration</li>
-<li><strong>Audit Log</strong>: Settings &gt; Key Management &gt; PII Encryption &gt; Audit Log</li>
+<li><strong>Audit Log</strong>: Key Management &gt; PII Encryption &gt; Audit Log</li>
 </ul>
 </div>
 <div class="section" id="security">
@@ -456,11 +457,9 @@ Configuration</li>
 configuration; Read on audit log</td>
 </tr>
 <tr><td><tt class="docutils literal">base.group_system</tt></td>
-<td>Read/Create on audit logs</td>
-</tr>
-<tr><td><tt class="docutils literal">base.group_user</tt></td>
-<td>Read field encryption
-configuration</td>
+<td>Full CRUD on field
+configuration; Read/Create on
+audit logs</td>
 </tr>
 </tbody>
 </table>
@@ -476,15 +475,17 @@ encrypt (or configure via UI)</li>
 retrieval per field</li>
 <li>Override <tt class="docutils literal">_normalize_for_index(value, index_type)</tt> to customize
 blind index normalization</li>
-<li>Use <tt class="docutils literal">search_by_blind_index(field_name, search_value)</tt> to search
-encrypted fields</li>
+<li>Use <tt class="docutils literal">_search_by_blind_index(field_name, search_value)</tt> from
+server-side code to search encrypted fields (deliberately not
+RPC-exposed; wrap it with your own access policy)</li>
 <li>Call <tt class="docutils literal">log_field_access(model, record_id, field, action, reason)</tt> to
-audit PII access</li>
+audit PII access (the target record must exist and be readable by the
+caller)</li>
 </ul>
 </div>
 <div class="section" id="dependencies">
 <h1>Dependencies</h1>
-<p><tt class="docutils literal">base</tt>, <tt class="docutils literal">spp_key_management</tt>, <tt class="docutils literal">spp_registry</tt>, <tt class="docutils literal">spp_security</tt></p>
+<p><tt class="docutils literal">base</tt>, <tt class="docutils literal">spp_key_management</tt>, <tt class="docutils literal">spp_security</tt></p>
 <div class="admonition important">
 <p class="first admonition-title">Important</p>
 <p class="last">This is an alpha version, the data model and design can change at any time without warning.
