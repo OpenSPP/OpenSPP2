@@ -93,10 +93,11 @@ class TestDetailRecordRules(CRTestCase):
         problems = []
         checked = 0
         for model in models:
-            # Transient models (wizards) enforce creator-only access in the
-            # ORM itself — non-superusers may only reach records they created
-            # — so they need no ir.rule.
-            if self.env[model.model]._abstract or self.env[model.model]._transient:
+            # Transient models are NOT exempt: ir.rule applies to them the
+            # same way it applies to persistent models, and Odoo grants no
+            # implicit creator-only scoping — a transient model with no rule
+            # resolves to a TRUE domain. Only abstract models are skipped.
+            if self.env[model.model]._abstract:
                 continue
             # Skip models cr_user has no ACL path to (global no-group ACLs
             # count as a path): in a full-stack DB other apps' detail models

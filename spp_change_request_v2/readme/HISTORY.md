@@ -1,3 +1,7 @@
+### 19.0.3.1.8
+
+- fix(security): scope the Create-Group member wizards to the parent change request. `spp.cr.detail.create_group.member.wizard` and its `.phone` / `.bank` children are transient models whose access-control entries grant change-request users read, write, create **and** delete, and no record rule covered them. Transient models get no implicit creator-only scoping from the ORM — `ir.rule` applies to them as it does to persistent models, and with no rule the domain resolves to true — so any change-request user could enumerate, read, alter or delete another user's proposed-member data, including names, birthdates, phone numbers and bank account numbers. Each wizard model now carries the same parent-change-request ownership rules as the persistent Create-Group detail rows, scoped on every operation its access-control entry grants.
+
 ### 19.0.3.1.7
 
 - fix(security): require change-request manager rights to apply a change request. `action_apply()` runs the apply strategy with elevated rights and is callable over RPC, but the manager restriction existed only on the review button — so a change-request user could apply their own approved request and drive privileged writes such as membership changes. The public entry point is now gated and the mechanism moved to an internal method, so approval-driven auto-apply is unaffected. **Deployments using the API v2 change-request endpoints must grant the API user the change-request manager role to keep using the apply endpoint.**

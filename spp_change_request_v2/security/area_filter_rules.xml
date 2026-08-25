@@ -298,4 +298,64 @@ can be referenced without defensive guards.
         <field name="perm_create" eval="True" />
         <field name="perm_unlink" eval="True" />
     </record>
+
+    <!--
+        Create-Group member wizards: the same area filter the persistent
+        Create-Group detail rows carry. Transient storage does not exempt a
+        model from record rules, and these rows mirror registrant data.
+    -->
+    <record id="rule_cr_detail_create_group_member_wizard_area_filter" model="ir.rule">
+        <field
+            name="name"
+        >CR Detail (create_group.member.wizard): visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_cr_detail_create_group_member_wizard" />
+        <field
+            name="domain_force"
+        >[('detail_id.change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+    <record
+        id="rule_cr_detail_create_group_member_wizard_phone_area_filter"
+        model="ir.rule"
+    >
+        <field
+            name="name"
+        >CR Detail (create_group.member.wizard.phone): visible only within user's center areas</field>
+        <field
+            name="model_id"
+            ref="model_spp_cr_detail_create_group_member_wizard_phone"
+        />
+        <field
+            name="domain_force"
+        >[('wizard_id.detail_id.change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+    <record
+        id="rule_cr_detail_create_group_member_wizard_bank_area_filter"
+        model="ir.rule"
+    >
+        <field
+            name="name"
+        >CR Detail (create_group.member.wizard.bank): visible only within user's center areas</field>
+        <field
+            name="model_id"
+            ref="model_spp_cr_detail_create_group_member_wizard_bank"
+        />
+        <field
+            name="domain_force"
+        >[('wizard_id.detail_id.change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
 </odoo>

@@ -29,3 +29,4 @@ from . import test_reason_document_constraint
 from . import test_detail_record_rules
 from . import test_cr_roles_registry_scope
 from . import test_apply_authorization
+from . import test_transient_wizard_isolation
