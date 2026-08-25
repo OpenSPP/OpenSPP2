@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Mask registrant ID numbers in the Identity tabs. The reveal is
+         gated by the PII access group from spp_data_classification (the
+         RESTRICTED level's min_group_id) and every reveal is written to
+         spp.pii.audit.log by the widget. -->
+    <record id="view_individuals_form_masked_ids" model="ir.ui.view">
+        <field
+            name="name"
+        >spp_registry_encryption.view_individuals_form_masked_ids</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
+        <field name="arch" type="xml">
+            <xpath
+                expr="//page[@name='identity']//field[@name='reg_ids']/list/field[@name='value']"
+                position="attributes"
+            >
+                <attribute name="widget">masked_char</attribute>
+                <attribute name="mask_pattern">****-****-####</attribute>
+                <attribute
+                    name="reveal_group"
+                >spp_data_classification.group_pii_full_access_admin</attribute>
+            </xpath>
+            <xpath
+                expr="//page[@name='group_identity']//field[@name='reg_ids']/list/field[@name='value']"
+                position="attributes"
+            >
+                <attribute name="widget">masked_char</attribute>
+                <attribute name="mask_pattern">****-****-####</attribute>
+                <attribute
+                    name="reveal_group"
+                >spp_data_classification.group_pii_full_access_admin</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>
