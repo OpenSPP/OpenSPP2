@@ -13,7 +13,6 @@
     "depends": [
         "base",
         "spp_key_management",  # Centralized key management
-        "spp_registry",
         "spp_security",
     ],
     "external_dependencies": {
