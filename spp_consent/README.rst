@@ -193,6 +193,15 @@ Dependencies
 Changelog
 =========
 
+19.0.2.0.2
+~~~~~~~~~~
+
+- fix(security): the Tier-3 ``group_registry_read`` group can read the
+  consent models. This module extends the registrant form, and its
+  models were granted only to the Tier-2 ``group_registry_viewer``
+  group, so a Tier-3-scoped role hit an AccessError opening a
+  registrant.
+
 19.0.2.0.1
 ~~~~~~~~~~
 

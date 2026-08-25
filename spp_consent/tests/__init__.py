@@ -11,3 +11,4 @@ from . import test_privacy_notices
 from . import test_record_consent_wizard
 from . import test_registrant
 from . import test_security
+from . import test_registry_read_access

@@ -1,3 +1,7 @@
+### 19.0.2.2.4
+
+- fix(security): the Tier-3 `group_registry_read` group can read `spp.cycle` and `spp.cycle.membership`. The registrant form's entitlement lists render `cycle_id`, and both models were granted only to the Tier-2 `group_registry_viewer` group.
+
 ### 19.0.2.2.1
 
 - fix(spp_programs): stop Enroll Eligible undoing a deliberate pause. A paused membership is now left alone wherever eligibility is re-run — the enrol pass, the disenrol sweep that would otherwise have moved it to Not Eligible, and the per-membership methods reachable over RPC. Pausing is a decision that only Resume reverses (#1117)
