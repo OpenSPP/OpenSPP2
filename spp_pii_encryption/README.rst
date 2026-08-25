@@ -155,6 +155,14 @@ Changelog
 - fix: give ``spp.field.encryption.config``'s ``model_name`` an explicit
   "Model Name" label — the related field inherited ir.model's "Model"
   string and made Odoo warn about a label clash on every registry load
+- fix(security): clicking the masked-field reveal toggle inside an
+  editable list no longer opens the row editor — the click used to
+  bubble to the cell and expose the plaintext input without a permission
+  check or an audit entry
+- fix(security): list cells rendering a ``masked_char`` column no longer
+  carry the raw value in their hover tooltip (the list renderer copies
+  formatted char values into ``data-tooltip``, which bypassed the mask
+  entirely)
 
 19.0.1.0.0
 ~~~~~~~~~~
