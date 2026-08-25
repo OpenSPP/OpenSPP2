@@ -34,8 +34,9 @@ After installing:
 
 | Group                                                  | Access                                                   |
 | ------------------------------------------------------ | -------------------------------------------------------- |
-| `spp_data_classification.group_classification_admin`   | Full CRUD on levels, patterns, and field classifications |
+| `spp_data_classification.group_classification_admin`   | Full CRUD on levels, patterns, and field classifications; implies Manager |
 | `spp_data_classification.group_classification_manager` | Read/Write/Create field classifications (no delete); read-only on levels and patterns |
+| `base.group_system`                                    | Full CRUD via explicit ACLs. The admin group deliberately does **not** imply system administration (and vice versa) |
 | `base.group_user`                                      | Read-only access to classifications                      |
 
 The `pii_full_access` and `pii_confidential_access` groups are defined for downstream masking/access-control consumers.

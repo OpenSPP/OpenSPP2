@@ -2,3 +2,4 @@
 from . import test_classification_level
 from . import test_field_classification
 from . import test_classification_pattern
+from . import test_security_groups

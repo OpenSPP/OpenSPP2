@@ -27,16 +27,6 @@
         <field name="sequence">40</field>
     </record>
 
-    <!-- Classification Admin - Full control -->
-    <record id="group_classification_admin" model="res.groups">
-        <field name="name">Data Classification Admin</field>
-        <field name="privilege_id" ref="privilege_classification_admin" />
-        <field
-            name="comment"
-        >Full access to data classification configuration. Can create/edit classification levels, patterns, and field classifications.</field>
-        <field name="implied_ids" eval="[Command.link(ref('base.group_system'))]" />
-    </record>
-
     <!-- Classification Manager - Can classify fields but not edit levels -->
     <record id="group_classification_manager" model="res.groups">
         <field name="name">Data Classification Manager</field>
@@ -45,6 +35,24 @@
             name="comment"
         >Can classify fields and view classification settings. Cannot modify classification levels or patterns.</field>
         <field name="implied_ids" eval="[Command.link(ref('base.group_user'))]" />
+    </record>
+
+    <!-- Classification Admin - Full control.
+         Must never imply base.group_system: implied_ids GRANTS the implied
+         groups to members, so that link would silently promote anyone
+         holding this classification role to a full Settings/System
+         administrator. System admins get their own explicit ACL rows on
+         the classification models instead (see ir.model.access.csv). -->
+    <record id="group_classification_admin" model="res.groups">
+        <field name="name">Data Classification Admin</field>
+        <field name="privilege_id" ref="privilege_classification_admin" />
+        <field
+            name="comment"
+        >Full access to data classification configuration. Can create/edit classification levels, patterns, and field classifications.</field>
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_classification_manager'))]"
+        />
     </record>
 
     <!-- PII Full Access - Can view unmasked PII data -->
