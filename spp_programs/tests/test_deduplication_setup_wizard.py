@@ -97,7 +97,6 @@ class TestDeduplicationSetupWizard(TransactionCase):
         self.assertEqual(self.program.deduplication_manager_count, 0)
 
         self._wizard("spp.deduplication.manager.id_dedup", "By ID").action_create_manager()
-        self.program.invalidate_recordset()
 
         self.assertEqual(self.program.deduplication_manager_count, 1)
 
@@ -174,7 +173,6 @@ class TestDeduplicationSetupWizard(TransactionCase):
 
     def test_edit_opens_the_method_when_there_is_only_one(self):
         self._wizard("spp.deduplication.manager.id_dedup", "By ID").action_create_manager()
-        self.program.invalidate_recordset()
 
         action = self.program.action_configure_deduplication()
 
@@ -201,7 +199,6 @@ class TestDeduplicationSetupWizard(TransactionCase):
         """If anything does call it with several, it must not be a dead end."""
         self._wizard("spp.deduplication.manager.id_dedup", "By ID").action_create_manager()
         self._wizard("spp.deduplication.manager.phone_number", "By phone").action_create_manager()
-        self.program.invalidate_recordset()
 
         action = self.program.action_configure_deduplication()
 
@@ -299,13 +296,11 @@ class TestDeduplicationSetupWizard(TransactionCase):
         longer showed (OP#1171 round 1).
         """
         self._wizard("spp.deduplication.manager.default", "Shared members").action_create_manager()
-        self.program.invalidate_recordset()
         removed = self.program.deduplication_manager_ids
         concrete = removed.manager_ref_id
         self.program.write({"deduplication_manager_ids": [(3, removed.id)]})
 
         self._wizard("spp.deduplication.manager.default", "Shared members").action_create_manager()
-        self.program.invalidate_recordset()
 
         self.assertEqual(len(self.program.deduplication_manager_ids), 1, "the method should be back")
         self.assertFalse(removed.exists(), "the removed wrapper should not linger")
@@ -318,7 +313,6 @@ class TestDeduplicationSetupWizard(TransactionCase):
         the Add button — the one place this sweep runs.
         """
         self._wizard("spp.deduplication.manager.default", "Shared members").action_create_manager()
-        self.program.invalidate_recordset()
         dangling = self.program.deduplication_manager_ids
         dangling.manager_ref_id.unlink()  # takes the wrapper with it
         dangling = self.env["spp.deduplication.manager"].create(
@@ -329,7 +323,6 @@ class TestDeduplicationSetupWizard(TransactionCase):
         )
 
         self._wizard("spp.deduplication.manager.default", "Shared members").action_create_manager()
-        self.program.invalidate_recordset()
 
         self.assertFalse(dangling.exists(), "the stale wrapper should be swept")
         self.assertEqual(len(self.program.deduplication_manager_ids), 1)
@@ -337,7 +330,6 @@ class TestDeduplicationSetupWizard(TransactionCase):
     def test_the_sweep_spares_a_method_another_program_uses(self):
         """The relation is a Many2many; a linked wrapper is not garbage."""
         self._wizard("spp.deduplication.manager.id_dedup", "By ID").action_create_manager()
-        self.program.invalidate_recordset()
         shared = self.program.deduplication_manager_ids
         other = self.env["spp.program"].create({"name": "Dedup Sweep Bystander [TEST]"})
         self.program.write({"deduplication_manager_ids": [(3, shared.id)]})
@@ -347,3 +339,37 @@ class TestDeduplicationSetupWizard(TransactionCase):
 
         self.assertTrue(shared.exists(), "another program still uses this method")
         self.assertIn(shared, other.deduplication_manager_ids)
+
+    def test_the_sweep_spares_a_method_reached_through_another_wrapper(self):
+        """Two wrappers can point at one concrete; the cascade is not scoped.
+
+        ``source_mixin.unlink()`` looks the wrappers up by ``manager_ref_id``
+        across every program (``get_managers_for_unlink``), so deleting the
+        concrete to clean up *this* program's leftover would take the other
+        program's row with it and quietly return its card to "not configured".
+        The sibling test above covers a shared *wrapper*; this one covers a
+        shared *concrete*, which is the shape the Reference-field UI this
+        wizard replaces allowed users to create (#445 review).
+        """
+        self._wizard("spp.deduplication.manager.id_dedup", "By ID").action_create_manager()
+        leftover = self.program.deduplication_manager_ids
+        concrete = leftover.manager_ref_id
+
+        # A second wrapper on another program, pointing at the same method.
+        other = self.env["spp.program"].create({"name": "Dedup Shared Concrete [TEST]"})
+        twin = self.env["spp.deduplication.manager"].create(
+            {
+                "program_id": other.id,
+                "manager_ref_id": f"{concrete._name},{concrete.id}",
+            }
+        )
+        other.write({"deduplication_manager_ids": [(4, twin.id)]})
+
+        # Remove it from this program's card, then trip the sweep.
+        self.program.write({"deduplication_manager_ids": [(3, leftover.id)]})
+        self._wizard("spp.deduplication.manager.phone_number", "By phone").action_create_manager()
+
+        self.assertFalse(leftover.exists(), "this program's leftover row should be swept")
+        self.assertTrue(concrete.exists(), "the method itself is still in use elsewhere")
+        self.assertTrue(twin.exists(), "the other program's row must survive the cascade")
+        self.assertIn(twin, other.deduplication_manager_ids)

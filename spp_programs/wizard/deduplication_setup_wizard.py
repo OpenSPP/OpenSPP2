@@ -119,7 +119,24 @@ class DeduplicationSetupWizard(models.TransientModel):
             # so it carries no foreign key and can outlive what it points at —
             # unlinking that blind would raise MissingError on the Add button.
             concrete = leftover.manager_ref_id
-            ((concrete and concrete.exists()) or leftover).unlink()
+            if not (concrete and concrete.exists()):
+                leftover.unlink()
+                continue
+            # That cascade is not scoped to this program: source_mixin.unlink()
+            # searches *every* wrapper whose manager_ref_id points at the
+            # concrete (get_managers_for_unlink) and unlinks them all. Two
+            # wrappers can share one concrete — the Reference-field UI this
+            # wizard replaces let users wire that up — so deleting the concrete
+            # here would take another program's method with it, silently
+            # returning its card to "not configured". When the concrete is
+            # shared, drop this program's relation row and leave the method.
+            shared = (
+                self.env["spp.deduplication.manager"].search(
+                    [("manager_ref_id", "=", f"{concrete._name},{concrete.id}")]
+                )
+                - leftover
+            )
+            (leftover if shared else concrete).unlink()
 
     def action_create_manager(self):
         """Create the concrete manager; the wrapper follows automatically.
@@ -149,8 +166,10 @@ class DeduplicationSetupWizard(models.TransientModel):
         )
         if configured:
             raise UserError(
-                _("This program already has a %s deduplication method.")
-                % dict(self._fields["method"].selection)[self.method]
+                _(
+                    "This program already has a %(method)s deduplication method.",
+                    method=dict(self._fields["method"].selection)[self.method],
+                )
             )
 
         values = {"name": self.name, "program_id": self.program_id.id}

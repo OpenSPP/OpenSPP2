@@ -407,6 +407,8 @@ class ProgramManagerUI(models.Model):
         "compliance_manager_ids.manager_ref_id",
         "payment_manager_ids",
         "payment_manager_ids.manager_ref_id",
+        "deduplication_manager_ids",
+        "deduplication_manager_ids.manager_ref_id",
     )
     def _compute_banner_layout_helpers(self):
         """Populate the `<banner>_manager_count / _display / _detail` fields
