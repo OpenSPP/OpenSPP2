@@ -153,6 +153,21 @@ class ClassificationPattern(models.Model):
                 if not record.cel_expression:
                     raise ValidationError(_("CEL expression is required when using CEL match mode"))
 
+    @api.constrains("pattern", "apply_to_model_pattern")
+    def _check_regex_compiles(self):
+        """Reject uncompilable regexes at save time; at scan time they would
+        only log a warning and silently never match."""
+        for record in self:
+            for value in (record.pattern, record.apply_to_model_pattern):
+                if not value:
+                    continue
+                try:
+                    re.compile(value, re.IGNORECASE)
+                except re.error as e:
+                    raise ValidationError(
+                        _("Invalid regular expression '%(pattern)s': %(error)s") % {"pattern": value, "error": e}
+                    ) from e
+
     @api.model
     def _get_compiled_pattern(self, pattern_str):
         """Get compiled regex pattern with caching.
@@ -237,16 +252,19 @@ class ClassificationPattern(models.Model):
         try:
             result = cel_service.evaluate_expression(self.cel_expression, context)
             return bool(result)
-        except (ValueError, TypeError, KeyError, AttributeError) as e:
+        except SyntaxError as e:
             _logger.warning(
-                "CEL evaluation failed for pattern '%s': %s",
+                "CEL syntax error in pattern '%s': %s",
                 self.name,
                 str(e),
             )
             return False
-        except SyntaxError as e:
+        except Exception as e:
+            # Broad on purpose: evaluate_expression re-raises whatever the CEL
+            # parser/evaluator throws (incl. RecursionError and service-specific
+            # errors); one broken pattern must not crash an entire registry scan.
             _logger.warning(
-                "CEL syntax error in pattern '%s': %s",
+                "CEL evaluation failed for pattern '%s': %s",
                 self.name,
                 str(e),
             )

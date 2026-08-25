@@ -188,3 +188,42 @@ class TestFieldClassification(TransactionCase):
         found = self.Classification.search([("is_pii", "=", True)])
         self.assertIn(with_category, found)
         self.assertNotIn(without_category, found)
+
+    def test_display_name_tracks_level_code(self):
+        """The stored display name must recompute when the level's code
+        (or the underlying field name) changes."""
+        classification = self.Classification.create(
+            {
+                "model_id": self.partner_model.id,
+                "field_id": self.name_field.id,
+                "classification_id": self.level_confidential.id,
+            }
+        )
+        self.assertEqual(classification.display_name, "res.partner.name [CONFIDENTIAL]")
+
+        self.level_confidential.code = "CONF-RENAMED"
+        self.assertEqual(classification.display_name, "res.partner.name [CONF-RENAMED]")
+
+        # The placeholder branch for records without model/field
+        empty = self.Classification.new({})
+        self.assertEqual(empty.display_name, "New Classification")
+
+    @mute_logger("odoo.addons.spp_data_classification.models.field_classification")
+    def test_ensure_classification_missing_targets(self):
+        """ensure_classification returns an empty recordset (and does not
+        raise) when the model, field, or level cannot be resolved."""
+        self.assertFalse(self.Classification.ensure_classification("no.such.model", "name", "CONFIDENTIAL"))
+        self.assertFalse(self.Classification.ensure_classification("res.partner", "no_such_field", "CONFIDENTIAL"))
+        self.assertFalse(self.Classification.ensure_classification("res.partner", "ref", "NO_SUCH_LEVEL"))
+
+    def test_field_must_belong_to_model(self):
+        """A classification pointing a field at the wrong model is rejected."""
+        users_model = self.env["ir.model"].search([("model", "=", "res.users")], limit=1)
+        with self.assertRaises(ValidationError):
+            self.Classification.create(
+                {
+                    "model_id": users_model.id,
+                    "field_id": self.name_field.id,  # belongs to res.partner
+                    "classification_id": self.level_confidential.id,
+                }
+            )

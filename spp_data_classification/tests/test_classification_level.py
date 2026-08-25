@@ -46,6 +46,8 @@ class TestClassificationLevel(TransactionCase):
         self.assertTrue(self.level_restricted.is_more_sensitive_than(self.level_confidential))
         self.assertTrue(self.level_confidential.is_more_sensitive_than(self.level_internal))
         self.assertFalse(self.level_internal.is_more_sensitive_than(self.level_confidential))
+        # Any level is more sensitive than "no level at all"
+        self.assertTrue(self.level_public.is_more_sensitive_than(self.Level.browse()))
 
     def test_policy_flags(self):
         """Test that policy flags are set correctly."""

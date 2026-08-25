@@ -36,6 +36,9 @@ class FieldClassification(models.Model):
         help="The model containing the classified field",
     )
     model_name = fields.Char(
+        # Explicit label: the related field would inherit ir.model's "Model"
+        # string and clash with model_id's label (Odoo warns at every load).
+        string="Model Name",
         related="model_id.model",
         store=True,
         index=True,
@@ -176,7 +179,7 @@ class FieldClassification(models.Model):
         "Each field can only have one classification",
     )
 
-    @api.depends("model_id", "field_id", "classification_id")
+    @api.depends("model_id.model", "field_id.name", "classification_id.code")
     def _compute_display_name(self):
         for record in self:
             if record.model_id and record.field_id:
