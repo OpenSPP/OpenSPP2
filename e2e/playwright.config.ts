@@ -12,7 +12,7 @@ export default defineConfig({
     screenshot: "only-on-failure",
     video: "retain-on-failure",
     launchOptions: {
-      slowMo: 500, // 0.5s delay between actions
+      slowMo: process.env.PWDEBUG_SLOWMO ? 500 : 0,
     },
   },
 

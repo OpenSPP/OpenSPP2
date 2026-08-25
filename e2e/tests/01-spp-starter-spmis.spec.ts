@@ -60,7 +60,6 @@ async function installApp(page: Page, technicalName: string) {
 
   // Wait for installation — Odoo shows a loading spinner then redirects away from apps
   console.log("✅ Waiting for installation to complete");
-  await page.waitForURL(/^(?!.*action-178).*/, {timeout: 180_000});
   await page.waitForLoadState("domcontentloaded", {timeout: 180_000});
 
   // Wait for Odoo loading spinner to fully disappear
@@ -92,10 +91,10 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await login(page);
     await installApp(page, "spp_starter_sp_mis");
 
-    console.log(
-      "⏳ Giving the system 30 seconds to fully initialize all menu items before proceeding..."
-    );
-    await page.waitForTimeout(30_000);
+    console.log("⏳ Waiting for the Registry menu to be ready before proceeding...");
+    await expect(page.getByRole("menuitem", {name: "Registry"})).toBeVisible({
+      timeout: 60_000,
+    });
 
     await expect(page.locator(".o_main_navbar")).toBeVisible();
     const menuItems = page.locator(

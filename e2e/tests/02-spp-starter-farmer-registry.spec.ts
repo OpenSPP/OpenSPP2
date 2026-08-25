@@ -32,7 +32,6 @@ async function installApp(page: Page, technicalName: string) {
   await installBtn.click();
 
   console.log("✅ Waiting for installation to complete");
-  await page.waitForURL(/^(?!.*action-178).*/, {timeout: 180_000});
   await page.waitForLoadState("domcontentloaded", {timeout: 180_000});
   await page
     .locator(".o_loading")
