@@ -8,7 +8,7 @@
         name="PII Encryption"
         parent="spp_key_management.menu_key_management_root"
         sequence="20"
-        groups="group_encryption_admin"
+        groups="group_encryption_admin,base.group_system"
     />
 
     <menuitem
