@@ -13,16 +13,10 @@
         <field name="sequence">20</field>
     </record>
 
-    <record id="privilege_disability_validator" model="res.groups.privilege">
-        <field name="name">Disability Validator</field>
+    <record id="privilege_disability_approver" model="res.groups.privilege">
+        <field name="name">Disability Approver</field>
         <field name="category_id" ref="spp_security.category_spp_disability" />
         <field name="sequence">30</field>
-    </record>
-
-    <record id="privilege_disability_manager" model="res.groups.privilege">
-        <field name="name">Disability Manager</field>
-        <field name="category_id" ref="spp_security.category_spp_disability" />
-        <field name="sequence">40</field>
     </record>
 
     <!-- Groups (TIER 2) -->
@@ -46,33 +40,23 @@
         >Can create and edit disability assessments. Can submit for validation.</field>
     </record>
 
-    <record id="group_disability_validator" model="res.groups">
-        <field name="name">Validator</field>
-        <field name="privilege_id" ref="privilege_disability_validator" />
+    <record id="group_disability_approver" model="res.groups">
+        <field name="name">Approver</field>
+        <field name="privilege_id" ref="privilege_disability_approver" />
         <field
             name="implied_ids"
             eval="[Command.link(ref('group_disability_assessor'))]"
         />
-        <field name="comment">Can approve or reject disability assessments.</field>
-    </record>
-
-    <record id="group_disability_manager" model="res.groups">
-        <field name="name">Manager</field>
-        <field name="privilege_id" ref="privilege_disability_manager" />
-        <field
-            name="implied_ids"
-            eval="[Command.link(ref('group_disability_validator'))]"
-        />
         <field
             name="comment"
-        >Full access to disability module including configuration.</field>
+        >Can approve or reject submitted disability assessments, on top of everything an Assessor can do. Also reaches the module's configuration.</field>
     </record>
 
     <!-- Link to admin (TIER 1) -->
     <record id="spp_security.group_spp_admin" model="res.groups">
         <field
             name="implied_ids"
-            eval="[Command.link(ref('group_disability_manager'))]"
+            eval="[Command.link(ref('group_disability_approver'))]"
         />
     </record>
 </odoo>

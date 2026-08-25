@@ -26,17 +26,6 @@ class TestRegistrantDisability(TransactionCase):
             }
         )
 
-        cls.user_validator = cls.env["res.users"].create(
-            {
-                "name": "Test Validator",
-                "login": "test_registrant_validator",
-                "email": "registrant_validator@test.com",
-                "group_ids": [
-                    Command.link(cls.env.ref("spp_disability_registry.group_disability_validator").id),
-                ],
-            }
-        )
-
         # Create test registrant
         cls.registrant = cls.env["res.partner"].create(
             {

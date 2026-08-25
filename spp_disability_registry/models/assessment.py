@@ -741,11 +741,36 @@ class SppDisabilityAssessment(models.Model):
         return definition.browse(int(def_id)).exists() if def_id else definition
 
     def _resolve_approval_definition(self):
-        """Use only the configured definition (no model-wide fallback), so the
-        Submit button stays hidden until an admin selects a workflow.
+        """The configured definition, else the one this module ships.
+
+        There is still no model-wide fallback — an unrelated definition for
+        this model must not start governing assessments by accident. But the
+        setting being empty no longer means "approval is off": it means "use
+        the built-in workflow", which hands the decision to the Disability
+        Approver role.
+
+        Before OP#1173 an empty setting left has_approval_definition False, so
+        Submit never appeared, no assessment reached a submitted state, and
+        Approve was therefore unreachable — the Approver role granted nothing
+        on a fresh database.
         """
         self.ensure_one()
-        return self._get_approval_definition()
+        return self._get_approval_definition() or self._default_approval_definition()
+
+    @api.model
+    def _default_approval_definition(self):
+        """The workflow shipped with this module, if it is still present.
+
+        It carries noupdate="1", so an admin may retarget or extend it; it can
+        also be deleted outright, hence raise_if_not_found=False.
+        """
+        return (
+            self.env.ref(
+                "spp_disability_registry.approval_definition_disability_assessment",
+                raise_if_not_found=False,
+            )
+            or self.env["spp.approval.definition"]
+        )
 
     def _questionnaire_answers(self):
         """The answers that feed the disability result for this assessment type

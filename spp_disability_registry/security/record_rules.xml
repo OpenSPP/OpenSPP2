@@ -23,7 +23,7 @@
         <field name="domain_force">[("registrant_id.disabled", "=", False)]</field>
         <field
             name="groups"
-            eval="[Command.link(ref('group_disability_assessor')), Command.link(ref('group_disability_manager'))]"
+            eval="[Command.link(ref('group_disability_assessor')), Command.link(ref('group_disability_approver'))]"
         />
         <field name="global">False</field>
         <field name="perm_read" eval="True" />
@@ -50,7 +50,7 @@
         <field name="domain_force">[("registrant_id.disabled", "=", False)]</field>
         <field
             name="groups"
-            eval="[Command.link(ref('group_disability_assessor')), Command.link(ref('group_disability_manager'))]"
+            eval="[Command.link(ref('group_disability_assessor')), Command.link(ref('group_disability_approver'))]"
         />
         <field name="global">False</field>
         <field name="perm_read" eval="True" />

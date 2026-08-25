@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="1">
+    <!--
+    The approval workflow disability assessments use out of the box (OP#1173).
+
+    Approval used to depend entirely on an admin creating a definition and
+    selecting it in Settings. Nothing shipped one, so on a fresh database
+    `has_approval_definition` was False, the Submit button never appeared,
+    and no assessment could reach a state where Approve was offered — the
+    Approver role granted nothing in practice.
+
+    Shipping this makes the role sufficient on its own: approval_type
+    "group" hands the decision to whoever holds Disability Approver.
+    `noupdate` so that an admin's edits (adding tiers, swapping the group)
+    survive later upgrades.
+    -->
+    <record
+        id="approval_definition_disability_assessment"
+        model="spp.approval.definition"
+    >
+        <field name="name">Disability Assessment Approval</field>
+        <field
+            name="model_id"
+            ref="spp_disability_registry.model_spp_disability_assessment"
+        />
+        <field name="approval_type">group</field>
+        <field
+            name="approval_group_id"
+            ref="spp_disability_registry.group_disability_approver"
+        />
+        <field name="sequence">10</field>
+    </record>
+</odoo>

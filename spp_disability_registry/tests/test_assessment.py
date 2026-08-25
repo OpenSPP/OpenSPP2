@@ -27,24 +27,13 @@ class TestDisabilityAssessment(TransactionCase):
             }
         )
 
-        cls.user_validator = cls.env["res.users"].create(
+        cls.user_approver = cls.env["res.users"].create(
             {
-                "name": "Test Validator",
-                "login": "test_validator",
-                "email": "validator@test.com",
+                "name": "Test Approver",
+                "login": "test_disability_approver",
+                "email": "disability_approver@test.com",
                 "group_ids": [
-                    Command.link(cls.env.ref("spp_disability_registry.group_disability_validator").id),
-                ],
-            }
-        )
-
-        cls.user_manager = cls.env["res.users"].create(
-            {
-                "name": "Test Manager",
-                "login": "test_disability_manager",
-                "email": "disability_manager@test.com",
-                "group_ids": [
-                    Command.link(cls.env.ref("spp_disability_registry.group_disability_manager").id),
+                    Command.link(cls.env.ref("spp_disability_registry.group_disability_approver").id),
                 ],
             }
         )
@@ -557,8 +546,8 @@ class TestDisabilityAssessment(TransactionCase):
         assessment.with_user(self.user_assessor).write({"wg_seeing": "some"})
         self.assertEqual(assessment.wg_seeing, "some")
 
-    def test_manager_can_delete_assessment(self):
-        """Test that manager can delete assessments."""
+    def test_approver_can_delete_assessment(self):
+        """Test that the approver can delete assessments."""
         assessment = self.env["spp.disability.assessment"].create(
             {
                 "registrant_id": self.adult_registrant.id,
@@ -566,7 +555,7 @@ class TestDisabilityAssessment(TransactionCase):
             }
         )
         assessment_id = assessment.id
-        assessment.with_user(self.user_manager).unlink()
+        assessment.with_user(self.user_approver).unlink()
         deleted = self.env["spp.disability.assessment"].search([("id", "=", assessment_id)])
         self.assertFalse(deleted)
 

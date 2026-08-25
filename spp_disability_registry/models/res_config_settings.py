@@ -51,18 +51,19 @@ class ResConfigSettings(models.TransientModel):
     )
 
     # === Approval ===
-    # The approval workflow applied to disability assessments. Create the workflow in
-    # Approvals > Approval Definitions (Model = Disability Assessment), then select it
-    # here. The assessment reads it via _get_approval_definition().
+    # The approval workflow applied to disability assessments. Optional since
+    # OP#1173: left empty, assessments use the definition this module ships,
+    # which is bound to the Disability Approver role. Set it only to override
+    # that with a custom workflow. Read via _resolve_approval_definition().
     disability_approval_definition_id = fields.Many2one(
         "spp.approval.definition",
         string="Assessment approval workflow",
         domain="[('model', '=', 'spp.disability.assessment')]",
         config_parameter="spp_disability_registry.approval_definition_id",
-        help="Approval workflow applied to disability assessments. Create it under "
-        "Approvals > Approval Definitions (with Model = Disability Assessment), then "
-        "select it here. Until one is selected, assessments cannot be submitted for "
-        "approval.",
+        help="Approval workflow applied to disability assessments. Leave empty to use "
+        "the built-in workflow, which lets anyone holding the Disability Approver role "
+        "approve or reject. Select a definition here only to override it with your own "
+        "(Approvals → Approval Definitions, with Model = Disability Assessment).",
     )
 
     # === Assessment Tabs (OP#1068) ===

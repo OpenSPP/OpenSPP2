@@ -33,7 +33,7 @@
         name="Configuration"
         parent="menu_disability_registry_root"
         sequence="100"
-        groups="spp_disability_registry.group_disability_manager"
+        groups="spp_disability_registry.group_disability_approver"
     />
 
     <!-- Configuration > Settings -->

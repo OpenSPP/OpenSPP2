@@ -60,7 +60,7 @@
                     <block title="Approval" name="disability_approval_block">
                         <setting
                             string="Assessment approval workflow"
-                            help="Approval workflow applied to disability assessments. Create it under Approvals → Approval Definitions (with Model = Disability Assessment), then select it here. Until one is selected, assessments cannot be submitted for approval."
+                            help="Approval workflow applied to disability assessments. Leave empty to use the built-in workflow, which lets anyone holding the Disability Approver role approve or reject. Select a definition here only to override it with your own (Approvals → Approval Definitions, with Model = Disability Assessment)."
                         >
                             <field
                                 name="disability_approval_definition_id"

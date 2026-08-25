@@ -52,6 +52,22 @@ Key Features
 Changelog
 =========
 
+19.0.3.1.0
+~~~~~~~~~~
+
+- feat(security): simplify the disability roles to **Viewer**,
+  **Assessor** and **Approver**, and make approving actually depend on
+  the Approver role. Assessor and Validator carried identical access
+  rights on every model, so Validator drew a distinction the system
+  never made; it is removed and its holders become Assessors, which is
+  the access they in fact had. Manager is renamed Approver, keeping the
+  same group so existing assignments are untouched. The module now ships
+  the approval workflow assessments use, bound to the Approver role:
+  previously nothing shipped one, the Submit button stayed hidden until
+  an admin created and selected a definition, and so no assessment could
+  reach a state where Approve was offered. The Settings field remains,
+  now as an override rather than a prerequisite (#1173)
+
 19.0.3.0.1
 ~~~~~~~~~~
 
