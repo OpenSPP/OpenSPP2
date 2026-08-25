@@ -15,7 +15,7 @@
                     t-if="props.record.data[props.name]"
                     type="button"
                     class="btn btn-link btn-sm p-0 ms-2 o_masked_toggle"
-                    t-on-click="toggleReveal"
+                    t-on-click.stop="toggleReveal"
                     t-att-disabled="state.isLoading"
                     t-att-title="state.isRevealed ? 'Hide value' : 'Reveal value'"
                 >

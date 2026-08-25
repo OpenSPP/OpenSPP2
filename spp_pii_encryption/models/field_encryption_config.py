@@ -35,6 +35,9 @@ class FieldEncryptionConfig(models.Model):
         help="The model containing the field to encrypt",
     )
     model_name = fields.Char(
+        # Explicit label: the related field would inherit ir.model's "Model"
+        # string and clash with model_id's label (Odoo warns at every load).
+        string="Model Name",
         related="model_id.model",
         store=True,
         index=True,
