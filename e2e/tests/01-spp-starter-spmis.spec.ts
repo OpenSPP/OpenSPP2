@@ -92,8 +92,11 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await installApp(page, "spp_starter_sp_mis");
 
     console.log("⏳ Waiting for the Registry menu to be ready before proceeding...");
-    await expect(page.getByRole("menuitem", {name: "Registry"})).toBeVisible({
-      timeout: 60_000,
+    // Odoo renders "Registry" as a menuitem in two places (top navbar dropdown and the
+    // side nav list) once the app is loaded — .nth(1) picks the side-list one, matching
+    // what test 02 later clicks.
+    await expect(page.getByRole("menuitem", {name: "Registry"}).nth(1)).toBeVisible({
+      timeout: 120_000,
     });
 
     await expect(page.locator(".o_main_navbar")).toBeVisible();
