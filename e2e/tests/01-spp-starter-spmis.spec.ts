@@ -16,12 +16,17 @@
 //   13 - Creates an Approval Definition (Change request → HQ validator) and assigns it as the Approval Workflow for Edit Individual Information, Edit Group Information, and Update ID Document change request types
 //   14 - Manually defines 5 Change Request Document Type vocabulary codes for the Philippines (PSA Birth Certificate, PhilSys National ID, Barangay Certificate of Residency, PSA Marriage Certificate, Proof of Income), matching what spp_mis_demo_v2's demo generator seeds for "phl", by adding rows to the existing vocabulary's Codes tab via Settings > Vocabularies
 //   15 - Manually defines 5 more Change Request Document Type vocabulary codes for the Philippines (BIR Form 2316, Academic Calendar, Authorization Letter, Certificate of Enrolment, Valid ID of Parent), matching the e2e fixture PDFs in e2e/fixtures/, by adding rows to the same vocabulary's Codes tab as test 14
+//   16 - Creates an "Edit Individual Information" change request for Santos, Jose Miguel (as admin), uploads a supporting document, and submits it for approval
+//   17 - Creates an "Edit Group Information" change request for Santos Family (as admin), uploads a supporting document, and submits it for approval
+//   18 - Creates an "Update ID Document" change request for Santos, Jose Miguel (as admin), sets a National ID with tomorrow's expiry date, uploads a supporting document, and submits it for approval
+//   19 - Creates an HQ validator user (hqval@mail.com) with the "CR HQ Validator" role and sets its password
 //
 // All tests run in order and share a single browser session (test.describe.serial).
 // A fresh Docker stack is spun up in beforeAll so every run starts from a clean database.
 
 import {test, expect, Page, Browser} from "@playwright/test";
 import {resetStack} from "./helpers";
+import * as path from "path";
 
 async function login(page: Page) {
   await page.goto("/web/login");
@@ -29,6 +34,12 @@ async function login(page: Page) {
   await page.getByRole("textbox", {name: "Password"}).fill("admin");
   await page.getByRole("button", {name: "Log in"}).click();
   await expect(page.locator(".o_main_navbar")).toBeVisible({timeout: 30_000});
+}
+
+function formatDateMDY(date: Date): string {
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${mm}/${dd}/${date.getFullYear()}`;
 }
 
 async function installApp(page: Page, technicalName: string) {
@@ -933,5 +944,253 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     console.log(
       "✅ All 5 additional CR document types saved under the Change Request Document Types vocabulary"
     );
+  });
+
+  test("16 - create Edit Individual Information change request for Santos, Jose Miguel", async () => {
+    // Test 15 leaves the session inside Settings > Vocabularies, which replaces the OpenSPP
+    // navbar with the Settings app's own navbar. Go back to the OpenSPP home to get the
+    // "Change Requests" top-level menu back.
+    await page.goto("/odoo");
+    await page.waitForLoadState("domcontentloaded");
+
+    await page.getByRole("menuitem", {name: "Change Requests"}).click();
+    await page.waitForLoadState("domcontentloaded");
+    await page.getByRole("button", {name: "New Request"}).click();
+    await page.waitForLoadState("domcontentloaded");
+
+    await page.getByRole("textbox", {name: "Request Type"}).click();
+    await page.getByText("Edit Individual Information").click();
+    console.log("✅ Request Type: Edit Individual Information");
+
+    await page.getByRole("textbox", {name: "Enter name or ID number..."}).fill("san");
+    await page.getByRole("cell", {name: "SANTOS, JOSE MIGUEL"}).click();
+    console.log("✅ Registrant selected: SANTOS, JOSE MIGUEL");
+
+    await page.getByRole("button", {name: "Create"}).click();
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page.getByRole("textbox", {name: "Given Name"})).toBeVisible({
+      timeout: 10_000,
+    });
+    console.log("✅ Change request draft opened for editing");
+
+    await page.getByRole("textbox", {name: "Given Name"}).fill("Jose Miguel Updated");
+    await page.getByRole("textbox", {name: "Address Line 1"}).fill("updated");
+    await page.getByRole("textbox", {name: "Address Line 2"}).fill("updated");
+    await page.getByRole("textbox", {name: "City"}).fill("updated");
+    await page.getByRole("textbox", {name: "Postal Code"}).fill("6000");
+    await expect(page.getByRole("textbox", {name: "Given Name"})).toHaveValue(
+      "Jose Miguel Updated"
+    );
+    console.log("✅ Updated fields filled: Given Name, Address, City, Postal Code");
+
+    await page.getByRole("button", {name: "Next: Upload Documents"}).click();
+    await page.waitForLoadState("domcontentloaded");
+
+    await page.getByRole("button", {name: "Upload Document"}).click();
+    await page.getByRole("combobox", {name: "Document Type?"}).click();
+    await page.getByRole("option", {name: "PSA Birth Certificate"}).click();
+    await page
+      .getByRole("dialog")
+      .locator('input[type="file"]')
+      .setInputFiles(
+        path.resolve(__dirname, "..", "fixtures", "sample_valid_ID_parent.pdf")
+      );
+    await expect(
+      page.getByRole("textbox", {name: "sample_valid_ID_parent.pdf"})
+    ).toBeVisible({timeout: 10_000});
+    await page.getByRole("button", {name: "Upload", exact: true}).click();
+    console.log(
+      "✅ Document uploaded: sample_valid_ID_parent.pdf (PSA Birth Certificate)"
+    );
+
+    await page.getByRole("button", {name: "Next: Review & Submit"}).click();
+    await page.waitForLoadState("domcontentloaded");
+    await page.getByRole("tab", {name: "Attached Documents"}).click();
+    await expect(page.getByRole("cell", {name: "sample_valid_ID_parent.pdf"})).toBeVisible();
+    console.log("✅ Review page shows attached document");
+
+    await page.getByRole("button", {name: "Submit for Approval"}).click();
+    await page
+      .getByRole("alert")
+      .filter({hasText: "Edit Individual"})
+      .getByRole("button", {name: "Close"})
+      .click();
+    console.log("✅ Edit Individual Information change request submitted for approval");
+  });
+
+  test("17 - create Edit Group Information change request for Santos Family", async () => {
+    // Continues directly on the Change Requests list from test 16 — no re-navigation needed.
+    await page.getByRole("button", {name: "New Request"}).click();
+    await page.waitForLoadState("domcontentloaded");
+
+    await page.getByRole("textbox", {name: "Request Type"}).click();
+    await page.getByText("Edit Group Information").click();
+    console.log("✅ Request Type: Edit Group Information");
+
+    await page.getByRole("textbox", {name: "Enter name or ID number..."}).fill("san");
+    await page.getByRole("cell", {name: "Santos Family"}).click();
+    console.log("✅ Registrant selected: Santos Family");
+
+    await page.getByRole("button", {name: "Create"}).click();
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page.getByRole("textbox", {name: "Address Line 1"})).toBeVisible({
+      timeout: 10_000,
+    });
+    console.log("✅ Change request draft opened for editing");
+
+    await page.getByRole("textbox", {name: "Address Line 1"}).fill("updated");
+    await page.getByRole("textbox", {name: "Address Line 2"}).fill("updated");
+    await page.getByRole("textbox", {name: "City"}).fill("updated");
+    await page.getByRole("textbox", {name: "Postal Code"}).fill("6000");
+    await expect(page.getByRole("textbox", {name: "Address Line 1"})).toHaveValue(
+      "updated"
+    );
+    console.log("✅ Updated fields filled: Address, City, Postal Code");
+
+    await page.getByRole("button", {name: "Next: Upload Documents"}).click();
+    await page.waitForLoadState("domcontentloaded");
+
+    await page.getByRole("button", {name: "Upload Document"}).click();
+    await page.getByRole("combobox", {name: "Document Type?"}).click();
+    await page.getByRole("option", {name: "PSA Birth Certificate"}).click();
+    await page
+      .getByRole("dialog")
+      .locator('input[type="file"]')
+      .setInputFiles(
+        path.resolve(__dirname, "..", "fixtures", "sample_valid_ID_parent.pdf")
+      );
+    await expect(
+      page.getByRole("textbox", {name: "sample_valid_ID_parent.pdf"})
+    ).toBeVisible({timeout: 10_000});
+    await page.getByRole("button", {name: "Upload", exact: true}).click();
+    console.log(
+      "✅ Document uploaded: sample_valid_ID_parent.pdf (PSA Birth Certificate)"
+    );
+
+    await page.getByRole("button", {name: "Next: Review & Submit"}).click();
+    await page.waitForLoadState("domcontentloaded");
+    await page.getByRole("tab", {name: "Attached Documents"}).click();
+    await expect(page.getByRole("cell", {name: "sample_valid_ID_parent.pdf"})).toBeVisible();
+    console.log("✅ Review page shows attached document");
+
+    await page.getByRole("button", {name: "Submit for Approval"}).click();
+    console.log("✅ Edit Group Information change request submitted for approval");
+  });
+
+  test("18 - create Update ID Document change request for Santos, Jose Miguel", async () => {
+    // Continues directly on the Change Requests list from test 17 — no re-navigation needed.
+    await page.getByRole("button", {name: "New Request"}).click();
+    await page.waitForLoadState("domcontentloaded");
+
+    await page.getByRole("textbox", {name: "Request Type"}).click();
+    await page.getByText("Update ID Document").click();
+    console.log("✅ Request Type: Update ID Document");
+
+    await page.getByRole("textbox", {name: "Enter name or ID number..."}).fill("sant");
+    await page.waitForLoadState("networkidle");
+    await page.pause();
+    await page.getByRole("cell", {name: "SANTOS, JOSE MIGUEL"}).last().click();
+    console.log("✅ Registrant selected: SANTOS, JOSE MIGUEL");
+
+    await page.getByRole("button", {name: "Create"}).click();
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page.getByRole("combobox", {name: "ID Type"})).toBeVisible({
+      timeout: 10_000,
+    });
+    console.log("✅ Change request draft opened for editing");
+
+    await page.getByRole("combobox", {name: "ID Type"}).click();
+    await page.getByRole("option", {name: "National ID"}).click();
+    await page.getByRole("textbox", {name: "ID Number/Value?"}).fill("9999999991");
+
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + 1);
+    const expiryDateStr = formatDateMDY(expiryDate);
+    await page.getByRole("textbox", {name: "Expiry Date"}).fill(expiryDateStr);
+    await page.getByRole("textbox", {name: "Expiry Date"}).press("Escape");
+    console.log(
+      `✅ ID Information filled: National ID, 9999999991, expires ${expiryDateStr}`
+    );
+
+    await page.getByRole("button", {name: "Next: Upload Documents"}).click();
+    await page.waitForLoadState("domcontentloaded");
+
+    await page.getByRole("button", {name: "Upload Document"}).click();
+    await page.getByRole("combobox", {name: "Document Type?"}).click();
+    await page.getByRole("option", {name: "PSA Birth Certificate"}).click();
+    await page
+      .getByRole("dialog")
+      .locator('input[type="file"]')
+      .setInputFiles(
+        path.resolve(__dirname, "..", "fixtures", "sample_valid_ID_parent.pdf")
+      );
+    await expect(
+      page.getByRole("textbox", {name: "sample_valid_ID_parent.pdf"})
+    ).toBeVisible({timeout: 10_000});
+    await page.getByRole("button", {name: "Upload", exact: true}).click();
+    console.log(
+      "✅ Document uploaded: sample_valid_ID_parent.pdf (PSA Birth Certificate)"
+    );
+
+    await page.getByRole("button", {name: "Next: Review & Submit"}).click();
+    await page.waitForLoadState("domcontentloaded");
+    await page.getByRole("tab", {name: "Attached Documents"}).click();
+    await expect(page.getByRole("cell", {name: "sample_valid_ID_parent.pdf"})).toBeVisible();
+    console.log("✅ Review page shows attached document");
+
+    await page.getByRole("button", {name: "Submit for Approval"}).click();
+    await page
+      .getByRole("alert")
+      .filter({hasText: "Update ID Document"})
+      .getByRole("button", {name: "Close"})
+      .click();
+    console.log("✅ Update ID Document change request submitted for approval");
+  });
+
+  test("19 - create HQ validator user", async () => {
+    await page.getByRole("menuitem", {name: "Settings"}).click();
+    await page.waitForLoadState("domcontentloaded");
+    await page.getByRole("button", {name: "Users & Companies"}).click();
+    await page.getByRole("menuitem", {name: "Users"}).click();
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page.getByRole("row", {name: "Name  Login  Roles "})).toBeVisible();
+
+    await page.getByRole("button", {name: "New"}).click();
+    await page.waitForLoadState("domcontentloaded");
+    await expect(
+      page.getByRole("row", {name: "Role  Center Areas Role Type"})
+    ).toBeVisible();
+
+    await page.getByRole("textbox", {name: "e.g. John Doe"}).fill("hqval@mail.com");
+    await page.getByRole("textbox", {name: "Login"}).fill("hqval@mail.com");
+    console.log("✅ User name and login filled: hqval@mail.com");
+
+    await page.getByRole("button", {name: "Add a line"}).click();
+    await page.getByRole("combobox").fill("hq");
+    await page.getByRole("option", {name: "CR HQ Validator"}).click();
+    await expect(
+      page.getByRole("row", {name: "CR HQ Validator Delete row"})
+    ).toBeVisible();
+    console.log("✅ Role assigned: CR HQ Validator");
+
+    await page.getByRole("button", {name: "Actions menu"}).click();
+    await page.getByRole("menuitem", {name: "Change Password"}).click();
+    await expect(page.getByRole("button", {name: "Edit"})).toBeVisible();
+
+    await page
+      .locator(
+        ".o_form_renderer > .o_field_widget > .o_list_view > .o_list_renderer > .o_list_table > .ui-sortable > .o_data_row > td:nth-child(2)"
+      )
+      .click();
+    await page.locator('input[type="password"]').fill("hqval1234$");
+    await page.getByRole("button", {name: "Change Password"}).click();
+    console.log("✅ Password set for hqval@mail.com");
+
+    await page.getByRole("button", {name: "User User is online"}).click();
+    await expect(
+      page.getByRole("link", {name: "User is online Online "})
+    ).toBeVisible();
+    await page.getByRole("menuitem", {name: "Log out"}).click();
+    console.log("✅ HQ validator user created and logged out");
   });
 });
