@@ -128,14 +128,39 @@ class FieldEncryptionConfig(models.Model):
 
     @api.constrains("field_id")
     def _check_field_type(self):
-        """Ensure only char and text fields can be encrypted."""
+        """Ensure only unconstrained char and text fields can be encrypted."""
         for record in self:
-            if record.field_id and record.field_id.ttype not in ("char", "text"):
+            if not record.field_id:
+                continue
+            if record.field_id.ttype not in ("char", "text"):
                 raise ValidationError(
                     _(
                         "Only Char and Text fields can be encrypted. '%(field)s' is a %(ttype)s field.",
                         field=record.field_id.name,
                         ttype=record.field_id.ttype,
+                    )
+                )
+            if record.field_id.size:
+                # Odoo silently truncates Char values to `size`; a truncated
+                # ciphertext can never be decrypted, so the plaintext would
+                # be destroyed with no error on the very first write.
+                raise ValidationError(
+                    _(
+                        "Field '%(field)s' has a size limit (%(size)s). Encrypted values are"
+                        " longer than their plaintext and would be silently truncated,"
+                        " destroying the data. Only unlimited Char/Text fields can be encrypted.",
+                        field=record.field_id.name,
+                        size=record.field_id.size,
+                    )
+                )
+            if record.field_id.translate:
+                # A translated field stores one value per language in a jsonb
+                # column; transparent encryption would fragment the ciphertext
+                # across languages and lose values on language switch.
+                raise ValidationError(
+                    _(
+                        "Field '%(field)s' is translatable and cannot be encrypted.",
+                        field=record.field_id.name,
                     )
                 )
 

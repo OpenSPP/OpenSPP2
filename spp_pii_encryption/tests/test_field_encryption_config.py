@@ -86,3 +86,29 @@ class TestFieldEncryptionConfig(TransactionCase):
                     "field_id": self.bool_field.id,
                 }
             )
+
+    def test_size_limited_field_rejected(self):
+        """Char fields with a size limit would silently truncate ciphertext."""
+        country_model = self.env["ir.model"]._get("res.country")
+        code_field = self.env["ir.model.fields"]._get("res.country", "code")
+        self.assertTrue(code_field.size, "res.country.code should have a size limit")
+        with self.assertRaises(ValidationError):
+            self.Config.create(
+                {
+                    "model_id": country_model.id,
+                    "field_id": code_field.id,
+                }
+            )
+
+    def test_translated_field_rejected(self):
+        """Translated fields store per-language values and cannot be encrypted."""
+        country_model = self.env["ir.model"]._get("res.country")
+        name_field = self.env["ir.model.fields"]._get("res.country", "name")
+        self.assertTrue(name_field.translate, "res.country.name should be translatable")
+        with self.assertRaises(ValidationError):
+            self.Config.create(
+                {
+                    "model_id": country_model.id,
+                    "field_id": name_field.id,
+                }
+            )
