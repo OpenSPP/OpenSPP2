@@ -31,7 +31,8 @@ import secrets
 
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
-from odoo import api, fields, models
+from odoo import _, api, models
+from odoo.exceptions import AccessError, UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -62,12 +63,6 @@ class EncryptedFieldMixin(models.AbstractModel):
     _name = "spp.encrypted.field.mixin"
     _description = "Encrypted Field Mixin"
 
-    # Track which fields are currently encrypted (for migration)
-    _encryption_enabled = fields.Boolean(
-        default=True,
-        help="Whether encryption is enabled for this record",
-    )
-
     def _get_encrypted_fields(self):
         """Return list of field names that should be encrypted.
 
@@ -82,7 +77,11 @@ class EncryptedFieldMixin(models.AbstractModel):
         # exists, so the presence test must compare against None.
         FieldConfig = self.env.get("spp.field.encryption.config")
         if FieldConfig is not None:
-            db_fields = FieldConfig.get_encrypted_fields(self._name)
+            # The config is a policy table, not user data: it must be
+            # readable regardless of the reader's own ACLs (portal/public
+            # reads of a host model would otherwise crash here).
+            # nosemgrep: odoo-sudo-without-context - policy lookup only, no user data is exposed
+            db_fields = FieldConfig.sudo().get_encrypted_fields(self._name)
             if db_fields:
                 return db_fields
         # Fallback: no encryption configured
@@ -133,7 +132,9 @@ class EncryptedFieldMixin(models.AbstractModel):
         """
         FieldConfig = self.env.get("spp.field.encryption.config")
         if FieldConfig is not None:
-            config_type = FieldConfig.get_index_type(self._name, field_name)
+            # Same policy-table rationale as _get_encrypted_fields.
+            # nosemgrep: odoo-sudo-without-context - policy lookup only, no user data is exposed
+            config_type = FieldConfig.sudo().get_index_type(self._name, field_name)
             if config_type:
                 return config_type
         return "exact"
@@ -171,11 +172,18 @@ class EncryptedFieldMixin(models.AbstractModel):
             encrypted = base64.b64encode(nonce + ciphertext).decode("ascii")
             return encrypted
 
+        except AccessError:
+            # The caller lacks key access: surface the real permission error
+            # instead of masking it as a technical failure.
+            raise
         except Exception:
             # SECURITY: Log error without crypto details that could aid attackers
             _logger.error("Encryption failed for %s.%s (details suppressed for security)", self._name, field_name)
-            raise ValueError(
-                f"Encryption failed for field '{field_name}'. Check system configuration and logs."
+            raise UserError(
+                _(
+                    "Encryption failed for field '%(field)s'. Check system configuration and logs.",
+                    field=field_name,
+                )
             ) from None
 
     def _decrypt_value(self, encrypted_value, field_name):
@@ -375,17 +383,17 @@ class EncryptedFieldMixin(models.AbstractModel):
             self._apply_encryption_to_vals(vals, encrypted_fields)
         return super().write(vals)
 
-    def read(self, fields_list=None, load="_classic_read"):
+    def read(self, fields=None, load="_classic_read"):
         """Decrypt fields after read."""
-        result = super().read(fields_list, load)
+        result = super().read(fields, load)
 
         encrypted_fields = self._get_encrypted_fields()
         if not encrypted_fields:
             return result
 
         # Determine which encrypted fields are being read
-        if fields_list:
-            fields_to_decrypt = [f for f in encrypted_fields if f in fields_list]
+        if fields:
+            fields_to_decrypt = [f for f in encrypted_fields if f in fields]
         else:
             fields_to_decrypt = encrypted_fields
 
@@ -406,8 +414,12 @@ class EncryptedFieldMixin(models.AbstractModel):
 
         return result
 
-    def search_by_blind_index(self, field_name, search_value):
+    def _search_by_blind_index(self, field_name, search_value):
         """Search encrypted field using blind index.
+
+        Private on purpose: exposing this over RPC would hand any caller a
+        plaintext-confirmation oracle over low-entropy PII values. Consumer
+        models must wrap it with their own access policy.
 
         Uses the configured index type for the field to ensure
         consistent index computation between write and search.
@@ -433,8 +445,12 @@ class EncryptedFieldMixin(models.AbstractModel):
         blind_index = self._compute_blind_index(search_value, field_name, index_type)
         return self.search([(index_field, "=", blind_index)])
 
-    def search_by_partial(self, field_name, last_chars):
+    def _search_by_partial(self, field_name, last_chars):
         """Search encrypted field by last N characters.
+
+        Private on purpose: over RPC this would let a caller partition all
+        records into last-4 buckets and enumerate matches. Consumer models
+        must wrap it with their own access policy.
 
         Uses blind index for secure partial matching.
 

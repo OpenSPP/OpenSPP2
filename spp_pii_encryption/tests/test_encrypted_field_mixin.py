@@ -5,6 +5,7 @@ import base64
 from unittest.mock import patch
 
 from odoo import models
+from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
 from odoo.tools import config, mute_logger
 
@@ -155,8 +156,8 @@ class TestEncryptedFieldMixin(TransactionCase):
     def test_search_helpers_without_index_field(self):
         """Search helpers return an empty recordset when the index column is absent."""
         with mute_logger("odoo.addons.spp_pii_encryption.models.encrypted_field_mixin"):
-            self.assertFalse(self.Mixin.search_by_blind_index("national_id", "123"))
-            self.assertFalse(self.Mixin.search_by_partial("national_id", "0123"))
+            self.assertFalse(self.Mixin._search_by_blind_index("national_id", "123"))
+            self.assertFalse(self.Mixin._search_by_partial("national_id", "0123"))
 
     def _mixin_with_index_fields(self):
         """Return a patcher exposing national_id blind-index fields on the mixin.
@@ -289,7 +290,8 @@ class TestEncryptedFieldMixin(TransactionCase):
             patch.object(models.BaseModel, "read", return_value=fake_rows),
             mute_logger("odoo.addons.spp_pii_encryption.models.encrypted_field_mixin"),
         ):
-            result = mixin.browse().read(["display_name"])
+            # Keyword call mirrors core callers like res.users read(fields=...)
+            result = mixin.browse().read(fields=["display_name"])
 
         self.assertEqual(result[0]["display_name"], "secret-R")
         # Undecryptable data is left as-is (backwards compatibility with
@@ -306,7 +308,7 @@ class TestEncryptedFieldMixin(TransactionCase):
         self.assertEqual(result, [{"id": 1, "create_date": "2020-01-01"}])
 
     def test_search_by_blind_index_builds_hashed_domain(self):
-        """search_by_blind_index searches on the HMAC, never the plaintext."""
+        """_search_by_blind_index searches on the HMAC, never the plaintext."""
         mixin = self.Mixin
         mixin._get_index_salt("national_id")  # materialize salt pre-patch
         expected = mixin._compute_blind_index("123-456-7890", "national_id", "exact")
@@ -315,13 +317,13 @@ class TestEncryptedFieldMixin(TransactionCase):
             self._mixin_with_index_fields(),
             patch.object(type(mixin), "search", return_value=mixin.browse()) as mock_search,
         ):
-            result = mixin.search_by_blind_index("national_id", "123-456-7890")
+            result = mixin._search_by_blind_index("national_id", "123-456-7890")
 
         self.assertFalse(result)
         mock_search.assert_called_once_with([("national_id_index", "=", expected)])
 
     def test_search_by_partial_builds_hashed_domain(self):
-        """search_by_partial hashes the search value before searching."""
+        """_search_by_partial hashes the search value before searching."""
         mixin = self.Mixin
         mixin._get_index_salt("national_id")
         expected = mixin._compute_blind_index("7890", "national_id", "partial")
@@ -330,22 +332,31 @@ class TestEncryptedFieldMixin(TransactionCase):
             self._mixin_with_index_fields(),
             patch.object(type(mixin), "search", return_value=mixin.browse()) as mock_search,
         ):
-            result = mixin.search_by_partial("national_id", "7890")
+            result = mixin._search_by_partial("national_id", "7890")
 
         self.assertFalse(result)
         mock_search.assert_called_once_with([("national_id_last4", "=", expected)])
 
     def test_encrypt_value_failure_raises_sanitized_error(self):
-        """Encryption failures raise a ValueError without crypto internals."""
+        """Encryption failures raise a UserError without crypto internals."""
         mixin = self.Mixin
         with (
             mute_logger("odoo.addons.spp_pii_encryption.models.encrypted_field_mixin"),
             patch.object(type(mixin), "_get_encryption_key", side_effect=RuntimeError("boom")),
-            self.assertRaises(ValueError) as cm,
+            self.assertRaises(UserError) as cm,
         ):
             mixin._encrypt_value("x", "national_id")
         self.assertNotIn("boom", str(cm.exception))
         self.assertIn("national_id", str(cm.exception))
+
+    def test_encrypt_value_propagates_access_error(self):
+        """A missing key permission surfaces as AccessError, not a crypto error."""
+        mixin = self.Mixin
+        with (
+            patch.object(type(mixin), "_get_encryption_key", side_effect=AccessError("no key for you")),
+            self.assertRaises(AccessError),
+        ):
+            mixin._encrypt_value("x", "national_id")
 
     def test_soundex_empty_value(self):
         """Empty input yields the neutral Soundex code."""
