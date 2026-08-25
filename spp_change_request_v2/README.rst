@@ -853,7 +853,7 @@ Before declaring a new CR type complete:
 Changelog
 =========
 
-19.0.3.1.6
+19.0.3.1.7
 ~~~~~~~~~~
 
 - fix(security): require change-request manager rights to apply a change
@@ -867,7 +867,7 @@ Changelog
   API user the change-request manager role to keep using the apply
   endpoint.**
 
-19.0.3.1.5
+19.0.3.1.6
 ~~~~~~~~~~
 
 - fix(security): derive conflict and duplicate detection from the change
@@ -880,7 +880,7 @@ Changelog
   field mappings fall back to the full configured field set instead of
   an empty one, so detection cannot silently disable itself.
 
-19.0.3.1.4
+19.0.3.1.5
 ~~~~~~~~~~
 
 - fix(security): scope the CR Requestor, Local Validator and HQ
@@ -891,7 +891,7 @@ Changelog
   roles and resynchronises existing users, since the role definitions
   are ``noupdate``.
 
-19.0.3.1.3
+19.0.3.1.4
 ~~~~~~~~~~
 
 - fix(security): add ownership and area record rules to every concrete
@@ -907,7 +907,7 @@ Changelog
   only on their own requests, while validators and managers keep the
   unrestricted delete their access-control entries grant.
 
-19.0.3.1.2
+19.0.3.1.3
 ~~~~~~~~~~
 
 - fix(security): route and apply the same single field for
@@ -918,6 +918,14 @@ Changelog
   approved. Note the mapped-source-field freeze applies to
   ``field_mapping`` request types; ``custom``-strategy types freeze only
   the routing selector.
+
+19.0.3.1.2
+~~~~~~~~~~
+
+- fix(change_request_v2): adding an ID now looks for a live one of that
+  type rather than any row at all, so an ID that was removed through a
+  change request no longer blocks adding a replacement of the same type
+  (#1136)
 
 19.0.3.1.1
 ~~~~~~~~~~
