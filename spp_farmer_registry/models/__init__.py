@@ -5,4 +5,3 @@ from . import farm_details
 from . import farm_activity
 from . import farm_asset
 from . import farm
-from . import res_config_settings

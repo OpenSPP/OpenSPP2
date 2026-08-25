@@ -853,6 +853,14 @@ Before declaring a new CR type complete:
 Changelog
 =========
 
+19.0.3.1.2
+~~~~~~~~~~
+
+- fix(change_request_v2): adding an ID now looks for a live one of that
+  type rather than any row at all, so an ID that was removed through a
+  change request no longer blocks adding a replacement of the same type
+  (#1136)
+
 19.0.3.1.1
 ~~~~~~~~~~
 
