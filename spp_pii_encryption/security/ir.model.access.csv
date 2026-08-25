@@ -3,3 +3,9 @@ access_pii_audit_log_admin,PII Audit Log Admin,model_spp_pii_audit_log,group_enc
 access_pii_audit_log_system,PII Audit Log System,model_spp_pii_audit_log,base.group_system,1,0,1,0
 access_field_encryption_config_admin,Field Encryption Config Admin,model_spp_field_encryption_config,group_encryption_admin,1,1,1,1
 access_field_encryption_config_system,Field Encryption Config System,model_spp_field_encryption_config,base.group_system,1,1,1,1
+access_encryption_migration_wizard_admin,Encryption Migration Wizard Admin,model_spp_encryption_migration_wizard,group_encryption_admin,1,1,1,1
+access_encryption_migration_wizard_system,Encryption Migration Wizard System,model_spp_encryption_migration_wizard,base.group_system,1,1,1,1
+access_encryption_migration_scan_result_admin,Encryption Migration Scan Result Admin,model_spp_encryption_migration_scan_result,group_encryption_admin,1,1,1,1
+access_encryption_migration_scan_result_system,Encryption Migration Scan Result System,model_spp_encryption_migration_scan_result,base.group_system,1,1,1,1
+access_encryption_migration_log_admin,Encryption Migration Log Admin,model_spp_encryption_migration_log,group_encryption_admin,1,1,1,1
+access_encryption_migration_log_system,Encryption Migration Log System,model_spp_encryption_migration_log,base.group_system,1,1,1,1

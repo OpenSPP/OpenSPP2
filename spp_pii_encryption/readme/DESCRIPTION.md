@@ -24,12 +24,13 @@ After installing:
 3. Choose the blind index type: Exact (full normalized match), Partial (last 4 characters), or Phonetic (Soundex for names)
 4. Enable encryption and blind index options
 
-Bulk migration of existing plaintext data (scan, dry-run, backup, rollback) is provided separately and depends on the data classification module.
+To encrypt data that existed before encryption was enabled, use the migration wizard at **Key Management > PII Encryption > Data Migration**: scan the classification registry for PII fields on encryption-capable models, preview with a dry run, then migrate in batches. There is deliberately no in-app rollback or plaintext backup — take a database snapshot before migrating.
 
 ### UI Location
 
 - **Configuration**: Key Management > PII Encryption > Field Configuration
 - **Audit Log**: Key Management > PII Encryption > Audit Log
+- **Data Migration**: Key Management > PII Encryption > Data Migration
 
 ### Security
 
@@ -49,4 +50,4 @@ Bulk migration of existing plaintext data (scan, dry-run, backup, rollback) is p
 
 ### Dependencies
 
-`base`, `spp_key_management`, `spp_security`
+`base`, `spp_key_management`, `spp_security`, `spp_data_classification`
