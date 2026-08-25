@@ -2,7 +2,7 @@
 
 - fix(security): route the async import lock through the operation-lock
   helpers so it keeps working under the new `spp.program` write guard.
-  `spp_programs` 19.0.2.2.1 restricts direct writes to `is_locked` /
+  `spp_programs` 19.0.2.2.2 restricts direct writes to `is_locked` /
   `locked_reason` to system administrators; the geofence import acquired and
   released the lock with plain writes as the initiating (non-admin) user,
   which the guard would reject — leaving the program stuck locked. It now

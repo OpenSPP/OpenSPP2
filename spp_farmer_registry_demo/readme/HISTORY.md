@@ -2,7 +2,7 @@
 
 - fix(demo): release/force the cycle operation lock through the
   `_release_operation_lock` helper instead of writing `is_locked` directly,
-  so demo generation stays compatible with the `spp_programs` 19.0.2.2.1
+  so demo generation stays compatible with the `spp_programs` 19.0.2.2.2
   guard that restricts direct writes to the lock fields to system admins.
 
 ### 19.0.2.1.4
