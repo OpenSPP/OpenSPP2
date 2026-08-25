@@ -139,6 +139,16 @@ Dependencies
 Changelog
 =========
 
+19.0.2.2.1
+~~~~~~~~~~
+
+- feat(registry): registry configuration is consolidated into one
+  **Registry Settings** section in the Settings app, with the Restrict
+  Registry Edits toggle and the relocated superuser configuration menus
+  (API V2, Import Match). Changing the toggle needs a Settings
+  administrator; the section's menu is gated to match, since the
+  framework refuses a settings save from anyone else (#1009)
+
 19.0.2.1.4
 ~~~~~~~~~~
 
