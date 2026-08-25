@@ -2,4 +2,5 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_pii_audit_log_admin,PII Audit Log Admin,model_spp_pii_audit_log,group_encryption_admin,1,0,0,0
 access_pii_audit_log_system,PII Audit Log System,model_spp_pii_audit_log,base.group_system,1,0,1,0
 access_field_encryption_config_admin,Field Encryption Config Admin,model_spp_field_encryption_config,group_encryption_admin,1,1,1,1
+access_field_encryption_config_system,Field Encryption Config System,model_spp_field_encryption_config,base.group_system,1,1,1,1
 access_field_encryption_config_user,Field Encryption Config User,model_spp_field_encryption_config,base.group_user,1,0,0,0

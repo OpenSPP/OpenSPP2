@@ -9,13 +9,18 @@
         <field name="sequence">10</field>
     </record>
 
-    <!-- Encryption Admin - Key management -->
+    <!-- Encryption Admin - PII encryption configuration and audit review.
+         Must never imply base.group_system: implied_ids GRANTS the implied
+         groups to members, so that link would silently promote anyone
+         holding this encryption role to a full Settings/System
+         administrator. System admins get their own explicit ACL rows on
+         the encryption models instead (see ir.model.access.csv). -->
     <record id="group_encryption_admin" model="res.groups">
         <field name="name">Encryption Administrator</field>
         <field name="privilege_id" ref="privilege_encryption_admin" />
         <field
             name="comment"
-        >Can manage encryption keys and rotate them. Highly privileged role.</field>
-        <field name="implied_ids" eval="[Command.link(ref('base.group_system'))]" />
+        >Can configure field-level PII encryption and review PII access audit logs. Highly privileged role.</field>
+        <field name="implied_ids" eval="[Command.link(ref('base.group_user'))]" />
     </record>
 </odoo>
