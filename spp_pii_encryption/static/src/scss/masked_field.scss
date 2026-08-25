@@ -1,0 +1,36 @@
+.o_masked_field {
+    .o_masked_value {
+        font-family: monospace;
+        letter-spacing: 0.1em;
+    }
+
+    .o_masked_toggle {
+        opacity: 0.6;
+        transition: opacity 0.2s ease;
+
+        &:hover {
+            opacity: 1;
+        }
+
+        &:focus {
+            box-shadow: none;
+        }
+    }
+
+    // Visual indicator for masked state
+    &.is-masked .o_masked_value {
+        color: var(--bs-secondary);
+    }
+
+    // Ensure proper alignment in form views
+    .o_field_widget & {
+        min-height: 1.5rem;
+    }
+}
+
+// List view styling
+.o_list_view .o_masked_field {
+    .o_masked_toggle {
+        font-size: 0.85em;
+    }
+}

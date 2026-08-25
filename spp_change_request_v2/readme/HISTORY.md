@@ -1,3 +1,7 @@
+### 19.0.3.1.2
+
+- fix(change_request_v2): adding an ID now looks for a live one of that type rather than any row at all, so an ID that was removed through a change request no longer blocks adding a replacement of the same type (#1136)
+
 ### 19.0.3.1.1
 
 - fix(change_request): enforce the `(cr_type_id, reason)` uniqueness of per-reason Required-Documents rules with `models.Constraint` (#394). The rule was previously declared via the legacy `_sql_constraints` attribute, which Odoo 19 ignores — the constraint was never created, so duplicate rules for the same reason could be saved silently since 19.0.3.0.0 and one WARNING line was logged on every registry load. A pre-migration removes duplicate rules (the lowest-id rule per pair is kept, matching which rule the runtime applied) so the constraint applies cleanly on upgrade.

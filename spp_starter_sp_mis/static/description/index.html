@@ -395,8 +395,8 @@ stamps the view from the same access result</li>
 <p>This module defines no models. It extends:</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="36%" />
-<col width="64%" />
+<col width="25%" />
+<col width="75%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -404,18 +404,23 @@ stamps the view from the same access result</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><tt class="docutils literal">res.config.settings</tt></td>
-<td>Adds <tt class="docutils literal">is_registry_admin_only_crud</tt>
-boolean field</td>
+<tr><td><tt class="docutils literal">res.partner</tt></td>
+<td>Withholds create, write and delete on registrant
+records from non-admin users</td>
 </tr>
 </tbody>
 </table>
+<p>The restriction is switched on and off from <strong>Settings → Registry →
+General Settings</strong>, which is where registry configuration now lives
+(OP#1009). This module keeps its own storage key, so its enforcement is
+unchanged.</p>
 </div>
 <div class="section" id="configuration">
 <h1>Configuration</h1>
 <p>After installing:</p>
 <ol class="arabic simple">
-<li>Navigate to <strong>Settings &gt; SP-MIS Settings</strong></li>
+<li>Navigate to <strong>Settings &gt; Registry &gt; General Settings</strong> (the SP-MIS
+section was folded into it — OP#1009)</li>
 <li>Enable <strong>Restrict Registry Edits to Admin Only</strong> to enforce read-only
 registry access for non-admin users</li>
 <li>When enabled, non-admin users can still read the registry, but
@@ -428,8 +433,8 @@ operations remain available based on role</li>
 <div class="section" id="ui-location">
 <h1>UI Location</h1>
 <ul class="simple">
-<li><strong>Settings</strong>: Settings &gt; SP-MIS Settings (registry access control
-toggle)</li>
+<li><strong>Settings</strong>: Settings &gt; Registry &gt; General Settings (registry access
+control toggle; changing it requires a Settings administrator)</li>
 <li><strong>Programs</strong>: Inherited from <tt class="docutils literal">spp_programs</tt> (Social Protection &gt;
 Programs)</li>
 <li><strong>Service Points</strong>: Inherited from <tt class="docutils literal">spp_service_points</tt> via
@@ -482,6 +487,15 @@ dependency)</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.1</h1>
+<ul class="simple">
+<li>chore(starter_sp_mis): the duplicate SP-MIS Settings section is
+removed — the toggle it carried now lives in Registry Settings, and
+this module’s storage key is written in step with it, so enforcement
+is unchanged (#1009)</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.1.0</h1>
 <ul class="simple">
 <li>fix(starter_sp_mis): make the registry restriction hold and stop it
@@ -493,7 +507,7 @@ marked <tt class="docutils literal">noupdate</tt>, with a migration for database
 would otherwise keep switching it back on (#1142)</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

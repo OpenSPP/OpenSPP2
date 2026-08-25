@@ -147,6 +147,13 @@ Dependencies
 Changelog
 =========
 
+19.0.2.1.1
+~~~~~~~~~~
+
+- chore(api_v2): the API V2 configuration menu moved from Registry >
+  Configuration to Settings > Registry, alongside the other superuser
+  configuration (#1009)
+
 19.0.2.1.0
 ~~~~~~~~~~
 

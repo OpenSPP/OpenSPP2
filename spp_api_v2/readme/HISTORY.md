@@ -1,3 +1,7 @@
+### 19.0.2.1.1
+
+- chore(api_v2): the API V2 configuration menu moved from Registry > Configuration to Settings > Registry, alongside the other superuser configuration (#1009)
+
 ### 19.0.2.1.0
 
 - Add OpenAPI polymorphic schema utilities (`utils/openapi_polymorphic.py`): `polymorphic_body()` for declaring dict-typed fields that accept one of several Pydantic models, plus an app-level OpenAPI hook that injects the corresponding `oneOf` schemas into the generated document
