@@ -4,6 +4,7 @@
 import base64
 from unittest.mock import patch
 
+from odoo import models
 from odoo.tests.common import TransactionCase
 from odoo.tools import config, mute_logger
 
@@ -215,23 +216,31 @@ class TestEncryptedFieldMixin(TransactionCase):
             self.assertIn("national_id_last4", vals)
             self.assertFalse(vals["national_id_last4"])
 
-    def test_write_encrypts_via_db_config(self):
-        """The write() override picks up spp.field.encryption.config rows.
+    def _config_display_name_encryption(self):
+        """Configure encryption on the mixin's own reflected display_name field.
 
-        Uses the mixin's own reflected display_name char field so the whole
-        config-lookup -> vals-encryption path runs through the real ORM
-        override (write on an empty recordset is a no-op past that point).
+        display_name is the only char field the abstract mixin exposes, so it
+        is the one field a spp.field.encryption.config row can target without
+        a concrete inheriting model.
         """
         model = self.env["ir.model"]._get("spp.encrypted.field.mixin")
         self.assertTrue(model, "abstract mixin should be reflected in ir.model")
         field = self.env["ir.model.fields"]._get("spp.encrypted.field.mixin", "display_name")
         self.assertTrue(field, "display_name should be reflected in ir.model.fields")
-        cfg = self.env["spp.field.encryption.config"].create(
+        return self.env["spp.field.encryption.config"].create(
             {
                 "model_id": model.id,
                 "field_id": field.id,
             }
         )
+
+    def test_write_encrypts_via_db_config(self):
+        """The write() override picks up spp.field.encryption.config rows.
+
+        The whole config-lookup -> vals-encryption path runs through the real
+        ORM override (write on an empty recordset is a no-op past that point).
+        """
+        cfg = self._config_display_name_encryption()
         self.assertEqual(cfg.model_name, "spp.encrypted.field.mixin")
         self.assertEqual(cfg.field_name, "display_name")
 
@@ -244,6 +253,103 @@ class TestEncryptedFieldMixin(TransactionCase):
             self.Mixin._decrypt_value(vals["display_name"], "display_name"),
             "secret-123",
         )
+
+    def test_create_encrypts_via_db_config(self):
+        """create() encrypts configured fields in every vals dict."""
+        self._config_display_name_encryption()
+        mixin = self.Mixin
+        # Materialize the key before patching so no key records are created
+        # while BaseModel.create is mocked out.
+        mixin._get_encryption_key("display_name")
+
+        vals_list = [{"display_name": "secret-A"}, {"display_name": ""}]
+        with patch.object(models.BaseModel, "create", return_value=mixin.browse()):
+            mixin.create(vals_list)
+
+        self.assertNotEqual(vals_list[0]["display_name"], "secret-A")
+        self.assertEqual(
+            mixin._decrypt_value(vals_list[0]["display_name"], "display_name"),
+            "secret-A",
+        )
+        # Falsy values are passed through unencrypted.
+        self.assertEqual(vals_list[1]["display_name"], "")
+
+    def test_read_decrypts_via_db_config(self):
+        """read() decrypts configured fields and leaves other data as-is."""
+        self._config_display_name_encryption()
+        mixin = self.Mixin
+        encrypted = mixin._encrypt_value("secret-R", "display_name")
+
+        fake_rows = [
+            {"id": 1, "display_name": encrypted},
+            {"id": 2, "display_name": "not-ciphertext"},
+            {"id": 3, "display_name": False},
+        ]
+        with (
+            patch.object(models.BaseModel, "read", return_value=fake_rows),
+            mute_logger("odoo.addons.spp_pii_encryption.models.encrypted_field_mixin"),
+        ):
+            result = mixin.browse().read(["display_name"])
+
+        self.assertEqual(result[0]["display_name"], "secret-R")
+        # Undecryptable data is left as-is (backwards compatibility with
+        # plaintext rows that predate encryption).
+        self.assertEqual(result[1]["display_name"], "not-ciphertext")
+        self.assertFalse(result[2]["display_name"])
+
+    def test_read_skips_unrequested_encrypted_fields(self):
+        """read() leaves the result untouched when no encrypted field is requested."""
+        self._config_display_name_encryption()
+        fake_rows = [{"id": 1, "create_date": "2020-01-01"}]
+        with patch.object(models.BaseModel, "read", return_value=fake_rows):
+            result = self.Mixin.browse().read(["create_date"])
+        self.assertEqual(result, [{"id": 1, "create_date": "2020-01-01"}])
+
+    def test_search_by_blind_index_builds_hashed_domain(self):
+        """search_by_blind_index searches on the HMAC, never the plaintext."""
+        mixin = self.Mixin
+        mixin._get_index_salt("national_id")  # materialize salt pre-patch
+        expected = mixin._compute_blind_index("123-456-7890", "national_id", "exact")
+
+        with (
+            self._mixin_with_index_fields(),
+            patch.object(type(mixin), "search", return_value=mixin.browse()) as mock_search,
+        ):
+            result = mixin.search_by_blind_index("national_id", "123-456-7890")
+
+        self.assertFalse(result)
+        mock_search.assert_called_once_with([("national_id_index", "=", expected)])
+
+    def test_search_by_partial_builds_hashed_domain(self):
+        """search_by_partial hashes the search value before searching."""
+        mixin = self.Mixin
+        mixin._get_index_salt("national_id")
+        expected = mixin._compute_blind_index("7890", "national_id", "partial")
+
+        with (
+            self._mixin_with_index_fields(),
+            patch.object(type(mixin), "search", return_value=mixin.browse()) as mock_search,
+        ):
+            result = mixin.search_by_partial("national_id", "7890")
+
+        self.assertFalse(result)
+        mock_search.assert_called_once_with([("national_id_last4", "=", expected)])
+
+    def test_encrypt_value_failure_raises_sanitized_error(self):
+        """Encryption failures raise a ValueError without crypto internals."""
+        mixin = self.Mixin
+        with (
+            mute_logger("odoo.addons.spp_pii_encryption.models.encrypted_field_mixin"),
+            patch.object(type(mixin), "_get_encryption_key", side_effect=RuntimeError("boom")),
+            self.assertRaises(ValueError) as cm,
+        ):
+            mixin._encrypt_value("x", "national_id")
+        self.assertNotIn("boom", str(cm.exception))
+        self.assertIn("national_id", str(cm.exception))
+
+    def test_soundex_empty_value(self):
+        """Empty input yields the neutral Soundex code."""
+        self.assertEqual(self.Mixin._soundex(""), "0000")
 
     def test_apply_encryption_to_vals_untouched_field_stays_untouched(self):
         """A field absent from vals is left alone entirely."""
