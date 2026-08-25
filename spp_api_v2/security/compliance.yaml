@@ -162,10 +162,10 @@ record_rules: []
 
 menus:
   # Root menu - visible to all API V2 users
-  # Located under Registry > Configuration
+  # Located under Settings > Registry (OP#1009)
   - id: menu_api_v2_root
     name: "API V2"
-    parent: spp_registry.spp_configuration_menu_root
+    parent: spp_registry.menu_registry_settings_root
     groups: [group_api_v2_viewer]
 
   # API Clients submenu
