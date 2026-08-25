@@ -41,3 +41,21 @@ class TestPIIAuditLog(TransactionCase):
         history = self.Audit.get_user_access_history(self.env.user.id)
         self.assertTrue(history)
         self.assertTrue(all(h.user_id == self.env.user for h in history))
+
+    def test_get_user_access_history_window_excludes_old_entries(self):
+        """The days window is applied against UTC create_date."""
+        recent = self.Audit.log_field_access("res.partner", 9, "phone", "reveal")
+        old = self.Audit.log_field_access("res.partner", 9, "phone", "export")
+        # Backdate the second entry beyond the queried window.
+        self.env.cr.execute(
+            "UPDATE spp_pii_audit_log SET create_date = create_date - interval '40 days' WHERE id = %s",
+            (old.id,),
+        )
+        old.invalidate_recordset(["create_date"])
+
+        history = self.Audit.get_user_access_history(self.env.user.id, days=30)
+        self.assertIn(recent, history)
+        self.assertNotIn(old, history)
+
+        wider = self.Audit.get_user_access_history(self.env.user.id, days=60)
+        self.assertIn(old, wider)

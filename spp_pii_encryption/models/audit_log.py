@@ -148,17 +148,18 @@ class PIIAuditLog(models.Model):
         Returns:
             Recordset of audit log entries
         """
-        from datetime import datetime, timedelta
+        from datetime import timedelta
 
         if user_id is None:
             user_id = self.env.user.id
 
-        cutoff = datetime.now() - timedelta(days=days)
+        # create_date is stored in UTC; compare against a UTC "now"
+        cutoff = fields.Datetime.now() - timedelta(days=days)
 
         return self.search(
             [
                 ("user_id", "=", user_id),
-                ("create_date", ">=", cutoff.strftime("%Y-%m-%d %H:%M:%S")),
+                ("create_date", ">=", cutoff),
             ],
             limit=limit,
         )
