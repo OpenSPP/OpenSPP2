@@ -370,27 +370,49 @@ ul.auto-toc {
 !! source digest: sha256:4131b9e92df89de6365ed994e6a69506d557e2215da2a8cf07b9d69911b46ff4
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 <p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Alpha" src="https://img.shields.io/badge/maturity-Alpha-red.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_registry_encryption"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
-<p>Applies OpenSPP’s PII display protections to the registry: registrant ID
+<p>Applies OpenSPP’s PII display de-emphasis to the registry: registrant ID
 numbers (national IDs, passports, and other <tt class="docutils literal">spp.registry.id</tt> values)
 render masked in the Identity tabs of the individual and group forms,
-with an audited reveal for authorized users.</p>
+with an audited reveal control.</p>
 <div class="section" id="what-it-does">
 <h1>What it does</h1>
 <ul class="simple">
 <li>ID numbers display as <tt class="docutils literal"><span class="pre">••••-••••-1234</span></tt> (mask pattern
-<tt class="docutils literal"><span class="pre">****-****-####</span></tt>) instead of plaintext</li>
-<li>Clicking reveal shows the value only for members of
+<tt class="docutils literal"><span class="pre">****-****-####</span></tt>, matching the mask the classification registry
+seeds for national IDs) instead of plaintext</li>
+<li>The reveal control checks membership in
 <tt class="docutils literal">spp_data_classification.group_pii_full_access_admin</tt> — the PII
 access group the RESTRICTED classification level points at</li>
-<li>Every reveal is recorded in the PII access audit log
-(<tt class="docutils literal">spp.pii.audit.log</tt>, action <tt class="docutils literal">reveal</tt>)</li>
+<li>Every reveal through the control is recorded in the PII access audit
+log (<tt class="docutils literal">spp.pii.audit.log</tt>, action <tt class="docutils literal">reveal</tt>)</li>
 </ul>
+</div>
+<div class="section" id="what-it-is-and-is-not">
+<h1>What it is — and is not</h1>
+<p>This is <strong>display de-emphasis, not an access control</strong> (see the “widget
+honesty” findings in the <tt class="docutils literal">spp_pii_encryption</tt> hardening tracker):</p>
+<ul class="simple">
+<li>The masking applies to readonly display. Entering the editable list
+cell shows the value in the input, without a group check or an audit
+entry.</li>
+<li>The value is delivered to the browser by the normal record read
+regardless of mask state; the widget controls presentation, not data
+access.</li>
+<li>The real access boundary remains the record’s ACLs and record rules:
+whoever can read/write <tt class="docutils literal">spp.registry.id</tt> can obtain the value.</li>
+<li>What the mask does buy: protection against shoulder-surfing and casual
+over-exposure in day-to-day screens, plus an audit trail for
+deliberate reveals through the control.</li>
+</ul>
+<p>Server-side field-level enforcement is tracked in the
+<tt class="docutils literal">spp_pii_encryption</tt> hardening issue; when it lands, this module is
+where the registry adopts it.</p>
 </div>
 <div class="section" id="what-it-does-not-do">
 <h1>What it does NOT do</h1>
-<p>Display masking only. The stored values are not encrypted by this module
-— applying <tt class="docutils literal">spp.encrypted.field.mixin</tt> to <tt class="docutils literal">spp.registry.id</tt>
-(blind-index search, encrypted storage) is a separate change with
+<p>The stored values are not encrypted by this module — applying
+<tt class="docutils literal">spp.encrypted.field.mixin</tt> to <tt class="docutils literal">spp.registry.id</tt> (blind-index
+search, encrypted storage) is a separate change with
 search/deduplication impact.</p>
 </div>
 <div class="section" id="ui-location">
@@ -402,9 +424,10 @@ search/deduplication impact.</p>
 </div>
 <div class="section" id="security">
 <h1>Security</h1>
-<p>No models and no ACLs of its own. Reveal authorization uses
-<tt class="docutils literal">spp_data_classification.group_pii_full_access_admin</tt>; grant that
-group to the officers who legitimately need to read full ID numbers.</p>
+<p>No models and no ACLs of its own. The reveal control’s group is
+<tt class="docutils literal">spp_data_classification.group_pii_full_access_admin</tt>; grant it to
+officers who legitimately need to read full ID numbers. Note the mask
+shows the last 4 characters to anyone who can read the record.</p>
 </div>
 <div class="section" id="dependencies">
 <h1>Dependencies</h1>
