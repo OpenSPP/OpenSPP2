@@ -853,6 +853,21 @@ Before declaring a new CR type complete:
 Changelog
 =========
 
+19.0.3.1.7
+~~~~~~~~~~
+
+- fix(security): stop the CR Requestor role from granting change-request
+  manager rights. The role linked ``group_cr_manager``, which implies
+  ``group_cr_validator`` and through it
+  ``spp_approval.group_approval_approver`` — so the least-privileged
+  change-request persona could approve change requests and delete change
+  requests, request types and detail records. It also silently defeated
+  authorisation checks written against the manager group. The role now
+  grants ``group_cr_user``, the tier its own description states. A
+  migration re-points the role and re-synchronises users already
+  assigned it; grant the manager group explicitly to anyone who
+  genuinely needs it.
+
 19.0.3.1.1
 ~~~~~~~~~~
 
