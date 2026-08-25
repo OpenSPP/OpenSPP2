@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <!-- Mask registrant ID numbers in the Identity tabs. The reveal is
-         gated by the PII access group from spp_data_classification (the
-         RESTRICTED level's min_group_id) and every reveal is written to
-         spp.pii.audit.log by the widget. -->
+    <!-- Mask registrant ID numbers in the Identity tabs. Display
+         de-emphasis, not an access control: the widget masks readonly
+         display and audits reveals through its control (gated by the PII
+         access group from spp_data_classification), but the value is
+         client-side either way and editing the cell shows it — the real
+         boundary stays the record's ACLs. -->
     <record id="view_individuals_form_masked_ids" model="ir.ui.view">
         <field
             name="name"
