@@ -164,7 +164,15 @@ class TestEntitlementAmountCEL(TransactionCase):
             )
 
     def test_07_cel_calculation_empty_formula(self):
-        """Test that calculating with empty formula raises error."""
+        """Calculating from an empty formula raises.
+
+        Nothing reaches this with an empty expression: the manager that
+        actually runs (CashEntitlementManagerCEL.prepare_entitlements in
+        entitlement_condition_cel.py) tests amount_cel_expression first, and
+        the preview compute returns early. This pins the guard, not a path
+        users can take -- an empty formula is handled long before here, see
+        test_07b.
+        """
         item = self.env["spp.program.entitlement.manager.cash.item"].create(
             {
                 "entitlement_id": self.entitlement_manager.id,
@@ -173,6 +181,35 @@ class TestEntitlementAmountCEL(TransactionCase):
         )
         with self.assertRaises(UserError):
             item._calculate_cel_amount(self.beneficiary1)
+
+    def test_07b_prepare_entitlements_without_a_formula(self):
+        """A typed Base Amount with no formula must still pay out.
+
+        QA round 2: "CEL expression field should be optional FOR NOW. just to
+        let user define the amount." The form stopped requiring a formula; this
+        pins the behaviour behind that, so the field cannot quietly become
+        required again without a failure here.
+        """
+        self.env["spp.program.entitlement.manager.cash.item"].create(
+            {
+                "entitlement_id": self.entitlement_manager.id,
+                "amount": 425.0,
+                "amount_cel_expression": False,
+            }
+        )
+
+        self.entitlement_manager.prepare_entitlements(self.cycle, self.membership1 | self.membership2)
+
+        entitlements = self.env["spp.entitlement"].search(
+            [
+                ("cycle_id", "=", self.cycle.id),
+                ("partner_id", "in", [self.beneficiary1.id, self.beneficiary2.id]),
+            ]
+        )
+
+        self.assertEqual(len(entitlements), 2, "a formula-less item must still pay every beneficiary")
+        for ent in entitlements:
+            self.assertEqual(ent.initial_amount, 425.0)
 
     def test_08_cel_non_numeric_result(self):
         """Test that non-numeric results raise an error."""
@@ -403,6 +440,21 @@ class TestEntitlementAmountCELForm(TransactionCase):
 
         self.assertTrue(amounts, "the item form should offer the base amount")
         self.assertNotEqual(amounts[0].get("invisible"), "1", "hiding it is what QA reported")
+
+    def test_the_formula_is_not_required(self):
+        """A fixed sum should not oblige anyone to write "500" as a formula.
+
+        QA round 2: "CEL expression field should be optional FOR NOW. just to
+        let user define the amount."
+        """
+        formulas = [f for f in self._item_form().iter("field") if f.get("name") == "amount_cel_expression"]
+
+        self.assertTrue(formulas, "the item form should still offer the formula")
+        self.assertNotEqual(
+            formulas[0].get("required"),
+            "1",
+            "requiring a formula is what QA reported in round 2",
+        )
 
     def test_the_formula_field_does_not_advertise_the_wrong_symbols(self):
         """The evaluator receives `me` and `base_amount`, not the entitlements profile.
