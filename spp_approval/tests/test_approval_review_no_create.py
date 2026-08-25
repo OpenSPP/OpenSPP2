@@ -11,6 +11,8 @@ Both actions on ``spp.approval.review`` share these two views, so the attribute
 belongs on the views rather than on one action's context.
 """
 
+from ast import literal_eval
+
 from lxml import etree
 
 from odoo.tests import TransactionCase, tagged
@@ -77,17 +79,39 @@ class TestApprovalReviewNoCreate(TransactionCase):
 
         create="0" must not stop reviews created by the approval flow from
         being listed and opened — that is the whole purpose of the view.
-        """
-        definition = self.env["spp.approval.definition"].search([], limit=1)
-        if not definition:
-            self.skipTest("no approval definition available in this database")
 
+        The definition is built here rather than searched for. Searching and
+        skipping made this leg of the safety net green-by-skip in exactly the
+        environment that gates merges: the CI database ships no approval
+        definition, so it only ever ran locally (#447 review).
+        """
+        definition = self.env["spp.approval.definition"].create(
+            {
+                "name": "OP#1167 listing check",
+                "model_id": self.env["ir.model"]._get_id("res.partner"),
+                "approval_type": "group",
+                "approval_group_id": self.env.ref("base.group_user").id,
+            }
+        )
         review = self.env["spp.approval.review"].create(
             {
-                "model": "spp.approval.definition",
-                "res_id": definition.id,
+                "model": "res.partner",
+                "res_id": self.env.user.partner_id.id,
                 "definition_id": definition.id,
             }
         )
 
-        self.assertIn(review, self.env["spp.approval.review"].search([]))
+        # Read it the way the action does, not with a bare search([]): the
+        # action's own domain is what decides whether the record reaches the
+        # list a user actually opens.
+        action = self.env.ref("spp_approval.approval_review_my_pending_action")
+        listed = self.env["spp.approval.review"].search(literal_eval(action.domain))
+        self.assertIn(review, listed, "a pending review no longer reaches My Pending Approvals")
+
+        # And it opens: every column the list arch renders must be readable on
+        # that record. create="0" suppresses New, nothing else.
+        list_view = self.env.ref("spp_approval.approval_review_view_tree")
+        arch = etree.fromstring(self.env["spp.approval.review"].get_view(list_view.id, "list")["arch"])
+        columns = [node.get("name") for node in arch.xpath("//field[@name]")]
+        self.assertTrue(columns, "the list arch renders no columns")
+        self.assertTrue(review.read(columns), "the review does not open through the list view")
