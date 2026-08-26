@@ -33,3 +33,4 @@ from . import test_transient_wizard_isolation
 from . import test_duplicate_detection_scope
 from . import test_apply_effective_mappings
 from . import test_frozen_value_normalisation
+from . import test_frozen_detail_binding

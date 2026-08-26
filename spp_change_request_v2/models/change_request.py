@@ -681,14 +681,48 @@ class SPPChangeRequest(models.Model):
         "detail_res_model",
     )
 
+    def _detail_row_belongs_to_self(self, detail_id):
+        """Whether ``detail_id`` is a detail row already pointing at this request.
+
+        Used to tell binding a detail apart from substituting one. Reads with
+        ``sudo()`` because the caller may not have access to the detail model,
+        and the answer is only ever used to reject or allow, never returned.
+        """
+        self.ensure_one()
+        if not detail_id or not self.detail_res_model:
+            return False
+        model = self.env.get(self.detail_res_model)
+        if model is None:
+            return False
+        parent_field = "x_change_request_id" if "x_change_request_id" in model._fields else "change_request_id"
+        if parent_field not in model._fields:
+            return False
+        detail = model.sudo().browse(int(detail_id)).exists()
+        return bool(detail) and detail[parent_field].id == self.id
+
+    def _alters_frozen_field(self, field, value):
+        """Whether writing ``value`` to ``field`` changes what was approved."""
+        self.ensure_one()
+        if normalize_frozen_value(value) == normalize_frozen_value(self[field]):
+            return False
+        # Binding a detail row for the first time is not a re-route. A submitted
+        # request that never got one cannot be opened at all -- get_detail()
+        # resolves nothing -- and ``_ensure_detail()`` exists to repair exactly
+        # that, so refusing the write left the record permanently unopenable
+        # from any context, sudo included. Only a row that already points back
+        # at this request is accepted, so this cannot be used to attach a
+        # substituted detail after approval.
+        if field == "detail_res_id" and not normalize_frozen_value(self[field]):
+            return not self._detail_row_belongs_to_self(value)
+        return True
+
     def write(self, vals):
         guarded = [f for f in self._FROZEN_ON_SUBMIT_FIELDS if f in vals]
         if guarded:
-            norm = normalize_frozen_value
             for rec in self:
                 if rec.approval_state in ("draft", "revision") or not rec.approval_state:
                     continue
-                if any(norm(vals[f]) != norm(rec[f]) for f in guarded):
+                if any(rec._alters_frozen_field(f, vals[f]) for f in guarded):
                     raise UserError(
                         _(
                             "A submitted change request is locked to the change it was "
