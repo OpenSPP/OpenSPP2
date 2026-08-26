@@ -532,6 +532,16 @@ and overriding discovery methods</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.3</h1>
+<ul class="simple">
+<li>fix(variables): the <tt class="docutils literal">has_disability</tt> and <tt class="docutils literal">has_disabled_member</tt>
+standard variables resolved against <tt class="docutils literal">is_person_with_disability</tt>, a
+field that exists nowhere in the codebase. Any program filtering on
+either silently matched nothing. Both now use <tt class="docutils literal">has_disability</tt>, the
+real field on <tt class="docutils literal">res.partner</tt> (#955)</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.2</h1>
 <ul class="simple">
 <li>fix(data): repair the 24 shipped logic-pack filter items whose CEL
@@ -564,7 +574,7 @@ deliberately not deleted — once installed it is the deployment’s own
 data.</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix(security): drop the Program Manager → <tt class="docutils literal">group_studio_viewer</tt>
@@ -575,7 +585,7 @@ module entirely; System Admin retains Studio visibility via
 <tt class="docutils literal">spp_studio/security/groups.xml</tt>).</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
