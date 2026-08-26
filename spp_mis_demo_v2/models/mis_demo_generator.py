@@ -573,6 +573,13 @@ class SPPMISDemoGenerator(models.TransientModel):
                         break
             generator.enroll_in_programs(volume_households, program_map)
 
+            # Step 3b: close the remaining gap between what a program matches
+            # and what it enrolled. Runs after both the story pass and the
+            # volume pass, so scripted enrollments -- which carry their own
+            # dates, payments and entitlements -- are already in place and are
+            # never pre-empted (OP#956).
+            self._reconcile_cel_enrollments(program_map)
+
         # Step 4: Create cycles
         if self.create_cycles:
             _logger.info("Creating program cycles...")
@@ -1791,6 +1798,89 @@ class SPPMISDemoGenerator(models.TransientModel):
         except Exception as e:
             _logger.error("Could not create journal for program: %s", e)
             return None
+
+    def _reconcile_cel_enrollments(self, program_map):
+        """Enrol registrants a program matches but nobody enrolled.
+
+        The volume pass evaluates each program's rule against the households it
+        generated, and the story pass enrols its personas from scripts. Neither
+        covers a story household that happens to satisfy a program's rule
+        without being scripted into it, which left the Cash Transfer Program
+        showing 22 matching and 14 enrolled -- the same kind of discrepancy
+        OP#956 was raised about, just smaller.
+
+        The rule is evaluated exactly as the program form's Preview
+        Beneficiaries does, base domain included, so the two counts are
+        measuring the same thing.
+        """
+        from odoo.addons.spp_mis_demo_v2.models.seeded_volume_generator import SeededVolumeGenerator
+
+        service = self.env["spp.cel.service"]
+        membership_model = self.env["spp.program.membership"]
+        filled = 0
+
+        for prog_id, program in program_map.items():
+            if prog_id in SeededVolumeGenerator.NON_SELECTIVE_CEL_PROGRAMS:
+                continue
+            expression = None
+            for wrapper in program.eligibility_manager_ids:
+                concrete = wrapper.manager_ref_id
+                if concrete and "cel_expression" in concrete._fields and concrete.cel_expression:
+                    expression = concrete.cel_expression
+                    break
+            if not expression:
+                continue
+
+            profile = "registry_groups" if program.target_type == "group" else "registry_individuals"
+            try:
+                compiled = service.compile_expression(
+                    expression,
+                    profile=profile,
+                    base_domain=[["disabled", "=", False]],
+                    limit=0,
+                    materialize_sql=True,
+                )
+            except Exception as e:
+                _logger.warning("Could not reconcile enrollment for %s: %s", prog_id, e)
+                continue
+            if not compiled.get("valid"):
+                continue
+
+            matched = self.env["res.partner"].search(compiled.get("domain") or [])
+            if not matched:
+                continue
+            already = membership_model.search(
+                [("program_id", "=", program.id), ("partner_id", "in", matched.ids)]
+            ).mapped("partner_id")
+            missing = matched - already
+            if not missing:
+                continue
+
+            created = membership_model.create(
+                [{"program_id": program.id, "partner_id": partner.id, "state": "enrolled"} for partner in missing]
+            )
+            filled += len(created)
+            _logger.info(
+                "Reconciled %d enrollment(s) for %s (%d matched, %d already enrolled)",
+                len(created),
+                prog_id,
+                len(matched),
+                len(already),
+            )
+
+            # enrollment_date depends on state, so the ORM stamps "now". Backdate
+            # to the registrant's own registration date, as the volume pass does.
+            self.env.flush_all()
+            for membership in created:
+                registered = membership.partner_id.registration_date
+                if registered:
+                    self.env.cr.execute(
+                        "UPDATE spp_program_membership SET enrollment_date = %s WHERE id = %s",
+                        (registered, membership.id),
+                    )
+        if filled:
+            _logger.info("Reconciliation added %d enrollment(s) in total", filled)
+        return filled
 
     def _enroll_demo_stories(self, stats):
         """Enroll demo story personas in their programs with payment history."""

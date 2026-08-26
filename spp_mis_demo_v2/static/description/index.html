@@ -540,6 +540,15 @@ households while matching 9. Programs with a selective rule enrol
 whoever that rule matches; Food Assistance and Emergency Relief Fund
 stay flag-driven, the first because its expression matches every
 active registrant and the second because it has none (#956)</li>
+<li>fix(demo): a reconciliation pass enrols registrants a program matches
+but nothing enrolled. The volume pass evaluates each rule against the
+households it generates and the story pass works from scripts, so a
+story household satisfying a program’s rule without being scripted
+into it stayed out: the Cash Transfer Program matched 22 and enrolled
+14. It runs after both, so scripted enrollments and the dates,
+payments and entitlements they carry are never pre-empted. Measured on
+a real Load Demo, every program with a targeting rule now matches its
+membership count exactly (#956)</li>
 <li>fix(demo): <strong>generated ages are no longer a year out.</strong> A member asked
 for at age N was created at N+1 whenever their random birth month fell
 before the reference month, which is eight times in twelve, so

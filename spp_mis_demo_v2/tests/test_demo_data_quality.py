@@ -396,6 +396,47 @@ class TestDemoEnrollmentMatchesEligibility(TransactionCase):
             f"CCG enrolled {enrolled} but its CEL only matches {preview}",
         )
 
+    def test_matching_and_enrolled_counts_agree(self):
+        """The ticket's actual numeric bar, which a set-membership check misses.
+
+        Compared against *all* memberships rather than the enrolled ones: the
+        generator deliberately puts about a tenth of them into exited, paused
+        or not-eligible for realism, so an enrolled-only comparison sits at the
+        edge of the tolerance for reasons that have nothing to do with
+        targeting.
+
+        Programs whose rule is not a targeting rule are excluded -- Food
+        Assistance matches every active registrant and Emergency Relief Fund
+        has no rule at all.
+        """
+        from odoo.addons.spp_mis_demo_v2.models.seeded_volume_generator import SeededVolumeGenerator
+
+        non_selective = {
+            "Food Assistance": "matches every active registrant",
+            "Emergency Relief Fund": "has no eligibility rule",
+        }
+        self.assertEqual(
+            len(SeededVolumeGenerator.NON_SELECTIVE_CEL_PROGRAMS),
+            len(non_selective),
+            "the exclusion list changed; this test's reasoning needs revisiting",
+        )
+
+        offenders = {}
+        for program in self.env["spp.program"].search([("name", "in", HEADLINE_PROGRAMS)]):
+            if program.name in non_selective:
+                continue
+            preview = self._preview_count(program)
+            if preview is None:
+                continue
+            memberships = self.env["spp.program.membership"].search_count([("program_id", "=", program.id)])
+            if preview == 0 and memberships == 0:
+                continue
+            drift = abs(preview - memberships) / max(preview, 1) * 100
+            if drift > 10:
+                offenders[program.name] = f"preview {preview} vs {memberships} memberships ({drift:.0f}%)"
+
+        self.assertFalse(offenders, f"eligibility and enrollment disagree: {offenders}")
+
     def test_a_disability_program_finally_matches_somebody(self):
         """OP#955 and OP#956 together: the DSG story works end to end."""
         program = self.env["spp.program"].search([("name", "=", "Disability Support Grant")], limit=1)
