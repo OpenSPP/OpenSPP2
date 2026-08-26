@@ -1,3 +1,7 @@
+### 19.0.3.1.12
+
+- fix(change_request): auto-apply-on-approve runs through the public `action_apply` again. Requiring change-request manager rights to apply meant auto-apply was routed to the internal mechanism instead, so the approver could be a validator — but `action_apply` is the extension point modules override to hang post-apply work off an apply, and bypassing it left those overrides silently not running on approval: no error, just missing side effects. Auto-apply now calls `action_apply` under `sudo()`, which the manager gate already exempts. `sudo()` sets superuser mode without changing the user, so the applying user is still recorded as the approver.
+
 ### 19.0.3.1.10
 
 - fix(security): conflict and duplicate detection now decide whether a mapped field changed using the same comparison the apply strategy uses. Detection compared through a helper that lowercases and strips strings while apply compares raw, so a case- or whitespace-only edit was invisible to detection yet still written to the registrant — enough to sidestep a field-scoped conflict rule with a cosmetic edit. Detection also ignored transform expressions, which apply evaluates before comparing. Similarity scoring is unchanged and stays case-insensitive, since that is the point of a fuzzy match.

@@ -1093,10 +1093,16 @@ class SPPChangeRequest(models.Model):
         self._create_log("approved")
         if self.request_type_id.auto_apply_on_approve:
             # Auto-apply is authorized by the approval workflow itself, so it
-            # goes through the internal mechanism rather than the manager-gated
-            # public action_apply (the approver may be a validator, not a
-            # manager).
-            self._apply_change_request()
+            # runs with sudo: ``action_apply``'s manager gate exempts
+            # ``env.su``, which lets the approver be a validator rather than a
+            # manager. Going through the public entry point rather than the
+            # internal mechanism keeps ``action_apply`` the single extension
+            # point for apply -- downstream modules override it to hang
+            # post-apply work off the apply, and routing around it left those
+            # overrides silently not running on approval. ``sudo()`` sets
+            # ``su`` without changing ``uid``, so ``applied_by_id`` still
+            # records the real approver.
+            self.sudo().action_apply()
 
     def _on_reject(self, reason):
         super()._on_reject(reason)

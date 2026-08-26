@@ -99,6 +99,41 @@ class TestApplyAuthorization(TransactionCase):
         self.assertTrue(cr.is_applied)
         self.assertTrue(self.membership.ended_date)
 
+    def test_auto_apply_runs_the_public_apply_entry_point(self):
+        """``action_apply`` is the extension point downstream modules override.
+
+        Auto-apply used to bypass it, so any override hung off apply silently
+        stopped running on approval -- no error, just missing side effects.
+        """
+        from unittest.mock import patch
+
+        cr = self._make_approved_cr()
+        cr.request_type_id.auto_apply_on_approve = True
+
+        seen = []
+        original = type(cr).action_apply
+
+        def spy(records):
+            seen.append(tuple(records.ids))
+            return original(records)
+
+        with patch.object(type(cr), "action_apply", spy):
+            cr.with_user(self.cr_validator)._on_approve()
+
+        self.assertTrue(seen, "auto-apply must go through the public action_apply")
+        self.assertTrue(cr.is_applied)
+
+    def test_auto_apply_records_the_real_approver(self):
+        """sudo() sets su without changing uid, so attribution is preserved."""
+        cr = self._make_approved_cr()
+        cr.request_type_id.auto_apply_on_approve = True
+        cr.with_user(self.cr_validator)._on_approve()
+        self.assertEqual(
+            cr.applied_by_id,
+            self.cr_validator,
+            "applying under sudo must still record the approver, not the superuser",
+        )
+
     def test_auto_apply_on_approve_runs_for_non_manager_approver(self):
         """Auto-apply-on-approve must still work when the approver is a
         validator (not a manager): _on_approve routes through the internal
