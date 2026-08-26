@@ -2,7 +2,9 @@ import {defineConfig, devices} from "@playwright/test";
 
 export default defineConfig({
   testDir: "./tests",
-  timeout: 600_000, // 10 min — covers 2x app installs + 3 min wait
+  // 1 min default so a frozen/broken step in a non-install test fails fast.
+  // Install tests override this individually via test.setTimeout(300_000).
+  timeout: 60_000,
   workers: 1,
   retries: 0,
   reporter: [["list"], ["html", {outputFolder: "reports/html", open: "never"}]],

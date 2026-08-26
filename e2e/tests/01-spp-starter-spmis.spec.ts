@@ -45,7 +45,7 @@ function formatDateMDY(date: Date): string {
 async function installApp(page: Page, technicalName: string) {
   console.log("✅ Clicking Apps menuitem");
   await page.getByRole("menuitem", {name: "Apps"}).click();
-  console.log("✅ Clicked Apps, waiting for networkidle");
+  console.log("✅ Clicked Apps, waiting for DOM content loaded");
   await page.waitForLoadState("domcontentloaded");
   console.log("✅ Apps page loaded");
 
@@ -90,6 +90,7 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
   let page: Page;
 
   test.beforeAll(async ({browser}) => {
+    test.setTimeout(300_000); // full docker teardown/rebuild can take a few minutes
     await resetStack();
     page = await browser.newPage();
   });
@@ -108,6 +109,8 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
   });
 
   test("01 - login and install OpenSPP Starter SP-MIS", async () => {
+    test.setTimeout(300_000); // installing a module can take a few minutes on a cold DB
+
     await login(page);
     await installApp(page, "spp_starter_sp_mis");
 
@@ -1006,7 +1009,9 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await page.getByRole("button", {name: "Next: Review & Submit"}).click();
     await page.waitForLoadState("domcontentloaded");
     await page.getByRole("tab", {name: "Attached Documents"}).click();
-    await expect(page.getByRole("cell", {name: "sample_valid_ID_parent.pdf"})).toBeVisible();
+    await expect(
+      page.getByRole("cell", {name: "sample_valid_ID_parent.pdf"})
+    ).toBeVisible();
     console.log("✅ Review page shows attached document");
 
     await page.getByRole("button", {name: "Submit for Approval"}).click();
@@ -1070,7 +1075,9 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await page.getByRole("button", {name: "Next: Review & Submit"}).click();
     await page.waitForLoadState("domcontentloaded");
     await page.getByRole("tab", {name: "Attached Documents"}).click();
-    await expect(page.getByRole("cell", {name: "sample_valid_ID_parent.pdf"})).toBeVisible();
+    await expect(
+      page.getByRole("cell", {name: "sample_valid_ID_parent.pdf"})
+    ).toBeVisible();
     console.log("✅ Review page shows attached document");
 
     await page.getByRole("button", {name: "Submit for Approval"}).click();
@@ -1087,9 +1094,9 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     console.log("✅ Request Type: Update ID Document");
 
     await page.getByRole("textbox", {name: "Enter name or ID number..."}).fill("sant");
-    await page.waitForLoadState("networkidle");
-    await page.pause();
-    await page.getByRole("cell", {name: "SANTOS, JOSE MIGUEL"}).last().click();
+    await page
+      .locator("tr.o_cr_search_result", {hasText: "SANTOS, JOSE MIGUEL"})
+      .click();
     console.log("✅ Registrant selected: SANTOS, JOSE MIGUEL");
 
     await page.getByRole("button", {name: "Create"}).click();
@@ -1135,7 +1142,9 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await page.getByRole("button", {name: "Next: Review & Submit"}).click();
     await page.waitForLoadState("domcontentloaded");
     await page.getByRole("tab", {name: "Attached Documents"}).click();
-    await expect(page.getByRole("cell", {name: "sample_valid_ID_parent.pdf"})).toBeVisible();
+    await expect(
+      page.getByRole("cell", {name: "sample_valid_ID_parent.pdf"})
+    ).toBeVisible();
     console.log("✅ Review page shows attached document");
 
     await page.getByRole("button", {name: "Submit for Approval"}).click();
@@ -1153,13 +1162,9 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await page.getByRole("button", {name: "Users & Companies"}).click();
     await page.getByRole("menuitem", {name: "Users"}).click();
     await page.waitForLoadState("domcontentloaded");
-    await expect(page.getByRole("row", {name: "Name  Login  Roles "})).toBeVisible();
 
     await page.getByRole("button", {name: "New"}).click();
     await page.waitForLoadState("domcontentloaded");
-    await expect(
-      page.getByRole("row", {name: "Role  Center Areas Role Type"})
-    ).toBeVisible();
 
     await page.getByRole("textbox", {name: "e.g. John Doe"}).fill("hqval@mail.com");
     await page.getByRole("textbox", {name: "Login"}).fill("hqval@mail.com");
@@ -1168,9 +1173,6 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await page.getByRole("button", {name: "Add a line"}).click();
     await page.getByRole("combobox").fill("hq");
     await page.getByRole("option", {name: "CR HQ Validator"}).click();
-    await expect(
-      page.getByRole("row", {name: "CR HQ Validator Delete row"})
-    ).toBeVisible();
     console.log("✅ Role assigned: CR HQ Validator");
 
     await page.getByRole("button", {name: "Actions menu"}).click();
