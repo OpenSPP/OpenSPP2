@@ -7,6 +7,9 @@ from odoo.exceptions import UserError, ValidationError
 _logger = logging.getLogger(__name__)
 
 
+_UNSET = object()
+
+
 class SPPCRConflictMixin(models.AbstractModel):
     """Mixin providing conflict and duplicate detection for change requests.
 
@@ -330,14 +333,23 @@ class SPPCRConflictMixin(models.AbstractModel):
         if not detail or not registrant:
             return set()
         changed = set()
+        # Ask the apply strategy whether each mapping would write something, so
+        # detection and apply cannot disagree about what counts as a change. A
+        # local comparison here previously folded case and whitespace and
+        # ignored transform expressions, so a case-only edit was invisible to
+        # detection yet still written to the registrant.
+        #
+        # Every configured mapping is considered, NOT just the routed one:
+        # narrowing to ``selected_field_name`` would put the change set back
+        # under the requester's control, which is the bypass this derivation
+        # exists to close.
+        strategy = self.env["spp.cr.strategy.field_mapping"]
         for mapping in self.request_type_id.apply_mapping_ids:
             source_field = mapping.source_field
             target_field = mapping.target_field
             if source_field not in detail._fields or target_field not in registrant._fields:
                 continue
-            detail_value = self._normalize_field_value(getattr(detail, source_field, None))
-            registrant_value = self._normalize_field_value(getattr(registrant, target_field, None))
-            if detail_value != registrant_value:
+            if strategy.mapping_changes_value(mapping, detail, registrant):
                 changed.add(source_field)
         return changed
 
@@ -465,8 +477,9 @@ class SPPCRConflictMixin(models.AbstractModel):
         candidates = self.env["spp.change.request"].search(domain)
 
         duplicates = []
+        my_changed = self._proposed_changed_fields()
         for candidate in candidates:
-            similarity = self._calculate_similarity(candidate, config)
+            similarity = self._calculate_similarity(candidate, config, my_changed=my_changed)
             if similarity >= config.similarity_threshold:
                 duplicates.append(
                     {
@@ -484,7 +497,7 @@ class SPPCRConflictMixin(models.AbstractModel):
             "status": "potential" if duplicates else "none",
         }
 
-    def _calculate_similarity(self, other_cr, config):
+    def _calculate_similarity(self, other_cr, config, my_changed=_UNSET):
         """Calculate similarity percentage between this CR and another.
 
         For dynamic-approval CRs, only the selected field (derived server-side
@@ -508,7 +521,11 @@ class SPPCRConflictMixin(models.AbstractModel):
 
         # Dynamic approval: compare only the fields actually changed (derived
         # server-side from the detail-vs-registrant diff, not a writable label).
-        my_changed = self._proposed_changed_fields()
+        # ``my_changed`` is derived once per duplicate run by the caller and
+        # passed in: it does not vary by candidate, and deriving it re-browses
+        # the detail and re-reads every mapping.
+        if my_changed is _UNSET:
+            my_changed = self._proposed_changed_fields()
         other_changed = other_cr._proposed_changed_fields()
         if my_changed is not None and other_changed is not None:
             # Score the fields BOTH requests actually propose to change.

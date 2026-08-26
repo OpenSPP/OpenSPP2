@@ -34,6 +34,35 @@ class SPPCRStrategyFieldMapping(models.AbstractModel):
             return mappings.browse()
         return mappings.filtered(lambda m: m.source_field == selected)
 
+    def current_target_value(self, mapping, registrant):
+        """The registrant's current value for ``mapping``, as apply compares it."""
+        value = getattr(registrant, mapping.target_field, None)
+        return value.id if hasattr(value, "id") else value
+
+    def proposed_target_value(self, mapping, detail, registrant):
+        """The value ``mapping`` would write, transform included.
+
+        Shared with conflict and duplicate detection so the two cannot disagree
+        about what counts as a change. Detection previously compared through
+        ``_normalize_field_value``, which lowercases and strips strings, while
+        apply compares raw and ignores no transform -- so a case- or
+        whitespace-only edit was invisible to detection yet still written, and a
+        transform could turn a differing value into an identical one (or the
+        reverse) with only apply aware of it.
+        """
+        value = getattr(detail, mapping.source_field, None)
+        if hasattr(value, "id"):
+            value = value.id
+        if mapping.transform == "expression" and mapping.transform_expression:
+            value = self._eval_expression(mapping.transform_expression, value, detail, registrant)
+        return value
+
+    def mapping_changes_value(self, mapping, detail, registrant):
+        """Whether ``mapping`` would write a different value than is stored."""
+        return self.proposed_target_value(mapping, detail, registrant) != self.current_target_value(
+            mapping, registrant
+        )
+
     def apply(self, change_request):
         """Apply field mappings from detail to registrant."""
         registrant = change_request.registrant_id
@@ -73,34 +102,15 @@ class SPPCRStrategyFieldMapping(models.AbstractModel):
 
         values = {}
         for mapping in mappings:
-            source_value = getattr(detail, mapping.source_field, None)
-            current_value = getattr(registrant, mapping.target_field, None)
-
-            # Handle relational fields - get ID
-            if hasattr(source_value, "id"):
-                source_value = source_value.id
-            if hasattr(current_value, "id"):
-                current_value = current_value.id
-
-            # Apply transform if configured
-            if mapping.transform == "expression" and mapping.transform_expression:
-                source_value = self._eval_expression(
-                    mapping.transform_expression,
-                    source_value,
-                    detail,
-                    registrant,
-                )
+            source_value = self.proposed_target_value(mapping, detail, registrant)
+            current_value = self.current_target_value(mapping, registrant)
 
             # Skip if value hasn't changed
             if source_value == current_value:
                 continue
 
-            # Skip empty values (None, empty strings, empty collections)
-            # COMMENTED OUT: Users may want to intentionally clear fields
-            # if not self._is_value_empty(source_value, registrant, mapping.target_field):
-            #     values[mapping.target_field] = source_value
-
-            # Apply the value (including empty values for intentional clearing)
+            # Empty values are applied too (rather than skipped): a user may be
+            # intentionally clearing a field.
             values[mapping.target_field] = source_value
 
         if values:
