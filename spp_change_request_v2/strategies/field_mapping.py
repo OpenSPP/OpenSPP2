@@ -42,8 +42,37 @@ class SPPCRStrategyFieldMapping(models.AbstractModel):
         if not detail:
             raise UserError(_("No detail record found."))
 
+        # Fail loudly rather than apply nothing. ``_effective_mappings`` fails
+        # closed, so an empty result means the change cannot be carried out at
+        # all -- the routed field lost its mapping, or the type has none
+        # configured. Returning success here would stamp the request applied,
+        # with an audit event and a log line, having written nothing: operators
+        # would see a green, applied request whose change was silently dropped.
+        # An empty ``values`` below is different and stays allowed: the mappings
+        # exist, the registrant simply already holds the proposed values.
+        mappings = self._effective_mappings(change_request)
+        if not mappings:
+            selected = change_request.selected_field_name
+            if selected:
+                raise UserError(
+                    _(
+                        "The field this change request was routed on (%(field)s) no longer has a "
+                        "mapping on its request type, so applying it would change nothing while "
+                        "recording it as applied. Correct the request type's field mappings, or "
+                        "reset the request to draft to re-route it.",
+                        field=selected,
+                    )
+                )
+            raise UserError(
+                _(
+                    "This change request type has no field mapping to apply, so applying it "
+                    "would change nothing while recording it as applied. Configure the request "
+                    "type's field mappings before applying."
+                )
+            )
+
         values = {}
-        for mapping in self._effective_mappings(change_request):
+        for mapping in mappings:
             source_value = getattr(detail, mapping.source_field, None)
             current_value = getattr(registrant, mapping.target_field, None)
 
@@ -86,6 +115,12 @@ class SPPCRStrategyFieldMapping(models.AbstractModel):
             name_related_fields = {"family_name", "given_name", "addl_name"}
             if name_related_fields & set(values.keys()):
                 registrant.name_change()
+        else:
+            _logger.info(
+                "Field mapping for CR %s wrote nothing: the registrant already holds the "
+                "proposed values.",
+                change_request.name,
+            )
 
         return True
 

@@ -1096,14 +1096,22 @@ class TestDynamicApproval(TransactionCase):
 
     def test_dynamic_apply_unmapped_selected_field_writes_nothing(self):
         """Fail-closed: a dynamic CR whose selected field has no mapping writes nothing,
-        even if another mapped detail field was changed."""
+        even if another mapped detail field was changed.
+
+        Applying is additionally rejected outright rather than reporting success.
+        Returning success wrote nothing but still stamped the request applied,
+        hiding a dropped change from operators; see
+        ``test_apply_effective_mappings``. The fail-closed guarantee this test
+        exists for is unchanged -- nothing is written either way.
+        """
         cr = self._create_cr()
         detail = cr.get_detail()
         detail.write({"phone": "999-000"})
         # Force a selected field that is not present in apply_mapping_ids.
         cr.selected_field_name = "email"
 
-        self._field_mapping_strategy().apply(cr)
+        with self.assertRaises(UserError):
+            self._field_mapping_strategy().apply(cr)
 
         self.assertEqual(self.registrant.phone, "111-222", "nothing may be applied for an unmapped selection")
 
