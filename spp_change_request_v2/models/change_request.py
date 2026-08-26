@@ -697,7 +697,10 @@ class SPPChangeRequest(models.Model):
         parent_field = "x_change_request_id" if "x_change_request_id" in model._fields else "change_request_id"
         if parent_field not in model._fields:
             return False
-        detail = model.sudo().browse(int(detail_id)).exists()
+        # sudo: the caller may hold no access to the detail model, and the answer
+        # is only ever used to accept or reject the write -- the record itself is
+        # never returned or exposed. Reads a single field on a single row.
+        detail = model.sudo().browse(int(detail_id)).exists()  # nosemgrep: odoo-sudo-without-context
         return bool(detail) and detail[parent_field].id == self.id
 
     def _alters_frozen_field(self, field, value):
