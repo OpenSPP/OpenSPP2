@@ -254,7 +254,7 @@ Dependencies
 Changelog
 =========
 
-19.0.2.3.3
+19.0.2.3.4
 ~~~~~~~~~~
 
 - fix(security): the Tier-3 ``group_registry_read`` group can read

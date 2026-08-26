@@ -1,4 +1,4 @@
-### 19.0.2.3.3
+### 19.0.2.3.4
 
 - fix(security): the Tier-3 `group_registry_read` group can read `spp.cycle` and `spp.cycle.membership`. The registrant form's entitlement lists render `cycle_id`, and both models were granted only to the Tier-2 `group_registry_viewer` group.
 
