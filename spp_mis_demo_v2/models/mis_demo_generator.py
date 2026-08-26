@@ -438,6 +438,11 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         self.state = "in_progress"
 
+        # Wrappers left behind by programs archived or deleted since the last
+        # run are invisible in the UI but still turn up in searches on the
+        # manager models, so they pile up across runs (OP#1017).
+        self._remove_orphan_manager_wrappers()
+
         # Track statistics
         stats = {
             "stories_created": 0,
@@ -1068,6 +1073,12 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         member = self.env["res.partner"].create(partner_vals)
 
+        # Blueprints mark specific members as disabled; that flag used to be
+        # dropped here, so no demo individual ever had has_disability set and
+        # every disability-targeted program matched nothing (OP#955).
+        if member_data.get("is_disabled"):
+            self._create_disability_assessment(member, registration_date)
+
         # Explicitly ensure fields are set after creation
         if not member.is_group and (family_name or given_name):
             write_vals = {}
@@ -1086,6 +1097,117 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         return member
 
+    # Severe responses on every domain of whichever instrument applies. The
+    # threshold is any single domain at "a lot of difficulty" or "cannot do at
+    # all" (WG_SEVERE_DIFFICULTY_LEVELS), so these produce has_disability=True
+    # while still reading as a coherent questionnaire rather than a single
+    # stray answer.
+    _WG_SS_SEVERE = {
+        "wg_seeing": "a_lot",
+        "wg_hearing": "none",
+        "wg_walking": "a_lot",
+        "wg_remembering": "none",
+        "wg_selfcare": "some",
+        "wg_communicating": "none",
+    }
+    _CFM_5_17_SEVERE = {
+        "cfm517_glasses": "no",
+        "cfm517_vision": "a_lot",
+        "cfm517_hearing_aid": "no",
+        "cfm517_hearing": "none",
+        "cfm517_walk_equipment": "no",
+        "cfm517_walk_compare_100": "some",
+        "cfm517_walk_compare_500": "some",
+        "cfm517_selfcare": "some",
+        "cfm517_comm_inside": "none",
+    }
+    _CFM_2_4_SEVERE = {
+        "cfm24_glasses": "no",
+        "cfm24_vision": "a_lot",
+        "cfm24_hearing_aid": "no",
+        "cfm24_hearing": "none",
+        "cfm24_walk_equipment": "no",
+        "cfm24_walk_compare": "some",
+        "cfm24_dexterity": "some",
+        "cfm24_understood": "none",
+    }
+
+    def _create_disability_assessment(self, member, registration_date):
+        """Give a blueprint-flagged member an approved disability assessment.
+
+        `res.partner.has_disability` cannot be written: it is related to
+        `current_disability_assessment_id.has_disability`, which only follows an
+        assessment in the approved state. So the flag has to be expressed as a
+        real assessment:
+
+        1. severe answers on the instrument the member's age selects, which
+           makes `_compute_disability_indicator` set has_disability on the
+           assessment;
+        2. approval_state = "approved", which lets
+           `_compute_current_disability_assessment` pick it up on the partner.
+
+        The approval workflow is deliberately bypassed rather than driven --
+        demo data should not depend on an approver existing, and submitting for
+        real would need every required tab completed per the module's settings.
+        `_sync_registrant_disability_status` is what the module itself calls
+        after an approval to force the registrant recompute.
+        """
+        if "spp.disability.assessment" not in self.env:
+            # The disability registry is not necessarily installed alongside the
+            # demo. Reaching into env for a missing model raises KeyError, which
+            # would abort the whole demo load on the first flagged member.
+            _logger.warning(
+                "spp_disability_registry is not installed; skipping the disability "
+                "assessment for member (partner_id=%s)",
+                member.id,
+            )
+            return None
+        assessment_model = self.env["spp.disability.assessment"]
+        vals = {
+            "registrant_id": member.id,
+            "assessment_date": self._assessment_date_for(member, registration_date),
+            # The impairment question and a review category, so the record is
+            # complete rather than half-filled if someone opens it in the UI.
+            "has_impairments_to_record": "no",
+            "review_category": "mine",
+        }
+        try:
+            assessment = assessment_model.create(vals)
+            # assessment_type is computed from the registrant's age, so the
+            # instrument is only known once the record exists.
+            answers = {
+                "cfm_2_4": self._CFM_2_4_SEVERE,
+                "cfm_5_17": self._CFM_5_17_SEVERE,
+            }.get(assessment.assessment_type, self._WG_SS_SEVERE)
+            assessment.write(answers)
+            assessment.write({"approval_state": "approved"})
+            assessment._sync_registrant_disability_status()
+        except Exception as e:
+            _logger.warning(
+                "Could not create a disability assessment for member (partner_id=%s): %s",
+                member.id,
+                e,
+            )
+            return self.env["spp.disability.assessment"]
+        return assessment
+
+    def _assessment_date_for(self, member, registration_date):
+        """An assessment date that satisfies the model's own constraints.
+
+        The assessment refuses a future date and one before the registrant's
+        birthdate. Demo registration dates are backdated, and a member born
+        after a household's registration is possible in generated data, so fall
+        back to today when the registration date would be invalid.
+        """
+        today = fields.Date.today()
+        candidate = fields.Date.to_date(registration_date) or today
+        if candidate > today:
+            candidate = today
+        birthdate = member.birthdate
+        if birthdate and candidate < birthdate:
+            candidate = today
+        return candidate
+
     def _create_demo_programs(self, stats):
         """Create demo programs from definitions."""
         created_programs = []
@@ -1098,7 +1220,8 @@ class SPPMISDemoGenerator(models.TransientModel):
                 _logger.info("Program already exists (program_id=%s), skipping...", existing.id)
                 stats["programs_skipped"] += 1
                 # Ensure all default managers are present (cycle, eligibility, entitlement, etc.)
-                self._ensure_program_managers(existing)
+                self._ensure_program_managers(existing, program_def)
+                self._wire_manager_approvals(existing)
                 created_programs.append(existing)
                 continue
 
@@ -1125,7 +1248,8 @@ class SPPMISDemoGenerator(models.TransientModel):
                 )
 
                 # Ensure managers exist on newly created program
-                self._ensure_program_managers(program)
+                self._ensure_program_managers(program, program_def)
+                self._wire_manager_approvals(program)
 
                 # Configure eligibility: Logic Studio or CEL expression
                 if program_def.get("use_logic_studio"):
@@ -1152,6 +1276,70 @@ class SPPMISDemoGenerator(models.TransientModel):
                 _logger.error("Error creating program (program_id=%s): %s", program_def.get("id", "unknown"), e)
 
         return created_programs
+
+    def _approval_definition(self, xmlid):
+        """An approval definition seeded by this module, or an empty recordset.
+
+        The demo used to leave `approval_definition_id` unset on the cycle and
+        entitlement managers, which is not a soft gap: approving a cycle raises
+        "The cycle approval definition is not specified!" and
+        prepare_entitlements raises its entitlement equivalent, so the demo
+        could not show either flow at all (OP#957).
+
+        Returns an empty recordset rather than raising if the definition is
+        absent -- a demo load must not fail because an optional data file was
+        not loaded.
+        """
+        definition = self.env.ref(xmlid, raise_if_not_found=False)
+        if not definition:
+            _logger.warning("Approval definition %s not found; leaving the manager unwired", xmlid)
+            return self.env["spp.approval.definition"]
+        return definition
+
+    def _wire_manager_approvals(self, program):
+        """Attach the seeded approval workflows to a program's managers (OP#957).
+
+        Leaving `approval_definition_id` unset is not a soft gap. Approving a
+        cycle raises "The cycle approval definition is not specified!"
+        (cycle_manager_base) and prepare_entitlements raises its entitlement
+        equivalent, so the demo could not show either flow at all.
+
+        This runs as its own pass rather than inside `_configure_cycle_manager`
+        and `_configure_entitlement_manager`, because neither of those reaches
+        every program: the cycle one is called only when the program def
+        carries a `cycle_duration`, and a program the generator skips as
+        already-existing never reaches either. Wiring here covers both the
+        freshly-created and the already-existing path.
+
+        Idempotent, and it does not overwrite a definition already chosen --
+        re-running Load Demo must not undo a deliberate change made in the UI.
+        """
+        for manager_kind, xmlid in (
+            (program.MANAGER_CYCLE, "spp_mis_demo_v2.approval_definition_cycle_manager"),
+            (program.MANAGER_ENTITLEMENT, "spp_mis_demo_v2.approval_definition_entitlement_manager"),
+        ):
+            try:
+                manager = program.get_manager(manager_kind)
+            except Exception as e:  # a program may legitimately have none
+                _logger.warning(
+                    "Could not resolve the %s manager for program (program_id=%s): %s",
+                    manager_kind,
+                    program.id,
+                    e,
+                )
+                continue
+            if not manager or "approval_definition_id" not in manager._fields:
+                continue
+            if manager.approval_definition_id:
+                continue
+            definition = self._approval_definition(xmlid)
+            if definition:
+                manager.write({"approval_definition_id": definition.id})
+                _logger.info(
+                    "Wired %s approval definition for program (program_id=%s)",
+                    manager_kind,
+                    program.id,
+                )
 
     def _configure_entitlement_manager(self, program, program_def):
         """Configure the entitlement manager for a program (cash or in-kind).
@@ -1457,18 +1645,37 @@ class SPPMISDemoGenerator(models.TransientModel):
             # Fall back to inline CEL on error
             self._configure_eligibility_manager(program, program_def)
 
-    def _ensure_program_managers(self, program):
-        """Create missing default managers (cycle, eligibility, entitlement, etc.) for a program.
+    def _ensure_program_managers(self, program, program_def=None):
+        """Create or repair a program's managers (cycle, eligibility, ...).
 
-        Earlier V2 demo data sometimes missed these because constants.MANAGER_MODELS
-        only covered a subset of managers. This is idempotent: if a manager list
-        already has entries, we leave it untouched.
+        Earlier V2 demo data sometimes missed these because
+        constants.MANAGER_MODELS only covered a subset of managers.
+
+        Idempotent per *record*, not per list (OP#1017). The old check skipped a
+        whole list when it held anything, so a wrapper whose concrete record had
+        been deleted was never repaired: the card kept showing a method that no
+        longer existed behind it, and re-running Load Demo did not fix it.
+
+        A compliance manager is only created when the program actually has a
+        compliance rule to enforce. An empty one is not harmless: both
+        `spp.program.has_compliance_criteria` and
+        `spp.cycle.allow_filter_compliance_criteria` are computed as
+        `bool(compliance_manager_ids)`, so an inert record makes the UI offer
+        compliance filtering that can never match anything (OP#1017 item 3).
+        Absence is the accurate state and is handled everywhere it is read.
         """
         from odoo.addons.spp_programs.models import constants
 
+        program_def = program_def or {}
         for field, mapping in constants.MANAGER_MODELS.items():
-            if program[field]:
+            if field == "compliance_manager_ids" and not program_def.get("compliance_cel_expression"):
                 continue
+
+            existing = program[field]
+            if existing:
+                self._repair_manager_wrappers(existing, mapping)
+                continue
+
             for mgr_obj, def_mgr_obj in mapping.items():
                 # Create the concrete manager implementation and link via
                 # wrapper. Each concrete model's default_get() supplies a
@@ -1486,6 +1693,55 @@ class SPPMISDemoGenerator(models.TransientModel):
                     }
                 )
                 program.write({field: [Command.link(mgr.id)]})
+
+    def _repair_manager_wrappers(self, wrappers, mapping):
+        """Re-point wrappers whose concrete manager has gone missing.
+
+        `manager_ref_id` is a Reference field, so it carries no foreign key and
+        outlives whatever it pointed at. A wrapper left dangling shows on the
+        program's card but does nothing, and nothing repaired it (OP#1017).
+        """
+        for wrapper in wrappers:
+            concrete = wrapper.manager_ref_id
+            if concrete and concrete.exists():
+                continue
+            def_mgr_obj = mapping.get(wrapper._name)
+            if not def_mgr_obj:
+                _logger.warning(
+                    "No concrete model known for wrapper %s; leaving it as is",
+                    wrapper._name,
+                )
+                continue
+            replacement = self.env[def_mgr_obj].create({"program_id": wrapper.program_id.id})
+            wrapper.write({"manager_ref_id": f"{def_mgr_obj},{replacement.id}"})
+            _logger.info(
+                "Repaired dangling %s wrapper (wrapper_id=%s) for program (program_id=%s)",
+                wrapper._name,
+                wrapper.id,
+                wrapper.program_id.id,
+            )
+
+    def _remove_orphan_manager_wrappers(self):
+        """Delete manager wrappers whose program is gone or archived (OP#1017).
+
+        Archiving or deleting a demo program leaves its wrappers behind. They
+        are invisible in the UI but still returned by searches on the manager
+        models, so they accumulate across demo runs.
+        """
+        from odoo.addons.spp_programs.models import constants
+
+        removed = 0
+        for mapping in constants.MANAGER_MODELS.values():
+            for mgr_obj in mapping:
+                if mgr_obj not in self.env:
+                    continue
+                orphans = self.env[mgr_obj].search(["|", ("program_id", "=", False), ("program_id.active", "=", False)])
+                if orphans:
+                    removed += len(orphans)
+                    orphans.unlink()
+        if removed:
+            _logger.info("Removed %s orphan manager wrapper(s)", removed)
+        return removed
 
     def _create_program_journal(self, program_name):
         """Create an accounting journal for a program."""

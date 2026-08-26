@@ -531,6 +531,50 @@ installation, volume data configuration)</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.2.0</h1>
+<ul class="simple">
+<li>fix(demo): <strong>enrollment now follows each program’s eligibility rule.</strong>
+Households were enrolled from a static per-blueprint flag while the
+program form previewed its CEL, so a program could claim 102 enrolled
+households while matching 9. Programs with a selective rule enrol
+whoever that rule matches; Food Assistance and Emergency Relief Fund
+stay flag-driven, the first because its expression matches every
+active registrant and the second because it has none (#956)</li>
+<li>fix(demo): <strong>generated ages are no longer a year out.</strong> A member asked
+for at age N was created at N+1 whenever their random birth month fell
+before the reference month, which is eight times in twelve, so
+programs with age predicates matched a fraction of the households
+meant for them (#956)</li>
+<li>fix(demo): <strong>members flagged as disabled are recorded as such.</strong>
+Blueprints mark specific members <tt class="docutils literal">is_disabled</tt>, and nothing acted on
+it, so no registrant had a disability and the Disability Support Grant
+matched nothing. Each flagged member now gets an approved assessment
+carrying answers that meet the Washington Group threshold. Adds a
+dependency on <tt class="docutils literal">spp_disability_registry</tt>, without which
+<tt class="docutils literal">res.partner.has_disability</tt> does not exist at all (#955)</li>
+<li>fix(demo): the <tt class="docutils literal">disabled_count</tt> aggregate filtered on
+<tt class="docutils literal">is_person_with_disability</tt>, a field that exists nowhere, so it
+counted zero on every household (#955)</li>
+<li>fix(demo): <strong>cycle and entitlement managers get their approval
+workflow.</strong> Neither carried an approval definition, which is not a
+soft gap: approving a cycle raised “The cycle approval definition is
+not specified!” and preparing entitlements raised its equivalent, so
+the demo could not show either flow. Wired as its own pass, since
+neither manager-configuration step reached every program (#957)</li>
+<li>fix(demo): a compliance manager is only created for a program that has
+a compliance rule. An empty one is not harmless –
+<tt class="docutils literal">has_compliance_criteria</tt> and the cycle’s compliance filter are both
+derived from its mere existence, so the UI offered filtering that
+could never match (#1017)</li>
+<li>fix(demo): manager repair is per record rather than per list. A
+wrapper whose concrete manager had been deleted was never rebuilt,
+because a non-empty list was skipped wholesale; the program card kept
+offering a method with nothing behind it (#1017)</li>
+<li>fix(demo): manager wrappers belonging to archived or deleted programs
+are swept at the start of each run instead of accumulating (#1017)</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.1.4</h1>
 <ul class="simple">
 <li>revert(mis_demo): the Add Member and Change Head of Household demo CRs
@@ -541,7 +585,7 @@ from the named new head, instead of the redesigned <tt class="docutils literal">
 per-member role lines.</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.1.3</h1>
 <ul class="simple">
 <li>fix: PHL story registrants map to the curated PSGC p-code area
@@ -550,7 +594,7 @@ external IDs introduced by the re-landed spp_demo geodata
 dropping area assignments).</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.1.2</h1>
 <ul class="simple">
 <li>fix: demo GIS reports use <tt class="docutils literal">dimension_ids</tt> + <tt class="docutils literal">member_expansion</tt>
@@ -559,7 +603,7 @@ from #295, credit &#64;kneckinator; required in lockstep with the
 spp_gis_report dimension change).</li>
 </ul>
 </div>
-<div class="section" id="section-4">
+<div class="section" id="section-5">
 <h1>19.0.2.1.1</h1>
 <ul class="simple">
 <li>feat(demo): adapt the change-request demo generator to the redesigned
@@ -567,7 +611,7 @@ CR flows — Add Member selects an existing individual (#871) and Change
 Head of Household uses per-member role lines (#873) (#242)</li>
 </ul>
 </div>
-<div class="section" id="section-5">
+<div class="section" id="section-6">
 <h1>19.0.2.1.0</h1>
 <ul class="simple">
 <li>feat(demo): seed country-appropriate CR document types (≥5 per country
@@ -576,7 +620,7 @@ demo generation, so a document type can be selected when attaching
 files to a change request without defining them manually (#1102)</li>
 </ul>
 </div>
-<div class="section" id="section-6">
+<div class="section" id="section-7">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

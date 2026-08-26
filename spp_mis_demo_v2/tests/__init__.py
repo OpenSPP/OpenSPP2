@@ -12,3 +12,4 @@ from . import test_mis_demo_generator
 from . import test_registry_variables
 from . import test_demo_statistics
 from . import test_story_area_map
+from . import test_demo_data_quality

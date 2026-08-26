@@ -174,6 +174,13 @@ class SeededVolumeGenerator:
         _logger.info("Phase 3/%d: Creating %d individuals in batches...", 4, len(all_individual_vals))
         individuals = self._batch_create("res.partner", all_individual_vals)
 
+        # Blueprints flag specific members as disabled. Almost every demo
+        # individual is created here rather than through the story path, so
+        # this is where that flag has to be honoured -- otherwise no registrant
+        # has has_disability and every disability-targeted program matches
+        # nothing (OP#955).
+        self._create_disability_assessments(individuals, individual_to_group)
+
         # Phase 4: Create memberships and link to groups
         _logger.info("Phase 4/%d: Creating %d memberships...", 4, len(individuals))
         membership_vals_list = []
@@ -274,8 +281,27 @@ class SeededVolumeGenerator:
         )
         return households
 
+    # Programs whose CEL is not a targeting rule, so enrollment stays driven by
+    # the blueprint flags. Food Assistance matches "any active registrant",
+    # which would enroll the entire demo population; Emergency Relief Fund has
+    # no CEL at all. Both are reported as exceptions rather than forced into
+    # line, because changing what a programme targets is a product decision,
+    # not demo-data cleanup (OP#956).
+    NON_SELECTIVE_CEL_PROGRAMS = ("food_assistance", "emergency_relief_fund")
+
     def enroll_in_programs(self, households, program_map):
-        """Enroll households in programs based on eligibility flags.
+        """Enroll households in programs, letting each program's CEL decide.
+
+        Enrollment used to come purely from each blueprint's static
+        `eligibility` dict, which is why a program form could claim 102
+        enrolled households while its own eligibility preview matched 9: the
+        flag said yes, the CEL disagreed, and nothing reconciled them
+        (OP#956).
+
+        Now, for every program that has a selective CEL, the CEL picks the
+        beneficiaries. The blueprint flags still shape the population and still
+        drive the programs whose CEL is not a targeting rule
+        (NON_SELECTIVE_CEL_PROGRAMS).
 
         Handles both group-target and individual-target programs:
         - Group programs (UCG, CTP, ERF, DSG): enroll the household group
@@ -291,6 +317,8 @@ class SeededVolumeGenerator:
             if program.target_type == "individual":
                 individual_programs.add(prog_id)
 
+        cel_driven = self._cel_driven_enrollments(households, program_map, individual_programs)
+
         enrollment_vals = []
         # Track (partner_id, registration_date) for backdating
         enrollment_dates = []
@@ -305,6 +333,9 @@ class SeededVolumeGenerator:
                     continue
                 program = program_map.get(prog_id)
                 if not program:
+                    continue
+                if prog_id in cel_driven:
+                    # The CEL already decided this program's beneficiaries.
                     continue
 
                 if prog_id in individual_programs:
@@ -348,6 +379,18 @@ class SeededVolumeGenerator:
                         )
                         enrollment_dates.append(member.registration_date or reg_date)
 
+        for prog_id, partners in cel_driven.items():
+            program = program_map[prog_id]
+            for partner in partners:
+                enrollment_vals.append(
+                    {
+                        "program_id": program.id,
+                        "partner_id": partner.id,
+                        "state": "enrolled",
+                    }
+                )
+                enrollment_dates.append(partner.registration_date or fields.Date.today())
+
         if not enrollment_vals:
             return
 
@@ -359,6 +402,196 @@ class SeededVolumeGenerator:
         # after all ORM operations are complete, to prevent recomputation.
         self.env.flush_all()
         self._apply_membership_realism(memberships, enrollment_dates)
+
+    def _cel_driven_enrollments(self, households, program_map, individual_programs):
+        """Resolve each program's eligibility CEL to the partners it matches.
+
+        Returns {program_id: res.partner recordset}. A program is left out --
+        and so stays blueprint-driven -- when it has no CEL, when its CEL is
+        not a targeting rule, or when the expression fails to compile. Demo
+        generation must not fall over because one expression is unhappy.
+
+        Matches are intersected with the households generated in this run.
+        The CEL is evaluated against the whole database, which also holds the
+        story registrants enrolled by their own pass; enrolling them here as
+        well would double up.
+        """
+        generated_groups = self.env["res.partner"].browse([hh["group"].id for hh in households])
+        generated_members = self.env["res.partner"].browse([m.id for hh in households for m in hh["members"]])
+
+        service = self.env["spp.cel.service"]
+        result_map = {}
+        for prog_id, program in program_map.items():
+            if prog_id in self.NON_SELECTIVE_CEL_PROGRAMS:
+                continue
+            expression = self._program_cel_expression(program)
+            if not expression:
+                continue
+
+            candidates = generated_members if prog_id in individual_programs else generated_groups
+            if not candidates:
+                continue
+
+            profile = "registry_individuals" if prog_id in individual_programs else "registry_groups"
+            try:
+                compiled = service.compile_expression(
+                    expression,
+                    profile=profile,
+                    base_domain=[["id", "in", candidates.ids]],
+                    limit=0,
+                    materialize_sql=True,
+                )
+            except Exception as e:
+                _logger.warning(
+                    "Could not compile the eligibility CEL for %s; falling back to the blueprint flags: %s",
+                    prog_id,
+                    e,
+                )
+                continue
+            if not compiled.get("valid"):
+                _logger.warning(
+                    "Eligibility CEL for %s did not compile (%s); falling back to the blueprint flags",
+                    prog_id,
+                    compiled.get("error", "unknown error"),
+                )
+                continue
+
+            matched = self.env["res.partner"].search(compiled.get("domain") or [])
+            result_map[prog_id] = matched
+            _logger.info(
+                "CEL-driven enrollment for %s: %d of %d candidates match",
+                prog_id,
+                len(matched),
+                len(candidates),
+            )
+        return result_map
+
+    def _program_cel_expression(self, program):
+        """The CEL expression configured on a program's eligibility manager."""
+        for wrapper in program.eligibility_manager_ids:
+            concrete = wrapper.manager_ref_id
+            if not concrete or "cel_expression" not in concrete._fields:
+                continue
+            if concrete.cel_expression:
+                return concrete.cel_expression
+        return None
+
+    # Severe on one domain of whichever instrument the age selects, plus a
+    # coherent spread on the others. The disability threshold is any single
+    # domain at "a lot of difficulty" or "cannot do at all".
+    _WG_SS_SEVERE = {
+        "wg_seeing": "a_lot",
+        "wg_hearing": "none",
+        "wg_walking": "a_lot",
+        "wg_remembering": "none",
+        "wg_selfcare": "some",
+        "wg_communicating": "none",
+    }
+    _CFM_5_17_SEVERE = {
+        "cfm517_glasses": "no",
+        "cfm517_vision": "a_lot",
+        "cfm517_hearing_aid": "no",
+        "cfm517_hearing": "none",
+        "cfm517_walk_equipment": "no",
+        "cfm517_walk_compare_100": "some",
+        "cfm517_walk_compare_500": "some",
+        "cfm517_selfcare": "some",
+        "cfm517_comm_inside": "none",
+    }
+    _CFM_2_4_SEVERE = {
+        "cfm24_glasses": "no",
+        "cfm24_vision": "a_lot",
+        "cfm24_hearing_aid": "no",
+        "cfm24_hearing": "none",
+        "cfm24_walk_equipment": "no",
+        "cfm24_walk_compare": "some",
+        "cfm24_dexterity": "some",
+        "cfm24_understood": "none",
+    }
+
+    def _create_disability_assessments(self, individuals, individual_to_group):
+        """Record an approved assessment for every member flagged is_disabled.
+
+        `res.partner.has_disability` is related to
+        `current_disability_assessment_id.has_disability` and only follows an
+        assessment in the approved state, so the flag cannot be written
+        directly -- it has to be expressed as a real assessment carrying
+        answers that meet the WG threshold.
+
+        The approval workflow is bypassed rather than driven: demo data must
+        not depend on an approver existing, and a real submission would require
+        every tab the module's settings mark as required.
+        """
+        if "spp.disability.assessment" not in self.env:
+            _logger.warning("spp_disability_registry is not installed; skipping disability seeding")
+            return self.env["res.partner"]
+
+        answers_by_type = {
+            "cfm_2_4": self._CFM_2_4_SEVERE,
+            "cfm_5_17": self._CFM_5_17_SEVERE,
+            "wg_ss": self._WG_SS_SEVERE,
+        }
+        # The instrument follows age: 18+ WG-SS, 5-17 CFM 5-17, under 5 CFM 2-4.
+        grouped = {}
+        for member, (group_record, member_spec) in zip(individuals, individual_to_group, strict=False):
+            if not member_spec.get("is_disabled"):
+                continue
+            reference = group_record.registration_date or fields.Date.today()
+            age = self._age_at(member.birthdate, reference)
+            if age >= 18:
+                instrument = "wg_ss"
+            elif age >= 5:
+                instrument = "cfm_5_17"
+            else:
+                instrument = "cfm_2_4"
+            grouped.setdefault(instrument, []).append((member, reference))
+
+        created = self.env["spp.disability.assessment"]
+        for instrument, entries in grouped.items():
+            vals_list = [
+                {
+                    "registrant_id": member.id,
+                    "assessment_date": self._assessment_date(member, reference),
+                    "assessment_type": instrument,
+                    "has_impairments_to_record": "no",
+                    "review_category": "mine",
+                    **answers_by_type[instrument],
+                }
+                for member, reference in entries
+            ]
+            try:
+                batch = self._batch_create("spp.disability.assessment", vals_list)
+            except Exception as e:
+                _logger.warning("Could not create %s disability assessments: %s", instrument, e)
+                continue
+            # Approved, so the registrant's current assessment resolves to it.
+            batch.write({"approval_state": "approved"})
+            batch._sync_registrant_disability_status()
+            created |= batch
+
+        if created:
+            _logger.info("Created %d approved disability assessment(s)", len(created))
+        return created
+
+    def _age_at(self, birthdate, reference):
+        """Whole years between a birthdate and a reference date."""
+        if not birthdate:
+            return 0
+        reference = fields.Date.to_date(reference)
+        return reference.year - birthdate.year - ((reference.month, reference.day) < (birthdate.month, birthdate.day))
+
+    def _assessment_date(self, member, reference):
+        """A date the assessment's own constraints will accept.
+
+        It refuses a future date and one before the registrant's birthdate.
+        """
+        today = fields.Date.today()
+        candidate = fields.Date.to_date(reference) or today
+        if candidate > today:
+            candidate = today
+        if member.birthdate and candidate < member.birthdate:
+            candidate = today
+        return candidate
 
     def _find_member_spec(self, blueprint, member_record):
         """Find the blueprint member spec that matches a created member record."""
@@ -516,15 +749,28 @@ class SeededVolumeGenerator:
         return self._group_type_id
 
     def _birthdate_from_age(self, age, reference_date=None):
-        """Calculate a deterministic birthdate from age using seeded RNG.
+        """A deterministic birthdate for someone exactly `age` at `reference_date`.
 
-        Uses reference_date (registration date) to ensure birthdate < registration_date.
+        The previous form was `birth_year = ref.year - age - 1` with a random
+        month, which made the member `age + 1` whenever the random birth month
+        fell before the reference month -- eight times out of twelve. A
+        blueprint asking for a child aged 1 mostly produced a 2-year-old, which
+        is why programs with age predicates matched a fraction of the
+        households flagged for them: the Conditional Child Grant wants a member
+        under 2 and only the minority whose birth month happened to fall late
+        in the year qualified (OP#956).
+
+        Stepping back exactly `age` years and then a random number of days
+        short of the next birthday puts the age at `age` for every draw, while
+        keeping the birthdate before the registration date.
         """
         ref = reference_date or fields.Date.today()
-        birth_year = ref.year - age - 1
-        birth_month = self.rng.randint(1, 12)
-        birth_day = self.rng.randint(1, 28)
-        return datetime.date(birth_year, birth_month, birth_day)
+        try:
+            anniversary = ref.replace(year=ref.year - age)
+        except ValueError:
+            # 29 February in a non-leap target year.
+            anniversary = ref.replace(year=ref.year - age, day=28)
+        return anniversary - datetime.timedelta(days=self.rng.randint(0, 364))
 
     def _random_registration_date(self):
         """Generate a registration date within the last 2 years."""
