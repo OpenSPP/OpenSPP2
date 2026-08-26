@@ -275,6 +275,11 @@ class SPPProgram(models.Model):
 
     @api.model
     def create(self, vals):
+        # ``vals`` is a single dict here (this override predates
+        # ``model_create_multi``), but tolerate a list so the guard cannot be
+        # sidestepped if the signature is ever widened.
+        for one in vals if isinstance(vals, list) else [vals]:
+            self._assert_operation_lock_writable(one)
         res = super().create(vals)
         if self.env.context.get("skip_default_managers"):
             return res
@@ -792,23 +797,36 @@ class SPPProgram(models.Model):
         related_jobs = jobs.filtered(lambda r: self in r.records.program_id)
         return [("id", "in", related_jobs.ids)]
 
-    def write(self, vals):
-        # ``is_locked`` / ``locked_reason`` form an operation lock protecting
-        # in-flight async pipelines (enrollment, eligibility). Clearing or
-        # setting it out of band lets conflicting operations run, so direct
-        # writes to these fields are restricted to system administrators. The
-        # pipeline manages the lock through ``_acquire_operation_lock`` /
-        # ``_release_operation_lock`` (which ``sudo()``), and Force Unlock is
-        # the admin-only manual override.
-        if not self.env.su and ("is_locked" in vals or "locked_reason" in vals):
-            if not self.env.user.has_group("base.group_system"):
-                raise AccessError(
-                    _(
-                        "Changing the operation lock is restricted to system "
-                        "administrators. The lock is managed automatically by "
-                        "the async pipeline; use Force Unlock only in an emergency."
-                    )
+    def _assert_operation_lock_writable(self, vals):
+        """Reject out-of-band changes to the operation lock fields.
+
+        ``is_locked`` / ``locked_reason`` form an operation lock protecting
+        in-flight async pipelines (enrollment, eligibility). Clearing or
+        setting it out of band lets conflicting operations run, so direct
+        changes to these fields are restricted to system administrators. The
+        pipeline manages the lock through ``_acquire_operation_lock`` /
+        ``_release_operation_lock`` (which ``sudo()``), and Force Unlock is the
+        admin-only manual override.
+
+        Enforced on create as well as write: a record created already locked
+        would otherwise skip the guard entirely, and its creator could not
+        clear the lock afterwards without a system administrator.
+        """
+        if self.env.su:
+            return
+        if "is_locked" not in vals and "locked_reason" not in vals:
+            return
+        if not self.env.user.has_group("base.group_system"):
+            raise AccessError(
+                _(
+                    "Changing the operation lock is restricted to system "
+                    "administrators. The lock is managed automatically by "
+                    "the async pipeline; use Force Unlock only in an emergency."
                 )
+            )
+
+    def write(self, vals):
+        self._assert_operation_lock_writable(vals)
         return super().write(vals)
 
     # NOTE(#337): these helpers sudo the lock write, so any PUBLIC method that

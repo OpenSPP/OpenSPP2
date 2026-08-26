@@ -179,3 +179,83 @@ class TestForceUnlockAuthorization(TransactionCase):
         manager.with_user(self.officer).mark_import_as_done()
         self.assertFalse(self.program.is_locked)
         self.assertFalse(self.program.locked_reason)
+
+    # --- create must be guarded too ------------------------------------
+
+    def test_cycle_cannot_be_created_already_locked_by_officer(self):
+        """The guard covered write only, so a locked record could be created.
+
+        The creator then could not clear the lock again, since clearing it goes
+        through the write guard -- a self-inflicted lockout needing an admin.
+        """
+        today = fields.Date.today()
+        with self.assertRaises(AccessError):
+            self.env["spp.cycle"].with_user(self.officer).create(
+                {
+                    "name": f"Locked At Create {uuid.uuid4().hex[:8]}",
+                    "program_id": self.program.id,
+                    "sequence": 2,
+                    "start_date": today,
+                    "end_date": fields.Date.add(today, days=30),
+                    "is_locked": True,
+                    "locked_reason": "set at create",
+                }
+            )
+
+    def test_cycle_cannot_be_created_with_locked_reason_by_officer(self):
+        today = fields.Date.today()
+        with self.assertRaises(AccessError):
+            self.env["spp.cycle"].with_user(self.officer).create(
+                {
+                    "name": f"Reason At Create {uuid.uuid4().hex[:8]}",
+                    "program_id": self.program.id,
+                    "sequence": 3,
+                    "start_date": today,
+                    "end_date": fields.Date.add(today, days=30),
+                    "locked_reason": "set at create",
+                }
+            )
+
+    def test_program_cannot_be_created_already_locked_by_officer(self):
+        with self.assertRaises(AccessError):
+            self.env["spp.program"].with_user(self.officer).create(
+                {"name": f"Locked Program {uuid.uuid4().hex[:8]}", "is_locked": True}
+            )
+
+    def test_cycle_creation_without_lock_fields_still_works(self):
+        """The guard must not block ordinary creation."""
+        cycle = _new_cycle(self.env(user=self.officer), self.program)
+        self.assertTrue(cycle.id)
+        self.assertFalse(cycle.is_locked)
+
+    def test_cycle_can_be_created_locked_by_system_admin(self):
+        today = fields.Date.today()
+        cycle = self.env["spp.cycle"].with_user(self.system).create(
+            {
+                "name": f"Admin Locked {uuid.uuid4().hex[:8]}",
+                "program_id": self.program.id,
+                "sequence": 4,
+                "start_date": today,
+                "end_date": fields.Date.add(today, days=30),
+                "is_locked": True,
+                "locked_reason": "admin set at create",
+            }
+        )
+        self.assertTrue(cycle.is_locked)
+
+    def test_cycle_can_be_created_locked_via_sudo(self):
+        """The async pipeline creates through sudo() and must stay unaffected."""
+        today = fields.Date.today()
+        cycle = self.env["spp.cycle"].sudo().create(
+            {
+                "name": f"Sudo Locked {uuid.uuid4().hex[:8]}",
+                "program_id": self.program.id,
+                "sequence": 5,
+                "start_date": today,
+                "end_date": fields.Date.add(today, days=30),
+                "is_locked": True,
+                "locked_reason": "pipeline",
+            }
+        )
+        self.assertTrue(cycle.is_locked)
+
