@@ -1102,7 +1102,7 @@ class SPPChangeRequest(models.Model):
             # overrides silently not running on approval. ``sudo()`` sets
             # ``su`` without changing ``uid``, so ``applied_by_id`` still
             # records the real approver.
-            self.sudo().action_apply()
+            self.sudo().action_apply()  # nosemgrep: odoo-sudo-without-context
 
     def _on_reject(self, reason):
         super()._on_reject(reason)
