@@ -1,3 +1,7 @@
+### 19.0.3.1.13
+
+- fix(change_request): a selectable field on a dynamic-approval type may now be applied through more than one mapping. Apply is narrowed to the field a request was routed and approved on, matched against the mapping's `source_field` — which assumed every selectable value is a physical source field. They need not be: a name may be offered as one choice but stored as separate components, so one selectable value legitimately drives several mappings, and matching on `source_field` alone matched none of them, applying nothing at all. A mapping can now declare the selectable value it serves via `routing_field`, defaulting to `source_field`, so existing configurations are unchanged. Narrowing still holds — a mapping belonging to another routing key is still not applied.
+
 ### 19.0.3.1.10
 
 - fix(security): conflict and duplicate detection now decide whether a mapped field changed using the same comparison the apply strategy uses. Detection compared through a helper that lowercases and strips strings while apply compares raw, so a case- or whitespace-only edit was invisible to detection yet still written to the registrant — enough to sidestep a field-scoped conflict rule with a cosmetic edit. Detection also ignored transform expressions, which apply evaluates before comparing. Similarity scoring is unchanged and stays case-insensitive, since that is the point of a fuzzy match.

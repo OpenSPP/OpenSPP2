@@ -24,6 +24,14 @@ class SPPCRStrategyFieldMapping(models.AbstractModel):
         fields that were also changed. This keeps the applied change in lockstep
         with what was actually approved. Fail closed: if no field is selected, or
         the selection maps to no configured field, nothing is applied.
+
+        A mapping matches on ``routing_field`` where set, else on
+        ``source_field``. The selectable values come from the detail model's
+        ``_get_field_to_modify_selection()`` and need not be physical source
+        fields: one selectable value may be applied through several mappings --
+        a name offered as a single choice but stored as separate components,
+        say. Matching on ``source_field`` alone could not express that, and
+        matched nothing, so such a request applied nothing at all.
         """
         cr_type = change_request.request_type_id
         mappings = cr_type.apply_mapping_ids
@@ -32,7 +40,7 @@ class SPPCRStrategyFieldMapping(models.AbstractModel):
         selected = change_request.selected_field_name
         if not selected:
             return mappings.browse()
-        return mappings.filtered(lambda m: m.source_field == selected)
+        return mappings.filtered(lambda m: (m.routing_field or m.source_field) == selected)
 
     def current_target_value(self, mapping, registrant):
         """The registrant's current value for ``mapping``, as apply compares it."""
