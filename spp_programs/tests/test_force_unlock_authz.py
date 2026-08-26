@@ -230,32 +230,39 @@ class TestForceUnlockAuthorization(TransactionCase):
 
     def test_cycle_can_be_created_locked_by_system_admin(self):
         today = fields.Date.today()
-        cycle = self.env["spp.cycle"].with_user(self.system).create(
-            {
-                "name": f"Admin Locked {uuid.uuid4().hex[:8]}",
-                "program_id": self.program.id,
-                "sequence": 4,
-                "start_date": today,
-                "end_date": fields.Date.add(today, days=30),
-                "is_locked": True,
-                "locked_reason": "admin set at create",
-            }
+        cycle = (
+            self.env["spp.cycle"]
+            .with_user(self.system)
+            .create(
+                {
+                    "name": f"Admin Locked {uuid.uuid4().hex[:8]}",
+                    "program_id": self.program.id,
+                    "sequence": 4,
+                    "start_date": today,
+                    "end_date": fields.Date.add(today, days=30),
+                    "is_locked": True,
+                    "locked_reason": "admin set at create",
+                }
+            )
         )
         self.assertTrue(cycle.is_locked)
 
     def test_cycle_can_be_created_locked_via_sudo(self):
         """The async pipeline creates through sudo() and must stay unaffected."""
         today = fields.Date.today()
-        cycle = self.env["spp.cycle"].sudo().create(
-            {
-                "name": f"Sudo Locked {uuid.uuid4().hex[:8]}",
-                "program_id": self.program.id,
-                "sequence": 5,
-                "start_date": today,
-                "end_date": fields.Date.add(today, days=30),
-                "is_locked": True,
-                "locked_reason": "pipeline",
-            }
+        cycle = (
+            self.env["spp.cycle"]
+            .sudo()
+            .create(
+                {
+                    "name": f"Sudo Locked {uuid.uuid4().hex[:8]}",
+                    "program_id": self.program.id,
+                    "sequence": 5,
+                    "start_date": today,
+                    "end_date": fields.Date.add(today, days=30),
+                    "is_locked": True,
+                    "locked_reason": "pipeline",
+                }
+            )
         )
         self.assertTrue(cycle.is_locked)
-

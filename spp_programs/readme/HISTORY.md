@@ -1,3 +1,7 @@
+### 19.0.2.3.3
+
+- fix(security): the operation lock is now guarded on create as well as write. Restricting only writes to `is_locked` / `locked_reason` left creation unguarded, so a program officer could create a cycle or program already locked and bypass the check entirely — and then could not clear the lock again, since clearing it goes through the guarded write, leaving a self-inflicted lockout only a system administrator could undo. The check is shared by both paths; `sudo()` and system administrators are unaffected, so the async pipeline keeps managing the lock as before.
+
 ### 19.0.2.3.2
 
 - fix(security): the Program Viewer role no longer carries the Tier-2 `spp_registry.group_registry_viewer` group, which gates the standalone Registry Search portal menu and exposed a broad registrant-PII enumeration surface to a read-only program role. It now uses the Tier-3 `spp_registry.group_registry_read` group instead, preserving the registrant read needed for program cross-references (same read ACLs, defined in `spp_base_common`) without the Registry app menu. Includes a migration that re-points the role and re-syncs already-assigned users on upgrade.

@@ -121,8 +121,6 @@ class TestDetectionMatchesApply(CRTestCase):
         first = self._cr(cr_type, {"given_name": "Changed"})
         second = self._cr(cr_type, {"given_name": "Changed"})
         derived = second._calculate_similarity(first, config)
-        passed_in = second._calculate_similarity(
-            first, config, my_changed=second._proposed_changed_fields()
-        )
+        passed_in = second._calculate_similarity(first, config, my_changed=second._proposed_changed_fields())
         self.assertEqual(derived, passed_in)
         self.assertEqual(derived, 100.0)

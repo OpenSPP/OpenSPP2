@@ -28,9 +28,7 @@ class TestFrozenDetailBinding(CRTestCase):
         cls.edit_type = get_or_create_cr_type(cls.env, "edit_individual")
 
     def _submitted_cr_without_detail(self):
-        cr = self.CR.create(
-            {"request_type_id": self.edit_type.id, "registrant_id": self.test_individual.id}
-        )
+        cr = self.CR.create({"request_type_id": self.edit_type.id, "registrant_id": self.test_individual.id})
         cr.get_detail()  # materialise, then unbind while still in draft
         cr.write({"detail_res_id": False})
         cr.sudo().write({"approval_state": "pending"})
@@ -57,9 +55,7 @@ class TestFrozenDetailBinding(CRTestCase):
     # ------------------------------------------------------------------
 
     def test_cannot_bind_a_detail_belonging_to_another_request(self):
-        other = self.CR.create(
-            {"request_type_id": self.edit_type.id, "registrant_id": self.test_individual.id}
-        )
+        other = self.CR.create({"request_type_id": self.edit_type.id, "registrant_id": self.test_individual.id})
         foreign_detail = other.get_detail()
 
         cr = self._submitted_cr_without_detail()
@@ -67,23 +63,17 @@ class TestFrozenDetailBinding(CRTestCase):
             cr.write({"detail_res_id": foreign_detail.id})
 
     def test_cannot_repoint_an_already_bound_detail(self):
-        other = self.CR.create(
-            {"request_type_id": self.edit_type.id, "registrant_id": self.test_individual.id}
-        )
+        other = self.CR.create({"request_type_id": self.edit_type.id, "registrant_id": self.test_individual.id})
         foreign_detail = other.get_detail()
 
-        cr = self.CR.create(
-            {"request_type_id": self.edit_type.id, "registrant_id": self.test_individual.id}
-        )
+        cr = self.CR.create({"request_type_id": self.edit_type.id, "registrant_id": self.test_individual.id})
         cr.get_detail()
         cr.sudo().write({"approval_state": "pending"})
         with self.assertRaises(UserError):
             cr.write({"detail_res_id": foreign_detail.id})
 
     def test_cannot_clear_an_already_bound_detail(self):
-        cr = self.CR.create(
-            {"request_type_id": self.edit_type.id, "registrant_id": self.test_individual.id}
-        )
+        cr = self.CR.create({"request_type_id": self.edit_type.id, "registrant_id": self.test_individual.id})
         cr.get_detail()
         cr.sudo().write({"approval_state": "pending"})
         with self.assertRaises(UserError):

@@ -56,9 +56,7 @@ class TestFrozenValueNormalisation(CRTestCase):
     # ------------------------------------------------------------------
 
     def test_empty_string_for_an_unset_frozen_field_is_accepted(self):
-        cr = self.CR.create(
-            {"request_type_id": self.edit_type.id, "registrant_id": self.test_individual.id}
-        )
+        cr = self.CR.create({"request_type_id": self.edit_type.id, "registrant_id": self.test_individual.id})
         cr.sudo().write({"approval_state": "pending"})
         self.assertFalse(cr.selected_field_old_value, "test assumes the field is unset")
         # An integration re-saving the record sends "" for the empty Char.
@@ -66,18 +64,14 @@ class TestFrozenValueNormalisation(CRTestCase):
         self.assertFalse(cr.selected_field_old_value)
 
     def test_a_real_change_to_a_frozen_field_is_still_rejected(self):
-        cr = self.CR.create(
-            {"request_type_id": self.edit_type.id, "registrant_id": self.test_individual.id}
-        )
+        cr = self.CR.create({"request_type_id": self.edit_type.id, "registrant_id": self.test_individual.id})
         cr.sudo().write({"approval_state": "pending"})
         with self.assertRaises(UserError):
             cr.write({"selected_field_old_value": "something else"})
 
     def test_clearing_a_populated_frozen_field_is_still_rejected(self):
         """'' must read as unset, not as a licence to clear a set value."""
-        cr = self.CR.create(
-            {"request_type_id": self.edit_type.id, "registrant_id": self.test_individual.id}
-        )
+        cr = self.CR.create({"request_type_id": self.edit_type.id, "registrant_id": self.test_individual.id})
         cr.write({"selected_field_old_value": "Original"})
         cr.sudo().write({"approval_state": "pending"})
         with self.assertRaises(UserError):

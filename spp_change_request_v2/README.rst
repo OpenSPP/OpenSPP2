@@ -853,6 +853,45 @@ Before declaring a new CR type complete:
 Changelog
 =========
 
+19.0.3.1.10
+~~~~~~~~~~~
+
+- fix(security): conflict and duplicate detection now decide whether a
+  mapped field changed using the same comparison the apply strategy
+  uses. Detection compared through a helper that lowercases and strips
+  strings while apply compares raw, so a case- or whitespace-only edit
+  was invisible to detection yet still written to the registrant —
+  enough to sidestep a field-scoped conflict rule with a cosmetic edit.
+  Detection also ignored transform expressions, which apply evaluates
+  before comparing. Similarity scoring is unchanged and stays
+  case-insensitive, since that is the point of a fuzzy match.
+- fix: applying a change request that has no mapping to write is now
+  rejected instead of reported as successful. Because
+  ``_effective_mappings`` fails closed, a request whose routed field
+  lost its mapping — or whose type has none configured — wrote nothing
+  yet was still stamped applied, with an applied date, an audit event
+  and a log line, so operators saw a green request whose change had been
+  silently dropped. A genuine no-op, where the registrant already holds
+  the proposed values, still applies cleanly.
+- fix: a submitted change request with no detail row can be repaired
+  again. ``detail_res_id`` is frozen after submission so a substituted
+  detail cannot be attached post-approval, but the guard did not
+  distinguish binding from re-pointing, so ``_ensure_detail()`` could
+  not create the missing row and the request could not be opened from
+  any context. Binding is now accepted only for a row that already
+  points back at the request.
+- fix: an empty string now reads as unset in the post-submit freeze.
+  Odoo stores an unset field as ``False`` while a JSON-RPC client or
+  integration re-saving a record sends ``""``, so an idempotent re-save
+  was rejected as though it had altered the approved content. Clearing a
+  populated frozen field with ``""`` is still rejected. The
+  normalisation existed verbatim on both the change request and the
+  detail base; it now lives once, so the two guards cannot disagree.
+- perf: the caller's proposed-change set is derived once per
+  duplicate-detection run rather than recomputed for every candidate,
+  each derivation having re-browsed the detail and re-read every
+  configured mapping.
+
 19.0.3.1.9
 ~~~~~~~~~~
 

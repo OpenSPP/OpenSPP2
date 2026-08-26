@@ -59,9 +59,7 @@ class SPPCRStrategyFieldMapping(models.AbstractModel):
 
     def mapping_changes_value(self, mapping, detail, registrant):
         """Whether ``mapping`` would write a different value than is stored."""
-        return self.proposed_target_value(mapping, detail, registrant) != self.current_target_value(
-            mapping, registrant
-        )
+        return self.proposed_target_value(mapping, detail, registrant) != self.current_target_value(mapping, registrant)
 
     def apply(self, change_request):
         """Apply field mappings from detail to registrant."""
@@ -127,8 +125,7 @@ class SPPCRStrategyFieldMapping(models.AbstractModel):
                 registrant.name_change()
         else:
             _logger.info(
-                "Field mapping for CR %s wrote nothing: the registrant already holds the "
-                "proposed values.",
+                "Field mapping for CR %s wrote nothing: the registrant already holds the proposed values.",
                 change_request.name,
             )
 
