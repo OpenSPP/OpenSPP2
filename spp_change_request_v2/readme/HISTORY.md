@@ -1,3 +1,7 @@
+### 19.0.3.1.11
+
+- fix(change_request): field-mapping transform expressions are evaluated again. `_eval_expression` passed `nocopy=True` to `safe_eval`, which takes no such argument in Odoo 19, so every expression raised `TypeError`; the blanket fallback swallowed it and the **untransformed** value was written to the registrant. A configured transform was therefore ignored, reported only as a warning in the log. Failures now log at exception level with the offending expression, since a quiet warning is how this went unnoticed. **Behaviour change:** request types that already have an Expression transform configured will start transforming values on upgrade, having silently passed the raw value through until now.
+
 ### 19.0.3.1.2
 
 - fix(change_request_v2): adding an ID now looks for a live one of that type rather than any row at all, so an ID that was removed through a change request no longer blocks adding a replacement of the same type (#1136)

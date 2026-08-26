@@ -72,7 +72,13 @@ class SPPCRStrategyFieldMapping(models.AbstractModel):
         return True
 
     def _eval_expression(self, expr, value, detail, registrant):
-        """Safely evaluate transform expression."""
+        """Safely evaluate transform expression.
+
+        Note ``safe_eval`` takes no ``nocopy`` argument in Odoo 19 -- passing it
+        raised ``TypeError`` for every expression, which the fallback below
+        swallowed, so configured transforms were silently ignored and the
+        untransformed value was written instead.
+        """
         try:
             # Admin-defined field mapping expressions with restricted context (no env)
             return safe_eval(  # nosemgrep: odoo-unsafe-safe-eval
@@ -86,10 +92,12 @@ class SPPCRStrategyFieldMapping(models.AbstractModel):
                     "date": date,
                 },
                 mode="eval",
-                nocopy=True,
             )
-        except Exception as e:
-            _logger.warning("Expression eval failed: %s", e)
+        except Exception:
+            # Falls back to the untransformed value rather than failing the
+            # apply. Logged at exception level with the expression, because a
+            # silent warning is how the ``nocopy`` breakage went unnoticed.
+            _logger.exception("Field mapping transform expression failed, using the raw value: %s", expr)
             return value
 
     def _is_value_empty(self, value, record=None, field_name=None):
