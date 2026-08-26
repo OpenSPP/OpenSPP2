@@ -1,6 +1,8 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
+from .frozen_value import normalize_frozen_value
+
 
 class SPPCRDetailBase(models.AbstractModel):
     """Abstract base for all CR detail models.
@@ -97,19 +99,6 @@ class SPPCRDetailBase(models.AbstractModel):
             protected |= {m.source_field for m in cr_type.apply_mapping_ids if m.source_field}
         return protected
 
-    @staticmethod
-    def _normalize_frozen_value(value):
-        """Normalize a value for change detection: recordset -> id, None -> False.
-
-        Odoo stores unset fields as ``False``, but a write payload may pass
-        ``None`` for the same field or a Many2one as a recordset; normalizing
-        both sides prevents an idempotent re-save from being mistaken for a real
-        change and wrongly locked out.
-        """
-        if hasattr(value, "id"):
-            value = value.id
-        return value if value is not None else False
-
     def _assert_content_editable(self, vals):
         """Reject edits to proposed-change fields once the CR is submitted.
 
@@ -128,7 +117,7 @@ class SPPCRDetailBase(models.AbstractModel):
                 # Normalize both sides (recordset -> id, None -> False) so an
                 # idempotent re-save, a Many2one written as a recordset, or a
                 # JSON-RPC None is not mistaken for a real change and locked out.
-                if self._normalize_frozen_value(vals[field_name]) != self._normalize_frozen_value(rec[field_name]):
+                if normalize_frozen_value(vals[field_name]) != normalize_frozen_value(rec[field_name]):
                     raise UserError(
                         _(
                             "This change request has already been submitted for approval, "

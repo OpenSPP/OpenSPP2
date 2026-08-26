@@ -5,6 +5,8 @@ from markupsafe import escape as html_escape
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
 
+from .frozen_value import normalize_frozen_value
+
 _logger = logging.getLogger(__name__)
 
 
@@ -679,23 +681,10 @@ class SPPChangeRequest(models.Model):
         "detail_res_model",
     )
 
-    @staticmethod
-    def _normalize_frozen_value(value):
-        """Normalize a value for change detection: recordset -> id, None -> False.
-
-        Odoo stores unset fields as ``False``, but a write payload (JSON-RPC /
-        integrations) may pass ``None`` for the same field, or a Many2one as a
-        recordset. Normalizing both sides prevents an idempotent re-save from
-        being mistaken for a real change and wrongly locked out.
-        """
-        if hasattr(value, "id"):
-            value = value.id
-        return value if value is not None else False
-
     def write(self, vals):
         guarded = [f for f in self._FROZEN_ON_SUBMIT_FIELDS if f in vals]
         if guarded:
-            norm = self._normalize_frozen_value
+            norm = normalize_frozen_value
             for rec in self:
                 if rec.approval_state in ("draft", "revision") or not rec.approval_state:
                     continue
