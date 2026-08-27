@@ -515,6 +515,18 @@ handling or external storage</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.2</h1>
+<ul class="simple">
+<li>fix: never enqueue a malware scan while the registry is still loading.
+The scan-queue hooks re-raise database errors, and registry
+construction has no transaction-retry wrapper, so a transient
+serialization conflict raised while enqueueing aborted the whole load.
+Attachments written during load (module data, menu <tt class="docutils literal">web_icon_data</tt>)
+stay <tt class="docutils literal">pending</tt> instead; a <tt class="docutils literal">datas</tt> write during load still resets
+the scan status, so changed bytes never keep a stale <tt class="docutils literal">clean</tt> verdict</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix: re-raise database errors (<tt class="docutils literal">psycopg2.Error</tt>,
@@ -524,7 +536,7 @@ transaction retry machinery instead of poisoning the transaction for
 unrelated downstream code</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
