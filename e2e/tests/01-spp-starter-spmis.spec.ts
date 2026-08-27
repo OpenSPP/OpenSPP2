@@ -90,12 +90,15 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
   let page: Page;
 
   test.beforeAll(async ({browser}) => {
-    test.setTimeout(300_000); // full docker teardown/rebuild can take a few minutes
+    test.setTimeout(600_000); // full docker teardown/rebuild from a cold cache can take a while
     await resetStack();
     page = await browser.newPage();
   });
 
   test.afterAll(async () => {
+    // page is only assigned after resetStack() succeeds — guard so a beforeAll
+    // failure/timeout reports its own real error instead of this masking it.
+    if (!page) return;
     await page.close();
   });
 

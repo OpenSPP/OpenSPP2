@@ -45,7 +45,7 @@ async function installApp(page: Page, technicalName: string) {
 
 test.describe("OpenSPP", () => {
   test.beforeAll(async () => {
-    test.setTimeout(300_000); // full docker teardown/rebuild can take a few minutes
+    test.setTimeout(600_000); // full docker teardown/rebuild from a cold cache can take a while
     await resetStack();
   });
 
