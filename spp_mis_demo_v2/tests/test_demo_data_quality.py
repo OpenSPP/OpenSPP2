@@ -437,6 +437,52 @@ class TestDemoEnrollmentMatchesEligibility(TransactionCase):
 
         self.assertFalse(offenders, f"eligibility and enrollment disagree: {offenders}")
 
+    def test_the_enrolled_count_is_also_within_tolerance(self):
+        """The number QA actually reads off the program form.
+
+        The sibling test compares against all memberships, which is the right
+        basis for judging targeting. But nobody clears the state filter before
+        looking, and the enrolled count is what the Beneficiaries list shows by
+        default -- so that number has to hold up too.
+
+        It did not, at first: the generator moved 10% of memberships into
+        exited, paused or not eligible, which is exactly the tolerance this
+        ticket allows, so programs failed on a coin flip. The rates now total
+        4%, leaving room inside the bar for the drift the ticket had in mind.
+        """
+        non_selective = ("Food Assistance", "Emergency Relief Fund")
+        offenders = {}
+        for program in self.env["spp.program"].search([("name", "in", HEADLINE_PROGRAMS)]):
+            if program.name in non_selective:
+                continue
+            preview = self._preview_count(program)
+            if preview is None or preview == 0:
+                continue
+            enrolled = self._enrolled_count(program)
+            drift = abs(preview - enrolled) / preview * 100
+            if drift > 10:
+                offenders[program.name] = f"matched {preview}, enrolled {enrolled} ({drift:.1f}%)"
+
+        self.assertFalse(
+            offenders,
+            f"enrolled counts outside the 10% bar QA measures against: {offenders}",
+        )
+
+    def test_memberships_still_show_a_mix_of_states(self):
+        """Reducing the variety must not flatten it to nothing.
+
+        The point of the mixed states is that a demo where every membership is
+        enrolled looks synthetic. Tightening the rates to fit the tolerance is
+        only acceptable while the mix is still visible.
+        """
+        states = set(self.env["spp.program.membership"].search([]).mapped("state"))
+
+        self.assertIn("enrolled", states)
+        self.assertTrue(
+            {"exited", "paused", "not_eligible"} & states,
+            "no membership is in any state other than enrolled; the variety is gone",
+        )
+
     def test_a_disability_program_finally_matches_somebody(self):
         """OP#955 and OP#956 together: the DSG story works end to end."""
         program = self.env["spp.program"].search([("name", "=", "Disability Support Grant")], limit=1)

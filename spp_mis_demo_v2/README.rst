@@ -193,8 +193,13 @@ Changelog
   dependency on ``spp_disability_registry``, without which
   ``res.partner.has_disability`` does not exist at all (#955)
 - fix(demo): the ``disabled_count`` aggregate filtered on
-  ``is_person_with_disability``, a field that exists nowhere, so it
-  counted zero on every household (#955)
+  ``is_person_with_disability``, a field that exists nowhere. It now
+  names the real field, ``has_disability``. Note this does not by itself
+  make the variable usable: it still fails to compile, and aggregate
+  filters are not applied at evaluation, both of which sit outside this
+  module. The Disability Support Grant targets through
+  ``has_disabled_member``, which is a computed variable and does work
+  (#955)
 - fix(demo): **cycle and entitlement managers get their approval
   workflow.** Neither carried an approval definition, which is not a
   soft gap: approving a cycle raised "The cycle approval definition is

@@ -618,16 +618,23 @@ class SeededVolumeGenerator:
         exited_count = paused_count = not_eligible_count = 0
 
         for idx, mem_id in enumerate(membership_ids):
-            # Determine state
+            # Determine state. These add up to 4%, down from 10%: at a tenth,
+            # every program's enrolled count sat about 10% below the number its
+            # eligibility rule matched, which is the whole tolerance OP#956
+            # allows and put programs on the wrong side of it by chance. The
+            # ticket's tolerance was written for "households that have since
+            # exited", so the exit rate has to leave room inside it. A few
+            # dozen records per program in mixed states is still plenty to show
+            # that memberships are not uniformly enrolled.
             roll = self.rng.random()
             state = "enrolled"
-            if roll < 0.02:
+            if roll < 0.010:
                 state = "not_eligible"
                 not_eligible_count += 1
-            elif roll < 0.05:
+            elif roll < 0.025:
                 state = "paused"
                 paused_count += 1
-            elif roll < 0.10:
+            elif roll < 0.040:
                 state = "exited"
                 exited_count += 1
 

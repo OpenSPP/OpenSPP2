@@ -562,8 +562,13 @@ carrying answers that meet the Washington Group threshold. Adds a
 dependency on <tt class="docutils literal">spp_disability_registry</tt>, without which
 <tt class="docutils literal">res.partner.has_disability</tt> does not exist at all (#955)</li>
 <li>fix(demo): the <tt class="docutils literal">disabled_count</tt> aggregate filtered on
-<tt class="docutils literal">is_person_with_disability</tt>, a field that exists nowhere, so it
-counted zero on every household (#955)</li>
+<tt class="docutils literal">is_person_with_disability</tt>, a field that exists nowhere. It now
+names the real field, <tt class="docutils literal">has_disability</tt>. Note this does not by itself
+make the variable usable: it still fails to compile, and aggregate
+filters are not applied at evaluation, both of which sit outside this
+module. The Disability Support Grant targets through
+<tt class="docutils literal">has_disabled_member</tt>, which is a computed variable and does work
+(#955)</li>
 <li>fix(demo): <strong>cycle and entitlement managers get their approval
 workflow.</strong> Neither carried an approval definition, which is not a
 soft gap: approving a cycle raised “The cycle approval definition is
