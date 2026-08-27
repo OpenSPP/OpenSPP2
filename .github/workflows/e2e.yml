@@ -59,14 +59,14 @@ jobs:
             *) NAME="${{ matrix.spec }}" ;;
           esac
           mkdir -p status
-          echo "{\"name\": \"$NAME\", \"result\": \"${{ job.status }}\"}" > status/result.json
+          echo "{\"name\": \"$NAME\", \"result\": \"${{ job.status }}\"}" > status/result-${{ strategy.job-index }}.json
 
       - name: Upload spec result
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-status-${{ strategy.job-index }}
-          path: status/result.json
+          path: status/result-${{ strategy.job-index }}.json
 
   notify:
     needs: e2e
@@ -92,7 +92,12 @@ jobs:
           COLOR=3066993
           if [ "${{ needs.e2e.result }}" != "success" ]; then COLOR=15158332; fi
 
-          FIELDS="[]"
+          FIELDS=$(jq -n \
+            --arg repo "${{ github.repository }}" \
+            --arg ref "${{ github.ref_name }}" \
+            --arg specs "tests/01-spp-starter-spmis.spec.ts, tests/02-spp-starter-farmer-registry.spec.ts" \
+            '[{"name": "Repository", "value": $repo, "inline": true}, {"name": "Ref", "value": $ref, "inline": true}, {"name": "Spec files", "value": $specs, "inline": false}]')
+
           for f in statuses/*.json; do
             NAME=$(jq -r .name "$f")
             RESULT=$(jq -r .result "$f")
