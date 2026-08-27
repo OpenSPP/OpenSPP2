@@ -142,6 +142,27 @@ Dependencies
 Changelog
 =========
 
+19.0.2.1.2
+~~~~~~~~~~
+
+- feat(translator): arithmetic containing an aggregate is now evaluated
+  instead of discarded.
+  ``(child_count + elderly_count) / max(1, working_age_count) >= 1.5``
+  cannot be expressed as an Odoo domain, and the translator resolved the
+  whole left-hand side to the field ``id``, so
+  ``dependency_ratio >= 1.5`` compiled to ``('id', '>=', 1.5)`` and
+  matched every record. Such comparisons now run per candidate, with
+  each aggregate leaf resolved once into a per-parent map so the cost
+  stays a few queries rather than one per record. Supported inside
+  arithmetic: ``+ - * / %``, unary minus,
+  ``max``/``min``/``abs``/``round``, aggregate counts, literals and
+  numeric fields (#956)
+- fix(translator): an expression that cannot be resolved to a field now
+  raises instead of silently comparing on ``id``. That fallback turned
+  every unsupported form into a match against the primary key, which for
+  an eligibility rule means matching everyone -- a worse outcome than
+  refusing to compile (#956)
+
 19.0.2.1.1
 ~~~~~~~~~~
 

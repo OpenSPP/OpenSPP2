@@ -281,20 +281,20 @@ class SeededVolumeGenerator:
         )
         return households
 
-    # Programs whose rule does not currently select a subset, so enrollment
-    # stays driven by the blueprint flags rather than by the rule (OP#956).
+    # Programs whose rule does not select a subset, so enrollment stays driven
+    # by the blueprint flags rather than by the rule (OP#956).
     #
-    # Food Assistance matches "any active registrant" by design; enrolling from
-    # it would put the whole demo population on the programme, and changing what
-    # a programme targets is a product decision, not demo-data cleanup.
+    # Food Assistance matches "any active registrant" by design. Enrolling from
+    # it would put the whole demo population on the programme, and changing
+    # what a programme targets is a product decision, not demo-data cleanup.
     #
-    # Emergency Relief Fund does have a rule -- an earlier note here wrongly
-    # said it had none -- but that rule leans on `dependency_ratio`, and an
-    # aggregate count nested inside arithmetic still loses its predicate in the
-    # translator, so the ratio evaluates the same for every household and the
-    # rule matches all of them. The direct comparison case is fixed; the
-    # arithmetic one is not, and until it is there is no subset to enrol.
-    NON_SELECTIVE_CEL_PROGRAMS = ("food_assistance", "emergency_relief_fund")
+    # Emergency Relief Fund used to be listed here too, on the grounds that it
+    # matched every household. It does now select a real subset: its rule leans
+    # on `dependency_ratio`, and an aggregate count nested inside arithmetic was
+    # losing its predicate, so the ratio came out the same for everyone. With
+    # that fixed the rule matches around a third of households, so the
+    # programme is enrolled from its rule like the others.
+    NON_SELECTIVE_CEL_PROGRAMS = ("food_assistance",)
 
     def enroll_in_programs(self, households, program_map):
         """Enroll households in programs, letting each program's CEL decide.

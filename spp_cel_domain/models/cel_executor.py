@@ -9,11 +9,13 @@ from odoo.fields import Domain
 from odoo.tools.sql import SQL
 
 from ..exceptions import CELMetricsUnavailableError
+from ..services import cel_parser as P
 from .cel_queryplan import (
     AND,
     NOT,
     OR,
     AggMetricCompare,
+    ArithmeticCompare,
     CountThrough,
     CoverageRequire,
     ExistsThrough,
@@ -658,7 +660,7 @@ class CelExecutor(models.AbstractModel):
             if e:
                 return [], True
             return ["!", *d], False
-        if isinstance(plan, ExistsThrough | CountThrough | FieldAggregateThrough):
+        if isinstance(plan, ExistsThrough | CountThrough | FieldAggregateThrough | ArithmeticCompare):
             return [], True
         return [], True
 
@@ -708,6 +710,164 @@ class CelExecutor(models.AbstractModel):
             return normalized
         return [domain]
 
+    # ── Arithmetic over aggregates ──────────────────────────────────────
+    # No Odoo domain can express `(child_count + elderly_count) / max(1,
+    # working_age_count) >= 1.5`, so it is evaluated here. Each aggregate leaf
+    # is resolved once into a {parent_id: value} map, then the arithmetic runs
+    # per candidate against those maps: a handful of queries rather than one
+    # per record, but still a scan of the candidate set.
+
+    _ARITH_OPS = {
+        "ADD": lambda a, b: a + b,
+        "SUB": lambda a, b: a - b,
+        "MUL": lambda a, b: a * b,
+        "DIV": lambda a, b: a / b if b else 0.0,
+        "MOD": lambda a, b: a % b if b else 0.0,
+    }
+    _COMPARE_OPS = {
+        "=": lambda a, b: a == b,
+        "==": lambda a, b: a == b,
+        "!=": lambda a, b: a != b,
+        ">": lambda a, b: a > b,
+        ">=": lambda a, b: a >= b,
+        "<": lambda a, b: a < b,
+        "<=": lambda a, b: a <= b,
+    }
+    _ARITH_FUNCS = {
+        "max": max,
+        "min": min,
+        "abs": lambda *a: abs(a[0]),
+        "round": lambda *a: round(*a),
+    }
+
+    def _is_aggregate_call(self, node: Any, cfg: dict) -> bool:
+        """A `<collection>.count(...)` call on a relation symbol."""
+        if not isinstance(node, P.Call) or not isinstance(node.func, P.Attr):
+            return False
+        if not isinstance(node.func.obj, P.Ident):
+            return False
+        sym = (cfg.get("symbols") or {}).get(node.func.obj.name) or {}
+        return sym.get("relation") == "rel" and node.func.name == "count"
+
+    def _collect_aggregate_calls(self, node: Any, cfg: dict, found: list | None = None) -> list:
+        found = [] if found is None else found
+        if self._is_aggregate_call(node, cfg):
+            found.append(node)
+            return found
+        for attr in ("left", "right", "expr", "obj"):
+            child = getattr(node, attr, None)
+            if child is not None:
+                self._collect_aggregate_calls(child, cfg, found)
+        for arg in getattr(node, "args", None) or []:
+            self._collect_aggregate_calls(arg, cfg, found)
+        return found
+
+    def _aggregate_count_map(self, node: Any, cfg: dict) -> dict[int, int]:
+        """{parent_id: matching child count} for one `collection.count(pred)`."""
+        coll_name = node.func.obj.name
+        sym = (cfg.get("symbols") or {}).get(coll_name) or {}
+        through_model = sym["through"]
+        parent_field = sym["parent"]
+        link_field = sym.get("link_to") or sym.get("link_field") or sym.get("link") or "id"
+        child_model = sym.get("child_model") or "res.partner"
+
+        # Both call styles, same discrimination the translator makes.
+        args = list(node.args or [])
+        if len(args) == 1:
+            first = args[0]
+            if isinstance(first, P.Ident) and first.name == "m":
+                pred = P.Literal(True)
+            else:
+                pred = first
+        elif len(args) >= 2:
+            pred = args[1]
+        else:
+            pred = P.Literal(True)
+
+        translator = self.env["spp.cel.translator"]
+        child_plan, _explain = translator._to_plan(
+            child_model, pred, cfg, {"m": {"kind": "rel_var", "sym": sym, "model": child_model}}
+        )
+        child_ids = self._execute_plan(child_model, child_plan)
+
+        counts: dict[int, int] = {}
+        if not child_ids and not isinstance(pred, P.Literal):
+            return counts
+        domain = list(sym.get("default_domain") or [])
+        if link_field == "id":
+            domain = domain + [("id", "in", child_ids)]
+        else:
+            domain = domain + [(link_field, "in", child_ids)]
+        for group in self.env[through_model].read_group(domain, [parent_field], [parent_field]):
+            parent = group.get(parent_field)
+            parent_id = parent[0] if isinstance(parent, tuple | list) else parent
+            if parent_id:
+                counts[parent_id] = group.get("__count") or group.get(f"{parent_field}_count") or 0
+        return counts
+
+    def _eval_arith(self, node: Any, record: Any, agg_maps: dict, cfg: dict):
+        """Evaluate an arithmetic node for one record."""
+        if self._is_aggregate_call(node, cfg):
+            return agg_maps.get(id(node), {}).get(record.id, 0)
+        if isinstance(node, P.Literal):
+            return node.value
+        if isinstance(node, P.Neg):
+            return -self._eval_arith(node.expr, record, agg_maps, cfg)
+        if isinstance(node, P.BinOp):
+            left = self._eval_arith(node.left, record, agg_maps, cfg)
+            right = self._eval_arith(node.right, record, agg_maps, cfg)
+            handler = self._ARITH_OPS.get(node.op)
+            if handler is None:
+                raise NotImplementedError(f"arithmetic operator {node.op} is not supported")
+            return handler(left, right)
+        if isinstance(node, P.Call) and isinstance(node.func, P.Ident):
+            func = self._ARITH_FUNCS.get(node.func.name)
+            if func is None:
+                raise NotImplementedError(f"function {node.func.name}() is not supported inside arithmetic")
+            return func(*[self._eval_arith(a, record, agg_maps, cfg) for a in node.args or []])
+        if isinstance(node, P.Ident):
+            if node.name in ("r", "me"):
+                return record
+            value = record[node.name] if node.name in record._fields else None
+            return value if value not in (None, False) else 0
+        if isinstance(node, P.Attr):
+            obj = self._eval_arith(node.obj, record, agg_maps, cfg)
+            if hasattr(obj, "_fields"):
+                value = obj[node.name] if node.name in obj._fields else None
+                return value if value not in (None, False) else 0
+            raise NotImplementedError(f"cannot read {node.name} inside arithmetic")
+        raise NotImplementedError(f"{type(node).__name__} is not supported inside arithmetic")
+
+    def _execute_arithmetic(self, plan: ArithmeticCompare) -> list[int]:
+        cfg = plan.cfg or {}
+        compare = self._COMPARE_OPS.get(plan.op)
+        if compare is None:
+            raise NotImplementedError(f"comparison {plan.op} is not supported for arithmetic")
+
+        agg_maps = {}
+        for call in self._collect_aggregate_calls(plan.expr, cfg):
+            agg_maps[id(call)] = self._aggregate_count_map(call, cfg)
+
+        candidates = self.env[plan.model].search(self._ensure_domain_list(cfg.get("base_domain") or []))
+        self._logger.info(
+            "[CEL] arithmetic comparison evaluated in Python over %d candidate(s)",
+            len(candidates),
+        )
+        matched = []
+        for record in candidates:
+            try:
+                value = self._eval_arith(plan.expr, record, agg_maps, cfg)
+            except NotImplementedError:
+                raise
+            except Exception:
+                continue
+            try:
+                if compare(value, plan.rhs):
+                    matched.append(record.id)
+            except TypeError:
+                continue
+        return matched
+
     # Execute
     def _execute_plan(
         self,
@@ -718,6 +878,8 @@ class CelExecutor(models.AbstractModel):
     ) -> list[int]:  # noqa: C901
         if isinstance(plan, LeafDomain):
             return self.env[plan.model].search(plan.domain).ids
+        if isinstance(plan, ArithmeticCompare):
+            return self._execute_arithmetic(plan)
         if isinstance(plan, AND):
             # intersection
             id_sets = [set(self._execute_plan(model, p, metrics_info)) for p in flatten_and(plan.nodes)]

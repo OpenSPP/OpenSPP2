@@ -15,6 +15,7 @@ from .cel_queryplan import (
     NOT,
     OR,
     AggMetricCompare,
+    ArithmeticCompare,
     CountThrough,
     CoverageRequire,
     ExistsThrough,
@@ -1027,6 +1028,18 @@ class CelTranslator(models.AbstractModel):
                 f"{agg.upper()} over {coll_name} of METRIC({metric_name}) {op} {rhs}",
             )
 
+        # Arithmetic on the left, possibly over aggregates: no domain can
+        # express it, so hand it to the executor to evaluate per record. Left
+        # to fall through, `_resolve_field` would return the field `id` and the
+        # comparison would silently match everything -- which is how
+        # `dependency_ratio >= 1.5` came to match every household.
+        if isinstance(cmp.left, P.BinOp | P.Neg):
+            rhs = self._eval_literal(cmp.right, ctx)
+            return (
+                ArithmeticCompare(model, cmp.left, opmap[cmp.op], rhs, cfg),
+                f"ARITHMETIC {opmap[cmp.op]} {rhs}",
+            )
+
         # Normal comparison
         left_field, left_model = self._resolve_field(model, cmp.left, cfg, ctx)
         # normalize aliases
@@ -1308,7 +1321,17 @@ class CelTranslator(models.AbstractModel):
             return expr.name, model
         if isinstance(expr, P.Literal):
             return expr.value, model
-        return "id", model
+        # Anything else cannot be resolved to a field. Returning "id" here, as
+        # this used to, turned every unsupported expression into a comparison
+        # on the primary key: `dependency_ratio >= 1.5` became
+        # `('id', '>=', 1.5)` and matched every record, with nothing logged and
+        # no error raised. For eligibility rules that failure mode is worse
+        # than no answer, so it is loud now.
+        raise NotImplementedError(
+            f"Cannot resolve {type(expr).__name__} to a field on {model}. "
+            f"Arithmetic over aggregates is handled separately; if you are "
+            f"comparing something else, it is not supported yet."
+        )
 
     def _symbol_child_model(self, sym: dict[str, Any]) -> str:
         return sym.get("child_model") or "res.partner"

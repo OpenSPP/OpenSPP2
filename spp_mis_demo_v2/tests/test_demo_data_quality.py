@@ -351,7 +351,7 @@ class TestDemoEnrollmentMatchesEligibility(TransactionCase):
             if not expression:
                 continue
             # Programs whose CEL is not a targeting rule stay blueprint-driven.
-            if any(program.name.lower().startswith(prefix) for prefix in ("food assistance", "emergency relief")):
+            if program.name.lower().startswith("food assistance"):
                 continue
             profile = "registry_groups" if program.target_type == "group" else "registry_individuals"
             matched = self.env["spp.cel.service"].compile_expression(
@@ -405,19 +405,17 @@ class TestDemoEnrollmentMatchesEligibility(TransactionCase):
         edge of the tolerance for reasons that have nothing to do with
         targeting.
 
-        Programs whose rule is not a targeting rule are excluded -- Food
-        Assistance matches every active registrant and Emergency Relief Fund
-        has no rule at all.
+        Only Food Assistance is excluded: its rule matches every active
+        registrant by design, so there is no subset to compare against.
+        Emergency Relief Fund used to be excluded too, until the aggregate
+        arithmetic its rule depends on started evaluating correctly.
         """
         from odoo.addons.spp_mis_demo_v2.models.seeded_volume_generator import SeededVolumeGenerator
 
-        non_selective = {
-            "Food Assistance": "matches every active registrant",
-            "Emergency Relief Fund": "has no eligibility rule",
-        }
+        non_selective = {"Food Assistance": "matches every active registrant"}
         self.assertEqual(
-            len(SeededVolumeGenerator.NON_SELECTIVE_CEL_PROGRAMS),
-            len(non_selective),
+            set(SeededVolumeGenerator.NON_SELECTIVE_CEL_PROGRAMS),
+            {"food_assistance"},
             "the exclusion list changed; this test's reasoning needs revisiting",
         )
 
@@ -450,7 +448,7 @@ class TestDemoEnrollmentMatchesEligibility(TransactionCase):
         ticket allows, so programs failed on a coin flip. The rates now total
         4%, leaving room inside the bar for the drift the ticket had in mind.
         """
-        non_selective = ("Food Assistance", "Emergency Relief Fund")
+        non_selective = ("Food Assistance",)
         offenders = {}
         for program in self.env["spp.program"].search([("name", "in", HEADLINE_PROGRAMS)]):
             if program.name in non_selective:
@@ -482,6 +480,30 @@ class TestDemoEnrollmentMatchesEligibility(TransactionCase):
             {"exited", "paused", "not_eligible"} & states,
             "no membership is in any state other than enrolled; the variety is gone",
         )
+
+    def test_the_named_ratio_variable_agrees_with_its_expansion(self):
+        """dependency_ratio is arithmetic over aggregates; both forms must agree.
+
+        This lives here rather than in spp_cel_domain because the variable is
+        defined in spp_studio. Emergency Relief Fund targets through it, and
+        while an aggregate inside arithmetic was losing its predicate the ratio
+        evaluated the same for every household, so the programme matched all of
+        them.
+        """
+        service = self.env["spp.cel.service"]
+
+        def matched(expression):
+            result = service.compile_expression(expression, profile="registry_groups", limit=0, materialize_sql=True)
+            self.assertTrue(result["valid"], f"{expression!r} did not compile: {result.get('error')}")
+            return set(self.env["res.partner"].search(result["domain"] or []).ids)
+
+        by_name = matched("dependency_ratio >= 1.5")
+        by_hand = matched("(child_count + elderly_count) / max(1, working_age_count) >= 1.5")
+
+        self.assertEqual(by_name, by_hand)
+        everyone = set(self.env["res.partner"].search([("is_registrant", "=", True), ("is_group", "=", True)]).ids)
+        self.assertNotEqual(by_name, everyone, "the ratio matched every household again")
+        self.assertTrue(by_name, "the ratio matched nothing at all")
 
     def test_a_disability_program_finally_matches_somebody(self):
         """OP#955 and OP#956 together: the DSG story works end to end."""

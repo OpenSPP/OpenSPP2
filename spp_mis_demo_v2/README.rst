@@ -164,6 +164,13 @@ Changelog
 19.0.2.2.0
 ~~~~~~~~~~
 
+- fix(demo): Emergency Relief Fund is enrolled from its eligibility rule
+  like the other programmes. It was excluded while an aggregate count
+  nested in arithmetic lost its predicate, which made its
+  ``dependency_ratio`` rule match every household; with that fixed the
+  rule selects about a third of them. Only Food Assistance remains
+  flag-driven, its rule matching every active registrant by design
+  (#956)
 - fix(demo): **enrollment now follows each program's eligibility rule.**
   Households were enrolled from a static per-blueprint flag while the
   program form previewed its CEL, so a program could claim 102 enrolled
