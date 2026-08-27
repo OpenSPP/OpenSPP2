@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!--
+        Re-queue attachments stranded at scan_status = pending.
+
+        Queueing a scan is best-effort: the create/write hooks swallow every non-database
+        failure so a dead broker cannot block an attachment write. Without this sweep the
+        records left behind stay unscanned indefinitely, reachable only by a human
+        clicking Rescan.
+
+        Active by default. Both axes are bounded — pending_sweep_batch_size caps one run
+        and pending_sweep_max_attempts caps the attempts per record — so the first run on
+        an existing database drains the backlog gradually rather than enqueueing it all at
+        once. Raise the batch size to drain it faster.
+    -->
+    <record id="ir_cron_sweep_pending_scans" model="ir.cron">
+        <field name="name">Sweep Attachments Pending Malware Scan</field>
+        <field name="model_id" ref="base.model_ir_attachment" />
+        <field name="state">code</field>
+        <field name="code">model._cron_sweep_pending_scans()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="active">1</field>
+    </record>
+
+    <!-- How long an attachment may legitimately sit at "pending" before the sweep
+         treats it as stranded. Too low and the sweep double-queues whatever the hooks
+         just queued while the queue is deep. -->
+    <record id="config_param_pending_sweep_min_age_minutes" model="ir.config_parameter">
+        <field name="key">spp_attachment_av_scan.pending_sweep_min_age_minutes</field>
+        <field name="value">60</field>
+    </record>
+
+    <!-- Attachments re-queued per run. 0 or less disables the sweep. -->
+    <record id="config_param_pending_sweep_batch_size" model="ir.config_parameter">
+        <field name="key">spp_attachment_av_scan.pending_sweep_batch_size</field>
+        <field name="value">100</field>
+    </record>
+
+    <!-- Sweep attempts per attachment before it is left alone. 0 or less disables the
+         sweep. -->
+    <record id="config_param_pending_sweep_max_attempts" model="ir.config_parameter">
+        <field name="key">spp_attachment_av_scan.pending_sweep_max_attempts</field>
+        <field name="value">3</field>
+    </record>
+</odoo>

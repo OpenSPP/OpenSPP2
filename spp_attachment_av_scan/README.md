@@ -17,6 +17,9 @@ asynchronous scanning to avoid blocking file uploads.
 - **Security Notifications**: Security administrators are notified when malware is
   detected
 - **Manual Rescans**: Administrators can manually trigger rescans of attachments
+- **Stranded-Scan Sweep**: An hourly scheduled action re-queues attachments left at
+  "Pending Scan" when the queue was unavailable, so a failed enqueue never leaves a file
+  unscanned indefinitely
 - **File Size Limits**: Configurable maximum file size to avoid scanning large files
 - **Scan Timeouts**: Configurable timeout to prevent long-running scans
 
@@ -65,6 +68,26 @@ asynchronous scanning to avoid blocking file uploads.
    - **Scan Timeout**: Maximum time for scan in seconds (default: 60)
 4. Enable the backend by toggling the "Active" button
 5. Click "Test Connection" to verify the configuration
+
+### Stranded-Scan Sweep
+
+Queueing a scan is best-effort: a failure that is not a database error is logged and the
+attachment is still written, at "Pending Scan". The **Sweep Attachments Pending Malware
+Scan** scheduled action runs hourly and re-queues those records. It is active by default
+and bounded on both axes, so it is safe to leave enabled on an existing database.
+
+Tune it under **Settings > Technical > System Parameters**:
+
+| Parameter                                              | Default | Meaning                                                                                                                                                                                     |
+| ------------------------------------------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `spp_attachment_av_scan.pending_sweep_min_age_minutes` | `60`    | How long an attachment may sit at "Pending Scan" before the sweep treats it as stranded. Too low and the sweep double-queues whatever the upload hooks just queued while the queue is deep. |
+| `spp_attachment_av_scan.pending_sweep_batch_size`      | `100`   | Attachments re-queued per run. Raise it to drain a backlog faster; `0` or less disables the sweep.                                                                                          |
+| `spp_attachment_av_scan.pending_sweep_max_attempts`    | `3`     | Sweep attempts per attachment before it is left alone, so a broken queue is not retried at full rate forever. `0` or less disables the sweep.                                               |
+
+Out of scope for the sweep: quarantined files, forensic download copies, attachments
+with no `res_model`, and the system models that store their own source-controlled
+binaries (menu `web_icon_data`). A record that exhausts its attempts is re-armed by an
+administrator clicking **Rescan**, or by the file's bytes changing.
 
 ### Security Groups
 
@@ -158,7 +181,8 @@ Extended with antivirus scan fields and logic.
 The module uses `queue_job` for asynchronous scanning:
 
 - Scans are queued when attachments are created or updated
-- Priority 20 for automatic scans, priority 10 for manual rescans
+- Priority 20 for automatic scans, priority 10 for manual rescans, priority 30 for sweep
+  re-queues
 - Jobs are named "Scan attachment {id} for malware"
 
 ### Security
@@ -196,7 +220,7 @@ No PII (personally identifiable information) is logged.
 - Support for additional antivirus engines
 - Real-time scanning before upload completion
 - Scan result caching
-- Scheduled rescans of all attachments
+- Scheduled rescans of already-scanned attachments (the sweep covers unscanned ones)
 - Quarantine management interface
 - Detailed scan statistics and reports
 
