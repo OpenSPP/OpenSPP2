@@ -752,22 +752,22 @@ Methods available for override on detail models (all inherited from
 Related fields available on all detail models (from
 ``spp.cr.detail.base``):
 
-+--------------------------+-----------+------------------------------------------------------------+
-| Field                    | Type      | Source                                                     |
-+==========================+===========+============================================================+
-| ``change_request_id``    | Many2one  | Direct link to parent CR                                   |
-+--------------------------+-----------+------------------------------------------------------------+
-| ``registrant_id``        | Many2one  | ``change_request_id.registrant_id``                        |
-+--------------------------+-----------+------------------------------------------------------------+
-| ``approval_state``       | Selection | ``change_request_id.approval_state``                       |
-+--------------------------+-----------+------------------------------------------------------------+
-| ``is_applied``           | Boolean   | ``change_request_id.is_applied``                           |
-+--------------------------+-----------+------------------------------------------------------------+
-| ``use_dynamic_approval`` | Boolean   | ``change_request_id.request_type_id.use_dynamic_approval`` |
-+--------------------------+-----------+------------------------------------------------------------+
-| ``field_to_modify``      | Selection | Dynamic field selector (populated by                       |
-|                          |           | ``_get_field_to_modify_selection``)                        |
-+--------------------------+-----------+------------------------------------------------------------+
++----------------------------+-----------+------------------------------------------------------------+
+| Field                      | Type      | Source                                                     |
++============================+===========+============================================================+
+| ``change_request_id``      | Many2one  | Direct link to parent CR                                   |
++----------------------------+-----------+------------------------------------------------------------+
+| ``registrant_id``          | Many2one  | ``change_request_id.registrant_id``                        |
++----------------------------+-----------+------------------------------------------------------------+
+| ``approval_state``         | Selection | ``change_request_id.approval_state``                       |
++----------------------------+-----------+------------------------------------------------------------+
+| ``is_applied``             | Boolean   | ``change_request_id.is_applied``                           |
++----------------------------+-----------+------------------------------------------------------------+
+| ``use_dynamic_approval``   | Boolean   | ``change_request_id.request_type_id.use_dynamic_approval`` |
++----------------------------+-----------+------------------------------------------------------------+
+| ``field_to_modify``        | Selection | Dynamic field selector (populated by                       |
+|                            |           | ``_get_field_to_modify_selection``)                        |
++----------------------------+-----------+------------------------------------------------------------+
 
 CR Type Fields Reference
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -862,11 +862,30 @@ Changelog
   ``TypeError``; the blanket fallback swallowed it and the
   **untransformed** value was written to the registrant. A configured
   transform was therefore ignored, reported only as a warning in the
-  log. Failures now log at exception level with the offending
-  expression, since a quiet warning is how this went unnoticed.
-  **Behaviour change:** request types that already have an Expression
-  transform configured will start transforming values on upgrade, having
-  silently passed the raw value through until now.
+  log. **Behaviour change:** request types that already have an
+  Expression transform configured will start transforming values on
+  upgrade, having silently passed the raw value through until now.
+- fix(security): a transform expression can no longer reach the ORM.
+  ``safe_eval`` places no allowlist on attribute access, so a live
+  ``detail``/``registrant`` recordset in the evaluation context exposed
+  ``env``, ``sudo()`` and the database cursor — a change-request
+  manager, who is not a system administrator, could obtain superuser ORM
+  access and raw SQL. The context now carries attribute-readable
+  snapshots of the two records (stored scalar fields only; no methods,
+  no relation traversal, no database handle) instead of the recordsets
+  themselves.
+- fix(security): the transform expression is now restricted to system
+  administrators (``groups="base.group_system"``) rather than only
+  warned against in the help text, and is enforced by the ORM on read
+  and write. The detection path reads the expression as superuser so it
+  keeps working for non-administrator requesters.
+- fix(security): an unevaluable transform expression now fails closed —
+  the change is not applied — instead of falling back to writing the raw
+  value. Because the source value is requester-controlled, the fallback
+  let a requester force the untransformed value onto the registrant by
+  feeding input the transform could not handle. Failures are logged with
+  the expression and error type (never the field value, which is PII);
+  the full traceback is logged only at DEBUG.
 
 19.0.3.1.10
 ~~~~~~~~~~~

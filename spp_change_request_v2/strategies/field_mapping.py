@@ -1,5 +1,6 @@
 import logging
 from datetime import date, datetime
+from types import SimpleNamespace
 
 from odoo import _, models
 from odoo.exceptions import UserError
@@ -53,13 +54,31 @@ class SPPCRStrategyFieldMapping(models.AbstractModel):
         value = getattr(detail, mapping.source_field, None)
         if hasattr(value, "id"):
             value = value.id
-        if mapping.transform == "expression" and mapping.transform_expression:
-            value = self._eval_expression(mapping.transform_expression, value, detail, registrant)
+        # The transform is admin-authored configuration. Read it as superuser so
+        # detection -- which runs as the requester, not under sudo -- can see it:
+        # ``transform_expression`` is gated by ``groups="base.group_system"``, so a
+        # plain read by a change-request user would raise AccessError and, worse,
+        # a silent skip would put detection and apply back out of step.
+        config = mapping.sudo()
+        if config.transform == "expression" and config.transform_expression:
+            value = self._eval_expression(config.transform_expression, value, detail, registrant)
         return value
 
     def mapping_changes_value(self, mapping, detail, registrant):
-        """Whether ``mapping`` would write a different value than is stored."""
-        return self.proposed_target_value(mapping, detail, registrant) != self.current_target_value(mapping, registrant)
+        """Whether ``mapping`` would write a different value than is stored.
+
+        A transform that cannot be evaluated fails closed on the apply path
+        (``_eval_expression`` raises ``UserError``). Detection must not crash on
+        that and must not silently drop the mapping: treat an unevaluable
+        transform as a change so the field stays visible to conflict and
+        duplicate detection. ``_run_conflict_checks`` on create is not
+        try-guarded, so a propagating error here would break creation.
+        """
+        try:
+            proposed = self.proposed_target_value(mapping, detail, registrant)
+        except UserError:
+            return True
+        return proposed != self.current_target_value(mapping, registrant)
 
     def apply(self, change_request):
         """Apply field mappings from detail to registrant."""
@@ -131,34 +150,73 @@ class SPPCRStrategyFieldMapping(models.AbstractModel):
 
         return True
 
-    def _eval_expression(self, expr, value, detail, registrant):
-        """Safely evaluate transform expression.
+    def _expression_record_view(self, record):
+        """Attribute-readable snapshot of ``record`` with no ORM handle attached.
 
-        Note ``safe_eval`` takes no ``nocopy`` argument in Odoo 19 -- passing it
-        raised ``TypeError`` for every expression, which the fallback below
-        swallowed, so configured transforms were silently ignored and the
-        untransformed value was written instead.
+        ``safe_eval`` permits arbitrary non-dunder attribute access, so a live
+        recordset in the evaluation context exposes ``record.env`` /
+        ``record.sudo()`` / ``record._cr`` -- the full ORM (as superuser on the
+        apply path, which runs under sudo) and the database cursor. Keeping
+        ``env`` out of the context means nothing while a recordset is in it.
+
+        The snapshot carries stored scalar fields only, so ``registrant.family_name``
+        keeps working while method calls and relation traversal do not, and its
+        ``__dict__`` is blocked by the dunder-name check. Many2one values are
+        reduced to their id, matching how ``proposed_target_value`` normalises.
+        """
+        if not record:
+            return None
+        values = {}
+        for name, field in record._fields.items():
+            if not field.store or field.type in ("one2many", "many2many"):
+                continue
+            value = record[name]
+            values[name] = value.id if field.type == "many2one" else value
+        return SimpleNamespace(**values)
+
+    def _eval_expression(self, expr, value, detail, registrant):
+        """Safely evaluate a field-mapping transform expression.
+
+        Security contract: the context exposes ``value`` and attribute-readable
+        snapshots of ``detail`` and ``registrant`` -- never live recordsets, so
+        no ``env``, ``sudo()`` or cursor is reachable from an expression. It
+        fails closed: an expression that cannot be evaluated raises rather than
+        writing the untransformed, requester-controlled ``value`` through.
         """
         try:
-            # Admin-defined field mapping expressions with restricted context (no env)
             return safe_eval(  # nosemgrep: odoo-unsafe-safe-eval
                 expr,
                 {
                     "value": value,
-                    "detail": detail,
-                    "registrant": registrant,
-                    # env removed for security
+                    "detail": self._expression_record_view(detail),
+                    "registrant": self._expression_record_view(registrant),
                     "datetime": datetime,
                     "date": date,
                 },
                 mode="eval",
             )
-        except Exception:
-            # Falls back to the untransformed value rather than failing the
-            # apply. Logged at exception level with the expression, because a
-            # silent warning is how the ``nocopy`` breakage went unnoticed.
-            _logger.exception("Field mapping transform expression failed, using the raw value: %s", expr)
-            return value
+        except Exception as error:
+            # Fail closed: refuse to write the raw value. ``value`` is
+            # requester-controlled, so falling back would let a requester force
+            # the untransformed value onto the registrant by feeding input the
+            # transform cannot handle. Log the expression and error *type* at
+            # ERROR -- never the wrapped error text, which embeds the field
+            # value (PII) -- and the full traceback only at DEBUG. The UserError
+            # message omits the underlying error for the same reason: it is
+            # persisted to ``apply_error`` on the change request.
+            _logger.error(
+                "Field mapping transform expression failed (%s), refusing to write the raw value: %s",
+                type(error).__name__,
+                expr,
+            )
+            _logger.debug("Transform expression failure detail", exc_info=True)
+            raise UserError(
+                _(
+                    "A configured field-mapping transform expression could not be evaluated, "
+                    "so the change was not applied. Ask an administrator to review the "
+                    "request type's transform expression; the failure detail is in the server log."
+                )
+            ) from None
 
     def _is_value_empty(self, value, record=None, field_name=None):
         """Check if a value should be considered empty and skipped.
