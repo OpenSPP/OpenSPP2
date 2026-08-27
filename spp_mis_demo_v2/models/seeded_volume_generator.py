@@ -281,12 +281,19 @@ class SeededVolumeGenerator:
         )
         return households
 
-    # Programs whose CEL is not a targeting rule, so enrollment stays driven by
-    # the blueprint flags. Food Assistance matches "any active registrant",
-    # which would enroll the entire demo population; Emergency Relief Fund has
-    # no CEL at all. Both are reported as exceptions rather than forced into
-    # line, because changing what a programme targets is a product decision,
-    # not demo-data cleanup (OP#956).
+    # Programs whose rule does not currently select a subset, so enrollment
+    # stays driven by the blueprint flags rather than by the rule (OP#956).
+    #
+    # Food Assistance matches "any active registrant" by design; enrolling from
+    # it would put the whole demo population on the programme, and changing what
+    # a programme targets is a product decision, not demo-data cleanup.
+    #
+    # Emergency Relief Fund does have a rule -- an earlier note here wrongly
+    # said it had none -- but that rule leans on `dependency_ratio`, and an
+    # aggregate count nested inside arithmetic still loses its predicate in the
+    # translator, so the ratio evaluates the same for every household and the
+    # rule matches all of them. The direct comparison case is fixed; the
+    # arithmetic one is not, and until it is there is no subset to enrol.
     NON_SELECTIVE_CEL_PROGRAMS = ("food_assistance", "emergency_relief_fund")
 
     def enroll_in_programs(self, households, program_map):
