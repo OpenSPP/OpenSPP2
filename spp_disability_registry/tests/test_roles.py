@@ -12,6 +12,7 @@ submitted, and the role named "Validator" granted no approval power at all.
 from datetime import date
 
 from odoo import Command
+from odoo.exceptions import UserError
 from odoo.tests import TransactionCase, tagged
 
 # Everything _check_can_submit gates on for an adult (WG-SS, no proxy): all six
@@ -45,12 +46,24 @@ class TestDisabilityRoles(TransactionCase):
         )
 
     def _user(self, login, group_xmlid):
+        """An internal user holding one disability role.
+
+        base.group_user is deliberate: passing group_ids to create() replaces
+        the default rather than adding to it, and a user with only a disability
+        group is not an internal user at all. Approving reaches
+        activity_feedback, which searches mail.activity, so a fixture missing
+        the base group fails on an access error that no real holder of the role
+        would ever see.
+        """
         return self.env["res.users"].create(
             {
                 "name": login,
                 "login": login,
                 "email": f"{login}@test.com",
-                "group_ids": [Command.link(self.env.ref(group_xmlid).id)],
+                "group_ids": [
+                    Command.link(self.env.ref("base.group_user").id),
+                    Command.link(self.env.ref(group_xmlid).id),
+                ],
             }
         )
 
@@ -143,8 +156,14 @@ class TestDisabilityRoles(TransactionCase):
 
     # === who may do what ===
 
-    def test_the_approver_role_can_approve(self):
-        """The point of the ticket: holding the role is enough."""
+    def test_the_approver_role_is_offered_the_buttons(self):
+        """can_approve drives whether Approve and Reject render.
+
+        This is only half the story, and on its own it is misleading: the
+        buttons appeared in QA round 1 and then failed on click, because
+        approving writes to the approval framework's own records. See
+        test_the_approver_role_can_actually_approve.
+        """
         approver = self._user("test_1173_approver", "spp_disability_registry.group_disability_approver")
         assessment = self.env["spp.disability.assessment"].create(
             {"registrant_id": self.registrant.id, "assessment_date": date.today(), **SUBMITTABLE}
@@ -165,3 +184,60 @@ class TestDisabilityRoles(TransactionCase):
 
         self.assertFalse(assessment.with_user(assessor).can_approve)
         self.assertFalse(assessment.with_user(assessor).can_reject)
+
+    def test_the_approver_role_can_actually_approve(self):
+        """Press the button, do not just check that it renders.
+
+        QA round 1: the Approve button showed for a Disability Approver and
+        raised "You are not allowed to modify 'Approval Review Record'" on
+        click. `_do_approve` calls `pending_reviews.action_approve(...)`
+        without sudo, and write on spp.approval.review belongs to
+        spp_approval's own groups. Asserting on can_approve could never have
+        caught it -- that flag is computed from the definition's approver
+        group and was correctly True the whole time.
+        """
+        approver = self._user("test_1173_doer", "spp_disability_registry.group_disability_approver")
+        assessment = self.env["spp.disability.assessment"].create(
+            {"registrant_id": self.registrant.id, "assessment_date": date.today(), **SUBMITTABLE}
+        )
+        assessment.action_submit_for_approval()
+        self.assertEqual(assessment.approval_state, "pending")
+
+        assessment.with_user(approver).action_approve()
+
+        self.assertEqual(assessment.approval_state, "approved")
+        self.assertFalse(
+            assessment.approval_review_ids.filtered(lambda r: r.status == "pending"),
+            "the approval review should have been closed too",
+        )
+
+    def test_the_approver_can_write_the_review_the_approval_updates(self):
+        """The specific right the round-1 failure was missing.
+
+        Pinned directly so a future change to the implied groups fails here
+        with a clear reason rather than somewhere deep in the approval flow.
+        """
+        approver = self._user("test_1173_writer", "spp_disability_registry.group_disability_approver")
+        review = self.env["spp.approval.review"]
+
+        self.assertTrue(
+            review.with_user(approver).has_access("write"),
+            "a Disability Approver cannot write approval reviews, so Approve will fail on click",
+        )
+        self.assertFalse(
+            review.with_user(approver).has_access("unlink"),
+            "an approver should not be able to delete an approval trail",
+        )
+
+    def test_the_assessor_still_cannot_approve(self):
+        """Widening the approver's rights must not widen the assessor's."""
+        assessor = self._user("test_1173_assessor_deny", "spp_disability_registry.group_disability_assessor")
+        assessment = self.env["spp.disability.assessment"].create(
+            {"registrant_id": self.registrant.id, "assessment_date": date.today(), **SUBMITTABLE}
+        )
+        assessment.action_submit_for_approval()
+
+        # A UserError naming the required group, not an access error: the
+        # framework refuses on can_approve before any ACL is consulted.
+        with self.assertRaises(UserError):
+            assessment.with_user(assessor).action_approve()

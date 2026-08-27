@@ -55,6 +55,16 @@ Changelog
 19.0.3.1.0
 ~~~~~~~~~~
 
+- fix(security): the **Approver** role now carries the rights approving
+  actually needs. Approving writes to the approval framework's own
+  review records, and ``_do_approve`` does so without sudo, so the
+  button appeared and then failed on click with "You are not allowed to
+  modify 'Approval Review Record'". Disability Approver implies
+  ``spp_approval``'s approver group, which grants read and write on
+  reviews but not create or unlink, so an approval trail still cannot be
+  fabricated or deleted. Existing holders of the role gain this on
+  upgrade without a migration, because implied groups are computed
+  rather than stored (#1173)
 - feat(security): simplify the disability roles to **Viewer**,
   **Assessor** and **Approver**, and make approving actually depend on
   the Approver role. Assessor and Validator carried identical access

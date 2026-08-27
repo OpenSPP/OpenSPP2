@@ -40,12 +40,27 @@
         >Can create and edit disability assessments. Can submit for validation.</field>
     </record>
 
+    <!--
+        Approving writes to the approval framework's own records, so the role
+        has to carry rights there too. `_do_approve` calls
+        `pending_reviews.action_approve(...)` without sudo, and the ACLs give
+        write on spp.approval.review only to spp_approval's approver and
+        manager groups. Without this implication the Approve button appears,
+        because can_approve is computed from the definition's approver group,
+        and then fails on click with "You are not allowed to modify 'Approval
+        Review Record'", which is what QA hit in round 1.
+
+        group_approval_approver is the right one to imply rather than
+        group_approval_manager: it grants read and write on reviews but not
+        create or unlink, so a disability approver cannot fabricate or delete
+        an approval trail.
+    -->
     <record id="group_disability_approver" model="res.groups">
         <field name="name">Approver</field>
         <field name="privilege_id" ref="privilege_disability_approver" />
         <field
             name="implied_ids"
-            eval="[Command.link(ref('group_disability_assessor'))]"
+            eval="[Command.link(ref('group_disability_assessor')), Command.link(ref('spp_approval.group_approval_approver'))]"
         />
         <field
             name="comment"
