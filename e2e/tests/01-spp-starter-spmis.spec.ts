@@ -90,7 +90,6 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
   let page: Page;
 
   test.beforeAll(async ({browser}) => {
-    test.setTimeout(600_000); // full docker teardown/rebuild from a cold cache can take a while
     await resetStack();
     page = await browser.newPage();
   });
@@ -112,8 +111,6 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
   });
 
   test("01 - login and install OpenSPP Starter SP-MIS", async () => {
-    test.setTimeout(300_000); // installing a module can take a few minutes on a cold DB
-
     await login(page);
     await installApp(page, "spp_starter_sp_mis");
 

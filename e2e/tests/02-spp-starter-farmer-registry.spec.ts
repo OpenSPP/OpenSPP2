@@ -45,7 +45,6 @@ async function installApp(page: Page, technicalName: string) {
 
 test.describe("OpenSPP", () => {
   test.beforeAll(async () => {
-    test.setTimeout(600_000); // full docker teardown/rebuild from a cold cache can take a while
     await resetStack();
   });
 
@@ -61,8 +60,6 @@ test.describe("OpenSPP", () => {
   test("login and install OpenSPP Starter Farmer Registry, then verify nav menus", async ({
     page,
   }) => {
-    test.setTimeout(300_000); // installing a module can take a few minutes on a cold DB
-
     await login(page);
 
     await installApp(page, "spp_starter_farmer_registry");
