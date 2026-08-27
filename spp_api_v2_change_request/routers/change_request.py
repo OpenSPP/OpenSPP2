@@ -6,7 +6,7 @@ from typing import Annotated
 from urllib.parse import urlencode
 
 from odoo.api import Environment
-from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.exceptions import AccessDenied, AccessError, UserError, ValidationError
 
 from odoo.addons.fastapi.dependencies import odoo_env
 from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
@@ -52,8 +52,12 @@ def _status_for_odoo_error(exc: Exception) -> int:
     client is told to resolve a conflict it cannot see, and a client that
     retries on 409 (reasonable for a genuine conflict, which may clear) loops
     on a permission error that never will.
+
+    ``AccessDenied`` is grouped with ``AccessError``: both report an
+    authorization failure, and the platform's global handler
+    (``fastapi.error_handlers``) maps the pair to 403 the same way.
     """
-    if isinstance(exc, AccessError):
+    if isinstance(exc, (AccessError, AccessDenied)):
         return status.HTTP_403_FORBIDDEN
     return status.HTTP_409_CONFLICT
 
@@ -468,9 +472,9 @@ async def reject_change_request(
 
     try:
         service.reject(cr, reason=action_data.reason)
-    except (UserError, ValidationError) as e:
+    except UserError as e:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
+            status_code=_status_for_odoo_error(e),
             detail=str(e),
         ) from e
 
@@ -509,9 +513,9 @@ async def request_revision_change_request(
 
     try:
         service.request_revision(cr, notes=action_data.notes)
-    except (UserError, ValidationError) as e:
+    except UserError as e:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
+            status_code=_status_for_odoo_error(e),
             detail=str(e),
         ) from e
 

@@ -951,15 +951,18 @@ curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>
 <ul class="simple">
 <li>fix(api): an authorization failure on a change-request state
 transition now returns <tt class="docutils literal">403 Forbidden</tt> instead of <tt class="docutils literal">409 Conflict</tt>.
-<tt class="docutils literal">AccessError</tt> subclasses <tt class="docutils literal">UserError</tt> in Odoo, so the <tt class="docutils literal">$submit</tt> /
-<tt class="docutils literal">$approve</tt> / <tt class="docutils literal">$apply</tt> / <tt class="docutils literal">$reset</tt> endpoints — which caught
-<tt class="docutils literal">UserError</tt> and returned a conflict — reported permission failures
-as conflicts. A client is then told to resolve a conflict it cannot
-see, and one that retries on 409 loops on a permission error that will
+<tt class="docutils literal">AccessError</tt> subclasses <tt class="docutils literal">UserError</tt> in Odoo, so all six
+state-transition endpoints — <tt class="docutils literal">$submit</tt> / <tt class="docutils literal">$approve</tt> / <tt class="docutils literal">$reject</tt>
+/ <tt class="docutils literal"><span class="pre">$request-revision</span></tt> / <tt class="docutils literal">$apply</tt> / <tt class="docutils literal">$reset</tt> — which caught
+<tt class="docutils literal">UserError</tt> and returned a conflict, reported permission failures as
+conflicts. A client is then told to resolve a conflict it cannot see,
+and one that retries on 409 loops on a permission error that will
 never clear. Reachable on <tt class="docutils literal">$apply</tt> in particular now that applying
 requires the change-request manager role, where the endpoint’s own
 scope check already returned 403, so the same endpoint reported two
-authorization failures with different statuses.</li>
+authorization failures with different statuses. <tt class="docutils literal">AccessDenied</tt> maps
+to 403 the same way, matching the platform’s global FastAPI error
+handler.</li>
 </ul>
 </div>
 <div class="section" id="section-2">
