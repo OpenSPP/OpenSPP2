@@ -661,9 +661,11 @@ to define custom compliance criteria</li>
 <h1>19.0.2.3.4</h1>
 <ul class="simple">
 <li>fix(security): the Tier-3 <tt class="docutils literal">group_registry_read</tt> group can read
-<tt class="docutils literal">spp.cycle</tt> and <tt class="docutils literal">spp.cycle.membership</tt>. The registrant form’s
-entitlement lists render <tt class="docutils literal">cycle_id</tt>, and both models were granted
-only to the Tier-2 <tt class="docutils literal">group_registry_viewer</tt> group.</li>
+<tt class="docutils literal">spp.cycle</tt> and <tt class="docutils literal">spp.cycle.membership</tt>. Both were granted only to
+the Tier-2 <tt class="docutils literal">group_registry_viewer</tt> group, yet the registrant form
+depends on both: the entitlement lists render <tt class="docutils literal">cycle_id</tt>, and the
+membership list renders <tt class="docutils literal">latest_cycle_state</tt>, which is computed by
+searching <tt class="docutils literal">spp.cycle.membership</tt> as the acting user.</li>
 </ul>
 </div>
 <div class="section" id="section-2">

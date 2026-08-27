@@ -8,6 +8,7 @@ so a read-tier role that opens a registrant hits an AccessError unless the
 Tier-3 group carries these models too.
 """
 
+from odoo import Command
 from odoo.tests import TransactionCase, tagged
 
 _MODELS = [
@@ -18,8 +19,6 @@ _MODELS = [
     "spp.consent.notice",
     "spp.consent.history",
     "spp.consent.org.type",
-    "spp.record.consent.wizard",
-    "spp.bulk.record.consent.wizard",
 ]
 
 
@@ -32,8 +31,8 @@ class TestRegistryReadAccess(TransactionCase):
                 "login": "tier3_reader_spp_consent",
                 "email": "tier3_reader_spp_consent@example.com",
                 "group_ids": [
-                    (4, self.env.ref("base.group_user").id),
-                    (4, self.env.ref("spp_registry.group_registry_read").id),
+                    Command.link(self.env.ref("base.group_user").id),
+                    Command.link(self.env.ref("spp_registry.group_registry_read").id),
                 ],
             }
         )

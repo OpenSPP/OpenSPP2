@@ -106,10 +106,7 @@ Changelog
 - fix(security): the Tier-3 ``group_registry_read`` group can read
   ``spp.irrigation.asset``. The registrant form renders
   ``irrigation_asset_ids``, and the model was granted only to the Tier-2
-  ``group_registry_viewer`` group. Note the pre-existing
-  ``access_spp_irrigation_asset_registry_read`` entry is misnamed — it
-  grants the Tier-2 viewer group — so the new entry uses a distinct
-  identifier rather than renaming it and orphaning the old one.
+  ``group_registry_viewer`` group.
 
 19.0.2.1.0
 ~~~~~~~~~~
