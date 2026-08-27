@@ -1,3 +1,7 @@
+### 19.0.2.3.4
+
+- fix(security): the Tier-3 `group_registry_read` group can read `spp.cycle` and `spp.cycle.membership`. Both were granted only to the Tier-2 `group_registry_viewer` group, yet the registrant form depends on both: the entitlement lists render `cycle_id`, and the membership list renders `latest_cycle_state`, which is computed by searching `spp.cycle.membership` as the acting user.
+
 ### 19.0.2.3.3
 
 - fix(security): the operation lock is now guarded on create as well as write. Restricting only writes to `is_locked` / `locked_reason` left creation unguarded, so a program officer could create a cycle or program already locked and bypass the check entirely — and then could not clear the lock again, since clearing it goes through the guarded write, leaving a self-inflicted lockout only a system administrator could undo. The check is shared by both paths; `sudo()` and system administrators are unaffected, so the async pipeline keeps managing the lock as before.

@@ -59,7 +59,7 @@ services:
       POSTGRES_DB: openspp
     volumes:
       - postgres_data:/var/lib/postgresql
-      - ./docker/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./docker/postgresql.conf:/etc/postgresql/postgresql.conf:ro,z
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U odoo -d postgres"]
       interval: 5s
