@@ -100,6 +100,19 @@ class IrAttachment(models.Model):
         """Override create to queue malware scan for binary attachments."""
         attachments = super().create(vals_list)
 
+        # Never enqueue while the registry is still loading. Everything written then is
+        # a system asset — module data records, and the ``ir.attachment`` backing
+        # ``ir.ui.menu.web_icon_data``, which every menu carrying a ``web_icon`` rewrites
+        # whenever its XML is (re)loaded. Enqueueing there inserts a ``queue.job`` row,
+        # which flushes the pending ``ir_attachment`` UPDATE inside a hook that re-raises
+        # database errors (see ``_MUST_NOT_SWALLOW``). Registry construction has no
+        # ``odoo.service.model.retrying`` wrapper around it, so a transient serialization
+        # failure against a peer instance on a shared database aborts the whole load
+        # instead of being retried. The records keep the ``scan_status`` default
+        # ("pending"), so nothing is left looking scanned. Runtime uploads still queue.
+        if not self.env.registry.ready:
+            return attachments
+
         # Queue scan for attachments that have binary data
         for attachment in attachments:
             if attachment.type == "binary" and attachment.datas:
@@ -145,6 +158,13 @@ class IrAttachment(models.Model):
                                 "original_file_size": None,
                             }
                         )
+                        if not self.env.registry.ready:
+                            # Same reasoning as ``create``: no scan may be enqueued during
+                            # registry load. The status reset above still runs — it is a
+                            # cache-level write on a row this transaction already dirtied,
+                            # so it adds no SQL and no conflict window, and skipping it
+                            # would leave changed bytes wearing a stale "clean" status.
+                            continue
                         attachment.with_delay(
                             description=f"Scan updated attachment {attachment.id} for malware",
                             priority=20,
