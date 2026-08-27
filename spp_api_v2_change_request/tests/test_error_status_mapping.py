@@ -18,13 +18,17 @@ import ast
 import inspect
 from unittest.mock import patch
 
-from odoo.exceptions import AccessDenied, AccessError, UserError, ValidationError
+from odoo.exceptions import AccessDenied, AccessError, MissingError, UserError, ValidationError
 from odoo.tests import TransactionCase, tagged
 
 from odoo.addons.fastapi.tests.common import FastAPITransactionCase
 from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
 
-from ..routers.change_request import _status_for_odoo_error, change_request_router
+from ..routers.change_request import (
+    _detail_for_odoo_error,
+    _status_for_odoo_error,
+    change_request_router,
+)
 from ..services.change_request_service import ChangeRequestService
 from .common import ChangeRequestTestCase
 
@@ -57,9 +61,30 @@ class TestErrorStatusMapping(TransactionCase):
     def test_plain_user_error_is_conflict(self):
         self.assertEqual(_status_for_odoo_error(UserError("wrong state")), 409)
 
-    def test_validation_error_is_conflict(self):
-        """Documents current behaviour; arguably 422, but out of scope here."""
-        self.assertEqual(_status_for_odoo_error(ValidationError("bad")), 409)
+    def test_validation_error_is_unprocessable(self):
+        """A validation failure is invalid input, and reports 422 -- the same
+        status the create and update endpoints use for the same condition."""
+        self.assertEqual(_status_for_odoo_error(ValidationError("bad")), 422)
+
+    def test_missing_error_is_not_found(self):
+        """A record that vanished mid-transition is 404, mirroring the
+        platform's global handler (``fastapi.error_handlers``)."""
+        self.assertEqual(_status_for_odoo_error(MissingError("gone")), 404)
+
+    def test_forbidden_detail_is_generic(self):
+        """An AccessError message carries model names and rule text; the
+        client gets a generic detail instead (anti-enumeration)."""
+        detail = _detail_for_odoo_error(AccessError("secret record rule on spp.change.request"))
+        self.assertNotIn("secret", detail)
+        self.assertNotIn("spp.change.request", detail)
+        self.assertEqual(detail, _detail_for_odoo_error(AccessDenied()))
+
+    def test_non_forbidden_detail_passes_through(self):
+        self.assertEqual(_detail_for_odoo_error(UserError("wrong state")), "wrong state")
+        self.assertEqual(
+            _detail_for_odoo_error(ValidationError("Rejection reason is required")),
+            "Rejection reason is required",
+        )
 
     def test_access_error_is_not_shadowed_by_its_base_class(self):
         """The whole bug: AccessError *is* a UserError, so order matters."""
@@ -176,8 +201,33 @@ class TestTransitionRoutesStatusMapping(FastAPITransactionCase, ChangeRequestTes
             response = self._post("$reject", json={"reason": "duplicate request"})
         self.assertEqual(response.status_code, 409)
 
-    def test_reject_reports_validation_error_as_conflict(self):
-        """Documents current behaviour; arguably 422, but out of scope here."""
+    def test_reject_reports_validation_error_as_unprocessable(self):
         with patch.object(ChangeRequestService, "reject", side_effect=ValidationError("bad")):
             response = self._post("$reject", json={"reason": "duplicate request"})
-        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.status_code, 422)
+
+    def test_reject_forbidden_detail_is_generic(self):
+        with patch.object(
+            ChangeRequestService,
+            "reject",
+            side_effect=AccessError("record rule on spp.change.request denied user 7"),
+        ):
+            response = self._post("$reject", json={"reason": "duplicate request"})
+        self.assertEqual(response.status_code, 403)
+        self.assertNotIn("record rule", response.json()["detail"])
+
+    def test_create_reports_access_error_as_forbidden(self):
+        """create() used to swallow AccessError in its bare except and report
+        500; an authorization failure there is 403 like everywhere else."""
+        payload = {
+            "type": "ChangeRequest",
+            "requestType": {"code": "edit_individual"},
+            "registrant": {"system": "urn:openspp:vocab:id-type", "value": "TEST-123"},
+            "detail": {"given_name": "Blocked"},
+        }
+        with (
+            patch.object(ChangeRequestService, "create", side_effect=AccessError("denied")),
+            self._create_test_client() as client,
+        ):
+            response = client.post("/ChangeRequest", json=payload)
+        self.assertEqual(response.status_code, 403)
