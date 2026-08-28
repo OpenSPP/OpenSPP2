@@ -869,6 +869,58 @@ Changelog
   unchanged. Narrowing still holds — a mapping belonging to another
   routing key is still not applied.
 
+19.0.3.1.12
+~~~~~~~~~~~
+
+- fix(change_request): auto-apply-on-approve runs through the public
+  ``action_apply`` again. Requiring change-request manager rights to
+  apply meant auto-apply was routed to the internal mechanism instead,
+  so the approver could be a validator — but ``action_apply`` is the
+  extension point modules override to hang post-apply work off an apply,
+  and bypassing it left those overrides silently not running on
+  approval: no error, just missing side effects. Auto-apply now calls
+  ``action_apply`` under ``sudo()``, which the manager gate already
+  exempts. ``sudo()`` sets superuser mode without changing the user, so
+  the applying user is still recorded as the approver.
+
+19.0.3.1.11
+~~~~~~~~~~~
+
+- fix(change_request): field-mapping transform expressions are evaluated
+  again. ``_eval_expression`` passed ``nocopy=True`` to ``safe_eval``,
+  which takes no such argument in Odoo 19, so every expression raised
+  ``TypeError``; the blanket fallback swallowed it and the
+  **untransformed** value was written to the registrant. A configured
+  transform was therefore ignored, reported only as a warning in the
+  log. **Behaviour change:** request types that already have an
+  Expression transform configured will start transforming values on
+  upgrade, having silently passed the raw value through until now.
+- fix(security): a transform expression can no longer reach the ORM.
+  ``safe_eval`` places no allowlist on attribute access, so a live
+  ``detail``/``registrant`` recordset in the evaluation context exposed
+  ``env``, ``sudo()`` and the database cursor — a change-request
+  manager, who is not a system administrator, could obtain superuser ORM
+  access and raw SQL. The context now carries attribute-readable
+  snapshots of the two records (stored scalar fields only; no methods,
+  no relation traversal, no database handle) instead of the recordsets
+  themselves. Group-gated, binary and reference fields are excluded from
+  the snapshot: a gated field cannot be read by the requester on the
+  detection path — and apply must build the identical snapshot or the
+  two disagree again — a binary would haul image payloads into every
+  evaluation, and a stored Reference value is itself a live recordset.
+- fix(security): the transform expression is now restricted to system
+  administrators (``groups="base.group_system"``) rather than only
+  warned against in the help text, and is enforced by the ORM on read
+  and write. The detection path reads the expression as superuser so it
+  keeps working for non-administrator requesters.
+- fix(security): an unevaluable transform expression now fails closed —
+  the change is not applied — instead of falling back to writing the raw
+  value. Because the source value is requester-controlled, the fallback
+  let a requester force the untransformed value onto the registrant by
+  feeding input the transform could not handle. Failures are logged with
+  the expression and error type (never the field value, which is PII);
+  the full traceback is logged only at DEBUG.
+
 19.0.3.1.10
 ~~~~~~~~~~~
 

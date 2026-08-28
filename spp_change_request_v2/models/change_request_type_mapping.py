@@ -41,10 +41,15 @@ class SPPChangeRequestTypeMapping(models.Model):
         default="direct",
     )
     transform_expression = fields.Char(
+        groups="base.group_system",
         help=(
             "Python expression for value transformation. "
-            "Available variables: value, detail, registrant, datetime, date. "
-            "WARNING: Only administrators should configure expressions - "
-            "arbitrary code execution risk."
+            "Available variables: value (the source value), and read-only snapshots "
+            "of detail and registrant exposing their stored scalar fields only - "
+            "no method calls, no relation traversal, no database access, and no "
+            "group-restricted, binary or reference fields - plus "
+            "datetime and date. Restricted to system administrators: it is evaluated "
+            "server-side and an unevaluable expression blocks the change rather than "
+            "writing the raw value."
         ),
     )
