@@ -1339,6 +1339,223 @@ registrant</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.3.1.13</h1>
+<ul class="simple">
+<li>fix(change_request): a selectable field on a dynamic-approval type may
+now be applied through more than one mapping. Apply is narrowed to the
+field a request was routed and approved on, matched against the
+mapping’s <tt class="docutils literal">source_field</tt> — which assumed every selectable value is a
+physical source field. They need not be: a name may be offered as one
+choice but stored as separate components, so one selectable value
+legitimately drives several mappings, and matching on <tt class="docutils literal">source_field</tt>
+alone matched none of them, applying nothing at all. A mapping can now
+declare the selectable value it serves via <tt class="docutils literal">routing_field</tt>,
+defaulting to <tt class="docutils literal">source_field</tt>, so existing configurations are
+unchanged. Narrowing still holds — a mapping belonging to another
+routing key is still not applied.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
+<h1>19.0.3.1.12</h1>
+<ul class="simple">
+<li>fix(change_request): auto-apply-on-approve runs through the public
+<tt class="docutils literal">action_apply</tt> again. Requiring change-request manager rights to
+apply meant auto-apply was routed to the internal mechanism instead,
+so the approver could be a validator — but <tt class="docutils literal">action_apply</tt> is the
+extension point modules override to hang post-apply work off an apply,
+and bypassing it left those overrides silently not running on
+approval: no error, just missing side effects. Auto-apply now calls
+<tt class="docutils literal">action_apply</tt> under <tt class="docutils literal">sudo()</tt>, which the manager gate already
+exempts. <tt class="docutils literal">sudo()</tt> sets superuser mode without changing the user, so
+the applying user is still recorded as the approver.</li>
+</ul>
+</div>
+<div class="section" id="section-3">
+<h1>19.0.3.1.11</h1>
+<ul class="simple">
+<li>fix(change_request): field-mapping transform expressions are evaluated
+again. <tt class="docutils literal">_eval_expression</tt> passed <tt class="docutils literal">nocopy=True</tt> to <tt class="docutils literal">safe_eval</tt>,
+which takes no such argument in Odoo 19, so every expression raised
+<tt class="docutils literal">TypeError</tt>; the blanket fallback swallowed it and the
+<strong>untransformed</strong> value was written to the registrant. A configured
+transform was therefore ignored, reported only as a warning in the
+log. <strong>Behaviour change:</strong> request types that already have an
+Expression transform configured will start transforming values on
+upgrade, having silently passed the raw value through until now.</li>
+<li>fix(security): a transform expression can no longer reach the ORM.
+<tt class="docutils literal">safe_eval</tt> places no allowlist on attribute access, so a live
+<tt class="docutils literal">detail</tt>/<tt class="docutils literal">registrant</tt> recordset in the evaluation context exposed
+<tt class="docutils literal">env</tt>, <tt class="docutils literal">sudo()</tt> and the database cursor — a change-request
+manager, who is not a system administrator, could obtain superuser ORM
+access and raw SQL. The context now carries attribute-readable
+snapshots of the two records (stored scalar fields only; no methods,
+no relation traversal, no database handle) instead of the recordsets
+themselves. Group-gated, binary and reference fields are excluded from
+the snapshot: a gated field cannot be read by the requester on the
+detection path — and apply must build the identical snapshot or the
+two disagree again — a binary would haul image payloads into every
+evaluation, and a stored Reference value is itself a live recordset.</li>
+<li>fix(security): the transform expression is now restricted to system
+administrators (<tt class="docutils literal"><span class="pre">groups=&quot;base.group_system&quot;</span></tt>) rather than only
+warned against in the help text, and is enforced by the ORM on read
+and write. The detection path reads the expression as superuser so it
+keeps working for non-administrator requesters.</li>
+<li>fix(security): an unevaluable transform expression now fails closed —
+the change is not applied — instead of falling back to writing the raw
+value. Because the source value is requester-controlled, the fallback
+let a requester force the untransformed value onto the registrant by
+feeding input the transform could not handle. Failures are logged with
+the expression and error type (never the field value, which is PII);
+the full traceback is logged only at DEBUG.</li>
+</ul>
+</div>
+<div class="section" id="section-4">
+<h1>19.0.3.1.10</h1>
+<ul class="simple">
+<li>fix(security): conflict and duplicate detection now decide whether a
+mapped field changed using the same comparison the apply strategy
+uses. Detection compared through a helper that lowercases and strips
+strings while apply compares raw, so a case- or whitespace-only edit
+was invisible to detection yet still written to the registrant —
+enough to sidestep a field-scoped conflict rule with a cosmetic edit.
+Detection also ignored transform expressions, which apply evaluates
+before comparing. Similarity scoring is unchanged and stays
+case-insensitive, since that is the point of a fuzzy match.</li>
+<li>fix: applying a change request that has no mapping to write is now
+rejected instead of reported as successful. Because
+<tt class="docutils literal">_effective_mappings</tt> fails closed, a request whose routed field
+lost its mapping — or whose type has none configured — wrote nothing
+yet was still stamped applied, with an applied date, an audit event
+and a log line, so operators saw a green request whose change had been
+silently dropped. A genuine no-op, where the registrant already holds
+the proposed values, still applies cleanly.</li>
+<li>fix: a submitted change request with no detail row can be repaired
+again. <tt class="docutils literal">detail_res_id</tt> is frozen after submission so a substituted
+detail cannot be attached post-approval, but the guard did not
+distinguish binding from re-pointing, so <tt class="docutils literal">_ensure_detail()</tt> could
+not create the missing row and the request could not be opened from
+any context. Binding is now accepted only for a row that already
+points back at the request.</li>
+<li>fix: an empty string now reads as unset in the post-submit freeze.
+Odoo stores an unset field as <tt class="docutils literal">False</tt> while a JSON-RPC client or
+integration re-saving a record sends <tt class="docutils literal">&quot;&quot;</tt>, so an idempotent re-save
+was rejected as though it had altered the approved content. Clearing a
+populated frozen field with <tt class="docutils literal">&quot;&quot;</tt> is still rejected. The
+normalisation existed verbatim on both the change request and the
+detail base; it now lives once, so the two guards cannot disagree.</li>
+<li>perf: the caller’s proposed-change set is derived once per
+duplicate-detection run rather than recomputed for every candidate,
+each derivation having re-browsed the detail and re-read every
+configured mapping.</li>
+</ul>
+</div>
+<div class="section" id="section-5">
+<h1>19.0.3.1.9</h1>
+<ul class="simple">
+<li>fix(security): duplicate detection now scores the fields both change
+requests actually propose to change, instead of demanding the two
+derived change sets be identical. Because a dynamic-approval type
+applies only the routed field, a requester could add a throwaway edit
+to another mapped field, make the two sets unequal and drop similarity
+to zero, while apply discarded that edit — so the evasion cost
+nothing. Similarity is now computed over the shared changed fields,
+proportionally, on the same scale the static path uses, which also
+stops a mostly identical multi-field request collapsing to zero as
+soon as one shared field differs. The change set is still derived from
+the detail-versus-registrant diff and never from the
+requester-writable <tt class="docutils literal">selected_field_name</tt> / <tt class="docutils literal">field_to_modify</tt>.</li>
+</ul>
+</div>
+<div class="section" id="section-6">
+<h1>19.0.3.1.8</h1>
+<ul class="simple">
+<li>fix(security): scope the Create-Group member wizards to the parent
+change request. <tt class="docutils literal">spp.cr.detail.create_group.member.wizard</tt> and its
+<tt class="docutils literal">.phone</tt> / <tt class="docutils literal">.bank</tt> children are transient models whose
+access-control entries grant change-request users read, write, create
+<strong>and</strong> delete, and no record rule covered them. Transient models get
+no implicit creator-only scoping from the ORM — <tt class="docutils literal">ir.rule</tt> applies to
+them as it does to persistent models, and with no rule the domain
+resolves to true — so any change-request user could enumerate, read,
+alter or delete another user’s proposed-member data, including names,
+birthdates, phone numbers and bank account numbers. Each wizard model
+now carries the same parent-change-request ownership rules as the
+persistent Create-Group detail rows, scoped on every operation its
+access-control entry grants.</li>
+</ul>
+</div>
+<div class="section" id="section-7">
+<h1>19.0.3.1.7</h1>
+<ul class="simple">
+<li>fix(security): require change-request manager rights to apply a change
+request. <tt class="docutils literal">action_apply()</tt> runs the apply strategy with elevated
+rights and is callable over RPC, but the manager restriction existed
+only on the review button — so a change-request user could apply their
+own approved request and drive privileged writes such as membership
+changes. The public entry point is now gated and the mechanism moved
+to an internal method, so approval-driven auto-apply is unaffected.
+<strong>Deployments using the API v2 change-request endpoints must grant the
+API user the change-request manager role to keep using the apply
+endpoint.</strong></li>
+</ul>
+</div>
+<div class="section" id="section-8">
+<h1>19.0.3.1.6</h1>
+<ul class="simple">
+<li>fix(security): derive conflict and duplicate detection from the change
+actually proposed rather than a user-writable label.
+<tt class="docutils literal">selected_field_name</tt> and the detail’s <tt class="docutils literal">field_to_modify</tt> are both
+writable by the requester, so either could be re-pointed at an
+unchanged field to clear a field-scoped conflict or drop duplicate
+similarity to zero. Detection now compares the detail against the
+registrant. Types whose apply strategy writes outside the configured
+field mappings fall back to the full configured field set instead of
+an empty one, so detection cannot silently disable itself.</li>
+</ul>
+</div>
+<div class="section" id="section-9">
+<h1>19.0.3.1.5</h1>
+<ul class="simple">
+<li>fix(security): scope the CR Requestor, Local Validator and HQ
+Validator roles to Tier-3 registry read instead of Tier-2 registry
+viewer. The viewer tier gates the Registry Search portal, a broad
+registrant-PII enumeration surface these change-request roles do not
+need; registrant read access is unchanged. A migration re-points the
+roles and resynchronises existing users, since the role definitions
+are <tt class="docutils literal">noupdate</tt>.</li>
+</ul>
+</div>
+<div class="section" id="section-10">
+<h1>19.0.3.1.4</h1>
+<ul class="simple">
+<li>fix(security): add ownership and area record rules to every concrete
+change-request detail model. Detail rows were reachable by any
+<tt class="docutils literal">group_cr_user</tt> regardless of who owned the parent change request,
+so a requester could read or tamper with another user’s detail data
+over RPC. Each detail model now carries
+user/validator/validator-HQ/manager rules scoped through its parent
+change request, plus a global rule mirroring the parent’s area filter.
+<tt class="docutils literal">spp.cr.detail.split_household.member</tt> is additionally scoped on
+delete, the one detail model whose access-control entry grants
+<tt class="docutils literal">unlink</tt> to change-request users: requesters may delete member rows
+only on their own requests, while validators and managers keep the
+unrestricted delete their access-control entries grant.</li>
+</ul>
+</div>
+<div class="section" id="section-11">
+<h1>19.0.3.1.3</h1>
+<ul class="simple">
+<li>fix(security): route and apply the same single field for
+dynamic-approval change requests, and freeze the proposed change once
+the request leaves draft. The selected field, its old/new values and
+the detail pointer were writable after submission, so a requester
+could re-route an approval or alter the value that had already been
+approved. Note the mapped-source-field freeze applies to
+<tt class="docutils literal">field_mapping</tt> request types; <tt class="docutils literal">custom</tt>-strategy types freeze only
+the routing selector.</li>
+</ul>
+</div>
+<div class="section" id="section-12">
 <h1>19.0.3.1.2</h1>
 <ul class="simple">
 <li>fix(change_request_v2): adding an ID now looks for a live one of that
@@ -1347,7 +1564,7 @@ change request no longer blocks adding a replacement of the same type
 (#1136)</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-13">
 <h1>19.0.3.1.1</h1>
 <ul class="simple">
 <li>fix(change_request): enforce the <tt class="docutils literal">(cr_type_id, reason)</tt> uniqueness
@@ -1361,7 +1578,7 @@ lowest-id rule per pair is kept, matching which rule the runtime
 applied) so the constraint applies cleanly on upgrade.</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-14">
 <h1>19.0.3.1.0</h1>
 <ul class="simple">
 <li>revert(change_request): restore the create-a-new-individual <strong>Add
@@ -1379,7 +1596,7 @@ removed <tt class="docutils literal">spp_dci_demo</tt> Add Member birth-verifica
 <strong>not</strong> restored here; reinstate separately if needed.</li>
 </ul>
 </div>
-<div class="section" id="section-4">
+<div class="section" id="section-15">
 <h1>19.0.3.0.0</h1>
 <ul class="simple">
 <li>feat(change_request): redesign the group/membership CR flows (#242) —
@@ -1401,7 +1618,7 @@ create-a-new-individual fields (<tt class="docutils literal">created_individual_
 must adapt (see #1133).</li>
 </ul>
 </div>
-<div class="section" id="section-5">
+<div class="section" id="section-16">
 <h1>19.0.2.0.8</h1>
 <ul class="simple">
 <li>fix(views): disable inline creation of CR document types on the Change
@@ -1412,7 +1629,7 @@ only selects existing <tt class="docutils literal">cr_document_type</tt> vocabul
 Documents” modal (missing Name field) that blocked saving (#1125)</li>
 </ul>
 </div>
-<div class="section" id="section-6">
+<div class="section" id="section-17">
 <h1>19.0.2.0.7</h1>
 <ul class="simple">
 <li>fix(security): align CR Requestor / CR Local Validator / CR HQ
@@ -1424,7 +1641,7 @@ visibility once the menu root is gated. Adds <tt class="docutils literal">spp_ha
 dependencies.</li>
 </ul>
 </div>
-<div class="section" id="section-7">
+<div class="section" id="section-18">
 <h1>19.0.2.0.6</h1>
 <ul class="simple">
 <li>fix(views): route post-submit CRs (pending / approved / applied /
@@ -1439,7 +1656,7 @@ and wires <tt class="docutils literal"><span class="pre">action=&quot;action_ope
 list so row-click goes through the stage router.</li>
 </ul>
 </div>
-<div class="section" id="section-8">
+<div class="section" id="section-19">
 <h1>19.0.2.0.5</h1>
 <ul class="simple">
 <li>fix(security): add a global <tt class="docutils literal">ir.rule</tt> on <tt class="docutils literal">spp.change.request</tt> that
@@ -1452,27 +1669,27 @@ conditional domain is a no-op for users with no center areas (global
 roles).</li>
 </ul>
 </div>
-<div class="section" id="section-9">
+<div class="section" id="section-20">
 <h1>19.0.2.0.3</h1>
 <ul class="simple">
 <li>fix: add HTML escaping to all computed Html fields with
 <tt class="docutils literal">sanitize=False</tt> to prevent stored XSS (#50)</li>
 </ul>
 </div>
-<div class="section" id="section-10">
+<div class="section" id="section-21">
 <h1>19.0.2.0.2</h1>
 <ul class="simple">
 <li>fix: fix batch approval wizard line deletion (#130)</li>
 </ul>
 </div>
-<div class="section" id="section-11">
+<div class="section" id="section-22">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix: skip field types before getattr and isolate detail prefetch
 (#129)</li>
 </ul>
 </div>
-<div class="section" id="section-12">
+<div class="section" id="section-23">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
