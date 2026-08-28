@@ -87,6 +87,13 @@ MANAGER_CATEGORIES = {
         "field": "cycle_manager_ids",
         "wrapper": "spp.cycle.manager",
         "label": "Cycle Schedule",
+        # Capped at one by spp.program's check_managers_limit, same as
+        # entitlement. Unreachable through the dialog while this category has a
+        # single concrete method in-repo -- the already-configured check fires
+        # first -- but a module registering a second one (as spp_program_geofence
+        # does for eligibility) would otherwise get the constraint's after-the-fact
+        # wording, which is the experience this dialog exists to remove.
+        "single_manager": True,
     },
     "compliance": {
         "field": "compliance_manager_ids",
@@ -97,6 +104,13 @@ MANAGER_CATEGORIES = {
         "field": "payment_manager_ids",
         "wrapper": "spp.program.payment.manager",
         "label": "Payment Method",
+        # Capped at one by spp.program's check_managers_limit, same as
+        # entitlement. Unreachable through the dialog while this category has a
+        # single concrete method in-repo -- the already-configured check fires
+        # first -- but a module registering a second one (as spp_program_geofence
+        # does for eligibility) would otherwise get the constraint's after-the-fact
+        # wording, which is the experience this dialog exists to remove.
+        "single_manager": True,
     },
     "deduplication": {
         "field": "deduplication_manager_ids",
@@ -112,5 +126,12 @@ MANAGER_CATEGORIES = {
         "field": "program_manager_ids",
         "wrapper": "spp.program.manager",
         "label": "Program Manager",
+        # Capped at one by spp.program's check_managers_limit, same as
+        # entitlement. Unreachable through the dialog while this category has a
+        # single concrete method in-repo -- the already-configured check fires
+        # first -- but a module registering a second one (as spp_program_geofence
+        # does for eligibility) would otherwise get the constraint's after-the-fact
+        # wording, which is the experience this dialog exists to remove.
+        "single_manager": True,
     },
 }

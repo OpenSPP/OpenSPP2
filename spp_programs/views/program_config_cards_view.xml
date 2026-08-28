@@ -67,10 +67,13 @@ Replaces the technical manager configuration with intuitive sections.
                                     <i class="fa fa-check me-1" />Configured
                                 </span>
                                 <!--
-                                    Offered whenever configuration can be edited: a
-                                    program may legitimately run more than one method,
-                                    and this is the only way in now that the inline
-                                    Reference field is gone (OP#1172).
+                                    Offered whenever configuration can be edited,
+                                    this being the only way in now that the inline
+                                    Reference field is gone (OP#1172). Whether a
+                                    second method is accepted is the dialog's call,
+                                    not this button's: categories marked
+                                    single_manager in MANAGER_CATEGORIES refuse one,
+                                    matching what check_managers_limit enforces.
                                 -->
                                 <button
                                     name="action_add_manager"
@@ -188,10 +191,13 @@ Replaces the technical manager configuration with intuitive sections.
                                     <i class="fa fa-check me-1" />Configured
                                 </span>
                                 <!--
-                                    Offered whenever configuration can be edited: a
-                                    program may legitimately run more than one method,
-                                    and this is the only way in now that the inline
-                                    Reference field is gone (OP#1172).
+                                    Offered whenever configuration can be edited,
+                                    this being the only way in now that the inline
+                                    Reference field is gone (OP#1172). Whether a
+                                    second method is accepted is the dialog's call,
+                                    not this button's: categories marked
+                                    single_manager in MANAGER_CATEGORIES refuse one,
+                                    matching what check_managers_limit enforces.
                                 -->
                                 <button
                                     name="action_add_manager"
@@ -309,10 +315,13 @@ Replaces the technical manager configuration with intuitive sections.
                                     <i class="fa fa-check me-1" />Configured
                                 </span>
                                 <!--
-                                    Offered whenever configuration can be edited: a
-                                    program may legitimately run more than one method,
-                                    and this is the only way in now that the inline
-                                    Reference field is gone (OP#1172).
+                                    Offered whenever configuration can be edited,
+                                    this being the only way in now that the inline
+                                    Reference field is gone (OP#1172). Whether a
+                                    second method is accepted is the dialog's call,
+                                    not this button's: categories marked
+                                    single_manager in MANAGER_CATEGORIES refuse one,
+                                    matching what check_managers_limit enforces.
                                 -->
                                 <button
                                     name="action_add_manager"
@@ -423,10 +432,13 @@ Replaces the technical manager configuration with intuitive sections.
                                      Compliance is optional, so the empty state shows an
                                      explicit Add button instead of the generic list. -->
                                 <!--
-                                    Offered whenever configuration can be edited: a
-                                    program may legitimately run more than one method,
-                                    and this is the only way in now that the inline
-                                    Reference field is gone (OP#1172).
+                                    Offered whenever configuration can be edited,
+                                    this being the only way in now that the inline
+                                    Reference field is gone (OP#1172). Whether a
+                                    second method is accepted is the dialog's call,
+                                    not this button's: categories marked
+                                    single_manager in MANAGER_CATEGORIES refuse one,
+                                    matching what check_managers_limit enforces.
                                 -->
                                 <button
                                     name="action_add_manager"
@@ -548,10 +560,13 @@ Replaces the technical manager configuration with intuitive sections.
                                 <!-- Zero-state: offer Add when payment isn't set up.
                                      Mirrors the Compliance pattern (#952). -->
                                 <!--
-                                    Offered whenever configuration can be edited: a
-                                    program may legitimately run more than one method,
-                                    and this is the only way in now that the inline
-                                    Reference field is gone (OP#1172).
+                                    Offered whenever configuration can be edited,
+                                    this being the only way in now that the inline
+                                    Reference field is gone (OP#1172). Whether a
+                                    second method is accepted is the dialog's call,
+                                    not this button's: categories marked
+                                    single_manager in MANAGER_CATEGORIES refuse one,
+                                    matching what check_managers_limit enforces.
                                 -->
                                 <button
                                     name="action_add_manager"
@@ -663,10 +678,13 @@ Replaces the technical manager configuration with intuitive sections.
                                     <i class="fa fa-check me-1" />Configured
                                 </span>
                                 <!--
-                                    Offered whenever configuration can be edited: a
-                                    program may legitimately run more than one method,
-                                    and this is the only way in now that the inline
-                                    Reference field is gone (OP#1172).
+                                    Offered whenever configuration can be edited,
+                                    this being the only way in now that the inline
+                                    Reference field is gone (OP#1172). Whether a
+                                    second method is accepted is the dialog's call,
+                                    not this button's: categories marked
+                                    single_manager in MANAGER_CATEGORIES refuse one,
+                                    matching what check_managers_limit enforces.
                                 -->
                                 <button
                                     name="action_add_manager"

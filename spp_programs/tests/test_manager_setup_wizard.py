@@ -306,3 +306,29 @@ class TestManagerSetupWizard(TransactionCase):
         headings = [h.strip() for h in self._arch().xpath("//div[contains(@class, 'card-header')]//h5/text()")]
 
         self.assertIn("Notifications", headings, f"found {headings}")
+
+    def test_every_capped_category_is_declared_capped(self):
+        """MANAGER_CATEGORIES must agree with what the engine enforces.
+
+        check_managers_limit refuses a second entitlement, cycle, payment or
+        program manager. A category the engine caps but the dialog does not
+        know about accepts the second method and lets the constraint refuse it
+        afterwards, with wording this dialog exists to replace. Unreachable
+        while each of those categories has one concrete method in-repo, so this
+        pins the agreement rather than a behaviour anyone can trigger today.
+        """
+        import inspect
+
+        from odoo.addons.spp_programs.models import constants
+
+        source = inspect.getsource(type(self.env["spp.program"]).check_managers_limit)
+        capped_by_engine = {
+            key for key, info in constants.MANAGER_CATEGORIES.items() if f"len(record.{info['field']}) > 1" in source
+        }
+        declared = {key for key, info in constants.MANAGER_CATEGORIES.items() if info.get("single_manager")}
+
+        self.assertEqual(
+            declared,
+            capped_by_engine,
+            "single_manager and check_managers_limit disagree about which categories take only one manager",
+        )
