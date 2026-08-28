@@ -319,6 +319,31 @@ class TestPendingScanSweep(TransactionCase):
         self.assertNotIn(attachment.id, self._swept_ids(mock_delay), "there is nothing to scan")
         self.assertEqual(attachment.scan_queue_attempts, 1, "but the slot it took must still be counted")
 
+    def test_the_sweep_does_not_retain_binary_payloads_in_the_cache(self):
+        """One hourly transaction must not accumulate every payload it inspects.
+
+        Binary fields are not prefetched, but they are not evicted either: whatever the
+        readability check reads stays cached for the rest of the run, so a full batch of
+        stranded videos would hold every payload in memory simultaneously. The queued job
+        re-reads the bytes in its own transaction, so nothing after the check needs them.
+        """
+        attachment = self._create_pending("cache-evict.txt")
+        self._age(attachment, minutes=180)
+        raw = self.Attachment._fields["raw"]
+
+        # Anti-vacuity: reading the payload does put it in the cache.
+        self.env.invalidate_all()
+        self.assertTrue(attachment.datas)
+        self.assertTrue(self.env.cache.contains(attachment, raw))
+
+        self.env.invalidate_all()
+        self._sweep()
+
+        self.assertFalse(
+            self.env.cache.contains(attachment, raw),
+            "the readability check must evict the payload it read",
+        )
+
     # ------------------------------------------------------------------
     # error handling — same two-sided contract as the hooks
     # ------------------------------------------------------------------

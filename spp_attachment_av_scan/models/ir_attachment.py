@@ -952,7 +952,13 @@ class IrAttachment(models.Model):
                 {"scan_queue_attempts": attachment.scan_queue_attempts + 1}
             )
 
-            if not attachment.datas:
+            # The payload is read only to prove it is readable — the queued job re-reads
+            # the bytes in its own transaction. Evict it immediately: binary fields are
+            # never evicted on their own, so a full batch would otherwise hold every
+            # payload in this one transaction's cache simultaneously.
+            readable = bool(attachment.datas)
+            attachment.invalidate_recordset(["datas", "raw"])
+            if not readable:
                 # ``file_size`` says there are bytes but they cannot be read — a lost
                 # filestore file. Nothing to scan, and the attempt cap will retire it.
                 failed_ids.append(attachment.id)
