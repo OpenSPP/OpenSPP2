@@ -1,3 +1,7 @@
+### 19.0.3.1.13
+
+- fix(change_request): a selectable field on a dynamic-approval type may now be applied through more than one mapping. Apply is narrowed to the field a request was routed and approved on, matched against the mapping's `source_field` — which assumed every selectable value is a physical source field. They need not be: a name may be offered as one choice but stored as separate components, so one selectable value legitimately drives several mappings, and matching on `source_field` alone matched none of them, applying nothing at all. A mapping can now declare the selectable value it serves via `routing_field`, defaulting to `source_field`, so existing configurations are unchanged. Narrowing still holds — a mapping belonging to another routing key is still not applied.
+
 ### 19.0.3.1.12
 
 - fix(change_request): auto-apply-on-approve runs through the public `action_apply` again. Requiring change-request manager rights to apply meant auto-apply was routed to the internal mechanism instead, so the approver could be a validator — but `action_apply` is the extension point modules override to hang post-apply work off an apply, and bypassing it left those overrides silently not running on approval: no error, just missing side effects. Auto-apply now calls `action_apply` under `sudo()`, which the manager gate already exempts. `sudo()` sets superuser mode without changing the user, so the applying user is still recorded as the approver.

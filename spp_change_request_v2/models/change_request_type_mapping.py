@@ -20,6 +20,15 @@ class SPPChangeRequestTypeMapping(models.Model):
         required=True,
         help="Field name on detail model",
     )
+    routing_field = fields.Char(
+        help=(
+            "For dynamic-approval types, the selectable value this mapping serves. "
+            "Defaults to source_field. Set it when one selectable field is applied "
+            "through several mappings -- e.g. a name captured as one choice but "
+            "stored as separate components -- so apply still writes exactly what "
+            "was routed and approved."
+        ),
+    )
     target_field = fields.Char(
         required=True,
         help="Field name on registrant (res.partner)",

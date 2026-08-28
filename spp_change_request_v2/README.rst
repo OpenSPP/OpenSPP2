@@ -853,6 +853,22 @@ Before declaring a new CR type complete:
 Changelog
 =========
 
+19.0.3.1.13
+~~~~~~~~~~~
+
+- fix(change_request): a selectable field on a dynamic-approval type may
+  now be applied through more than one mapping. Apply is narrowed to the
+  field a request was routed and approved on, matched against the
+  mapping's ``source_field`` — which assumed every selectable value is a
+  physical source field. They need not be: a name may be offered as one
+  choice but stored as separate components, so one selectable value
+  legitimately drives several mappings, and matching on ``source_field``
+  alone matched none of them, applying nothing at all. A mapping can now
+  declare the selectable value it serves via ``routing_field``,
+  defaulting to ``source_field``, so existing configurations are
+  unchanged. Narrowing still holds — a mapping belonging to another
+  routing key is still not applied.
+
 19.0.3.1.12
 ~~~~~~~~~~~
 
