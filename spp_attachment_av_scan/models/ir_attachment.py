@@ -32,6 +32,25 @@ DEFAULT_QUARANTINE_RETENTION_DAYS = 90
 FORENSIC_DOWNLOAD_RETENTION_HOURS_PARAM = "spp_attachment_av_scan.forensic_download_retention_hours"
 DEFAULT_FORENSIC_DOWNLOAD_RETENTION_HOURS = 24
 
+PENDING_SWEEP_MIN_AGE_MINUTES_PARAM = "spp_attachment_av_scan.pending_sweep_min_age_minutes"
+DEFAULT_PENDING_SWEEP_MIN_AGE_MINUTES = 60
+PENDING_SWEEP_BATCH_SIZE_PARAM = "spp_attachment_av_scan.pending_sweep_batch_size"
+DEFAULT_PENDING_SWEEP_BATCH_SIZE = 100
+PENDING_SWEEP_MAX_ATTEMPTS_PARAM = "spp_attachment_av_scan.pending_sweep_max_attempts"
+DEFAULT_PENDING_SWEEP_MAX_ATTEMPTS = 3
+
+#: Models whose attachments the pending sweep leaves alone. These store their own
+#: source-controlled binaries rather than user content: ``ir.ui.menu.web_icon_data`` is
+#: rewritten by every module upgrade that reloads the menu's XML, and scanning our own
+#: icon PNGs has near-zero value.
+#:
+#: A blank ``res_model`` is *not* a proxy for this set. ``Binary(attachment=True)``
+#: storage records the owning model, so a menu icon arrives as
+#: ``res_model='ir.ui.menu'``, ``res_field='web_icon_data'``. Excluding all field
+#: storage would be worse still: a user-uploaded ``res.partner.image_1920`` is field
+#: storage too, and it is exactly the content this sweep exists for.
+SWEEP_EXCLUDED_MODELS = ("ir.ui.menu",)
+
 
 class IrAttachment(models.Model):
     _inherit = "ir.attachment"
@@ -95,10 +114,35 @@ class IrAttachment(models.Model):
         help="Marks temporary attachments created for forensic analysis downloads",
     )
 
+    scan_queue_attempts = fields.Integer(
+        string="Scan Queue Attempts",
+        default=0,
+        readonly=True,
+        help=(
+            "Number of times the pending-scan sweep has re-queued this attachment. "
+            "Bounds the retries for a record that cannot be scanned, so a broken queue "
+            "is not retried at full rate forever. Reset whenever the file's bytes change "
+            "or an administrator triggers a rescan."
+        ),
+    )
+
     @api.model_create_multi
     def create(self, vals_list):
         """Override create to queue malware scan for binary attachments."""
         attachments = super().create(vals_list)
+
+        # Never enqueue while the registry is still loading. Everything written then is
+        # a system asset — module data records, and the ``ir.attachment`` backing
+        # ``ir.ui.menu.web_icon_data``, which every menu carrying a ``web_icon`` rewrites
+        # whenever its XML is (re)loaded. Enqueueing there inserts a ``queue.job`` row,
+        # which flushes the pending ``ir_attachment`` UPDATE inside a hook that re-raises
+        # database errors (see ``_MUST_NOT_SWALLOW``). Registry construction has no
+        # ``odoo.service.model.retrying`` wrapper around it, so a transient serialization
+        # failure against a peer instance on a shared database aborts the whole load
+        # instead of being retried. The records keep the ``scan_status`` default
+        # ("pending"), so nothing is left looking scanned. Runtime uploads still queue.
+        if not self.env.registry.ready:
+            return attachments
 
         # Queue scan for attachments that have binary data
         for attachment in attachments:
@@ -143,8 +187,18 @@ class IrAttachment(models.Model):
                                 "quarantine_hash": None,
                                 "quarantine_date": None,
                                 "original_file_size": None,
+                                # New bytes are a new scan need: the previous file's
+                                # sweep budget must not carry over and strand this one.
+                                "scan_queue_attempts": 0,
                             }
                         )
+                        if not self.env.registry.ready:
+                            # Same reasoning as ``create``: no scan may be enqueued during
+                            # registry load. The status reset above still runs — it is a
+                            # cache-level write on a row this transaction already dirtied,
+                            # so it adds no SQL and no conflict window, and skipping it
+                            # would leave changed bytes wearing a stale "clean" status.
+                            continue
                         attachment.with_delay(
                             description=f"Scan updated attachment {attachment.id} for malware",
                             priority=20,
@@ -666,6 +720,9 @@ class IrAttachment(models.Model):
                     "scan_date": None,
                     "scan_result": None,
                     "threat_name": None,
+                    # A human asking for a rescan re-arms the sweep, so a record that
+                    # exhausted its attempts is not left beyond its reach.
+                    "scan_queue_attempts": 0,
                 }
             )
 
@@ -798,3 +855,159 @@ class IrAttachment(models.Model):
 
         # Delete all old forensic downloads in batch
         old_forensic_downloads.sudo().with_context(skip_av_scan_queue=True).unlink()  # nosemgrep
+
+    @api.model
+    def _pending_sweep_env(self):
+        """The recordset the sweep must search through to see everything it covers.
+
+        ``ir.attachment._search`` silently ANDs ``res_field = False`` into any domain
+        that does not mention ``res_field`` or ``id``, which hides every attachment
+        backing a ``Binary(attachment=True)`` field. Left implicit that would quietly
+        drop user-uploaded field content — ``res.partner.image_1920`` and friends — from
+        a security sweep, while appearing to cover it. ``skip_res_field_check`` opts back
+        in, and ``SWEEP_EXCLUDED_MODELS`` then carries the exclusion the implicit filter
+        was giving us by accident.
+        """
+        return self.with_context(skip_res_field_check=True)
+
+    @api.model
+    def _pending_sweep_domain(self, cutoff_date):
+        """Attachments stranded at ``pending``, before the attempt budget is applied.
+
+        ``write_date``, not ``create_date``, carries the age: a ``datas`` write resets an
+        old record back to ``pending``, so a ``create_date`` cutoff would re-queue it the
+        instant the hooks already did. It also means bumping ``scan_queue_attempts``
+        refreshes the clock, which gives the retries a flat backoff for free. The
+        trade-off is that a record under constant unrelated writes never ages in —
+        acceptable, because a change to its *bytes* goes back through the hooks anyway.
+        """
+        return [
+            ("scan_status", "=", "pending"),
+            ("type", "=", "binary"),
+            ("file_size", ">", 0),
+            ("write_date", "<", cutoff_date),
+            # ``action_rescan`` refuses a quarantined file; the sweep must agree.
+            ("is_quarantined", "=", False),
+            # A forensic download is a short-lived admin copy of a file already known
+            # infected. Scanning it tells us nothing we do not already know.
+            ("is_forensic_download", "=", False),
+            # User content only: an attachment with no ``res_model`` hangs off no business
+            # record, which is module data and standalone system files.
+            ("res_model", "!=", False),
+            ("res_model", "not in", list(SWEEP_EXCLUDED_MODELS)),
+        ]
+
+    @api.model
+    def _cron_sweep_pending_scans(self):
+        """Re-queue malware scans for attachments stranded at ``scan_status = pending``.
+
+        Queueing a scan is best-effort — the ``create``/``write`` hooks swallow every
+        non-database failure so a dead broker cannot block an attachment write. Without
+        this sweep nothing comes back for the records that leaves behind: written, at the
+        ``pending`` default, indistinguishable in the UI from a file still waiting its
+        turn in a deep queue, and reachable only by a human clicking ``action_rescan``.
+        Registry-load writes (see ``create``) land in the same state, benignly.
+
+        Bounded on both axes so this is safe to leave enabled on an existing database: a
+        batch limit caps one run, and ``scan_queue_attempts`` caps the total attempts per
+        record. A record that cannot be enqueued therefore stops being retried instead of
+        failing loudly on every tick.
+        """
+        ICP = self.env["ir.config_parameter"].sudo()  # nosemgrep
+        min_age_minutes = int(ICP.get_param(PENDING_SWEEP_MIN_AGE_MINUTES_PARAM, DEFAULT_PENDING_SWEEP_MIN_AGE_MINUTES))
+        batch_size = int(ICP.get_param(PENDING_SWEEP_BATCH_SIZE_PARAM, DEFAULT_PENDING_SWEEP_BATCH_SIZE))
+        max_attempts = int(ICP.get_param(PENDING_SWEEP_MAX_ATTEMPTS_PARAM, DEFAULT_PENDING_SWEEP_MAX_ATTEMPTS))
+
+        if batch_size <= 0 or max_attempts <= 0:
+            _logger.info("Pending scan sweep disabled (batch_size or max_attempts <= 0)")
+            return
+
+        cutoff_date = fields.Datetime.subtract(fields.Datetime.now(), minutes=min_age_minutes)
+        sweep = self._pending_sweep_env()
+        domain = self._pending_sweep_domain(cutoff_date)
+
+        # Oldest stranded first, so successive runs advance through a backlog instead of
+        # re-picking the head of it.
+        stranded = sweep.search(
+            domain + [("scan_queue_attempts", "<", max_attempts)],
+            limit=batch_size,
+            order="write_date asc, id asc",
+        )
+
+        if not stranded:
+            _logger.debug("Pending scan sweep found nothing stranded older than %d minutes", min_age_minutes)
+            return
+
+        requeued_ids = []
+        failed_ids = []
+
+        for attachment in stranded:
+            # Counted for every record the batch picks up, and counted even when the
+            # enqueue succeeds: a job accepted by a queue whose worker never runs it
+            # strands the record just as thoroughly as a rejected one. Counting first
+            # also guarantees the batch makes progress — an unreadable record that never
+            # bumped its counter would sort to the head of every run forever and eat a
+            # slot each time.
+            attachment.with_context(skip_av_scan_queue=True).write(
+                {"scan_queue_attempts": attachment.scan_queue_attempts + 1}
+            )
+
+            # The payload is read only to prove it is readable — the queued job re-reads
+            # the bytes in its own transaction. Evict it immediately: binary fields are
+            # never evicted on their own, so a full batch would otherwise hold every
+            # payload in this one transaction's cache simultaneously.
+            readable = bool(attachment.datas)
+            attachment.invalidate_recordset(["datas", "raw"])
+            if not readable:
+                # ``file_size`` says there are bytes but they cannot be read — a lost
+                # filestore file. Nothing to scan, and the attempt cap will retire it.
+                failed_ids.append(attachment.id)
+                _logger.debug(
+                    "Pending scan sweep found no readable data on attachment ID %s",
+                    attachment.id,
+                )
+                continue
+
+            try:
+                attachment.with_delay(
+                    description=f"Sweep re-queue of stranded attachment {attachment.id} for malware scan",
+                    priority=30,
+                )._scan_for_malware()
+                requeued_ids.append(attachment.id)
+                _logger.debug("Pending scan sweep re-queued attachment ID %s", attachment.id)
+            except _MUST_NOT_SWALLOW:
+                # Never swallow: see ``_MUST_NOT_SWALLOW``. The transaction is unusable,
+                # so continuing the loop would only bury the real cause.
+                raise
+            except Exception as error:
+                failed_ids.append(attachment.id)
+                _logger.debug(
+                    "Pending scan sweep could not re-queue attachment ID %s: %s",
+                    attachment.id,
+                    str(error),
+                )
+
+        if requeued_ids:
+            _logger.info(
+                "Pending scan sweep re-queued %d stranded attachment(s). IDs: %s",
+                len(requeued_ids),
+                requeued_ids,
+            )
+
+        # One line per run, not one per record per tick: a broken queue is reported, not
+        # screamed about, and the attempt cap stops it recurring indefinitely.
+        if failed_ids:
+            _logger.warning(
+                "Pending scan sweep could not re-queue %d stranded attachment(s). IDs: %s",
+                len(failed_ids),
+                failed_ids,
+            )
+
+        exhausted_count = sweep.search_count(domain + [("scan_queue_attempts", ">=", max_attempts)])
+        if exhausted_count:
+            _logger.warning(
+                "%d attachment(s) remain unscanned after %d sweep attempts and will not be retried; "
+                "use the Rescan action once the scan queue is healthy",
+                exhausted_count,
+                max_attempts,
+            )

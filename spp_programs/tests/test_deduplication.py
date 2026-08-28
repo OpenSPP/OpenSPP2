@@ -1,7 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 import uuid
 
-from odoo.tests import TransactionCase
+from odoo.tests import TransactionCase, tagged
 
 
 class TestDeduplicationCommon(TransactionCase):
@@ -475,3 +475,80 @@ class TestDeduplicationManagerSelection(TestDeduplicationCommon):
         names = [s[0] for s in selection]
         self.assertIn("spp.program.membership.manager.id_dedup", names)
         self.assertIn("spp.program.membership.manager.phone_number", names)
+
+
+@tagged("post_install", "-at_install")
+class TestDeduplicationIsResolvable(TestDeduplicationCommon):
+    """OP#796: running Deduplicate again must clear a resolved duplicate.
+
+    The run only ever added the flag. A membership marked duplicated stayed
+    that way even once the clash behind it was fixed, because a membership
+    already in ``duplicated`` was never re-evaluated out of it. Fixing the data
+    and running again did nothing, which is what left validators with "almost
+    no way for duplicated records to reset back to draft".
+    """
+
+    def _shared_member_setup(self):
+        """Two groups sharing one individual — the classic duplicate."""
+        shared = self._create_individual("Shared Member")
+        group_a = self._create_group("Group A", [shared])
+        group_b = self._create_group("Group B", [shared])
+        membership_a = self._enroll_in_program(group_a, "draft")
+        membership_b = self._enroll_in_program(group_b, "draft")
+        return shared, membership_a, membership_b
+
+    def test_resolving_the_clash_clears_the_flag_on_the_next_run(self):
+        shared, membership_a, membership_b = self._shared_member_setup()
+
+        self.program.deduplicate_beneficiaries()
+        self.assertEqual(membership_a.state, "duplicated")
+        self.assertEqual(membership_b.state, "duplicated")
+
+        # The clash is resolved: the shared individual leaves one of the groups.
+        self.env["spp.group.membership"].search(
+            [("group", "=", membership_b.partner_id.id), ("individual", "=", shared.id)]
+        ).unlink()
+
+        self.program.deduplicate_beneficiaries()
+
+        self.assertEqual(membership_a.state, "draft", "the flag should have been lifted")
+        self.assertEqual(membership_b.state, "draft", "the flag should have been lifted")
+
+    def test_an_unresolved_duplicate_stays_flagged(self):
+        """The recompute must not simply clear everything."""
+        _shared, membership_a, membership_b = self._shared_member_setup()
+
+        self.program.deduplicate_beneficiaries()
+        self.program.deduplicate_beneficiaries()
+
+        self.assertEqual(membership_a.state, "duplicated")
+        self.assertEqual(membership_b.state, "duplicated")
+
+    def test_running_twice_is_stable(self):
+        """Two runs in a row leave the same set flagged, not a growing one."""
+        _shared, membership_a, membership_b = self._shared_member_setup()
+        unrelated = self._enroll_in_program(self._create_group("Group C"), "enrolled")
+
+        self.program.deduplicate_beneficiaries()
+        first = {membership_a.state, membership_b.state}
+
+        self.program.deduplicate_beneficiaries()
+
+        self.assertEqual({membership_a.state, membership_b.state}, first)
+        self.assertEqual(unrelated.state, "enrolled", "a clean membership must be left alone")
+
+    def test_membership_level_run_also_recomputes(self):
+        """The Deduplicate button on a membership goes through the same path."""
+        shared, membership_a, membership_b = self._shared_member_setup()
+
+        membership_a.deduplicate_beneficiaries()
+        self.assertEqual(membership_a.state, "duplicated")
+
+        self.env["spp.group.membership"].search(
+            [("group", "=", membership_b.partner_id.id), ("individual", "=", shared.id)]
+        ).unlink()
+
+        membership_a.deduplicate_beneficiaries()
+
+        self.assertEqual(membership_a.state, "draft")
+        self.assertEqual(membership_b.state, "draft")

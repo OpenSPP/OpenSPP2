@@ -63,6 +63,8 @@ class TestDrimsStock(DrimsTestCommon):
                 "pod_received_by": "Test Receiver",
             }
         )
+        # OP#1088: delivery cannot be confirmed before departure is recorded.
+        picking.action_confirm_departure()
         picking.action_confirm_pod()
         self.assertTrue(picking.is_pod_confirmed)
         self.assertTrue(picking.date_arrived)
@@ -115,7 +117,6 @@ class TestDrimsStock(DrimsTestCommon):
                 "incident_id": self.incident.id,
                 "destination_area_id": self.area.id,
                 "date_needed": future_date,
-                "source_warehouse_id": self.warehouse.id,
                 "line_ids": [
                     (
                         0,

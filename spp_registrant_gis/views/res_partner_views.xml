@@ -14,6 +14,11 @@
             >
                 <separator string="Location" />
                 <group name="gis_section">
+                    <!-- OP#1143: visible latitude/longitude inputs so the
+                         coordinates can be typed in without the map widget;
+                         they stay in sync with GPS Coordinates below. -->
+                    <field name="gis_latitude" readonly="disabled" />
+                    <field name="gis_longitude" readonly="disabled" />
                     <field name="coordinates" readonly="disabled" widget="geo_point" />
                 </group>
             </xpath>
@@ -33,6 +38,11 @@
             >
                 <separator string="Location" />
                 <group name="group_gis_section">
+                    <!-- OP#1143: visible latitude/longitude inputs so the
+                         coordinates can be typed in without the map widget;
+                         they stay in sync with GPS Coordinates below. -->
+                    <field name="gis_latitude" readonly="disabled" />
+                    <field name="gis_longitude" readonly="disabled" />
                     <field name="coordinates" readonly="disabled" widget="geo_point" />
                 </group>
             </xpath>

@@ -1,4 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 
 access_spp_irrigation_asset,SPP Irrigation Asset Access,model_spp_irrigation_asset,spp_irrigation.group_irrigation_manager,1,1,1,1
-access_spp_irrigation_asset_registry_read,SPP Irrigation Asset Read,model_spp_irrigation_asset,spp_registry.group_registry_viewer,1,0,0,0
+access_spp_irrigation_asset_registry_viewer,SPP Irrigation Asset Viewer Read,model_spp_irrigation_asset,spp_registry.group_registry_viewer,1,0,0,0
+access_spp_irrigation_asset_registry_read,SPP Irrigation Asset Registry Read,model_spp_irrigation_asset,spp_registry.group_registry_read,1,0,0,0

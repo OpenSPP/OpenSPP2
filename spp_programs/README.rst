@@ -254,6 +254,91 @@ Dependencies
 Changelog
 =========
 
+19.0.2.3.4
+~~~~~~~~~~
+
+- fix(security): the Tier-3 ``group_registry_read`` group can read
+  ``spp.cycle`` and ``spp.cycle.membership``. Both were granted only to
+  the Tier-2 ``group_registry_viewer`` group, yet the registrant form
+  depends on both: the entitlement lists render ``cycle_id``, and the
+  membership list renders ``latest_cycle_state``, which is computed by
+  searching ``spp.cycle.membership`` as the acting user.
+
+19.0.2.3.3
+~~~~~~~~~~
+
+- fix(security): the operation lock is now guarded on create as well as
+  write. Restricting only writes to ``is_locked`` / ``locked_reason``
+  left creation unguarded, so a program officer could create a cycle or
+  program already locked and bypass the check entirely — and then could
+  not clear the lock again, since clearing it goes through the guarded
+  write, leaving a self-inflicted lockout only a system administrator
+  could undo. The check is shared by both paths; ``sudo()`` and system
+  administrators are unaffected, so the async pipeline keeps managing
+  the lock as before.
+
+19.0.2.3.2
+~~~~~~~~~~
+
+- fix(security): the Program Viewer role no longer carries the Tier-2
+  ``spp_registry.group_registry_viewer`` group, which gates the
+  standalone Registry Search portal menu and exposed a broad
+  registrant-PII enumeration surface to a read-only program role. It now
+  uses the Tier-3 ``spp_registry.group_registry_read`` group instead,
+  preserving the registrant read needed for program cross-references
+  (same read ACLs, defined in ``spp_base_common``) without the Registry
+  app menu. Includes a migration that re-points the role and re-syncs
+  already-assigned users on upgrade.
+
+19.0.2.3.1
+~~~~~~~~~~
+
+- fix(security): make the async operation lock a server-side boundary.
+  The Force Unlock buttons were gated to ``base.group_system`` in the
+  views, but ``action_force_unlock`` on ``spp.cycle`` / ``spp.program``
+  — and direct writes to the ``is_locked`` / ``locked_reason`` fields —
+  had no server-side check, so any role holding write access (program
+  officers, managers, cycle approvers) could clear an active operation
+  lock via RPC while async entitlement / payment / eligibility jobs were
+  still running. Direct writes to the lock fields now require
+  ``base.group_system`` (via a ``write()`` guard), the manual
+  ``action_force_unlock`` override requires the same, and the async
+  pipeline manages the lock through ``sudo()`` helpers so legitimate
+  acquire/release from the initiating user keeps working.
+
+19.0.2.3.0
+~~~~~~~~~~
+
+- feat(spp_programs): **Duplicate Detection is a card with an Add
+  dialog.** Adding a method asks which method and what to call it,
+  instead of editing a Reference field that exposed the model/record
+  plumbing — and could quietly wire another program's method into this
+  one. Selecting **ID document** now also asks which ID types to
+  compare, without which the method matched nothing and reported no
+  duplicates at all (#1171)
+- fix(spp_programs): **Deduplicate now clears flags it no longer
+  finds.** A membership marked as duplicated stayed that way after the
+  clash behind it was fixed, because a membership already in that state
+  was never re-evaluated. Each run recomputes rather than accumulates
+  (#796)
+- feat(spp_programs): **validators can return duplicated memberships to
+  draft in bulk** — a row button on the membership list and a Back to
+  Draft server action bound to it, so a whole selection can be cleared
+  instead of opening records one at a time (#1170)
+- fix(spp_programs): a removed deduplication method can be added again.
+  Removing a row unlinked it without deleting it, and the duplicate
+  check counted the leftover, so the method the card no longer showed
+  still blocked its own re-adding (#1171)
+
+19.0.2.2.1
+~~~~~~~~~~
+
+- fix(spp_programs): stop Enroll Eligible undoing a deliberate pause. A
+  paused membership is now left alone wherever eligibility is re-run —
+  the enrol pass, the disenrol sweep that would otherwise have moved it
+  to Not Eligible, and the per-membership methods reachable over RPC.
+  Pausing is a decision that only Resume reverses (#1117)
+
 19.0.2.1.3
 ~~~~~~~~~~
 

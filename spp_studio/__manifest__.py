@@ -1,6 +1,6 @@
 {
     "name": "OpenSPP Studio",
-    "version": "19.0.2.0.1",
+    "version": "19.0.2.0.2",
     "category": "OpenSPP/Configuration",
     "summary": "No-code customization interface for OpenSPP",
     "author": "OpenSPP.org",

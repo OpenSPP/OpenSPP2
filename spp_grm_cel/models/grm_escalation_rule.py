@@ -345,7 +345,8 @@ class GRMEscalationRule(models.Model):
             self._create_case_from_ticket(ticket)
 
         # Update escalation count
-        self.write({"escalation_count": self.escalation_count + 1})
+        # nosemgrep: semgrep.odoo-sudo-without-context -- counter update needs sudo
+        self.sudo().write({"escalation_count": self.escalation_count + 1})
 
         # Post message to chatter
         ticket.message_post(

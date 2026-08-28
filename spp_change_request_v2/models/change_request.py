@@ -3,7 +3,9 @@ import logging
 from markupsafe import escape as html_escape
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
+
+from .frozen_value import normalize_frozen_value
 
 _logger = logging.getLogger(__name__)
 
@@ -663,6 +665,76 @@ class SPPChangeRequest(models.Model):
                 record._run_conflict_checks()
         return records
 
+    # Fields that bind a submitted CR to exactly what was routed and approved:
+    # the dynamic-approval selection (synced from the detail's field_to_modify in
+    # draft) and the detail record pointer that get_detail() resolves for both
+    # routing and apply. Once the CR leaves draft/revision these are frozen — else
+    # a user could route on a low-risk field / benign detail and then swap the
+    # selection or repoint detail_res_id to a substituted detail before apply.
+    # Editing requires reset to draft, which re-routes. (These fields are never
+    # written by the apply strategies, so the guard needs no apply-path exemption.)
+    _FROZEN_ON_SUBMIT_FIELDS = (
+        "selected_field_name",
+        "selected_field_old_value",
+        "selected_field_new_value",
+        "detail_res_id",
+        "detail_res_model",
+    )
+
+    def _detail_row_belongs_to_self(self, detail_id):
+        """Whether ``detail_id`` is a detail row already pointing at this request.
+
+        Used to tell binding a detail apart from substituting one. Reads with
+        ``sudo()`` because the caller may not have access to the detail model,
+        and the answer is only ever used to reject or allow, never returned.
+        """
+        self.ensure_one()
+        if not detail_id or not self.detail_res_model:
+            return False
+        model = self.env.get(self.detail_res_model)
+        if model is None:
+            return False
+        parent_field = "x_change_request_id" if "x_change_request_id" in model._fields else "change_request_id"
+        if parent_field not in model._fields:
+            return False
+        # sudo: the caller may hold no access to the detail model, and the answer
+        # is only ever used to accept or reject the write -- the record itself is
+        # never returned or exposed. Reads a single field on a single row.
+        detail = model.sudo().browse(int(detail_id)).exists()  # nosemgrep: odoo-sudo-without-context
+        return bool(detail) and detail[parent_field].id == self.id
+
+    def _alters_frozen_field(self, field, value):
+        """Whether writing ``value`` to ``field`` changes what was approved."""
+        self.ensure_one()
+        if normalize_frozen_value(value) == normalize_frozen_value(self[field]):
+            return False
+        # Binding a detail row for the first time is not a re-route. A submitted
+        # request that never got one cannot be opened at all -- get_detail()
+        # resolves nothing -- and ``_ensure_detail()`` exists to repair exactly
+        # that, so refusing the write left the record permanently unopenable
+        # from any context, sudo included. Only a row that already points back
+        # at this request is accepted, so this cannot be used to attach a
+        # substituted detail after approval.
+        if field == "detail_res_id" and not normalize_frozen_value(self[field]):
+            return not self._detail_row_belongs_to_self(value)
+        return True
+
+    def write(self, vals):
+        guarded = [f for f in self._FROZEN_ON_SUBMIT_FIELDS if f in vals]
+        if guarded:
+            for rec in self:
+                if rec.approval_state in ("draft", "revision") or not rec.approval_state:
+                    continue
+                if any(rec._alters_frozen_field(f, vals[f]) for f in guarded):
+                    raise UserError(
+                        _(
+                            "A submitted change request is locked to the change it was "
+                            "routed and approved for; its selected field and detail record "
+                            "cannot be changed. Reset the request to draft to re-route."
+                        )
+                    )
+        return super().write(vals)
+
     def unlink(self):
         """Delete associated detail records and archive DMS directory."""
         directories_to_archive = self.env["spp.dms.directory"]
@@ -1020,7 +1092,17 @@ class SPPChangeRequest(models.Model):
         self._create_audit_event("approved", "pending", "approved")
         self._create_log("approved")
         if self.request_type_id.auto_apply_on_approve:
-            self.action_apply()
+            # Auto-apply is authorized by the approval workflow itself, so it
+            # runs with sudo: ``action_apply``'s manager gate exempts
+            # ``env.su``, which lets the approver be a validator rather than a
+            # manager. Going through the public entry point rather than the
+            # internal mechanism keeps ``action_apply`` the single extension
+            # point for apply -- downstream modules override it to hang
+            # post-apply work off the apply, and routing around it left those
+            # overrides silently not running on approval. ``sudo()`` sets
+            # ``su`` without changing ``uid``, so ``applied_by_id`` still
+            # records the real approver.
+            self.sudo().action_apply()  # nosemgrep: odoo-sudo-without-context
 
     def _on_reject(self, reason):
         super()._on_reject(reason)
@@ -1365,32 +1447,63 @@ class SPPChangeRequest(models.Model):
         self.preview_json_snapshot = json.dumps(changes, indent=2, default=str)
 
     def action_apply(self):
-        """Apply the change request to the registrant."""
+        """Apply the change request(s) to the registrant.
+
+        Public entrypoint (review button / RPC). Applying runs the apply
+        strategy under sudo (see ``_do_apply``), which can write models CR
+        roles cannot (e.g. ``spp.group.membership``), so it must be gated
+        server-side to managers: the XML button ``groups=`` is NOT an
+        authorization boundary because Odoo object methods are callable over
+        RPC. Superuser (``env.su``) callers are exempt, and
+        auto-apply-on-approve is one of them: ``_on_approve`` reaches this
+        method through ``sudo()``, already authorized by the approval workflow
+        itself, so the approver may be a validator rather than a manager.
+
+        This is also the extension point for apply, so an override runs on both
+        paths -- under ``su`` when auto-applied on approval, and as the manager
+        who clicked Apply on the manual path. ``sudo()`` sets ``su`` without
+        changing ``uid``, so ``self.env.user`` is the approver either way and
+        ``applied_by_id`` records them, not the superuser.
+        """
+        if not (self.env.su or self.env.user.has_group("spp_change_request_v2.group_cr_manager")):
+            raise AccessError(_("Only Change Request managers can apply change requests."))
         for rec in self:
-            if rec.is_applied:
-                raise UserError(_("Changes have already been applied."))
-            if rec.approval_state != "approved":
-                raise UserError(_("Change request must be approved first."))
+            rec._apply_change_request()
 
-            try:
-                # Capture preview snapshot before applying
-                rec._capture_preview_snapshot()
+    def _apply_change_request(self):
+        """Apply a single approved change request (no authorization gate).
 
-                rec._do_apply()
-                rec.write(
-                    {
-                        "is_applied": True,
-                        "applied_date": fields.Datetime.now(),
-                        "applied_by_id": self.env.user.id,
-                        "apply_error": False,
-                    }
-                )
-                rec._create_audit_event("applied", "approved", "applied")
-                rec._create_log("applied")
-            except Exception as e:
-                _logger.exception("Failed to apply change request %s", rec.name)
-                rec.write({"apply_error": str(e)})
-                raise
+        Internal mechanism shared by ``action_apply`` (manager-gated public
+        entrypoint) and auto-apply-on-approve (``_on_approve``, already
+        authorized by the approval workflow). Underscore-prefixed so it is not
+        callable over RPC — the authorization boundary lives on
+        ``action_apply``.
+        """
+        self.ensure_one()
+        if self.is_applied:
+            raise UserError(_("Changes have already been applied."))
+        if self.approval_state != "approved":
+            raise UserError(_("Change request must be approved first."))
+
+        try:
+            # Capture preview snapshot before applying
+            self._capture_preview_snapshot()
+
+            self._do_apply()
+            self.write(
+                {
+                    "is_applied": True,
+                    "applied_date": fields.Datetime.now(),
+                    "applied_by_id": self.env.user.id,
+                    "apply_error": False,
+                }
+            )
+            self._create_audit_event("applied", "approved", "applied")
+            self._create_log("applied")
+        except Exception as e:
+            _logger.exception("Failed to apply change request %s", self.name)
+            self.write({"apply_error": str(e)})
+            raise
 
     def _do_apply(self):
         """Execute the apply strategy.
