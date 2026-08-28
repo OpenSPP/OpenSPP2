@@ -136,8 +136,9 @@ class TestApplyAuthorization(TransactionCase):
 
     def test_auto_apply_on_approve_runs_for_non_manager_approver(self):
         """Auto-apply-on-approve must still work when the approver is a
-        validator (not a manager): _on_approve routes through the internal
-        apply mechanism, which is not gated."""
+        validator (not a manager): ``_on_approve`` reaches the public
+        ``action_apply`` through ``sudo()``, and the manager gate exempts
+        superuser callers."""
         cr = self._make_approved_cr()
         cr.request_type_id.auto_apply_on_approve = True
         cr.with_user(self.cr_validator)._on_approve()
