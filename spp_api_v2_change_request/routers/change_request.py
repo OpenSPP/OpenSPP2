@@ -6,7 +6,7 @@ from typing import Annotated
 from urllib.parse import urlencode
 
 from odoo.api import Environment
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import AccessDenied, AccessError, UserError, ValidationError
 
 from odoo.addons.fastapi.dependencies import odoo_env
 from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
@@ -41,6 +41,25 @@ from ..services.change_request_service import ChangeRequestService
 _logger = logging.getLogger(__name__)
 
 change_request_router = APIRouter(tags=["ChangeRequest"], prefix="/ChangeRequest")
+
+
+def _status_for_odoo_error(exc: Exception) -> int:
+    """Map an Odoo exception raised by a state transition to an HTTP status.
+
+    ``AccessError`` must be distinguished before ``UserError``: it subclasses
+    ``UserError`` in Odoo, so a bare ``except UserError`` reports an
+    authorization failure as ``409 Conflict``. That is wrong twice over -- a
+    client is told to resolve a conflict it cannot see, and a client that
+    retries on 409 (reasonable for a genuine conflict, which may clear) loops
+    on a permission error that never will.
+
+    ``AccessDenied`` is grouped with ``AccessError``: both report an
+    authorization failure, and the platform's global handler
+    (``fastapi.error_handlers``) maps the pair to 403 the same way.
+    """
+    if isinstance(exc, (AccessError, AccessDenied)):
+        return status.HTTP_403_FORBIDDEN
+    return status.HTTP_409_CONFLICT
 
 
 def _build_reference(p1: str, p2: str, p3: str) -> str:
@@ -372,7 +391,7 @@ async def submit_change_request(
         service.submit(cr)
     except UserError as e:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
+            status_code=_status_for_odoo_error(e),
             detail=str(e),
         ) from e
 
@@ -414,7 +433,7 @@ async def approve_change_request(
         service.approve(cr, comment=comment)
     except UserError as e:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
+            status_code=_status_for_odoo_error(e),
             detail=str(e),
         ) from e
 
@@ -453,9 +472,9 @@ async def reject_change_request(
 
     try:
         service.reject(cr, reason=action_data.reason)
-    except (UserError, ValidationError) as e:
+    except UserError as e:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
+            status_code=_status_for_odoo_error(e),
             detail=str(e),
         ) from e
 
@@ -494,9 +513,9 @@ async def request_revision_change_request(
 
     try:
         service.request_revision(cr, notes=action_data.notes)
-    except (UserError, ValidationError) as e:
+    except UserError as e:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
+            status_code=_status_for_odoo_error(e),
             detail=str(e),
         ) from e
 
@@ -536,7 +555,7 @@ async def apply_change_request(
         service.apply(cr)
     except UserError as e:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
+            status_code=_status_for_odoo_error(e),
             detail=str(e),
         ) from e
 
@@ -576,7 +595,7 @@ async def reset_change_request(
         service.reset_to_draft(cr)
     except UserError as e:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
+            status_code=_status_for_odoo_error(e),
             detail=str(e),
         ) from e
 
