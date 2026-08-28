@@ -1693,6 +1693,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                         "program_id": program.id,
                     }
                 )
+                self._name_manager_for_program(program, def_mgr)
                 mgr = self.env[mgr_obj].create(
                     {
                         "program_id": program.id,
@@ -1700,6 +1701,34 @@ class SPPMISDemoGenerator(models.TransientModel):
                     }
                 )
                 program.write({field: [Command.link(mgr.id)]})
+
+    def _program_abbreviation(self, program):
+        """Initials of the program name: "Disability Support Grant" -> "DSG".
+
+        The same shorthand the programme is referred to by in conversation and
+        on its tickets, and the style the OP#1017 requirement asks for.
+        """
+        words = [w for w in (program.name or "").split() if w]
+        initials = "".join(word[0].upper() for word in words)[:4]
+        return initials or "PRG"
+
+    def _name_manager_for_program(self, program, concrete):
+        """Prefix a manager's name with its program (OP#1017).
+
+        Each concrete manager model names itself through default_get --
+        "Default Cycle Schedule", "Default Payment" -- which is what a
+        hand-built program gets too. Across a demo of seven programs that
+        leaves every schedule and every payment setting reading identically,
+        so the manager lists and any m2o lookup cannot tell one program's from
+        another's. The program keeps the type in the name and adds who it
+        belongs to.
+        """
+        if not concrete or "name" not in concrete._fields:
+            return
+        base = concrete.name or ""
+        prefix = f"{self._program_abbreviation(program)} - "
+        if base and not base.startswith(prefix):
+            concrete.name = f"{prefix}{base}"
 
     def _repair_manager_wrappers(self, wrappers, mapping):
         """Re-point wrappers whose concrete manager has gone missing.
@@ -1720,6 +1749,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 )
                 continue
             replacement = self.env[def_mgr_obj].create({"program_id": wrapper.program_id.id})
+            self._name_manager_for_program(wrapper.program_id, replacement)
             wrapper.write({"manager_ref_id": f"{def_mgr_obj},{replacement.id}"})
             _logger.info(
                 "Repaired dangling %s wrapper (wrapper_id=%s) for program (program_id=%s)",

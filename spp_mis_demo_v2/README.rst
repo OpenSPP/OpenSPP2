@@ -213,6 +213,12 @@ Changelog
   not specified!" and preparing entitlements raised its equivalent, so
   the demo could not show either flow. Wired as its own pass, since
   neither manager-configuration step reached every program (#957)
+- fix(demo): demo-created managers are named for their program --
+  ``DSG - Default Cycle Schedule`` rather than
+  ``Default Cycle Schedule``. Each concrete manager names itself by
+  type, so across seven programs every schedule and every payment
+  setting read identically and no lookup could tell one program's
+  manager from another's (#1017)
 - fix(demo): a compliance manager is only created for a program that has
   a compliance rule. An empty one is not harmless --
   ``has_compliance_criteria`` and the cycle's compliance filter are both

@@ -192,6 +192,51 @@ class TestDemoManagerHygiene(TransactionCase):
         cls.generator.action_generate()
         cls.programs = cls.env["spp.program"].search([("name", "in", HEADLINE_PROGRAMS)])
 
+    def test_managers_are_named_for_their_program(self):
+        """OP#1017: two programs' managers must be tellable apart.
+
+        Each concrete manager names itself through default_get -- "Default
+        Cycle Schedule", "Default Payment" -- so across seven demo programs
+        every schedule read identically and no lookup could distinguish them.
+        """
+        from odoo.addons.spp_programs.models import constants
+
+        unprefixed = []
+        seen_by_type = {}
+        for program in self.programs:
+            expected = f"{self.generator._program_abbreviation(program)} - "
+            for field in constants.MANAGER_MODELS:
+                for wrapper in program[field]:
+                    concrete = wrapper.manager_ref_id
+                    if not concrete or "name" not in concrete._fields:
+                        continue
+                    name = concrete.name or ""
+                    if not name.startswith(expected):
+                        unprefixed.append(f"{program.name}: {field} -> {name!r}")
+                    seen_by_type.setdefault((field, name), []).append(program.name)
+
+        self.assertFalse(unprefixed, f"managers not named for their program: {unprefixed}")
+
+        collisions = {k: v for k, v in seen_by_type.items() if len(v) > 1}
+        self.assertFalse(collisions, f"the same manager name is used by more than one program: {collisions}")
+
+    def test_the_abbreviation_reads_as_the_program(self):
+        """DSG, UCG, CCG -- the shorthand the programs are actually called by."""
+        by_name = {p.name: p for p in self.programs}
+        expected = {
+            "Disability Support Grant": "DSG",
+            "Universal Child Grant": "UCG",
+            "Conditional Child Grant": "CCG",
+            "Cash Transfer Program": "CTP",
+            "Elderly Social Pension": "ESP",
+            "Emergency Relief Fund": "ERF",
+        }
+        for name, abbreviation in expected.items():
+            program = by_name.get(name)
+            if not program:
+                continue
+            self.assertEqual(self.generator._program_abbreviation(program), abbreviation)
+
     def test_a_dangling_wrapper_is_repaired_on_the_next_run(self):
         """manager_ref_id is a Reference: no foreign key, so it can dangle.
 
