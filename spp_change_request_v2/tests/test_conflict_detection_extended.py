@@ -536,7 +536,7 @@ class TestGroupScopeConflicts(TransactionCase):
                 "registrant_id": individual2.id,
             }
         )
-        cr1 = self.env["spp.change.request"].create(
+        cr = self.env["spp.change.request"].create(
             {
                 "request_type_id": self.cr_type.id,
                 "registrant_id": individual1.id,
@@ -544,13 +544,13 @@ class TestGroupScopeConflicts(TransactionCase):
         )
 
         # _get_group_member_ids resolves the household and every co-member
-        member_ids = cr1._get_group_member_ids()
+        member_ids = cr._get_group_member_ids()
         self.assertIn(individual1.id, member_ids)
         self.assertIn(group.id, member_ids)
         self.assertIn(individual2.id, member_ids)
 
         # The rule's action is "warn", so the second CR is flagged, not blocked
-        self.assertEqual(cr1.conflict_status, "warning")
+        self.assertEqual(cr.conflict_status, "warning")
 
     def test_group_scope_group_registrant(self):
         """A CR whose registrant is the group itself resolves its members."""
@@ -571,10 +571,7 @@ class TestGroupScopeConflicts(TransactionCase):
     def test_group_scope_ended_membership_excluded(self):
         """Members whose membership has ended are not conflict candidates."""
         group, individual1, individual2 = self._create_household()
-        membership2 = self.env["spp.group.membership"].search(
-            [("group", "=", group.id), ("individual", "=", individual2.id)]
-        )
-        membership2.ended_date = fields.Datetime.now()
+        individual2.individual_membership_ids.ended_date = fields.Datetime.now()
 
         cr = self.env["spp.change.request"].create(
             {
