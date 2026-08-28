@@ -3,7 +3,7 @@
     "name": "OpenSPP PII Encryption",
     "summary": "Field-level encryption for PII data with searchable blind indexes",
     "category": "OpenSPP/Configuration",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -14,6 +14,7 @@
         "base",
         "spp_key_management",  # Centralized key management
         "spp_security",
+        "spp_data_classification",  # Classification registry drives the migration scan
     ],
     "external_dependencies": {
         "python": [
@@ -26,6 +27,7 @@
         "views/audit_log_views.xml",
         "views/field_encryption_config_views.xml",
         "views/menu.xml",
+        "wizard/encryption_migration_views.xml",
     ],
     "assets": {
         "web.assets_backend": [

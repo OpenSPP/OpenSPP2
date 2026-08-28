@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="1">
+    <!-- Auto-Detection Patterns for PII Fields -->
+    <!-- Patterns are evaluated in priority order (highest first) -->
+
+    <!-- RESTRICTED Level Patterns (Priority 90+) -->
+
+    <record id="pattern_national_id" model="spp.classification.pattern">
+        <field name="name">National/Government ID</field>
+        <field
+            name="pattern"
+        >(national|passport|ssn|social.?security|tax|identity|citizen).*id</field>
+        <field name="classification_id" ref="level_restricted" />
+        <field name="pii_category">direct_id</field>
+        <field name="priority">95</field>
+        <field name="default_mask_pattern">****-****-####</field>
+        <field name="default_search_strategy">blind_index</field>
+        <field
+            name="notes"
+        >Matches national_id, passport_id, ssn_id, tax_id, etc.</field>
+    </record>
+
+    <record id="pattern_bank_account" model="spp.classification.pattern">
+        <field name="name">Bank Account Numbers</field>
+        <field name="pattern">(account|iban|bank|routing|swift).*n?(o|um|umber)?</field>
+        <field name="classification_id" ref="level_restricted" />
+        <field name="pii_category">financial</field>
+        <field name="priority">95</field>
+        <field name="default_mask_pattern">****-****-####</field>
+        <field name="default_search_strategy">blind_index</field>
+        <field
+            name="notes"
+        >Matches account_number, iban, bank_no, routing_number, etc.</field>
+    </record>
+
+    <record id="pattern_biometric" model="spp.classification.pattern">
+        <field name="name">Biometric Data</field>
+        <field
+            name="pattern"
+        >(fingerprint|biometric|face.?id|iris|retina|voice.?print)</field>
+        <field name="classification_id" ref="level_restricted" />
+        <field name="pii_category">biometric</field>
+        <field name="priority">95</field>
+        <field name="default_search_strategy">none</field>
+        <field name="notes">Matches fingerprint, biometric_data, face_id, etc.</field>
+    </record>
+
+    <record id="pattern_health" model="spp.classification.pattern">
+        <field name="name">Health Information</field>
+        <field
+            name="pattern"
+        >(health|medical|diagnosis|disability|condition|treatment|medication)</field>
+        <field name="classification_id" ref="level_restricted" />
+        <field name="pii_category">health</field>
+        <field name="priority">90</field>
+        <field name="default_search_strategy">none</field>
+        <field
+            name="notes"
+        >Matches health_status, medical_condition, disability_type, etc.</field>
+    </record>
+
+    <record id="pattern_political" model="spp.classification.pattern">
+        <field name="name">Political/Religious</field>
+        <field
+            name="pattern"
+        >(religion|religious|ethnic|ethnicity|race|racial|political|union.?member)</field>
+        <field name="classification_id" ref="level_restricted" />
+        <field name="pii_category">political</field>
+        <field name="priority">90</field>
+        <field name="default_search_strategy">none</field>
+        <field name="notes">GDPR Article 9 special categories</field>
+    </record>
+
+    <!-- CONFIDENTIAL Level Patterns (Priority 60-80) -->
+
+    <record id="pattern_name" model="spp.classification.pattern">
+        <field name="name">Personal Names</field>
+        <field
+            name="pattern"
+        >(family|given|first|last|middle|maiden|sur).*name|^name$</field>
+        <field name="classification_id" ref="level_confidential" />
+        <field name="pii_category">direct_id</field>
+        <field name="priority">80</field>
+        <field name="default_search_strategy">phonetic</field>
+        <field
+            name="notes"
+        >Matches family_name, given_name, first_name, surname, etc.</field>
+    </record>
+
+    <record id="pattern_birthdate" model="spp.classification.pattern">
+        <field name="name">Birth Date</field>
+        <field name="pattern">(birth|dob|date.?of.?birth|born)</field>
+        <field name="classification_id" ref="level_confidential" />
+        <field name="pii_category">quasi_id</field>
+        <field name="priority">75</field>
+        <field name="default_search_strategy">range</field>
+        <field
+            name="notes"
+        >Matches birthdate, dob, date_of_birth, birth_date, etc.</field>
+    </record>
+
+    <record id="pattern_phone" model="spp.classification.pattern">
+        <field name="name">Phone Numbers</field>
+        <field name="pattern">(phone|mobile|cell|tel|fax|whatsapp)</field>
+        <field name="classification_id" ref="level_confidential" />
+        <field name="pii_category">contact</field>
+        <field name="priority">70</field>
+        <field name="default_mask_pattern">***-***-####</field>
+        <field name="default_search_strategy">partial_index</field>
+        <field
+            name="notes"
+        >Matches phone, mobile_phone, telephone, cell_number, etc.</field>
+    </record>
+
+    <record id="pattern_address" model="spp.classification.pattern">
+        <field name="name">Physical Address</field>
+        <field
+            name="pattern"
+        >(address|street|city|postal|zip|province|district|village|barangay)</field>
+        <field name="classification_id" ref="level_confidential" />
+        <field name="pii_category">contact</field>
+        <field name="priority">70</field>
+        <field name="default_search_strategy">blind_index</field>
+        <field
+            name="notes"
+        >Matches address, street_address, postal_code, city, etc.</field>
+    </record>
+
+    <record id="pattern_income" model="spp.classification.pattern">
+        <field name="name">Income/Salary</field>
+        <field name="pattern">(income|salary|wage|earning|revenue)</field>
+        <field name="classification_id" ref="level_confidential" />
+        <field name="pii_category">financial</field>
+        <field name="priority">70</field>
+        <field name="default_search_strategy">range</field>
+        <field name="notes">Matches income, salary, monthly_wage, earnings, etc.</field>
+    </record>
+
+    <record id="pattern_location" model="spp.classification.pattern">
+        <field name="name">GPS/Location</field>
+        <field name="pattern">(gps|latitude|longitude|geo.?location|coordinates)</field>
+        <field name="classification_id" ref="level_confidential" />
+        <field name="pii_category">location</field>
+        <field name="priority">65</field>
+        <field name="default_search_strategy">range</field>
+        <field name="notes">Matches gps_coordinates, latitude, longitude, etc.</field>
+    </record>
+
+    <!-- INTERNAL Level Patterns (Priority 40-50) -->
+
+    <record id="pattern_email" model="spp.classification.pattern">
+        <field name="name">Email Address</field>
+        <field name="pattern">e?.?mail</field>
+        <field name="classification_id" ref="level_internal" />
+        <field name="pii_category">contact</field>
+        <field name="priority">50</field>
+        <field name="default_search_strategy">blind_index</field>
+        <field name="notes">Matches email, e_mail, email_address, etc.</field>
+    </record>
+
+    <record id="pattern_gender" model="spp.classification.pattern">
+        <field name="name">Gender</field>
+        <field name="pattern">(gender|sex)</field>
+        <field name="classification_id" ref="level_internal" />
+        <field name="pii_category">quasi_id</field>
+        <field name="priority">40</field>
+        <field name="default_search_strategy">full</field>
+        <field name="notes">Matches gender, sex, gender_id, etc.</field>
+    </record>
+
+    <record id="pattern_marital" model="spp.classification.pattern">
+        <field name="name">Marital Status</field>
+        <field name="pattern">(marital|civil).?(status|state)</field>
+        <field name="classification_id" ref="level_internal" />
+        <field name="pii_category">quasi_id</field>
+        <field name="priority">40</field>
+        <field name="default_search_strategy">full</field>
+        <field name="notes">Matches marital_status, civil_status, etc.</field>
+    </record>
+
+    <record id="pattern_occupation" model="spp.classification.pattern">
+        <field name="name">Occupation</field>
+        <field name="pattern">(occupation|profession|job|employment)</field>
+        <field name="classification_id" ref="level_internal" />
+        <field name="pii_category">quasi_id</field>
+        <field name="priority">40</field>
+        <field name="default_search_strategy">full</field>
+        <field name="notes">Matches occupation, profession, job_title, etc.</field>
+    </record>
+</odoo>
