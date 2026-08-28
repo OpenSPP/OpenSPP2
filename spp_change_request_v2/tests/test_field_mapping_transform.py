@@ -151,6 +151,41 @@ class TestFieldMappingTransform(TransactionCase):
         with self.assertRaises(UserError):
             self.env["spp.cr.strategy.field_mapping"].apply(cr)
 
+    def test_detection_snapshot_is_buildable_by_a_plain_cr_user(self):
+        """Detection runs as the requester, and the record snapshot must be
+        buildable without admin groups: core gates stored scalar fields behind
+        ``groups=`` (e.g. ``res.partner.signup_type`` needs
+        ``base.group_erp_manager`` via auth_signup), and reading one as a plain
+        user raises AccessError before the expression ever runs. Detection
+        would then over-flag every expression mapping as changed -- putting
+        detection and apply back out of step -- and log an ERROR on every
+        conflict check. The superuser suite cannot see this, because field
+        group checks are skipped when ``env.su``; hence ``with_user``."""
+        cr_user = self.env["res.users"].create(
+            {
+                "name": "CR User",
+                "login": "cr_user_tf",
+                "group_ids": [
+                    (4, self.env.ref("base.group_user").id),
+                    (4, self.env.ref("spp_change_request_v2.group_cr_user").id),
+                ],
+            }
+        )
+        cr_type = self._type_with_transform("tf_plain_user", "'john'")
+        cr = (
+            self.env["spp.change.request"]
+            .with_user(cr_user)
+            .create({"request_type_id": cr_type.id, "registrant_id": self.registrant.id})
+        )
+        strategy = self.env["spp.cr.strategy.field_mapping"].with_user(cr_user)
+        mapping = cr_type.apply_mapping_ids.with_user(cr_user)
+        with self.assertNoLogs("odoo.addons.spp_change_request_v2.strategies.field_mapping", level="ERROR"):
+            changes = strategy.mapping_changes_value(mapping, cr.get_detail(), cr.registrant_id)
+        self.assertFalse(
+            changes,
+            "a transform landing on the stored value must not be flagged as a change",
+        )
+
     def test_cr_manager_cannot_write_transform_expression(self):
         """``transform_expression`` is admin-only (``base.group_system``). A
         Change Request Manager -- who is not a system administrator -- must not

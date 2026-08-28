@@ -873,7 +873,11 @@ Changelog
   access and raw SQL. The context now carries attribute-readable
   snapshots of the two records (stored scalar fields only; no methods,
   no relation traversal, no database handle) instead of the recordsets
-  themselves.
+  themselves. Group-gated, binary and reference fields are excluded from
+  the snapshot: a gated field cannot be read by the requester on the
+  detection path — and apply must build the identical snapshot or the
+  two disagree again — a binary would haul image payloads into every
+  evaluation, and a stored Reference value is itself a live recordset.
 - fix(security): the transform expression is now restricted to system
   administrators (``groups="base.group_system"``) rather than only
   warned against in the help text, and is enforced by the ORM on read

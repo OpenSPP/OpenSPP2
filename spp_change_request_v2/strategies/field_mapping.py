@@ -59,7 +59,7 @@ class SPPCRStrategyFieldMapping(models.AbstractModel):
         # ``transform_expression`` is gated by ``groups="base.group_system"``, so a
         # plain read by a change-request user would raise AccessError and, worse,
         # a silent skip would put detection and apply back out of step.
-        config = mapping.sudo()
+        config = mapping.sudo()  # nosemgrep: odoo-sudo-without-context
         if config.transform == "expression" and config.transform_expression:
             value = self._eval_expression(config.transform_expression, value, detail, registrant)
         return value
@@ -163,12 +163,22 @@ class SPPCRStrategyFieldMapping(models.AbstractModel):
         keeps working while method calls and relation traversal do not, and its
         ``__dict__`` is blocked by the dunder-name check. Many2one values are
         reduced to their id, matching how ``proposed_target_value`` normalises.
+
+        Group-gated fields are excluded on both paths: detection builds the
+        snapshot as the requester, where reading a gated field (e.g.
+        ``res.partner.signup_type``) raises AccessError before the expression
+        runs, and apply -- which runs under sudo, where the read would succeed
+        -- must build the identical snapshot or the two disagree about what a
+        mapping writes. Binary fields are excluded so image payloads are not
+        hauled into every evaluation, and Reference fields because their value
+        is itself a live recordset -- the handle this snapshot exists to keep
+        out.
         """
         if not record:
             return None
         values = {}
         for name, field in record._fields.items():
-            if not field.store or field.type in ("one2many", "many2many"):
+            if not field.store or field.groups or field.type in ("one2many", "many2many", "binary", "reference"):
                 continue
             value = record[name]
             values[name] = value.id if field.type == "many2one" else value
