@@ -35,3 +35,4 @@ from . import test_apply_effective_mappings
 from . import test_frozen_value_normalisation
 from . import test_frozen_detail_binding
 from . import test_detection_matches_apply
+from . import test_field_mapping_transform
