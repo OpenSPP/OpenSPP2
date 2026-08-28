@@ -111,3 +111,9 @@ docker/fluentd/log/
 .actrc
 scripts/run_ci_local.sh
 .github/workflows/ci-local.yml
+
+# E2E tests (Playwright)
+e2e/node_modules/
+e2e/test-results/
+e2e/playwright-report/
+e2e/blob-report/

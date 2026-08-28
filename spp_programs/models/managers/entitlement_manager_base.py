@@ -79,12 +79,7 @@ class BaseEntitlementManager(models.AbstractModel):
                 entitlements_count,
             )
         )
-        cycle.write(
-            {
-                "is_locked": True,
-                "locked_reason": _("Set entitlements to pending validation for cycle."),
-            }
-        )
+        cycle._acquire_operation_lock(_("Set entitlements to pending validation for cycle."))
 
         jobs = []
         for i in range(0, entitlements_count, self.MAX_ROW_JOB_QUEUE):
@@ -133,12 +128,7 @@ class BaseEntitlementManager(models.AbstractModel):
         """
         _logger.debug("Validate entitlements asynchronously")
         cycle.message_post(body=_("Validate %s entitlements started.", entitlements_count))
-        cycle.write(
-            {
-                "is_locked": True,
-                "locked_reason": _("Validate and approve entitlements for cycle."),
-            }
-        )
+        cycle._acquire_operation_lock(_("Validate and approve entitlements for cycle."))
 
         jobs = []
         for i in range(0, entitlements_count, self.MAX_ROW_JOB_QUEUE):
@@ -200,12 +190,7 @@ class BaseEntitlementManager(models.AbstractModel):
         """
         _logger.debug("Cancel entitlements asynchronously")
         cycle.message_post(body=_("Cancel %s entitlements started.", entitlements_count))
-        cycle.write(
-            {
-                "is_locked": True,
-                "locked_reason": _("Cancel entitlements for cycle."),
-            }
-        )
+        cycle._acquire_operation_lock(_("Cancel entitlements for cycle."))
 
         jobs = []
         for i in range(0, entitlements_count, self.MAX_ROW_JOB_QUEUE):
@@ -242,7 +227,7 @@ class BaseEntitlementManager(models.AbstractModel):
         self.ensure_one()
         # Clear the lock first so a chatter-side failure can't leave the
         # cycle stuck with "Operation in progress".
-        cycle.write({"is_locked": False, "locked_reason": False})
+        cycle._release_operation_lock()
         try:
             cycle.message_post(body=msg)
         except Exception:
@@ -259,7 +244,7 @@ class BaseEntitlementManager(models.AbstractModel):
         :param msg: A string to be posted in the chatter
         """
         self.ensure_one()
-        cycle.write({"is_locked": False, "locked_reason": False})
+        cycle._release_operation_lock()
         try:
             cycle.message_post(body=msg)
         except Exception:

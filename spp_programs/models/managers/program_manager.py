@@ -75,7 +75,7 @@ class BaseProgramManager(models.AbstractModel):
         """
         self.ensure_one()
         program = self.program_id
-        program.write({"is_locked": False, "locked_reason": False})
+        program._release_operation_lock()
         try:
             program.message_post(body=_("Eligibility check finished."))
         except Exception:
@@ -89,7 +89,7 @@ class BaseProgramManager(models.AbstractModel):
         """Run via on_error() when async eligibility enrollment fails."""
         self.ensure_one()
         program = self.program_id
-        program.write({"is_locked": False, "locked_reason": False})
+        program._release_operation_lock()
         try:
             program.message_post(body=_("Eligibility check failed."))
         except Exception:
@@ -205,7 +205,7 @@ class DefaultProgramManager(models.Model):
         _logger.debug("members: %s", members_count)
         program = self.program_id
         program.message_post(body=_("Eligibility check of %s beneficiaries started.", members_count))
-        program.write({"is_locked": True, "locked_reason": "Eligibility check of beneficiaries"})
+        program._acquire_operation_lock("Eligibility check of beneficiaries")
 
         if isinstance(states, str):
             states = [states]

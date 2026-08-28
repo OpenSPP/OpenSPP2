@@ -322,7 +322,7 @@ class BaseCycleManager(models.AbstractModel):
         :return:
         """
         self.ensure_one()
-        cycle.write({"is_locked": False, "locked_reason": False})
+        cycle._release_operation_lock()
         try:
             cycle.message_post(body=msg)
         except Exception:
@@ -334,7 +334,7 @@ class BaseCycleManager(models.AbstractModel):
     def mark_import_as_failed(self, cycle, msg):
         """Run via on_error() when async beneficiary import fails."""
         self.ensure_one()
-        cycle.write({"is_locked": False, "locked_reason": False})
+        cycle._release_operation_lock()
         try:
             cycle.message_post(body=msg)
         except Exception:
@@ -351,7 +351,7 @@ class BaseCycleManager(models.AbstractModel):
         :return:
         """
         self.ensure_one()
-        cycle.write({"is_locked": False, "locked_reason": False})
+        cycle._release_operation_lock()
         try:
             cycle.message_post(body=msg)
         except Exception:
@@ -363,7 +363,7 @@ class BaseCycleManager(models.AbstractModel):
     def mark_prepare_entitlement_as_failed(self, cycle, msg):
         """Run via on_error() when async entitlement preparation fails."""
         self.ensure_one()
-        cycle.write({"is_locked": False, "locked_reason": False})
+        cycle._release_operation_lock()
         try:
             cycle.message_post(body=msg)
         except Exception:
@@ -379,7 +379,7 @@ class BaseCycleManager(models.AbstractModel):
         :return:
         """
         self.ensure_one()
-        cycle.write({"is_locked": False, "locked_reason": False})
+        cycle._release_operation_lock()
         try:
             cycle.message_post(body=_("Eligibility check finished."))
         except Exception:
@@ -391,7 +391,7 @@ class BaseCycleManager(models.AbstractModel):
     def mark_check_eligibility_as_failed(self, cycle):
         """Run via on_error() when async eligibility check fails."""
         self.ensure_one()
-        cycle.write({"is_locked": False, "locked_reason": False})
+        cycle._release_operation_lock()
         try:
             cycle.message_post(body=_("Eligibility check failed."))
         except Exception:
@@ -556,7 +556,7 @@ class DefaultCycleManager(models.Model):
         self.ensure_one()
         _logger.debug("Beneficiaries: %s", beneficiaries_count)
         cycle.message_post(body=_("Eligibility check of %s beneficiaries started.", beneficiaries_count))
-        cycle.write({"is_locked": True, "locked_reason": "Eligibility check of beneficiaries"})
+        cycle._acquire_operation_lock("Eligibility check of beneficiaries")
 
         states = ("draft", "enrolled", "not_eligible")
         id_ranges = compute_id_ranges(
@@ -638,12 +638,7 @@ class DefaultCycleManager(models.Model):
     def _prepare_entitlements_async(self, cycle, beneficiaries_count):
         _logger.debug("Prepare entitlement asynchronously")
         cycle.message_post(body=_("Prepare entitlement for %s beneficiaries started.", beneficiaries_count))
-        cycle.write(
-            {
-                "is_locked": True,
-                "locked_reason": _("Prepare entitlement for beneficiaries."),
-            }
-        )
+        cycle._acquire_operation_lock(_("Prepare entitlement for beneficiaries."))
 
         id_ranges = compute_id_ranges(
             self.env.cr,
@@ -898,7 +893,7 @@ class DefaultCycleManager(models.Model):
     def _add_beneficiaries_async(self, cycle, beneficiaries, state):
         _logger.debug("Adding beneficiaries asynchronously")
         cycle.message_post(body=f"Import of {len(beneficiaries)} beneficiaries started.")
-        cycle.write({"is_locked": True, "locked_reason": _("Importing beneficiaries.")})
+        cycle._acquire_operation_lock(_("Importing beneficiaries."))
 
         beneficiaries_count = len(beneficiaries)
         jobs = []
