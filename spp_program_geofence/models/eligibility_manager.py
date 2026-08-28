@@ -200,7 +200,7 @@ class GeofenceMembershipManager(models.Model):
         self.ensure_one()
         program = self.program_id
         program.message_post(body=_("Import of %s beneficiaries started.") % len(new_beneficiaries))
-        program.write({"is_locked": True, "locked_reason": _("Importing beneficiaries")})
+        program._acquire_operation_lock(_("Importing beneficiaries"))
 
         jobs = []
         for i in range(0, len(new_beneficiaries), self.IMPORT_CHUNK_SIZE):
@@ -218,8 +218,7 @@ class GeofenceMembershipManager(models.Model):
         self.ensure_one()
         self.program_id._compute_eligible_beneficiary_count()
         self.program_id._compute_beneficiary_count()
-        self.program_id.is_locked = False
-        self.program_id.locked_reason = None
+        self.program_id._release_operation_lock()
         self.program_id.message_post(body=_("Import finished."))
 
     def _import_registrants(self, new_beneficiaries, state="draft", do_count=False):

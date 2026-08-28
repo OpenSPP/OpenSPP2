@@ -13,21 +13,6 @@
         <field name="state">available</field>
     </record>
 
-    <!-- Eligibility: Disability Status -->
-    <record id="pack_disability_item_status_check" model="spp.studio.pack.item">
-        <field name="pack_id" ref="pack_disability_assistance" />
-        <field name="name">Disability Status Verification</field>
-        <field name="context_type">individual</field>
-        <field
-            name="description"
-        >Verifies certified disability status from medical assessment.</field>
-        <field name="expression_type">filter</field>
-        <field
-            name="logic_data"
-        >{"cel_expression": "has_disability &amp;&amp; disability_certified"}</field>
-        <field name="sequence">10</field>
-    </record>
-
     <!-- Eligibility: Severity Threshold -->
     <record id="pack_disability_item_severity" model="spp.studio.pack.item">
         <field name="pack_id" ref="pack_disability_assistance" />

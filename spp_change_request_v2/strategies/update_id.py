@@ -41,11 +41,16 @@ class SPPCRApplyUpdateID(models.AbstractModel):
         if not detail.id_value:
             raise UserError(_("ID value is required."))
 
-        # Check if ID type already exists for this registrant
+        # Check if a *live* ID of this type already exists for this registrant.
+        # Removing an ID through a change request marks it Invalid rather than
+        # deleting it, so an unscoped search counted those dead rows and left
+        # the type permanently unusable — the same defect as the uniqueness
+        # index on spp.registry.id (OP#1136).
         existing = self.env["spp.registry.id"].search(
             [
                 ("partner_id", "=", registrant.id),
                 ("id_type_id", "=", detail.id_type_id.id),
+                ("status", "!=", "invalid"),
             ],
             limit=1,
         )

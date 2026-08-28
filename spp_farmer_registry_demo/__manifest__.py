@@ -5,7 +5,7 @@
     "DEMO ONLY: creates users with the well-known password 'demo'. Never install on a "
     "production or internet-facing instance.",
     "category": "OpenSPP",
-    "version": "19.0.2.1.3",
+    "version": "19.0.2.1.6",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",

@@ -468,6 +468,15 @@ records</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.1</h1>
+<ul class="simple">
+<li>fix(security): the Tier-3 <tt class="docutils literal">group_registry_read</tt> group can read
+<tt class="docutils literal">spp.irrigation.asset</tt>. The registrant form renders
+<tt class="docutils literal">irrigation_asset_ids</tt>, and the model was granted only to the Tier-2
+<tt class="docutils literal">group_registry_viewer</tt> group.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.1.0</h1>
 <ul class="simple">
 <li>feat(views): add an “Irrigation” tab on the farm (group) form so
@@ -476,7 +485,7 @@ record; backed by a new <tt class="docutils literal">irrigation_asset_ids</tt> O
 <tt class="docutils literal">res.partner</tt> (inverse of the existing <tt class="docutils literal">farm_id</tt>)</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

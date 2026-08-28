@@ -10,6 +10,11 @@ from . import constants
 
 _logger = logging.getLogger(__name__)
 
+# States a membership may be returned to draft from. Both are dead ends
+# otherwise: deduplication and eligibility checks put a membership here and
+# nothing ever took it out again (OP#1170).
+RESETTABLE_TO_DRAFT = ("duplicated", "not_eligible")
+
 
 class SPPProgramMembership(models.Model):
     _inherit = [
@@ -280,7 +285,10 @@ class SPPProgramMembership(models.Model):
         member = self
         for em in eligibility_managers:
             member = em.enroll_eligible_registrants(member)
-        if len(member) == 0:
+        if len(member) == 0 and self.state not in constants.PROTECTED_MEMBERSHIP_STATES:
+            # Leave duplicated / exited / paused alone: each is owned by its own
+            # workflow, and demoting a paused member to not_eligible would undo a
+            # deliberate pause just as surely as re-enrolling it (OP#1117).
             self.state = "not_eligible"
         return
 
@@ -293,7 +301,9 @@ class SPPProgramMembership(models.Model):
             member = em.enroll_eligible_registrants(member)
 
         if len(member) > 0:
-            if self.state in ("duplicated", "exited"):
+            if self.state in constants.PROTECTED_MEMBERSHIP_STATES:
+                # Includes paused: resuming is the Resume button's job, not
+                # something re-running eligibility may decide (OP#1117).
                 message = _(
                     "Cannot enroll: beneficiary is currently %s.",
                     dict(self._fields["state"].selection).get(self.state, self.state),
@@ -349,6 +359,12 @@ class SPPProgramMembership(models.Model):
         message = None
         kind = "success"
         if len(deduplication_managers):
+            # The managers work across the whole program, not just this
+            # membership, so clear the program's flags first and let the run
+            # re-apply them. Without this a membership stays "duplicated" long
+            # after the clash behind it was fixed (OP#796).
+            self.program_id._reset_duplicate_flags()
+
             states = ["draft", "enrolled", "eligible", "paused", "duplicated"]
             duplicates = 0
             for el in deduplication_managers:
@@ -379,13 +395,26 @@ class SPPProgramMembership(models.Model):
             }
 
     def back_to_draft(self):
-        """Reset membership to draft state."""
-        self.write(
-            {
-                "state": "draft",
-            }
-        )
-        return
+        """Return duplicated or not-eligible memberships to draft.
+
+        Deliberately recordset-safe: the "Back to Draft" server action hands
+        this a whole selection, and it is offered from lists as well as from
+        the membership form.
+
+        Guarded because this is now reachable from four places rather than one.
+        It used to write ``draft`` over any state at all, so a stray call could
+        quietly undo an enrolment or reopen an exit (OP#1170).
+        """
+        blocked = self.filtered(lambda membership: membership.state not in RESETTABLE_TO_DRAFT)
+        if blocked:
+            raise UserError(
+                _(
+                    "Only duplicated or not-eligible memberships can be returned to draft. "
+                    "%s of the selected memberships are in another state.",
+                    len(blocked),
+                )
+            )
+        self.write({"state": "draft"})
 
     def action_pause(self):
         """Pause the membership."""

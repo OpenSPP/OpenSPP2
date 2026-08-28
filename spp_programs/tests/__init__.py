@@ -5,6 +5,7 @@ from . import test_create_program_wizard_cash
 from . import test_create_program_wizard_cel
 from . import test_cycle
 from . import test_deduplication
+from . import test_deduplication_setup_wizard
 from . import test_eligibility_cel
 from . import test_eligibility_cel_integration
 from . import test_enrollment_wizard
@@ -39,7 +40,10 @@ from . import test_canary_patterns
 from . import test_concurrency
 from . import test_manager_summary_formatting
 from . import test_async_lock_recovery
+from . import test_force_unlock_authz
 from . import test_membership_acl_bypass
 from . import test_cycle_null_entitlement_approval
 from . import test_approve_entitlements_program_isolation
 from . import test_payment_batch_payment_ids
+from . import test_program_viewer_registry_scope
+from . import test_registry_read_access

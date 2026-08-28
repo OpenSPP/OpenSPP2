@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <t t-name="spp_pii_encryption.MaskedCharField">
+        <div class="o_masked_field d-flex align-items-center">
+            <t t-if="props.readonly">
+                <!-- Readonly mode -->
+                <span
+                    class="o_masked_value"
+                    t-att-class="{'text-muted': !state.isRevealed}"
+                >
+                    <t t-esc="displayValue" />
+                </span>
+                <button
+                    t-if="props.record.data[props.name]"
+                    type="button"
+                    class="btn btn-link btn-sm p-0 ms-2 o_masked_toggle"
+                    t-on-click.stop="toggleReveal"
+                    t-att-disabled="state.isLoading"
+                    t-att-title="state.isRevealed ? 'Hide value' : 'Reveal value'"
+                >
+                    <t t-if="state.isLoading">
+                        <i class="fa fa-spinner fa-spin" />
+                    </t>
+                    <t t-elif="state.isRevealed">
+                        <i class="fa fa-eye-slash" />
+                    </t>
+                    <t t-else="">
+                        <i class="fa fa-eye" />
+                    </t>
+                </button>
+            </t>
+            <t t-else="">
+                <!-- Edit mode - show actual input -->
+                <t t-call="web.CharField" />
+            </t>
+        </div>
+    </t>
+
+</templates>

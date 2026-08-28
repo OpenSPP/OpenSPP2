@@ -7,6 +7,7 @@ from . import donation_line
 from . import personnel
 from . import request
 from . import request_line
+from . import request_allocation
 from . import request_template
 from . import returns
 from . import stock_picking

@@ -4,12 +4,27 @@
          raw DCI payloads, cached PII, and other sensitive callback data.
          Place it on individual view fields and notebook pages with
          groups="spp_dci.group_dci_admin" so operators can still navigate
-         the DCI menus without seeing the underlying personal data. -->
+         the DCI menus without seeing the underlying personal data.
+
+         This group must never list base.group_system in implied_ids:
+         implied_ids GRANTS the implied groups to members, so that link
+         would silently promote anyone holding this PII-visibility role
+         to a full Settings/System administrator. -->
     <record id="group_dci_admin" model="res.groups">
         <field name="name">DCI Administrator</field>
-        <field name="implied_ids" eval="[Command.link(ref('base.group_system'))]" />
         <field
             name="comment"
-        >Grants visibility to raw DCI payloads, full identifiers, disability data, and other sensitive fields exposed by the DCI cache and log models. Members must already be system administrators.</field>
+        >Grants visibility to raw DCI payloads, full identifiers, disability data, and other sensitive fields exposed by the DCI cache and log models.</field>
     </record>
+
+    <!-- Deliberately NOT linked into spp_security.group_spp_admin (the
+         extension pattern most domain modules follow): this group's only
+         purpose is rendering raw DCI payloads, identifiers and disability
+         data on screen. Platform/system administrators who need that
+         visibility must be granted the group explicitly - a deliberate,
+         reviewable entry on the user's Access Rights instead of an
+         automatic side effect of adminship. Do not "fix" this by adding
+         the conventional group_spp_admin implication - PII display is
+         opt-in per administrator, mirroring the key-custody separation in
+         spp_key_management/security/security_groups.xml. -->
 </odoo>

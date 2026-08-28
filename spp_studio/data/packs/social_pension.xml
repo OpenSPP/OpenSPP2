@@ -26,24 +26,6 @@
         <field name="sequence">10</field>
     </record>
 
-    <!-- Eligibility: Not Receiving Other Pension -->
-    <record
-        id="pack_social_pension_item_no_formal_pension"
-        model="spp.studio.pack.item"
-    >
-        <field name="pack_id" ref="pack_social_pension" />
-        <field name="name">No Formal Pension Check</field>
-        <field name="context_type">individual</field>
-        <field
-            name="description"
-        >Excludes individuals already receiving formal/contributory pension benefits.</field>
-        <field name="expression_type">filter</field>
-        <field
-            name="logic_data"
-        >{"cel_expression": "!has_formal_pension || formal_pension_amount == 0"}</field>
-        <field name="sequence">20</field>
-    </record>
-
     <!-- Eligibility: Residency Requirement -->
     <record id="pack_social_pension_item_residency" model="spp.studio.pack.item">
         <field name="pack_id" ref="pack_social_pension" />
