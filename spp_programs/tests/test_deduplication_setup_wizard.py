@@ -333,12 +333,27 @@ class TestDeduplicationSetupWizard(TransactionCase):
         shared = self.program.deduplication_manager_ids
         other = self.env["spp.program"].create({"name": "Dedup Sweep Bystander [TEST]"})
         self.program.write({"deduplication_manager_ids": [(3, shared.id)]})
-        other.write({"deduplication_manager_ids": [(4, shared.id)]})
+        self._link_directly(other, shared)
 
         self._wizard("spp.deduplication.manager.phone_number", "By phone").action_create_manager()
 
         self.assertTrue(shared.exists(), "another program still uses this method")
         self.assertIn(shared, other.deduplication_manager_ids)
+
+    def _link_directly(self, program, wrapper):
+        """Put a wrapper on a program without going through write().
+
+        OP#1172 refuses linking one program's manager into another, so this
+        shape can no longer be created through the ORM. It can still exist in
+        databases built before that rule -- which is exactly the case the sweep
+        has to spare -- so the relation row is written directly.
+        """
+        field = type(program)._fields["deduplication_manager_ids"]
+        self.env.cr.execute(
+            f"INSERT INTO {field.relation} ({field.column1}, {field.column2}) VALUES (%s, %s)",  # noqa: S608
+            (program.id, wrapper.id),
+        )
+        program.invalidate_recordset(["deduplication_manager_ids"])
 
     def test_the_sweep_spares_a_method_reached_through_another_wrapper(self):
         """Two wrappers can point at one concrete; the cascade is not scoped.
