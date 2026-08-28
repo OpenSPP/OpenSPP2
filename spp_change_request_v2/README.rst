@@ -853,6 +853,20 @@ Before declaring a new CR type complete:
 Changelog
 =========
 
+19.0.3.1.12
+~~~~~~~~~~~
+
+- fix(change_request): auto-apply-on-approve runs through the public
+  ``action_apply`` again. Requiring change-request manager rights to
+  apply meant auto-apply was routed to the internal mechanism instead,
+  so the approver could be a validator — but ``action_apply`` is the
+  extension point modules override to hang post-apply work off an apply,
+  and bypassing it left those overrides silently not running on
+  approval: no error, just missing side effects. Auto-apply now calls
+  ``action_apply`` under ``sudo()``, which the manager gate already
+  exempts. ``sudo()`` sets superuser mode without changing the user, so
+  the applying user is still recorded as the approver.
+
 19.0.3.1.11
 ~~~~~~~~~~~
 

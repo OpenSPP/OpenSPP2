@@ -1093,10 +1093,16 @@ class SPPChangeRequest(models.Model):
         self._create_log("approved")
         if self.request_type_id.auto_apply_on_approve:
             # Auto-apply is authorized by the approval workflow itself, so it
-            # goes through the internal mechanism rather than the manager-gated
-            # public action_apply (the approver may be a validator, not a
-            # manager).
-            self._apply_change_request()
+            # runs with sudo: ``action_apply``'s manager gate exempts
+            # ``env.su``, which lets the approver be a validator rather than a
+            # manager. Going through the public entry point rather than the
+            # internal mechanism keeps ``action_apply`` the single extension
+            # point for apply -- downstream modules override it to hang
+            # post-apply work off the apply, and routing around it left those
+            # overrides silently not running on approval. ``sudo()`` sets
+            # ``su`` without changing ``uid``, so ``applied_by_id`` still
+            # records the real approver.
+            self.sudo().action_apply()  # nosemgrep: odoo-sudo-without-context
 
     def _on_reject(self, reason):
         super()._on_reject(reason)
@@ -1448,9 +1454,16 @@ class SPPChangeRequest(models.Model):
         roles cannot (e.g. ``spp.group.membership``), so it must be gated
         server-side to managers: the XML button ``groups=`` is NOT an
         authorization boundary because Odoo object methods are callable over
-        RPC. Superuser (sudo) callers and the auto-apply-on-approve path (which
-        invokes ``_apply_change_request`` directly, already authorized by the
-        approval workflow) are unaffected.
+        RPC. Superuser (``env.su``) callers are exempt, and
+        auto-apply-on-approve is one of them: ``_on_approve`` reaches this
+        method through ``sudo()``, already authorized by the approval workflow
+        itself, so the approver may be a validator rather than a manager.
+
+        This is also the extension point for apply, so an override runs on both
+        paths -- under ``su`` when auto-applied on approval, and as the manager
+        who clicked Apply on the manual path. ``sudo()`` sets ``su`` without
+        changing ``uid``, so ``self.env.user`` is the approver either way and
+        ``applied_by_id`` records them, not the superuser.
         """
         if not (self.env.su or self.env.user.has_group("spp_change_request_v2.group_cr_manager")):
             raise AccessError(_("Only Change Request managers can apply change requests."))
