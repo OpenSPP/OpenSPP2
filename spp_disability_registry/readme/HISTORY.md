@@ -1,3 +1,7 @@
+### 19.0.3.0.1
+
+- fix(disability_registry): remove the "Disability / No Disability" status smart button from the registrant form. It read "No Disability" whenever no approved assessment crossed the WG/CFM threshold, which was misleading for people who had an approved assessment recording an impairment — the full status is already shown on the Disability tab and its Assessment History (#1129)
+
 ### 19.0.3.0.0
 
 - feat(disability_registry): age-driven assessment type selection with manual override (#1050)

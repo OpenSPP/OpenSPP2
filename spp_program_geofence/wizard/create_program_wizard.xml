@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Add "Geographic Scope" tab to the program creation wizard (step 2) -->
+    <record id="create_program_wizard_form_view_geofence" model="ir.ui.view">
+        <field name="name">Create Program Wizard - Geofence</field>
+        <field name="model">spp.program.create.wizard</field>
+        <field name="priority">15</field>
+        <field name="inherit_id" ref="spp_programs.create_program_wizard_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='eligibility']" position="after">
+                <page string="Geographic Scope" name="geographic_scope">
+                    <group col="2">
+                        <group name="geofence_selection" colspan="2">
+                            <field
+                                name="geofence_ids"
+                                widget="many2many_tags"
+                                string="Geofences"
+                                placeholder="Select geographic boundaries..."
+                                options="{'no_create': True, 'no_create_edit': True}"
+                                help="Geographic boundaries that define where this program operates"
+                            />
+                        </group>
+                    </group>
+                    <group col="2" name="area_fallback_section">
+                        <group>
+                            <field
+                                name="include_area_fallback"
+                                widget="boolean_toggle"
+                                string="Fall back to admin area"
+                                help="Include registrants whose administrative area overlaps the geofence, even without GPS coordinates"
+                            />
+                        </group>
+                        <group>
+                            <field
+                                name="fallback_area_type_id"
+                                string="Area level"
+                                options="{'no_create': True, 'no_create_edit': True}"
+                                invisible="not include_area_fallback"
+                                help="Which administrative level to check (e.g., district, province)"
+                            />
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -25,3 +25,15 @@ from . import test_dynamic_approval
 from . import test_conflict_dynamic_approval
 from . import test_html_escaping
 from . import test_wizard_html_escaping
+from . import test_reason_document_constraint
+from . import test_detail_record_rules
+from . import test_cr_roles_registry_scope
+from . import test_apply_authorization
+from . import test_transient_wizard_isolation
+from . import test_duplicate_detection_scope
+from . import test_apply_effective_mappings
+from . import test_frozen_value_normalisation
+from . import test_frozen_detail_binding
+from . import test_detection_matches_apply
+from . import test_field_mapping_transform
+from . import test_routing_field

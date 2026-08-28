@@ -148,3 +148,29 @@ class TestAddMemberStrategy(TransactionCase):
 
         self.assertIn("_action", preview)
         self.assertEqual(preview["_action"], "create_member")
+
+    def test_onchange_names_builds_full_name(self):
+        """`_onchange_names` builds the uppercased full name across all branches
+        (given + family, family only, given only)."""
+        cr = self.cr_model.create(
+            {
+                "request_type_id": self.cr_type.id,
+                "registrant_id": self.group.id,
+            }
+        )
+        detail = cr.get_detail()
+
+        detail.given_name = "Maria"
+        detail.family_name = "Dela Cruz"
+        detail._onchange_names()
+        self.assertEqual(detail.member_name, "DELA CRUZ, MARIA")
+
+        detail.given_name = False
+        detail.family_name = "Reyes"
+        detail._onchange_names()
+        self.assertEqual(detail.member_name, "REYES")
+
+        detail.family_name = False
+        detail.given_name = "Juan"
+        detail._onchange_names()
+        self.assertEqual(detail.member_name, "JUAN")

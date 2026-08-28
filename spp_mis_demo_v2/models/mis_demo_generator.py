@@ -306,6 +306,34 @@ class SPPMISDemoGenerator(models.TransientModel):
         "tgo": {"xmlid": "base.tg", "locale": "fr_TG", "currency_xmlid": "base.XOF"},
     }
 
+    # OP#1102: country-appropriate CR document types seeded into the
+    # `cr_document_type` vocabulary so a document type can be selected when
+    # attaching files to a change request (inline creation is disabled). At
+    # least 5 per country; (code, display) pairs.
+    CR_DOCUMENT_TYPES = {
+        "phl": [
+            ("psa_birth_certificate", "PSA Birth Certificate"),
+            ("philsys_id", "PhilSys National ID"),
+            ("barangay_residency_certificate", "Barangay Certificate of Residency"),
+            ("psa_marriage_certificate", "PSA Marriage Certificate"),
+            ("proof_of_income", "Proof of Income"),
+        ],
+        "lka": [
+            ("birth_certificate", "Birth Certificate"),
+            ("national_identity_card", "National Identity Card (NIC)"),
+            ("gn_residence_certificate", "Grama Niladhari Residence Certificate"),
+            ("marriage_certificate", "Marriage Certificate"),
+            ("income_statement", "Income Statement"),
+        ],
+        "tgo": [
+            ("acte_de_naissance", "Acte de Naissance (Birth Certificate)"),
+            ("carte_nationale_identite", "Carte Nationale d'Identite"),
+            ("certificat_de_residence", "Certificat de Residence"),
+            ("acte_de_mariage", "Acte de Mariage (Marriage Certificate)"),
+            ("justificatif_de_revenus", "Justificatif de Revenus"),
+        ],
+    }
+
     def _get_country_config(self):
         """Get country, locale, and currency based on selected country_code."""
         config = self.COUNTRY_CONFIG.get(self.country_code, self.COUNTRY_CONFIG["phl"])
@@ -319,6 +347,20 @@ class SPPMISDemoGenerator(models.TransientModel):
             "locale": config["locale"],
             "currency": currency,
         }
+
+    def _seed_cr_document_types(self, stats):
+        """Seed country-appropriate CR document types (OP#1102).
+
+        Inline creation of document types from the CR Type UI is disabled, so
+        the demo must provide selectable values in the `cr_document_type`
+        vocabulary. Idempotent via ``get_or_create_local``.
+        """
+        VocabCode = self.env["spp.vocabulary.code"]
+        doc_types = self.CR_DOCUMENT_TYPES.get(self.country_code, self.CR_DOCUMENT_TYPES["phl"])
+        for code, display in doc_types:
+            VocabCode.get_or_create_local("urn:openspp:vocab:cr_document_type", code, display=display)
+        stats["cr_document_types_seeded"] = len(doc_types)
+        _logger.info("Seeded %d CR document types for %s", len(doc_types), self.country_code)
 
     def _install_logic_packs(self):
         """Install Logic Packs used by demo programs.
@@ -460,6 +502,10 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         # Step 0: Ensure security groups are assigned FIRST (ALWAYS)
         self._ensure_demo_user_groups()
+
+        # Step 0.2: Seed country-appropriate CR document types (OP#1102) so a
+        # document type can be selected when attaching files to a change request.
+        self._seed_cr_document_types(stats)
 
         # Step 0.25: Install Logic Packs (if enabled)
         if self.install_logic_packs:
@@ -2747,8 +2793,7 @@ class SPPMISDemoGenerator(models.TransientModel):
             "proposed_changes": {
                 "group_name": "Ramos",
                 "head_name": "Maricel Ramos",
-                "address_line1": "123 Marriage Lane",
-                "city": "New Family City",
+                "address": "123 Marriage Lane, New Family City",
             },
         },
         # Phase 5.1 & 5.2: Add split_household CR (REJECTED)
@@ -3141,6 +3186,9 @@ class SPPMISDemoGenerator(models.TransientModel):
                     }
                 )
             elif detail_model == "spp.cr.detail.add_member":
+                # Add Member CR builds a NEW individual from typed demographics
+                # (given/family name, birthdate, relationship); apply() creates
+                # the individual and links it via created_individual_id.
                 rel_xmlid = proposed_changes.get("relationship_xmlid")
                 relationship_id = False
                 if rel_xmlid:
@@ -3228,16 +3276,37 @@ class SPPMISDemoGenerator(models.TransientModel):
                     }
                 )
             # Phase 5.1: Add create_group support
+            #
+            # OP#876 redesigned the detail model — head info now lives on a
+            # member_new_ids sub-record with the "head" membership-type code.
+            # Split `head_name` ("Maricel Ramos") into given + family so the
+            # downstream CR has a real new-member row.
             elif detail_model == "spp.cr.detail.create_group":
                 vals.update(
                     {
                         "group_name": proposed_changes.get("group_name", "New Household"),
-                        "head_name": proposed_changes.get("head_name", ""),
-                        "address_line1": proposed_changes.get("address_line1", ""),
-                        "city": proposed_changes.get("city", ""),
-                        "postal_code": proposed_changes.get("postal_code", ""),
+                        "address": proposed_changes.get("address", ""),
                     }
                 )
+                head_name = proposed_changes.get("head_name", "").strip()
+                if head_name:
+                    parts = head_name.split(None, 1)
+                    given = parts[0]
+                    family = parts[1] if len(parts) > 1 else parts[0]
+                    head_kind = self.env["spp.vocabulary.code"].get_code(
+                        "urn:openspp:vocab:group-membership-type", "head"
+                    )
+                    vals["member_new_ids"] = [
+                        (
+                            0,
+                            0,
+                            {
+                                "given_name": given,
+                                "family_name": family,
+                                "membership_type_id": head_kind.id if head_kind else False,
+                            },
+                        )
+                    ]
             # Phase 5.1: Add split_household support
             elif detail_model == "spp.cr.detail.split_household":
                 vals.update(
@@ -3872,72 +3941,79 @@ class SPPMISDemoGenerator(models.TransientModel):
     # Keys: story_id -> {locale: area_xmlid}
     STORY_AREA_MAP = {
         "juan_dela_cruz": {
-            "fil_PH": "spp_demo.area_phl_calamba",
+            "fil_PH": "spp_demo.area_phl_ph0403405",  # City of Calamba, Laguna
             "fr_TG": "spp_demo.area_tgo_lome_tokoin",
             "si_LK": "spp_demo.area_lka_moratuwa",
         },
         "maria_santos": {
-            "fil_PH": "spp_demo.area_phl_santa_rosa",
+            "fil_PH": "spp_demo.area_phl_ph0403428",  # City of Santa Rosa, Laguna
             "fr_TG": "spp_demo.area_tgo_aflao",
             "si_LK": "spp_demo.area_lka_kolonnawa",
         },
         "jose_reyes_multigenerational": {
-            "fil_PH": "spp_demo.area_phl_san_pablo",
+            "fil_PH": "spp_demo.area_phl_ph0403424",  # San Pablo City, Laguna
             "fr_TG": "spp_demo.area_tgo_kpalime",
             "si_LK": "spp_demo.area_lka_kandy_ds",
         },
         "ibrahim_hassan": {
-            "fil_PH": "spp_demo.area_phl_antipolo",
+            "fil_PH": "spp_demo.area_phl_ph0405802",  # City of Antipolo, Rizal
             "fr_TG": "spp_demo.area_tgo_sokode",
             "si_LK": "spp_demo.area_lka_galle_ds",
         },
         "david_sofia_martinez": {
-            "fil_PH": "spp_demo.area_phl_makati",
+            "fil_PH": "spp_demo.area_phl_ph1307602",  # City of Makati, NCR
             "fr_TG": "spp_demo.area_tgo_lome",
             "si_LK": "spp_demo.area_lka_dehiwala",
         },
         "rosa_garcia": {
-            "fil_PH": "spp_demo.area_phl_quezon_city",
+            "fil_PH": "spp_demo.area_phl_ph1307404",  # Quezon City, NCR
             "fr_TG": "spp_demo.area_tgo_lome_be",
             "si_LK": "spp_demo.area_lka_colombo_fort",
         },
         "mary_johnson": {
-            "fil_PH": "spp_demo.area_phl_pasig",
+            "fil_PH": "spp_demo.area_phl_ph1307403",  # City of Pasig, NCR
             "fr_TG": "spp_demo.area_tgo_lome_nyekonakpoe",
             "si_LK": "spp_demo.area_lka_colombo_pettah",
         },
         "ahmed_said": {
-            "fil_PH": "spp_demo.area_phl_taguig",
+            "fil_PH": "spp_demo.area_phl_ph1307607",  # Taguig City, NCR
             "fr_TG": "spp_demo.area_tgo_lome_adidogome",
             "si_LK": "spp_demo.area_lka_dehiwala_gn",
         },
         "nguyen_extended_family": {
-            "fil_PH": "spp_demo.area_phl_bacoor",
+            # Bacoor is not in the curated PSGC dataset; Imus is the nearest available city in Cavite.
+            "fil_PH": "spp_demo.area_phl_ph0402109",  # Imus City, Cavite
             "fr_TG": "spp_demo.area_tgo_baguida_centre",
             "si_LK": "spp_demo.area_lka_hikkaduwa",
         },
         "amina_osman_household": {
-            "fil_PH": "spp_demo.area_phl_manila",
+            "fil_PH": "spp_demo.area_phl_ph1303901",  # City of Manila, NCR
             "fr_TG": "spp_demo.area_tgo_kpalime_centre",
             "si_LK": "spp_demo.area_lka_mount_lavinia_gn",
         },
         "carlos_elena_morales": {
-            "fil_PH": "spp_demo.area_phl_dasmarinas",
+            "fil_PH": "spp_demo.area_phl_ph0402106",  # City of Dasmariñas, Cavite
             "fr_TG": "spp_demo.area_tgo_kpalime_tove",
             "si_LK": "spp_demo.area_lka_galle_fort",
         },
         "chen_large_family": {
-            "fil_PH": "spp_demo.area_phl_qc_commonwealth",
+            # Commonwealth barangay (Quezon City) is not in the municipality-level dataset;
+            # assigned a distinct NCR city to keep areas spread across the demo map.
+            "fil_PH": "spp_demo.area_phl_ph1307501",  # Caloocan City, NCR
             "fr_TG": "spp_demo.area_tgo_zio",
             "si_LK": "spp_demo.area_lka_gampaha",
         },
         "grace_okonkwo": {
-            "fil_PH": "spp_demo.area_phl_makati_poblacion",
+            # Poblacion barangay (Makati) is not in the municipality-level dataset;
+            # assigned a distinct NCR city to keep areas spread across the demo map.
+            "fil_PH": "spp_demo.area_phl_ph1307603",  # City of Muntinlupa, NCR
             "fr_TG": "spp_demo.area_tgo_ogou",
             "si_LK": "spp_demo.area_lka_kalutara",
         },
         "luis_fernandez": {
-            "fil_PH": "spp_demo.area_phl_calamba_real",
+            # Real barangay (Calamba) is not in the municipality-level dataset;
+            # assigned a distinct Laguna city to keep areas spread across the demo map.
+            "fil_PH": "spp_demo.area_phl_ph0403403",  # City of Biñan, Laguna
             "fr_TG": "spp_demo.area_tgo_lacs",
             "si_LK": "spp_demo.area_lka_matara",
         },

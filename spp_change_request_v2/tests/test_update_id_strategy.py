@@ -186,6 +186,59 @@ class TestUpdateIDStrategy(TransactionCase):
         self.assertTrue(cr.is_applied)
         self.assertEqual(id_to_remove.status, "invalid")
 
+    def test_readd_same_type_after_removal(self):
+        """OP#1136: removing an ID must free its type for a replacement.
+
+        The reported bug end to end — a removed ID is kept and marked Invalid,
+        and both the duplicate check here and the uniqueness rule on
+        spp.registry.id counted that dead row, so the registrant was left with
+        an Invalid ID and no way to add a valid one of the same type.
+        """
+        original = self.id_model.create(
+            {
+                "partner_id": self.individual.id,
+                "id_type_id": self.passport_type.id,
+                "value": "PP-ORIGINAL",
+                "status": "valid",
+            }
+        )
+
+        removal = self.cr_model.create({"request_type_id": self.cr_type.id, "registrant_id": self.individual.id})
+        removal.get_detail().write(
+            {
+                "operation": "remove",
+                "existing_id_record_id": original.id,
+                "id_type_id": self.passport_type.id,
+            }
+        )
+        removal.approval_state = "approved"
+        removal.action_apply()
+        self.assertEqual(original.status, "invalid")
+
+        # The replacement, through the same change-request route.
+        replacement = self.cr_model.create({"request_type_id": self.cr_type.id, "registrant_id": self.individual.id})
+        replacement.get_detail().write(
+            {
+                "operation": "add",
+                "id_type_id": self.passport_type.id,
+                "id_value": "PP-REPLACEMENT",
+            }
+        )
+        replacement.approval_state = "approved"
+        replacement.action_apply()
+
+        self.assertTrue(replacement.is_applied)
+        live = self.id_model.search(
+            [
+                ("partner_id", "=", self.individual.id),
+                ("id_type_id", "=", self.passport_type.id),
+                ("status", "!=", "invalid"),
+            ]
+        )
+        self.assertEqual(len(live), 1, "exactly one live ID of that type should remain")
+        self.assertEqual(live.value, "PP-REPLACEMENT")
+        self.assertEqual(original.status, "invalid", "the removed ID stays on file as Invalid")
+
     def test_update_without_existing_id_fails(self):
         """Test update operation requires existing ID."""
 

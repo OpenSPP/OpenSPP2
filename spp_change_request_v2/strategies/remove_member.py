@@ -32,16 +32,11 @@ class SPPCRApplyRemoveMember(models.AbstractModel):
         if membership.status != "active":
             raise UserError(_("Membership is already inactive."))
 
-        # Convert date to datetime for ended_date field
-        # Ensure ended_date is not before start_date (can happen with same-day operations)
-        end_datetime = fields.Datetime.to_datetime(detail.end_date)
-        if membership.start_date and end_datetime < membership.start_date:
-            end_datetime = membership.start_date
-
-        # End the membership
+        # OP#872: removal applies immediately on approval (the End Date field was
+        # dropped as it had no effect on effectivity).
         membership.write(
             {
-                "ended_date": end_datetime,
+                "ended_date": fields.Datetime.now(),
                 "active": False,
             }
         )
@@ -62,10 +57,15 @@ class SPPCRApplyRemoveMember(models.AbstractModel):
         if not detail:
             return {}
 
+        reason_label = None
+        if detail.end_reason:
+            reason_label = dict(detail.fields_get(["end_reason"])["end_reason"]["selection"]).get(detail.end_reason)
+
         return {
             "_action": "remove_member",
-            "member_name": detail.member_name,
-            "group": change_request.registrant_id.name,
-            "end_date": str(detail.end_date),
-            "reason": detail.end_reason,
+            "_header": _("The following individual is to be removed."),
+            _("Member"): detail.individual_id.display_name if detail.individual_id else None,
+            _("Group"): change_request.registrant_id.display_name,
+            _("Reason for Removal"): reason_label,
+            _("Additional Information"): detail.remarks or None,
         }

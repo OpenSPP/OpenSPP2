@@ -3,7 +3,9 @@ import logging
 from markupsafe import escape as html_escape
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
+
+from .frozen_value import normalize_frozen_value
 
 _logger = logging.getLogger(__name__)
 
@@ -392,10 +394,43 @@ class SPPChangeRequest(models.Model):
                 )
             rec.stage_banner_html = html
 
-    @api.depends("document_ids", "document_ids.document_type_id", "request_type_id.required_document_ids")
+    def _get_effective_required_document_ids(self):
+        """Return the document types required for this request.
+
+        When the request type defines per-reason document rules (OP#873) and the
+        request's detail exposes a matching reason, that rule's documents take
+        precedence over the flat ``required_document_ids`` list. A configured
+        rule with no documents means nothing is required for that reason."""
+        self.ensure_one()
+        empty = self.env["spp.vocabulary.code"]
+        rt = self.request_type_id
+        if not rt:
+            return empty
+        reason_rules = rt.reason_document_ids
+        if reason_rules:
+            detail = self.get_detail()
+            # The reason lives on `reason` (Change HoH), `split_reason` (Split)
+            # or `end_reason` (Remove Member).
+            reason = False
+            if detail:
+                for rfield in ("reason", "split_reason", "end_reason"):
+                    if rfield in detail._fields and detail[rfield]:
+                        reason = detail[rfield]
+                        break
+            if reason:
+                rule = reason_rules.filtered(lambda r: r.reason == reason)
+                return rule[:1].required_document_ids if rule else empty
+        return rt.required_document_ids
+
+    @api.depends(
+        "document_ids",
+        "document_ids.document_type_id",
+        "request_type_id.required_document_ids",
+        "request_type_id.reason_document_ids",
+    )
     def _compute_missing_required_documents(self):
         for rec in self:
-            required = rec.request_type_id.required_document_ids if rec.request_type_id else None
+            required = rec._get_effective_required_document_ids() if rec.request_type_id else None
             if not required:
                 rec.missing_required_document_ids = self.env["spp.vocabulary.code"]
                 rec.documents_complete = True
@@ -405,10 +440,15 @@ class SPPChangeRequest(models.Model):
             rec.missing_required_document_ids = missing
             rec.documents_complete = not bool(missing)
 
-    @api.depends("document_ids", "document_ids.document_type_id", "request_type_id.required_document_ids")
+    @api.depends(
+        "document_ids",
+        "document_ids.document_type_id",
+        "request_type_id.required_document_ids",
+        "request_type_id.reason_document_ids",
+    )
     def _compute_required_documents_html(self):
         for rec in self:
-            required = rec.request_type_id.required_document_ids if rec.request_type_id else None
+            required = rec._get_effective_required_document_ids() if rec.request_type_id else None
             if not required:
                 rec.required_documents_html = (
                     '<div class="alert alert-info mb-3 py-2">'
@@ -624,6 +664,76 @@ class SPPChangeRequest(models.Model):
             ):
                 record._run_conflict_checks()
         return records
+
+    # Fields that bind a submitted CR to exactly what was routed and approved:
+    # the dynamic-approval selection (synced from the detail's field_to_modify in
+    # draft) and the detail record pointer that get_detail() resolves for both
+    # routing and apply. Once the CR leaves draft/revision these are frozen — else
+    # a user could route on a low-risk field / benign detail and then swap the
+    # selection or repoint detail_res_id to a substituted detail before apply.
+    # Editing requires reset to draft, which re-routes. (These fields are never
+    # written by the apply strategies, so the guard needs no apply-path exemption.)
+    _FROZEN_ON_SUBMIT_FIELDS = (
+        "selected_field_name",
+        "selected_field_old_value",
+        "selected_field_new_value",
+        "detail_res_id",
+        "detail_res_model",
+    )
+
+    def _detail_row_belongs_to_self(self, detail_id):
+        """Whether ``detail_id`` is a detail row already pointing at this request.
+
+        Used to tell binding a detail apart from substituting one. Reads with
+        ``sudo()`` because the caller may not have access to the detail model,
+        and the answer is only ever used to reject or allow, never returned.
+        """
+        self.ensure_one()
+        if not detail_id or not self.detail_res_model:
+            return False
+        model = self.env.get(self.detail_res_model)
+        if model is None:
+            return False
+        parent_field = "x_change_request_id" if "x_change_request_id" in model._fields else "change_request_id"
+        if parent_field not in model._fields:
+            return False
+        # sudo: the caller may hold no access to the detail model, and the answer
+        # is only ever used to accept or reject the write -- the record itself is
+        # never returned or exposed. Reads a single field on a single row.
+        detail = model.sudo().browse(int(detail_id)).exists()  # nosemgrep: odoo-sudo-without-context
+        return bool(detail) and detail[parent_field].id == self.id
+
+    def _alters_frozen_field(self, field, value):
+        """Whether writing ``value`` to ``field`` changes what was approved."""
+        self.ensure_one()
+        if normalize_frozen_value(value) == normalize_frozen_value(self[field]):
+            return False
+        # Binding a detail row for the first time is not a re-route. A submitted
+        # request that never got one cannot be opened at all -- get_detail()
+        # resolves nothing -- and ``_ensure_detail()`` exists to repair exactly
+        # that, so refusing the write left the record permanently unopenable
+        # from any context, sudo included. Only a row that already points back
+        # at this request is accepted, so this cannot be used to attach a
+        # substituted detail after approval.
+        if field == "detail_res_id" and not normalize_frozen_value(self[field]):
+            return not self._detail_row_belongs_to_self(value)
+        return True
+
+    def write(self, vals):
+        guarded = [f for f in self._FROZEN_ON_SUBMIT_FIELDS if f in vals]
+        if guarded:
+            for rec in self:
+                if rec.approval_state in ("draft", "revision") or not rec.approval_state:
+                    continue
+                if any(rec._alters_frozen_field(f, vals[f]) for f in guarded):
+                    raise UserError(
+                        _(
+                            "A submitted change request is locked to the change it was "
+                            "routed and approved for; its selected field and detail record "
+                            "cannot be changed. Reset the request to draft to re-route."
+                        )
+                    )
+        return super().write(vals)
 
     def unlink(self):
         """Delete associated detail records and archive DMS directory."""
@@ -982,7 +1092,17 @@ class SPPChangeRequest(models.Model):
         self._create_audit_event("approved", "pending", "approved")
         self._create_log("approved")
         if self.request_type_id.auto_apply_on_approve:
-            self.action_apply()
+            # Auto-apply is authorized by the approval workflow itself, so it
+            # runs with sudo: ``action_apply``'s manager gate exempts
+            # ``env.su``, which lets the approver be a validator rather than a
+            # manager. Going through the public entry point rather than the
+            # internal mechanism keeps ``action_apply`` the single extension
+            # point for apply -- downstream modules override it to hang
+            # post-apply work off the apply, and routing around it left those
+            # overrides silently not running on approval. ``sudo()`` sets
+            # ``su`` without changing ``uid``, so ``applied_by_id`` still
+            # records the real approver.
+            self.sudo().action_apply()  # nosemgrep: odoo-sudo-without-context
 
     def _on_reject(self, reason):
         super()._on_reject(reason)
@@ -1154,13 +1274,74 @@ class SPPChangeRequest(models.Model):
 
         action = changes.pop("_action", None)
         header = changes.pop("_header", None)
+        tables = changes.pop("_tables", None)
+        sections = changes.pop("_sections", None)
 
         # Determine if this is a field-mapping type (has old/new dicts)
         has_comparison = any(isinstance(v, dict) and "old" in v and "new" in v for v in changes.values())
 
         if has_comparison:
-            return self._render_comparison_table(changes, header=header)
-        return self._render_action_summary(action, changes, header=header)
+            html = self._render_comparison_table(changes, header=header)
+        else:
+            html = self._render_action_summary(action, changes, header=header)
+        if tables:
+            html += self._render_data_tables(tables)
+        if sections:
+            html += self._render_data_sections(sections)
+        return html
+
+    def _render_data_tables(self, tables):
+        """Render preview() ``_tables`` entries as separate HTML tables.
+
+        Each entry is ``{"title", "columns", "rows"}`` where ``rows`` is a list
+        of cell-string lists. Used to show one2many data (phones, bank accounts,
+        ID documents, ...) on the review page instead of a bare count (OP#876).
+        """
+        out = []
+        for table in tables:
+            columns = table.get("columns") or []
+            rows = table.get("rows") or []
+            out.append(f'<h6 class="mt-3 mb-1">{html_escape(table.get("title") or "")}</h6>')
+            if not rows:
+                out.append('<div class="text-muted small mb-0"><i class="fa fa-info-circle me-2"></i>None.</div>')
+                continue
+            out.append('<table class="table table-sm table-bordered mb-0" style="width:100%">')
+            out.append(
+                "<thead><tr>"
+                + "".join(f'<th class="bg-light">{html_escape(c)}</th>' for c in columns)
+                + "</tr></thead>"
+            )
+            out.append("<tbody>")
+            for row in rows:
+                out.append(
+                    "<tr>" + "".join(f"<td>{html_escape('' if c is None else str(c))}</td>" for c in row) + "</tr>"
+                )
+            out.append("</tbody></table>")
+        return "".join(out)
+
+    def _render_data_sections(self, sections):
+        """Render preview() ``_sections`` entries — one labelled detail block per
+        entity (e.g. each new group member): its fields as a key/value table plus
+        any nested ``tables`` (e.g. that member's phone numbers) (OP#876).
+        """
+        out = []
+        for section in sections:
+            out.append(f'<h6 class="mt-3 mb-1">{html_escape(section.get("title") or "")}</h6>')
+            field_rows = section.get("fields") or []
+            if field_rows:
+                out.append('<table class="table table-sm table-bordered mb-0" style="width:100%">')
+                out.append("<tbody>")
+                for label, value in field_rows:
+                    display = html_escape(value) if value else '<span class="text-muted">—</span>'
+                    out.append(
+                        f'<tr><td class="bg-light" style="width:30%"><strong>{html_escape(label)}</strong></td>'
+                        f"<td>{display}</td></tr>"
+                    )
+                out.append("</tbody></table>")
+            nested = section.get("tables")
+            if nested:
+                out.append(self._render_data_tables(nested))
+        return "".join(out)
 
     def _render_comparison_table(self, changes, header=None):
         """Render a three-column comparison table for field-mapping CR types."""
@@ -1266,32 +1447,63 @@ class SPPChangeRequest(models.Model):
         self.preview_json_snapshot = json.dumps(changes, indent=2, default=str)
 
     def action_apply(self):
-        """Apply the change request to the registrant."""
+        """Apply the change request(s) to the registrant.
+
+        Public entrypoint (review button / RPC). Applying runs the apply
+        strategy under sudo (see ``_do_apply``), which can write models CR
+        roles cannot (e.g. ``spp.group.membership``), so it must be gated
+        server-side to managers: the XML button ``groups=`` is NOT an
+        authorization boundary because Odoo object methods are callable over
+        RPC. Superuser (``env.su``) callers are exempt, and
+        auto-apply-on-approve is one of them: ``_on_approve`` reaches this
+        method through ``sudo()``, already authorized by the approval workflow
+        itself, so the approver may be a validator rather than a manager.
+
+        This is also the extension point for apply, so an override runs on both
+        paths -- under ``su`` when auto-applied on approval, and as the manager
+        who clicked Apply on the manual path. ``sudo()`` sets ``su`` without
+        changing ``uid``, so ``self.env.user`` is the approver either way and
+        ``applied_by_id`` records them, not the superuser.
+        """
+        if not (self.env.su or self.env.user.has_group("spp_change_request_v2.group_cr_manager")):
+            raise AccessError(_("Only Change Request managers can apply change requests."))
         for rec in self:
-            if rec.is_applied:
-                raise UserError(_("Changes have already been applied."))
-            if rec.approval_state != "approved":
-                raise UserError(_("Change request must be approved first."))
+            rec._apply_change_request()
 
-            try:
-                # Capture preview snapshot before applying
-                rec._capture_preview_snapshot()
+    def _apply_change_request(self):
+        """Apply a single approved change request (no authorization gate).
 
-                rec._do_apply()
-                rec.write(
-                    {
-                        "is_applied": True,
-                        "applied_date": fields.Datetime.now(),
-                        "applied_by_id": self.env.user.id,
-                        "apply_error": False,
-                    }
-                )
-                rec._create_audit_event("applied", "approved", "applied")
-                rec._create_log("applied")
-            except Exception as e:
-                _logger.exception("Failed to apply change request %s", rec.name)
-                rec.write({"apply_error": str(e)})
-                raise
+        Internal mechanism shared by ``action_apply`` (manager-gated public
+        entrypoint) and auto-apply-on-approve (``_on_approve``, already
+        authorized by the approval workflow). Underscore-prefixed so it is not
+        callable over RPC — the authorization boundary lives on
+        ``action_apply``.
+        """
+        self.ensure_one()
+        if self.is_applied:
+            raise UserError(_("Changes have already been applied."))
+        if self.approval_state != "approved":
+            raise UserError(_("Change request must be approved first."))
+
+        try:
+            # Capture preview snapshot before applying
+            self._capture_preview_snapshot()
+
+            self._do_apply()
+            self.write(
+                {
+                    "is_applied": True,
+                    "applied_date": fields.Datetime.now(),
+                    "applied_by_id": self.env.user.id,
+                    "apply_error": False,
+                }
+            )
+            self._create_audit_event("applied", "approved", "applied")
+            self._create_log("applied")
+        except Exception as e:
+            _logger.exception("Failed to apply change request %s", self.name)
+            self.write({"apply_error": str(e)})
+            raise
 
     def _do_apply(self):
         """Execute the apply strategy.

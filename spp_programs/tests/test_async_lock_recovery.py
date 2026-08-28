@@ -11,8 +11,8 @@ These tests exercise the recovery surface:
 - the new `mark_*_as_failed` companions clear the lock too
 - the existing `mark_*_as_done` paths clear the lock first (so a chatter
   failure can't leave the lock set)
-- `action_force_unlock` is a manager-only escape hatch when no callback
-  fires at all (e.g. server killed mid-operation)
+- `action_force_unlock` is a system-administrator-only escape hatch when
+  no callback fires at all (e.g. server killed mid-operation)
 """
 
 import uuid

@@ -31,16 +31,12 @@ class SPPCRDetailRemoveMember(models.Model):
         readonly=True,
         help="Membership record for the individual (automatically set)",
     )
-    end_date = fields.Date(
-        string="End Date",
-        default=fields.Date.today,
-        tracking=True,
-    )
+    # OP#872: "Married Out" removed from the reasons; End Date removed (it had no
+    # effect — removal applies immediately on approval).
     end_reason = fields.Selection(
         [
             ("left_household", "Left Household"),
             ("deceased", "Deceased"),
-            ("married_out", "Married Out"),
             ("migrated", "Migrated"),
             ("correction", "Data Correction"),
             ("other", "Other"),
@@ -53,12 +49,6 @@ class SPPCRDetailRemoveMember(models.Model):
     # ══════════════════════════════════════════════════════════════════════════
     # COMPUTED FIELDS
     # ══════════════════════════════════════════════════════════════════════════
-
-    member_name = fields.Char(
-        string="Member Name",
-        related="individual_id.name",
-        readonly=True,
-    )
 
     @api.depends("change_request_id.registrant_id")
     def _compute_available_individuals(self):

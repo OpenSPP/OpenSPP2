@@ -1,7 +1,7 @@
 {  # pylint: disable=pointless-statement
     "name": "OpenSPP Attachment Antivirus Scan",
     "category": "OpenSPP",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.1.0",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -23,6 +23,7 @@
         "security/ir.model.access.csv",
         "data/av_scanner_data.xml",
         "data/quarantine_cron.xml",
+        "data/scan_sweep_cron.xml",
         "views/av_scanner_backend_views.xml",
         "views/ir_attachment_views.xml",
     ],

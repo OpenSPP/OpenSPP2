@@ -12,10 +12,17 @@
         groups="spp_security.group_spp_admin,spp_registry.group_registry_manager,spp_registry.group_registry_officer,spp_registry.group_registry_viewer"
     />
 
+    <!--
+        OP#1009: this "Configuration" menu (and every child menu other modules
+        hang off it) lives under Settings → Registry instead of the Registry app.
+        Its parent (menu_registry_settings_root) is defined in
+        res_config_settings_views.xml, which the manifest loads before this file
+        so the reference resolves.
+    -->
     <menuitem
         id="spp_configuration_menu_root"
         name="Configuration"
-        parent="spp_main_menu_root"
+        parent="menu_registry_settings_root"
         sequence="1000"
         groups="spp_security.group_spp_admin,spp_registry.group_registry_config_admin"
     />

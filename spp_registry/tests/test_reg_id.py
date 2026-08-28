@@ -317,6 +317,131 @@ class TestUniquePartnerIDType(RegIdCommon):
         )
         self.assertTrue(rec.id)
 
+    # ── OP#1136: an Invalid ID must not reserve its type forever ──
+
+    def test_new_id_allowed_when_existing_one_is_invalid(self):
+        """The reported bug.
+
+        Removing an ID through a change request marks it Invalid rather than
+        deleting it. The uniqueness rule counted that dead row, so the type
+        could never be used again for that registrant.
+        """
+        self.RegId.create(
+            {
+                "partner_id": self.individual_a.id,
+                "id_type_id": self.id_type_national.id,
+                "value": "removed-via-cr",
+                "status": "invalid",
+            }
+        )
+
+        replacement = self.RegId.create(
+            {
+                "partner_id": self.individual_a.id,
+                "id_type_id": self.id_type_national.id,
+                "value": "the-new-one",
+                "status": "valid",
+            }
+        )
+
+        self.env.flush_all()
+        self.assertTrue(replacement.id)
+
+    def test_second_valid_id_of_same_type_still_rejected(self):
+        """A live ID still reserves its type."""
+        self.RegId.create(
+            {
+                "partner_id": self.individual_a.id,
+                "id_type_id": self.id_type_national.id,
+                "value": "the-live-one",
+                "status": "valid",
+            }
+        )
+
+        with self.assertRaises(ValidationError):
+            self.RegId.create(
+                {
+                    "partner_id": self.individual_a.id,
+                    "id_type_id": self.id_type_national.id,
+                    "value": "a-second-one",
+                    "status": "valid",
+                }
+            )
+            self.env.flush_all()
+
+    def test_id_with_no_status_still_reserves_its_type(self):
+        """IDs added straight through the registry carry no status.
+
+        Those are live records, not removed ones, so they must keep blocking a
+        duplicate — otherwise the fix would open a hole for every ID that was
+        never touched by a change request.
+        """
+        self.RegId.create(
+            {
+                "partner_id": self.individual_a.id,
+                "id_type_id": self.id_type_national.id,
+                "value": "added-in-the-registry",
+            }
+        )
+
+        with self.assertRaises(ValidationError):
+            self.RegId.create(
+                {
+                    "partner_id": self.individual_a.id,
+                    "id_type_id": self.id_type_national.id,
+                    "value": "a-duplicate",
+                }
+            )
+            self.env.flush_all()
+
+    def test_two_invalid_ids_of_the_same_type_are_tolerated(self):
+        """Successive removals leave more than one dead row behind."""
+        for value in ("first-removed", "second-removed"):
+            self.RegId.create(
+                {
+                    "partner_id": self.individual_a.id,
+                    "id_type_id": self.id_type_national.id,
+                    "value": value,
+                    "status": "invalid",
+                }
+            )
+        self.env.flush_all()
+
+        replacement = self.RegId.create(
+            {
+                "partner_id": self.individual_a.id,
+                "id_type_id": self.id_type_national.id,
+                "value": "current",
+                "status": "valid",
+            }
+        )
+        self.env.flush_all()
+        self.assertTrue(replacement.id)
+
+    def test_reviving_an_invalid_id_when_a_valid_one_exists_is_rejected(self):
+        """Flipping a dead row back to valid must not create two live ones."""
+        dead = self.RegId.create(
+            {
+                "partner_id": self.individual_a.id,
+                "id_type_id": self.id_type_national.id,
+                "value": "removed",
+                "status": "invalid",
+            }
+        )
+        self.RegId.create(
+            {
+                "partner_id": self.individual_a.id,
+                "id_type_id": self.id_type_national.id,
+                "value": "live",
+                "status": "valid",
+            }
+        )
+        self.env.flush_all()
+
+        with self.assertRaises(ValidationError):
+            dead.write({"status": "valid"})
+            self.env.flush_all()
+
 
 @tagged("post_install", "-at_install")
 class TestNameSearch(RegIdCommon):
@@ -376,3 +501,47 @@ class TestNameSearch(RegIdCommon):
         # Both seeded records should appear (limit defaults to 100).
         self.assertIn(self.rec_alice_national.id, ids)
         self.assertIn(self.rec_bob_tax.id, ids)
+
+
+@tagged("post_install", "-at_install")
+class TestStatusEmptyOnRegistryAdd(RegIdCommon):
+    """``status`` is left empty for IDs added via the registry UI (OP#1110).
+
+    Per the #1110 decision, IDs added directly through the registry (admin)
+    keep an empty status to stay consistent across the system; Valid/Invalid
+    is set only by the ID-document change request flow.
+    """
+
+    def test_new_id_status_empty(self):
+        """A directly-created ID (as the registry form does) has no status."""
+        rec = self.RegId.create(
+            {
+                "partner_id": self.individual_a.id,
+                "id_type_id": self.id_type_national.id,
+                "value": "NAT-123",
+            }
+        )
+        self.assertFalse(rec.status)
+
+    def test_group_id_status_empty(self):
+        """Same applies to IDs added on a group profile."""
+        rec = self.RegId.create(
+            {
+                "partner_id": self.group.id,
+                "id_type_id": self.id_type_national.id,
+                "value": "GRP-123",
+            }
+        )
+        self.assertFalse(rec.status)
+
+    def test_explicit_status_is_preserved(self):
+        """An explicit status (e.g. set by the CR flow) is respected."""
+        rec = self.RegId.create(
+            {
+                "partner_id": self.individual_a.id,
+                "id_type_id": self.id_type_national.id,
+                "value": "NAT-456",
+                "status": "invalid",
+            }
+        )
+        self.assertEqual(rec.status, "invalid")

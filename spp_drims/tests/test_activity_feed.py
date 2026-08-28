@@ -27,6 +27,9 @@ class TestActivityFeed(DrimsTestCommon):
                 "incident_id": self.incident.id,
                 "warehouse_id": self.warehouse.id,
                 "donor_name": "Test Donor for Audit",
+                "line_ids": [
+                    (0, 0, {"product_id": self.product.id, "quantity_pledged": 10, "uom_id": self.product.uom_id.id})
+                ],
             }
         )
 
@@ -57,7 +60,6 @@ class TestActivityFeed(DrimsTestCommon):
                 "incident_id": self.incident.id,
                 "destination_area_id": self.area.id,
                 "date_needed": date.today() + timedelta(days=7),
-                "source_warehouse_id": self.warehouse.id,
             }
         )
 

@@ -60,6 +60,21 @@ class TestProgramMembership(TransactionCase):
             }
         )
 
+    def _membership_for_a_new_registrant(self, state):
+        """A membership on its own registrant.
+
+        spp.program.membership is unique per (partner, program), so tests that
+        need several memberships at once cannot share the class fixture.
+        """
+        partner = self.env["res.partner"].create(
+            {
+                "name": f"Back To Draft {state} [TEST]",
+                "is_registrant": True,
+                "is_group": False,
+            }
+        )
+        return self._create_membership(partner=partner, state=state)
+
     # ------------------------------------------------------------------
     # Creation
     # ------------------------------------------------------------------
@@ -200,12 +215,56 @@ class TestProgramMembership(TransactionCase):
         with self.assertRaisesRegex(UserError, "Only enrolled or paused memberships can be exited"):
             membership.action_exit()
 
-    def test_14_back_to_draft_resets_state(self):
-        """back_to_draft() resets any membership to 'draft'."""
-        membership = self._create_membership(state="enrolled")
+    def test_14_back_to_draft_resets_a_duplicated_membership(self):
+        """The dead end this exists to undo (OP#1170)."""
+        membership = self._membership_for_a_new_registrant("duplicated")
         membership.back_to_draft()
 
         self.assertEqual(membership.state, "draft")
+
+    def test_14a_back_to_draft_resets_a_not_eligible_membership(self):
+        membership = self._membership_for_a_new_registrant("not_eligible")
+        membership.back_to_draft()
+
+        self.assertEqual(membership.state, "draft")
+
+    def test_14b_back_to_draft_refuses_other_states(self):
+        """It used to overwrite any state, which could undo an enrolment.
+
+        Now reachable from a list row, a bulk action and the form, so a stray
+        call is much easier to make than when it lived on the form alone.
+        """
+        for state in ("draft", "enrolled", "paused", "exited"):
+            with self.subTest(state=state):
+                membership = self._membership_for_a_new_registrant(state)
+                with self.assertRaises(UserError):
+                    membership.back_to_draft()
+                self.assertEqual(membership.state, state, "the state should be untouched")
+
+    def test_14c_back_to_draft_handles_a_recordset(self):
+        """The bulk action hands it a selection, not one record."""
+        duplicated = self._membership_for_a_new_registrant("duplicated")
+        not_eligible = self._membership_for_a_new_registrant("not_eligible")
+
+        (duplicated | not_eligible).back_to_draft()
+
+        self.assertEqual(duplicated.state, "draft")
+        self.assertEqual(not_eligible.state, "draft")
+
+    def test_14d_back_to_draft_rejects_a_mixed_selection_whole(self):
+        """A selection containing an ineligible record is refused outright.
+
+        The server action filters before calling, so the UI never sends a mixed
+        selection; this is the guard behind it, and it must not half-apply.
+        """
+        duplicated = self._membership_for_a_new_registrant("duplicated")
+        enrolled = self._membership_for_a_new_registrant("enrolled")
+
+        with self.assertRaises(UserError):
+            (duplicated | enrolled).back_to_draft()
+
+        self.assertEqual(duplicated.state, "duplicated", "nothing should have been written")
+        self.assertEqual(enrolled.state, "enrolled")
 
     # ------------------------------------------------------------------
     # Full lifecycle

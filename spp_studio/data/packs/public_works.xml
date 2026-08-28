@@ -28,21 +28,6 @@
         <field name="sequence">10</field>
     </record>
 
-    <!-- Eligibility: Physical Capability -->
-    <record id="pack_pw_item_physical" model="spp.studio.pack.item">
-        <field name="pack_id" ref="pack_public_works" />
-        <field name="name">Physical Work Capability</field>
-        <field name="context_type">individual</field>
-        <field
-            name="description"
-        >Beneficiary is physically able to perform manual labor (with accommodations for light duty).</field>
-        <field name="expression_type">filter</field>
-        <field
-            name="logic_data"
-        >{"cel_expression": "can_perform_manual_labor || eligible_for_light_duty"}</field>
-        <field name="sequence">20</field>
-    </record>
-
     <!-- Eligibility: One Per Household -->
     <record id="pack_pw_item_one_per_hh" model="spp.studio.pack.item">
         <field name="pack_id" ref="pack_public_works" />
@@ -69,21 +54,8 @@
         <field name="expression_type">filter</field>
         <field
             name="logic_data"
-        >{"cel_expression": "per_capita_income &lt;= poverty_threshold || is_food_insecure"}</field>
+        >{"cel_expression": "per_capita_income &lt;= poverty_threshold"}</field>
         <field name="sequence">40</field>
-    </record>
-
-    <!-- Eligibility: Seasonal Availability -->
-    <record id="pack_pw_item_seasonal" model="spp.studio.pack.item">
-        <field name="pack_id" ref="pack_public_works" />
-        <field name="name">Seasonal Availability</field>
-        <field name="context_type">both</field>
-        <field name="description">Program operates during lean/off-farm season.</field>
-        <field name="expression_type">filter</field>
-        <field
-            name="logic_data"
-        >{"cel_expression": "is_lean_season || !has_active_farm_work"}</field>
-        <field name="sequence">50</field>
     </record>
 
     <!-- Scoring: Work Priority Score -->

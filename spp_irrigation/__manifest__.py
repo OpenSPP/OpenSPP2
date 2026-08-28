@@ -5,7 +5,7 @@
 {
     "name": "OpenSPP Irrigation",
     "category": "OpenSPP",
-    "version": "19.0.2.1.0",
+    "version": "19.0.2.1.1",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",

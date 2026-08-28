@@ -12,7 +12,7 @@ from odoo.addons.fastapi.dependencies import odoo_env
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from ..middleware.auth import get_authenticated_client
-from ..schemas.bundle import Bundle, BundleEntry, BundleLink, BundleSearch
+from ..schemas.bundle import BundleLink, BundleSearch, RegistrantBundle, RegistrantBundleEntry
 from ..schemas.filter import FilterMetadataResponse, SearchRequest
 from ..services.consent_service import ConsentService
 from ..services.filter_service import FilterService
@@ -73,7 +73,7 @@ def _create_search_endpoint(resource_name: str):
         env: Annotated[Environment, Depends(odoo_env)],
         api_client: Annotated[object, Depends(get_authenticated_client)],
         extensions: Annotated[str | None, Query(alias="_extensions")] = None,
-    ) -> Bundle:
+    ) -> RegistrantBundle:
         """
         Advanced search with complex filter conditions.
 
@@ -194,7 +194,7 @@ def _create_search_endpoint(resource_name: str):
                             continue
 
                 entries.append(
-                    BundleEntry(
+                    RegistrantBundleEntry(
                         resource=data,
                         search=BundleSearch(mode="match", score=1.0),
                     )
@@ -233,7 +233,7 @@ def _create_search_endpoint(resource_name: str):
                 )
             )
 
-        return Bundle(
+        return RegistrantBundle(
             resourceType="Bundle",
             type="searchset",
             total=total,
@@ -259,7 +259,7 @@ individual_filter_router.add_api_route(
     "/_search",
     _create_search_endpoint("Individual"),
     methods=["POST"],
-    response_model=Bundle,
+    response_model=RegistrantBundle,
     response_model_exclude_none=True,
     summary="Advanced Individual Search",
     description="Search individuals with complex filter conditions",
@@ -280,7 +280,7 @@ group_filter_router.add_api_route(
     "/_search",
     _create_search_endpoint("Group"),
     methods=["POST"],
-    response_model=Bundle,
+    response_model=RegistrantBundle,
     response_model_exclude_none=True,
     summary="Advanced Group Search",
     description="Search groups with complex filter conditions",

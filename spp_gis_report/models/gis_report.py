@@ -3,7 +3,9 @@ import statistics
 from ast import literal_eval
 
 from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 from odoo.osv import expression
+from odoo.tools.sql import SQL
 
 _logger = logging.getLogger(__name__)
 
@@ -294,18 +296,23 @@ class GISReport(models.Model):
     )
 
     # ===== Disaggregation Configuration =====
-    disaggregate_by_gender = fields.Boolean(
-        "Disaggregate by Gender",
-        help="Show gender breakdown in popup",
+    dimension_ids = fields.Many2many(
+        "spp.demographic.dimension",
+        string="Disaggregation Dimensions",
+        help="Demographic dimensions to compute disaggregation for (e.g., gender, age group)",
     )
-    disaggregate_by_age = fields.Boolean(
-        "Disaggregate by Age Group",
-        help="Show age group breakdown in popup",
+    member_expansion = fields.Selection(
+        [("none", "No Expansion"), ("expand", "Expand to Members")],
+        "Member Expansion",
+        default="none",
+        help=(
+            "For group-filtered reports, expand to individual members "
+            "for demographic breakdown (e.g., gender, age). "
+            "Use 'Expand to Members' when dimensions should be evaluated "
+            "on individuals inside groups, not on the groups themselves."
+        ),
     )
-    disaggregate_by_disability = fields.Boolean(
-        "Disaggregate by Disability",
-        help="Show disability status breakdown",
-    )
+
     disaggregate_by_tag_ids = fields.Many2many(
         "spp.vocabulary",
         string="Disaggregate by Tags",
@@ -435,46 +442,50 @@ class GISReport(models.Model):
             else:
                 report.is_stale = False
 
-    def _compute_base_aggregation(self):
-        """Compute aggregated values at the base area level.
+    @api.constrains("member_expansion", "source_model")
+    def _check_member_expansion(self):
+        """Validate member_expansion is only used with res.partner source model."""
+        for report in self:
+            if report.member_expansion == "expand" and report.source_model != "res.partner":
+                raise ValidationError(
+                    _("Member expansion is only supported for reports with 'Contact' (res.partner) source model.")
+                )
 
-        Uses Odoo's read_group for efficient aggregation. For very large
-        datasets (1M+ records), consider using PostGIS-optimized SQL queries.
+    def _prepare_area_context(self):
+        """Build shared area context for aggregation and disaggregation.
+
+        Computes the filter domain, area field, base areas, and the
+        child_to_base mapping that maps descendant areas to their
+        base-level ancestor. Both _compute_base_aggregation and
+        _compute_disaggregation use this context.
 
         Returns:
-            dict: {area_id: {'raw': float, 'count': int, 'weight': float}}
+            dict: Area context with keys:
+                - domain: list, the filter domain including area filter
+                - child_to_base: dict, mapping area_id -> base_area_id
+                - base_areas: recordset, areas at base_area_level
+                - area_field: str, first part of area_field_path
+            Returns None if no source model or no base areas exist.
         """
         self.ensure_one()
-        _logger.info("Computing base aggregation for report ID %s", self.id)
 
-        # Get the source model
         if not self.source_model:
             _logger.warning("No source model configured for report ID %s", self.id)
-            return {}
+            return None
 
-        Model = self.env[self.source_model]
-
-        # Build the filter domain
         domain = self._build_filter_domain()
-
-        # Get area field (first part of path)
         area_field = self.area_field_path.split(".")[0]
 
-        # Get areas at the base level
         base_areas = self.env["spp.area"].search([("area_level", "=", self.base_area_level)])
-
         if not base_areas:
             _logger.info("No areas at level %s found", self.base_area_level)
-            return {}
+            return None
 
         # Build mapping from descendant areas to their base-level ancestor.
         # Registrants may be assigned to areas more granular than base_area_level
         # (e.g., barangays when base level is municipality). We include all
         # descendant areas in the query and aggregate results back to the
         # base-level parent.
-        #
-        # Fetch all descendants of all base areas in a single query, then build
-        # the child_to_base mapping in memory to avoid an N+1 query pattern.
         child_to_base = {base_area.id: base_area.id for base_area in base_areas}
         all_descendants = self.env["spp.area"].search(
             [
@@ -482,7 +493,6 @@ class GISReport(models.Model):
                 ("id", "not in", base_areas.ids),
             ]
         )
-        # For each descendant, walk up its parent chain to find the base-level ancestor
         for desc in all_descendants:
             ancestor = desc.parent_id
             while ancestor and ancestor.id not in child_to_base:
@@ -490,8 +500,43 @@ class GISReport(models.Model):
             if ancestor:
                 child_to_base[desc.id] = child_to_base[ancestor.id]
 
-        # Add area filter to domain (base areas + all descendants)
+        # Add area filter to domain
         domain.append((area_field, "in", list(child_to_base.keys())))
+
+        return {
+            "domain": domain,
+            "child_to_base": child_to_base,
+            "base_areas": base_areas,
+            "area_field": area_field,
+        }
+
+    def _compute_base_aggregation(self, area_context=None):
+        """Compute aggregated values at the base area level.
+
+        Uses Odoo's read_group for efficient aggregation. For very large
+        datasets (1M+ records), consider using PostGIS-optimized SQL queries.
+
+        Args:
+            area_context: Optional pre-computed area context from _prepare_area_context().
+                If not provided, it will be computed internally.
+
+        Returns:
+            dict: {area_id: {'raw': float, 'count': int, 'weight': float}}
+        """
+        self.ensure_one()
+        _logger.info("Computing base aggregation for report ID %s", self.id)
+
+        if area_context is None:
+            area_context = self._prepare_area_context()
+
+        if area_context is None:
+            return {}
+
+        Model = self.env[self.source_model]
+        domain = list(area_context["domain"])
+        area_field = area_context["area_field"]
+        base_areas = area_context["base_areas"]
+        child_to_base = area_context["child_to_base"]
 
         # Initialize results for all base areas with 0
         # This ensures areas with no matching records get 0 instead of being missing
@@ -569,6 +614,349 @@ class GISReport(models.Model):
                     "weight": 0,
                     "has_data": False,
                 }
+
+        return results
+
+    def _compute_disaggregation(self, area_context):
+        """Compute disaggregation counts per area for configured dimensions.
+
+        Uses SQL for performance when possible, with Python fallback for
+        dimensions that cannot compile to SQL. When member_expansion is
+        "expand", drills into group members to evaluate individual-level
+        demographics (gender, age) with area inheritance from the group.
+
+        Args:
+            area_context: Area context from _prepare_area_context()
+
+        Returns:
+            dict: {area_id: {dim_name: {raw_value: count}}}
+                  Empty dict if no dimensions or non-partner source model.
+        """
+        self.ensure_one()
+
+        if not self.dimension_ids:
+            return {}
+
+        if self.source_model != "res.partner":
+            return {}
+
+        if area_context is None:
+            return {}
+
+        child_to_base = area_context["child_to_base"]
+        area_field = area_context["area_field"]
+
+        # Compile dimensions to SQL, separating compilable from fallback
+        sql_dims = []  # [(dimension, SQLColumnResult)]
+        fallback_dims = []  # [dimension]
+        alias_counter = 0
+        partner_alias = "ind" if self.member_expansion == "expand" else "reg"
+
+        for dimension in self.dimension_ids:
+            result = dimension.to_sql_column(partner_alias, alias_counter)
+            if result is not None:
+                sql_dims.append((dimension, result))
+                alias_counter = result.alias_counter
+            else:
+                fallback_dims.append(dimension)
+
+        results = {}
+
+        if sql_dims:
+            results = self._disaggregation_sql(area_context, sql_dims, child_to_base, area_field, partner_alias)
+
+        if fallback_dims:
+            fallback_results = self._disaggregation_python(area_context, fallback_dims, child_to_base, area_field)
+            # Merge fallback results into main results
+            for area_id, dim_data in fallback_results.items():
+                results.setdefault(area_id, {}).update(dim_data)
+
+        return results
+
+    def _disaggregation_sql(self, area_context, sql_dims, child_to_base, area_field, partner_alias):
+        """Execute SQL-based disaggregation query.
+
+        Builds a single SQL query that:
+        1. Maps descendant areas to base-level areas via CTE
+        2. Optionally expands group membership to individuals (DISTINCT)
+        3. Computes all dimension values as SQL expressions
+        4. Unpivots dimensions via CROSS JOIN LATERAL VALUES
+        5. Groups by area + dimension + value
+        """
+        domain = list(area_context["domain"])
+
+        # Get matching registrant IDs (respects record rules via search())
+        Partner = self.env["res.partner"]
+        registrant_ids = Partner.search(domain, order="id").ids
+        if not registrant_ids:
+            return {}
+
+        # Build area_mapping CTE from child_to_base dict
+        area_mapping_values = SQL(", ").join(
+            SQL("(%s, %s)", child_id, base_id) for child_id, base_id in child_to_base.items()
+        )
+        area_mapping_cte = SQL(
+            "area_mapping(child_id, base_id) AS (VALUES %s)",
+            area_mapping_values,
+        )
+
+        # Collect all JOINs from dimension compilations
+        all_joins = []
+        for _dim, col_result in sql_dims:
+            all_joins.extend(col_result.joins)
+
+        # Build the dimension SELECT columns and VALUES entries
+        dim_select_parts = []
+        dim_values_entries = []
+        for dim, col_result in sql_dims:
+            col_alias = f"dim_{dim.name}"
+            dim_select_parts.append(SQL("%s AS %s", col_result.expression, SQL.identifier(col_alias)))
+            dim_values_entries.append(SQL("(%s, %s)", dim.name, SQL.identifier(col_alias)))
+
+        dim_select_sql = SQL(", ").join(dim_select_parts)
+        dim_values_sql = SQL(", ").join(dim_values_entries)
+
+        if self.member_expansion == "expand":
+            query = self._build_expand_query(
+                registrant_ids, area_mapping_cte, area_field, all_joins, dim_select_sql, dim_values_sql
+            )
+        else:
+            query = self._build_direct_query(
+                registrant_ids,
+                area_mapping_cte,
+                area_field,
+                all_joins,
+                dim_select_sql,
+                dim_values_sql,
+                partner_alias,
+            )
+
+        self.env.cr.execute(query)
+        rows = self.env.cr.fetchall()
+
+        # Parse results: (base_area_id, dim_name, dim_value, count)
+        results = {}
+        for base_area_id, dim_name, dim_value, cnt in rows:
+            area_disagg = results.setdefault(base_area_id, {})
+            dim_counts = area_disagg.setdefault(dim_name, {})
+            dim_counts[dim_value] = cnt
+
+        return results
+
+    def _build_expand_query(
+        self, registrant_ids, area_mapping_cte, area_field, all_joins, dim_select_sql, dim_values_sql
+    ):
+        """Build SQL query with member expansion (groups -> individuals)."""
+        area_field_col = SQL.identifier(area_field)
+
+        # Build JOINs string
+        joins_sql = SQL(" ").join(all_joins) if all_joins else SQL("")
+
+        return SQL(
+            """
+            WITH %s,
+            expanded AS (
+                SELECT DISTINCT ON (ind.id)
+                    am.base_id AS resolved_area_id,
+                    ind.id AS individual_id,
+                    %s
+                FROM res_partner grp
+                JOIN spp_group_membership gm ON gm.%s = grp.id AND NOT gm.%s
+                JOIN res_partner ind ON ind.id = gm.%s
+                %s
+                JOIN area_mapping am ON am.child_id = COALESCE(ind.%s, grp.%s)
+                WHERE grp.id IN %s
+                ORDER BY ind.id, grp.id
+            )
+            SELECT resolved_area_id, dim_name, dim_value, COUNT(*) AS cnt
+            FROM expanded
+            CROSS JOIN LATERAL (VALUES %s) AS dims(dim_name, dim_value)
+            GROUP BY resolved_area_id, dim_name, dim_value
+            """,
+            area_mapping_cte,
+            dim_select_sql,
+            SQL.identifier("group"),
+            SQL.identifier("is_ended"),
+            SQL.identifier("individual"),
+            joins_sql,
+            area_field_col,
+            area_field_col,
+            tuple(registrant_ids),
+            dim_values_sql,
+        )
+
+    def _build_direct_query(
+        self, registrant_ids, area_mapping_cte, area_field, all_joins, dim_select_sql, dim_values_sql, partner_alias
+    ):
+        """Build SQL query for direct registrant disaggregation (no expansion)."""
+        area_field_col = SQL.identifier(area_field)
+        alias_id = SQL.identifier(partner_alias)
+
+        # Build JOINs string
+        joins_sql = SQL(" ").join(all_joins) if all_joins else SQL("")
+
+        return SQL(
+            """
+            WITH %s,
+            registrants AS (
+                SELECT
+                    am.base_id AS resolved_area_id,
+                    %s.id AS registrant_id,
+                    %s
+                FROM res_partner %s
+                %s
+                JOIN area_mapping am ON am.child_id = %s.%s
+                WHERE %s.id IN %s
+            )
+            SELECT resolved_area_id, dim_name, dim_value, COUNT(*) AS cnt
+            FROM registrants
+            CROSS JOIN LATERAL (VALUES %s) AS dims(dim_name, dim_value)
+            GROUP BY resolved_area_id, dim_name, dim_value
+            """,
+            area_mapping_cte,
+            alias_id,
+            dim_select_sql,
+            alias_id,
+            joins_sql,
+            alias_id,
+            area_field_col,
+            alias_id,
+            tuple(registrant_ids),
+            dim_values_sql,
+        )
+
+    def _disaggregation_python(self, area_context, fallback_dims, child_to_base, area_field):
+        """Python fallback for dimensions that couldn't compile to SQL.
+
+        Uses the existing ORM-based evaluation path via the dimension cache.
+        When member_expansion is "expand", fetches individual members first.
+        """
+        domain = list(area_context["domain"])
+        base_areas = area_context["base_areas"]
+
+        Partner = self.env["res.partner"]
+        registrants = Partner.search_read(domain, [area_field], order="id")
+        if not registrants:
+            return {}
+
+        if self.member_expansion == "expand":
+            return self._disaggregation_python_expanded(registrants, fallback_dims, child_to_base, area_field)
+
+        # Direct mode: evaluate on the matching registrants
+        area_registrant_ids = {}
+        all_registrant_ids = []
+        for reg in registrants:
+            area_val = reg[area_field]
+            if not area_val:
+                continue
+            area_id = area_val[0] if isinstance(area_val, (list, tuple)) else area_val
+            base_id = child_to_base.get(area_id)
+            if base_id is None:
+                continue
+            area_registrant_ids.setdefault(base_id, []).append(reg["id"])
+            all_registrant_ids.append(reg["id"])
+
+        if not all_registrant_ids:
+            return {}
+
+        cache_service = self.env["spp.metric.dimension.cache"]
+        dim_evaluations = {}
+        for dimension in fallback_dims:
+            dim_evaluations[dimension.name] = cache_service.evaluate_dimension_batch(dimension, all_registrant_ids)
+
+        results = {}
+        for area_id in base_areas.ids:
+            reg_ids = area_registrant_ids.get(area_id, [])
+            if not reg_ids:
+                continue
+            area_disagg = {}
+            for dimension in fallback_dims:
+                evals = dim_evaluations[dimension.name]
+                value_counts = {}
+                for rid in reg_ids:
+                    value = evals.get(rid, dimension.default_value or "unknown")
+                    value_counts[value] = value_counts.get(value, 0) + 1
+                area_disagg[dimension.name] = value_counts
+            results[area_id] = area_disagg
+
+        return results
+
+    def _disaggregation_python_expanded(self, group_registrants, fallback_dims, child_to_base, area_field):
+        """Python fallback with member expansion for group-filtered reports."""
+        group_ids = [r["id"] for r in group_registrants]
+        if not group_ids:
+            return {}
+
+        # Build group area mapping
+        group_area = {}
+        for reg in group_registrants:
+            area_val = reg[area_field]
+            if area_val:
+                area_id = area_val[0] if isinstance(area_val, (list, tuple)) else area_val
+                group_area[reg["id"]] = area_id
+
+        # Find individual members of these groups
+        Membership = self.env["spp.group.membership"]
+        memberships = Membership.search_read(
+            [("group", "in", group_ids), ("is_ended", "=", False)],
+            ["individual", "group"],
+        )
+
+        if not memberships:
+            return {}
+
+        # Dedup members (first membership seen provides the group fallback,
+        # matching the SQL path's DISTINCT ON semantics)
+        seen_individuals = set()
+        member_group_area = {}
+        all_individual_ids = []
+
+        for mem in memberships:
+            ind_id = mem["individual"][0] if isinstance(mem["individual"], (list, tuple)) else mem["individual"]
+            if ind_id in seen_individuals:
+                continue
+            seen_individuals.add(ind_id)
+            all_individual_ids.append(ind_id)
+
+            grp_id = mem["group"][0] if isinstance(mem["group"], (list, tuple)) else mem["group"]
+            member_group_area[ind_id] = group_area.get(grp_id)
+
+        if not all_individual_ids:
+            return {}
+
+        # Individual's own area takes precedence, falling back to the group's —
+        # parity with the SQL path's COALESCE(ind.<area>, grp.<area>) so the
+        # same person cannot land in different areas across dimension paths.
+        own_area = {}
+        for rec in self.env["res.partner"].search_read([("id", "in", all_individual_ids)], [area_field]):
+            area_val = rec[area_field]
+            if area_val:
+                own_area[rec["id"]] = area_val[0] if isinstance(area_val, (list, tuple)) else area_val
+
+        individual_area = {}
+        for ind_id in all_individual_ids:
+            area_id = own_area.get(ind_id) or member_group_area.get(ind_id)
+            if area_id:
+                base_id = child_to_base.get(area_id)
+                if base_id:
+                    individual_area[ind_id] = base_id
+
+        cache_service = self.env["spp.metric.dimension.cache"]
+        dim_evaluations = {}
+        for dimension in fallback_dims:
+            dim_evaluations[dimension.name] = cache_service.evaluate_dimension_batch(dimension, all_individual_ids)
+
+        results = {}
+        for ind_id in all_individual_ids:
+            base_id = individual_area.get(ind_id)
+            if base_id is None:
+                continue
+            area_disagg = results.setdefault(base_id, {})
+            for dimension in fallback_dims:
+                evals = dim_evaluations[dimension.name]
+                value = evals.get(ind_id, dimension.default_value or "unknown")
+                dim_counts = area_disagg.setdefault(dimension.name, {})
+                dim_counts[value] = dim_counts.get(value, 0) + 1
 
         return results
 
@@ -1190,8 +1578,11 @@ class GISReport(models.Model):
         self.ensure_one()
         _logger.info("Starting full refresh for report ID %s", self.id)
 
+        # Step 0: Build shared area context
+        area_context = self._prepare_area_context()
+
         # Step 1: Compute base aggregation
-        base_results = self._compute_base_aggregation()
+        base_results = self._compute_base_aggregation(area_context)
 
         if not base_results:
             _logger.info("No data found for report ID %s", self.id)
@@ -1265,6 +1656,9 @@ class GISReport(models.Model):
                     }
                 )
 
+        # Step 7b: Compute disaggregation (if dimensions configured)
+        disaggregation_by_area = self._compute_disaggregation(area_context)
+
         # Step 8: Store results in spp.gis.report.data
         now = fields.Datetime.now()
 
@@ -1291,6 +1685,7 @@ class GISReport(models.Model):
                 "bucket_color": data.get("bucket_color", "#CCCCCC"),
                 "bucket_label": data.get("bucket_label", "No Data"),
                 "computed_at": now,
+                "disaggregation": disaggregation_by_area.get(area_id) or False,
             }
 
             if area_id in existing_data:
@@ -1473,6 +1868,10 @@ class GISReport(models.Model):
         # Get filtered data records
         data_records = self.env["spp.gis.report.data"].search(domain)
 
+        # Build threshold lookup for enriching bucket info with ranges
+        sorted_thresholds = self.threshold_ids.sorted("sequence")
+        threshold_ranges = {i: (t.min_value, t.max_value) for i, t in enumerate(sorted_thresholds)}
+
         # Build features
         features = []
         for data in data_records:
@@ -1496,6 +1895,8 @@ class GISReport(models.Model):
                     "index": data.bucket_index,  # null if no data
                     "color": data.bucket_color,
                     "label": data.bucket_label,
+                    "min_value": threshold_ranges.get(data.bucket_index, (None, None))[0],
+                    "max_value": threshold_ranges.get(data.bucket_index, (None, None))[1],
                 },
                 "weight": data.weight,
                 "record_count": data.record_count,
@@ -1511,9 +1912,11 @@ class GISReport(models.Model):
                     "household_count": data.area_id.household_count,
                 }
 
-            # Add disaggregation if requested
+            # Add disaggregation as flat disagg_* properties for QGIS compatibility
             if include_disaggregation and data.disaggregation:
-                properties["disaggregation"] = data.disaggregation
+                for dim_name, value_counts in data.disaggregation.items():
+                    for raw_value, count in value_counts.items():
+                        properties[f"disagg_{dim_name}_{raw_value}"] = count
 
             # Build feature
             feature = {
@@ -1587,6 +1990,28 @@ class GISReport(models.Model):
                 }
             )
         metadata["thresholds"] = thresholds
+
+        # Add disaggregation dimension metadata (for interpreting disagg_* properties)
+        if include_disaggregation and self.dimension_ids:
+            disagg_metadata = []
+            for dim in self.dimension_ids:
+                dim_info = {
+                    "name": dim.name,
+                    "label": dim.label,
+                    "property_prefix": f"disagg_{dim.name}_",
+                }
+                if dim.value_labels_json:
+                    labels = dim.value_labels_json
+                    if isinstance(labels, str):
+                        import json
+
+                        try:
+                            labels = json.loads(labels)
+                        except (json.JSONDecodeError, TypeError):
+                            labels = {}
+                    dim_info["value_labels"] = labels
+                disagg_metadata.append(dim_info)
+            metadata["disaggregation"] = disagg_metadata
 
         # Add summary statistics if we have data
         if data_records:

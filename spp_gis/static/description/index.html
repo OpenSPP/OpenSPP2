@@ -382,11 +382,15 @@ polygon fields.</p>
 any model using PostGIS spatial types</li>
 <li>Visualize records on interactive maps via the GIS view type</li>
 <li>Configure background raster layers (OpenStreetMap, WMS, satellite
-imagery)</li>
+imagery); map widgets fall back to OpenStreetMap styling when no
+MapTiler API key is configured</li>
 <li>Configure data layers with basic or choropleth (color-by-value)
 rendering</li>
 <li>Perform spatial queries (intersects, contains, within, distance-based)
-via <tt class="docutils literal">gis_locational_query()</tt></li>
+via <tt class="docutils literal">gis_locational_query()</tt>, including complex geometries
+(<tt class="docutils literal">MultiPolygon</tt>, <tt class="docutils literal">GeometryCollection</tt>) with distance buffering</li>
+<li>Save geographic areas of interest as geofences, classify them with
+tags, and export them as GeoJSON features</li>
 <li>Import area boundaries from GeoJSON/shapefiles via area import wizard</li>
 <li>Manage color schemes for thematic mapping with sequential, diverging,
 or qualitative palettes</li>
@@ -408,6 +412,13 @@ or qualitative palettes</li>
 <tr><td><tt class="docutils literal">spp.gis.raster.layer</tt></td>
 <td>Background map layers (OSM, WMS,
 image)</td>
+</tr>
+<tr><td><tt class="docutils literal">spp.gis.geofence</tt></td>
+<td>Saved geographic areas of interest
+(GeoJSON in/out)</td>
+</tr>
+<tr><td><tt class="docutils literal">spp.gis.geofence.tag</tt></td>
+<td>Tags for classifying geofences</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.gis.data.layer</tt></td>
 <td>Vector data layers referencing geo
@@ -507,6 +518,21 @@ linking <tt class="docutils literal">spp.gis.data.layer</tt> records</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.0</h1>
+<ul class="simple">
+<li>feat: spatial operators support MultiPolygon and GeometryCollection,
+including distance buffering (re-land from #76).</li>
+<li>feat: OSM style fallback in map renderer/edit widgets when no MapTiler
+API key is configured; placeholder key treated as unconfigured
+(re-land from #76).</li>
+<li>feat: geofence GeoJSON output includes the record uuid as feature id;
+new <tt class="docutils literal">spp.gis.geofence.tag</tt> model replaces vocabulary-based geofence
+tags (re-land from #76).</li>
+<li>feat: migration remaps existing vocabulary-based geofence tag links
+onto <tt class="docutils literal">spp.gis.geofence.tag</tt> records when upgrading from 19.0.2.0.x.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
