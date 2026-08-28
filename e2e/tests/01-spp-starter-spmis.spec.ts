@@ -20,6 +20,16 @@
 //   17 - Creates an "Edit Group Information" change request for Santos Family (as admin), uploads a supporting document, and submits it for approval
 //   18 - Creates an "Update ID Document" change request for Santos, Jose Miguel (as admin), sets a National ID with tomorrow's expiry date, uploads a supporting document, and submits it for approval
 //   19 - Creates an HQ validator user (hqval@mail.com) with the "CR HQ Validator" role and sets its password
+//   20 - Logs in as the HQ validator and resolves all three pending change requests: approves
+//        Edit Individual Information, rejects Edit Group Information (with a reason), and
+//        requests revision on Update ID Document (with revision notes)
+//   21 - Logs back in as admin and confirms the three resolutions actually took effect: the
+//        approved name change is reflected on the registrant, and the Change Requests list
+//        shows Rejected / Needs Changes for the other two
+//   22 - Imports 200 individual registrants in bulk via the Import records wizard
+//        (200_individuals.xlsx) and confirms the pager reflects the new count
+//   23 - Imports 200 group registrants in bulk via the Import records wizard
+//        (200_groups.xlsx) and confirms the pager reflects the new count
 //
 // All tests run in order and share a single browser session (test.describe.serial).
 // A fresh Docker stack is spun up in beforeAll so every run starts from a clean database.
@@ -30,7 +40,20 @@ import * as path from "path";
 
 async function login(page: Page) {
   await page.goto("/web/login");
-  await page.getByRole("textbox", {name: "Email"}).fill("admin");
+
+  // Odoo shows an avatar picker instead of the plain form once 2+ accounts
+  // have logged in during this browser session (admin + hqval, from test 20
+  // onward) — skip past it to reach the Email/Password fields.
+  const useAnotherUser = page.getByRole("button", {name: " Use another user"});
+  if (await useAnotherUser.count()) {
+    await useAnotherUser.click();
+    await expect(page.getByRole("button", {name: "Choose a user"})).toBeVisible();
+  }
+
+  const emailField = page
+    .getByRole("textbox", {name: "Email Choose a user"})
+    .or(page.getByRole("textbox", {name: "Email", exact: true}));
+  await emailField.fill("admin");
   await page.getByRole("textbox", {name: "Password"}).fill("admin");
   await page.getByRole("button", {name: "Log in"}).click();
   await expect(page.locator(".o_main_navbar")).toBeVisible({timeout: 30_000});
@@ -1194,5 +1217,175 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     ).toBeVisible();
     await page.getByRole("menuitem", {name: "Log out"}).click();
     console.log("✅ HQ validator user created and logged out");
+  });
+
+  test("20 - HQ validator resolves the three pending change requests", async () => {
+    // hqval hasn't logged in before this point, so only "admin" is a known cached
+    // account — Odoo shows the plain form directly here, not the avatar picker
+    // (that only appears once 2+ accounts are cached, as in test 21 below).
+    await page
+      .getByRole("textbox", {name: "Email Choose a user"})
+      .fill("hqval@mail.com");
+    await page.getByRole("textbox", {name: "Email Choose a user"}).press("Tab");
+    await page.getByRole("textbox", {name: "Password"}).fill("hqval1234$");
+    await page.getByRole("button", {name: "Log in"}).click();
+    await expect(
+      page.getByRole("row", {name: "CR/2026/00003 Update ID"})
+    ).toBeVisible();
+    console.log("✅ Logged in as HQ validator (hqval@mail.com)");
+
+    await page.getByRole("menuitem", {name: "All Requests"}).click();
+    await page.getByRole("cell", {name: "Edit Individual Information"}).click();
+    await expect(
+      page.getByRole("row", {name: "Given Name Jose Miguel Jose"})
+    ).toBeVisible();
+
+    await page.getByRole("button", {name: "Approve"}).click();
+    await expect(page.getByRole("heading", {name: "Confirmation"})).toBeVisible();
+    await page.getByRole("button", {name: "Ok"}).click();
+    await expect(page.getByRole("button", {name: "Messages"})).toBeVisible();
+    console.log("✅ Approved the Edit Individual Information change request");
+
+    await page.getByRole("menuitem", {name: "All Requests"}).click();
+    await expect(
+      page.getByRole("row", {name: "CR/2026/00003 Update ID"})
+    ).toBeVisible();
+    await page.getByRole("cell", {name: "Edit Group Information"}).click();
+    await expect(page.getByRole("row", {name: "Street — updated"})).toBeVisible();
+
+    await page.getByRole("button", {name: "Reject"}).click();
+    await expect(page.getByRole("heading", {name: "Confirmation"})).toBeVisible();
+    await page.getByRole("button", {name: "Ok"}).click();
+    await expect(page.getByRole("heading", {name: "Reject"})).toBeVisible();
+
+    await page
+      .getByRole("textbox", {name: "Rejection Reason?"})
+      .fill("wrong information");
+    await page.locator("#dialog_2").getByRole("button", {name: "Reject"}).click();
+    await expect(page.getByRole("button", {name: "Messages"})).toBeVisible();
+    console.log("✅ Rejected the Edit Group Information change request");
+
+    await page.getByRole("menuitem", {name: "All Requests"}).click();
+    await expect(
+      page.getByRole("row", {name: "CR/2026/00003 Update ID"})
+    ).toBeVisible();
+    await page.getByRole("cell", {name: "Update ID Document"}).click();
+    await expect(page.getByRole("radiogroup", {name: "Statusbar"})).toBeVisible();
+
+    await page.getByRole("button", {name: "Request Changes"}).click();
+    await page
+      .getByRole("textbox", {name: "Revision Notes?"})
+      .fill("ID document required");
+    await page.getByRole("button", {name: "Request Revision"}).click();
+    await expect(
+      page.getByRole("row", {name: "CR/2026/00003 Update ID"})
+    ).toBeVisible();
+    console.log("✅ Requested revision on the Update ID Document change request");
+
+    await page.getByRole("button", {name: "User User is online"}).click();
+    await expect(
+      page.getByRole("link", {name: "User is online Online "})
+    ).toBeVisible();
+    await page.getByRole("menuitem", {name: "Log out"}).click();
+    console.log("✅ HQ validator logged out");
+  });
+
+  test("21 - admin confirms the three change request resolutions took effect", async () => {
+    await expect(
+      page.getByRole("button", {name: "admin Administrator "})
+    ).toBeVisible();
+    await page.getByRole("button", {name: " Use another user"}).click();
+    await expect(page.getByRole("button", {name: "Choose a user"})).toBeVisible();
+
+    await page.getByRole("textbox", {name: "Email Choose a user"}).fill("admin");
+    await page.getByRole("textbox", {name: "Email Choose a user"}).press("Tab");
+    await page.getByRole("textbox", {name: "Password"}).fill("admin");
+    await page.getByRole("button", {name: "Log in"}).click();
+    await expect(page.getByRole("button", {name: "User User is online"})).toBeVisible();
+    console.log("✅ Logged back in as admin");
+
+    await page.getByRole("button", {name: "Browse All (Audit)"}).click();
+    await expect(page.getByRole("menuitem", {name: "All Individuals"})).toBeVisible();
+
+    await page.getByRole("button", {name: "Browse All (Audit)"}).click();
+    await page
+      .getByRole("textbox", {name: "Search by name, ID number,"})
+      .fill("updated");
+    await expect(page.locator("h6")).toContainText("SANTOS, JOSE MIGUEL UPDATED");
+    console.log("✅ Approved name change is reflected on the registrant");
+
+    await page.getByRole("menuitem", {name: "Change Requests"}).click();
+    await expect(page.locator("tbody")).toContainText("Rejected");
+    await expect(page.locator("tbody")).toContainText("Needs Changes");
+    console.log("✅ Change Requests list shows Rejected and Needs Changes");
+
+    await page.getByRole("button", {name: "User User is online"}).click();
+    await expect(
+      page.getByRole("link", {name: "User is online Online "})
+    ).toBeVisible();
+    await page.getByRole("menuitem", {name: "Log out"}).click();
+    console.log("✅ Admin logged out");
+  });
+
+  test("22 - imports 200 individual registrants via Excel file", async () => {
+    await login(page);
+    console.log("✅ Logged in as admin");
+
+    await page.getByRole("list").getByRole("menuitem", {name: "Registry"}).click();
+    await page.getByRole("button", {name: "Browse All (Audit)"}).click();
+    await page.getByRole("menuitem", {name: "All Individuals"}).click();
+
+    await page.getByRole("button", {name: "Actions menu"}).click();
+    await page.getByRole("menuitem", {name: " Import records"}).click();
+    // No click on "Upload Data File" first — that button triggers the hidden
+    // input's native click, popping a real OS file dialog that Playwright
+    // can't control. setInputFiles sets the file directly, no dialog needed.
+    await page
+      .locator('input[type="file"]')
+      .setInputFiles(path.resolve(__dirname, "..", "fixtures", "200_individuals.xlsx"));
+    await page.getByRole("button", {name: "Test"}).click();
+    await page.getByRole("button", {name: "Import"}).click();
+    await expect(page.getByLabel("Pager")).toContainText("200");
+    console.log("✅ Imported 200 individual registrants, pager confirms count");
+
+    await page.getByRole("button", {name: "User User is online"}).click();
+    await expect(
+      page.getByRole("link", {name: "User is online Online "})
+    ).toBeVisible();
+    await page.getByRole("menuitem", {name: "Log out"}).click();
+    console.log("✅ Admin logged out");
+  });
+
+  test("23 - imports 200 group registrants via Excel file", async () => {
+    await login(page);
+    console.log("✅ Logged in as admin");
+
+    await page.getByRole("button", {name: "Browse All (Audit)"}).click();
+    await expect(page.getByRole("menuitem", {name: "All Individuals"})).toBeVisible();
+    await page.getByRole("menuitem", {name: "All Groups"}).click();
+
+    await page.getByRole("button", {name: "Actions menu"}).click();
+    await page.getByRole("menuitem", {name: " Import records"}).click();
+    // No click on "Upload Data File" first — see the comment in test 22.
+    await page
+      .locator('input[type="file"]')
+      .setInputFiles(path.resolve(__dirname, "..", "fixtures", "200_groups.xlsx"));
+    await expect(page.getByRole("button", {name: "User User is online"})).toBeVisible();
+
+    await page.getByRole("button", {name: "Test"}).click();
+    await expect(page.locator("b")).toContainText("Everything seems valid.");
+    await page.getByRole("button", {name: "Import"}).click();
+    await expect(page.getByRole("alert")).toContainText(
+      "200 records successfully imported"
+    );
+    await page.getByText("200", {exact: true}).click();
+    console.log("✅ Imported 200 group registrants, pager confirms count");
+
+    await page.getByRole("button", {name: "User User is online"}).click();
+    await expect(
+      page.getByRole("link", {name: "User is online Online "})
+    ).toBeVisible();
+    await page.getByRole("menuitem", {name: "Log out"}).click();
+    console.log("✅ Admin logged out");
   });
 });

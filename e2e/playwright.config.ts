@@ -5,7 +5,11 @@ export default defineConfig({
   timeout: 600_000, // 10 min — covers 2x app installs + 3 min wait
   workers: 1,
   retries: 0,
-  reporter: [["list"], ["html", {outputFolder: "reports/html", open: "never"}]],
+  reporter: [
+    ["list"],
+    ["json", {outputFile: "reports/results.json"}],
+    ["html", {outputFolder: "reports/html", open: "never"}],
+  ],
   // These files are inherently slow (docker rebuild + module installs) and
   // can't be split into parallel workers — they share one serial browser
   // session per file. The "slow test file" hint doesn't apply here.

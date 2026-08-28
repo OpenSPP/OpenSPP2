@@ -52,21 +52,33 @@ jobs:
 
       - name: Record spec result
         if: always()
+        working-directory: e2e
         run: |
           case "${{ matrix.spec }}" in
             *spmis*) NAME="SP-MIS" ;;
             *farmer*) NAME="Farmer Registry" ;;
             *) NAME="${{ matrix.spec }}" ;;
           esac
+
+          if [ -f reports/results.json ]; then
+            TESTS=$(jq -c '[.. | .specs? // empty | .[] | {title, status: (.tests[0].results[-1].status // "skipped")}]' reports/results.json)
+          else
+            TESTS="[]"
+          fi
+
           mkdir -p status
-          echo "{\"name\": \"$NAME\", \"result\": \"${{ job.status }}\"}" > status/result-${{ strategy.job-index }}.json
+          jq -n \
+            --arg name "$NAME" \
+            --arg result "${{ job.status }}" \
+            --argjson tests "$TESTS" \
+            '{name: $name, result: $result, tests: $tests}' > status/result-${{ strategy.job-index }}.json
 
       - name: Upload spec result
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-status-${{ strategy.job-index }}
-          path: status/result-${{ strategy.job-index }}.json
+          path: e2e/status/result-${{ strategy.job-index }}.json
 
   notify:
     needs: e2e
@@ -102,7 +114,18 @@ jobs:
             NAME=$(jq -r .name "$f")
             RESULT=$(jq -r .result "$f")
             if [ "$RESULT" == "success" ]; then EMOJI="✅"; else EMOJI="❌"; fi
-            FIELDS=$(echo "$FIELDS" | jq --arg n "$NAME" --arg v "$RESULT $EMOJI" '. + [{"name": $n, "value": $v, "inline": false}]')
+
+            STEPS=$(jq -r '
+              (.tests // []) |
+              map(
+                (if .status == "passed" then "✅" else "❌" end)
+                + " " + (.title | sub("^[0-9]+ - "; "") | if length > 70 then .[0:70] + "…" else . end)
+              ) | join("\n")
+            ' "$f")
+            if [ -z "$STEPS" ]; then STEPS="_no step data_"; fi
+            STEPS="${STEPS:0:1000}"
+
+            FIELDS=$(echo "$FIELDS" | jq --arg n "$NAME $RESULT $EMOJI" --arg v "$STEPS" '. + [{"name": $n, "value": $v, "inline": false}]')
           done
 
           PAYLOAD=$(jq -n \
