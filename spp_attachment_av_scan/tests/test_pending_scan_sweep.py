@@ -363,3 +363,21 @@ class TestPendingScanSweep(TransactionCase):
         self.assertTrue(cron.active)
         self.assertEqual(cron.model_id.model, "ir.attachment")
         self.assertIn("_cron_sweep_pending_scans", cron.code)
+
+    def test_the_cron_and_config_defaults_are_not_reset_by_a_module_upgrade(self):
+        """The comments on these records invite the admin to tune them.
+
+        Without ``noupdate`` every module upgrade silently rewrites them: a raised batch
+        size, a lowered age threshold, or a deliberately disabled cron all snap back to
+        the shipped defaults.
+        """
+        for name in (
+            "ir_cron_sweep_pending_scans",
+            "config_param_pending_sweep_min_age_minutes",
+            "config_param_pending_sweep_batch_size",
+            "config_param_pending_sweep_max_attempts",
+        ):
+            with self.subTest(record=name):
+                imd = self.env["ir.model.data"].search([("module", "=", "spp_attachment_av_scan"), ("name", "=", name)])
+                self.assertTrue(imd, "the record must exist")
+                self.assertTrue(imd.noupdate, "an upgrade must keep admin-tuned values")
