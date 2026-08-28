@@ -947,6 +947,22 @@ curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.3</h1>
+<ul class="simple">
+<li>fix(api): error statuses on change-request endpoints are now
+consistent across the module and aligned with the platform’s global
+FastAPI error handler. <tt class="docutils literal">ValidationError</tt> on a state transition
+returns <tt class="docutils literal">422 Unprocessable Entity</tt> (previously <tt class="docutils literal">409 Conflict</tt>),
+matching what create and update already returned for the same
+condition — a missing rejection reason or revision notes is invalid
+input, not a conflict. <tt class="docutils literal">MissingError</tt> returns <tt class="docutils literal">404 Not Found</tt>. An
+authorization failure on create returns <tt class="docutils literal">403 Forbidden</tt> (previously
+swallowed by the generic handler as a <tt class="docutils literal">500</tt>). The <tt class="docutils literal">403</tt> response
+body is now a fixed generic detail instead of the raw Odoo message,
+which named models and record rules (anti-enumeration).</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.2</h1>
 <ul class="simple">
 <li>fix(api): an authorization failure on a change-request state
@@ -965,14 +981,14 @@ to 403 the same way, matching the platform’s global FastAPI error
 handler.</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix: skip field types before getattr and isolate detail prefetch
 (#129)</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
