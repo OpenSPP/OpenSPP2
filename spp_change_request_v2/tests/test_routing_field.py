@@ -121,6 +121,17 @@ class TestRoutingField(CRTestCase):
             cr.sudo().write({"approval_state": "approved"})
             cr.sudo()._apply_change_request()
 
+    def test_routing_field_is_exposed_in_the_type_form_view(self):
+        """The mapping list must let an admin see and set the routing key.
+
+        routing_field shadows source_field for matching, so a value set only
+        through the API would make apply refuse with nothing in the form
+        explaining why. The inline mapping list therefore exposes it, hidden
+        by default to keep the common case uncluttered.
+        """
+        arch = self.env.ref("spp_change_request_v2.spp_change_request_type_form").arch
+        self.assertIn('name="routing_field"', arch)
+
     def test_non_dynamic_types_are_unaffected(self):
         cr_type = self.CRType.create(
             {
