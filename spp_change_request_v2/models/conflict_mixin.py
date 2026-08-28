@@ -279,17 +279,17 @@ class SPPCRConflictMixin(models.AbstractModel):
         if registrant.is_group:
             if hasattr(registrant, "group_membership_ids"):
                 member_ids.extend(
-                    registrant.group_membership_ids.filtered(lambda m: not m.ended_date).mapped("individual_id.id")
+                    registrant.group_membership_ids.filtered(lambda m: not m.ended_date).mapped("individual.id")
                 )
 
         # If registrant is an individual, find their groups and group members
         else:
             if hasattr(registrant, "individual_membership_ids"):
                 for membership in registrant.individual_membership_ids.filtered(lambda m: not m.ended_date):
-                    group = membership.group_id
+                    group = membership.group
                     member_ids.append(group.id)
                     member_ids.extend(
-                        group.group_membership_ids.filtered(lambda m: not m.ended_date).mapped("individual_id.id")
+                        group.group_membership_ids.filtered(lambda m: not m.ended_date).mapped("individual.id")
                     )
 
         return list(set(member_ids))

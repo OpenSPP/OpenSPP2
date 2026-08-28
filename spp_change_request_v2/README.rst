@@ -752,22 +752,22 @@ Methods available for override on detail models (all inherited from
 Related fields available on all detail models (from
 ``spp.cr.detail.base``):
 
-+--------------------------+-----------+------------------------------------------------------------+
-| Field                    | Type      | Source                                                     |
-+==========================+===========+============================================================+
-| ``change_request_id``    | Many2one  | Direct link to parent CR                                   |
-+--------------------------+-----------+------------------------------------------------------------+
-| ``registrant_id``        | Many2one  | ``change_request_id.registrant_id``                        |
-+--------------------------+-----------+------------------------------------------------------------+
-| ``approval_state``       | Selection | ``change_request_id.approval_state``                       |
-+--------------------------+-----------+------------------------------------------------------------+
-| ``is_applied``           | Boolean   | ``change_request_id.is_applied``                           |
-+--------------------------+-----------+------------------------------------------------------------+
-| ``use_dynamic_approval`` | Boolean   | ``change_request_id.request_type_id.use_dynamic_approval`` |
-+--------------------------+-----------+------------------------------------------------------------+
-| ``field_to_modify``      | Selection | Dynamic field selector (populated by                       |
-|                          |           | ``_get_field_to_modify_selection``)                        |
-+--------------------------+-----------+------------------------------------------------------------+
++----------------------------+-----------+------------------------------------------------------------+
+| Field                      | Type      | Source                                                     |
++============================+===========+============================================================+
+| ``change_request_id``      | Many2one  | Direct link to parent CR                                   |
++----------------------------+-----------+------------------------------------------------------------+
+| ``registrant_id``          | Many2one  | ``change_request_id.registrant_id``                        |
++----------------------------+-----------+------------------------------------------------------------+
+| ``approval_state``         | Selection | ``change_request_id.approval_state``                       |
++----------------------------+-----------+------------------------------------------------------------+
+| ``is_applied``             | Boolean   | ``change_request_id.is_applied``                           |
++----------------------------+-----------+------------------------------------------------------------+
+| ``use_dynamic_approval``   | Boolean   | ``change_request_id.request_type_id.use_dynamic_approval`` |
++----------------------------+-----------+------------------------------------------------------------+
+| ``field_to_modify``        | Selection | Dynamic field selector (populated by                       |
+|                            |           | ``_get_field_to_modify_selection``)                        |
++----------------------------+-----------+------------------------------------------------------------+
 
 CR Type Fields Reference
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -852,6 +852,22 @@ Before declaring a new CR type complete:
 
 Changelog
 =========
+
+19.0.3.1.14
+~~~~~~~~~~~
+
+- fix(change_request): group-scope conflict rules work again.
+  ``_get_group_member_ids`` traversed ``spp.group.membership`` records
+  through ``individual_id`` and ``group_id``, but that model names its
+  many2ones ``individual`` and ``group`` — so resolving a household's
+  members raised ``KeyError``/``AttributeError`` instead of returning
+  them. A change request whose type carried an active group-scope
+  conflict rule crashed on creation for any group registrant, and for
+  any individual registrant with a live membership — exactly the
+  registrants the rule exists to check. The one existing test called the
+  method with a member-less individual, the single shape that happened
+  to work; group-scope detection is now tested with real memberships in
+  both directions, including that ended memberships are excluded.
 
 19.0.3.1.13
 ~~~~~~~~~~~
