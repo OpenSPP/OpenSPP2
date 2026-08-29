@@ -2,6 +2,14 @@
 
 - fix(registry): reject future dates of birth on every write path. `_birthdate_onchange` only guards the form UI, so ORM `create`/`write`, CSV/Excel import, and API writes (XML-RPC, API v2, DCI) could persist a future `birthdate` — which the non-stored `age` compute then rendered as a negative string. A stored-field `@api.constrains("birthdate")` (`_check_birthdate_not_future`) now enforces this server-side; the onchange is kept as the friendlier silent-reset UX in the form (#362)
 
+### 19.0.2.2.2
+
+- fix(registry): let an ID type be used again after its ID was removed. Removing an ID through a change request keeps the row and marks it Invalid, and the old uniqueness rule counted those dead rows — so the registrant was left with an Invalid ID and no way to add a valid one of the same type. Uniqueness now applies to live IDs only, and is refused before the write so the message names the ID type rather than surfacing a database error (#1136)
+
+### 19.0.2.2.1
+
+- feat(registry): registry configuration is consolidated into one **Registry Settings** section in the Settings app, with the Restrict Registry Edits toggle and the relocated superuser configuration menus (API V2, Import Match). Changing the toggle needs a Settings administrator; the section's menu is gated to match, since the framework refuses a settings save from anyone else (#1009)
+
 ### 19.0.2.1.4
 
 - fix(registry): remove the dead `@api.constrains("age")` `_check_age_is_integer` guard. `age` is a non-stored compute derived from `birthdate`, so the constraint never fired and only emitted the registry-load warning `@constrains parameter 'age' is not writeable`. Computed `age` values are unchanged; stale i18n entries for the removed message are dropped

@@ -20,6 +20,12 @@
                         />
                         <field name="scan_date" />
                         <field
+                            name="scan_queue_attempts"
+                            readonly="1"
+                            invisible="scan_status != 'pending' or scan_queue_attempts == 0"
+                            groups="spp_attachment_av_scan.group_av_admin"
+                        />
+                        <field
                             name="threat_name"
                             invisible="scan_status != 'infected'"
                             readonly="1"
@@ -110,6 +116,7 @@
                 />
                 <field name="is_quarantined" optional="hide" />
                 <field name="quarantine_date" optional="hide" />
+                <field name="scan_queue_attempts" optional="hide" />
             </xpath>
         </field>
     </record>

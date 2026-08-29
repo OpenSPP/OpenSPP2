@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Attendance Privileges -->
+    <record id="privilege_attendance_viewer" model="res.groups.privilege">
+        <field name="name">Viewer</field>
+        <field name="category_id" ref="spp_security.category_spp_service_points" />
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="privilege_attendance_manager" model="res.groups.privilege">
+        <field name="name">Manager</field>
+        <field name="category_id" ref="spp_security.category_spp_service_points" />
+        <field name="sequence">20</field>
+    </record>
+</odoo>

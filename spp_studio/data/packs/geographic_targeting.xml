@@ -79,21 +79,6 @@
         <field name="sequence">40</field>
     </record>
 
-    <!-- Eligibility: Service Access Constraint -->
-    <record id="pack_geo_item_service_access" model="spp.studio.pack.item">
-        <field name="pack_id" ref="pack_geographic_targeting" />
-        <field name="name">Limited Service Access</field>
-        <field name="context_type">both</field>
-        <field
-            name="description"
-        >Location has limited access to basic services (health, education, markets).</field>
-        <field name="expression_type">filter</field>
-        <field
-            name="logic_data"
-        >{"cel_expression": "distance_to_health_facility > 10 || distance_to_school > 5"}</field>
-        <field name="sequence">50</field>
-    </record>
-
     <!-- Scoring: Area Poverty Score -->
     <record id="pack_geo_item_area_poverty_score" model="spp.studio.pack.item">
         <field name="pack_id" ref="pack_geographic_targeting" />

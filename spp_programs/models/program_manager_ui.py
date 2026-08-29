@@ -7,6 +7,9 @@ It adds computed summary fields and action methods to simplify the configuration
 """
 
 from odoo import _, api, fields, models
+from odoo.exceptions import UserError
+
+from .constants import MANAGER_CATEGORIES
 
 
 def _format_recurrence(duration, rrule_type):
@@ -241,6 +244,15 @@ class ProgramManagerUI(models.Model):
     payment_manager_display = fields.Char(compute="_compute_banner_layout_helpers")
     payment_manager_detail = fields.Text(compute="_compute_banner_layout_helpers")
 
+    # OP#1172: Notifications became a card like the rest, so it needs the same
+    # single-vs-multi helpers the other cards use.
+    notification_manager_count = fields.Integer(compute="_compute_banner_layout_helpers")
+    notification_manager_display = fields.Char(compute="_compute_banner_layout_helpers")
+    notification_manager_detail = fields.Text(compute="_compute_banner_layout_helpers")
+    deduplication_manager_count = fields.Integer(compute="_compute_banner_layout_helpers")
+    deduplication_manager_display = fields.Char(compute="_compute_banner_layout_helpers")
+    deduplication_manager_detail = fields.Text(compute="_compute_banner_layout_helpers")
+
     @api.depends("eligibility_manager_ids", "eligibility_manager_ids.manager_ref_id")
     def _compute_eligibility_summary(self):
         for rec in self:
@@ -403,6 +415,10 @@ class ProgramManagerUI(models.Model):
         "compliance_manager_ids.manager_ref_id",
         "payment_manager_ids",
         "payment_manager_ids.manager_ref_id",
+        "notification_manager_ids",
+        "notification_manager_ids.manager_ref_id",
+        "deduplication_manager_ids",
+        "deduplication_manager_ids.manager_ref_id",
     )
     def _compute_banner_layout_helpers(self):
         """Populate the `<banner>_manager_count / _display / _detail` fields
@@ -413,6 +429,8 @@ class ProgramManagerUI(models.Model):
             ("cycle_manager_ids", "cycle"),
             ("compliance_manager_ids", "compliance"),
             ("payment_manager_ids", "payment"),
+            ("notification_manager_ids", "notification"),
+            ("deduplication_manager_ids", "deduplication"),
         )
         for rec in self:
             for field_name, prefix in banners:
@@ -595,13 +613,35 @@ class ProgramManagerUI(models.Model):
         return False
 
     def action_configure_deduplication(self):
-        """Open deduplication manager configuration."""
+        """Open deduplication configuration.
+
+        Unlike compliance or payment, a program may have several deduplication
+        methods — by ID and by phone, say. Opening ``[0]`` would silently edit
+        the first and leave the rest unreachable, so the card only offers this
+        button when there is exactly one; with several, each method has its own
+        cog in the card body (OP#1171).
+        """
         self.ensure_one()
         readonly = not self.can_edit_configuration
-        if self.deduplication_manager_ids and self.deduplication_manager_ids[0].manager_ref_id:
-            return self.deduplication_manager_ids[0].open_manager_form(readonly=readonly, title=_("Deduplication"))
+        configured = self.deduplication_manager_ids.filtered(lambda wrapper: wrapper.manager_ref_id)
+        if len(configured) == 1:
+            return configured.open_manager_form(readonly=readonly, title=_("Deduplication"))
+        if len(configured) > 1:
+            # Not target="new": a list in a dialog cannot drill into a form, so
+            # it renders as a dead end — rows look clickable and do nothing.
+            # Opening it in the breadcrumb keeps the rows navigable. The card
+            # itself lists the methods with their own buttons, so this is a
+            # fallback for programmatic callers rather than the normal route.
+            return {
+                "type": "ir.actions.act_window",
+                "name": _("Duplicate Detection"),
+                "res_model": "spp.deduplication.manager",
+                "view_mode": "list,form",
+                "domain": [("id", "in", configured.ids)],
+                "context": {"create": False, "default_program_id": self.id},
+            }
         if not readonly:
-            return self._open_manager_setup_wizard("deduplication")
+            return self.action_add_deduplication_manager()
         return False
 
     def action_configure_notification(self):
@@ -624,86 +664,92 @@ class ProgramManagerUI(models.Model):
             return self._open_manager_setup_wizard("compliance")
         return False
 
-    def action_add_compliance_manager(self):
-        """Open the default compliance manager form in create mode.
+    def action_add_manager(self):
+        """Open the Add dialog for one Configuration card (OP#1172).
 
-        The program form's compliance banner shows a `+ Add` zero-state
-        button when no compliance manager is configured. We open the
-        concrete model (`spp.compliance.manager.default`) in create mode
-        with `default_program_id` and `_spp_wrapper_model` in context.
-        Saving the dialog runs the source-mixin's `create()` override,
-        which auto-creates the wrapper (see source_mixin.py). Dismissing
-        the dialog with `X` leaves nothing in the DB — that's the whole
-        point of #953.
+        One action serves every card: the button passes its category in the
+        context, so adding an eligibility method and adding a payment method
+        are the same gesture instead of one bespoke action per section.
+
+        The methods on offer come from the wrapper, so a category whose module
+        is not installed says so rather than opening a dialog with an empty
+        list — notifications have no channel at all until a bridge module such
+        as SMS is installed.
         """
         self.ensure_one()
-        if not self.can_edit_configuration:
+        if not self.can_edit_configuration or self.state == "ended":
             return False
-        if self.compliance_manager_ids:
-            return self.action_configure_compliance()
-        Concrete = self.env["spp.compliance.manager.default"]
+        category = self.env.context.get("manager_category")
+        info = MANAGER_CATEGORIES.get(category)
+        if not info:
+            raise UserError(_("Unknown configuration category %s.") % category)
+        wizard = self.env["spp.manager.setup.wizard"]
+        methods = wizard._methods_for_category(category)
+        if not methods:
+            raise UserError(
+                _("No %s is available. Install a module that provides one, then add it here.") % info["label"].lower()
+            )
         return {
             "type": "ir.actions.act_window",
-            "name": _("Compliance Criteria"),
-            "res_model": Concrete._name,
+            "name": _("Add a %s") % info["label"],
+            "res_model": wizard._name,
             "view_mode": "form",
-            "views": [(Concrete.get_manager_view_id(), "form")],
+            "views": [(False, "form")],
             "target": "new",
             "context": {
                 "default_program_id": self.id,
-                # The mixin's create() will create the wrapper and rely
-                # on its `program_id` inverse to populate the program's
-                # One2many `compliance_manager_ids` automatically — no
-                # m2m write needed.
-                "_spp_wrapper_model": "spp.compliance.manager",
+                "default_category": category,
+                "default_method": methods[0][0],
+                "default_name": methods[0][1],
             },
         }
 
-    def action_add_payment_manager(self):
-        """Open the default payment manager form in create mode.
+    def action_add_compliance_manager(self):
+        """Compliance's Add button, kept for callers that predate OP#1172.
 
-        Mirrors `action_add_compliance_manager`. The concrete model's
-        `create()` override auto-creates the default batch tag if the
-        form was saved with `create_batch=True` and no tag selected —
-        so we don't have to pre-create it here (which would orphan the
-        tag if the user dismisses the dialog). The source-mixin's
-        `create()` override creates the wrapper, then writes it into
-        the program's `payment_manager_ids` Many2many because that
-        field doesn't auto-resolve via the wrapper's `program_id`
-        inverse. See #953.
+        Compliance opened its concrete form directly (#952) and payment did the
+        same (#953), while the other cards had no Add at all. Every card now
+        goes through one dialog, so all this does is name the category.
+        """
+        return self.with_context(manager_category="compliance").action_add_manager()
+
+    def action_add_payment_manager(self):
+        """Payment's Add button, kept for callers that predate OP#1172."""
+        return self.with_context(manager_category="payment").action_add_manager()
+
+    def action_add_deduplication_manager(self):
+        """Open the two-step dialog for adding a deduplication method (OP#1171).
+
+        Compliance and Payment open their single concrete model directly
+        (#952, #953). Deduplication has three methods rather than one, so the
+        dialog has to ask which before it can ask for a name — the wizard does
+        both, then creates the concrete record with the context that makes
+        `source_mixin.create()` build the wrapper alongside it.
+
+        Adding is offered even when a method already exists, because a program
+        may legitimately check by ID *and* by phone.
         """
         self.ensure_one()
         if not self.can_edit_configuration:
             return False
-        if self.payment_manager_ids:
-            return self.action_configure_payment()
-        Concrete = self.env["spp.program.payment.manager.default"]
         return {
             "type": "ir.actions.act_window",
-            "name": _("Payment Processing"),
-            "res_model": Concrete._name,
+            "name": _("Add a Deduplication Method"),
+            "res_model": "spp.deduplication.setup.wizard",
             "view_mode": "form",
-            "views": [(Concrete.get_manager_view_id(), "form")],
             "target": "new",
-            "context": {
-                "default_program_id": self.id,
-                "_spp_wrapper_model": "spp.program.payment.manager",
-                "_spp_program_m2m_field": "payment_manager_ids",
-            },
+            "context": {"default_program_id": self.id},
         }
 
     def _open_manager_setup_wizard(self, manager_type):
-        """Open wizard to set up a new manager of the specified type."""
-        return {
-            "type": "ir.actions.client",
-            "tag": "display_notification",
-            "params": {
-                "title": _("Setup Required"),
-                "message": _("Please add a %s manager first using the list below.") % manager_type,
-                "sticky": False,
-                "type": "warning",
-            },
-        }
+        """Point a caller at the Add dialog for this category (OP#1172).
+
+        This used to pop a warning telling the user to "add a manager using the
+        list below" — the inline list with the Reference field, which is the
+        control this ticket removes. The categories it is called with are the
+        MANAGER_CATEGORIES keys, so it can now open the real thing.
+        """
+        return self.with_context(manager_category=manager_type).action_add_manager()
 
     def get_manager_type_options(self, category):
         """Get available manager type options for a category."""

@@ -3,7 +3,7 @@
 {
     "name": "OpenSPP Consent",
     "category": "OpenSPP",
-    "version": "19.0.2.0.1",
+    "version": "19.0.2.0.2",
     "summary": """DPV-aligned consent management for social protection programs.
 
 Implements ISO/IEC TS 27560:2023 consent record information structure

@@ -1083,14 +1083,86 @@ class SPPCycle(models.Model):
         related_jobs = jobs.filtered(lambda r: self in r.args[0])
         return [("id", "in", related_jobs.ids)]
 
+    def _assert_operation_lock_writable(self, vals):
+        """Reject out-of-band changes to the operation lock fields.
+
+        ``is_locked`` / ``locked_reason`` form an operation lock protecting
+        in-flight async pipelines (entitlement, payment, eligibility). Clearing
+        or setting it out of band lets conflicting operations run, so direct
+        changes to these fields are restricted to system administrators. The
+        pipeline manages the lock through ``_acquire_operation_lock`` /
+        ``_release_operation_lock`` (which ``sudo()``), and Force Unlock is the
+        admin-only manual override.
+
+        Enforced on create as well as write: a record created already locked
+        would otherwise skip the guard entirely, and its creator could not
+        clear the lock afterwards without a system administrator.
+        """
+        if self.env.su:
+            return
+        if "is_locked" not in vals and "locked_reason" not in vals:
+            return
+        if not self.env.user.has_group("base.group_system"):
+            raise AccessError(
+                _(
+                    "Changing the operation lock is restricted to system "
+                    "administrators. The lock is managed automatically by "
+                    "the async pipeline; use Force Unlock only in an emergency."
+                )
+            )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            self._assert_operation_lock_writable(vals)
+        return super().create(vals_list)
+
+    def write(self, vals):
+        self._assert_operation_lock_writable(vals)
+        return super().write(vals)
+
+    # NOTE(#337): these helpers sudo the lock write, so any PUBLIC method that
+    # calls them (e.g. the async mark_*_as_done / mark_*_as_failed completion
+    # callbacks) is an RPC-reachable lock-clearing path that the write() guard
+    # above does not cover. Closing that needs authorization on those
+    # callbacks and is tracked separately in issue #337.
+    def _acquire_operation_lock(self, reason):
+        """Set the async-operation lock. Written via ``sudo()`` because direct
+        writes to ``is_locked`` / ``locked_reason`` are restricted to system
+        administrators (see ``write``); the pipeline runs as the initiating
+        non-admin user and must bypass that guard for the two lock fields only."""
+        # nosemgrep: odoo-sudo-without-context - lock fields admin-write-only (see write()); sudo scoped
+        self.sudo().write({"is_locked": True, "locked_reason": reason})
+
+    def _release_operation_lock(self):
+        """Clear the async-operation lock (see ``_acquire_operation_lock``)."""
+        # nosemgrep: odoo-sudo-without-context - lock fields admin-write-only (see write()); sudo scoped
+        self.sudo().write({"is_locked": False, "locked_reason": False})
+
     def action_force_unlock(self):
-        """Manager-only escape hatch: clear a stuck "Operation in progress" lock.
+        """System-administrator-only escape hatch: clear a stuck "Operation
+        in progress" lock.
 
         Use when an async pipeline (entitlement processing, payment prep, etc.)
         died without firing its on_done/on_error callback — for example after
         a hard server restart or before this fix was deployed. Posts an audit
         line to chatter so admins can see who unstuck the cycle.
+
+        The view button is gated to base.group_system, but object methods are
+        reachable via RPC regardless of button visibility, so the same
+        restriction is enforced here: clearing an active operation lock while
+        jobs may still be running is an emergency control reserved for system
+        administrators. Trusted server-side sudo() flows are exempt.
         """
+        if not self.env.su and not self.env.user.has_group("base.group_system"):
+            raise AccessError(
+                _(
+                    "Force unlock is restricted to system administrators. It is an "
+                    "emergency control for clearing a stuck operation lock; ask a "
+                    "system administrator to confirm the async job has actually "
+                    "stopped before the lock is cleared."
+                )
+            )
         for rec in self:
             if not rec.is_locked:
                 continue

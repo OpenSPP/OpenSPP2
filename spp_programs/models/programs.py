@@ -2,7 +2,7 @@
 import logging
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError, ValidationError
 
 from . import constants
 
@@ -203,6 +203,77 @@ class SPPProgram(models.Model):
                 if existing:
                     raise UserError(_("A program with this name already exists. Program names must be unique."))
 
+    # ------------------------------------------------------------------
+    # configuration isolation (OP#1172)
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _configuration_fields():
+        """The Configuration tab's fields, in one place for the rules below."""
+        return [info["field"] for info in constants.MANAGER_CATEGORIES.values()]
+
+    def _check_configuration_is_own(self, field, wrappers):
+        """Refuse configuration that belongs to another program.
+
+        Every manager names the program it was created for and runs against
+        that program, so linking one into a second program does not configure
+        the second — it only makes the form lie about what will happen. The
+        Configuration tab no longer offers a picker that can do this; this
+        covers the API, data imports and duplicated programs.
+
+        Only what is being linked now is checked. A database that already holds
+        a cross-program link from the old picker stays loadable, and the row's
+        ✕ can still take it off.
+        """
+        self.ensure_one()
+        for wrapper in wrappers:
+            concrete = wrapper.manager_ref_id
+            owner = wrapper.program_id or (
+                concrete.program_id if concrete and "program_id" in concrete._fields else False
+            )
+            if owner and owner != self:
+                raise ValidationError(
+                    _(
+                        "%(method)s belongs to the program %(owner)s, so it cannot be used by "
+                        "%(program)s as well. Each program's configuration is its own — add a "
+                        "method to this program instead."
+                    )
+                    % {
+                        "method": wrapper.display_name or self.env[wrapper._name]._description,
+                        "owner": owner.display_name,
+                        "program": self.display_name,
+                    }
+                )
+
+    def copy(self, default=None):
+        """Duplicate the program with its own copy of the configuration.
+
+        These fields are mostly Many2many, so a plain copy would link the
+        source's managers into the duplicate — the sharing this ticket removes.
+        Each method is copied instead: the duplicate starts configured the same
+        way and owns what it runs.
+        """
+        default = dict(default or {})
+        fields_to_copy = [field for field in self._configuration_fields() if field in self._fields]
+        for field in fields_to_copy:
+            default.setdefault(field, False)
+        new_programs = super().copy(default)
+        for source, new_program in zip(self, new_programs, strict=False):
+            for field in fields_to_copy:
+                context = {
+                    "_spp_wrapper_model": source._fields[field].comodel_name,
+                    "default_program_id": new_program.id,
+                }
+                if source._fields[field].type == "many2many":
+                    # A Many2many does not resolve from the wrapper's program_id,
+                    # so the copy has to be linked explicitly — see the source mixin.
+                    context["_spp_program_m2m_field"] = field
+                for wrapper in source[field]:
+                    concrete = wrapper.manager_ref_id
+                    if concrete and concrete.exists():
+                        concrete.with_context(**context).copy({"program_id": new_program.id})
+        return new_programs
+
     @api.depends("program_membership_ids")
     def _compute_has_members(self):
         if self.env.context.get("skip_program_statistics"):
@@ -275,7 +346,19 @@ class SPPProgram(models.Model):
 
     @api.model
     def create(self, vals):
+        # ``vals`` is a single dict here (this override predates
+        # ``model_create_multi``), but tolerate a list so the guard cannot be
+        # sidestepped if the signature is ever widened.
+        for one in vals if isinstance(vals, list) else [vals]:
+            self._assert_operation_lock_writable(one)
         res = super().create(vals)
+        # Everything linked at creation is being linked now, so all of it is
+        # checked. Reading `vals` instead would miss it: base create() is
+        # model_create_multi, so what arrives here is a list of dicts.
+        for record in res:
+            for field in record._configuration_fields():
+                if record[field]:
+                    record._check_configuration_is_own(field, record[field])
         if self.env.context.get("skip_default_managers"):
             return res
         if self.env.context.get("create_default_managers"):
@@ -284,6 +367,31 @@ class SPPProgram(models.Model):
             for man in man_ids:
                 res.update({man: [(4, man_ids[man])]})
         return res
+
+    def write(self, vals):
+        """Refuse configuration linked in from another program (OP#1172), and
+        keep the operation lock admin-writable only.
+
+        Both guards live here on purpose. They arrived from different branches
+        as two separate `write` methods on this one class, where the later
+        definition silently replaced the earlier -- no error, no conflict when
+        the branches merged, just one guard quietly gone. Anything else that
+        needs to hook writes belongs in this method too.
+
+        For the configuration check, only the links this write adds are
+        examined, so a database that already holds a cross-program link stays
+        editable and the link can be removed.
+        """
+        self._assert_operation_lock_writable(vals)
+        touched = [field for field in self._configuration_fields() if field in vals]
+        before = {(rec.id, field): set(rec[field].ids) for rec in self for field in touched}
+        result = super().write(vals)
+        for rec in self:
+            for field in touched:
+                added = set(rec[field].ids) - before[(rec.id, field)]
+                if added:
+                    rec._check_configuration_is_own(field, rec[field].browse(sorted(added)))
+        return result
 
     @api.model
     def create_default_managers(self, program_id):
@@ -448,36 +556,65 @@ class SPPProgram(models.Model):
             else:
                 raise UserError(_("No Program Manager defined."))
 
+    def _duplicated_memberships(self):
+        """The memberships this program currently has flagged as duplicates."""
+        self.ensure_one()
+        return self.env["spp.program.membership"].search([("program_id", "=", self.id), ("state", "=", "duplicated")])
+
+    def _reset_duplicate_flags(self):
+        """Clear every duplicate flag so a run can re-apply it (OP#796).
+
+        Deduplication only ever added the flag. A membership marked duplicated
+        stayed that way even once the clash behind it was fixed — correct the
+        ID or the phone number, run Deduplicate again, and nothing happened,
+        because a membership already in ``duplicated`` is never re-evaluated
+        out of it.
+
+        Clearing first turns the run into a recompute: whoever still clashes is
+        flagged again by the managers a moment later, and whoever no longer does
+        is simply left in draft. The whole thing is one transaction, so a run
+        that fails part-way leaves the flags as they were.
+
+        Returns the memberships that were flagged going in, so the caller can
+        report what the run actually resolved.
+        """
+        self.ensure_one()
+        flagged = self._duplicated_memberships()
+        if flagged:
+            flagged.back_to_draft()
+        return flagged
+
     def deduplicate_beneficiaries(self):
         for rec in self:
             deduplication_managers = rec.get_managers(self.MANAGER_DEDUPLICATION)
             message = None
             kind = "success"
             if len(deduplication_managers):
-                # Count already-flagged duplicates before running
-                already_duplicated = self.env["spp.program.membership"].search_count(
-                    [("program_id", "=", rec.id), ("state", "=", "duplicated")]
-                )
+                # Flagged going in — cleared now, and re-applied below to
+                # whoever is still a duplicate.
+                previously_flagged = rec._reset_duplicate_flags()
 
                 states = ["draft", "enrolled", "eligible", "paused", "duplicated"]
                 duplicates = 0
                 for el in deduplication_managers:
                     duplicates += el.deduplicate_beneficiaries(states)
 
-                # Count total duplicates after running
-                total_duplicated = self.env["spp.program.membership"].search_count(
-                    [("program_id", "=", rec.id), ("state", "=", "duplicated")]
-                )
-                new_duplicates = total_duplicated - already_duplicated
+                currently_flagged = rec._duplicated_memberships()
+                total_duplicated = len(currently_flagged)
+                still_flagged = len(previously_flagged & currently_flagged)
+                new_duplicates = len(currently_flagged - previously_flagged)
+                resolved = len(previously_flagged - currently_flagged)
 
-                if total_duplicated > 0:
+                if total_duplicated > 0 or resolved:
                     parts = []
                     if new_duplicates > 0:
                         parts.append(_("%(new)s new duplicate(s) found", new=new_duplicates))
-                    if already_duplicated > 0:
-                        parts.append(_("%(existing)s already flagged", existing=already_duplicated))
+                    if still_flagged > 0:
+                        parts.append(_("%(existing)s still flagged", existing=still_flagged))
+                    if resolved > 0:
+                        parts.append(_("%(resolved)s no longer duplicate(s)", resolved=resolved))
                     message = ", ".join(parts) + "."
-                    kind = "warning"
+                    kind = "warning" if total_duplicated else "success"
                 elif duplicates > 0:
                     message = _(
                         "Found %(count)s duplicate beneficiaries.",
@@ -763,12 +900,74 @@ class SPPProgram(models.Model):
         related_jobs = jobs.filtered(lambda r: self in r.records.program_id)
         return [("id", "in", related_jobs.ids)]
 
+    def _assert_operation_lock_writable(self, vals):
+        """Reject out-of-band changes to the operation lock fields.
+
+        ``is_locked`` / ``locked_reason`` form an operation lock protecting
+        in-flight async pipelines (enrollment, eligibility). Clearing or
+        setting it out of band lets conflicting operations run, so direct
+        changes to these fields are restricted to system administrators. The
+        pipeline manages the lock through ``_acquire_operation_lock`` /
+        ``_release_operation_lock`` (which ``sudo()``), and Force Unlock is the
+        admin-only manual override.
+
+        Enforced on create as well as write: a record created already locked
+        would otherwise skip the guard entirely, and its creator could not
+        clear the lock afterwards without a system administrator.
+        """
+        if self.env.su:
+            return
+        if "is_locked" not in vals and "locked_reason" not in vals:
+            return
+        if not self.env.user.has_group("base.group_system"):
+            raise AccessError(
+                _(
+                    "Changing the operation lock is restricted to system "
+                    "administrators. The lock is managed automatically by "
+                    "the async pipeline; use Force Unlock only in an emergency."
+                )
+            )
+
+    # NOTE(#337): these helpers sudo the lock write, so any PUBLIC method that
+    # calls them (e.g. the async mark_*_as_done / mark_*_as_failed completion
+    # callbacks) is an RPC-reachable lock-clearing path that the write() guard
+    # above does not cover. Closing that needs authorization on those
+    # callbacks and is tracked separately in issue #337.
+    def _acquire_operation_lock(self, reason):
+        """Set the async-operation lock. Written via ``sudo()`` because direct
+        writes to ``is_locked`` / ``locked_reason`` are restricted to system
+        administrators (see ``write``); the pipeline runs as the initiating
+        non-admin user and must bypass that guard for the two lock fields only."""
+        # nosemgrep: odoo-sudo-without-context - lock fields admin-write-only (see write()); sudo scoped
+        self.sudo().write({"is_locked": True, "locked_reason": reason})
+
+    def _release_operation_lock(self):
+        """Clear the async-operation lock (see ``_acquire_operation_lock``)."""
+        # nosemgrep: odoo-sudo-without-context - lock fields admin-write-only (see write()); sudo scoped
+        self.sudo().write({"is_locked": False, "locked_reason": False})
+
     def action_force_unlock(self):
-        """Manager-only escape hatch: clear a stuck "Operation in progress" lock.
+        """System-administrator-only escape hatch: clear a stuck "Operation
+        in progress" lock.
 
         Use when an async pipeline died without firing its on_done/on_error
         callback. Posts an audit line to chatter for traceability.
+
+        The view button is gated to base.group_system, but object methods are
+        reachable via RPC regardless of button visibility, so the same
+        restriction is enforced here: clearing an active operation lock while
+        jobs may still be running is an emergency control reserved for system
+        administrators. Trusted server-side sudo() flows are exempt.
         """
+        if not self.env.su and not self.env.user.has_group("base.group_system"):
+            raise AccessError(
+                _(
+                    "Force unlock is restricted to system administrators. It is an "
+                    "emergency control for clearing a stuck operation lock; ask a "
+                    "system administrator to confirm the async job has actually "
+                    "stopped before the lock is cleared."
+                )
+            )
         for rec in self:
             if not rec.is_locked:
                 continue

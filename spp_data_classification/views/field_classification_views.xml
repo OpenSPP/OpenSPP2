@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Field Classification List View -->
+    <record id="spp_field_classification_list" model="ir.ui.view">
+        <field name="name">spp.field.classification.list</field>
+        <field name="model">spp.field.classification</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="model_name" />
+                <field name="field_name" />
+                <field name="classification_id" />
+                <field name="pii_category" />
+                <field name="source" />
+                <field name="search_strategy" />
+                <field name="mask_pattern" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Field Classification Form View -->
+    <record id="spp_field_classification_form" model="ir.ui.view">
+        <field name="name">spp.field.classification.form</field>
+        <field name="model">spp.field.classification</field>
+        <field name="arch" type="xml">
+            <form string="Field Classification">
+                <sheet>
+                    <group>
+                        <group name="field" string="Field">
+                            <field name="model_id" options="{'no_create': True}" />
+                            <field name="field_id" options="{'no_create': True}" />
+                            <field name="classification_id" />
+                        </group>
+                        <group name="category" string="Category">
+                            <field name="pii_category" />
+                            <field name="source" readonly="1" />
+                            <field
+                                name="pattern_id"
+                                readonly="1"
+                                invisible="not pattern_id"
+                            />
+                        </group>
+                    </group>
+                    <group name="handling" string="Data Handling">
+                        <group>
+                            <field name="mask_pattern" placeholder="****-****-####" />
+                            <field name="search_strategy" />
+                        </group>
+                        <group>
+                            <field name="legal_basis" />
+                            <field name="data_source" />
+                        </group>
+                    </group>
+                    <group name="compliance" string="Compliance">
+                        <group>
+                            <field name="is_gdpr_special_category" />
+                            <field name="cross_border_restricted" />
+                            <field name="child_data" />
+                        </group>
+                    </group>
+                    <group name="notes" string="Notes">
+                        <field name="notes" nolabel="1" colspan="2" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Field Classification Search View -->
+    <record id="spp_field_classification_search" model="ir.ui.view">
+        <field name="name">spp.field.classification.search</field>
+        <field name="model">spp.field.classification</field>
+        <field name="arch" type="xml">
+            <search string="Search Classifications">
+                <field name="model_name" />
+                <field name="field_name" />
+                <field name="classification_id" />
+                <field name="pii_category" />
+                <separator />
+                <filter
+                    name="filter_restricted"
+                    string="Restricted"
+                    domain="[('classification_id.code', '=', 'RESTRICTED')]"
+                />
+                <filter
+                    name="filter_confidential"
+                    string="Confidential"
+                    domain="[('classification_id.code', '=', 'CONFIDENTIAL')]"
+                />
+                <filter
+                    name="filter_requires_encryption"
+                    string="Requires Encryption"
+                    domain="[('classification_id.is_requires_encryption', '=', True)]"
+                />
+                <filter
+                    name="filter_gdpr_special"
+                    string="GDPR Special Category"
+                    domain="[('is_gdpr_special_category', '=', True)]"
+                />
+                <separator />
+                <filter
+                    name="filter_auto"
+                    string="Auto-detected"
+                    domain="[('source', '=', 'auto')]"
+                />
+                <filter
+                    name="filter_manual"
+                    string="Manual"
+                    domain="[('source', '=', 'manual')]"
+                />
+                <separator />
+                <group name="group_by">
+                    <filter
+                        name="group_model"
+                        string="Model"
+                        context="{'group_by': 'model_id'}"
+                    />
+                    <filter
+                        name="group_classification"
+                        string="Classification"
+                        context="{'group_by': 'classification_id'}"
+                    />
+                    <filter
+                        name="group_category"
+                        string="PII Category"
+                        context="{'group_by': 'pii_category'}"
+                    />
+                    <filter
+                        name="group_source"
+                        string="Source"
+                        context="{'group_by': 'source'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Field Classification Action -->
+    <record id="action_field_classification" model="ir.actions.act_window">
+        <field name="name">Field Classifications</field>
+        <field name="res_model">spp.field.classification</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="spp_field_classification_search" />
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No field classifications yet
+            </p>
+            <p>
+                Field classifications link specific model fields to classification levels.
+                They can be auto-detected from field names or manually configured.
+            </p>
+        </field>
+    </record>
+</odoo>
