@@ -54,9 +54,16 @@ async function login(page: Page) {
     .getByRole("textbox", {name: "Email Choose a user"})
     .or(page.getByRole("textbox", {name: "Email", exact: true}));
   await emailField.fill("admin");
+  await emailField.press("Tab");
   await page.getByRole("textbox", {name: "Password"}).fill("admin");
   await page.getByRole("button", {name: "Log in"}).click();
   await expect(page.locator(".o_main_navbar")).toBeVisible({timeout: 30_000});
+}
+
+async function logout(page: Page) {
+  await page.getByRole("button", {name: "User User is online"}).click();
+  await expect(page.getByRole("link", {name: "User is online Online "})).toBeVisible();
+  await page.getByRole("menuitem", {name: "Log out"}).click();
 }
 
 function formatDateMDY(date: Date): string {
@@ -1202,24 +1209,20 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await page.getByRole("menuitem", {name: "Change Password"}).click();
     await expect(page.getByRole("button", {name: "Edit"})).toBeVisible();
 
-    await page
-      .locator(
-        ".o_form_renderer > .o_field_widget > .o_list_view > .o_list_renderer > .o_list_table > .ui-sortable > .o_data_row > td:nth-child(2)"
-      )
-      .click();
+    await page.getByRole("row", {name: "hqval@mail.com"}).locator("td").nth(1).click();
     await page.locator('input[type="password"]').fill("hqval1234$");
     await page.getByRole("button", {name: "Change Password"}).click();
     console.log("✅ Password set for hqval@mail.com");
 
-    await page.getByRole("button", {name: "User User is online"}).click();
-    await expect(
-      page.getByRole("link", {name: "User is online Online "})
-    ).toBeVisible();
-    await page.getByRole("menuitem", {name: "Log out"}).click();
+    await logout(page);
     console.log("✅ HQ validator user created and logged out");
   });
 
   test("20 - HQ validator resolves the three pending change requests", async () => {
+    // The CR sequence number is year-scoped (Odoo's ir.sequence uses the
+    // current year), so build the expected value instead of hardcoding it.
+    const crNumber = `CR/${new Date().getFullYear()}/00003`;
+
     // hqval hasn't logged in before this point, so only "admin" is a known cached
     // account — Odoo shows the plain form directly here, not the avatar picker
     // (that only appears once 2+ accounts are cached, as in test 21 below).
@@ -1229,9 +1232,7 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await page.getByRole("textbox", {name: "Email Choose a user"}).press("Tab");
     await page.getByRole("textbox", {name: "Password"}).fill("hqval1234$");
     await page.getByRole("button", {name: "Log in"}).click();
-    await expect(
-      page.getByRole("row", {name: "CR/2026/00003 Update ID"})
-    ).toBeVisible();
+    await expect(page.getByRole("row", {name: `${crNumber} Update ID`})).toBeVisible();
     console.log("✅ Logged in as HQ validator (hqval@mail.com)");
 
     await page.getByRole("menuitem", {name: "All Requests"}).click();
@@ -1247,28 +1248,29 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     console.log("✅ Approved the Edit Individual Information change request");
 
     await page.getByRole("menuitem", {name: "All Requests"}).click();
-    await expect(
-      page.getByRole("row", {name: "CR/2026/00003 Update ID"})
-    ).toBeVisible();
+    await expect(page.getByRole("row", {name: `${crNumber} Update ID`})).toBeVisible();
     await page.getByRole("cell", {name: "Edit Group Information"}).click();
     await expect(page.getByRole("row", {name: "Street — updated"})).toBeVisible();
 
     await page.getByRole("button", {name: "Reject"}).click();
     await expect(page.getByRole("heading", {name: "Confirmation"})).toBeVisible();
     await page.getByRole("button", {name: "Ok"}).click();
-    await expect(page.getByRole("heading", {name: "Reject"})).toBeVisible();
 
-    await page
+    // Scope to the actual Reject dialog by its heading rather than a
+    // hardcoded #dialog_N id — Odoo's dialog counter isn't stable across runs.
+    const rejectDialog = page
+      .getByRole("dialog")
+      .filter({has: page.getByRole("heading", {name: "Reject"})});
+    await expect(rejectDialog).toBeVisible();
+    await rejectDialog
       .getByRole("textbox", {name: "Rejection Reason?"})
       .fill("wrong information");
-    await page.locator("#dialog_2").getByRole("button", {name: "Reject"}).click();
+    await rejectDialog.getByRole("button", {name: "Reject"}).click();
     await expect(page.getByRole("button", {name: "Messages"})).toBeVisible();
     console.log("✅ Rejected the Edit Group Information change request");
 
     await page.getByRole("menuitem", {name: "All Requests"}).click();
-    await expect(
-      page.getByRole("row", {name: "CR/2026/00003 Update ID"})
-    ).toBeVisible();
+    await expect(page.getByRole("row", {name: `${crNumber} Update ID`})).toBeVisible();
     await page.getByRole("cell", {name: "Update ID Document"}).click();
     await expect(page.getByRole("radiogroup", {name: "Statusbar"})).toBeVisible();
 
@@ -1277,16 +1279,10 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
       .getByRole("textbox", {name: "Revision Notes?"})
       .fill("ID document required");
     await page.getByRole("button", {name: "Request Revision"}).click();
-    await expect(
-      page.getByRole("row", {name: "CR/2026/00003 Update ID"})
-    ).toBeVisible();
+    await expect(page.getByRole("row", {name: `${crNumber} Update ID`})).toBeVisible();
     console.log("✅ Requested revision on the Update ID Document change request");
 
-    await page.getByRole("button", {name: "User User is online"}).click();
-    await expect(
-      page.getByRole("link", {name: "User is online Online "})
-    ).toBeVisible();
-    await page.getByRole("menuitem", {name: "Log out"}).click();
+    await logout(page);
     console.log("✅ HQ validator logged out");
   });
 
@@ -1306,12 +1302,14 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
 
     await page.getByRole("button", {name: "Browse All (Audit)"}).click();
     await expect(page.getByRole("menuitem", {name: "All Individuals"})).toBeVisible();
+    await page.getByRole("menuitem", {name: "All Individuals"}).click();
 
-    await page.getByRole("button", {name: "Browse All (Audit)"}).click();
     await page
-      .getByRole("textbox", {name: "Search by name, ID number,"})
-      .fill("updated");
-    await expect(page.locator("h6")).toContainText("SANTOS, JOSE MIGUEL UPDATED");
+      .getByRole("searchbox", {name: "Search..."})
+      .fill("SANTOS, JOSE MIGUEL UPDATED");
+    await page.getByRole("searchbox", {name: "Search..."}).press("Enter");
+    await expect(page.locator("tbody")).toContainText("SANTOS, JOSE MIGUEL UPDATED");
+    await expect(page.locator("tbody")).toContainText("Jul 22, 1990");
     console.log("✅ Approved name change is reflected on the registrant");
 
     await page.getByRole("menuitem", {name: "Change Requests"}).click();
@@ -1319,11 +1317,7 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await expect(page.locator("tbody")).toContainText("Needs Changes");
     console.log("✅ Change Requests list shows Rejected and Needs Changes");
 
-    await page.getByRole("button", {name: "User User is online"}).click();
-    await expect(
-      page.getByRole("link", {name: "User is online Online "})
-    ).toBeVisible();
-    await page.getByRole("menuitem", {name: "Log out"}).click();
+    await logout(page);
     console.log("✅ Admin logged out");
   });
 
@@ -1348,11 +1342,7 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await expect(page.getByLabel("Pager")).toContainText("200");
     console.log("✅ Imported 200 individual registrants, pager confirms count");
 
-    await page.getByRole("button", {name: "User User is online"}).click();
-    await expect(
-      page.getByRole("link", {name: "User is online Online "})
-    ).toBeVisible();
-    await page.getByRole("menuitem", {name: "Log out"}).click();
+    await logout(page);
     console.log("✅ Admin logged out");
   });
 
@@ -1378,14 +1368,10 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await expect(page.getByRole("alert")).toContainText(
       "200 records successfully imported"
     );
-    await page.getByText("200", {exact: true}).click();
+    await expect(page.getByLabel("Pager")).toContainText("200");
     console.log("✅ Imported 200 group registrants, pager confirms count");
 
-    await page.getByRole("button", {name: "User User is online"}).click();
-    await expect(
-      page.getByRole("link", {name: "User is online Online "})
-    ).toBeVisible();
-    await page.getByRole("menuitem", {name: "Log out"}).click();
+    await logout(page);
     console.log("✅ Admin logged out");
   });
 });
