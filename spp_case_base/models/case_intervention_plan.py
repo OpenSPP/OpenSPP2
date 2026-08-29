@@ -195,6 +195,7 @@ class CaseInterventionPlan(models.Model):
                 {
                     "state": "completed",
                     "actual_end_date": fields.Date.context_today(self),
+                    "is_current": False,
                 }
             )
         return True
