@@ -67,6 +67,34 @@ class TestCaseInterventionPlan(TransactionCase):
             }
         )
 
+    def test_complete_clears_is_current(self):
+        """Completing a plan ends its tenure as the case's current plan."""
+        plan = self.env["spp.case.intervention.plan"].create(
+            {
+                "name": "Plan To Complete",
+                "case_id": self.case.id,
+                "goals": "<p>Reach self-sufficiency</p>",
+            }
+        )
+        self.assertTrue(plan.is_current, "New plan should start as current")
+        self.assertEqual(
+            self.case.current_plan_id,
+            plan,
+            "New plan should be the case's current plan",
+        )
+
+        plan.action_complete()
+
+        self.assertEqual(plan.state, "completed", "Plan should be completed")
+        self.assertFalse(
+            plan.is_current,
+            "Completed plan should no longer be marked current",
+        )
+        self.assertFalse(
+            self.case.current_plan_id,
+            "Case should have no current plan once the plan is completed",
+        )
+
     def test_create_plan(self):
         """Test creating a plan and verify defaults."""
         plan = self.env["spp.case.intervention.plan"].create(
