@@ -115,8 +115,13 @@ jobs:
             RESULT=$(jq -r .result "$f")
             if [ "$RESULT" == "success" ]; then EMOJI="✅"; else EMOJI="❌"; fi
 
+            # Non-passing tests are sorted first so a long step list can never
+            # truncate away the one entry that actually explains a failure —
+            # in a serial suite, failures always sit at the end of the list,
+            # right where a naive head-truncation would cut them off.
             STEPS=$(jq -r '
-              (.tests // []) |
+              (.tests // []) as $t |
+              (($t | map(select(.status != "passed"))) + ($t | map(select(.status == "passed")))) |
               map(
                 (if .status == "passed" then "✅" else "❌" end)
                 + " " + (.title | sub("^[0-9]+ - "; "") | if length > 70 then .[0:70] + "…" else . end)
