@@ -104,6 +104,8 @@ jobs:
           COLOR=3066993
           if [ "${{ needs.e2e.result }}" != "success" ]; then COLOR=15158332; fi
 
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
           FIELDS=$(jq -n \
             --arg repo "${{ github.repository }}" \
             --arg ref "${{ github.ref_name }}" \
@@ -128,7 +130,15 @@ jobs:
               ) | join("\n")
             ' "$f")
             if [ -z "$STEPS" ]; then STEPS="_no step data_"; fi
-            STEPS="${STEPS:0:1000}"
+
+            # A field caps out at 1024 chars. Rather than silently cutting the
+            # list short (which reads as "that's everything"), reserve room
+            # for a note pointing at the full log so a truncated list can't
+            # be mistaken for a complete one.
+            if [ "${#STEPS}" -gt 1000 ]; then
+              NOTICE=$'\n… truncated, full results: '"$RUN_URL"
+              STEPS="${STEPS:0:$((1000 - ${#NOTICE}))}$NOTICE"
+            fi
 
             FIELDS=$(echo "$FIELDS" | jq --arg n "$NAME $RESULT $EMOJI" --arg v "$STEPS" '. + [{"name": $n, "value": $v, "inline": false}]')
           done
