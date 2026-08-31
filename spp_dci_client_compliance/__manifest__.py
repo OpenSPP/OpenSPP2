@@ -2,7 +2,7 @@
 {
     "name": "OpenSPP DCI Client Compliance Tests",
     "category": "OpenSPP",
-    "version": "19.0.1.0.1",
+    "version": "19.0.1.0.2",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
