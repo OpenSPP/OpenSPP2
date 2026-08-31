@@ -522,6 +522,19 @@ contexts</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.2</h1>
+<ul class="simple">
+<li>fix: recognise <tt class="docutils literal">me</tt> as a CEL context identifier. The resolver
+rewrites cached variables (and the DCI override rewrites dotted
+accessors) into <tt class="docutils literal"><span class="pre">metric('&lt;accessor&gt;',</span> me)</tt> before identifiers are
+extracted; because <tt class="docutils literal">me</tt> was missing from
+<tt class="docutils literal">CEL_CONTEXT_IDENTIFIERS</tt>, <tt class="docutils literal">validate_expression</tt> /
+<tt class="docutils literal">validate_formula_expression</tt> wrongly reported valid expressions as
+<tt class="docutils literal">Undefined variables: me</tt>. <tt class="docutils literal">me</tt> is the individual record proxy in
+the eval context, so it is now a recognised context identifier.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.1.0</h1>
 <ul class="simple">
 <li>feat(sql): compile CEL ternary expressions to SQL CASE via
@@ -533,7 +546,7 @@ compilation</li>
 <li>test(translator): add coverage for the CEL translation cache helpers</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
