@@ -64,3 +64,50 @@ class TestDCICelParams(TransactionCase):
     def test_param_discriminates_by_params_hash(self):
         # Hearing=1 >= 3 -> excluded (proves the lookup keyed on params, not just name)
         self.assertNotIn(self.partner, self._match("metric('zz.test.severity', me, arg='Hearing') >= 3"))
+
+    def test_param_query_ignores_unparameterized_row(self):
+        """A parameterized query must NOT fall back to an unparameterized cache
+        row for the same metric. Seed a legacy/default row (no params -> params_hash
+        "") whose value would satisfy the comparison; querying with a param whose
+        own row does NOT satisfy it must still exclude the subject.
+
+        Before the fix, _provider_clause appended (provider, "") / ("", "")
+        combos, so the unparameterized value=4 row matched arg='Hearing' >= 3.
+        """
+        # Unparameterized row (params_hash "") with a value that satisfies >= 3.
+        self.DV.upsert_values(
+            [
+                {
+                    "variable_name": "zz.test.severity",
+                    "subject_model": "res.partner",
+                    "subject_id": self.partner.id,
+                    "period_key": "current",
+                    "value_json": {"value": 4},
+                    "value_type": "number",
+                    "source_type": "external",
+                    # no "params" -> params_hash == ""
+                    "ttl_seconds": 3600,
+                },
+            ]
+        )
+        # Hearing's own value is 1 (< 3); the unparameterized 4 must not leak in.
+        self.assertNotIn(self.partner, self._match("metric('zz.test.severity', me, arg='Hearing') >= 3"))
+
+    def test_unparameterized_query_still_matches_unparameterized_row(self):
+        """No regression for legacy metrics: an unparameterized query still
+        matches an unparameterized cache row."""
+        self.DV.upsert_values(
+            [
+                {
+                    "variable_name": "zz.test.plain",
+                    "subject_model": "res.partner",
+                    "subject_id": self.partner.id,
+                    "period_key": "current",
+                    "value_json": {"value": 4},
+                    "value_type": "number",
+                    "source_type": "external",
+                    "ttl_seconds": 3600,
+                },
+            ]
+        )
+        self.assertIn(self.partner, self._match("metric('zz.test.plain', me) >= 3"))

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 import logging
 from collections.abc import Iterable, Iterator
 from typing import Any
@@ -1218,7 +1219,9 @@ class CelExecutor(models.AbstractModel):
             if not batch_ids:
                 continue
             total_requested += len(batch_ids)
-            batch_values, batch_stats = svc.evaluate(p.metric, subject_model, batch_ids, period_key, mode=eval_mode)
+            batch_values, batch_stats = self._svc_evaluate_batch(  # pragma: no cover
+                svc, p, subject_model, batch_ids, period_key, eval_mode
+            )
             aggregated_values.update(batch_values)
             if batch_stats:
                 stats_total["cache_hits"] += int(batch_stats.get("cache_hits") or 0)
@@ -1463,6 +1466,39 @@ class CelExecutor(models.AbstractModel):
         )
         return SQL("(%s)", SQL(sql, *args))
 
+    @staticmethod
+    def _evaluate_accepts_params(svc) -> bool:
+        """Whether ``svc.evaluate`` accepts a ``params`` keyword argument.
+
+        The evaluation service (``spp.indicator``) is provided by a legacy/external
+        module whose signature we do not control and which may predate the
+        ``params`` kwarg. Returns True when ``evaluate`` declares an explicit
+        ``params`` parameter or a ``**kwargs`` catch-all; False otherwise (so the
+        caller degrades to an unparameterized call instead of raising ``TypeError``).
+        """
+        try:
+            sig = inspect.signature(svc.evaluate)
+        except (TypeError, ValueError):
+            return False
+        return any(prm.name == "params" or prm.kind is inspect.Parameter.VAR_KEYWORD for prm in sig.parameters.values())
+
+    def _svc_evaluate_batch(self, svc, p, subject_model, batch_ids, period_key, eval_mode):  # pragma: no cover
+        """Call the legacy/external evaluation service for one batch.
+
+        Threads the metric's params through so parameterized refreshes are computed
+        with the right params — but only when ``evaluate`` accepts a ``params`` kwarg
+        (see ``_evaluate_accepts_params``), degrading gracefully on older services.
+
+        Not covered by tests: ``spp.indicator`` is not in this repo's dependency
+        closure, so this path is unreachable here; the params-compat decision is
+        unit-tested via ``_evaluate_accepts_params``.
+        """
+        eval_kwargs = {"mode": eval_mode}
+        metric_params = getattr(p, "params", None)
+        if metric_params and self._evaluate_accepts_params(svc):
+            eval_kwargs["params"] = metric_params
+        return svc.evaluate(p.metric, subject_model, batch_ids, period_key, **eval_kwargs)
+
     def _provider_clause(self, provider: str, params_hash: str, allow_any_provider: bool) -> tuple[str, list[Any]]:
         provider = provider or ""
         params_hash = params_hash or ""
@@ -1470,10 +1506,12 @@ class CelExecutor(models.AbstractModel):
             (provider, params_hash),
         ]
         if provider:
+            # Relax the provider (a routing/registry detail) but keep the requested
+            # params_hash. Params are a semantic filter, not a provider detail: a
+            # non-empty params_hash must never fall back to params_hash "" rows, or a
+            # parameterized metric would match unparameterized/legacy cache rows. When
+            # params_hash == "" this combo already covers the unparameterized rows.
             combos.append(("", params_hash))
-        if params_hash:
-            combos.append((provider, ""))
-        combos.append(("", ""))
         # Deduplicate while preserving order
         seen = set()
         uniq_combos: list[tuple[str, str]] = []
