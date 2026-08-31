@@ -3,14 +3,16 @@
 {
     "name": "OpenSPP Demo",
     "category": "OpenSPP",
-    "version": "19.0.2.1.0",
+    "version": "19.0.2.1.1",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Production/Stable",
+    "development_status": "Alpha",
     "maintainers": ["jeremi", "gonzalesedwin1123", "reichie020212", "emjay0921"],
-    "summary": "Core demo module with data generator and sample data for OpenSPP",
+    "summary": "Core demo module with data generator and sample data for OpenSPP. "
+    "DEMO ONLY: creates users with the well-known password 'demo' (including an "
+    "'sppadmin' SPP admin). Never install on a production or internet-facing instance.",
     "depends": [
         "base",
         "spp_base_common",
@@ -43,4 +45,5 @@
     "application": False,
     "installable": True,
     "auto_install": False,
+    "post_init_hook": "post_init_hook",
 }
