@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
-    <!-- status/is_ended are stored computes over ended_date compared against
-         now(); nothing recomputes them when the clock crosses the date, so a
-         future-dated departure would stay stored as active forever without
-         this hourly repair pass (issue #417). -->
+    <!-- Repairs stored status/is_ended once the clock passes ended_date;
+         see _cron_recompute_ended_status (#417). Writes of a future
+         ended_date _trigger this cron at exactly that moment, so the
+         daily sweep is only the safety net for rows written behind the
+         ORM. user_id is pinned to the superuser: the unsudo'd repair
+         searches rely on it to see memberships of disabled registrants
+         (two global ir.rule records hide those otherwise). -->
     <record id="cron_recompute_membership_ended_status" model="ir.cron">
         <field name="name">Registry: Recompute Ended Group Memberships</field>
         <field name="model_id" ref="model_spp_group_membership" />
         <field name="state">code</field>
         <field name="code">model._cron_recompute_ended_status()</field>
         <field name="interval_number">1</field>
-        <field name="interval_type">hours</field>
+        <field name="interval_type">days</field>
+        <field name="user_id" ref="base.user_root" />
         <field name="active">True</field>
     </record>
 </odoo>

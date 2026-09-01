@@ -1,9 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
-"""Cron repair of the stored ``status``/``is_ended`` computes (issue #417).
+"""Repair of stored ``status``/``is_ended`` stale against the clock — see
+``_cron_recompute_ended_status`` (#417) for the full story.
 
-Both fields depend only on ``ended_date`` and compare it against *now*, so a
-recompute fires on a write to ``ended_date`` but never when the clock crosses
-it: a future-dated departure stays ``active``/``is_ended = False`` forever.
 The stale state cannot be produced through the ORM (writing ``ended_date``
 recomputes at write time), so these tests age rows behind the ORM's back with
 raw SQL — exactly how production rows drift.
@@ -16,6 +14,7 @@ from odoo import fields
 from odoo.tests import tagged
 
 from .test_membership_constraints import MembershipCommon
+from .test_metric_invalidation import _patch_invalidate_funnel
 
 
 @tagged("post_install", "-at_install")
@@ -26,9 +25,14 @@ class TestMembershipEndedStatusCron(MembershipCommon):
         vals.update({"group": self.group.id, "individual": individual.id})
         return self.Membership.create(vals)
 
-    def _age_row(self, rec, start_date, ended_date, active=True):
+    def _age_row(self, rec, ended_date=None, active=True):
         """Rewrite the date window (and ``active``) behind the ORM's back so
-        the stored computes keep their now-wrong values."""
+        the stored computes keep their now-wrong values. Defaults to a
+        departure one year ago; ``start_date`` is derived so the row stays
+        consistent with the start/end constraint."""
+        if ended_date is None:
+            ended_date = fields.Datetime.now() - timedelta(days=365)
+        start_date = ended_date - timedelta(days=365)
         self.env.flush_all()
         self.env.cr.execute(
             "UPDATE spp_group_membership SET start_date = %s, ended_date = %s, active = %s WHERE id = %s",
@@ -48,19 +52,41 @@ class TestMembershipEndedStatusCron(MembershipCommon):
         )
         return self.env.cr.fetchone()
 
+    def _run_cron(self, **kwargs):
+        """Run the repair cron with ``ir.cron._commit_progress`` stubbed out.
+
+        The real method commits, which on a TestCursor releases the test
+        savepoint and leaks this test's rows into the rest of the class.
+        The stub records ``(processed, remaining)`` per chunk so tests can
+        assert the chunking behaviour.
+        """
+        calls = []
+
+        def fake_commit_progress(_cron, processed=0, remaining=None, **_kw):
+            calls.append((processed, remaining))
+            return float("inf")
+
+        with patch.object(
+            type(self.env["ir.cron"]),
+            "_commit_progress",
+            autospec=True,
+            side_effect=fake_commit_progress,
+        ):
+            repaired = self.Membership._cron_recompute_ended_status(**kwargs)
+        return repaired, calls
+
     def test_cron_ends_membership_the_clock_has_crossed(self):
         rec = self._make_membership(self.individual_a)
-        now = fields.Datetime.now()
-        self._age_row(rec, now - timedelta(days=730), now - timedelta(days=365))
+        self._age_row(rec)
 
         # Stale precondition: departed a year ago, still stored as active.
         self.assertEqual(self._read_stored_columns(rec), ("active", False))
         self.assertEqual(rec.status, "active")
         self.assertFalse(rec.is_ended)
 
-        repaired = self.Membership._cron_recompute_ended_status()
+        repaired, _calls = self._run_cron()
 
-        self.assertEqual(repaired, rec)
+        self.assertIn(rec, repaired)
         self.assertEqual(rec.status, "inactive")
         self.assertTrue(rec.is_ended)
         # The SQL columns must be repaired too — four consumers read
@@ -80,30 +106,48 @@ class TestMembershipEndedStatusCron(MembershipCommon):
         # The end date is pushed to the future behind the ORM's back; the
         # stored "inactive" is now wrong in the other direction.
         future = fields.Datetime.now() + timedelta(days=365)
-        self._age_row(rec, past - timedelta(days=1), future)
+        self._age_row(rec, future)
         self.assertEqual(rec.status, "inactive")
         self.assertTrue(rec.is_ended)
 
-        repaired = self.Membership._cron_recompute_ended_status()
+        repaired, _calls = self._run_cron()
 
-        self.assertEqual(repaired, rec)
+        self.assertIn(rec, repaired)
         self.assertEqual(rec.status, "active")
         self.assertFalse(rec.is_ended)
         self.assertEqual(self._read_stored_columns(rec), ("active", False))
 
     def test_cron_repairs_archived_rows(self):
         rec = self._make_membership(self.individual_a)
-        now = fields.Datetime.now()
-        self._age_row(rec, now - timedelta(days=730), now - timedelta(days=365), active=False)
+        self._age_row(rec, active=False)
         self.assertEqual(rec.status, "active")
         self.assertFalse(rec.is_ended)
 
-        self.Membership._cron_recompute_ended_status()
+        self._run_cron()
 
         self.assertEqual(rec.status, "inactive")
         self.assertTrue(rec.is_ended)
         # The cron repairs the computes only; archiving stays as it was.
         self.assertFalse(rec.active)
+
+    def test_cron_repairs_null_is_ended_row(self):
+        # A raw INSERT that omits the nullable computed columns: every
+        # raw-SQL consumer treats NULL is_ended as ended, and the ORM alone
+        # cannot repair NULL -> False (the cache reads NULL as False, so a
+        # recompute writes nothing).
+        rec = self._make_membership(self.individual_a)
+        self.env.flush_all()
+        self.env.cr.execute(
+            "UPDATE spp_group_membership SET is_ended = NULL, status = NULL, ended_date = NULL WHERE id = %s",
+            (rec.id,),
+        )
+        rec.invalidate_recordset()
+        self.assertEqual(self._read_stored_columns(rec), (None, None))
+
+        repaired, _calls = self._run_cron()
+
+        self.assertIn(rec, repaired)
+        self.assertEqual(self._read_stored_columns(rec), ("active", False))
 
     def test_cron_leaves_correct_rows_untouched(self):
         open_ended = self._make_membership(self.individual_a)
@@ -114,11 +158,11 @@ class TestMembershipEndedStatusCron(MembershipCommon):
             ended_date=past,
         )
 
-        repaired = self.Membership._cron_recompute_ended_status()
+        repaired, _calls = self._run_cron()
 
         # An over-matching domain would sweep these rows in; they must not
         # be selected at all, not merely end up with unchanged values.
-        self.assertFalse(repaired)
+        self.assertFalse(repaired & (open_ended | already_ended))
         self.assertEqual(open_ended.status, "active")
         self.assertFalse(open_ended.is_ended)
         self.assertEqual(already_ended.status, "inactive")
@@ -126,44 +170,86 @@ class TestMembershipEndedStatusCron(MembershipCommon):
 
     def test_cron_invalidates_group_metrics(self):
         rec = self._make_membership(self.individual_a)
-        now = fields.Datetime.now()
-        self._age_row(rec, now - timedelta(days=730), now - timedelta(days=365))
+        self._age_row(rec)
 
         # The recompute flushes through low-level SQL and bypasses write(),
         # so the cron must call the metric-invalidation funnel itself.
-        with patch.object(
-            type(self.env["res.partner"]),
-            "invalidate_group_metrics",
-            autospec=True,
-        ) as funnel:
-            self.Membership._cron_recompute_ended_status()
+        with _patch_invalidate_funnel(self.env) as funnel:
+            self._run_cron()
 
-        funnel.assert_called_once()
-        self.assertEqual(funnel.call_args.args[0], self.group)
+        self.assertTrue(funnel.called)
+        invalidated = self.env["res.partner"].browse()
+        for call in funnel.call_args_list:
+            invalidated |= call.args[0]
+        self.assertIn(self.group, invalidated)
 
-    def test_cron_respects_batch_size(self):
+    def test_cron_drains_backlog_in_batches(self):
         carol = self.Partner.create({"name": "Carol", "is_registrant": True, "is_group": False})
-        now = fields.Datetime.now()
         rows = self.Membership.browse()
         for individual in (self.individual_a, self.individual_b, carol):
             rec = self._make_membership(individual)
-            self._age_row(rec, now - timedelta(days=730), now - timedelta(days=365))
+            self._age_row(rec)
             rows |= rec
 
-        first = self.Membership._cron_recompute_ended_status(batch_size=2)
-        self.assertEqual(len(first), 2)
+        repaired, calls = self._run_cron(batch_size=2)
 
-        second = self.Membership._cron_recompute_ended_status(batch_size=2)
-        self.assertEqual(len(second), 1)
-        self.assertEqual(first | second, rows)
+        # One run drains the whole backlog in batch_size chunks, each
+        # reported (and committed) through _commit_progress.
+        self.assertTrue(all(rec in repaired for rec in rows))
         for rec in rows:
             self.assertEqual(rec.status, "inactive")
             self.assertTrue(rec.is_ended)
+        self.assertEqual(sum(processed for processed, _remaining in calls), len(repaired))
+        self.assertEqual(len(calls), -(-len(repaired) // 2))  # ceil(len/2) chunks
+        # A short final chunk reports the backlog as drained. (Guarded: if
+        # ambient stale rows ever pad the backlog to a multiple of the
+        # batch size, the last full chunk legitimately reports more work.)
+        if calls[-1][0] < 2:
+            self.assertEqual(calls[-1][1], 0)
+
+    def test_future_ended_date_schedules_cron_trigger(self):
+        cron = self.env.ref("spp_registry.cron_recompute_membership_ended_status")
+        Trigger = self.env["ir.cron.trigger"]
+        future = fields.Datetime.now() + timedelta(days=30)
+
+        before = Trigger.search([("cron_id", "=", cron.id)])
+        rec = self._make_membership(self.individual_a, ended_date=future)
+        created = Trigger.search([("cron_id", "=", cron.id)]) - before
+        self.assertEqual(len(created), 1)
+        self.assertEqual(created.call_at, future)
+
+        later = future + timedelta(days=5)
+        before = Trigger.search([("cron_id", "=", cron.id)])
+        rec.write({"ended_date": later})
+        created = Trigger.search([("cron_id", "=", cron.id)]) - before
+        self.assertEqual(len(created), 1)
+        self.assertEqual(created.call_at, later)
+
+    def test_past_ended_date_schedules_no_cron_trigger(self):
+        # A past departure is recomputed correctly at write time; only a
+        # future one needs the clock-crossing repair scheduled.
+        cron = self.env.ref("spp_registry.cron_recompute_membership_ended_status")
+        Trigger = self.env["ir.cron.trigger"]
+        past = fields.Datetime.now() - timedelta(days=365)
+
+        before = Trigger.search([("cron_id", "=", cron.id)])
+        rec = self._make_membership(
+            self.individual_a,
+            start_date=past - timedelta(days=1),
+            ended_date=past,
+        )
+        rec.write({"ended_date": past + timedelta(days=1)})
+        self.assertFalse(Trigger.search([("cron_id", "=", cron.id)]) - before)
 
     def test_cron_record_registered(self):
         cron = self.env.ref("spp_registry.cron_recompute_membership_ended_status")
         self.assertEqual(cron.model_id.model, "spp.group.membership")
         self.assertTrue(cron.active)
         self.assertIn("_cron_recompute_ended_status", cron.code)
+        # Daily safety net only — the common path is the per-row trigger
+        # scheduled at the exact ended_date.
         self.assertEqual(cron.interval_number, 1)
-        self.assertEqual(cron.interval_type, "hours")
+        self.assertEqual(cron.interval_type, "days")
+        # Superuser pin: the unsudo'd searches must see memberships of
+        # disabled registrants despite the global ir.rule pair.
+        self.assertEqual(cron.user_id, self.env.ref("base.user_root"))

@@ -1,6 +1,6 @@
 ### 19.0.2.2.3
 
-- fix(registry): add an hourly cron that repairs the stored `status`/`is_ended` computes on `spp.group.membership`. Both fields depend only on `ended_date` compared against *now*, so a future-dated departure never took effect once the clock crossed it — rosters, metrics, API search and downstream gates kept treating the member as active indefinitely. The cron finds rows whose stored values disagree with the clock (archived rows included) and re-triggers the computes; its first run self-heals any rows already stale in existing databases (#417)
+- fix(registry): repair the stored `status`/`is_ended` computes on `spp.group.membership` once the clock crosses `ended_date`. Both fields depend only on `ended_date` compared against *now*, so a future-dated departure never took effect once the clock crossed it — rosters, metrics, API search and downstream gates kept treating the member as active indefinitely. Writing a future `ended_date` now schedules the repair cron at exactly that moment (staleness window ~1 minute), and a daily sweep self-heals everything else: rows already stale in existing databases (drained in committed batches on the first run, however large the backlog) and rows written behind the ORM, including `is_ended = NULL` rows that raw-SQL consumers treated as ended (#417)
 
 ### 19.0.2.2.2
 
