@@ -120,11 +120,12 @@ def _family_blueprints(today):
     ]
 
 
-def post_init_hook(env):
-    _logger.info("Child benefit demo setup starting")
+def create_demo_environment(env):
+    """Build the whole demo environment. Idempotent: returns False when the
+    demo programme already exists, so it is safe to call from a button."""
     if env["spp.program"].search_count([("name", "=", PROGRAM_NAME)]):
-        _logger.info("Demo program already present; skipping setup")
-        return
+        _logger.info("Demo programme already present; skipping setup")
+        return False
     env = env(context=dict(env.context, tracking_disable=True))
     program = _create_program(env)
     families = _create_families(env)
@@ -132,6 +133,12 @@ def post_init_hook(env):
     _create_grievances(env, families)
     _create_portal_user(env)
     _logger.info("Child benefit demo setup complete")
+    return True
+
+
+def post_init_hook(env):
+    _logger.info("Child benefit demo setup starting")
+    create_demo_environment(env)
 
 
 def _create_portal_user(env):

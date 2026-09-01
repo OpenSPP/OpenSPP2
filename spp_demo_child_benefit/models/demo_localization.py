@@ -1,0 +1,115 @@
+# Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+"""Apply a localization pack to the demo environment.
+
+A pack is a JSON document that renames the generated, country-neutral demo
+records so a demonstration can be given in a country's own terms. The packs
+themselves are supplied by whoever runs the demo; none ship with this module.
+
+Pack format (every key optional):
+
+    {
+      "programme_name": "…",
+      "currency": "XYZ",
+      "banks":   {"National Commercial Bank": "…"},
+      "areas":   {"CR-HD-RV": "…"},
+      "mothers": ["…", "…"],
+      "fathers": ["…", "…"],
+      "children": ["…", "…"],
+      "family_name_template": "{mother_first} Family ({mother})"
+    }
+"""
+
+import json
+import logging
+
+from odoo import _, models
+from odoo.exceptions import UserError
+
+_logger = logging.getLogger(__name__)
+
+ORDINALS = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight"]
+
+
+class DemoLocalization(models.AbstractModel):
+    _name = "spp.demo.localization"
+    _description = "Demo Localization Pack Applier"
+
+    def _parse_pack(self, raw):
+        try:
+            pack = json.loads(raw)
+        except (ValueError, TypeError) as err:
+            raise UserError(_("The localization pack is not valid JSON: %s") % err) from err
+        if not isinstance(pack, dict):
+            raise UserError(_("The localization pack must be a JSON object."))
+        return pack
+
+    def apply_pack(self, raw):
+        """Apply a localization pack. Idempotent — renames already applied are
+        simply not found the second time."""
+        pack = self._parse_pack(raw)
+        env = self.env
+        summary = []
+
+        programme_name = pack.get("programme_name")
+        program = env["spp.program"].search([("name", "=", "Child Benefit Programme")], limit=1)
+        if programme_name and program:
+            program.name = programme_name
+            summary.append(_("programme renamed"))
+
+        currency_code = pack.get("currency")
+        if currency_code:
+            currency = (
+                env["res.currency"].with_context(active_test=False).search([("name", "=", currency_code)], limit=1)
+            )
+            if currency:
+                if not currency.active:
+                    currency.active = True
+                if program and program.journal_id:
+                    program.journal_id.currency_id = currency.id
+                summary.append(_("currency set to %s") % currency_code)
+
+        for old, new in (pack.get("banks") or {}).items():
+            bank = env["res.bank"].search([("name", "=", old)], limit=1)
+            if bank:
+                bank.name = new
+        if pack.get("banks"):
+            summary.append(_("%s bank(s) renamed") % len(pack["banks"]))
+
+        for code, name in (pack.get("areas") or {}).items():
+            area = env["spp.area"].search([("code", "=", code)], limit=1)
+            if area:
+                area.draft_name = name
+        if pack.get("areas"):
+            summary.append(_("%s area(s) renamed") % len(pack["areas"]))
+
+        Partner = env["res.partner"]
+        mothers = pack.get("mothers") or []
+        fathers = pack.get("fathers") or []
+        template = pack.get("family_name_template") or "{mother} Family"
+        renamed_people = 0
+        for index, ordinal in enumerate(ORDINALS):
+            if index < len(mothers):
+                mother = Partner.search([("name", "=", f"Mother {ordinal}")], limit=1)
+                if mother:
+                    mother.name = mothers[index]
+                    renamed_people += 1
+                family = Partner.search([("name", "=", f"Demo Family {ordinal}")], limit=1)
+                if family:
+                    family.name = template.format(mother=mothers[index], mother_first=mothers[index].split()[0])
+            if index < len(fathers):
+                father = Partner.search([("name", "=", f"Father {ordinal}")], limit=1)
+                if father:
+                    father.name = fathers[index]
+                    renamed_people += 1
+
+        children_names = pack.get("children") or []
+        if children_names:
+            children = Partner.search([("name", "like", "Child %-%"), ("is_group", "=", False)], order="id")
+            for index, child in enumerate(children):
+                child.name = children_names[index % len(children_names)]
+                renamed_people += 1
+        if renamed_people:
+            summary.append(_("%s person record(s) renamed") % renamed_people)
+
+        _logger.info("Demo localization applied: %s", ", ".join(summary) or "nothing matched")
+        return summary

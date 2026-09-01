@@ -31,6 +31,7 @@
         "data/demo_users.xml",
         "data/grm_categories.xml",
         "data/demo_filters.xml",
+        "views/res_config_settings_views.xml",
     ],
     "assets": {},
     "demo": [],
