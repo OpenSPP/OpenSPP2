@@ -62,3 +62,26 @@ class TestDemoSetup(TransactionCase):
         portal_user = self.env["res.users"].search([("login", "=", "parent")])
         self.assertTrue(portal_user)
         self.assertEqual(portal_user.partner_id.name, "Mother One")
+
+    def test_portal_grievance_acl_hardened(self):
+        """F1: the portal login must not be able to read other people's
+        grievances or write/create tickets over RPC."""
+        from odoo.exceptions import AccessError
+
+        portal_user = self.env["res.users"].search([("login", "=", "parent")], limit=1)
+        self.assertTrue(portal_user)
+        Ticket = self.env["spp.grm.ticket"].with_user(portal_user)
+
+        # Portal group has no write and no create on tickets
+        self.assertFalse(Ticket.has_access("write"))
+        self.assertFalse(Ticket.has_access("create"))
+
+        # And an ir.rule scopes reads to the user's own partner: a ticket
+        # belonging to someone else is invisible, not merely hidden in a view.
+        other_ticket = self.env["spp.grm.ticket"].search([("partner_id", "!=", portal_user.partner_id.id)], limit=1)
+        if other_ticket:
+            self.assertFalse(Ticket.search([("id", "=", other_ticket.id)]))
+
+        # Team roster and SLA rules are not readable by the portal group.
+        with self.assertRaises(AccessError):
+            self.env["spp.grm.team"].with_user(portal_user).search([])

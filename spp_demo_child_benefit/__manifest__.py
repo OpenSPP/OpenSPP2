@@ -24,6 +24,7 @@
     ],
     "data": [
         "security/ir.model.access.csv",
+        "security/grm_portal_security.xml",
         "data/demo_banks.xml",
         "data/demo_areas.xml",
         "data/demo_users.xml",

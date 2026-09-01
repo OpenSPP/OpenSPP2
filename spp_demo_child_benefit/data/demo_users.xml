@@ -3,7 +3,7 @@
     <record id="user_programme_officer" model="res.users">
         <field name="name">Programme Officer</field>
         <field name="login">officer</field>
-        <field name="password">officer</field>
+        <field name="password">Cbp-Officer-Demo-2026!</field>
         <field
             name="group_ids"
             eval="[Command.link(ref('spp_programs.group_programs_officer')), Command.link(ref('spp_registry.group_registry_read'))]"
@@ -12,7 +12,7 @@
     <record id="user_programme_manager" model="res.users">
         <field name="name">Programme Manager</field>
         <field name="login">manager</field>
-        <field name="password">manager</field>
+        <field name="password">Cbp-Manager-Demo-2026!</field>
         <field
             name="group_ids"
             eval="[Command.link(ref('spp_programs.group_programs_manager')), Command.link(ref('spp_registry.group_registry_read'))]"

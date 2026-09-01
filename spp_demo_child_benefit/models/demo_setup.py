@@ -143,7 +143,7 @@ def _create_portal_user(env):
         {
             "name": mother.name,
             "login": "parent",
-            "password": "parent",
+            "password": "Cbp-Parent-Demo-2026!",
             "partner_id": mother.id,
             "group_ids": [Command.set([env.ref("base.group_portal").id])],
         }
