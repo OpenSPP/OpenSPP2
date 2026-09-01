@@ -101,6 +101,7 @@ class CSVFilePaymentManager(models.Model):
         for batch in batches:
             attachment = self._render_batch_csv(batch)
             batch.payment_ids.filtered(lambda p: p.state == "issued").write({"state": "sent"})
+            self._refresh_batch_stats(batch)
             _logger.info("Bank file %s generated for batch %s", attachment.name, batch.id)
         return {
             "type": "ir.actions.client",
@@ -113,6 +114,30 @@ class CSVFilePaymentManager(models.Model):
                 "next": {"type": "ir.actions.act_window_close"},
             },
         }
+
+    def _refresh_batch_stats(self, batch):
+        """Populate the batch's stored statistics and state so the form
+        reflects what was sent (the stock stats fields are otherwise left at
+        zero)."""
+        payments = batch.payment_ids
+        sent = payments.filtered(lambda p: p.state in ("sent", "reconciled"))
+        paid = payments.filtered(lambda p: p.status == "paid")
+        failed = payments.filtered(lambda p: p.status == "failed")
+        batch.write(
+            {
+                "has_batch_started": True,
+                "has_batch_completed": True,
+                "stats_datetime": fields.Datetime.now(),
+                "stats_issued_transactions": len(payments),
+                "stats_issued_amount": sum(payments.mapped("amount_issued")),
+                "stats_sent_transactions": len(sent),
+                "stats_sent_amount": sum(sent.mapped("amount_issued")),
+                "stats_paid_transactions": len(paid),
+                "stats_paid_amount": sum(paid.mapped("amount_paid")),
+                "stats_failed_transactions": len(failed),
+                "stats_failed_amount": sum(failed.mapped("amount_issued")),
+            }
+        )
 
     def _render_batch_csv(self, batch):
         data = StringIO()
@@ -153,6 +178,20 @@ class CSVFilePaymentManager(models.Model):
         writer.writerow([])
         writer.writerow(["total_transactions", len(batch.payment_ids), "total_amount", f"{total:.2f}"])
         filename = f"{batch.name}.csv"
+        datas = base64.b64encode(data.getvalue().encode("utf-8"))
+        # Regenerate in place: re-sending a batch refreshes its bank file
+        # rather than piling up a new attachment each time.
+        existing = self.env["ir.attachment"].search(
+            [
+                ("res_model", "=", "spp.payment.batch"),
+                ("res_id", "=", batch.id),
+                ("mimetype", "=", "text/csv"),
+            ]
+        )
+        if existing:
+            existing[0].write({"name": filename, "datas": datas})
+            existing[1:].unlink()
+            return existing[0]
         return self.env["ir.attachment"].create(
             {
                 "name": filename,
@@ -160,6 +199,6 @@ class CSVFilePaymentManager(models.Model):
                 "res_id": batch.id,
                 "type": "binary",
                 "mimetype": "text/csv",
-                "datas": base64.b64encode(data.getvalue().encode("utf-8")),
+                "datas": datas,
             }
         )

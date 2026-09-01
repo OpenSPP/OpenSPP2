@@ -13,6 +13,11 @@
                     readonly="1"
                 />
             </xpath>
+            <!-- Once the batch has been sent, hide the send button so it is
+                 not re-run by mistake; the bank file is already available above. -->
+            <xpath expr="//header/button[@name='send_payment']" position="attributes">
+                <attribute name="invisible">has_batch_completed</attribute>
+            </xpath>
         </field>
     </record>
 </odoo>
