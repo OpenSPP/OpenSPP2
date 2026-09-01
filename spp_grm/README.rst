@@ -162,7 +162,9 @@ Changelog
   grievance in the system over RPC (#380). Added a portal record rule
   scoping to the user's own partner and reduced the portal
   access-control entry to read-only (submission is handled by the sudo'd
-  portal controller, which needs no direct model write).
+  portal controller, which needs no direct model write). The rule covers
+  all four operations, so the scoping also holds if a future
+  access-control change ever re-grants portal write.
 
 19.0.2.0.1
 ~~~~~~~~~~
