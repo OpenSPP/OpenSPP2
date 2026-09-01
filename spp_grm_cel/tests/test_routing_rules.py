@@ -1,5 +1,6 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
+from odoo import Command
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
@@ -10,7 +11,23 @@ class TestRoutingRules(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.RoutingRule = cls.env["spp.grm.routing.rule"]
+        # Rules are created as a GRM manager, not via the bare test env: the
+        # test env is the superuser, and a superuser-owned rule evaluates with
+        # record rules bypassed (with_user(SUPERUSER_ID) is always superuser
+        # mode) — i.e. the pre-#379 unbounded path. Binding the handle to a
+        # manager makes every rule in this suite exercise the owner-scoped
+        # evaluation the fix introduces, with the same broad manager reach.
+        cls.rule_author = cls.env["res.users"].create(
+            {
+                "name": "Routing Rule Author",
+                "login": "grm_routing_rule_author",
+                "group_ids": [
+                    Command.link(cls.env.ref("base.group_user").id),
+                    Command.link(cls.env.ref("spp_grm.group_grm_manager").id),
+                ],
+            }
+        )
+        cls.RoutingRule = cls.env["spp.grm.routing.rule"].with_user(cls.rule_author)
         cls.Ticket = cls.env["spp.grm.ticket"]
         cls.Team = cls.env["spp.grm.team"]
         cls.Category = cls.env["spp.grm.ticket.category"]

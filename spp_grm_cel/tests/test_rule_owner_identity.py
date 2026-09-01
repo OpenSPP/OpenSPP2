@@ -9,8 +9,8 @@ Regression tests for the GRM rule cluster:
   Rules must evaluate and act with the identity of whoever defined them
   (eval_as_user_id), so an officer's rule can only touch tickets the officer's
   own record rule already permits. Mirrors the spp_alerts #364 owner-identity fix.
-- #381 (Medium): apply_routing / apply_escalations / check_escalations were
-  public @api.model methods, RPC-dispatchable; they must be private.
+- #381 (Medium): apply_routing / apply_escalations / apply_escalation /
+  check_escalations were public methods, RPC-dispatchable; they must be private.
 """
 
 from odoo import Command
@@ -88,6 +88,68 @@ class TestGRMRuleOwnerIdentity(TransactionCase):
             "Officer-authored rule must not reassign a ticket it cannot see",
         )
 
+    def test_officer_rule_cannot_seize_foreign_ticket_via_condition(self):
+        """Same seize scenario, but with a non-empty CEL condition: evaluating
+        the condition must READ the ticket, which the owner cannot, so the rule
+        is skipped on the evaluate path (not just denied on the write path —
+        an empty condition short-circuits evaluate() without touching the
+        ticket, so only this variant pins the read-side bound)."""
+        self.env[ESCALATION].with_user(self.officer).create(
+            {
+                "name": "Seize critical tickets",
+                "condition_cel": "severity == 'critical'",  # foreign_ticket matches
+                "escalate_to_user_id": self.officer.id,
+                "trigger_after_hours": 0,
+            }
+        )
+        self.env[ESCALATION].sudo().check_escalations()
+        self.foreign_ticket.invalidate_recordset()
+        self.assertFalse(
+            self.foreign_ticket.is_escalated,
+            "Rule condition must not be evaluated against a ticket its owner cannot read",
+        )
+
+    def test_officer_escalation_out_of_scope_rolls_back_cleanly(self):
+        """An officer's rule that reassigns a ticket OUT of the officer's own
+        scope must not leave a half-applied escalation: the reassignment write
+        succeeds (access is checked pre-write), but the follow-up steps then
+        fail for lack of access — the savepoint must roll the whole escalation
+        back: no state change, no counter increment, no chatter message."""
+        own_ticket = self.env["spp.grm.ticket"].create(
+            {
+                "name": "Own-team grievance",
+                "description": "In team A, inside the officer's scope",
+                "partner_id": self.foreign_ticket.partner_id.id,
+                "team_id": self.team_a.id,
+                "severity": "critical",
+            }
+        )
+        rule = (
+            self.env[ESCALATION]
+            .with_user(self.officer)
+            .create(
+                {
+                    "name": "Escalate out of scope",
+                    "condition_cel": "",
+                    "escalate_to_team_id": self.team_b.id,  # officer is not in team B
+                    "trigger_after_hours": 0,
+                }
+            )
+        )
+        messages_before = len(own_ticket.message_ids)
+        applied = self.env[ESCALATION].sudo().apply_escalations(own_ticket)
+        own_ticket.invalidate_recordset()
+        rule.invalidate_recordset()
+        self.assertFalse(applied, "Out-of-scope escalation must report not-applied")
+        self.assertFalse(own_ticket.is_escalated, "Escalation state must be rolled back")
+        self.assertEqual(own_ticket.team_id, self.team_a, "Reassignment must be rolled back")
+        self.assertEqual(rule.escalation_count, 0, "Counter must not survive the rollback")
+        self.assertEqual(
+            len(own_ticket.message_ids),
+            messages_before,
+            "No chatter message may survive a rolled-back escalation",
+        )
+
     def test_manager_rule_applies_broadly(self):
         """A manager (broad record-rule scope) authoring the same rule DOES
         escalate — owner identity does not over-restrict legitimate rules."""
@@ -155,24 +217,28 @@ class TestGRMRuleOwnerIdentity(TransactionCase):
 
     def test_escalation_counter_increments_under_owner_identity(self):
         """The escalation counter is incremented (atomically) when a manager's
-        rule applies via the elevated cron path."""
+        rule applies via the elevated path. Applied to one explicit ticket —
+        not via the DB-wide check_escalations scan — so the +1 assertion stays
+        valid if a fixture ever adds another open ticket."""
         rule = (
             self.env[ESCALATION]
             .with_user(self.manager)
             .create({"name": "Counter rule", "condition_cel": "", "escalate_severity": "high"})
         )
         before = rule.escalation_count
-        self.env[ESCALATION].sudo().check_escalations()
+        self.env[ESCALATION].sudo().apply_escalations(self.foreign_ticket)
         rule.invalidate_recordset()
         self.assertEqual(rule.escalation_count, before + 1)
 
     def test_entry_points_not_rpc_callable(self):
-        """#381: the three rule-engine methods must be rejected for RPC dispatch."""
+        """#381: all four rule-engine methods must be rejected for RPC dispatch."""
         from odoo.service.model import call_kw
 
+        rule = self.env[ESCALATION].create({"name": "Dispatch probe", "condition_cel": ""})
         for model, method, args in [
             (ROUTING, "apply_routing", [self.foreign_ticket.id]),
             (ESCALATION, "apply_escalations", [self.foreign_ticket.id]),
+            (ESCALATION, "apply_escalation", [[rule.id], self.foreign_ticket.id]),
             (ESCALATION, "check_escalations", []),
         ]:
             with self.assertRaises(AccessError):

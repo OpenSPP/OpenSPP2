@@ -2,7 +2,7 @@
 
 from datetime import timedelta
 
-from odoo import fields
+from odoo import Command, fields
 from odoo.tests.common import TransactionCase
 
 
@@ -12,7 +12,23 @@ class TestEscalationRules(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.EscalationRule = cls.env["spp.grm.escalation.rule"]
+        # Rules are created as a GRM manager, not via the bare test env: the
+        # test env is the superuser, and a superuser-owned rule evaluates with
+        # record rules bypassed (with_user(SUPERUSER_ID) is always superuser
+        # mode) — i.e. the pre-#379 unbounded path. Binding the handle to a
+        # manager makes every rule in this suite exercise the owner-scoped
+        # evaluation the fix introduces, with the same broad manager reach.
+        cls.rule_author = cls.env["res.users"].create(
+            {
+                "name": "Escalation Rule Author",
+                "login": "grm_escalation_rule_author",
+                "group_ids": [
+                    Command.link(cls.env.ref("base.group_user").id),
+                    Command.link(cls.env.ref("spp_grm.group_grm_manager").id),
+                ],
+            }
+        )
+        cls.EscalationRule = cls.env["spp.grm.escalation.rule"].with_user(cls.rule_author)
         cls.Ticket = cls.env["spp.grm.ticket"]
         cls.Team = cls.env["spp.grm.team"]
         cls.User = cls.env["res.users"]

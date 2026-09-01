@@ -1,6 +1,6 @@
 import logging
 
-from odoo import _, api, fields, models
+from odoo import SUPERUSER_ID, Command, _, api, fields, models
 from odoo.exceptions import AccessError, ValidationError
 
 _logger = logging.getLogger(__name__)
@@ -177,15 +177,21 @@ class GRMEscalationRule(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        """Force the evaluation identity to the creator; never client-supplied."""
+        """Force the evaluation identity to the creator; never client-supplied.
+
+        Setting the key explicitly (rather than popping it) keeps the field
+        present in vals so default_get — which honours a client
+        default_eval_as_user_id context key — is never consulted for it.
+        """
         vals_list = [dict(vals, eval_as_user_id=self.env.uid) for vals in vals_list]
         return super().create(vals_list)
 
     def write(self, vals):
         """Re-bind the evaluation identity to the editor when targeting changes.
 
-        self.env.uid is the acting user, preserved even under sudo() (only an
-        explicit with_user(<elevated>) write re-widens scope).
+        eval_as_user_id is never client-writable directly; it tracks whoever last
+        defined what the rule targets. self.env.uid is the acting user, preserved
+        even under sudo() (only an explicit with_user(<elevated>) write re-widens).
         """
         if "eval_as_user_id" in vals or any(f in vals for f in self._EVAL_TARGETING_FIELDS):
             vals = dict(vals)
@@ -389,13 +395,26 @@ class GRMEscalationRule(models.Model):
         ticket.write(vals)
 
         # Track which escalation rule was applied (add to many2many)
-        ticket.write({"escalation_rule_ids": [(4, self.id)]})
+        ticket.write({"escalation_rule_ids": [Command.link(self.id)]})
 
         _logger.info(
             "Applied escalation rule '%s' to ticket %s: %s",
             self.name,
             ticket.number,
             vals,
+        )
+
+        # Post to chatter BEFORE any external side effect: posting needs write
+        # access on the ticket, which the rule owner may have just lost by
+        # reassigning it out of their own scope. When that happens the caller's
+        # savepoint rolls everything back — and because nothing external has
+        # fired yet, no ghost notification announces a rolled-back escalation.
+        ticket.message_post(
+            body=_(
+                "Ticket escalated by rule: <b>%(rule_name)s</b>",
+                rule_name=self.name,
+            ),
+            subject=_("Ticket Escalated"),
         )
 
         # Send notification if configured
@@ -406,24 +425,18 @@ class GRMEscalationRule(models.Model):
         if self.create_case and self.case_type_id:
             self._create_case_from_ticket(ticket)
 
-        # Atomic increment: avoids lost updates under concurrent cron/UI
-        # escalation, and needs no sudo (raw SQL bypasses ACL). Invisible to
-        # spp_audit ORM write-hooks, which is acceptable for a stats counter.
+        # Atomic increment: a read-modify-write here would raise a serialization
+        # failure under concurrent cron/UI escalation (cursors run REPEATABLE
+        # READ), and the only auto-retry is the whole dispatch — re-running the
+        # entire cron pass and re-firing notifications. A single UPDATE avoids
+        # the conflict entirely, and needs no sudo (raw SQL bypasses ACL).
+        # Invisible to spp_audit ORM write-hooks, acceptable for a stats counter.
         self.flush_recordset(["escalation_count"])
         self.env.cr.execute(
             "UPDATE spp_grm_escalation_rule SET escalation_count = escalation_count + 1 WHERE id = %s",
             (self.id,),
         )
         self.invalidate_recordset(["escalation_count"])
-
-        # Post message to chatter
-        ticket.message_post(
-            body=_(
-                "Ticket escalated by rule: <b>%(rule_name)s</b>",
-                rule_name=self.name,
-            ),
-            subject=_("Ticket Escalated"),
-        )
 
         return True
 
@@ -516,9 +529,13 @@ class GRMEscalationRule(models.Model):
 
         _logger.info("Checking escalation rules for %d open tickets", len(tickets))
 
+        # Hoisted out of the per-ticket loop: the active-rule set is identical
+        # for every ticket in this pass, so search it once, not once per ticket.
+        rules = self.search([("active", "=", True)], order="sequence, id")
+
         escalated_count = 0
         for ticket in tickets:
-            if self.apply_escalations(ticket):
+            if self.apply_escalations(ticket, rules=rules):
                 escalated_count += 1
 
         _logger.info("Escalated %d tickets", escalated_count)
@@ -526,7 +543,7 @@ class GRMEscalationRule(models.Model):
 
     @api.model
     @api.private
-    def apply_escalations(self, ticket):
+    def apply_escalations(self, ticket, rules=None):
         """Apply all matching escalation rules to a ticket.
 
         Each rule is evaluated and applied with the identity of whoever defined
@@ -536,18 +553,39 @@ class GRMEscalationRule(models.Model):
 
         Args:
             ticket: spp.grm.ticket record
+            rules: optional pre-searched active rules in ``sequence, id`` order;
+                a caller looping many tickets (the cron) passes them once
+                instead of re-searching per ticket
 
         Returns:
             bool: True if any rule was applied, False otherwise
         """
-        # Search for active rules in sequence order
-        rules = self.search([("active", "=", True)], order="sequence, id")
+        if rules is None:
+            # Search for active rules in sequence order
+            rules = self.search([("active", "=", True)], order="sequence, id")
 
         applied = False
         for rule in rules:
             owner = rule.eval_as_user_id or rule.create_uid
             if not owner:
+                _logger.warning(
+                    "Escalation rule %s (id %s) has no evaluation identity (owner and "
+                    "create_uid both unset); skipping — it will never fire until re-saved.",
+                    rule.name,
+                    rule.id,
+                )
                 continue
+            if owner.id == SUPERUSER_ID:
+                # with_user(SUPERUSER_ID) always runs in superuser mode (record
+                # rules bypassed), so this rule evaluates unrestricted. Only
+                # privileged contexts (shell, data load, migration from a
+                # script-created rule) can mint such an owner — surface it.
+                _logger.warning(
+                    "Escalation rule %s (id %s) is owned by the superuser and evaluates "
+                    "without record-rule bounds; re-save it as a real user to scope it.",
+                    rule.name,
+                    rule.id,
+                )
             # nosemgrep: semgrep.odoo-with-user-unvalidated -- owner is system-set in create()/write(), not client input
             rule_as_owner = rule.with_user(owner.id)
             # nosemgrep: semgrep.odoo-with-user-unvalidated -- owner is system-set; scopes ticket writes
@@ -557,13 +595,33 @@ class GRMEscalationRule(models.Model):
             except AccessError:
                 # The rule owner cannot see this ticket -> the rule does not
                 # apply to it. Correct behaviour, not an error.
+                _logger.debug(
+                    "Escalation rule %s: owner %s cannot read ticket %s; rule does not apply.",
+                    rule.name,
+                    owner.login,
+                    ticket.id,
+                )
                 continue
             if matched:
                 try:
-                    rule_as_owner.apply_escalation(ticket_as_owner)
+                    # Savepoint: apply_escalation has side effects after its
+                    # ticket writes (notification, case creation, counter,
+                    # chatter post), any of which can raise AccessError once the
+                    # write itself has reassigned the ticket out of the owner's
+                    # own scope. Roll all of it back rather than leave a
+                    # half-applied escalation with a lost chatter message.
+                    with self.env.cr.savepoint():
+                        rule_as_owner.apply_escalation(ticket_as_owner)
                 except AccessError:
-                    # Owner matched but cannot write this ticket -> skip rather
-                    # than apply with elevated rights.
+                    # Owner matched but cannot write this ticket (or lost access
+                    # mid-apply) -> skip rather than apply with elevated rights.
+                    _logger.info(
+                        "Escalation rule %s: owner %s lacks write access on ticket %s; "
+                        "escalation rolled back and skipped.",
+                        rule.name,
+                        owner.login,
+                        ticket.id,
+                    )
                     continue
                 applied = True
                 # Continue checking other rules (unlike routing, multiple escalations can apply)

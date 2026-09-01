@@ -1,6 +1,6 @@
 import logging
 
-from odoo import _, api, fields, models
+from odoo import SUPERUSER_ID, _, api, fields, models
 from odoo.exceptions import AccessError, ValidationError
 
 _logger = logging.getLogger(__name__)
@@ -298,7 +298,24 @@ class GRMRoutingRule(models.Model):
         for rule in rules:
             owner = rule.eval_as_user_id or rule.create_uid
             if not owner:
+                _logger.warning(
+                    "Routing rule %s (id %s) has no evaluation identity (owner and "
+                    "create_uid both unset); skipping — it will never fire until re-saved.",
+                    rule.name,
+                    rule.id,
+                )
                 continue
+            if owner.id == SUPERUSER_ID:
+                # with_user(SUPERUSER_ID) always runs in superuser mode (record
+                # rules bypassed), so this rule evaluates unrestricted. Only
+                # privileged contexts (shell, data load, migration from a
+                # script-created rule) can mint such an owner — surface it.
+                _logger.warning(
+                    "Routing rule %s (id %s) is owned by the superuser and evaluates "
+                    "without record-rule bounds; re-save it as a real user to scope it.",
+                    rule.name,
+                    rule.id,
+                )
             # nosemgrep: semgrep.odoo-with-user-unvalidated -- owner is system-set in create()/write(), not client input
             rule_as_owner = rule.with_user(owner.id)
             # nosemgrep: semgrep.odoo-with-user-unvalidated -- owner is system-set; scopes ticket writes
@@ -308,6 +325,12 @@ class GRMRoutingRule(models.Model):
             except AccessError:
                 # The rule owner cannot see this ticket -> the rule does not
                 # apply to it. Correct behaviour, not an error.
+                _logger.debug(
+                    "Routing rule %s: owner %s cannot read ticket %s; rule does not apply.",
+                    rule.name,
+                    owner.login,
+                    ticket.id,
+                )
                 continue
             if matched:
                 # Apply the rule's actions as the owner: the ticket.write is
@@ -333,6 +356,12 @@ class GRMRoutingRule(models.Model):
                 except AccessError:
                     # Owner may match the ticket but not be allowed to write it
                     # (e.g. read-only scope). Skip rather than apply elevated.
+                    _logger.info(
+                        "Routing rule %s: owner %s lacks write access on ticket %s; skipped.",
+                        rule.name,
+                        owner.login,
+                        ticket.id,
+                    )
                     continue
                 _logger.info(
                     "Applied routing rule '%s' to ticket %s: %s",
@@ -341,10 +370,12 @@ class GRMRoutingRule(models.Model):
                     vals,
                 )
 
-                # Atomic increment: avoids lost updates under concurrent
-                # cron/UI escalation, and needs no sudo (raw SQL bypasses ACL).
-                # Invisible to spp_audit ORM write-hooks, which is acceptable
-                # for a statistics counter.
+                # Atomic increment: a read-modify-write here would raise a
+                # serialization failure under concurrent routing (cursors run
+                # REPEATABLE READ), retried only at whole-dispatch granularity.
+                # A single UPDATE avoids the conflict entirely, and needs no
+                # sudo (raw SQL bypasses ACL). Invisible to spp_audit ORM
+                # write-hooks, which is acceptable for a statistics counter.
                 rule.flush_recordset(["match_count"])
                 self.env.cr.execute(
                     "UPDATE spp_grm_routing_rule SET match_count = match_count + 1 WHERE id = %s",

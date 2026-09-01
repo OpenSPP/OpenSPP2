@@ -11,9 +11,9 @@ globally.
 
 Portal users must never hold write/create/unlink — and, as of #379, no read
 either: rules now evaluate with their owner's identity (``eval_as_user_id``), so
-the acting/portal user never needs to read them. Dropping the portal and
-base-user read rows closes the rule-enumeration surface (#380). GRM staff retain
-full management.
+the acting user never needs to read them. Dropping the portal and base-user
+read rows closes the rule-enumeration surface (hardening alongside #379/#381;
+the ticket-side portal scoping is #380). GRM staff retain full management.
 """
 
 from odoo import Command
@@ -81,13 +81,29 @@ class TestGRMRuleAcl(TransactionCase):
     def test_portal_user_cannot_read_rules(self):
         """Portal users have no read on the rule models. Rules are evaluated with
         their owner's identity (eval_as_user_id), so the acting/portal user never
-        needs to read them — closing the enumeration surface (#380). The escalation
-        counter write is exercised under owner identity in
-        test_rule_owner_identity.py."""
+        needs to read them — closing the enumeration surface (hardening alongside
+        #379/#381). The escalation counter write is exercised under owner identity
+        in test_rule_owner_identity.py."""
         with self.assertRaises(AccessError):
             self.env[ROUTING_MODEL].with_user(self.portal_user).check_access("read")
         with self.assertRaises(AccessError):
             self.env[ESCALATION_MODEL].with_user(self.portal_user).check_access("read")
+
+    def test_internal_user_cannot_read_rules(self):
+        """A plain internal user (base.group_user, no GRM group) has no read on
+        the rule models either: the base-user read rows were dropped for the same
+        reason as the portal ones, and this pins them from silently coming back."""
+        internal_user = self.env["res.users"].create(
+            {
+                "name": "Plain Internal User",
+                "login": "grm_internal_acl_test",
+                "group_ids": [Command.link(self.env.ref("base.group_user").id)],
+            }
+        )
+        with self.assertRaises(AccessError):
+            self.env[ROUTING_MODEL].with_user(internal_user).check_access("read")
+        with self.assertRaises(AccessError):
+            self.env[ESCALATION_MODEL].with_user(internal_user).check_access("read")
 
     def test_grm_manager_can_create_rules(self):
         """GRM staff must retain full management of both rule models."""
