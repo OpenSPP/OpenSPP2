@@ -1,3 +1,41 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
+    <record id="area_region_central" model="spp.area">
+        <field name="draft_name">Central Region</field>
+        <field name="code">CR</field>
+    </record>
+    <record id="area_district_hillside" model="spp.area">
+        <field name="draft_name">Hillside District</field>
+        <field name="code">CR-HD</field>
+        <field name="parent_id" ref="area_region_central" />
+    </record>
+    <record id="area_village_riverbend" model="spp.area">
+        <field name="draft_name">Riverbend Village</field>
+        <field name="code">CR-HD-RV</field>
+        <field name="parent_id" ref="area_district_hillside" />
+    </record>
+    <record id="area_village_stonegate" model="spp.area">
+        <field name="draft_name">Stonegate Village</field>
+        <field name="code">CR-HD-SG</field>
+        <field name="parent_id" ref="area_district_hillside" />
+    </record>
+    <record id="area_region_eastern" model="spp.area">
+        <field name="draft_name">Eastern Region</field>
+        <field name="code">ER</field>
+    </record>
+    <record id="area_district_lakeshore" model="spp.area">
+        <field name="draft_name">Lakeshore District</field>
+        <field name="code">ER-LD</field>
+        <field name="parent_id" ref="area_region_eastern" />
+    </record>
+    <record id="area_village_meadowbrook" model="spp.area">
+        <field name="draft_name">Meadowbrook Village</field>
+        <field name="code">ER-LD-MB</field>
+        <field name="parent_id" ref="area_district_lakeshore" />
+    </record>
+    <record id="area_village_fernhollow" model="spp.area">
+        <field name="draft_name">Fern Hollow Village</field>
+        <field name="code">ER-LD-FH</field>
+        <field name="parent_id" ref="area_district_lakeshore" />
+    </record>
 </odoo>

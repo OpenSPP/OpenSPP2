@@ -1,3 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
+    <record id="bank_national" model="res.bank">
+        <field name="name">National Commercial Bank</field>
+        <field name="bic">NCBKDM01</field>
+    </record>
+    <record id="bank_rural" model="res.bank">
+        <field name="name">Rural Development Bank</field>
+        <field name="bic">RDBKDM01</field>
+    </record>
+    <record id="bank_community" model="res.bank">
+        <field name="name">Community Savings Bank</field>
+        <field name="bic">CSBKDM01</field>
+    </record>
 </odoo>
