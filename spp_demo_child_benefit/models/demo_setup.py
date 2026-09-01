@@ -210,6 +210,18 @@ def _create_program(env):
     return program
 
 
+def _split_person_name(full_name):
+    """Given/family name parts from a display name: first token is the given
+    name, the remainder the family name. The explicit display name is always
+    passed alongside, so composition never overrides it."""
+    parts = full_name.split(None, 1)
+    return {
+        "name": full_name,
+        "given_name": parts[0],
+        "family_name": parts[1] if len(parts) > 1 else "",
+    }
+
+
 def _create_families(env):
     Vocab = env["spp.vocabulary.code"]
     fam_type = Vocab.get_code("urn:openspp:vocab:group-type", "family")
@@ -232,7 +244,7 @@ def _create_families(env):
         area = villages[index % len(villages)] if villages else env["spp.area"]
         mother = Partner.create(
             {
-                "name": blueprint["mother"],
+                **_split_person_name(blueprint["mother"]),
                 "is_registrant": True,
                 "is_group": False,
                 "birthdate": date(1990 + index % 6, 3 + index % 9, 5 + index),
@@ -248,7 +260,7 @@ def _create_families(env):
         )
         father = Partner.create(
             {
-                "name": blueprint["father"],
+                **_split_person_name(blueprint["father"]),
                 "is_registrant": True,
                 "is_group": False,
                 "birthdate": date(1988 + index % 6, 1 + index % 11, 3 + index),
@@ -280,7 +292,7 @@ def _create_families(env):
         )
         for child_name, birthdate, extra in blueprint["children"]:
             vals = {
-                "name": child_name,
+                **_split_person_name(child_name),
                 "is_registrant": True,
                 "is_group": False,
                 "birthdate": birthdate,

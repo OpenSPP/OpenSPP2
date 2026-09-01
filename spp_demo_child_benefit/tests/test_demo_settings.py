@@ -50,7 +50,10 @@ class TestDemoSettings(TransactionCase):
         self.assertTrue(self.env["spp.program"].search([("name", "=", "Localized Benefit Programme")]))
         self.assertTrue(self.env["res.bank"].search([("name", "=", "First Localized Bank")]))
         self.assertEqual(self.env["spp.area"].search([("code", "=", "CR")]).draft_name, "Localized Region")
-        self.assertTrue(Partner.search([("name", "=", "Localized Mother A")]))
+        localized_mother = Partner.search([("name", "=", "Localized Mother A")])
+        self.assertTrue(localized_mother)
+        self.assertEqual(localized_mother.given_name, "Localized")
+        self.assertEqual(localized_mother.family_name, "Mother A")
         self.assertTrue(Partner.search([("name", "=", "Localized Family")]))
 
         # Pack persists beyond the transient settings record...

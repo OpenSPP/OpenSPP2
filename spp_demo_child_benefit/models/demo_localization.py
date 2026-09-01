@@ -87,11 +87,27 @@ class DemoLocalization(models.AbstractModel):
         fathers = pack.get("fathers") or []
         template = pack.get("family_name_template") or "{mother} Family"
         renamed_people = 0
+
+        def rename_person(record, full_name):
+            """Keep the display name AND the given/family name parts in sync.
+
+            Passing the explicit name alongside the parts preserves the natural
+            "Given Family" display (the registry would otherwise recompose it
+            as "Family, Given")."""
+            parts = full_name.split(None, 1)
+            record.write(
+                {
+                    "name": full_name,
+                    "given_name": parts[0],
+                    "family_name": parts[1] if len(parts) > 1 else "",
+                }
+            )
+
         for index, ordinal in enumerate(ORDINALS):
             if index < len(mothers):
                 mother = Partner.search([("name", "=", f"Mother {ordinal}")], limit=1)
                 if mother:
-                    mother.name = mothers[index]
+                    rename_person(mother, mothers[index])
                     renamed_people += 1
                 family = Partner.search([("name", "=", f"Demo Family {ordinal}")], limit=1)
                 if family:
@@ -99,14 +115,14 @@ class DemoLocalization(models.AbstractModel):
             if index < len(fathers):
                 father = Partner.search([("name", "=", f"Father {ordinal}")], limit=1)
                 if father:
-                    father.name = fathers[index]
+                    rename_person(father, fathers[index])
                     renamed_people += 1
 
         children_names = pack.get("children") or []
         if children_names:
             children = Partner.search([("name", "like", "Child %-%"), ("is_group", "=", False)], order="id")
             for index, child in enumerate(children):
-                child.name = children_names[index % len(children_names)]
+                rename_person(child, children_names[index % len(children_names)])
                 renamed_people += 1
         if renamed_people:
             summary.append(_("%s person record(s) renamed") % renamed_people)

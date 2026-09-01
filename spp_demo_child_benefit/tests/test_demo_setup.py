@@ -36,6 +36,14 @@ class TestDemoSetup(TransactionCase):
         self.assertEqual(child("Child Seven-C").birth_order_state, "none")  # no date of birth
         self.assertEqual(child("Child Eight-D").birth_order, 4)
 
+    def test_individuals_have_name_parts(self):
+        # The registry stores given/family name parts alongside the display
+        # name; the generator must fill all of them.
+        mother = self.env["res.partner"].search([("name", "=", "Mother One")], limit=1)
+        self.assertEqual((mother.given_name, mother.family_name), ("Mother", "One"))
+        kid = self.env["res.partner"].search([("name", "=", "Child One-C")], limit=1)
+        self.assertEqual((kid.given_name, kid.family_name), ("Child", "One-C"))
+
     def test_eligible_children_enrolled_with_schedules(self):
         program = self.env["spp.program"].search([("name", "=", "Child Benefit Programme")])
         memberships = self.env["spp.program.membership"].search([("program_id", "=", program.id)])
