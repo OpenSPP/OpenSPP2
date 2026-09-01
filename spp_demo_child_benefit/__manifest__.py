@@ -28,6 +28,7 @@
         "data/demo_areas.xml",
         "data/demo_users.xml",
         "data/grm_categories.xml",
+        "data/demo_filters.xml",
     ],
     "assets": {},
     "demo": [],

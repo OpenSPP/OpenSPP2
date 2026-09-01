@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Home card -->
+    <template
+        id="portal_my_home_benefits"
+        name="Show Benefits"
+        inherit_id="portal.portal_my_home"
+        customize_show="True"
+        priority="10"
+    >
+        <xpath expr="//div[@id='portal_common_category']" position="before">
+            <div class="o_portal_category row g-2 mt-3" id="portal_benefit_category">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="title">Benefits</t>
+                    <t t-set="url" t-value="'/my/benefits'" />
+                    <t t-set="text">Follow your children's benefit payments</t>
+                    <t t-set="config_card" t-value="True" />
+                </t>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- Breadcrumbs -->
+    <template
+        id="portal_my_home_menu_benefits"
+        name="Portal layout : benefits menu entries"
+        inherit_id="portal.portal_breadcrumbs"
+        priority="35"
+    >
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li
+                t-if="page_name == 'benefits'"
+                t-attf-class="breadcrumb-item #{'active ' if not child else ''}"
+            >
+                <a t-if="child" t-attf-href="/my/benefits">Benefits</a>
+                <t t-else="">Benefits</t>
+            </li>
+            <li t-if="child" class="breadcrumb-item active">
+                <span t-out="child.name" />
+            </li>
+        </xpath>
+    </template>
+
+    <!-- Family overview -->
+    <template id="portal_my_benefits" name="My Benefits">
+        <t t-call="portal.portal_layout">
+            <t t-set="child" t-value="False" />
+            <h3 class="mb-3">Benefits</h3>
+            <t t-if="not children">
+                <p class="alert alert-warning" role="alert">
+                    No enrolled children are linked to your account.
+                </p>
+            </t>
+            <t t-if="children" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th>Child</th>
+                        <th>Programme</th>
+                        <th>Benefit ends</th>
+                        <th class="text-end">Monthly amount</th>
+                        <th />
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="children" t-as="kid">
+                        <t t-set="schedule" t-value="schedules_by_child.get(kid.id)" />
+                        <tr>
+                            <td>
+                                <strong t-out="kid.name" />
+                            </td>
+                            <td>
+                                <t t-if="schedule">
+                                    <span t-out="schedule.program_id.name" />
+                                </t>
+                                <em t-else="">Not enrolled</em>
+                            </td>
+                            <td>
+                                <t t-if="schedule">
+                                    <span t-field="schedule.benefit_end_date" />
+                                </t>
+                                <em t-else="">-</em>
+                            </td>
+                            <td class="text-end">
+                                <t t-if="schedule">
+                                    <span t-out="'%.2f' % schedule.monthly_amount" />
+                                </t>
+                                <em t-else="">-</em>
+                            </td>
+                            <td class="text-end">
+                                <a
+                                    t-if="schedule"
+                                    t-attf-href="/my/benefits/child/#{kid.id}"
+                                    class="btn btn-sm btn-secondary"
+                                >View payments</a>
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </t>
+        </t>
+    </template>
+
+    <!-- Per-child schedule -->
+    <template id="portal_benefit_child" name="Child Benefit Payments">
+        <t t-call="portal.portal_layout">
+            <h3 class="mb-3">
+                <span t-out="child.name" />
+            </h3>
+            <t t-if="not schedule">
+                <p
+                    class="alert alert-warning"
+                    role="alert"
+                >No active benefit schedule.</p>
+            </t>
+            <t t-if="schedule" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th>Benefit month</th>
+                        <th>Period</th>
+                        <th class="text-end">Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="schedule.line_ids" t-as="line">
+                        <tr>
+                            <td>
+                                <span t-out="line.benefit_month.strftime('%B %Y')" />
+                            </td>
+                            <td>
+                                <span t-field="line.payable_from" /> - <span
+                                t-field="line.payable_to"
+                            />
+                            </td>
+                            <td class="text-end">
+                                <span t-out="'%.2f' % line.amount" />
+                            </td>
+                            <td>
+                                <span t-out="line.payment_status" />
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </t>
+        </t>
+    </template>
+</odoo>

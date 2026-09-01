@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- Shared favorite filters powering the dashboard beat: one-click
+         grouped views on the standard list/graph/pivot screens. -->
+    <record id="filter_children_by_birth_order" model="ir.filters">
+        <field name="name">Children by Birth Order</field>
+        <field name="model_id">res.partner</field>
+        <field name="domain">[("is_registrant", "=", True), ("is_group", "=", False), ("birth_order", "&gt;", 0)]</field>
+        <field name="context">{"group_by": ["birth_order"]}</field>
+    </record>
+    <record id="filter_beneficiaries_by_area" model="ir.filters">
+        <field name="name">Beneficiaries by District</field>
+        <field name="model_id">spp.program.membership</field>
+        <field name="domain">[("state", "=", "enrolled")]</field>
+        <field name="context">{"group_by": ["partner_id.area_id"]}</field>
+    </record>
+    <record id="filter_payments_by_status" model="ir.filters">
+        <field name="name">Payments by Status</field>
+        <field name="model_id">spp.payment</field>
+        <field name="domain">[]</field>
+        <field name="context">{"group_by": ["status"]}</field>
+    </record>
+</odoo>

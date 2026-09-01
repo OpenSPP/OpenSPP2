@@ -58,4 +58,7 @@ class TestDemoSetup(TransactionCase):
             5,
         )
         self.assertTrue(self.env["spp.grm.ticket"].search_count([]))
-        self.assertTrue(self.env["res.users"].search_count([("login", "in", ["officer", "manager"])]) == 2)
+        self.assertEqual(self.env["res.users"].search_count([("login", "in", ["officer", "manager"])]), 2)
+        portal_user = self.env["res.users"].search([("login", "=", "parent")])
+        self.assertTrue(portal_user)
+        self.assertEqual(portal_user.partner_id.name, "Mother One")

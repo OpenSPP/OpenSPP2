@@ -24,6 +24,7 @@
         "data/ir_sequence_data.xml",
         "views/individual_views.xml",
         "views/entitlement_schedule_views.xml",
+        "views/portal_templates.xml",
     ],
     "assets": {},
     "demo": [],

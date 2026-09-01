@@ -130,7 +130,25 @@ def post_init_hook(env):
     families = _create_families(env)
     _enroll_and_open_cycle(env, program)
     _create_grievances(env, families)
+    _create_portal_user(env)
     _logger.info("Child benefit demo setup complete")
+
+
+def _create_portal_user(env):
+    """Portal login for a family head so the monitoring pages can be demoed."""
+    mother = env["res.partner"].search([("name", "=", "Mother One")], limit=1)
+    if not mother or env["res.users"].search_count([("login", "=", "parent")]):
+        return
+    env["res.users"].create(
+        {
+            "name": mother.name,
+            "login": "parent",
+            "password": "parent",
+            "partner_id": mother.id,
+            "group_ids": [Command.set([env.ref("base.group_portal").id])],
+        }
+    )
+    _logger.info("Created portal user 'parent' for %s", mother.name)
 
 
 def _create_program(env):
