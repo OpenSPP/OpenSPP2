@@ -2,6 +2,7 @@
 import logging
 
 from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 from odoo.addons.spp_programs.models import constants
 
@@ -88,7 +89,12 @@ class ScheduleEntitlementManager(models.Model):
             _logger.info("No schedule installments to materialize for cycle %s", cycle.id)
             return
 
-        currency_id = self.program_id.journal_id.currency_id.id
+        journal = self.program_id.journal_id
+        if not journal:
+            raise UserError(
+                _("Programme %s has no journal; a journal is required to prepare payments.") % self.program_id.name
+            )
+        currency_id = (journal.currency_id or self.env.company.currency_id).id
         vals_list = []
         for line in lines:
             vals_list.append(

@@ -3,3 +3,4 @@ from . import test_birth_order
 from . import test_entitlement_schedule
 from . import test_portal
 from . import test_program_flow
+from . import test_program_wizard

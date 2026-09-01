@@ -25,6 +25,7 @@
         "views/individual_views.xml",
         "views/entitlement_schedule_views.xml",
         "views/portal_templates.xml",
+        "views/create_program_wizard_views.xml",
     ],
     "assets": {},
     "demo": [],

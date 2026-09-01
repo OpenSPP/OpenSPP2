@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="create_program_wizard_form_view_schedule" model="ir.ui.view">
+        <field name="name">Create Program Wizard - Scheduled Cash</field>
+        <field name="model">spp.program.create.wizard</field>
+        <field name="inherit_id" ref="spp_programs.create_program_wizard_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='approval_settings']" position="before">
+                <group
+                    name="schedule_entitlement"
+                    colspan="4"
+                    invisible="entitlement_type != 'schedule'"
+                >
+                    <field name="schedule_monthly_amount" />
+                    <field name="schedule_age_limit_months" />
+                    <field name="schedule_cutoff_day" />
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

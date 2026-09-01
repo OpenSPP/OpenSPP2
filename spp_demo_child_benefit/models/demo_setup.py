@@ -13,7 +13,7 @@ from datetime import date
 
 from dateutil.relativedelta import relativedelta
 
-from odoo import Command, fields
+from odoo import Command, _, fields
 
 _logger = logging.getLogger(__name__)
 
@@ -122,9 +122,18 @@ def _family_blueprints(today):
 
 def create_demo_environment(env):
     """Build the whole demo environment. Idempotent: returns False when the
-    demo programme already exists, so it is safe to call from a button."""
-    if env["spp.program"].search_count([("name", "=", PROGRAM_NAME)]):
-        _logger.info("Demo programme already present; skipping setup")
+    demo programme already exists, so it is safe to call from a button.
+
+    If the programme exists but is missing its journal (e.g. a partially
+    completed earlier run), the journal is repaired before returning using the
+    wizard's standard journal helper."""
+    existing = env["spp.program"].search([("name", "=", PROGRAM_NAME)], limit=1)
+    if existing:
+        if not existing.journal_id:
+            _ensure_chart_of_accounts(env)
+            wizard = env["spp.program.create.wizard"].new({"currency_id": env.company.currency_id.id})
+            existing.journal_id = wizard.create_journal(f"{PROGRAM_NAME} Journal", env.company.currency_id.id)
+            _logger.info("Repaired missing journal on existing demo programme %s", existing.id)
         return False
     env = env(context=dict(env.context, tracking_disable=True))
     program = _create_program(env)
@@ -158,56 +167,65 @@ def _create_portal_user(env):
     _logger.info("Created portal user 'parent' for %s", mother.name)
 
 
+def _ensure_chart_of_accounts(env):
+    """A bank journal created before the company has a chart of accounts spawns
+    transient accounting records that Odoo garbage-collects at end of install,
+    taking the journal with it. Ensure a chart of accounts exists first."""
+    company = env.company
+    if not company.chart_template:
+        try:
+            env["account.chart.template"].try_loading("generic_coa", company=company, install_demo=False)
+        except Exception as err:  # noqa: BLE001 - best effort; the wizard guards journal creation
+            _logger.warning("Could not load a chart of accounts for the demo: %s", err)
+
+
 def _create_program(env):
-    journal = env["account.journal"].create({"name": f"{PROGRAM_NAME} Journal", "type": "bank", "code": "CBP"})
-    program = env["spp.program"].create({"name": PROGRAM_NAME, "target_type": "individual", "journal_id": journal.id})
+    """Create the demo programme exactly the way a user would: through the
+    standard program-creation wizard, then add the Bank File payment method
+    through the standard Manager Setup dialog. No bespoke program-building.
 
-    # Default managers for the kinds we keep stock (eligibility, cycle, program, ...)
-    from odoo.addons.spp_programs.models import constants  # noqa: PLC0415
+    The wizard's create_journal runs here; a chart of accounts must exist
+    first or the journal's transient accounting records are garbage-collected
+    at end of install (see _ensure_chart_of_accounts)."""
+    _ensure_chart_of_accounts(env)
 
-    for field, mapping in constants.MANAGER_MODELS.items():
-        if field in ("entitlement_manager_ids", "payment_manager_ids") or program[field]:
-            continue
-        for mgr_obj, def_mgr_obj in mapping.items():
-            concrete = env[def_mgr_obj].create({"program_id": program.id})
-            container = env[mgr_obj].create(
-                {"program_id": program.id, "manager_ref_id": f"{def_mgr_obj},{concrete.id}"}
-            )
-            program.write({field: [Command.link(container.id)]})
-
-    # Eligibility: readable CEL policy with the birth-order threshold
-    for container in program.eligibility_manager_ids:
-        concrete = container.manager_ref_id
-        if concrete and "cel_expression" in concrete._fields:
-            concrete.write({"eligibility_mode": "cel", "cel_expression": ELIGIBILITY_EXPRESSION})
-
-    # Cycle manager: monthly recurrence
-    for container in program.cycle_manager_ids:
-        concrete = container.manager_ref_id
-        if concrete and "rrule_type" in concrete._fields:
-            concrete.write({"rrule_type": "monthly"})
-
-    # Scheduled entitlement manager
-    ent_mgr = env["spp.program.entitlement.manager.schedule"].create(
-        {"name": "Scheduled Cash Entitlement", "program_id": program.id}
+    wizard = env["spp.program.create.wizard"].create(
+        {
+            "name": PROGRAM_NAME,
+            "currency_id": env.company.currency_id.id,
+            "target_type": "individual",
+            "rrule_type": "monthly",
+            "entitlement_type": "schedule",
+            "schedule_monthly_amount": 10000.0,
+            "schedule_age_limit_months": 36,
+            "schedule_cutoff_day": 15,
+            "eligibility_cel_expression": ELIGIBILITY_EXPRESSION,
+        }
     )
-    ent_container = env["spp.program.entitlement.manager"].create(
-        {"program_id": program.id, "manager_ref_id": f"spp.program.entitlement.manager.schedule,{ent_mgr.id}"}
-    )
-    program.entitlement_manager_ids = [Command.link(ent_container.id)]
+    wizard.create_program()
+    program = env["spp.program"].search([("name", "=", PROGRAM_NAME)], limit=1)
 
-    # Bank-file payment manager
-    pay_mgr = env["spp.program.payment.manager.csv"].create(
-        {"name": "Bank File (CSV)", "program_id": program.id, "create_batch": True}
-    )
-    pay_container = env["spp.program.payment.manager"].create(
-        {"program_id": program.id, "manager_ref_id": f"spp.program.payment.manager.csv,{pay_mgr.id}"}
-    )
-    program.payment_manager_ids = [Command.link(pay_container.id)]
+    # Add the Bank File (CSV) payment method the standard way.
+    _add_payment_manager(env, program, "spp.program.payment.manager.csv")
 
-    # Fund so entitlement approval passes the balance check
+    # Fund so entitlement approval passes the balance check.
     env["spp.program.fund"].create({"program_id": program.id, "amount": 10_000_000.0, "state": "posted"})
     return program
+
+
+def _add_payment_manager(env, program, method_model):
+    """Attach a payment method through the standard Manager Setup dialog."""
+    if program.payment_manager_ids:
+        return
+    setup = env["spp.manager.setup.wizard"].create(
+        {
+            "program_id": program.id,
+            "category": "payment",
+            "method": method_model,
+            "name": _("Bank File (CSV)"),
+        }
+    )
+    setup.action_create_manager()
 
 
 def _split_person_name(full_name):

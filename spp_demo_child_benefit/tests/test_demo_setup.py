@@ -20,6 +20,10 @@ class TestDemoSetup(TransactionCase):
         self.assertIn("birth_order", elig[0].cel_expression)
         fund = self.env["spp.program.fund"].search([("program_id", "=", program.id), ("state", "=", "posted")])
         self.assertTrue(fund)
+        # The programme must have a journal with a currency, or the payment
+        # run cannot derive an entitlement currency and will fail.
+        self.assertTrue(program.journal_id, "programme has no journal")
+        self.assertTrue(program.journal_id.currency_id, "programme journal has no currency")
 
     def test_families_and_birth_orders(self):
         families = self.env["res.partner"].search([("name", "like", "Demo Family%"), ("is_group", "=", True)])
