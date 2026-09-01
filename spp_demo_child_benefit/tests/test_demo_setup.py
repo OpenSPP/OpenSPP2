@@ -63,6 +63,45 @@ class TestDemoSetup(TransactionCase):
         self.assertTrue(portal_user)
         self.assertEqual(portal_user.partner_id.name, "Mother One")
 
+    def _loaded_root_menus(self, user):
+        menus = self.env["ir.ui.menu"].with_user(user).load_menus(False)
+        return {menus[c]["name"] for c in menus["root"]["children"]}, menus
+
+    def test_demo_installs_every_menu_the_demo_needs(self):
+        """The demo module must pull in everything the storyline clicks through.
+
+        Uses load_menus (not _visible_menu_ids): the web client prunes menus
+        whose ancestors are invisible or empty, and only load_menus applies
+        that pruning. A root menu with no action and no visible children -
+        e.g. Registry without spp_registry_search - silently disappears.
+        """
+        admin = self.env.ref("base.user_admin")
+        roots, menus = self._loaded_root_menus(admin)
+        for expected in ["Registry", "Programs", "Area", "Helpdesk", "Audit Log", "Approvals"]:
+            self.assertIn(expected, roots, f"'{expected}' root menu missing for admin")
+
+        registry_root = self.env.ref("spp_registry.spp_main_menu_root")
+        self.assertIn(registry_root.id, menus, "Registry root pruned (no visible children)")
+        self.assertTrue(
+            menus[registry_root.id]["children"],
+            "Registry root has no visible children - registry browsing is unreachable",
+        )
+
+        schedule_menu = self.env.ref("spp_child_benefit.menu_entitlement_schedule")
+        self.assertIn(schedule_menu.id, menus, "Benefit Schedules menu not reachable for admin")
+
+    def test_demo_users_see_their_menus(self):
+        for login in ("officer", "manager"):
+            user = self.env["res.users"].search([("login", "=", login)], limit=1)
+            self.assertTrue(user, f"demo user {login} missing")
+            self.assertTrue(
+                user.has_group("base.group_user"),
+                f"demo user {login} is not an internal user and cannot use the back office",
+            )
+            roots, _ = self._loaded_root_menus(user)
+            for expected in ("Programs", "Registry"):
+                self.assertIn(expected, roots, f"'{expected}' missing for {login}")
+
     def test_portal_grievance_acl_hardened(self):
         """F1: the portal login must not be able to read other people's
         grievances or write/create tickets over RPC."""

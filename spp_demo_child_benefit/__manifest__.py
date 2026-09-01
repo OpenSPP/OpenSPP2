@@ -20,6 +20,7 @@
         "spp_dms",
         "spp_grm",
         "spp_grm_registry",
+        "spp_registry_search",
         "spp_user_roles",
     ],
     "data": [
