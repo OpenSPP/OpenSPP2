@@ -150,10 +150,10 @@ Changelog
   member as active indefinitely. Writing a future ``ended_date`` now
   schedules the repair cron at exactly that moment (staleness window ~1
   minute), and a daily sweep self-heals everything else: rows already
-  stale in existing databases (drained in committed batches on the first
-  run, however large the backlog) and rows written behind the ORM,
-  including ``is_ended = NULL`` rows that raw-SQL consumers treated as
-  ended (#417)
+  stale in existing databases (drained in committed batches, resuming
+  across runs until the backlog is gone) and rows written behind the
+  ORM, including ``is_ended = NULL`` rows that raw-SQL consumers treated
+  as ended (#417)
 
 19.0.2.2.2
 ~~~~~~~~~~
