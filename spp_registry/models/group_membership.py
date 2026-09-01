@@ -1,6 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
 import logging
+from datetime import timedelta
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
@@ -169,7 +170,8 @@ class SPPGroupMembership(models.Model):
             affected_groups |= self.mapped("group")
 
         self._invalidate_group_metrics(affected_groups)
-        self._schedule_ended_status_repair([vals])
+        if self and "ended_date" in vals:
+            self._schedule_ended_status_repair([vals["ended_date"]])
         return res
 
     @api.model_create_multi
@@ -178,7 +180,9 @@ class SPPGroupMembership(models.Model):
         # Invalidate metrics for all affected groups
         groups = res.mapped("group")
         self._invalidate_group_metrics(groups)
-        self._schedule_ended_status_repair(vals_list)
+        # Read the dates back from the records, not vals_list: a missing
+        # key can still be filled from a default_ended_date context key.
+        self._schedule_ended_status_repair(res.mapped("ended_date"))
         return res
 
     def unlink(self):
@@ -221,21 +225,26 @@ class SPPGroupMembership(models.Model):
             # check if membership end date available and less than current date
             record.status = "inactive" if self._is_ended_as_of(record.ended_date, now) else "active"
 
-    def _schedule_ended_status_repair(self, vals_list):
+    def _schedule_ended_status_repair(self, ended_dates):
         """Point the repair cron at every future ``ended_date`` being written.
 
         The stored computes go stale the moment the clock crosses
         ``ended_date`` (see ``_cron_recompute_ended_status``); a persistent
-        ``ir.cron.trigger`` at exactly that time shrinks the staleness
-        window from the sweep cadence to about a minute. A stale or
-        duplicate trigger is harmless — it just runs the idempotent sweep.
+        ``ir.cron.trigger`` at that time shrinks the staleness window from
+        the sweep cadence to about a minute. Each moment is rounded up to
+        the next full minute — the cron worker's own precision — so bursts
+        of departures sharing a minute collapse into one trigger. A stale
+        or duplicate trigger is harmless: it just runs the idempotent sweep.
         """
         now = fields.Datetime.now()
-        at_list = {
-            ended
-            for vals in vals_list
-            if (ended := fields.Datetime.to_datetime(vals.get("ended_date"))) and ended > now
-        }
+        at_list = set()
+        for ended in ended_dates:
+            ended = fields.Datetime.to_datetime(ended)
+            if not ended or ended <= now:
+                continue
+            if ended.second or ended.microsecond:
+                ended = ended.replace(second=0, microsecond=0) + timedelta(minutes=1)
+            at_list.add(ended)
         if at_list:
             self.env.ref("spp_registry.cron_recompute_membership_ended_status")._trigger(at=at_list)
 
@@ -243,8 +252,13 @@ class SPPGroupMembership(models.Model):
     def _stale_ended_status_domains(self, now):
         """Domains selecting rows whose stored ``status``/``is_ended``
         disagree with the clock, one conjunctive leg per (date-window,
-        stale-column) pair so each search stays servable by the
-        ``ended_date`` index instead of forcing a full-table read.
+        stale-column) pair — no ORs, so the date-bound legs can be served
+        by the ``ended_date`` index. The two ``ended_date IS NULL`` legs
+        (which that partial index cannot serve) only guard rows written
+        behind the ORM and are expected to match nothing; if a registry
+        ever accumulates enough non-ORM drift for their scans to matter,
+        give them partial indexes or a last-swept watermark (see #421 for
+        the planned collapse of the status legs).
         """
         return [
             # Ended by the clock, still stored as active.
@@ -258,7 +272,7 @@ class SPPGroupMembership(models.Model):
         ]
 
     @api.model
-    def _repair_null_is_ended(self, now):
+    def _repair_null_is_ended(self, now, batch_size):
         """Repair rows holding ``is_ended = NULL`` that should read active.
 
         Rows written behind the ORM can leave ``is_ended`` NULL, and every
@@ -268,20 +282,34 @@ class SPPGroupMembership(models.Model):
         SQL-level leg mirroring ``_is_ended_as_of``. (NULL rows whose
         ``ended_date`` has passed need no special casing: the computed
         True differs from the cached False, so the ORM legs repair them.)
+
+        Expected to match nothing on a healthy database (the column has a
+        Python default, so it was backfilled at creation); still bounded
+        to ``batch_size`` rows per statement, with progress committed
+        between batches, so a pathological NULL population cannot pin one
+        unbounded UPDATE against the cron time limit.
         """
         self.flush_model(["is_ended", "ended_date"])
-        self.env.cr.execute(
-            "UPDATE spp_group_membership SET is_ended = false "
-            "WHERE is_ended IS NULL AND (ended_date IS NULL OR ended_date > %s) "
-            "RETURNING id",
-            (now,),
-        )
-        ids = [row[0] for row in self.env.cr.fetchall()]
-        if not ids:
-            return self.browse()
-        repaired = self.browse(ids)
-        repaired.invalidate_recordset()
-        self._invalidate_group_metrics(repaired.mapped("group"))
+        repaired = self.browse()
+        while True:
+            self.env.cr.execute(
+                "UPDATE spp_group_membership SET is_ended = false "
+                "WHERE id IN (SELECT id FROM spp_group_membership "
+                "WHERE is_ended IS NULL AND (ended_date IS NULL OR ended_date > %s) LIMIT %s) "
+                "RETURNING id",
+                (now, batch_size),
+            )
+            ids = [row[0] for row in self.env.cr.fetchall()]
+            if not ids:
+                break
+            batch = self.browse(ids)
+            batch.invalidate_recordset()
+            self._invalidate_group_metrics(batch.mapped("group"))
+            repaired |= batch
+            if len(ids) < batch_size:
+                break
+            if not self.env["ir.cron"]._commit_progress(len(ids)):
+                break
         return repaired
 
     @api.model
@@ -312,18 +340,21 @@ class SPPGroupMembership(models.Model):
         a timely recompute would have stored.
 
         Rows are repaired in ``batch_size`` chunks, each committed via
-        ``ir.cron._commit_progress``: a large backlog drains within one
-        run, a run that exhausts the cron time budget is resumed ASAP
-        instead of waiting a full sweep interval, and a serialization
-        failure rolls back only its own chunk. The chunk size follows the
-        5,000-record cap in docs/principles/performance-scalability.md.
+        ``ir.cron._commit_progress``: a serialization failure rolls back
+        only its own chunk, and a backlog larger than the cron time budget
+        drains across runs — a partially-done run is rescheduled ASAP
+        instead of waiting a full sweep interval. Because of those
+        commits, calling this outside a cron (e.g. from a shell) commits
+        the current transaction. The chunk size follows the 5,000-record
+        cap in docs/principles/performance-scalability.md.
 
         Returns the repaired memberships.
         """
         if batch_size < 1:
             raise ValueError("batch_size must be a positive number of rows")
         memberships = self.with_context(active_test=False)
-        repaired = memberships._repair_null_is_ended(fields.Datetime.now())
+        repaired = memberships._repair_null_is_ended(fields.Datetime.now(), batch_size)
+        repaired_ids = set(repaired.ids)
         while True:
             # Re-read the clock every pass: a row whose ended_date is
             # crossed while the run is in flight recomputes to the very
@@ -331,26 +362,35 @@ class SPPGroupMembership(models.Model):
             now = fields.Datetime.now()
             chunk = memberships.browse()
             for leg in self._stale_ended_status_domains(now):
-                chunk |= memberships.search(leg, limit=batch_size)
-            chunk = chunk[:batch_size]
+                quota = batch_size - len(chunk)
+                if quota <= 0:
+                    break
+                chunk |= memberships.search(leg, limit=quota)
             if not chunk:
+                if repaired_ids:
+                    # Close the progress report so a backlog that divided
+                    # evenly into chunks doesn't leave the job marked
+                    # partially done (and pointlessly rescheduled ASAP).
+                    self.env["ir.cron"]._commit_progress(0, remaining=0)
                 break
             chunk.modified(["ended_date"])
             # The recompute flushes through low-level SQL and bypasses this
             # model's write() override, so the metric-invalidation hook must
             # be called explicitly.
             self._invalidate_group_metrics(chunk.mapped("group"))
-            repaired |= chunk
+            repaired_ids.update(chunk.ids)
             self.env.flush_all()
             # A short chunk means every leg came back exhausted, so the
-            # backlog is drained (repaired rows drop out of the domains).
+            # backlog is drained (repaired rows drop out of the domains);
+            # `remaining` is a drained/not-drained signal, not a count.
             drained = len(chunk) < batch_size
-            time_left = self.env["ir.cron"]._commit_progress(len(chunk), remaining=0 if drained else batch_size)
+            time_left = self.env["ir.cron"]._commit_progress(len(chunk), remaining=0 if drained else 1)
             if drained:
                 break
             if not time_left:
                 _logger.info("[spp.registry] Ended-status backlog remains; the cron will be re-triggered to continue")
                 break
+        repaired = memberships.browse(repaired_ids)
         if repaired:
             _logger.info(
                 "[spp.registry] Repaired ended-status on %d group membership(s)",
