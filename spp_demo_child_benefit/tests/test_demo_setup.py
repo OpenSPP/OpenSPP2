@@ -18,6 +18,9 @@ class TestDemoSetup(TransactionCase):
         elig = program.eligibility_manager_ids.mapped("manager_ref_id")
         self.assertTrue(elig and elig[0].eligibility_mode == "cel")
         self.assertIn("birth_order", elig[0].cel_expression)
+        # Entitlements auto-approve so the demo flows straight to payment.
+        cycle_mgr = program.get_manager(constants.MANAGER_CYCLE)
+        self.assertTrue(cycle_mgr.auto_approve_entitlements)
         fund = self.env["spp.program.fund"].search([("program_id", "=", program.id), ("state", "=", "posted")])
         self.assertTrue(fund)
         # The programme must have a journal with a currency, or the payment

@@ -195,6 +195,9 @@ def _create_program(env):
             "currency_id": env.company.currency_id.id,
             "target_type": "individual",
             "rrule_type": "monthly",
+            # Auto-approve entitlements so the demo flows straight to payment
+            # without approving each entitlement one by one.
+            "auto_approve_entitlements": True,
             "entitlement_type": "schedule",
             "schedule_monthly_amount": 10000.0,
             "schedule_age_limit_months": 36,
