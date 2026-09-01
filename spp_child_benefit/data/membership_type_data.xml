@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- Stock spp_vocabulary ships only the 'head' membership role; the child/
+         spouse codes are present but commented out. Family-role codes needed by
+         the birth-order logic are provided here (same pattern as other demo/
+         starter modules that extend this vocabulary). -->
+    <record id="code_membership_type_child" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_vocabulary.vocab_group_membership_type" />
+        <field name="code">child</field>
+        <field name="display">Child</field>
+        <field name="definition">Child member of the family/household.</field>
+        <field name="sequence">2</field>
+    </record>
+
+    <record id="code_membership_type_mother" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_vocabulary.vocab_group_membership_type" />
+        <field name="code">mother</field>
+        <field name="display">Mother</field>
+        <field name="definition">Mother of the child members of the family.</field>
+        <field name="sequence">5</field>
+    </record>
+
+    <record id="code_membership_type_father" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_vocabulary.vocab_group_membership_type" />
+        <field name="code">father</field>
+        <field name="display">Father</field>
+        <field name="definition">Father of the child members of the family.</field>
+        <field name="sequence">6</field>
+    </record>
+</odoo>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_individuals_form_birth_order" model="ir.ui.view">
+        <field name="name">res.partner.form.birth.order</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='demographics_section']" position="inside">
+                <group name="birth_order_section">
+                    <field name="citizen_by" readonly="disabled" />
+                    <field name="birth_sequence" readonly="disabled" />
+                    <field name="birth_order" />
+                    <field name="birth_order_state" />
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Work queue for officers: multiple-birth events awaiting determination -->
+    <record id="action_pending_birth_order" model="ir.actions.act_window">
+        <field name="name">Pending Birth Order Determination</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,form</field>
+        <field
+            name="domain"
+        >[("birth_order_state", "=", "pending_determination")]</field>
+        <field
+            name="context"
+        >{"default_is_registrant": True, "default_is_group": False}</field>
+    </record>
+</odoo>

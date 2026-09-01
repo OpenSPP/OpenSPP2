@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_entitlement_schedule_list" model="ir.ui.view">
+        <field name="name">spp.entitlement.schedule.list</field>
+        <field name="model">spp.entitlement.schedule</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="partner_id" />
+                <field name="program_id" />
+                <field name="date_of_birth" />
+                <field name="benefit_end_date" />
+                <field name="line_count" string="Installments" />
+                <field name="total_amount" sum="Total" />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-success="state == 'active'"
+                />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_entitlement_schedule_form" model="ir.ui.view">
+        <field name="name">spp.entitlement.schedule.form</field>
+        <field name="model">spp.entitlement.schedule</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,active,superseded"
+                    />
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="partner_id" readonly="1" />
+                            <field name="program_id" readonly="1" />
+                            <field name="date_of_birth" readonly="1" />
+                            <field name="benefit_end_date" />
+                        </group>
+                        <group>
+                            <field name="monthly_amount" readonly="1" />
+                            <field name="age_limit_months" readonly="1" />
+                            <field name="cutoff_day" readonly="1" />
+                            <field name="total_amount" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Installments" name="installments">
+                            <field name="line_ids" readonly="1">
+                                <list>
+                                    <field name="benefit_month" />
+                                    <field name="payable_from" />
+                                    <field name="payable_to" />
+                                    <field name="days_payable" />
+                                    <field name="daily_rate" />
+                                    <field name="proration" />
+                                    <field name="amount" sum="Total" />
+                                    <field name="payment_status" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="action_entitlement_schedule" model="ir.actions.act_window">
+        <field name="name">Benefit Schedules</field>
+        <field name="res_model">spp.entitlement.schedule</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+        id="menu_entitlement_schedule"
+        name="Benefit Schedules"
+        action="action_entitlement_schedule"
+        parent="spp_programs.spp_programs_root"
+        sequence="35"
+    />
+</odoo>
