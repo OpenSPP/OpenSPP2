@@ -15,7 +15,7 @@ Manager Setup dialog on the program — because it is registered on
 
 import logging
 
-from odoo import Command, _, fields, models
+from odoo import Command, _, api, fields, models
 from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
@@ -45,6 +45,13 @@ class CreateProgramWizard(models.TransientModel):
         help="Born on or before this day: full entry month, prorated exit month. "
         "Born after it: prorated entry month, full exit month.",
     )
+
+    @api.onchange("entitlement_type")
+    def _onchange_entitlement_type_schedule_defaults(self):
+        # Scheduled Cash benefits are amount-driven by the schedule, so
+        # per-entitlement approval adds no value; default auto-approve on.
+        if self.entitlement_type == "schedule":
+            self.auto_approve_entitlements = True
 
     def _check_required_fields(self):
         # Follow the module's layering: run the standard checks (the parent's

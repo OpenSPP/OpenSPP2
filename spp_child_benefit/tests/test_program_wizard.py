@@ -67,6 +67,15 @@ class TestProgramCreationWizard(TransactionCase):
         pay = program.get_manager(constants.MANAGER_PAYMENT)
         self.assertEqual(pay._name, "spp.program.payment.manager.csv")
 
+    def test_schedule_defaults_auto_approve(self):
+        # Selecting Scheduled Cash defaults auto-approve on so the flow runs
+        # straight to payment.
+        wizard = self.env["spp.program.create.wizard"].new(
+            {"currency_id": self.currency.id, "entitlement_type": "schedule"}
+        )
+        wizard._onchange_entitlement_type_schedule_defaults()
+        self.assertTrue(wizard.auto_approve_entitlements)
+
     def test_schedule_method_offered_by_manager_setup(self):
         # Both custom methods must be selectable through the standard dialog.
         setup = self.env["spp.manager.setup.wizard"]

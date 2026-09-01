@@ -172,3 +172,5 @@ class TestProgramFlow(TransactionCase):
         self.assertIn("Demo National Bank", content)
         self.assertIn("10000.00", content)
         self.assertIn("total_transactions", content)
+        # The generated file is surfaced on the batch for download.
+        self.assertIn(attachment, batches[0].bank_file_ids)

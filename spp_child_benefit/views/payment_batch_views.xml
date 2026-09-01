@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_payment_batch_form_bank_file" model="ir.ui.view">
+        <field name="name">spp.payment.batch.form.bank.file</field>
+        <field name="model">spp.payment.batch</field>
+        <field name="inherit_id" ref="spp_programs.view_payment_batch_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name'][1]" position="after">
+                <field
+                    name="bank_file_ids"
+                    widget="many2many_binary"
+                    string="Bank File (CSV)"
+                    readonly="1"
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>
