@@ -518,6 +518,23 @@ when group composition changes</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.2.3</h1>
+<ul class="simple">
+<li>fix(registry): repair the stored <tt class="docutils literal">status</tt>/<tt class="docutils literal">is_ended</tt> computes on
+<tt class="docutils literal">spp.group.membership</tt> once the clock crosses <tt class="docutils literal">ended_date</tt>. Both
+fields depend only on <tt class="docutils literal">ended_date</tt> compared against <em>now</em>, so a
+future-dated departure never took effect once the clock crossed it —
+rosters, metrics, API search and downstream gates kept treating the
+member as active indefinitely. Writing a future <tt class="docutils literal">ended_date</tt> now
+schedules the repair cron at exactly that moment (staleness window ~1
+minute), and a daily sweep self-heals everything else: rows already
+stale in existing databases (drained in committed batches on the first
+run, however large the backlog) and rows written behind the ORM,
+including <tt class="docutils literal">is_ended = NULL</tt> rows that raw-SQL consumers treated as
+ended (#417)</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.2.2</h1>
 <ul class="simple">
 <li>fix(registry): let an ID type be used again after its ID was removed.
@@ -529,7 +546,7 @@ refused before the write so the message names the ID type rather than
 surfacing a database error (#1136)</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.2.1</h1>
 <ul class="simple">
 <li>feat(registry): registry configuration is consolidated into one
@@ -540,7 +557,7 @@ administrator; the section’s menu is gated to match, since the
 framework refuses a settings save from anyone else (#1009)</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.1.4</h1>
 <ul class="simple">
 <li>fix(registry): remove the dead <tt class="docutils literal"><span class="pre">&#64;api.constrains(&quot;age&quot;)</span></tt>
@@ -552,7 +569,7 @@ values are unchanged; stale i18n entries for the removed message are
 dropped</li>
 </ul>
 </div>
-<div class="section" id="section-4">
+<div class="section" id="section-5">
 <h1>19.0.2.1.3</h1>
 <ul class="simple">
 <li>fix(registry): show an ID <strong>Status</strong> column on the group form
@@ -563,7 +580,7 @@ flow) — per the #1110 decision to stay consistent across the system
 (#1110)</li>
 </ul>
 </div>
-<div class="section" id="section-5">
+<div class="section" id="section-6">
 <h1>19.0.2.1.1</h1>
 <ul class="simple">
 <li>fix(views): add reusable <tt class="docutils literal">x2many_no_padding</tt> JS widget that
@@ -573,7 +590,7 @@ Membership, and Group Members lists on registrant forms so blank cells
 don’t bloat the layout (#943).</li>
 </ul>
 </div>
-<div class="section" id="section-6">
+<div class="section" id="section-7">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
