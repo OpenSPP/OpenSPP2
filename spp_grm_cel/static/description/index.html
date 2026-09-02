@@ -527,7 +527,10 @@ from a shell, import script, or data load) still evaluates without
 record-rule bounds and is called out with a warning by both the
 migration and the rule engine. The new <strong>Take Ownership</strong> button on
 the rule form re-binds a rule to yourself; saving the form without
-changing what the rule targets does not.</li>
+changing what the rule targets does not. Writing the identity to any
+other user raises: dropping it silently let a data fix or migration
+script report success while the rules kept evaluating as their old
+owner.</li>
 <li>fix(security): the rule-engine entry points (<tt class="docutils literal">apply_routing</tt>,
 <tt class="docutils literal">apply_escalations</tt>, <tt class="docutils literal">apply_escalation</tt>, <tt class="docutils literal">check_escalations</tt>)
 are marked <tt class="docutils literal">&#64;api.private</tt> — no longer callable over RPC (#381).</li>
@@ -577,10 +580,13 @@ would re-run the whole cron pass.</li>
 <li>fix: rule CEL validation now reports any parser error as a
 <tt class="docutils literal">ValidationError</tt> (previously only <tt class="docutils literal">SyntaxError</tt> was caught).</li>
 <li>fix: the hourly escalation cron resolves the active rule set and each
-rule’s evaluation owner once per pass instead of once per open ticket
-(so owner warnings are logged once, not once per ticket), and the
-engine logs (instead of silently skipping) rules with no evaluation
-identity and tickets skipped for lack of owner access.</li>
+rule’s evaluation owner once per pass instead of once per open ticket,
+and ticket creation does the same for the batch it routes (so owner
+warnings are logged once per pass, not once per ticket — on a busy
+portal a single shell-created rule warned on every submitted
+grievance), and the engine logs (instead of silently skipping) rules
+with no evaluation identity and tickets skipped for lack of owner
+access.</li>
 </ul>
 </div>
 <div class="section" id="section-2">

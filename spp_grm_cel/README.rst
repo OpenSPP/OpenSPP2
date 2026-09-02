@@ -141,7 +141,10 @@ Changelog
   record-rule bounds and is called out with a warning by both the
   migration and the rule engine. The new **Take Ownership** button on
   the rule form re-binds a rule to yourself; saving the form without
-  changing what the rule targets does not.
+  changing what the rule targets does not. Writing the identity to any
+  other user raises: dropping it silently let a data fix or migration
+  script report success while the rules kept evaluating as their old
+  owner.
 - fix(security): the rule-engine entry points (``apply_routing``,
   ``apply_escalations``, ``apply_escalation``, ``check_escalations``)
   are marked ``@api.private`` — no longer callable over RPC (#381).
@@ -191,10 +194,13 @@ Changelog
 - fix: rule CEL validation now reports any parser error as a
   ``ValidationError`` (previously only ``SyntaxError`` was caught).
 - fix: the hourly escalation cron resolves the active rule set and each
-  rule's evaluation owner once per pass instead of once per open ticket
-  (so owner warnings are logged once, not once per ticket), and the
-  engine logs (instead of silently skipping) rules with no evaluation
-  identity and tickets skipped for lack of owner access.
+  rule's evaluation owner once per pass instead of once per open ticket,
+  and ticket creation does the same for the batch it routes (so owner
+  warnings are logged once per pass, not once per ticket — on a busy
+  portal a single shell-created rule warned on every submitted
+  grievance), and the engine logs (instead of silently skipping) rules
+  with no evaluation identity and tickets skipped for lack of owner
+  access.
 
 19.0.2.0.1
 ~~~~~~~~~~
