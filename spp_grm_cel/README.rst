@@ -186,13 +186,22 @@ Changelog
 - fix: case creation from an escalation rule never worked (it passed a
   field ``spp.case`` does not have and omitted the required case
   worker); it now fills ``presenting_issue`` and assigns the ticket
-  assignee or the rule owner as case worker.
+  assignee or the rule owner as case worker. When neither is a real
+  active user — an unassigned ticket under a superuser-owned rule
+  resolves to ``__system__`` — the escalation is refused and rolled back
+  rather than filing a case with OdooBot as the worker responsible; the
+  message names the ticket and the remediation.
 - fix: increment ``match_count`` / ``escalation_count`` with an atomic
   ``UPDATE`` instead of a read-modify-write, avoiding a serialization
   failure under concurrent cron/UI escalation whose dispatch-level retry
   would re-run the whole cron pass.
-- fix: rule CEL validation now reports any parser error as a
-  ``ValidationError`` (previously only ``SyntaxError`` was caught).
+- fix: rule CEL validation reports a bad expression as a
+  ``ValidationError`` whether the parser raises ``SyntaxError`` or
+  ``RecursionError`` (nesting past its depth limit); previously only
+  ``SyntaxError`` was caught. An unexpected parser failure is no longer
+  reported as the user's own invalid expression with the traceback
+  discarded: it is logged with its traceback and surfaced as an internal
+  error.
 - fix: the hourly escalation cron resolves the active rule set and each
   rule's evaluation owner once per pass instead of once per open ticket,
   and ticket creation does the same for the batch it routes (so owner
