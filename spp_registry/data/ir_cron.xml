@@ -15,11 +15,17 @@
         <field name="interval_number">1</field>
         <field name="interval_type">days</field>
         <field name="user_id" ref="base.user_root" />
-        <!-- First sweep an hour after install/upgrade rather than during
-             the post-upgrade load spike; nothing is stale that recently. -->
+        <!-- Two hours after install/upgrade: clear of the post-upgrade
+             load spike (nothing is stale that recently), and an hour
+             behind the crossed cron below so the two never start
+             sweeping their shared crossed legs at the same moment. Both
+             are daily, so that offset holds on every later run. On a
+             shared nextcall two cron workers take the two jobs at once
+             and UPDATE the same rows, and REPEATABLE READ kills whichever
+             commits second. -->
         <field
             name="nextcall"
-            eval="(DateTime.now() + timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')"
+            eval="(DateTime.now() + timedelta(hours=2)).strftime('%Y-%m-%d %H:%M:%S')"
         />
         <field name="active" eval="True" />
     </record>

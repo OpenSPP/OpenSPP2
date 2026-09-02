@@ -510,3 +510,23 @@ class TestMembershipEndedStatusCron(MembershipCommon):
         root = self.env.ref("base.user_root")
         self.assertEqual(cron.user_id, root)
         self.assertEqual(crossed.user_id, root)
+
+    def test_scheduled_sweeps_are_offset(self):
+        # Both crons sweep the same two crossed legs, and
+        # `_order = "id desc"` makes their `search(leg, limit=quota)`
+        # calls return the same rows in the same order. With a shared
+        # nextcall two cron workers pick the two jobs at once (each
+        # ir_cron row is taken with FOR NO KEY UPDATE SKIP LOCKED, so
+        # neither blocks the other) and UPDATE the same ids; under
+        # Odoo's REPEATABLE READ the run that commits second dies with
+        # "could not serialize access due to concurrent update" and is
+        # logged as a failure. The window is widest on the first sweep
+        # after upgrading a registry with a stale backlog. Their
+        # scheduled runs must therefore start apart — both being daily,
+        # the initial offset is preserved on every later run.
+        daily = self.env.ref("spp_registry.cron_recompute_membership_ended_status")
+        crossed = self.env.ref("spp_registry.cron_repair_crossed_membership_ended_status")
+        self.assertGreaterEqual(
+            abs(daily.nextcall - crossed.nextcall),
+            timedelta(minutes=30),
+        )
