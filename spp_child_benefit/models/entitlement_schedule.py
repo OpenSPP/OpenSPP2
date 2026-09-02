@@ -248,21 +248,28 @@ class EntitlementScheduleLine(models.Model):
         "Each benefit month can only appear once in a schedule.",
     )
 
+    # A benefit month moves through this lifecycle as its payment cycle runs.
+    # Kept as a small, citizen-friendly vocabulary rather than exposing the raw
+    # entitlement/payment states.
+    CANCELLED_ENTITLEMENT_STATES = ("rejected1", "rejected2", "rejected3", "cancelled", "expired")
+
     def _compute_payment_status(self):
         for rec in self:
-            if not rec.entitlement_id:
+            ent = rec.entitlement_id
+            if not ent:
+                # No entitlement yet: this month's payment cycle has not run.
                 rec.payment_status = _("Scheduled")
+                continue
+            payments = ent.payment_ids
+            if payments.filtered(lambda p: p.status == "paid"):
+                rec.payment_status = _("Paid")
+            elif payments and all(p.status == "failed" for p in payments):
+                rec.payment_status = _("Failed")
+            elif payments:
+                # A payment has been generated in a batch and sent to the bank.
+                rec.payment_status = _("In Payment")
+            elif ent.state in self.CANCELLED_ENTITLEMENT_STATES:
+                rec.payment_status = _("Cancelled")
             else:
-                payments = rec.entitlement_id.payment_ids
-                paid = payments.filtered(lambda p: p.status == "paid")
-                failed = payments.filtered(lambda p: p.status == "failed")
-                if paid:
-                    rec.payment_status = _("Paid")
-                elif failed and len(failed) == len(payments):
-                    rec.payment_status = _("Failed")
-                elif payments:
-                    rec.payment_status = _("In Payment")
-                else:
-                    rec.payment_status = dict(rec.entitlement_id._fields["state"].selection or []).get(
-                        rec.entitlement_id.state, rec.entitlement_id.state
-                    )
+                # Entitlement created for the month, but no payment/batch yet.
+                rec.payment_status = _("Pending")

@@ -82,7 +82,9 @@
                             </td>
                             <td class="text-end">
                                 <t t-if="schedule">
-                                    <span t-out="'%.2f' % schedule.monthly_amount" />
+                                    <span
+                                        t-out="'{:,.2f}'.format(schedule.monthly_amount)"
+                                    />
                                 </t>
                                 <em t-else="">-</em>
                             </td>
@@ -103,14 +105,33 @@
     <!-- Per-child schedule -->
     <template id="portal_benefit_child" name="Child Benefit Payments">
         <t t-call="portal.portal_layout">
-            <h3 class="mb-3">
-                <span t-out="child.name" />
+            <h3 class="mb-1">
+                Benefit Schedule — <span t-out="child.name" />
             </h3>
+            <p class="text-muted">
+                This is the full monthly benefit plan for the child, from the first
+                benefit month until the benefit ends at the age limit. Each month is
+                disbursed in its own payment cycle; the <strong>Status</strong> column
+                shows where that month is in the payment process.
+            </p>
             <t t-if="not schedule">
                 <p
                     class="alert alert-warning"
                     role="alert"
                 >No active benefit schedule.</p>
+            </t>
+            <t t-if="schedule">
+                <ul class="small text-muted mb-3">
+                    <li><strong
+                    >Scheduled</strong> — planned; its payment cycle has not run yet.</li>
+                    <li><strong
+                    >Pending</strong> — the cycle has created this month's entitlement; the payment is not yet generated.</li>
+                    <li><strong
+                    >In Payment</strong> — the payment has been generated and sent to the bank, awaiting confirmation.</li>
+                    <li><strong>Paid</strong> — the bank has confirmed the payment.</li>
+                    <li><strong
+                    >Failed</strong> — the payment failed and will be reprocessed.</li>
+                </ul>
             </t>
             <t t-if="schedule" t-call="portal.portal_table">
                 <thead>
@@ -133,7 +154,7 @@
                             />
                             </td>
                             <td class="text-end">
-                                <span t-out="'%.2f' % line.amount" />
+                                <span t-out="'{:,.2f}'.format(line.amount)" />
                             </td>
                             <td>
                                 <span t-out="line.payment_status" />
