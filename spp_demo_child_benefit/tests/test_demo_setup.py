@@ -76,6 +76,9 @@ class TestDemoSetup(TransactionCase):
         program = self.env["spp.program"].search([("name", "=", "Child Benefit Programme")])
         cycle = self.env["spp.cycle"].search([("program_id", "=", program.id)])
         self.assertEqual(len(cycle), 1)
+        # The cycle itself must carry auto-approve (its own flag drives it, not
+        # only the manager's) so the demo flows straight to payment.
+        self.assertTrue(cycle.auto_approve_entitlements)
         self.assertEqual(
             self.env["spp.cycle.membership"].search_count([("cycle_id", "=", cycle.id)]),
             expected_qualified_count(),

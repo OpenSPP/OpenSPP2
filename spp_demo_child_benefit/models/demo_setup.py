@@ -470,6 +470,10 @@ def _enroll_and_open_cycle(env, program):
             "program_id": program.id,
             "start_date": max(month_start, today),
             "end_date": month_start + relativedelta(months=1, days=-1),
+            # The cycle carries its own auto-approve flag (the manager's flag
+            # only seeds cycles created through its New Cycle flow); set it here
+            # so the demo flows straight to payment without manual approval.
+            "auto_approve_entitlements": True,
         }
     )
     for child in children:
