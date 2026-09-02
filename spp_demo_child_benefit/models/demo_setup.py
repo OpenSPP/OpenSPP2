@@ -491,33 +491,63 @@ def _create_families(env):
     return families
 
 
+# The demonstration opens at the programme's first benefit cycle (July 2026),
+# so the timeline starts at the beginning rather than jumping to the current
+# calendar month. Fixed dates keep the demo reproducible.
+DEMO_CYCLE_START = date(2026, 7, 1)
+DEMO_CYCLE_END = date(2026, 7, 31)
+DEMO_CYCLE_NAME = "July 2026 Cycle"
+
+
 def _enroll_and_open_cycle(env, program):
-    """Enroll eligible children via the program's CEL rule and open the
-    current-month cycle with them."""
+    """Enroll eligible children via the programme's CEL rule and open the
+    first benefit cycle (July 2026)."""
     eligible_ids = env["spp.cel.service"].get_matching_ids(ELIGIBILITY_EXPRESSION, "registry_individuals")
     children = env["res.partner"].browse(eligible_ids)
     for child in children:
         env["spp.program.membership"].create({"partner_id": child.id, "program_id": program.id, "state": "enrolled"})
+
     today = fields.Date.today()
-    month_start = date(today.year, today.month, 1)
-    # The cycle start date cannot precede today, so start no earlier than today
-    # (the current benefit month is still matched: materialization floors the
-    # lower bound to the first of the cycle's start month).
+    # The platform forbids creating a cycle whose start date is in the past, so
+    # seed the July 2026 cycle as historical data: create it with a compliant
+    # date, then set the intended July dates directly (raw SQL bypasses the
+    # interactive start-date constraint). Do not edit these dates in the UI —
+    # an ORM write would re-trigger the constraint.
     cycle = env["spp.cycle"].create(
         {
-            "name": f"{today.strftime('%B %Y')} Cycle",
+            "name": DEMO_CYCLE_NAME,
             "program_id": program.id,
-            "start_date": max(month_start, today),
-            "end_date": month_start + relativedelta(months=1, days=-1),
+            "start_date": max(DEMO_CYCLE_START, today),
+            "end_date": max(DEMO_CYCLE_END, today),
             # The cycle carries its own auto-approve flag (the manager's flag
             # only seeds cycles created through its New Cycle flow); set it here
             # so the demo flows straight to payment without manual approval.
             "auto_approve_entitlements": True,
         }
     )
+    if DEMO_CYCLE_START < today:
+        env.cr.execute(
+            "UPDATE spp_cycle SET start_date = %s, end_date = %s WHERE id = %s",
+            (DEMO_CYCLE_START, DEMO_CYCLE_END, cycle.id),
+        )
+        cycle.invalidate_recordset(["start_date", "end_date"])
+
+    # Cycle members are the children with a benefit installment in this cycle's
+    # month (children born after July 2026 join in their own birth month).
+    Line = env["spp.entitlement.schedule.line"]
+    members = 0
     for child in children:
-        env["spp.cycle.membership"].create({"partner_id": child.id, "cycle_id": cycle.id, "state": "enrolled"})
-    _logger.info("Enrolled %s eligible children; cycle %s ready", len(children), cycle.name)
+        if Line.search_count(
+            [
+                ("partner_id", "=", child.id),
+                ("schedule_id.state", "=", "active"),
+                ("benefit_month", ">=", DEMO_CYCLE_START),
+                ("benefit_month", "<=", DEMO_CYCLE_END),
+            ]
+        ):
+            env["spp.cycle.membership"].create({"partner_id": child.id, "cycle_id": cycle.id, "state": "enrolled"})
+            members += 1
+    _logger.info("Enrolled %s children in the programme; %s in the %s", len(children), members, DEMO_CYCLE_NAME)
 
 
 def _create_grievances(env, families):

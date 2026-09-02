@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Demo portal focus: keep only the Benefits and Tickets (GRM) cards on
+         the portal home for a cleaner demonstration. Hide the Invoices,
+         Addresses and Connection & Security cards by disabling their card
+         categories (our Benefits card and the GRM Tickets card live in their
+         own categories, so they remain). -->
+    <template id="portal_my_home_demo_focus" inherit_id="portal.portal_my_home">
+        <xpath expr="//div[@id='portal_common_category']" position="attributes">
+            <attribute name="t-if">False</attribute>
+        </xpath>
+        <xpath expr="//div[@id='portal_client_category']" position="attributes">
+            <attribute name="t-if">False</attribute>
+        </xpath>
+        <xpath expr="//div[@id='portal_vendor_category']" position="attributes">
+            <attribute name="t-if">False</attribute>
+        </xpath>
+    </template>
+</odoo>

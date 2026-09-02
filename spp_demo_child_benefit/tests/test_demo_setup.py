@@ -79,9 +79,24 @@ class TestDemoSetup(TransactionCase):
         # The cycle itself must carry auto-approve (its own flag drives it, not
         # only the manager's) so the demo flows straight to payment.
         self.assertTrue(cycle.auto_approve_entitlements)
+        # Cycle members are the children with a benefit installment in the
+        # cycle's month (children born after the cycle month join later), so
+        # the count is derived from the schedule lines in that month.
+        july_beneficiaries = (
+            self.env["spp.entitlement.schedule.line"]
+            .search(
+                [
+                    ("schedule_id.state", "=", "active"),
+                    ("benefit_month", ">=", cycle.start_date.replace(day=1)),
+                    ("benefit_month", "<=", cycle.end_date),
+                ]
+            )
+            .mapped("partner_id")
+        )
+        self.assertTrue(july_beneficiaries)
         self.assertEqual(
             self.env["spp.cycle.membership"].search_count([("cycle_id", "=", cycle.id)]),
-            expected_qualified_count(),
+            len(july_beneficiaries),
         )
         self.assertTrue(self.env["spp.grm.ticket"].search_count([]))
         self.assertEqual(self.env["res.users"].search_count([("login", "in", ["officer", "manager"])]), 2)
