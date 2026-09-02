@@ -11,6 +11,10 @@
         <xpath expr="//div[@id='portal_common_category']" position="before">
             <div class="o_portal_category row g-2 mt-3" id="portal_benefit_category">
                 <t t-call="portal.portal_docs_entry">
+                    <t
+                        t-set="icon"
+                        t-value="'/spp_child_benefit/static/src/img/benefit.svg'"
+                    />
                     <t t-set="title">Benefits</t>
                     <t t-set="url" t-value="'/my/benefits'" />
                     <t t-set="text">Follow your children's benefit payments</t>
