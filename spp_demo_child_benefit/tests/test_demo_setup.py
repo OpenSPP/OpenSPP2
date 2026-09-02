@@ -88,6 +88,12 @@ class TestDemoSetup(TransactionCase):
         portal_user = self.env["res.users"].search([("login", "=", "parent")])
         self.assertTrue(portal_user)
         self.assertEqual(portal_user.partner_id.name, "Mother One")
+        # Portal logins for a spread of families, including one with no
+        # qualifying children (the empty-state demo).
+        for login in ("parent", "gurung", "dahal", "no-benefit"):
+            user = self.env["res.users"].search([("login", "=", login)], limit=1)
+            self.assertTrue(user, f"portal login {login} missing")
+            self.assertTrue(user.has_group("base.group_portal"))
 
     def _loaded_root_menus(self, user):
         menus = self.env["ir.ui.menu"].with_user(user).load_menus(False)

@@ -140,7 +140,7 @@ def create_demo_environment(env):
     families = _create_families(env)
     _enroll_and_open_cycle(env, program)
     _create_grievances(env, families)
-    _create_portal_user(env)
+    _create_portal_users(env)
     _logger.info("Child benefit demo setup complete")
     return True
 
@@ -150,21 +150,60 @@ def post_init_hook(env):
     create_demo_environment(env)
 
 
-def _create_portal_user(env):
-    """Portal login for a family head so the monitoring pages can be demoed."""
-    mother = env["res.partner"].search([("name", "=", "Mother One")], limit=1)
-    if not mother or env["res.users"].search_count([("login", "=", "parent")]):
-        return
-    env["res.users"].create(
-        {
-            "name": mother.name,
-            "login": "parent",
-            "password": "Cbp-Parent-Demo-2026!",
-            "partner_id": mother.id,
-            "group_ids": [Command.set([env.ref("base.group_portal").id])],
-        }
-    )
-    _logger.info("Created portal user 'parent' for %s", mother.name)
+# Portal logins to demonstrate the monitoring portal from a family head's
+# view: a family with one qualified child, one with two, one with three, and
+# one with none (to show the empty state). Portal access is granted to the
+# individual head/mother, never to the family group.
+PORTAL_LOGINS = [
+    ("parent", "Demo Family One"),  # 1 qualified child
+    ("gurung", "Gurung Family"),  # 2 qualified children
+    ("dahal", "Dahal Family"),  # 3 qualified children
+    ("no-benefit", "Demo Family Three"),  # 0 qualified children (empty state)
+]
+PORTAL_PASSWORD = "Cbp-Parent-Demo-2026!"
+
+
+def _family_head(env, family_name):
+    """The head/mother individual of a family, who receives portal access."""
+    family = env["res.partner"].search([("name", "=", family_name), ("is_group", "=", True)], limit=1)
+    if not family:
+        return env["res.partner"]
+    Vocab = env["spp.vocabulary.code"]
+    for role_ns in (
+        ("mother", env.ref("spp_child_benefit.code_membership_type_mother")),
+        ("head", Vocab.get_code("urn:openspp:vocab:group-membership-type", "head")),
+    ):
+        _code, role = role_ns
+        ms = family.group_membership_ids.filtered(
+            lambda m, r=role: not m.is_ended and r and r.id in m.membership_type_ids.ids
+        )
+        if ms:
+            return ms[0].individual
+    return env["res.partner"]
+
+
+def _create_portal_users(env):
+    """Grant portal access to the head of each demonstration family in
+    PORTAL_LOGINS. Idempotent."""
+    Users = env["res.users"]
+    portal_group = env.ref("base.group_portal")
+    for login, family_name in PORTAL_LOGINS:
+        if Users.search_count([("login", "=", login)]):
+            continue
+        head = _family_head(env, family_name)
+        if not head:
+            _logger.info("Portal login '%s' skipped: no head for %s", login, family_name)
+            continue
+        Users.create(
+            {
+                "name": head.name,
+                "login": login,
+                "password": PORTAL_PASSWORD,
+                "partner_id": head.id,
+                "group_ids": [Command.set([portal_group.id])],
+            }
+        )
+        _logger.info("Created portal user '%s' for %s (%s)", login, head.name, family_name)
 
 
 def _ensure_chart_of_accounts(env):
