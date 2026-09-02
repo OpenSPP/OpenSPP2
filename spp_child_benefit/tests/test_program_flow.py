@@ -140,6 +140,8 @@ class TestProgramFlow(TransactionCase):
         self.assertEqual(entitlements.initial_amount, 10000.0)
         line = self.env["spp.entitlement.schedule.line"].search([("entitlement_id", "=", entitlements.id)])
         self.assertEqual(line.benefit_month, self.cycle.start_date.replace(day=1))
+        # The materialized line is tied to the disbursing cycle.
+        self.assertEqual(line.cycle_id, self.cycle)
         # Idempotent: preparing again creates nothing new
         self.ent_manager.prepare_entitlements(self.cycle, cycle_membership)
         self.assertEqual(

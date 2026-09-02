@@ -58,6 +58,7 @@
                                     <field name="daily_rate" />
                                     <field name="proration" />
                                     <field name="amount" sum="Total" />
+                                    <field name="cycle_id" />
                                     <field name="payment_status" />
                                 </list>
                             </field>

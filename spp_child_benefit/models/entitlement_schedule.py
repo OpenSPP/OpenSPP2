@@ -241,6 +241,9 @@ class EntitlementScheduleLine(models.Model):
     )
     amount = fields.Float(required=True)
     entitlement_id = fields.Many2one("spp.entitlement", string="Entitlement", readonly=True, index=True)
+    # The disbursing cycle for this month, once its cycle has run. Empty for
+    # months whose cycle has not been created yet.
+    cycle_id = fields.Many2one("spp.cycle", related="entitlement_id.cycle_id", string="Cycle", store=False)
     payment_status = fields.Char(compute="_compute_payment_status")
 
     _unique_benefit_month = models.Constraint(

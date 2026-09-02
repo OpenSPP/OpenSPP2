@@ -143,6 +143,7 @@
                         <th>Benefit month</th>
                         <th>Period</th>
                         <th class="text-end">Amount</th>
+                        <th>Cycle</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -159,6 +160,10 @@
                             </td>
                             <td class="text-end">
                                 <span t-out="'{:,.2f}'.format(line.amount)" />
+                            </td>
+                            <td>
+                                <span t-if="line.cycle_id" t-out="line.cycle_id.name" />
+                                <span t-else="" class="text-muted">—</span>
                             </td>
                             <td>
                                 <span t-out="line.payment_status" />
