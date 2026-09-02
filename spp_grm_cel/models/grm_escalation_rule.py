@@ -421,7 +421,7 @@ class GRMEscalationRule(models.Model):
             vals,
         )
 
-        # Post to chatter BEFORE any external side effect. spp.grm.ticket sets
+        # Post to chatter before the notification goes out. spp.grm.ticket sets
         # _mail_post_access = "read", so posting needs read access on the
         # ticket, which the rule owner may have just lost by reassigning it out
         # of their own scope. When that happens the caller's savepoint rolls
@@ -434,10 +434,6 @@ class GRMEscalationRule(models.Model):
             ),
             subject=_("Ticket Escalated"),
         )
-
-        # Send notification if configured
-        if self.should_send_notification and self.notification_template_id:
-            self._send_escalation_notification(ticket)
 
         # Create case if configured
         if self.create_case and self.case_type_id:
@@ -455,6 +451,14 @@ class GRMEscalationRule(models.Model):
             (self.id,),
         )
         self.invalidate_recordset(["escalation_count"])
+
+        # Sent last, once every effect that can still be denied has succeeded:
+        # delivery is the one step no rollback takes back. A mail sent for an
+        # escalation the caller then rolls back is a ghost that also repeats —
+        # the rolled-back escalation_rule_ids link no longer suppresses the
+        # rule, so the next hourly pass sends it again.
+        if self.should_send_notification and self.notification_template_id:
+            self._send_escalation_notification(ticket)
 
         return True
 

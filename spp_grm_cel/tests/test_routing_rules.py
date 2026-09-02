@@ -1,8 +1,13 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
+from unittest.mock import patch
+
 from odoo import Command
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
+from odoo.tools import mute_logger
+
+ROUTING_LOGGER = "odoo.addons.spp_grm_cel.models.grm_routing_rule"
 
 
 class TestRoutingRules(TransactionCase):
@@ -372,3 +377,49 @@ class TestRoutingRules(TransactionCase):
                     "assign_team_id": self.team1.id,
                 }
             )
+
+    def test_routing_failure_is_contained_by_a_savepoint(self):
+        """A database error while a rule is applied must not poison the
+        caller's transaction. The caller (``_apply_routing_rules``) swallows
+        the exception, so without a savepoint the cursor stays aborted and
+        every later statement of the same request — the rest of a portal
+        submission's own create — dies with InFailedSqlTransaction."""
+        self.RoutingRule.create(
+            {
+                "name": "Failing Rule",
+                "condition_cel": "severity == 'critical'",
+                "assign_team_id": self.team1.id,
+            }
+        )
+
+        Ticket = self.env.registry["spp.grm.ticket"]
+        original_write = Ticket.write
+
+        def failing_write(tickets, vals):
+            if "routing_rule_id" in vals:
+                # A genuine PostgreSQL error (what a stale assign_user_id FK
+                # would raise on flush): only a savepoint rollback makes the
+                # cursor usable again.
+                tickets.env.cr.execute("SELECT 1 / 0")
+            return original_write(tickets, vals)
+
+        with (
+            patch.object(Ticket, "write", failing_write),
+            mute_logger("odoo.sql_db"),
+            self.assertLogs(ROUTING_LOGGER, level="ERROR") as cm,
+        ):
+            ticket = self.Ticket.create(
+                {
+                    "name": "Critical Issue",
+                    "description": "Test",
+                    "severity": "critical",
+                    "stage_id": self.stage.id,
+                    "partner_id": self.partner.id,
+                }
+            )
+
+        self.assertTrue(any("rolled back and skipped" in line for line in cm.output), cm.output)
+        # The cursor survived: this query would raise InFailedSqlTransaction
+        # if the failed statement had aborted the transaction.
+        self.assertEqual(self.Ticket.search_count([("id", "=", ticket.id)]), 1)
+        self.assertFalse(ticket.routing_rule_id)

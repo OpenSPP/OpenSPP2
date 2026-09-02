@@ -105,8 +105,19 @@ class SPPGRMTicket(models.Model):
         """Manual action to trigger escalation rule evaluation.
 
         Can be called from the UI to manually check if any escalation rules apply.
+
+        The form button carries ``groups="spp_grm.group_grm_officer"``, but this
+        method is dispatchable over RPC, where a view attribute guards nothing:
+        base.group_user holds unscoped read on the tickets, so any internal user
+        could otherwise force a full escalation pass — counters, chatter posts,
+        notification mail, case creation — on any ticket in the database. The
+        engine itself stays elevated (each rule is bounded by its own owner);
+        what is checked here is entitlement to drive it. Write access is the
+        button's audience — officers and above — and, unlike a group test, it
+        also honours the caller's own ticket scope.
         """
         self.ensure_one()
+        self.check_access("write")
         self._check_escalation_rules(self)
 
         return {

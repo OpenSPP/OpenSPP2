@@ -394,7 +394,28 @@ class GRMRoutingRule(models.Model):
                     vals["priority"] = rule.set_priority
 
                 try:
-                    ticket_as_owner.write(vals)
+                    # Savepoint: the write and the counter succeed or roll back
+                    # together, and the write's deferred SQL is flushed on the
+                    # savepoint's close, so a constraint or foreign-key failure
+                    # (a rule pointing at a since-deleted user) rolls back here.
+                    # Our caller swallows exceptions; without this the aborted
+                    # cursor would take down every later statement of the same
+                    # request, including the rest of a portal submission.
+                    with self.env.cr.savepoint():
+                        ticket_as_owner.write(vals)
+
+                        # Atomic increment: a read-modify-write here would raise a
+                        # serialization failure under concurrent routing (cursors run
+                        # REPEATABLE READ), retried only at whole-dispatch granularity.
+                        # A single UPDATE avoids the conflict entirely, and needs no
+                        # sudo (raw SQL bypasses ACL). Invisible to spp_audit ORM
+                        # write-hooks, which is acceptable for a statistics counter.
+                        rule.flush_recordset(["match_count"])
+                        self.env.cr.execute(
+                            "UPDATE spp_grm_routing_rule SET match_count = match_count + 1 WHERE id = %s",
+                            (rule.id,),
+                        )
+                        rule.invalidate_recordset(["match_count"])
                 except AccessError:
                     # Owner may match the ticket but not be allowed to write it
                     # (e.g. read-only scope). Skip rather than apply elevated.
@@ -405,25 +426,22 @@ class GRMRoutingRule(models.Model):
                         ticket.id,
                     )
                     continue
+                except Exception:
+                    # Per-ticket isolation, as on the escalation side: the
+                    # savepoint has already rolled this routing back, and one
+                    # bad rule must not cost the ticket its creation.
+                    _logger.exception(
+                        "Routing rule %s failed on ticket %s; rolled back and skipped.",
+                        rule.name,
+                        ticket.id,
+                    )
+                    continue
                 _logger.info(
                     "Applied routing rule '%s' to ticket %s: %s",
                     rule.name,
                     ticket.number,
                     vals,
                 )
-
-                # Atomic increment: a read-modify-write here would raise a
-                # serialization failure under concurrent routing (cursors run
-                # REPEATABLE READ), retried only at whole-dispatch granularity.
-                # A single UPDATE avoids the conflict entirely, and needs no
-                # sudo (raw SQL bypasses ACL). Invisible to spp_audit ORM
-                # write-hooks, which is acceptable for a statistics counter.
-                rule.flush_recordset(["match_count"])
-                self.env.cr.execute(
-                    "UPDATE spp_grm_routing_rule SET match_count = match_count + 1 WHERE id = %s",
-                    (rule.id,),
-                )
-                rule.invalidate_recordset(["match_count"])
 
                 # Only apply the first matching rule
                 return True

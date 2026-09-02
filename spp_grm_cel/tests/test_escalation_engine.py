@@ -11,7 +11,7 @@ that the "Check Escalation" button works for users who cannot read the rules.
 from unittest.mock import patch
 
 from odoo import Command
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 from odoo.tests import TransactionCase, tagged
 from odoo.tools import mute_logger
 
@@ -187,17 +187,19 @@ class TestEscalationEngine(TransactionCase):
         self.assertEqual(case.case_worker_id, self.officer)
         self.assertEqual(case.partner_id, self.partner)
 
-    def test_notification_sent_under_owner_identity(self):
-        model = self.env["ir.model"]._get("spp.grm.ticket")
-        template = self.env["mail.template"].create(
+    def _notification_template(self):
+        return self.env["mail.template"].create(
             {
                 "name": "Escalation template",
-                "model_id": model.id,
+                "model_id": self.env["ir.model"]._get("spp.grm.ticket").id,
                 "subject": "Escalated {{ object.number }}",
                 "body_html": "<p>Escalated</p>",
                 "email_to": "escalations@example.com",
             }
         )
+
+    def test_notification_sent_under_owner_identity(self):
+        template = self._notification_template()
         self._officer_rule(
             should_send_notification=True,
             notification_template_id=template.id,
@@ -209,6 +211,37 @@ class TestEscalationEngine(TransactionCase):
         before = Mail.search_count(domain)
         self.assertTrue(self.env[ESCALATION].sudo().apply_escalations(ticket))
         self.assertEqual(Mail.search_count(domain) - before, 1)
+
+    @mute_logger(ESC_LOGGER)
+    def test_no_notification_is_sent_for_an_escalation_that_rolls_back(self):
+        """The sent mail is the one effect a rollback cannot undo, so it must
+        be the last thing an escalation does. An officer who may send mail but
+        not create cases owns a rule configured for both: the case create is
+        denied and the escalation rolls back — including the
+        escalation_rule_ids link that stops the rule applying twice, so a mail
+        sent here would go out again on every hourly pass."""
+        case_type = self.env["spp.case.type"].create({"name": "Escalation", "code": "ESC"})
+        self._officer_rule(
+            should_send_notification=True,
+            notification_template_id=self._notification_template().id,
+            create_case=True,
+            case_type_id=case_type.id,
+            escalate_to_user_id=self.officer.id,
+        )
+        ticket = self._ticket("rolled back")
+        sent = []
+        MailTemplate = self.env.registry["mail.template"]
+        original = MailTemplate.send_mail
+
+        def tracking_send_mail(template, res_id, *args, **kwargs):
+            sent.append(res_id)
+            return original(template, res_id, *args, **kwargs)
+
+        with patch.object(MailTemplate, "send_mail", tracking_send_mail):
+            applied = self.env[ESCALATION].sudo().apply_escalations(ticket)
+
+        self.assertFalse(applied)
+        self.assertEqual(sent, [], "notification sent for an escalation that was then rolled back")
 
     # ---- pass-level behaviour
 
@@ -260,14 +293,28 @@ class TestEscalationEngine(TransactionCase):
         hits = [line for line in cm.output if "Shell-created rule" in line and "owned by the superuser" in line]
         self.assertEqual(len(hits), 1, cm.output)
 
-    def test_check_escalation_button_for_user_without_rule_access(self):
-        """A plain internal user (no GRM group, no read on the rules) presses
-        "Check Escalation": the engine loads the rules itself and applies a
-        manager's rule with the manager's identity — no swallowed AccessError."""
+    def test_check_escalation_button_denied_to_a_read_only_internal_user(self):
+        """action_escalate is dispatchable over RPC, so the view's ``groups=``
+        gates nothing: without a server-side check any internal user (
+        base.group_user holds unscoped read on the tickets) can force a full
+        escalation pass — counters, chatter, notifications, cases — on any
+        ticket in the database."""
+        self._manager_rule(escalate_severity="critical")
+        ticket = self._ticket("guarded", severity="low")
+        with self.assertRaises(AccessError):
+            ticket.with_user(self.plain_internal).action_escalate()
+        ticket.invalidate_recordset()
+        self.assertFalse(ticket.is_escalated)
+        self.assertEqual(ticket.severity, "low")
+
+    def test_check_escalation_button_applies_a_rule_owned_by_someone_else(self):
+        """An officer presses "Check Escalation" on a ticket in their own team:
+        the engine loads the rules itself and applies a manager's rule with the
+        manager's identity — no swallowed AccessError."""
         self._manager_rule(escalate_severity="critical")
         ticket = self._ticket("button", severity="low")
         with self.assertNoLogs(TICKET_LOGGER, level="ERROR"):
-            res = ticket.with_user(self.plain_internal).action_escalate()
+            res = ticket.with_user(self.officer).action_escalate()
         self.assertEqual(res["params"]["type"], "info")
         ticket.invalidate_recordset()
         self.assertTrue(ticket.is_escalated)

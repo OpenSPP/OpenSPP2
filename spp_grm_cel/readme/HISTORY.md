@@ -18,13 +18,23 @@
   now loads the active rule set with elevated rights and applies each rule with its owner's
   identity, so no acting user needs read access on the rules; the rows only exposed the
   routing/escalation map (conditions, targets, thresholds) to enumeration (hardening alongside
-  #379/#381). The ticket form's "Check Escalation" button is limited to GRM officers and above.
+  #379/#381). The ticket form's "Check Escalation" button is limited to GRM officers and above,
+  enforced on the method itself — a view ``groups=`` does not bind an RPC call — by requiring
+  write access on the ticket, which also keeps an officer to their own ticket scope.
 - fix: an escalation is now applied atomically (savepoint). The ticket write, the chatter post
   and the counter succeed or roll back together, and if the rule owner is denied any effect the
   rule produces — posting to a ticket just reassigned out of their own scope, sending the
   configured template, or creating the configured case — the whole escalation rolls back and is
-  skipped instead of persisting half-applied. Delivery or data errors in the notification and
-  case steps remain best effort: logged, skipped, and isolated so they cannot abort the pass.
+  skipped instead of persisting half-applied. The notification is sent last, after every effect
+  that can still be denied, because delivery is the one step a rollback cannot take back — and a
+  ghost mail would repeat, the rolled-back rule link no longer suppressing the rule on the next
+  pass. Delivery or data errors in the notification and case steps remain best effort: logged,
+  skipped, and isolated so they cannot abort the pass.
+- fix: applying a routing rule is atomic in the same way. The ticket write and the match counter
+  succeed or roll back together, and a database error while routing (a rule pointing at a
+  since-deleted user) no longer leaves the transaction aborted: the ticket create that triggered
+  the routing swallows the error, so every later statement of the same request — the rest of a
+  portal submission — used to fail behind it.
 - fix: a rule applies at most once per ticket. Previously the hourly cron re-escalated every
   still-open matching ticket on every pass, repeating the counter increment, the chatter post
   and the notification each hour.
