@@ -222,7 +222,7 @@ class GRMRoutingRule(models.Model):
         because every effect is bounded by the owner identity each rule is
         applied with. Rules without a usable owner are dropped here.
         """
-        # nosemgrep: semgrep.odoo-sudo-without-context -- reads only the rule set; every effect below runs with_user(owner), never elevated
+        # nosemgrep: semgrep.odoo-sudo-without-context -- reads the rule set only; effects run with_user(owner)
         rules = self.sudo().search([("active", "=", True)], order="sequence, id")
         return [(rule, owner) for rule in rules if (owner := rule._evaluation_owner())]
 

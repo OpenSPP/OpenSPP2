@@ -610,7 +610,8 @@ class GRMEscalationRule(models.Model):
             return owner
         if not owner.active:
             _logger.warning(
-                "Escalation rule %s (id %s) is owned by archived user %s; skipping until someone takes ownership of it.",
+                "Escalation rule %s (id %s) is owned by archived user %s; skipping until "
+                "someone takes ownership of it.",
                 self.name,
                 self.id,
                 owner.login,
@@ -628,7 +629,7 @@ class GRMEscalationRule(models.Model):
         is applied with. Rules without a usable owner are dropped here, so the
         cron logs each warning once per pass rather than once per ticket.
         """
-        # nosemgrep: semgrep.odoo-sudo-without-context -- reads only the rule set; every effect below runs with_user(owner), never elevated
+        # nosemgrep: semgrep.odoo-sudo-without-context -- reads the rule set only; effects run with_user(owner)
         rules = self.sudo().search([("active", "=", True)], order="sequence, id")
         return [(rule, owner) for rule in rules if (owner := rule._evaluation_owner())]
 
