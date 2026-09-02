@@ -165,6 +165,11 @@ Changelog
   portal controller, which needs no direct model write). The rule covers
   all four operations, so the scoping also holds if a future
   access-control change ever re-grants portal write.
+- fix: SLA-breach handling (auto-escalation and the breach chatter note)
+  no longer runs inside the stored ``sla_status`` compute. It is
+  deferred to the end of the triggering transaction, so the escalation
+  engine's writes, savepoints and flushes never execute mid-computation.
+  Same transaction, same outcome.
 
 19.0.2.0.1
 ~~~~~~~~~~
