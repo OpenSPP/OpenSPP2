@@ -75,13 +75,17 @@ class ScheduleEntitlementManager(models.Model):
         for membership in program_memberships:
             self.ensure_schedule(membership)
 
+        # A benefit month is keyed to the first of the month; the cycle may
+        # start after the 1st (its start date cannot precede today), so floor
+        # the lower bound to the first of the cycle's start month.
+        month_floor = cycle.start_date.replace(day=1)
         lines = Line.search(
             [
                 ("program_id", "=", self.program_id.id),
                 ("partner_id", "in", partners.ids),
                 ("schedule_id.state", "=", "active"),
                 ("entitlement_id", "=", False),
-                ("benefit_month", ">=", cycle.start_date),
+                ("benefit_month", ">=", month_floor),
                 ("benefit_month", "<=", cycle.end_date),
             ]
         )

@@ -1,6 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 from odoo.tests.common import TransactionCase, tagged
 
+from odoo.addons.spp_demo_child_benefit.models.demo_setup import EXTRA_FAMILY_PROFILES, expected_qualified_count
 from odoo.addons.spp_programs.models import constants
 
 
@@ -29,8 +30,12 @@ class TestDemoSetup(TransactionCase):
         self.assertTrue(program.journal_id.currency_id, "programme journal has no currency")
 
     def test_families_and_birth_orders(self):
-        families = self.env["res.partner"].search([("name", "like", "Demo Family%"), ("is_group", "=", True)])
-        self.assertEqual(len(families), 8)
+        # The 8 curated families (edge cases) are always present.
+        curated = self.env["res.partner"].search([("name", "like", "Demo Family%"), ("is_group", "=", True)])
+        self.assertEqual(len(curated), 8)
+        # Plus the extra population families.
+        all_families = self.env["res.partner"].search([("is_group", "=", True), ("group_type_id.code", "=", "family")])
+        self.assertEqual(len(all_families), 8 + len(EXTRA_FAMILY_PROFILES))
 
         def child(name):
             return self.env["res.partner"].search([("name", "=", name)], limit=1)
@@ -55,12 +60,15 @@ class TestDemoSetup(TransactionCase):
         program = self.env["spp.program"].search([("name", "=", "Child Benefit Programme")])
         memberships = self.env["spp.program.membership"].search([("program_id", "=", program.id)])
         enrolled = memberships.filtered(lambda m: m.state == "enrolled")
-        expected = {"Child One-C", "Child Two-C", "Child Four-Twin2", "Child Five-D", "Child Eight-D"}
-        self.assertEqual(set(enrolled.mapped("partner_id.name")), expected)
+        # The curated 5 qualified children are always enrolled...
+        curated = {"Child One-C", "Child Two-C", "Child Four-Twin2", "Child Five-D", "Child Eight-D"}
+        self.assertTrue(curated.issubset(set(enrolled.mapped("partner_id.name"))))
+        # ...alongside the extra population, for a deterministic total.
+        self.assertEqual(len(enrolled), expected_qualified_count())
         schedules = self.env["spp.entitlement.schedule"].search(
             [("program_id", "=", program.id), ("state", "=", "active")]
         )
-        self.assertEqual(set(schedules.mapped("partner_id.name")), expected)
+        self.assertEqual(len(schedules), expected_qualified_count())
         for schedule in schedules:
             self.assertEqual(schedule.line_count, 37)
 
@@ -70,7 +78,7 @@ class TestDemoSetup(TransactionCase):
         self.assertEqual(len(cycle), 1)
         self.assertEqual(
             self.env["spp.cycle.membership"].search_count([("cycle_id", "=", cycle.id)]),
-            5,
+            expected_qualified_count(),
         )
         self.assertTrue(self.env["spp.grm.ticket"].search_count([]))
         self.assertEqual(self.env["res.users"].search_count([("login", "in", ["officer", "manager"])]), 2)

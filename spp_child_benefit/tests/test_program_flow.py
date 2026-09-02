@@ -100,14 +100,15 @@ class TestProgramFlow(TransactionCase):
         )
         cls.program.payment_manager_ids = [Command.link(pay_container.id)]
 
-        # Current-month cycle
+        # Current-month cycle (start no earlier than today per the cycle
+        # constraint; materialization floors to the first of the month).
         month_start = date(today.year, today.month, 1)
         month_end = month_start + relativedelta(months=1, days=-1)
         cls.cycle = env["spp.cycle"].create(
             {
                 "name": "Flow Cycle",
                 "program_id": cls.program.id,
-                "start_date": month_start,
+                "start_date": max(month_start, today),
                 "end_date": month_end,
             }
         )
@@ -138,7 +139,7 @@ class TestProgramFlow(TransactionCase):
         self.assertEqual(len(entitlements), 1)
         self.assertEqual(entitlements.initial_amount, 10000.0)
         line = self.env["spp.entitlement.schedule.line"].search([("entitlement_id", "=", entitlements.id)])
-        self.assertEqual(line.benefit_month, self.cycle.start_date)
+        self.assertEqual(line.benefit_month, self.cycle.start_date.replace(day=1))
         # Idempotent: preparing again creates nothing new
         self.ent_manager.prepare_entitlements(self.cycle, cycle_membership)
         self.assertEqual(

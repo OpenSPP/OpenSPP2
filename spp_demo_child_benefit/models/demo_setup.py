@@ -243,92 +243,211 @@ def _split_person_name(full_name):
     }
 
 
-def _create_families(env):
-    Vocab = env["spp.vocabulary.code"]
-    fam_type = Vocab.get_code("urn:openspp:vocab:group-type", "family")
-    role_head = Vocab.get_code("urn:openspp:vocab:group-membership-type", "head")
-    role_child = env.ref("spp_child_benefit.code_membership_type_child")
-    role_mother = env.ref("spp_child_benefit.code_membership_type_mother")
-    role_father = env.ref("spp_child_benefit.code_membership_type_father")
-    banks = [
-        env.ref("spp_demo_child_benefit.bank_national"),
-        env.ref("spp_demo_child_benefit.bank_rural"),
-        env.ref("spp_demo_child_benefit.bank_community"),
-    ]
-    villages = env["spp.area"].search([("code", "like", "%-%-%")])
+# Extra, non-curated families to give the demo a fuller population. Each entry
+# is the number of *qualified* children that family should have (3rd-or-higher
+# birth order and under the age limit); the family also gets two older,
+# non-qualified siblings so the ranking is realistic. The counts are fixed so
+# the totals stay deterministic and testable; names are drawn from the pools
+# below. Sum = qualified children added on top of the curated 5.
+EXTRA_FAMILY_PROFILES = [1, 2, 1, 3, 2, 1, 2, 3, 1, 2, 1, 2, 3, 1, 2, 1, 2]
+_EXTRA_GIVEN_NAMES = [
+    "Aria",
+    "Beni",
+    "Cara",
+    "Deva",
+    "Elan",
+    "Fira",
+    "Gani",
+    "Hira",
+    "Ivo",
+    "Jaya",
+    "Kiran",
+    "Lira",
+    "Mira",
+    "Nima",
+    "Oni",
+    "Pema",
+    "Rina",
+    "Sami",
+    "Tara",
+    "Uma",
+    "Vira",
+    "Wina",
+    "Yara",
+    "Zani",
+    "Anil",
+    "Bina",
+    "Chandra",
+    "Dipa",
+    "Esha",
+    "Gita",
+]
+_EXTRA_FAMILY_NAMES = [
+    "Adhikari",
+    "Baniya",
+    "Chettri",
+    "Dahal",
+    "Gurung",
+    "Humagai",
+    "Iyer",
+    "Joshi",
+    "Karki",
+    "Lama",
+    "Magar",
+    "Neupane",
+    "Oli",
+    "Pradhan",
+    "Rai",
+    "Sharma",
+    "Thapa",
+    "Uprety",
+    "Verma",
+    "Wagle",
+]
 
+
+def expected_qualified_count():
+    """Qualified beneficiaries the generator produces: curated 5 + extras."""
+    return 5 + sum(EXTRA_FAMILY_PROFILES)
+
+
+def _family_refs(env):
+    Vocab = env["spp.vocabulary.code"]
+    return {
+        "fam_type": Vocab.get_code("urn:openspp:vocab:group-type", "family"),
+        "role_head": Vocab.get_code("urn:openspp:vocab:group-membership-type", "head"),
+        "role_child": env.ref("spp_child_benefit.code_membership_type_child"),
+        "role_mother": env.ref("spp_child_benefit.code_membership_type_mother"),
+        "role_father": env.ref("spp_child_benefit.code_membership_type_father"),
+        "banks": [
+            env.ref("spp_demo_child_benefit.bank_national"),
+            env.ref("spp_demo_child_benefit.bank_rural"),
+            env.ref("spp_demo_child_benefit.bank_community"),
+        ],
+        "villages": env["spp.area"].search([("code", "like", "%-%-%")]),
+    }
+
+
+def _create_one_family(env, refs, index, name, mother_name, father_name, children):
+    """Create a single family: mother (head + payee, with a bank account),
+    father, and the given children. `children` is a list of
+    (full_name, birthdate, extra_vals)."""
     Partner = env["res.partner"]
     Membership = env["spp.group.membership"]
+    villages = refs["villages"]
+    banks = refs["banks"]
+    area = villages[index % len(villages)] if villages else env["spp.area"]
+
+    mother = Partner.create(
+        {
+            **_split_person_name(mother_name),
+            "is_registrant": True,
+            "is_group": False,
+            "birthdate": date(1990 + index % 6, 3 + index % 9, 5 + index % 23),
+            "area_id": area.id if area else False,
+        }
+    )
+    env["res.partner.bank"].create(
+        {
+            "partner_id": mother.id,
+            "acc_number": f"10{index:03d}{100000 + index * 7919}",
+            "bank_id": banks[index % len(banks)].id,
+        }
+    )
+    father = Partner.create(
+        {
+            **_split_person_name(father_name),
+            "is_registrant": True,
+            "is_group": False,
+            "birthdate": date(1988 + index % 6, 1 + index % 11, 3 + index % 25),
+            "area_id": area.id if area else False,
+        }
+    )
+    family = Partner.create(
+        {
+            "name": name,
+            "is_registrant": True,
+            "is_group": True,
+            "group_type_id": refs["fam_type"].id,
+            "area_id": area.id if area else False,
+        }
+    )
+    Membership.create(
+        {
+            "group": family.id,
+            "individual": mother.id,
+            "membership_type_ids": [Command.set([refs["role_head"].id, refs["role_mother"].id])],
+        }
+    )
+    Membership.create(
+        {
+            "group": family.id,
+            "individual": father.id,
+            "membership_type_ids": [Command.set([refs["role_father"].id])],
+        }
+    )
+    for child_name, birthdate, extra in children:
+        vals = {
+            **_split_person_name(child_name),
+            "is_registrant": True,
+            "is_group": False,
+            "birthdate": birthdate,
+            "area_id": area.id if area else False,
+        }
+        vals.update(extra)
+        child = Partner.create(vals)
+        Membership.create(
+            {
+                "group": family.id,
+                "individual": child.id,
+                "membership_type_ids": [Command.set([refs["role_child"].id])],
+            }
+        )
+    return family
+
+
+def _extra_family_children(today, family_index, qualified_count):
+    """Two older, non-qualified siblings plus `qualified_count` recent children
+    (3rd birth order and up, each under 36 months) so the family has exactly
+    `qualified_count` qualified beneficiaries."""
+    fam_name = _EXTRA_FAMILY_NAMES[family_index % len(_EXTRA_FAMILY_NAMES)]
+
+    def given(offset):
+        return _EXTRA_GIVEN_NAMES[(family_index * 3 + offset) % len(_EXTRA_GIVEN_NAMES)]
+
+    children = [
+        (f"{given(0)} {fam_name}", today - relativedelta(years=6, months=family_index % 5), {}),
+        (f"{given(1)} {fam_name}", today - relativedelta(years=4, months=family_index % 7), {}),
+    ]
+    # Recent children spread under 36 months, with varied days for proration.
+    recent_offsets = [30, 20, 8][:qualified_count]
+    for i, months_ago in enumerate(recent_offsets):
+        day = 3 + (family_index + i * 9) % 24  # vary day for entry/exit proration
+        birthdate = (today - relativedelta(months=months_ago)).replace(day=day)
+        children.append((f"{given(2 + i)} {fam_name}", birthdate, {}))
+    return children
+
+
+def _create_families(env):
+    refs = _family_refs(env)
     today = fields.Date.today()
     families = []
     for index, blueprint in enumerate(_family_blueprints(today)):
-        area = villages[index % len(villages)] if villages else env["spp.area"]
-        mother = Partner.create(
-            {
-                **_split_person_name(blueprint["mother"]),
-                "is_registrant": True,
-                "is_group": False,
-                "birthdate": date(1990 + index % 6, 3 + index % 9, 5 + index),
-                "area_id": area.id if area else False,
-            }
-        )
-        env["res.partner.bank"].create(
-            {
-                "partner_id": mother.id,
-                "acc_number": f"10{index:02d}00{100000 + index * 7919}",
-                "bank_id": banks[index % len(banks)].id,
-            }
-        )
-        father = Partner.create(
-            {
-                **_split_person_name(blueprint["father"]),
-                "is_registrant": True,
-                "is_group": False,
-                "birthdate": date(1988 + index % 6, 1 + index % 11, 3 + index),
-                "area_id": area.id if area else False,
-            }
-        )
-        family = Partner.create(
-            {
-                "name": blueprint["name"],
-                "is_registrant": True,
-                "is_group": True,
-                "group_type_id": fam_type.id,
-                "area_id": area.id if area else False,
-            }
-        )
-        Membership.create(
-            {
-                "group": family.id,
-                "individual": mother.id,
-                "membership_type_ids": [Command.set([role_head.id, role_mother.id])],
-            }
-        )
-        Membership.create(
-            {
-                "group": family.id,
-                "individual": father.id,
-                "membership_type_ids": [Command.set([role_father.id])],
-            }
-        )
-        for child_name, birthdate, extra in blueprint["children"]:
-            vals = {
-                **_split_person_name(child_name),
-                "is_registrant": True,
-                "is_group": False,
-                "birthdate": birthdate,
-                "area_id": area.id if area else False,
-            }
-            vals.update(extra)
-            child = Partner.create(vals)
-            Membership.create(
-                {
-                    "group": family.id,
-                    "individual": child.id,
-                    "membership_type_ids": [Command.set([role_child.id])],
-                }
+        families.append(
+            _create_one_family(
+                env, refs, index, blueprint["name"], blueprint["mother"], blueprint["father"], blueprint["children"]
             )
-        families.append(family)
+        )
+
+    # Extra families for a fuller demo population, several with more than one
+    # qualified child.
+    for offset, qualified_count in enumerate(EXTRA_FAMILY_PROFILES):
+        index = len(families)
+        fam_name = _EXTRA_FAMILY_NAMES[offset % len(_EXTRA_FAMILY_NAMES)]
+        mother_name = f"{_EXTRA_GIVEN_NAMES[offset % len(_EXTRA_GIVEN_NAMES)]} {fam_name}"
+        father_name = f"{_EXTRA_GIVEN_NAMES[(offset + 11) % len(_EXTRA_GIVEN_NAMES)]} {fam_name}"
+        children = _extra_family_children(today, offset, qualified_count)
+        families.append(_create_one_family(env, refs, index, f"{fam_name} Family", mother_name, father_name, children))
     _logger.info("Created %s demo families", len(families))
     return families
 
@@ -342,11 +461,14 @@ def _enroll_and_open_cycle(env, program):
         env["spp.program.membership"].create({"partner_id": child.id, "program_id": program.id, "state": "enrolled"})
     today = fields.Date.today()
     month_start = date(today.year, today.month, 1)
+    # The cycle start date cannot precede today, so start no earlier than today
+    # (the current benefit month is still matched: materialization floors the
+    # lower bound to the first of the cycle's start month).
     cycle = env["spp.cycle"].create(
         {
             "name": f"{today.strftime('%B %Y')} Cycle",
             "program_id": program.id,
-            "start_date": month_start,
+            "start_date": max(month_start, today),
             "end_date": month_start + relativedelta(months=1, days=-1),
         }
     )

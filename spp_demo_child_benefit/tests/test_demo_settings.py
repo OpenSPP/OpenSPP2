@@ -5,6 +5,8 @@ import json
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase, tagged
 
+from odoo.addons.spp_demo_child_benefit.models.demo_setup import expected_qualified_count
+
 PACK = {
     "programme_name": "Localized Benefit Programme",
     "banks": {"National Commercial Bank": "First Localized Bank"},
@@ -39,7 +41,7 @@ class TestDemoSettings(TransactionCase):
 
     def test_settings_status_reflects_environment(self):
         self.assertTrue(self.settings.demo_environment_ready)
-        self.assertEqual(self.settings.demo_beneficiary_count, 5)
+        self.assertEqual(self.settings.demo_beneficiary_count, expected_qualified_count())
 
     def test_localization_pack_applies_and_persists(self):
         raw = json.dumps(PACK)
