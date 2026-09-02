@@ -148,12 +148,19 @@ Changelog
   future-dated departure never took effect once the clock crossed it —
   rosters, metrics, API search and downstream gates kept treating the
   member as active indefinitely. Writing a future ``ended_date`` now
-  schedules the repair cron at exactly that moment (staleness window ~1
-  minute), and a daily sweep self-heals everything else: rows already
-  stale in existing databases (drained in committed batches, resuming
-  across runs until the backlog is gone) and rows written behind the
-  ORM, including ``is_ended = NULL`` rows that raw-SQL consumers treated
-  as ended (#417)
+  schedules a lightweight, index-served repair cron in the minute after
+  that moment (staleness window ≈1–2 minutes), and a daily sweep
+  self-heals everything else: rows already stale in existing databases
+  (drained in committed batches, resuming across runs until the backlog
+  is gone) and rows written behind the ORM, including
+  ``is_ended = NULL`` rows that raw-SQL consumers treated as ended
+  (#417)
+- upgrade note: this version adds a partial index on
+  ``spp_group_membership.ended_date``, built with a write-blocking
+  ``CREATE INDEX`` during the module upgrade. On a very large registry,
+  pre-create it concurrently before upgrading and the upgrade will skip
+  the build:
+  ``CREATE INDEX CONCURRENTLY IF NOT EXISTS spp_group_membership__ended_date_index ON spp_group_membership (ended_date) WHERE ended_date IS NOT NULL;``
 
 19.0.2.2.2
 ~~~~~~~~~~
