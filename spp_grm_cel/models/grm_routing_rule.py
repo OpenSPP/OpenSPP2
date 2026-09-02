@@ -1,7 +1,7 @@
 import logging
 
 from odoo import SUPERUSER_ID, _, api, fields, models
-from odoo.exceptions import AccessError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -156,11 +156,23 @@ class GRMRoutingRule(models.Model):
         the same re-bind the targeting-field path performs. self.env.uid is the
         acting user, preserved even under sudo() (only an explicit
         with_user(<elevated>) write re-widens).
+
+        Any other explicit value raises rather than being dropped: a silent
+        no-op returning True let a data fix or migration script report success
+        while the rules kept evaluating as their old owner. UserError, not
+        AccessError — the write itself is allowed, the field is simply not the
+        caller's to set.
         """
-        if any(f in vals for f in self._EVAL_TARGETING_FIELDS) or vals.get("eval_as_user_id") == self.env.uid:
+        if "eval_as_user_id" in vals and vals["eval_as_user_id"] != self.env.uid:
+            raise UserError(
+                _(
+                    "A rule's evaluation identity is managed by the system and cannot be "
+                    'assigned to another user. Open the rule and use "Take Ownership" to '
+                    "bind it to yourself."
+                )
+            )
+        if any(f in vals for f in self._EVAL_TARGETING_FIELDS) or "eval_as_user_id" in vals:
             vals = dict(vals, eval_as_user_id=self.env.uid)
-        elif "eval_as_user_id" in vals:
-            vals = {k: v for k, v in vals.items() if k != "eval_as_user_id"}
         return super().write(vals)
 
     def action_take_ownership(self):
@@ -342,7 +354,7 @@ class GRMRoutingRule(models.Model):
             raise
 
     @api.private
-    def apply_routing(self, ticket):
+    def apply_routing(self, ticket, rules=None):
         """Apply the first matching routing rule to a ticket.
 
         Each rule is evaluated and applied with the identity of whoever defined
@@ -353,11 +365,18 @@ class GRMRoutingRule(models.Model):
 
         Args:
             ticket: spp.grm.ticket record
+            rules: optional pre-resolved ``[(rule, owner), ...]`` from
+                ``_active_rules_with_owners``; a caller routing a batch of
+                tickets (``create``) resolves them once instead of once per
+                ticket, so a misconfigured rule is warned about once per batch
 
         Returns:
             bool: True if a rule was applied, False otherwise
         """
-        for rule, owner in self._active_rules_with_owners():
+        if rules is None:
+            rules = self._active_rules_with_owners()
+
+        for rule, owner in rules:
             # nosemgrep: semgrep.odoo-with-user-unvalidated -- owner is system-set in create()/write(), not client input
             rule_as_owner = rule.with_user(owner.id)
             # nosemgrep: semgrep.odoo-with-user-unvalidated -- owner is system-set; scopes ticket writes

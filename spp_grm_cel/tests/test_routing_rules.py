@@ -423,3 +423,27 @@ class TestRoutingRules(TransactionCase):
         # if the failed statement had aborted the transaction.
         self.assertEqual(self.Ticket.search_count([("id", "=", ticket.id)]), 1)
         self.assertFalse(ticket.routing_rule_id)
+
+    def test_owner_warnings_logged_once_per_create_batch(self):
+        """A misconfigured rule — here superuser-owned, the shell/data-load
+        case — is warned about once for the batch that triggered the routing,
+        not once per ticket in it. The active rule set and each rule's
+        evaluation owner are identical for every ticket of the batch."""
+        self.env[self.RoutingRule._name].create(
+            {"name": "Shell-created rule", "condition_cel": "severity == 'nonexistent'"}
+        )
+        with self.assertLogs(ROUTING_LOGGER, level="WARNING") as cm:
+            self.Ticket.create(
+                [
+                    {
+                        "name": f"Batched {i}",
+                        "description": "Test",
+                        "severity": "critical",
+                        "stage_id": self.stage.id,
+                        "partner_id": self.partner.id,
+                    }
+                    for i in range(3)
+                ]
+            )
+        hits = [line for line in cm.output if "Shell-created rule" in line and "owned by the superuser" in line]
+        self.assertEqual(len(hits), 1, cm.output)

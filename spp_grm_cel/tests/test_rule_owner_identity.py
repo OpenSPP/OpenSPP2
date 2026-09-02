@@ -14,7 +14,7 @@ Regression tests for the GRM rule cluster:
 """
 
 from odoo import Command
-from odoo.exceptions import AccessError
+from odoo.exceptions import AccessError, UserError
 from odoo.tests import TransactionCase, tagged
 
 ROUTING = "spp.grm.routing.rule"
@@ -185,8 +185,10 @@ class TestGRMRuleOwnerIdentity(TransactionCase):
 
     def test_eval_as_user_id_not_writable_and_rebinds_on_retarget(self):
         rule = self.env[ROUTING].with_user(self.manager).create({"name": "R3", "condition_cel": "severity == 'low'"})
-        # Direct write of the identity is ignored.
-        rule.with_user(self.officer).write({"eval_as_user_id": self.env.ref("base.user_admin").id})
+        # Direct write of the identity is refused — loudly, so a data fix that
+        # tries it cannot report success while the rule keeps its old owner.
+        with self.assertRaises(UserError):
+            rule.with_user(self.officer).write({"eval_as_user_id": self.env.ref("base.user_admin").id})
         rule.invalidate_recordset()
         self.assertNotEqual(rule.eval_as_user_id, self.env.ref("base.user_admin"))
         # Changing what the rule targets re-binds identity to the editor.
@@ -227,11 +229,14 @@ class TestGRMRuleOwnerIdentity(TransactionCase):
 
     def test_eval_as_user_id_client_write_only_accepted_for_self(self):
         """A direct write may only set the identity to the acting user; any other
-        value is stripped (the forgery guard from #379 stands)."""
+        value is refused (the forgery guard from #379 stands). It raises rather
+        than being dropped: a silent no-op returning True leaves an operator
+        believing rules.write({"eval_as_user_id": new_owner.id}) re-homed them."""
         rule = self.env[ESCALATION].with_user(self.officer).create({"name": "Self only", "condition_cel": ""})
-        rule.with_user(self.manager).write({"eval_as_user_id": self.env.ref("base.user_admin").id})
+        with self.assertRaises(UserError):
+            rule.with_user(self.manager).write({"eval_as_user_id": self.env.ref("base.user_admin").id})
         rule.invalidate_recordset()
-        self.assertEqual(rule.eval_as_user_id, self.officer, "third-party identity must be stripped")
+        self.assertEqual(rule.eval_as_user_id, self.officer, "third-party identity must not take effect")
         rule.with_user(self.manager).write({"eval_as_user_id": self.manager.id})
         rule.invalidate_recordset()
         self.assertEqual(rule.eval_as_user_id, self.manager, "self identity is the take-ownership path")

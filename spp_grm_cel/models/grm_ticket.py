@@ -32,9 +32,21 @@ class SPPGRMTicket(models.Model):
         """Override create to apply routing rules to new tickets."""
         tickets = super().create(vals_list)
 
+        # Hoisted out of the per-ticket loop: the active rule set (and each
+        # rule's evaluation owner, with its warnings) is identical for every
+        # ticket of this batch, so resolve it once — a misconfigured rule is
+        # then warned about once per create, not once per ticket created.
+        try:
+            rules = self.env["spp.grm.routing.rule"]._active_rules_with_owners()
+        except Exception:
+            # Routing must never cost a ticket its creation; this is the same
+            # guarantee _apply_routing_rules gives for a single ticket.
+            _logger.exception("Could not resolve routing rules; tickets %s were not routed.", tickets.ids)
+            return tickets
+
         # Apply routing rules to each new ticket
         for ticket in tickets:
-            self._apply_routing_rules(ticket)
+            self._apply_routing_rules(ticket, rules=rules)
 
         return tickets
 
@@ -50,11 +62,13 @@ class SPPGRMTicket(models.Model):
         return result
 
     @api.model
-    def _apply_routing_rules(self, ticket):
+    def _apply_routing_rules(self, ticket, rules=None):
         """Apply routing rules to a ticket.
 
         Args:
             ticket: spp.grm.ticket record
+            rules: optional pre-resolved ``[(rule, owner), ...]`` shared by a
+                batch (see ``spp.grm.routing.rule.apply_routing``)
         """
         try:
             _logger.debug("Applying routing rules to ticket %s", ticket.number)
@@ -63,7 +77,7 @@ class SPPGRMTicket(models.Model):
             routing_model = self.env["spp.grm.routing.rule"]
 
             # Apply routing rules
-            if routing_model.apply_routing(ticket):
+            if routing_model.apply_routing(ticket, rules=rules):
                 _logger.info("Routing rules applied to ticket %s", ticket.number)
             else:
                 _logger.debug("No routing rules matched for ticket %s", ticket.number)
