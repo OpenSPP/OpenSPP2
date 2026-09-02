@@ -115,7 +115,7 @@ class GRMRoutingRule(models.Model):
         "targets, so an elevated cron can never apply a rule beyond its author's "
         "reach. System-managed; not editable.",
     )
-    # No Python `default` on purpose (see spp_alerts #364): a default makes
+    # No Python `default` on purpose (see PR #364, spp_alerts): a default makes
     # _init_column backfill existing rows with the UPGRADE user before the
     # migration runs, and lets a client forge the value via a
     # default_eval_as_user_id context key. The identity is set explicitly in
@@ -150,16 +150,81 @@ class GRMRoutingRule(models.Model):
     def write(self, vals):
         """Re-bind the evaluation identity to the editor when targeting changes.
 
-        eval_as_user_id is never client-writable directly; it tracks whoever last
-        defined what the rule targets. self.env.uid is the acting user, preserved
-        even under sudo() (only an explicit with_user(<elevated>) write re-widens).
+        eval_as_user_id tracks whoever last defined what the rule targets. A
+        client can never point it at a third party; the only accepted explicit
+        value is the acting user's own id (see action_take_ownership), which is
+        the same re-bind the targeting-field path performs. self.env.uid is the
+        acting user, preserved even under sudo() (only an explicit
+        with_user(<elevated>) write re-widens).
         """
-        if "eval_as_user_id" in vals or any(f in vals for f in self._EVAL_TARGETING_FIELDS):
-            vals = dict(vals)
-            vals.pop("eval_as_user_id", None)
-            if any(f in vals for f in self._EVAL_TARGETING_FIELDS):
-                vals["eval_as_user_id"] = self.env.uid
+        if any(f in vals for f in self._EVAL_TARGETING_FIELDS) or vals.get("eval_as_user_id") == self.env.uid:
+            vals = dict(vals, eval_as_user_id=self.env.uid)
+        elif "eval_as_user_id" in vals:
+            vals = {k: v for k, v in vals.items() if k != "eval_as_user_id"}
         return super().write(vals)
+
+    def action_take_ownership(self):
+        """Re-bind these rules' evaluation identity to the acting user.
+
+        The remediation path for a rule owned by the superuser (created from a
+        shell, import or data load), by an archived user, or by someone whose
+        ticket scope no longer fits: from now on the rule evaluates within the
+        acting user's own record-rule scope. Saving the form without changing a
+        targeting field does not re-bind (the client only sends dirty fields).
+        """
+        self.write({"eval_as_user_id": self.env.uid})
+        return True
+
+    def _evaluation_owner(self):
+        """Return the user this rule evaluates as, or an empty recordset.
+
+        Empty means the rule must not fire: it has no identity at all, or its
+        owner is archived (an offboarded user's scope must not keep driving
+        automation). A superuser owner is kept but called out: with_user(1)
+        always runs in superuser mode, so such a rule evaluates unbounded until
+        someone takes ownership (checked before the archive test, since Odoo's
+        ``__system__`` user is itself inactive). Logs once per call.
+        """
+        self.ensure_one()
+        owner = self.eval_as_user_id or self.create_uid
+        if not owner:
+            _logger.warning(
+                "Routing rule %s (id %s) has no evaluation identity (owner and "
+                "create_uid both unset); skipping until someone takes ownership of it.",
+                self.name,
+                self.id,
+            )
+            return self.env["res.users"]
+        if owner.id == SUPERUSER_ID:
+            _logger.warning(
+                "Routing rule %s (id %s) is owned by the superuser and evaluates "
+                "without record-rule bounds; take ownership of it as a real user to scope it.",
+                self.name,
+                self.id,
+            )
+            return owner
+        if not owner.active:
+            _logger.warning(
+                "Routing rule %s (id %s) is owned by archived user %s; skipping until someone takes ownership of it.",
+                self.name,
+                self.id,
+                owner.login,
+            )
+            return self.env["res.users"]
+        return owner
+
+    @api.model
+    def _active_rules_with_owners(self):
+        """Active rules paired with their evaluation owner, in sequence order.
+
+        Searched with sudo(): the acting user (the sudo'd portal controller, an
+        officer creating a ticket) never needs read access on the rules,
+        because every effect is bounded by the owner identity each rule is
+        applied with. Rules without a usable owner are dropped here.
+        """
+        # nosemgrep: semgrep.odoo-sudo-without-context -- reads only the rule set; every effect below runs with_user(owner), never elevated
+        rules = self.sudo().search([("active", "=", True)], order="sequence, id")
+        return [(rule, owner) for rule in rules if (owner := rule._evaluation_owner())]
 
     @api.constrains("condition_cel")
     def _check_condition_cel(self):
@@ -292,30 +357,7 @@ class GRMRoutingRule(models.Model):
         Returns:
             bool: True if a rule was applied, False otherwise
         """
-        # Search for active rules in sequence order
-        rules = self.search([("active", "=", True)], order="sequence, id")
-
-        for rule in rules:
-            owner = rule.eval_as_user_id or rule.create_uid
-            if not owner:
-                _logger.warning(
-                    "Routing rule %s (id %s) has no evaluation identity (owner and "
-                    "create_uid both unset); skipping — it will never fire until re-saved.",
-                    rule.name,
-                    rule.id,
-                )
-                continue
-            if owner.id == SUPERUSER_ID:
-                # with_user(SUPERUSER_ID) always runs in superuser mode (record
-                # rules bypassed), so this rule evaluates unrestricted. Only
-                # privileged contexts (shell, data load, migration from a
-                # script-created rule) can mint such an owner — surface it.
-                _logger.warning(
-                    "Routing rule %s (id %s) is owned by the superuser and evaluates "
-                    "without record-rule bounds; re-save it as a real user to scope it.",
-                    rule.name,
-                    rule.id,
-                )
+        for rule, owner in self._active_rules_with_owners():
             # nosemgrep: semgrep.odoo-with-user-unvalidated -- owner is system-set in create()/write(), not client input
             rule_as_owner = rule.with_user(owner.id)
             # nosemgrep: semgrep.odoo-with-user-unvalidated -- owner is system-set; scopes ticket writes

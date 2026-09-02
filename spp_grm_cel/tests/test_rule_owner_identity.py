@@ -215,6 +215,72 @@ class TestGRMRuleOwnerIdentity(TransactionCase):
             "Toggling active/sequence must not re-author rule ownership",
         )
 
+    def test_take_ownership_rebinds_to_acting_user(self):
+        """The remediation path for superuser-, archived- or mis-scoped owners:
+        "Take Ownership" re-binds the rule to whoever presses it, on both models."""
+        for model in (ROUTING, ESCALATION):
+            rule = self.env[model].with_user(self.officer).create({"name": "Handed over", "condition_cel": ""})
+            self.assertEqual(rule.eval_as_user_id, self.officer)
+            rule.with_user(self.manager).action_take_ownership()
+            rule.invalidate_recordset()
+            self.assertEqual(rule.eval_as_user_id, self.manager, model)
+
+    def test_eval_as_user_id_client_write_only_accepted_for_self(self):
+        """A direct write may only set the identity to the acting user; any other
+        value is stripped (the forgery guard from #379 stands)."""
+        rule = self.env[ESCALATION].with_user(self.officer).create({"name": "Self only", "condition_cel": ""})
+        rule.with_user(self.manager).write({"eval_as_user_id": self.env.ref("base.user_admin").id})
+        rule.invalidate_recordset()
+        self.assertEqual(rule.eval_as_user_id, self.officer, "third-party identity must be stripped")
+        rule.with_user(self.manager).write({"eval_as_user_id": self.manager.id})
+        rule.invalidate_recordset()
+        self.assertEqual(rule.eval_as_user_id, self.manager, "self identity is the take-ownership path")
+
+    def test_archived_owner_rule_does_not_fire(self):
+        """An offboarded (archived) owner's scope must not keep driving
+        automation: the rule is skipped with a warning until someone takes
+        ownership. Both engines."""
+        officer_ticket = self.env["spp.grm.ticket"].create(
+            {
+                "name": "Officer ticket",
+                "description": "In the officer's team",
+                "partner_id": self.foreign_ticket.partner_id.id,
+                "team_id": self.team_a.id,
+                "severity": "critical",
+            }
+        )
+        esc_rule = (
+            self.env[ESCALATION]
+            .with_user(self.officer)
+            .create({"name": "Archived owner", "condition_cel": "", "escalate_to_user_id": self.officer.id})
+        )
+        route_rule = (
+            self.env[ROUTING]
+            .with_user(self.officer)
+            .create({"name": "Archived owner", "condition_cel": "", "assign_user_id": self.officer.id})
+        )
+        self.officer.sudo().write({"active": False})
+
+        with self.assertLogs("odoo.addons.spp_grm_cel.models.grm_escalation_rule", level="WARNING") as cm:
+            self.env[ESCALATION].sudo().check_escalations()
+        self.assertTrue(any("archived user" in line for line in cm.output), cm.output)
+        officer_ticket.invalidate_recordset()
+        self.assertFalse(officer_ticket.is_escalated)
+        self.assertEqual(esc_rule.escalation_count, 0)
+
+        with self.assertLogs("odoo.addons.spp_grm_cel.models.grm_routing_rule", level="WARNING") as cm:
+            routed = self.env["spp.grm.ticket"].create(
+                {
+                    "name": "New ticket",
+                    "description": "Routed after the owner was archived",
+                    "partner_id": self.foreign_ticket.partner_id.id,
+                    "team_id": self.team_a.id,
+                }
+            )
+        self.assertTrue(any("archived user" in line for line in cm.output), cm.output)
+        self.assertNotEqual(routed.user_id, self.officer)
+        self.assertNotEqual(routed.routing_rule_id, route_rule)
+
     def test_escalation_counter_increments_under_owner_identity(self):
         """The escalation counter is incremented (atomically) when a manager's
         rule applies via the elevated path. Applied to one explicit ticket —
@@ -226,9 +292,12 @@ class TestGRMRuleOwnerIdentity(TransactionCase):
             .create({"name": "Counter rule", "condition_cel": "", "escalate_severity": "high"})
         )
         before = rule.escalation_count
-        self.env[ESCALATION].sudo().apply_escalations(self.foreign_ticket)
+        applied = self.env[ESCALATION].sudo().apply_escalations(self.foreign_ticket)
+        self.assertTrue(applied)
         rule.invalidate_recordset()
         self.assertEqual(rule.escalation_count, before + 1)
+        self.foreign_ticket.invalidate_recordset()
+        self.assertTrue(self.foreign_ticket.is_escalated)
 
     def test_entry_points_not_rpc_callable(self):
         """#381: all four rule-engine methods must be rejected for RPC dispatch."""

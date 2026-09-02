@@ -37,7 +37,10 @@ def migrate(cr, version):
     # Rules created from privileged contexts (odoo shell, import scripts, data
     # loads) carry create_uid = 1, and a superuser owner evaluates with record
     # rules bypassed (with_user(SUPERUSER_ID) is always superuser mode). Call
-    # these out specifically: they stay unbounded until re-saved by a real user.
+    # these out specifically: they stay unbounded until a real user takes
+    # ownership (the "Take Ownership" button on the rule form, or a change to
+    # the rule's condition/targets — a plain re-save sends no fields and does
+    # not re-bind).
     cr.execute(
         "SELECT id, name FROM spp_grm_routing_rule WHERE eval_as_user_id = 1 "
         "UNION ALL "
@@ -47,8 +50,8 @@ def migrate(cr, version):
     if superuser_rules:
         _logger.warning(
             "%s GRM rule(s) are owned by the superuser and will evaluate WITHOUT "
-            "record-rule bounds: %s. Re-save each as the user who should own it "
-            "to scope its evaluation.",
+            "record-rule bounds: %s. Have the user who should own each rule open it "
+            'and use "Take Ownership" (or edit its condition/targets) to scope its evaluation.',
             len(superuser_rules),
             ", ".join(f"{name!r} (id {rid})" for rid, name in superuser_rules),
         )

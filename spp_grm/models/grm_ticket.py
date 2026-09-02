@@ -536,10 +536,30 @@ class SPPGRMTicket(models.Model):
             # Trigger escalation when status transitions to 'breached'
             # Only trigger if the status actually changed to breached (not already breached)
             if ticket.sla_status == "breached" and old_status != "breached":
-                # Use sudo() to call _on_sla_breach in a new environment context
-                # to avoid triggering compute dependencies during the compute itself
-                # nosemgrep: semgrep.odoo-sudo-without-context
-                ticket.sudo()._on_sla_breach()
+                ticket._schedule_sla_breach()
+
+    def _schedule_sla_breach(self):
+        """Queue ``_on_sla_breach`` for these tickets once the compute is over.
+
+        The breach hook drives the escalation engine: ticket writes, chatter
+        posts and savepoints that flush and may roll back. None of that may run
+        inside a stored compute, so it is deferred to the transaction's
+        precommit stage and runs at the next full flush/commit, still in the
+        same transaction (the way mail.thread defers its tracking messages).
+        """
+        pending = self.env.cr.precommit.data.setdefault("spp_grm.sla_breach_ids", set())
+        pending.update(self.ids)
+        self.env.cr.precommit.add(self._run_sla_breach_hooks)
+
+    def _run_sla_breach_hooks(self):
+        """Precommit callback: run the breach hook for every ticket queued so far."""
+        pending = self.env.cr.precommit.data.pop("spp_grm.sla_breach_ids", set())
+        if not pending:
+            return
+        # Breach handling runs elevated, as it always did; every escalation
+        # rule effect is bounded by the rule owner's identity, not by this env.
+        # nosemgrep: semgrep.odoo-sudo-without-context
+        self.browse(sorted(pending)).exists().sudo()._on_sla_breach()
 
     def _on_sla_breach(self):
         """Called when ticket SLA status changes to breached.

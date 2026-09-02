@@ -24,6 +24,16 @@
         <field name="model">spp.grm.escalation.rule</field>
         <field name="arch" type="xml">
             <form string="Escalation Rule">
+                <header>
+                    <button
+                        name="action_take_ownership"
+                        type="object"
+                        string="Take Ownership"
+                        groups="spp_grm.group_grm_officer"
+                        confirm="From now on this rule will evaluate with your own ticket visibility, and act only on tickets you can see. Continue?"
+                        help="Re-bind the rule's evaluation identity to yourself. Use this for rules owned by the superuser, by an archived user, or by someone whose ticket scope no longer fits."
+                    />
+                </header>
                 <sheet>
                     <widget
                         name="web_ribbon"
@@ -230,6 +240,7 @@
                     type="object"
                     class="oe_stat_button"
                     icon="fa-level-up"
+                    groups="spp_grm.group_grm_officer"
                 >
                     <div class="o_field_widget o_stat_info">
                         <span class="o_stat_text">Check</span>
