@@ -248,12 +248,29 @@ class GRMRoutingRule(models.Model):
                         # Use proper CEL parser for validation
                         P.parse(rule.condition_cel)
                     # If parser not available, skip validation
-                except Exception as e:
-                    # Any parser failure (not only SyntaxError) is a bad
-                    # expression the user must fix, surfaced as a ValidationError.
+                except (SyntaxError, RecursionError) as e:
+                    # What the parser raises for an expression the user must
+                    # fix (bad syntax, or nesting past its depth limit).
                     raise ValidationError(
                         _(
                             "Invalid CEL expression in rule '%(rule_name)s': %(error)s",
+                            rule_name=rule.name,
+                            error=str(e),
+                        )
+                    ) from e
+                except Exception as e:
+                    # Anything else is a defect in the parser, not bad input:
+                    # keep the traceback in the log instead of discarding it
+                    # and blaming the user's expression.
+                    _logger.exception(
+                        "Validating the CEL expression of rule '%s' failed unexpectedly",
+                        rule.name,
+                    )
+                    raise ValidationError(
+                        _(
+                            "Could not validate the CEL expression in rule '%(rule_name)s': "
+                            "%(error)s. This is an internal error, not a problem with the "
+                            "expression; see the server log.",
                             rule_name=rule.name,
                             error=str(e),
                         )

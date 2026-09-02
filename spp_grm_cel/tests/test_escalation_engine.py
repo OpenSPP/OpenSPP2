@@ -198,6 +198,30 @@ class TestEscalationEngine(TransactionCase):
             }
         )
 
+    @mute_logger(ESC_LOGGER)
+    def test_case_creation_without_a_real_case_worker_rolls_back(self):
+        """spp.case requires a case worker, and an unassigned ticket under a
+        superuser-owned rule (the shell/data-load case) resolves it to
+        __system__ — an inactive non-human account. Refuse rather than file a
+        case OdooBot owns and report the escalation as applied."""
+        case_type = self.env["spp.case.type"].create({"name": "Escalation", "code": "ESC"})
+        rule = self.env[ESCALATION].create(
+            {"name": "Shell case rule", "condition_cel": "", "create_case": True, "case_type_id": case_type.id}
+        )
+        # _compute_user_id falls back to the creating user, so a ticket created
+        # from a shell/cron env is "assigned" to the superuser.
+        ticket = self._ticket("no worker")
+        self.assertEqual(ticket.user_id, self.env.ref("base.user_root"))
+
+        applied = self.env[ESCALATION].sudo().apply_escalations(ticket)
+
+        self.assertFalse(applied)
+        ticket.invalidate_recordset()
+        self.assertFalse(ticket.is_escalated)
+        rule.invalidate_recordset()
+        self.assertEqual(rule.escalation_count, 0)
+        self.assertFalse(self.env["spp.case"].sudo().search([("name", "ilike", ticket.number)]))
+
     def test_notification_sent_under_owner_identity(self):
         template = self._notification_template()
         self._officer_rule(

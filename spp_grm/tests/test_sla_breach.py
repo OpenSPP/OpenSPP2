@@ -57,12 +57,35 @@ class TestSlaBreachDeferral(TransactionCase):
         self.assertEqual(self.env.cr.precommit.data.get("spp_grm.sla_breach_ids", set()), set())
 
     def test_breach_hook_runs_once_per_ticket(self):
-        """Several schedulings within one transaction collapse into one run."""
+        """Several schedulings within one transaction collapse into one run.
+
+        The compute schedules per ticket, so the hook is queued once per
+        breached ticket. The first call drains the queue and the duplicates
+        find nothing left; counting the notes is what pins that. Asserting the
+        key is gone from ``cr.precommit.data`` would not — ``Callbacks.run()``
+        clears its data unconditionally once the callbacks have run, drained or
+        not.
+        """
         self.env.flush_all()
         before = self._breach_notes()
         self.tickets[0].write({"category_id": self.past.id})
         self.tickets[1].write({"category_id": self.past.id})
         self.env.cr.flush()
-        self.assertEqual(self._breach_notes() - before, 2)
-        # Nothing left queued.
-        self.assertNotIn("spp_grm.sla_breach_ids", self.env.cr.precommit.data)
+        self.assertEqual(
+            self._breach_notes() - before,
+            2,
+            "the queue was not drained: a duplicate hook re-posted for tickets already handled",
+        )
+
+    def test_a_later_breach_only_handles_the_new_ticket(self):
+        """A breach later in the same transaction posts for the new ticket
+        only: the tickets handled by the earlier flush are not revisited."""
+        self.env.flush_all()
+        before = self._breach_notes()
+        self.tickets[0].write({"category_id": self.past.id})
+        self.env.cr.flush()
+        self.assertEqual(self._breach_notes() - before, 1)
+
+        self.tickets[1].write({"category_id": self.past.id})
+        self.env.cr.flush()
+        self.assertEqual(self._breach_notes() - before, 2, "the first ticket's breach note was posted twice")

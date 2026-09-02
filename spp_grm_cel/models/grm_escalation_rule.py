@@ -236,12 +236,29 @@ class GRMEscalationRule(models.Model):
                         # Use proper CEL parser for validation
                         P.parse(rule.condition_cel)
                     # If parser not available, skip validation
-                except Exception as e:
-                    # Any parser failure (not only SyntaxError) is a bad
-                    # expression the user must fix, surfaced as a ValidationError.
+                except (SyntaxError, RecursionError) as e:
+                    # What the parser raises for an expression the user must
+                    # fix (bad syntax, or nesting past its depth limit).
                     raise ValidationError(
                         _(
                             "Invalid CEL expression in rule '%(rule_name)s': %(error)s",
+                            rule_name=rule.name,
+                            error=str(e),
+                        )
+                    ) from e
+                except Exception as e:
+                    # Anything else is a defect in the parser, not bad input:
+                    # keep the traceback in the log instead of discarding it
+                    # and blaming the user's expression.
+                    _logger.exception(
+                        "Validating the CEL expression of rule '%s' failed unexpectedly",
+                        rule.name,
+                    )
+                    raise ValidationError(
+                        _(
+                            "Could not validate the CEL expression in rule '%(rule_name)s': "
+                            "%(error)s. This is an internal error, not a problem with the "
+                            "expression; see the server log.",
                             rule_name=rule.name,
                             error=str(e),
                         )
@@ -527,6 +544,28 @@ class GRMEscalationRule(models.Model):
             )
             return
 
+        # spp.case requires a case worker, and it has to be a real person who
+        # is answerable for the case. The candidates are the ticket assignee
+        # and, failing that, whoever the rule evaluates as — but a superuser
+        # owner (a rule created from a shell, import or data load) resolves to
+        # __system__, an inactive non-human account, and an archived assignee
+        # is no better. Raised before the savepoint below so the caller rolls
+        # the escalation back rather than reporting it applied with the case
+        # filed under OdooBot.
+        case_worker = ticket.user_id or self.env.user
+        if case_worker.id == SUPERUSER_ID or not case_worker.active:
+            raise UserError(
+                _(
+                    "Escalation rule '%(rule_name)s' creates a case but has no one to assign "
+                    "it to: ticket %(ticket_number)s resolves to %(worker)s, which is not a "
+                    'real active user. Assign the ticket, or use "Take Ownership" on the rule '
+                    "as the user who should own it.",
+                    rule_name=self.name,
+                    ticket_number=ticket.number,
+                    worker=case_worker.display_name,
+                )
+            )
+
         try:
             with self.env.cr.savepoint():
                 case = self.env["spp.case"].create(
@@ -535,9 +574,8 @@ class GRMEscalationRule(models.Model):
                         "case_type_id": self.case_type_id.id,
                         "partner_id": ticket.partner_id.id,
                         "presenting_issue": ticket.description,
-                        # Required on spp.case: the ticket assignee, else whoever
-                        # the rule evaluates as (an internal user).
-                        "case_worker_id": (ticket.user_id or self.env.user).id,
+                        # Required on spp.case; resolved and vetted above.
+                        "case_worker_id": case_worker.id,
                     }
                 )
 

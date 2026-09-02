@@ -398,3 +398,25 @@ class TestEscalationRules(TransactionCase):
         self.assertFalse(ticket_low.is_escalated)
         self.assertTrue(ticket_high.is_escalated)
         self.assertEqual(ticket_high.team_id, self.team2)
+
+    def test_unexpected_parser_failure_is_logged_not_blamed_on_the_expression(self):
+        """A defect inside the parser (not a bad expression) must keep its
+        traceback in the log instead of being reported to the user as their own
+        invalid CEL."""
+        from unittest.mock import Mock, patch
+
+        from odoo.exceptions import ValidationError
+
+        from odoo.addons.spp_grm_cel.models import grm_escalation_rule
+
+        parser = Mock()
+        parser.parse.side_effect = TypeError("parser defect")
+        with (
+            patch.object(grm_escalation_rule, "P", parser),
+            self.assertLogs("odoo.addons.spp_grm_cel.models.grm_escalation_rule", level="ERROR") as cm,
+            self.assertRaises(ValidationError) as caught,
+        ):
+            self.EscalationRule.create({"name": "Parser Bug", "condition_cel": "severity == 'critical'"})
+
+        self.assertIn("internal error", str(caught.exception))
+        self.assertTrue(any("Traceback" in line for line in cm.output), cm.output)
