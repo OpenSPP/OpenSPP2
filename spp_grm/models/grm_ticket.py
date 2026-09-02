@@ -546,10 +546,19 @@ class SPPGRMTicket(models.Model):
         inside a stored compute, so it is deferred to the transaction's
         precommit stage and runs at the next full flush/commit, still in the
         same transaction (the way mail.thread defers its tracking messages).
+
+        Pseudo-records are dropped first. A stored compute also runs on the
+        unsaved record of a form onchange, and ``ids`` resolves those to their
+        origin, so queueing them would run the breach hook — escalation engine
+        included — against the real ticket for an edit that was never saved.
+        A NewId is falsy, so ``ticket.id`` tells the two apart.
         """
+        tickets = self.filtered(lambda ticket: ticket.id)
+        if not tickets:
+            return
         pending = self.env.cr.precommit.data.setdefault("spp_grm.sla_breach_ids", set())
-        pending.update(self.ids)
-        self.env.cr.precommit.add(self._run_sla_breach_hooks)
+        pending.update(tickets.ids)
+        self.env.cr.precommit.add(tickets._run_sla_breach_hooks)
 
     def _run_sla_breach_hooks(self):
         """Precommit callback: run the breach hook for every ticket queued so far."""

@@ -10,7 +10,9 @@
 - fix: SLA-breach handling (auto-escalation and the breach chatter note) no longer runs inside
   the stored ``sla_status`` compute. It is deferred to the end of the triggering transaction, so
   the escalation engine's writes, savepoints and flushes never execute mid-computation. Same
-  transaction, same outcome.
+  transaction, same outcome. An unsaved form edit queues nothing: the compute also runs on the
+  pseudo-record of an onchange, whose ids resolve back to the real ticket, which would have
+  escalated it for a change the user never saved.
 
 ### 19.0.2.0.1
 

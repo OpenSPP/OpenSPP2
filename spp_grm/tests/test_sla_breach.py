@@ -7,7 +7,7 @@ escalation engine writes, posts to chatter and uses savepoints, none of which
 may run mid-computation.
 """
 
-from odoo.tests import TransactionCase, tagged
+from odoo.tests import Form, TransactionCase, tagged
 
 
 @tagged("post_install", "-at_install")
@@ -43,6 +43,18 @@ class TestSlaBreachDeferral(TransactionCase):
         # cr.flush() is what commit does: pending computes, then precommit hooks.
         self.env.cr.flush()
         self.assertEqual(self._breach_notes() - before, 2)
+
+    def test_form_onchange_does_not_queue_unsaved_records(self):
+        """``sla_status`` is a stored compute shown on the ticket form, so it
+        also runs on the unsaved pseudo-record of an onchange. Those pseudo-ids
+        must not reach the queue: ``exists()`` keeps new records by convention,
+        so the hook would drive the escalation engine — counter, chatter,
+        notification — from a form edit that was never saved."""
+        self.env.flush_all()
+        form = Form(self.tickets[0])
+        form.category_id = self.past
+        self.assertEqual(form.sla_status, "breached", "the compute must still run on the pseudo-record")
+        self.assertEqual(self.env.cr.precommit.data.get("spp_grm.sla_breach_ids", set()), set())
 
     def test_breach_hook_runs_once_per_ticket(self):
         """Several schedulings within one transaction collapse into one run."""
