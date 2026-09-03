@@ -151,7 +151,7 @@ class TestDemoSetup(TransactionCase):
         """
         admin = self.env.ref("base.user_admin")
         roots, menus = self._loaded_root_menus(admin)
-        for expected in ["Registry", "Programs", "Area", "Helpdesk", "Audit Log", "Approvals"]:
+        for expected in ["Registry", "Programs", "Area", "Helpdesk", "Audit Log", "Approvals", "Change Requests"]:
             self.assertIn(expected, roots, f"'{expected}' root menu missing for admin")
 
         registry_root = self.env.ref("spp_registry.spp_main_menu_root")
@@ -173,8 +173,33 @@ class TestDemoSetup(TransactionCase):
                 f"demo user {login} is not an internal user and cannot use the back office",
             )
             roots, _ = self._loaded_root_menus(user)
-            for expected in ("Programs", "Registry"):
+            for expected in ("Programs", "Registry", "Change Requests"):
                 self.assertIn(expected, roots, f"'{expected}' missing for {login}")
+
+    def test_change_request_beat(self):
+        """Base change-request types carry an approval workflow, and one
+        request awaits the manager: officer submits, manager approves."""
+        CRType = self.env["spp.change.request.type"]
+        for code in ("edit_individual", "edit_group", "update_id"):
+            cr_type = CRType.search([("code", "=", code)], limit=1)
+            self.assertTrue(cr_type, f"CR type {code} missing")
+            self.assertEqual(cr_type.approval_definition_id.approval_group_id.name, "Validator")
+        # The advanced pack is deliberately not part of the demo.
+        self.assertFalse(CRType.search([("code", "=", "exit_registrant")]))
+        pending = self.env["spp.change.request"].search([("approval_state", "=", "pending")])
+        self.assertEqual(len(pending), 1)
+        self.assertEqual(pending.request_type_id.code, "edit_individual")
+        self.assertEqual(pending.registrant_id.name, "Mother One")
+        self.assertTrue(pending.approval_review_ids.filtered(lambda r: r.status == "pending"))
+        detail = pending.get_detail()
+        self.assertEqual(detail.phone, "+000 17 654 321")
+        # Master record untouched until approved.
+        self.assertNotEqual(pending.registrant_id.phone, "+000 17 654 321")
+        officer = self.env["res.users"].search([("login", "=", "officer")], limit=1)
+        manager = self.env["res.users"].search([("login", "=", "manager")], limit=1)
+        self.assertEqual(pending.create_uid, officer)
+        self.assertFalse(officer.has_group("spp_change_request_v2.group_cr_validator"))
+        self.assertTrue(manager.has_group("spp_change_request_v2.group_cr_validator"))
 
     def test_portal_grievance_acl_hardened(self):
         """F1: the portal login must not be able to read other people's

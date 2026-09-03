@@ -6,7 +6,7 @@
         <field name="password">Cbp-Officer-Demo-2026!</field>
         <field
             name="group_ids"
-            eval="[Command.link(ref('base.group_user')), Command.link(ref('spp_programs.group_programs_officer')), Command.link(ref('spp_registry.group_registry_officer'))]"
+            eval="[Command.link(ref('base.group_user')), Command.link(ref('spp_programs.group_programs_officer')), Command.link(ref('spp_registry.group_registry_officer')), Command.link(ref('spp_change_request_v2.group_cr_user'))]"
         />
     </record>
     <record id="user_programme_manager" model="res.users">
@@ -15,7 +15,7 @@
         <field name="password">Cbp-Manager-Demo-2026!</field>
         <field
             name="group_ids"
-            eval="[Command.link(ref('base.group_user')), Command.link(ref('spp_programs.group_programs_manager')), Command.link(ref('spp_registry.group_registry_manager'))]"
+            eval="[Command.link(ref('base.group_user')), Command.link(ref('spp_programs.group_programs_manager')), Command.link(ref('spp_registry.group_registry_manager')), Command.link(ref('spp_change_request_v2.group_cr_manager'))]"
         />
     </record>
 </odoo>

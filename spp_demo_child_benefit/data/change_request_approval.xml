@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Change requests: the officer submits, the programme manager approves.
+         The base change-request types ship without an approval workflow, so
+         attach one here; without it a submission is refused. -->
+    <data noupdate="1">
+        <record id="approval_definition_change_request" model="spp.approval.definition">
+            <field name="name">Change Request Approval (Programme Manager)</field>
+            <field
+                name="model_id"
+                ref="spp_change_request_v2.model_spp_change_request"
+            />
+            <field name="approval_type">group</field>
+            <field
+                name="approval_group_id"
+                ref="spp_change_request_v2.group_cr_validator"
+            />
+            <field name="notify_on_submit" eval="True" />
+            <field name="notify_on_approve" eval="True" />
+            <field name="notify_on_reject" eval="True" />
+            <field name="sla_days">3</field>
+        </record>
+    </data>
+
+    <!-- Link the base types to the workflow. Not noupdate: an upgrade must
+         (re)apply the link on a database where the types already exist. -->
+    <data>
+        <record
+            id="spp_cr_types_base.cr_type_edit_individual"
+            model="spp.change.request.type"
+        >
+            <field
+                name="approval_definition_id"
+                ref="approval_definition_change_request"
+            />
+        </record>
+        <record
+            id="spp_cr_types_base.cr_type_edit_group"
+            model="spp.change.request.type"
+        >
+            <field
+                name="approval_definition_id"
+                ref="approval_definition_change_request"
+            />
+        </record>
+        <record
+            id="spp_cr_types_base.cr_type_update_id"
+            model="spp.change.request.type"
+        >
+            <field
+                name="approval_definition_id"
+                ref="approval_definition_change_request"
+            />
+        </record>
+    </data>
+</odoo>

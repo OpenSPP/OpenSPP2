@@ -140,6 +140,7 @@ def create_demo_environment(env):
     families = _create_families(env)
     _enroll_and_open_cycle(env, program)
     _create_grievances(env, families)
+    _create_change_request(env, families)
     _create_portal_users(env)
     _logger.info("Child benefit demo setup complete")
     return True
@@ -548,6 +549,39 @@ def _enroll_and_open_cycle(env, program):
             env["spp.cycle.membership"].create({"partner_id": child.id, "cycle_id": cycle.id, "state": "enrolled"})
             members += 1
     _logger.info("Enrolled %s children in the programme; %s in the %s", len(children), members, DEMO_CYCLE_NAME)
+
+
+def _create_change_request(env, families):
+    """One pending change request, submitted by the officer, for the
+    programme manager to review live: the first family's mother reports a
+    new phone number and address."""
+    cr_type = env.ref("spp_cr_types_base.cr_type_edit_individual", raise_if_not_found=False)
+    mothers = families[0].group_membership_ids.mapped("individual").filtered(lambda p: p.name.startswith("Mother"))
+    officer = env["res.users"].search([("login", "=", "officer")], limit=1)
+    if not cr_type or not mothers or not officer:
+        return
+    ChangeRequest = env["spp.change.request"].with_user(officer)
+    if ChangeRequest.search_count([("registrant_id", "=", mothers[0].id)]):
+        return
+    cr = ChangeRequest.create(
+        {
+            "request_type_id": cr_type.id,
+            "registrant_id": mothers[0].id,
+            "applicant_id": mothers[0].id,
+            "description": "Mother moved house and changed her phone number; details from the visit of the officer.",
+        }
+    )
+    detail = cr.get_detail()
+    detail._onchange_registrant_id()
+    detail.write(
+        {
+            "phone": "+000 17 654 321",
+            "address_line1": "12 Riverside Lane",
+            "city": "Central District",
+        }
+    )
+    cr.action_submit_for_approval()
+    _logger.info("Submitted demo change request %s for approval", cr.name)
 
 
 def _create_grievances(env, families):
