@@ -9,6 +9,7 @@ Pack format (every key optional):
 
     {
       "programme_name": "…",
+      "company": {"name": "…", "country": "XX"},
       "currency": "XYZ",
       "banks":   {"National Commercial Bank": "…"},
       "areas":   {"CR-HD-RV": "…"},
@@ -43,6 +44,44 @@ class DemoLocalization(models.AbstractModel):
             raise UserError(_("The localization pack must be a JSON object."))
         return pack
 
+    def _apply_company_and_currency(self, pack, program, summary):
+        """Company identity (name, country) and the currency shown everywhere
+        the demo shows money: company, programme, journal (fund, entitlements
+        and cycles relate to those)."""
+        env = self.env
+        company = env.company
+        company_pack = pack.get("company") or {}
+        if company_pack.get("name"):
+            company.name = company_pack["name"]
+            # The company partner is what reports and portal footers display.
+            company.partner_id.name = company_pack["name"]
+            summary.append(_("company renamed"))
+        if company_pack.get("country"):
+            country = env["res.country"].search([("code", "=", company_pack["country"].upper())], limit=1)
+            if country:
+                company.country_id = country.id
+                company.partner_id.country_id = country.id
+                summary.append(_("country set to %s") % country.name)
+
+        currency_code = pack.get("currency")
+        if currency_code:
+            currency = (
+                env["res.currency"].with_context(active_test=False).search([("name", "=", currency_code)], limit=1)
+            )
+            if currency:
+                if not currency.active:
+                    currency.active = True
+                # The company currency can only move while no journal items
+                # exist; the demo has none until a payment run is posted.
+                existing_accounting = getattr(company.root_id, "_existing_accounting", None)
+                if company.currency_id != currency and not (existing_accounting and existing_accounting()):
+                    company.currency_id = currency.id
+                if program:
+                    program.currency_id = currency.id
+                    if program.journal_id:
+                        program.journal_id.currency_id = currency.id
+                summary.append(_("currency set to %s") % currency_code)
+
     def apply_pack(self, raw):
         """Apply a localization pack. Idempotent — renames already applied are
         simply not found the second time."""
@@ -56,17 +95,7 @@ class DemoLocalization(models.AbstractModel):
             program.name = programme_name
             summary.append(_("programme renamed"))
 
-        currency_code = pack.get("currency")
-        if currency_code:
-            currency = (
-                env["res.currency"].with_context(active_test=False).search([("name", "=", currency_code)], limit=1)
-            )
-            if currency:
-                if not currency.active:
-                    currency.active = True
-                if program and program.journal_id:
-                    program.journal_id.currency_id = currency.id
-                summary.append(_("currency set to %s") % currency_code)
+        self._apply_company_and_currency(pack, program, summary)
 
         for old, new in (pack.get("banks") or {}).items():
             bank = env["res.bank"].search([("name", "=", old)], limit=1)

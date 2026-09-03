@@ -9,6 +9,8 @@ from odoo.addons.spp_demo_child_benefit.models.demo_setup import expected_qualif
 
 PACK = {
     "programme_name": "Localized Benefit Programme",
+    "currency": "BTN",
+    "company": {"name": "Localized Agency", "country": "BT"},
     "banks": {"National Commercial Bank": "First Localized Bank"},
     "areas": {"CR": "Localized Region"},
     "mothers": ["Localized Mother A"],
@@ -57,6 +59,19 @@ class TestDemoSettings(TransactionCase):
         self.assertEqual(localized_mother.given_name, "Localized")
         self.assertEqual(localized_mother.family_name, "Mother A")
         self.assertTrue(Partner.search([("name", "=", "Localized Family")]))
+        # Company identity and currency follow the pack; every currency the
+        # demo shows (company, programme, journal, fund, cycle) agrees.
+        company = self.env.company
+        btn = self.env["res.currency"].search([("name", "=", "BTN")])
+        self.assertTrue(btn.active)
+        self.assertEqual(company.name, "Localized Agency")
+        self.assertEqual(company.country_id.code, "BT")
+        self.assertEqual(company.currency_id, btn)
+        program = self.env["spp.program"].search([("name", "=", "Localized Benefit Programme")])
+        self.assertEqual(program.currency_id, btn)
+        self.assertEqual(program.journal_id.currency_id, btn)
+        self.assertEqual(program.cycle_ids[:1].currency_id, btn)
+        self.assertEqual(self.env["spp.program.fund"].search([("program_id", "=", program.id)])[:1].currency_id, btn)
 
         # Pack persists beyond the transient settings record...
         fresh = self.env["res.config.settings"].create({})
