@@ -13,7 +13,7 @@ PNG_1PX = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwACh
 PACK = {
     "programme_name": "Localized Benefit Programme",
     "currency": "BTN",
-    "company": {"name": "Localized Agency", "country": "BT", "logo": PNG_1PX},
+    "company": {"name": "Localized Agency", "country": "BT", "logo": PNG_1PX, "appbar_image": PNG_1PX},
     "theme": {"appbar_background": "#112233", "appbar_active": "#445566", "brand": "#778899", "primary": "#8899AA"},
     "banks": {"National Commercial Bank": "First Localized Bank"},
     "areas": {"CR": "Localized Region"},
@@ -72,6 +72,7 @@ class TestDemoSettings(TransactionCase):
         self.assertEqual(company.country_id.code, "BT")
         self.assertEqual(company.currency_id, btn)
         self.assertEqual(company.logo.decode(), PNG_1PX)
+        self.assertEqual(company.appbar_image.decode(), PNG_1PX)
         # Theme colours land in the theme's runtime settings (light mode) and
         # therefore in the customized SCSS the bundle compiles from.
         current = self.env["res.config.settings"].create({}).get_values()

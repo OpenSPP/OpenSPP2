@@ -9,7 +9,8 @@ Pack format (every key optional):
 
     {
       "programme_name": "…",
-      "company": {"name": "…", "country": "XX", "logo": "<base64 PNG/JPEG>"},
+      "company": {"name": "…", "country": "XX", "logo": "<base64 PNG/JPEG>",
+                  "appbar_image": "<base64 PNG, shown at the foot of the apps sidebar>"},
       "theme": {"appbar_background": "#rrggbb", "appbar_text": "…", "appbar_active": "…",
                 "appsmenu_text": "…", "brand": "…", "primary": "…",
                 "success": "…", "info": "…", "warning": "…", "danger": "…"},
@@ -76,6 +77,14 @@ class DemoLocalization(models.AbstractModel):
                 raise UserError(_("The localization pack's company logo is not valid base64.")) from err
             company.logo = base64.b64encode(logo)
             summary.append(_("logo set"))
+        # Apps-sidebar footer image (a theme field; skipped when the theme is absent).
+        if company_pack.get("appbar_image") and "appbar_image" in company._fields:
+            try:
+                image = base64.b64decode(company_pack["appbar_image"], validate=True)
+            except (ValueError, binascii.Error) as err:
+                raise UserError(_("The localization pack's sidebar image is not valid base64.")) from err
+            company.appbar_image = base64.b64encode(image)
+            summary.append(_("sidebar image set"))
 
         currency_code = pack.get("currency")
         if currency_code:
