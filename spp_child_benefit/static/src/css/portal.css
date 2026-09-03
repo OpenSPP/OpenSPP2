@@ -47,15 +47,18 @@
 }
 .o_portal_wrap .btn-primary,
 .o_portal_wrap .btn-primary:active {
+    color: #fff;
     background-color: var(--spp-primary);
     border-color: var(--spp-primary);
 }
 .o_portal_wrap .btn-primary:hover,
 .o_portal_wrap .btn-primary:focus {
+    color: #fff;
     background-color: var(--spp-primary-dark);
     border-color: var(--spp-primary-dark);
 }
-.o_portal_wrap a {
+/* Text links only: anchor buttons keep Bootstrap's button text colours. */
+.o_portal_wrap a:not(.btn) {
     color: var(--spp-primary);
 }
 
