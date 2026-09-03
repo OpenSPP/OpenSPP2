@@ -9,7 +9,7 @@ Pack format (every key optional):
 
     {
       "programme_name": "…",
-      "company": {"name": "…", "country": "XX"},
+      "company": {"name": "…", "country": "XX", "logo": "<base64 PNG/JPEG>"},
       "currency": "XYZ",
       "banks":   {"National Commercial Bank": "…"},
       "areas":   {"CR-HD-RV": "…"},
@@ -20,6 +20,8 @@ Pack format (every key optional):
     }
 """
 
+import base64
+import binascii
 import json
 import logging
 
@@ -62,6 +64,14 @@ class DemoLocalization(models.AbstractModel):
                 company.country_id = country.id
                 company.partner_id.country_id = country.id
                 summary.append(_("country set to %s") % country.name)
+        if company_pack.get("logo"):
+            # The company logo feeds the login page, the portal header and reports.
+            try:
+                logo = base64.b64decode(company_pack["logo"], validate=True)
+            except (ValueError, binascii.Error) as err:
+                raise UserError(_("The localization pack's company logo is not valid base64.")) from err
+            company.logo = base64.b64encode(logo)
+            summary.append(_("logo set"))
 
         currency_code = pack.get("currency")
         if currency_code:

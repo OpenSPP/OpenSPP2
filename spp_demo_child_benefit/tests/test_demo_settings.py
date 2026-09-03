@@ -7,10 +7,13 @@ from odoo.tests.common import TransactionCase, tagged
 
 from odoo.addons.spp_demo_child_benefit.models.demo_setup import expected_qualified_count
 
+# 1x1 transparent PNG
+PNG_1PX = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+
 PACK = {
     "programme_name": "Localized Benefit Programme",
     "currency": "BTN",
-    "company": {"name": "Localized Agency", "country": "BT"},
+    "company": {"name": "Localized Agency", "country": "BT", "logo": PNG_1PX},
     "banks": {"National Commercial Bank": "First Localized Bank"},
     "areas": {"CR": "Localized Region"},
     "mothers": ["Localized Mother A"],
@@ -67,6 +70,7 @@ class TestDemoSettings(TransactionCase):
         self.assertEqual(company.name, "Localized Agency")
         self.assertEqual(company.country_id.code, "BT")
         self.assertEqual(company.currency_id, btn)
+        self.assertEqual(company.logo.decode(), PNG_1PX)
         program = self.env["spp.program"].search([("name", "=", "Localized Benefit Programme")])
         self.assertEqual(program.currency_id, btn)
         self.assertEqual(program.journal_id.currency_id, btn)
@@ -80,6 +84,12 @@ class TestDemoSettings(TransactionCase):
         # ...and re-applying is harmless (idempotent renames find nothing).
         fresh.action_apply_demo_localization()
         self.assertEqual(self.env["spp.program"].search_count([("name", "=", "Localized Benefit Programme")]), 1)
+
+    def test_invalid_logo_rejected(self):
+        bad = dict(PACK, company={"name": "X", "logo": "not base64!!"})
+        self.settings.demo_localization_file = base64.b64encode(json.dumps(bad).encode())
+        with self.assertRaises(UserError):
+            self.settings.action_apply_demo_localization()
 
     def test_apply_without_pack_raises(self):
         # Ensure no stored pack from other tests leaks in (fresh attachment scan).
