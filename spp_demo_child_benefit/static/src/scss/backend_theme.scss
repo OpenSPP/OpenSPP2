@@ -14,3 +14,9 @@
 .mk_apps_sidebar_panel .mk_apps_sidebar .mk_apps_sidebar_menu > li.active > a {
     background-color: $mk-appbar-active !important;
 }
+
+// A crisp indicator on the active app, in the app bar's text colour, so the
+// selected item reads even when the active fill sits close to the bar colour.
+.mk_apps_sidebar_panel .mk_apps_sidebar .mk_apps_sidebar_menu > li.active > a {
+    box-shadow: inset 4px 0 0 $mk-appbar-color;
+}
