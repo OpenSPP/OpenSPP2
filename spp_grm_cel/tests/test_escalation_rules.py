@@ -2,7 +2,7 @@
 
 from datetime import timedelta
 
-from odoo import fields
+from odoo import Command, fields
 from odoo.tests.common import TransactionCase
 
 
@@ -12,7 +12,23 @@ class TestEscalationRules(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.EscalationRule = cls.env["spp.grm.escalation.rule"]
+        # Rules are created as a GRM manager, not via the bare test env: the
+        # test env is the superuser, and a superuser-owned rule evaluates with
+        # record rules bypassed (with_user(SUPERUSER_ID) is always superuser
+        # mode) — i.e. the pre-#379 unbounded path. Binding the handle to a
+        # manager makes every rule in this suite exercise the owner-scoped
+        # evaluation the fix introduces, with the same broad manager reach.
+        cls.rule_author = cls.env["res.users"].create(
+            {
+                "name": "Escalation Rule Author",
+                "login": "grm_escalation_rule_author",
+                "group_ids": [
+                    Command.link(cls.env.ref("base.group_user").id),
+                    Command.link(cls.env.ref("spp_grm.group_grm_manager").id),
+                ],
+            }
+        )
+        cls.EscalationRule = cls.env["spp.grm.escalation.rule"].with_user(cls.rule_author)
         cls.Ticket = cls.env["spp.grm.ticket"]
         cls.Team = cls.env["spp.grm.team"]
         cls.User = cls.env["res.users"]
@@ -382,3 +398,25 @@ class TestEscalationRules(TransactionCase):
         self.assertFalse(ticket_low.is_escalated)
         self.assertTrue(ticket_high.is_escalated)
         self.assertEqual(ticket_high.team_id, self.team2)
+
+    def test_unexpected_parser_failure_is_logged_not_blamed_on_the_expression(self):
+        """A defect inside the parser (not a bad expression) must keep its
+        traceback in the log instead of being reported to the user as their own
+        invalid CEL."""
+        from unittest.mock import Mock, patch
+
+        from odoo.exceptions import ValidationError
+
+        from odoo.addons.spp_grm_cel.models import grm_escalation_rule
+
+        parser = Mock()
+        parser.parse.side_effect = TypeError("parser defect")
+        with (
+            patch.object(grm_escalation_rule, "P", parser),
+            self.assertLogs("odoo.addons.spp_grm_cel.models.grm_escalation_rule", level="ERROR") as cm,
+            self.assertRaises(ValidationError) as caught,
+        ):
+            self.EscalationRule.create({"name": "Parser Bug", "condition_cel": "severity == 'critical'"})
+
+        self.assertIn("internal error", str(caught.exception))
+        self.assertTrue(any("Traceback" in line for line in cm.output), cm.output)

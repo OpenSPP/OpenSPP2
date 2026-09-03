@@ -3,7 +3,7 @@ access_spp_grm_ticket_viewer,GRM Ticket Viewer Access,model_spp_grm_ticket,group
 access_spp_grm_ticket_officer,GRM Ticket Officer Access,model_spp_grm_ticket,group_grm_officer,1,1,1,0
 access_spp_grm_ticket_manager,GRM Ticket Manager Access,model_spp_grm_ticket,group_grm_manager,1,1,1,1
 access_spp_grm_ticket_base_user,GRM Ticket Base User Access,model_spp_grm_ticket,base.group_user,1,0,0,0
-access_spp_grm_ticket_portal_user,GRM Ticket Portal User Access,model_spp_grm_ticket,base.group_portal,1,1,1,0
+access_spp_grm_ticket_portal_user,GRM Ticket Portal User Access,model_spp_grm_ticket,base.group_portal,1,0,0,0
 
 access_spp_grm_ticket_stage_viewer,GRM Ticket Stage Viewer Access,model_spp_grm_ticket_stage,group_grm_viewer,1,0,0,0
 access_spp_grm_ticket_stage_officer,GRM Ticket Stage Officer Access,model_spp_grm_ticket_stage,group_grm_officer,1,0,0,0
