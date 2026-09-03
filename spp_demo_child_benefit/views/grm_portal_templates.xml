@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Grievance form: which family member the request concerns. The
+         submitter is preselected; the options are the live members of their
+         family, computed and validated by the controller. -->
+    <template
+        id="portal_create_ticket_family_member"
+        inherit_id="spp_grm.portal_create_ticket"
+    >
+        <xpath expr="//div[label[@for='category_id']]" position="before">
+            <div class="mb-3" t-if="family_members">
+                <label
+                    for="registrant_id"
+                    class="form-label"
+                >This request concerns</label>
+                <select id="registrant_id" name="registrant_id" class="form-select">
+                    <t t-foreach="family_members" t-as="member">
+                        <option
+                            t-att-value="member.id"
+                            t-att-selected="'selected' if member == default_member else None"
+                        >
+                            <t t-out="member.name" />
+                            <t t-if="member == default_member"> (myself)</t>
+                        </option>
+                    </t>
+                </select>
+                <div
+                    class="form-text"
+                >Yourself, or a member of your family on whose behalf you are filing.</div>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- Ticket list: show who each ticket concerns. -->
+    <template
+        id="portal_my_tickets_family_member"
+        inherit_id="spp_grm.portal_my_tickets"
+    >
+        <xpath expr="//thead/tr/th[2]" position="after">
+            <th>Concerns</th>
+        </xpath>
+        <xpath expr="//tbody//tr/td[2]" position="after">
+            <td>
+                <!-- The registrant may be another family member, whom the
+                     portal user cannot read directly; only the name is shown. -->
+                <t t-if="ticket.registrant_id">
+                    <span t-out="ticket.sudo().registrant_id.name" />
+                </t>
+                <t t-else="">
+                    <em>-</em>
+                </t>
+            </td>
+        </xpath>
+    </template>
+</odoo>

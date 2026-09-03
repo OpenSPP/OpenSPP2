@@ -130,6 +130,12 @@ class TestDemoSetup(TransactionCase):
         gurung = self.env["res.users"].search([("login", "=", "gurung")], limit=1)
         self.assertEqual(open_ticket.partner_id, parent.partner_id)
         self.assertEqual(resolved.partner_id, gurung.partner_id)
+        # Registrant and household are what the registrant/family records
+        # count, so both seeded tickets must carry them.
+        for ticket in tickets:
+            self.assertEqual(ticket.registrant_id, ticket.partner_id)
+            self.assertTrue(ticket.household_id.is_group)
+            self.assertIn(ticket.registrant_id, ticket.household_id.group_membership_ids.mapped("individual"))
 
     def _loaded_root_menus(self, user):
         menus = self.env["ir.ui.menu"].with_user(user).load_menus(False)

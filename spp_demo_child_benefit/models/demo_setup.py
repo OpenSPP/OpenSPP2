@@ -562,6 +562,8 @@ def _create_grievances(env, families):
         "description": "The benefit payment for the previous month has not arrived in my account.",
         "category_id": category.id,
         "partner_id": mothers[0].id,
+        "registrant_id": mothers[0].id,
+        "household_id": families[0].id,
         # Left unassigned for the officer to pick up; the assignee compute
         # would otherwise fall back to the installing user.
         "user_id": False,
@@ -574,6 +576,7 @@ def _create_grievances(env, families):
     # grievance history shows a completed case alongside the open one.
     resolved_by = _family_head(env, "Gurung Family")
     if resolved_by:
+        household = env["res.partner"].search([("name", "=", "Gurung Family"), ("is_group", "=", True)], limit=1)
         officer = env["res.users"].search([("login", "=", "officer")], limit=1)
         vals = {
             "name": "Child's date of birth recorded incorrectly",
@@ -581,6 +584,8 @@ def _create_grievances(env, families):
             "from the birth certificate. Please correct it.",
             "category_id": env.ref("spp_demo_child_benefit.grm_category_data").id,
             "partner_id": resolved_by.id,
+            "registrant_id": resolved_by.id,
+            "household_id": household.id,
             "resolution_summary": "Date of birth corrected against the birth certificate provided; "
             "the benefit schedule was regenerated and the family notified.",
         }
