@@ -47,6 +47,9 @@
         "web.assets_backend": [
             "spp_demo_child_benefit/static/src/scss/backend_theme.scss",
         ],
+        "web.assets_frontend": [
+            "spp_demo_child_benefit/static/src/scss/frontend_theme.scss",
+        ],
     },
     "demo": [],
     "images": [],

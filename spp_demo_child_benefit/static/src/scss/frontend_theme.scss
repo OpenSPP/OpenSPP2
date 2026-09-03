@@ -1,0 +1,62 @@
+// Login page and citizen portal follow the same runtime colour settings as
+// the back office: the theme's variables are available to the frontend
+// bundle, so nothing here carries a country's colours. Loaded after the
+// benefit portal stylesheet, whose custom properties it re-points.
+
+// Portal pages: hand the configured colours to the portal stylesheet's tokens.
+.o_portal_wrap {
+    --spp-primary: #{$mk-color-brand};
+    --spp-primary-dark: #{shade-color($mk-color-brand, 20%)};
+    --spp-accent: #{$mk-color-primary};
+}
+
+// Frontend header (portal): the app bar colours, so back office and portal
+// read as one system.
+#wrapwrap > header .navbar,
+header#top .navbar {
+    background-color: $mk-appbar-background !important;
+    border-bottom: 3px solid $mk-color-primary;
+    .navbar-brand,
+    .nav-link,
+    .dropdown-toggle,
+    .o_user_menu .oe_topbar_name {
+        color: $mk-appbar-color !important;
+    }
+    .nav-link:hover,
+    .dropdown-toggle:hover {
+        color: color-contrast($mk-appbar-background) !important;
+    }
+    .navbar-toggler {
+        border-color: rgba($mk-appbar-color, 0.4);
+    }
+}
+
+// Primary actions everywhere on the frontend (login button, portal forms).
+.btn-primary {
+    background-color: $mk-color-primary !important;
+    border-color: $mk-color-primary !important;
+    color: color-contrast($mk-color-primary) !important;
+}
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: shade-color($mk-color-primary, 15%) !important;
+    border-color: shade-color($mk-color-primary, 15%) !important;
+    color: color-contrast($mk-color-primary) !important;
+}
+.btn-link,
+a:not(.btn):not(.nav-link):not(.dropdown-item):not(.navbar-brand) {
+    color: $mk-color-brand;
+}
+.form-control:focus,
+.form-select:focus {
+    border-color: $mk-color-primary;
+    box-shadow: 0 0 0 0.2rem rgba($mk-color-primary, 0.2);
+}
+
+// Login card: a thin accent on top, the organisation's colours around it.
+.o_login_auth .card,
+.oe_login_form .card,
+.card:has(> .card-body > .oe_login_form) {
+    border-top: 4px solid $mk-color-primary;
+}
