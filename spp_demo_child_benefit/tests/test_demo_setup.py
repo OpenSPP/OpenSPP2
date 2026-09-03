@@ -98,7 +98,6 @@ class TestDemoSetup(TransactionCase):
             self.env["spp.cycle.membership"].search_count([("cycle_id", "=", cycle.id)]),
             len(july_beneficiaries),
         )
-        self.assertTrue(self.env["spp.grm.ticket"].search_count([]))
         self.assertEqual(self.env["res.users"].search_count([("login", "in", ["officer", "manager"])]), 2)
         portal_user = self.env["res.users"].search([("login", "=", "parent")])
         self.assertTrue(portal_user)
@@ -109,6 +108,24 @@ class TestDemoSetup(TransactionCase):
             user = self.env["res.users"].search([("login", "=", login)], limit=1)
             self.assertTrue(user, f"portal login {login} missing")
             self.assertTrue(user.has_group("base.group_portal"))
+
+    def test_grievances_open_and_resolved(self):
+        """The GRM beat needs one open ticket to work through and one already
+        resolved ticket to show a completed grievance history."""
+        tickets = self.env["spp.grm.ticket"].search([])
+        self.assertEqual(len(tickets), 2)
+        open_ticket = tickets.filtered(lambda t: not t.is_closed)
+        resolved = tickets.filtered(lambda t: t.is_closed)
+        self.assertEqual(len(open_ticket), 1)
+        self.assertEqual(len(resolved), 1)
+        self.assertEqual(resolved.stage_id.stage_type, "resolved")
+        self.assertTrue(resolved.resolution_summary)
+        self.assertTrue(resolved.closed_date)
+        # Each ticket belongs to a portal login so both show up in the portal.
+        parent = self.env["res.users"].search([("login", "=", "parent")], limit=1)
+        gurung = self.env["res.users"].search([("login", "=", "gurung")], limit=1)
+        self.assertEqual(open_ticket.partner_id, parent.partner_id)
+        self.assertEqual(resolved.partner_id, gurung.partner_id)
 
     def _loaded_root_menus(self, user):
         menus = self.env["ir.ui.menu"].with_user(user).load_menus(False)

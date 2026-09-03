@@ -566,4 +566,24 @@ def _create_grievances(env, families):
     if channel:
         vals["channel_id"] = channel.id
     Ticket.create(vals)
-    _logger.info("Created demo grievance ticket")
+
+    # A second, already resolved ticket from another portal family, so the
+    # grievance history shows a completed case alongside the open one.
+    resolved_by = _family_head(env, "Gurung Family")
+    if resolved_by:
+        officer = env["res.users"].search([("login", "=", "officer")], limit=1)
+        vals = {
+            "name": "Child's date of birth recorded incorrectly",
+            "description": "My second child's date of birth in the registry is one month off "
+            "from the birth certificate. Please correct it.",
+            "category_id": env.ref("spp_demo_child_benefit.grm_category_data").id,
+            "partner_id": resolved_by.id,
+            "resolution_summary": "Date of birth corrected against the birth certificate provided; "
+            "the benefit schedule was regenerated and the family notified.",
+        }
+        if channel:
+            vals["channel_id"] = channel.id
+        if officer:
+            vals["user_id"] = officer.id
+        Ticket.create(vals).action_resolve()
+    _logger.info("Created demo grievance tickets")
