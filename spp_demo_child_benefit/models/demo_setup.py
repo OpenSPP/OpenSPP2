@@ -562,6 +562,9 @@ def _create_grievances(env, families):
         "description": "The benefit payment for the previous month has not arrived in my account.",
         "category_id": category.id,
         "partner_id": mothers[0].id,
+        # Left unassigned for the officer to pick up; the assignee compute
+        # would otherwise fall back to the installing user.
+        "user_id": False,
     }
     if channel:
         vals["channel_id"] = channel.id

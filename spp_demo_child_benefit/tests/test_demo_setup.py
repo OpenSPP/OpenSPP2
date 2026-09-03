@@ -118,6 +118,10 @@ class TestDemoSetup(TransactionCase):
         resolved = tickets.filtered(lambda t: t.is_closed)
         self.assertEqual(len(open_ticket), 1)
         self.assertEqual(len(resolved), 1)
+        # The open ticket waits for an officer; the install user must not
+        # appear as its assignee.
+        self.assertFalse(open_ticket.user_id)
+        self.assertEqual(resolved.user_id.login, "officer")
         self.assertEqual(resolved.stage_id.stage_type, "resolved")
         self.assertTrue(resolved.resolution_summary)
         self.assertTrue(resolved.closed_date)
