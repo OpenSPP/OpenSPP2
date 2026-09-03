@@ -140,6 +140,7 @@ def create_demo_environment(env):
     families = _create_families(env)
     _enroll_and_open_cycle(env, program)
     _create_grievances(env, families)
+    _ensure_change_request_workflow(env)
     _create_change_request(env, families)
     _create_portal_users(env)
     _logger.info("Child benefit demo setup complete")
@@ -549,6 +550,25 @@ def _enroll_and_open_cycle(env, program):
             env["spp.cycle.membership"].create({"partner_id": child.id, "cycle_id": cycle.id, "state": "enrolled"})
             members += 1
     _logger.info("Enrolled %s children in the programme; %s in the %s", len(children), members, DEMO_CYCLE_NAME)
+
+
+def _ensure_change_request_workflow(env):
+    """Attach the demo approval workflow to the base change-request types.
+
+    The types are shipped noupdate by their module, so an XML override only
+    applies on a fresh install; setting the link here also covers upgrades
+    and the Create Demo Environment button. Idempotent."""
+    definition = env.ref("spp_demo_child_benefit.approval_definition_change_request", raise_if_not_found=False)
+    if not definition:
+        return
+    for xmlid in (
+        "spp_cr_types_base.cr_type_edit_individual",
+        "spp_cr_types_base.cr_type_edit_group",
+        "spp_cr_types_base.cr_type_update_id",
+    ):
+        cr_type = env.ref(xmlid, raise_if_not_found=False)
+        if cr_type and not cr_type.approval_definition_id:
+            cr_type.approval_definition_id = definition
 
 
 def _create_change_request(env, families):

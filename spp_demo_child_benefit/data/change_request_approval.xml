@@ -2,7 +2,9 @@
 <odoo>
     <!-- Change requests: the officer submits, the programme manager approves.
          The base change-request types ship without an approval workflow, so
-         attach one here; without it a submission is refused. -->
+         attach one here; without it a submission is refused. The base types are
+         linked to it by the demo generator (their xmlids are noupdate, so an
+         XML override would only apply on a fresh install). -->
     <data noupdate="1">
         <record id="approval_definition_change_request" model="spp.approval.definition">
             <field name="name">Change Request Approval (Programme Manager)</field>
@@ -19,38 +21,6 @@
             <field name="notify_on_approve" eval="True" />
             <field name="notify_on_reject" eval="True" />
             <field name="sla_days">3</field>
-        </record>
-    </data>
-
-    <!-- Link the base types to the workflow. Not noupdate: an upgrade must
-         (re)apply the link on a database where the types already exist. -->
-    <data>
-        <record
-            id="spp_cr_types_base.cr_type_edit_individual"
-            model="spp.change.request.type"
-        >
-            <field
-                name="approval_definition_id"
-                ref="approval_definition_change_request"
-            />
-        </record>
-        <record
-            id="spp_cr_types_base.cr_type_edit_group"
-            model="spp.change.request.type"
-        >
-            <field
-                name="approval_definition_id"
-                ref="approval_definition_change_request"
-            />
-        </record>
-        <record
-            id="spp_cr_types_base.cr_type_update_id"
-            model="spp.change.request.type"
-        >
-            <field
-                name="approval_definition_id"
-                ref="approval_definition_change_request"
-            />
         </record>
     </data>
 </odoo>
