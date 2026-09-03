@@ -90,6 +90,21 @@ class TestBirthOrder(TransactionCase):
         self.assertEqual(twin2.birth_order, 3)
         self.assertTrue(all(k.birth_order_state == "computed" for k in (twin1, twin2)))
 
+    def test_twins_as_third_and_fourth_both_rank(self):
+        # Two older siblings, then twins: they rank 3 and 4 individually (never
+        # a shared rank), so both are at or above the third-child threshold.
+        mother = self._individual("Mother C2", date(1990, 5, 5))
+        k1 = self._individual("C2-1", date(2018, 3, 3))
+        k2 = self._individual("C2-2", date(2021, 6, 6))
+        twin1 = self._individual("C2 twin 1", date(2026, 2, 2), birth_sequence=1)
+        twin2 = self._individual("C2 twin 2", date(2026, 2, 2), birth_sequence=2)
+        self._family("Family C2", mother, [k1, k2, twin1, twin2])
+        self.assertEqual((k1.birth_order, k2.birth_order), (1, 2))
+        self.assertEqual(twin1.birth_order, 3)
+        self.assertEqual(twin2.birth_order, 4)
+        self.assertTrue(all(k.birth_order_state == "computed" for k in (twin1, twin2)))
+        self.assertEqual(len({k.birth_order for k in (k1, k2, twin1, twin2)}), 4)
+
     def test_multiple_birth_without_sequence_pending(self):
         # BR-3A.6: no recorded sequence -> refer to PMU, no automatic rank
         mother = self._individual("Mother D", date(1991, 3, 3))
@@ -157,7 +172,6 @@ class TestBirthOrder(TransactionCase):
 
     def test_household_group_does_not_rank(self):
         household_type = self.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-type", "household")
-        mother = self._individual("Mother H", date(1990, 5, 5))
         k1 = self._individual("H1", date(2021, 2, 2))
         group = self.Partner.create(
             {

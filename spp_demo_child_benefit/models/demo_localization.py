@@ -28,7 +28,7 @@ from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
-ORDINALS = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight"]
+ORDINALS = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"]
 
 
 class DemoLocalization(models.AbstractModel):

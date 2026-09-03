@@ -30,12 +30,12 @@ class TestDemoSetup(TransactionCase):
         self.assertTrue(program.journal_id.currency_id, "programme journal has no currency")
 
     def test_families_and_birth_orders(self):
-        # The 8 curated families (edge cases) are always present.
+        # The 9 curated families (edge cases) are always present.
         curated = self.env["res.partner"].search([("name", "like", "Demo Family%"), ("is_group", "=", True)])
-        self.assertEqual(len(curated), 8)
+        self.assertEqual(len(curated), 9)
         # Plus the extra population families.
         all_families = self.env["res.partner"].search([("is_group", "=", True), ("group_type_id.code", "=", "family")])
-        self.assertEqual(len(all_families), 8 + len(EXTRA_FAMILY_PROFILES))
+        self.assertEqual(len(all_families), 9 + len(EXTRA_FAMILY_PROFILES))
 
         def child(name):
             return self.env["res.partner"].search([("name", "=", name)], limit=1)
@@ -71,6 +71,18 @@ class TestDemoSetup(TransactionCase):
         self.assertEqual(len(schedules), expected_qualified_count())
         for schedule in schedules:
             self.assertEqual(schedule.line_count, 37)
+        # Twins as 3rd and 4th: ranked individually, both enrolled with a schedule.
+        twins = self.env["res.partner"].search(
+            [("name", "in", ["Child Nine-Twin1", "Child Nine-Twin2"])], order="birth_sequence"
+        )
+        self.assertEqual(twins.mapped("birth_order"), [3, 4])
+        self.assertEqual(len(schedules.filtered(lambda sc: sc.partner_id in twins)), 2)
+        # Twins as 2nd and 3rd: only the 3rd-ranked twin has a schedule.
+        four = self.env["res.partner"].search(
+            [("name", "in", ["Child Four-Twin1", "Child Four-Twin2"])], order="birth_sequence"
+        )
+        self.assertEqual(four.mapped("birth_order"), [2, 3])
+        self.assertEqual(len(schedules.filtered(lambda sc: sc.partner_id in four)), 1)
         # Before any cycle runs every month is "Scheduled", and the badge tone
         # behind the translated label is a stable code.
         lines = schedules.mapped("line_ids")

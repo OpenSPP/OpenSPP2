@@ -117,6 +117,18 @@ def _family_blueprints(today):
                 ("Child Eight-D", bd(months=1, day=22), {}),
             ],
         },
+        {
+            "name": "Demo Family Nine",
+            "story": "Twins as 3rd and 4th (sequence recorded): both are eligible, ranked individually.",
+            "mother": "Mother Nine",
+            "father": "Father Nine",
+            "children": [
+                ("Child Nine-A", bd(years=8, months=1), {}),
+                ("Child Nine-B", bd(years=5, months=3), {}),
+                ("Child Nine-Twin1", bd(months=5, day=6), {"birth_sequence": 1}),
+                ("Child Nine-Twin2", bd(months=5, day=6), {"birth_sequence": 2}),
+            ],
+        },
     ]
 
 
@@ -348,8 +360,8 @@ _EXTRA_FAMILY_NAMES = [
 
 
 def expected_qualified_count():
-    """Qualified beneficiaries the generator produces: curated 5 + extras."""
-    return 5 + sum(EXTRA_FAMILY_PROFILES)
+    """Qualified beneficiaries the generator produces: curated 7 + extras."""
+    return 7 + sum(EXTRA_FAMILY_PROFILES)
 
 
 def _family_refs(env):
