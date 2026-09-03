@@ -85,6 +85,8 @@ class TestGrmPortalFamily(HttpCase):
         self.assertEqual(ticket.channel_id, self.env.ref("spp_grm.grm_ticket_channel_web"))
         # Still the submitter's own ticket in the portal list.
         self.assertEqual(ticket.with_user(self.gurung_user).name, "Child's school certificate missing")
+        # The submitter follows their grievance, so "Send message" reaches them.
+        self.assertIn(self.gurung, ticket.message_partner_ids)
         # And it now shows on the child's and the family's records.
         self.child.invalidate_recordset()
         self.family.invalidate_recordset()
