@@ -115,7 +115,10 @@ class TestDemoSetup(TransactionCase):
             self.env["spp.cycle.membership"].search_count([("cycle_id", "=", cycle.id)]),
             len(july_beneficiaries),
         )
-        self.assertEqual(self.env["res.users"].search_count([("login", "in", ["officer", "manager"])]), 2)
+        staff = self.env["res.users"].search([("login", "in", ["officer", "manager"])])
+        self.assertEqual(len(staff), 2)
+        # No mail server on a demo box: staff are notified in the inbox, never by e-mail.
+        self.assertEqual(set(staff.mapped("notification_type")), {"inbox"})
         portal_user = self.env["res.users"].search([("login", "=", "parent")])
         self.assertTrue(portal_user)
         self.assertEqual(portal_user.partner_id.name, "Mother One")

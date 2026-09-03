@@ -3,6 +3,8 @@
     <record id="user_programme_officer" model="res.users">
         <field name="name">Programme Officer</field>
         <field name="login">officer</field>
+        <!-- Demo boxes have no mail server: notify staff in the inbox, never by e-mail. -->
+        <field name="notification_type">inbox</field>
         <field name="password">Cbp-Officer-Demo-2026!</field>
         <field
             name="group_ids"
@@ -12,6 +14,7 @@
     <record id="user_programme_manager" model="res.users">
         <field name="name">Programme Manager</field>
         <field name="login">manager</field>
+        <field name="notification_type">inbox</field>
         <field name="password">Cbp-Manager-Demo-2026!</field>
         <field
             name="group_ids"
