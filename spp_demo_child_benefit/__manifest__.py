@@ -42,12 +42,10 @@
         "views/portal_home_views.xml",
     ],
     "assets": {
+        # Appended in module order, i.e. after spp_base_common's and the theme's
+        # navbar stylesheets (both are dependencies), whose literal colours it re-points.
         "web.assets_backend": [
-            (
-                "after",
-                "theme_openspp_muk/static/src/scss/navbar.scss",
-                "spp_demo_child_benefit/static/src/scss/backend_theme.scss",
-            ),
+            "spp_demo_child_benefit/static/src/scss/backend_theme.scss",
         ],
     },
     "demo": [],

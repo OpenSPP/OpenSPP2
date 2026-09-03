@@ -1,8 +1,11 @@
-// The OpenSPP theme pins its navigation colours with literal values, so the
-// runtime colour settings (Settings → General → Theme / Colors) do not reach
-// them. Re-point those rules at the theme's own variables, which the settings
-// rewrite, so a localization pack can recolour the back office without any
-// code carrying a country's colours.
+// Two stock stylesheets (the OpenSPP theme's and spp_base_common's navbar
+// files) pin navigation, sidebar and primary-button colours with literal
+// values, so the runtime colour settings (Settings → General → Theme /
+// Colors) never reach them. Re-point every one of those rules at the
+// variables the settings rewrite, so a localization pack can recolour the
+// back office without any code carrying a country's colours.
+
+// Top navigation bar.
 .o_main_navbar,
 .o_main_navbar > .o_menu_sections > .dropdown-item,
 .o_main_navbar > .o_menu_sections > .o-dropdown > .dropdown-toggle,
@@ -11,12 +14,29 @@
     background-color: $mk-appbar-background !important;
 }
 
-.mk_apps_sidebar_panel .mk_apps_sidebar .mk_apps_sidebar_menu > li.active > a {
+// Apps sidebar: quiet hover in the bar's own text colour, the accent colour
+// for the selected app, plus an inset indicator so the selection reads even
+// when the accent sits close to the bar colour.
+.mk_apps_sidebar_panel .mk_apps_sidebar .mk_apps_sidebar_menu > li > a:hover {
+    background-color: rgba($mk-appbar-color, 0.12) !important;
+}
+.mk_apps_sidebar_panel .mk_apps_sidebar .mk_apps_sidebar_menu > li.active > a,
+.mk_apps_sidebar_panel .mk_apps_sidebar .mk_apps_sidebar_menu > li.active > a:hover {
     background-color: $mk-appbar-active !important;
+    box-shadow: inset 4px 0 0 $mk-appbar-color;
 }
 
-// A crisp indicator on the active app, in the app bar's text colour, so the
-// selected item reads even when the active fill sits close to the bar colour.
-.mk_apps_sidebar_panel .mk_apps_sidebar .mk_apps_sidebar_menu > li.active > a {
-    box-shadow: inset 4px 0 0 $mk-appbar-color;
+// Primary buttons follow the configured primary colour.
+.btn-primary {
+    background-color: $primary !important;
+    border-color: $primary !important;
+    color: color-contrast($primary) !important;
+}
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active {
+    background-color: shade-color($primary, 15%) !important;
+    border-color: shade-color($primary, 15%) !important;
+    color: color-contrast($primary) !important;
 }
