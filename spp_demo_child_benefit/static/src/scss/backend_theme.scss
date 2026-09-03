@@ -1,0 +1,16 @@
+// The OpenSPP theme pins its navigation colours with literal values, so the
+// runtime colour settings (Settings → General → Theme / Colors) do not reach
+// them. Re-point those rules at the theme's own variables, which the settings
+// rewrite, so a localization pack can recolour the back office without any
+// code carrying a country's colours.
+.o_main_navbar,
+.o_main_navbar > .o_menu_sections > .dropdown-item,
+.o_main_navbar > .o_menu_sections > .o-dropdown > .dropdown-toggle,
+.o_main_navbar .o_menu_sections .o_nav_entry,
+.o_main_navbar .o_menu_sections .dropdown-toggle {
+    background-color: $mk-appbar-background !important;
+}
+
+.mk_apps_sidebar_panel .mk_apps_sidebar .mk_apps_sidebar_menu > li.active > a {
+    background-color: $mk-appbar-active !important;
+}

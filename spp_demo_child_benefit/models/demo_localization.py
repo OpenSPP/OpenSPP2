@@ -10,6 +10,9 @@ Pack format (every key optional):
     {
       "programme_name": "…",
       "company": {"name": "…", "country": "XX", "logo": "<base64 PNG/JPEG>"},
+      "theme": {"appbar_background": "#rrggbb", "appbar_text": "…", "appbar_active": "…",
+                "appsmenu_text": "…", "brand": "…", "primary": "…",
+                "success": "…", "info": "…", "warning": "…", "danger": "…"},
       "currency": "XYZ",
       "banks":   {"National Commercial Bank": "…"},
       "areas":   {"CR-HD-RV": "…"},
@@ -24,6 +27,7 @@ import base64
 import binascii
 import json
 import logging
+import re
 
 from odoo import _, models
 from odoo.exceptions import UserError
@@ -92,6 +96,43 @@ class DemoLocalization(models.AbstractModel):
                         program.journal_id.currency_id = currency.id
                 summary.append(_("currency set to %s") % currency_code)
 
+    # Pack key → res.config.settings field (MuK theme + colour settings, light mode).
+    THEME_FIELDS = {
+        "appbar_background": "theme_color_appbar_background",
+        "appbar_text": "theme_color_appbar_text",
+        "appbar_active": "theme_color_appbar_active",
+        "appsmenu_text": "theme_color_appsmenu_text",
+        "brand": "color_brand_light",
+        "primary": "color_primary_light",
+        "success": "color_success_light",
+        "info": "color_info_light",
+        "warning": "color_warning_light",
+        "danger": "color_danger_light",
+    }
+    _HEX_COLOR = re.compile(r"^#[0-9a-fA-F]{6}$")
+
+    def _apply_theme(self, pack, summary):
+        """Back-office colours through the theme's own settings, which rewrite
+        the SCSS variables and rebuild the asset bundle. Keys whose settings
+        field is not installed are skipped, so the pack works on any stack."""
+        theme = pack.get("theme") or {}
+        if not theme:
+            return
+        Settings = self.env["res.config.settings"]
+        values = {}
+        for key, field in self.THEME_FIELDS.items():
+            color = theme.get(key)
+            if not color or field not in Settings._fields:
+                continue
+            if not self._HEX_COLOR.match(color):
+                raise UserError(_("Theme colour %(key)s must be a #rrggbb value, got %(value)s.", key=key, value=color))
+            values[field] = color.lower()
+        if not values:
+            return
+        settings = Settings.create(values)
+        settings.execute()
+        summary.append(_("%s theme colour(s) set") % len(values))
+
     def apply_pack(self, raw):
         """Apply a localization pack. Idempotent — renames already applied are
         simply not found the second time."""
@@ -106,6 +147,7 @@ class DemoLocalization(models.AbstractModel):
             summary.append(_("programme renamed"))
 
         self._apply_company_and_currency(pack, program, summary)
+        self._apply_theme(pack, summary)
 
         for old, new in (pack.get("banks") or {}).items():
             bank = env["res.bank"].search([("name", "=", old)], limit=1)

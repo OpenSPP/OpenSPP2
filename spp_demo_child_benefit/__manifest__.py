@@ -24,6 +24,7 @@
         "spp_grm_registry",
         "spp_registry_search",
         "spp_user_roles",
+        "theme_openspp_muk",
     ],
     "data": [
         "security/ir.model.access.csv",
@@ -40,7 +41,15 @@
         # Last: it moves the cards the two templates above add to the portal home.
         "views/portal_home_views.xml",
     ],
-    "assets": {},
+    "assets": {
+        "web.assets_backend": [
+            (
+                "after",
+                "theme_openspp_muk/static/src/scss/navbar.scss",
+                "spp_demo_child_benefit/static/src/scss/backend_theme.scss",
+            ),
+        ],
+    },
     "demo": [],
     "images": [],
     "application": False,

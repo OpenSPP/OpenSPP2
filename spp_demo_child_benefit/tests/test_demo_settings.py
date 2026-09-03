@@ -14,6 +14,7 @@ PACK = {
     "programme_name": "Localized Benefit Programme",
     "currency": "BTN",
     "company": {"name": "Localized Agency", "country": "BT", "logo": PNG_1PX},
+    "theme": {"appbar_background": "#112233", "appbar_active": "#445566", "brand": "#778899", "primary": "#8899AA"},
     "banks": {"National Commercial Bank": "First Localized Bank"},
     "areas": {"CR": "Localized Region"},
     "mothers": ["Localized Mother A"],
@@ -71,6 +72,21 @@ class TestDemoSettings(TransactionCase):
         self.assertEqual(company.country_id.code, "BT")
         self.assertEqual(company.currency_id, btn)
         self.assertEqual(company.logo.decode(), PNG_1PX)
+        # Theme colours land in the theme's runtime settings (light mode) and
+        # therefore in the customized SCSS the bundle compiles from.
+        current = self.env["res.config.settings"].create({}).get_values()
+        self.assertEqual(current["theme_color_appbar_background"], "#112233")
+        self.assertEqual(current["theme_color_appbar_active"], "#445566")
+        self.assertEqual(current["color_brand_light"], "#778899")
+        self.assertEqual(current["color_primary_light"], "#8899aa")
+        editor = self.env["muk_web_colors.color_assets_editor"]
+        custom = editor._get_colors_attachment(
+            editor._get_custom_colors_url(
+                "/theme_openspp_muk/static/src/scss/colors.scss", "web._assets_primary_variables"
+            )
+        )
+        self.assertTrue(custom, "customized colors.scss attachment missing")
+        self.assertIn("#112233", base64.b64decode(custom.datas).decode())
         program = self.env["spp.program"].search([("name", "=", "Localized Benefit Programme")])
         self.assertEqual(program.currency_id, btn)
         self.assertEqual(program.journal_id.currency_id, btn)
@@ -84,6 +100,12 @@ class TestDemoSettings(TransactionCase):
         # ...and re-applying is harmless (idempotent renames find nothing).
         fresh.action_apply_demo_localization()
         self.assertEqual(self.env["spp.program"].search_count([("name", "=", "Localized Benefit Programme")]), 1)
+
+    def test_invalid_theme_colour_rejected(self):
+        bad = dict(PACK, theme={"brand": "red"})
+        self.settings.demo_localization_file = base64.b64encode(json.dumps(bad).encode())
+        with self.assertRaises(UserError):
+            self.settings.action_apply_demo_localization()
 
     def test_invalid_logo_rejected(self):
         bad = dict(PACK, company={"name": "X", "logo": "not base64!!"})
