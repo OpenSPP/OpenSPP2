@@ -3,7 +3,7 @@
 {
     "name": "OpenSPP Child Benefit Demo",
     "category": "OpenSPP/Demo",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -35,9 +35,10 @@
         "data/grm_categories.xml",
         "data/demo_filters.xml",
         "views/res_config_settings_views.xml",
-        "views/portal_home_views.xml",
         "views/grm_portal_templates.xml",
         "views/cr_portal_templates.xml",
+        # Last: it moves the cards the two templates above add to the portal home.
+        "views/portal_home_views.xml",
     ],
     "assets": {},
     "demo": [],

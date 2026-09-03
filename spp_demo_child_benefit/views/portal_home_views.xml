@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <!-- Demo portal focus: keep only the Benefits and Tickets (GRM) cards on
-         the portal home for a cleaner demonstration. Hide the Invoices,
-         Addresses and Connection & Security cards by disabling their card
-         categories (our Benefits card and the GRM Tickets card live in their
-         own categories, so they remain). -->
-    <template id="portal_my_home_demo_focus" inherit_id="portal.portal_my_home">
+    <!-- Demo portal home: a welcome header with the organisation's name, and
+         the Benefits, Change Requests and Tickets cards in one row. The stock
+         Invoices, Addresses and Connection & Security cards are hidden by
+         disabling their categories. Runs last (priority 99) so the cards of
+         the other modules are already in the arch when they are moved. -->
+    <template
+        id="portal_my_home_demo_focus"
+        inherit_id="portal.portal_my_home"
+        priority="99"
+    >
         <xpath expr="//div[@id='portal_common_category']" position="attributes">
             <attribute name="t-if">False</attribute>
         </xpath>
@@ -13,6 +17,35 @@
             <attribute name="t-if">False</attribute>
         </xpath>
         <xpath expr="//div[@id='portal_vendor_category']" position="attributes">
+            <attribute name="t-if">False</attribute>
+        </xpath>
+        <xpath expr="//div[@id='portal_benefit_category']" position="before">
+            <div class="o_spp_page_header">
+                <div>
+                    <h1>Welcome, <t t-out="request.env.user.partner_id.name" /></h1>
+                    <p>
+                        Your <t
+                        t-out="request.env.company.name"
+                    /> services: follow your children's benefit payments,
+                        request a change to your family's information, or raise a concern.
+                    </p>
+                </div>
+            </div>
+        </xpath>
+        <xpath expr="//div[@id='portal_benefit_category']" position="attributes">
+            <attribute name="class">o_portal_category row g-3 mt-0</attribute>
+        </xpath>
+        <xpath expr="//div[@id='portal_benefit_category']" position="inside">
+            <xpath
+                expr="//div[@id='portal_change_request_category']/t"
+                position="move"
+            />
+            <xpath expr="//div[@id='portal_ticket_category']/t" position="move" />
+        </xpath>
+        <xpath expr="//div[@id='portal_change_request_category']" position="attributes">
+            <attribute name="t-if">False</attribute>
+        </xpath>
+        <xpath expr="//div[@id='portal_ticket_category']" position="attributes">
             <attribute name="t-if">False</attribute>
         </xpath>
     </template>

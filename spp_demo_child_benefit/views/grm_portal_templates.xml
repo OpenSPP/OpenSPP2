@@ -31,11 +31,23 @@
         </xpath>
     </template>
 
-    <!-- Ticket list: show who each ticket concerns. -->
+    <!-- Ticket list: trim back-office columns, show who each ticket concerns,
+         use the shared badge and empty-state styles. Column removals run
+         first, highest index first, because each xpath sees the arch as
+         already modified by the previous ones. -->
     <template
         id="portal_my_tickets_family_member"
         inherit_id="spp_grm.portal_my_tickets"
     >
+        <!-- raw priority integer and channel are back-office noise -->
+        <xpath expr="//thead/tr/th[7]" position="replace" />
+        <xpath expr="//tbody//tr/td[7]" position="replace" />
+        <xpath expr="//thead/tr/th[3]" position="replace" />
+        <xpath expr="//tbody//tr/td[3]" position="replace" />
+        <!-- column 2 is the submitter, not the ticket name -->
+        <xpath expr="//thead/tr/th[2]" position="replace">
+            <th>Submitted by</th>
+        </xpath>
         <xpath expr="//thead/tr/th[2]" position="after">
             <th>Concerns</th>
         </xpath>
@@ -50,6 +62,16 @@
                     <em>-</em>
                 </t>
             </td>
+        </xpath>
+        <xpath expr="//span[hasclass('text-bg-info')]" position="attributes">
+            <attribute name="class">badge o_spp_badge--info</attribute>
+        </xpath>
+        <xpath expr="//p[hasclass('alert-warning')]" position="replace">
+            <t t-call="spp_child_benefit.portal_empty_state">
+                <t t-set="empty_title">No tickets yet</t>
+                <t t-set="empty_text">Raise a concern and follow its progress here.</t>
+                <a href="/my/ticket/new" class="btn btn-primary">New Ticket</a>
+            </t>
         </xpath>
     </template>
 </odoo>

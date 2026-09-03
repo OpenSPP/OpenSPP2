@@ -3,7 +3,7 @@
 {
     "name": "OpenSPP Child Benefit",
     "category": "OpenSPP/Programs",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -28,7 +28,11 @@
         "views/create_program_wizard_views.xml",
         "views/payment_batch_views.xml",
     ],
-    "assets": {},
+    "assets": {
+        "web.assets_frontend": [
+            "spp_child_benefit/static/src/css/portal.css",
+        ],
+    },
     "demo": [],
     "images": [],
     "application": False,

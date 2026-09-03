@@ -71,6 +71,11 @@ class TestDemoSetup(TransactionCase):
         self.assertEqual(len(schedules), expected_qualified_count())
         for schedule in schedules:
             self.assertEqual(schedule.line_count, 37)
+        # Before any cycle runs every month is "Scheduled", and the badge tone
+        # behind the translated label is a stable code.
+        lines = schedules.mapped("line_ids")
+        self.assertEqual(set(lines.mapped("payment_status")), {"Scheduled"})
+        self.assertEqual(set(lines.mapped("payment_status_tone")), {"neutral"})
 
     def test_cycle_and_grievance(self):
         program = self.env["spp.program"].search([("name", "=", "Child Benefit Programme")])

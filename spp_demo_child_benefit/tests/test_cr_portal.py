@@ -123,3 +123,10 @@ class TestChangeRequestPortal(HttpCase):
         self.assertEqual(self.url_open(f"/my/change-requests/{seeded.id}").status_code, 200)
         home = self.url_open("/my")
         self.assertIn("/my/change-requests", home.text)
+        # Portal home: welcome header naming the organisation, and the three
+        # demo cards living in one card row.
+        self.assertIn("o_spp_page_header", home.text)
+        self.assertIn(self.env.company.name, home.text)
+        row = home.text.split('id="portal_benefit_category"', 1)[1].split("portal_common_category", 1)[0]
+        for url in ("/my/benefits", "/my/change-requests", "/my/tickets"):
+            self.assertIn(url, row, f"{url} card not in the benefit card row")

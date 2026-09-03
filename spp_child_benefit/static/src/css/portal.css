@@ -1,0 +1,227 @@
+/* Portal visual polish for the benefit, grievance and change-request pages.
+   Frontend bundle only; every rule is scoped to .o_portal_wrap so no backend
+   view is affected. Palette: one primary, neutrals, five semantic tones. */
+
+.o_portal_wrap {
+    --spp-primary: #12507b;
+    --spp-primary-dark: #0d3c5c;
+    --spp-ink: #1f2933;
+    --spp-muted: #5b6b7a;
+    --spp-line: #dde3e9;
+    --spp-surface: #f7f9fb;
+    color: var(--spp-ink);
+}
+
+/* Page header: title + one-line description, used on every page. */
+.o_portal_wrap .o_spp_page_header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 2px solid var(--spp-line);
+    padding-bottom: 0.75rem;
+    margin: 1.5rem 0 1.25rem;
+}
+.o_portal_wrap .o_spp_page_header h1 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    line-height: 1.25;
+    margin: 0;
+}
+.o_portal_wrap .o_spp_page_header p {
+    margin: 0.35rem 0 0;
+    max-width: 70ch;
+    color: var(--spp-muted);
+}
+.o_portal_wrap .o_spp_header_actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* Buttons and links: one primary colour. */
+.o_portal_wrap .btn {
+    font-weight: 500;
+    border-radius: 0.375rem;
+}
+.o_portal_wrap .btn-primary,
+.o_portal_wrap .btn-primary:active {
+    background-color: var(--spp-primary);
+    border-color: var(--spp-primary);
+}
+.o_portal_wrap .btn-primary:hover,
+.o_portal_wrap .btn-primary:focus {
+    background-color: var(--spp-primary-dark);
+    border-color: var(--spp-primary-dark);
+}
+.o_portal_wrap a {
+    color: var(--spp-primary);
+}
+
+/* Portal home cards (the link inside each portal_docs_entry column). */
+.o_portal_wrap .o_portal_category > div > a {
+    display: block;
+    height: 100%;
+    background: #fff;
+    border: 1px solid var(--spp-line) !important;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+.o_portal_wrap .o_portal_category > div > a:hover {
+    border-color: var(--spp-primary) !important;
+    box-shadow: 0 2px 10px rgba(16, 24, 40, 0.1);
+    text-decoration: none;
+}
+
+/* Tables. */
+.o_portal_wrap .table > thead > tr > th {
+    background: var(--spp-surface);
+    color: var(--spp-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--spp-line);
+}
+.o_portal_wrap .table > tbody > tr > td {
+    vertical-align: middle;
+    border-color: var(--spp-line);
+}
+.o_portal_wrap .o_spp_num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+.o_portal_wrap .table > tbody > tr.o_spp_row_changed > td {
+    background: #fff8e6;
+}
+.o_portal_wrap .table > tbody > tr.o_spp_row_changed > td:first-child {
+    box-shadow: inset 3px 0 0 #c58a00;
+}
+
+/* Status badges: one vocabulary of five tones, used on every page. */
+.o_portal_wrap .badge {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    padding: 0.35em 0.75em;
+    border: 1px solid transparent;
+    border-radius: 999px;
+}
+.o_portal_wrap .o_spp_badge--ok {
+    background: #e7f5ec;
+    color: #14532d;
+    border-color: #bfe3cd;
+}
+.o_portal_wrap .o_spp_badge--info {
+    background: #e6f0f7;
+    color: #0d3c5c;
+    border-color: #c2d8e8;
+}
+.o_portal_wrap .o_spp_badge--warn {
+    background: #fdf3d8;
+    color: #7a5200;
+    border-color: #f0dca6;
+}
+.o_portal_wrap .o_spp_badge--neutral {
+    background: #eef1f4;
+    color: #44515e;
+    border-color: #dbe1e7;
+}
+.o_portal_wrap .o_spp_badge--danger {
+    background: #fdeceb;
+    color: #8f1d18;
+    border-color: #f4c9c6;
+}
+
+/* Status legend under a table. */
+.o_portal_wrap .o_spp_legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin-top: 1rem;
+    font-size: 0.8125rem;
+    color: var(--spp-muted);
+}
+.o_portal_wrap .o_spp_legend > div {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Empty state. */
+.o_portal_wrap .o_spp_empty {
+    padding: 2.25rem 1.25rem;
+    text-align: center;
+    background: var(--spp-surface);
+    border: 1px dashed var(--spp-line);
+    border-radius: 0.5rem;
+    color: var(--spp-muted);
+}
+.o_portal_wrap .o_spp_empty strong {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 1.05rem;
+    color: var(--spp-ink);
+}
+
+/* Panels, key/value lists and forms. */
+.o_portal_wrap .o_spp_panel {
+    background: #fff;
+    border: 1px solid var(--spp-line);
+    border-radius: 0.5rem;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+.o_portal_wrap .o_spp_panel > h2 {
+    margin: 0 0 1rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--spp-muted);
+}
+.o_portal_wrap dl.row dt {
+    font-weight: 600;
+    color: var(--spp-muted);
+}
+.o_portal_wrap .form-label {
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+.o_portal_wrap .form-control,
+.o_portal_wrap .form-select {
+    border-color: var(--spp-line);
+}
+.o_portal_wrap .form-control:focus,
+.o_portal_wrap .form-select:focus {
+    border-color: var(--spp-primary);
+    box-shadow: 0 0 0 0.2rem rgba(18, 80, 123, 0.15);
+}
+.o_portal_wrap .o_spp_form_actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    border-top: 1px solid var(--spp-line);
+    padding-top: 1rem;
+}
+
+/* The branding kit paints a fixed "Powered by" overlay on every frontend
+   page (body::after); keep it off the portal pages. */
+body:has(.o_portal_wrap)::after {
+    display: none;
+}
+
+@media (max-width: 575.98px) {
+    .o_portal_wrap .o_spp_page_header h1 {
+        font-size: 1.3rem;
+    }
+    .o_portal_wrap .o_spp_form_actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

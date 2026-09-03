@@ -245,6 +245,9 @@ class EntitlementScheduleLine(models.Model):
     # months whose cycle has not been created yet.
     cycle_id = fields.Many2one("spp.cycle", related="entitlement_id.cycle_id", string="Cycle", store=False)
     payment_status = fields.Char(compute="_compute_payment_status")
+    # Stable code behind the translated label, so a display can colour the
+    # status without matching on translated text.
+    payment_status_tone = fields.Char(compute="_compute_payment_status")
 
     _unique_benefit_month = models.Constraint(
         "UNIQUE(schedule_id, benefit_month)",
@@ -258,21 +261,24 @@ class EntitlementScheduleLine(models.Model):
 
     def _compute_payment_status(self):
         for rec in self:
-            ent = rec.entitlement_id
-            if not ent:
-                # No entitlement yet: this month's payment cycle has not run.
-                rec.payment_status = _("Scheduled")
-                continue
-            payments = ent.payment_ids
-            if payments.filtered(lambda p: p.status == "paid"):
-                rec.payment_status = _("Paid")
-            elif payments and all(p.status == "failed" for p in payments):
-                rec.payment_status = _("Failed")
-            elif payments:
-                # A payment has been generated in a batch and sent to the bank.
-                rec.payment_status = _("In Payment")
-            elif ent.state in self.CANCELLED_ENTITLEMENT_STATES:
-                rec.payment_status = _("Cancelled")
-            else:
-                # Entitlement created for the month, but no payment/batch yet.
-                rec.payment_status = _("Pending")
+            rec.payment_status, rec.payment_status_tone = rec._payment_status()
+
+    def _payment_status(self):
+        """(citizen-facing label, badge tone) for this benefit month."""
+        self.ensure_one()
+        ent = self.entitlement_id
+        if not ent:
+            # No entitlement yet: this month's payment cycle has not run.
+            return _("Scheduled"), "neutral"
+        payments = ent.payment_ids
+        if payments.filtered(lambda p: p.status == "paid"):
+            return _("Paid"), "ok"
+        if payments and all(p.status == "failed" for p in payments):
+            return _("Failed"), "danger"
+        if payments:
+            # A payment has been generated in a batch and sent to the bank.
+            return _("In Payment"), "info"
+        if ent.state in self.CANCELLED_ENTITLEMENT_STATES:
+            return _("Cancelled"), "neutral"
+        # Entitlement created for the month, but no payment/batch yet.
+        return _("Pending"), "warn"
