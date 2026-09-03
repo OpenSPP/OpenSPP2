@@ -3,23 +3,14 @@
     <!--
     Hardening for the demo's portal login.
 
-    Stock spp_grm grants base.group_portal read+write+create on spp.grm.ticket
-    with no record rule, and read on the staff team roster and SLA rules. That
-    is latent until a portal user exists; this demo creates one, so we close it:
-    tickets become read-only and scoped to the portal user's own partner, and
-    the team/SLA reads are removed. (The grievance submission flow creates via
-    sudo(), so portal create permission is not needed.)
+    Stock spp_grm scopes portal users to their own tickets (read-only ACL plus
+    an own-partner record rule), but it still grants base.group_portal read on
+    the staff team roster and the SLA rules. That is latent until a portal user
+    exists; this demo creates several, so we remove those reads here.
 
     This override lives in the demo module to keep stock spp_grm untouched; the
     underlying gap is tracked as a follow-up for spp_grm itself.
     -->
-    <record id="spp_grm.access_spp_grm_ticket_portal_user" model="ir.model.access">
-        <field name="perm_read">1</field>
-        <field name="perm_write">0</field>
-        <field name="perm_create">0</field>
-        <field name="perm_unlink">0</field>
-    </record>
-
     <record id="spp_grm.access_spp_grm_team_portal_user" model="ir.model.access">
         <field name="perm_read">0</field>
         <field name="perm_write">0</field>
@@ -32,16 +23,5 @@
         <field name="perm_write">0</field>
         <field name="perm_create">0</field>
         <field name="perm_unlink">0</field>
-    </record>
-
-    <record id="grm_ticket_portal_own_rule" model="ir.rule">
-        <field name="name">Portal: own grievances only</field>
-        <field name="model_id" ref="spp_grm.model_spp_grm_ticket" />
-        <field name="groups" eval="[Command.link(ref('base.group_portal'))]" />
-        <field name="domain_force">[('partner_id', '=', user.partner_id.id)]</field>
-        <field name="perm_read" eval="True" />
-        <field name="perm_write" eval="True" />
-        <field name="perm_create" eval="True" />
-        <field name="perm_unlink" eval="True" />
     </record>
 </odoo>
