@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- Daily full safety net: repairs stored status/is_ended once they
+         disagree with the clock, including NULL / non-ORM drift whose
+         probes need full table scans; see _cron_recompute_ended_status
+         (#417). user_id is pinned to the superuser on both crons: the
+         unsudo'd repair searches rely on it to see memberships of
+         disabled registrants (two global ir.rule records hide those
+         otherwise). -->
+    <record id="cron_recompute_membership_ended_status" model="ir.cron">
+        <field name="name">Registry: Recompute Ended Group Memberships</field>
+        <field name="model_id" ref="model_spp_group_membership" />
+        <field name="state">code</field>
+        <field name="code">model._cron_recompute_ended_status()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="user_id" ref="base.user_root" />
+        <!-- Two hours after install/upgrade: clear of the post-upgrade
+             load spike (nothing is stale that recently), and an hour
+             behind the crossed cron below so the two never start
+             sweeping their shared crossed legs at the same moment. Both
+             are daily, so that offset holds on every later run. On a
+             shared nextcall two cron workers take the two jobs at once
+             and UPDATE the same rows, and REPEATABLE READ kills whichever
+             commits second. -->
+        <field
+            name="nextcall"
+            eval="(DateTime.now() + timedelta(hours=2)).strftime('%Y-%m-%d %H:%M:%S')"
+        />
+        <field name="active" eval="True" />
+    </record>
+
+    <!-- Trigger target: writes of a future ended_date _trigger this cron
+         in the minute after that moment, so it can run many times a day
+         and sweeps only the two index-served clock-crossed legs; see
+         _cron_repair_crossed_ended_status. Its own daily schedule is
+         cheap redundancy. -->
+    <record id="cron_repair_crossed_membership_ended_status" model="ir.cron">
+        <field name="name">Registry: Repair Clock-Crossed Group Memberships</field>
+        <field name="model_id" ref="model_spp_group_membership" />
+        <field name="state">code</field>
+        <field name="code">model._cron_repair_crossed_ended_status()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="user_id" ref="base.user_root" />
+        <field
+            name="nextcall"
+            eval="(DateTime.now() + timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')"
+        />
+        <field name="active" eval="True" />
+    </record>
+</odoo>
