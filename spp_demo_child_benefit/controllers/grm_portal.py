@@ -9,7 +9,7 @@ family's records. The posted id is validated against the family recomputed
 server-side; anything else is a 400.
 """
 
-from werkzeug.exceptions import BadRequest
+from werkzeug.exceptions import BadRequest, NotFound
 
 from odoo import http
 from odoo.http import request
@@ -28,6 +28,23 @@ class GrmPortalFamily(SPPGrmPortal):
         if registrant is None:
             raise BadRequest()
         return registrant
+
+    @http.route(["/my/ticket/<int:ticket_id>"], type="http", auth="user", website=True)
+    def portal_ticket_detail(self, ticket_id, **kw):
+        """Read-only grievance page with the conversation thread. Scoped to the
+        logged-in partner's own grievances; anything else is a 404."""
+        partner = request.env.user.partner_id
+        ticket = (
+            request.env["spp.grm.ticket"]
+            .sudo()
+            .search([("id", "=", ticket_id), ("partner_id", "=", partner.id)], limit=1)
+        )
+        if not ticket:
+            raise NotFound()
+        return request.render(
+            "spp_demo_child_benefit.portal_grievance_detail",
+            {"ticket": ticket, "page_name": "tickets", "grievance_detail": True},
+        )
 
     @http.route(["/my/ticket/new"], type="http", auth="user", website=True)
     def portal_ticket_new(self, **kw):
@@ -68,5 +85,5 @@ class GrmPortalFamily(SPPGrmPortal):
 
         ticket.send_ticket_confirmation_email(ticket)
 
-        # nosemgrep: semgrep.odoo-unvalidated-redirect -- fixed internal URL
-        return request.redirect("/my/tickets")
+        # nosemgrep: semgrep.odoo-unvalidated-redirect -- fixed internal URL with our own record id
+        return request.redirect(f"/my/ticket/{ticket.id}")

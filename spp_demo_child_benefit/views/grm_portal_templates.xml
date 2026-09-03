@@ -1,5 +1,45 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
+    <!-- The programme speaks of grievances (Grievance Redress Mechanism), not
+         tickets: rename the portal wording without touching the stock module. -->
+    <template
+        id="portal_my_home_ticket_grievance"
+        inherit_id="spp_grm.portal_my_home_ticket"
+    >
+        <xpath expr="//t[@t-set='title']" position="replace">
+            <t t-set="title">Grievances</t>
+        </xpath>
+        <xpath expr="//t[@t-set='text']" position="replace">
+            <t t-set="text">Raise a concern and follow it through to resolution</t>
+        </xpath>
+    </template>
+
+    <template
+        id="portal_breadcrumbs_grievance"
+        inherit_id="spp_grm.portal_my_home_menu_ticket"
+    >
+        <!-- The stock template extends the shared breadcrumbs, so this one sees
+             the whole breadcrumb bar: target the grievance items by content. -->
+        <xpath expr="//li[a[normalize-space()='Tickets']]" position="replace">
+            <li
+                t-if="page_name == 'tickets'"
+                t-attf-class="breadcrumb-item #{'active ' if not ticket else ''}"
+            >
+                <a
+                    t-if="ticket"
+                    t-attf-href="/my/tickets?{{ keep_query() }}"
+                >Grievances</a>
+                <t t-else="">Grievances</t>
+            </li>
+        </xpath>
+        <xpath expr="//li[strong[normalize-space()='New Ticket']]" position="replace">
+            <li t-if="ticket" class="breadcrumb-item active">
+                <strong t-if="ticket == 'new'">New Grievance</strong>
+                <strong t-else="" t-out="ticket.number" />
+            </li>
+        </xpath>
+    </template>
+
     <!-- Grievance form: which family member the request concerns. The
          submitter is preselected; the options are the live members of their
          family, computed and validated by the controller. -->
@@ -7,12 +47,26 @@
         id="portal_create_ticket_family_member"
         inherit_id="spp_grm.portal_create_ticket"
     >
+        <xpath expr="//t[@t-set='title']" position="replace">
+            <t t-set="title">New Grievance</t>
+        </xpath>
+        <xpath expr="//form" position="before">
+            <t t-call="spp_child_benefit.portal_page_header">
+                <t t-set="page_title">New Grievance</t>
+                <t
+                    t-set="page_subtitle"
+                >Describe your concern. You receive a reference number and can follow the handling and reply from your grievance page.</t>
+            </t>
+        </xpath>
+        <xpath expr="//label[@for='ticket_name']" position="replace">
+            <label for="ticket_name" class="form-label">Subject</label>
+        </xpath>
         <xpath expr="//div[label[@for='category_id']]" position="before">
             <div class="mb-3" t-if="family_members">
                 <label
                     for="registrant_id"
                     class="form-label"
-                >This request concerns</label>
+                >This grievance concerns</label>
                 <select id="registrant_id" name="registrant_id" class="form-select">
                     <t t-foreach="family_members" t-as="member">
                         <option
@@ -29,21 +83,52 @@
                 >Yourself, or a member of your family on whose behalf you are filing.</div>
             </div>
         </xpath>
+        <xpath expr="//button[@type='submit']" position="replace">
+            <div class="o_spp_form_actions">
+                <button type="submit" class="btn btn-primary">Submit grievance</button>
+                <a href="/my/tickets" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </xpath>
     </template>
 
-    <!-- Ticket list: trim back-office columns, show who each ticket concerns,
-         use the shared badge and empty-state styles. Column removals run
-         first, highest index first, because each xpath sees the arch as
-         already modified by the previous ones. -->
+    <!-- Grievance list: page header, trimmed back-office columns, who each
+         grievance concerns, a link to the grievance page, shared badge and
+         empty-state styles. Column removals run first, highest index first,
+         because each xpath sees the arch as already modified. -->
     <template
         id="portal_my_tickets_family_member"
         inherit_id="spp_grm.portal_my_tickets"
     >
+        <xpath expr="//t[@t-set='breadcrumbs_searchbar']" position="replace">
+            <t t-set="breadcrumbs_searchbar" t-value="False" />
+        </xpath>
+        <xpath expr="//t[@t-call='portal.portal_searchbar']" position="replace">
+            <t t-call="spp_child_benefit.portal_page_header">
+                <t t-set="page_title">Grievances</t>
+                <t
+                    t-set="page_subtitle"
+                >Concerns you have raised for yourself or a family member, with their handling status. Open one to read the conversation and reply.</t>
+                <a href="/my/ticket/new" class="btn btn-primary">New Grievance</a>
+            </t>
+        </xpath>
+        <xpath expr="//div[hasclass('justify-content-end')]" position="replace" />
         <!-- raw priority integer and channel are back-office noise -->
         <xpath expr="//thead/tr/th[7]" position="replace" />
         <xpath expr="//tbody//tr/td[7]" position="replace" />
         <xpath expr="//thead/tr/th[3]" position="replace" />
         <xpath expr="//tbody//tr/td[3]" position="replace" />
+        <!-- column 1: the reference, linking to the grievance page -->
+        <xpath expr="//thead/tr/th[1]" position="replace">
+            <th>Grievance</th>
+        </xpath>
+        <xpath expr="//tbody//tr/td[1]" position="replace">
+            <td>
+                <a t-attf-href="/my/ticket/#{ticket.id}">
+                    <strong t-out="ticket.number" />
+                </a>
+                <div class="small text-muted" t-out="ticket.name" />
+            </td>
+        </xpath>
         <!-- column 2 is the submitter, not the ticket name -->
         <xpath expr="//thead/tr/th[2]" position="replace">
             <th>Submitted by</th>
@@ -68,10 +153,69 @@
         </xpath>
         <xpath expr="//p[hasclass('alert-warning')]" position="replace">
             <t t-call="spp_child_benefit.portal_empty_state">
-                <t t-set="empty_title">No tickets yet</t>
+                <t t-set="empty_title">No grievances yet</t>
                 <t t-set="empty_text">Raise a concern and follow its progress here.</t>
-                <a href="/my/ticket/new" class="btn btn-primary">New Ticket</a>
+                <a href="/my/ticket/new" class="btn btn-primary">New Grievance</a>
             </t>
         </xpath>
+    </template>
+
+    <!-- Grievance page: read-only details and the conversation, where the
+         portal user reads the programme's messages and replies. -->
+    <template id="portal_grievance_detail" name="Grievance">
+        <t t-call="portal.portal_layout">
+            <t t-set="title" t-value="ticket.number" />
+            <t t-call="spp_child_benefit.portal_page_header">
+                <t t-set="page_title" t-value="ticket.number" />
+                <t t-set="page_subtitle" t-value="ticket.name" />
+                <span class="badge o_spp_badge--info" t-out="ticket.stage_id.name" />
+            </t>
+            <div class="o_spp_panel">
+                <h2>Details</h2>
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">Concerns</dt>
+                    <dd class="col-sm-9">
+                        <t
+                            t-if="ticket.registrant_id"
+                            t-out="ticket.sudo().registrant_id.name"
+                        />
+                        <t t-else="" t-out="ticket.partner_id.name" />
+                    </dd>
+                    <dt class="col-sm-3">Category</dt>
+                    <dd class="col-sm-9" t-out="ticket.category_id.name or '—'" />
+                    <dt class="col-sm-3">Submitted</dt>
+                    <dd class="col-sm-9">
+                        <span t-field="ticket.create_date" />
+                    </dd>
+                    <dt class="col-sm-3">Description</dt>
+                    <dd
+                        class="col-sm-9"
+                        style="white-space: pre-line"
+                        t-out="ticket.description or '—'"
+                    />
+                    <t t-if="ticket.is_closed and ticket.resolution_summary">
+                        <dt class="col-sm-3">Resolution</dt>
+                        <dd
+                            class="col-sm-9"
+                            style="white-space: pre-line"
+                            t-out="ticket.resolution_summary"
+                        />
+                    </t>
+                    <t t-if="ticket.closed_date">
+                        <dt class="col-sm-3">Closed</dt>
+                        <dd class="col-sm-9">
+                            <span t-field="ticket.closed_date" />
+                        </dd>
+                    </t>
+                </dl>
+            </div>
+            <h2 class="h5 mt-4 mb-2">Conversation</h2>
+            <p
+                class="text-muted small"
+            >Messages from the programme appear here; use the box to reply.</p>
+            <t t-call="portal.message_thread">
+                <t t-set="object" t-value="ticket" />
+            </t>
+        </t>
     </template>
 </odoo>
