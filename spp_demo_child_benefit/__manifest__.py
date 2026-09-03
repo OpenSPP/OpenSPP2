@@ -37,6 +37,7 @@
         "views/res_config_settings_views.xml",
         "views/portal_home_views.xml",
         "views/grm_portal_templates.xml",
+        "views/cr_portal_templates.xml",
     ],
     "assets": {},
     "demo": [],

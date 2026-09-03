@@ -11,51 +11,23 @@ server-side; anything else is a 400.
 
 from werkzeug.exceptions import BadRequest
 
-from odoo import fields, http
+from odoo import http
 from odoo.http import request
 
 from odoo.addons.spp_grm.controllers.grm_portal import SPPGrmPortal
 
-GROUP_TYPE_NS = "urn:openspp:vocab:group-type"
+from .portal_family import portal_family_members, resolve_family_member
 
 
 class GrmPortalFamily(SPPGrmPortal):
-    def _live_membership_domain(self):
-        """`is_ended` is a stored compute refreshed only on write, so test
-        `ended_date` against the clock directly."""
-        now = fields.Datetime.now()
-        return ["|", ("ended_date", "=", False), ("ended_date", ">", now)]
-
     def _portal_family_members(self):
-        """Live members of the family groups the logged-in partner belongs to,
-        as {individual: family}, submitter first. The submitter is always
-        offered, even without a family."""
-        partner = request.env.user.partner_id
-        Membership = request.env["spp.group.membership"].sudo()
-        live = self._live_membership_domain()
-        mine = Membership.search([("individual", "=", partner.id)] + live)
-        families = mine.filtered(
-            lambda m: m.group.group_type_id.namespace_uri == GROUP_TYPE_NS and m.group.group_type_id.code == "family"
-        ).mapped("group")
-        members = {partner: families[:1]}
-        if families:
-            for membership in Membership.search([("group", "in", families.ids)] + live, order="group, id"):
-                members.setdefault(membership.individual, membership.group)
-        return members
+        return portal_family_members(request.env, request.env.user.partner_id)
 
     def _resolve_registrant(self, raw, members):
-        """The posted family member, or the submitter when nothing was posted."""
-        partner = request.env.user.partner_id
-        if raw in (None, ""):
-            return partner
-        try:
-            registrant_id = int(raw)
-        except (TypeError, ValueError) as err:
-            raise BadRequest() from err
-        for member in members:
-            if member.id == registrant_id:
-                return member
-        raise BadRequest()
+        registrant = resolve_family_member(raw, members, request.env.user.partner_id)
+        if registrant is None:
+            raise BadRequest()
+        return registrant
 
     @http.route(["/my/ticket/new"], type="http", auth="user", website=True)
     def portal_ticket_new(self, **kw):

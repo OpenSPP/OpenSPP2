@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Portal home card -->
+    <template
+        id="portal_my_home_change_requests"
+        inherit_id="portal.portal_my_home"
+        priority="40"
+    >
+        <xpath expr="//div[@id='portal_common_category']" position="before">
+            <div
+                class="o_portal_category row g-2 mt-3"
+                id="portal_change_request_category"
+            >
+                <t t-call="portal.portal_docs_entry">
+                    <t
+                        t-set="icon"
+                        t-value="'/spp_demo_child_benefit/static/src/img/change_request.svg'"
+                    />
+                    <t t-set="title">Change Requests</t>
+                    <t t-set="url" t-value="'/my/change-requests'" />
+                    <t
+                        t-set="text"
+                    >Update your family's information and track the approval</t>
+                    <t t-set="config_card" t-value="True" />
+                </t>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- Breadcrumbs -->
+    <template
+        id="portal_breadcrumbs_change_requests"
+        inherit_id="portal.portal_breadcrumbs"
+        priority="40"
+    >
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li
+                t-if="page_name == 'change_requests'"
+                t-attf-class="breadcrumb-item #{'active' if not (change_request or change_request_detail) else ''}"
+            >
+                <a
+                    t-if="change_request or change_request_detail"
+                    href="/my/change-requests"
+                >Change Requests</a>
+                <t t-else="">Change Requests</t>
+            </li>
+            <li
+                t-if="page_name == 'change_requests' and change_request == 'new'"
+                class="breadcrumb-item active"
+            >
+                New Request
+            </li>
+            <li
+                t-if="page_name == 'change_requests' and change_request_detail"
+                class="breadcrumb-item active"
+            >
+                <t t-out="change_request.name" />
+            </li>
+        </xpath>
+    </template>
+
+    <!-- List -->
+    <template id="portal_my_change_requests" name="My Change Requests">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True" />
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Change Requests</t>
+            </t>
+            <div class="d-flex justify-content-end mb-3">
+                <a
+                    href="/my/change-requests/new"
+                    class="btn btn-primary"
+                >New Request</a>
+            </div>
+            <p class="text-muted">
+                A change request updates the information the programme holds about you or a member of
+                your family. Nothing changes until a programme officer has reviewed and approved it.
+            </p>
+            <t t-if="not change_requests">
+                <p
+                    class="alert alert-info"
+                    role="alert"
+                >You have not submitted any change requests yet.</p>
+            </t>
+            <t t-if="change_requests" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th>Reference</th>
+                        <th>Concerns</th>
+                        <th class="d-none d-md-table-cell">Type</th>
+                        <th class="d-none d-md-table-cell">Submitted</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="change_requests" t-as="cr">
+                        <tr>
+                            <td>
+                                <a t-attf-href="/my/change-requests/#{cr.id}">
+                                    <strong t-out="cr.name" />
+                                </a>
+                            </td>
+                            <td>
+                                <span t-out="cr.registrant_id.name" />
+                            </td>
+                            <td class="d-none d-md-table-cell">
+                                <span t-out="cr.request_type_id.name" />
+                            </td>
+                            <td class="d-none d-md-table-cell">
+                                <span t-field="cr.create_date" />
+                            </td>
+                            <td>
+                                <span
+                                    t-attf-class="badge rounded-pill #{'text-bg-success' if cr.approval_state == 'approved' else 'text-bg-danger' if cr.approval_state == 'rejected' else 'text-bg-warning' if cr.approval_state == 'revision' else 'text-bg-info'}"
+                                    t-out="state_labels.get(cr.approval_state, cr.approval_state)"
+                                />
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </t>
+        </t>
+    </template>
+
+    <!-- New request -->
+    <template id="portal_change_request_new" name="New Change Request">
+        <t t-call="portal.portal_layout">
+            <t t-set="title">New Change Request</t>
+            <h4 class="mt-4">Update personal information</h4>
+            <p class="text-muted">
+                Correct the details below for yourself or a member of your family. The current values are
+                shown; change only what needs updating. The request is reviewed and approved by the programme
+                before the record changes.
+            </p>
+            <!-- Picking a family member reloads the form with that person's current values. -->
+            <form action="/my/change-requests/new" method="get" class="mb-3">
+                <label
+                    for="registrant_picker"
+                    class="form-label"
+                >This request concerns</label>
+                <select
+                    id="registrant_picker"
+                    name="registrant_id"
+                    class="form-select"
+                    onchange="this.form.submit()"
+                >
+                    <t t-foreach="family_members" t-as="member">
+                        <option
+                            t-att-value="member.id"
+                            t-att-selected="'selected' if member == registrant else None"
+                        >
+                            <t t-out="member.name" />
+                            <t
+                                t-if="member == request.env.user.partner_id"
+                            > (myself)</t>
+                        </option>
+                    </t>
+                </select>
+            </form>
+            <form action="/my/change-requests/submit" method="post" class="mt-3">
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    t-att-value="request.csrf_token()"
+                />
+                <input type="hidden" name="registrant_id" t-att-value="registrant.id" />
+                <div class="row">
+                    <t t-foreach="fields" t-as="field">
+                        <t t-set="name" t-value="field[0]" />
+                        <t t-set="label" t-value="field[1]" />
+                        <t t-set="kind" t-value="field[2]" />
+                        <t t-set="value" t-value="current.get(name)" />
+                        <div class="col-12 col-md-6 mb-3">
+                            <label t-att-for="name" class="form-label" t-out="label" />
+                            <t t-if="kind == 'gender'">
+                                <select
+                                    t-att-id="name"
+                                    t-att-name="name"
+                                    class="form-select"
+                                >
+                                    <option value="">—</option>
+                                    <t t-foreach="genders" t-as="gender">
+                                        <option
+                                            t-att-value="gender.id"
+                                            t-att-selected="'selected' if value and gender.id == value.id else None"
+                                            t-out="gender.display or gender.code"
+                                        />
+                                    </t>
+                                </select>
+                            </t>
+                            <t t-elif="kind == 'date'">
+                                <input
+                                    type="date"
+                                    t-att-id="name"
+                                    t-att-name="name"
+                                    class="form-control"
+                                    t-att-value="value and value.isoformat() or ''"
+                                />
+                            </t>
+                            <t t-else="">
+                                <input
+                                    type="text"
+                                    t-att-id="name"
+                                    t-att-name="name"
+                                    class="form-control"
+                                    t-att-value="value or ''"
+                                />
+                            </t>
+                        </div>
+                    </t>
+                </div>
+                <div class="mb-3">
+                    <label for="reason" class="form-label">Reason for the change</label>
+                    <textarea id="reason" name="reason" class="form-control" rows="3" />
+                </div>
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >Submit for approval</button>
+                <a href="/my/change-requests" class="btn btn-link">Cancel</a>
+            </form>
+        </t>
+    </template>
+
+    <!-- Detail -->
+    <template id="portal_change_request_detail" name="Change Request">
+        <t t-call="portal.portal_layout">
+            <t t-set="title" t-value="change_request.name" />
+            <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
+                <h4 class="mb-0">
+                    <t t-out="change_request.name" />
+                </h4>
+                <span
+                    t-attf-class="badge rounded-pill fs-6 #{'text-bg-success' if change_request.approval_state == 'approved' else 'text-bg-danger' if change_request.approval_state == 'rejected' else 'text-bg-warning' if change_request.approval_state == 'revision' else 'text-bg-info'}"
+                    t-out="state_label"
+                />
+            </div>
+            <dl class="row mb-3">
+                <dt class="col-sm-3">Type</dt>
+                <dd class="col-sm-9" t-out="change_request.request_type_id.name" />
+                <dt class="col-sm-3">Concerns</dt>
+                <dd class="col-sm-9" t-out="change_request.registrant_id.name" />
+                <dt class="col-sm-3">Submitted</dt>
+                <dd class="col-sm-9">
+                    <span t-field="change_request.create_date" />
+                </dd>
+                <t t-if="change_request.description">
+                    <dt class="col-sm-3">Reason</dt>
+                    <dd class="col-sm-9" t-out="change_request.description" />
+                </t>
+                <t t-if="review_comment">
+                    <dt class="col-sm-3">Reviewer's comment</dt>
+                    <dd class="col-sm-9" t-out="review_comment" />
+                </t>
+            </dl>
+            <t t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th>Field</th>
+                        <th>Current</th>
+                        <th>Requested</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="rows" t-as="row">
+                        <tr t-att-class="'table-warning' if row['changed'] else None">
+                            <td t-out="row['label']" />
+                            <td>
+                                <t t-out="row['current'] or '—'" />
+                            </td>
+                            <td>
+                                <strong
+                                    t-if="row['changed']"
+                                    t-out="row['proposed'] or '—'"
+                                />
+                                <t t-else="" t-out="row['proposed'] or '—'" />
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </t>
+            <p class="text-muted small">
+                Highlighted rows are the changes you requested. Your record is updated only once the request is
+                approved.
+            </p>
+        </t>
+    </template>
+</odoo>

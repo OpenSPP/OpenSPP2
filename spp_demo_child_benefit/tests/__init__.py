@@ -2,3 +2,4 @@
 from . import test_demo_settings
 from . import test_demo_setup
 from . import test_grm_portal_family
+from . import test_cr_portal

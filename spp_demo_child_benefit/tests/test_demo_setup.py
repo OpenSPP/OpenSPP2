@@ -183,7 +183,7 @@ class TestDemoSetup(TransactionCase):
         for code in ("edit_individual", "edit_group", "update_id"):
             cr_type = CRType.search([("code", "=", code)], limit=1)
             self.assertTrue(cr_type, f"CR type {code} missing")
-            self.assertEqual(cr_type.approval_definition_id.approval_group_id.name, "Validator")
+            self.assertEqual(cr_type.approval_definition_id.approval_group_id.name, "Manager")
         # The advanced pack is deliberately not part of the demo.
         self.assertFalse(CRType.search([("code", "=", "exit_registrant")]))
         pending = self.env["spp.change.request"].search([("approval_state", "=", "pending")])
@@ -200,6 +200,10 @@ class TestDemoSetup(TransactionCase):
         self.assertEqual(pending.create_uid, officer)
         self.assertFalse(officer.has_group("spp_change_request_v2.group_cr_validator"))
         self.assertTrue(manager.has_group("spp_change_request_v2.group_cr_validator"))
+        # Approvers are the group's explicit members, so the manager must be
+        # a direct member of the approval group, not just an implied one.
+        self.assertIn(manager, pending.request_type_id.approval_definition_id.get_approvers(pending))
+        self.assertNotIn(officer, pending.request_type_id.approval_definition_id.get_approvers(pending))
 
     def test_portal_grievance_acl_hardened(self):
         """F1: the portal login must not be able to read other people's

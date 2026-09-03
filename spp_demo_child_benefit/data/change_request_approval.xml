@@ -2,7 +2,9 @@
 <odoo>
     <!-- Change requests: the officer submits, the programme manager approves.
          The base change-request types ship without an approval workflow, so
-         attach one here; without it a submission is refused. The base types are
+         attach one here; without it a submission is refused. Approvers are the
+         group's explicit members (implied membership does not count), so the
+         group is the one the demo manager holds directly. The base types are
          linked to it by the demo generator (their xmlids are noupdate, so an
          XML override would only apply on a fresh install). -->
     <data noupdate="1">
@@ -15,7 +17,7 @@
             <field name="approval_type">group</field>
             <field
                 name="approval_group_id"
-                ref="spp_change_request_v2.group_cr_validator"
+                ref="spp_change_request_v2.group_cr_manager"
             />
             <field name="notify_on_submit" eval="True" />
             <field name="notify_on_approve" eval="True" />
