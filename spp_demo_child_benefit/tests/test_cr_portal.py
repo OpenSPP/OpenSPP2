@@ -111,6 +111,8 @@ class TestChangeRequestPortal(HttpCase):
         self.assertTrue(cr.is_applied)
         self.gurung.invalidate_recordset()
         self.assertEqual(self.gurung.phone, "+000 44 555 666")
+        # The number also lands in the registry's Phone Numbers table.
+        self.assertIn("+000 44 555 666", self.gurung.phone_number_ids.mapped("phone_no"))
         # One review, marked once: no duplicate processing from the delegation.
         self.assertEqual(len(cr.approval_review_ids), 1)
 

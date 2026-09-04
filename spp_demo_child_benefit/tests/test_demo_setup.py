@@ -201,6 +201,32 @@ class TestDemoSetup(TransactionCase):
             for expected in ("Programs", "Registry", "Change Requests"):
                 self.assertIn(expected, roots, f"'{expected}' missing for {login}")
 
+    def test_phone_written_on_a_registrant_creates_its_phone_number_line(self):
+        mother = self.env["res.partner"].search([("name", "=", "Mother One")], limit=1)
+        self.assertFalse(mother.phone_number_ids)
+        mother.write({"phone": "+000 17 000 111"})
+        self.assertEqual(mother.phone_number_ids.mapped("phone_no"), ["+000 17 000 111"])
+        # Idempotent, and a second number adds a second line.
+        mother.write({"phone": "+000 17 000 111"})
+        self.assertEqual(len(mother.phone_number_ids), 1)
+        mother.write({"phone": "+000 17 000 111, +000 17 000 222"})
+        self.assertEqual(len(mother.phone_number_ids), 2)
+        # Non-registrant partners are left alone.
+        plain = self.env["res.partner"].create({"name": "Plain Contact", "phone": "+000 1 234"})
+        self.assertFalse(plain.phone_number_ids)
+
+    def test_officer_determination_resolves_pending_twins_after_install(self):
+        """The PMU beat: recording the birth sequence on the unsequenced twins
+        resolves their ranks. This runs through res.partner.write, which the
+        audit module wraps; the hooks are refreshed at install so the
+        recompute is reachable without a server restart."""
+        twins = self.env["res.partner"].search([("name", "in", ["Child Six-Twin1", "Child Six-Twin2"])], order="id")
+        self.assertEqual(twins.mapped("birth_order_state"), ["pending_determination"] * 2)
+        twins[0].write({"birth_sequence": 1})
+        twins[1].write({"birth_sequence": 2})
+        self.assertEqual(twins.mapped("birth_order"), [2, 3])
+        self.assertEqual(set(twins.mapped("birth_order_state")), {"computed"})
+
     def test_individual_form_shows_the_phone_the_change_request_writes(self):
         view = self.env.ref("spp_registry.view_individuals_form")
         arch = self.env["res.partner"].get_view(view_id=view.id)["arch"]

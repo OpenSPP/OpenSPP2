@@ -159,9 +159,35 @@ def create_demo_environment(env):
     return True
 
 
+def refresh_audit_hooks(env):
+    """Re-wrap the audit module's method hooks so they see this module's overrides.
+
+    spp_audit patches ``create``/``write``/``unlink`` directly on the audited
+    model classes and never re-wraps once its wrapper is in place. A module
+    installed later in the same server process therefore has its overrides of
+    those methods on audited models (``res.partner`` here: the birth-order
+    recompute, the phone-number sync) shadowed until the server restarts.
+    Dropping the stale wrappers and letting the audit module wrap again
+    captures the full method chain. Harmless when nothing is stale.
+    """
+    Rule = env.get("spp.audit.rule")
+    if Rule is None or not hasattr(Rule, "_register_hook"):
+        return
+    for rule in Rule.sudo().search([]):
+        if rule.model_id.model not in env.registry.models:
+            continue
+        cls = type(env[rule.model_id.model])
+        for method in getattr(Rule, "_methods", ("create", "write", "unlink")):
+            func = cls.__dict__.get(method)
+            if func is not None and getattr(func, "__name__", "").startswith("audit_"):
+                delattr(cls, method)
+    Rule._register_hook()
+
+
 def post_init_hook(env):
     _logger.info("Child benefit demo setup starting")
     create_demo_environment(env)
+    refresh_audit_hooks(env)
 
 
 # Portal logins to demonstrate the monitoring portal from a family head's
