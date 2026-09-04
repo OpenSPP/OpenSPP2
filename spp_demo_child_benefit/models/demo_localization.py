@@ -142,24 +142,33 @@ class DemoLocalization(models.AbstractModel):
         settings.execute()
         summary.append(_("%s theme colour(s) set") % len(values))
 
-    def _refresh_open_change_requests(self, registrant):
-        """Re-issue the registrant's pending change requests under their new name.
+    def _refresh_open_change_requests(self):
+        """Re-issue pending change requests whose name snapshot drifted from
+        the registrant. Returns how many were re-issued.
 
         A request's detail is prefilled at creation and applied in full on
         approval, so a request created before the pack would write the old name
         back over the localized one. The proposed values are locked once
         submitted (by design), so the request is recreated: same reference,
         type, applicant, description and requested changes, prefilled from the
-        renamed registrant, and submitted again by its original author."""
+        renamed registrant, and submitted again by its original author.
+        Keyed on the drift itself, so re-applying a pack is idempotent."""
         ChangeRequest = self.env.get("spp.change.request")
         if ChangeRequest is None:
-            return
+            return 0
         pending = ChangeRequest.search(
-            [("registrant_id", "=", registrant.id), ("approval_state", "in", ("pending", "revision"))]
+            [("approval_state", "in", ("pending", "revision")), ("registrant_id", "!=", False)]
         )
+        reissued = 0
         for old in pending:
+            registrant = old.registrant_id
             detail = old.get_detail()
             if not detail or old.request_type_id.apply_strategy != "field_mapping":
+                continue
+            if not any(
+                field in detail._fields and detail[field] != registrant[field]
+                for field in ("given_name", "family_name")
+            ):
                 continue
             mapped = [m.source_field for m in old.request_type_id.apply_mapping_ids if m.source_field]
             carried = {
@@ -185,6 +194,8 @@ class DemoLocalization(models.AbstractModel):
             if carried:
                 fresh_detail.write(carried)
             fresh.action_submit_for_approval()
+            reissued += 1
+        return reissued
 
     def apply_pack(self, raw):
         """Apply a localization pack. Idempotent — renames already applied are
@@ -236,7 +247,6 @@ class DemoLocalization(models.AbstractModel):
                     "family_name": parts[1] if len(parts) > 1 else "",
                 }
             )
-            self._refresh_open_change_requests(record)
 
         for index, ordinal in enumerate(ORDINALS):
             if index < len(mothers):
@@ -261,6 +271,9 @@ class DemoLocalization(models.AbstractModel):
                 renamed_people += 1
         if renamed_people:
             summary.append(_("%s person record(s) renamed") % renamed_people)
+        reissued = self._refresh_open_change_requests()
+        if reissued:
+            summary.append(_("%s pending change request(s) re-issued under the new names") % reissued)
 
         _logger.info("Demo localization applied: %s", ", ".join(summary) or "nothing matched")
         return summary
