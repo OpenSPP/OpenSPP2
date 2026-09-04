@@ -433,6 +433,10 @@ class TestCycleWorkflow(TransactionCase):
         cycle._compute_total_amount_in_words()
         self.assertIn("Five Hundred", cycle.total_amount_in_words)
 
+        cycle_fr = cycle.with_context(lang="fr_FR")
+        cycle_fr._compute_total_amount_in_words()
+        self.assertIn("cinq cents", cycle_fr.total_amount_in_words.lower())
+
     def test_approval_state_mapping(self):
         """_compute_approval_state maps cycle state to the approval mixin state correctly."""
         cycle = self._make_cycle(name="Approval State Mapping Cycle [CYCLE TEST]")
