@@ -427,6 +427,7 @@ services:
       - ./backup.sh:/backup.sh:ro,z
       - ./backup-entrypoint.sh:/backup-entrypoint.sh:ro,z
       - backup_data:/backups:rw,z
+      - odoo_data:/odoo_data:ro,z
     networks:
       - openspp-prod
     restart: unless-stopped

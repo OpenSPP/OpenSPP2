@@ -217,6 +217,7 @@ The production stack includes automated PostgreSQL backups:
 - **Schedule:** Daily at 2am (configurable via `BACKUP_SCHEDULE`)
 - **Retention:** 7 daily, 4 weekly, 6 monthly
 - **Location:** `backup_data` Docker volume
+- **Filestore:** When the `odoo_data` volume is mounted on the backup service, attachments under `/odoo_data/filestore/<database>` are archived daily as `*_filestore_*.tar.gz` alongside the database dump
 
 To restore a backup:
 
