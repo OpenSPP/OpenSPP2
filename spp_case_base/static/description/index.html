@@ -540,6 +540,16 @@ notification templates</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.1</h1>
+<ul class="simple">
+<li>fix(case): completing an intervention plan now clears <tt class="docutils literal">is_current</tt>,
+so a finished plan stops being the case’s current plan. Previously
+only the revision path released the flag, leaving <tt class="docutils literal">current_plan_id</tt>
+pointing at completed work while <tt class="docutils literal">has_active_plan</tt> read False, and
+blocking any new plan from being marked current.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
