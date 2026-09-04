@@ -401,6 +401,10 @@ class TestPendingScanSweep(TransactionCase):
             "config_param_pending_sweep_min_age_minutes",
             "config_param_pending_sweep_batch_size",
             "config_param_pending_sweep_max_attempts",
+            "ir_cron_purge_quarantined_files",
+            "ir_cron_cleanup_forensic_downloads",
+            "config_param_quarantine_retention_days",
+            "config_param_forensic_download_retention_hours",
         ):
             with self.subTest(record=name):
                 imd = self.env["ir.model.data"].search([("module", "=", "spp_attachment_av_scan"), ("name", "=", name)])
