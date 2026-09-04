@@ -93,6 +93,42 @@ class TestChangeRequestPortal(HttpCase):
         self.assertEqual(page.status_code, 200)
         self.assertIn("Approved", page.text)
 
+    def test_approving_from_the_approvals_app_applies_too(self):
+        """The Approvals app approves the review record; the request must
+        follow (approved, applied), exactly as from its own form."""
+        self._login()
+        csrf = self._csrf(self.url_open("/my/change-requests/new").text)
+        self._submit(csrf, phone="+000 44 555 666")
+        cr = self.env["spp.change.request"].search([("applicant_id", "=", self.gurung.id)], order="id desc", limit=1)
+        review = cr.approval_review_ids.filtered(lambda r: r.status == "pending")
+        self.assertEqual(len(review), 1)
+        review.with_user(self.manager).action_approve(comment="ok from the approvals list")
+        review.invalidate_recordset()
+        cr.invalidate_recordset()
+        self.assertEqual(review.status, "approved")
+        self.assertEqual(review.reviewer_id, self.manager)
+        self.assertEqual(cr.approval_state, "approved")
+        self.assertTrue(cr.is_applied)
+        self.gurung.invalidate_recordset()
+        self.assertEqual(self.gurung.phone, "+000 44 555 666")
+        # One review, marked once: no duplicate processing from the delegation.
+        self.assertEqual(len(cr.approval_review_ids), 1)
+
+    def test_rejecting_from_the_approvals_app_rejects_the_request(self):
+        self._login()
+        csrf = self._csrf(self.url_open("/my/change-requests/new").text)
+        self._submit(csrf, city="Nowhere")
+        cr = self.env["spp.change.request"].search([("applicant_id", "=", self.gurung.id)], order="id desc", limit=1)
+        review = cr.approval_review_ids.filtered(lambda r: r.status == "pending")
+        review.with_user(self.manager).action_reject(comment="not enough evidence")
+        review.invalidate_recordset()
+        cr.invalidate_recordset()
+        self.assertEqual(review.status, "rejected")
+        self.assertEqual(cr.approval_state, "rejected")
+        self.assertFalse(cr.is_applied)
+        self.gurung.invalidate_recordset()
+        self.assertNotEqual(self.gurung.city, "Nowhere")
+
     def test_submit_for_child_and_rejections(self):
         self._login()
         csrf = self._csrf(self.url_open("/my/change-requests/new").text)

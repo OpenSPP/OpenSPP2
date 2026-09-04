@@ -50,6 +50,10 @@ class TestDemoSettings(TransactionCase):
         self.assertEqual(self.settings.demo_beneficiary_count, expected_qualified_count())
 
     def test_localization_pack_applies_and_persists(self):
+        mother_one = self.env["res.partner"].search([("name", "=", "Mother One")], limit=1)
+        seeded = self.env["spp.change.request"].search([("registrant_id", "=", mother_one.id)])
+        self.assertEqual(len(seeded), 1)
+        seeded_name, seeded_author = seeded.name, seeded.create_uid
         raw = json.dumps(PACK)
         self.settings.demo_localization_file = base64.b64encode(raw.encode())
         self.settings.action_apply_demo_localization()
@@ -63,6 +67,18 @@ class TestDemoSettings(TransactionCase):
         self.assertEqual(localized_mother.given_name, "Localized")
         self.assertEqual(localized_mother.family_name, "Mother A")
         self.assertTrue(Partner.search([("name", "=", "Localized Family")]))
+        # The seeded pending change request on that mother must follow the
+        # rename, or approving it would write "Mother One" back.
+        pending = self.env["spp.change.request"].search([("registrant_id", "=", localized_mother.id)])
+        self.assertEqual(len(pending), 1)
+        self.assertEqual(pending.approval_state, "pending")
+        self.assertEqual(pending.name, seeded_name)  # same reference as before
+        self.assertEqual(pending.create_uid, seeded_author)  # still the officer's request
+        self.assertTrue(pending.approval_review_ids.filtered(lambda r: r.status == "pending"))
+        detail = pending.get_detail()
+        self.assertEqual((detail.given_name, detail.family_name), ("Localized", "Mother A"))
+        self.assertEqual(detail.phone, "+000 17 654 321")  # the requested change is kept
+        self.assertEqual(detail.address_line1, "12 Riverside Lane")
         # Company identity and currency follow the pack; every currency the
         # demo shows (company, programme, journal, fund, cycle) agrees.
         company = self.env.company

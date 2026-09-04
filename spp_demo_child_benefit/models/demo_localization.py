@@ -142,6 +142,50 @@ class DemoLocalization(models.AbstractModel):
         settings.execute()
         summary.append(_("%s theme colour(s) set") % len(values))
 
+    def _refresh_open_change_requests(self, registrant):
+        """Re-issue the registrant's pending change requests under their new name.
+
+        A request's detail is prefilled at creation and applied in full on
+        approval, so a request created before the pack would write the old name
+        back over the localized one. The proposed values are locked once
+        submitted (by design), so the request is recreated: same reference,
+        type, applicant, description and requested changes, prefilled from the
+        renamed registrant, and submitted again by its original author."""
+        ChangeRequest = self.env.get("spp.change.request")
+        if ChangeRequest is None:
+            return
+        pending = ChangeRequest.search(
+            [("registrant_id", "=", registrant.id), ("approval_state", "in", ("pending", "revision"))]
+        )
+        for old in pending:
+            detail = old.get_detail()
+            if not detail or old.request_type_id.apply_strategy != "field_mapping":
+                continue
+            mapped = [m.source_field for m in old.request_type_id.apply_mapping_ids if m.source_field]
+            carried = {
+                field: (detail[field].id if hasattr(detail[field], "id") else detail[field])
+                for field in mapped
+                if field in detail._fields and field not in ("given_name", "family_name") and detail[field]
+            }
+            vals = {
+                "name": old.name,
+                "request_type_id": old.request_type_id.id,
+                "registrant_id": registrant.id,
+                "applicant_id": old.applicant_id.id,
+                "applicant_phone": old.applicant_phone,
+                "description": old.description,
+                "source_reference": old.source_reference,
+            }
+            author = old.create_uid
+            self.env["spp.approval.review"].sudo().search([("model", "=", old._name), ("res_id", "=", old.id)]).unlink()
+            old.unlink()
+            fresh = ChangeRequest.with_user(author).create(vals)
+            fresh_detail = fresh.get_detail()
+            fresh_detail.prefill_from_registrant()
+            if carried:
+                fresh_detail.write(carried)
+            fresh.action_submit_for_approval()
+
     def apply_pack(self, raw):
         """Apply a localization pack. Idempotent — renames already applied are
         simply not found the second time."""
@@ -192,6 +236,7 @@ class DemoLocalization(models.AbstractModel):
                     "family_name": parts[1] if len(parts) > 1 else "",
                 }
             )
+            self._refresh_open_change_requests(record)
 
         for index, ordinal in enumerate(ORDINALS):
             if index < len(mothers):
