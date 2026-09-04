@@ -459,14 +459,16 @@ def _create_one_family(env, refs, index, name, mother_name, father_name, childre
     return family
 
 
-def _extra_family_children(today, family_index, qualified_count):
+def _extra_family_children(today, family_index, qualified_count, taken=()):
     """Two older, non-qualified siblings plus `qualified_count` recent children
     (3rd birth order and up, each under 36 months) so the family has exactly
-    `qualified_count` qualified beneficiaries."""
+    `qualified_count` qualified beneficiaries. Given names skip those in
+    `taken` (the parents'), so no child shares a full name with a parent."""
     fam_name = _EXTRA_FAMILY_NAMES[family_index % len(_EXTRA_FAMILY_NAMES)]
+    pool = [name for name in _EXTRA_GIVEN_NAMES if name not in taken]
 
     def given(offset):
-        return _EXTRA_GIVEN_NAMES[(family_index * 3 + offset) % len(_EXTRA_GIVEN_NAMES)]
+        return pool[(family_index * 3 + offset) % len(pool)]
 
     children = [
         (f"{given(0)} {fam_name}", today - relativedelta(years=6, months=family_index % 5), {}),
@@ -497,9 +499,11 @@ def _create_families(env):
     for offset, qualified_count in enumerate(EXTRA_FAMILY_PROFILES):
         index = len(families)
         fam_name = _EXTRA_FAMILY_NAMES[offset % len(_EXTRA_FAMILY_NAMES)]
-        mother_name = f"{_EXTRA_GIVEN_NAMES[offset % len(_EXTRA_GIVEN_NAMES)]} {fam_name}"
-        father_name = f"{_EXTRA_GIVEN_NAMES[(offset + 11) % len(_EXTRA_GIVEN_NAMES)]} {fam_name}"
-        children = _extra_family_children(today, offset, qualified_count)
+        mother_given = _EXTRA_GIVEN_NAMES[offset % len(_EXTRA_GIVEN_NAMES)]
+        father_given = _EXTRA_GIVEN_NAMES[(offset + 11) % len(_EXTRA_GIVEN_NAMES)]
+        mother_name = f"{mother_given} {fam_name}"
+        father_name = f"{father_given} {fam_name}"
+        children = _extra_family_children(today, offset, qualified_count, taken=(mother_given, father_given))
         families.append(_create_one_family(env, refs, index, f"{fam_name} Family", mother_name, father_name, children))
     _logger.info("Created %s demo families", len(families))
     return families

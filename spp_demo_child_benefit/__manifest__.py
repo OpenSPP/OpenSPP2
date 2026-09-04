@@ -36,6 +36,7 @@
         "data/grm_categories.xml",
         "data/demo_filters.xml",
         "views/res_config_settings_views.xml",
+        "views/individual_views.xml",
         "views/grm_portal_templates.xml",
         "views/cr_portal_templates.xml",
         # Last: it moves the cards the two templates above add to the portal home.

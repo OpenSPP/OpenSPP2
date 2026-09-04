@@ -71,6 +71,11 @@ class TestDemoSetup(TransactionCase):
         self.assertEqual(len(schedules), expected_qualified_count())
         for schedule in schedules:
             self.assertEqual(schedule.line_count, 37)
+        # Every person has a distinct full name: a demo audience must never
+        # open the wrong "Tashi Wangmo".
+        names = self.env["res.partner"].search([("is_registrant", "=", True), ("is_group", "=", False)]).mapped("name")
+        duplicates = sorted({n for n in names if names.count(n) > 1})
+        self.assertEqual(duplicates, [], f"duplicate individual names: {duplicates}")
         # Twins as 3rd and 4th: ranked individually, both enrolled with a schedule.
         twins = self.env["res.partner"].search(
             [("name", "in", ["Child Nine-Twin1", "Child Nine-Twin2"])], order="birth_sequence"
@@ -195,6 +200,12 @@ class TestDemoSetup(TransactionCase):
             roots, _ = self._loaded_root_menus(user)
             for expected in ("Programs", "Registry", "Change Requests"):
                 self.assertIn(expected, roots, f"'{expected}' missing for {login}")
+
+    def test_individual_form_shows_the_phone_the_change_request_writes(self):
+        view = self.env.ref("spp_registry.view_individuals_form")
+        arch = self.env["res.partner"].get_view(view_id=view.id)["arch"]
+        self.assertIn('name="phone"', arch)
+        self.assertIn('name="email"', arch)
 
     def test_change_request_beat(self):
         """Base change-request types carry an approval workflow, and one

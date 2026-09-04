@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- The "Edit Individual Information" change request writes the partner's
+         phone field, which the registrant form does not display (it shows the
+         Phone Numbers table). Show the phone next to the e-mail so an applied
+         change is visible where the demo looks for it. -->
+    <record id="view_individuals_form_phone" model="ir.ui.view">
+        <field name="name">res.partner.individual.form.phone</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
+        <field name="arch" type="xml">
+            <xpath
+                expr="//group[@name='contact_section']//field[@name='email']"
+                position="after"
+            >
+                <field
+                    name="phone"
+                    widget="phone"
+                    readonly="disabled"
+                    help="Primary phone number"
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>
