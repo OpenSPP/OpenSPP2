@@ -106,7 +106,14 @@ RUN --mount=type=cache,target=/root/.cache/uv,sharing=locked \
 ARG OCA_SERVER_UX_REF=19.0
 ARG OCA_SERVER_TOOLS_REF=19.0
 ARG ODOO_JOB_WORKER_REF=19.0
-ARG OCA_SERVER_BACKEND_REF=19.0
+# PINNED, not tracking 19.0: base_user_role renamed res.users.role_ids to
+# user_role_ids (OCA/server-backend c7e2d1a6, 2026-03-04), and
+# spp_user_roles/views/user.xml still xpaths //field[@name='role_ids'], so a
+# build against today's branch head aborts the registry load with
+# ParseError: Element '<xpath expr="//field[@name='role_ids']">' cannot be
+# located in parent view. 4e3a012a is the last commit before that rename.
+# Drop this pin back to 19.0 once spp_user_roles is fixed.
+ARG OCA_SERVER_BACKEND_REF=4e3a012a7b6f2516ebde8fdaeada6ae706780c7d
 ARG OCA_REST_FRAMEWORK_REF=19.0
 ARG MUK_IT_REF=19.0
 
