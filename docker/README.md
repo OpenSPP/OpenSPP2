@@ -349,6 +349,33 @@ docker build -f docker/Dockerfile -t openspp .
 docker build --build-arg INSTALL_DEV=1 -f docker/Dockerfile -t openspp:dev .
 ```
 
+### Pinning third-party addons
+
+The OCA and third-party addon repositories are downloaded during the build. Each one has
+a `*_REF` build argument that accepts a branch, a tag or a commit sha and defaults to
+`19.0`:
+
+| Build arg                | Repository                |
+| ------------------------ | ------------------------- |
+| `OCA_SERVER_UX_REF`      | `OCA/server-ux`           |
+| `OCA_SERVER_TOOLS_REF`   | `OCA/server-tools`        |
+| `ODOO_JOB_WORKER_REF`    | `OpenSPP/odoo-job-worker` |
+| `OCA_SERVER_BACKEND_REF` | `OCA/server-backend`      |
+| `OCA_REST_FRAMEWORK_REF` | `OCA/rest-framework`      |
+| `MUK_IT_REF`             | `muk-it/odoo-modules`     |
+
+```bash
+# Reproducible build: pin the addons to exact commits
+docker build \
+    --build-arg OCA_SERVER_UX_REF=8e5120600987969156c2a59c1ad86bec37318966 \
+    --build-arg OCA_SERVER_TOOLS_REF=19.0 \
+    -f docker/Dockerfile -t openspp .
+```
+
+Left unset, an argument follows the head of the `19.0` branch, so two builds of the same
+OpenSPP commit can end up with different addon code. Pin the refs for builds that have
+to be reproducible.
+
 ## Health Check
 
 The container exposes a health endpoint at `/web/health` on port 8069.
