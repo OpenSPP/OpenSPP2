@@ -98,8 +98,10 @@ RUN --mount=type=cache,target=/root/.cache/uv,sharing=locked \
     mv /opt/odoo-src /opt/odoo/odoo; \
     uv pip install --no-deps -e /opt/odoo/odoo
 
-# Third-party addon refs. Each takes a branch, a tag or a commit sha, so a
-# deployment can pin an exact commit instead of tracking a moving branch:
+# Third-party addon refs. Each takes a branch or a commit sha, so a deployment
+# can pin an exact commit instead of tracking a moving branch. A tag name is not
+# accepted (it resolves under refs/tags, which this does not build) - pass the
+# commit sha the tag points at:
 # docker build --build-arg OCA_SERVER_UX_REF=<sha> ...
 # Declared here rather than at the top of the stage so that changing a ref
 # only invalidates the download layer below.
