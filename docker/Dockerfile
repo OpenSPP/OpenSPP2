@@ -130,7 +130,9 @@ RUN --mount=type=cache,target=/tmp/downloads,sharing=locked \
         esac; \
         if [ ! -f "$tarball" ] || ! gzip -t "$tarball" 2>/dev/null; then \
             rm -f "$tarball"; \
-            curl -sSL -o "$tarball" "$url"; \
+            # -f so a bad ref fails here with the 404, not later in tar with
+            # "not in gzip format" over a 14-byte error body.
+            curl -fsSL -o "$tarball" "$url"; \
         fi; \
         mkdir -p /opt/extra-addons/${dest}; \
         tar -xzf "$tarball" -C /opt/extra-addons/${dest} --strip-components=1; \
