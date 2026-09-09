@@ -333,6 +333,7 @@ services:
       - ./backup.sh:/backup.sh:ro
       - ./backup-entrypoint.sh:/backup-entrypoint.sh:ro
       - backup_data:/backups
+      - odoo_data:/odoo_data:ro
     networks:
       - openspp-prod
     restart: always
