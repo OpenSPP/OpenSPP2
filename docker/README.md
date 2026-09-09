@@ -352,8 +352,8 @@ docker build --build-arg INSTALL_DEV=1 -f docker/Dockerfile -t openspp:dev .
 ### Pinning third-party addons
 
 The OCA and third-party addon repositories are downloaded during the build. Each one has
-a `*_REF` build argument that accepts a branch or a commit sha and defaults to `19.0`.
-A tag name is not accepted - resolve it to the commit sha it points at and pin that:
+a `*_REF` build argument that accepts a branch or a commit sha and defaults to `19.0`. A
+tag name is not accepted - resolve it to the commit sha it points at and pin that:
 
 | Build arg                | Repository                |
 | ------------------------ | ------------------------- |
@@ -368,7 +368,7 @@ A tag name is not accepted - resolve it to the commit sha it points at and pin t
 # Reproducible build: pin the addons to exact commits
 docker build \
     --build-arg OCA_SERVER_UX_REF=8e5120600987969156c2a59c1ad86bec37318966 \
-    --build-arg OCA_SERVER_TOOLS_REF=19.0 \
+    --build-arg OCA_SERVER_TOOLS_REF=028b450b06ebd70424534cbd89f37ed134f7200d \
     -f docker/Dockerfile -t openspp .
 ```
 
