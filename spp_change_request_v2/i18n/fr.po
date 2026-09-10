@@ -1420,6 +1420,11 @@ msgid "Change Request Audit"
 msgstr "Demande de modification Audit"
 
 #. module: spp_change_request_v2
+#: model:ir.model,name:spp_change_request_v2.model_spp_cr_birthdate_mixin
+msgid "Change Request Birthdate Guard Mixin"
+msgstr ""
+
+#. module: spp_change_request_v2
 #: model:spp.event.type,name:spp_change_request_v2.event_type_cr_conflict
 msgid "Change Request Conflict"
 msgstr "Demande de modification Conflit"
@@ -2162,6 +2167,12 @@ msgstr "Date of Birth"
 #: model:ir.model.fields,field_description:spp_change_request_v2.field_spp_cr_detail_exit_registrant__death_date
 msgid "Date of Death"
 msgstr "Date of Death"
+
+#. module: spp_change_request_v2
+#. odoo-python
+#: code:addons/spp_change_request_v2/models/birthdate_mixin.py:0
+msgid "Date of birth cannot be in the future: %(date)s."
+msgstr ""
 
 #. module: spp_change_request_v2
 #: model:ir.model.fields,field_description:spp_change_request_v2.field_spp_cr_detail_merge_registrants__deactivate_duplicates

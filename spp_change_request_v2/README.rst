@@ -853,6 +853,21 @@ Before declaring a new CR type complete:
 Changelog
 =========
 
+19.0.3.1.15
+~~~~~~~~~~~
+
+- fix(change_request): refuse a date of birth in the future while the
+  change request is being filled in, rather than at apply time. The Add
+  Member, Edit Individual and Create Group detail models and the Create
+  Group member wizard each store a proposed ``birthdate`` with no guard
+  of their own, so a future date survived submission and review and was
+  only refused when a strategy wrote it to ``res.partner`` on the final
+  approval — rolling back the whole approval with an error the approver
+  could not trace back to a field. A shared ``spp.cr.birthdate.mixin``
+  now applies the registry's rule at data entry, comparing against the
+  user's own today so a registrar east of UTC is not refused a birth
+  recorded earlier that local day (#362)
+
 19.0.3.1.14
 ~~~~~~~~~~~
 

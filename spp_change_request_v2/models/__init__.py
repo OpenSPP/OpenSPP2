@@ -1,5 +1,6 @@
 from . import conflict_rule
 from . import conflict_mixin
+from . import birthdate_mixin
 from . import change_request_type
 from . import change_request_type_mapping
 from . import change_request

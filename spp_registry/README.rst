@@ -139,6 +139,26 @@ Dependencies
 Changelog
 =========
 
+19.0.2.2.4
+~~~~~~~~~~
+
+- fix(registry): refuse a date of birth in the future on every write
+  path. ``_birthdate_onchange`` only runs in the form UI, so ORM
+  ``create``/``write``, CSV/Excel import and API writes (XML-RPC, API
+  v2, DCI) all persisted a future ``birthdate`` — which the non-stored
+  ``age`` compute then rendered as a negative number in views, exports
+  and API reads. A stored-field constraint now enforces it server-side,
+  comparing against the user's own today so a registrar east of UTC is
+  not refused a birth recorded earlier that local day, and naming the
+  record and the offending value so a bad row in a bulk import can be
+  found. The onchange is kept as the friendlier silent-reset UX in the
+  form (#362)
+- upgrade note: the constraint validates on write, so registrants
+  already holding a future birthdate are left as they are until
+  something writes that field, and that write then fails until the date
+  is corrected. Find them with:
+  ``SELECT id, display_name, birthdate FROM res_partner WHERE birthdate > CURRENT_DATE;``
+
 19.0.2.2.3
 ~~~~~~~~~~
 

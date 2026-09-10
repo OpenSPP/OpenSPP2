@@ -6,7 +6,7 @@ class SPPCRDetailEditIndividual(models.Model):
 
     _name = "spp.cr.detail.edit_individual"
     _description = "CR Detail: Edit Individual"
-    _inherit = ["spp.cr.detail.base", "mail.thread"]
+    _inherit = ["spp.cr.detail.base", "mail.thread", "spp.cr.birthdate.mixin"]
 
     # ══════════════════════════════════════════════════════════════════════════
     # PERSONAL INFORMATION

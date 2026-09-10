@@ -342,6 +342,12 @@ msgid "Date of Birth - mm/dd/yyyy"
 msgstr ""
 
 #. module: spp_registry
+#. odoo-python
+#: code:addons/spp_registry/models/individual.py:0
+msgid "Date of birth cannot be in the future: %(name)s has %(date)s."
+msgstr ""
+
+#. module: spp_registry
 #: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
 msgid "Date when the group was registered"
 msgstr ""
