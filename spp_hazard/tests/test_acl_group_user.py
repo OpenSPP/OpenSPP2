@@ -178,6 +178,27 @@ class TestHazardBaseUserNoAccess(HazardTestCase):
                 [("id", "=", self.registrant.id)],
                 ["name", "hazard_impact_count", "has_active_impact"],
             )
+        # The headline attack is the domain, not the field list: filtering or
+        # ordering on the gated columns must be refused too (presence oracle).
+        with self.assertRaises(AccessError):
+            partner_as_plain.search([("has_active_impact", "=", True)])
+        with self.assertRaises(AccessError):
+            partner_as_plain.search([("hazard_impact_count", ">", 0)])
+        with self.assertRaises(AccessError):
+            partner_as_plain.search([("id", "=", self.registrant.id)], order="hazard_impact_count desc")
+        with self.assertRaises(AccessError):
+            partner_as_plain.read_group([], ["hazard_impact_count:sum"], ["has_active_impact"])
+        # The O2M itself must not be reachable either, and all three must be
+        # hidden from fields_get(): that is what makes a bare read() with no
+        # field list (generic RPC clients) skip them instead of failing on them.
+        with self.assertRaises(AccessError):
+            partner_as_plain.search_read([("id", "=", self.registrant.id)], ["hazard_impact_ids"])
+        visible = partner_as_plain.fields_get(["hazard_impact_ids", "hazard_impact_count", "has_active_impact"])
+        self.assertEqual(visible, {})
+        # And the gated columns/filters are stripped from the list/search arch.
+        arch = partner_as_plain.get_view(view_type="list")["arch"]
+        self.assertNotIn("hazard_impact_count", arch)
+        self.assertNotIn("has_active_impact", arch)
 
     def test_hazard_viewer_can_read_registrant_impact_fields(self):
         """A hazard-group user keeps read on the registrant impact indicator fields."""

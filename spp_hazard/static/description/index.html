@@ -2463,6 +2463,14 @@ damage level, verification, notes) are readable only by hazard roles,
 Gate the impact UI on the registrant and incident forms (stat buttons,
 Emergency Response / Impacts pages, list columns, search filters) to
 users with impact read.</li>
+<li>fix(security): guard the stored registrant indicators
+<tt class="docutils literal">res.partner.hazard_impact_count</tt> / <tt class="docutils literal">has_active_impact</tt> with the
+same field-level <tt class="docutils literal">groups=</tt> as the impact ACL. Gating only the
+registrant list/search views left both columns readable over RPC
+(<tt class="docutils literal">search_read</tt>, <tt class="docutils literal">read_group</tt>, export, search domains) by any
+internal user — a per-registrant victim list. Stored computes run as
+superuser, so partner creation by users without impact read is
+unaffected (pinned by test).</li>
 <li>fix(security): guard <tt class="docutils literal">spp.hazard.incident.affected_registrant_count</tt>
 with field-level <tt class="docutils literal">groups=</tt>. <tt class="docutils literal">spp.hazard.incident</tt> stays broadly
 readable (sibling modules read incidents), but this aggregate is

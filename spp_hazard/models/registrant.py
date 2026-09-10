@@ -17,6 +17,10 @@ class ResPartner(models.Model):
         "spp.hazard.impact",
         "registrant_id",
         string="Hazard Impacts",
+        # Reading the O2M searches spp.hazard.impact in the user's env; gate it
+        # like the impact ACL so a bare read() of a partner by a user without
+        # impact read does not fail on this field.
+        groups="spp_hazard.group_hazard_read,spp_registry.group_registry_viewer,spp_security.group_spp_admin",
     )
     # Both indicators are derived from the sensitive impact table and stored on
     # the partner, so they are readable through the ORM (search_read, read_group,

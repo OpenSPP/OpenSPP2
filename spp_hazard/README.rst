@@ -1196,6 +1196,14 @@ Changelog
   Gate the impact UI on the registrant and incident forms (stat buttons,
   Emergency Response / Impacts pages, list columns, search filters) to
   users with impact read.
+- fix(security): guard the stored registrant indicators
+  ``res.partner.hazard_impact_count`` / ``has_active_impact`` with the
+  same field-level ``groups=`` as the impact ACL. Gating only the
+  registrant list/search views left both columns readable over RPC
+  (``search_read``, ``read_group``, export, search domains) by any
+  internal user — a per-registrant victim list. Stored computes run as
+  superuser, so partner creation by users without impact read is
+  unaffected (pinned by test).
 - fix(security): guard ``spp.hazard.incident.affected_registrant_count``
   with field-level ``groups=``. ``spp.hazard.incident`` stays broadly
   readable (sibling modules read incidents), but this aggregate is
