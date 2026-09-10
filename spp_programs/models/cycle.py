@@ -260,7 +260,11 @@ class SPPCycle(models.Model):
     def _compute_total_amount_in_words(self):
         for record in self:
             if record.total_amount and record.currency_id:
-                amount_in_words = num2words(record.total_amount, lang="en").title()
+                lang_code = (self.env.context.get("lang") or self.env.user.lang or "en_US").split("_")[0]
+                try:
+                    amount_in_words = num2words(record.total_amount, lang=lang_code).title()
+                except NotImplementedError:
+                    amount_in_words = num2words(record.total_amount, lang="en").title()
                 record.total_amount_in_words = f"{amount_in_words} {record.currency_id.name}"
             else:
                 record.total_amount_in_words = ""
