@@ -173,6 +173,64 @@ class AlertRule(models.Model):
         help="Number of alerts created by this rule",
     )
 
+    eval_as_user_id = fields.Many2one(
+        "res.users",
+        string="Evaluated As",
+        readonly=True,
+        help="User whose record-rule visibility bounds this rule's monitored search. "
+        "Set to whoever last defined what the rule targets, so evaluation can never "
+        "surface records the configurer cannot see. System-managed; not editable.",
+    )
+    # No Python `default` on purpose: a default would make Odoo's _init_column
+    # backfill existing rows with the *upgrade* user on module update (before the
+    # migration runs), and would let a client forge the value through a
+    # `default_eval_as_user_id` context key via default_get. The identity is set
+    # explicitly in create() instead, and the migration backfills existing rows.
+
+    # Fields that define what a rule reads or which records it surfaces. Changing
+    # any of them re-binds the evaluation identity to the editor (see write), so a
+    # rule can never be repointed — by model, domain, field, type, threshold, or by
+    # (re)activation — to surface records its editor is not allowed to see.
+    _EVAL_TARGETING_FIELDS = (
+        "model_id",
+        "domain_filter",
+        "monitored_field_id",
+        "date_field_id",
+        "rule_type",
+        "comparison",
+        "threshold_value",
+        "days_before",
+        "active",
+    )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Force the evaluation identity to the creator; it is never client-supplied.
+
+        Setting the key explicitly (rather than popping it) keeps the field present
+        in vals so Odoo's default_get — which honours a client `default_eval_as_user_id`
+        context key — is never consulted for it.
+        """
+        vals_list = [dict(vals, eval_as_user_id=self.env.uid) for vals in vals_list]
+        return super().create(vals_list)
+
+    def write(self, vals):
+        """Re-bind the evaluation identity to the editor when targeting changes.
+
+        eval_as_user_id is never client-writable directly; it tracks whoever last
+        defined what the rule targets, so record rules bound the monitored search
+        to that user's visibility regardless of the elevated cron that runs it. Note
+        the identity is `self.env.uid` (the acting user, preserved even under
+        `sudo()`); an explicit `with_user(<elevated>)` write would re-widen scope,
+        which is why only trusted internal callers should do that.
+        """
+        if "eval_as_user_id" in vals or any(field in vals for field in self._EVAL_TARGETING_FIELDS):
+            vals = dict(vals)
+            vals.pop("eval_as_user_id", None)
+            if any(field in vals for field in self._EVAL_TARGETING_FIELDS):
+                vals["eval_as_user_id"] = self.env.uid
+        return super().write(vals)
+
     def _compute_alert_count(self):
         """Compute the number of alerts associated with each rule."""
         alert_data = self.env["spp.alert"].read_group(
@@ -293,6 +351,31 @@ class AlertRule(models.Model):
         except KeyError:
             _logger.warning("Alert rule '%s' (ID: %d): model '%s' not found, skipping.", self.name, self.id, model_name)
             return 0
+
+        # Evaluate the monitored search as the user who configured what the rule
+        # targets (eval_as_user_id), not the elevated cron/superuser identity that
+        # may be triggering the run. Record rules are then enforced against the
+        # configurer, so a non-admin cannot surface — and leak, via alerts readable
+        # by all managers — records they are not allowed to see. eval_as_user_id is
+        # system-managed (re-bound to the editor on any targeting change) and never
+        # client-writable, so it cannot be forged to escalate. create_uid is the
+        # fallback for rows predating this field.
+        eval_user = self.eval_as_user_id or self.create_uid
+        if not eval_user:
+            # Fail closed: without a resolvable configurer we must not fall back to
+            # the elevated cron identity, which would search with record rules bypassed.
+            _logger.warning(
+                "Alert rule '%s' (ID: %d): no evaluation user resolved; skipping to avoid an elevated search.",
+                self.name,
+                self.id,
+            )
+            return 0
+        # Bind to the configurer AND their own company scope, so multi-company record
+        # rules apply as they would for that user — not as the triggering cron's
+        # default company. eval_user is a system-managed field, not client input.
+        Model = Model.with_user(eval_user.id).with_context(  # nosemgrep: odoo-with-user-unvalidated
+            allowed_company_ids=eval_user.company_ids.ids or eval_user.company_id.ids
+        )
 
         # Parse domain filter
         try:
@@ -453,9 +536,9 @@ class AlertRule(models.Model):
     # Cron
     # -------------------------------------------------------------------------
 
-    # Cron runs as superuser (OdooBot). Rule evaluation searches monitored models with
-    # full access, bypassing record rules. This is intentional — only managers can create
-    # rules, so the monitored scope is admin-controlled.
+    # Cron runs as superuser (OdooBot), but each rule's monitored search is evaluated as
+    # the rule's owner (see _evaluate_rule), so record rules still bound what a rule can
+    # surface to whoever configured it — the elevated cron identity does not widen scope.
     @api.model
     def _cron_evaluate_rules(self):
         """Scheduled action to evaluate all active, configured rules."""
