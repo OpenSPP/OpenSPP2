@@ -87,7 +87,7 @@ access from:
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Override ``get_emergency_eligible_registrants()`` to customize
+- Override ``_get_emergency_eligible_registrants()`` to customize
   eligibility logic beyond damage levels
 - Override ``_get_damage_level_domain()`` to add custom damage filtering
   rules
@@ -331,8 +331,14 @@ Changelog
   emergency-eligibility computes (``affected_registrant_count``,
   ``get_emergency_eligible_registrants``), so they keep working for
   non-hazard program users after impact read access was restricted to
-  hazard/registry roles. Only aggregate counts / eligible registrants
-  are surfaced, not impact rows.
+  hazard/registry roles. Only aggregate counts are surfaced to program
+  users without impact read; the list of eligible (impacted) registrants
+  is the identity linkage the impact ACL protects, so
+  ``action_view_affected_registrants`` now checks impact read access
+  server-side, its stat button is gated in the form, and
+  ``get_emergency_eligible_registrants()`` is renamed
+  ``_get_emergency_eligible_registrants()`` so it is no longer callable
+  over RPC (Python callers and overrides are unaffected).
 
 19.0.2.0.0
 ~~~~~~~~~~
