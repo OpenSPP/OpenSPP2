@@ -113,9 +113,15 @@ class SppProgram(models.Model):
             return [("damage_level", "in", ("critical", "totally_damaged"))]
         return []
 
-    def get_emergency_eligible_registrants(self):
+    def _get_emergency_eligible_registrants(self):
         """
         Get registrants eligible for this emergency program based on hazard impacts.
+
+        Private on purpose: the result is the list of registrants affected by a
+        hazard, i.e. the identity linkage the impact ACL protects. It is meant
+        for Python callers (eligibility logic, overrides), not for RPC. The UI
+        entry point is ``action_view_affected_registrants``, which checks impact
+        read access before exposing the list.
 
         Returns registrants who:
         - Have verified impact from one of the target incidents
@@ -159,9 +165,15 @@ class SppProgram(models.Model):
         }
 
     def action_view_affected_registrants(self):
-        """Open a list view of potentially affected registrants."""
+        """Open a list view of potentially affected registrants.
+
+        The aggregate count stays visible to every program user, but the list
+        names the impacted registrants, so it requires impact read access. The
+        stat button is gated in the view; this check covers RPC callers.
+        """
         self.ensure_one()
-        registrants = self.get_emergency_eligible_registrants()
+        self.env["spp.hazard.impact"].check_access("read")
+        registrants = self._get_emergency_eligible_registrants()
         return {
             "name": _("Affected Registrants - %s", self.name),
             "type": "ir.actions.act_window",

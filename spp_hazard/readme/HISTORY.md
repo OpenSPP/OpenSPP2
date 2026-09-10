@@ -1,6 +1,7 @@
 ### 19.0.2.1.1
 
 - fix(security): remove the `base.group_user` read grant on `spp.hazard.impact` so registrant-linked impact records (name, damage level, verification, notes) are readable only by hazard roles, `registry_viewer`, and admins — not every internal user via RPC. Gate the impact UI on the registrant and incident forms (stat buttons, Emergency Response / Impacts pages, list columns, search filters) to users with impact read.
+- fix(security): guard the stored registrant indicators `res.partner.hazard_impact_count` / `has_active_impact` with the same field-level `groups=` as the impact ACL. Gating only the registrant list/search views left both columns readable over RPC (`search_read`, `read_group`, export, search domains) by any internal user — a per-registrant victim list. Stored computes run as superuser, so partner creation by users without impact read is unaffected (pinned by test).
 - fix(security): guard `spp.hazard.incident.affected_registrant_count` with field-level `groups=`. `spp.hazard.incident` stays broadly readable (sibling modules read incidents), but this aggregate is derived from the sensitive impact table via raw ACL-bypassing SQL, so a plain internal user could read the affected-registrant count over RPC even without impact read. The field is now restricted to hazard read / `registry_viewer` / admin, which also strips it from the incident list column for other users.
 
 ### 19.0.2.1.0
