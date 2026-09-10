@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <record id="view_manager_setup_wizard_form" model="ir.ui.view">
+        <field name="name">spp.manager.setup.wizard.form</field>
+        <field name="model">spp.manager.setup.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Add a Configuration Method">
+                <field name="program_id" invisible="1" />
+                <field name="category" invisible="1" />
+                <field name="method_count" invisible="1" />
+                <group>
+                    <!--
+                        OP#1172: method first, then the name. Radio rather than
+                        a dropdown so the choices are visible without opening
+                        anything, and the description below explains the
+                        selected one instead of leaving the user to guess from
+                        its label.
+
+                        A category with a single method asks nothing here — the
+                        Add button already picked it, and a radio list of one is
+                        just noise.
+                    -->
+                    <field
+                        name="method"
+                        widget="radio"
+                        invisible="method_count &lt;= 1"
+                    />
+                    <div
+                        class="text-muted small mb-2"
+                        colspan="2"
+                        invisible="not method_description"
+                    >
+                        <i class="fa fa-info-circle me-1" title="About this method" />
+                        <field name="method_description" nolabel="1" readonly="1" />
+                    </div>
+                    <field name="name" placeholder="e.g. Households in the north" />
+                </group>
+                <footer>
+                    <button
+                        name="action_create_manager"
+                        string="Add"
+                        type="object"
+                        class="btn-primary"
+                        data-hotkey="q"
+                    />
+                    <button
+                        string="Cancel"
+                        class="btn-secondary"
+                        special="cancel"
+                        data-hotkey="x"
+                    />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

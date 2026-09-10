@@ -853,6 +853,22 @@ Before declaring a new CR type complete:
 Changelog
 =========
 
+19.0.3.1.14
+~~~~~~~~~~~
+
+- fix(change_request): group-scope conflict rules work again.
+  ``_get_group_member_ids`` traversed ``spp.group.membership`` records
+  through ``individual_id`` and ``group_id``, but that model names its
+  many2ones ``individual`` and ``group`` — so resolving a household's
+  members raised ``KeyError``/``AttributeError`` instead of returning
+  them. A change request whose type carried an active group-scope
+  conflict rule crashed on creation for any group registrant, and for
+  any individual registrant with a live membership — exactly the
+  registrants the rule exists to check. The one existing test called the
+  method with a member-less individual, the single shape that happened
+  to work; group-scope detection is now tested with real memberships in
+  both directions, including that ended memberships are excluded.
+
 19.0.3.1.13
 ~~~~~~~~~~~
 

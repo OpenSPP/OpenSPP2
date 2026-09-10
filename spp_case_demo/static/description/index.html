@@ -506,6 +506,16 @@ program enrollment</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.1</h1>
+<ul class="simple">
+<li>fix(case): the generator no longer seeds intervention plans that are
+both <tt class="docutils literal">completed</tt> and their case’s current plan. The <tt class="docutils literal">close_case</tt>
+journey step and the random-plan helper now complete plans through
+<tt class="docutils literal">action_complete()</tt>, so a finished demo plan gets an
+<tt class="docutils literal">actual_end_date</tt> and releases <tt class="docutils literal">is_current</tt>.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
