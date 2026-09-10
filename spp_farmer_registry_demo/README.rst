@@ -10,9 +10,9 @@ OpenSPP Farmer Registry Demo
    !! source digest: sha256:force_regen
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Production/Stable
+    :alt: Alpha
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
@@ -112,6 +112,10 @@ Dependencies
 ``spp_farmer_registry_cr``, ``spp_studio``,
 ``spp_registry_group_hierarchy``, ``spp_area``, ``spp_programs``
 
+.. IMPORTANT::
+   This is an alpha version, the data model and design can change at any time without warning.
+   Only for development or testing purpose, do not use in production.
+
 **Table of contents**
 
 .. contents::
@@ -119,6 +123,19 @@ Dependencies
 
 Changelog
 =========
+
+19.0.2.1.6
+~~~~~~~~~~
+
+- fix(security): deactivate this module's default-credential demo users
+  (created with the well-known password ``demo``) when installed on a
+  database without demo data, so the known credentials cannot be used to
+  log in on a production instance; the accounts stay active on
+  demo/evaluation databases. An upgrade migration applies the same
+  deactivation to already-installed production databases, not just fresh
+  installs. Also lowers ``development_status`` from
+  ``Production/Stable`` to ``Alpha`` so the demo module no longer
+  signals production-readiness.
 
 19.0.2.1.5
 ~~~~~~~~~~
