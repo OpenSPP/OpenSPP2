@@ -1,6 +1,8 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
+from .frozen_value import normalize_frozen_value
+
 
 class SPPCRDetailBase(models.AbstractModel):
     """Abstract base for all CR detail models.
@@ -72,7 +74,60 @@ class SPPCRDetailBase(models.AbstractModel):
         """
         return []
 
+    def _protected_content_fields(self, change_request):
+        """Fields whose value defines the proposed change / approval routing.
+
+        These must not change once the CR has left draft/revision, otherwise a
+        user could re-route the approval (change the selected field) or alter the
+        value that was routed and approved (see dynamic-approval routing). For
+        the field_mapping strategy that is the routing selector plus every mapped
+        source field; apply-output fields (e.g. created_*_id) are NOT included so
+        the apply strategies can still record their results post-approval.
+
+        SCOPE LIMIT: only ``field_mapping`` types get the mapped-source-field
+        protection. Types using the ``custom`` apply strategy (add_member,
+        change_hoh, remove_member, transfer_member, exit_registrant, update_id,
+        create_group, split_household, merge_registrants) freeze only
+        ``field_to_modify``, so their detail content fields stay writable after
+        submission. Closing that needs a per-detail-model override of this
+        method — tracked separately; do not assume this freeze covers every
+        change-request type.
+        """
+        protected = {"field_to_modify"}
+        cr_type = change_request.request_type_id
+        if cr_type.apply_strategy == "field_mapping":
+            protected |= {m.source_field for m in cr_type.apply_mapping_ids if m.source_field}
+        return protected
+
+    def _assert_content_editable(self, vals):
+        """Reject edits to proposed-change fields once the CR is submitted.
+
+        Mirrors the view-level readonly (approval_state not in draft/revision) at
+        the server so it cannot be bypassed via RPC. Editing requires resetting
+        the CR to draft, which re-routes the approval.
+        """
+        for rec in self:
+            change_request = rec.change_request_id
+            state = change_request.approval_state
+            if not change_request or state in ("draft", "revision") or not state:
+                continue
+            for field_name in rec._protected_content_fields(change_request):
+                if field_name not in vals or field_name not in rec._fields:
+                    continue
+                # Normalize both sides (recordset -> id, None -> False) so an
+                # idempotent re-save, a Many2one written as a recordset, or a
+                # JSON-RPC None is not mistaken for a real change and locked out.
+                if normalize_frozen_value(vals[field_name]) != normalize_frozen_value(rec[field_name]):
+                    raise UserError(
+                        _(
+                            "This change request has already been submitted for approval, "
+                            "so its proposed changes are locked. Reset it to draft to edit "
+                            "(this re-routes the approval)."
+                        )
+                    )
+
     def write(self, vals):
+        self._assert_content_editable(vals)
         result = super().write(vals)
         if "field_to_modify" in vals:
             for rec in self:

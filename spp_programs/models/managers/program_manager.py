@@ -7,6 +7,7 @@ from odoo.exceptions import UserError, ValidationError
 
 from odoo.addons.job_worker.delay import group
 
+from .. import constants
 from ..programs import SPPProgram
 from .pagination_utils import compute_id_ranges
 
@@ -74,7 +75,7 @@ class BaseProgramManager(models.AbstractModel):
         """
         self.ensure_one()
         program = self.program_id
-        program.write({"is_locked": False, "locked_reason": False})
+        program._release_operation_lock()
         try:
             program.message_post(body=_("Eligibility check finished."))
         except Exception:
@@ -88,7 +89,7 @@ class BaseProgramManager(models.AbstractModel):
         """Run via on_error() when async eligibility enrollment fails."""
         self.ensure_one()
         program = self.program_id
-        program.write({"is_locked": False, "locked_reason": False})
+        program._release_operation_lock()
         try:
             program.message_post(body=_("Eligibility check failed."))
         except Exception:
@@ -204,7 +205,7 @@ class DefaultProgramManager(models.Model):
         _logger.debug("members: %s", members_count)
         program = self.program_id
         program.message_post(body=_("Eligibility check of %s beneficiaries started.", members_count))
-        program.write({"is_locked": True, "locked_reason": "Eligibility check of beneficiaries"})
+        program._acquire_operation_lock("Eligibility check of beneficiaries")
 
         if isinstance(states, str):
             states = [states]
@@ -262,10 +263,13 @@ class DefaultProgramManager(models.Model):
         for el in eligibility_managers:
             members = el.enroll_eligible_registrants(members)
         # enroll the one not already enrolled:
-        # Exclude members that are duplicated or exited — those states
-        # should only be changed through their own workflows.
+        # Exclude members in a state only its own workflow may leave — see
+        # PROTECTED_MEMBERSHIP_STATES. Notably `paused`: a program officer
+        # paused that member deliberately, and only Resume may undo it (OP#1117).
         _logger.debug("members filtered: %s", members)
-        not_enrolled = members.filtered(lambda m: m.state not in ("enrolled", "duplicated", "exited"))
+        not_enrolled = members.filtered(
+            lambda m: m.state != "enrolled" and m.state not in constants.PROTECTED_MEMBERSHIP_STATES
+        )
         _logger.debug("not_enrolled: %s", not_enrolled)
 
         # Run pre-enrollment hooks (e.g., scoring eligibility checks).
@@ -321,9 +325,15 @@ class DefaultProgramManager(models.Model):
         for member in enrollable:
             program._post_enrollment_hook(member.partner_id)
         # dis-enroll the one not eligible anymore:
+        # Same protected states apply on the way down. A paused member the
+        # eligibility manager did not return was being swept into not_eligible,
+        # which destroys the pause just as thoroughly as re-enrolling it would
+        # (OP#1117) — that is a second, separate path to the same bug.
         enrolled_members_ids = members.ids
         members_to_remove = member_before.filtered(
-            lambda m: m.state not in ("not_eligible", "duplicated", "exited") and m.id not in enrolled_members_ids
+            lambda m: m.state != "not_eligible"
+            and m.state not in constants.PROTECTED_MEMBERSHIP_STATES
+            and m.id not in enrolled_members_ids
         )
         # _logger.debug("members_to_remove: %s", members_to_remove)
         members_to_remove.write(

@@ -1,5 +1,5 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
-from odoo import api, fields, models
+from odoo import _, api, fields, models
 
 
 class DrimsPersonnel(models.Model):
@@ -150,6 +150,14 @@ class DrimsPersonnel(models.Model):
             self.name = self.name or self.partner_id.name
             self.phone = self.phone or self.partner_id.phone
             self.email = self.email or self.partner_id.email
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        # OP#1158: personnel cannot be deployed to a closed incident.
+        for vals in vals_list:
+            if vals.get("incident_id"):
+                self.env["spp.hazard.incident"].browse(vals["incident_id"])._drims_ensure_open(_("deploy personnel"))
+        return super().create(vals_list)
 
     def action_mark_returned(self):
         """Mark personnel as returned."""

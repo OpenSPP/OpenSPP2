@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <record id="view_deduplication_setup_wizard_form" model="ir.ui.view">
+        <field name="name">spp.deduplication.setup.wizard.form</field>
+        <field name="model">spp.deduplication.setup.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Add a Deduplication Method">
+                <field name="program_id" invisible="1" />
+                <group>
+                    <!--
+                        OP#1171: method first, then the name — the order the
+                        ticket asks for. Radio rather than a dropdown so all
+                        three are visible without opening anything, and the
+                        description below explains the selected one instead of
+                        making the user guess from its label.
+                    -->
+                    <field name="method" widget="radio" />
+                    <div class="text-muted small mb-2" colspan="2">
+                        <i class="fa fa-info-circle me-1" title="About this method" />
+                        <field name="method_description" nolabel="1" readonly="1" />
+                    </div>
+                    <field name="name" placeholder="e.g. Phone number check" />
+                    <!--
+                        Only the ID method compares documents, and it compares
+                        only the types listed here: the check is
+                        `id_type_id in supported_id_document_type_ids`, so
+                        leaving it empty makes the method match nothing and
+                        report no duplicates without saying why. QA asked for
+                        the list to appear on selecting ID document (OP#1171
+                        round 2), and it is required for the same reason.
+
+                        Same widget and options as the manager's own form, so
+                        the two places look alike: tags, and no creating
+                        vocabulary codes from here.
+                    -->
+                    <field
+                        name="supported_id_document_type_ids"
+                        widget="many2many_tags"
+                        invisible="method != 'spp.deduplication.manager.id_dedup'"
+                        required="method == 'spp.deduplication.manager.id_dedup'"
+                        options="{'no_open':True,'no_quick_create':True,'no_create_edit':True,'no_create':True}"
+                        placeholder="e.g. National ID, Passport"
+                    />
+                </group>
+                <footer>
+                    <button
+                        name="action_create_manager"
+                        string="Add"
+                        type="object"
+                        class="btn-primary"
+                        data-hotkey="q"
+                    />
+                    <button
+                        string="Cancel"
+                        class="btn-secondary"
+                        special="cancel"
+                        data-hotkey="x"
+                    />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

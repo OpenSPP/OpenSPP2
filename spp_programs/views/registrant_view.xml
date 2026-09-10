@@ -127,6 +127,21 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             groups="spp_programs.group_programs_officer"
                             confirm="Are you sure you want to exit this registrant from the program?"
                         />
+                        <!--
+                            OP#1170: a duplicated or not-eligible membership had
+                            no way back to draft without opening the membership
+                            form. Validator-level rather than officer-level like
+                            its neighbours, matching the button on the form —
+                            clearing a duplicate flag from a list ought not to be
+                            easier than doing it on the record.
+                        -->
+                        <button
+                            name="back_to_draft"
+                            type="object"
+                            string="Back to Draft"
+                            invisible="state not in ('duplicated', 'not_eligible')"
+                            groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator"
+                        />
                         <field
                             name="latest_cycle_state"
                             string="Latest Cycle Status"
@@ -270,6 +285,21 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             invisible="state not in ('enrolled', 'paused')"
                             groups="spp_programs.group_programs_officer"
                             confirm="Are you sure you want to exit this registrant from the program?"
+                        />
+                        <!--
+                            OP#1170: a duplicated or not-eligible membership had
+                            no way back to draft without opening the membership
+                            form. Validator-level rather than officer-level like
+                            its neighbours, matching the button on the form —
+                            clearing a duplicate flag from a list ought not to be
+                            easier than doing it on the record.
+                        -->
+                        <button
+                            name="back_to_draft"
+                            type="object"
+                            string="Back to Draft"
+                            invisible="state not in ('duplicated', 'not_eligible')"
+                            groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator"
                         />
                         <field
                             name="latest_cycle_state"

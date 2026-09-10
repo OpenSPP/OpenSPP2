@@ -1,3 +1,7 @@
+### 19.0.2.0.3
+
+- chore(import_match): the Import Match menu moved from Registry > Configuration to Settings > Registry, alongside the other superuser configuration (#1009)
+
 ### 19.0.2.0.2
 
 - chore(views): hide the conditional-gate columns (`Is Conditional`, `Condition Field`, `Condition Value`) from the match-rule fields list — the schema and matching-engine wiring stay in place, but no current import flow uses the gate, so the columns are kept out of the UI until a real use case lands.

@@ -5,7 +5,20 @@
         <field name="name">spp.approval.review.tree</field>
         <field name="model">spp.approval.review</field>
         <field name="arch" type="xml">
+            <!--
+                create="0": a review is never made by hand. The approval mixin
+                creates one when a record is submitted, and its create() builds
+                the tier reviews from the definition. Typing model, res_id and a
+                definition into a blank form only produces a review pointing at
+                nothing, which is why QA asked for the New button to go
+                (OP#1167). On a plain list this attribute is what the New button
+                reads — activeActions.create comes straight from the arch
+                (web/views/utils.js), and an action context {'create': False}
+                merely rewrites this same attribute (web/views/view.js), so
+                setting it here covers every action that uses the view.
+            -->
             <list
+                create="0"
                 decoration-warning="status == 'pending'"
                 decoration-success="status == 'approved'"
                 decoration-danger="status == 'rejected'"
@@ -34,7 +47,10 @@
         <field name="name">spp.approval.review.form</field>
         <field name="model">spp.approval.review</field>
         <field name="arch" type="xml">
-            <form>
+            <!-- create="0" for the same reason as the list: this also removes
+                 the New in the form's breadcrumb, which is the other way into
+                 a blank review (OP#1167). -->
+            <form create="0">
                 <header>
                     <field
                         name="status"

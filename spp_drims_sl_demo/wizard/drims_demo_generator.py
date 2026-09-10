@@ -941,15 +941,28 @@ class DrimsDemoGenerator(models.TransientModel):
     def _progress_donation_state(self, donation, target_state):
         """Progress donation through states.
 
-        Actual workflow: announced → received → inspected → stocked
+        Workflow: draft → announced → received → inspected → stocked
+
+        OP#1076 made ``draft`` the state a donation is created in; it used to
+        start at ``announced``. Walking from draft means the announce step has
+        to be taken explicitly, otherwise Mark Received refuses with "Only
+        announced donations can be marked as received."
         """
-        states = ["announced", "received", "inspected", "stocked"]
-        current_idx = 0  # Start at announced (default state)
+        states = ["draft", "announced", "received", "inspected", "stocked"]
+        current_idx = 0  # Start at draft (default state)
         target_idx = states.index(target_state) if target_state in states else 0
 
         while current_idx < target_idx:
             current_idx += 1
-            if states[current_idx] == "received":
+            if states[current_idx] == "announced":
+                donation.action_mark_announced()
+            elif states[current_idx] == "received":
+                # OP#1076: the received quantity is entered by hand on the
+                # announced donation and is required before Mark Received — it
+                # is no longer copied from the pledged quantity. Demo data
+                # records everything as arriving in full.
+                for line in donation.line_ids:
+                    line.quantity_received = line.quantity_pledged
                 donation.action_mark_received()
             elif states[current_idx] == "inspected":
                 donation.action_inspect()

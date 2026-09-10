@@ -48,6 +48,7 @@ Follows thin client architecture where QGIS displays data and OpenSPP performs a
 |-------|--------|-------------|
 | `gis:read` | Read-only | View collections, layers, statistics, export data |
 | `gis:geofence` | Read + Write | Create and archive geofences (also requires `gis:read` for listing) |
+| `gis:incident` | Reserved | No endpoint checks it yet; selectable so incident-scoped clients can be provisioned ahead of the incidents API |
 
 **What data is exposed**
 

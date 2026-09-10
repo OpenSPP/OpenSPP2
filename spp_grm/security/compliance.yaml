@@ -144,6 +144,28 @@ record_rules:
     perm_create: true
     perm_unlink: false
 
+  # Officer - unscoped create only (new tickets have no assignment yet)
+  - id: rule_spp_grm_ticket_officer_create
+    model: spp.grm.ticket
+    groups: [group_grm_officer]
+    domain_description: "Officer can create tickets regardless of assignment"
+    perm_read: false
+    perm_write: false
+    perm_create: true
+    perm_unlink: false
+
+  # Portal - own tickets only (#380); all perms so scoping holds if a
+  # future ACL change ever re-grants portal write/create/unlink
+  - id: rule_spp_grm_ticket_portal
+    model: spp.grm.ticket
+    groups: [base.group_portal]
+    domain_description:
+      "Portal user can only access their own tickets (partner_id = user.partner_id)"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: true
+
   # Supervisor - team tickets they supervise
   - id: rule_spp_grm_ticket_supervisor
     model: spp.grm.ticket
@@ -287,7 +309,8 @@ actions: []
 #
 # Additional Access:
 # - base.group_user: Read-only access to tickets (for internal users)
-# - base.group_portal: Create/edit own tickets (for portal/self-service)
+# - base.group_portal: Read own tickets only (submission goes through the
+#   sudo'd portal controller; no direct model write/create — see #380)
 #
 # Record Rules:
 # - Viewer: user_id = current user

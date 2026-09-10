@@ -68,6 +68,14 @@ Model                 Description
 Changelog
 =========
 
+19.0.2.0.4
+~~~~~~~~~~
+
+- chore(farmer_registry): the duplicate Farmer Registry Settings section
+  is removed — the toggle it carried now lives in Registry Settings, and
+  this module's storage key is written in step with it, so enforcement
+  is unchanged (#1009)
+
 19.0.2.0.3
 ~~~~~~~~~~
 

@@ -78,6 +78,48 @@ class StockWarehouse(models.Model):
         compute="_compute_drims_stock_health",
     )
 
+    def write(self, vals):
+        """OP#1094: refresh incident stock KPIs when warehouse ↔ incident links
+        change.
+
+        The incident stock KPI (``drims_stock_value``) is a cached, stored
+        compute keyed off the warehouses linked to the incident, but its
+        dependencies don't include ``stock.warehouse.incident_ids`` — so
+        linking/unlinking a warehouse (Active Incidents) after stock already
+        exists left the KPI stale (e.g. showing 0). Invalidate the cache and
+        recompute for every incident affected before and after the change.
+        """
+        affected = set()
+        if "incident_ids" in vals:
+            for wh in self:
+                affected.update(wh.incident_ids.ids)  # incidents linked before
+        result = super().write(vals)
+        if "incident_ids" in vals:
+            for wh in self:
+                affected.update(wh.incident_ids.ids)  # incidents linked after
+            if affected:
+                self._drims_refresh_incident_stock_kpis(list(affected))
+        return result
+
+    def _drims_refresh_incident_stock_kpis(self, incident_ids):
+        """Drop the cached ``drims_stock_value`` for the given incidents and
+        recompute their stock KPIs (OP#1094).
+
+        Recompute is explicit because the KPI's ``@api.depends`` does not cover
+        ``stock.warehouse.incident_ids``, so a stored value would otherwise stay
+        stale even after the cache is cleared.
+        """
+        self.env["spp.data.value"].search(
+            [
+                ("variable_name", "=", "drims_stock_value"),
+                ("subject_model", "=", "spp.hazard.incident"),
+                ("subject_id", "in", incident_ids),
+            ]
+        ).unlink()
+        incidents = self.env["spp.hazard.incident"].browse(incident_ids).exists()
+        if incidents:
+            incidents._compute_drims_stock_kpis()
+
     def _compute_drims_counts(self):
         Donation = self.env["spp.drims.donation"]
         Picking = self.env["stock.picking"]

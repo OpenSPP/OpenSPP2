@@ -1,0 +1,153 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: ["19.0"]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        spec:
+          - tests/01-spp-starter-spmis.spec.ts
+          - tests/02-spp-starter-farmer-registry.spec.ts
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: e2e/package-lock.json
+
+      - name: Install Playwright
+        working-directory: e2e
+        run: |
+          npm ci
+          npx playwright install chromium --with-deps
+
+      - name: Run E2E tests
+        working-directory: e2e
+        env:
+          ODOO_URL: http://localhost:8069
+        run: npx playwright test ${{ matrix.spec }}
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ strategy.job-index }}
+          path: e2e/reports/html
+          retention-days: 7
+
+      - name: Record spec result
+        if: always()
+        working-directory: e2e
+        run: |
+          case "${{ matrix.spec }}" in
+            *spmis*) NAME="SP-MIS" ;;
+            *farmer*) NAME="Farmer Registry" ;;
+            *) NAME="${{ matrix.spec }}" ;;
+          esac
+
+          if [ -f reports/results.json ]; then
+            TESTS=$(jq -c '[.. | .specs? // empty | .[] | {title, status: (.tests[0].results[-1].status // "skipped")}]' reports/results.json)
+          else
+            TESTS="[]"
+          fi
+
+          mkdir -p status
+          jq -n \
+            --arg name "$NAME" \
+            --arg result "${{ job.status }}" \
+            --argjson tests "$TESTS" \
+            '{name: $name, result: $result, tests: $tests}' > status/result-${{ strategy.job-index }}.json
+
+      - name: Upload spec result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-status-${{ strategy.job-index }}
+          path: e2e/status/result-${{ strategy.job-index }}.json
+
+  notify:
+    needs: e2e
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download spec results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: test-status-*
+          path: statuses
+          merge-multiple: true
+
+      - name: Post result to Discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK" ]; then
+            echo "DISCORD_WEBHOOK secret not configured, skipping notification"
+            exit 0
+          fi
+
+          COLOR=3066993
+          if [ "${{ needs.e2e.result }}" != "success" ]; then COLOR=15158332; fi
+
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          FIELDS=$(jq -n \
+            --arg repo "${{ github.repository }}" \
+            --arg ref "${{ github.ref_name }}" \
+            --arg specs "tests/01-spp-starter-spmis.spec.ts, tests/02-spp-starter-farmer-registry.spec.ts" \
+            '[{"name": "Repository", "value": $repo, "inline": true}, {"name": "Ref", "value": $ref, "inline": true}, {"name": "Spec files", "value": $specs, "inline": false}]')
+
+          for f in statuses/*.json; do
+            NAME=$(jq -r .name "$f")
+            RESULT=$(jq -r .result "$f")
+            if [ "$RESULT" == "success" ]; then EMOJI="✅"; else EMOJI="❌"; fi
+
+            # Non-passing tests are sorted first so a long step list can never
+            # truncate away the one entry that actually explains a failure —
+            # in a serial suite, failures always sit at the end of the list,
+            # right where a naive head-truncation would cut them off.
+            STEPS=$(jq -r '
+              (.tests // []) as $t |
+              (($t | map(select(.status != "passed"))) + ($t | map(select(.status == "passed")))) |
+              map(
+                (if .status == "passed" then "✅" else "❌" end)
+                + " " + (.title | sub("^[0-9]+ - "; "") | if length > 70 then .[0:70] + "…" else . end)
+              ) | join("\n")
+            ' "$f")
+            if [ -z "$STEPS" ]; then STEPS="_no step data_"; fi
+
+            # A field caps out at 1024 chars. Rather than silently cutting the
+            # list short (which reads as "that's everything"), reserve room
+            # for a note pointing at the full log so a truncated list can't
+            # be mistaken for a complete one.
+            if [ "${#STEPS}" -gt 1000 ]; then
+              NOTICE=$'\n… truncated, full results: '"$RUN_URL"
+              STEPS="${STEPS:0:$((1000 - ${#NOTICE}))}$NOTICE"
+            fi
+
+            FIELDS=$(echo "$FIELDS" | jq --arg n "$NAME $RESULT $EMOJI" --arg v "$STEPS" '. + [{"name": $n, "value": $v, "inline": false}]')
+          done
+
+          PAYLOAD=$(jq -n \
+            --arg title "OpenSPP E2E Tests" \
+            --arg url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --argjson color "$COLOR" \
+            --argjson fields "$FIELDS" \
+            '{embeds: [{title: $title, url: $url, color: $color, fields: $fields}]}')
+
+          curl -sf -H "Content-Type: application/json" -X POST -d "$PAYLOAD" "$DISCORD_WEBHOOK"

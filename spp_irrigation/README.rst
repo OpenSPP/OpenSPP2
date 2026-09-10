@@ -100,6 +100,14 @@ Dependencies
 Changelog
 =========
 
+19.0.2.1.1
+~~~~~~~~~~
+
+- fix(security): the Tier-3 ``group_registry_read`` group can read
+  ``spp.irrigation.asset``. The registrant form renders
+  ``irrigation_asset_ids``, and the model was granted only to the Tier-2
+  ``group_registry_viewer`` group.
+
 19.0.2.1.0
 ~~~~~~~~~~
 

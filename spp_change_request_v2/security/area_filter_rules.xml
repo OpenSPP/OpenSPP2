@@ -31,4 +31,331 @@ can be referenced without defensive guards.
         <field name="perm_create" eval="True" />
         <field name="perm_unlink" eval="True" />
     </record>
+
+    <!--
+        Mirror the parent CR area filter onto each detail model. Detail models
+        are separate tables and do NOT inherit the parent's global area rule, so
+        without these an area-scoped officer could reach (via RPC) detail rows of
+        change requests whose registrant is outside their center area, even though
+        the parent CR is hidden. Global rule (no groups) so it ANDs with the
+        ownership rules; users without center areas are unaffected (empty domain).
+    -->
+
+    <record id="rule_cr_detail_add_member_area_filter" model="ir.rule">
+        <field
+            name="name"
+        >CR Detail (add_member): visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_cr_detail_add_member" />
+        <field
+            name="domain_force"
+        >[('change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_edit_individual_area_filter" model="ir.rule">
+        <field
+            name="name"
+        >CR Detail (edit_individual): visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_cr_detail_edit_individual" />
+        <field
+            name="domain_force"
+        >[('change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_edit_group_area_filter" model="ir.rule">
+        <field
+            name="name"
+        >CR Detail (edit_group): visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_cr_detail_edit_group" />
+        <field
+            name="domain_force"
+        >[('change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_remove_member_area_filter" model="ir.rule">
+        <field
+            name="name"
+        >CR Detail (remove_member): visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_cr_detail_remove_member" />
+        <field
+            name="domain_force"
+        >[('change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_change_hoh_area_filter" model="ir.rule">
+        <field
+            name="name"
+        >CR Detail (change_hoh): visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_cr_detail_change_hoh" />
+        <field
+            name="domain_force"
+        >[('change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_exit_registrant_area_filter" model="ir.rule">
+        <field
+            name="name"
+        >CR Detail (exit_registrant): visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_cr_detail_exit_registrant" />
+        <field
+            name="domain_force"
+        >[('change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_transfer_member_area_filter" model="ir.rule">
+        <field
+            name="name"
+        >CR Detail (transfer_member): visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_cr_detail_transfer_member" />
+        <field
+            name="domain_force"
+        >[('change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_update_id_area_filter" model="ir.rule">
+        <field
+            name="name"
+        >CR Detail (update_id): visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_cr_detail_update_id" />
+        <field
+            name="domain_force"
+        >[('change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_create_group_area_filter" model="ir.rule">
+        <field
+            name="name"
+        >CR Detail (create_group): visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_cr_detail_create_group" />
+        <field
+            name="domain_force"
+        >[('change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_merge_registrants_area_filter" model="ir.rule">
+        <field
+            name="name"
+        >CR Detail (merge_registrants): visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_cr_detail_merge_registrants" />
+        <field
+            name="domain_force"
+        >[('change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_split_household_area_filter" model="ir.rule">
+        <field
+            name="name"
+        >CR Detail (split_household): visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_cr_detail_split_household" />
+        <field
+            name="domain_force"
+        >[('change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_split_household_member_area_filter" model="ir.rule">
+        <field
+            name="name"
+        >CR Detail (split_household.member): visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_cr_detail_split_household_member" />
+        <field
+            name="domain_force"
+        >[('detail_id.change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record
+        id="rule_cr_detail_create_group_member_existing_area_filter"
+        model="ir.rule"
+    >
+        <field
+            name="name"
+        >CR Detail (create_group.member_existing): visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_cr_detail_create_group_member_existing" />
+        <field
+            name="domain_force"
+        >[('detail_id.change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_create_group_member_new_area_filter" model="ir.rule">
+        <field
+            name="name"
+        >CR Detail (create_group.member_new): visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_cr_detail_create_group_member_new" />
+        <field
+            name="domain_force"
+        >[('detail_id.change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_create_group_phone_area_filter" model="ir.rule">
+        <field
+            name="name"
+        >CR Detail (create_group.phone): visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_cr_detail_create_group_phone" />
+        <field
+            name="domain_force"
+        >['|', '|', '|', ('detail_id.change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids), ('add_member_detail_id.change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids), ('member_new_id.detail_id.change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids), ('split_household_detail_id.change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_create_group_bank_area_filter" model="ir.rule">
+        <field
+            name="name"
+        >CR Detail (create_group.bank): visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_cr_detail_create_group_bank" />
+        <field
+            name="domain_force"
+        >['|', '|', '|', ('detail_id.change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids), ('add_member_detail_id.change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids), ('member_new_id.detail_id.change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids), ('split_household_detail_id.change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <record id="rule_cr_detail_create_group_id_doc_area_filter" model="ir.rule">
+        <field
+            name="name"
+        >CR Detail (create_group.id_doc): visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_cr_detail_create_group_id_doc" />
+        <field
+            name="domain_force"
+        >['|', '|', ('detail_id.change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids), ('add_member_detail_id.change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids), ('split_household_detail_id.change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+
+    <!--
+        Create-Group member wizards: the same area filter the persistent
+        Create-Group detail rows carry. Transient storage does not exempt a
+        model from record rules, and these rows mirror registrant data.
+    -->
+    <record id="rule_cr_detail_create_group_member_wizard_area_filter" model="ir.rule">
+        <field
+            name="name"
+        >CR Detail (create_group.member.wizard): visible only within user's center areas</field>
+        <field name="model_id" ref="model_spp_cr_detail_create_group_member_wizard" />
+        <field
+            name="domain_force"
+        >[('detail_id.change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+    <record
+        id="rule_cr_detail_create_group_member_wizard_phone_area_filter"
+        model="ir.rule"
+    >
+        <field
+            name="name"
+        >CR Detail (create_group.member.wizard.phone): visible only within user's center areas</field>
+        <field
+            name="model_id"
+            ref="model_spp_cr_detail_create_group_member_wizard_phone"
+        />
+        <field
+            name="domain_force"
+        >[('wizard_id.detail_id.change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+    <record
+        id="rule_cr_detail_create_group_member_wizard_bank_area_filter"
+        model="ir.rule"
+    >
+        <field
+            name="name"
+        >CR Detail (create_group.member.wizard.bank): visible only within user's center areas</field>
+        <field
+            name="model_id"
+            ref="model_spp_cr_detail_create_group_member_wizard_bank"
+        />
+        <field
+            name="domain_force"
+        >[('wizard_id.detail_id.change_request_id.registrant_id.area_id', 'child_of', user.center_area_ids.ids)] if user.center_area_ids else []</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
 </odoo>

@@ -149,7 +149,9 @@ class InspectionWizard(models.TransientModel):
             for line in lines[1:]:
                 if line.quantity <= 0:
                     continue
-                DonationLine.create(
+                # OP#1055: split rows are legitimate system-created lines on an
+                # already-received donation — bypass the draft-only guard.
+                DonationLine.with_context(allow_donation_line_create=True).create(
                     {
                         "donation_id": self.donation_id.id,
                         "product_id": line.product_id.id,

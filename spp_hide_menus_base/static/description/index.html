@@ -474,6 +474,28 @@ custom menus to auto-hide list</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.0</h1>
+<ul class="simple">
+<li>Enforce <tt class="docutils literal">UNIQUE(menu_id)</tt> on <tt class="docutils literal">spp.hide.menu</tt>: a second
+configuration row for the same menu made <tt class="docutils literal">hide_menus()</tt> raise
+<tt class="docutils literal">Expected singleton</tt> from <tt class="docutils literal">_register_hook</tt> and abort the registry
+load — a total outage (#408). <tt class="docutils literal">hide_menus()</tt> now also reads its
+state off a single governing row, so a database on which the
+constraint could not be applied keeps working.</li>
+<li>Ship a pre-migration that de-duplicates existing rows before the
+constraint lands, preferring a row that can still restore its menu.
+The surplus rows’ external ids are repointed onto the surviving row
+and marked <tt class="docutils literal">noupdate</tt>, so the seeding module’s next upgrade adopts
+the survivor instead of recreating a duplicate, and dropping the seed
+later cannot garbage-collect it.</li>
+<li>Behaviour note for module authors: installing a module that seeds an
+<tt class="docutils literal">spp.hide.menu</tt> record for a menu that already has a configuration
+row now fails loudly with an <tt class="docutils literal">IntegrityError</tt> instead of silently
+inserting the duplicate that used to brick the next registry load.
+Target the existing record or drop the seed.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>Keep hidden menus hidden after a module upgrade resets their
@@ -483,7 +505,7 @@ wizard, and CLI <tt class="docutils literal"><span class="pre">-u</span></tt>), 
 <tt class="docutils literal">next()</tt>.</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

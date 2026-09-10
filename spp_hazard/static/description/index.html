@@ -2454,6 +2454,16 @@ the text label</td>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.0</h1>
+<ul class="simple">
+<li>feat(hazard): incidents start as a <strong>Draft</strong> and reach Alert or Active
+deliberately, rather than being assumed active on entry. Lifecycle
+moves are now refused server-side as well as hidden in the form: a
+draft cannot be closed (delete it instead) and a closed incident
+cannot be reopened (#1157, #1158)</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.2</h1>
 <ul class="simple">
 <li>fix(security): grant <tt class="docutils literal">group_hazard_viewer</tt> to spp_user_roles roles
@@ -2469,7 +2479,7 @@ logged-in user; the OP#951 audit requires several roles to NOT see it
 Support).</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix(views): apply <tt class="docutils literal">spp_registry.x2many_no_padding</tt> widget to the
@@ -2477,7 +2487,7 @@ hazard impacts list on registrant forms, and hide the table when empty
 (showing a muted info line instead) (#943).</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

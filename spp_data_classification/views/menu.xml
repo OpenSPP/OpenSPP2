@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Main Menu: Data Classification -->
+    <menuitem
+        id="menu_data_classification_root"
+        name="Data Classification"
+        parent="base.menu_administration"
+        sequence="750"
+        groups="group_classification_manager"
+    />
+
+    <!-- Submenu: Classification Levels -->
+    <menuitem
+        id="menu_classification_levels"
+        name="Classification Levels"
+        parent="menu_data_classification_root"
+        action="action_classification_level"
+        sequence="10"
+    />
+
+    <!-- Submenu: Field Classifications -->
+    <menuitem
+        id="menu_field_classifications"
+        name="Field Classifications"
+        parent="menu_data_classification_root"
+        action="action_field_classification"
+        sequence="20"
+    />
+
+    <!-- Submenu: Detection Patterns -->
+    <menuitem
+        id="menu_detection_patterns"
+        name="Detection Patterns"
+        parent="menu_data_classification_root"
+        action="action_classification_pattern"
+        sequence="30"
+        groups="group_classification_admin"
+    />
+</odoo>

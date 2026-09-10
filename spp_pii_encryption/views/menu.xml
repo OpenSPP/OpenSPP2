@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- PII Encryption menu items under Key Management -->
+    <!-- Key management menus are handled by spp_key_management -->
+
+    <menuitem
+        id="menu_pii_encryption"
+        name="PII Encryption"
+        parent="spp_key_management.menu_key_management_root"
+        sequence="20"
+        groups="group_encryption_admin,base.group_system"
+    />
+
+    <menuitem
+        id="menu_field_configuration"
+        name="Field Configuration"
+        parent="menu_pii_encryption"
+        action="spp_field_encryption_config_action"
+        sequence="5"
+    />
+
+    <menuitem
+        id="menu_audit_log"
+        name="Audit Log"
+        parent="menu_pii_encryption"
+        action="spp_pii_audit_log_action"
+        sequence="10"
+    />
+</odoo>
