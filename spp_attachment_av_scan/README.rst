@@ -134,6 +134,19 @@ External: ``pyclamd`` (Python library for ClamAV integration)
 Changelog
 =========
 
+19.0.2.2.0
+~~~~~~~~~~
+
+- fix: stop module upgrades from resetting the quarantine crons and
+  config parameters. ``data/quarantine_cron.xml`` shipped in a plain
+  ``<odoo>`` block, so every upgrade rewrote all four records to the
+  shipped defaults: a tuned ``quarantine_retention_days``, a changed
+  cron interval, or a deliberately disabled cron was silently reverted.
+  The file is now ``noupdate="1"``. A post-migration reconciles the
+  ``noupdate`` column on the ``ir_model_data`` rows of databases that
+  installed the module earlier, leaving the stored values untouched, so
+  tuned values survive and untouched defaults stay as shipped
+
 19.0.2.1.0
 ~~~~~~~~~~
 

@@ -618,6 +618,26 @@ class TestEncryptedQuarantine(TransactionCase):
         # Attachment should still exist (it's recent)
         self.assertTrue(self.attachment_model.browse(attachment_id).exists())
 
+    def test_the_quarantine_crons_and_params_are_not_reset_by_a_module_upgrade(self):
+        """An upgrade must not overwrite an admin's tuning of these records.
+
+        ``data/quarantine_cron.xml`` shipped in a plain ``<odoo>`` block, so every
+        upgrade rewrote all four records to the shipped defaults: a changed retention
+        window, a retimed cron, or a deliberately disabled cron was silently reverted.
+        The file is ``noupdate="1"`` now, and 19.0.2.2.0's post-migration flips the
+        stored flag on databases that predate it.
+        """
+        for name in (
+            "ir_cron_purge_quarantined_files",
+            "ir_cron_cleanup_forensic_downloads",
+            "config_param_quarantine_retention_days",
+            "config_param_forensic_download_retention_hours",
+        ):
+            with self.subTest(record=name):
+                imd = self.env["ir.model.data"].search([("module", "=", "spp_attachment_av_scan"), ("name", "=", name)])
+                self.assertTrue(imd, "the record must exist")
+                self.assertTrue(imd.noupdate, "an upgrade must keep admin-tuned values")
+
     @patch("odoo.addons.spp_attachment_av_scan.models.av_scanner_backend.pyclamd")
     def test_large_file_skipped_during_scan(self, mock_pyclamd):
         """Test that files exceeding max_file_size_mb are skipped."""
