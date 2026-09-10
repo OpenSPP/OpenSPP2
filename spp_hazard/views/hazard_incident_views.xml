@@ -32,7 +32,11 @@
                     decoration-danger="severity == '5'"
                 />
                 <field name="area_count" string="Areas" />
-                <field name="affected_registrant_count" string="Affected" />
+                <field
+                    name="affected_registrant_count"
+                    string="Affected"
+                    groups="spp_hazard.group_hazard_read,spp_registry.group_registry_viewer,spp_security.group_spp_admin"
+                />
             </list>
         </field>
     </record>
@@ -92,6 +96,7 @@
                             type="object"
                             class="oe_stat_button"
                             icon="fa-users"
+                            groups="spp_hazard.group_hazard_read,spp_registry.group_registry_viewer,spp_security.group_spp_admin"
                         >
                             <field
                                 name="affected_registrant_count"
@@ -206,7 +211,11 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="Impacts" name="impacts">
+                        <page
+                            string="Impacts"
+                            name="impacts"
+                            groups="spp_hazard.group_hazard_read,spp_registry.group_registry_viewer,spp_security.group_spp_admin"
+                        >
                             <field name="impact_ids" readonly="status == 'closed'">
                                 <list editable="bottom" no_open="true">
                                     <field name="registrant_id" />
