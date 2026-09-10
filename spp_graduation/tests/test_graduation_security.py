@@ -1,6 +1,6 @@
 """Security tests for graduation module."""
 
-from odoo import Command
+from odoo import Command, fields
 from odoo.exceptions import AccessError
 from odoo.tests import TransactionCase, tagged
 
@@ -190,3 +190,120 @@ class TestGraduationSecurity(TransactionCase):
         assessment.action_submit()
         assessment.with_user(self.manager).action_reject()
         self.assertEqual(assessment.state, "rejected")
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # Approval boundary — a graduation USER must not approve (or otherwise drive
+    # the approval workflow of) their own assessment, via the action methods OR
+    # via direct RPC write/create of the workflow fields.
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def _submitted_assessment_owned_by_user(self):
+        pathway = self.env["spp.graduation.pathway"].create({"name": "Test Pathway"})
+        assessment = (
+            self.env["spp.graduation.assessment"]
+            .with_user(self.user)
+            .create(
+                {
+                    "pathway_id": pathway.id,
+                    "partner_id": self.beneficiary.id,
+                    "recommendation": "graduate",
+                }
+            )
+        )
+        assessment.action_submit()
+        self.assertEqual(assessment.state, "submitted")
+        return assessment
+
+    def test_user_cannot_approve_own_assessment(self):
+        """Reported self-approval: a user must not approve their own assessment."""
+        assessment = self._submitted_assessment_owned_by_user()
+        with self.assertRaises(AccessError):
+            assessment.action_approve()
+        self.assertEqual(assessment.state, "submitted")
+        self.assertFalse(assessment.graduation_date)
+
+    def test_user_cannot_reject_or_reset_own_assessment(self):
+        assessment = self._submitted_assessment_owned_by_user()
+        with self.assertRaises(AccessError):
+            assessment.action_reject()
+        with self.assertRaises(AccessError):
+            assessment.action_reset_draft()
+        self.assertEqual(assessment.state, "submitted")
+
+    def test_user_cannot_write_approved_state_directly(self):
+        """Raw-RPC bypass of the action methods must also be blocked."""
+        assessment = self._submitted_assessment_owned_by_user()
+        with self.assertRaises(AccessError):
+            assessment.write({"state": "approved"})
+        self.assertEqual(assessment.state, "submitted")
+
+    def test_user_cannot_write_approval_fields_directly(self):
+        assessment = self._submitted_assessment_owned_by_user()
+        with self.assertRaises(AccessError):
+            assessment.write({"graduation_date": fields.Date.today()})
+        with self.assertRaises(AccessError):
+            assessment.write({"approved_by_id": self.user.id})
+
+    def test_user_cannot_create_non_draft_assessment(self):
+        """Creating an already-approved assessment via RPC must be blocked."""
+        pathway = self.env["spp.graduation.pathway"].create({"name": "Test Pathway"})
+        with self.assertRaises(AccessError):
+            self.env["spp.graduation.assessment"].with_user(self.user).create(
+                {
+                    "pathway_id": pathway.id,
+                    "partner_id": self.beneficiary.id,
+                    "state": "approved",
+                    "graduation_date": fields.Date.today(),
+                }
+            )
+
+    def test_manager_approve_sets_graduation_date(self):
+        """Regression: a manager can still approve, and graduation_date is set for
+        a 'graduate' recommendation."""
+        assessment = self._submitted_assessment_owned_by_user()
+        assessment.with_user(self.manager).action_approve()
+        self.assertEqual(assessment.state, "approved")
+        self.assertEqual(assessment.approved_by_id, self.manager)
+        self.assertTrue(assessment.graduation_date)
+
+    def test_user_can_edit_own_draft_content(self):
+        """The guard must not over-block: a user can still edit non-workflow
+        content on their own draft assessment."""
+        pathway = self.env["spp.graduation.pathway"].create({"name": "Test Pathway"})
+        assessment = (
+            self.env["spp.graduation.assessment"]
+            .with_user(self.user)
+            .create({"pathway_id": pathway.id, "partner_id": self.beneficiary.id})
+        )
+        assessment.write({"recommendation": "graduate", "recommendation_notes": "ready"})
+        self.assertEqual(assessment.recommendation, "graduate")
+
+    def test_user_cannot_modify_submitted_assessment_content(self):
+        """A user must not change assessment content once it is submitted — else
+        they could flip the recommendation the manager is about to approve."""
+        assessment = self._submitted_assessment_owned_by_user()
+        with self.assertRaises(AccessError):
+            assessment.write({"recommendation": "extend"})
+        with self.assertRaises(AccessError):
+            assessment.write({"recommendation_notes": "changed after submit"})
+        self.assertEqual(assessment.recommendation, "graduate")
+
+    def test_user_cannot_unsubmit_own_assessment(self):
+        """A user may only move draft -> submitted; un-submitting is manager-only."""
+        assessment = self._submitted_assessment_owned_by_user()
+        with self.assertRaises(AccessError):
+            assessment.write({"state": "draft"})
+        self.assertEqual(assessment.state, "submitted")
+
+    def test_user_cannot_create_assessment_for_another_assessor(self):
+        """A user cannot create an assessment attributed to a different assessor
+        (record-rule protection; documents the boundary)."""
+        pathway = self.env["spp.graduation.pathway"].create({"name": "Test Pathway"})
+        with self.assertRaises(AccessError):
+            self.env["spp.graduation.assessment"].with_user(self.user).create(
+                {
+                    "pathway_id": pathway.id,
+                    "partner_id": self.beneficiary.id,
+                    "assessor_id": self.manager.id,
+                }
+            )
