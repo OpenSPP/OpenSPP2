@@ -8,7 +8,7 @@
     "for emergency response. Links registrants to disaster events with geographic scope "
     "and severity tracking to enable targeted humanitarian assistance.",
     "category": "OpenSPP/Targeting",
-    "version": "19.0.2.0.2",
+    "version": "19.0.2.1.0",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",

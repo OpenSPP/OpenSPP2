@@ -44,6 +44,17 @@ class DrimsTestCommon(TransactionCase):
             ],
             limit=1,
         )
+        cls.state_donation_draft = cls.vocab_code.search(
+            [
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:donation-states",
+                ),
+                ("code", "=", "draft"),
+            ],
+            limit=1,
+        )
         cls.state_announced = cls.vocab_code.search(
             [
                 (
@@ -112,3 +123,20 @@ class DrimsTestCommon(TransactionCase):
                 "standard_price": 100.0,
             }
         )
+
+    def _receive_donation(self, donation, received=None):
+        """Advance a donation to the 'received' state via the OP#1076 flow.
+
+        The lifecycle is draft -> announced -> received. Received quantities
+        are entered manually post-OP#1076 (no auto-copy from pledged), so this
+        helper fills any line that has no received quantity with its pledged
+        quantity — preserving the pre-OP#1076 received==pledged expectation —
+        then marks the donation received (which creates the receipt picking).
+        """
+        if donation.state == "draft":
+            donation.action_mark_announced()
+        for line in donation.line_ids:
+            if line.quantity_received <= 0:
+                line.quantity_received = received if received is not None else line.quantity_pledged
+        donation.action_mark_received()
+        return donation

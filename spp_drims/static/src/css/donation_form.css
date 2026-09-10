@@ -1,0 +1,24 @@
+/*
+ * OP#1058 (QA follow-up): the donation form's "Donation Items" and "Items Not
+ * Accepted for Stock" tables are short x2many lists. Odoo pads every embedded
+ * x2many list out to four rows with blank filler rows
+ * (ListRenderer.getEmptyRowIds), which read as stray "extra lines" under the
+ * real data. Hide those fillers on these two tables only.
+ *
+ * OP#1076 round 2: target the fillers by having no class at all, which is what
+ * distinguishes them. The previous selector excluded
+ * `.o_field_x2many_list_row_add`, on the assumption that class sits on the row
+ * — in Odoo 19 it is on the <td>, and the row itself is
+ * `<tr class="d-print-none">`. So the exclusion never matched and the rule hid
+ * the "Add a line" row, which is why a new donation offered no way to add
+ * items at all.
+ *
+ * Filler rows carry no class; data rows carry `o_data_row`; the add row carries
+ * `d-print-none`. Matching on the absence of a class therefore hits exactly the
+ * fillers, and if Odoo ever gives them one the rule simply stops applying and
+ * the blank rows come back — a cosmetic regression rather than a form nobody
+ * can enter data into. Totals live in <tfoot> and are unaffected.
+ */
+.o_drims_donation_list .o_list_table > tbody > tr:not([class]) {
+    display: none;
+}

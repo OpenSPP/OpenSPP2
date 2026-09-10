@@ -13,14 +13,14 @@
         </field>
     </record>
 
-    <!-- Override list view to use stored role_ids field for proper display -->
+    <!-- Override list view to use the stored roles field instead of base_user_role.user_role_ids -->
     <record id="view_res_users_tree_inherit_spp_user_roles" model="ir.ui.view">
         <field name="name">res.users.list.inherit.spp.user.roles</field>
         <field name="model">res.users</field>
         <field name="inherit_id" ref="base_user_role.view_res_users_tree_inherit" />
         <field name="priority">99</field>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='role_ids']" position="replace">
+            <xpath expr="//field[@name='user_role_ids']" position="replace">
                 <field name="role_ids_stored" widget="many2many_tags" optional="show" />
             </xpath>
         </field>

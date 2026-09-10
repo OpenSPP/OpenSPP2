@@ -2,7 +2,7 @@
 {
     "name": "OpenSPP Registrant GIS",
     "category": "OpenSPP",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.1.0",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",

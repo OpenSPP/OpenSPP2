@@ -446,21 +446,49 @@ programs are independent and both proceed.</p>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><a class="reference internal" href="#changelog" id="toc-entry-1">Changelog</a><ul>
-<li><a class="reference internal" href="#section-1" id="toc-entry-2">19.0.1.0.0 (2026-05-04)</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#changelog" id="toc-entry-1">Changelog</a></li>
 </ul>
 </div>
 <div class="section" id="changelog">
 <h2><a class="toc-backref" href="#toc-entry-1">Changelog</a></h2>
+</div>
+</div>
 <div class="section" id="section-1">
-<h3><a class="toc-backref" href="#toc-entry-2">19.0.1.0.0 (2026-05-04)</a></h3>
+<h1>19.0.1.0.3</h1>
+<ul class="simple">
+<li>fix(security): validate server-side that the user selecting a program
+on <tt class="docutils literal">spp.cr.detail.assign_program</tt> can actually access it. The
+<tt class="docutils literal">program_id</tt> domain only constrained the UI, so a raw RPC write
+could target a hidden or cross-company program; on apply the strategy
+runs under <tt class="docutils literal">sudo</tt>, which would assign the membership and leak the
+program name via preview while bypassing program record rules and
+multi-company scope. An <tt class="docutils literal">&#64;api.constrains</tt> now rejects a program the
+writing user cannot see (record rules) or that is outside their
+company scope.</li>
+<li>fix(security): re-assert program access at the apply sink (defense in
+depth). The write-time constraint cannot cover a value it never saw —
+a record written before the constraint shipped (the module is in
+released tags), an import, or a future sudo prefill. The apply
+strategy now re-checks the program against the change-request
+requester’s company scope before creating the membership, so a
+pre-existing out-of-scope <tt class="docutils literal">program_id</tt> cannot be applied
+cross-company, and <tt class="docutils literal">preview()</tt> (which runs under sudo) redacts the
+program name for such a record rather than leaking it. No-op in
+single-company deployments.</li>
+</ul>
 </div>
+<div class="section" id="section-2">
+<h1>19.0.1.0.2</h1>
+<ul class="simple">
+<li>fix(security): add record rules to <tt class="docutils literal">spp.cr.detail.assign_program</tt>
+enforcing parent change-request ownership and area scope. The model
+previously had an ACL granting <tt class="docutils literal">group_cr_user</tt> write/create but no
+record rule, so a CR user could re-point <tt class="docutils literal">program_id</tt> on
+assign-program details of change requests they do not own via RPC.</li>
+</ul>
 </div>
-</div>
-<div class="section" id="added">
-<h1>Added</h1>
+<div class="section" id="section-3">
+<h1>19.0.1.0.0</h1>
 <ul class="simple">
 <li>New module <tt class="docutils literal">spp_cr_type_assign_program</tt> with the <tt class="docutils literal">assign_program</tt>
 change request type.</li>

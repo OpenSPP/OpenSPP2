@@ -9,4 +9,5 @@ from . import reg_id
 from . import reg_relationship
 from . import registrant
 from . import registry_config
+from . import res_config_settings
 from . import res_users

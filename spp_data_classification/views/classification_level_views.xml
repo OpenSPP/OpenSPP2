@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Classification Level List View -->
+    <record id="spp_data_classification_level_list" model="ir.ui.view">
+        <field name="name">spp.data.classification.level.list</field>
+        <field name="model">spp.data.classification.level</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="code" />
+                <field name="is_requires_encryption" widget="boolean_toggle" />
+                <field name="is_requires_masking" widget="boolean_toggle" />
+                <field name="is_requires_audit" widget="boolean_toggle" />
+                <field name="is_requires_consent" widget="boolean_toggle" />
+                <field name="retention_days" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Classification Level Form View -->
+    <record id="spp_data_classification_level_form" model="ir.ui.view">
+        <field name="name">spp.data.classification.level.form</field>
+        <field name="model">spp.data.classification.level</field>
+        <field name="arch" type="xml">
+            <form string="Classification Level">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="%(action_field_classification)d"
+                            type="action"
+                            class="oe_stat_button"
+                            icon="fa-shield"
+                            context="{'search_default_classification_id': id}"
+                        >
+                            <field name="id" invisible="1" />
+                            <span>Classified Fields</span>
+                        </button>
+                    </div>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1>
+                            <field name="name" placeholder="e.g., Confidential" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="identification" string="Identification">
+                            <field name="code" placeholder="e.g., CONFIDENTIAL" />
+                            <field name="sequence" />
+                            <field name="color" widget="color_picker" />
+                            <field name="active" invisible="1" />
+                        </group>
+                        <group name="access" string="Access Control">
+                            <field name="min_group_id" />
+                        </group>
+                    </group>
+                    <group name="policies" string="Policies">
+                        <group>
+                            <field name="is_requires_encryption" />
+                            <field name="is_requires_masking" />
+                            <field name="is_requires_audit" />
+                        </group>
+                        <group>
+                            <field name="is_requires_consent" />
+                            <field name="is_requires_purpose_limitation" />
+                        </group>
+                    </group>
+                    <group name="retention" string="Data Retention">
+                        <group>
+                            <field name="retention_days" />
+                            <field name="retention_action" />
+                        </group>
+                    </group>
+                    <separator string="Description" />
+                    <field name="description" nolabel="1" class="oe_inline" />
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Classification Level Action -->
+    <record id="action_classification_level" model="ir.actions.act_window">
+        <field name="name">Classification Levels</field>
+        <field name="res_model">spp.data.classification.level</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Define data classification levels
+            </p>
+            <p>
+                Classification levels define the sensitivity of data and the policies
+                that apply to it (encryption, masking, audit, retention).
+            </p>
+        </field>
+    </record>
+</odoo>

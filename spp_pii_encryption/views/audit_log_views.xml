@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Tree View -->
+    <record id="spp_pii_audit_log_view_tree" model="ir.ui.view">
+        <field name="name">spp.pii.audit.log.view.tree</field>
+        <field name="model">spp.pii.audit.log</field>
+        <field name="arch" type="xml">
+            <list string="PII Audit Log" create="false" edit="false" delete="false">
+                <field name="create_date" string="Date" />
+                <field name="user_id" />
+                <field
+                    name="action"
+                    decoration-info="action == 'reveal'"
+                    decoration-warning="action in ('export', 'decrypt')"
+                    decoration-danger="action in ('modify', 'delete')"
+                />
+                <field name="model_name" />
+                <field name="field_name" />
+                <field name="record_id" />
+                <field name="ip_address" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="spp_pii_audit_log_view_form" model="ir.ui.view">
+        <field name="name">spp.pii.audit.log.view.form</field>
+        <field name="model">spp.pii.audit.log</field>
+        <field name="arch" type="xml">
+            <form string="PII Audit Log" create="false" edit="false" delete="false">
+                <sheet>
+                    <group>
+                        <group string="Access Details">
+                            <field name="create_date" string="Date" />
+                            <field name="user_id" />
+                            <field name="action" />
+                        </group>
+                        <group string="Record Details">
+                            <field name="model_name" />
+                            <field name="field_name" />
+                            <field name="record_id" />
+                        </group>
+                    </group>
+                    <group string="Request Details">
+                        <field name="ip_address" />
+                        <field name="user_agent" />
+                    </group>
+                    <group string="Reason" invisible="not reason">
+                        <field name="reason" nolabel="1" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="spp_pii_audit_log_view_search" model="ir.ui.view">
+        <field name="name">spp.pii.audit.log.view.search</field>
+        <field name="model">spp.pii.audit.log</field>
+        <field name="arch" type="xml">
+            <search string="Search PII Audit Log">
+                <field name="user_id" />
+                <field name="model_name" />
+                <field name="field_name" />
+                <field name="action" />
+                <separator />
+                <filter
+                    name="today"
+                    string="Today"
+                    domain="[('create_date', '&gt;=', context_today().strftime('%Y-%m-%d'))]"
+                />
+                <filter
+                    name="last_7_days"
+                    string="Last 7 Days"
+                    domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"
+                />
+                <filter
+                    name="last_30_days"
+                    string="Last 30 Days"
+                    domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=30)).strftime('%Y-%m-%d'))]"
+                />
+                <separator />
+                <filter
+                    name="reveal"
+                    string="Reveal Actions"
+                    domain="[('action', '=', 'reveal')]"
+                />
+                <filter
+                    name="export"
+                    string="Export Actions"
+                    domain="[('action', '=', 'export')]"
+                />
+                <filter
+                    name="modify"
+                    string="Modify Actions"
+                    domain="[('action', '=', 'modify')]"
+                />
+                <separator />
+                <group name="group_by">
+                    <filter
+                        name="group_by_user"
+                        string="User"
+                        context="{'group_by': 'user_id'}"
+                    />
+                    <filter
+                        name="group_by_action"
+                        string="Action"
+                        context="{'group_by': 'action'}"
+                    />
+                    <filter
+                        name="group_by_model"
+                        string="Model"
+                        context="{'group_by': 'model_name'}"
+                    />
+                    <filter
+                        name="group_by_date"
+                        string="Date"
+                        context="{'group_by': 'create_date:day'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="spp_pii_audit_log_action" model="ir.actions.act_window">
+        <field name="name">PII Audit Log</field>
+        <field name="res_model">spp.pii.audit.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="spp_pii_audit_log_view_search" />
+        <field name="context">{'search_default_last_30_days': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">
+                No PII access logs yet
+            </p>
+            <p>
+                This log tracks all access to sensitive PII fields including
+                reveal, export, and modification actions.
+            </p>
+        </field>
+    </record>
+</odoo>

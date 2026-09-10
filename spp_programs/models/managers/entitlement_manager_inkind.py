@@ -214,12 +214,7 @@ class SPPInKindEntitlementManager(models.Model):
                 entitlements_count,
             )
         )
-        cycle.write(
-            {
-                "is_locked": True,
-                "locked_reason": _("Set entitlements to pending validation for cycle."),
-            }
-        )
+        cycle._acquire_operation_lock(_("Set entitlements to pending validation for cycle."))
 
         jobs = []
         for i in range(0, entitlements_count, self.MAX_ROW_JOB_QUEUE):
@@ -319,12 +314,7 @@ class SPPInKindEntitlementManager(models.Model):
         """
         _logger.debug("Validate entitlements asynchronously")
         cycle.message_post(body=_("Validate %s entitlements started.", entitlements_count))
-        cycle.write(
-            {
-                "is_locked": True,
-                "locked_reason": _("Validate and approve entitlements for cycle."),
-            }
-        )
+        cycle._acquire_operation_lock(_("Validate and approve entitlements for cycle."))
 
         jobs = []
         for i in range(0, entitlements_count, self.MAX_ROW_JOB_QUEUE):

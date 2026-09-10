@@ -16,7 +16,7 @@
                     invisible="role_type != 'local'"
                 />
             </xpath>
-            <xpath expr="//field[@name='role_ids']" position="before">
+            <xpath expr="//field[@name='user_role_ids']" position="before">
                 <group colspan="4" col="4">
                     <field
                         name="center_area_ids"

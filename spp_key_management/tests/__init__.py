@@ -3,3 +3,4 @@ from . import test_key_provider
 from . import test_key_manager
 from . import test_asymmetric_key
 from . import test_security
+from . import test_key_admin_group

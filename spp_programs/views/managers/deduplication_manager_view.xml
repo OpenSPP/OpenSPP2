@@ -169,9 +169,18 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         </h1>
                     </div>
                     <group colspan="4" col="4">
+                        <!--
+                            Required: the check is
+                            `id_type_id in supported_id_document_type_ids`, so a
+                            manager saved with none set reports no duplicates
+                            and gives no hint why. The Add dialog asks for these
+                            too (OP#1171 round 2); this covers the form reached
+                            from the card's cog.
+                        -->
                         <field
                             name="supported_id_document_type_ids"
                             widget="many2many_tags"
+                            required="1"
                             domain="[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:id-type')]"
                             options="{'no_open':True,'no_quick_create':True,'no_create_edit':True,'no_create':True}"
                             colspan="4"

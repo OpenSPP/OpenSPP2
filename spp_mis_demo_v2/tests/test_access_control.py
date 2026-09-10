@@ -82,6 +82,13 @@ class TestAccessControlBase(TransactionCase):
         """Set up test users with different roles."""
         super().setUpClass()
 
+        # These tests measure the role-based ACLs, so pin the SP-MIS registry
+        # access-control switch off: this bundle ships it on, and it withholds
+        # registrant create/write/unlink from everyone but admins regardless of
+        # role. It used to be a no-op on the server, which is why these tests
+        # never had to say so (OP#1142).
+        cls.env["ir.config_parameter"].sudo().set_param("spp_starter.registry_admin_only_crud", "False")
+
         # Check which modules are installed
         cls.grm_installed = bool(_safe_ref(cls.env, "spp_grm.group_grm_viewer"))
         cls.case_installed = bool(_safe_ref(cls.env, "spp_case_base.group_case_viewer"))

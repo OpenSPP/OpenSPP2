@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!--
+        OP#1151: stock.move carries the DRIMS linkage fields drims_request_line_id
+        and drims_donation_line_id, but neither appeared in any view, so there was
+        no way to see which request line or donation line a given move fulfils.
+
+        Kept in its own file rather than added to the picking form's inline
+        Operations list: that list is defined inside stock.view_picking_form and
+        cannot be extended from a separate view, and stock_picking_views.xml is
+        contended by several concurrent changes.
+
+        The fields are read-only everywhere. They are set by
+        spp.drims.request.action_create_dispatch and by the donation receipt flow,
+        and moving a move to a different request line by hand would silently
+        misattribute dispatched and delivered quantities.
+    -->
+
+    <!-- Move form reached by opening a move record directly -->
+    <record id="view_move_form_drims" model="ir.ui.view">
+        <field name="name">stock.move.form.drims</field>
+        <field name="model">stock.move</field>
+        <field name="inherit_id" ref="stock.view_move_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='product_uom_qty']" position="after">
+                <field
+                    name="drims_request_line_id"
+                    readonly="1"
+                    invisible="not drims_request_line_id"
+                />
+                <field
+                    name="drims_donation_line_id"
+                    readonly="1"
+                    invisible="not drims_donation_line_id"
+                />
+            </xpath>
+        </field>
+    </record>
+
+    <!--
+        Move detail popup opened from a picking's Operations tab. This is the one
+        that matters day to day: it is how a warehouse officer looking at a
+        dispatch can see what a line is fulfilling.
+    -->
+    <record id="view_move_form_operations_drims" model="ir.ui.view">
+        <field name="name">stock.move.operations.form.drims</field>
+        <field name="model">stock.move</field>
+        <field name="inherit_id" ref="stock.view_stock_move_operations" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='move_line_ids']" position="before">
+                <group
+                    invisible="not drims_request_line_id and not drims_donation_line_id"
+                >
+                    <field
+                        name="drims_request_line_id"
+                        readonly="1"
+                        invisible="not drims_request_line_id"
+                    />
+                    <field
+                        name="drims_donation_line_id"
+                        readonly="1"
+                        invisible="not drims_donation_line_id"
+                    />
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Standalone move list: hidden by default, available via the optional-column picker -->
+    <record id="view_move_tree_drims" model="ir.ui.view">
+        <field name="name">stock.move.list.drims</field>
+        <field name="model">stock.move</field>
+        <field name="inherit_id" ref="stock.view_move_tree" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='product_id']" position="after">
+                <field name="drims_request_line_id" optional="hide" readonly="1" />
+                <field name="drims_donation_line_id" optional="hide" readonly="1" />
+            </xpath>
+        </field>
+    </record>
+</odoo>

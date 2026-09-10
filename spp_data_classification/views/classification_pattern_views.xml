@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Classification Pattern List View -->
+    <record id="spp_classification_pattern_list" model="ir.ui.view">
+        <field name="name">spp.classification.pattern.list</field>
+        <field name="model">spp.classification.pattern</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="priority" />
+                <field name="name" />
+                <field
+                    name="match_mode"
+                    widget="badge"
+                    decoration-info="match_mode == 'cel'"
+                />
+                <field name="pattern" optional="show" />
+                <field name="cel_expression" optional="hide" />
+                <field name="classification_id" />
+                <field name="pii_category" />
+                <field name="default_search_strategy" optional="hide" />
+                <field name="active" widget="boolean_toggle" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Classification Pattern Form View -->
+    <record id="spp_classification_pattern_form" model="ir.ui.view">
+        <field name="name">spp.classification.pattern.form</field>
+        <field name="model">spp.classification.pattern</field>
+        <field name="arch" type="xml">
+            <form string="Auto-Detection Pattern">
+                <header>
+                    <button
+                        name="action_test_pattern"
+                        string="Test Pattern"
+                        type="object"
+                        class="btn-secondary"
+                        icon="fa-flask"
+                    />
+                </header>
+                <sheet>
+                    <widget
+                        name="web_ribbon"
+                        title="Inactive"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1>
+                            <field
+                                name="name"
+                                placeholder="e.g., National ID Numbers"
+                            />
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="matching" string="Matching">
+                            <field
+                                name="match_mode"
+                                widget="radio"
+                                options="{'horizontal': true}"
+                            />
+                            <field name="priority" />
+                            <field name="active" />
+                        </group>
+                        <group name="classification" string="Classification">
+                            <field name="classification_id" />
+                            <field name="pii_category" />
+                        </group>
+                    </group>
+                    <group name="pattern_config" string="Pattern Configuration">
+                        <group invisible="match_mode != 'regex'">
+                            <field
+                                name="pattern"
+                                placeholder="e.g., (national|passport).*id"
+                                required="match_mode == 'regex'"
+                            />
+                        </group>
+                        <group invisible="match_mode != 'cel'" colspan="2">
+                            <field
+                                name="cel_expression"
+                                nolabel="1"
+                                placeholder="e.g., field.type == 'char' &amp;&amp; field.name matches 'national.*'"
+                                required="match_mode == 'cel'"
+                            />
+                            <div class="alert alert-info" role="alert">
+                                <strong>CEL Expression Context:</strong><br />
+                                <code>field.name</code> - Field name (string)<br />
+                                <code
+                            >field.type</code> - Field type (char, integer, boolean, etc.)<br
+                            />
+                                <code
+                            >field.store</code> - Whether field is stored (bool)<br />
+                                <code
+                            >field.required</code> - Whether field is required (bool)<br
+                            />
+                                <code
+                            >model.model</code> - Model technical name (e.g., res.partner)<br
+                            />
+                                <code>model.name</code> - Model display name<br />
+                                <br />
+                                <strong>Examples:</strong><br />
+                                <code
+                            >field.type == 'char' &amp;&amp; field.name.endsWith('_id')</code><br
+                            />
+                                <code
+                            >model.model.startsWith('spp.') &amp;&amp; field.store</code>
+                            </div>
+                        </group>
+                    </group>
+                    <group name="scope" string="Scope">
+                        <field
+                            name="apply_to_model_pattern"
+                            placeholder="spp\\..*"
+                            help="Optional: Only apply to models matching this regex pattern"
+                        />
+                    </group>
+                    <group name="defaults" string="Default Settings">
+                        <group>
+                            <field
+                                name="default_mask_pattern"
+                                placeholder="****-****-####"
+                            />
+                            <field name="default_search_strategy" />
+                        </group>
+                    </group>
+                    <group name="notes" string="Documentation">
+                        <field
+                            name="notes"
+                            nolabel="1"
+                            colspan="2"
+                            placeholder="Document what this pattern matches and why..."
+                        />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Classification Pattern Search View -->
+    <record id="spp_classification_pattern_search" model="ir.ui.view">
+        <field name="name">spp.classification.pattern.search</field>
+        <field name="model">spp.classification.pattern</field>
+        <field name="arch" type="xml">
+            <search string="Search Detection Patterns">
+                <field name="name" />
+                <field name="pattern" />
+                <field name="classification_id" />
+                <separator />
+                <filter
+                    name="regex"
+                    string="Regex Patterns"
+                    domain="[('match_mode', '=', 'regex')]"
+                />
+                <filter
+                    name="cel"
+                    string="CEL Patterns"
+                    domain="[('match_mode', '=', 'cel')]"
+                />
+                <separator />
+                <filter
+                    name="active"
+                    string="Active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    name="inactive"
+                    string="Archived"
+                    domain="[('active', '=', False)]"
+                />
+                <group name="group_by">
+                    <filter
+                        name="group_by_mode"
+                        string="Match Mode"
+                        context="{'group_by': 'match_mode'}"
+                    />
+                    <filter
+                        name="group_by_classification"
+                        string="Classification"
+                        context="{'group_by': 'classification_id'}"
+                    />
+                    <filter
+                        name="group_by_category"
+                        string="PII Category"
+                        context="{'group_by': 'pii_category'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Classification Pattern Action -->
+    <record id="action_classification_pattern" model="ir.actions.act_window">
+        <field name="name">Detection Patterns</field>
+        <field name="res_model">spp.classification.pattern</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="spp_classification_pattern_search" />
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Define auto-detection patterns
+            </p>
+            <p>
+                Patterns automatically classify fields based on matching rules.
+                Use <strong>Regex</strong> for simple name patterns or
+                <strong>CEL</strong> for complex rules with field metadata.
+                Higher priority patterns are evaluated first.
+            </p>
+        </field>
+    </record>
+</odoo>
