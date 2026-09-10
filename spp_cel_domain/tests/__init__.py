@@ -32,4 +32,5 @@ from . import test_multi_company
 from . import test_cel_relational_predicate
 from . import test_cel_smart_op_lookup
 from . import test_cel_translator_cache
+from . import test_cel_me_identifier
 from . import test_evaluate_accepts_params
