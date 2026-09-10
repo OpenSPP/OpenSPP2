@@ -161,6 +161,7 @@
                                     <list editable="bottom">
                                         <field name="sequence" widget="handle" />
                                         <field name="source_field" />
+                                        <field name="routing_field" optional="hide" />
                                         <field name="target_field" />
                                         <field name="transform" />
                                         <field

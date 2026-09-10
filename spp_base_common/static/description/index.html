@@ -495,6 +495,18 @@ additional modules</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.2</h1>
+<ul class="simple">
+<li>test: add a regression test guarding the PDF backend selected by
+<tt class="docutils literal">odoo.tools.pdf</tt>. The Docker image accidentally shipped legacy
+PyPDF2 3.x next to pypdf; Odoo prefers PyPDF2 when importable, and its
+removed 1.x API (<tt class="docutils literal">numPages</tt>/<tt class="docutils literal">getPage</tt>) crashes multi-record PDF
+printing with a <tt class="docutils literal">DeprecationError</tt> (OP#1168). The fix is in
+<tt class="docutils literal">docker/Dockerfile</tt> (<tt class="docutils literal"><span class="pre">--no-deps</span></tt> on the Odoo editable install);
+this test fails on any image that regresses.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix(security): add <tt class="docutils literal"><span class="pre">groups=&quot;base.group_system&quot;</span></tt> to the existing
@@ -510,7 +522,7 @@ re-writes the record without a <tt class="docutils literal">groups</tt> attribut
 <tt class="docutils literal">group_ids</tt> to empty.</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

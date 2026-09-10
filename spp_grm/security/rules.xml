@@ -104,4 +104,22 @@
         <field name="domain_force">[(1, '=', 1)]</field>
         <field name="groups" eval="[Command.link(ref('group_grm_manager'))]" />
     </record>
+
+    <!-- Portal users may only see their OWN grievance tickets. Without this rule
+         the portal ACL row (read-only) is unscoped and every portal user could
+         read every grievance in the system (#380). Portal submission is mediated
+         by the sudo'd controller, so the ACL grants no direct write/create; all
+         four perms are enabled here so the scoping also holds for write/create/
+         unlink if any future ACL change re-grants those (a rule with a perm
+         disabled simply does not apply to that operation). -->
+    <record id="rule_spp_grm_ticket_portal" model="ir.rule">
+        <field name="name">GRM Ticket: Portal Own Tickets Only</field>
+        <field ref="model_spp_grm_ticket" name="model_id" />
+        <field name="domain_force">[('partner_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[Command.link(ref('base.group_portal'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
 </odoo>

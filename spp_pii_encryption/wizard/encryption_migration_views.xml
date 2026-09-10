@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Migration Wizard Form View -->
+    <record id="spp_encryption_migration_wizard_view_form" model="ir.ui.view">
+        <field name="name">spp.encryption.migration.wizard.view.form</field>
+        <field name="model">spp.encryption.migration.wizard</field>
+        <field name="arch" type="xml">
+            <form string="PII Encryption Migration">
+                <header>
+                    <button
+                        name="action_scan"
+                        string="Scan for PII Fields"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'draft'"
+                    />
+                    <button
+                        name="action_dry_run"
+                        string="Dry Run"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="state != 'ready'"
+                    />
+                    <button
+                        name="action_migrate"
+                        string="Migrate Data"
+                        type="object"
+                        class="btn-warning"
+                        invisible="state != 'ready'"
+                        confirm="This will encrypt all matching plaintext PII data. Take a database backup/snapshot first — this cannot be undone from within Odoo. Continue?"
+                    />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,scanning,ready,processing,done"
+                    />
+                </header>
+                <sheet>
+                    <div
+                        class="alert alert-info"
+                        role="alert"
+                        invisible="state != 'draft'"
+                    >
+                        <strong>Welcome to the PII Encryption Migration Wizard</strong>
+                        <p
+                        >This wizard helps you encrypt existing plaintext PII data in your database.</p>
+                        <ol>
+                            <li
+                            >Click "Scan for PII Fields" to discover which fields need encryption</li>
+                            <li>Review the scan results</li>
+                            <li>Use "Dry Run" to preview the migration</li>
+                            <li>Take a database backup/snapshot</li>
+                            <li>Click "Migrate Data" to encrypt the data</li>
+                        </ol>
+                    </div>
+
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="state != 'ready'"
+                    >
+                        <strong>Ready to Migrate</strong>
+                        <p
+                        >Review the scan results below. Fields marked as "Needs Migration" will be encrypted. There is no in-app rollback — take a database backup/snapshot before migrating.</p>
+                    </div>
+
+                    <group>
+                        <group string="Configuration">
+                            <field
+                                name="model_ids"
+                                widget="many2many_tags"
+                                placeholder="All models with PII fields"
+                            />
+                            <field name="batch_size" />
+                        </group>
+                        <group string="Progress" invisible="state == 'draft'">
+                            <field name="progress" widget="progressbar" />
+                        </group>
+                    </group>
+
+                    <group string="Result" invisible="not result_summary">
+                        <field name="result_summary" nolabel="1" readonly="1" />
+                    </group>
+
+                    <notebook invisible="state == 'draft'">
+                        <page string="Scan Results" name="scan_results">
+                            <field name="scan_result_ids" nolabel="1" readonly="1">
+                                <list
+                                    string="Scan Results"
+                                    decoration-success="needs_migration == 0"
+                                    decoration-warning="needs_migration > 0 and is_encrypted"
+                                    decoration-danger="needs_migration > 0 and not is_encrypted"
+                                >
+                                    <field name="model_id" />
+                                    <field name="field_name" />
+                                    <field name="total_records" />
+                                    <field name="records_with_data" />
+                                    <field name="encrypted_records" />
+                                    <field name="needs_migration" />
+                                    <field name="is_encrypted" widget="boolean" />
+                                </list>
+                            </field>
+                        </page>
+                        <page
+                            string="Migration Log"
+                            name="log"
+                            invisible="not migration_log_ids"
+                        >
+                            <field name="migration_log_ids" nolabel="1" readonly="1">
+                                <list
+                                    string="Migration Log"
+                                    decoration-success="status == 'success'"
+                                    decoration-info="status == 'dry_run'"
+                                    decoration-danger="status == 'error'"
+                                    decoration-muted="status == 'skipped'"
+                                >
+                                    <field name="timestamp" />
+                                    <field name="model_name" />
+                                    <field name="field_name" />
+                                    <field name="status" widget="badge" />
+                                    <field name="message" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Migration Wizard Action -->
+    <record id="spp_encryption_migration_wizard_action" model="ir.actions.act_window">
+        <field name="name">Encrypt PII Data</field>
+        <field name="res_model">spp.encryption.migration.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Menu lives here (not views/menu.xml) so it loads after the action
+         it references -->
+    <menuitem
+        id="menu_migration"
+        name="Data Migration"
+        parent="menu_pii_encryption"
+        action="spp_encryption_migration_wizard_action"
+        sequence="15"
+        groups="group_encryption_admin,base.group_system"
+    />
+</odoo>

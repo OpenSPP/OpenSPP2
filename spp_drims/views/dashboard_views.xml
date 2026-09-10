@@ -24,7 +24,11 @@
         <field name="name">spp.hazard.incident.kanban.drims</field>
         <field name="model">spp.hazard.incident</field>
         <field name="arch" type="xml">
-            <kanban class="o_kanban_mobile">
+            <!-- OP#1123: can_open="0" disables the whole-card global click so the
+                 Units/Distributed/Beneficiaries boxes are inert. The incident
+                 name uses <a type="open"> (works regardless of can_open) and the
+                 Donations/Requests/Alerts boxes use their own <a type="object">. -->
+            <kanban class="o_kanban_mobile" can_open="0">
                 <field name="name" />
                 <field name="start_date" />
                 <field name="status" />
@@ -42,11 +46,17 @@
                 <field name="drims_return_count" />
                 <templates>
                     <t t-name="card">
-                        <div class="oe_kanban_global_click">
+                        <!-- OP#1123: the card is NOT globally clickable. Only the
+                             incident name (below) opens the incident form; the
+                             Units/Distributed/Beneficiaries boxes are inert, and
+                             Donations/Requests/Alerts keep their own links. -->
+                        <div>
                             <div class="o_kanban_record_top">
                                 <div class="o_kanban_record_headings">
                                     <strong class="o_kanban_record_title">
-                                        <field name="name" />
+                                        <a type="open" class="text-decoration-none">
+                                            <field name="name" />
+                                        </a>
                                     </strong>
                                 </div>
                                 <div class="float-end">
@@ -359,11 +369,23 @@
         <field name="model">spp.hazard.incident</field>
         <field name="inherit_id" ref="spp_hazard.view_hazard_incident_form" />
         <field name="arch" type="xml">
-            <!-- Add coordination mode field in main info group -->
+            <!-- Add coordination mode field in main info group.
+                 OP#1158: locked once the incident is closed, matching the
+                 other incident fields. -->
             <xpath expr="//group[@name='main_info']" position="inside">
                 <field
                     name="coordination_mode_id"
                     options="{'no_create': True, 'no_open': True}"
+                    readonly="status == 'closed'"
+                />
+                <!-- OP#1164: define the incident's warehouses here (bidirectional
+                     with each warehouse's "Active Incidents"). Locked when the
+                     incident is closed, like the other incident fields (#1158). -->
+                <field
+                    name="drims_warehouse_ids"
+                    widget="many2many_tags"
+                    options="{'no_create': True}"
+                    readonly="status == 'closed'"
                 />
             </xpath>
 

@@ -77,6 +77,11 @@ RUN --mount=type=cache,target=/root/.cache/uv,sharing=locked \
     -r /tmp/openspp-requirements.txt
 
 # Download and install Odoo (cache the tarball to avoid re-downloading)
+# --no-deps: Odoo's runtime dependencies are already installed above from its
+# requirements.txt, which carries the correct per-Python-version pins. Odoo's
+# setup.py additionally declares an unpinned PyPDF2; resolving it installs
+# legacy PyPDF2 3.x, which odoo.tools.pdf then selects over pypdf and which
+# crashes multi-record PDF printing (OP#1168).
 RUN --mount=type=cache,target=/root/.cache/uv,sharing=locked \
     --mount=type=cache,target=/tmp/downloads,sharing=locked \
     set -eux; \
@@ -91,7 +96,21 @@ RUN --mount=type=cache,target=/root/.cache/uv,sharing=locked \
     mv /opt/odoo /opt/odoo-src; \
     mkdir -p /opt/odoo; \
     mv /opt/odoo-src /opt/odoo/odoo; \
-    uv pip install -e /opt/odoo/odoo
+    uv pip install --no-deps -e /opt/odoo/odoo
+
+# Third-party addon refs. Each takes a branch or a commit sha, so a deployment
+# can pin an exact commit instead of tracking a moving branch. A tag name is not
+# accepted (it resolves under refs/tags, which this does not build) - pass the
+# commit sha the tag points at:
+# docker build --build-arg OCA_SERVER_UX_REF=<sha> ...
+# Declared here rather than at the top of the stage so that changing a ref
+# only invalidates the download layer below.
+ARG OCA_SERVER_UX_REF=19.0
+ARG OCA_SERVER_TOOLS_REF=19.0
+ARG ODOO_JOB_WORKER_REF=19.0
+ARG OCA_SERVER_BACKEND_REF=19.0
+ARG OCA_REST_FRAMEWORK_REF=19.0
+ARG MUK_IT_REF=19.0
 
 # Download OCA dependencies in builder (cache tarballs to avoid re-downloading)
 RUN --mount=type=cache,target=/tmp/downloads,sharing=locked \
@@ -99,22 +118,31 @@ RUN --mount=type=cache,target=/tmp/downloads,sharing=locked \
     download_module() { \
         local repo=$1; \
         local dest=$2; \
-        local branch=${3:-19.0}; \
-        local tarball="/tmp/downloads/${dest}-${branch}.tar.gz"; \
+        local ref=${3:-19.0}; \
+        local tarball="/tmp/downloads/${dest}-${ref}.tar.gz"; \
+        local url="https://github.com/${repo}/archive/refs/heads/${ref}.tar.gz"; \
+        # A commit sha sits under no ref namespace: GitHub serves it from
+        # /archive/<sha>.tar.gz and 404s on /archive/refs/heads/<sha>.tar.gz.
+        # 7+ hex digits is a sha (short or full); anything else is a branch.
+        case "$ref" in \
+            *[!0-9a-fA-F]*) ;; \
+            ???????*) url="https://github.com/${repo}/archive/${ref}.tar.gz";; \
+        esac; \
         if [ ! -f "$tarball" ] || ! gzip -t "$tarball" 2>/dev/null; then \
             rm -f "$tarball"; \
-            curl -sSL -o "$tarball" \
-                "https://github.com/${repo}/archive/refs/heads/${branch}.tar.gz"; \
+            # -f so a bad ref fails here with the 404, not later in tar with
+            # "not in gzip format" over a 14-byte error body.
+            curl -fsSL -o "$tarball" "$url"; \
         fi; \
         mkdir -p /opt/extra-addons/${dest}; \
         tar -xzf "$tarball" -C /opt/extra-addons/${dest} --strip-components=1; \
     }; \
-    download_module "OCA/server-ux" "server-ux"; \
-    download_module "OCA/server-tools" "server-tools"; \
-    download_module "OpenSPP/odoo-job-worker" "odoo-job-worker"; \
-    download_module "OCA/server-backend" "server-backend"; \
-    download_module "OCA/rest-framework" "rest-framework"; \
-    download_module "muk-it/odoo-modules" "muk-it"
+    download_module "OCA/server-ux" "server-ux" "${OCA_SERVER_UX_REF}"; \
+    download_module "OCA/server-tools" "server-tools" "${OCA_SERVER_TOOLS_REF}"; \
+    download_module "OpenSPP/odoo-job-worker" "odoo-job-worker" "${ODOO_JOB_WORKER_REF}"; \
+    download_module "OCA/server-backend" "server-backend" "${OCA_SERVER_BACKEND_REF}"; \
+    download_module "OCA/rest-framework" "rest-framework" "${OCA_REST_FRAMEWORK_REF}"; \
+    download_module "muk-it/odoo-modules" "muk-it" "${MUK_IT_REF}"
 
 # Precompile Python files (ignore errors from Python 2 syntax in some packages)
 RUN python -m compileall -q /opt/venv/lib/ || true

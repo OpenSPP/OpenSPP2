@@ -5,7 +5,7 @@
 {
     "name": "OpenSPP Base (Common)",
     "category": "OpenSPP/Core",
-    "version": "19.0.2.0.1",
+    "version": "19.0.2.0.2",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",

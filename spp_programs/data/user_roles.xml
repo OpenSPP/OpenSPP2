@@ -7,12 +7,21 @@
         <field
             name="comment"
         >Read-only access to program, cycle, and entitlement records.</field>
+        <!--
+            Registry: use Tier-3 `group_registry_read` (ACL-only) rather than
+            Tier-2 `group_registry_viewer`. Both grant the same registrant read
+            ACLs (defined in spp_base_common), but Tier-2 also gates the
+            standalone Registry Search portal menu — an over-broad PII
+            enumeration surface for a read-only program role. Tier-3 preserves
+            the registrant read needed for program cross-references without the
+            Registry app menu.
+        -->
         <field
             name="implied_ids"
             eval="[
                 Command.link(ref('base.group_user')),
                 Command.link(ref('group_programs_viewer')),
-                Command.link(ref('spp_registry.group_registry_viewer')),
+                Command.link(ref('spp_registry.group_registry_read')),
                 Command.link(ref('spp_approval.group_approval_viewer')),
                 Command.link(ref('spp_hazard.group_hazard_viewer')),
                 Command.link(ref('spp_gis_report.group_gis_report_user')),

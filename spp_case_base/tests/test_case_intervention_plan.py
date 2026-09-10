@@ -177,6 +177,99 @@ class TestCaseInterventionPlan(TransactionCase):
         plan.action_complete()
         self.assertEqual(plan.state, "completed", "Plan should be completed after completion action")
         self.assertTrue(plan.actual_end_date, "Completion date should be recorded")
+        self.assertFalse(plan.is_current, "Completed plan should no longer be marked current")
+        self.assertFalse(self.case.current_plan_id, "Case should have no current plan once the plan is completed")
+
+    def _active_plan(self, name):
+        """Return a plan taken through the approval cycle to ``active``.
+
+        The Complete button is only offered on an active plan
+        (``views/case_intervention_views.xml``), so the completion tests below
+        drive the same path rather than completing a draft.
+        """
+        plan = self.env["spp.case.intervention.plan"].create(
+            {
+                "name": name,
+                "case_id": self.case.id,
+                "goals": "<p>Reach self-sufficiency</p>",
+            }
+        )
+        self.env["spp.case.intervention"].create(
+            {
+                "name": f"{name} Intervention",
+                "plan_id": plan.id,
+            }
+        )
+        plan.action_submit_for_approval()
+        plan.with_user(self.supervisor).action_approve()
+        plan.action_activate()
+        self.assertEqual(plan.state, "active", "Plan should be active before completion")
+        return plan
+
+    def test_complete_clears_is_current(self):
+        """Test that completing a plan ends its tenure as the case's current plan."""
+        plan = self._active_plan("Plan To Complete")
+
+        self.assertTrue(plan.is_current, "Active plan should still be current")
+        self.assertEqual(
+            self.case.current_plan_id,
+            plan,
+            "Active plan should be the case's current plan",
+        )
+
+        plan.action_complete()
+
+        self.assertEqual(plan.state, "completed", "Plan should be completed")
+        self.assertFalse(
+            plan.is_current,
+            "Completed plan should no longer be marked current",
+        )
+        self.assertFalse(
+            self.case.current_plan_id,
+            "Case should have no current plan once the plan is completed",
+        )
+        self.assertFalse(
+            self.case.has_active_plan,
+            "Case should not report an active plan once the plan is completed",
+        )
+
+    def test_complete_frees_the_current_plan_slot(self):
+        """Test that a fresh plan can be made current once the previous one completes.
+
+        This is the user-facing half of the fix: while a finished plan kept
+        ``is_current``, the one-current-plan-per-case constraint refused every
+        attempt to start the next plan.
+        """
+        self._active_plan("Finished Plan").action_complete()
+
+        # Defaults to is_current=True, so this create is what used to raise.
+        successor = self.env["spp.case.intervention.plan"].create(
+            {
+                "name": "Successor Plan",
+                "case_id": self.case.id,
+                "goals": "<p>Second cycle goals</p>",
+            }
+        )
+
+        self.assertTrue(successor.is_current, "Successor plan should be current")
+        self.assertEqual(
+            self.case.current_plan_id,
+            successor,
+            "Case should point at the successor plan",
+        )
+
+    def test_complete_by_case_worker(self):
+        """Test that the assigned case worker may complete a plan and release the flag.
+
+        ``action_complete`` writes ``is_current`` through ``write()``, so the
+        worker record rule (own cases only) has to permit it.
+        """
+        plan = self._active_plan("Worker Completed Plan")
+
+        plan.with_user(self.case_worker).action_complete()
+
+        self.assertEqual(plan.state, "completed", "Plan should be completed")
+        self.assertFalse(plan.is_current, "Completed plan should no longer be marked current")
 
     def test_submit_without_interventions(self):
         """Test that plan cannot be submitted without interventions."""

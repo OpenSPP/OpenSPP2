@@ -6,6 +6,36 @@
         <field name="model">spp.hazard.incident</field>
         <field name="inherit_id" ref="spp_hazard.view_hazard_incident_form" />
         <field name="arch" type="xml">
+            <!--
+                OP#1159: temporarily hide the "Impacts" tab on incidents,
+                pending the full impact-tracking implementation in #1155.
+                Done in the DRIMS-inherited view so it only applies where DRIMS
+                is installed and is trivial to revert once #1155 lands.
+            -->
+            <xpath expr="//page[@name='impacts']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- OP#1157: expose the 'alert' state via a header button (the base
+                 state machine has the state but no way to set it). Shown while
+                 the incident is active/recovery (not already alert, not closed).
+
+                 Inserted before the first header button rather than before the
+                 statusbar, so it reads leftmost — Flag As Alert, Start Recovery,
+                 Close Incident — which is the order the workflow runs in.
+                 Anchored on the base view's first button; if that is ever
+                 renamed this xpath fails loudly at upgrade rather than silently
+                 reordering. -->
+            <xpath expr="//header/button[@name='action_set_active']" position="before">
+                <button
+                    name="action_set_alert"
+                    type="object"
+                    string="Flag As Alert"
+                    class="btn-secondary"
+                    invisible="status in ('alert', 'closed')"
+                />
+            </xpath>
+
             <!-- Add Alert Thresholds page to notebook -->
             <xpath expr="//notebook" position="inside">
                 <page string="Alert Thresholds" name="alert_thresholds">
@@ -16,21 +46,26 @@
                             global settings from DRIMS Configuration.
                         </p>
                     </group>
+                    <!-- OP#1158: the DRIMS threshold overrides are locked once the
+                         incident is closed, matching the base incident fields. -->
                     <group name="alert_thresholds_main">
                         <group name="stock_thresholds" string="Stock Thresholds">
                             <field
                                 name="drims_low_stock_threshold_override"
                                 placeholder="Leave empty for global setting"
+                                readonly="status == 'closed'"
                             />
                         </group>
                         <group name="expiry_thresholds" string="Expiry Thresholds">
                             <field
                                 name="drims_expiry_warning_override"
                                 placeholder="Leave empty for global setting"
+                                readonly="status == 'closed'"
                             />
                             <field
                                 name="drims_expiry_critical_override"
                                 placeholder="Leave empty for global setting"
+                                readonly="status == 'closed'"
                             />
                         </group>
                     </group>
@@ -39,6 +74,7 @@
                             <field
                                 name="drims_sla_warning_override"
                                 placeholder="Leave empty for global setting"
+                                readonly="status == 'closed'"
                             />
                         </group>
                         <group />
