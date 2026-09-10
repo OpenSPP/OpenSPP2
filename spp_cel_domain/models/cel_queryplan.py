@@ -116,6 +116,33 @@ class AggMetricCompare:
     default_domain: list | None = None
 
 
+@dataclass
+class ArithmeticCompare:
+    """Compare an arithmetic expression over aggregates against a value.
+
+    `dependency_ratio >= 1.5` expands to
+    `(child_count + elderly_count) / max(1, working_age_count) >= 1.5`, which
+    no Odoo domain can express: the value depends on counting related records
+    per parent and then doing arithmetic on the results.
+
+    Before this node existed such an expression fell through the translator's
+    field resolution to the literal field `id`, producing `('id', '>=', 1.5)`
+    and quietly matching every record.
+
+    `expr` is the parsed left-hand side. The executor collects its aggregate
+    leaves, resolves each to a {parent_id: value} map with one grouped read
+    apiece, then evaluates the arithmetic per candidate. That keeps the cost
+    at a few queries rather than one per record, but it is still a scan of the
+    candidate set: no SQL fast path applies.
+    """
+
+    model: str
+    expr: Any
+    op: str
+    rhs: Any
+    cfg: dict | None = None
+
+
 def flatten_and(nodes: list[Any]) -> list[Any]:
     out = []
     for n in nodes:

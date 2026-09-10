@@ -522,6 +522,46 @@ contexts</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.2</h1>
+<ul class="simple">
+<li>feat(translator): arithmetic containing an aggregate is now evaluated
+instead of discarded.
+<tt class="docutils literal">(child_count + elderly_count) / max(1, working_age_count) &gt;= 1.5</tt>
+cannot be expressed as an Odoo domain, and the translator resolved the
+whole left-hand side to the field <tt class="docutils literal">id</tt>, so
+<tt class="docutils literal">dependency_ratio &gt;= 1.5</tt> compiled to <tt class="docutils literal">('id', <span class="pre">'&gt;=',</span> 1.5)</tt> and
+matched every record. Such comparisons now run per candidate, with
+each aggregate leaf resolved once into a per-parent map so the cost
+stays a few queries rather than one per record. Supported inside
+arithmetic: <tt class="docutils literal">+ - * / %</tt>, unary minus,
+<tt class="docutils literal">max</tt>/<tt class="docutils literal">min</tt>/<tt class="docutils literal">abs</tt>/<tt class="docutils literal">round</tt>, aggregate counts, literals and
+numeric fields (#956)</li>
+<li>fix(translator): an expression that cannot be resolved to a field now
+raises instead of silently comparing on <tt class="docutils literal">id</tt>. That fallback turned
+every unsupported form into a match against the primary key, which for
+an eligibility rule means matching everyone – a worse outcome than
+refusing to compile (#956)</li>
+</ul>
+</div>
+<div class="section" id="section-2">
+<h1>19.0.2.1.1</h1>
+<ul class="simple">
+<li>fix(translator): <tt class="docutils literal">members.count(predicate)</tt> now honours its
+predicate when compared. Both call styles are valid – a single
+argument is the predicate with <tt class="docutils literal">m</tt> implicit, two arguments are an
+explicit loop variable and predicate – but the comparison path read
+the first argument as the loop variable either way and substituted a
+<tt class="docutils literal">True</tt> predicate when there was no second one.
+<tt class="docutils literal">members.count(pred) &gt; n</tt> therefore counted every member, silently
+and without error, so every aggregate count variable (<tt class="docutils literal">child_count</tt>,
+<tt class="docutils literal">elderly_count</tt>, <tt class="docutils literal">working_age_count</tt>) returned the household size
+and any program targeting on one matched every household. <tt class="docutils literal">exists()</tt>
+was unaffected, which is why variables built on it kept working. Note
+an aggregate count nested inside arithmetic, as <tt class="docutils literal">dependency_ratio</tt>
+is, still loses its predicate – a separate path (#955)</li>
+</ul>
+</div>
+<div class="section" id="section-3">
 <h1>19.0.2.1.0</h1>
 <ul class="simple">
 <li>feat(sql): compile CEL ternary expressions to SQL CASE via
@@ -533,7 +573,7 @@ compilation</li>
 <li>test(translator): add coverage for the CEL translation cache helpers</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-4">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

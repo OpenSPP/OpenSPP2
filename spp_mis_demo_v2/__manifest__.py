@@ -4,7 +4,7 @@
     "name": "OpenSPP MIS Demo V2",
     "summary": "Demo Generator V2 for SP-MIS programs with fixed stories and volume generation",
     "category": "OpenSPP",
-    "version": "19.0.2.1.4",
+    "version": "19.0.2.2.0",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -34,6 +34,10 @@
         "spp_claim_169",
         # Banking (for bank account demo data)
         "spp_banking",
+        # Disability registry: the demo ships a Disability Support Grant whose
+        # eligibility reads has_disability, and the generator records an
+        # assessment for every blueprint member flagged is_disabled (OP#955).
+        "spp_disability_registry",
         # Demo-specific extensions
     ],
     "external_dependencies": {"python": ["requests"]},
