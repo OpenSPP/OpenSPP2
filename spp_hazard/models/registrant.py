@@ -17,15 +17,26 @@ class ResPartner(models.Model):
         "spp.hazard.impact",
         "registrant_id",
         string="Hazard Impacts",
+        # Reading the O2M searches spp.hazard.impact in the user's env; gate it
+        # like the impact ACL so a bare read() of a partner by a user without
+        # impact read does not fail on this field.
+        groups="spp_hazard.group_hazard_read,spp_registry.group_registry_viewer,spp_security.group_spp_admin",
     )
+    # Both indicators are derived from the sensitive impact table and stored on
+    # the partner, so they are readable through the ORM (search_read, read_group,
+    # export, search domains) independently of the view-level gating. Field-level
+    # groups= mirrors the impact model's read ACL so a plain internal user cannot
+    # enumerate which registrants are disaster victims over RPC.
     hazard_impact_count = fields.Integer(
         compute="_compute_hazard_impact_count",
         string="Impact Count",
         store=True,
+        groups="spp_hazard.group_hazard_read,spp_registry.group_registry_viewer,spp_security.group_spp_admin",
     )
     has_active_impact = fields.Boolean(
         compute="_compute_has_active_impact",
         store=True,
+        groups="spp_hazard.group_hazard_read,spp_registry.group_registry_viewer,spp_security.group_spp_admin",
         help="Whether the registrant has an impact from an active incident",
     )
 

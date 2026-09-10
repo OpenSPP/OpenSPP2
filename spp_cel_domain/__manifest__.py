@@ -2,7 +2,7 @@
 {
     "name": "CEL Domain Query Builder",
     "summary": "Write simple CEL-like expressions to filter records (OpenSPP/OpenG2P friendly)",
-    "version": "19.0.2.1.0",
+    "version": "19.0.2.1.2",
     "license": "LGPL-3",
     "development_status": "Production/Stable",
     "author": "OpenSPP.org, OpenSPP Community",

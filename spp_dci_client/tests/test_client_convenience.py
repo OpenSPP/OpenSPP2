@@ -211,7 +211,7 @@ class TestClientMakeRequest(TransactionCase):
             "message": {"q": 1},
         }
         # Avoid auth HTTP in get_headers
-        p = patch.object(type(self.ds), "get_headers", return_value={"Content-Type": "application/json"})
+        p = patch.object(type(self.ds), "_get_headers", return_value={"Content-Type": "application/json"})
         p.start()
         self.addCleanup(p.stop)
 
@@ -261,7 +261,7 @@ class TestClientMakeRequest(TransactionCase):
         resp.raise_for_status.side_effect = httpx.HTTPStatusError(
             "401", request=MagicMock(), response=MagicMock(status_code=401, text="unauthorized")
         )
-        with patch(HTTPX, return_value=_cm(resp)), patch.object(type(oauth_ds), "clear_oauth2_token_cache") as clear:
+        with patch(HTTPX, return_value=_cm(resp)), patch.object(type(oauth_ds), "_clear_oauth2_token_cache") as clear:
             with self.assertRaises(UserError):
                 client._make_request("/sync/search", self.envelope)
         clear.assert_called_once()
