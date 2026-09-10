@@ -550,7 +550,7 @@ msgstr "Tous Actif (Brouillon, En attente, Approuvé)"
 #. module: spp_change_request_v2
 #: model:ir.ui.menu,name:spp_change_request_v2.menu_change_requests
 msgid "All Requests"
-msgstr "Tous Demandes"
+msgstr "Toutes les demandes"
 
 #. module: spp_change_request_v2
 #: model:ir.model.fields.selection,name:spp_change_request_v2.selection__spp_cr_create_wizard__type_category__all
@@ -2331,7 +2331,7 @@ msgstr "Afficher Nom"
 #. module: spp_change_request_v2
 #: model:ir.model.fields,field_description:spp_change_request_v2.field_spp_change_request__display_state
 msgid "Display State"
-msgstr "Afficher État"
+msgstr "État affiché"
 
 #. module: spp_change_request_v2
 #: model:ir.model.fields.selection,name:spp_change_request_v2.selection__spp_cr_conflict_wizard__resolution_action__wait
@@ -3843,7 +3843,7 @@ msgstr "Aucune demande de modification approuvée en attente"
 #. module: spp_change_request_v2
 #: model_terms:ir.actions.act_window,help:spp_change_request_v2.action_change_request
 msgid "No change requests found"
-msgstr "Non demandes de modification found"
+msgstr "Aucune demande de modification trouvée"
 
 #. module: spp_change_request_v2
 #: model_terms:ir.actions.act_window,help:spp_change_request_v2.action_approval_queue
@@ -4685,7 +4685,7 @@ msgstr "Demande Modifications (R)"
 #: model:ir.model.fields,field_description:spp_change_request_v2.field_spp_cr_preview_wizard__request_type
 #: model_terms:ir.ui.view,arch_db:spp_change_request_v2.view_cr_create_wizard_form
 msgid "Request Type"
-msgstr "Demande Type"
+msgstr "Type de demande"
 
 #. module: spp_change_request_v2
 #. odoo-javascript
@@ -5220,7 +5220,7 @@ msgstr "Soumis"
 #: model_terms:ir.ui.view,arch_db:spp_change_request_v2.spp_change_request_queue_list
 #: model_terms:ir.ui.view,arch_db:spp_change_request_v2.spp_change_request_queue_search
 msgid "Submitted By"
-msgstr "Soumis Par"
+msgstr "Soumis par"
 
 #. module: spp_change_request_v2
 #: model_terms:ir.ui.view,arch_db:spp_change_request_v2.spp_change_request_form
