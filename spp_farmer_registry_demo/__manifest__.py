@@ -1,14 +1,16 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 {
     "name": "OpenSPP Farmer Registry Demo",
-    "summary": "Demo generator for Farmer Registry with fixed stories and volume generation",
+    "summary": "Demo generator for Farmer Registry with fixed stories and volume generation. "
+    "DEMO ONLY: creates users with the well-known password 'demo'. Never install on a "
+    "production or internet-facing instance.",
     "category": "OpenSPP",
-    "version": "19.0.2.1.5",
+    "version": "19.0.2.1.6",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Production/Stable",
+    "development_status": "Alpha",
     "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],
     "depends": [
         # Farmer Registry Starter Bundle
@@ -55,4 +57,5 @@
     "application": False,
     "installable": True,
     "auto_install": False,
+    "post_init_hook": "post_init_hook",
 }
