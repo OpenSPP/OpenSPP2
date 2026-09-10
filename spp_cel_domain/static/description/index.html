@@ -522,6 +522,20 @@ contexts</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.1</h1>
+<ul class="simple">
+<li>fix(security): key metric cache lookups strictly by the requested
+params. The provider clause used to fall back to param-agnostic cache
+rows (<tt class="docutils literal">(provider, &quot;&quot;)</tt> and <tt class="docutils literal"><span class="pre">(&quot;&quot;,</span> &quot;&quot;)</tt>), so a parameterized
+<tt class="docutils literal"><span class="pre">metric(...,</span> <span class="pre">arg=…)</span></tt> predicate could be satisfied by an
+unparameterized/legacy cached value — silently selecting subjects by a
+less-specific value in eligibility/targeting/DCI-search flows. Reads
+are now keyed by the exact <tt class="docutils literal">params_hash</tt> (both the freshness
+preflight and the SQL fast path), and the compute/refresh path
+re-caches under the correct params key.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.1.0</h1>
 <ul class="simple">
 <li>feat(sql): compile CEL ternary expressions to SQL CASE via
@@ -533,7 +547,7 @@ compilation</li>
 <li>test(translator): add coverage for the CEL translation cache helpers</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
