@@ -1,7 +1,13 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
+from unittest.mock import patch
+
+from odoo import Command
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
+from odoo.tools import mute_logger
+
+ROUTING_LOGGER = "odoo.addons.spp_grm_cel.models.grm_routing_rule"
 
 
 class TestRoutingRules(TransactionCase):
@@ -10,7 +16,23 @@ class TestRoutingRules(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.RoutingRule = cls.env["spp.grm.routing.rule"]
+        # Rules are created as a GRM manager, not via the bare test env: the
+        # test env is the superuser, and a superuser-owned rule evaluates with
+        # record rules bypassed (with_user(SUPERUSER_ID) is always superuser
+        # mode) — i.e. the pre-#379 unbounded path. Binding the handle to a
+        # manager makes every rule in this suite exercise the owner-scoped
+        # evaluation the fix introduces, with the same broad manager reach.
+        cls.rule_author = cls.env["res.users"].create(
+            {
+                "name": "Routing Rule Author",
+                "login": "grm_routing_rule_author",
+                "group_ids": [
+                    Command.link(cls.env.ref("base.group_user").id),
+                    Command.link(cls.env.ref("spp_grm.group_grm_manager").id),
+                ],
+            }
+        )
+        cls.RoutingRule = cls.env["spp.grm.routing.rule"].with_user(cls.rule_author)
         cls.Ticket = cls.env["spp.grm.ticket"]
         cls.Team = cls.env["spp.grm.team"]
         cls.Category = cls.env["spp.grm.ticket.category"]
@@ -355,3 +377,93 @@ class TestRoutingRules(TransactionCase):
                     "assign_team_id": self.team1.id,
                 }
             )
+
+    def test_routing_failure_is_contained_by_a_savepoint(self):
+        """A database error while a rule is applied must not poison the
+        caller's transaction. The caller (``_apply_routing_rules``) swallows
+        the exception, so without a savepoint the cursor stays aborted and
+        every later statement of the same request — the rest of a portal
+        submission's own create — dies with InFailedSqlTransaction."""
+        self.RoutingRule.create(
+            {
+                "name": "Failing Rule",
+                "condition_cel": "severity == 'critical'",
+                "assign_team_id": self.team1.id,
+            }
+        )
+
+        Ticket = self.env.registry["spp.grm.ticket"]
+        original_write = Ticket.write
+
+        def failing_write(tickets, vals):
+            if "routing_rule_id" in vals:
+                # A genuine PostgreSQL error (what a stale assign_user_id FK
+                # would raise on flush): only a savepoint rollback makes the
+                # cursor usable again.
+                tickets.env.cr.execute("SELECT 1 / 0")
+            return original_write(tickets, vals)
+
+        with (
+            patch.object(Ticket, "write", failing_write),
+            mute_logger("odoo.sql_db"),
+            self.assertLogs(ROUTING_LOGGER, level="ERROR") as cm,
+        ):
+            ticket = self.Ticket.create(
+                {
+                    "name": "Critical Issue",
+                    "description": "Test",
+                    "severity": "critical",
+                    "stage_id": self.stage.id,
+                    "partner_id": self.partner.id,
+                }
+            )
+
+        self.assertTrue(any("rolled back and skipped" in line for line in cm.output), cm.output)
+        # The cursor survived: this query would raise InFailedSqlTransaction
+        # if the failed statement had aborted the transaction.
+        self.assertEqual(self.Ticket.search_count([("id", "=", ticket.id)]), 1)
+        self.assertFalse(ticket.routing_rule_id)
+
+    def test_owner_warnings_logged_once_per_create_batch(self):
+        """A misconfigured rule — here superuser-owned, the shell/data-load
+        case — is warned about once for the batch that triggered the routing,
+        not once per ticket in it. The active rule set and each rule's
+        evaluation owner are identical for every ticket of the batch."""
+        self.env[self.RoutingRule._name].create(
+            {"name": "Shell-created rule", "condition_cel": "severity == 'nonexistent'"}
+        )
+        with self.assertLogs(ROUTING_LOGGER, level="WARNING") as cm:
+            self.Ticket.create(
+                [
+                    {
+                        "name": f"Batched {i}",
+                        "description": "Test",
+                        "severity": "critical",
+                        "stage_id": self.stage.id,
+                        "partner_id": self.partner.id,
+                    }
+                    for i in range(3)
+                ]
+            )
+        hits = [line for line in cm.output if "Shell-created rule" in line and "owned by the superuser" in line]
+        self.assertEqual(len(hits), 1, cm.output)
+
+    def test_unexpected_parser_failure_is_logged_not_blamed_on_the_expression(self):
+        """A defect inside the parser (not a bad expression) must keep its
+        traceback in the log instead of being reported to the user as their own
+        invalid CEL."""
+        from unittest.mock import Mock
+
+        from odoo.addons.spp_grm_cel.models import grm_routing_rule
+
+        parser = Mock()
+        parser.parse.side_effect = TypeError("parser defect")
+        with (
+            patch.object(grm_routing_rule, "P", parser),
+            self.assertLogs(ROUTING_LOGGER, level="ERROR") as cm,
+            self.assertRaises(ValidationError) as caught,
+        ):
+            self.RoutingRule.create({"name": "Parser Bug", "condition_cel": "severity == 'critical'"})
+
+        self.assertIn("internal error", str(caught.exception))
+        self.assertTrue(any("Traceback" in line for line in cm.output), cm.output)

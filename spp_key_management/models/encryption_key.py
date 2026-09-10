@@ -43,7 +43,13 @@ class EncryptionKey(models.Model):
     )
     encrypted_key = fields.Char(
         required=True,
-        groups="base.group_system",
+        # Key admins need field access because the AWS KMS, Azure Key Vault
+        # and GCP KMS providers read the cached wrapped key in the calling
+        # user's context. The value is always ciphertext: wrapped by the KMS
+        # for the cloud providers, or by the master KEK (from env/config, or
+        # derived from database.uuid in zero-config setups) for the database
+        # provider. Plaintext key material is never stored here.
+        groups="base.group_system,spp_key_management.group_key_admin",
         help="Base64-encoded encrypted key material",
     )
     algorithm = fields.Char(

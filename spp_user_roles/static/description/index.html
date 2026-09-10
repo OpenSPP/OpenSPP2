@@ -503,6 +503,17 @@ role synchronization</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.2</h1>
+<ul class="simple">
+<li>fix(views): follow the <tt class="docutils literal">base_user_role</tt> rename of
+<tt class="docutils literal">res.users.role_ids</tt> to <tt class="docutils literal">user_role_ids</tt> (OCA/server-backend #428).
+The list-view override anchored its xpath on <tt class="docutils literal">role_ids</tt>, so the
+module failed to install against the current <tt class="docutils literal">19.0</tt> head of
+<tt class="docutils literal">base_user_role</tt> (“Element cannot be located in parent view”) and
+took every dependent module down with it.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix(role): allow assigning groups to a brand-new role in a single
@@ -517,7 +528,7 @@ afterwards — mirroring the existing <tt class="docutils literal">write()</tt> 
 <tt class="docutils literal">base_user_role</tt> for the same <tt class="docutils literal">_inherits</tt> cache-clearing bug.</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

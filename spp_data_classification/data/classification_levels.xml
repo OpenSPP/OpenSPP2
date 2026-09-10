@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="1">
+    <!-- Default Classification Levels -->
+
+    <record id="level_public" model="spp.data.classification.level">
+        <field name="name">Public</field>
+        <field name="code">PUBLIC</field>
+        <field name="sequence">10</field>
+        <field name="color">10</field>
+        <field
+            name="description"
+        >Data that can be freely shared. No restrictions on access or distribution.</field>
+        <field name="is_requires_encryption">False</field>
+        <field name="is_requires_masking">False</field>
+        <field name="is_requires_audit">False</field>
+        <field name="is_requires_consent">False</field>
+        <field name="retention_days">0</field>
+        <field name="retention_action">none</field>
+    </record>
+
+    <record id="level_internal" model="spp.data.classification.level">
+        <field name="name">Internal</field>
+        <field name="code">INTERNAL</field>
+        <field name="sequence">20</field>
+        <field name="color">4</field>
+        <field
+            name="description"
+        >Data for internal use only. Should not be shared externally without authorization.</field>
+        <field name="is_requires_encryption">False</field>
+        <field name="is_requires_masking">False</field>
+        <field name="is_requires_audit">True</field>
+        <field name="is_requires_consent">False</field>
+        <field name="retention_days">0</field>
+        <field name="retention_action">none</field>
+    </record>
+
+    <record id="level_confidential" model="spp.data.classification.level">
+        <field name="name">Confidential</field>
+        <field name="code">CONFIDENTIAL</field>
+        <field name="sequence">30</field>
+        <field name="color">3</field>
+        <field
+            name="description"
+        >Sensitive personal data. Access restricted to authorized personnel. Recommended encryption.</field>
+        <field name="is_requires_encryption">False</field>
+        <field name="is_requires_masking">True</field>
+        <field name="is_requires_audit">True</field>
+        <field name="is_requires_consent">True</field>
+        <field name="min_group_id" ref="group_pii_confidential_access_officer" />
+        <field name="retention_days">2555</field>
+        <field name="retention_action">anonymize</field>
+    </record>
+
+    <record id="level_restricted" model="spp.data.classification.level">
+        <field name="name">Restricted</field>
+        <field name="code">RESTRICTED</field>
+        <field name="sequence">40</field>
+        <field name="color">1</field>
+        <field
+            name="description"
+        >Highly sensitive data (IDs, financial info). Mandatory encryption. Strict access control.</field>
+        <field name="is_requires_encryption">True</field>
+        <field name="is_requires_masking">True</field>
+        <field name="is_requires_audit">True</field>
+        <field name="is_requires_consent">True</field>
+        <field name="is_requires_purpose_limitation">True</field>
+        <field name="min_group_id" ref="group_pii_full_access_admin" />
+        <field name="retention_days">2555</field>
+        <field name="retention_action">delete</field>
+    </record>
+</odoo>

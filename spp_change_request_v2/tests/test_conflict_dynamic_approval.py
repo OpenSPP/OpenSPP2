@@ -70,6 +70,19 @@ class TestConflictDynamicApproval(TransactionCase):
                 "enable_conflict_detection": True,
             }
         )
+        # Field-mapping definitions: which detail fields map to which registrant
+        # fields. Conflict/duplicate detection derives the "actually changed"
+        # fields from these (detail value vs registrant), so a field_mapping
+        # type needs them — same-named here (given_name -> given_name, etc.).
+        cls.dynamic_cr_type.write(
+            {
+                "apply_mapping_ids": [
+                    Command.create({"source_field": "given_name", "target_field": "given_name"}),
+                    Command.create({"source_field": "family_name", "target_field": "family_name"}),
+                    Command.create({"source_field": "phone", "target_field": "phone"}),
+                ],
+            }
+        )
 
         # Field-scope conflict rule: checks given_name, family_name
         cls.field_rule = cls.env["spp.cr.conflict.rule"].create(
@@ -480,4 +493,182 @@ class TestConflictDynamicApproval(TransactionCase):
         self.assertTrue(
             cr2.conflict_detection_date,
             "Static CR must run conflict checks at create time (existing behavior).",
+        )
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # Security: a user-writable selected_field_name must NOT bypass field-scoped
+    # conflict/duplicate detection. selected_field_name is only view-readonly;
+    # CR users have write on their own CRs, so the detection must derive the
+    # effective changed field from the trusted detail.field_to_modify selection.
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def test_writing_selected_field_name_cannot_bypass_field_conflict(self):
+        """Writing selected_field_name to a field outside conflict_fields must
+        not clear a real field-scoped conflict on a dynamic-approval CR."""
+        cr_a = self._create_dynamic_cr()
+        cr_a.get_detail().write({"field_to_modify": "given_name", "given_name": "NewGivenA"})
+        cr_a._run_conflict_checks()
+
+        cr_b = self._create_dynamic_cr()
+        cr_b.get_detail().write({"field_to_modify": "given_name", "given_name": "NewGivenB"})
+        cr_b._run_conflict_checks()
+        self.assertEqual(cr_b.conflict_status, "warning", "Baseline: same field = conflict.")
+
+        # Attack: re-point selected_field_name to a field NOT in conflict_fields
+        # (phone). This re-triggers conflict detection via the write override.
+        cr_b.write({"selected_field_name": "phone"})
+
+        self.assertEqual(
+            cr_b.conflict_status,
+            "warning",
+            "Writing selected_field_name must not bypass the field-scoped conflict.",
+        )
+        self.assertIn(cr_a, cr_b.conflicting_cr_ids)
+
+    def test_writing_selected_field_name_on_static_cr_cannot_bypass(self):
+        """On a non-dynamic-approval CR, selected_field_name must be ignored
+        entirely — writing it cannot narrow the field-scoped conflict."""
+        cr_a = self._create_static_cr()
+        cr_a.get_detail().write({"given_name": "StaticGivenA"})
+        cr_a._run_conflict_checks()
+
+        cr_b = self._create_static_cr()
+        cr_b.get_detail().write({"given_name": "StaticGivenB"})
+        cr_b._run_conflict_checks()
+        self.assertIn(cr_a, cr_b.conflicting_cr_ids, "Baseline: static CRs conflict on given_name.")
+
+        cr_b.write({"selected_field_name": "phone"})
+
+        self.assertIn(
+            cr_a,
+            cr_b.conflicting_cr_ids,
+            "selected_field_name must not affect conflict detection for non-dynamic CR types.",
+        )
+
+    def test_mislabeled_field_to_modify_cannot_bypass_conflict(self):
+        """Labelling field_to_modify as an unchanged field must not bypass the
+        conflict on the field actually changed. field_to_modify is user-writable
+        and does not constrain apply (field_mapping applies every changed field),
+        so detection must scope to what actually differs from the registrant."""
+        cr_a = self._create_dynamic_cr()
+        cr_a.get_detail().write({"field_to_modify": "given_name", "given_name": "NewGivenA"})
+        cr_a._run_conflict_checks()
+
+        # cr_b really changes given_name (a conflict field) but labels the CR as
+        # modifying phone (unchanged — still the registrant's prefilled value).
+        cr_b = self._create_dynamic_cr()
+        cr_b.get_detail().write({"field_to_modify": "phone", "given_name": "NewGivenB"})
+        cr_b._run_conflict_checks()
+
+        self.assertEqual(
+            cr_b.conflict_status,
+            "warning",
+            "A real change to a conflict field must be detected regardless of field_to_modify.",
+        )
+        self.assertIn(cr_a, cr_b.conflicting_cr_ids)
+
+    def test_mislabeled_candidate_still_detected_as_conflict(self):
+        """A prior CR that mislabels field_to_modify while actually changing a
+        conflict field must still be found as a conflicting candidate."""
+        # cr_a really changes given_name but labels field_to_modify = phone.
+        cr_a = self._create_dynamic_cr()
+        cr_a.get_detail().write({"field_to_modify": "phone", "given_name": "MislabeledGivenA"})
+        cr_a._run_conflict_checks()
+
+        cr_b = self._create_dynamic_cr()
+        cr_b.get_detail().write({"field_to_modify": "given_name", "given_name": "NewGivenB"})
+        cr_b._run_conflict_checks()
+
+        self.assertIn(
+            cr_a,
+            cr_b.conflicting_cr_ids,
+            "A candidate that actually changed the conflict field must be detected even if mislabeled.",
+        )
+
+    def test_writing_selected_field_name_cannot_bypass_duplicate(self):
+        """Writing selected_field_name must not drop duplicate similarity to 0."""
+        dup_config = self.env["spp.cr.duplicate.config"].create(
+            {"cr_type_id": self.dynamic_cr_type.id, "similarity_threshold": 50.0}
+        )
+        self.dynamic_cr_type.write({"enable_duplicate_detection": True, "duplicate_detection_config_id": dup_config.id})
+        try:
+            cr_a = self._create_dynamic_cr()
+            cr_a.get_detail().write({"field_to_modify": "given_name", "given_name": "SameValue"})
+            cr_a._run_conflict_checks()
+
+            cr_b = self._create_dynamic_cr()
+            cr_b.get_detail().write({"field_to_modify": "given_name", "given_name": "SameValue"})
+            self.assertEqual(cr_b._calculate_similarity(cr_a, dup_config), 100.0, "Baseline duplicate.")
+
+            # Attack: re-point selected_field_name away from the real field.
+            cr_b.write({"selected_field_name": "phone"})
+
+            self.assertEqual(
+                cr_b._calculate_similarity(cr_a, dup_config),
+                100.0,
+                "Writing selected_field_name must not bypass duplicate detection.",
+            )
+        finally:
+            self.dynamic_cr_type.write({"enable_duplicate_detection": False, "duplicate_detection_config_id": False})
+            dup_config.unlink()
+
+    def test_dynamic_custom_strategy_still_detects_conflicts(self):
+        """A dynamic type whose strategy writes outside the mappings must not
+        silently lose detection.
+
+        The changed-field derivation reads apply_mapping_ids, which a custom
+        apply strategy does not populate. Deriving from an empty mapping set
+        would yield an empty "changed" set, which would make the field-scoped
+        conflict filter match nothing and drive duplicate similarity to 0 —
+        disabling both checks for that configuration. The derivation must fall
+        back to the full configured field set instead.
+        """
+        custom_type = self.CRType.create(
+            {
+                "name": "Dynamic Custom Strategy",
+                "code": "dyn_custom_strategy_test",
+                "target_type": "individual",
+                "detail_model": "spp.cr.detail.edit_individual",
+                "apply_strategy": "custom",
+                # A custom strategy requires an apply model (_check_apply_config).
+                # The strategy is never executed here — the test only exercises
+                # conflict detection — so any registered apply model will do.
+                "apply_model": "spp.cr.apply.add_member",
+                "approval_definition_id": self.approval_def.id,
+                "use_dynamic_approval": True,
+                "candidate_definition_ids": [Command.link(self.approval_def.id)],
+                "enable_conflict_detection": True,
+            }
+        )
+        self.env["spp.cr.conflict.rule"].create(
+            {
+                "name": "Field Conflict (custom strategy)",
+                "cr_type_id": custom_type.id,
+                "scope": "field",
+                "action": "warn",
+                "conflict_fields": "given_name, family_name",
+            }
+        )
+
+        def _make():
+            cr = self.CR.create({"request_type_id": custom_type.id, "registrant_id": self.registrant.id})
+            cr.get_detail().write({"field_to_modify": "given_name", "given_name": "CollidingValue"})
+            return cr
+
+        cr_a = _make()
+        cr_a._run_conflict_checks()
+        cr_b = _make()
+
+        # No mappings configured, so the derivation must return None (use the
+        # full configured set) rather than an empty set.
+        self.assertIsNone(
+            cr_b._proposed_changed_fields(),
+            "A dynamic type without field mappings must not derive an empty changed-field set.",
+        )
+
+        cr_b._run_conflict_checks()
+        self.assertNotEqual(
+            cr_b.conflict_status,
+            "none",
+            "Conflict detection must still fire for a dynamic custom-strategy type.",
         )

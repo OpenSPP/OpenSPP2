@@ -53,11 +53,17 @@ class SpatialQueryService:
             geometry = item["geometry"]
 
             try:
-                result = self.query_statistics(
-                    geometry=geometry,
-                    filters=filters,
-                    variables=variables,
-                )
+                # Each iteration runs inside its own savepoint: the spatial
+                # legs guard themselves, but a statistics failure would
+                # otherwise abort the transaction for every later geometry
+                # and for the summary below.
+                # flush=False keeps unrelated pending ORM writes out of the rollback.
+                with self.env.cr.savepoint(flush=False):
+                    result = self.query_statistics(
+                        geometry=geometry,
+                        filters=filters,
+                        variables=variables,
+                    )
                 # Collect registrant IDs for deduplication in summary
                 registrant_ids = result.pop("registrant_ids", [])
                 all_registrant_ids.update(registrant_ids)
@@ -92,7 +98,15 @@ class SpatialQueryService:
         # Compute summary by aggregating unique registrants with metadata
         summary_stats_with_metadata = {"statistics": {}}
         if all_registrant_ids:
-            summary_stats_with_metadata = self._compute_statistics(list(all_registrant_ids), variables or [])
+            try:
+                # Same guard as the loop: a failure degrades to an empty
+                # summary instead of discarding the per-geometry results.
+                # flush=False keeps unrelated pending ORM writes out of the rollback.
+                with self.env.cr.savepoint(flush=False):
+                    summary_stats_with_metadata = self._compute_statistics(list(all_registrant_ids), variables or [])
+            except Exception as e:
+                _logger.warning("Batch summary statistics failed: %s", e)
+                summary_stats_with_metadata = {"statistics": {}}
 
         summary = {
             "total_count": len(all_registrant_ids),
@@ -133,25 +147,38 @@ class SpatialQueryService:
         geometry_json = json.dumps(geometry)
 
         # Try coordinate-based query first (preferred method)
+        result = None
         try:
-            result = self._query_by_coordinates(geometry_json, filters)
-            if result["total_count"] > 0:
-                _logger.info(
-                    "Spatial query using coordinates: %s registrants found",
-                    result["total_count"],
-                )
-                # Compute statistics for the matched registrants with metadata
-                stats_with_metadata = self._compute_statistics(result["registrant_ids"], variables)
-                result.update(stats_with_metadata)
-                return result
+            # A failed statement aborts the whole transaction, which would make
+            # the area fallback below fail too. The savepoint contains it.
+            # flush=False keeps unrelated pending ORM writes out of the rollback.
+            with self.env.cr.savepoint(flush=False):
+                result = self._query_by_coordinates(geometry_json, filters)
         except Exception as e:
             _logger.warning(
                 "Coordinate-based query failed: %s, falling back to area-based query",
                 e,
             )
 
+        # Only the coordinate query itself is retried via the fallback; a
+        # statistics failure is not a spatial failure and must propagate.
+        if result is not None and result["total_count"] > 0:
+            _logger.info(
+                "Spatial query using coordinates: %s registrants found",
+                result["total_count"],
+            )
+            # Compute statistics for the matched registrants with metadata
+            stats_with_metadata = self._compute_statistics(result["registrant_ids"], variables)
+            result.update(stats_with_metadata)
+            return result
+
         # Fall back to area-based query
-        result = self._query_by_area(geometry_json, filters)
+        # A failed statement here would otherwise leave the transaction aborted
+        # for every subsequent query on this cursor, including later geometries
+        # in query_statistics_batch. The savepoint contains it.
+        # flush=False keeps unrelated pending ORM writes out of the rollback.
+        with self.env.cr.savepoint(flush=False):
+            result = self._query_by_area(geometry_json, filters)
         _logger.info(
             f"Spatial query using area fallback: {result['total_count']} registrants in {result['areas_matched']} areas"
         )
@@ -176,11 +203,11 @@ class SpatialQueryService:
         """
         # Build WHERE clause from filters
         where_clauses = ["p.is_registrant = true"]
-        params = [geometry_json]
+        filter_params = []
 
         if filters.get("is_group") is not None:
             where_clauses.append("p.is_group = %s")
-            params.append(filters["is_group"])
+            filter_params.append(filters["is_group"])
 
         if filters.get("disabled") is not None:
             if filters["disabled"]:
@@ -209,8 +236,8 @@ class SpatialQueryService:
               )
         """  # nosec B608 - SQL clauses built from hardcoded fragments, data uses %s params
 
-        # Add geometry parameter at the beginning
-        params = [geometry_json] + params[1:]
+        # Params ordered to match SQL: filter params (in where_clause) then geometry
+        params = filter_params + [geometry_json]
 
         self.env.cr.execute(query, params)
         registrant_ids = [row[0] for row in self.env.cr.fetchall()]
@@ -484,30 +511,42 @@ class SpatialQueryService:
         radius_meters = radius_km * 1000
 
         # Try coordinate-based query first
+        result = None
         try:
-            result = self._proximity_by_coordinates(reference_points, radius_meters, relation, filters)
-            if result["total_count"] > 0:
-                _logger.info(
-                    "Proximity query (%s, %.1f km) using coordinates: %s registrants found",
-                    relation,
-                    radius_km,
-                    result["total_count"],
-                )
-                registrant_ids = result["registrant_ids"]
-                stats_with_metadata = self._compute_statistics(registrant_ids, variables)
-                result.update(stats_with_metadata)
-                result["reference_points_count"] = len(reference_points)
-                result["radius_km"] = radius_km
-                result["relation"] = relation
-                return result
+            # A failed statement aborts the whole transaction, which would make
+            # the area fallback below fail too. The savepoint contains it.
+            # flush=False keeps unrelated pending ORM writes out of the rollback.
+            with self.env.cr.savepoint(flush=False):
+                result = self._proximity_by_coordinates(reference_points, radius_meters, relation, filters)
         except Exception as e:
             _logger.warning(
                 "Coordinate-based proximity query failed: %s, falling back to area-based",
                 e,
             )
 
+        # Only the proximity query itself is retried via the fallback; a
+        # statistics failure is not a spatial failure and must propagate.
+        if result is not None and result["total_count"] > 0:
+            _logger.info(
+                "Proximity query (%s, %.1f km) using coordinates: %s registrants found",
+                relation,
+                radius_km,
+                result["total_count"],
+            )
+            registrant_ids = result["registrant_ids"]
+            stats_with_metadata = self._compute_statistics(registrant_ids, variables)
+            result.update(stats_with_metadata)
+            result["reference_points_count"] = len(reference_points)
+            result["radius_km"] = radius_km
+            result["relation"] = relation
+            return result
+
         # Fall back to area-based query
-        result = self._proximity_by_area(reference_points, radius_meters, relation, filters)
+        # A failed statement here would otherwise leave the transaction aborted
+        # for every subsequent query on this cursor. The savepoint contains it.
+        # flush=False keeps unrelated pending ORM writes out of the rollback.
+        with self.env.cr.savepoint(flush=False):
+            result = self._proximity_by_area(reference_points, radius_meters, relation, filters)
         _logger.info(
             "Proximity query (%s, %.1f km) using area fallback: %s registrants in %s areas",
             relation,

@@ -129,6 +129,16 @@ Dependencies
 Changelog
 =========
 
+19.0.2.0.2
+~~~~~~~~~~
+
+- fix(views): follow the ``base_user_role`` rename of
+  ``res.users.role_ids`` to ``user_role_ids`` (OCA/server-backend #428).
+  The list-view override anchored its xpath on ``role_ids``, so the
+  module failed to install against the current ``19.0`` head of
+  ``base_user_role`` ("Element cannot be located in parent view") and
+  took every dependent module down with it.
+
 19.0.2.0.1
 ~~~~~~~~~~
 

@@ -1,4 +1,5 @@
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 
 
 class SPPCRDetailAssignProgram(models.Model):
@@ -34,6 +35,40 @@ class SPPCRDetailAssignProgram(models.Model):
         string="Created Membership",
         readonly=True,
     )
+
+    @api.constrains("program_id")
+    def _check_program_access(self):
+        """Reject a program the selecting user cannot access.
+
+        The `program_id` domain only constrains the UI; a raw ORM/RPC write can
+        point it at an arbitrary program. Since the apply strategy runs under
+        `sudo` (spp.change.request._do_apply), an inaccessible program would
+        otherwise be assigned - and its name leaked via preview - bypassing
+        program record rules and multi-company scope. Enforce access here, in
+        the writing user's own context, so the stored value can only ever be a
+        program that user may target.
+
+        Two checks, because neither alone is sufficient:
+        - `search()` requires the program to be visible to the user, enforcing
+          any record rule on `spp.program` (and rejecting a stale/deleted id).
+        - an explicit `company_id in env.companies` guard enforces multi-company
+          scope directly. This is load-bearing, not mere defense in depth: the
+          global multi-company `ir.rule` on `spp.program` is NOT reliably
+          applied to the search in this write/constraint context (verified by
+          test - a company-A user's search still returns a company-B program),
+          so relying on `search()` alone would let a cross-company program
+          through. The explicit check rejects it deterministically.
+        """
+        for rec in self:
+            program = rec.program_id
+            if not program:
+                continue
+            # `or` short-circuits: if the record is not visible, program.company_id
+            # is not read (avoids an AccessError on a rule-hidden record).
+            if not self.env["spp.program"].search([("id", "=", program.id)]) or (
+                program.company_id and program.company_id not in self.env.companies
+            ):
+                raise ValidationError(_("You do not have access to the selected program."))
 
     @api.depends("registrant_id", "registrant_id.is_group")
     def _compute_registrant_target_type(self):

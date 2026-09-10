@@ -32,9 +32,21 @@ class SPPGRMTicket(models.Model):
         """Override create to apply routing rules to new tickets."""
         tickets = super().create(vals_list)
 
+        # Hoisted out of the per-ticket loop: the active rule set (and each
+        # rule's evaluation owner, with its warnings) is identical for every
+        # ticket of this batch, so resolve it once — a misconfigured rule is
+        # then warned about once per create, not once per ticket created.
+        try:
+            rules = self.env["spp.grm.routing.rule"]._active_rules_with_owners()
+        except Exception:
+            # Routing must never cost a ticket its creation; this is the same
+            # guarantee _apply_routing_rules gives for a single ticket.
+            _logger.exception("Could not resolve routing rules; tickets %s were not routed.", tickets.ids)
+            return tickets
+
         # Apply routing rules to each new ticket
         for ticket in tickets:
-            self._apply_routing_rules(ticket)
+            self._apply_routing_rules(ticket, rules=rules)
 
         return tickets
 
@@ -50,11 +62,13 @@ class SPPGRMTicket(models.Model):
         return result
 
     @api.model
-    def _apply_routing_rules(self, ticket):
+    def _apply_routing_rules(self, ticket, rules=None):
         """Apply routing rules to a ticket.
 
         Args:
             ticket: spp.grm.ticket record
+            rules: optional pre-resolved ``[(rule, owner), ...]`` shared by a
+                batch (see ``spp.grm.routing.rule.apply_routing``)
         """
         try:
             _logger.debug("Applying routing rules to ticket %s", ticket.number)
@@ -63,7 +77,7 @@ class SPPGRMTicket(models.Model):
             routing_model = self.env["spp.grm.routing.rule"]
 
             # Apply routing rules
-            if routing_model.apply_routing(ticket):
+            if routing_model.apply_routing(ticket, rules=rules):
                 _logger.info("Routing rules applied to ticket %s", ticket.number)
             else:
                 _logger.debug("No routing rules matched for ticket %s", ticket.number)
@@ -105,8 +119,19 @@ class SPPGRMTicket(models.Model):
         """Manual action to trigger escalation rule evaluation.
 
         Can be called from the UI to manually check if any escalation rules apply.
+
+        The form button carries ``groups="spp_grm.group_grm_officer"``, but this
+        method is dispatchable over RPC, where a view attribute guards nothing:
+        base.group_user holds unscoped read on the tickets, so any internal user
+        could otherwise force a full escalation pass — counters, chatter posts,
+        notification mail, case creation — on any ticket in the database. The
+        engine itself stays elevated (each rule is bounded by its own owner);
+        what is checked here is entitlement to drive it. Write access is the
+        button's audience — officers and above — and, unlike a group test, it
+        also honours the caller's own ticket scope.
         """
         self.ensure_one()
+        self.check_access("write")
         self._check_escalation_rules(self)
 
         return {

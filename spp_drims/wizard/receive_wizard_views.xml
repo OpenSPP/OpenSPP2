@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- DRIMS Donation Receive Wizard Form (OP#1163) -->
+    <record id="spp_drims_receive_wizard_form" model="ir.ui.view">
+        <field name="name">spp.drims.receive.wizard.form</field>
+        <field name="model">spp.drims.receive.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Mark Received">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Receiving: <field
+                            name="donation_reference"
+                            readonly="1"
+                            class="oe_inline"
+                        /></h1>
+                    </div>
+                    <field name="donation_id" invisible="1" />
+                    <div class="alert alert-info" role="status">
+                        Enter the quantity actually received for each item
+                        (pre-filled from the pledged quantity), then click
+                        <strong>Confirm Received</strong>.
+                    </div>
+                    <field name="line_ids">
+                        <list editable="bottom" create="false" delete="false">
+                            <field name="product_id" readonly="1" />
+                            <field
+                                name="quantity_pledged"
+                                string="Pledged"
+                                readonly="1"
+                            />
+                            <field name="quantity_received" string="Received" />
+                            <field name="uom_id" readonly="1" groups="uom.group_uom" />
+                            <field name="donation_line_id" column_invisible="1" />
+                        </list>
+                    </field>
+                </sheet>
+                <footer>
+                    <button
+                        name="action_confirm_received"
+                        string="Confirm Received"
+                        type="object"
+                        class="btn-primary"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

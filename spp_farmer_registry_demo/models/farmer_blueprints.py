@@ -619,6 +619,43 @@ FARMER_BLUEPRINTS = [
             _AQUACULTURE: False,
         },
     },
+    # =========================================================================
+    # Edge Cases — Targeting Exclusion (1 blueprint, 1 farm)
+    # OP#1119: EC1 — a large commercial farm (50 ha, well above the 5 ha
+    # smallholder threshold) that ALSO has idle/fallow land. Scenario 5
+    # (Climate Resilience) needs this so the CEL
+    # `r.is_group == true and is_smallholder and farm_size_idle > 0` can be
+    # shown rejecting it on is_smallholder even though farm_size_idle > 0.
+    # All eligibility is False — it is the deliberate rejection example.
+    # =========================================================================
+    {
+        "id": "bp_22_ec1_large_commercial_idle",
+        "label": "EC1 — Large commercial farm, 50ha with idle land (targeting exclusion)",
+        "count": 1,
+        "zone": "rural",
+        "farm_type": "crop",
+        "size_range": (50.0, 50.0),
+        "idle_pct": 0.1,  # 5 ha fallow/idle — the positive Climate signal it can't use (not a smallholder)
+        "experience_range": (20, 30),
+        "head_gender": "male",
+        "members": [
+            {"role": "head", "gender": "male", "age_range": (45, 60)},
+            {"role": "spouse", "gender": "female", "age_range": (42, 58)},
+        ],
+        "activities": [
+            {"type": "crop", "species_code": "rice_irrigated", "area_pct": 0.5},
+            {"type": "crop", "species_code": "maize", "area_pct": 0.3},
+        ],
+        "land_tenure": "self",
+        "land_use": "cultivation",
+        "eligibility": {
+            _INPUT_SUBSIDY: False,
+            _EQUIPMENT_GRANT: False,
+            _LIVESTOCK: False,
+            _CLIMATE: False,
+            _AQUACULTURE: False,
+        },
+    },
 ]
 
 

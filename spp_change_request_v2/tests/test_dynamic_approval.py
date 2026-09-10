@@ -14,7 +14,7 @@ definitions without a CEL condition act as catch-all fallbacks.
 import logging
 
 from odoo import Command, api
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tests import TransactionCase, tagged
 
 _logger = logging.getLogger(__name__)
@@ -1057,3 +1057,159 @@ class TestDynamicApproval(TransactionCase):
         self.assertIn("id", normalized["parent"])
         self.assertIn("name", normalized["parent"])
         self.assertIn("code", normalized["parent"])
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # APPLY RESTRICTION — a dynamic-approval CR must apply ONLY the selected
+    # field, even if other mapped detail fields were also changed. Otherwise a
+    # user could route a low-risk field to a weak workflow and smuggle changes
+    # to other (higher-risk) mapped fields through the same weak approval.
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def _field_mapping_strategy(self):
+        return self.env["spp.cr.strategy.field_mapping"]
+
+    def test_dynamic_apply_writes_only_selected_field(self):
+        cr = self._create_cr()
+        detail = cr.get_detail()
+        # Select the low-risk field (phone) but ALSO change a high-risk field.
+        detail.write({"field_to_modify": "phone", "phone": "999-000", "given_name": "HACKED"})
+        self.assertEqual(cr.selected_field_name, "phone")
+
+        self._field_mapping_strategy().apply(cr)
+
+        self.assertEqual(self.registrant.phone, "999-000", "the selected field must be applied")
+        self.assertEqual(
+            self.registrant.given_name,
+            "Original Given",
+            "a non-selected mapped field must NOT be applied for a dynamic-approval CR",
+        )
+
+    def test_dynamic_preview_shows_only_selected_field(self):
+        cr = self._create_cr()
+        detail = cr.get_detail()
+        detail.write({"field_to_modify": "phone", "phone": "999-000", "given_name": "HACKED"})
+
+        changes = self._field_mapping_strategy().preview(cr)
+
+        self.assertEqual(len(changes), 1, "preview must show only the selected field for a dynamic CR")
+        self.assertEqual(next(iter(changes.values()))["new"], "999-000")
+
+    def test_dynamic_apply_unmapped_selected_field_writes_nothing(self):
+        """Fail-closed: a dynamic CR whose selected field has no mapping writes nothing,
+        even if another mapped detail field was changed.
+
+        Applying is additionally rejected outright rather than reporting success.
+        Returning success wrote nothing but still stamped the request applied,
+        hiding a dropped change from operators; see
+        ``test_apply_effective_mappings``. The fail-closed guarantee this test
+        exists for is unchanged -- nothing is written either way.
+        """
+        cr = self._create_cr()
+        detail = cr.get_detail()
+        detail.write({"phone": "999-000"})
+        # Force a selected field that is not present in apply_mapping_ids.
+        cr.selected_field_name = "email"
+
+        with self.assertRaises(UserError):
+            self._field_mapping_strategy().apply(cr)
+
+        self.assertEqual(self.registrant.phone, "111-222", "nothing may be applied for an unmapped selection")
+
+    def test_non_dynamic_apply_still_writes_all_changed_fields(self):
+        """Regression: non-dynamic CR types keep applying every changed mapping."""
+        nd_type = self.CRType.create(
+            {
+                "name": "Non-Dynamic With Mappings",
+                "code": "nd_with_mappings_test",
+                "target_type": "individual",
+                "detail_model": "spp.cr.detail.edit_individual",
+                "apply_strategy": "field_mapping",
+                "approval_definition_id": self.static_def.id,
+                "use_dynamic_approval": False,
+                "apply_mapping_ids": [
+                    Command.create({"source_field": "phone", "target_field": "phone", "sequence": 10}),
+                    Command.create({"source_field": "given_name", "target_field": "given_name", "sequence": 20}),
+                ],
+            }
+        )
+        reg = self.env["res.partner"].create(
+            {
+                "name": "ND Registrant",
+                "given_name": "OldGiven",
+                "phone": "000-000",
+                "is_registrant": True,
+                "is_group": False,
+            }
+        )
+        cr = self.CR.create({"request_type_id": nd_type.id, "registrant_id": reg.id})
+        detail = cr.get_detail()
+        detail.write({"phone": "555-555", "given_name": "NewGiven"})
+
+        self._field_mapping_strategy().apply(cr)
+
+        self.assertEqual(reg.phone, "555-555")
+        self.assertEqual(reg.given_name, "NewGiven", "non-dynamic CR must apply all changed mappings")
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # POST-SUBMIT FREEZE — once routed, the proposed change (selected field and
+    # the mapped values) is frozen. This closes the desync where a user routes on
+    # a low-risk field, then swaps the field or its value before apply.
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def _submit_dynamic_cr(self, selected="phone", **detail_vals):
+        cr = self._create_cr()
+        detail = cr.get_detail()
+        detail.write({"field_to_modify": selected, selected: detail_vals.get(selected, "999-000"), **detail_vals})
+        cr.action_submit_for_approval()
+        cr.invalidate_recordset()
+        self.assertEqual(cr.approval_state, "pending")
+        return cr, detail
+
+    def test_cannot_change_field_to_modify_after_submit(self):
+        _cr, detail = self._submit_dynamic_cr(selected="phone")
+        with self.assertRaises(UserError):
+            detail.write({"field_to_modify": "given_name", "given_name": "HACKED"})
+
+    def test_cannot_change_selected_field_name_directly_after_submit(self):
+        cr, _detail = self._submit_dynamic_cr(selected="phone")
+        with self.assertRaises(UserError):
+            cr.write({"selected_field_name": "given_name"})
+
+    def test_cannot_change_selected_field_value_after_submit(self):
+        """Value-swap: even the same (selected) field's value is frozen post-submit,
+        because the value was what the approval was routed on."""
+        _cr, detail = self._submit_dynamic_cr(selected="phone", phone="111-orig")
+        with self.assertRaises(UserError):
+            detail.write({"phone": "222-swapped"})
+
+    def test_cannot_repoint_detail_after_submit(self):
+        """Substitution bypass: create a second detail and repoint detail_res_id
+        to it. get_detail() resolves strictly by detail_res_id, so this would
+        otherwise apply the substituted values under the original routing."""
+        cr, _detail = self._submit_dynamic_cr(selected="phone", phone="111-orig")
+        substitute = self.env["spp.cr.detail.edit_individual"].create(
+            {"change_request_id": cr.id, "phone": "999-SUBSTITUTED"}
+        )
+        with self.assertRaises(UserError):
+            cr.write({"detail_res_id": substitute.id})
+
+    def test_no_op_write_of_unset_protected_field_is_allowed(self):
+        """Regression (false-positive lockout): writing None to a protected source
+        field that is already unset must not raise post-submit. Odoo stores unset
+        fields as False while a JSON-RPC payload may send None for the same field;
+        the freeze must treat them as equal (no change), not lock the user out."""
+        _cr, detail = self._submit_dynamic_cr(selected="phone")
+        self.assertFalse(detail.birthdate)  # a protected (mapped) field, unset
+        # None vs the stored False is a no-op, not a change — must not raise.
+        detail.write({"birthdate": None})
+
+    def test_can_change_selection_while_draft(self):
+        """The freeze must not over-block: while still in draft the user can
+        freely change the selected field (which re-routes on submission)."""
+        cr = self._create_cr()
+        detail = cr.get_detail()
+        detail.write({"field_to_modify": "phone", "phone": "111-222-draft"})
+        # Still draft — switching the selected field is allowed.
+        detail.write({"field_to_modify": "given_name", "given_name": "Draft Edit"})
+        self.assertEqual(cr.approval_state, "draft")
+        self.assertEqual(cr.selected_field_name, "given_name")

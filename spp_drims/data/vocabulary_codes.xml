@@ -210,6 +210,12 @@
     </record>
 
     <!-- Donation States Codes -->
+    <record id="code_drims_donation_draft" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_donation_state" />
+        <field name="code">draft</field>
+        <field name="display">Draft</field>
+        <field name="sequence">5</field>
+    </record>
     <record id="code_drims_donation_announced" model="spp.vocabulary.code">
         <field name="vocabulary_id" ref="vocab_drims_donation_state" />
         <field name="code">announced</field>

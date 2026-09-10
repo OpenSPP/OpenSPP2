@@ -965,8 +965,9 @@ across 21 deterministic blueprints. Counts and shapes are seed-stable (`seed=42`
 | Flood-affected female farmer           | 25    | rural      | crop        | 1.0–2.5   | 5–18       | F           | 2       |
 | Young farmer (< 3 years' experience)   | 40    | rural      | crop        | 0.5–2.0   | 0–3        | any         | 1       |
 | Elderly farmer (20+ years' experience) | 30    | rural      | crop        | 1.0–3.0   | 20–40      | M           | 2       |
+| EC1 — Large commercial, idle land      | 1     | rural      | crop        | 50.0      | 20–30      | M           | 2       |
 
-**Total blueprints:** 21. **Total farms:** ~730. **Estimated members:** ~1,500.
+**Total blueprints:** 22. **Total farms:** ~731. **Estimated members:** ~1,500.
 
 ---
 

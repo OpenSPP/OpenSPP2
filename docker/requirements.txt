@@ -19,6 +19,17 @@ git-aggregator==4.0
 # PDF processing (reportlab uses these)
 pdfminer.six
 
+# renderPM backend for reportlab 4.x, which every barcode and QR code in every
+# Odoo report goes through: /report/barcode/ -> ir.actions.report.barcode() ->
+# Drawing.asString('png') -> renderPM. reportlab 4.1 defaults
+# rl_config.renderPMBackend to 'rlPyCairo', and without it that route answers
+# HTTP 500 with "cannot import desired renderPM backend rlPyCairo" (OP#1151).
+# Odoo's own requirements only pin a backend for win32, assuming the Debian
+# python3-renderpm package covers Linux — this image does not install it.
+# Builds fine here: the builder stage already has libcairo2-dev and the runtime
+# image ships libcairo2.
+rlPyCairo
+
 # -----------------------------------------------------------------------------
 # OpenSPP Specific (not in module manifests but required)
 # -----------------------------------------------------------------------------

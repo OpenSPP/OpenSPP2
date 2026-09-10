@@ -2,6 +2,7 @@
 
 """Tests for spp.case.demo.generator model."""
 
+import random
 from unittest.mock import patch
 
 from odoo.exceptions import UserError
@@ -874,6 +875,42 @@ class TestCaseDemoGeneratorJourney(TransactionCase):
         if plan:
             self.assertEqual(plan.state, "completed")
 
+    def test_journey_close_case_releases_the_current_plan(self):
+        """close_case must not leave a finished plan as the case's current plan.
+
+        The step used to write ``state`` directly, so the generated plan kept
+        ``is_current`` and had no ``actual_end_date`` -- the incoherent pair
+        spp_case_base #458 is about, seeded into every demo database.
+        """
+        fake = self._fake()
+        case_type = self.env["spp.case.type"].search([("name", "=", "General Support")], limit=1)
+        stage_intake = self.env["spp.case.stage"].search([("phase", "=", "intake")], limit=1)
+        test_case = (
+            self.env["spp.case"]
+            .sudo()
+            .create(
+                {
+                    "case_type_id": case_type.id,
+                    "stage_id": stage_intake.id,
+                    "partner_id": self.client.id,
+                    "presenting_issue": "Plan currency test",
+                    "case_worker_id": self.env.user.id,
+                }
+            )
+        )
+        journey = [
+            {"action": "create_plan", "days_back": 40, "plan_name": "Plan to Release"},
+            {"action": "close_case", "days_back": 5},
+        ]
+        self.gen._process_case_journey(test_case, journey, fake)
+
+        plan = self.env["spp.case.intervention.plan"].search([("case_id", "=", test_case.id)], limit=1)
+        self.assertTrue(plan, "create_plan should have produced a plan to close")
+        self.assertEqual(plan.state, "completed", "close_case should complete the plan")
+        self.assertTrue(plan.actual_end_date, "Completing through the action should stamp actual_end_date")
+        self.assertFalse(plan.is_current, "A completed plan is not the case's current plan")
+        self.assertFalse(test_case.current_plan_id, "The closed case should report no current plan")
+
     def test_journey_intake_action_is_ignored_gracefully(self):
         """intake action has no handler; it should be skipped without error."""
         fake = self._fake()
@@ -1072,3 +1109,31 @@ class TestCaseDemoGeneratorAddHelpers(TransactionCase):
                 self.gen._close_random_case(self.test_case, fake, intake_date)
             except Exception as exc:
                 self.fail(f"_close_random_case raised unexpectedly: {exc}")
+
+    def test_add_random_plan_completed_plan_is_not_current(self):
+        """A demo plan that lands on "completed" must not stay the current plan.
+
+        ``_add_random_plan`` used to pass ``state="completed"`` straight to
+        ``create()`` alongside ``is_current=True``, seeding the exact state
+        spp_case_base #458 reports. The state is forced here rather than relied
+        on: the generator picks it at random.
+        """
+        from odoo import fields
+
+        real_choice = random.choice
+
+        def always_completed(seq):
+            """Force the plan-state draw only; leave every other draw random."""
+            if list(seq) == ["draft", "active", "completed"]:
+                return "completed"
+            return real_choice(seq)
+
+        with patch.object(random, "choice", side_effect=always_completed):
+            self.gen._add_random_plan(self.test_case, self._fake(), fields.Date.today())
+
+        plan = self.env["spp.case.intervention.plan"].search([("case_id", "=", self.test_case.id)], limit=1)
+        self.assertTrue(plan, "_add_random_plan should have produced a plan")
+        self.assertEqual(plan.state, "completed", "Test premise: the forced draw lands on completed")
+        self.assertTrue(plan.actual_end_date, "Completing through the action should stamp actual_end_date")
+        self.assertFalse(plan.is_current, "A completed plan is not the case's current plan")
+        self.assertTrue(plan.intervention_ids, "Interventions should be added before the plan completes")

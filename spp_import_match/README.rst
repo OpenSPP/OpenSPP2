@@ -393,6 +393,13 @@ Test 12: Security — Non-Admin Access
 Changelog
 =========
 
+19.0.2.0.3
+~~~~~~~~~~
+
+- chore(import_match): the Import Match menu moved from Registry >
+  Configuration to Settings > Registry, alongside the other superuser
+  configuration (#1009)
+
 19.0.2.0.2
 ~~~~~~~~~~
 

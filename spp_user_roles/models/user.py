@@ -6,7 +6,7 @@ from odoo import api, fields, models
 class ResUsersCustomSPP(models.Model):
     _inherit = "res.users"
 
-    # Stored version of role_ids for list view display
+    # Stored version of base_user_role.user_role_ids for list view display
     # The base_user_role One2many computed field doesn't display in list views
     role_ids_stored = fields.Many2many(
         comodel_name="res.users.role",

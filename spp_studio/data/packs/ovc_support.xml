@@ -13,33 +13,14 @@
         <field name="state">available</field>
     </record>
 
-    <!-- Eligibility: Orphan Status -->
-    <record id="pack_ovc_item_orphan_status" model="spp.studio.pack.item">
-        <field name="pack_id" ref="pack_ovc_support" />
-        <field name="name">Orphan Status Check</field>
-        <field name="context_type">individual</field>
-        <field
-            name="description"
-        >Child has lost one or both parents (single or double orphan).</field>
-        <field name="expression_type">filter</field>
-        <field
-            name="logic_data"
-        >{"cel_expression": "is_orphan || (!has_mother &amp;&amp; !has_father)"}</field>
-        <field name="sequence">10</field>
-    </record>
-
     <!-- Eligibility: Child Age Range -->
     <record id="pack_ovc_item_child_age" model="spp.studio.pack.item">
         <field name="pack_id" ref="pack_ovc_support" />
         <field name="name">Child Age Eligibility</field>
         <field name="context_type">individual</field>
-        <field
-            name="description"
-        >Child must be under child_age_limit, or under 25 if in full-time education.</field>
+        <field name="description">Child must be under child_age_limit.</field>
         <field name="expression_type">filter</field>
-        <field
-            name="logic_data"
-        >{"cel_expression": "age &lt; child_age_limit || (age &lt; 25 &amp;&amp; is_in_education)"}</field>
+        <field name="logic_data">{"cel_expression": "age &lt; child_age_limit"}</field>
         <field name="sequence">20</field>
     </record>
 
@@ -50,27 +31,12 @@
         <field name="context_type">group</field>
         <field
             name="description"
-        >Household meets vulnerability criteria (elderly-headed, child-headed, or skipped-generation).</field>
+        >Household meets vulnerability criteria (elderly-headed or child-headed).</field>
         <field name="expression_type">filter</field>
         <field
             name="logic_data"
-        >{"cel_expression": "is_elderly_headed || is_child_headed || is_skipped_generation || has_chronically_ill_head"}</field>
+        >{"cel_expression": "is_elderly_headed || is_child_headed"}</field>
         <field name="sequence">30</field>
-    </record>
-
-    <!-- Eligibility: School Enrollment -->
-    <record id="pack_ovc_item_school_enrollment" model="spp.studio.pack.item">
-        <field name="pack_id" ref="pack_ovc_support" />
-        <field name="name">School Enrollment Requirement</field>
-        <field name="context_type">individual</field>
-        <field
-            name="description"
-        >School-age children must be enrolled in education (soft conditionality).</field>
-        <field name="expression_type">filter</field>
-        <field
-            name="logic_data"
-        >{"cel_expression": "age &lt; 6 || is_enrolled_in_school || has_enrollment_exemption"}</field>
-        <field name="sequence">40</field>
     </record>
 
     <!-- Scoring: OVC Vulnerability Score -->

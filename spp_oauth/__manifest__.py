@@ -3,7 +3,7 @@
     "name": "OpenSPP API: Oauth",
     "summary": "The module establishes an OAuth 2.0 authentication framework, securing OpenSPP API communication for integrated systems and applications.",
     "category": "OpenSPP",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.0.1",
     "author": "OpenSPP.org",
     "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "reichie020212"],

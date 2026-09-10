@@ -515,6 +515,36 @@ handling or external storage</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.0</h1>
+<ul class="simple">
+<li>feat: sweep attachments stranded at <tt class="docutils literal">scan_status = pending</tt>.
+Queueing a scan is best-effort, so a non-database enqueue failure
+leaves the attachment written and unscanned with nothing to bring it
+back; registry-load writes land in the same state. An hourly
+<tt class="docutils literal">ir.cron</tt> re-queues them. Bounded on both axes so it is safe to
+leave enabled on an existing database: <tt class="docutils literal">pending_sweep_batch_size</tt>
+(default 100) caps one run, <tt class="docutils literal">pending_sweep_max_attempts</tt> (default 3)
+caps the attempts per record, and <tt class="docutils literal">pending_sweep_min_age_minutes</tt>
+(default 60) keeps a fresh upload that is merely waiting in a deep
+queue from being double-queued. Quarantined files, forensic download
+copies, attachments with no <tt class="docutils literal">res_model</tt>, and the system models that
+store their own source-controlled binaries (menu <tt class="docutils literal">web_icon_data</tt>)
+are out of scope</li>
+</ul>
+</div>
+<div class="section" id="section-2">
+<h1>19.0.2.0.2</h1>
+<ul class="simple">
+<li>fix: never enqueue a malware scan while the registry is still loading.
+The scan-queue hooks re-raise database errors, and registry
+construction has no transaction-retry wrapper, so a transient
+serialization conflict raised while enqueueing aborted the whole load.
+Attachments written during load (module data, menu <tt class="docutils literal">web_icon_data</tt>)
+stay <tt class="docutils literal">pending</tt> instead; a <tt class="docutils literal">datas</tt> write during load still resets
+the scan status, so changed bytes never keep a stale <tt class="docutils literal">clean</tt> verdict</li>
+</ul>
+</div>
+<div class="section" id="section-3">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix: re-raise database errors (<tt class="docutils literal">psycopg2.Error</tt>,
@@ -524,7 +554,7 @@ transaction retry machinery instead of poisoning the transaction for
 unrelated downstream code</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-4">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

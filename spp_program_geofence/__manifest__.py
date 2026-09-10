@@ -4,7 +4,7 @@
     "name": "OpenSPP Program Geofence",
     "summary": "Geofence-based geographic targeting for programs using spatial queries.",
     "category": "OpenSPP",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
