@@ -1,3 +1,7 @@
+### 19.0.2.1.0
+
+- feat(hazard): incidents start as a **Draft** and reach Alert or Active deliberately, rather than being assumed active on entry. Lifecycle moves are now refused server-side as well as hidden in the form: a draft cannot be closed (delete it instead) and a closed incident cannot be reopened (#1157, #1158)
+
 ### 19.0.2.0.2
 
 - fix(security): grant `group_hazard_viewer` to spp_user_roles roles (Registry Viewer, Program Manager, Global/Local Registrar) that the OP#951 menu audit identifies as needing read-only Hazard menu access. Other affected roles defined outside this module (program/CR/farm roles) are wired in their own modules.

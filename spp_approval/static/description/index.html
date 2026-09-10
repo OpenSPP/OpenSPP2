@@ -536,6 +536,17 @@ matching logic</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.2</h1>
+<ul class="simple">
+<li>fix(spp_approval): stop offering <strong>New</strong> on the approval review lists.
+A review is created by the approval flow when a record is submitted,
+so a hand-made one would need a model name, a record id and a
+definition typed into a blank form and would point at nothing. Both
+<strong>My Pending Approvals</strong> and <strong>Approval Reviews</strong> are affected, along
+with the New in a review’s own breadcrumb (#1167)</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>Fix CEL Expressions tab crash: the ace editor fields used the invalid
@@ -546,7 +557,7 @@ accepts <tt class="docutils literal">javascript</tt>/<tt class="docutils literal
 ternaries, which it highlights correctly.</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

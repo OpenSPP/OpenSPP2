@@ -589,6 +589,19 @@ events (e.g., <tt class="docutils literal">_on_consent_given</tt>, <tt class="do
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.2</h1>
+<ul class="simple">
+<li>fix(security): the Tier-3 <tt class="docutils literal">group_registry_read</tt> group can read the
+consent models the registrant form depends on. This module extends
+that form, and its models were granted only to the Tier-2
+<tt class="docutils literal">group_registry_viewer</tt> group, so a Tier-3-scoped role hit an
+AccessError opening a registrant. The two wizard models are
+deliberately not included: their entry points are restricted to the
+officer and manager tiers, so read access would grant nothing usable
+while exposing other users’ in-progress wizard rows.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix(views): apply <tt class="docutils literal">spp_registry.x2many_no_padding</tt> widget to the
@@ -598,7 +611,7 @@ the empty-state treatment of read-only / no-create lists elsewhere
 (#943).</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

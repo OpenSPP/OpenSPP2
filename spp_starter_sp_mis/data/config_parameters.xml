@@ -9,9 +9,17 @@
         <field name="value">sp_mis</field>
     </record>
 
-    <!-- Restrict Registry CRUD to Admin only by default -->
-    <record id="config_registry_admin_only_crud" model="ir.config_parameter">
-        <field name="key">spp_starter.registry_admin_only_crud</field>
-        <field name="value">True</field>
-    </record>
+    <!--
+        Restrict Registry CRUD to Admin only by default.
+
+        noupdate: this is the *install* default, not a managed value. Without it
+        every module upgrade would re-apply True and silently re-lock a registry
+        the administrator had deliberately opened (OP#1142).
+    -->
+    <data noupdate="1">
+        <record id="config_registry_admin_only_crud" model="ir.config_parameter">
+            <field name="key">spp_starter.registry_admin_only_crud</field>
+            <field name="value">True</field>
+        </record>
+    </data>
 </odoo>

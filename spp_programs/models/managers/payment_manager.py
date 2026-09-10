@@ -71,7 +71,7 @@ class BasePaymentManager(models.AbstractModel):
         :return:
         """
         self.ensure_one()
-        cycle.write({"is_locked": False, "locked_reason": False})
+        cycle._release_operation_lock()
         try:
             cycle.message_post(body=msg)
         except Exception:
@@ -80,7 +80,7 @@ class BasePaymentManager(models.AbstractModel):
     def mark_job_as_failed(self, cycle, msg):
         """Run via on_error() when the async payment pipeline fails."""
         self.ensure_one()
-        cycle.write({"is_locked": False, "locked_reason": False})
+        cycle._release_operation_lock()
         try:
             cycle.message_post(body=msg)
         except Exception:
@@ -331,12 +331,7 @@ class DefaultFilePaymentManager(models.Model):
     def _prepare_payments_async(self, cycle, entitlements, entitlements_count):
         _logger.debug("Prepare Payments asynchronously")
         cycle.message_post(body=_("Prepare payments started for %s entitlements.", entitlements_count))
-        cycle.write(
-            {
-                "is_locked": True,
-                "locked_reason": _("Prepare payments for entitlements in cycle."),
-            }
-        )
+        cycle._acquire_operation_lock(_("Prepare payments for entitlements in cycle."))
 
         # Right now this is not divided into subjobs
         jobs = [
@@ -446,12 +441,7 @@ class DefaultFilePaymentManager(models.Model):
     def _send_payments_async(self, cycle, batches):
         _logger.debug("Send Payments asynchronously")
         cycle.message_post(body=_("Send payments started for %s batches.", len(batches)))
-        cycle.write(
-            {
-                "is_locked": True,
-                "locked_reason": _("Send payments for batches in cycle."),
-            }
-        )
+        cycle._acquire_operation_lock(_("Send payments for batches in cycle."))
 
         # Right now this is not divided into subjobs
         jobs = [

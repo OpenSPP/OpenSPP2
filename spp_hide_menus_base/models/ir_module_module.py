@@ -77,12 +77,22 @@ class IrModuleModule(models.Model):
                             }
                         )
                         hidden_menu.hide_menu()
-                    elif hidden_menus.state == "show":
-                        hidden_menus.hide_menu()
-                    elif hidden_menus.state == "hide":
+                        continue
+
+                    # Read state off ONE row, never off the search result. This
+                    # method runs from _register_hook, so an Expected singleton
+                    # here aborts the whole registry load and every request 500s
+                    # until the extra row is deleted by hand. UNIQUE(menu_id)
+                    # normally rules that out, but a database that already held
+                    # duplicates when the constraint landed keeps them: the
+                    # registry logs the failed constraint and carries on.
+                    hidden_menu = hidden_menus._primary()
+                    if hidden_menu.state == "show":
+                        hidden_menu.hide_menu()
+                    elif hidden_menu.state == "hide":
                         # Module upgrade may have reset group_ids via XML
                         # (noupdate="0"). Re-apply hiding if stale.
-                        hidden_menus._reapply_hide()
+                        hidden_menu._reapply_hide()
 
     def next(self):
         # Call your menu hiding logic first

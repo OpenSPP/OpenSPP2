@@ -5,6 +5,16 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 User roles for Change Request module.
 -->
 <odoo noupdate="1">
+    <!--
+        Registry: these CR roles use Tier-3 `group_registry_read` (ACL-only),
+        not Tier-2 `group_registry_viewer`. Both grant the same registrant read
+        ACLs (defined in spp_base_common), but Tier-2 also gates the standalone
+        Registry Search portal menu — an over-broad registrant PII enumeration
+        surface. CR work needs to read the registrant a request is about, not
+        to browse the whole registry via the search portal. (Read is also
+        provided transitively through the group_cr_* chain.)
+    -->
+
     <!-- CR Requestor Role -->
     <!-- For users who can create and submit change requests -->
     <record id="global_role_cr_requestor" model="res.users.role">
@@ -18,7 +28,7 @@ User roles for Change Request module.
             eval="[
                 Command.link(ref('base.group_user')),
                 Command.link(ref('group_cr_manager')),
-                Command.link(ref('spp_registry.group_registry_viewer')),
+                Command.link(ref('spp_registry.group_registry_read')),
                 Command.link(ref('spp_hazard.group_hazard_viewer')),
             ]"
         />
@@ -35,7 +45,7 @@ User roles for Change Request module.
             eval="[
                 Command.link(ref('base.group_user')),
                 Command.link(ref('group_cr_validator')),
-                Command.link(ref('spp_registry.group_registry_viewer')),
+                Command.link(ref('spp_registry.group_registry_read')),
                 Command.link(ref('spp_hazard.group_hazard_viewer')),
             ]"
         />
@@ -52,7 +62,7 @@ User roles for Change Request module.
             eval="[
                 Command.link(ref('base.group_user')),
                 Command.link(ref('group_cr_validator_hq')),
-                Command.link(ref('spp_registry.group_registry_viewer')),
+                Command.link(ref('spp_registry.group_registry_read')),
                 Command.link(ref('spp_hazard.group_hazard_viewer')),
             ]"
         />

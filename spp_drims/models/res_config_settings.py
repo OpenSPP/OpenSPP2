@@ -37,14 +37,19 @@ class ResConfigSettings(models.TransientModel):
         """Get approval SLA hours for a given priority code.
 
         Args:
-            priority_code: One of 'critical', 'high', 'routine', 'low'
+            priority_code: a code from the DRIMS priority-levels vocabulary —
+                'critical', 'urgent' or 'routine'
 
         Returns:
             int: Hours allowed to approve requests of this priority
         """
         # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         ICP = self.env["ir.config_parameter"].sudo()
-        defaults = {"critical": 4, "high": 8, "routine": 24, "low": 48}
+        # Keyed by the codes the priority-levels vocabulary actually ships.
+        # This used to name 'high' and 'low', which no priority has, so an
+        # urgent request fell through to the routine default of 24 hours
+        # instead of 8 and nothing said so (OP#1165).
+        defaults = {"critical": 4, "urgent": 8, "routine": 24}
         param_key = f"drims.sla.hours.{priority_code}"
         return int(ICP.get_param(param_key, defaults.get(priority_code, 24)))
 
@@ -181,3 +186,21 @@ class ResConfigSettings(models.TransientModel):
         # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         ICP = self.env["ir.config_parameter"].sudo()
         return int(ICP.get_param("drims.performance.kpi_cache_ttl_minutes", 30))
+
+    # =========================================================================
+    # WAREHOUSE HELPERS
+    # =========================================================================
+
+    @api.model
+    def is_warehouse_filter_by_incident_enabled(self):
+        """Whether donation/request warehouse pickers are restricted to the
+        incident's linked warehouses (OP#1164).
+
+        Returns:
+            bool: True if filtering is enabled (default True). Set the
+            ``drims.warehouse.filter_by_incident`` parameter to False to allow
+            selecting from any DRIMS warehouse.
+        """
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
+        ICP = self.env["ir.config_parameter"].sudo()
+        return ICP.get_param("drims.warehouse.filter_by_incident", "True") == "True"
