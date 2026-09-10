@@ -487,6 +487,19 @@ file operations in other modules</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.1</h1>
+<ul class="simple">
+<li>fix(security): restrict storage backend credentials to storage
+administrators. The S3 access/secret keys and Azure connection string
+were readable by any internal user via RPC (<tt class="docutils literal">base.group_user</tt> had
+model read and the fields had no field-level protection). The three
+credential fields are now gated with
+<tt class="docutils literal"><span class="pre">groups=&quot;spp_storage_backend.group_storage_admin&quot;</span></tt>, and the S3/Azure
+client builders resolve them via <tt class="docutils literal">sudo()</tt> so a non-admin can still
+operate a backend without being able to read the secret.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
