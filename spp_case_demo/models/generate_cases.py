@@ -312,7 +312,9 @@ class SPPCaseDemoGenerator(models.TransientModel):
                         }
                     )
                 if current_plan:
-                    current_plan.sudo().write({"state": "completed"})
+                    # Through the action, not a bare state write: completing a
+                    # plan also stamps actual_end_date and releases is_current.
+                    current_plan.sudo().action_complete()
 
     def _create_random_case(self, fake, beneficiaries):
         """Create a random case with realistic data."""
@@ -378,12 +380,18 @@ class SPPCaseDemoGenerator(models.TransientModel):
         Plan = self.env["spp.case.intervention.plan"]
         Intervention = self.env["spp.case.intervention"]
 
+        # A plan reaches "completed" by being completed, not by being created
+        # that way: action_complete stamps actual_end_date and releases
+        # is_current, so a finished demo plan is not left as its case's current
+        # plan. The interventions are added first so the completed plan has a
+        # delivery record.
+        final_state = random.choice(["draft", "active", "completed"])
         plan = Plan.sudo().create(
             {
                 "case_id": case.id,
                 "name": f"Support Plan - {case.partner_id.name or 'Client'}",
                 "is_current": True,
-                "state": random.choice(["draft", "active", "completed"]),
+                "state": "active" if final_state == "completed" else final_state,
                 "start_date": intake_date + timedelta(days=random.randint(1, 7)),
                 "goals": fake.paragraph(),
             }
@@ -409,6 +417,9 @@ class SPPCaseDemoGenerator(models.TransientModel):
                     "state": random.choice(["planned", "in_progress", "completed"]),
                 }
             )
+
+        if final_state == "completed":
+            plan.sudo().action_complete()
 
     def _add_random_visits(self, case, fake, intake_date):
         """Add random visits to case."""

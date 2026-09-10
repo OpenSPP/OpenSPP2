@@ -10,7 +10,7 @@ This file contains additional test cases to achieve comprehensive coverage of:
 - Spec scenarios
 """
 
-from odoo import Command
+from odoo import Command, fields
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import TransactionCase
 
@@ -493,17 +493,15 @@ class TestGroupScopeConflicts(TransactionCase):
             }
         )
 
-    def test_group_scope_same_household_members(self):
-        """Test group scope detects conflicts for household members."""
-        # Create household with members
-        self.env["res.partner"].create(
+    def _create_household(self):
+        """Create a household with two member individuals and return all three."""
+        group = self.env["res.partner"].create(
             {
                 "name": "Test Household",
                 "is_registrant": True,
                 "is_group": True,
             }
         )
-
         individual1 = self.env["res.partner"].create(
             {
                 "name": "Member 1",
@@ -511,30 +509,81 @@ class TestGroupScopeConflicts(TransactionCase):
                 "is_group": False,
             }
         )
-
-        self.env["res.partner"].create(
+        individual2 = self.env["res.partner"].create(
             {
                 "name": "Member 2",
                 "is_registrant": True,
                 "is_group": False,
             }
         )
+        self.env["spp.group.membership"].create(
+            [
+                {"group": group.id, "individual": individual1.id},
+                {"group": group.id, "individual": individual2.id},
+            ]
+        )
+        return group, individual1, individual2
 
-        # Add members to household (if membership model exists)
-        # This is implementation-dependent
-        # For now, test the _get_group_member_ids method directly
+    def test_group_scope_same_household_members(self):
+        """Test group scope detects conflicts for household members."""
+        group, individual1, individual2 = self._create_household()
 
-        # Create CR for individual1
-        cr1 = self.env["spp.change.request"].create(
+        # Create CR for individual2 first, then for individual1: the group-scope
+        # rule must flag the second CR because both registrants share a household.
+        self.env["spp.change.request"].create(
+            {
+                "request_type_id": self.cr_type.id,
+                "registrant_id": individual2.id,
+            }
+        )
+        cr = self.env["spp.change.request"].create(
             {
                 "request_type_id": self.cr_type.id,
                 "registrant_id": individual1.id,
             }
         )
 
-        # Test _get_group_member_ids returns expected members
-        member_ids = cr1._get_group_member_ids()
+        # _get_group_member_ids resolves the household and every co-member
+        member_ids = cr._get_group_member_ids()
         self.assertIn(individual1.id, member_ids)
+        self.assertIn(group.id, member_ids)
+        self.assertIn(individual2.id, member_ids)
+
+        # The rule's action is "warn", so the second CR is flagged, not blocked
+        self.assertEqual(cr.conflict_status, "warning")
+
+    def test_group_scope_group_registrant(self):
+        """A CR whose registrant is the group itself resolves its members."""
+        group, individual1, individual2 = self._create_household()
+
+        cr = self.env["spp.change.request"].create(
+            {
+                "request_type_id": self.cr_type.id,
+                "registrant_id": group.id,
+            }
+        )
+
+        member_ids = cr._get_group_member_ids()
+        self.assertIn(group.id, member_ids)
+        self.assertIn(individual1.id, member_ids)
+        self.assertIn(individual2.id, member_ids)
+
+    def test_group_scope_ended_membership_excluded(self):
+        """Members whose membership has ended are not conflict candidates."""
+        group, individual1, individual2 = self._create_household()
+        individual2.individual_membership_ids.ended_date = fields.Datetime.now()
+
+        cr = self.env["spp.change.request"].create(
+            {
+                "request_type_id": self.cr_type.id,
+                "registrant_id": individual1.id,
+            }
+        )
+
+        member_ids = cr._get_group_member_ids()
+        self.assertIn(individual1.id, member_ids)
+        self.assertIn(group.id, member_ids)
+        self.assertNotIn(individual2.id, member_ids)
 
 
 class TestDuplicateDetectionAdvanced(TransactionCase):

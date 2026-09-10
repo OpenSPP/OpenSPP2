@@ -254,6 +254,35 @@ Dependencies
 Changelog
 =========
 
+19.0.2.4.0
+~~~~~~~~~~
+
+- feat(spp_programs): **the Program Configuration tab is one consistent
+  set of cards.** Every manager category is now configured the same way
+  -- a card showing what is set up, ``+ Add`` opening a dialog that asks
+  which method and what to call it, and a cog on each row to open it.
+  Previously some categories were cards and others were bare editable
+  lists whose only column was a Reference field, so adding one meant
+  picking a model and then finding or creating a record of it.
+  Notifications was the last such list and is now a card like the rest
+  (#1172)
+- feat(spp_programs): a shared manager setup dialog backs all of those
+  cards, replacing the per-category wiring. Selecting a method a program
+  already has is refused with a message naming it rather than a
+  duplicate-record error (#1172)
+- fix(spp_programs): the entitlement amount item no longer requires a
+  formula. A fixed sum is a normal entitlement and should not oblige
+  anyone to write it as an expression; leaving the formula empty pays
+  the Base Amount unchanged. The **Base Amount** field is also no longer
+  hidden -- formulas are documented to build on it as ``base_amount``,
+  so hiding it left nothing for them to multiply (#1172)
+- fix(spp_programs): the entitlement formula box no longer offers
+  symbols the evaluator never receives. It advertised the entitlements
+  profile, whose record is the entitlement itself, while the field is
+  evaluated with ``me`` for the beneficiary and ``base_amount`` for the
+  fixed amount -- so a formula built from the browser failed to compile.
+  The placeholder and help now name the real vocabulary (#1172)
+
 19.0.2.3.4
 ~~~~~~~~~~
 

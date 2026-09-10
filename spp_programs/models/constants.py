@@ -52,3 +52,86 @@ MANAGER_MODELS = {
         "spp.compliance.manager": "spp.compliance.manager.default",
     },
 }
+
+# The cards on a program's Configuration tab (OP#1172). Each names the field on
+# spp.program, the wrapper model behind it, and the wording the Add dialog uses.
+# The keys match MANAGER_TYPE_INFO's "category" so the two can be read together:
+# this map says where a category lives, MANAGER_TYPE_INFO describes the methods
+# inside it.
+#
+# The concrete methods themselves are deliberately absent. They come from the
+# wrapper's `_selection_manager_ref_id()`, which is what other modules extend
+# when they add one — spp_program_geofence adds an eligibility method that way,
+# and a hard-coded list here would never see it.
+MANAGER_CATEGORIES = {
+    "eligibility": {
+        "field": "eligibility_manager_ids",
+        "wrapper": "spp.eligibility.manager",
+        "label": "Eligibility Method",
+    },
+    "entitlement": {
+        "field": "entitlement_manager_ids",
+        "wrapper": "spp.program.entitlement.manager",
+        "label": "Entitlement Type",
+        # One per program, and not by choice of this dialog: spp.program's
+        # check_managers_limit refuses a second entitlement manager, and the
+        # cycle machinery reaches for exactly one — get_manager() calls
+        # ensure_one(), and get_managers() raises NotImplementedError for this
+        # kind. QA asked for several of the same kind (OP#1172 round 1); that
+        # needs the entitlement engine to iterate managers first, so the dialog
+        # says what the program can actually do rather than accepting a second
+        # method the cycle would then choke on.
+        "single_manager": True,
+    },
+    "cycle": {
+        "field": "cycle_manager_ids",
+        "wrapper": "spp.cycle.manager",
+        "label": "Cycle Schedule",
+        # Capped at one by spp.program's check_managers_limit, same as
+        # entitlement. Unreachable through the dialog while this category has a
+        # single concrete method in-repo -- the already-configured check fires
+        # first -- but a module registering a second one (as spp_program_geofence
+        # does for eligibility) would otherwise get the constraint's after-the-fact
+        # wording, which is the experience this dialog exists to remove.
+        "single_manager": True,
+    },
+    "compliance": {
+        "field": "compliance_manager_ids",
+        "wrapper": "spp.compliance.manager",
+        "label": "Compliance Criteria",
+    },
+    "payment": {
+        "field": "payment_manager_ids",
+        "wrapper": "spp.program.payment.manager",
+        "label": "Payment Method",
+        # Capped at one by spp.program's check_managers_limit, same as
+        # entitlement. Unreachable through the dialog while this category has a
+        # single concrete method in-repo -- the already-configured check fires
+        # first -- but a module registering a second one (as spp_program_geofence
+        # does for eligibility) would otherwise get the constraint's after-the-fact
+        # wording, which is the experience this dialog exists to remove.
+        "single_manager": True,
+    },
+    "deduplication": {
+        "field": "deduplication_manager_ids",
+        "wrapper": "spp.deduplication.manager",
+        "label": "Deduplication Method",
+    },
+    "notification": {
+        "field": "notification_manager_ids",
+        "wrapper": "spp.program.notification.manager",
+        "label": "Notification Channel",
+    },
+    "program": {
+        "field": "program_manager_ids",
+        "wrapper": "spp.program.manager",
+        "label": "Program Manager",
+        # Capped at one by spp.program's check_managers_limit, same as
+        # entitlement. Unreachable through the dialog while this category has a
+        # single concrete method in-repo -- the already-configured check fires
+        # first -- but a module registering a second one (as spp_program_geofence
+        # does for eligibility) would otherwise get the constraint's after-the-fact
+        # wording, which is the experience this dialog exists to remove.
+        "single_manager": True,
+    },
+}

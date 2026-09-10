@@ -140,6 +140,15 @@ Dependencies
 Changelog
 =========
 
+19.0.2.0.3
+~~~~~~~~~~
+
+- fix(views): follow the ``base_user_role`` rename of
+  ``res.users.role_ids`` to ``user_role_ids`` (OCA/server-backend #428).
+  The user form override inserted the center-areas group before
+  ``role_ids``, which no longer exists in the parent view, so the module
+  failed to install.
+
 19.0.2.0.2
 ~~~~~~~~~~
 
