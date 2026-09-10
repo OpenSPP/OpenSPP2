@@ -6,3 +6,4 @@ from . import test_res_partner
 from . import test_apps_wizard
 from . import test_demo_stories
 from . import test_demo_area_loader
+from . import test_demo_user_safety

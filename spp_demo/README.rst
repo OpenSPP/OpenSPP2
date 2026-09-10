@@ -10,9 +10,9 @@ OpenSPP Demo
    !! source digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Production/Stable
+    :alt: Alpha
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
@@ -138,6 +138,10 @@ Dependencies
 
 External Python dependency: ``faker``
 
+.. IMPORTANT::
+   This is an alpha version, the data model and design can change at any time without warning.
+   Only for development or testing purpose, do not use in production.
+
 **Table of contents**
 
 .. contents::
@@ -145,6 +149,21 @@ External Python dependency: ``faker``
 
 Changelog
 =========
+
+19.0.2.1.1
+~~~~~~~~~~
+
+- fix(security): deactivate the default-credential demo users (including
+  the ``sppadmin`` SPP admin, all created with the well-known password
+  ``demo``) when the module is installed on a database without demo
+  data, so the known credentials cannot be used to log in on a
+  production instance. The accounts stay active on demo/evaluation
+  databases. Also lowers ``development_status`` from
+  ``Production/Stable`` to ``Alpha`` so the demo module no longer
+  signals production-readiness. An upgrade migration applies the same
+  deactivation to already-installed production databases (the install
+  hook alone would leave existing deployments' default-credential
+  accounts active).
 
 19.0.2.1.0
 ~~~~~~~~~~

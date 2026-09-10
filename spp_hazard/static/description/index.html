@@ -2454,6 +2454,26 @@ the text label</td>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.1</h1>
+<ul class="simple">
+<li>fix(security): remove the <tt class="docutils literal">base.group_user</tt> read grant on
+<tt class="docutils literal">spp.hazard.impact</tt> so registrant-linked impact records (name,
+damage level, verification, notes) are readable only by hazard roles,
+<tt class="docutils literal">registry_viewer</tt>, and admins — not every internal user via RPC.
+Gate the impact UI on the registrant and incident forms (stat buttons,
+Emergency Response / Impacts pages, list columns, search filters) to
+users with impact read.</li>
+<li>fix(security): guard <tt class="docutils literal">spp.hazard.incident.affected_registrant_count</tt>
+with field-level <tt class="docutils literal">groups=</tt>. <tt class="docutils literal">spp.hazard.incident</tt> stays broadly
+readable (sibling modules read incidents), but this aggregate is
+derived from the sensitive impact table via raw ACL-bypassing SQL, so
+a plain internal user could read the affected-registrant count over
+RPC even without impact read. The field is now restricted to hazard
+read / <tt class="docutils literal">registry_viewer</tt> / admin, which also strips it from the
+incident list column for other users.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.1.0</h1>
 <ul class="simple">
 <li>feat(hazard): incidents start as a <strong>Draft</strong> and reach Alert or Active
@@ -2463,7 +2483,7 @@ draft cannot be closed (delete it instead) and a closed incident
 cannot be reopened (#1157, #1158)</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.2</h1>
 <ul class="simple">
 <li>fix(security): grant <tt class="docutils literal">group_hazard_viewer</tt> to spp_user_roles roles
@@ -2479,7 +2499,7 @@ logged-in user; the OP#951 audit requires several roles to NOT see it
 Support).</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix(views): apply <tt class="docutils literal">spp_registry.x2many_no_padding</tt> widget to the
@@ -2487,7 +2507,7 @@ hazard impacts list on registrant forms, and hide the table when empty
 (showing a muted info line instead) (#943).</li>
 </ul>
 </div>
-<div class="section" id="section-4">
+<div class="section" id="section-5">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
