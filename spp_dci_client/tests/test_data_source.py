@@ -476,7 +476,7 @@ class TestDataSource(TransactionCase):
         mock_client_class.return_value = mock_client
 
         # Get token
-        token = ds.get_oauth2_token()
+        token = ds._get_oauth2_token()
 
         self.assertEqual(token, "test_token_12345")
         self.assertTrue(ds._oauth2_access_token)
@@ -513,7 +513,7 @@ class TestDataSource(TransactionCase):
         )
 
         # Get token - should use cache
-        token = ds.get_oauth2_token()
+        token = ds._get_oauth2_token()
 
         self.assertEqual(token, "cached_token")
         # HTTP client should not be called
@@ -531,7 +531,7 @@ class TestDataSource(TransactionCase):
         )
 
         with self.assertRaises(UserError) as cm:
-            ds.get_oauth2_token()
+            ds._get_oauth2_token()
         self.assertIn("oauth2", str(cm.exception).lower())
 
     @patch("httpx.Client")
@@ -615,7 +615,7 @@ class TestDataSource(TransactionCase):
             }
         )
 
-        headers = ds.get_headers()
+        headers = ds._get_headers()
 
         self.assertEqual(headers["Content-Type"], "application/json")
         self.assertEqual(headers["Accept"], "application/json")
@@ -651,7 +651,7 @@ class TestDataSource(TransactionCase):
         mock_client.__exit__.return_value = None
         mock_client_class.return_value = mock_client
 
-        headers = ds.get_headers()
+        headers = ds._get_headers()
 
         self.assertEqual(headers["Authorization"], "Bearer test_token_12345")
 
