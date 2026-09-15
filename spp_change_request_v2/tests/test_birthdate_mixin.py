@@ -61,6 +61,36 @@ class TestBirthdateMixin(TransactionCase):
         with self.assertRaisesRegex(ValidationError, "Date of birth cannot be in the future"):
             detail.write({"birthdate": self.future})
 
+    def test_edit_individual_prefill_skips_future_birthdate(self):
+        """A change request can still be opened on a registrant holding one.
+
+        ``spp.change.request.create`` prefills the detail from the registrant,
+        and that prefill is a write: offering the birthdate back would raise
+        the mixin's constraint while the request is being created, so the
+        request could not be opened at all — closing the very path field staff
+        use to correct the date.
+        """
+        subject = self.Partner.create(
+            {
+                "name": "Legacy Record",
+                "given_name": "Legacy",
+                "is_registrant": True,
+                "is_group": False,
+            }
+        )
+
+        self.env.cr.execute(
+            "UPDATE res_partner SET birthdate = %s WHERE id = %s",
+            (self.future, subject.id),
+        )
+        subject.invalidate_recordset(["birthdate"])
+        self.assertEqual(subject.birthdate, self.future)
+
+        detail = self._detail("edit_individual", subject)
+
+        self.assertFalse(detail.birthdate)
+        self.assertEqual(detail.given_name, "Legacy")
+
     def test_create_group_new_member_future_birthdate_rejected(self):
         """The sub-model reached through the wizard is guarded too."""
         detail = self._detail("create_group", self.group)

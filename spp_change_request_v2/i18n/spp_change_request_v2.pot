@@ -2056,6 +2056,12 @@ msgid "Date of birth cannot be in the future: %(date)s."
 msgstr ""
 
 #. module: spp_change_request_v2
+#. odoo-python
+#: code:addons/spp_change_request_v2/models/birthdate_mixin.py:0
+msgid "Date of birth cannot be in the future: %(name)s has %(date)s."
+msgstr ""
+
+#. module: spp_change_request_v2
 #: model:ir.model.fields,field_description:spp_change_request_v2.field_spp_cr_detail_merge_registrants__deactivate_duplicates
 msgid "Deactivate Duplicates"
 msgstr ""

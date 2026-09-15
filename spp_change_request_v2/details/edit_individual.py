@@ -45,10 +45,13 @@ class SPPCRDetailEditIndividual(models.Model):
     def _get_prefill_mapping(self):
         """Return the field mapping for pre-filling from registrant.
 
+        The mapping is per-record: a birthdate the guard would refuse is
+        dropped rather than offered.
+
         Returns:
             dict: Mapping of detail field names to registrant field names
         """
-        return {
+        mapping = {
             "given_name": "given_name",
             "family_name": "family_name",
             "birthdate": "birthdate",
@@ -60,6 +63,15 @@ class SPPCRDetailEditIndividual(models.Model):
             "city": "city",
             "postal_code": "zip",
         }
+        # A registrant saved before the future-birthdate guard existed can
+        # still hold one, and prefilling is a write: copying it back raises
+        # the mixin's constraint while the change request is being created,
+        # so the request could not be opened at all — and an Edit Individual
+        # request is how field staff correct the date. Leave the field empty
+        # instead, so a valid one has to be entered.
+        if self._is_future_birthdate(self.registrant_id.birthdate):
+            del mapping["birthdate"]
+        return mapping
 
     # ══════════════════════════════════════════════════════════════════════════
     # ONCHANGE - Pre-fill from registrant
