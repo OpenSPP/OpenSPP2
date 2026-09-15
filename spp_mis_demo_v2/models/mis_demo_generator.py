@@ -18,7 +18,6 @@ from odoo.tools import config
 
 from . import demo_programs
 
-
 _logger = logging.getLogger(__name__)
 
 
