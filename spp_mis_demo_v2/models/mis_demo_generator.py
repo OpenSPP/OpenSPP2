@@ -18,6 +18,7 @@ from odoo.tools import config
 
 from . import demo_programs
 
+
 _logger = logging.getLogger(__name__)
 
 
@@ -2741,7 +2742,7 @@ class SPPMISDemoGenerator(models.TransientModel):
             "proposed_changes": {
                 "given_name": "Baby Morales",
                 "family_name": "Morales",
-                "birthdate": fields.Date.today(),
+                "birthdate_days_back": 0,
                 "relationship_xmlid": "spp_mis_demo_v2.code_membership_type_child",
             },
         },
@@ -3163,6 +3164,15 @@ class SPPMISDemoGenerator(models.TransientModel):
             new_val = change.get("new_value") if isinstance(change, dict) else change
             if key in self.env[detail_model]._fields:
                 vals[key] = new_val
+
+        # Resolved here, not in STORY_CHANGE_REQUESTS: that is a class
+        # attribute, so a date literal there is evaluated once at import and
+        # frozen. It also has to be the *user's* today — spp.cr.birthdate.mixin
+        # refuses a date the user has not reached yet, which is the server's
+        # date for an admin west of UTC.
+        days_back = proposed_changes.get("birthdate_days_back")
+        if days_back is not None and "birthdate" in self.env[detail_model]._fields:
+            vals["birthdate"] = fields.Date.context_today(self) - datetime.timedelta(days=days_back)
 
         # If nothing mapped, generate simple edits to show a change
         if not vals:

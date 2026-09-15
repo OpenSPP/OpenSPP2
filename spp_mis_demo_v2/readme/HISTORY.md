@@ -1,3 +1,7 @@
+### 19.0.2.1.5
+
+- fix(mis_demo): the Add Newborn demo change request resolves its birthdate against the user's today instead of the server's. `STORY_CHANGE_REQUESTS` is a class attribute, so the `fields.Date.today()` literal it carried was evaluated once at import — and it was the server's UTC date. The birthdate guard added for #362 refuses a date the user has not reached yet, so an admin west of UTC running the generator between 00:00 UTC and their local midnight got a `ValidationError` and demo generation aborted. The definition now declares `birthdate_days_back` and `_build_detail_changes` resolves it with `fields.Date.context_today` at build time.
+
 ### 19.0.2.1.4
 
 - revert(mis_demo): the Add Member and Change Head of Household demo CRs match the reinstated old flows (see `spp_change_request_v2` #871/#873 revert) — Add Member builds a new individual (given/family name, birthdate, relationship) and Change HoH sets `new_head_id` from the named new head, instead of the redesigned `individual_id` / per-member role lines.
