@@ -29,7 +29,7 @@ HOUSEHOLD_BLUEPRINTS = [
     # =========================================================================
     {
         "id": "bp_01_young_couple_1child_urban_low",
-        "label": "Young couple, 1 toddler, urban, low income",
+        "label": "Young couple, 1 infant, urban, low income",
         "count": 40,
         "zone": "urban",
         "income_bracket": "low",
@@ -37,7 +37,14 @@ HOUSEHOLD_BLUEPRINTS = [
         "members": [
             {"role": "head", "gender": "male", "age_range": (25, 35)},
             {"role": "spouse", "gender": "female", "age_range": (23, 33)},
-            {"role": "child", "gender": "any", "age_range": (1, 4)},
+            # Under 2 at registration, so this household can satisfy the
+            # Conditional Child Grant CEL it is flagged for. Note the ages here
+            # are ages *at registration* -- birthdates are generated against
+            # the household's backdated registration date -- while the CEL asks
+            # for an age under 2 *now*, so households registered longer ago have
+            # since aged out. Enrollment is driven by the CEL either way, so the
+            # enrolled count and the preview agree (OP#956).
+            {"role": "child", "gender": "any", "age_range": (0, 1)},
         ],
         "eligibility": {_UCG: True, _CCG: True, _CTP: True, _ERF: False, _DSG: False},
     },
@@ -81,7 +88,8 @@ HOUSEHOLD_BLUEPRINTS = [
         "members": [
             {"role": "head", "gender": "male", "age_range": (28, 40)},
             {"role": "spouse", "gender": "female", "age_range": (26, 38)},
-            {"role": "child", "gender": "any", "age_range": (1, 4)},
+            # Youngest under 2, for the Conditional Child Grant CEL (OP#956).
+            {"role": "child", "gender": "any", "age_range": (0, 1)},
             {"role": "child", "gender": "any", "age_range": (4, 8)},
             {"role": "child", "gender": "any", "age_range": (8, 12)},
         ],
@@ -439,7 +447,10 @@ HOUSEHOLD_BLUEPRINTS = [
         "has_disabled_member": True,
         "members": [
             {"role": "head", "gender": "female", "age_range": (30, 45)},
-            {"role": "child", "gender": "any", "age_range": (2, 6)},
+            # Was (2, 6): a household flagged for every programme could never
+            # satisfy the Conditional Child Grant, whose CEL wants a member
+            # under 2 (OP#956).
+            {"role": "child", "gender": "any", "age_range": (0, 1)},
             {"role": "child", "gender": "any", "age_range": (5, 10), "is_disabled": True},
             {"role": "elderly", "gender": "any", "age_range": (68, 80)},
         ],

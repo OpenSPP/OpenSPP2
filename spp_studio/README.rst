@@ -149,6 +149,15 @@ Dependencies
 Changelog
 =========
 
+19.0.2.0.3
+~~~~~~~~~~
+
+- fix(variables): the ``has_disability`` and ``has_disabled_member``
+  standard variables resolved against ``is_person_with_disability``, a
+  field that exists nowhere in the codebase. Any program filtering on
+  either silently matched nothing. Both now use ``has_disability``, the
+  real field on ``res.partner`` (#955)
+
 19.0.2.0.2
 ~~~~~~~~~~
 
