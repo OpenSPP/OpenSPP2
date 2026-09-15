@@ -515,6 +515,20 @@ handling or external storage</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.2.0</h1>
+<ul class="simple">
+<li>fix: stop module upgrades from resetting the quarantine crons and
+config parameters. <tt class="docutils literal">data/quarantine_cron.xml</tt> shipped in a plain
+<tt class="docutils literal">&lt;odoo&gt;</tt> block, so every upgrade rewrote all four records to the
+shipped defaults: a tuned <tt class="docutils literal">quarantine_retention_days</tt>, a changed
+cron interval, or a deliberately disabled cron was silently reverted.
+The file is now <tt class="docutils literal"><span class="pre">noupdate=&quot;1&quot;</span></tt>. A post-migration reconciles the
+<tt class="docutils literal">noupdate</tt> column on the <tt class="docutils literal">ir_model_data</tt> rows of databases that
+installed the module earlier, leaving the stored values untouched, so
+tuned values survive and untouched defaults stay as shipped</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.1.0</h1>
 <ul class="simple">
 <li>feat: sweep attachments stranded at <tt class="docutils literal">scan_status = pending</tt>.
@@ -532,7 +546,7 @@ store their own source-controlled binaries (menu <tt class="docutils literal">we
 are out of scope</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.2</h1>
 <ul class="simple">
 <li>fix: never enqueue a malware scan while the registry is still loading.
@@ -544,7 +558,7 @@ stay <tt class="docutils literal">pending</tt> instead; a <tt class="docutils li
 the scan status, so changed bytes never keep a stale <tt class="docutils literal">clean</tt> verdict</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix: re-raise database errors (<tt class="docutils literal">psycopg2.Error</tt>,
@@ -554,7 +568,7 @@ transaction retry machinery instead of poisoning the transaction for
 unrelated downstream code</li>
 </ul>
 </div>
-<div class="section" id="section-4">
+<div class="section" id="section-5">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

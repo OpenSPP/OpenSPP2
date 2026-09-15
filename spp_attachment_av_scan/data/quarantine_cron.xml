@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<odoo>
+<odoo noupdate="1">
     <!-- Scheduled action to purge old quarantined files -->
     <record id="ir_cron_purge_quarantined_files" model="ir.cron">
         <field name="name">Purge Old Quarantined Files</field>
