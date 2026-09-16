@@ -59,8 +59,10 @@ After installing:
 
 1. Set system parameter ``dci.client_compliance.mock_registry_url`` to
    point to your mock registry (default: ``http://mock_registry:3335``)
-2. Set system parameter ``dci.client_compliance.bearer_token`` for
-   authentication (default: ``compliance-test-api-key-12345``)
+2. Set system parameter ``dci.client_compliance.bearer_token`` to a
+   **private** token for authentication. There is no default, and the
+   well-known value ``compliance-test-api-key-12345`` is rejected; the
+   trigger endpoints refuse to run until a private token is configured.
 3. Verify test data source exists under **Settings > Technical > DCI >
    Configuration > Data Sources** (auto-created if missing)
 
@@ -113,6 +115,18 @@ Dependencies
 
 .. contents::
    :local:
+
+Changelog
+=========
+
+19.0.1.0.2
+~~~~~~~~~~
+
+- fix(security): remove compliance data sources that still hold the old
+  shared bearer token on upgrade, refuse to serve any such record from
+  the trigger controller, and reject the well-known default token when
+  configured, so upgraded or freshly configured databases cannot use the
+  shared credential over the unauthenticated trigger routes.
 
 Bug Tracker
 ===========

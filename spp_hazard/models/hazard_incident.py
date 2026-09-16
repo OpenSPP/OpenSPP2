@@ -124,9 +124,16 @@ class HazardIncident(models.Model):
     )
 
     # Computed metrics
+    # This aggregate is derived from the sensitive spp.hazard.impact table
+    # (registrant-linked) and is computed via raw SQL that bypasses record
+    # ACLs. spp.hazard.incident itself stays broadly readable (sibling modules
+    # such as spp_drims read incidents), so this field must carry its own
+    # group guard: without it, any internal user could read the affected-
+    # registrant aggregate over RPC even though they cannot read impact rows.
     affected_registrant_count = fields.Integer(
         compute="_compute_affected_registrant_count",
         string="Affected Registrants",
+        groups="spp_hazard.group_hazard_read,spp_registry.group_registry_viewer,spp_security.group_spp_admin",
     )
 
     _code_unique = models.Constraint(

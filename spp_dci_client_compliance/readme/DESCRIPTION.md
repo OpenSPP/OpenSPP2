@@ -20,7 +20,7 @@ Testing infrastructure for SPDCI protocol compliance validation. Exposes HTTP en
 After installing:
 
 1. Set system parameter `dci.client_compliance.mock_registry_url` to point to your mock registry (default: `http://mock_registry:3335`)
-2. Set system parameter `dci.client_compliance.bearer_token` for authentication (default: `compliance-test-api-key-12345`)
+2. Set system parameter `dci.client_compliance.bearer_token` to a **private** token for authentication. There is no default, and the well-known value `compliance-test-api-key-12345` is rejected; the trigger endpoints refuse to run until a private token is configured.
 3. Verify test data source exists under **Settings > Technical > DCI > Configuration > Data Sources** (auto-created if missing)
 
 ### Controller Endpoints

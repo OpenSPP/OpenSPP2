@@ -350,6 +350,23 @@ async def verify_bearer_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+    # Reject non-ASCII credentials before any comparison. HTTP headers are
+    # decoded as latin-1, so a non-ASCII byte reaches us as a non-ASCII str;
+    # hmac.compare_digest raises TypeError on non-ASCII str operands, and that
+    # would escape this dependency as an unhandled 500. No legitimate bearer
+    # credential is ever non-ASCII (OAuth2 JWTs are base64url; configured
+    # static tokens are ASCII), so a non-ASCII token is simply invalid. This
+    # guard sits before the constant-time loop, the OAuth2 path, and the
+    # opt-out return so every branch is covered by one check.
+    if not token.isascii():
+        _logger.warning("DCI request has non-ASCII Bearer token")
+        raise DCIHTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            error_message="Invalid Bearer token",
+            error_code="err.auth.invalid_token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     # Get accepted tokens from config (comma-separated list). An empty
     # config used to mean "accept any non-empty token" - a fail-open
     # default that exposed every bearer-authenticated route the moment
