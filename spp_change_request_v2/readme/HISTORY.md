@@ -1,3 +1,12 @@
+### 19.0.3.1.16
+
+- fix(change_request): an Edit Individual change request can be opened again on a registrant that already holds a future date of birth. `spp.change.request.create` prefills the detail from the registrant and that prefill is a write, so the guard added in 19.0.3.1.15 refused the copied value and the request could not be created at all — closing the very path field staff use to correct the date. A birthdate the guard would refuse is now dropped from the prefill mapping rather than offered, so the field arrives empty and a valid date has to be entered. The rule itself lives in one place (`_is_future_birthdate` on the mixin), so what prefill declines to offer and what the constraint refuses cannot drift apart.
+- fix(change_request): the guard's message names the person when the record carries one, matching the registry constraint's wording. A Create Group member line reported only the date, which did not say which of several lines to fix.
+
+### 19.0.3.1.15
+
+- fix(change_request): refuse a date of birth in the future while the change request is being filled in, rather than at apply time. The Add Member, Edit Individual and Create Group detail models and the Create Group member wizard each store a proposed `birthdate` with no guard of their own, so a future date survived submission and review and was only refused when a strategy wrote it to `res.partner` on the final approval — rolling back the whole approval with an error the approver could not trace back to a field. A shared `spp.cr.birthdate.mixin` now applies the registry's rule at data entry, comparing against the user's own today so a registrar east of UTC is not refused a birth recorded earlier that local day (#362)
+
 ### 19.0.3.1.14
 
 - fix(change_request): group-scope conflict rules work again. `_get_group_member_ids` traversed `spp.group.membership` records through `individual_id` and `group_id`, but that model names its many2ones `individual` and `group` — so resolving a household's members raised `KeyError`/`AttributeError` instead of returning them. A change request whose type carried an active group-scope conflict rule crashed on creation for any group registrant, and for any individual registrant with a live membership — exactly the registrants the rule exists to check. The one existing test called the method with a member-less individual, the single shape that happened to work; group-scope detection is now tested with real memberships in both directions, including that ended memberships are excluded.

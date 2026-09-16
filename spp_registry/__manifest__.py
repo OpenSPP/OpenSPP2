@@ -3,7 +3,7 @@
 {
     "name": "OpenSPP Registry",
     "category": "OpenSPP/Core",
-    "version": "19.0.2.2.3",
+    "version": "19.0.2.2.4",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",

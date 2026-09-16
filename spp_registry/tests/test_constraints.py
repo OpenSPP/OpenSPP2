@@ -8,10 +8,13 @@ Covers:
   date cannot be in the future, and cannot precede the birthdate.
 - spp.id.type ``_check_namespace_uri_format`` (ADR-007) plus the
   lowercase-normalisation behaviour of ``create`` / ``write``.
+- res.partner (individual) ``_check_birthdate_not_future`` — a future
+  date of birth is refused on ``create``, ``write`` and ``load``.
 """
 
 from datetime import date, timedelta
 
+from odoo import fields
 from odoo.exceptions import ValidationError
 from odoo.tests import tagged
 
@@ -209,3 +212,64 @@ class TestIDTypeNamespaceURI(RegistryCommon):
     def test_empty_name_rejected(self):
         with self.assertRaises(ValidationError):
             self.IDType.create({"name": False})
+
+
+@tagged("post_install", "-at_install")
+class TestBirthdateNotFutureConstraint(RegistryCommon):
+    """spp_registry/models/individual.py::_check_birthdate_not_future
+
+    ``registration_date`` is passed as ``False`` wherever a future
+    birthdate must be refused. Its default is today and
+    ``_check_registration_date`` refuses a ``registration_date`` earlier
+    than the birthdate — which is true of every valid date once the
+    birthdate is in the future. With the default left in place that
+    constraint fires on each of these writes and the tests would pass
+    without ``_check_birthdate_not_future`` existing at all.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.today = fields.Date.context_today(self.individual_a)
+        self.future = self.today + timedelta(days=1)
+
+    def test_future_birthdate_rejected_on_write(self):
+        """A future birthdate set via write() raises ValidationError."""
+        with self.assertRaisesRegex(ValidationError, "Date of birth cannot be in the future"):
+            self.individual_a.write({"birthdate": self.future})
+
+    def test_future_birthdate_rejected_on_create(self):
+        """A future birthdate passed to create() raises ValidationError."""
+        with self.assertRaisesRegex(ValidationError, "Date of birth cannot be in the future"):
+            self.Partner.create(
+                {
+                    "name": "Time Traveller",
+                    "is_registrant": True,
+                    "is_group": False,
+                    "birthdate": self.future,
+                    "registration_date": False,
+                }
+            )
+
+    def test_future_birthdate_rejected_on_import(self):
+        """load() (CSV/Excel import) is refused by the same constraint."""
+        result = self.Partner.load(
+            ["name", "is_registrant", "is_group", "birthdate", "registration_date"],
+            [["Imported Person", "1", "0", str(self.future), ""]],
+        )
+        self.assertIn("Date of birth cannot be in the future", str(result["messages"]))
+        self.assertFalse(result["ids"], "the future-birthdate row must not be created")
+
+    def test_today_is_allowed(self):
+        """birthdate == today is the boundary that must pass."""
+        self.individual_a.write({"birthdate": self.today})
+        self.assertEqual(self.individual_a.birthdate, self.today)
+
+    def test_past_birthdate_allowed(self):
+        """An ordinary past birthdate writes without error."""
+        self.individual_a.write({"birthdate": date(1990, 1, 1)})
+        self.assertEqual(self.individual_a.birthdate, date(1990, 1, 1))
+
+    def test_approximate_future_birthdate_rejected(self):
+        """An approximate DOB (birthdate_not_exact) still can't be future."""
+        with self.assertRaisesRegex(ValidationError, "Date of birth cannot be in the future"):
+            self.individual_a.write({"birthdate": self.future, "birthdate_not_exact": True})

@@ -18,6 +18,7 @@ from odoo.exceptions import UserError
 class SPPCRCreateGroupMemberWizard(models.TransientModel):
     _name = "spp.cr.detail.create_group.member.wizard"
     _description = "Create Group — Add Member Wizard"
+    _inherit = ["spp.cr.birthdate.mixin"]
 
     detail_id = fields.Many2one(
         "spp.cr.detail.create_group",

@@ -346,6 +346,7 @@ class SPPCRDetailCreateGroupMemberNew(models.Model):
 
     _name = "spp.cr.detail.create_group.member_new"
     _description = "CR Detail: Create Group — New Member"
+    _inherit = ["spp.cr.birthdate.mixin"]
 
     detail_id = fields.Many2one(
         "spp.cr.detail.create_group",

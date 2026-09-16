@@ -6,7 +6,7 @@ class SPPCRDetailAddMember(models.Model):
 
     _name = "spp.cr.detail.add_member"
     _description = "CR Detail: Add Group Member"
-    _inherit = ["spp.cr.detail.base", "mail.thread"]
+    _inherit = ["spp.cr.detail.base", "mail.thread", "spp.cr.birthdate.mixin"]
 
     # ══════════════════════════════════════════════════════════════════════════
     # MEMBER INFORMATION - Real Odoo fields with full features

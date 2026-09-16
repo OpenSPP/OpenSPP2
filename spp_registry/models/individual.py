@@ -104,6 +104,32 @@ class SPPIndividual(models.Model):
                     }
                 }
 
+    @api.constrains("birthdate")
+    def _check_birthdate_not_future(self):
+        """Server-side backstop for future dates of birth.
+
+        ``_birthdate_onchange`` only runs in the form UI, so ORM
+        ``create`` / ``write``, CSV/Excel import, and API writes
+        (XML-RPC, API v2, DCI) bypass it and a future birthdate persists.
+        ``birthdate`` is a stored, writeable field, so this constraint
+        fires on every write path and keeps the non-stored ``age``
+        compute from ever rendering a negative string.
+
+        The comparison is against the *user's* today
+        (``fields.Date.context_today``), not the server's UTC date: a
+        registrar east of UTC is on tomorrow's date for part of each day,
+        and a birth recorded that morning is not a future date for them.
+        """
+        for record in self:
+            if record.birthdate and record.birthdate > fields.Date.context_today(record):
+                raise ValidationError(
+                    _(
+                        "Date of birth cannot be in the future: %(name)s has %(date)s.",
+                        name=record.display_name,
+                        date=record.birthdate,
+                    )
+                )
+
     def _recompute_parent_groups(self, records):
         field = self.env["res.partner"]._fields["force_recompute_canary"]
         # Get the 'head' vocabulary code - this is a unique membership type

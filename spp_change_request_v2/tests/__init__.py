@@ -37,3 +37,4 @@ from . import test_frozen_detail_binding
 from . import test_detection_matches_apply
 from . import test_field_mapping_transform
 from . import test_routing_field
+from . import test_birthdate_mixin
