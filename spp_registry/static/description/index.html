@@ -526,12 +526,17 @@ stock 17 granted author-or-administrator editing too, and the override
 only narrowed “administrator” to <tt class="docutils literal">base.group_system</tt> and answered
 with an access error instead of a 404. On Odoo 19 it no longer worked
 at all, breaking <strong>Edit</strong> and <strong>Delete</strong> on every chatter message
-across the instance: it called the removed
-<tt class="docutils literal">ir.attachment._check_attachments_access</tt>, expected the Odoo 17
-request shape while the Odoo 19 web client sends <tt class="docutils literal">update_data</tt>, and
-returned through the removed <tt class="docutils literal">message_format()</tt>. Odoo 19’s own route
-already grants author-or-administrator editing, so the override is
-dropped and the route is stock again (#419)</li>
+across the instance: its signature still expected the Odoo 17 request
+shape while the Odoo 19 web client sends <tt class="docutils literal">update_data</tt>, so every
+call failed before running, and behind that it also called the removed
+<tt class="docutils literal">ir.attachment._check_attachments_access</tt> and returned through the
+removed <tt class="docutils literal">message_format()</tt>. Odoo 19’s own route already grants
+author-or-administrator editing, so the override is dropped and the
+route is stock again. Who may edit another user’s chatter message
+therefore follows Odoo’s own administrator test (superuser or
+<strong>Administration: Access Rights</strong>, which <strong>Administration: Settings</strong>
+implies) instead of Settings only, and the editor must also be allowed
+to post on the record; no OpenSPP role sits in that gap (#419)</li>
 </ul>
 </div>
 <div class="section" id="section-2">
