@@ -480,6 +480,19 @@ actions (called after auto-score)</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.2</h1>
+<ul class="simple">
+<li>fix(security): stop granting <tt class="docutils literal">spp_scoring.group_scoring_viewer</tt>
+direct read on <tt class="docutils literal">spp.program.membership</tt>. Because the membership
+<tt class="docutils literal">_inherits</tt> <tt class="docutils literal">res.partner</tt>, that grant exposed registrant PII
+(identity, contacts, IDs, bank details, relationships, other
+programs/entitlements) to any scoring viewer over RPC, without a
+program or registry role. Membership access is now governed solely by
+<tt class="docutils literal">spp_programs</tt> ACLs, as documented; scoring viewers keep their
+scoring-model/result remit and read access to <tt class="docutils literal">spp.program</tt>.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
