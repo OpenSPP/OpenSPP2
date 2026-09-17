@@ -1,5 +1,3 @@
-import logging
-
 from werkzeug.exceptions import NotFound
 
 from odoo import http
@@ -10,8 +8,6 @@ from odoo.tools.translate import _
 
 from odoo.addons.mail.controllers.attachment import AttachmentController
 from odoo.addons.mail.tools.discuss import add_guest_to_context
-
-logger = logging.getLogger(__name__)
 
 
 class SPPAttachmentController(AttachmentController):
