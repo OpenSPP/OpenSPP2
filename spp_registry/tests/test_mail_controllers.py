@@ -1,22 +1,30 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
-"""Author/admin authorisation on the overridden mail endpoints.
+"""Author/admin authorisation on the mail endpoints spp_registry relies on.
 
-Covers spp_registry/controllers/mail.py:
-- ``POST /mail/attachment/delete`` (SPPAttachmentController.mail_attachment_delete)
-- ``POST /mail/message/update_content`` (SPPThreadController.mail_message_update_content)
+- ``POST /mail/attachment/delete`` — overridden in
+  spp_registry/controllers/mail.py (SPPAttachmentController.mail_attachment_delete).
+  Its only application-level guard is::
 
-Both are ``auth="public"`` JSON-RPC endpoints whose only application-level
-guard is::
+      is_admin = request.env.user.has_group("base.group_system")
+      is_author = message.is_current_user_or_guest_author
+      if not (is_admin or is_author):
+          raise AccessError(...)
 
-    is_admin = request.env.user.has_group("base.group_system")
-    is_author = message.is_current_user_or_guest_author
-    if not (is_admin or is_author):
-        raise AccessError(...)
+- ``POST /mail/message/update_content`` — stock Odoo 19
+  (``mail.controllers.thread.ThreadController``). spp_registry used to carry a
+  redundant Odoo 17 port of this route that stopped working on 19; it was
+  removed in 19.0.2.2.5 (#419). Stock ``_can_edit_message`` is author OR
+  ``res.users._is_admin()``, after ``_get_message_with_access(mode="create")``
+  has checked that the caller may post on the thread. The tests pin the
+  behaviour spp_registry depends on.
 
-These tests assert: author allowed, admin allowed, third party denied,
-unauthenticated denied. They run as ``HttpCase`` so the controller stack
-(routing, ``@add_guest_to_context``, JSON-RPC envelope) is exercised end
-to end — not just the controller method directly.
+For ``/mail/message/update_content`` these tests assert: author allowed,
+admin allowed, third party denied, unauthenticated denied — for both the
+Edit and the Delete payload. For ``/mail/attachment/delete`` the author case
+is still an unimplemented placeholder (see its skip). They run as
+``HttpCase`` so the controller stack (routing, ``@add_guest_to_context``,
+JSON-RPC envelope) is exercised end to end — not just the controller method
+directly.
 """
 
 import json
@@ -141,18 +149,36 @@ class TestMailAttachmentDeleteController(HttpCase):
 
 @tagged("post_install", "-at_install")
 class TestMailMessageUpdateContentController(HttpCase):
-    """``/mail/message/update_content`` — author/admin gate."""
+    """``/mail/message/update_content`` — author/admin gate (stock Odoo 19 route).
+
+    The payloads mirror what ``mail/static/src/core/common/message_model.js``
+    sends: Edit is ``{"message_id": ..., "update_data": {"body": ..., "attachment_ids": []}}``
+    and Delete is the same route with ``removeParams`` (empty body, no
+    attachments). A denied call is a ``werkzeug.exceptions.NotFound`` (JSON-RPC
+    error code 404); the assertions check that name so a controller crash
+    (``TypeError``, ``AttributeError``) can never pass as a denial.
+    """
+
+    # What the Odoo 19 web client sends for "Delete" (``Message.removeParams``).
+    REMOVE_PARAMS = {"attachment_ids": [], "attachment_tokens": [], "body": "", "subject": "", "partner_ids": []}
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # Stock Odoo 19 also requires the editor to be allowed to *post* on the
+        # thread (``_mail_post_access`` = write on the document). Both users are
+        # Registry Officers — the module's own persona with write on
+        # ``res.partner`` (``security/ir.model.access.csv``) — so the author can
+        # edit, and so the bystander is refused by the author gate alone rather
+        # than by lacking thread access (pinned in the bystander tests).
+        groups = [(6, 0, [cls.env.ref("base.group_user").id, cls.env.ref("spp_registry.group_registry_officer").id])]
         cls.author = cls.env["res.users"].create(
             {
                 "name": "Msg Author",
                 "login": "spp_registry_msg_author",
                 "email": "msg_author@example.test",
                 "password": "author_pw",
-                "group_ids": [(6, 0, [cls.env.ref("base.group_user").id])],
+                "group_ids": groups,
             }
         )
         cls.bystander = cls.env["res.users"].create(
@@ -161,7 +187,7 @@ class TestMailMessageUpdateContentController(HttpCase):
                 "login": "spp_registry_msg_bystander",
                 "email": "msg_bystander@example.test",
                 "password": "bystander_pw",
-                "group_ids": [(6, 0, [cls.env.ref("base.group_user").id])],
+                "group_ids": groups,
             }
         )
 
@@ -178,61 +204,100 @@ class TestMailMessageUpdateContentController(HttpCase):
             }
         )
 
-    def _call_update(self, message_id, body="<p>updated</p>"):
+    def _call_update(self, message_id, body="<p>updated</p>", update_data=None):
+        if update_data is None:
+            update_data = {"body": body, "attachment_ids": []}
         return self.url_open(
             "/mail/message/update_content",
-            data=json.dumps(
-                {
-                    "params": {
-                        "message_id": message_id,
-                        "body": body,
-                        "attachment_ids": [],
-                    }
-                }
-            ),
+            data=json.dumps({"params": {"message_id": message_id, "update_data": update_data}}),
             headers={"Content-Type": "application/json"},
         )
 
+    def _assert_bystander_may_post(self, msg):
+        """Both stock gates raise the same bare ``NotFound``. Pinning that the
+        bystander clears the thread-post gate means a 404 in the bystander
+        tests can only have come from the author gate."""
+        thread = self.env["res.partner"].browse(msg.res_id)
+        self.assertTrue(
+            thread.with_user(self.bystander).has_access("write"),
+            "bystander must be able to post on the thread, so the 404 proves the author gate fired",
+        )
+
+    def _assert_updated(self, resp, msg, body_fragment):
+        self.assertEqual(resp.status_code, 200)
+        payload = resp.json()
+        self.assertNotIn("error", payload, f"expected a successful edit, got {payload!r}")
+        msg.invalidate_recordset(["body"])
+        self.assertIn(body_fragment, msg.body)
+        self.assertNotIn("original", msg.body)
+
+    def _assert_denied_not_found(self, resp, msg, original_body):
+        payload = resp.json()
+        self.assertIn("error", payload, f"expected error envelope, got {payload!r}")
+        error = payload["error"]
+        self.assertEqual(error.get("code"), 404, f"expected a 404 denial, got {error!r}")
+        self.assertEqual(error["data"]["name"], "werkzeug.exceptions.NotFound")
+        msg.invalidate_recordset(["body"])
+        self.assertEqual(msg.body, original_body)
+
     def test_author_can_update_own_message(self):
-        """FINDING: controller is BROKEN on Odoo 19.
-
-        ``spp_registry/controllers/mail.py::mail_message_update_content``
-        calls ``ir.attachment._check_attachments_access(attachment_tokens)``,
-        which no longer exists on ``ir.attachment`` in Odoo 19. The
-        method was renamed/removed upstream. Every call to the endpoint
-        fails with ``AttributeError`` — happens to surface as
-        ``error`` in the JSON-RPC envelope, so the bystander/unauth
-        tests below pass for the WRONG reason.
-
-        TODO (fix the impl, not the test): port the controller to use
-        whatever upstream attachment-access check replaced
-        ``_check_attachments_access`` in Odoo 19. Once the controller
-        runs, drop this skip and the second-finding skip below.
-        """
-        self.skipTest("BROKEN: controller calls removed Odoo 18 API — see docstring")
+        msg = self._post_message(self.author)
+        self.authenticate("spp_registry_msg_author", "author_pw")
+        resp = self._call_update(msg.id, body="<p>updated by author</p>")
+        self._assert_updated(resp, msg, "updated by author")
 
     def test_admin_can_update_any_message(self):
-        """Same Odoo 19 incompatibility as above — skip until controller
-        is fixed."""
-        self.skipTest("BROKEN: controller calls removed Odoo 18 API — see test_author_can_update_own_message")
+        msg = self._post_message(self.author)
+        self.authenticate("admin", "admin")
+        resp = self._call_update(msg.id, body="<p>updated by admin</p>")
+        self._assert_updated(resp, msg, "updated by admin")
 
     def test_bystander_cannot_update_anothers_message(self):
         msg = self._post_message(self.author)
         original_body = msg.body
+        self._assert_bystander_may_post(msg)
         self.authenticate("spp_registry_msg_bystander", "bystander_pw")
         resp = self._call_update(msg.id, body="<p>hostile edit</p>")
-        self.assertIn("error", resp.json())
-        msg.invalidate_recordset(["body"])
-        self.assertEqual(msg.body, original_body)
+        self._assert_denied_not_found(resp, msg, original_body)
 
     def test_unauthenticated_request_is_denied(self):
         msg = self._post_message(self.author)
+        original_body = msg.body
+        # No authenticate() call — HttpCase starts as the public user. The
+        # public user is read-only on res.partner, so the 404 comes from the
+        # thread-post-access gate before the author gate is even consulted.
         resp = self._call_update(msg.id, body="<p>anon edit</p>")
-        self.assertIn("error", resp.json())
+        self._assert_denied_not_found(resp, msg, original_body)
 
-    def test_message_without_model_returns_not_found(self):
-        """If the message has no ``model`` / ``res_id`` the controller raises
-        ``werkzeug.exceptions.NotFound`` (404 over HTTP)."""
-        # TODO: create a mail.message with empty model/res_id (requires
-        # sudo + careful create vals) and assert a 404 / NotFound surface.
-        self.skipTest("not yet implemented — see TODO")
+    def test_author_can_delete_own_message(self):
+        msg = self._post_message(self.author)
+        self.authenticate("spp_registry_msg_author", "author_pw")
+        resp = self._call_update(msg.id, update_data=self.REMOVE_PARAMS)
+        self.assertEqual(resp.status_code, 200)
+        payload = resp.json()
+        self.assertNotIn("error", payload, f"expected a successful delete, got {payload!r}")
+        msg.invalidate_recordset(["body"])
+        self.assertNotIn("original", msg.body)
+
+    def test_admin_can_delete_any_message(self):
+        msg = self._post_message(self.author)
+        self.authenticate("admin", "admin")
+        resp = self._call_update(msg.id, update_data=self.REMOVE_PARAMS)
+        payload = resp.json()
+        self.assertNotIn("error", payload, f"expected a successful delete, got {payload!r}")
+        msg.invalidate_recordset(["body"])
+        self.assertNotIn("original", msg.body)
+
+    def test_bystander_cannot_delete_anothers_message(self):
+        msg = self._post_message(self.author)
+        original_body = msg.body
+        self._assert_bystander_may_post(msg)
+        self.authenticate("spp_registry_msg_bystander", "bystander_pw")
+        resp = self._call_update(msg.id, update_data=self.REMOVE_PARAMS)
+        self._assert_denied_not_found(resp, msg, original_body)
+
+    def test_unauthenticated_delete_is_denied(self):
+        msg = self._post_message(self.author)
+        original_body = msg.body
+        resp = self._call_update(msg.id, update_data=self.REMOVE_PARAMS)
+        self._assert_denied_not_found(resp, msg, original_body)

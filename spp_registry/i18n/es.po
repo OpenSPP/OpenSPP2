@@ -1532,12 +1532,6 @@ msgstr "No tiene permiso para eliminar este adjunto."
 
 #. module: spp_registry
 #. odoo-python
-#: code:addons/spp_registry/controllers/mail.py:0
-msgid "You do not have permission to update this message."
-msgstr "No tiene permiso para actualizar este mensaje."
-
-#. module: spp_registry
-#. odoo-python
 #: code:addons/spp_registry/models/registrant.py:0
 msgid "You do not have the necessary permissions to delete partner records."
 msgstr ""
