@@ -4735,7 +4735,7 @@ msgstr "Droits validés et approuvés."
 msgid ""
 "Entitlements are created from a cycle. Go to Cycles and prepare "
 "entitlements."
-msgstr "Droits are created from a Cycle. Go to Cycles and Préparer Droits."
+msgstr "Les droits sont créés à partir d'un cycle. Allez dans Cycles et préparez les droits."
 
 #. module: spp_programs
 #. odoo-python
@@ -5788,71 +5788,71 @@ msgstr "In Institutional Care"
 #: model:ir.model.fields.selection,name:spp_programs.selection__spp_program_create_wizard__entitlement_type__inkind
 #: model:ir.ui.menu,name:spp_programs.spp_programs_root
 msgid "In-Kind"
-msgstr "In-Type"
+msgstr "Dons en nature"
 
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_entitlement_inkind_form
 msgid "In-Kind Entitlement"
-msgstr "In-Type Droit"
+msgstr "Droit en nature"
 
 #. module: spp_programs
 #: model:ir.model,name:spp_programs.model_spp_multi_inkind_entitlement_approval
 msgid "In-Kind Entitlement Approval"
-msgstr "In-Type Droit Approbation"
+msgstr "Approbation de droit en nature"
 
 #. module: spp_programs
 #: model:ir.model.fields,field_description:spp_programs.field_spp_entitlement_inkind__inkind_item_id
 msgid "In-Kind Entitlement Condition"
-msgstr "In-Type Droit Condition"
+msgstr "Condition de droit en nature"
 
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.create_program_wizard_form_view_cel_inkind
 msgid "In-Kind Entitlement Item"
-msgstr "In-Type Droit Item"
+msgstr "Article de droit en nature"
 
 #. module: spp_programs
 #: model:ir.model,name:spp_programs.model_spp_program_entitlement_manager_inkind
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_entitlement_manager_inkind_form
 msgid "In-Kind Entitlement Manager"
-msgstr "In-Type Droit Gestionnaire"
+msgstr "Gestionnaire de droits en nature"
 
 #. module: spp_programs
 #: model:ir.model,name:spp_programs.model_spp_program_entitlement_manager_inkind_item
 msgid "In-Kind Entitlement Manager Items"
-msgstr "In-Type Droit Gestionnaire Items"
+msgstr "Articles du gestionnaire de droits en nature"
 
 #. module: spp_programs
 #: model:ir.ui.menu,name:spp_programs.menu_entitlement_manager_inkind
 msgid "In-Kind Entitlement Managers"
-msgstr "In-Type Droit Gestionnaires"
+msgstr "Gestionnaires de droits en nature"
 
 #. module: spp_programs
 #: model_terms:ir.actions.act_window,help:spp_programs.action_entitlement_report_inkind
 msgid "In-Kind Entitlement Report"
-msgstr "In-Type Droit Report"
+msgstr "Rapport de droits en nature"
 
 #. module: spp_programs
 #. odoo-python
 #: code:addons/spp_programs/models/managers/entitlement_manager_inkind.py:0
 #: model:ir.model.fields,field_description:spp_programs.field_spp_cycle__inkind_entitlement_ids
 msgid "In-Kind Entitlements"
-msgstr "In-Type Droits"
+msgstr "Droits en nature"
 
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_entitlement_inkind_form
 msgid "In-Kind Item"
-msgstr "In-Type Item"
+msgstr "Article en nature"
 
 #. module: spp_programs
 #: model:ir.model.fields.selection,name:spp_programs.selection__spp_cel_example__category__inkind_qty
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_cel_example_search
 msgid "In-Kind Quantity"
-msgstr "In-Type Quantité"
+msgstr "Quantité en nature"
 
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.create_program_wizard_form_view_inkind
 msgid "In-Kind Settings"
-msgstr "In-Type Settings"
+msgstr "Paramètres en nature"
 
 #. module: spp_programs
 #: model:ir.model.fields,field_description:spp_programs.field_spp_multi_inkind_entitlement_approval__entitlement_id
@@ -5866,12 +5866,12 @@ msgstr "Droit en nature"
 #: code:addons/spp_programs/wizard/inkind_entitlement_report_wiz.py:0
 #: model:ir.actions.act_window,name:spp_programs.action_inkind_entitlement_report_wizard
 msgid "In-kind Entitlement Report"
-msgstr "In-Type Droit Report"
+msgstr "Rapport de droits en nature"
 
 #. module: spp_programs
 #: model:ir.model,name:spp_programs.model_spp_entitlement_inkind_report_wizard
 msgid "In-kind Entitlement Report Wizard"
-msgstr "In-Type Droit Report Assistant"
+msgstr "Assistant de rapport de droits en nature"
 
 #. module: spp_programs
 #: model:ir.actions.act_window,name:spp_programs.action_entitlement_inkind
@@ -5884,19 +5884,19 @@ msgstr "Droits en nature"
 #. module: spp_programs
 #: model:ir.actions.act_window,name:spp_programs.action_entitlement_report_inkind
 msgid "In-kind Entitlements Report"
-msgstr "In-Type Droits Report"
+msgstr "Rapport de droits en nature"
 
 #. module: spp_programs
 #. odoo-python
 #: code:addons/spp_programs/wizard/create_program_wizard_cel.py:0
 msgid "In-kind item %d has invalid condition expression: %s"
-msgstr "In-Type item %d has invalid condition Expression: %s"
+msgstr "L'article en nature %d a une expression de condition invalide : %s"
 
 #. module: spp_programs
 #. odoo-python
 #: code:addons/spp_programs/wizard/create_program_wizard_cel.py:0
 msgid "In-kind item %d has invalid quantity formula: %s"
-msgstr "In-Type item %d has invalid Quantité Formule: %s"
+msgstr "L'article en nature %d a une formule de quantité invalide : %s"
 
 #. module: spp_programs
 #: model:ir.model.fields,field_description:spp_programs.field_spp_program_membership__income
@@ -5970,7 +5970,7 @@ msgstr "Info Light Color"
 #: model:ir.model.fields,field_description:spp_programs.field_spp_entitlement_reset_pending__initial_amount
 #: model:ir.model.fields,field_description:spp_programs.field_spp_multi_entitlement_approval__initial_amount
 msgid "Initial Amount"
-msgstr "Initial Montant"
+msgstr "Montant initial"
 
 #. module: spp_programs
 #: model:ir.model.fields,field_description:spp_programs.field_spp_program_membership__contact_address_inline
@@ -6238,7 +6238,7 @@ msgstr "Items are required in the Cash Droit Gestionnaire."
 #. odoo-python
 #: code:addons/spp_programs/wizard/create_program_wizard.py:0
 msgid "Items are required in the In-kind entitlement manager."
-msgstr "Items are required in the In-Type Droit Gestionnaire."
+msgstr "Des articles sont requis dans le gestionnaire de droits en nature."
 
 #. module: spp_programs
 #: model:ir.model.fields,help:spp_programs.field_spp_program_membership__active_event_ids_cache
@@ -6806,12 +6806,12 @@ msgstr "Réinitialisation multiple de droits en attente"
 #. module: spp_programs
 #: model:ir.model,name:spp_programs.model_spp_multi_inkind_entitlement_approval_wizard
 msgid "Multi In-Kind Entitlement Approval Wizard"
-msgstr "Multi In-Type Droit Approbation Assistant"
+msgstr "Assistant d'approbation multiple de droits en nature"
 
 #. module: spp_programs
 #: model:ir.model.fields,field_description:spp_programs.field_spp_multi_inkind_entitlement_approval__wizard_id
 msgid "Multi In-kind Entitlement Approval Wizard"
-msgstr "Multi In-Type Droit Approbation Assistant"
+msgstr "Assistant d'approbation multiple de droits en nature"
 
 #. module: spp_programs
 #: model:ir.model.fields,field_description:spp_programs.field_spp_program_settings__group_multi_currency
@@ -7102,7 +7102,7 @@ msgstr "Not Eligible"
 #. module: spp_programs
 #: model:ir.model.fields.selection,name:spp_programs.selection__spp_entitlement__payment_status__notpaid
 msgid "Not Paid"
-msgstr "Not Payé"
+msgstr "Non payé"
 
 #. module: spp_programs
 #. odoo-python
@@ -9033,13 +9033,13 @@ msgstr "Rechercher ID Déduplication Gestionnaires"
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.entitlement_manager_inkind_filter
 msgid "Search In-Kind Entitlement Manager"
-msgstr "Rechercher In-Type Droit Gestionnaire"
+msgstr "Rechercher un gestionnaire de droits en nature"
 
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.entitlement_inkind_filter
 #: model_terms:ir.ui.view,arch_db:spp_programs.entitlement_inkind_report_filter
 msgid "Search In-kind Entitlements"
-msgstr "Rechercher In-Type Droits"
+msgstr "Rechercher des droits en nature"
 
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.payment_batch_filter
@@ -10098,7 +10098,7 @@ msgstr "Timezone offset"
 #: model:ir.model.fields.selection,name:spp_programs.selection__spp_cycle__state__to_approve
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_cycle_search
 msgid "To Approve"
-msgstr "To Approuver"
+msgstr "À approuver"
 
 #. module: spp_programs
 #: model:ir.model.fields,field_description:spp_programs.field_spp_reject_entitlement_wizard__to_state
@@ -10528,12 +10528,12 @@ msgstr "Verified"
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_program_list_form
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_program_membership_form
 msgid "Verify Eligibility"
-msgstr "Verify Éligibilité"
+msgstr "Vérifier l'éligibilité"
 
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_program_membership_form
 msgid "Verify eligibility"
-msgstr "Verify Éligibilité"
+msgstr "Vérifier l'éligibilité"
 
 #. module: spp_programs
 #: model:res.groups,name:spp_programs.group_programs_viewer
