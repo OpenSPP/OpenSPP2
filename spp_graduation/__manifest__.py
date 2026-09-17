@@ -2,7 +2,7 @@
 {
     "name": "OpenSPP Graduation Management",
     "summary": "Manage graduation and exit from time-bound social protection programs",
-    "version": "19.0.2.0.1",
+    "version": "19.0.2.0.2",
     "category": "OpenSPP",
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
