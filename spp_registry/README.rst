@@ -139,6 +139,22 @@ Dependencies
 Changelog
 =========
 
+19.0.2.2.5
+~~~~~~~~~~
+
+- fix(registry): remove the ``/mail/message/update_content`` controller
+  override. It was ported from Odoo 17, where it was already redundant:
+  stock 17 granted author-or-administrator editing too, and the override
+  only narrowed "administrator" to ``base.group_system`` and answered
+  with an access error instead of a 404. On Odoo 19 it no longer worked
+  at all, breaking **Edit** and **Delete** on every chatter message
+  across the instance: it called the removed
+  ``ir.attachment._check_attachments_access``, expected the Odoo 17
+  request shape while the Odoo 19 web client sends ``update_data``, and
+  returned through the removed ``message_format()``. Odoo 19's own route
+  already grants author-or-administrator editing, so the override is
+  dropped and the route is stock again (#419)
+
 19.0.2.2.4
 ~~~~~~~~~~
 
