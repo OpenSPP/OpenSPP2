@@ -120,6 +120,16 @@ Dependencies
 Changelog
 =========
 
+19.0.2.0.3
+~~~~~~~~~~
+
+- fix: make the menu-icon decoration run by ``ir.module.module.next()``
+  best-effort (#383). The pass now runs in its own savepoint and any
+  ``psycopg2.Error`` is logged and skipped instead of propagating out of
+  the module operation and leaving the transaction aborted; missing menu
+  xmlids use ``raise_if_not_found=False``. Decorating app icons is
+  cosmetic and must never take down the process that triggered it.
+
 19.0.2.0.2
 ~~~~~~~~~~
 
