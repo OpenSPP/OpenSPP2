@@ -532,8 +532,20 @@ is registered for every backend user the whole webclient failed to
 mount on any database with this module installed: a blank page after
 login, for everyone. The component now calls <tt class="docutils literal">rpc()</tt> from
 <tt class="docutils literal">&#64;web/core/network/rpc</tt> directly, the same way the rest of OpenSPP
-does. The <tt class="docutils literal">/dci/security/warnings</tt> route the item depends on gains
-its first tests (#450)</li>
+does (#450)</li>
+<li>fix(dci_compliance): the warnings are shown to system administrators
+only. The item’s one action opens the System Parameters list, which
+nobody else can open, so other users were told about settings they
+could neither see nor change. The <tt class="docutils literal">/dci/security/warnings</tt> route now
+answers with an empty summary for anyone outside
+<tt class="docutils literal">base.group_system</tt>, and the component skips the call for them</li>
+<li>fix(dci_compliance): the route is declared <tt class="docutils literal"><span class="pre">type=&quot;jsonrpc&quot;</span></tt>;
+<tt class="docutils literal"><span class="pre">type=&quot;json&quot;</span></tt> is a deprecated alias on Odoo 19 that logged a warning
+on every module load</li>
+<li>fix(dci_compliance): the systray button carries an accessible label
+naming the number of warnings instead of exposing the bare count, the
+“View DCI Settings” action filters on keys starting with <tt class="docutils literal">dci.</tt>
+rather than containing it, and its title is translatable</li>
 </ul>
 <div class="section" id="bug-tracker">
 <h2>Bug Tracker</h2>
