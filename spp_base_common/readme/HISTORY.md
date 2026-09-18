@@ -1,6 +1,6 @@
 ### 19.0.2.0.3
 
-- fix: make the menu-icon decoration run by `ir.module.module.next()` best-effort (#383). The pass now runs in its own savepoint and any `psycopg2.Error` is logged and skipped instead of propagating out of the module operation and leaving the transaction aborted; missing menu xmlids use `raise_if_not_found=False`. Decorating app icons is cosmetic and must never take down the process that triggered it.
+- fix: make the menu-icon decoration run by `ir.module.module.next()` best-effort (#383). The pass now runs in its own savepoint and any `psycopg2.Error` raised while decorating is logged and skipped instead of propagating out of the module operation and leaving the transaction aborted, so this hook is never the cause of a failed install or upgrade; missing menu xmlids use `raise_if_not_found=False`. The caller's own pending writes are flushed before the guard and stay the caller's responsibility. Odoo 19 only calls `next()` from the immediate install/upgrade buttons; the registry-load exposure of the same shape lives in `spp_hide_menus_base` and is tracked in #526.
 
 ### 19.0.2.0.2
 

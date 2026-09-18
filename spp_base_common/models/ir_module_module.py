@@ -80,14 +80,25 @@ class IrModuleModule(models.Model):
         Purely cosmetic and best-effort: a database error while decorating
         must never abort the module operation that triggered it, so the
         whole pass runs in its own savepoint and is skipped on failure.
+
+        The caller's pending ORM writes are flushed first so that only the
+        decoration itself is covered by the guard; a failure in the caller's
+        own writes stays the caller's error. Retryable errors (serialization
+        failures, deadlocks) are deliberately swallowed too: retrying the
+        module operation would rebuild the registry for a cosmetic write.
         """
+        self.env.cr.flush()
         try:
             with self.env.cr.savepoint():
-                self._update_menu_icons()
+                self._write_menu_icons()
         except psycopg2.Error:
-            _logger.warning("Skipping menu icon update after a database error", exc_info=True)
+            _logger.warning(
+                "Skipping the OpenSPP app menu icon update because the database reported an error; "
+                "the menus keep their current icons and the module operation continues",
+                exc_info=True,
+            )
 
-    def _update_menu_icons(self):
+    def _write_menu_icons(self):
         for module in self.search([]):
             icon_info = self.ICON_MAP.get(module.name)
             if not icon_info:
