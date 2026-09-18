@@ -495,6 +495,22 @@ additional modules</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.3</h1>
+<ul class="simple">
+<li>fix: make the menu-icon decoration run by <tt class="docutils literal">ir.module.module.next()</tt>
+best-effort (#383). The pass now runs in its own savepoint and any
+<tt class="docutils literal">psycopg2.Error</tt> raised while decorating is logged and skipped
+instead of propagating out of the module operation and leaving the
+transaction aborted, so this hook is never the cause of a failed
+install or upgrade; missing menu xmlids use
+<tt class="docutils literal">raise_if_not_found=False</tt>. The caller’s own pending writes are
+flushed before the guard and stay the caller’s responsibility. Odoo 19
+only calls <tt class="docutils literal">next()</tt> from the immediate install/upgrade buttons; the
+registry-load exposure of the same shape lives in
+<tt class="docutils literal">spp_hide_menus_base</tt> and is tracked in #526.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.2</h1>
 <ul class="simple">
 <li>test: add a regression test guarding the PDF backend selected by
@@ -506,7 +522,7 @@ printing with a <tt class="docutils literal">DeprecationError</tt> (OP#1168). Th
 this test fails on any image that regresses.</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix(security): add <tt class="docutils literal"><span class="pre">groups=&quot;base.group_system&quot;</span></tt> to the existing
@@ -522,7 +538,7 @@ re-writes the record without a <tt class="docutils literal">groups</tt> attribut
 <tt class="docutils literal">group_ids</tt> to empty.</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
