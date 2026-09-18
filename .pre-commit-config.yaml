@@ -282,6 +282,17 @@ repos:
         # Exclude: scripts, tests, data, demo, and third-party modules
         exclude: ^scripts/|/tests/|/data/|/demo/|^(fastapi|job_worker|base_user_role|extendable|extendable_fastapi|endpoint_route_handler)/
         pass_filenames: true
+      - id: openspp-check-odoo19-js
+        name: "OpenSPP: Odoo 19 compatibility (JavaScript)"
+        description: "Check for useService() calls on web services removed in Odoo 19"
+        entry: python scripts/lint/check_odoo19.py --js
+        language: python
+        additional_dependencies:
+          - PyYAML
+        types: [javascript]
+        # Exclude: scripts, e2e, vendored libs, tests, and third-party modules
+        exclude: ^scripts/|^e2e/|/static/lib/|/static/tests/|^(fastapi|job_worker|base_user_role|extendable|extendable_fastapi|endpoint_route_handler)/
+        pass_filenames: true
       # API authentication enforcement
       - id: openspp-check-api-auth
         name: "OpenSPP: API endpoint authentication"

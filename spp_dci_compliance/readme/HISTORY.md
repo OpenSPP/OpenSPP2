@@ -1,0 +1,6 @@
+### 19.0.1.0.1
+
+- fix(dci_compliance): the security-warning systray item requested the `rpc` web service, which Odoo 19 no longer provides. `useService("rpc")` throws at component setup, and because the item is registered for every backend user the whole webclient failed to mount on any database with this module installed: a blank page after login, for everyone. The component now calls `rpc()` from `@web/core/network/rpc` directly, the same way the rest of OpenSPP does (#450)
+- fix(dci_compliance): the warnings are shown to system administrators only. The item's one action opens the System Parameters list, which nobody else can open, so other users were told about settings they could neither see nor change. The `/dci/security/warnings` route now answers with an empty summary for anyone outside `base.group_system`, and the component skips the call for them
+- fix(dci_compliance): the route is declared `type="jsonrpc"`; `type="json"` is a deprecated alias on Odoo 19 that logged a warning on every module load
+- fix(dci_compliance): the systray button carries an accessible label naming the number of warnings instead of exposing the bare count, the "View DCI Settings" action filters on keys starting with `dci.` rather than containing it, and its title is translatable

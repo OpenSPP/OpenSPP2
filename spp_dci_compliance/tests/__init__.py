@@ -5,6 +5,7 @@ from . import (
     test_fastapi_endpoint_compliance,
     test_schemas,
     test_security_warning,
+    test_security_warning_controller,
     test_sr_sync_search,
     test_verification_router,
 )
