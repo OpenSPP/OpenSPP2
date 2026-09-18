@@ -3,7 +3,7 @@
     "name": "OpenSPP DCI Compliance Tests",
     "summary": "DCI compliance validation test suite (test-only, disabled by default)",
     "category": "OpenSPP/Integration",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",

@@ -1,3 +1,7 @@
+### 19.0.3.1.17
+
+- fix(change_request): `CRReviewPanel` no longer requests the `rpc` web service in its setup. Odoo 19 has no such service and `useService("rpc")` throws the moment a component asking for it is mounted; the handle was never used anyway. The panel is not wired into any view today, so no screen was affected, but whoever mounts it next would have hit the crash (#450). Whether the panel is wired in or removed is tracked in #524
+
 ### 19.0.3.1.16
 
 - fix(change_request): an Edit Individual change request can be opened again on a registrant that already holds a future date of birth. `spp.change.request.create` prefills the detail from the registrant and that prefill is a write, so the guard added in 19.0.3.1.15 refused the copied value and the request could not be created at all — closing the very path field staff use to correct the date. A birthdate the guard would refuse is now dropped from the prefill mapping rather than offered, so the field arrives empty and a valid date has to be entered. The rule itself lives in one place (`_is_future_birthdate` on the mixin), so what prefill declines to offer and what the constraint refuses cannot drift apart.

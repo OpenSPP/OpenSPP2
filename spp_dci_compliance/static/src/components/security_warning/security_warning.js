@@ -2,6 +2,7 @@
 
 import {Component, useState, onWillStart} from "@odoo/owl";
 import {registry} from "@web/core/registry";
+import {rpc} from "@web/core/network/rpc";
 import {useService} from "@web/core/utils/hooks";
 import {Dropdown} from "@web/core/dropdown/dropdown";
 import {DropdownItem} from "@web/core/dropdown/dropdown_item";
@@ -16,7 +17,6 @@ export class DCISecurityWarning extends Component {
     static props = {};
 
     setup() {
-        this.rpc = useService("rpc");
         this.actionService = useService("action");
         this.state = useState({
             hasWarnings: false,
@@ -33,7 +33,7 @@ export class DCISecurityWarning extends Component {
 
     async loadWarnings() {
         try {
-            const result = await this.rpc("/dci/security/warnings", {});
+            const result = await rpc("/dci/security/warnings", {});
             this.state.hasWarnings = result.has_warnings;
             this.state.warningCount = result.warning_count;
             this.state.warnings = result.warnings || [];

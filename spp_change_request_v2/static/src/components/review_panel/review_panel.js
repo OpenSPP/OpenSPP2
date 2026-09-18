@@ -24,7 +24,6 @@ export class CRReviewPanel extends Component {
         this.action = useService("action");
         this.notification = useService("notification");
         this.dialog = useService("dialog");
-        this.rpc = useService("rpc");
 
         this.state = useState({
             loading: true,
