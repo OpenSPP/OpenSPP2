@@ -499,10 +499,15 @@ additional modules</li>
 <ul class="simple">
 <li>fix: make the menu-icon decoration run by <tt class="docutils literal">ir.module.module.next()</tt>
 best-effort (#383). The pass now runs in its own savepoint and any
-<tt class="docutils literal">psycopg2.Error</tt> is logged and skipped instead of propagating out of
-the module operation and leaving the transaction aborted; missing menu
-xmlids use <tt class="docutils literal">raise_if_not_found=False</tt>. Decorating app icons is
-cosmetic and must never take down the process that triggered it.</li>
+<tt class="docutils literal">psycopg2.Error</tt> raised while decorating is logged and skipped
+instead of propagating out of the module operation and leaving the
+transaction aborted, so this hook is never the cause of a failed
+install or upgrade; missing menu xmlids use
+<tt class="docutils literal">raise_if_not_found=False</tt>. The caller’s own pending writes are
+flushed before the guard and stay the caller’s responsibility. Odoo 19
+only calls <tt class="docutils literal">next()</tt> from the immediate install/upgrade buttons; the
+registry-load exposure of the same shape lives in
+<tt class="docutils literal">spp_hide_menus_base</tt> and is tracked in #526.</li>
 </ul>
 </div>
 <div class="section" id="section-2">
