@@ -19,6 +19,7 @@ jobs:
         spec:
           - tests/01-spp-starter-spmis.spec.ts
           - tests/02-spp-starter-farmer-registry.spec.ts
+          - tests/03-spp-dci-compliance.spec.ts
 
     steps:
       - uses: actions/checkout@v4
@@ -57,6 +58,7 @@ jobs:
           case "${{ matrix.spec }}" in
             *spmis*) NAME="SP-MIS" ;;
             *farmer*) NAME="Farmer Registry" ;;
+            *dci*) NAME="DCI Compliance" ;;
             *) NAME="${{ matrix.spec }}" ;;
           esac
 
