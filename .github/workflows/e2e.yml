@@ -111,7 +111,7 @@ jobs:
           FIELDS=$(jq -n \
             --arg repo "${{ github.repository }}" \
             --arg ref "${{ github.ref_name }}" \
-            --arg specs "tests/01-spp-starter-spmis.spec.ts, tests/02-spp-starter-farmer-registry.spec.ts" \
+            --arg specs "tests/01-spp-starter-spmis.spec.ts, tests/02-spp-starter-farmer-registry.spec.ts, tests/03-spp-dci-compliance.spec.ts" \
             '[{"name": "Repository", "value": $repo, "inline": true}, {"name": "Ref", "value": $ref, "inline": true}, {"name": "Spec files", "value": $specs, "inline": false}]')
 
           for f in statuses/*.json; do

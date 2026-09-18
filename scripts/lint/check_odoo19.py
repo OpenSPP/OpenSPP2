@@ -9,8 +9,9 @@ Validates code against Odoo 19 compatibility requirements:
 - group_expand signature: Detects old 3-parameter _read_group_* methods
 - Legacy _sql_constraints: Detects the _sql_constraints class attribute, which
   Odoo 19 ignores (constraints are silently never created); use models.Constraint
-- Removed web services (--js): Detects useService("rpc") / useService("user") in
-  frontend JavaScript; both services are gone and useService() throws at setup()
+- Removed web services (--js): Detects useService("rpc") / useService("user") and
+  env.services.rpc / env.services.user in frontend JavaScript; both services are
+  gone and requesting them crashes the component at setup()
 
 Features:
 - Auto-fix support for Command API tuples (--fix)
@@ -100,7 +101,13 @@ REMOVED_WEB_SERVICES = {
     "rpc": 'import {rpc} from "@web/core/network/rpc"; and call rpc(url, params) directly',
     "user": 'import {user} from "@web/core/user";',
 }
-REMOVED_SERVICE_PATTERN = re.compile(r"""useService\(\s*["'](rpc|user)["']\s*\)""")
+REMOVED_SERVICE_PATTERN = re.compile(
+    r"""(?<![\w$])useService\(\s*["'`](rpc|user)["'`]\s*[,)]"""  # useService("rpc") / useService('user', ...)
+    r"""|\benv\.services\.(rpc|user)\b"""  # this.env.services.rpc
+)
+# Comments are stripped before matching so a migration note quoting the old
+# call does not trip the check. Newlines are kept so line numbers stay right.
+JS_COMMENT_PATTERN = re.compile(r"//[^\n]*|/\*.*?\*/", re.DOTALL)
 
 
 class CommandTupleVisitor(ast.NodeVisitor):
@@ -353,27 +360,29 @@ class Odoo19Checker:
 
         try:
             with open(file_path, encoding="utf-8") as f:
-                lines = f.read().splitlines()
+                content = f.read()
         except Exception:
             return violations
 
-        for line_num, line in enumerate(lines, start=1):
-            for match in REMOVED_SERVICE_PATTERN.finditer(line):
-                service = match.group(1)
-                violations.append(
-                    Violation(
-                        file_path=file_path,
-                        line=line_num,
-                        message=(
-                            f'useService("{service}") requests a service that no longer exists; '
-                            "the component throws at setup()"
-                        ),
-                        rule_id="odoo19.removed_web_service",
-                        severity=Severity.ERROR,
-                        suggestion=f"Use {REMOVED_WEB_SERVICES[service]}",
-                        doc_link="docs/principles/odoo19-compatibility.md#removed-web-services",
-                    )
+        # Match the whole file (a formatter may wrap the call over several lines).
+        content = JS_COMMENT_PATTERN.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), content)
+
+        for match in REMOVED_SERVICE_PATTERN.finditer(content):
+            service = match.group(1) or match.group(2)
+            line_num = content.count("\n", 0, match.start()) + 1
+            violations.append(
+                Violation(
+                    file_path=file_path,
+                    line=line_num,
+                    message=(
+                        f"the {service!r} web service no longer exists; requesting it crashes the component at setup()"
+                    ),
+                    rule_id="odoo19.removed_web_service",
+                    severity=Severity.ERROR,
+                    suggestion=f"Use {REMOVED_WEB_SERVICES[service]}",
+                    doc_link="docs/principles/odoo19-compatibility.md#removed-web-services",
                 )
+            )
 
         return violations
 

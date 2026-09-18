@@ -3,12 +3,13 @@
 // What this tests:
 //   01 - Logs in as admin and installs the spp_dci_compliance module via the Apps menu
 //   02 - Reloads the backend and confirms the webclient renders cleanly (navbar visible,
-//        no client error dialog) and that the DCI security-warning systray item shows a
-//        badge of 3, naming the three insecure dci.* settings the module's post-install
-//        hook turns on (unsigned requests, HTTP callbacks, internal callback IPs)
-//   03 - Turns dci.allow_unsigned_requests back off through Settings > Technical >
-//        System Parameters, reloads, and confirms the badge drops to 2 and that setting
-//        is no longer listed in the dropdown
+//        no uncaught page error, no client error dialog) and that the DCI
+//        security-warning systray item shows a badge of 3, naming the three insecure
+//        dci.* settings the module's post-install hook turns on (unsigned requests,
+//        HTTP callbacks, internal callback IPs)
+//   03 - Turns dci.allow_unsigned_requests back off in the System Parameters list,
+//        reloads, and confirms the badge drops to 2 and that setting is no longer
+//        listed in the dropdown
 //
 // The systray component runs for every backend user on every page load, so it is the
 // one place a broken frontend service lookup (useService on a service Odoo 19 removed)
@@ -76,10 +77,15 @@ async function reloadBackend(page: Page) {
 
 test.describe.serial("OpenSPP DCI Compliance", () => {
   let page: Page;
+  // Uncaught errors thrown while the webclient mounts. A component whose setup()
+  // throws (#450) never reaches an error dialog: the OWL root dies first and the
+  // page stays blank, so this is the assertion that encodes that failure mode.
+  const pageErrors: string[] = [];
 
   test.beforeAll(async ({browser}) => {
     await resetStack();
     page = await browser.newPage();
+    page.on("pageerror", (error) => pageErrors.push(error.message));
   });
 
   test.afterAll(async () => {
@@ -124,6 +130,8 @@ test.describe.serial("OpenSPP DCI Compliance", () => {
     await expect(page.getByText("Allow HTTP Callbacks")).toBeVisible();
     await expect(page.getByText("Allow Internal Callback IPs")).toBeVisible();
     await expect(page.getByText("Bypass Bearer Authentication")).toHaveCount(0);
+    await expect(page.locator(ERROR_DIALOG)).toHaveCount(0);
+    expect(pageErrors).toEqual([]);
 
     await page.screenshot({
       path: "reports/dci-systray-three-warnings.png",
@@ -133,9 +141,9 @@ test.describe.serial("OpenSPP DCI Compliance", () => {
   });
 
   test("03 - turning a setting off removes it from the systray item", async () => {
-    // System Parameters lives under Settings > Technical, which needs developer mode;
-    // opening its action with ?debug=1 turns that on for the session.
-    await page.goto("/odoo/action-base.ir_config_list_action?debug=1");
+    // The System Parameters action is opened by its XML id; the Technical menu that
+    // normally leads to it needs developer mode, the action itself does not.
+    await page.goto("/odoo/action-base.ir_config_list_action");
     await page.waitForLoadState("domcontentloaded");
     const search = page.getByRole("searchbox", {name: "Search..."});
     await expect(search).toBeVisible({timeout: 30_000});
@@ -143,15 +151,17 @@ test.describe.serial("OpenSPP DCI Compliance", () => {
     await search.press("Enter");
     await page.waitForLoadState("domcontentloaded");
 
-    // The list is editable in place: clicking the row turns its Key and Value cells
-    // into unlabeled textboxes, Value being the second one.
+    // The list is editable in place: clicking the Value cell turns it into a text
+    // field (a textarea, since ir.config_parameter.value is a Text field). Odoo puts
+    // the field name on the cell, which is the stable handle.
     const row = page.getByRole("row", {name: /dci\.allow_unsigned_requests/});
-    await row.getByRole("cell", {name: "true"}).click();
-    const valueField = row.getByRole("textbox").nth(1);
+    const valueCell = row.locator("td[name='value']");
+    await valueCell.click();
+    const valueField = valueCell.getByRole("textbox");
     await expect(valueField).toBeVisible({timeout: 15_000});
     await valueField.fill("false");
     await page.getByRole("button", {name: "Save", exact: true}).click();
-    await expect(row.getByRole("cell", {name: "false"})).toBeVisible();
+    await expect(valueCell).toHaveText("false");
     console.log("✅ dci.allow_unsigned_requests = false saved");
 
     await reloadBackend(page);
@@ -165,6 +175,7 @@ test.describe.serial("OpenSPP DCI Compliance", () => {
     await expect(page.getByText("Allow HTTP Callbacks")).toBeVisible();
     await expect(page.getByText("Allow Internal Callback IPs")).toBeVisible();
     await expect(page.getByText("Allow Unsigned Requests")).toHaveCount(0);
+    expect(pageErrors).toEqual([]);
 
     await page.screenshot({
       path: "reports/dci-systray-two-warnings.png",

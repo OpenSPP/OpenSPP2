@@ -3,13 +3,15 @@
     <t t-name="spp_dci_compliance.SecurityWarning">
         <t t-if="state.loaded and state.hasWarnings">
             <Dropdown>
+                <!-- o_dci_security_warning is a test hook (e2e spec 03); keep the class -->
                 <button
                     class="btn btn-link nav-link o_dci_security_warning"
+                    t-att-aria-label="warningLabel"
                     title="DCI Security Warnings - Development mode settings are enabled!"
                 >
                     <i class="fa fa-exclamation-triangle text-danger fa-lg" />
                     <span
-                        class="badge bg-danger rounded-pill ms-1"
+                        class="badge text-bg-danger rounded-pill ms-1"
                         t-esc="state.warningCount"
                     />
                 </button>
