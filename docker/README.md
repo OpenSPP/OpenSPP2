@@ -217,9 +217,15 @@ The production stack includes automated PostgreSQL backups:
 - **Schedule:** Daily at 2am (configurable via `BACKUP_SCHEDULE`)
 - **Retention:** 7 daily, 4 weekly, 6 monthly (DB dumps via `BACKUP_KEEP_*`)
 - **Location:** `backup_data` Docker volume
-- **Filestore:** Opt-in via `BACKUP_FILESTORE=true`. When enabled, attachments under `FILESTORE_SRC` (default `/odoo_data/filestore/<database>`) are archived alongside the dump as `*_filestore_*.tar` (or `.tar.gz` if `BACKUP_FILESTORE_COMPRESS=true`). Filestore retention uses `BACKUP_FILESTORE_KEEP_*` (defaults match `BACKUP_KEEP_*`). Plan disk as roughly `KEEP_* × filestore size` — nightly full copies do not dedupe.
-- **Consistency:** Dump then filestore is crash-consistent, not a true point-in-time pair. A genuinely consistent restore needs a volume snapshot or a brief Odoo stop.
-- **Data protection:** `backup_data` holds beneficiary documents in the clear (same class of exposure as the DB dump). Encrypt the volume at rest in production.
+- **Filestore:** Opt-in via `BACKUP_FILESTORE=true`. When enabled, attachments under
+  `FILESTORE_SRC` (default `/odoo_data/filestore/<database>`) are archived alongside the
+  dump as `*_filestore_*.tar` (or `.tar.gz` if `BACKUP_FILESTORE_COMPRESS=true`).
+  Filestore retention uses `BACKUP_FILESTORE_KEEP_*` (defaults match `BACKUP_KEEP_*`).
+  Plan disk as roughly `KEEP_* × filestore size` — nightly full copies do not dedupe.
+- **Consistency:** Dump then filestore is crash-consistent, not a true point-in-time
+  pair. A genuinely consistent restore needs a volume snapshot or a brief Odoo stop.
+- **Data protection:** `backup_data` holds beneficiary documents in the clear (same
+  class of exposure as the DB dump). Encrypt the volume at rest in production.
 
 To restore a backup (pair dump and filestore files that share the same `TIMESTAMP`):
 
