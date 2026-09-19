@@ -215,20 +215,37 @@ DATABASE_URL=postgres://user:password@hostname:5432/openspp?sslmode=require
 The production stack includes automated PostgreSQL backups:
 
 - **Schedule:** Daily at 2am (configurable via `BACKUP_SCHEDULE`)
-- **Retention:** 7 daily, 4 weekly, 6 monthly
+- **Retention:** 7 daily, 4 weekly, 6 monthly (DB dumps via `BACKUP_KEEP_*`)
 - **Location:** `backup_data` Docker volume
-- **Filestore:** When the `odoo_data` volume is mounted on the backup service, attachments under `/odoo_data/filestore/<database>` are archived daily as `*_filestore_*.tar.gz` alongside the database dump
+- **Filestore:** Opt-in via `BACKUP_FILESTORE=true`. When enabled, attachments under `FILESTORE_SRC` (default `/odoo_data/filestore/<database>`) are archived alongside the dump as `*_filestore_*.tar` (or `.tar.gz` if `BACKUP_FILESTORE_COMPRESS=true`). Filestore retention uses `BACKUP_FILESTORE_KEEP_*` (defaults match `BACKUP_KEEP_*`). Plan disk as roughly `KEEP_* × filestore size` — nightly full copies do not dedupe.
+- **Consistency:** Dump then filestore is crash-consistent, not a true point-in-time pair. A genuinely consistent restore needs a volume snapshot or a brief Odoo stop.
+- **Data protection:** `backup_data` holds beneficiary documents in the clear (same class of exposure as the DB dump). Encrypt the volume at rest in production.
 
-To restore a backup:
+To restore a backup (pair dump and filestore files that share the same `TIMESTAMP`):
 
 ```bash
 # List backups
-docker compose -f docker/docker-compose.production.yml exec backup ls -la /backups
+docker compose -f docker/docker-compose.production.yml exec backup ls -la /backups/daily
 
 # Restore (stop services first)
 docker compose -f docker/docker-compose.production.yml stop odoo queue-worker
+
+# 1) Database (pg_dump -Fc custom format; filenames use underscores)
 docker compose -f docker/docker-compose.production.yml exec db \
-  pg_restore -U odoo -d openspp /backups/daily/openspp-YYYYMMDD-HHMMSS.sql.gz
+  pg_restore -U odoo -d openspp --clean --if-exists \
+  /backups/daily/openspp_YYYYMMDD_HHMMSS.dump
+
+# 2) Filestore (same timestamp as the dump; adjust extension if compressed)
+docker compose -f docker/docker-compose.production.yml run --rm --no-deps \
+  -v odoo_data:/odoo_data \
+  -v backup_data:/backups:ro \
+  backup sh -c '
+    rm -rf /odoo_data/filestore/openspp
+    mkdir -p /odoo_data/filestore
+    tar -xf /backups/daily/openspp_filestore_YYYYMMDD_HHMMSS.tar -C /odoo_data/filestore
+    chown -R 101:101 /odoo_data/filestore/openspp
+  '
+
 docker compose -f docker/docker-compose.production.yml start odoo queue-worker
 ```
 
