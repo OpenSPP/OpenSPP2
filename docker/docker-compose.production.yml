@@ -329,10 +329,18 @@ services:
       BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-7}
       BACKUP_KEEP_WEEKS: ${BACKUP_KEEP_WEEKS:-4}
       BACKUP_KEEP_MONTHS: ${BACKUP_KEEP_MONTHS:-6}
+      # Filestore backup (opt-in; see docker/README.md for sizing)
+      BACKUP_FILESTORE: ${BACKUP_FILESTORE:-false}
+      BACKUP_FILESTORE_COMPRESS: ${BACKUP_FILESTORE_COMPRESS:-false}
+      FILESTORE_SRC: ${FILESTORE_SRC:-/odoo_data/filestore/openspp}
+      BACKUP_FILESTORE_KEEP_DAYS: ${BACKUP_FILESTORE_KEEP_DAYS:-${BACKUP_KEEP_DAYS:-7}}
+      BACKUP_FILESTORE_KEEP_WEEKS: ${BACKUP_FILESTORE_KEEP_WEEKS:-${BACKUP_KEEP_WEEKS:-4}}
+      BACKUP_FILESTORE_KEEP_MONTHS: ${BACKUP_FILESTORE_KEEP_MONTHS:-${BACKUP_KEEP_MONTHS:-6}}
     volumes:
       - ./backup.sh:/backup.sh:ro
       - ./backup-entrypoint.sh:/backup-entrypoint.sh:ro
       - backup_data:/backups
+      - odoo_data:/odoo_data:ro
     networks:
       - openspp-prod
     restart: always
