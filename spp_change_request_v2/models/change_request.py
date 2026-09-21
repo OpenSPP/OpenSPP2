@@ -855,12 +855,17 @@ class SPPChangeRequest(models.Model):
 
             # Use sudo() for creation - users don't need create permission
             # Detail records are always created by the system automatically
-            detail = detail_model.sudo().create({cr_field: self.id})  # nosemgrep: odoo-sudo-without-context
+            vals = {cr_field: self.id}
+            # Pre-fill from the registrant in the same create() rather than by a
+            # later write(): this also runs to repair a request that was already
+            # submitted, and the detail-level freeze refuses every post-submit
+            # write to a mapped field. The prefill copies what the registrant
+            # already holds, so it proposes nothing, while a repaired row left
+            # empty would, on approval, clear every mapped field.
+            if hasattr(detail_model, "_prefill_values"):
+                vals.update(detail_model.sudo().new(vals)._prefill_values())  # nosemgrep: odoo-sudo-without-context
+            detail = detail_model.sudo().create(vals)  # nosemgrep: odoo-sudo-without-context
             self.detail_res_id = detail.id
-
-            # Pre-fill detail from registrant if the detail model supports it
-            if hasattr(detail, "prefill_from_registrant"):
-                detail.prefill_from_registrant()
 
         return self.get_detail()
 

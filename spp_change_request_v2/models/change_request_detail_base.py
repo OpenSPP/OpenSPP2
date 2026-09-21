@@ -99,56 +99,22 @@ class SPPCRDetailBase(models.AbstractModel):
             protected |= {m.source_field for m in cr_type.apply_mapping_ids if m.source_field}
         return protected
 
-    def _is_prefill_of_empty_detail(self, vals, protected):
-        """Whether ``vals`` only copies the registrant's current values onto a
-        detail that holds no proposed content yet.
-
-        ``_ensure_detail()`` repairs a submitted request that lost its detail
-        row by creating one and prefilling it from the registrant. That write
-        reaches the freeze like any other, yet it proposes nothing: every value
-        equals what the registrant already holds, so applying it changes
-        nothing — whereas leaving the row empty would, on approval, clear every
-        mapped field. The write is recognised by its shape, not by its caller,
-        so an RPC client cannot claim it: the detail must hold no protected
-        content at all, and each protected value written must be the
-        registrant's current value for that prefill mapping.
-        """
-        self.ensure_one()
-        registrant = self.registrant_id
-        if not registrant:
-            return False
-        if any(normalize_frozen_value(self[f]) for f in protected if f in self._fields):
-            return False
-        mapping = self._get_prefill_mapping()
-        for field_name in protected:
-            if field_name not in vals or field_name not in self._fields:
-                continue
-            registrant_field = mapping.get(field_name)
-            if not registrant_field:
-                return False
-            current = getattr(registrant, registrant_field, False)
-            if normalize_frozen_value(vals[field_name]) != normalize_frozen_value(current):
-                return False
-        return True
-
     def _assert_content_editable(self, vals):
         """Reject edits to proposed-change fields once the CR is submitted.
 
         Mirrors the view-level readonly (approval_state not in draft/revision) at
         the server so it cannot be bypassed via RPC. Editing requires resetting
-        the CR to draft, which re-routes the approval. The one write accepted
-        past submission is the registrant prefill of a detail that holds nothing
-        yet (see ``_is_prefill_of_empty_detail``).
+        the CR to draft, which re-routes the approval. There is no exemption:
+        the registrant prefill of a repaired detail happens inside ``create()``
+        (``_ensure_detail`` passes ``_prefill_values()`` to it), so it never
+        reaches this guard.
         """
         for rec in self:
             change_request = rec.change_request_id
             state = change_request.approval_state
             if not change_request or state in ("draft", "revision") or not state:
                 continue
-            protected = rec._protected_content_fields(change_request)
-            if rec._is_prefill_of_empty_detail(vals, protected):
-                continue
-            for field_name in protected:
+            for field_name in rec._protected_content_fields(change_request):
                 if field_name not in vals or field_name not in rec._fields:
                     continue
                 # Normalize both sides (recordset -> id, None -> False) so an
@@ -311,27 +277,37 @@ class SPPCRDetailBase(models.AbstractModel):
         """
         return {}
 
+    def _prefill_values(self):
+        """The registrant's current values for the fields in _get_prefill_mapping().
+
+        Works on a ``new()`` record as well as a stored one, so ``_ensure_detail``
+        can pass the result straight into ``create()``; only truthy registrant
+        values are included.
+        """
+        self.ensure_one()
+        if not self.registrant_id:
+            return {}
+
+        values = {}
+        for detail_field, registrant_field in self._get_prefill_mapping().items():
+            registrant_value = getattr(self.registrant_id, registrant_field, False)
+            if not registrant_value:
+                continue
+            if isinstance(registrant_value, models.BaseModel):
+                # create() takes an id where write() also accepts a recordset.
+                registrant_value = registrant_value.id
+            values[detail_field] = registrant_value
+        return values
+
     def prefill_from_registrant(self):
         """Pre-fill detail fields from registrant.
 
         This method updates the current record with values from the registrant
-        based on the mapping defined in _get_prefill_mapping().
+        based on the mapping defined in _get_prefill_mapping(). It is a write,
+        so on a submitted request the detail-level freeze applies to it.
 
         Override _get_prefill_mapping() in detail models to enable prefilling.
         """
-        self.ensure_one()
-        if not self.registrant_id:
-            return
-
-        mapping = self._get_prefill_mapping()
-        if not mapping:
-            return
-
-        values = {}
-        for detail_field, registrant_field in mapping.items():
-            registrant_value = getattr(self.registrant_id, registrant_field, False)
-            if registrant_value:
-                values[detail_field] = registrant_value
-
+        values = self._prefill_values()
         if values:
             self.write(values)

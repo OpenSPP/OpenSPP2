@@ -103,39 +103,57 @@ class TestFrozenDetailBinding(CRTestCase):
         self.assertEqual(detail.group_name, self.test_group.name)
 
     # ------------------------------------------------------------------
-    # Only the registrant prefill of an empty detail gets past the freeze
+    # The freeze stays absolute: the repair prefills inside create(), never by write()
     # ------------------------------------------------------------------
 
-    def _submitted_cr_with_fresh_detail(self):
-        """A submitted request whose detail row exists but holds nothing yet."""
+    def _submitted_cr_with_empty_detail(self):
+        """A submitted request whose detail proposes clearing every mapped field.
+
+        This is also the shape a repaired row would have if it were created
+        empty, which is why the repair must prefill at creation: no write to a
+        mapped field is accepted past submission, whatever value it carries.
+        """
         cr = self.CR.create({"request_type_id": self.edit_type.id, "registrant_id": self.test_individual.id})
         detail = cr.get_detail()
         detail.write({source: False for source, _target in EDIT_INDIVIDUAL_MAPPINGS})
         cr.sudo().write({"approval_state": "pending"})
         return cr, detail
 
-    def test_prefill_of_empty_detail_is_accepted_after_submit(self):
-        _cr, detail = self._submitted_cr_with_fresh_detail()
-        detail.prefill_from_registrant()
-        self.assertEqual(detail.given_name, self.test_individual.given_name)
+    def test_prefill_write_is_refused_after_submit(self):
+        """Even the registrant's own values cannot be written onto an empty
+        submitted detail: that would turn an approved "clear these fields" into
+        a no-op. The repair path does not need this write (see create-time prefill)."""
+        _cr, detail = self._submitted_cr_with_empty_detail()
+        with self.assertRaises(UserError):
+            detail.prefill_from_registrant()
+        self.assertFalse(detail.given_name)
 
     def test_other_value_on_empty_detail_is_refused_after_submit(self):
-        """Emptiness alone is not a licence: the value must be the registrant's."""
-        _cr, detail = self._submitted_cr_with_fresh_detail()
+        _cr, detail = self._submitted_cr_with_empty_detail()
         with self.assertRaises(UserError):
             detail.write({"given_name": "Someone Else"})
 
-    def test_prefill_shaped_write_on_detail_with_content_is_refused(self):
-        """A detail that already carries a proposal is frozen even for the
-        registrant's own value: writing it back would turn an approved
-        "clear this field" into a no-op."""
+    def test_registrants_own_value_on_detail_with_content_is_refused(self):
+        """A single cleared field cannot be restored to the registrant's value either."""
         cr = self.CR.create({"request_type_id": self.edit_type.id, "registrant_id": self.test_individual.id})
         detail = cr.get_detail()
         detail.write({"family_name": False})  # in draft: propose clearing the family name
-        self.assertTrue(detail.given_name, "precondition: the detail still holds other proposed content")
         cr.sudo().write({"approval_state": "pending"})
         with self.assertRaises(UserError):
             detail.write({"family_name": self.test_individual.family_name})
+
+    def test_repaired_detail_is_prefilled_without_a_write(self):
+        """The repair creates the detail already populated, so a later approval
+        applies nothing rather than clearing every mapped field."""
+        cr = self._submitted_cr_without_detail()
+        detail = cr._ensure_detail()
+        expected = {
+            source: getattr(self.test_individual, target)
+            for source, target in EDIT_INDIVIDUAL_MAPPINGS
+            if getattr(self.test_individual, target)
+        }
+        for field_name, value in expected.items():
+            self.assertEqual(detail[field_name], value, field_name)
 
     # ------------------------------------------------------------------
     # Substitution must still be refused
