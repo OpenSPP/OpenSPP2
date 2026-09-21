@@ -870,9 +870,15 @@ Changelog
   row arrives already carrying what the registrant holds — leaving it
   empty was never an option, approving that would clear every mapped
   field — and every later write to a mapped field on a submitted
-  request, the registrant's own value included, stays refused. The
-  frozen-detail tests give the test types the shipped mappings so this
-  shape is exercised in module CI (#443)
+  request, the registrant's own value included, stays refused. Where the
+  prefill cannot cover a mapped field — a legacy registrant holding a
+  future date of birth, which the prefill declines to offer — the
+  rebuilt row would propose clearing it, so a post-submit repair of a
+  field-mapping request is refused with an explicit message instead, and
+  the request has to be reset to draft; a post-submit repair is also
+  logged. The frozen-detail tests give the test types the shipped
+  mappings so this shape is exercised in module CI, and apply a repaired
+  request end to end to prove the registrant is untouched (#443)
 
 19.0.3.1.16
 ~~~~~~~~~~~
