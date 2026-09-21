@@ -173,13 +173,12 @@ class TestExportService(TransactionCase):
 
         service = ExportService(self.env)
 
-        # Deactivate all reports
-        self.report1.active = False
-        self.report2.active = False
-
-        # Deactivate all geofences
-        self.geofence1.active = False
-        self.geofence2.active = False
+        # Deactivate every report and geofence, not just this test's own: an
+        # empty layer_ids means "all active reports", and a demo module in the
+        # same database (spp_mis_demo_v2 ships four spp.gis.report records as
+        # data) would otherwise supply layers. Rolled back with the test.
+        self.env["spp.gis.report"].search([]).write({"active": False})
+        self.env["spp.gis.geofence"].search([]).write({"active": False})
 
         with self.assertRaises(ValueError) as context:
             service.export_geopackage(
