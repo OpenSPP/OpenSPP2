@@ -19,6 +19,33 @@ from odoo.tests import tagged
 
 from .common import CRTestCase, get_or_create_cr_type
 
+# The field mappings spp_cr_types_base ships for the two field_mapping types.
+# The module's own test database has no spp_cr_types_base, so without these the
+# test types carry no mappings, the detail-level freeze protects nothing but
+# ``field_to_modify``, and the repair path passes here while failing on every
+# real deployment.
+EDIT_INDIVIDUAL_MAPPINGS = [
+    ("given_name", "given_name"),
+    ("family_name", "family_name"),
+    ("birthdate", "birthdate"),
+    ("gender_id", "gender_id"),
+    ("phone", "phone"),
+    ("email", "email"),
+    ("address_line1", "street"),
+    ("address_line2", "street2"),
+    ("city", "city"),
+    ("postal_code", "zip"),
+]
+EDIT_GROUP_MAPPINGS = [
+    ("group_name", "name"),
+    ("phone", "phone"),
+    ("email", "email"),
+    ("address_line1", "street"),
+    ("address_line2", "street2"),
+    ("city", "city"),
+    ("postal_code", "zip"),
+]
+
 
 @tagged("post_install", "-at_install")
 class TestFrozenDetailBinding(CRTestCase):
@@ -26,9 +53,23 @@ class TestFrozenDetailBinding(CRTestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.edit_type = get_or_create_cr_type(cls.env, "edit_individual")
+        cls.edit_group_type = get_or_create_cr_type(cls.env, "edit_group")
+        cls._ensure_mappings(cls.edit_type, EDIT_INDIVIDUAL_MAPPINGS)
+        cls._ensure_mappings(cls.edit_group_type, EDIT_GROUP_MAPPINGS)
 
-    def _submitted_cr_without_detail(self):
-        cr = self.CR.create({"request_type_id": self.edit_type.id, "registrant_id": self.test_individual.id})
+    @classmethod
+    def _ensure_mappings(cls, cr_type, pairs):
+        """Give a test-created type the mappings its shipped counterpart has."""
+        if cr_type.apply_mapping_ids:
+            return
+        cls.env["spp.change.request.type.mapping"].create(
+            [{"type_id": cr_type.id, "source_field": source, "target_field": target} for source, target in pairs]
+        )
+
+    def _submitted_cr_without_detail(self, cr_type=None, registrant=None):
+        cr_type = cr_type or self.edit_type
+        registrant = registrant or self.test_individual
+        cr = self.CR.create({"request_type_id": cr_type.id, "registrant_id": registrant.id})
         cr.get_detail()  # materialise, then unbind while still in draft
         cr.write({"detail_res_id": False})
         cr.sudo().write({"approval_state": "pending"})
@@ -44,11 +85,57 @@ class TestFrozenDetailBinding(CRTestCase):
         self.assertTrue(detail, "_ensure_detail must be able to repair a submitted CR")
         self.assertTrue(cr.detail_res_id)
         self.assertEqual(detail.change_request_id, cr)
+        # The repaired detail proposes what the registrant already holds, so an
+        # approval applies nothing rather than clearing every mapped field.
+        self.assertEqual(detail.given_name, self.test_individual.given_name)
+        self.assertEqual(detail.family_name, self.test_individual.family_name)
 
     def test_get_detail_works_after_repair(self):
         cr = self._submitted_cr_without_detail()
         cr._ensure_detail()
         self.assertTrue(cr.get_detail())
+
+    def test_edit_group_can_be_repaired_after_submit(self):
+        """Edit Group has fully overlapping prefill and apply mappings too."""
+        cr = self._submitted_cr_without_detail(self.edit_group_type, self.test_group)
+        detail = cr._ensure_detail()
+        self.assertTrue(detail)
+        self.assertEqual(detail.group_name, self.test_group.name)
+
+    # ------------------------------------------------------------------
+    # Only the registrant prefill of an empty detail gets past the freeze
+    # ------------------------------------------------------------------
+
+    def _submitted_cr_with_fresh_detail(self):
+        """A submitted request whose detail row exists but holds nothing yet."""
+        cr = self.CR.create({"request_type_id": self.edit_type.id, "registrant_id": self.test_individual.id})
+        detail = cr.get_detail()
+        detail.write({source: False for source, _target in EDIT_INDIVIDUAL_MAPPINGS})
+        cr.sudo().write({"approval_state": "pending"})
+        return cr, detail
+
+    def test_prefill_of_empty_detail_is_accepted_after_submit(self):
+        _cr, detail = self._submitted_cr_with_fresh_detail()
+        detail.prefill_from_registrant()
+        self.assertEqual(detail.given_name, self.test_individual.given_name)
+
+    def test_other_value_on_empty_detail_is_refused_after_submit(self):
+        """Emptiness alone is not a licence: the value must be the registrant's."""
+        _cr, detail = self._submitted_cr_with_fresh_detail()
+        with self.assertRaises(UserError):
+            detail.write({"given_name": "Someone Else"})
+
+    def test_prefill_shaped_write_on_detail_with_content_is_refused(self):
+        """A detail that already carries a proposal is frozen even for the
+        registrant's own value: writing it back would turn an approved
+        "clear this field" into a no-op."""
+        cr = self.CR.create({"request_type_id": self.edit_type.id, "registrant_id": self.test_individual.id})
+        detail = cr.get_detail()
+        detail.write({"family_name": False})  # in draft: propose clearing the family name
+        self.assertTrue(detail.given_name, "precondition: the detail still holds other proposed content")
+        cr.sudo().write({"approval_state": "pending"})
+        with self.assertRaises(UserError):
+            detail.write({"family_name": self.test_individual.family_name})
 
     # ------------------------------------------------------------------
     # Substitution must still be refused

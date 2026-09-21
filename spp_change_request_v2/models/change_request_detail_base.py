@@ -99,19 +99,56 @@ class SPPCRDetailBase(models.AbstractModel):
             protected |= {m.source_field for m in cr_type.apply_mapping_ids if m.source_field}
         return protected
 
+    def _is_prefill_of_empty_detail(self, vals, protected):
+        """Whether ``vals`` only copies the registrant's current values onto a
+        detail that holds no proposed content yet.
+
+        ``_ensure_detail()`` repairs a submitted request that lost its detail
+        row by creating one and prefilling it from the registrant. That write
+        reaches the freeze like any other, yet it proposes nothing: every value
+        equals what the registrant already holds, so applying it changes
+        nothing — whereas leaving the row empty would, on approval, clear every
+        mapped field. The write is recognised by its shape, not by its caller,
+        so an RPC client cannot claim it: the detail must hold no protected
+        content at all, and each protected value written must be the
+        registrant's current value for that prefill mapping.
+        """
+        self.ensure_one()
+        registrant = self.registrant_id
+        if not registrant:
+            return False
+        if any(normalize_frozen_value(self[f]) for f in protected if f in self._fields):
+            return False
+        mapping = self._get_prefill_mapping()
+        for field_name in protected:
+            if field_name not in vals or field_name not in self._fields:
+                continue
+            registrant_field = mapping.get(field_name)
+            if not registrant_field:
+                return False
+            current = getattr(registrant, registrant_field, False)
+            if normalize_frozen_value(vals[field_name]) != normalize_frozen_value(current):
+                return False
+        return True
+
     def _assert_content_editable(self, vals):
         """Reject edits to proposed-change fields once the CR is submitted.
 
         Mirrors the view-level readonly (approval_state not in draft/revision) at
         the server so it cannot be bypassed via RPC. Editing requires resetting
-        the CR to draft, which re-routes the approval.
+        the CR to draft, which re-routes the approval. The one write accepted
+        past submission is the registrant prefill of a detail that holds nothing
+        yet (see ``_is_prefill_of_empty_detail``).
         """
         for rec in self:
             change_request = rec.change_request_id
             state = change_request.approval_state
             if not change_request or state in ("draft", "revision") or not state:
                 continue
-            for field_name in rec._protected_content_fields(change_request):
+            protected = rec._protected_content_fields(change_request)
+            if rec._is_prefill_of_empty_detail(vals, protected):
+                continue
+            for field_name in protected:
                 if field_name not in vals or field_name not in rec._fields:
                     continue
                 # Normalize both sides (recordset -> id, None -> False) so an
