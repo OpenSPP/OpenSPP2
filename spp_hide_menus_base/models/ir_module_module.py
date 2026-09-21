@@ -1,5 +1,7 @@
 import logging
 
+import psycopg2
+
 from odoo import models
 
 _logger = logging.getLogger(__name__)
@@ -58,41 +60,74 @@ class IrModuleModule(models.Model):
     }
 
     def hide_menus(self):
+        """Hide the root menus of the stock apps listed in MENU_APP.
+
+        Best-effort: this runs from ``_register_hook`` at the end of every
+        registry load, where a database error that escapes aborts the load
+        and takes the instance (or a job worker) down with it. A menu left
+        visible is recoverable, so the whole pass runs in its own savepoint
+        and is logged and skipped on any ``psycopg2.Error``.
+
+        The caller's pending ORM writes are flushed first so that only the
+        hiding pass itself is covered by the guard; a failure in the caller's
+        own writes stays the caller's error. Retryable errors (serialization
+        failures, deadlocks) are deliberately swallowed too: the registry
+        load has no retry loop, and on the ``next()`` path a retry would
+        rebuild the registry for a menu write.
+
+        Two deliberate limits. Only ``psycopg2.Error`` is caught: a Python
+        exception raised here is a bug in this module and must fail loudly
+        in tests rather than silently leave menus visible in production. And
+        the pass is all-or-nothing, as in ``spp_base_common``: database
+        errors are transaction-wide in practice, so a savepoint per catalog
+        entry would add cost without adding recoverable cases.
+        """
+        self.env.cr.flush()
+        try:
+            with self.env.cr.savepoint():
+                self._hide_catalog_menus()
+        except psycopg2.Error:
+            _logger.warning(
+                "Skipping the OpenSPP menu hiding pass because the database reported an error; "
+                "the menus keep their current visibility and this hook will not be the cause of a failed registry load",
+                exc_info=True,
+            )
+
+    def _hide_catalog_menus(self):
         for module in self.search([]):
             menu_info = self.MENU_APP.get(module.name)
-            if menu_info:
-                try:
-                    menu = self.env.ref(menu_info["menu_xml_id"])
-                except ValueError:
-                    _logger.debug("Menu XML ID not found: %s", menu_info["menu_xml_id"])
-                    menu = False
+            if not menu_info:
+                continue
+            menu = self.env.ref(menu_info["menu_xml_id"], raise_if_not_found=False)
+            if not menu:
+                _logger.debug("Menu XML ID not found: %s", menu_info["menu_xml_id"])
+                continue
 
-                if menu:
-                    hidden_menus = self.env["spp.hide.menu"].search([("menu_id", "=", menu.id)])
-                    if not hidden_menus:
-                        hidden_menu = self.env["spp.hide.menu"].create(
-                            {
-                                "menu_id": menu.id,
-                                "xml_id": menu_info["menu_xml_id"],
-                            }
-                        )
-                        hidden_menu.hide_menu()
-                        continue
+            hidden_menus = self.env["spp.hide.menu"].search([("menu_id", "=", menu.id)])
+            if not hidden_menus:
+                hidden_menu = self.env["spp.hide.menu"].create(
+                    {
+                        "menu_id": menu.id,
+                        "xml_id": menu_info["menu_xml_id"],
+                    }
+                )
+                hidden_menu.hide_menu()
+                continue
 
-                    # Read state off ONE row, never off the search result. This
-                    # method runs from _register_hook, so an Expected singleton
-                    # here aborts the whole registry load and every request 500s
-                    # until the extra row is deleted by hand. UNIQUE(menu_id)
-                    # normally rules that out, but a database that already held
-                    # duplicates when the constraint landed keeps them: the
-                    # registry logs the failed constraint and carries on.
-                    hidden_menu = hidden_menus._primary()
-                    if hidden_menu.state == "show":
-                        hidden_menu.hide_menu()
-                    elif hidden_menu.state == "hide":
-                        # Module upgrade may have reset group_ids via XML
-                        # (noupdate="0"). Re-apply hiding if stale.
-                        hidden_menu._reapply_hide()
+            # Read state off ONE row, never off the search result. This
+            # method runs from _register_hook, so an Expected singleton
+            # here aborts the whole registry load and every request 500s
+            # until the extra row is deleted by hand. UNIQUE(menu_id)
+            # normally rules that out, but a database that already held
+            # duplicates when the constraint landed keeps them: the
+            # registry logs the failed constraint and carries on.
+            hidden_menu = hidden_menus._primary()
+            if hidden_menu.state == "show":
+                hidden_menu.hide_menu()
+            elif hidden_menu.state == "hide":
+                # Module upgrade may have reset group_ids via XML
+                # (noupdate="0"). Re-apply hiding if stale.
+                hidden_menu._reapply_hide()
 
     def next(self):
         # Call your menu hiding logic first

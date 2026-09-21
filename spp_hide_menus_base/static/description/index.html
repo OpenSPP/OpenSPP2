@@ -474,6 +474,24 @@ custom menus to auto-hide list</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.1</h1>
+<ul class="simple">
+<li>fix: make the menu-hiding pass run by <tt class="docutils literal">_register_hook</tt> (and
+<tt class="docutils literal">next()</tt>) best-effort on database errors (#526). <tt class="docutils literal">hide_menus()</tt>
+now runs in its own savepoint and logs and skips any
+<tt class="docutils literal">psycopg2.Error</tt> instead of letting it escape <tt class="docutils literal">_register_hook</tt> and
+abort the registry load — on a poisoned cursor that meant every
+restart failed until the database was repaired by hand, the shape of
+the 2026-07-30 preprod incident (OpenSPP/odoo-job-worker#22), which
+#383 first attributed to the <tt class="docutils literal">spp_base_common</tt> menu-icon hook. The
+caller’s own pending writes are flushed before the guard and stay the
+caller’s error; a missing menu xmlid is skipped through
+<tt class="docutils literal">raise_if_not_found=False</tt>. Only <tt class="docutils literal">psycopg2.Error</tt> is caught, and
+the pass stays all-or-nothing: a Python exception here is a bug in
+this module and still fails loudly.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.1.0</h1>
 <ul class="simple">
 <li>Enforce <tt class="docutils literal">UNIQUE(menu_id)</tt> on <tt class="docutils literal">spp.hide.menu</tt>: a second
@@ -495,7 +513,7 @@ inserting the duplicate that used to brick the next registry load.
 Target the existing record or drop the seed.</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>Keep hidden menus hidden after a module upgrade resets their
@@ -505,7 +523,7 @@ wizard, and CLI <tt class="docutils literal"><span class="pre">-u</span></tt>), 
 <tt class="docutils literal">next()</tt>.</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
