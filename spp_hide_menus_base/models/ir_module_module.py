@@ -1,5 +1,7 @@
 import logging
 
+import psycopg2
+
 from odoo import models
 
 _logger = logging.getLogger(__name__)
@@ -58,14 +60,36 @@ class IrModuleModule(models.Model):
     }
 
     def hide_menus(self):
+        """Hide the root menus of the stock apps listed in MENU_APP.
+
+        Best-effort: this runs from ``_register_hook`` at the end of every
+        registry load, where a database error that escapes aborts the load
+        and takes the instance (or a job worker) down with it. A menu left
+        visible is recoverable, so the whole pass runs in its own savepoint
+        and is logged and skipped on any ``psycopg2.Error``.
+
+        The caller's pending ORM writes are flushed first so that only the
+        hiding pass itself is covered by the guard; a failure in the caller's
+        own writes stays the caller's error.
+        """
+        self.env.cr.flush()
+        try:
+            with self.env.cr.savepoint():
+                self._hide_catalog_menus()
+        except psycopg2.Error:
+            _logger.warning(
+                "Skipping the OpenSPP menu hiding pass because the database reported an error; "
+                "the menus keep their current visibility and the registry load continues",
+                exc_info=True,
+            )
+
+    def _hide_catalog_menus(self):
         for module in self.search([]):
             menu_info = self.MENU_APP.get(module.name)
             if menu_info:
-                try:
-                    menu = self.env.ref(menu_info["menu_xml_id"])
-                except ValueError:
+                menu = self.env.ref(menu_info["menu_xml_id"], raise_if_not_found=False)
+                if not menu:
                     _logger.debug("Menu XML ID not found: %s", menu_info["menu_xml_id"])
-                    menu = False
 
                 if menu:
                     hidden_menus = self.env["spp.hide.menu"].search([("menu_id", "=", menu.id)])

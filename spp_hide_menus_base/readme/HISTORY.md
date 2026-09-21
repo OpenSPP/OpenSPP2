@@ -1,3 +1,14 @@
+### 19.0.2.1.1
+
+- fix: make the menu-hiding pass run by ``_register_hook`` (and ``next()``)
+  best-effort on database errors (#526). ``hide_menus()`` now runs in its own
+  savepoint and logs and skips any ``psycopg2.Error`` instead of letting it
+  escape ``_register_hook`` and abort the registry load — on a poisoned
+  cursor that meant every restart failed until the database was repaired by
+  hand, the shape of the incident behind #383. The caller's own pending
+  writes are flushed before the guard and stay the caller's error; a missing
+  menu xmlid is skipped through ``raise_if_not_found=False``.
+
 ### 19.0.2.1.0
 
 - Enforce ``UNIQUE(menu_id)`` on ``spp.hide.menu``: a second configuration row
