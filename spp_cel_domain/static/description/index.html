@@ -522,6 +522,28 @@ contexts</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.1</h1>
+<ul class="simple">
+<li>fix(executor): probe for the legacy metric evaluation service by
+capability, not by model name. <tt class="docutils literal">_exec_metric</tt> and the
+aggregate-metric path took the presence of <tt class="docutils literal">spp.indicator</tt> in the
+registry to mean the retired <tt class="docutils literal">spp_indicators</tt> service (with
+<tt class="docutils literal">evaluate()</tt>) was installed; OpenSPP2’s <tt class="docutils literal">spp_indicator</tt> reuses
+that model name for an unrelated configuration model, so wherever it
+is installed every <tt class="docutils literal">metric()</tt> over a variable whose cache was not
+fresh raised <tt class="docutils literal">AttributeError</tt> inside the executor and the whole
+expression compiled to an error instead of the documented graceful
+empty result. Both sites now return no matches, log a warning and
+record a <tt class="docutils literal">no_service</tt> entry in the metrics info when no model
+exposes the service’s <tt class="docutils literal">evaluate()</tt> and
+<tt class="docutils literal">enqueue_refresh_from_domain()</tt>, instead of raising. Note for
+deployers: on such databases a <tt class="docutils literal">metric()</tt> over a not-fresh cached
+variable therefore yields an empty match set rather than an error, the
+same degradation every database without <tt class="docutils literal">spp_indicator</tt> already had
+(#443)</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.1.0</h1>
 <ul class="simple">
 <li>feat(sql): compile CEL ternary expressions to SQL CASE via
@@ -533,7 +555,7 @@ compilation</li>
 <li>test(translator): add coverage for the CEL translation cache helpers</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
