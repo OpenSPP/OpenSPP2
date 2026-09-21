@@ -224,10 +224,8 @@ class TestGeofenceModel(TransactionCase):
         self.assertIn("created_from", props)
         self.assertIn("created_by", props)
         self.assertIn("create_date", props)
-
-        # Should NOT have incident fields in core
-        self.assertNotIn("incident_id", props)
-        self.assertNotIn("incident_name", props)
+        # Downstream modules may extend the properties (spp_api_v2_gis adds the
+        # incident fields), so the core contract is a subset, not an exact set.
 
     def test_to_geojson_collection(self):
         """Test converting multiple geofences to GeoJSON FeatureCollection."""
