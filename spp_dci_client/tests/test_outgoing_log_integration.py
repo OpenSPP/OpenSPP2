@@ -277,7 +277,9 @@ class TestOutgoingLogIntegration(TransactionCase):
     def test_make_request_logs_connection_error(self, mock_client_class):
         import httpx
 
-        self._assert_exception_logged_as(mock_client_class, httpx.ConnectError("Connection refused"), "connection_error")
+        self._assert_exception_logged_as(
+            mock_client_class, httpx.ConnectError("Connection refused"), "connection_error"
+        )
 
     @patch("httpx.Client")
     def test_make_request_logs_timeout(self, mock_client_class):
