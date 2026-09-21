@@ -12,15 +12,17 @@ class TestMetricCategory(TransactionCase):
         """Test creating a metric category."""
         category = self.env["spp.metric.category"].create(
             {
-                "name": "Demographics",
-                "code": "demographics",
+                "name": "Test Demographics",
+                # A code no data file claims: spp_indicator seeds "demographics"
+                # and the unique constraint would refuse a second row.
+                "code": "test_demographics",
                 "description": "Demographic statistics",
                 "sequence": 10,
             }
         )
 
-        self.assertEqual(category.name, "Demographics")
-        self.assertEqual(category.code, "demographics")
+        self.assertEqual(category.name, "Test Demographics")
+        self.assertEqual(category.code, "test_demographics")
         self.assertTrue(category.active)
 
     def test_category_code_unique(self):
