@@ -518,6 +518,17 @@ linking <tt class="docutils literal">spp.gis.data.layer</tt> records</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.1</h1>
+<ul class="simple">
+<li>test(gis): the geofence GeoJSON properties test asserts the core keys
+are present and no longer asserts that the incident keys are absent.
+<tt class="docutils literal">spp_api_v2_gis</tt> legitimately adds <tt class="docutils literal">incident_id</tt>/<tt class="docutils literal">incident_name</tt>
+to the same properties (and asserts their presence in its own tests),
+so the absence check failed on every database carrying both modules.
+No behaviour change (#443)</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.1.0</h1>
 <ul class="simple">
 <li>feat: spatial operators support MultiPolygon and GeometryCollection,
@@ -532,7 +543,7 @@ tags (re-land from #76).</li>
 onto <tt class="docutils literal">spp.gis.geofence.tag</tt> records when upgrading from 19.0.2.0.x.</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
