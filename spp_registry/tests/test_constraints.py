@@ -10,9 +10,14 @@ Covers:
   lowercase-normalisation behaviour of ``create`` / ``write``.
 - res.partner (individual) ``_check_birthdate_not_future`` — a future
   date of birth is refused on ``create``, ``write`` and ``load``.
+- registration-date default, ``_check_registration_date`` and
+  ``_birthdate_onchange`` all use the user's today, not the server's
+  (#520), exercised east and west of UTC on a frozen clock.
 """
 
-from datetime import date, timedelta
+from datetime import date, datetime, time, timedelta
+
+from freezegun import freeze_time
 
 from odoo import fields
 from odoo.exceptions import ValidationError
@@ -112,18 +117,27 @@ class TestUniqueMembershipTypes(RegistryCommon):
 
 @tagged("post_install", "-at_install")
 class TestRegistrationDateConstraint(RegistryCommon):
-    """spp_registry/models/registrant.py::_check_registration_date"""
+    """spp_registry/models/registrant.py::_check_registration_date
+
+    Dates are based on the user's today (``context_today``) to match the
+    constraint; anchoring on the server date would make these depend on the
+    test user's timezone.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.today = fields.Date.context_today(self.individual_a)
+        self.future = self.today + timedelta(days=1)
 
     def test_future_registration_date_rejected(self):
         """Registration date in the future raises ValidationError."""
-        future = date.today() + timedelta(days=1)
-        with self.assertRaises(ValidationError):
-            self.individual_a.write({"registration_date": future})
+        with self.assertRaisesRegex(ValidationError, "Registration date must be less than the current date"):
+            self.individual_a.write({"registration_date": self.future})
 
     def test_today_is_allowed(self):
         """Registration date == today is the boundary that must pass."""
-        self.individual_a.write({"registration_date": date.today()})
-        self.assertEqual(self.individual_a.registration_date, date.today())
+        self.individual_a.write({"registration_date": self.today})
+        self.assertEqual(self.individual_a.registration_date, self.today)
 
     def test_registration_before_birthdate_rejected(self):
         """Registration date < birthdate raises ValidationError.
@@ -273,3 +287,134 @@ class TestBirthdateNotFutureConstraint(RegistryCommon):
         """An approximate DOB (birthdate_not_exact) still can't be future."""
         with self.assertRaisesRegex(ValidationError, "Date of birth cannot be in the future"):
             self.individual_a.write({"birthdate": self.future, "birthdate_not_exact": True})
+
+
+@tagged("post_install", "-at_install")
+class TestUserTodayAcrossTimezones(RegistryCommon):
+    """The registration-date default, ``_check_registration_date`` and
+    ``_birthdate_onchange`` compare against the user's today
+    (``fields.Date.context_today``), not the server's UTC date — the
+    follow-up to ``_check_birthdate_not_future`` (#397).
+
+    The clock is frozen so these pass at any wall-clock hour: at 23:00 UTC a
+    registrar in Asia/Manila (UTC+8) is already on the next calendar day; at
+    05:00 UTC one in America/Los_Angeles (UTC-7/-8) is still on the previous
+    one. The frozen instant is derived from the real date, so nothing ages.
+    """
+
+    EAST_TZ = "Asia/Manila"
+    WEST_TZ = "America/Los_Angeles"
+
+    FUTURE_MESSAGE = "Registration date must be less than the current date"
+
+    def _frozen_utc(self, hour):
+        return freeze_time(datetime.combine(date.today(), time(hour, 0)))
+
+    def _user_today(self, record, shift):
+        """The user's today, asserting the frozen clock and tz context really
+        shift it by ``shift`` days from the server's; without this every test
+        would still pass if freezegun or the tz context silently stopped
+        applying, with ``user_today`` collapsing onto the server date."""
+        user_today = fields.Date.context_today(record)
+        self.assertEqual(
+            user_today,
+            date.today() + timedelta(days=shift),
+            "precondition: frozen clock / tz context not in effect",
+        )
+        return user_today
+
+    def _new_registrant_vals(self, name, birthdate):
+        return {"name": name, "is_registrant": True, "is_group": False, "birthdate": birthdate}
+
+    def test_east_of_utc_default_registration_date_is_users_today(self):
+        """A registrant born on the user's today is accepted with the defaulted
+        registration date, which is the user's today as well (it used to be the
+        server's date — the user's yesterday — and failed "later than birth")."""
+        with self._frozen_utc(23):
+            Partner = self.Partner.with_context(tz=self.EAST_TZ)
+            user_today = self._user_today(Partner, +1)
+
+            newborn = Partner.create(self._new_registrant_vals("Newborn East", user_today))
+
+            self.assertEqual(newborn.registration_date, user_today)
+
+    def test_east_of_utc_registration_on_users_today_accepted(self):
+        """registration_date == the user's today is the boundary that must pass."""
+        with self._frozen_utc(23):
+            individual = self.individual_a.with_context(tz=self.EAST_TZ)
+            user_today = self._user_today(individual, +1)
+
+            individual.write({"registration_date": user_today})
+
+            self.assertEqual(individual.registration_date, user_today)
+
+    def test_registration_after_users_today_still_rejected(self):
+        """The upper bound still holds under a timezone context."""
+        with self._frozen_utc(23):
+            individual = self.individual_a.with_context(tz=self.EAST_TZ)
+            future = self._user_today(individual, +1) + timedelta(days=1)
+            with self.assertRaisesRegex(ValidationError, self.FUTURE_MESSAGE):
+                individual.write({"registration_date": future})
+
+    def test_west_of_utc_default_registration_date_is_users_today(self):
+        """West of UTC the default follows the user too: the stored date is the
+        user's today, a day behind the server's, and coexists with a past
+        birthdate without tripping the registration-before-birth branch."""
+        with self._frozen_utc(5):
+            Partner = self.Partner.with_context(tz=self.WEST_TZ)
+            user_today = self._user_today(Partner, -1)
+
+            registrant = Partner.create(self._new_registrant_vals("Registrant West", date(1990, 1, 1)))
+
+            self.assertEqual(registrant.registration_date, user_today)
+
+    def test_west_of_utc_registration_on_servers_today_rejected(self):
+        """The bound moved a day earlier for users west of UTC, by design: the
+        server's today is their tomorrow and is refused as future. This is the
+        one direction in which a value accepted before is refused now."""
+        with self._frozen_utc(5):
+            individual = self.individual_a.with_context(tz=self.WEST_TZ)
+            self._user_today(individual, -1)
+            with self.assertRaisesRegex(ValidationError, self.FUTURE_MESSAGE):
+                individual.write({"registration_date": date.today()})
+
+    def test_east_of_utc_birthdate_onchange_keeps_users_today(self):
+        """The form must not reset a birthdate the user has already reached."""
+        with self._frozen_utc(23):
+            Partner = self.Partner.with_context(tz=self.EAST_TZ)
+            user_today = self._user_today(Partner, +1)
+            form_record = Partner.new(self._new_registrant_vals("Newborn East", user_today))
+
+            result = form_record._birthdate_onchange()
+
+            self.assertIsNone(result, "no warning for a date the user has reached")
+            self.assertEqual(form_record.birthdate, user_today)
+
+    def test_west_of_utc_birthdate_onchange_resets_users_tomorrow(self):
+        """West of UTC the server's today is the user's tomorrow: the form must
+        reset it, as ``_check_birthdate_not_future`` would refuse it on save."""
+        with self._frozen_utc(5):
+            Partner = self.Partner.with_context(tz=self.WEST_TZ)
+            server_today = date.today()
+            self._user_today(Partner, -1)
+            form_record = Partner.new(self._new_registrant_vals("Newborn West", server_today))
+
+            result = form_record._birthdate_onchange()
+
+            self.assertIn("warning", result or {}, "the user's tomorrow must be refused in the form")
+            self.assertFalse(form_record.birthdate)
+
+    def test_birthdate_onchange_restores_saved_value_on_existing_record(self):
+        """Editing a saved registrant to the user's tomorrow restores the saved
+        birthdate rather than clearing it (the ``_origin`` branch)."""
+        saved_birthdate = date(1990, 1, 1)
+        self.individual_a.write({"birthdate": saved_birthdate})
+        with self._frozen_utc(5):
+            Partner = self.Partner.with_context(tz=self.WEST_TZ)
+            self._user_today(Partner, -1)
+            form_record = Partner.new({"birthdate": date.today()}, origin=self.individual_a)
+
+            result = form_record._birthdate_onchange()
+
+            self.assertIn("warning", result or {})
+            self.assertEqual(form_record.birthdate, saved_birthdate)
