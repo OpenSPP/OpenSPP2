@@ -5,9 +5,13 @@
   savepoint and logs and skips any ``psycopg2.Error`` instead of letting it
   escape ``_register_hook`` and abort the registry load — on a poisoned
   cursor that meant every restart failed until the database was repaired by
-  hand, the shape of the incident behind #383. The caller's own pending
-  writes are flushed before the guard and stay the caller's error; a missing
-  menu xmlid is skipped through ``raise_if_not_found=False``.
+  hand, the shape of the 2026-07-30 preprod incident
+  (OpenSPP/odoo-job-worker#22), which #383 first attributed to the
+  ``spp_base_common`` menu-icon hook. The caller's own pending writes are
+  flushed before the guard and stay the caller's error; a missing menu xmlid
+  is skipped through ``raise_if_not_found=False``. Only ``psycopg2.Error`` is
+  caught, and the pass stays all-or-nothing: a Python exception here is a
+  bug in this module and still fails loudly.
 
 ### 19.0.2.1.0
 

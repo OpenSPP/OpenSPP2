@@ -14,6 +14,7 @@ import functools
 from unittest.mock import patch
 
 import psycopg2
+import psycopg2.errors
 import psycopg2.extensions
 
 from odoo.tests import TransactionCase, tagged
@@ -50,11 +51,16 @@ class TestHideMenusDatabaseErrorGuard(TransactionCase):
         menu_app = {module: {"menu_xml_id": xml_id} for module, xml_id in entries.items()}
         return patch.object(type(self.IrModule), "MENU_APP", menu_app)
 
-    def _menu_with_external_id(self, name):
-        """A menu with no hide configuration yet, reachable through a fresh xmlid."""
+    def _menu_without_hide_row(self):
+        """A menu no spp.hide.menu row points at yet."""
         taken = self.HideMenu.search([]).menu_id.ids
         menu = self.env["ir.ui.menu"].search([("id", "not in", taken)], limit=1)
         self.assertTrue(menu, "no unconfigured ir.ui.menu left to test against")
+        return menu
+
+    def _menu_with_external_id(self, name):
+        """A menu with no hide configuration yet, reachable through a fresh xmlid."""
+        menu = self._menu_without_hide_row()
         self.env["ir.model.data"].create(
             {"module": "spp_hide_menus_base", "name": name, "model": "ir.ui.menu", "res_id": menu.id}
         )
@@ -99,6 +105,17 @@ class TestHideMenusDatabaseErrorGuard(TransactionCase):
         IrModelData = type(self.env["ir.model.data"])
         failing_lookup = _failing_lookup_for(MISSING_MENU_XMLID, IrModelData._xmlid_lookup)
 
+        # Control: the same catalog entry does hide the menu when nothing fails,
+        # so the "rolled back" assertions below cannot pass by never having run.
+        with self._catalog(**{first: menu_xml_id}):
+            self.IrModule._register_hook()
+        row = self.HideMenu.search([("menu_id", "=", menu.id)])
+        self.assertTrue(row, "control: the catalog entry must create a hide row")
+        self.assertIn(self.hide_group, menu.group_ids, "control: the catalog entry must hide the menu")
+        row.show_menu()
+        row.unlink()
+        self.assertEqual(menu.group_ids, groups_before, "control undone: the menu is visible again")
+
         with (
             self._catalog(**{first: menu_xml_id, last: MISSING_MENU_XMLID}),
             patch.object(IrModelData, "_xmlid_lookup", failing_lookup),
@@ -108,7 +125,7 @@ class TestHideMenusDatabaseErrorGuard(TransactionCase):
             self.IrModule._register_hook()
 
         self.assertTrue(
-            any("menu" in message for message in captured.output),
+            any("menu hiding pass" in message for message in captured.output),
             f"expected a skipped-hiding warning, got {captured.output}",
         )
         # The transaction is still usable: the failure was contained in a savepoint.
@@ -124,6 +141,8 @@ class TestHideMenusDatabaseErrorGuard(TransactionCase):
         self.env.cr.execute("SAVEPOINT test_526_poisoned_cursor")
         try:
             self._poison_cursor()
+            # Driven through _register_hook() as the loader does; this relies on
+            # super()._register_hook() issuing no SQL of its own.
             with mute_logger("odoo.sql_db"), self.assertLogs(HOOK_LOGGER, level="WARNING"):
                 self.IrModule._register_hook()
         finally:
@@ -137,7 +156,7 @@ class TestHideMenusDatabaseErrorGuard(TransactionCase):
         it are flushed ahead of the guard, so their failure surfaces where it
         belongs instead of being logged as a menu-hiding problem.
         """
-        menu, _menu_xml_id = self._menu_with_external_id("test_526_pending_write_menu")
+        menu = self._menu_without_hide_row()
         row = self.HideMenu.create({"menu_id": menu.id, "xml_id": "test.pending"})
         self.env.cr.execute("SAVEPOINT test_526_pending_write")
         try:
