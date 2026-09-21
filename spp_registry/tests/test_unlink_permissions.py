@@ -13,6 +13,7 @@ do so.
 from odoo.exceptions import AccessError
 from odoo.tests import tagged
 
+from ..models.res_config_settings import _LEGACY_KEYS
 from .common import RegistryCommon
 
 
@@ -21,6 +22,16 @@ class TestRegistrantUnlinkPermissions(RegistryCommon):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # These tests pin spp_registry's own rule (officer blocked, manager
+        # allowed). The starter bundles layer a stricter switch on top —
+        # registrant create/write/unlink for admins only, shipped ON and
+        # enforced server-side since #411 — which would refuse the manager
+        # here whenever such a bundle is installed in the same database. Pin
+        # it off for this transaction; the guard reads the parameter live and
+        # the change rolls back with the test (precedent: spp_mis_demo_v2's
+        # access-control tests, OP#1142).
+        for key in _LEGACY_KEYS:
+            cls.env["ir.config_parameter"].sudo().set_param(key, "False")
         cls.target = cls.Partner.create({"name": "Deletable Partner", "is_registrant": True, "is_group": False})
 
     def _target_for(self, user):
