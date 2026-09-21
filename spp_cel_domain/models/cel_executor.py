@@ -1072,6 +1072,25 @@ class CelExecutor(models.AbstractModel):
         # Fallback: cannot split
         return [], child_plan
 
+    def _legacy_metric_service(self):
+        """The legacy metric evaluation service, or ``None`` when no module provides it.
+
+        The service was the ``spp.indicator`` model of the retired
+        ``spp_indicators`` module, exposing ``evaluate()`` and
+        ``enqueue_refresh_from_domain()``. OpenSPP2's ``spp_indicator`` reuses the
+        model name for an unrelated publishable-indicator configuration model, so
+        the presence of ``spp.indicator`` in the registry no longer means the
+        service is available. Probe the capability, not the name: with only the
+        name checked, every ``metric()`` over a variable whose cache is not fresh
+        raised ``AttributeError`` inside the executor wherever ``spp_indicator``
+        is installed, and the expression compiled to an error instead of the
+        graceful empty result.
+        """
+        service = self.env.get("spp.indicator")
+        if service is None or not callable(getattr(service, "evaluate", None)):
+            return None
+        return service
+
     def _exec_metric(
         self,
         model: str,
@@ -1171,19 +1190,18 @@ class CelExecutor(models.AbstractModel):
         # Compute candidate size cheaply via search_count
         base_count = self.env[subject_model].search_count(base_dom)
 
-        # Check for evaluation service (legacy spp.indicator for now)
         # TODO: Fully migrate to spp.data.cache.manager (Phase 4 of ADR-017 complete)
-        if "spp.indicator" not in self.env:
+        svc = self._legacy_metric_service()
+        if svc is None:
             # No evaluation service available - can only use SQL fast path
             # If we reach here, cache is not fresh and we can't compute
             self._logger.warning(
                 "[CEL Metrics] No evaluation service available for metric=%s. "
-                "SQL fast path requires fresh cache. Consider installing spp_indicators module.",
+                "SQL fast path requires fresh cache; subjects without a fresh cached value are left out.",
                 p.metric,
             )
             return []
 
-        svc = self.env["spp.indicator"]
         default_mode = "refresh" if (base_count < async_threshold) else "fallback"
         if default_mode == "fallback" and status.get("status") != "fresh" and not preview_cache_only_mode:
             # large + not fresh → enqueue refresh and report queued
@@ -1590,16 +1608,15 @@ class CelExecutor(models.AbstractModel):
         if not all_child_ids:
             return []
 
-        # Check for evaluation service (legacy spp.indicator for now)
         # TODO: Fully migrate to spp.data.cache.manager (Phase 4 of ADR-017 complete)
-        if "spp.indicator" not in self.env:
+        svc = self._legacy_metric_service()
+        if svc is None:
             self._logger.warning(
                 "[CEL Metrics] No evaluation service available for aggregate metric=%s",
                 p.metric,
             )
             return []
 
-        svc = self.env["spp.indicator"]
         values, stats = svc.evaluate(
             p.metric,
             p.child_model,
