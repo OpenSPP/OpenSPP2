@@ -862,12 +862,49 @@ class SPPChangeRequest(models.Model):
             # write to a mapped field. The prefill copies what the registrant
             # already holds, so it proposes nothing, while a repaired row left
             # empty would, on approval, clear every mapped field.
+            prefill = {}
             if hasattr(detail_model, "_prefill_values"):
-                vals.update(detail_model.sudo().new(vals)._prefill_values())  # nosemgrep: odoo-sudo-without-context
-            detail = detail_model.sudo().create(vals)  # nosemgrep: odoo-sudo-without-context
+                # nosemgrep: odoo-sudo-without-context
+                prefill = detail_model.sudo().new(vals)._prefill_values()
+            # nosemgrep: odoo-sudo-without-context
+            detail = detail_model.sudo().create({**vals, **prefill})
             self.detail_res_id = detail.id
+            if self.approval_state and self.approval_state not in ("draft", "revision"):
+                if self.request_type_id.apply_strategy == "field_mapping":
+                    self._assert_reconstructed_detail_proposes_nothing()
+                _logger.warning(
+                    "Change request %s: detail record reconstructed after submission",
+                    self.name,
+                )
 
         return self.get_detail()
+
+    def _assert_reconstructed_detail_proposes_nothing(self):
+        """A field-mapping detail rebuilt for a submitted request must not carry a proposal.
+
+        The rebuilt row holds the registrant's current values, so approving
+        it applies nothing. That holds only as far as the prefill covers the
+        apply mapping: a value the prefill declines to offer (a future date of
+        birth, or a mapping added later for a field the prefill does not know)
+        would be applied as "clear this field", because the field-mapping
+        strategy writes empty values on purpose. Nobody can correct the row
+        afterwards, since it is frozen, so the request is refused instead and
+        has to be reset to draft.
+        """
+        self.ensure_one()
+        sudo_rec = self.sudo()  # nosemgrep: odoo-sudo-without-context
+        changes = dict(sudo_rec.request_type_id.get_apply_strategy().preview(sudo_rec) or {})
+        changes.pop("_action", None)
+        changes.pop("_message", None)
+        if changes:
+            raise UserError(
+                _(
+                    "The details of this submitted change request were lost and cannot be "
+                    "reconstructed without proposing a change to: %(fields)s. "
+                    "Reset the request to draft and enter the details again.",
+                    fields=", ".join(sorted(changes)),
+                )
+            )
 
     # ══════════════════════════════════════════════════════════════════════════
     # APPROVAL ACTIONS

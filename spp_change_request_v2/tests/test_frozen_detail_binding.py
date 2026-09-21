@@ -14,6 +14,9 @@ Binding is now allowed, but only to a row that already points back at this
 request, so it cannot be used to attach someone else's detail.
 """
 
+from datetime import timedelta
+
+from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests import tagged
 
@@ -59,12 +62,28 @@ class TestFrozenDetailBinding(CRTestCase):
 
     @classmethod
     def _ensure_mappings(cls, cr_type, pairs):
-        """Give a test-created type the mappings its shipped counterpart has."""
+        """Give a test-created type the mappings its shipped counterpart has.
+
+        When the shipped type is present (a full stack), the constants must
+        match it exactly, so a drift in ``spp_cr_types_base`` shows up here
+        instead of silently narrowing what these tests clear and assert.
+        """
         if cr_type.apply_mapping_ids:
+            shipped = {(m.source_field, m.target_field) for m in cr_type.apply_mapping_ids}
+            if shipped != set(pairs):
+                raise AssertionError(f"{cr_type.code}: shipped mappings drifted from the test constants")
             return
         cls.env["spp.change.request.type.mapping"].create(
             [{"type_id": cr_type.id, "source_field": source, "target_field": target} for source, target in pairs]
         )
+
+    def _plant_future_birthdate(self, registrant):
+        """Store a future date of birth the way a legacy record holds one:
+        the registry constraint refuses it on write, so go under the ORM."""
+        future = fields.Date.context_today(registrant) + timedelta(days=30)
+        self.env.cr.execute("UPDATE res_partner SET birthdate = %s WHERE id = %s", (future, registrant.id))
+        registrant.invalidate_recordset(["birthdate"])
+        return future
 
     def _submitted_cr_without_detail(self, cr_type=None, registrant=None):
         cr_type = cr_type or self.edit_type
@@ -124,7 +143,7 @@ class TestFrozenDetailBinding(CRTestCase):
         submitted detail: that would turn an approved "clear these fields" into
         a no-op. The repair path does not need this write (see create-time prefill)."""
         _cr, detail = self._submitted_cr_with_empty_detail()
-        with self.assertRaises(UserError):
+        with self.assertRaisesRegex(UserError, "already been submitted for approval"):
             detail.prefill_from_registrant()
         self.assertFalse(detail.given_name)
 
@@ -145,6 +164,10 @@ class TestFrozenDetailBinding(CRTestCase):
     def test_repaired_detail_is_prefilled_without_a_write(self):
         """The repair creates the detail already populated, so a later approval
         applies nothing rather than clearing every mapped field."""
+        gender = self.env["spp.vocabulary.code"].search([("namespace_uri", "ilike", "gender")], limit=1)
+        if gender:
+            # A Many2one value: create() takes an id where write() also took a recordset.
+            self.test_individual.write({"gender_id": gender.id})
         cr = self._submitted_cr_without_detail()
         detail = cr._ensure_detail()
         expected = {
@@ -152,8 +175,44 @@ class TestFrozenDetailBinding(CRTestCase):
             for source, target in EDIT_INDIVIDUAL_MAPPINGS
             if getattr(self.test_individual, target)
         }
+        self.assertGreaterEqual(len(expected), 4, "fixture must hold enough values for this to assert anything")
+        if gender:
+            self.assertEqual(detail.gender_id, gender)
         for field_name, value in expected.items():
             self.assertEqual(detail[field_name], value, field_name)
+
+    def test_approving_a_repaired_request_changes_nothing(self):
+        """End to end: apply the repaired request and the registrant is untouched."""
+        before = {target: getattr(self.test_individual, target) for _source, target in EDIT_INDIVIDUAL_MAPPINGS}
+        cr = self._submitted_cr_without_detail()
+        cr._ensure_detail()
+        cr.sudo().write({"approval_state": "approved"})
+
+        cr.sudo().request_type_id.get_apply_strategy().apply(cr.sudo())
+
+        after = {target: getattr(self.test_individual, target) for _source, target in EDIT_INDIVIDUAL_MAPPINGS}
+        self.assertEqual(after, before)
+
+    def test_repair_refused_when_it_would_propose_a_change(self):
+        """A value the prefill declines to offer would be applied as "clear this
+        field" — the field-mapping strategy writes empties on purpose. A legacy
+        registrant holding a future date of birth is the shipped case: the
+        prefill drops it, so the rebuilt row would clear the DOB on approval.
+        The repair refuses instead, and the request keeps no detail row."""
+        future = self._plant_future_birthdate(self.test_individual)
+        cr = self._submitted_cr_without_detail()
+        with self.assertRaisesRegex(UserError, "cannot be reconstructed without proposing a change"):
+            cr._ensure_detail()
+        self.assertEqual(self.test_individual.birthdate, future, "the registrant is untouched")
+
+    def test_repair_in_draft_still_drops_a_future_birthdate(self):
+        """Before submission the row is editable, so the birthdate is simply left
+        empty for the user to correct — the 19.0.3.1.16 behaviour."""
+        self._plant_future_birthdate(self.test_individual)
+        cr = self.CR.create({"request_type_id": self.edit_type.id, "registrant_id": self.test_individual.id})
+        detail = cr.get_detail()
+        self.assertFalse(detail.birthdate)
+        self.assertEqual(detail.given_name, self.test_individual.given_name)
 
     # ------------------------------------------------------------------
     # Substitution must still be refused
