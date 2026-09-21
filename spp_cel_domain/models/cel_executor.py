@@ -1072,22 +1072,24 @@ class CelExecutor(models.AbstractModel):
         # Fallback: cannot split
         return [], child_plan
 
+    _LEGACY_METRIC_SERVICE_METHODS = ("evaluate", "enqueue_refresh_from_domain")
+
     def _legacy_metric_service(self):
         """The legacy metric evaluation service, or ``None`` when no module provides it.
 
-        The service was the ``spp.indicator`` model of the retired
-        ``spp_indicators`` module, exposing ``evaluate()`` and
-        ``enqueue_refresh_from_domain()``. OpenSPP2's ``spp_indicator`` reuses the
-        model name for an unrelated publishable-indicator configuration model, so
-        the presence of ``spp.indicator`` in the registry no longer means the
-        service is available. Probe the capability, not the name: with only the
-        name checked, every ``metric()`` over a variable whose cache is not fresh
-        raised ``AttributeError`` inside the executor wherever ``spp_indicator``
-        is installed, and the expression compiled to an error instead of the
-        graceful empty result.
+        Two unrelated things share the ``spp.indicator`` model name: the
+        evaluation service of the retired ``spp_indicators`` module, which this
+        executor calls, and OpenSPP2's ``spp_indicator`` publishable-indicator
+        configuration model, which must be treated as "no service". The probe
+        therefore checks for the service's methods on the model class rather
+        than for the name in the registry. Class-level lookup keeps it free of
+        field access checks: a field that happened to carry one of these names
+        resolves to a non-callable descriptor.
         """
         service = self.env.get("spp.indicator")
-        if service is None or not callable(getattr(service, "evaluate", None)):
+        if service is None:
+            return None
+        if not all(callable(getattr(type(service), name, None)) for name in self._LEGACY_METRIC_SERVICE_METHODS):
             return None
         return service
 
@@ -1200,6 +1202,10 @@ class CelExecutor(models.AbstractModel):
                 "SQL fast path requires fresh cache; subjects without a fresh cached value are left out.",
                 p.metric,
             )
+            if metrics_info is not None:
+                mi = dict(status)
+                mi.update({"metric": p.metric, "period_key": period_key, "path": "no_service"})
+                metrics_info.append(mi)
             return []
 
         default_mode = "refresh" if (base_count < async_threshold) else "fallback"
@@ -1615,6 +1621,10 @@ class CelExecutor(models.AbstractModel):
                 "[CEL Metrics] No evaluation service available for aggregate metric=%s",
                 p.metric,
             )
+            if metrics_info is not None:
+                metrics_info.append(
+                    {"metric": p.metric, "period_key": str(p.period_key or "default"), "path": "no_service"}
+                )
             return []
 
         values, stats = svc.evaluate(

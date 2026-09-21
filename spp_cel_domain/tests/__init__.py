@@ -32,6 +32,4 @@ from . import test_multi_company
 from . import test_cel_relational_predicate
 from . import test_cel_smart_op_lookup
 from . import test_cel_translator_cache
-
-# #443: legacy metric evaluation service probe
 from . import test_legacy_metric_service
