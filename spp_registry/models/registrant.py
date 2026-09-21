@@ -125,10 +125,14 @@ class SPPRegistrant(models.Model):
 
     @api.constrains("registration_date")
     def _check_registration_date(self):
-        # Bounded by the user's today (context_today), not the server's UTC
-        # date: a registrar east of UTC is on tomorrow's date for part of
-        # each day and must not be refused a registration made that morning.
-        # Same rule as _check_birthdate_not_future and the field's default.
+        """Registration date is bounded by the user's today and the birthdate.
+
+        The upper bound is the *user's* today (``fields.Date.context_today``),
+        not the server's UTC date: a registrar east of UTC is on tomorrow's
+        date for part of each day and must not be refused a registration
+        made that morning. Same rule as ``_check_birthdate_not_future`` and
+        the field's default.
+        """
         for record in self:
             if record.registration_date:
                 if record.registration_date > fields.Date.context_today(record):
