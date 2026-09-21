@@ -104,7 +104,10 @@ class SPPCRDetailBase(models.AbstractModel):
 
         Mirrors the view-level readonly (approval_state not in draft/revision) at
         the server so it cannot be bypassed via RPC. Editing requires resetting
-        the CR to draft, which re-routes the approval.
+        the CR to draft, which re-routes the approval. There is no exemption:
+        the registrant prefill of a repaired detail happens inside ``create()``
+        (``_ensure_detail`` passes ``_prefill_values()`` to it), so it never
+        reaches this guard.
         """
         for rec in self:
             change_request = rec.change_request_id
@@ -274,27 +277,37 @@ class SPPCRDetailBase(models.AbstractModel):
         """
         return {}
 
+    def _prefill_values(self):
+        """The registrant's current values for the fields in _get_prefill_mapping().
+
+        Works on a ``new()`` record as well as a stored one, so ``_ensure_detail``
+        can pass the result straight into ``create()``; only truthy registrant
+        values are included.
+        """
+        self.ensure_one()
+        if not self.registrant_id:
+            return {}
+
+        values = {}
+        for detail_field, registrant_field in self._get_prefill_mapping().items():
+            registrant_value = getattr(self.registrant_id, registrant_field, False)
+            if not registrant_value:
+                continue
+            if isinstance(registrant_value, models.BaseModel):
+                # create() takes an id where write() also accepts a recordset.
+                registrant_value = registrant_value.id
+            values[detail_field] = registrant_value
+        return values
+
     def prefill_from_registrant(self):
         """Pre-fill detail fields from registrant.
 
         This method updates the current record with values from the registrant
-        based on the mapping defined in _get_prefill_mapping().
+        based on the mapping defined in _get_prefill_mapping(). It is a write,
+        so on a submitted request the detail-level freeze applies to it.
 
         Override _get_prefill_mapping() in detail models to enable prefilling.
         """
-        self.ensure_one()
-        if not self.registrant_id:
-            return
-
-        mapping = self._get_prefill_mapping()
-        if not mapping:
-            return
-
-        values = {}
-        for detail_field, registrant_field in mapping.items():
-            registrant_value = getattr(self.registrant_id, registrant_field, False)
-            if registrant_value:
-                values[detail_field] = registrant_value
-
+        values = self._prefill_values()
         if values:
             self.write(values)
