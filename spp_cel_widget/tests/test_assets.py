@@ -28,7 +28,7 @@ BACKEND_TEST_BUNDLES = ("web.assets_web", "web.assets_tests")
 
 TOUR_FILE = "/spp_cel_widget/static/tests/tours/cel_widget_tour.js"
 
-ODOO_DEFINE_RE = re.compile(r"""odoo\.define\((['"])(?P<name>.+?)\1,\s*(?P<deps>\[.*?\])""")
+ODOO_DEFINE_RE = re.compile(r"""odoo\.define\(\s*(['"])(?P<name>.+?)\1,\s*(?P<deps>\[.*?\])""", re.DOTALL)
 
 
 def module_dependencies(url, content):
@@ -84,6 +84,19 @@ class TestAssetImportHelpers(BaseCase):
         self.assertEqual(
             defined_module_names("/web/static/lib/owl/odoo_module.js", content),
             {"@odoo/owl"},
+        )
+
+    def test_defined_module_names_reads_a_multi_line_hand_written_define(self):
+        # Mirrors spreadsheet/static/src/o_spreadsheet/odoo_module.js.
+        content = (
+            "// @odoo-module ignore\n\n"
+            'odoo.define(\n    "@odoo/o-spreadsheet",\n'
+            '    ["@web/core/l10n/translation", "@spreadsheet/o_spreadsheet/o_spreadsheet"],\n'
+            "    function (require) {\n        return {};\n    }\n);\n"
+        )
+        self.assertEqual(
+            defined_module_names("/spreadsheet/static/src/o_spreadsheet/odoo_module.js", content),
+            {"@odoo/o-spreadsheet"},
         )
 
 

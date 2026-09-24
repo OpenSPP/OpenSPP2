@@ -1405,7 +1405,7 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
       await page.goto("/odoo?debug=tests");
       await expect(page.locator(".o_main_navbar")).toBeVisible({timeout: 30_000});
       // Not "networkidle": the bus websocket worker request never finishes.
-      // Wait until the loader has defined web.assets_tests' first module and
+      // Wait until the loader has defined a module from web.assets_tests and
       // run its error check, which logs any errors synchronously.
       await page.waitForFunction(
         () => {
