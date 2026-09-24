@@ -8,7 +8,7 @@
  */
 
 import {registry} from "@web/core/registry";
-import {stepUtils} from "@web_tour/tour_service/tour_utils";
+import {stepUtils} from "@web_tour/tour_utils";
 
 /**
  * Tour 1: Basic Widget Rendering and Initialization
@@ -17,7 +17,6 @@ import {stepUtils} from "@web_tour/tour_service/tour_utils";
  * Verifies all UI components are present.
  */
 registry.category("web_tour.tours").add("cel_widget_basic_rendering", {
-    test: true,
     url: "/web",
     steps: () => [
         stepUtils.showAppsMenuItem(),
@@ -78,7 +77,6 @@ registry.category("web_tour.tours").add("cel_widget_basic_rendering", {
  * Tests the autocomplete functionality by typing 'me.' and selecting a field.
  */
 registry.category("web_tour.tours").add("cel_widget_autocomplete", {
-    test: true,
     url: "/web",
     steps: () => [
         stepUtils.showAppsMenuItem(),
@@ -142,7 +140,6 @@ registry.category("web_tour.tours").add("cel_widget_autocomplete", {
  * Tests that entering a valid expression shows success validation feedback.
  */
 registry.category("web_tour.tours").add("cel_widget_validation_success", {
-    test: true,
     url: "/web",
     steps: () => [
         stepUtils.showAppsMenuItem(),
@@ -209,7 +206,6 @@ registry.category("web_tour.tours").add("cel_widget_validation_success", {
  * Tests that entering an invalid expression shows error feedback.
  */
 registry.category("web_tour.tours").add("cel_widget_validation_error", {
-    test: true,
     url: "/web",
     steps: () => [
         stepUtils.showAppsMenuItem(),
@@ -272,7 +268,6 @@ registry.category("web_tour.tours").add("cel_widget_validation_error", {
  * Tests opening the symbol browser, navigating tabs, searching, and inserting symbols.
  */
 registry.category("web_tour.tours").add("cel_widget_symbol_browser", {
-    test: true,
     url: "/web",
     steps: () => [
         stepUtils.showAppsMenuItem(),
@@ -395,7 +390,6 @@ registry.category("web_tour.tours").add("cel_widget_symbol_browser", {
  * Tests the search/filter functionality within the symbol browser.
  */
 registry.category("web_tour.tours").add("cel_widget_symbol_search", {
-    test: true,
     url: "/web",
     steps: () => [
         stepUtils.showAppsMenuItem(),
@@ -478,7 +472,6 @@ registry.category("web_tour.tours").add("cel_widget_symbol_search", {
  * Tests that clicking the autocomplete button (Ctrl+Space alternative) works.
  */
 registry.category("web_tour.tours").add("cel_widget_manual_autocomplete", {
-    test: true,
     url: "/web",
     steps: () => [
         stepUtils.showAppsMenuItem(),
@@ -538,7 +531,6 @@ registry.category("web_tour.tours").add("cel_widget_manual_autocomplete", {
  * Tests that the widget properly disables editing in readonly mode.
  */
 registry.category("web_tour.tours").add("cel_widget_readonly", {
-    test: true,
     url: "/web",
     steps: () => [
         stepUtils.showAppsMenuItem(),
@@ -582,7 +574,6 @@ registry.category("web_tour.tours").add("cel_widget_readonly", {
  * Tests that empty expressions don't show validation errors initially.
  */
 registry.category("web_tour.tours").add("cel_widget_empty_validation", {
-    test: true,
     url: "/web",
     steps: () => [
         stepUtils.showAppsMenuItem(),
@@ -656,7 +647,6 @@ registry.category("web_tour.tours").add("cel_widget_empty_validation", {
  * Tests entering a complex expression with operators, functions, and field access.
  */
 registry.category("web_tour.tours").add("cel_widget_complex_expression", {
-    test: true,
     url: "/web",
     steps: () => [
         stepUtils.showAppsMenuItem(),

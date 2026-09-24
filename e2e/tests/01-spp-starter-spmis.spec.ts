@@ -30,11 +30,14 @@
 //        (200_individuals.xlsx) and confirms the pager reflects the new count
 //   23 - Imports 200 group registrants in bulk via the Import records wizard
 //        (200_groups.xlsx) and confirms the pager reflects the new count
+//   24 - Opens the backend with the test assets loaded (?debug=tests) and confirms Odoo's
+//        JavaScript module loader reports no errors, since one bad import in any installed
+//        module's web.assets_tests fails every backend tour
 //
 // All tests run in order and share a single browser session (test.describe.serial).
 // A fresh Docker stack is spun up in beforeAll so every run starts from a clean database.
 
-import {test, expect, Page, Browser} from "@playwright/test";
+import {test, expect, Page, Browser, ConsoleMessage} from "@playwright/test";
 import {resetStack} from "./helpers";
 import * as path from "path";
 
@@ -1370,6 +1373,60 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     );
     await expect(page.getByLabel("Pager")).toContainText("200");
     console.log("✅ Imported 200 group registrants, pager confirms count");
+
+    await logout(page);
+    console.log("✅ Admin logged out");
+  });
+
+  test("24 - backend test assets load without JavaScript module errors", async () => {
+    // Odoo's module loader (web/static/src/module_loader.js) logs these console
+    // errors when a module imports something no loaded file defines, e.g. an
+    // import path from an older Odoo version. The tour runner fails on any
+    // console error, so one bad import in web.assets_tests breaks every tour.
+    const moduleLoaderError =
+      /needed by other modules but have not been defined|failed to load because of an error|form a dependency cycle|have unmet dependencies/;
+    const loaderErrors: Promise<string>[] = [];
+    const onConsole = (msg: ConsoleMessage) => {
+      if (msg.type() === "error" && moduleLoaderError.test(msg.text())) {
+        // The module names are in the array argument, not in msg.text().
+        loaderErrors.push(
+          Promise.all(msg.args().map((arg) => arg.jsonValue())).then((args) =>
+            JSON.stringify(args)
+          )
+        );
+      }
+    };
+
+    await login(page);
+    console.log("✅ Logged in as admin");
+
+    page.on("console", onConsole);
+    try {
+      await page.goto("/odoo?debug=tests");
+      await expect(page.locator(".o_main_navbar")).toBeVisible({timeout: 30_000});
+      // Not "networkidle": the bus websocket worker request never finishes.
+      // Wait until the loader has defined a module from web.assets_tests and
+      // run its error check, which logs any errors synchronously.
+      await page.waitForFunction(
+        () => {
+          const loader = (window as any).odoo.loader;
+          return (
+            loader.factories.has("@web/../tests/legacy/utils") &&
+            loader.checkErrorProm === null
+          );
+        },
+        null,
+        {timeout: 30_000}
+      );
+      await page.waitForLoadState("load");
+
+      expect(await Promise.all(loaderErrors)).toEqual([]);
+      // In debug mode the loader also injects this style as a red page banner.
+      await expect(page.locator("style.o_module_error_banner")).toHaveCount(0);
+      console.log("✅ Test assets loaded with no module loader errors");
+    } finally {
+      page.off("console", onConsole);
+    }
 
     await logout(page);
     console.log("✅ Admin logged out");
