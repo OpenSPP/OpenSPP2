@@ -33,7 +33,7 @@ from ..services.api_audit_service import ApiAuditService
 from ..services.consent_service import ConsentService
 from ..services.field_filter import filter_fields, filter_list
 from ..services.individual_service import IndividualService
-from ..services.search_service import SearchService
+from ..services.search_service import InvalidSearchParam, SearchService
 from ..utils.pagination import fetch_with_consent
 from .dependencies import check_individual_access, parse_identifier
 
@@ -214,7 +214,10 @@ async def search_individuals(
 
     def search_function(offset, limit):
         search_params = {**params, "_count": limit, "_offset": offset}
-        return search_service.search_individuals(search_params)
+        try:
+            return search_service.search_individuals(search_params)
+        except InvalidSearchParam as e:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
 
     def consent_filter_function(partner):
         data = individual_service.to_api_schema(partner, extensions=extension_list)

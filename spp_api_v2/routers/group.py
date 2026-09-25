@@ -41,7 +41,7 @@ from ..services.api_audit_service import ApiAuditService
 from ..services.consent_service import ConsentService
 from ..services.field_filter import filter_fields, filter_list
 from ..services.group_service import GroupService
-from ..services.search_service import SearchService
+from ..services.search_service import InvalidSearchParam, SearchService
 from ..utils.pagination import fetch_with_consent
 from .dependencies import check_group_access, parse_identifier, parse_resource_reference
 
@@ -199,7 +199,10 @@ async def search_groups(
 
     def search_function(offset, limit):
         search_params = {**params, "_count": limit, "_offset": offset}
-        return search_service.search_groups(search_params)
+        try:
+            return search_service.search_groups(search_params)
+        except InvalidSearchParam as e:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
 
     def consent_filter_function(group):
         group_data = group_service.to_api_schema(group, extensions=extension_list)

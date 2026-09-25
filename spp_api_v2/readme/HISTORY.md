@@ -1,3 +1,8 @@
+### 19.0.2.2.0
+
+- fix: search filters fail closed (#554). A filter that names nothing (an unknown `group`, `gender`, `membership-role` or `member`) now returns no results instead of silently dropping out and returning the whole registry. Malformed filters (`identifier`, `group`, `gender`, `birthdate`, `_lastUpdated` without the expected format; `member` not an `Individual/{system}|{value}` reference) return `400` on `GET /Individual` and `GET /Group`.
+- fix: multi-condition search filters apply to one related row (#554). `GET /Individual?group=` no longer lists someone who left the group but is active in another; `membership-role=` requires the role on an active membership; `identifier=` requires system and value on the same ID. Behaviour change: `GET /Group?member=` now lists only groups the individual is an active member of.
+
 ### 19.0.2.1.1
 
 - chore(api_v2): the API V2 configuration menu moved from Registry > Configuration to Settings > Registry, alongside the other superuser configuration (#1009)
