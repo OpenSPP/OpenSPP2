@@ -3,14 +3,24 @@
 
 import logging
 from typing import Annotated
+from urllib.parse import quote
 
 from odoo.api import Environment
+from odoo.exceptions import ValidationError
 
 from odoo.addons.fastapi.dependencies import odoo_env
 from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
 from odoo.addons.spp_api_v2.schemas.search_result import SearchResult, create_search_result
 from odoo.addons.spp_api_v2.services.consent_service import ConsentService
+from odoo.addons.spp_api_v2.services.registrant_resolver import AmbiguousIdentifierError
 from odoo.addons.spp_api_v2.utils.pagination import fetch_with_consent
+from odoo.addons.spp_api_v2.utils.registrant_lookup import (
+    ambiguous_filter_result,
+    consent_denied,
+    deny_access,
+    lookup_registrant,
+    raise_ambiguous_identifier,
+)
 
 from fastapi import (
     APIRouter,
@@ -25,24 +35,101 @@ from fastapi import (
 )
 
 from ..schemas.program_membership import ProgramMembership
-from ..services.program_membership_service import ProgramMembershipService
+from ..services.program_membership_service import AmbiguousMembershipError, ProgramMembershipService
 
 _logger = logging.getLogger(__name__)
 
 program_membership_router = APIRouter(tags=["ProgramMembership"], prefix="/ProgramMembership")
 
+PROGRAM_PARAM_DESCRIPTION = (
+    "Program of the membership (format: Program/{system}|{value}). "
+    "Required when the beneficiary is enrolled in more than one program."
+)
+
+
+def _resolve_program_param(service, program):
+    """Resolve the ``program`` query parameter: 400 if malformed, 404 if unknown."""
+    if not program:
+        return None
+    try:
+        program_record = service._parse_program_reference(program)
+    except ValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=e.args[0],
+        ) from e
+    if not program_record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Program not found",
+        )
+    return program_record
+
+
+async def _resolve_membership(env, api_client, service, system, value, program_record):
+    """Resolve the addressed membership, or raise what the client may be told.
+
+    When no single membership resolves, a client that may not read the
+    beneficiary gets the same jittered 403 whatever the reason (unknown
+    beneficiary, not enrolled in this program, several memberships), so
+    neither the registry's contents nor enrollments are revealed.
+    """
+    partner = await lookup_registrant(
+        env, api_client, service.find_beneficiary, system, value, resource_type="program_membership"
+    )
+    if not partner:
+        if api_client.is_require_consent:
+            await deny_access()
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="ProgramMembership not found",
+        )
+
+    ambiguous = None
+    try:
+        membership = service.find_for_beneficiary(partner, program_record)
+    except AmbiguousMembershipError as e:
+        membership = env["spp.program.membership"]
+        ambiguous = e
+
+    if not membership:
+        if consent_denied(env, api_client, partner, "program_membership"):
+            await deny_access()
+        if ambiguous:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=str(ambiguous),
+            )
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="ProgramMembership not found",
+        )
+    return membership
+
+
+def _membership_location(data: dict) -> str | None:
+    """Location of a membership: beneficiary identifier plus program, URL-encoded."""
+    if not data.get("identifier"):
+        return None
+    primary_id = data["identifier"][0]
+    path_id = f"{quote(primary_id['system'], safe=':')}|{quote(primary_id['value'], safe='')}"
+    program_ref = quote(data["program"]["reference"], safe=":/|")
+    return f"/api/v2/spp/ProgramMembership/{path_id}?program={program_ref}"
+
 
 @program_membership_router.get("/{identifier}", response_model=ProgramMembership)
 async def read_program_membership(
-    identifier: Annotated[str, Path(description="Format: {system}|{value} (URL-encoded)")],
+    identifier: Annotated[str, Path(description="Beneficiary identifier. Format: {system}|{value} (URL-encoded)")],
     env: Annotated[Environment, Depends(odoo_env)],
     api_client: Annotated[dict, Depends(get_authenticated_client)],
     response: Response,
+    program: Annotated[str | None, Query(description=PROGRAM_PARAM_DESCRIPTION)] = None,
 ):
     """
-    Read ProgramMembership by external identifier.
+    Read ProgramMembership by beneficiary identifier and, optionally, program.
 
-    Applies consent filtering for beneficiary data.
+    Returns 409 when the beneficiary has several memberships and no
+    ``program`` is given. Applies consent filtering for beneficiary data.
     """
     # Check scope
     if not api_client.has_scope("program_membership", "read"):
@@ -60,21 +147,16 @@ async def read_program_membership(
 
     system, value = identifier.split("|", 1)
 
-    # Find program membership by namespace_uri + value
     service = ProgramMembershipService(env)
-    membership = service.find_by_identifier(system, value)
+    consent_service = ConsentService(env)
+    program_record = _resolve_program_param(service, program)
 
-    if not membership:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="ProgramMembership not found",
-        )
+    membership = await _resolve_membership(env, api_client, service, system, value, program_record)
 
     # Convert to API schema
     data = service.to_api_schema(membership)
 
     # Apply consent filtering for the beneficiary
-    consent_service = ConsentService(env)
     filtered_data = consent_service.filter_response(
         membership.partner_id.id,
         api_client,
@@ -154,6 +236,9 @@ async def search_program_memberships(
         search_params = {**params, "_count": limit, "_offset": offset}
         try:
             return service.search(search_params)
+        except AmbiguousIdentifierError as e:
+            # The beneficiary filter matches more than one registrant
+            return ambiguous_filter_result(env, api_client, e, env["spp.program.membership"], "program_membership")
         except Exception as e:
             _logger.warning("Error in program membership search: %s", e)
             raise HTTPException(
@@ -262,6 +347,9 @@ async def create_program_membership(
 
     try:
         membership = service.create(program_membership, source=source_system)
+    except AmbiguousIdentifierError as e:
+        # The beneficiary reference matches more than one registrant
+        await raise_ambiguous_identifier(env, api_client, e, "program_membership")
     except Exception as e:
         _logger.exception("Error creating program membership")
         raise HTTPException(
@@ -273,9 +361,8 @@ async def create_program_membership(
     data = service.to_api_schema(membership)
 
     # Set Location header
-    if data.get("identifier"):
-        primary_id = data["identifier"][0]
-        location = f"/api/v2/spp/ProgramMembership/{primary_id['system']}|{primary_id['value']}"
+    location = _membership_location(data)
+    if location:
         response.headers["Location"] = location
 
     return data
@@ -283,11 +370,12 @@ async def create_program_membership(
 
 @program_membership_router.put("/{identifier}", response_model=ProgramMembership)
 async def update_program_membership(
-    identifier: Annotated[str, Path()],
+    identifier: Annotated[str, Path(description="Beneficiary identifier. Format: {system}|{value} (URL-encoded)")],
     program_membership: ProgramMembership,
     env: Annotated[Environment, Depends(odoo_env)],
     api_client: Annotated[dict, Depends(get_authenticated_client)],
     if_match: Annotated[str | None, Header()] = None,
+    program: Annotated[str | None, Query(description=PROGRAM_PARAM_DESCRIPTION)] = None,
 ):
     """
     Update ProgramMembership (full replacement).
@@ -296,6 +384,10 @@ async def update_program_membership(
     - Requires If-Match header with version ID for optimistic locking
     - Updates with source tracking
     - Checks client scopes for update permission
+    - Returns 409 when the beneficiary has several memberships and no
+      ``program`` is given
+    - The body's program and beneficiary must match the addressed
+      membership (422 otherwise); a PUT never moves a membership
     """
     # Check client has update scope
     if not api_client.has_scope("program_membership", "update"):
@@ -315,17 +407,12 @@ async def update_program_membership(
 
     # Find program membership
     service = ProgramMembershipService(env)
-    membership = service.find_by_identifier(system, value)
+    program_record = _resolve_program_param(service, program)
+    membership = await _resolve_membership(env, api_client, service, system, value, program_record)
 
-    if not membership:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="ProgramMembership not found",
-        )
-
-    # Check version for optimistic locking
+    # Check version for optimistic locking (same format as meta.versionId / ETag)
     if if_match:
-        current_version = str(membership.write_date.timestamp() if membership.write_date else 1)
+        current_version = str(int(membership.write_date.timestamp() * 1000000)) if membership.write_date else "1"
         if_match_clean = if_match.strip('"')
         if if_match_clean != current_version:
             raise HTTPException(
@@ -338,6 +425,15 @@ async def update_program_membership(
 
     try:
         membership = service.update(membership, program_membership, source=source_system)
+    except AmbiguousIdentifierError as e:
+        # The body's beneficiary reference matches more than one registrant
+        await raise_ambiguous_identifier(env, api_client, e, "program_membership")
+    except ValidationError as e:
+        # Client error (unknown reference, identity mismatch): no traceback
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Failed to update program membership: {e.args[0]}",
+        ) from e
     except Exception as e:
         _logger.exception("Error updating program membership")
         raise HTTPException(

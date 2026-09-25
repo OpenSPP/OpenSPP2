@@ -8,7 +8,17 @@ from typing import Any
 from odoo.api import Environment
 from odoo.osv import expression
 
+from .registrant_resolver import LIVE_ID, resolve_registrant
+
 _logger = logging.getLogger(__name__)
+
+# A filter that names nothing (unknown group, role, gender, member) must
+# narrow the result to nothing, never drop out and widen it.
+MATCH_NOTHING = [("id", "=", 0)]
+
+
+class InvalidSearchParam(ValueError):
+    """A search parameter is malformed; the API answers 400."""
 
 
 class SearchService:
@@ -125,35 +135,7 @@ class SearchService:
             domain.append(("name", "ilike", params["name"]))
 
         if params.get("member"):
-            # Search for groups with specific member
-            member_ref = params["member"]
-            if member_ref.startswith("Individual/"):
-                ident_str = member_ref.replace("Individual/", "")
-                if "|" in ident_str:
-                    system, value = ident_str.split("|", 1)
-                    # Find individual first
-                    # Use id_type_id.uri (full URI with code) instead of namespace_uri
-                    # (which only contains the vocabulary namespace)
-                    reg_id = (
-                        self.env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
-                        .sudo()
-                        .search(
-                            [
-                                ("id_type_id.uri", "=", system),
-                                ("value", "=", value),
-                            ],
-                            limit=1,
-                        )
-                    )
-                    if reg_id:
-                        # Search via group_membership_ids relationship
-                        domain.append(
-                            (
-                                "group_membership_ids.individual",
-                                "=",
-                                reg_id.partner_id.id,
-                            )
-                        )
+            domain.extend(self._parse_member_param(params["member"]))
 
         # Execute search with sudo() to access registry.id via domain
         Partner = self.env["res.partner"]
@@ -184,16 +166,24 @@ class SearchService:
         Returns Odoo domain for identifier search.
         """
         if "|" not in identifier:
-            _logger.warning("Invalid identifier format: %s", identifier)
-            return []
+            raise InvalidSearchParam("Invalid identifier format. Expected: {system}|{value}")
 
         system, value = identifier.split("|", 1)
 
         # Search via registry.id with id_type_id.uri (full code URI)
         # Format: urn:openspp:vocab:id-type#national_id|VALUE
+        # "any" keeps both conditions on the same registry ID; two dotted
+        # leaves would match a system from one ID and a value from another.
         return [
-            ("reg_ids.id_type_id.uri", "=", system),
-            ("reg_ids.value", "=", value),
+            (
+                "reg_ids",
+                "any",
+                [
+                    ("id_type_id.uri", "=", system),
+                    ("value", "=", value),
+                    LIVE_ID,
+                ],
+            )
         ]
 
     def _parse_date_param(self, field: str, value: str) -> list:
@@ -229,9 +219,10 @@ class SearchService:
             # Try to parse as date
             parsed_date = datetime.strptime(date_str, "%Y-%m-%d").date()
             return [(field, operator, parsed_date)]
-        except ValueError:
-            _logger.warning("Invalid date format: %s", date_str)
-            return []
+        except ValueError as e:
+            raise InvalidSearchParam(
+                f"Invalid date for {field}: expected an optional prefix (eq, ne, gt, ge, lt, le) and YYYY-MM-DD"
+            ) from e
 
     def _parse_gender_param(self, gender: str) -> list:
         """
@@ -240,7 +231,7 @@ class SearchService:
         Returns domain for gender_id search.
         """
         if "|" not in gender:
-            return []
+            raise InvalidSearchParam("Invalid gender format. Expected: {system}|{code}")
 
         system, code = gender.split("|", 1)
 
@@ -260,7 +251,7 @@ class SearchService:
         if gender_code:
             return [("gender_id", "=", gender_code.id)]
 
-        return []
+        return MATCH_NOTHING
 
     def _parse_group_param(self, group: str) -> list:
         """
@@ -281,35 +272,27 @@ class SearchService:
 
         # Standard case: filter by specific group
         if "|" not in group:
-            _logger.warning("Invalid group identifier format: %s", group)
-            return []
+            raise InvalidSearchParam('Invalid group format. Expected: {system}|{value} or "none"')
 
         system, value = group.split("|", 1)
 
-        # Find group by identifier
-        # Use id_type_id.uri (full URI with code) instead of namespace_uri
-        # (which only contains the vocabulary namespace)
-        reg_id = (
-            self.env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
-            .sudo()
-            .search(
-                [
-                    ("id_type_id.uri", "=", system),
-                    ("value", "=", value),
-                ],
-                limit=1,
-            )
-        )
+        # Find group by identifier (raises AmbiguousIdentifierError when
+        # several groups hold it)
+        group_partner = resolve_registrant(self.env, system, value, is_group=True)
+        if not group_partner:
+            return MATCH_NOTHING
 
-        if not reg_id or not reg_id.partner_id.is_group:
-            _logger.warning("Group not found for identifier: %s", group)
-            return []
-
-        # Find individuals who are members of this group
-        # Use individual_membership_ids relationship
+        # Find individuals with an active membership in this group; "any"
+        # keeps both conditions on the same membership row
         return [
-            ("individual_membership_ids.group", "=", reg_id.partner_id.id),
-            ("individual_membership_ids.is_ended", "=", False),
+            (
+                "individual_membership_ids",
+                "any",
+                [
+                    ("group", "=", group_partner.id),
+                    ("is_ended", "=", False),
+                ],
+            )
         ]
 
     def _parse_membership_role_param(self, role: str) -> list:
@@ -335,13 +318,47 @@ class SearchService:
         )
 
         if not role_code:
-            _logger.warning("Membership role not found: %s", role)
-            return []
+            return MATCH_NOTHING
 
-        # Find individuals with this membership role in any active group
+        # Find individuals holding this role on an active membership; "any"
+        # keeps both conditions on the same membership row
         return [
-            ("individual_membership_ids.membership_type_ids", "in", role_code.id),
-            ("individual_membership_ids.is_ended", "=", False),
+            (
+                "individual_membership_ids",
+                "any",
+                [
+                    ("membership_type_ids", "in", role_code.id),
+                    ("is_ended", "=", False),
+                ],
+            )
+        ]
+
+    def _parse_member_param(self, member: str) -> list:
+        """
+        Parse the groups ``member`` parameter (format: Individual/{system}|{value}).
+
+        Returns domain for groups with an active membership of that individual.
+        """
+        ident_str = member.removeprefix("Individual/")
+        if ident_str == member or "|" not in ident_str:
+            raise InvalidSearchParam("Invalid member format. Expected: Individual/{system}|{value}")
+
+        system, value = ident_str.split("|", 1)
+
+        # Raises AmbiguousIdentifierError when several individuals hold it
+        member_partner = resolve_registrant(self.env, system, value, is_group=False)
+        if not member_partner:
+            return MATCH_NOTHING
+
+        return [
+            (
+                "group_membership_ids",
+                "any",
+                [
+                    ("individual", "=", member_partner.id),
+                    ("is_ended", "=", False),
+                ],
+            )
         ]
 
     def _parse_sort_param(self, sort: str | None) -> str:

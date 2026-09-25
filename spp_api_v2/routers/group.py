@@ -41,8 +41,14 @@ from ..services.api_audit_service import ApiAuditService
 from ..services.consent_service import ConsentService
 from ..services.field_filter import filter_fields, filter_list
 from ..services.group_service import GroupService
-from ..services.search_service import SearchService
+from ..services.registrant_resolver import AmbiguousIdentifierError, IdentifierInUseError
+from ..services.search_service import InvalidSearchParam, SearchService
 from ..utils.pagination import fetch_with_consent
+from ..utils.registrant_lookup import (
+    ambiguous_filter_result,
+    lookup_registrant,
+    raise_ambiguous_identifier,
+)
 from .dependencies import check_group_access, parse_identifier, parse_resource_reference
 
 _logger = logging.getLogger(__name__)
@@ -82,7 +88,7 @@ async def read_group(
 
     # Find group
     service = GroupService(env)
-    group = service.find_by_identifier(system, value)
+    group = await lookup_registrant(env, api_client, service.find_by_identifier, system, value)
 
     # SECURITY: Prevent user enumeration
     # For clients requiring consent, return same error for "not found" and "no consent"
@@ -199,7 +205,13 @@ async def search_groups(
 
     def search_function(offset, limit):
         search_params = {**params, "_count": limit, "_offset": offset}
-        return search_service.search_groups(search_params)
+        try:
+            return search_service.search_groups(search_params)
+        except InvalidSearchParam as e:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
+        except AmbiguousIdentifierError as e:
+            # A filter reference (member=) matches more than one registrant
+            return ambiguous_filter_result(env, api_client, e, env["res.partner"])
 
     def consent_filter_function(group):
         group_data = group_service.to_api_schema(group, extensions=extension_list)
@@ -282,6 +294,20 @@ async def create_group(
         # api_authorized=True tells service to skip user group check since
         # API client scope (verified above) is the authorization for API calls
         group_record = service.create(group, source=source_system, api_authorized=True)
+    except IdentifierInUseError as e:
+        # Another registrant holds one of the identifiers: creating a second
+        # would leave neither addressable unambiguously
+        audit_service.log_create(
+            "group",
+            group.identifier[0].system + "|" + group.identifier[0].value if group.identifier else "unknown",
+            None,
+            status="validation_error",
+            error_detail="Identifier in use",
+        )
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=e.args[0]) from e
+    except AmbiguousIdentifierError as e:
+        # A member reference matches more than one individual
+        await raise_ambiguous_identifier(env, api_client, e)
     except ValidationError as ve:
         _logger.warning("Validation error creating group: %s", ve)
         raise HTTPException(
@@ -340,7 +366,7 @@ async def update_group(
 
     # Find group
     service = GroupService(env)
-    group_record = service.find_by_identifier(system, value)
+    group_record = await lookup_registrant(env, api_client, service.find_by_identifier, system, value)
 
     # SECURITY: Prevent user enumeration
     if not group_record:
@@ -435,7 +461,7 @@ async def patch_group(
     # Parse identifier and find group
     system, value = parse_identifier(identifier)
     service = GroupService(env)
-    group_record = service.find_by_identifier(system, value)
+    group_record = await lookup_registrant(env, api_client, service.find_by_identifier, system, value)
 
     # Security checks (enumeration prevention + consent)
     await check_group_access(group_record, api_client, env, "update")
@@ -506,7 +532,7 @@ async def add_member(
     # Parse identifier and find group
     system, value = parse_identifier(identifier)
     service = GroupService(env)
-    group = service.find_by_identifier(system, value)
+    group = await lookup_registrant(env, api_client, service.find_by_identifier, system, value)
 
     # Security checks (enumeration prevention + consent)
     await check_group_access(group, api_client, env, "update")
@@ -515,7 +541,7 @@ async def add_member(
     ind_system, ind_value = parse_resource_reference(request.entity.reference, "Individual")
 
     # Find individual
-    individual = service._find_individual(ind_system, ind_value)
+    individual = await lookup_registrant(env, api_client, service._find_individual, ind_system, ind_value)
     if not individual:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -577,7 +603,7 @@ async def remove_member(
     # Parse identifier and find group
     system, value = parse_identifier(identifier)
     service = GroupService(env)
-    group = service.find_by_identifier(system, value)
+    group = await lookup_registrant(env, api_client, service.find_by_identifier, system, value)
 
     # Security checks (enumeration prevention + consent)
     await check_group_access(group, api_client, env, "update")
@@ -586,7 +612,7 @@ async def remove_member(
     ind_system, ind_value = parse_resource_reference(request.entity.reference, "Individual")
 
     # Find individual
-    individual = service._find_individual(ind_system, ind_value)
+    individual = await lookup_registrant(env, api_client, service._find_individual, ind_system, ind_value)
     if not individual:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -643,13 +669,13 @@ async def update_member(
 
     # Find group
     service = GroupService(env)
-    group = service.find_by_identifier(system, value)
+    group = await lookup_registrant(env, api_client, service.find_by_identifier, system, value)
 
     # Security checks (enumeration prevention + consent)
     await check_group_access(group, api_client, env, "update")
 
     # Find individual
-    individual = service._find_individual(ind_system, ind_value)
+    individual = await lookup_registrant(env, api_client, service._find_individual, ind_system, ind_value)
     if not individual:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -719,8 +745,8 @@ async def merge_groups(
 
     # Find groups
     service = GroupService(env)
-    source_group = service.find_by_identifier(source_system, source_value)
-    target_group = service.find_by_identifier(target_system, target_value)
+    source_group = await lookup_registrant(env, api_client, service.find_by_identifier, source_system, source_value)
+    target_group = await lookup_registrant(env, api_client, service.find_by_identifier, target_system, target_value)
 
     # Security checks for both groups (with specific error messages)
     if not source_group:
@@ -804,7 +830,7 @@ async def split_group(
     # Parse identifier and find source group
     system, value = parse_identifier(identifier)
     service = GroupService(env)
-    source_group = service.find_by_identifier(system, value)
+    source_group = await lookup_registrant(env, api_client, service.find_by_identifier, system, value)
 
     # Security checks (enumeration prevention + consent)
     await check_group_access(source_group, api_client, env, "update")
@@ -822,7 +848,7 @@ async def split_group(
         ind_system, ind_value = parse_resource_reference(member_ref.reference, "Individual")
 
         # Find individual
-        individual = service._find_individual(ind_system, ind_value)
+        individual = await lookup_registrant(env, api_client, service._find_individual, ind_system, ind_value)
         if not individual:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -850,7 +876,7 @@ async def split_group(
         head_system, head_value = head_ident_str.split("|", 1)
 
         # Find new head individual
-        new_head = service._find_individual(head_system, head_value)
+        new_head = await lookup_registrant(env, api_client, service._find_individual, head_system, head_value)
         if not new_head:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -870,6 +896,9 @@ async def split_group(
             new_head=new_head,
             source=source_system,
         )
+    except IdentifierInUseError as e:
+        # The new group's identifier is already held by another registrant
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=e.args[0]) from e
     except Exception as e:
         _logger.exception("Error splitting group")
         # Check for specific validation errors
@@ -936,7 +965,7 @@ async def get_membership_history(
     # Parse identifier and find group
     system, value = parse_identifier(identifier)
     service = GroupService(env)
-    group = service.find_by_identifier(system, value)
+    group = await lookup_registrant(env, api_client, service.find_by_identifier, system, value)
 
     # Security checks (enumeration prevention + consent)
     await check_group_access(group, api_client, env, "read")

@@ -13,6 +13,7 @@ from ..schemas.group import Group
 from ..schemas.individual import Individual
 from .group_service import GroupService
 from .individual_service import IndividualService
+from .registrant_resolver import AmbiguousIdentifierError, IdentifierInUseError
 
 _logger = logging.getLogger(__name__)
 
@@ -580,7 +581,12 @@ class BundleProcessor:
             Dict with status and OperationOutcome
         """
         # Determine status code based on exception type
-        if isinstance(exception, ValidationError):
+        if isinstance(exception, AmbiguousIdentifierError | IdentifierInUseError):
+            # The identifier matches, or would match, more than one registrant
+            status_code = "409 Conflict"
+            severity = "error"
+            code = "conflict"
+        elif isinstance(exception, ValidationError):
             status_code = "422 Unprocessable Entity"
             severity = "error"
             code = "invalid"

@@ -5,7 +5,7 @@ import logging
 from datetime import datetime, time
 from typing import Any
 
-from odoo import Command, _
+from odoo import Command, _, fields
 from odoo.api import Environment
 from odoo.exceptions import AccessError, ValidationError
 
@@ -14,6 +14,13 @@ from ..schemas.group import Group
 from ..schemas.membership import MembershipHistoryEntry
 from ..schemas.patch import GroupPatch
 from .membership_utils import membership_to_response
+from .registrant_resolver import (
+    assert_new_identifiers_free,
+    live_registry_ids,
+    primary_registry_id,
+    resolve_registrant,
+    resolve_registrants,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -33,25 +40,13 @@ class GroupService:
             value: Identifier value
 
         Returns:
-            res.partner record (group) or empty recordset (in sudo context)
+            res.partner record (group) or empty recordset (in sudo context -
+            API handlers run as Public user)
+
+        Raises:
+            AmbiguousIdentifierError: several groups hold the identifier
         """
-        reg_id = (
-            self.env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
-            .sudo()
-            .search(
-                [
-                    ("id_type_id.uri", "=", system_uri),
-                    ("value", "=", value),
-                    ("partner_id.is_group", "=", True),
-                ],
-                limit=1,
-            )
-        )
-        if reg_id and reg_id.partner_id:
-            # Return sudo partner - API handlers run as Public user
-            # nosemgrep: odoo-sudo-without-context, odoo-sudo-on-sensitive-models
-            return self.env["res.partner"].sudo().browse(reg_id.partner_id.id)
-        return self.env["res.partner"].sudo()  # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context
+        return resolve_registrant(self.env, system_uri, value, is_group=True)
 
     def find_by_identifiers(self, identifiers: list[tuple[str, str]]):
         """
@@ -61,38 +56,11 @@ class GroupService:
             identifiers: List of (system_uri, value) tuples
 
         Returns:
-            Dict mapping "system_uri|value" to res.partner record (or None)
+            Dict mapping "system_uri|value" to the res.partner record (sudo),
+            or to an AmbiguousIdentifierError when several groups hold it;
+            identifiers with no match are absent
         """
-        if not identifiers:
-            return {}
-
-        # Build OR domain for batch search
-        or_domains = []
-        for system_uri, value in identifiers:
-            or_domains.append("&")
-            or_domains.append(("id_type_id.uri", "=", system_uri))
-            or_domains.append(("value", "=", value))
-
-        # Combine with OR
-        if len(identifiers) > 1:
-            domain = ["|"] * (len(identifiers) - 1) + or_domains
-        else:
-            domain = or_domains
-
-        # Add is_group filter
-        domain = ["&", ("partner_id.is_group", "=", True)] + domain
-
-        reg_ids = self.env["spp.registry.id"].sudo().search(domain)  # nosemgrep: odoo-sudo-without-context
-
-        # Build result map
-        result = {}
-        for reg_id in reg_ids:
-            key = f"{reg_id.id_type_id.uri}|{reg_id.value}"
-            if reg_id.partner_id:
-                # nosemgrep: odoo-sudo-without-context, odoo-sudo-on-sensitive-models
-                result[key] = self.env["res.partner"].sudo().browse(reg_id.partner_id.id)
-
-        return result
+        return resolve_registrants(self.env, identifiers, is_group=True)
 
     def to_api_schema(self, group, extensions=None) -> dict[str, Any]:
         """
@@ -110,7 +78,8 @@ class GroupService:
 
         # Build identifier list
         identifiers = []
-        for reg_id in group.reg_ids:
+        # Live IDs only: a soft-removed ID no longer resolves, so it is not offered as a key
+        for reg_id in live_registry_ids(group):
             # Use id_type_id.uri for full code URI (e.g., urn:openspp:vocab:id-type#household_id)
             # NOT namespace_uri which only returns vocabulary namespace
             if reg_id.id_type_id and reg_id.id_type_id.uri and reg_id.value:
@@ -139,7 +108,8 @@ class GroupService:
 
         # Members - filter by ended_date directly for reliability
         # (is_ended computed field may have timing issues in tests)
-        now = datetime.now()
+        # fields.Datetime.now(): the same second-precision clock as the is_ended compute
+        now = fields.Datetime.now()
         members = []
         for membership in group.group_membership_ids.filtered(lambda m: not m.ended_date or m.ended_date > now):
             if membership.individual:
@@ -200,13 +170,15 @@ class GroupService:
     def _build_member(self, membership) -> dict[str, Any]:
         """Build GroupMember from spp.group.membership record"""
         individual = membership.individual
-        if not individual or not individual.reg_ids:
+        # A live ID: removed IDs don't resolve
+        primary_id = primary_registry_id(individual) if individual else None
+        if not primary_id:
             return None
 
         # Build reference to individual
-        primary_id = individual.reg_ids[0]
         entity_ref = {
-            "reference": f"Individual/{primary_id.namespace_uri}|{primary_id.value}",
+            # id_type_id.uri (full code URI), NOT namespace_uri, so the reference resolves
+            "reference": f"Individual/{primary_id.id_type_id.uri}|{primary_id.value}",
             "display": individual.name,
         }
 
@@ -366,6 +338,7 @@ class GroupService:
             )
 
         vals = self.from_api_schema(schema)
+        assert_new_identifiers_free(self.env, vals.get("reg_ids", []))
 
         # Add source tracking (if field exists)
         if hasattr(self.env["res.partner"], "_fields") and "source_system" in self.env["res.partner"]._fields:
@@ -373,19 +346,24 @@ class GroupService:
         if hasattr(self.env["res.partner"], "_fields") and "collection_method" in self.env["res.partner"]._fields:
             vals["collection_method"] = "api"
 
-        # Use sudo() for cross-program group creation while enforcing authorization above
-        group = (
-            self.env["res.partner"]  # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context
-            # nosemgrep: odoo-sudo-without-context, odoo-sudo-on-sensitive-models
-            # Group creation is restricted by API scope verification
-            .sudo()
-            .with_context(source_system=source)
-            .create(vals)
-        )
+        # The group and its members are created together or not at all: a
+        # member reference that fails to resolve (e.g. an ambiguous identifier)
+        # must not leave the group behind for callers that keep the
+        # transaction, such as batch bundles
+        with self.env.cr.savepoint():
+            # Use sudo() for cross-program group creation while enforcing authorization above
+            group = (
+                self.env["res.partner"]  # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context
+                # nosemgrep: odoo-sudo-without-context, odoo-sudo-on-sensitive-models
+                # Group creation is restricted by API scope verification
+                .sudo()
+                .with_context(source_system=source)
+                .create(vals)
+            )
 
-        # Handle members separately
-        if schema.member:
-            self._create_members(group, schema.member, source)
+            # Handle members separately
+            if schema.member:
+                self._create_members(group, schema.member, source)
 
         # Log using external identifier, not database ID
         primary_id = group.reg_ids[0] if group.reg_ids else None
@@ -479,35 +457,16 @@ class GroupService:
             system_uri: Full URI (e.g., urn:openspp:vocab:id-type#national_id)
                        or namespace URI (e.g., urn:openspp:vocab:id-type)
             value: Identifier value
+
+        Raises:
+            AmbiguousIdentifierError: several individuals hold the identifier
         """
         # Try full URI first (id_type_id.uri = namespace#code)
-        reg_id = (
-            self.env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
-            .sudo()
-            .search(
-                [
-                    ("id_type_id.uri", "=", system_uri),
-                    ("value", "=", value),
-                    ("partner_id.is_group", "=", False),
-                ],
-                limit=1,
-            )
-        )
-        if not reg_id and "#" not in system_uri:
+        partner = resolve_registrant(self.env, system_uri, value, is_group=False)
+        if not partner and "#" not in system_uri:
             # Fallback: try namespace_uri (without #code suffix)
-            reg_id = (
-                self.env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
-                .sudo()
-                .search(
-                    [
-                        ("namespace_uri", "=", system_uri),
-                        ("value", "=", value),
-                        ("partner_id.is_group", "=", False),
-                    ],
-                    limit=1,
-                )
-            )
-        return reg_id.partner_id if reg_id else self.env["res.partner"]
+            partner = resolve_registrant(self.env, system_uri, value, is_group=False, system_field="namespace_uri")
+        return partner
 
     def update(self, group, schema: Group, source: str) -> Any:
         """
@@ -745,7 +704,10 @@ class GroupService:
                 ended_date = datetime.fromisoformat(ended_date.replace("Z", "+00:00")).date()
             ended_datetime = datetime.combine(ended_date, time.min)
         else:
-            ended_datetime = datetime.now()
+            # fields.Datetime.now(), not datetime.now(): the is_ended/status
+            # computes compare against whole seconds, so a microsecond end
+            # time would be "in the future" and the row stored as active
+            ended_datetime = fields.Datetime.now()
 
         membership.sudo().write({"ended_date": ended_datetime})  # nosemgrep: odoo-sudo-without-context
 
@@ -883,7 +845,8 @@ class GroupService:
             )
 
         # Process each source member
-        now = datetime.now()
+        # fields.Datetime.now(): second precision, so ended memberships are ended at once
+        now = fields.Datetime.now()
         for source_membership in source_members:
             individual = source_membership.individual
 
@@ -1085,6 +1048,8 @@ class GroupService:
 
         # Use existing create method's vals generation
         new_group_vals = self.from_api_schema(new_group_schema)
+        # Same rule as create(): no second registrant with someone else's identifier
+        assert_new_identifiers_free(self.env, new_group_vals.get("reg_ids", []))
 
         # Add source tracking
         source_system = source or "urn:openspp:api-v2:split-operation"
@@ -1097,7 +1062,8 @@ class GroupService:
         new_group = self.env["res.partner"].sudo().create(new_group_vals)
 
         # Move members to new group
-        now = datetime.now()
+        # fields.Datetime.now(): second precision, so ended memberships are ended at once
+        now = fields.Datetime.now()
         for individual in members_to_move:
             membership = membership_by_individual[individual.id]
 
@@ -1201,13 +1167,15 @@ class GroupService:
         # Build history entries
         for membership in memberships:
             individual = membership.individual
-            if not individual or not individual.reg_ids:
+            # A live ID: removed IDs don't resolve
+            primary_id = primary_registry_id(individual) if individual else None
+            if not primary_id:
                 continue
 
             # Build individual reference
-            primary_id = individual.reg_ids[0]
             member_ref = Reference(
-                reference=f"Individual/{primary_id.namespace_uri}|{primary_id.value}",
+                # id_type_id.uri (full code URI), NOT namespace_uri, so the reference resolves
+                reference=f"Individual/{primary_id.id_type_id.uri}|{primary_id.value}",
                 display=individual.name,
             )
 

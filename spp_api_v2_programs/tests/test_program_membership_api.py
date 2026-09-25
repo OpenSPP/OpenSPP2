@@ -74,11 +74,28 @@ class TestProgramMembershipAPIEndpoints(ApiV2HttpTestCase):
         self.assertIn("program", data)
         self.assertIn("beneficiary", data)
 
+    def _no_consent_required_token(self):
+        """Token for a client with a legal basis (no consent needed), to test 404 behaviour
+
+        Consent-requiring clients get 403 for an unknown beneficiary to prevent
+        enumeration, as on the Individual endpoints.
+        """
+        client = self.create_api_client(
+            name="No Consent Required Client",
+            scopes=[
+                {"resource": "program_membership", "action": "read"},
+                {"resource": "program_membership", "action": "update"},
+            ],
+            require_consent=False,
+            legal_basis="public_interest",
+        )
+        return self.generate_jwt_token(client)
+
     def test_read_program_membership_not_found(self):
-        """GET with non-existent ID returns 404"""
+        """GET with non-existent ID returns 404 (for non-consent-requiring clients)"""
         url = f"{self.api_base_url}/urn:openspp:vocab:id-type%23test_national_id|NONEXISTENT"
 
-        response = self.url_open(url, headers=self._get_headers())
+        response = self.url_open(url, headers=self._get_headers(token=self._no_consent_required_token()))
 
         self.assertEqual(response.status_code, 404)
 
@@ -336,8 +353,9 @@ class TestProgramMembershipAPIEndpoints(ApiV2HttpTestCase):
         self.assertEqual(response.status_code, 409)
 
     def test_update_program_membership_not_found_returns_404(self):
-        """PUT to a non-existent membership returns 404"""
+        """PUT to a non-existent membership returns 404 (for non-consent-requiring clients)"""
         url = f"{self.api_base_url}/urn:openspp:vocab:id-type%23test_national_id|NONEXISTENT-PUT"
+        token = self._no_consent_required_token()
 
         payload = {
             "type": "ProgramMembership",
@@ -348,7 +366,7 @@ class TestProgramMembershipAPIEndpoints(ApiV2HttpTestCase):
             "status": "paused",
         }
 
-        response = self.url_put(url, data=json.dumps(payload), headers=self._get_headers())
+        response = self.url_put(url, data=json.dumps(payload), headers=self._get_headers(token=token))
         self.assertEqual(response.status_code, 404)
 
     def test_update_program_membership_no_scope(self):

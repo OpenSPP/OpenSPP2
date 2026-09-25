@@ -7,9 +7,24 @@ from typing import Any
 from odoo.api import Environment
 from odoo.exceptions import ValidationError
 
+from odoo.addons.spp_api_v2.services.registrant_resolver import (
+    live_registry_ids,
+    primary_registry_id,
+    resolve_registrant,
+)
+
 from ..schemas.program_membership import ProgramMembership
 
 _logger = logging.getLogger(__name__)
+
+
+class AmbiguousMembershipError(Exception):
+    """The beneficiary has several program memberships and no program was given."""
+
+    def __init__(self, count: int):
+        # The message leaves the count out: it is returned to API clients
+        super().__init__("Beneficiary has several program memberships; specify the program")
+        self.count = count
 
 
 class ProgramMembershipService:
@@ -46,19 +61,10 @@ class ProgramMembershipService:
 
                 if "|" in identifier_str:
                     system, value = identifier_str.split("|", 1)
-                    reg_id = (
-                        self.env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
-                        .sudo()
-                        .search(
-                            [
-                                ("id_type_id.uri", "=", system),
-                                ("value", "=", value),
-                            ],
-                            limit=1,
-                        )
-                    )
-                    if reg_id and reg_id.partner_id:
-                        domain.append(("partner_id", "=", reg_id.partner_id.id))
+                    # Raises AmbiguousIdentifierError when several registrants hold it
+                    partner = self.find_beneficiary(system, value, is_group=beneficiary.startswith("Group/"))
+                    if partner:
+                        domain.append(("partner_id", "=", partner.id))
                     else:
                         # No matching partner found, return empty result
                         domain.append(("id", "=", -1))
@@ -100,47 +106,69 @@ class ProgramMembershipService:
 
         return records, total
 
-    def find_by_identifier(self, system_uri: str, value: str):
+    def find_by_identifier(self, system_uri: str, value: str, program=None):
         """
-        Lookup program membership by external identifier.
+        Lookup program membership by the beneficiary's external identifier.
+
+        A membership has no identifier of its own: it is addressed by its
+        beneficiary's identifier plus, when the beneficiary is enrolled in
+        more than one program, the program.
 
         Args:
             system_uri: Full URI of identifier type (e.g., urn:openspp:vocab:id-type#national_id)
             value: Identifier value
+            program: Optional spp.program record narrowing the lookup
 
         Returns:
             spp.program.membership record or empty recordset
+
+        Raises:
+            AmbiguousMembershipError: no program given and the beneficiary
+                has several memberships
         """
-        # Program memberships might have identifiers via their partner_id
-        # or via a custom identifier system. Check partner's registry IDs.
+        partner = self.find_beneficiary(system_uri, value)
+        if not partner:
+            return self.env["spp.program.membership"]
+        return self.find_for_beneficiary(partner, program)
 
-        reg_id = (
-            self.env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
-            .sudo()
-            .search(
-                [
-                    ("id_type_id.uri", "=", system_uri),
-                    ("value", "=", value),
-                ],
-                limit=1,
-            )
-        )
+    def find_beneficiary(self, system_uri: str, value: str, is_group=None):
+        """
+        Lookup the beneficiary (Individual or Group) by external identifier.
 
-        if reg_id and reg_id.partner_id:
-            # Find membership for this partner
-            # We might have multiple memberships, so we need program reference too
-            # For now, return the first membership found
-            membership = (
-                self.env["spp.program.membership"]  # nosemgrep: odoo-sudo-without-context
-                .sudo()
-                .search(
-                    [("partner_id", "=", reg_id.partner_id.id)],
-                    limit=1,
-                )
-            )
-            return membership
+        Args:
+            is_group: True/False when the reference names the kind
+                (``Group/`` or ``Individual/``), None when it does not
 
-        return self.env["spp.program.membership"]
+        Returns:
+            res.partner record or empty recordset
+
+        Raises:
+            AmbiguousIdentifierError: several registrants hold the identifier
+        """
+        return resolve_registrant(self.env, system_uri, value, is_group=is_group)
+
+    def find_for_beneficiary(self, partner, program=None):
+        """
+        Find the beneficiary's membership, in ``program`` when given.
+
+        Never picks one of several memberships: without a program, a
+        beneficiary enrolled in more than one program is ambiguous.
+
+        Returns:
+            spp.program.membership record or empty recordset
+
+        Raises:
+            AmbiguousMembershipError: no program given and the beneficiary
+                has several memberships
+        """
+        domain = [("partner_id", "=", partner.id)]
+        if program:
+            domain.append(("program_id", "=", program.id))
+        Membership = self.env["spp.program.membership"].sudo()  # nosemgrep: odoo-sudo-without-context
+        memberships = Membership.search(domain, limit=2)
+        if len(memberships) > 1:
+            raise AmbiguousMembershipError(Membership.search_count(domain))
+        return memberships
 
     def find_by_partner_and_program(self, partner_id: int, program_id: int):
         """
@@ -182,9 +210,10 @@ class ProgramMembershipService:
         # Build identifier list (optional for memberships)
         identifiers = []
 
-        # Use partner's identifiers as the membership identifiers
-        if membership.partner_id and membership.partner_id.reg_ids:
-            for reg_id in membership.partner_id.reg_ids:
+        # Use partner's live identifiers as the membership identifiers: they
+        # address the membership, and a removed ID no longer resolves
+        if membership.partner_id:
+            for reg_id in live_registry_ids(membership.partner_id):
                 # Use id_type_id.uri for full code URI
                 # NOT namespace_uri which only returns vocabulary namespace
                 if reg_id.id_type_id and reg_id.id_type_id.uri and reg_id.value:
@@ -266,9 +295,9 @@ class ProgramMembershipService:
         # Determine resource type
         resource_type = "Group" if partner.is_group else "Individual"
 
-        # Get primary identifier
-        if partner.reg_ids:
-            primary_id = partner.reg_ids[0]
+        # Get primary identifier (a live one: removed IDs don't resolve)
+        primary_id = primary_registry_id(partner)
+        if primary_id:
             ref = f"{resource_type}/{primary_id.id_type_id.uri}|{primary_id.value}"
         else:
             # No identifier - this should not happen in a properly configured system
@@ -379,23 +408,7 @@ class ProgramMembershipService:
 
         system = unquote(system)
 
-        # Find partner by identifier
-        reg_id = (
-            self.env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
-            .sudo()
-            .search(
-                [
-                    ("id_type_id.uri", "=", system),
-                    ("value", "=", value),
-                ],
-                limit=1,
-            )
-        )
-
-        if reg_id and reg_id.partner_id:
-            return reg_id.partner_id
-
-        return self.env["res.partner"]
+        return self.find_beneficiary(system, value, is_group=reference.startswith("Group/"))
 
     def create(self, schema: ProgramMembership, source: str) -> Any:
         """
@@ -432,8 +445,26 @@ class ProgramMembershipService:
 
         Returns:
             Updated spp.program.membership record
+
+        Raises:
+            ValidationError: the body names a different program or
+                beneficiary than the membership being updated
         """
         vals = self.from_api_schema(schema)
+
+        # A membership's program and beneficiary are its identity. A PUT
+        # naming others must not move the record to another program or
+        # registrant; create a new membership instead.
+        if vals.pop("program_id") != membership.program_id.id:
+            raise ValidationError(
+                f"Program {schema.program.reference} does not match the membership being updated; "
+                "a membership cannot be moved to another program"
+            )
+        if vals.pop("partner_id") != membership.partner_id.id:
+            raise ValidationError(
+                "Beneficiary does not match the membership being updated; "
+                "a membership cannot be moved to another beneficiary"
+            )
 
         # Update membership
         membership.sudo().write(vals)  # nosemgrep: odoo-sudo-without-context

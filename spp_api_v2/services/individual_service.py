@@ -14,6 +14,13 @@ from ..schemas.base import (
 from ..schemas.individual import Individual
 from ..schemas.patch import IndividualPatch
 from .membership_utils import membership_to_response
+from .registrant_resolver import (
+    assert_new_identifiers_free,
+    live_registry_ids,
+    primary_registry_id,
+    resolve_registrant,
+    resolve_registrants,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -35,25 +42,13 @@ class IndividualService:
             value: Identifier value
 
         Returns:
-            res.partner record or empty recordset (in sudo context)
+            res.partner record or empty recordset (in sudo context - API
+            handlers run as Public user)
+
+        Raises:
+            AmbiguousIdentifierError: several registrants hold the identifier
         """
-        reg_id = (
-            self.env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context — API auth
-            .sudo()
-            .search(
-                [
-                    ("id_type_id.uri", "=", system_uri),
-                    ("value", "=", value),
-                ],
-                limit=1,
-            )
-        )
-        if reg_id and reg_id.partner_id:
-            # Return sudo partner - API handlers run as Public user
-            # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context — API auth
-            return self.env["res.partner"].sudo().browse(reg_id.partner_id.id)
-        # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context
-        return self.env["res.partner"].sudo()
+        return resolve_registrant(self.env, system_uri, value, is_group=False)
 
     def find_by_identifiers(self, identifiers: list[tuple[str, str]]):
         """
@@ -63,36 +58,11 @@ class IndividualService:
             identifiers: List of (system_uri, value) tuples
 
         Returns:
-            Dict mapping "system_uri|value" to res.partner record (or None)
+            Dict mapping "system_uri|value" to the res.partner record (sudo),
+            or to an AmbiguousIdentifierError when several registrants hold
+            it; identifiers with no match are absent
         """
-        if not identifiers:
-            return {}
-
-        # Build OR domain for batch search
-        or_domains = []
-        for system_uri, value in identifiers:
-            or_domains.append("&")
-            or_domains.append(("id_type_id.uri", "=", system_uri))
-            or_domains.append(("value", "=", value))
-
-        # Combine with OR: need (n-1) | operators for n terms
-        if len(identifiers) > 1:
-            domain = ["|"] * (len(identifiers) - 1) + or_domains
-        else:
-            domain = or_domains
-
-        # nosemgrep: odoo-sudo-without-context — API auth; batch identifier lookup
-        reg_ids = self.env["spp.registry.id"].sudo().search(domain)
-
-        # Build result map
-        result = {}
-        for reg_id in reg_ids:
-            key = f"{reg_id.id_type_id.uri}|{reg_id.value}"
-            if reg_id.partner_id:
-                # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context — API auth
-                result[key] = self.env["res.partner"].sudo().browse(reg_id.partner_id.id)
-
-        return result
+        return resolve_registrants(self.env, identifiers, is_group=False)
 
     def to_api_schema(self, partner, extensions=None) -> dict[str, Any]:
         """
@@ -116,7 +86,8 @@ class IndividualService:
 
         # Build identifier list (REQUIRED, at least one)
         identifiers = []
-        for reg_id in partner.reg_ids:
+        # Live IDs only: a soft-removed ID no longer resolves, so it is not offered as a key
+        for reg_id in live_registry_ids(partner):
             # Use id_type_id.uri for full code URI (e.g., urn:openspp:vocab:id-type#national_id)
             # NOT namespace_uri which only returns vocabulary namespace
             if reg_id.id_type_id and reg_id.id_type_id.uri and reg_id.value:
@@ -280,10 +251,11 @@ class IndividualService:
 
     def _build_group_reference(self, group) -> dict:
         """Build Reference to a Group"""
-        # Get primary identifier for group
-        if group.reg_ids:
-            primary_id = group.reg_ids[0]
-            ref = f"Group/{primary_id.namespace_uri}|{primary_id.value}"
+        # Get primary identifier for group (a live one: removed IDs don't resolve)
+        primary_id = primary_registry_id(group)
+        if primary_id:
+            # id_type_id.uri (full code URI), NOT namespace_uri, so the reference resolves
+            ref = f"Group/{primary_id.id_type_id.uri}|{primary_id.value}"
         else:
             # No identifier - this should not happen in a properly configured system
             _logger.error(
@@ -497,6 +469,7 @@ class IndividualService:
             )
 
         vals = self.from_api_schema(schema)
+        assert_new_identifiers_free(self.env, vals.get("reg_ids", []))
 
         # Add source tracking (ADR-008) - if fields exist
         if hasattr(self.env["res.partner"], "_fields") and "source_system" in self.env["res.partner"]._fields:

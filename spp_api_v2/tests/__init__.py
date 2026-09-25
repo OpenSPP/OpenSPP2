@@ -37,3 +37,8 @@ from . import test_patch_api
 from . import test_scope_enforcement
 from . import test_schema_builder
 from . import test_search_service
+from . import test_search_filters_fail_closed
+from . import test_references_resolvable
+from . import test_membership_end_now
+from . import test_identifier_ambiguity
+from . import test_identifier_ambiguity_paths

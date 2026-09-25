@@ -414,6 +414,41 @@ client-scope resources (defined in <tt class="docutils literal">spp_api_v2</tt>)
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.1.1.0</h1>
+<ul class="simple">
+<li>fix: <tt class="docutils literal">GET</tt>/<tt class="docutils literal">PUT <span class="pre">/ProgramMembership/{identifier}</span></tt> no longer resolve
+to an arbitrary program’s membership when the beneficiary is enrolled
+in several programs (#554). A new optional <tt class="docutils literal">program</tt> query parameter
+(<tt class="docutils literal"><span class="pre">Program/{system}|{value}</span></tt>) selects the membership (a malformed
+value returns <tt class="docutils literal">400</tt>, an unknown program <tt class="docutils literal">404</tt>); without it, a
+beneficiary with more than one membership returns <tt class="docutils literal">409</tt>. When no
+single membership resolves, a client that requires consent and may not
+read the beneficiary gets <tt class="docutils literal">403</tt> whatever the reason (unknown
+beneficiary, not enrolled in that program, several memberships), so
+neither the registry’s contents nor enrollments are revealed; the
+<tt class="docutils literal">409</tt> message does not give the number of memberships.</li>
+<li>fix: <tt class="docutils literal">PUT /ProgramMembership</tt> can no longer move a membership to
+another program or beneficiary: a body whose <tt class="docutils literal">program</tt> or
+<tt class="docutils literal">beneficiary</tt> differs from the addressed membership returns <tt class="docutils literal">422</tt>
+(#554).</li>
+<li>fix: the <tt class="docutils literal">Location</tt> header of <tt class="docutils literal">POST /ProgramMembership</tt> is
+URL-encoded and carries <tt class="docutils literal"><span class="pre">?program=</span></tt>, so following it returns the
+created membership (#554).</li>
+<li>fix: <tt class="docutils literal">PUT /ProgramMembership</tt> accepts its own
+<tt class="docutils literal">ETag</tt>/<tt class="docutils literal">meta.versionId</tt> in <tt class="docutils literal"><span class="pre">If-Match</span></tt>; it previously compared
+against a different timestamp format and always returned <tt class="docutils literal">409</tt>
+(#554).</li>
+<li>fix: a beneficiary identifier held by more than one registrant is
+refused on <tt class="docutils literal">GET</tt>/<tt class="docutils literal">PUT</tt>/<tt class="docutils literal">POST /ProgramMembership</tt> (<tt class="docutils literal">409</tt>, or
+<tt class="docutils literal">403</tt> for a client that requires consent and may not read every
+match) and in the <tt class="docutils literal">beneficiary</tt> search filter (<tt class="docutils literal">409</tt>, or an empty
+page for such a client), instead of acting on an arbitrary one;
+<tt class="docutils literal">Individual/</tt> and <tt class="docutils literal">Group/</tt> beneficiary references resolve only
+that kind. Membership identifiers, beneficiary references and
+<tt class="docutils literal">Location</tt> use only live (not soft-removed) IDs (#554).</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.1.0.0</h1>
 <ul class="simple">
 <li>Split program and program-membership REST endpoints out of
