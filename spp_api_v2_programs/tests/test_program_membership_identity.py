@@ -161,6 +161,15 @@ class TestProgramMembershipIdentityAPI(ApiV2HttpTestCase):
 
         self.assertEqual(response.status_code, 403, response.text)
 
+    def test_enrollment_is_not_revealed_without_consent(self):
+        """?program= for a program the beneficiary is not in is 403, not 404, without consent"""
+        no_consent = self.create_test_individual(identifier_value="NOCONSENT-SINGLE-001")
+        self.create_test_membership(partner=no_consent, program=self.program_1)
+
+        response = self.url_open(self._url("NOCONSENT-SINGLE-001", PROGRAM_3_REF), headers=self._headers())
+
+        self.assertEqual(response.status_code, 403, response.text)
+
     # ------------------------------------------------------------------
     # PUT
     # ------------------------------------------------------------------
