@@ -335,3 +335,57 @@ class TestProgramMembershipIdentityService(ApiV2TestCase):
 
         self.assertEqual(self.multi_p1.state, "exited")
         self.assertEqual(self.multi_p2.state, "enrolled")
+
+
+class TestProgramMembershipAmbiguousBeneficiary(ApiV2HttpTestCase):
+    """A beneficiary identifier shared by two registrants addresses nothing (#554 I)"""
+
+    def setUp(self):
+        super().setUp()
+        self.api_base_url = "/api/v2/spp/ProgramMembership"
+        self.program = self.create_test_program(name="First Identity Program")
+        self.first = self.create_test_individual(name="Original", identifier_value="PM-DUP")
+        self.second = self.create_test_individual(name="Copy", identifier_value="PM-DUP")
+        self.membership = self.create_test_membership(partner=self.first, program=self.program)
+        self.client = self.create_api_client(
+            name="Legal Basis Membership Client",
+            scopes=[
+                {"resource": "program_membership", "action": "read"},
+                {"resource": "program_membership", "action": "create"},
+                {"resource": "program_membership", "action": "update"},
+            ],
+            require_consent=False,
+            legal_basis="public_task",
+        )
+        self.token = self.generate_jwt_token(self.client)
+
+    def _headers(self):
+        return {"Content-Type": "application/json", "Authorization": f"Bearer {self.token}"}
+
+    def test_get_with_ambiguous_beneficiary_is_409(self):
+        response = self.url_open(
+            f"{self.api_base_url}/{quote(NATIONAL_ID, safe=':')}|PM-DUP",
+            headers=self._headers(),
+        )
+
+        self.assertEqual(response.status_code, 409, response.text)
+
+    def test_post_with_ambiguous_beneficiary_is_409(self):
+        response = self.url_open(
+            self.api_base_url,
+            data=json.dumps(
+                {
+                    "type": "ProgramMembership",
+                    "program": {"reference": PROGRAM_1_REF},
+                    "beneficiary": {"reference": _beneficiary_ref("PM-DUP")},
+                    "status": "enrolled",
+                }
+            ),
+            headers=self._headers(),
+        )
+
+        self.assertEqual(response.status_code, 409, response.text)
+        self.env.invalidate_all()
+        self.assertFalse(
+            self.env["spp.program.membership"].search([("partner_id", "=", self.second.id)]),
+        )
