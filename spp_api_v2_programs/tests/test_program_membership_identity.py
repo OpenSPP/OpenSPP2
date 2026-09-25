@@ -115,6 +115,39 @@ class TestProgramMembershipIdentityAPI(ApiV2HttpTestCase):
 
         self.assertEqual(response.status_code, 409, response.text)
         self.assertIn("program", response.json()["detail"])
+        # The refusal does not disclose how many programs the beneficiary is in
+        self.assertNotIn("2", response.json()["detail"])
+
+    def _no_consent_headers(self):
+        """A client that requires consent and has none for any beneficiary here"""
+        client = self.create_api_client(
+            name="No Consent Membership Client",
+            scopes=[
+                {"resource": "program_membership", "action": "read"},
+                {"resource": "program_membership", "action": "update"},
+            ],
+        )
+        return {"Content-Type": "application/json", "Authorization": f"Bearer {self.generate_jwt_token(client)}"}
+
+    def test_unknown_beneficiary_is_403_for_a_consent_client(self):
+        """Same answer as "exists, no consent": the registry's contents are not revealed"""
+        response = self.url_open(self._url("NO-SUCH-BENEFICIARY"), headers=self._no_consent_headers())
+
+        self.assertEqual(response.status_code, 403, response.text)
+
+    def test_put_without_program_and_without_consent_is_403(self):
+        """PUT does not reveal that the beneficiary has several memberships"""
+        headers = self._no_consent_headers()
+        self.env.cr.flush()
+        response = self.url_put(
+            self._url("MULTI-001"),
+            data=json.dumps(self._payload(PROGRAM_1_REF, "MULTI-001", "exited")),
+            headers=headers,
+        )
+        self.env.invalidate_all()
+
+        self.assertEqual(response.status_code, 403, response.text)
+        self.assertEqual(self.multi_p1.state, "enrolled")
 
     def test_get_with_program_returns_that_programs_membership(self):
         """?program= selects the membership in that program, not the newest one"""
@@ -294,6 +327,18 @@ class TestProgramMembershipIdentityAPI(ApiV2HttpTestCase):
         self.assertEqual(response.status_code, 200, response.text)
         self.assertEqual(self.single_p1.state, "paused")
 
+    def test_put_rejects_a_stale_etag(self):
+        """An ETag from before a later write is refused (409), so the comparison is real"""
+        url = self._url("SINGLE-001")
+        stale_etag = self.url_open(url, headers=self._headers()).headers["etag"]
+        first = self._put(url, self._payload(PROGRAM_1_REF, "SINGLE-001", "paused"), **{"If-Match": stale_etag})
+        self.assertEqual(first.status_code, 200, first.text)
+
+        second = self._put(url, self._payload(PROGRAM_1_REF, "SINGLE-001", "exited"), **{"If-Match": stale_etag})
+
+        self.assertEqual(second.status_code, 409, second.text)
+        self.assertEqual(self.single_p1.state, "paused")
+
 
 class TestProgramMembershipIdentityService(ApiV2TestCase):
     """Service-level resolution and update guards"""
@@ -411,3 +456,33 @@ class TestProgramMembershipAmbiguousBeneficiary(ApiV2HttpTestCase):
         self.assertFalse(
             self.env["spp.program.membership"].search([("partner_id", "=", self.second.id)]),
         )
+
+    def test_search_by_ambiguous_beneficiary_is_409(self):
+        response = self.url_open(
+            f"{self.api_base_url}?beneficiary={quote(_beneficiary_ref('PM-DUP'), safe=':/|')}",
+            headers=self._headers(),
+        )
+
+        self.assertEqual(response.status_code, 409, response.text)
+
+    def test_put_with_ambiguous_body_beneficiary_is_409(self):
+        """The addressed membership resolves, but the body names an ambiguous beneficiary"""
+        single = self.create_test_individual(name="Single", identifier_value="PM-SINGLE")
+        membership = self.create_test_membership(partner=single, program=self.program)
+        self.env.cr.flush()
+        response = self.url_put(
+            f"{self.api_base_url}/{quote(NATIONAL_ID, safe=':')}|PM-SINGLE",
+            data=json.dumps(
+                {
+                    "type": "ProgramMembership",
+                    "program": {"reference": PROGRAM_1_REF},
+                    "beneficiary": {"reference": _beneficiary_ref("PM-DUP")},
+                    "status": "exited",
+                }
+            ),
+            headers=self._headers(),
+        )
+        self.env.invalidate_all()
+
+        self.assertEqual(response.status_code, 409, response.text)
+        self.assertEqual(membership.state, "enrolled")

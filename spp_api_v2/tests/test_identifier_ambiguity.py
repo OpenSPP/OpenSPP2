@@ -267,7 +267,9 @@ class TestIdentifierAmbiguityAPI(ApiV2HttpTestCase):
 
     def test_consent_client_without_consent_for_every_match_gets_403(self):
         """Ambiguity is not revealed unless the client may see every match"""
-        token = self._consent_client_token(consented=[self.first])
+        # Consent to the newest match only: a lookup that picks one (newest
+        # first) would find it and answer 200, so this fails without the fix
+        token = self._consent_client_token(consented=[self.second])
 
         response = self._get("/api/v2/spp/Individual/urn:openspp:vocab:id-type%23test_national_id|AMB-DUP", token)
 

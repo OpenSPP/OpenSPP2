@@ -111,19 +111,23 @@ class TestSearchFiltersFailClosed(ApiV2TestCase):
         """Removed from G but active in H: not a member of G"""
         self._add_member(self.group_g, self.ind1, ended=True)
         self._add_member(self.group_h, self.ind1)
+        self._add_member(self.group_g, self.ind2)  # positive control: a current member of G
 
         records, _total = self.service.search_individuals({"group": f"{HOUSEHOLD_ID}|FC-HH-G"})
 
         self.assertNotIn(self.ind1, records)
+        self.assertIn(self.ind2, records)
 
     def test_membership_role_must_be_on_an_active_membership(self):
         """Head of G (ended) and plain member of H (active): not a current head"""
         self._add_member(self.group_g, self.ind1, ended=True, role=self.relationship_head)
         self._add_member(self.group_h, self.ind1)
+        self._add_member(self.group_h, self.ind2, role=self.relationship_head)  # positive control: a current head
 
         records, _total = self.service.search_individuals({"membership-role": "head"})
 
         self.assertNotIn(self.ind1, records)
+        self.assertIn(self.ind2, records)
 
     def test_identifier_system_and_value_must_be_on_the_same_id(self):
         """System from one ID and value from another is not a match"""
@@ -209,6 +213,21 @@ class TestSearchFiltersFailClosedAPI(ApiV2HttpTestCase):
 
     def test_individual_malformed_birthdate_is_400(self):
         response = self._get("/api/v2/spp/Individual?birthdate=not-a-date")
+
+        self.assertEqual(response.status_code, 400, response.text)
+
+    def test_individual_malformed_gender_is_400(self):
+        response = self._get("/api/v2/spp/Individual?gender=female")
+
+        self.assertEqual(response.status_code, 400, response.text)
+
+    def test_individual_malformed_last_updated_is_400(self):
+        response = self._get("/api/v2/spp/Individual?_lastUpdated=yesterday")
+
+        self.assertEqual(response.status_code, 400, response.text)
+
+    def test_group_malformed_member_is_400(self):
+        response = self._get("/api/v2/spp/Group?member=NO-SEPARATOR")
 
         self.assertEqual(response.status_code, 400, response.text)
 
