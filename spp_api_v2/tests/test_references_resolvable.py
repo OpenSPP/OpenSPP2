@@ -113,3 +113,41 @@ class TestReferencesResolvable(ApiV2HttpTestCase):
         self.assertTrue(memberships)
         for membership in memberships:
             self._assert_followable(membership["group"]["reference"], "REF-HH-001")
+
+    def _add_removed_id(self, partner, value):
+        """Give the registrant a newer, soft-removed ID (it sorts first in reg_ids)"""
+        self.env["spp.registry.id"].create(
+            {
+                "partner_id": partner.id,
+                "id_type_id": self.id_type_household.id,
+                "value": value,
+                "status": "invalid",
+            }
+        )
+
+    def test_references_use_a_live_id_not_a_removed_one(self):
+        """A soft-removed ID no longer resolves, so references must not be built from it"""
+        self._add_removed_id(self.member, "REF-REMOVED-IND")
+        removed_group_type = self.env["spp.vocabulary.code"].search(
+            [("uri", "=", "urn:openspp:vocab:id-type#test_national_id")], limit=1
+        )
+        self.env["spp.registry.id"].create(
+            {
+                "partner_id": self.group.id,
+                "id_type_id": removed_group_type.id,
+                "value": "REF-REMOVED-HH",
+                "status": "invalid",
+            }
+        )
+
+        group_response = self._get(GROUP_PATH)
+        self.assertEqual(group_response.status_code, 200, group_response.text)
+        for member in group_response.json()["member"]:
+            self._assert_followable(member["entity"]["reference"], "REF-IND-001")
+
+        individual_response = self._get(
+            "/api/v2/spp/Individual/urn:openspp:vocab:id-type%23test_national_id|REF-IND-001"
+        )
+        self.assertEqual(individual_response.status_code, 200, individual_response.text)
+        for membership in individual_response.json()["groupMembership"]:
+            self._assert_followable(membership["group"]["reference"], "REF-HH-001")

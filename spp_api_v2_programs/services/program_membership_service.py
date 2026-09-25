@@ -7,6 +7,12 @@ from typing import Any
 from odoo.api import Environment
 from odoo.exceptions import ValidationError
 
+from odoo.addons.spp_api_v2.services.registrant_resolver import (
+    live_registry_ids,
+    primary_registry_id,
+    resolve_registrant,
+)
+
 from ..schemas.program_membership import ProgramMembership
 
 _logger = logging.getLogger(__name__)
@@ -54,19 +60,10 @@ class ProgramMembershipService:
 
                 if "|" in identifier_str:
                     system, value = identifier_str.split("|", 1)
-                    reg_id = (
-                        self.env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
-                        .sudo()
-                        .search(
-                            [
-                                ("id_type_id.uri", "=", system),
-                                ("value", "=", value),
-                            ],
-                            limit=1,
-                        )
-                    )
-                    if reg_id and reg_id.partner_id:
-                        domain.append(("partner_id", "=", reg_id.partner_id.id))
+                    # Raises AmbiguousIdentifierError when several registrants hold it
+                    partner = self.find_beneficiary(system, value)
+                    if partner:
+                        domain.append(("partner_id", "=", partner.id))
                     else:
                         # No matching partner found, return empty result
                         domain.append(("id", "=", -1))
@@ -139,21 +136,11 @@ class ProgramMembershipService:
 
         Returns:
             res.partner record or empty recordset
+
+        Raises:
+            AmbiguousIdentifierError: several registrants hold the identifier
         """
-        reg_id = (
-            self.env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
-            .sudo()
-            .search(
-                [
-                    ("id_type_id.uri", "=", system_uri),
-                    ("value", "=", value),
-                ],
-                limit=1,
-            )
-        )
-        if reg_id and reg_id.partner_id:
-            return reg_id.partner_id
-        return self.env["res.partner"]
+        return resolve_registrant(self.env, system_uri, value)
 
     def find_for_beneficiary(self, partner, program=None):
         """
@@ -218,9 +205,10 @@ class ProgramMembershipService:
         # Build identifier list (optional for memberships)
         identifiers = []
 
-        # Use partner's identifiers as the membership identifiers
-        if membership.partner_id and membership.partner_id.reg_ids:
-            for reg_id in membership.partner_id.reg_ids:
+        # Use partner's live identifiers as the membership identifiers: they
+        # address the membership, and a removed ID no longer resolves
+        if membership.partner_id:
+            for reg_id in live_registry_ids(membership.partner_id):
                 # Use id_type_id.uri for full code URI
                 # NOT namespace_uri which only returns vocabulary namespace
                 if reg_id.id_type_id and reg_id.id_type_id.uri and reg_id.value:
@@ -302,9 +290,9 @@ class ProgramMembershipService:
         # Determine resource type
         resource_type = "Group" if partner.is_group else "Individual"
 
-        # Get primary identifier
-        if partner.reg_ids:
-            primary_id = partner.reg_ids[0]
+        # Get primary identifier (a live one: removed IDs don't resolve)
+        primary_id = primary_registry_id(partner)
+        if primary_id:
             ref = f"{resource_type}/{primary_id.id_type_id.uri}|{primary_id.value}"
         else:
             # No identifier - this should not happen in a properly configured system

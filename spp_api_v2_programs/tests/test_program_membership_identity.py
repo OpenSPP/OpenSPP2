@@ -255,6 +255,28 @@ class TestProgramMembershipIdentityAPI(ApiV2HttpTestCase):
         self.assertEqual(followed.status_code, 200, followed.text)
         self.assertEqual(followed.json()["program"]["reference"], PROGRAM_3_REF)
 
+    def test_post_location_skips_a_removed_beneficiary_id(self):
+        """A soft-removed ID no longer resolves, so Location must use a live one"""
+        self.env["spp.registry.id"].create(
+            {
+                "partner_id": self.other.id,
+                "id_type_id": self.id_type_household.id,
+                "value": "OTHER-REMOVED-ID",
+                "status": "invalid",
+            }
+        )
+        response = self.url_open(
+            self.api_base_url,
+            data=json.dumps(self._payload(PROGRAM_1_REF, "OTHER-001", "enrolled")),
+            headers=self._headers(),
+        )
+        self.assertEqual(response.status_code, 201, response.text)
+
+        followed = self.url_open(response.headers["location"], headers=self._headers())
+
+        self.assertEqual(followed.status_code, 200, followed.text)
+        self.assertEqual(followed.json()["beneficiary"]["reference"], _beneficiary_ref("OTHER-001"))
+
     # ------------------------------------------------------------------
     # If-Match (#554 B)
     # ------------------------------------------------------------------

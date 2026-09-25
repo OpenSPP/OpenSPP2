@@ -14,6 +14,12 @@ from ..schemas.group import Group
 from ..schemas.membership import MembershipHistoryEntry
 from ..schemas.patch import GroupPatch
 from .membership_utils import membership_to_response
+from .registrant_resolver import (
+    assert_new_identifiers_free,
+    primary_registry_id,
+    resolve_registrant,
+    resolve_registrants,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -33,25 +39,13 @@ class GroupService:
             value: Identifier value
 
         Returns:
-            res.partner record (group) or empty recordset (in sudo context)
+            res.partner record (group) or empty recordset (in sudo context -
+            API handlers run as Public user)
+
+        Raises:
+            AmbiguousIdentifierError: several groups hold the identifier
         """
-        reg_id = (
-            self.env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
-            .sudo()
-            .search(
-                [
-                    ("id_type_id.uri", "=", system_uri),
-                    ("value", "=", value),
-                    ("partner_id.is_group", "=", True),
-                ],
-                limit=1,
-            )
-        )
-        if reg_id and reg_id.partner_id:
-            # Return sudo partner - API handlers run as Public user
-            # nosemgrep: odoo-sudo-without-context, odoo-sudo-on-sensitive-models
-            return self.env["res.partner"].sudo().browse(reg_id.partner_id.id)
-        return self.env["res.partner"].sudo()  # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context
+        return resolve_registrant(self.env, system_uri, value, is_group=True)
 
     def find_by_identifiers(self, identifiers: list[tuple[str, str]]):
         """
@@ -61,38 +55,11 @@ class GroupService:
             identifiers: List of (system_uri, value) tuples
 
         Returns:
-            Dict mapping "system_uri|value" to res.partner record (or None)
+            Dict mapping "system_uri|value" to the res.partner record (sudo),
+            or to an AmbiguousIdentifierError when several groups hold it;
+            identifiers with no match are absent
         """
-        if not identifiers:
-            return {}
-
-        # Build OR domain for batch search
-        or_domains = []
-        for system_uri, value in identifiers:
-            or_domains.append("&")
-            or_domains.append(("id_type_id.uri", "=", system_uri))
-            or_domains.append(("value", "=", value))
-
-        # Combine with OR
-        if len(identifiers) > 1:
-            domain = ["|"] * (len(identifiers) - 1) + or_domains
-        else:
-            domain = or_domains
-
-        # Add is_group filter
-        domain = ["&", ("partner_id.is_group", "=", True)] + domain
-
-        reg_ids = self.env["spp.registry.id"].sudo().search(domain)  # nosemgrep: odoo-sudo-without-context
-
-        # Build result map
-        result = {}
-        for reg_id in reg_ids:
-            key = f"{reg_id.id_type_id.uri}|{reg_id.value}"
-            if reg_id.partner_id:
-                # nosemgrep: odoo-sudo-without-context, odoo-sudo-on-sensitive-models
-                result[key] = self.env["res.partner"].sudo().browse(reg_id.partner_id.id)
-
-        return result
+        return resolve_registrants(self.env, identifiers, is_group=True)
 
     def to_api_schema(self, group, extensions=None) -> dict[str, Any]:
         """
@@ -201,11 +168,12 @@ class GroupService:
     def _build_member(self, membership) -> dict[str, Any]:
         """Build GroupMember from spp.group.membership record"""
         individual = membership.individual
-        if not individual or not individual.reg_ids:
+        # A live ID: removed IDs don't resolve
+        primary_id = primary_registry_id(individual) if individual else None
+        if not primary_id:
             return None
 
         # Build reference to individual
-        primary_id = individual.reg_ids[0]
         entity_ref = {
             # id_type_id.uri (full code URI), NOT namespace_uri, so the reference resolves
             "reference": f"Individual/{primary_id.id_type_id.uri}|{primary_id.value}",
@@ -368,6 +336,7 @@ class GroupService:
             )
 
         vals = self.from_api_schema(schema)
+        assert_new_identifiers_free(self.env, vals.get("reg_ids", []))
 
         # Add source tracking (if field exists)
         if hasattr(self.env["res.partner"], "_fields") and "source_system" in self.env["res.partner"]._fields:
@@ -481,35 +450,16 @@ class GroupService:
             system_uri: Full URI (e.g., urn:openspp:vocab:id-type#national_id)
                        or namespace URI (e.g., urn:openspp:vocab:id-type)
             value: Identifier value
+
+        Raises:
+            AmbiguousIdentifierError: several individuals hold the identifier
         """
         # Try full URI first (id_type_id.uri = namespace#code)
-        reg_id = (
-            self.env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
-            .sudo()
-            .search(
-                [
-                    ("id_type_id.uri", "=", system_uri),
-                    ("value", "=", value),
-                    ("partner_id.is_group", "=", False),
-                ],
-                limit=1,
-            )
-        )
-        if not reg_id and "#" not in system_uri:
+        partner = resolve_registrant(self.env, system_uri, value, is_group=False)
+        if not partner and "#" not in system_uri:
             # Fallback: try namespace_uri (without #code suffix)
-            reg_id = (
-                self.env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
-                .sudo()
-                .search(
-                    [
-                        ("namespace_uri", "=", system_uri),
-                        ("value", "=", value),
-                        ("partner_id.is_group", "=", False),
-                    ],
-                    limit=1,
-                )
-            )
-        return reg_id.partner_id if reg_id else self.env["res.partner"]
+            partner = resolve_registrant(self.env, system_uri, value, is_group=False, system_field="namespace_uri")
+        return partner
 
     def update(self, group, schema: Group, source: str) -> Any:
         """
@@ -1208,11 +1158,12 @@ class GroupService:
         # Build history entries
         for membership in memberships:
             individual = membership.individual
-            if not individual or not individual.reg_ids:
+            # A live ID: removed IDs don't resolve
+            primary_id = primary_registry_id(individual) if individual else None
+            if not primary_id:
                 continue
 
             # Build individual reference
-            primary_id = individual.reg_ids[0]
             member_ref = Reference(
                 # id_type_id.uri (full code URI), NOT namespace_uri, so the reference resolves
                 reference=f"Individual/{primary_id.id_type_id.uri}|{primary_id.value}",

@@ -8,6 +8,8 @@ from typing import Any
 from odoo.api import Environment
 from odoo.osv import expression
 
+from .registrant_resolver import resolve_registrant
+
 _logger = logging.getLogger(__name__)
 
 # A filter that names nothing (unknown group, role, gender, member) must
@@ -273,22 +275,10 @@ class SearchService:
 
         system, value = group.split("|", 1)
 
-        # Find group by identifier
-        # Use id_type_id.uri (full URI with code) instead of namespace_uri
-        # (which only contains the vocabulary namespace)
-        reg_id = (
-            self.env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
-            .sudo()
-            .search(
-                [
-                    ("id_type_id.uri", "=", system),
-                    ("value", "=", value),
-                ],
-                limit=1,
-            )
-        )
-
-        if not reg_id or not reg_id.partner_id.is_group:
+        # Find group by identifier (raises AmbiguousIdentifierError when
+        # several groups hold it)
+        group_partner = resolve_registrant(self.env, system, value, is_group=True)
+        if not group_partner:
             return MATCH_NOTHING
 
         # Find individuals with an active membership in this group; "any"
@@ -298,7 +288,7 @@ class SearchService:
                 "individual_membership_ids",
                 "any",
                 [
-                    ("group", "=", reg_id.partner_id.id),
+                    ("group", "=", group_partner.id),
                     ("is_ended", "=", False),
                 ],
             )
@@ -354,20 +344,9 @@ class SearchService:
 
         system, value = ident_str.split("|", 1)
 
-        # Use id_type_id.uri (full URI with code) instead of namespace_uri
-        # (which only contains the vocabulary namespace)
-        reg_id = (
-            self.env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
-            .sudo()
-            .search(
-                [
-                    ("id_type_id.uri", "=", system),
-                    ("value", "=", value),
-                ],
-                limit=1,
-            )
-        )
-        if not reg_id:
+        # Raises AmbiguousIdentifierError when several registrants hold it
+        member_partner = resolve_registrant(self.env, system, value)
+        if not member_partner:
             return MATCH_NOTHING
 
         return [
@@ -375,7 +354,7 @@ class SearchService:
                 "group_membership_ids",
                 "any",
                 [
-                    ("individual", "=", reg_id.partner_id.id),
+                    ("individual", "=", member_partner.id),
                     ("is_ended", "=", False),
                 ],
             )

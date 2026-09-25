@@ -12,7 +12,13 @@ from odoo.addons.fastapi.dependencies import odoo_env
 from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
 from odoo.addons.spp_api_v2.schemas.search_result import SearchResult, create_search_result
 from odoo.addons.spp_api_v2.services.consent_service import ConsentService
+from odoo.addons.spp_api_v2.services.registrant_resolver import AmbiguousIdentifierError
 from odoo.addons.spp_api_v2.utils.pagination import fetch_with_consent
+from odoo.addons.spp_api_v2.utils.registrant_lookup import (
+    ambiguous_identifier_exception,
+    lookup_registrant,
+    raise_ambiguous_identifier,
+)
 
 from fastapi import (
     APIRouter,
@@ -113,7 +119,9 @@ async def read_program_membership(
     consent_service = ConsentService(env)
     program_record = _resolve_program_param(service, program)
 
-    partner = service.find_beneficiary(system, value)
+    partner = await lookup_registrant(
+        env, api_client, service.find_beneficiary, system, value, resource_type="program_membership"
+    )
     if not partner:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -228,6 +236,9 @@ async def search_program_memberships(
         search_params = {**params, "_count": limit, "_offset": offset}
         try:
             return service.search(search_params)
+        except AmbiguousIdentifierError as e:
+            # The beneficiary filter matches more than one registrant
+            raise ambiguous_identifier_exception(env, api_client, e, "program_membership") from e
         except Exception as e:
             _logger.warning("Error in program membership search: %s", e)
             raise HTTPException(
@@ -336,6 +347,9 @@ async def create_program_membership(
 
     try:
         membership = service.create(program_membership, source=source_system)
+    except AmbiguousIdentifierError as e:
+        # The beneficiary reference matches more than one registrant
+        await raise_ambiguous_identifier(env, api_client, e, "program_membership")
     except Exception as e:
         _logger.exception("Error creating program membership")
         raise HTTPException(
@@ -401,6 +415,8 @@ async def update_program_membership(
             status_code=status.HTTP_409_CONFLICT,
             detail=str(e),
         ) from e
+    except AmbiguousIdentifierError as e:
+        await raise_ambiguous_identifier(env, api_client, e, "program_membership")
 
     if not membership:
         raise HTTPException(
@@ -423,6 +439,9 @@ async def update_program_membership(
 
     try:
         membership = service.update(membership, program_membership, source=source_system)
+    except AmbiguousIdentifierError as e:
+        # The body's beneficiary reference matches more than one registrant
+        await raise_ambiguous_identifier(env, api_client, e, "program_membership")
     except ValidationError as e:
         # Client error (unknown reference, identity mismatch): no traceback
         raise HTTPException(
