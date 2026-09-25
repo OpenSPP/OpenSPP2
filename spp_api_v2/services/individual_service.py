@@ -283,7 +283,8 @@ class IndividualService:
         # Get primary identifier for group
         if group.reg_ids:
             primary_id = group.reg_ids[0]
-            ref = f"Group/{primary_id.namespace_uri}|{primary_id.value}"
+            # id_type_id.uri (full code URI), NOT namespace_uri, so the reference resolves
+            ref = f"Group/{primary_id.id_type_id.uri}|{primary_id.value}"
         else:
             # No identifier - this should not happen in a properly configured system
             _logger.error(

@@ -2,6 +2,7 @@
 
 - fix: search filters fail closed (#554). A filter that names nothing (an unknown `group`, `gender`, `membership-role` or `member`) now returns no results instead of silently dropping out and returning the whole registry. Malformed filters (`identifier`, `group`, `gender`, `birthdate`, `_lastUpdated` without the expected format; `member` not an `Individual/{system}|{value}` reference) return `400` on `GET /Individual` and `GET /Group`.
 - fix: multi-condition search filters apply to one related row (#554). `GET /Individual?group=` no longer lists someone who left the group but is active in another; `membership-role=` requires the role on an active membership; `identifier=` requires system and value on the same ID. Behaviour change: `GET /Group?member=` now lists only groups the individual is an active member of.
+- fix: returned references can be followed (#554). `Group.member[].entity`, the `group`/`entity` references in `$add-member`, `$remove-member` and member-update responses, membership-history `member`, and `Individual.groupMembership[].group` were built from the identifier type's vocabulary namespace (`urn:openspp:vocab:id-type|…`) and could not be resolved; they now use the full code URI (`urn:openspp:vocab:id-type#<code>|…`), the same value as `identifier[].system`.
 
 ### 19.0.2.1.1
 

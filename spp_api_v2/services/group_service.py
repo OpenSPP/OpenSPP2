@@ -206,7 +206,8 @@ class GroupService:
         # Build reference to individual
         primary_id = individual.reg_ids[0]
         entity_ref = {
-            "reference": f"Individual/{primary_id.namespace_uri}|{primary_id.value}",
+            # id_type_id.uri (full code URI), NOT namespace_uri, so the reference resolves
+            "reference": f"Individual/{primary_id.id_type_id.uri}|{primary_id.value}",
             "display": individual.name,
         }
 
@@ -1207,7 +1208,8 @@ class GroupService:
             # Build individual reference
             primary_id = individual.reg_ids[0]
             member_ref = Reference(
-                reference=f"Individual/{primary_id.namespace_uri}|{primary_id.value}",
+                # id_type_id.uri (full code URI), NOT namespace_uri, so the reference resolves
+                reference=f"Individual/{primary_id.id_type_id.uri}|{primary_id.value}",
                 display=individual.name,
             )
 

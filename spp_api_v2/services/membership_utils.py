@@ -28,8 +28,10 @@ def membership_to_response(membership) -> dict[str, Any]:
     if not group_id:
         raise ValidationError(f"Group {group.name} has no valid external identifiers")
 
+    # id_type_id.uri (full code URI), NOT namespace_uri: the reference must
+    # resolve through the identifier lookups, which match on the code URI
     group_ref = {
-        "reference": f"Group/{group_id.namespace_uri}|{group_id.value}",
+        "reference": f"Group/{group_id.id_type_id.uri}|{group_id.value}",
         "display": group.name,
     }
 
@@ -40,7 +42,7 @@ def membership_to_response(membership) -> dict[str, Any]:
         raise ValidationError(f"Individual {individual.name} has no valid external identifiers")
 
     individual_ref = {
-        "reference": f"Individual/{individual_id.namespace_uri}|{individual_id.value}",
+        "reference": f"Individual/{individual_id.id_type_id.uri}|{individual_id.value}",
         "display": individual.name,
     }
 
