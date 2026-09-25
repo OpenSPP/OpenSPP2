@@ -61,19 +61,22 @@ class TestSearchService(ApiV2TestCase):
         self.assertIn("Alice Brown", names)
 
     def test_parse_identifier_param(self):
-        """identifier=system|value creates proper domain"""
+        """identifier=system|value creates proper domain, both conditions on the same ID"""
         domain = self.service._parse_identifier_param("urn:openspp:vocab:id-type#test_national_id|IND-001")
 
-        self.assertEqual(len(domain), 2)
-        self.assertIn(
-            (
-                "reg_ids.id_type_id.uri",
-                "=",
-                "urn:openspp:vocab:id-type#test_national_id",
-            ),
+        self.assertEqual(
             domain,
+            [
+                (
+                    "reg_ids",
+                    "any",
+                    [
+                        ("id_type_id.uri", "=", "urn:openspp:vocab:id-type#test_national_id"),
+                        ("value", "=", "IND-001"),
+                    ],
+                )
+            ],
         )
-        self.assertIn(("reg_ids.value", "=", "IND-001"), domain)
 
     def test_search_by_identifier(self):
         """Search by identifier finds exact match"""
