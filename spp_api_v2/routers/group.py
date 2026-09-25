@@ -45,7 +45,7 @@ from ..services.registrant_resolver import AmbiguousIdentifierError, IdentifierI
 from ..services.search_service import InvalidSearchParam, SearchService
 from ..utils.pagination import fetch_with_consent
 from ..utils.registrant_lookup import (
-    ambiguous_identifier_exception,
+    ambiguous_filter_result,
     lookup_registrant,
     raise_ambiguous_identifier,
 )
@@ -211,7 +211,7 @@ async def search_groups(
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
         except AmbiguousIdentifierError as e:
             # A filter reference (member=) matches more than one registrant
-            raise ambiguous_identifier_exception(env, api_client, e) from e
+            return ambiguous_filter_result(env, api_client, e, env["res.partner"])
 
     def consent_filter_function(group):
         group_data = group_service.to_api_schema(group, extensions=extension_list)
@@ -297,6 +297,13 @@ async def create_group(
     except IdentifierInUseError as e:
         # Another registrant holds one of the identifiers: creating a second
         # would leave neither addressable unambiguously
+        audit_service.log_create(
+            "group",
+            group.identifier[0].system + "|" + group.identifier[0].value if group.identifier else "unknown",
+            None,
+            status="validation_error",
+            error_detail="Identifier in use",
+        )
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=e.args[0]) from e
     except AmbiguousIdentifierError as e:
         # A member reference matches more than one individual
@@ -889,6 +896,9 @@ async def split_group(
             new_head=new_head,
             source=source_system,
         )
+    except IdentifierInUseError as e:
+        # The new group's identifier is already held by another registrant
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=e.args[0]) from e
     except Exception as e:
         _logger.exception("Error splitting group")
         # Check for specific validation errors

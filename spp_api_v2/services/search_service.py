@@ -8,7 +8,7 @@ from typing import Any
 from odoo.api import Environment
 from odoo.osv import expression
 
-from .registrant_resolver import resolve_registrant
+from .registrant_resolver import LIVE_ID, resolve_registrant
 
 _logger = logging.getLogger(__name__)
 
@@ -181,6 +181,7 @@ class SearchService:
                 [
                     ("id_type_id.uri", "=", system),
                     ("value", "=", value),
+                    LIVE_ID,
                 ],
             )
         ]
@@ -344,8 +345,8 @@ class SearchService:
 
         system, value = ident_str.split("|", 1)
 
-        # Raises AmbiguousIdentifierError when several registrants hold it
-        member_partner = resolve_registrant(self.env, system, value)
+        # Raises AmbiguousIdentifierError when several individuals hold it
+        member_partner = resolve_registrant(self.env, system, value, is_group=False)
         if not member_partner:
             return MATCH_NOTHING
 

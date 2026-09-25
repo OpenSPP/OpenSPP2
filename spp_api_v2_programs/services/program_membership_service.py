@@ -22,7 +22,8 @@ class AmbiguousMembershipError(Exception):
     """The beneficiary has several program memberships and no program was given."""
 
     def __init__(self, count: int):
-        super().__init__(f"Beneficiary has {count} program memberships; specify the program")
+        # The message leaves the count out: it is returned to API clients
+        super().__init__("Beneficiary has several program memberships; specify the program")
         self.count = count
 
 
@@ -61,7 +62,7 @@ class ProgramMembershipService:
                 if "|" in identifier_str:
                     system, value = identifier_str.split("|", 1)
                     # Raises AmbiguousIdentifierError when several registrants hold it
-                    partner = self.find_beneficiary(system, value)
+                    partner = self.find_beneficiary(system, value, is_group=beneficiary.startswith("Group/"))
                     if partner:
                         domain.append(("partner_id", "=", partner.id))
                     else:
@@ -130,9 +131,13 @@ class ProgramMembershipService:
             return self.env["spp.program.membership"]
         return self.find_for_beneficiary(partner, program)
 
-    def find_beneficiary(self, system_uri: str, value: str):
+    def find_beneficiary(self, system_uri: str, value: str, is_group=None):
         """
         Lookup the beneficiary (Individual or Group) by external identifier.
+
+        Args:
+            is_group: True/False when the reference names the kind
+                (``Group/`` or ``Individual/``), None when it does not
 
         Returns:
             res.partner record or empty recordset
@@ -140,7 +145,7 @@ class ProgramMembershipService:
         Raises:
             AmbiguousIdentifierError: several registrants hold the identifier
         """
-        return resolve_registrant(self.env, system_uri, value)
+        return resolve_registrant(self.env, system_uri, value, is_group=is_group)
 
     def find_for_beneficiary(self, partner, program=None):
         """
@@ -403,7 +408,7 @@ class ProgramMembershipService:
 
         system = unquote(system)
 
-        return self.find_beneficiary(system, value)
+        return self.find_beneficiary(system, value, is_group=reference.startswith("Group/"))
 
     def create(self, schema: ProgramMembership, source: str) -> Any:
         """

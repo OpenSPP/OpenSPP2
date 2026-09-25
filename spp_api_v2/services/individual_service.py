@@ -16,6 +16,7 @@ from ..schemas.patch import IndividualPatch
 from .membership_utils import membership_to_response
 from .registrant_resolver import (
     assert_new_identifiers_free,
+    live_registry_ids,
     primary_registry_id,
     resolve_registrant,
     resolve_registrants,
@@ -47,7 +48,7 @@ class IndividualService:
         Raises:
             AmbiguousIdentifierError: several registrants hold the identifier
         """
-        return resolve_registrant(self.env, system_uri, value)
+        return resolve_registrant(self.env, system_uri, value, is_group=False)
 
     def find_by_identifiers(self, identifiers: list[tuple[str, str]]):
         """
@@ -61,7 +62,7 @@ class IndividualService:
             or to an AmbiguousIdentifierError when several registrants hold
             it; identifiers with no match are absent
         """
-        return resolve_registrants(self.env, identifiers)
+        return resolve_registrants(self.env, identifiers, is_group=False)
 
     def to_api_schema(self, partner, extensions=None) -> dict[str, Any]:
         """
@@ -85,7 +86,8 @@ class IndividualService:
 
         # Build identifier list (REQUIRED, at least one)
         identifiers = []
-        for reg_id in partner.reg_ids:
+        # Live IDs only: a soft-removed ID no longer resolves, so it is not offered as a key
+        for reg_id in live_registry_ids(partner):
             # Use id_type_id.uri for full code URI (e.g., urn:openspp:vocab:id-type#national_id)
             # NOT namespace_uri which only returns vocabulary namespace
             if reg_id.id_type_id and reg_id.id_type_id.uri and reg_id.value:

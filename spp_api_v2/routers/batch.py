@@ -14,6 +14,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from ..middleware.auth import get_authenticated_client
 from ..schemas.bundle import RegistrantBundle
 from ..services.bundle_service import BundleProcessor
+from ..services.registrant_resolver import AmbiguousIdentifierError, IdentifierInUseError
 
 _logger = logging.getLogger(__name__)
 
@@ -128,6 +129,16 @@ async def process_bundle(
             return result
 
     except ValidationError as e:
+        if isinstance(e.__cause__, AmbiguousIdentifierError | IdentifierInUseError):
+            # A transaction entry's identifier matches, or would match, more
+            # than one registrant: a conflict, as for the single-resource endpoints
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={
+                    "resourceType": "OperationOutcome",
+                    "issue": [{"severity": "error", "code": "conflict", "diagnostics": str(e)}],
+                },
+            ) from e
         _logger.error(f"Bundle processing failed for client {api_client.client_id}: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,

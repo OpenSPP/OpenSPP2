@@ -16,6 +16,7 @@ from ..schemas.patch import GroupPatch
 from .membership_utils import membership_to_response
 from .registrant_resolver import (
     assert_new_identifiers_free,
+    live_registry_ids,
     primary_registry_id,
     resolve_registrant,
     resolve_registrants,
@@ -77,7 +78,8 @@ class GroupService:
 
         # Build identifier list
         identifiers = []
-        for reg_id in group.reg_ids:
+        # Live IDs only: a soft-removed ID no longer resolves, so it is not offered as a key
+        for reg_id in live_registry_ids(group):
             # Use id_type_id.uri for full code URI (e.g., urn:openspp:vocab:id-type#household_id)
             # NOT namespace_uri which only returns vocabulary namespace
             if reg_id.id_type_id and reg_id.id_type_id.uri and reg_id.value:
@@ -344,19 +346,24 @@ class GroupService:
         if hasattr(self.env["res.partner"], "_fields") and "collection_method" in self.env["res.partner"]._fields:
             vals["collection_method"] = "api"
 
-        # Use sudo() for cross-program group creation while enforcing authorization above
-        group = (
-            self.env["res.partner"]  # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context
-            # nosemgrep: odoo-sudo-without-context, odoo-sudo-on-sensitive-models
-            # Group creation is restricted by API scope verification
-            .sudo()
-            .with_context(source_system=source)
-            .create(vals)
-        )
+        # The group and its members are created together or not at all: a
+        # member reference that fails to resolve (e.g. an ambiguous identifier)
+        # must not leave the group behind for callers that keep the
+        # transaction, such as batch bundles
+        with self.env.cr.savepoint():
+            # Use sudo() for cross-program group creation while enforcing authorization above
+            group = (
+                self.env["res.partner"]  # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context
+                # nosemgrep: odoo-sudo-without-context, odoo-sudo-on-sensitive-models
+                # Group creation is restricted by API scope verification
+                .sudo()
+                .with_context(source_system=source)
+                .create(vals)
+            )
 
-        # Handle members separately
-        if schema.member:
-            self._create_members(group, schema.member, source)
+            # Handle members separately
+            if schema.member:
+                self._create_members(group, schema.member, source)
 
         # Log using external identifier, not database ID
         primary_id = group.reg_ids[0] if group.reg_ids else None
@@ -1041,6 +1048,8 @@ class GroupService:
 
         # Use existing create method's vals generation
         new_group_vals = self.from_api_schema(new_group_schema)
+        # Same rule as create(): no second registrant with someone else's identifier
+        assert_new_identifiers_free(self.env, new_group_vals.get("reg_ids", []))
 
         # Add source tracking
         source_system = source or "urn:openspp:api-v2:split-operation"

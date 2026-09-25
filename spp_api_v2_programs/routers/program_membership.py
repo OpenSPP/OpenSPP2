@@ -15,7 +15,9 @@ from odoo.addons.spp_api_v2.services.consent_service import ConsentService
 from odoo.addons.spp_api_v2.services.registrant_resolver import AmbiguousIdentifierError
 from odoo.addons.spp_api_v2.utils.pagination import fetch_with_consent
 from odoo.addons.spp_api_v2.utils.registrant_lookup import (
-    ambiguous_identifier_exception,
+    ambiguous_filter_result,
+    consent_denied,
+    deny_access,
     lookup_registrant,
     raise_ambiguous_identifier,
 )
@@ -64,15 +66,45 @@ def _resolve_program_param(service, program):
     return program_record
 
 
-def _consent_denied(consent_service, partner, api_client) -> bool:
-    """Whether the client lacks consent for this beneficiary's membership data.
+async def _resolve_membership(env, api_client, service, system, value, program_record):
+    """Resolve the addressed membership, or raise what the client may be told.
 
-    Uses the same check as a successful read, without logging an access,
-    so a lookup that resolves to no single membership can refuse *before*
-    saying why (ambiguous vs not enrolled) to a client without consent.
+    When no single membership resolves, a client that may not read the
+    beneficiary gets the same jittered 403 whatever the reason (unknown
+    beneficiary, not enrolled in this program, several memberships), so
+    neither the registry's contents nor enrollments are revealed.
     """
-    filtered = consent_service.filter_response(partner.id, api_client, "program_membership", {}, log_access=False)
-    return filtered.get("_consent", {}).get("status") in ("no_consent", "scope_mismatch")
+    partner = await lookup_registrant(
+        env, api_client, service.find_beneficiary, system, value, resource_type="program_membership"
+    )
+    if not partner:
+        if api_client.is_require_consent:
+            await deny_access()
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="ProgramMembership not found",
+        )
+
+    ambiguous = None
+    try:
+        membership = service.find_for_beneficiary(partner, program_record)
+    except AmbiguousMembershipError as e:
+        membership = env["spp.program.membership"]
+        ambiguous = e
+
+    if not membership:
+        if consent_denied(env, api_client, partner, "program_membership"):
+            await deny_access()
+        if ambiguous:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=str(ambiguous),
+            )
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="ProgramMembership not found",
+        )
+    return membership
 
 
 def _membership_location(data: dict) -> str | None:
@@ -119,39 +151,7 @@ async def read_program_membership(
     consent_service = ConsentService(env)
     program_record = _resolve_program_param(service, program)
 
-    partner = await lookup_registrant(
-        env, api_client, service.find_beneficiary, system, value, resource_type="program_membership"
-    )
-    if not partner:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="ProgramMembership not found",
-        )
-
-    ambiguous = None
-    try:
-        membership = service.find_for_beneficiary(partner, program_record)
-    except AmbiguousMembershipError as e:
-        membership = env["spp.program.membership"]
-        ambiguous = e
-
-    if not membership:
-        # Consent first: without it, neither "ambiguous" nor "not in this
-        # program" may be revealed about the beneficiary.
-        if _consent_denied(consent_service, partner, api_client):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Access denied",
-            )
-        if ambiguous:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=str(ambiguous),
-            )
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="ProgramMembership not found",
-        )
+    membership = await _resolve_membership(env, api_client, service, system, value, program_record)
 
     # Convert to API schema
     data = service.to_api_schema(membership)
@@ -238,7 +238,7 @@ async def search_program_memberships(
             return service.search(search_params)
         except AmbiguousIdentifierError as e:
             # The beneficiary filter matches more than one registrant
-            raise ambiguous_identifier_exception(env, api_client, e, "program_membership") from e
+            return ambiguous_filter_result(env, api_client, e, env["spp.program.membership"], "program_membership")
         except Exception as e:
             _logger.warning("Error in program membership search: %s", e)
             raise HTTPException(
@@ -408,21 +408,7 @@ async def update_program_membership(
     # Find program membership
     service = ProgramMembershipService(env)
     program_record = _resolve_program_param(service, program)
-    try:
-        membership = service.find_by_identifier(system, value, program=program_record)
-    except AmbiguousMembershipError as e:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=str(e),
-        ) from e
-    except AmbiguousIdentifierError as e:
-        await raise_ambiguous_identifier(env, api_client, e, "program_membership")
-
-    if not membership:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="ProgramMembership not found",
-        )
+    membership = await _resolve_membership(env, api_client, service, system, value, program_record)
 
     # Check version for optimistic locking (same format as meta.versionId / ETag)
     if if_match:

@@ -73,6 +73,7 @@ class TestSearchService(ApiV2TestCase):
                     [
                         ("id_type_id.uri", "=", "urn:openspp:vocab:id-type#test_national_id"),
                         ("value", "=", "IND-001"),
+                        ("status", "!=", "invalid"),
                     ],
                 )
             ],

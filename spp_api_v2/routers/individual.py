@@ -36,7 +36,7 @@ from ..services.individual_service import IndividualService
 from ..services.registrant_resolver import AmbiguousIdentifierError, IdentifierInUseError
 from ..services.search_service import InvalidSearchParam, SearchService
 from ..utils.pagination import fetch_with_consent
-from ..utils.registrant_lookup import ambiguous_identifier_exception, lookup_registrant
+from ..utils.registrant_lookup import ambiguous_filter_result, lookup_registrant
 from .dependencies import check_individual_access, parse_identifier
 
 _logger = logging.getLogger(__name__)
@@ -222,7 +222,7 @@ async def search_individuals(
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
         except AmbiguousIdentifierError as e:
             # A filter reference (group=) matches more than one registrant
-            raise ambiguous_identifier_exception(env, api_client, e) from e
+            return ambiguous_filter_result(env, api_client, e, env["res.partner"])
 
     def consent_filter_function(partner):
         data = individual_service.to_api_schema(partner, extensions=extension_list)
