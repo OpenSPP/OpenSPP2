@@ -5,7 +5,7 @@ import logging
 from datetime import datetime, time
 from typing import Any
 
-from odoo import Command, _
+from odoo import Command, _, fields
 from odoo.api import Environment
 from odoo.exceptions import AccessError, ValidationError
 
@@ -139,7 +139,8 @@ class GroupService:
 
         # Members - filter by ended_date directly for reliability
         # (is_ended computed field may have timing issues in tests)
-        now = datetime.now()
+        # fields.Datetime.now(): the same second-precision clock as the is_ended compute
+        now = fields.Datetime.now()
         members = []
         for membership in group.group_membership_ids.filtered(lambda m: not m.ended_date or m.ended_date > now):
             if membership.individual:
@@ -746,7 +747,10 @@ class GroupService:
                 ended_date = datetime.fromisoformat(ended_date.replace("Z", "+00:00")).date()
             ended_datetime = datetime.combine(ended_date, time.min)
         else:
-            ended_datetime = datetime.now()
+            # fields.Datetime.now(), not datetime.now(): the is_ended/status
+            # computes compare against whole seconds, so a microsecond end
+            # time would be "in the future" and the row stored as active
+            ended_datetime = fields.Datetime.now()
 
         membership.sudo().write({"ended_date": ended_datetime})  # nosemgrep: odoo-sudo-without-context
 
@@ -884,7 +888,8 @@ class GroupService:
             )
 
         # Process each source member
-        now = datetime.now()
+        # fields.Datetime.now(): second precision, so ended memberships are ended at once
+        now = fields.Datetime.now()
         for source_membership in source_members:
             individual = source_membership.individual
 
@@ -1098,7 +1103,8 @@ class GroupService:
         new_group = self.env["res.partner"].sudo().create(new_group_vals)
 
         # Move members to new group
-        now = datetime.now()
+        # fields.Datetime.now(): second precision, so ended memberships are ended at once
+        now = fields.Datetime.now()
         for individual in members_to_move:
             membership = membership_by_individual[individual.id]
 
