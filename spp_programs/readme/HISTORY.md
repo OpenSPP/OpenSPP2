@@ -1,4 +1,4 @@
-### 19.0.2.4.1
+### 19.0.2.4.2
 
 - fix(spp_programs): `total_amount_in_words` now follows the active language (`lang` context). Without `@api.depends_context("lang")`, a mid-transaction language switch (e.g. QWeb summary under a partner's locale) could reuse a previously cached English string (#236)
 
