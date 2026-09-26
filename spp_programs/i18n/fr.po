@@ -5788,7 +5788,7 @@ msgstr "In Institutional Care"
 #: model:ir.model.fields.selection,name:spp_programs.selection__spp_program_create_wizard__entitlement_type__inkind
 #: model:ir.ui.menu,name:spp_programs.spp_programs_root
 msgid "In-Kind"
-msgstr "Dons en nature"
+msgstr "En nature"
 
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_entitlement_inkind_form
