@@ -257,10 +257,13 @@ class SPPCycle(models.Model):
             rec.total_amount = totals.get(rec.id, 0)
 
     @api.depends("total_amount", "currency_id")
+    @api.depends_context("lang")
     def _compute_total_amount_in_words(self):
+        # Pass the full locale; num2words tries the full code then the first
+        # two letters before raising NotImplementedError.
+        lang_code = self.env.context.get("lang") or self.env.user.lang or "en_US"
         for record in self:
             if record.total_amount and record.currency_id:
-                lang_code = (self.env.context.get("lang") or self.env.user.lang or "en_US").split("_")[0]
                 try:
                     amount_in_words = num2words(record.total_amount, lang=lang_code).title()
                 except NotImplementedError:
