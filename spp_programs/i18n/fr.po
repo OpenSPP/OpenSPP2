@@ -5025,7 +5025,7 @@ msgstr "Finance Validator"
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_cycle_form
 msgid "Financial Summary"
-msgstr "Financial Résumé"
+msgstr "Résumé financier"
 
 #. module: spp_programs
 #: model:ir.model.fields.selection,name:spp_programs.selection__spp_cycle_manager_default__byday__1
@@ -8468,7 +8468,7 @@ msgstr "Raison:"
 #. module: spp_programs
 #: model_terms:ir.ui.view,arch_db:spp_programs.view_program_list_form
 msgid "Recent Cycles"
-msgstr "Recent Cycles"
+msgstr "Cycles récents"
 
 #. module: spp_programs
 #: model:ir.model.fields,field_description:spp_programs.field_spp_program_settings__group_stock_reception_report
