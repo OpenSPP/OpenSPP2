@@ -1,3 +1,7 @@
+### 19.0.2.4.2
+
+- fix(spp_programs): `total_amount_in_words` now follows the active language (`lang` context). Without `@api.depends_context("lang")`, a mid-transaction language switch (e.g. QWeb summary under a partner's locale) could reuse a previously cached English string (#236)
+
 ### 19.0.2.4.0
 
 - feat(spp_programs): **the Program Configuration tab is one consistent set of cards.** Every manager category is now configured the same way -- a card showing what is set up, `+ Add` opening a dialog that asks which method and what to call it, and a cog on each row to open it. Previously some categories were cards and others were bare editable lists whose only column was a Reference field, so adding one meant picking a model and then finding or creating a record of it. Notifications was the last such list and is now a card like the rest (#1172)
