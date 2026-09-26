@@ -1,3 +1,7 @@
+### 19.0.2.4.2
+
+- i18n(spp_programs): fill French coverage gaps from #238 (`Recent Cycles`, `Financial Summary`, and related UI strings). Existing `fr_FR` databases need `--i18n-overwrite` (or a translation reload) to overwrite prior msgstr values (#238)
+
 ### 19.0.2.4.0
 
 - feat(spp_programs): **the Program Configuration tab is one consistent set of cards.** Every manager category is now configured the same way -- a card showing what is set up, `+ Add` opening a dialog that asks which method and what to call it, and a cog on each row to open it. Previously some categories were cards and others were bare editable lists whose only column was a Reference field, so adding one meant picking a model and then finding or creating a record of it. Notifications was the last such list and is now a card like the rest (#1172)
