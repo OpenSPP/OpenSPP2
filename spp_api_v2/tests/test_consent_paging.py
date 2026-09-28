@@ -206,6 +206,16 @@ class TestConsentTotalNotLeakedAPI(ApiV2HttpTestCase):
         self.assertEqual(body["meta"]["total"], 3)
         self.assertIsNotNone(body["links"].get("next"))
 
+    def test_legal_basis_client_gets_the_real_group_total(self):
+        """GET /Group: a client that isn't consent-filtered still gets the exact total"""
+        for letter in "ABC":
+            self.create_test_group(name=f"Legal Group Total {letter}", identifier_value=f"LGT-{letter}")
+
+        body = self._body("/api/v2/spp/Group?name=Legal+Group+Total&_count=1", self.legal_token)
+
+        self.assertEqual(body["meta"]["total"], 3)
+        self.assertIsNotNone(body["links"].get("next"))
+
 
 class TestConsentPagingAPI(ApiV2HttpTestCase):
     """HTTP: next links of consent-filtered Individual and Group searches"""
