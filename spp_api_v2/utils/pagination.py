@@ -5,6 +5,10 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
+# The search services return at most this many rows per query, so a batch
+# must not ask for more: a short batch is read as the end of the data
+MAX_ROWS_PER_QUERY = 100
+
 
 def fetch_with_consent(
     search_function,
@@ -32,6 +36,9 @@ def fetch_with_consent(
 
     Returns:
         tuple of (collected_records, database_offset_consumed, raw_total, consent_was_applied)
+
+        database_offset_consumed is the offset just after the last row
+        examined, so the next page starts at the first row not yet seen.
     """
     collected = []
     current_offset = offset
@@ -42,11 +49,13 @@ def fetch_with_consent(
     fetched_so_far = 0
 
     while len(collected) < count and fetched_so_far < max_overfetch:
-        batch_size = min(count * 2, max_overfetch - fetched_so_far)
+        batch_size = min(count * 2, max_overfetch - fetched_so_far, MAX_ROWS_PER_QUERY)
         records, raw_total = search_function(offset=current_offset, limit=batch_size)
         if not records:
             break
+        examined = 0
         for record in records:
+            examined += 1
             filtered = consent_filter_function(record)
             if filtered is not None:
                 collected.append(filtered)
@@ -54,8 +63,10 @@ def fetch_with_consent(
                     break
             else:
                 consent_was_applied = True
-        fetched_so_far += len(records)
-        current_offset += len(records)
+        # Rows after the one that filled the page were not examined: the next
+        # page must start at them, not skip them
+        fetched_so_far += examined
+        current_offset += examined
         if len(records) < batch_size:
             break  # No more records in DB
 

@@ -248,7 +248,9 @@ async def search_groups(
         return f"{base_url}?{urlencode(url_params)}"
 
     next_offset = db_offset_consumed if consent_was_applied else offset + count
-    has_more = len(data) >= count
+    # With consent filtering the page can be cut short while rows remain:
+    # keep linking the next page until the scan reaches the end
+    has_more = db_offset_consumed < raw_total if consent_was_applied else len(data) >= count
 
     self_url = build_url(offset)
     next_url = build_url(next_offset) if has_more else None

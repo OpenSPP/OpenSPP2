@@ -262,7 +262,9 @@ async def search_individuals(
 
     # Use the consumed DB offset for next page link when consent filtering
     next_offset = db_offset_consumed if consent_was_applied else offset + count
-    has_more = len(individuals_data) >= count
+    # With consent filtering the page can be cut short while rows remain:
+    # keep linking the next page until the scan reaches the end
+    has_more = db_offset_consumed < raw_total if consent_was_applied else len(individuals_data) >= count
 
     self_url = build_url(offset)
     next_url = build_url(next_offset) if has_more else None

@@ -296,7 +296,9 @@ async def search_program_memberships(
     self_url = f"{request.url.path}?{query_string}"
 
     next_offset = db_offset_consumed if consent_was_applied else offset + count
-    has_more = len(resources) >= count
+    # With consent filtering the page can be cut short while rows remain:
+    # keep linking the next page until the scan reaches the end
+    has_more = db_offset_consumed < raw_total if consent_was_applied else len(resources) >= count
 
     next_url = None
     if has_more:
