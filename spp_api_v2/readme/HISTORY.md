@@ -11,7 +11,7 @@
 - fix: `_offset` values beyond what the database accepts return `422` instead of a server error (#554).
 - fix: `GET /Individual?group=…&membership-role=…` requires the role on the membership of that group (#554). Someone who held the role in another group was also returned.
 - fix: `PATCH /Individual` updates `gender` (#554). The vocabulary lookup ran without the privileges create uses, so every gender change returned `422 "Failed to patch individual"`. An unknown gender code now returns `422` naming the code, as create does, instead of being ignored. On create and `PATCH`, only codes of the `urn:iso:std:iso:5218` vocabulary are accepted: a code from another vocabulary (eg a membership role) returns `422`.
-- fix: `$add-member` and `PATCH /Group/{id}/member/{id}` reject a role code that doesn't exist with `422` naming it (#554), instead of adding or keeping the member without the role. For someone who is already a member, `$add-member` still answers `409` first. Other validation errors on these two endpoints now return their message with the `422` (eg "Only one Head is allowed per group", "End Date cannot be earlier than Start Date") instead of a generic "Failed to add member" / "Failed to update member".
+- fix: `$add-member` and `PATCH /Group/{id}/member/{id}` reject a role code that doesn't exist with `422` naming it (#554), instead of adding or keeping the member without the role. For someone who is already a member, `$add-member` still answers `409` first. Other validation errors on these two endpoints now return their message with the `422` (eg "Duplication of Member is not allowed", "End Date cannot be earlier than Start Date") instead of a generic "Failed to add member" / "Failed to update member".
 
 ### 19.0.2.1.1
 
