@@ -581,15 +581,26 @@ class IndividualService:
             if gender:
                 if gender.get("coding"):
                     gender_coding = gender["coding"][0]
-                    gender_code = self.env["spp.vocabulary.code"].search(
-                        [
-                            ("namespace_uri", "=", gender_coding.get("system")),
-                            ("code", "=", gender_coding.get("code")),
-                        ],
-                        limit=1,
+                    gender_code = (
+                        self.env["spp.vocabulary.code"]  # nosemgrep: odoo-sudo-without-context
+                        .sudo()
+                        .search(
+                            [
+                                ("namespace_uri", "=", gender_coding.get("system")),
+                                ("code", "=", gender_coding.get("code")),
+                            ],
+                            limit=1,
+                        )
                     )
-                    if gender_code:
-                        vals["gender_id"] = gender_code.id
+                    if not gender_code:
+                        # Same message as create: an unknown code is an error, not a no-op
+                        raise ValidationError(
+                            f"Invalid gender code: system='{gender_coding.get('system')}', "
+                            f"code='{gender_coding.get('code')}'. "
+                            f"Expected system 'urn:iso:std:iso:5218' with codes: "
+                            f"0 (Not Known), 1 (Male), 2 (Female), 9 (Not Applicable)."
+                        )
+                    vals["gender_id"] = gender_code.id
             else:
                 # RFC 7396: null clears the field
                 vals["gender_id"] = False

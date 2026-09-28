@@ -319,7 +319,7 @@ class TestPatchAPIEndpoints(ApiV2HttpTestCase):
         url = "/api/v2/spp/Individual/urn:openspp:vocab:id-type%23test_national_id|IND-PATCH-001"
         payload = {"gender": {"coding": [{"system": "urn:iso:std:iso:5218", "code": "7"}]}}
 
-        with mute_logger("odoo.addons.spp_api_v2.routers.individual"):
+        with mute_logger("odoo.addons.spp_api_v2.routers.individual", "odoo.http"):
             response = self.url_patch(url, data=json.dumps(payload), headers=self._get_headers())
 
         self.assertEqual(response.status_code, 422)
