@@ -73,11 +73,16 @@ class SearchService:
             ]
             domain.extend(addr_domain)
 
-        if params.get("group"):
-            domain.extend(self._parse_group_param(params["group"]))
-
-        if params.get("membership-role"):
-            domain.extend(self._parse_membership_role_param(params["membership-role"]))
+        group = params.get("group")
+        role = params.get("membership-role")
+        if group and role and group.lower() != "none":
+            # Together they must hold on the same membership
+            domain.extend(self._parse_group_and_role_params(group, role))
+        else:
+            if group:
+                domain.extend(self._parse_group_param(group))
+            if role:
+                domain.extend(self._parse_membership_role_param(role))
 
         if params.get("_lastUpdated"):
             domain.extend(self._parse_date_param("write_date", params["_lastUpdated"]))
@@ -274,14 +279,7 @@ class SearchService:
             return [("id", "not in", membered_individual_ids)]
 
         # Standard case: filter by specific group
-        if "|" not in group:
-            raise InvalidSearchParam('Invalid group format. Expected: {system}|{value} or "none"')
-
-        system, value = group.split("|", 1)
-
-        # Find group by identifier (raises AmbiguousIdentifierError when
-        # several groups hold it)
-        group_partner = resolve_registrant(self.env, system, value, is_group=True)
+        group_partner = self._resolve_group_filter(group)
         if not group_partner:
             return MATCH_NOTHING
 
@@ -307,19 +305,7 @@ class SearchService:
         if not role:
             return []
 
-        # Find role code in vocabulary
-        role_code = (
-            self.env["spp.vocabulary.code"]  # nosemgrep: odoo-sudo-without-context
-            .sudo()
-            .search(
-                [
-                    ("namespace_uri", "=", "urn:openspp:vocab:group-membership-type"),
-                    ("code", "=", role),
-                ],
-                limit=1,
-            )
-        )
-
+        role_code = self._resolve_role_filter(role)
         if not role_code:
             return MATCH_NOTHING
 
@@ -335,6 +321,58 @@ class SearchService:
                 ],
             )
         ]
+
+    def _parse_group_and_role_params(self, group: str, role: str) -> list:
+        """
+        Parse group and membership-role given together.
+
+        Returns domain for individuals holding the role on an active
+        membership of that group: one "any" keeps the group, the role and
+        the active check on the same membership row.
+        """
+        group_partner = self._resolve_group_filter(group)
+        role_code = self._resolve_role_filter(role)
+        if not group_partner or not role_code:
+            return MATCH_NOTHING
+
+        return [
+            (
+                "individual_membership_ids",
+                "any",
+                [
+                    ("group", "=", group_partner.id),
+                    ("membership_type_ids", "in", role_code.id),
+                    ("is_ended", "=", False),
+                ],
+            )
+        ]
+
+    def _resolve_group_filter(self, group: str):
+        """
+        Resolve a group filter (format: system|value) to the group, or an
+        empty recordset when no group holds it.
+        """
+        if "|" not in group:
+            raise InvalidSearchParam('Invalid group format. Expected: {system}|{value} or "none"')
+
+        system, value = group.split("|", 1)
+
+        # Raises AmbiguousIdentifierError when several groups hold it
+        return resolve_registrant(self.env, system, value, is_group=True)
+
+    def _resolve_role_filter(self, role: str):
+        """Resolve a membership-role code to its vocabulary code, or an empty recordset"""
+        return (
+            self.env["spp.vocabulary.code"]  # nosemgrep: odoo-sudo-without-context
+            .sudo()
+            .search(
+                [
+                    ("namespace_uri", "=", "urn:openspp:vocab:group-membership-type"),
+                    ("code", "=", role),
+                ],
+                limit=1,
+            )
+        )
 
     def _parse_member_param(self, member: str) -> list:
         """
