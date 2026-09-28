@@ -9,6 +9,17 @@ from odoo.api import Environment
 
 _logger = logging.getLogger(__name__)
 
+# Legal bases that allow processing without the registrant's consent
+# (GDPR Article 6); clients with any other basis are consent-filtered
+NON_CONSENT_BASES = (
+    "legal_obligation",
+    "vital_interest",
+    "public_interest",
+    "public_task",
+    "contract",
+    "legitimate_interest",
+)
+
 
 class ConsentService:
     """Service for applying consent-based filtering to API responses"""
@@ -18,6 +29,11 @@ class ConsentService:
         self._request_id = None
         self._ip_address = None
         self._user_agent = None
+
+    @staticmethod
+    def is_consent_filtered(api_client) -> bool:
+        """Whether responses to this client are filtered by registrant consent"""
+        return api_client.legal_basis not in NON_CONSENT_BASES
 
     def set_request_context(
         self,
@@ -107,15 +123,7 @@ class ConsentService:
         # - public_task: Official authority (e.g., government agencies)
         # - contract: Contractual necessity (still needs a contract, not individual consent)
         # - legitimate_interest: Legitimate business interest (requires balancing test)
-        non_consent_bases = (
-            "legal_obligation",
-            "vital_interest",
-            "public_interest",
-            "public_task",
-            "contract",
-            "legitimate_interest",
-        )
-        if api_client.legal_basis in non_consent_bases:
+        if not self.is_consent_filtered(api_client):
             # Still apply client scope filtering for field-level access control
             filtered = self._apply_client_scope_filter(api_client, resource_type, data)
             return filtered

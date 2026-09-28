@@ -43,7 +43,7 @@ from ..services.field_filter import filter_fields, filter_list
 from ..services.group_service import GroupService
 from ..services.registrant_resolver import AmbiguousIdentifierError, IdentifierInUseError
 from ..services.search_service import InvalidSearchParam, SearchService
-from ..utils.pagination import fetch_with_consent
+from ..utils.pagination import MAX_OFFSET, fetch_with_consent, page_total_and_next
 from ..utils.registrant_lookup import (
     ambiguous_filter_result,
     lookup_registrant,
@@ -163,7 +163,7 @@ async def search_groups(
     type_: Annotated[str | None, Query(alias="type")] = None,
     member: Annotated[str | None, Query()] = None,
     count: Annotated[int, Query(alias="_count", ge=1, le=100)] = 20,
-    offset: Annotated[int, Query(alias="_offset", ge=0)] = 0,
+    offset: Annotated[int, Query(alias="_offset", ge=0, le=MAX_OFFSET)] = 0,
     elements: Annotated[str | None, Query(alias="_elements")] = None,
     extensions: Annotated[str | None, Query(alias="_extensions")] = None,
 ):
@@ -232,11 +232,16 @@ async def search_groups(
     if elements:
         data = filter_list(data, elements)
 
-    # Suppress total when consent filtering is active
-    if consent_was_applied:
-        total = len(data)
-    else:
-        total = raw_total
+    # For a consent-filtered client the total is the page size and the next
+    # link continues while rows remain (see page_total_and_next)
+    total, next_offset = page_total_and_next(
+        returned=len(data),
+        count=count,
+        offset=offset,
+        db_offset_consumed=db_offset_consumed,
+        raw_total=raw_total,
+        consent_filtered=consent_was_applied or consent_service.is_consent_filtered(api_client),
+    )
 
     # Build pagination links with proper URL encoding
     base_url = "/api/v2/spp/Group"
@@ -247,13 +252,8 @@ async def search_groups(
         url_params = {**base_params, "_count": count, "_offset": offset_val}
         return f"{base_url}?{urlencode(url_params)}"
 
-    next_offset = db_offset_consumed if consent_was_applied else offset + count
-    # With consent filtering the page can be cut short while rows remain:
-    # keep linking the next page until the scan reaches the end
-    has_more = db_offset_consumed < raw_total if consent_was_applied else len(data) >= count
-
     self_url = build_url(offset)
-    next_url = build_url(next_offset) if has_more else None
+    next_url = build_url(next_offset) if next_offset is not None else None
     prev_url = build_url(max(0, offset - count)) if offset > 0 else None
 
     return create_search_result(

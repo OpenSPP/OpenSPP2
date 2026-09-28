@@ -3,7 +3,7 @@
 
 import logging
 from typing import Annotated
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 
 from odoo.api import Environment
 from odoo.exceptions import ValidationError
@@ -13,7 +13,7 @@ from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
 from odoo.addons.spp_api_v2.schemas.search_result import SearchResult, create_search_result
 from odoo.addons.spp_api_v2.services.consent_service import ConsentService
 from odoo.addons.spp_api_v2.services.registrant_resolver import AmbiguousIdentifierError
-from odoo.addons.spp_api_v2.utils.pagination import fetch_with_consent
+from odoo.addons.spp_api_v2.utils.pagination import MAX_OFFSET, fetch_with_consent, page_total_and_next
 from odoo.addons.spp_api_v2.utils.registrant_lookup import (
     ambiguous_filter_result,
     consent_denied,
@@ -202,7 +202,7 @@ async def search_program_memberships(
     program: Annotated[str | None, Query()] = None,
     status_: Annotated[str | None, Query(alias="status")] = None,
     count: Annotated[int, Query(alias="_count", ge=1, le=100)] = 20,
-    offset: Annotated[int, Query(alias="_offset", ge=0)] = 0,
+    offset: Annotated[int, Query(alias="_offset", ge=0, le=MAX_OFFSET)] = 0,
 ):
     """
     Search for program memberships.
@@ -243,11 +243,18 @@ async def search_program_memberships(
         except AmbiguousIdentifierError as e:
             # The beneficiary filter matches more than one registrant
             return ambiguous_filter_result(env, api_client, e, env["spp.program.membership"], "program_membership")
-        except Exception as e:
-            _logger.warning("Error in program membership search: %s", e)
+        except ValidationError as e:
+            # A filter the API can't apply (malformed reference): our own message
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid search parameters: {e}",
+                detail=f"Invalid search parameters: {e.args[0]}",
+            ) from e
+        except Exception as e:
+            # Unexpected errors can carry database internals: log them, don't return them
+            _logger.exception("Error in program membership search")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to search program memberships",
             ) from e
 
     def consent_filter_function(membership):
@@ -275,45 +282,33 @@ async def search_program_memberships(
         search_function, consent_filter_function, count, offset
     )
 
-    # Suppress total when consent filtering is active
-    if consent_was_applied:
-        total = len(resources)
-    else:
-        total = raw_total
+    # For a consent-filtered client the total is the page size and the next
+    # link continues while rows remain (see page_total_and_next)
+    total, next_offset = page_total_and_next(
+        returned=len(resources),
+        count=count,
+        offset=offset,
+        db_offset_consumed=db_offset_consumed,
+        raw_total=raw_total,
+        consent_filtered=consent_was_applied or consent_service.is_consent_filtered(api_client),
+    )
 
-    # Build pagination links
-    url_params = {}
+    # Build pagination links; references carry '#' and '|', so they are
+    # URL-encoded: a raw '#' would cut the link short at the fragment
+    base_params = {}
     if beneficiary:
-        url_params["beneficiary"] = beneficiary
+        base_params["beneficiary"] = beneficiary
     if program:
-        url_params["program"] = program
+        base_params["program"] = program
     if status_:
-        url_params["status"] = status_
-    url_params["_count"] = str(count)
-    url_params["_offset"] = str(offset)
+        base_params["status"] = status_
 
-    query_string = "&".join(f"{k}={v}" for k, v in url_params.items())
-    self_url = f"{request.url.path}?{query_string}"
+    def build_url(offset_val: int) -> str:
+        return f"{request.url.path}?{urlencode({**base_params, '_count': count, '_offset': offset_val})}"
 
-    next_offset = db_offset_consumed if consent_was_applied else offset + count
-    # With consent filtering the page can be cut short while rows remain:
-    # keep linking the next page until the scan reaches the end
-    has_more = db_offset_consumed < raw_total if consent_was_applied else len(resources) >= count
-
-    next_url = None
-    if has_more:
-        next_params = url_params.copy()
-        next_params["_offset"] = str(next_offset)
-        next_query_string = "&".join(f"{k}={v}" for k, v in next_params.items())
-        next_url = f"{request.url.path}?{next_query_string}"
-
-    prev_url = None
-    if offset > 0:
-        prev_offset = max(0, offset - count)
-        prev_params = url_params.copy()
-        prev_params["_offset"] = str(prev_offset)
-        prev_query_string = "&".join(f"{k}={v}" for k, v in prev_params.items())
-        prev_url = f"{request.url.path}?{prev_query_string}"
+    self_url = build_url(offset)
+    next_url = build_url(next_offset) if next_offset is not None else None
+    prev_url = build_url(max(0, offset - count)) if offset > 0 else None
 
     return create_search_result(
         data=resources,
