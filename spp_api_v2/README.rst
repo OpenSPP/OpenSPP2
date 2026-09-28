@@ -243,9 +243,9 @@ Changelog
   adding or keeping the member without the role. For someone who is
   already a member, ``$add-member`` still answers ``409`` first. Other
   validation errors on these two endpoints now return their message with
-  the ``422`` (eg "Only one Head is allowed per group", "End Date cannot
-  be earlier than Start Date") instead of a generic "Failed to add
-  member" / "Failed to update member".
+  the ``422`` (eg "Duplication of Member is not allowed", "End Date
+  cannot be earlier than Start Date") instead of a generic "Failed to
+  add member" / "Failed to update member".
 
 19.0.2.1.1
 ~~~~~~~~~~

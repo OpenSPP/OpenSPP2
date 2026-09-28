@@ -626,9 +626,9 @@ role code that doesn’t exist with <tt class="docutils literal">422</tt> naming
 adding or keeping the member without the role. For someone who is
 already a member, <tt class="docutils literal"><span class="pre">$add-member</span></tt> still answers <tt class="docutils literal">409</tt> first. Other
 validation errors on these two endpoints now return their message with
-the <tt class="docutils literal">422</tt> (eg “Only one Head is allowed per group”, “End Date cannot
-be earlier than Start Date”) instead of a generic “Failed to add
-member” / “Failed to update member”.</li>
+the <tt class="docutils literal">422</tt> (eg “Duplication of Member is not allowed”, “End Date
+cannot be earlier than Start Date”) instead of a generic “Failed to
+add member” / “Failed to update member”.</li>
 </ul>
 </div>
 <div class="section" id="section-2">
