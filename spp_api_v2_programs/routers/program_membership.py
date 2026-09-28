@@ -35,7 +35,11 @@ from fastapi import (
 )
 
 from ..schemas.program_membership import ProgramMembership
-from ..services.program_membership_service import AmbiguousMembershipError, ProgramMembershipService
+from ..services.program_membership_service import (
+    AmbiguousMembershipError,
+    DuplicateMembershipError,
+    ProgramMembershipService,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -350,11 +354,20 @@ async def create_program_membership(
     except AmbiguousIdentifierError as e:
         # The beneficiary reference matches more than one registrant
         await raise_ambiguous_identifier(env, api_client, e, "program_membership")
+    except DuplicateMembershipError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e)) from e
+    except ValidationError as e:
+        # Client error (unknown program or beneficiary): our own message, no traceback
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Failed to create program membership: {e.args[0]}",
+        ) from e
     except Exception as e:
+        # Unexpected errors can carry database internals: log them, don't return them
         _logger.exception("Error creating program membership")
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Failed to create program membership: {str(e)}",
+            detail="Failed to create program membership",
         ) from e
 
     # Return created resource
@@ -435,10 +448,11 @@ async def update_program_membership(
             detail=f"Failed to update program membership: {e.args[0]}",
         ) from e
     except Exception as e:
+        # Unexpected errors can carry database internals: log them, don't return them
         _logger.exception("Error updating program membership")
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Failed to update program membership: {str(e)}",
+            detail="Failed to update program membership",
         ) from e
 
     # Return updated resource

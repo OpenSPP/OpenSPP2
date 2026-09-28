@@ -4,6 +4,8 @@
 import logging
 from typing import Any
 
+from psycopg2.errors import UniqueViolation
+
 from odoo.api import Environment
 from odoo.exceptions import ValidationError
 
@@ -16,6 +18,18 @@ from odoo.addons.spp_api_v2.services.registrant_resolver import (
 from ..schemas.program_membership import ProgramMembership
 
 _logger = logging.getLogger(__name__)
+
+INVALID_BENEFICIARY_FILTER = (
+    "Invalid beneficiary format. Expected: Individual/{system}|{value} or Group/{system}|{value}"
+)
+INVALID_PROGRAM_FILTER = "Invalid program format. Expected: Program/{system}|{value}"
+
+
+class DuplicateMembershipError(Exception):
+    """The beneficiary already has a membership in the program."""
+
+    def __init__(self):
+        super().__init__("Beneficiary is already a member of this program")
 
 
 class AmbiguousMembershipError(Exception):
@@ -68,6 +82,11 @@ class ProgramMembershipService:
                     else:
                         # No matching partner found, return empty result
                         domain.append(("id", "=", -1))
+                else:
+                    raise ValidationError(INVALID_BENEFICIARY_FILTER)
+            else:
+                # A filter that can't be applied must not widen the result to every membership
+                raise ValidationError(INVALID_BENEFICIARY_FILTER)
 
         # Program search
         program = params.get("program")
@@ -85,6 +104,10 @@ class ProgramMembershipService:
                     else:
                         # No matching program found, return empty result
                         domain.append(("id", "=", -1))
+                else:
+                    raise ValidationError(INVALID_PROGRAM_FILTER)
+            else:
+                raise ValidationError(INVALID_PROGRAM_FILTER)
 
         # Status search
         status = params.get("status")
@@ -410,6 +433,18 @@ class ProgramMembershipService:
 
         return self.find_beneficiary(system, value, is_group=reference.startswith("Group/"))
 
+    def _find_existing_membership(self, partner_id, program_id):
+        """Return the beneficiary's membership in the program, if any (the pair is unique)"""
+        if not partner_id or not program_id:
+            return None
+        membership = (
+            self.env["spp.program.membership"]  # nosemgrep: odoo-sudo-without-context
+            .sudo()
+            .with_context(active_test=False)
+            .search([("partner_id", "=", partner_id), ("program_id", "=", program_id)], limit=1)
+        )
+        return membership or None
+
     def create(self, schema: ProgramMembership, source: str) -> Any:
         """
         Create new ProgramMembership with source tracking.
@@ -426,7 +461,17 @@ class ProgramMembershipService:
         # Add source tracking if the model supports it
         # Base model doesn't have source_system field, but extensions might add it
 
-        membership = self.env["spp.program.membership"].sudo().create(vals)  # nosemgrep: odoo-sudo-without-context
+        if self._find_existing_membership(vals.get("partner_id"), vals.get("program_id")):
+            raise DuplicateMembershipError()
+
+        # The UNIQUE(partner_id, program_id) constraint still catches a concurrent
+        # create; the savepoint keeps the request's transaction usable after it
+        try:
+            with self.env.cr.savepoint():
+                # nosemgrep: odoo-sudo-without-context
+                membership = self.env["spp.program.membership"].sudo().create(vals)
+        except UniqueViolation as e:
+            raise DuplicateMembershipError() from e
 
         # Log using beneficiary identifier, not database ID
         partner_id = membership.partner_id.reg_ids[0] if membership.partner_id.reg_ids else None

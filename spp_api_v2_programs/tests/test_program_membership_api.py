@@ -65,6 +65,11 @@ class TestProgramMembershipAPIEndpoints(ApiV2HttpTestCase):
             "Authorization": f"Bearer {token or self.token}",
         }
 
+    def _get_rejected(self, url):
+        """GET a request the API answers with an error, without the error log it writes"""
+        with mute_logger("odoo.http", "odoo.addons.spp_api_v2_programs.routers.program_membership"):
+            return self.url_open(url, headers=self._get_headers())
+
     def test_read_program_membership_success(self):
         """GET /ProgramMembership/{id} returns membership"""
         url = f"{self.api_base_url}/urn:openspp:vocab:id-type%23test_national_id|ENROLL-001"
@@ -502,7 +507,7 @@ class TestProgramMembershipAPIEndpoints(ApiV2HttpTestCase):
         """Search with unrecognized beneficiary format returns 400 instead of every membership"""
         url = f"{self.api_base_url}?beneficiary=InvalidFormat"
 
-        response = self.url_open(url, headers=self._get_headers())
+        response = self._get_rejected(url)
 
         # Unrecognized format (not starting with Individual/ or Group/) is rejected
         self.assertEqual(response.status_code, 400)
@@ -512,7 +517,7 @@ class TestProgramMembershipAPIEndpoints(ApiV2HttpTestCase):
         """Search with unrecognized program format returns 400 instead of every membership"""
         url = f"{self.api_base_url}?program=InvalidFormat"
 
-        response = self.url_open(url, headers=self._get_headers())
+        response = self._get_rejected(url)
 
         # Unrecognized format (not starting with Program/) is rejected
         self.assertEqual(response.status_code, 400)
@@ -522,7 +527,7 @@ class TestProgramMembershipAPIEndpoints(ApiV2HttpTestCase):
         """A beneficiary reference without system|value returns 400"""
         url = f"{self.api_base_url}?beneficiary=Individual/ENROLL-001"
 
-        response = self.url_open(url, headers=self._get_headers())
+        response = self._get_rejected(url)
 
         self.assertEqual(response.status_code, 400)
         self.assertIn("Invalid beneficiary", json.loads(response.content)["detail"])
@@ -531,7 +536,7 @@ class TestProgramMembershipAPIEndpoints(ApiV2HttpTestCase):
         """A program reference without system|value returns 400"""
         url = f"{self.api_base_url}?program=Program/test-enrollment-program"
 
-        response = self.url_open(url, headers=self._get_headers())
+        response = self._get_rejected(url)
 
         self.assertEqual(response.status_code, 400)
         self.assertIn("Invalid program", json.loads(response.content)["detail"])
@@ -631,11 +636,12 @@ class TestProgramMembershipAPIEndpoints(ApiV2HttpTestCase):
 
     def test_create_duplicate_membership_returns_409(self):
         """POST for a beneficiary already in the program returns 409 without database internals"""
-        response = self.url_open(
-            self.api_base_url,
-            data=json.dumps(self._duplicate_payload()),
-            headers=self._get_headers(),
-        )
+        with mute_logger("odoo.http"):
+            response = self.url_open(
+                self.api_base_url,
+                data=json.dumps(self._duplicate_payload()),
+                headers=self._get_headers(),
+            )
 
         self.assertEqual(response.status_code, 409)
         detail = json.loads(response.content)["detail"]
@@ -646,7 +652,7 @@ class TestProgramMembershipAPIEndpoints(ApiV2HttpTestCase):
         """When the pre-check misses (concurrent create), the database constraint still answers 409"""
         with (
             patch.object(ProgramMembershipService, "_find_existing_membership", return_value=None, create=True),
-            mute_logger("odoo.sql_db", "odoo.addons.spp_api_v2_programs.routers.program_membership"),
+            mute_logger("odoo.sql_db", "odoo.http", "odoo.addons.spp_api_v2_programs.routers.program_membership"),
         ):
             response = self.url_open(
                 self.api_base_url,
@@ -668,7 +674,7 @@ class TestProgramMembershipAPIEndpoints(ApiV2HttpTestCase):
 
         with (
             patch.object(ProgramMembershipService, "create", side_effect=RuntimeError("internal detail 4242")),
-            mute_logger("odoo.addons.spp_api_v2_programs.routers.program_membership"),
+            mute_logger("odoo.http", "odoo.addons.spp_api_v2_programs.routers.program_membership"),
         ):
             response = self.url_open(self.api_base_url, data=json.dumps(payload), headers=self._get_headers())
 
@@ -683,7 +689,7 @@ class TestProgramMembershipAPIEndpoints(ApiV2HttpTestCase):
 
         with (
             patch.object(ProgramMembershipService, "update", side_effect=RuntimeError("internal detail 4343")),
-            mute_logger("odoo.addons.spp_api_v2_programs.routers.program_membership"),
+            mute_logger("odoo.http", "odoo.addons.spp_api_v2_programs.routers.program_membership"),
         ):
             response = self.url_put(url, data=json.dumps(payload), headers=self._get_headers())
 
