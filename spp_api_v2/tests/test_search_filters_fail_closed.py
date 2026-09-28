@@ -11,6 +11,7 @@ import json
 from datetime import timedelta
 
 from odoo import fields
+from odoo.tools import mute_logger
 
 from ..services import search_service
 from ..services.search_service import SearchService
@@ -226,6 +227,39 @@ class TestSearchFiltersFailClosedAPI(ApiV2HttpTestCase):
         data = json.loads(response.content)
         self.assertEqual(data["meta"]["total"], 0)
         self.assertFalse(data.get("data"))
+
+    def test_individual_group_and_role_on_the_same_membership(self):
+        """?group=G1&membership-role=head: a plain member of G1 who heads G2 is not returned"""
+        plain = self.create_test_individual(name="FC Plain G1 Head G2", identifier_value="FC-API-PLAIN")
+        head = self.create_test_individual(name="FC Head G1", identifier_value="FC-API-HEAD")
+        self.create_test_group(
+            name="FC API G1", identifier_value="FC-API-G1", members=[(plain, None), (head, self.relationship_head)]
+        )
+        self.create_test_group(
+            name="FC API G2", identifier_value="FC-API-G2", members=[(plain, self.relationship_head)]
+        )
+        for person in (plain, head):
+            self.create_consent(
+                registrant=person,
+                grantee_partner=self.client.partner_id,
+                resource_type="all",
+                field_access="all",
+            )
+
+        response = self._get(
+            f"/api/v2/spp/Individual?group={HOUSEHOLD_ID.replace('#', '%23')}|FC-API-G1&membership-role=head"
+        )
+
+        self.assertEqual(response.status_code, 200, response.text)
+        values = [r["identifier"][0]["value"] for r in json.loads(response.content)["data"]]
+        self.assertEqual(values, ["FC-API-HEAD"])
+
+    def test_huge_offset_is_a_validation_error(self):
+        """An _offset beyond what the database accepts is a 422, not a server error"""
+        for resource in ("Individual", "Group"):
+            with mute_logger("odoo.http"):
+                response = self._get(f"/api/v2/spp/{resource}?_offset=99999999999999999999")
+            self.assertEqual(response.status_code, 422, f"{resource}: {response.text[:200]}")
 
     def test_individual_unknown_group_returns_nothing(self):
         self._assert_empty(

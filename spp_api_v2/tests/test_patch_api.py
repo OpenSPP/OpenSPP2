@@ -327,6 +327,19 @@ class TestPatchAPIEndpoints(ApiV2HttpTestCase):
         self.individual.invalidate_recordset()
         self.assertEqual(self.individual.gender_id, self.gender_female)
 
+    def test_patch_individual_gender_from_another_vocabulary_returns_422(self):
+        """PATCH gender with a code from another vocabulary (eg a membership role) returns 422"""
+        url = "/api/v2/spp/Individual/urn:openspp:vocab:id-type%23test_national_id|IND-PATCH-001"
+        payload = {"gender": {"coding": [{"system": "urn:openspp:vocab:group-membership-type", "code": "head"}]}}
+
+        with mute_logger("odoo.addons.spp_api_v2.routers.individual", "odoo.http"):
+            response = self.url_patch(url, data=json.dumps(payload), headers=self._get_headers())
+
+        self.assertEqual(response.status_code, 422)
+        self.assertIn("Invalid gender code", json.loads(response.content)["detail"])
+        self.individual.invalidate_recordset()
+        self.assertEqual(self.individual.gender_id, self.gender_female)
+
     def test_patch_individual_gender_null_clears(self):
         """PATCH /Individual/{id} with gender null clears it"""
         url = "/api/v2/spp/Individual/urn:openspp:vocab:id-type%23test_national_id|IND-PATCH-001"

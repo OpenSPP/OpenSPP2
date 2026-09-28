@@ -11,6 +11,8 @@ from odoo.addons.spp_api_v2.tests.common import ApiV2HttpTestCase
 
 from ..services.program_membership_service import ProgramMembershipService
 
+NATIONAL_ID = "urn:openspp:vocab:id-type#test_national_id"
+
 
 class TestProgramMembershipAPIEndpoints(ApiV2HttpTestCase):
     """Test ProgramMembership resource HTTP endpoints"""
@@ -651,7 +653,7 @@ class TestProgramMembershipAPIEndpoints(ApiV2HttpTestCase):
     def test_create_duplicate_membership_race_returns_409(self):
         """When the pre-check misses (concurrent create), the database constraint still answers 409"""
         with (
-            patch.object(ProgramMembershipService, "_find_existing_membership", return_value=None, create=True),
+            patch.object(ProgramMembershipService, "_find_existing_membership", return_value=None) as pre_check,
             mute_logger("odoo.sql_db", "odoo.http", "odoo.addons.spp_api_v2_programs.routers.program_membership"),
         ):
             response = self.url_open(
@@ -660,38 +662,188 @@ class TestProgramMembershipAPIEndpoints(ApiV2HttpTestCase):
                 headers=self._get_headers(),
             )
 
+        pre_check.assert_called_once()
         self.assertEqual(response.status_code, 409)
         detail = json.loads(response.content)["detail"]
         self.assertIn("already a member", detail)
         self._assert_no_database_internals(detail)
+        # The transaction is still usable after the violation, and no second row was written
+        self.env.invalidate_all()
+        self.assertEqual(
+            self.env["spp.program.membership"].search_count(
+                [("partner_id", "=", self.individual.id), ("program_id", "=", self.program.id)]
+            ),
+            1,
+        )
 
-    def test_create_unexpected_error_hides_exception_text(self):
-        """An unexpected create error returns a generic 422, not the exception text"""
-        new_individual = self.create_test_individual(identifier_value="HIDE-ERR-001")
+    def test_create_other_unique_violation_is_not_reported_as_duplicate(self):
+        """A unique violation on another table during create is a generic error, not 'already a member'"""
+        new_individual = self.create_test_individual(identifier_value="OTHER-UNIQUE-001")
         payload = self._duplicate_payload()
-        payload["beneficiary"]["reference"] = "Individual/urn:openspp:vocab:id-type#test_national_id|HIDE-ERR-001"
-        self.assertTrue(new_individual)
+        payload["beneficiary"]["reference"] = "Individual/urn:openspp:vocab:id-type#test_national_id|OTHER-UNIQUE-001"
+        membership_model = type(self.env["spp.program.membership"])
+
+        def violate_another_constraint(*args, **kwargs):
+            # Duplicate an existing system parameter key: a real UniqueViolation on ir_config_parameter
+            self.env.cr.execute(
+                "INSERT INTO ir_config_parameter (key, value) SELECT key, value FROM ir_config_parameter LIMIT 1"
+            )
 
         with (
-            patch.object(ProgramMembershipService, "create", side_effect=RuntimeError("internal detail 4242")),
-            mute_logger("odoo.http", "odoo.addons.spp_api_v2_programs.routers.program_membership"),
+            patch.object(membership_model, "create", side_effect=violate_another_constraint),
+            mute_logger("odoo.sql_db", "odoo.http", "odoo.addons.spp_api_v2_programs.routers.program_membership"),
         ):
             response = self.url_open(self.api_base_url, data=json.dumps(payload), headers=self._get_headers())
 
         self.assertEqual(response.status_code, 422)
-        self.assertNotIn("internal detail 4242", json.loads(response.content)["detail"])
+        self.assertEqual(json.loads(response.content)["detail"], "Failed to create program membership")
+        self.env.invalidate_all()
+        self.assertFalse(self.env["spp.program.membership"].search([("partner_id", "=", new_individual.id)]))
+
+    def test_create_unexpected_error_hides_exception_text(self):
+        """An unexpected create error returns a generic 422 and is only logged"""
+        self.create_test_individual(identifier_value="HIDE-ERR-001")
+        payload = self._duplicate_payload()
+        payload["beneficiary"]["reference"] = "Individual/urn:openspp:vocab:id-type#test_national_id|HIDE-ERR-001"
+
+        with (
+            patch.object(ProgramMembershipService, "create", side_effect=RuntimeError("internal detail 4242")),
+            mute_logger("odoo.http"),
+            self.assertLogs("odoo.addons.spp_api_v2_programs.routers.program_membership", "ERROR") as logs,
+        ):
+            response = self.url_open(self.api_base_url, data=json.dumps(payload), headers=self._get_headers())
+
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(json.loads(response.content)["detail"], "Failed to create program membership")
+        self.assertIn("internal detail 4242", "\n".join(logs.output))
 
     def test_update_unexpected_error_hides_exception_text(self):
-        """An unexpected PUT error returns a generic 422, not the exception text"""
+        """An unexpected PUT error returns a generic 422 and is only logged"""
         url = f"{self.api_base_url}/urn:openspp:vocab:id-type%23test_national_id|ENROLL-001"
         payload = json.loads(self.url_open(url, headers=self._get_headers()).content)
         payload["status"] = "paused"
 
         with (
             patch.object(ProgramMembershipService, "update", side_effect=RuntimeError("internal detail 4343")),
-            mute_logger("odoo.http", "odoo.addons.spp_api_v2_programs.routers.program_membership"),
+            mute_logger("odoo.http"),
+            self.assertLogs("odoo.addons.spp_api_v2_programs.routers.program_membership", "ERROR") as logs,
         ):
             response = self.url_put(url, data=json.dumps(payload), headers=self._get_headers())
 
         self.assertEqual(response.status_code, 422)
-        self.assertNotIn("internal detail 4343", json.loads(response.content)["detail"])
+        self.assertEqual(json.loads(response.content)["detail"], "Failed to update program membership")
+        self.assertIn("internal detail 4343", "\n".join(logs.output))
+
+    def test_search_unexpected_error_hides_exception_text(self):
+        """An unexpected search error returns a generic error and is only logged"""
+        with (
+            patch.object(ProgramMembershipService, "search", side_effect=RuntimeError("internal detail 4545")),
+            mute_logger("odoo.http"),
+            self.assertLogs("odoo.addons.spp_api_v2_programs.routers.program_membership", "ERROR") as logs,
+        ):
+            response = self.url_open(self.api_base_url, headers=self._get_headers())
+
+        self.assertEqual(response.status_code, 500)
+        self.assertEqual(json.loads(response.content)["detail"], "Failed to search program memberships")
+        self.assertIn("internal detail 4545", "\n".join(logs.output))
+
+    def test_search_huge_offset_is_rejected(self):
+        """An _offset beyond what the database accepts is a validation error, not a database error text"""
+        response = self._get_rejected(f"{self.api_base_url}?_offset=99999999999999999999")
+
+        self.assertEqual(response.status_code, 422)
+        self.assertNotIn("bigint", response.text)
+        self.assertNotIn("LINE", response.text)
+
+
+class TestProgramMembershipPagingAPI(ApiV2HttpTestCase):
+    """GET /ProgramMembership next links: followable, consent-aware, and no leaked total"""
+
+    PROGRAM_REF = "Program/urn:openspp:program|paging-program"
+
+    def setUp(self):
+        super().setUp()
+        self.program = self.create_test_program(name="Paging Program", target_type="individual")
+        self.other_program = self.create_test_program(name="Other Paging Program", target_type="individual")
+        self.client = self.create_api_client(
+            name="Membership Paging Client",
+            scopes=[
+                {"resource": "program_membership", "action": "read"},
+                {"resource": "program_membership", "action": "search"},
+            ],
+        )
+        self.token = self.generate_jwt_token(self.client)
+
+    def _consent(self, partner):
+        self.create_consent(
+            registrant=partner,
+            grantee_partner=self.client.partner_id,
+            resource_type="all",
+            field_access="all",
+        )
+
+    def _enroll(self, value, program, consented=True):
+        partner = self.env["res.partner"].search([("reg_ids.value", "=", value)], limit=1)
+        if not partner:
+            partner = self.create_test_individual(identifier_value=value)
+            if consented:
+                self._consent(partner)
+        self.create_test_membership(partner=partner, program=program, state="enrolled")
+        return partner
+
+    def _get(self, url):
+        response = self.url_open(url, headers={"Authorization": f"Bearer {self.token}"})
+        self.assertEqual(response.status_code, 200, response.content)
+        return json.loads(response.content)
+
+    def test_next_link_keeps_the_beneficiary_filter(self):
+        """The '#' in the beneficiary's identifier type is encoded, so following next stays on that beneficiary"""
+        self._enroll("PAGE-TWO-PROGRAMS", self.program)
+        self._enroll("PAGE-TWO-PROGRAMS", self.other_program)
+        self._enroll("PAGE-SOMEONE-ELSE", self.program)
+
+        first = self._get(
+            f"/api/v2/spp/ProgramMembership?beneficiary=Individual/{NATIONAL_ID.replace('#', '%23')}|PAGE-TWO-PROGRAMS"
+            "&_count=1"
+        )
+        self.assertIn("%23", first["links"]["self"])
+        second = self._get(first["links"]["next"])
+
+        references = {m["beneficiary"]["reference"] for m in first["data"] + second["data"]}
+        programs = {m["program"]["reference"] for m in first["data"] + second["data"]}
+        self.assertEqual(references, {f"Individual/{NATIONAL_ID}|PAGE-TWO-PROGRAMS"})
+        self.assertEqual(len(programs), 2)
+
+    def test_consent_filtered_pages_cover_every_visible_membership_once(self):
+        """Following next visits each consented member exactly once and then stops"""
+        visible = set()
+        for number in range(1, 7):
+            value = f"PAGE-MEMBER-{number}"
+            self._enroll(value, self.program, consented=number not in (2, 5))
+            if number not in (2, 5):
+                visible.add(f"Individual/{NATIONAL_ID}|{value}")
+
+        seen = []
+        url = f"/api/v2/spp/ProgramMembership?program={self.PROGRAM_REF.replace('|', '%7C')}&_count=2"
+        for _page in range(10):
+            body = self._get(url)
+            seen.extend(m["beneficiary"]["reference"] for m in body["data"])
+            url = body["links"].get("next")
+            if not url:
+                break
+
+        self.assertIsNone(url)
+        self.assertEqual(sorted(seen), sorted(visible))
+
+    def test_hidden_beneficiary_past_the_end_is_not_counted(self):
+        """beneficiary= of someone without consent, _offset=1: no data, total 0, no next"""
+        self._enroll("PAGE-HIDDEN", self.program, consented=False)
+
+        body = self._get(
+            f"/api/v2/spp/ProgramMembership?beneficiary=Individual/{NATIONAL_ID.replace('#', '%23')}|PAGE-HIDDEN"
+            "&_count=1&_offset=1"
+        )
+
+        self.assertEqual(body["data"], [])
+        self.assertEqual(body["meta"]["total"], 0)
+        self.assertIsNone(body["links"].get("next"))
