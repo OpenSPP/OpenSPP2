@@ -565,6 +565,15 @@ async def add_member(
             role_coding=role_coding,
             start_date=request.start_date,
         )
+    except ValidationError as ve:
+        if "already a member" in str(ve).lower():
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(ve)) from ve
+        # Other client errors (eg unknown role): keep the message
+        _logger.warning("Validation error adding member to group: %s", ve)
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(ve),
+        ) from ve
     except Exception as e:
         _logger.exception("Error adding member to group")
         # Check for specific errors
@@ -700,6 +709,15 @@ async def update_member(
             start_date=request.start_date,
             ended_date=request.ended_date,
         )
+    except ValidationError as ve:
+        if "not a member" in str(ve).lower():
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(ve)) from ve
+        # Other client errors (eg unknown role): keep the message
+        _logger.warning("Validation error updating member in group: %s", ve)
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(ve),
+        ) from ve
     except Exception as e:
         _logger.exception("Error updating member in group")
         # Check for specific errors

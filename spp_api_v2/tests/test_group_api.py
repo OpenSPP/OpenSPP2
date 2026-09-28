@@ -701,7 +701,7 @@ class TestGroupAPIEndpoints(ApiV2HttpTestCase):
             "role": {"coding": [{"system": "urn:openspp:vocab:group-membership-type", "code": "not_a_role"}]},
         }
 
-        with mute_logger("odoo.addons.spp_api_v2.routers.group"):
+        with mute_logger("odoo.addons.spp_api_v2.routers.group", "odoo.http"):
             response = self.url_patch(url, data=json.dumps(payload), headers=self._get_headers())
 
         self.assertEqual(response.status_code, 422)
@@ -719,7 +719,7 @@ class TestGroupAPIEndpoints(ApiV2HttpTestCase):
             "role": {"coding": [{"system": "urn:openspp:vocab:group-membership-type", "code": "not_a_role"}]},
         }
 
-        with mute_logger("odoo.addons.spp_api_v2.routers.group"):
+        with mute_logger("odoo.addons.spp_api_v2.routers.group", "odoo.http"):
             response = self.url_open(url, data=json.dumps(payload), headers=self._get_headers())
 
         self.assertEqual(response.status_code, 422)

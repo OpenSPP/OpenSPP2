@@ -605,6 +605,14 @@ class GroupService:
             )
         )
 
+    @staticmethod
+    def _unknown_role_message(role_coding):
+        """Error for a role code that doesn't exist, so a typo isn't silently dropped"""
+        return (
+            f"Unknown membership role: {role_coding.get('system')}|{role_coding.get('code')}. "
+            "Expected a code from urn:openspp:vocab:group-membership-type, eg head"
+        )
+
     def add_member(self, group, individual, role_coding=None, start_date=None) -> dict[str, Any]:
         """
         Add an individual to a group.
@@ -651,14 +659,9 @@ class GroupService:
                     limit=1,
                 )
             )
-            if vocab_code:
-                vals["membership_type_ids"] = [Command.link(vocab_code.id)]
-            else:
-                _logger.warning(
-                    "Vocabulary code not found for role: %s|%s",
-                    role_coding.get("system"),
-                    role_coding.get("code"),
-                )
+            if not vocab_code:
+                raise ValidationError(self._unknown_role_message(role_coding))
+            vals["membership_type_ids"] = [Command.link(vocab_code.id)]
 
         # Create membership
         membership = (
@@ -775,15 +778,10 @@ class GroupService:
                     limit=1,
                 )
             )
-            if vocab_code:
-                # Replace existing roles with new role
-                vals["membership_type_ids"] = [Command.set([vocab_code.id])]
-            else:
-                _logger.warning(
-                    "Vocabulary code not found for role: %s|%s",
-                    role_coding.get("system"),
-                    role_coding.get("code"),
-                )
+            if not vocab_code:
+                raise ValidationError(self._unknown_role_message(role_coding))
+            # Replace existing roles with new role
+            vals["membership_type_ids"] = [Command.set([vocab_code.id])]
 
         if vals:
             membership.sudo().write(vals)  # nosemgrep: odoo-sudo-without-context
