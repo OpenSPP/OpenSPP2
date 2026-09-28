@@ -286,3 +286,12 @@ class TestSearchGroups(ApiV2TestCase):
 
         self.assertGreaterEqual(total, 2)
         self.assertEqual(len(records), 1)
+
+    def test_search_groups_offset(self):
+        """_offset skips records: page 2 is the second group, not page 1 again"""
+        all_records, _total = self.service.search_groups({"_count": 100})
+        first_page, _total = self.service.search_groups({"_count": 1, "_offset": 0})
+        second_page, _total = self.service.search_groups({"_count": 1, "_offset": 1})
+
+        self.assertEqual(first_page, all_records[0])
+        self.assertEqual(second_page, all_records[1])

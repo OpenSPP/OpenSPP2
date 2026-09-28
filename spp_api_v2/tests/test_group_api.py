@@ -227,6 +227,34 @@ class TestGroupAPIEndpoints(ApiV2HttpTestCase):
         self.assertLessEqual(len(data.get("data", [])), 1)
         self.assertIn("links", data)
 
+    def _search_values(self, query):
+        """GET /Group?{query} and return the identifier values of the page"""
+        response = self.url_open(f"{self.api_base_url}?{query}", headers=self._get_headers())
+        self.assertEqual(response.status_code, 200)
+        return [group["identifier"][0]["value"] for group in json.loads(response.content)["data"]]
+
+    def test_search_offset_pages_through_results(self):
+        """_offset moves to the next page instead of repeating the first one"""
+        second_group = self.create_test_group(name="Smith Household Two", identifier_value="HH-002")
+        self.create_consent(
+            registrant=second_group,
+            grantee_partner=self.client.partner_id,
+            resource_type="group",
+            field_access="all",
+        )
+
+        self.assertEqual(self._search_values("name=Smith+Household&_count=1&_offset=0"), ["HH-001"])
+        self.assertEqual(self._search_values("name=Smith+Household&_count=1&_offset=1"), ["HH-002"])
+        self.assertEqual(self._search_values("name=Smith+Household&_count=1&_offset=2"), [])
+
+    def test_search_page_filled_past_consent_denied_groups(self):
+        """Groups without consent are skipped and the page is filled from the records after them"""
+        # Sorted by name these come before "Smith Household", and the client has no consent for them
+        self.create_test_group(name="Smith Aaa", identifier_value="HH-NC-1")
+        self.create_test_group(name="Smith Bbb", identifier_value="HH-NC-2")
+
+        self.assertEqual(self._search_values("name=Smith&_count=1"), ["HH-001"])
+
     def test_create_group_success(self):
         """POST /Group creates new group"""
         payload = {

@@ -121,6 +121,7 @@ class SearchService:
         - type: household/family/organization/other
         - member: Individual reference
         - _count: int
+        - _offset: int (skip records)
         - _lastId: int (cursor-based pagination)
 
         Returns:
@@ -151,11 +152,13 @@ class SearchService:
                 _logger.warning("Invalid _lastId parameter: %s, skipping cursor pagination", last_id)
 
         limit = min(int(params.get("_count", 20)), 100)
+        offset = int(params.get("_offset", 0))
         order = self._parse_sort_param(params.get("_sort"))
         if "id" not in order.lower():
             order = f"{order}, id"
 
-        records = Partner.sudo().search(domain, limit=limit, order=order)  # nosemgrep: odoo-sudo-without-context
+        # nosemgrep: odoo-sudo-without-context
+        records = Partner.sudo().search(domain, limit=limit, offset=offset, order=order)
 
         return records, total
 
