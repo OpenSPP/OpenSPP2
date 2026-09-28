@@ -585,6 +585,11 @@ are built from a live ID, and a registrant with no live ID is left out
 of <tt class="docutils literal">Group.member[]</tt>, membership history and
 <tt class="docutils literal"><span class="pre">/Individual/{id}/groups</span></tt>. Searching by <tt class="docutils literal">identifier=</tt> still lists
 every registrant holding a live match.</li>
+<li>fix: <tt class="docutils literal">GET /Group</tt> applies <tt class="docutils literal">_offset</tt> (#554). The group search
+ignored it, so every page (and every <tt class="docutils literal">next</tt> link) returned the first
+page again, and when consent filtering skipped records the page was
+refilled from the start of the results, returning no records or
+repeating groups.</li>
 </ul>
 </div>
 <div class="section" id="section-2">

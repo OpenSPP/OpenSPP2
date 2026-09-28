@@ -202,6 +202,11 @@ Changelog
   of ``Group.member[]``, membership history and
   ``/Individual/{id}/groups``. Searching by ``identifier=`` still lists
   every registrant holding a live match.
+- fix: ``GET /Group`` applies ``_offset`` (#554). The group search
+  ignored it, so every page (and every ``next`` link) returned the first
+  page again, and when consent filtering skipped records the page was
+  refilled from the start of the results, returning no records or
+  repeating groups.
 
 19.0.2.1.1
 ~~~~~~~~~~
