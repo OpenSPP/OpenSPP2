@@ -3,8 +3,13 @@
 
 import json
 from datetime import date
+from unittest.mock import patch
+
+from odoo.tools import mute_logger
 
 from odoo.addons.spp_api_v2.tests.common import ApiV2HttpTestCase
+
+from ..services.program_membership_service import ProgramMembershipService
 
 
 class TestProgramMembershipAPIEndpoints(ApiV2HttpTestCase):
@@ -494,22 +499,51 @@ class TestProgramMembershipAPIEndpoints(ApiV2HttpTestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_search_with_invalid_beneficiary_format(self):
-        """Search with unrecognized beneficiary format ignores the filter"""
+        """Search with unrecognized beneficiary format returns 400 instead of every membership"""
         url = f"{self.api_base_url}?beneficiary=InvalidFormat"
 
         response = self.url_open(url, headers=self._get_headers())
 
-        # Unrecognized format (not starting with Individual/ or Group/) is ignored
-        self.assertEqual(response.status_code, 200)
+        # Unrecognized format (not starting with Individual/ or Group/) is rejected
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("Invalid beneficiary", json.loads(response.content)["detail"])
 
     def test_search_with_invalid_program_format(self):
-        """Search with unrecognized program format ignores the filter"""
+        """Search with unrecognized program format returns 400 instead of every membership"""
         url = f"{self.api_base_url}?program=InvalidFormat"
 
         response = self.url_open(url, headers=self._get_headers())
 
-        # Unrecognized format (not starting with Program/) is ignored
+        # Unrecognized format (not starting with Program/) is rejected
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("Invalid program", json.loads(response.content)["detail"])
+
+    def test_search_with_beneficiary_missing_value_separator(self):
+        """A beneficiary reference without system|value returns 400"""
+        url = f"{self.api_base_url}?beneficiary=Individual/ENROLL-001"
+
+        response = self.url_open(url, headers=self._get_headers())
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("Invalid beneficiary", json.loads(response.content)["detail"])
+
+    def test_search_with_program_missing_value_separator(self):
+        """A program reference without system|value returns 400"""
+        url = f"{self.api_base_url}?program=Program/test-enrollment-program"
+
+        response = self.url_open(url, headers=self._get_headers())
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("Invalid program", json.loads(response.content)["detail"])
+
+    def test_search_with_unknown_beneficiary_is_empty(self):
+        """A well-formed reference that matches nobody still returns an empty page"""
+        url = f"{self.api_base_url}?beneficiary=Individual/urn:openspp:vocab:id-type%23test_national_id|NOBODY"
+
+        response = self.url_open(url, headers=self._get_headers())
+
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(response.content)["data"], [])
 
     def test_search_combined_filters(self):
         """Search supports combining multiple filters"""
@@ -582,3 +616,76 @@ class TestProgramMembershipAPIEndpoints(ApiV2HttpTestCase):
         response = self.url_open(self.api_base_url, headers={"Content-Type": "application/json"})
 
         self.assertEqual(response.status_code, 401)
+
+    def _duplicate_payload(self):
+        return {
+            "type": "ProgramMembership",
+            "program": {"reference": "Program/urn:openspp:program|test-enrollment-program"},
+            "beneficiary": {"reference": "Individual/urn:openspp:vocab:id-type#test_national_id|ENROLL-001"},
+            "status": "enrolled",
+        }
+
+    def _assert_no_database_internals(self, detail):
+        for leaked in ("duplicate key", "Key (", "partner_id", "program_id", "constraint"):
+            self.assertNotIn(leaked, detail)
+
+    def test_create_duplicate_membership_returns_409(self):
+        """POST for a beneficiary already in the program returns 409 without database internals"""
+        response = self.url_open(
+            self.api_base_url,
+            data=json.dumps(self._duplicate_payload()),
+            headers=self._get_headers(),
+        )
+
+        self.assertEqual(response.status_code, 409)
+        detail = json.loads(response.content)["detail"]
+        self.assertIn("already a member", detail)
+        self._assert_no_database_internals(detail)
+
+    def test_create_duplicate_membership_race_returns_409(self):
+        """When the pre-check misses (concurrent create), the database constraint still answers 409"""
+        with (
+            patch.object(ProgramMembershipService, "_find_existing_membership", return_value=None, create=True),
+            mute_logger("odoo.sql_db", "odoo.addons.spp_api_v2_programs.routers.program_membership"),
+        ):
+            response = self.url_open(
+                self.api_base_url,
+                data=json.dumps(self._duplicate_payload()),
+                headers=self._get_headers(),
+            )
+
+        self.assertEqual(response.status_code, 409)
+        detail = json.loads(response.content)["detail"]
+        self.assertIn("already a member", detail)
+        self._assert_no_database_internals(detail)
+
+    def test_create_unexpected_error_hides_exception_text(self):
+        """An unexpected create error returns a generic 422, not the exception text"""
+        new_individual = self.create_test_individual(identifier_value="HIDE-ERR-001")
+        payload = self._duplicate_payload()
+        payload["beneficiary"]["reference"] = "Individual/urn:openspp:vocab:id-type#test_national_id|HIDE-ERR-001"
+        self.assertTrue(new_individual)
+
+        with (
+            patch.object(ProgramMembershipService, "create", side_effect=RuntimeError("internal detail 4242")),
+            mute_logger("odoo.addons.spp_api_v2_programs.routers.program_membership"),
+        ):
+            response = self.url_open(self.api_base_url, data=json.dumps(payload), headers=self._get_headers())
+
+        self.assertEqual(response.status_code, 422)
+        self.assertNotIn("internal detail 4242", json.loads(response.content)["detail"])
+
+    def test_update_unexpected_error_hides_exception_text(self):
+        """An unexpected PUT error returns a generic 422, not the exception text"""
+        url = f"{self.api_base_url}/urn:openspp:vocab:id-type%23test_national_id|ENROLL-001"
+        payload = json.loads(self.url_open(url, headers=self._get_headers()).content)
+        payload["status"] = "paused"
+
+        with (
+            patch.object(ProgramMembershipService, "update", side_effect=RuntimeError("internal detail 4343")),
+            mute_logger("odoo.addons.spp_api_v2_programs.routers.program_membership"),
+        ):
+            response = self.url_put(url, data=json.dumps(payload), headers=self._get_headers())
+
+        self.assertEqual(response.status_code, 422)
+        self.assertNotIn("internal detail 4343", json.loads(response.content)["detail"])
