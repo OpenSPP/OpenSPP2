@@ -6,6 +6,8 @@ Moved out of spp_api_v2 together with the program API (OP#1081).
 
 import json
 
+from odoo.tools import mute_logger
+
 from odoo.addons.spp_api_v2.tests.common import ApiV2HttpTestCase
 
 
@@ -152,10 +154,11 @@ class TestScopeEnforcementProgram(ApiV2HttpTestCase):
         )
         token = self.generate_jwt_token(client)
 
-        response = self.url_open(
-            "/api/v2/spp/Program",
-            headers={"Authorization": f"Bearer {token}"},
-        )
+        with mute_logger("odoo.http"):
+            response = self.url_open(
+                "/api/v2/spp/Program",
+                headers={"Authorization": f"Bearer {token}"},
+            )
 
         self.assertEqual(response.status_code, 403)
         data = json.loads(response.content)

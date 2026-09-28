@@ -85,7 +85,7 @@ async def search_programs(
     api_client: Annotated[dict, Depends(get_authenticated_client)],
     identifier: Annotated[str | None, Query()] = None,
     name: Annotated[str | None, Query()] = None,
-    status: Annotated[str | None, Query()] = None,
+    status_: Annotated[str | None, Query(alias="status")] = None,
     type_: Annotated[str | None, Query(alias="type")] = None,
     target_type: Annotated[str | None, Query(alias="targetType")] = None,
     count: Annotated[int, Query(alias="_count", ge=1, le=100)] = 20,
@@ -121,10 +121,10 @@ async def search_programs(
         domain.append(("name", "ilike", name))
 
     # Status search
-    if status:
-        if status == "active":
+    if status_:
+        if status_ == "active":
             domain.append(("state", "=", "active"))
-        elif status == "ended":
+        elif status_ == "ended":
             domain.append(("state", "=", "ended"))
 
     # Target type search
@@ -160,8 +160,8 @@ async def search_programs(
     params = {}
     if name:
         params["name"] = name
-    if status:
-        params["status"] = status
+    if status_:
+        params["status"] = status_
     if target_type:
         params["targetType"] = target_type
     params["_count"] = str(count)
