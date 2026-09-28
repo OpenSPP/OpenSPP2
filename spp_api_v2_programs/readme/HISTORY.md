@@ -8,7 +8,9 @@
 - fix: `GET /ProgramMembership` filters fail closed (#554). A `beneficiary` that isn't `Individual/{system}|{value}` or `Group/{system}|{value}`, or a `program` that isn't `Program/{system}|{value}`, returns `400` instead of being dropped and returning every membership. A well-formed reference that matches nothing still returns an empty page.
 - fix: `POST /ProgramMembership` for a beneficiary already in the program returns `409` "Beneficiary is already a member of this program" (#554). It returned `422` with the database error text, including internal record ids. Create and `PUT` errors that aren't client errors now return a generic message; the details are only logged.
 - fix: `GET /Program` without the `program:search` or `program:read` scope returns `403` (#554). The `status` query parameter shadowed FastAPI's `status` module, so it returned `500`.
-- fix: consent-filtered `GET /ProgramMembership` pages no longer skip records or stop early (#554, see `spp_api_v2`).
+- fix: consent-filtered `GET /ProgramMembership` pages no longer skip records or stop early, and `meta.total` never counts memberships the client may not see (#554, see `spp_api_v2`); it revealed how many memberships a beneficiary without consent has.
+- fix: `GET /ProgramMembership` `self`/`next`/`prev` links are URL-encoded (#554). The `#` in a beneficiary's identifier type cut the link short, so following `next` lost the beneficiary filter.
+- fix: an unexpected error in `GET /ProgramMembership` returns `500` "Failed to search program memberships" instead of `400` with the error text (#554); malformed filters are still `400`. An `_offset` beyond what the database accepts returns `422`.
 
 ### 19.0.1.0.0
 
