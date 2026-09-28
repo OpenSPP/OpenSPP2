@@ -145,6 +145,37 @@ class TestSearchFiltersFailClosed(ApiV2TestCase):
         self.assertEqual(total, 0)
         self.assertFalse(records)
 
+    def test_group_and_membership_role_must_be_on_the_same_membership(self):
+        """Plain member of G and head of H: not a head of G"""
+        self._add_member(self.group_g, self.ind1)
+        self._add_member(self.group_h, self.ind1, role=self.relationship_head)
+        self._add_member(self.group_g, self.ind2, role=self.relationship_head)  # positive control: head of G
+
+        records, _total = self.service.search_individuals(
+            {"group": f"{HOUSEHOLD_ID}|FC-HH-G", "membership-role": "head"}
+        )
+
+        self.assertNotIn(self.ind1, records)
+        self.assertIn(self.ind2, records)
+
+    def test_group_and_membership_role_ignore_ended_membership(self):
+        """Head of G, but the membership has ended: not a current head of G"""
+        self._add_member(self.group_g, self.ind1, ended=True, role=self.relationship_head)
+
+        records, _total = self.service.search_individuals(
+            {"group": f"{HOUSEHOLD_ID}|FC-HH-G", "membership-role": "head"}
+        )
+
+        self.assertNotIn(self.ind1, records)
+
+    def test_no_group_and_membership_role_matches_nothing(self):
+        """group=none (no active group) with a role held on an active membership is contradictory"""
+        self._add_member(self.group_g, self.ind1, role=self.relationship_head)
+
+        records, _total = self.service.search_individuals({"group": "none", "membership-role": "head"})
+
+        self.assertNotIn(self.ind1, records)
+
     def test_member_filter_ignores_ended_memberships(self):
         """A group the individual has left is not listed for ?member="""
         self._add_member(self.group_g, self.ind2, ended=True)
