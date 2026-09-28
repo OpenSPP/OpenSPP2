@@ -605,12 +605,13 @@ class GroupService:
             )
         )
 
-    @staticmethod
-    def _unknown_role_message(role_coding):
+    def _unknown_role_message(self, role_coding):
         """Error for a role code that doesn't exist, so a typo isn't silently dropped"""
-        return (
-            f"Unknown membership role: {role_coding.get('system')}|{role_coding.get('code')}. "
-            "Expected a code from urn:openspp:vocab:group-membership-type, eg head"
+        return self.env._(
+            "Unknown membership role: %(system)s|%(code)s. Roles are vocabulary codes, "
+            "eg urn:openspp:vocab:group-membership-type|head",
+            system=role_coding.get("system"),
+            code=role_coding.get("code"),
         )
 
     def add_member(self, group, individual, role_coding=None, start_date=None) -> dict[str, Any]:

@@ -14,6 +14,7 @@ from odoo.addons.spp_api_v2.services.registrant_resolver import (
     primary_registry_id,
     resolve_registrant,
 )
+from odoo.addons.spp_api_v2.utils.pagination import MAX_ROWS_PER_QUERY
 
 from ..schemas.program_membership import ProgramMembership
 
@@ -23,6 +24,10 @@ INVALID_BENEFICIARY_FILTER = (
     "Invalid beneficiary format. Expected: Individual/{system}|{value} or Group/{system}|{value}"
 )
 INVALID_PROGRAM_FILTER = "Invalid program format. Expected: Program/{system}|{value}"
+
+# PostgreSQL name of spp.program.membership's UNIQUE(partner_id, program_id)
+# constraint (_unique_partner_program)
+MEMBERSHIP_UNIQUE_CONSTRAINT = "spp_program_membership_unique_partner_program"
 
 
 class DuplicateMembershipError(Exception):
@@ -115,7 +120,7 @@ class ProgramMembershipService:
             domain.append(("state", "=", status))
 
         # Execute search
-        count = min(int(params.get("_count", 20)), 100)
+        count = min(int(params.get("_count", 20)), MAX_ROWS_PER_QUERY)
         offset = int(params.get("_offset", 0))
 
         Membership = self.env["spp.program.membership"]
@@ -437,6 +442,8 @@ class ProgramMembershipService:
         """Return the beneficiary's membership in the program, if any (the pair is unique)"""
         if not partner_id or not program_id:
             return None
+        # The API runs as the public user; the pre-check must see every row the
+        # UNIQUE constraint sees, including archived beneficiaries
         membership = (
             self.env["spp.program.membership"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
@@ -468,9 +475,15 @@ class ProgramMembershipService:
         # create; the savepoint keeps the request's transaction usable after it
         try:
             with self.env.cr.savepoint():
+                # Writes as the public API user; access is checked by the API scopes
                 # nosemgrep: odoo-sudo-without-context
                 membership = self.env["spp.program.membership"].sudo().create(vals)
         except UniqueViolation as e:
+            # Only the membership's own constraint means "already a member";
+            # a violation elsewhere (another table written during create) is
+            # an unexpected error
+            if e.diag.constraint_name != MEMBERSHIP_UNIQUE_CONSTRAINT:
+                raise
             raise DuplicateMembershipError() from e
 
         # Log using beneficiary identifier, not database ID

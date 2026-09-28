@@ -8,6 +8,7 @@ from typing import Any
 from odoo.api import Environment
 from odoo.osv import expression
 
+from ..utils.pagination import MAX_ROWS_PER_QUERY
 from .registrant_resolver import LIVE_ID, resolve_registrant
 
 _logger = logging.getLogger(__name__)
@@ -103,7 +104,7 @@ class SearchService:
                 _logger.warning("Invalid _lastId parameter: %s, skipping cursor pagination", last_id)
 
         # Apply pagination
-        limit = min(int(params.get("_count", 20)), 100)  # Max 100
+        limit = min(int(params.get("_count", 20)), MAX_ROWS_PER_QUERY)
         offset = int(params.get("_offset", 0))
 
         # Apply sorting - always include id for consistent cursor pagination
@@ -156,7 +157,7 @@ class SearchService:
             except (ValueError, TypeError):
                 _logger.warning("Invalid _lastId parameter: %s, skipping cursor pagination", last_id)
 
-        limit = min(int(params.get("_count", 20)), 100)
+        limit = min(int(params.get("_count", 20)), MAX_ROWS_PER_QUERY)
         offset = int(params.get("_offset", 0))
         order = self._parse_sort_param(params.get("_sort"))
         if "id" not in order.lower():
