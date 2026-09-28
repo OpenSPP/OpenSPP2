@@ -207,6 +207,45 @@ Changelog
   page again, and when consent filtering skipped records the page was
   refilled from the start of the results, returning no records or
   repeating groups.
+- fix: consent-filtered searches (``GET /Individual``, ``GET /Group``)
+  no longer skip records or stop early (#554). When the page filled
+  partway through a fetched batch, the ``next`` link jumped past the
+  rows not yet examined. Pages over 50 records mistook the per-query cap
+  of 100 for the end of the data. A page cut short by the over-fetch
+  safety limit dropped its ``next`` link although rows remained; the
+  link is now given until the scan reaches the end. **Clients must
+  follow ``next`` until it is null: a page can be short, or empty, and
+  still have a ``next`` link.** A consent-filtered page that ends on the
+  last row no longer links to an empty page.
+- fix(security): the search ``total`` never counts records the client
+  may not see (#554). For a client whose legal basis requires consent,
+  ``meta.total`` is the number of records returned on every page. It was
+  hidden only when this page met a hidden record, so a page past the end
+  (``?identifier=…&_offset=1``) or one filled before any hidden row
+  returned the full count, including records the client may not see.
+  Clients with a legal basis that doesn't require consent still get the
+  exact total. The ``next`` offsets are still database positions, so
+  hidden rows can be counted from them; see the follow-up issue.
+- fix: ``_offset`` values beyond what the database accepts return
+  ``422`` instead of a server error (#554).
+- fix: ``GET /Individual?group=…&membership-role=…`` requires the role
+  on the membership of that group (#554). Someone who held the role in
+  another group was also returned.
+- fix: ``PATCH /Individual`` updates ``gender`` (#554). The vocabulary
+  lookup ran without the privileges create uses, so every gender change
+  returned ``422 "Failed to patch individual"``. An unknown gender code
+  now returns ``422`` naming the code, as create does, instead of being
+  ignored. On create and ``PATCH``, only codes of the
+  ``urn:iso:std:iso:5218`` vocabulary are accepted: a code from another
+  vocabulary (eg a membership role) returns ``422``.
+- fix: ``$add-member`` and ``PATCH /Group/{id}/member/{id}`` reject a
+  role code that doesn't exist with ``422`` naming it (#554), instead of
+  adding or keeping the member without the role. For someone who is
+  already a member, ``$add-member`` still answers ``409`` first. Other
+  validation errors on these two endpoints now return their message with
+  the ``422`` (eg "Only one Head is allowed per group", "End Date cannot
+  be earlier than Start Date") instead of a generic "Failed to add
+  member" / "Failed to update member".
 
 19.0.2.1.1
 ~~~~~~~~~~

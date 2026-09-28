@@ -446,6 +446,32 @@ page for such a client), instead of acting on an arbitrary one;
 <tt class="docutils literal">Individual/</tt> and <tt class="docutils literal">Group/</tt> beneficiary references resolve only
 that kind. Membership identifiers, beneficiary references and
 <tt class="docutils literal">Location</tt> use only live (not soft-removed) IDs (#554).</li>
+<li>fix: <tt class="docutils literal">GET /ProgramMembership</tt> filters fail closed (#554). A
+<tt class="docutils literal">beneficiary</tt> that isn’t <tt class="docutils literal"><span class="pre">Individual/{system}|{value}</span></tt> or
+<tt class="docutils literal"><span class="pre">Group/{system}|{value}</span></tt>, or a <tt class="docutils literal">program</tt> that isn’t
+<tt class="docutils literal"><span class="pre">Program/{system}|{value}</span></tt>, returns <tt class="docutils literal">400</tt> instead of being dropped
+and returning every membership. A well-formed reference that matches
+nothing still returns an empty page.</li>
+<li>fix: <tt class="docutils literal">POST /ProgramMembership</tt> for a beneficiary already in the
+program returns <tt class="docutils literal">409</tt> “Beneficiary is already a member of this
+program” (#554). It returned <tt class="docutils literal">422</tt> with the database error text,
+including internal record ids. Create and <tt class="docutils literal">PUT</tt> errors that aren’t
+client errors now return a generic message; the details are only
+logged.</li>
+<li>fix: <tt class="docutils literal">GET /Program</tt> without the <tt class="docutils literal">program:search</tt> or
+<tt class="docutils literal">program:read</tt> scope returns <tt class="docutils literal">403</tt> (#554). The <tt class="docutils literal">status</tt> query
+parameter shadowed FastAPI’s <tt class="docutils literal">status</tt> module, so it returned
+<tt class="docutils literal">500</tt>.</li>
+<li>fix: consent-filtered <tt class="docutils literal">GET /ProgramMembership</tt> pages no longer skip
+records or stop early, and <tt class="docutils literal">meta.total</tt> never counts memberships the
+client may not see (#554, see <tt class="docutils literal">spp_api_v2</tt>).</li>
+<li>fix: <tt class="docutils literal">GET /ProgramMembership</tt> <tt class="docutils literal">self</tt>/<tt class="docutils literal">next</tt>/<tt class="docutils literal">prev</tt> links are
+URL-encoded (#554). The <tt class="docutils literal">#</tt> in a beneficiary’s identifier type cut
+the link short, so following <tt class="docutils literal">next</tt> lost the beneficiary filter.</li>
+<li>fix: an unexpected error in <tt class="docutils literal">GET /ProgramMembership</tt> returns <tt class="docutils literal">500</tt>
+“Failed to search program memberships” instead of <tt class="docutils literal">400</tt> with the
+error text (#554); malformed filters are still <tt class="docutils literal">400</tt>. An <tt class="docutils literal">_offset</tt>
+beyond what the database accepts returns <tt class="docutils literal">422</tt>.</li>
 </ul>
 </div>
 <div class="section" id="section-2">

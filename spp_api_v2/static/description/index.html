@@ -590,6 +590,45 @@ ignored it, so every page (and every <tt class="docutils literal">next</tt> link
 page again, and when consent filtering skipped records the page was
 refilled from the start of the results, returning no records or
 repeating groups.</li>
+<li>fix: consent-filtered searches (<tt class="docutils literal">GET /Individual</tt>, <tt class="docutils literal">GET /Group</tt>)
+no longer skip records or stop early (#554). When the page filled
+partway through a fetched batch, the <tt class="docutils literal">next</tt> link jumped past the
+rows not yet examined. Pages over 50 records mistook the per-query cap
+of 100 for the end of the data. A page cut short by the over-fetch
+safety limit dropped its <tt class="docutils literal">next</tt> link although rows remained; the
+link is now given until the scan reaches the end. <strong>Clients must
+follow ``next`` until it is null: a page can be short, or empty, and
+still have a ``next`` link.</strong> A consent-filtered page that ends on the
+last row no longer links to an empty page.</li>
+<li>fix(security): the search <tt class="docutils literal">total</tt> never counts records the client
+may not see (#554). For a client whose legal basis requires consent,
+<tt class="docutils literal">meta.total</tt> is the number of records returned on every page. It was
+hidden only when this page met a hidden record, so a page past the end
+(<tt class="docutils literal"><span class="pre">?identifier=…&amp;_offset=1</span></tt>) or one filled before any hidden row
+returned the full count, including records the client may not see.
+Clients with a legal basis that doesn’t require consent still get the
+exact total. The <tt class="docutils literal">next</tt> offsets are still database positions, so
+hidden rows can be counted from them; see the follow-up issue.</li>
+<li>fix: <tt class="docutils literal">_offset</tt> values beyond what the database accepts return
+<tt class="docutils literal">422</tt> instead of a server error (#554).</li>
+<li>fix: <tt class="docutils literal">GET <span class="pre">/Individual?group=…&amp;membership-role=…</span></tt> requires the role
+on the membership of that group (#554). Someone who held the role in
+another group was also returned.</li>
+<li>fix: <tt class="docutils literal">PATCH /Individual</tt> updates <tt class="docutils literal">gender</tt> (#554). The vocabulary
+lookup ran without the privileges create uses, so every gender change
+returned <tt class="docutils literal">422 &quot;Failed to patch individual&quot;</tt>. An unknown gender code
+now returns <tt class="docutils literal">422</tt> naming the code, as create does, instead of being
+ignored. On create and <tt class="docutils literal">PATCH</tt>, only codes of the
+<tt class="docutils literal">urn:iso:std:iso:5218</tt> vocabulary are accepted: a code from another
+vocabulary (eg a membership role) returns <tt class="docutils literal">422</tt>.</li>
+<li>fix: <tt class="docutils literal"><span class="pre">$add-member</span></tt> and <tt class="docutils literal">PATCH <span class="pre">/Group/{id}/member/{id}</span></tt> reject a
+role code that doesn’t exist with <tt class="docutils literal">422</tt> naming it (#554), instead of
+adding or keeping the member without the role. For someone who is
+already a member, <tt class="docutils literal"><span class="pre">$add-member</span></tt> still answers <tt class="docutils literal">409</tt> first. Other
+validation errors on these two endpoints now return their message with
+the <tt class="docutils literal">422</tt> (eg “Only one Head is allowed per group”, “End Date cannot
+be earlier than Start Date”) instead of a generic “Failed to add
+member” / “Failed to update member”.</li>
 </ul>
 </div>
 <div class="section" id="section-2">
