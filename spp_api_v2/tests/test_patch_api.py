@@ -4,6 +4,8 @@
 import json
 from datetime import date
 
+from odoo.tools import mute_logger
+
 from .common import ApiV2HttpTestCase
 
 
@@ -298,6 +300,43 @@ class TestPatchAPIEndpoints(ApiV2HttpTestCase):
 
         # Version should have changed
         self.assertNotEqual(old_version_id, new_version_id)
+
+    def test_patch_individual_gender(self):
+        """PATCH /Individual/{id} changes gender from a vocabulary coding"""
+        url = "/api/v2/spp/Individual/urn:openspp:vocab:id-type%23test_national_id|IND-PATCH-001"
+        payload = {"gender": {"coding": [{"system": "urn:iso:std:iso:5218", "code": "1"}]}}
+
+        response = self.url_patch(url, data=json.dumps(payload), headers=self._get_headers())
+
+        self.assertEqual(response.status_code, 200, response.content)
+        data = json.loads(response.content)
+        self.assertEqual(data["gender"]["coding"][0]["code"], "1")
+        self.individual.invalidate_recordset()
+        self.assertEqual(self.individual.gender_id, self.gender_male)
+
+    def test_patch_individual_unknown_gender_returns_422(self):
+        """PATCH /Individual/{id} with an unknown gender code returns 422 naming it, as create does"""
+        url = "/api/v2/spp/Individual/urn:openspp:vocab:id-type%23test_national_id|IND-PATCH-001"
+        payload = {"gender": {"coding": [{"system": "urn:iso:std:iso:5218", "code": "7"}]}}
+
+        with mute_logger("odoo.addons.spp_api_v2.routers.individual"):
+            response = self.url_patch(url, data=json.dumps(payload), headers=self._get_headers())
+
+        self.assertEqual(response.status_code, 422)
+        self.assertIn("Invalid gender code", json.loads(response.content)["detail"])
+        self.individual.invalidate_recordset()
+        self.assertEqual(self.individual.gender_id, self.gender_female)
+
+    def test_patch_individual_gender_null_clears(self):
+        """PATCH /Individual/{id} with gender null clears it"""
+        url = "/api/v2/spp/Individual/urn:openspp:vocab:id-type%23test_national_id|IND-PATCH-001"
+
+        response = self.url_patch(url, data=json.dumps({"gender": None}), headers=self._get_headers())
+
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertIsNone(json.loads(response.content)["gender"])
+        self.individual.invalidate_recordset()
+        self.assertFalse(self.individual.gender_id)
 
     # =============================================================================
     # Group PATCH Tests
