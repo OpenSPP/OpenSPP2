@@ -138,3 +138,25 @@ class TestScopeEnforcementProgramMembership(ApiV2HttpTestCase):
         data = json.loads(response.content)
         self.assertIn("Missing required scope", data["detail"])
         self.assertIn("program_membership:create", data["detail"])
+
+
+class TestScopeEnforcementProgram(ApiV2HttpTestCase):
+    """Test scope enforcement on the Program search endpoint"""
+
+    def test_program_search_requires_scope(self):
+        """GET /Program returns 403, not 500, without program:search or program:read scope"""
+        client = self.create_api_client(
+            name="No program scope",
+            scopes=[{"resource": "individual", "action": "all"}],
+            require_consent=False,
+        )
+        token = self.generate_jwt_token(client)
+
+        response = self.url_open(
+            "/api/v2/spp/Program",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+        self.assertEqual(response.status_code, 403)
+        data = json.loads(response.content)
+        self.assertIn("program:search", data["detail"])
