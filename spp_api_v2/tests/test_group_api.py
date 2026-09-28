@@ -4,6 +4,7 @@
 import json
 
 from odoo import fields
+from odoo.tools import mute_logger
 
 from .common import ApiV2HttpTestCase
 
@@ -689,6 +690,47 @@ class TestGroupAPIEndpoints(ApiV2HttpTestCase):
         self.assertEqual(data["type"], "GroupMember")
         self.assertIn("role", data)
         self.assertEqual(data["role"]["coding"][0]["code"], "head")
+
+    def test_update_member_unknown_role_returns_422(self):
+        """PATCH /Group/{id}/member/{individual_id} with an unknown role code returns 422 and changes nothing"""
+        url = (
+            f"{self.api_base_url}/urn:openspp:vocab:id-type%23test_household_id|HH-001/member/"
+            "urn:openspp:vocab:id-type%23test_national_id|IND-001"
+        )
+        payload = {
+            "role": {"coding": [{"system": "urn:openspp:vocab:group-membership-type", "code": "not_a_role"}]},
+        }
+
+        with mute_logger("odoo.addons.spp_api_v2.routers.group"):
+            response = self.url_patch(url, data=json.dumps(payload), headers=self._get_headers())
+
+        self.assertEqual(response.status_code, 422)
+        self.assertIn("Unknown membership role", json.loads(response.content)["detail"])
+        self.env.invalidate_all()
+        membership = self.group.group_membership_ids.filtered(lambda m: m.individual == self.individual1)
+        self.assertEqual(membership.membership_type_ids, self.relationship_head)
+
+    def test_add_member_unknown_role_returns_422(self):
+        """POST /Group/{id}/$add-member with an unknown role code returns 422 and adds no member"""
+        self.create_test_individual(name="Role Typo", identifier_value="IND-ROLE-TYPO")
+        url = f"{self.api_base_url}/urn:openspp:vocab:id-type%23test_household_id|HH-001/$add-member"
+        payload = {
+            "entity": {"reference": "Individual/urn:openspp:vocab:id-type#test_national_id|IND-ROLE-TYPO"},
+            "role": {"coding": [{"system": "urn:openspp:vocab:group-membership-type", "code": "not_a_role"}]},
+        }
+
+        with mute_logger("odoo.addons.spp_api_v2.routers.group"):
+            response = self.url_open(url, data=json.dumps(payload), headers=self._get_headers())
+
+        self.assertEqual(response.status_code, 422)
+        detail = json.loads(response.content)["detail"]
+        self.assertIn("Unknown membership role", detail)
+        self.assertIn("not_a_role", detail)
+        self.env.invalidate_all()
+        self.assertFalse(
+            self.group.group_membership_ids.filtered(lambda m: m.individual.name == "Role Typo"),
+            "No membership may be created for an unknown role",
+        )
 
     def test_update_member_dates(self):
         """PATCH /Group/{id}/member/{individual_id} updates membership dates"""
