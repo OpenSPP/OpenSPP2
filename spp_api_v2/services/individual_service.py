@@ -24,12 +24,39 @@ from .registrant_resolver import (
 
 _logger = logging.getLogger(__name__)
 
+# The vocabulary gender codes come from (gender_id's domain)
+GENDER_SYSTEM = "urn:iso:std:iso:5218"
+
 
 class IndividualService:
     """Service for Individual resource CRUD and mapping"""
 
     def __init__(self, env: Environment):
         self.env = env
+
+    def _resolve_gender_code(self, system, code):
+        """
+        Resolve a gender coding to its vocabulary code.
+
+        Only codes of the ISO 5218 vocabulary are genders: an unknown code, or
+        a code from another vocabulary (eg a membership role), is a
+        ValidationError.
+        """
+        gender_code = self.env["spp.vocabulary.code"]
+        if system == GENDER_SYSTEM:
+            # The API runs as the public user; vocabularies are public reference data
+            gender_code = (
+                self.env["spp.vocabulary.code"]  # nosemgrep: odoo-sudo-without-context
+                .sudo()
+                .search([("namespace_uri", "=", GENDER_SYSTEM), ("code", "=", code)], limit=1)
+            )
+        if not gender_code:
+            raise ValidationError(
+                f"Invalid gender code: system='{system}', code='{code}'. "
+                f"Expected system '{GENDER_SYSTEM}' with codes: "
+                f"0 (Not Known), 1 (Male), 2 (Female), 9 (Not Applicable)."
+            )
+        return gender_code
 
     def find_by_identifier(self, system_uri: str, value: str):
         """
@@ -324,26 +351,7 @@ class IndividualService:
         # Gender - CRITICAL: Find gender_id by namespace_uri + code
         if schema.gender and schema.gender.coding:
             gender_coding = schema.gender.coding[0]
-            gender_code = (
-                self.env["spp.vocabulary.code"]  # nosemgrep: odoo-sudo-without-context
-                .sudo()
-                .search(
-                    [
-                        ("namespace_uri", "=", gender_coding.system),
-                        ("code", "=", gender_coding.code),
-                    ],
-                    limit=1,
-                )
-            )
-            if gender_code:
-                vals["gender_id"] = gender_code.id
-            else:
-                # Gender code not found - raise validation error with helpful message
-                raise ValidationError(
-                    f"Invalid gender code: system='{gender_coding.system}', code='{gender_coding.code}'. "
-                    f"Expected system 'urn:iso:std:iso:5218' with codes: "
-                    f"0 (Not Known), 1 (Male), 2 (Female), 9 (Not Applicable)."
-                )
+            vals["gender_id"] = self._resolve_gender_code(gender_coding.system, gender_coding.code).id
 
         # Telecom
         for contact in schema.telecom or []:
@@ -581,26 +589,10 @@ class IndividualService:
             if gender:
                 if gender.get("coding"):
                     gender_coding = gender["coding"][0]
-                    gender_code = (
-                        self.env["spp.vocabulary.code"]  # nosemgrep: odoo-sudo-without-context
-                        .sudo()
-                        .search(
-                            [
-                                ("namespace_uri", "=", gender_coding.get("system")),
-                                ("code", "=", gender_coding.get("code")),
-                            ],
-                            limit=1,
-                        )
-                    )
-                    if not gender_code:
-                        # Same message as create: an unknown code is an error, not a no-op
-                        raise ValidationError(
-                            f"Invalid gender code: system='{gender_coding.get('system')}', "
-                            f"code='{gender_coding.get('code')}'. "
-                            f"Expected system 'urn:iso:std:iso:5218' with codes: "
-                            f"0 (Not Known), 1 (Male), 2 (Female), 9 (Not Applicable)."
-                        )
-                    vals["gender_id"] = gender_code.id
+                    # As on create: an unknown code is an error, not a no-op
+                    vals["gender_id"] = self._resolve_gender_code(
+                        gender_coding.get("system"), gender_coding.get("code")
+                    ).id
             else:
                 # RFC 7396: null clears the field
                 vals["gender_id"] = False
